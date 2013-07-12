@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/LinearLayout2"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/orange_button_center"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/textViewMenuCatName"
-        style="@style/GeneraldButtonTextNoMargin"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="-"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:background="@drawable/orange_button_center"
+        android:text="Button" />
 
 </LinearLayout>

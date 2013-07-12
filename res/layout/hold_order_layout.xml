@@ -6,7 +6,6 @@
 
     <TextView
         android:id="@+id/textViewHoldTitle"
-        style="@style/GeneraldWhiteText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/title_hold_order"
@@ -14,7 +13,6 @@
 
     <TextView
         android:id="@+id/textViewOrderNo"
-        style="@style/GeneraldWhiteText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/text_hold_order_remark"
@@ -40,21 +38,17 @@
 
         <Button
             android:id="@+id/buttonCancelHold"
-            style="@style/GeneraldButtonTextNoMargin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/grey_button_left"
             android:text="@string/button_cancel_hold"
             android:textStyle="normal" />
 
         <Button
             android:id="@+id/buttonConfirmHold"
-            style="@style/GeneraldButtonTextNoMargin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/grey_button_right"
             android:text="@string/button_confirm_hold"
             android:textStyle="normal" />
 

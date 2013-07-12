@@ -29,87 +29,87 @@
             android:id="@+id/textViewLogoText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="MPOS"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="32sp"
             android:textStyle="bold" />
 
+        <ImageButton
+            android:id="@+id/imageButton1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_preferences" />
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical" >
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="400dp"
+            android:layout_height="wrap_content"
             android:layout_margin="4dp"
-            android:layout_weight="1"
             android:background="@drawable/radius_bg"
-            android:padding="10dp" >
+            android:orientation="vertical"
+            android:padding="8dp" >
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/textViewTotalPrice"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical" >
+                android:layout_height="wrap_content"
+                android:text="@string/user_name"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <ImageView
-                    android:id="@+id/imageView1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:src="@drawable/logo" />
-            </LinearLayout>
-
-            <LinearLayout
+            <EditText
+                android:id="@+id/editTextUserName"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:orientation="vertical" >
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:textAppearance="?android:attr/textAppearanceLargeInverse" />
 
-                <TextView
-                    android:id="@+id/textViewTotalPrice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/user_name"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView
+                android:id="@+id/textViewSubTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pass_word"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <EditText
-                    android:id="@+id/editTextUserName"
-                    android:layout_width="220dp"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/edit_text_bg"
-                    android:textSize="24sp" >
+            <EditText
+                android:id="@+id/editTextPassWord"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPassword"
+                android:textAppearance="?android:attr/textAppearanceLargeInverse" />
 
-                    <requestFocus />
-                </EditText>
+            <Button
+                android:id="@+id/buttonLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="20dp"
+                android:onClick="loginClicked"
+                android:text="@string/button_login" />
 
-                <TextView
-                    android:id="@+id/textViewSubTotal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/pass_word"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            <ProgressBar
+                android:id="@+id/progressBar1"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-                <EditText
-                    android:id="@+id/editTextPassWord"
-                    android:layout_width="220dp"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/edit_text_bg"
-                    android:ems="10"
-                    android:inputType="textPassword"
-                    android:textSize="24sp" />
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Small Text"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
-                <Button
-                    android:id="@+id/buttonLogin"
-                    android:layout_width="220dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:background="@drawable/grey_button"
-                    android:onClick="loginClicked"
-                    android:text="@string/button_login" />
-            </LinearLayout>
         </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>

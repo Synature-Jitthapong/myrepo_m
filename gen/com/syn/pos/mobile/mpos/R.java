@@ -45,88 +45,77 @@ public final class R {
         public static final int activity_vertical_margin=0x7f080001;
     }
     public static final class drawable {
-        public static final int dark_grey_button=0x7f020000;
-        public static final int dialog_bg=0x7f020001;
-        public static final int edit_text_bg=0x7f020002;
-        public static final int green_button=0x7f020003;
-        public static final int grey_button=0x7f020004;
-        public static final int grey_button_center=0x7f020005;
-        public static final int grey_button_left=0x7f020006;
-        public static final int grey_button_right=0x7f020007;
-        public static final int header_2=0x7f020008;
-        public static final int ic_launcher=0x7f020009;
-        public static final int layout_bg=0x7f02000a;
-        public static final int light_grey_button=0x7f02000b;
-        public static final int logo=0x7f02000c;
-        public static final int no_food=0x7f02000d;
-        public static final int orange_button_center=0x7f02000e;
-        public static final int orange_button_left=0x7f02000f;
-        public static final int orange_button_right=0x7f020010;
-        public static final int panel_bg=0x7f020011;
-        public static final int radius_bg=0x7f020012;
-        public static final int red_button=0x7f020013;
-        public static final int shape_light_blue_pressed=0x7f020014;
-        public static final int shape_light_disabled=0x7f020015;
-        public static final int shape_light_grey_normal=0x7f020016;
-        public static final int shape_white_normal=0x7f020017;
-        public static final int white_button=0x7f020018;
+        public static final int header_2=0x7f020000;
+        public static final int ic_launcher=0x7f020001;
+        public static final int layout_bg=0x7f020002;
+        public static final int logo=0x7f020003;
+        public static final int no_food=0x7f020004;
+        public static final int orange_button_center=0x7f020005;
+        public static final int orange_button_left=0x7f020006;
+        public static final int orange_button_right=0x7f020007;
+        public static final int panel_bg=0x7f020008;
+        public static final int radius_bg=0x7f020009;
+        public static final int red_button=0x7f02000a;
+        public static final int shape_white_normal=0x7f02000b;
     }
     public static final class id {
-        public static final int FeatureLayout=0x7f090018;
-        public static final int HeaderLayout=0x7f090017;
-        public static final int LeftLayout=0x7f09000a;
+        public static final int FeatureLayout=0x7f09001a;
+        public static final int HeaderLayout=0x7f090019;
+        public static final int LeftLayout=0x7f09000c;
         public static final int LinearLayout1=0x7f090000;
-        public static final int LinearLayout2=0x7f09002b;
-        public static final int MainLayout=0x7f090009;
-        public static final int MenuCatLayout=0x7f090020;
-        public static final int RelativeLayout1=0x7f09002d;
-        public static final int RightLayout=0x7f090016;
-        public static final int SummaryBillLayout=0x7f09000e;
-        public static final int buttonCancelHold=0x7f090029;
-        public static final int buttonCash=0x7f090015;
-        public static final int buttonClearBill=0x7f090026;
-        public static final int buttonConfirmHold=0x7f09002a;
-        public static final int buttonDiscount=0x7f090014;
-        public static final int buttonHold=0x7f090023;
-        public static final int buttonHoldBill=0x7f090019;
-        public static final int buttonInventory=0x7f09001a;
+        public static final int LinearLayout2=0x7f09002d;
+        public static final int MainLayout=0x7f09000b;
+        public static final int MenuCatLayout=0x7f090022;
+        public static final int RelativeLayout1=0x7f09002f;
+        public static final int RightLayout=0x7f090018;
+        public static final int SummaryBillLayout=0x7f090010;
+        public static final int button1=0x7f09002e;
+        public static final int buttonCancelHold=0x7f09002b;
+        public static final int buttonCash=0x7f090017;
+        public static final int buttonClearBill=0x7f090028;
+        public static final int buttonConfirmHold=0x7f09002c;
+        public static final int buttonDiscount=0x7f090016;
+        public static final int buttonHold=0x7f090025;
+        public static final int buttonHoldBill=0x7f09001b;
+        public static final int buttonInventory=0x7f09001c;
         public static final int buttonLogin=0x7f090008;
-        public static final int buttonLogout=0x7f09001e;
-        public static final int buttonNewMember=0x7f090025;
-        public static final int buttonOrder=0x7f090033;
-        public static final int buttonOrderDelete=0x7f090038;
-        public static final int buttonOrderMinus=0x7f090035;
-        public static final int buttonOrderPlus=0x7f090037;
-        public static final int buttonReport=0x7f09001b;
-        public static final int buttonSetMember=0x7f090024;
-        public static final int buttonSwitchUser=0x7f09001d;
-        public static final int buttonUtility=0x7f09001c;
+        public static final int buttonLogout=0x7f090020;
+        public static final int buttonNewMember=0x7f090027;
+        public static final int buttonOrder=0x7f090035;
+        public static final int buttonOrderDelete=0x7f09003a;
+        public static final int buttonOrderMinus=0x7f090037;
+        public static final int buttonOrderPlus=0x7f090039;
+        public static final int buttonReport=0x7f09001d;
+        public static final int buttonSetMember=0x7f090026;
+        public static final int buttonSwitchUser=0x7f09001f;
+        public static final int buttonUtility=0x7f09001e;
         public static final int editTextPassWord=0x7f090007;
-        public static final int editTextRemark=0x7f090028;
+        public static final int editTextRemark=0x7f09002a;
         public static final int editTextUserName=0x7f090005;
-        public static final int gridViewMenu=0x7f090021;
-        public static final int horizontalScrollViewMenuDept=0x7f09001f;
-        public static final int imageView1=0x7f090003;
+        public static final int gridViewMenu=0x7f090023;
+        public static final int horizontalScrollViewMenuDept=0x7f090021;
+        public static final int imageButton1=0x7f090003;
         public static final int imageViewLogo=0x7f090001;
-        public static final int imageViewMenu=0x7f09002f;
-        public static final int imageViewMenuDetail=0x7f09002e;
-        public static final int listViewOrder=0x7f09000d;
-        public static final int progressBarMenu=0x7f090022;
-        public static final int textView3=0x7f090012;
-        public static final int textView4=0x7f090013;
-        public static final int textViewBarcode=0x7f09000b;
-        public static final int textViewDiscount=0x7f090011;
-        public static final int textViewHoldTitle=0x7f090010;
+        public static final int imageViewMenu=0x7f090031;
+        public static final int imageViewMenuDetail=0x7f090030;
+        public static final int listViewOrder=0x7f09000f;
+        public static final int progressBar1=0x7f090009;
+        public static final int progressBarMenu=0x7f090024;
+        public static final int textView1=0x7f09000a;
+        public static final int textView3=0x7f090014;
+        public static final int textView4=0x7f090015;
+        public static final int textViewBarcode=0x7f09000d;
+        public static final int textViewDiscount=0x7f090013;
+        public static final int textViewHoldTitle=0x7f090012;
         public static final int textViewLogoText=0x7f090002;
-        public static final int textViewMember=0x7f09000c;
-        public static final int textViewMenuCatName=0x7f09002c;
-        public static final int textViewMenuDept=0x7f090031;
-        public static final int textViewMenuDescript=0x7f090032;
-        public static final int textViewMenuName=0x7f090030;
-        public static final int textViewOrderName=0x7f090034;
-        public static final int textViewOrderNo=0x7f090027;
-        public static final int textViewOrderQty=0x7f090036;
-        public static final int textViewProductPrice=0x7f09000f;
+        public static final int textViewMember=0x7f09000e;
+        public static final int textViewMenuDept=0x7f090033;
+        public static final int textViewMenuDescript=0x7f090034;
+        public static final int textViewMenuName=0x7f090032;
+        public static final int textViewOrderName=0x7f090036;
+        public static final int textViewOrderNo=0x7f090029;
+        public static final int textViewOrderQty=0x7f090038;
+        public static final int textViewProductPrice=0x7f090011;
         public static final int textViewSubTotal=0x7f090006;
         public static final int textViewTotalPrice=0x7f090004;
     }
@@ -174,17 +163,22 @@ public final class R {
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         
+
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    
+
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        
          */
         public static final int AppBaseTheme=0x7f060000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
+ Application theme. 
+ All customizations that are NOT specific to a particular API-level can go here. 
          */
         public static final int AppTheme=0x7f060001;
-        public static final int CustomDialog=0x7f060004;
-        public static final int DialogAnimation=0x7f060003;
-        public static final int DialogAnimationFromLeft=0x7f060002;
-        public static final int GeneraldButtonText=0x7f060007;
-        public static final int GeneraldButtonTextNoMargin=0x7f060006;
-        public static final int GeneraldWhiteText=0x7f060005;
     }
 }

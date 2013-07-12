@@ -64,8 +64,7 @@ public class MainActivity extends Activity {
 	
 	public void holdOrderClicked(final View v){
 		final Dialog dialog = 
-				new Dialog(MainActivity.this, R.style.CustomDialog);
-		dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
+				new Dialog(MainActivity.this);
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.getWindow().setGravity(Gravity.TOP);
 		
@@ -104,7 +103,6 @@ public class MainActivity extends Activity {
 	}
 	
 	// menu catgory
-	@SuppressLint("NewApi")
 	protected void createMenuDept(){
 		MenuDept menuDept = new MenuDept(MainActivity.this);
 		menuDeptLst = menuDept.listMenuDept();
@@ -116,20 +114,20 @@ public class MainActivity extends Activity {
 			int i = 0;
 			for(final MenuGroups.MenuDept md : menuDeptLst){
 				final View v = inflater.inflate(R.layout.menu_catgory_tempate, null);
-				v.setId(md.getMenuDeptID());
+				final Button btnCat = (Button) v.findViewById(R.id.button1);
+				btnCat.setId(md.getMenuDeptID());
 				
-				TextView tvMenuCatName = (TextView) v.findViewById(R.id.textViewMenuCatName);
-				tvMenuCatName.setText(md.getMenuDeptName_0());
+				btnCat.setText(md.getMenuDeptName_0());
 				
-				v.setOnClickListener(new OnClickListener(){
+				btnCat.setOnClickListener(new OnClickListener(){
 
 					@Override
 					public void onClick(View v) {
 						// display menu
-						v.setActivated(true);
+						btnCat.setSelected(true);
 						if(menuDeptId != -1 && menuDeptId != v.getId()){
-							View lastView = findViewById(menuDeptId);
-							lastView.setActivated(false);
+							Button lastBtn = (Button)findViewById(menuDeptId);
+							lastBtn.setSelected(false);
 						}
 						// load menu
 						MenuItem mi = new MenuItem(MainActivity.this);
@@ -148,12 +146,12 @@ public class MainActivity extends Activity {
 						1f);
 
 				if(i == 0){
-					v.setBackgroundResource(R.drawable.orange_button_left);
-					v.callOnClick();
+					btnCat.setBackgroundResource(R.drawable.orange_button_left);
+					
 				}else if(i == menuDeptLst.size() - 1){
-					v.setBackgroundResource(R.drawable.orange_button_right);
+					btnCat.setBackgroundResource(R.drawable.orange_button_right);
 				}else{
-					v.setBackgroundResource(R.drawable.orange_button_center);
+					btnCat.setBackgroundResource(R.drawable.orange_button_center);
 				}
 				
 				menuCatLayout.addView(v, layoutParam);
@@ -315,8 +313,7 @@ public class MainActivity extends Activity {
 //							R.drawable.no_food, globalVar.MENU_IMAGE_CACHE_DIR, ImageLoader.IMAGE_SIZE.LARGE);
 //					imgLoader2.displayImage(globalVar.getImageUrl() + mi.getImgUrl(), imvMenuDetail);
 					
-					final Dialog dialog = new Dialog(MainActivity.this, R.style.CustomDialog);
-					dialog.getWindow().setWindowAnimations(R.style.DialogAnimationFromLeft);
+					final Dialog dialog = new Dialog(MainActivity.this);
 					dialog.getWindow().setGravity(Gravity.LEFT); 
 					dialog.setContentView(menuDetailView);
 					dialog.setContentView(menuDetailView);
