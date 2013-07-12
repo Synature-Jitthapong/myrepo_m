@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MPOS</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="button_login">Login</string>
+    <string name="user_name">User name:</string>
+    <string name="pass_word">Password:</string>
+    <string name="button_inventory">Inventory</string>
+    <string name="button_hold_bill">Hold bill</string>
+    <string name="button_report">Reports</string>
+    <string name="button_utility">Utility</string>
+    <string name="button_switch_user">Switch user</string>
+    <string name="button_set_member">Set member</string>
+    <string name="button_addnew_member">New member</string>
+    <string name="button_hold">Hold</string>
+    <string name="button_discount">Discount</string>
+    <string name="button_cash">Cash</string>
+    <string name="button_clear_bill">Clear bill</string>
+    <string name="button_logout">Logout</string>
+    <string name="text_hold_order_remark">Remark:</string>
+    <string name="button_confirm_hold">Ok</string>
+    <string name="button_cancel_hold">Cancel</string>
+    <string name="title_hold_order">Hold order</string>
+
+</resources>
