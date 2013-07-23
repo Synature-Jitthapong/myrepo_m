@@ -1,7 +1,7 @@
 package com.syn.pos.mobile.mpos.dao;
 
 public interface IMPOSTransaction {
-	public int getMaxTransaction(int shopId, int computerId);
+	public long getMaxTransaction(int shopId, int computerId);
 
 	public void openTransaction(int transactionId, int computerId, int shopId,
 			int sessionId, int staffId);
