@@ -4,6 +4,7 @@ import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 
 import com.j1tth4.mobile.core.sqlite.ISqliteHelper;
 import com.syn.pos.mobile.model.ShopData;
@@ -21,6 +22,27 @@ public class Shop {
 	
 	public Shop(Context c){
 		dbHelper = new MPOSSqliteHelper(c);
+	}
+	
+	public ShopData.GlobalProperty getGlobalProperty(){
+		ShopData.GlobalProperty gb = 
+				new ShopData.GlobalProperty();
+		
+		dbHelper.open();
+		Cursor cursor = dbHelper.rawQuery("SELECT * FROM " + TB_GLOBAL_PROPERTY);
+		if(cursor.moveToFirst()){
+			gb.setCurrencyCode(cursor.getString(cursor.getColumnIndex("currency_code")));
+			gb.setCurrencySymbol(cursor.getString(cursor.getColumnIndex("currency_symbol")));
+			gb.setCurrencyName(cursor.getString(cursor.getColumnIndex("currency_name")));
+			gb.setCurrencyFormat(cursor.getString(cursor.getColumnIndex("currency_format")));
+			gb.setDateFormat(cursor.getString(cursor.getColumnIndex("date_format")));
+			gb.setTimeFormat(cursor.getString(cursor.getColumnIndex("time_format")));
+			gb.setQtyFormat(cursor.getString(cursor.getColumnIndex("qty_format")));
+			cursor.moveToNext();
+		}
+		dbHelper.close();
+		
+		return gb;
 	}
 	
 	public boolean addLanguage(List<ShopData.Language> langLst){

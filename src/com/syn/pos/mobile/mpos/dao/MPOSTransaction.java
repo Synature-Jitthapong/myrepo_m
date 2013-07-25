@@ -5,13 +5,16 @@ import android.content.Context;
 import android.database.Cursor;
 
 import com.j1tth4.mobile.core.sqlite.ISqliteHelper;
+import com.syn.pos.mobile.model.ShopData;
 
 public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 	
 	ISqliteHelper dbHelper;
+	ShopData shopData;
 	
-	public MPOSTransaction (Context c){
+	public MPOSTransaction (Context c, ShopData sd){
 		dbHelper = new MPOSSqliteHelper(c);
+		shopData = sd;
 	}
 	
 	@Override
@@ -41,6 +44,7 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 		cv.put("shop_id", shopId);
 		cv.put("session_id", sessionId);
 		cv.put("open_staff_id", staffId);
+		//cv.put("open_time");
 	}
 
 	@Override
