@@ -20,11 +20,11 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 	}
 	
 	@Override
-	public long getMaxTransaction(int shopId, int computerId) {
+	public long getMaxTransaction(int computerId) {
 		long transactionId = 0;
 		
 		String strSql = "SELECT MAX(TransactionID) FROM order_transaction " +
-				" WHERE shop_id=" + shopId + " AND computer_id=" + computerId;
+				" WHERE computer_id=" + computerId;
 		
 		dbHelper.open();
 		Cursor cursor = dbHelper.rawQuery(strSql);
@@ -39,9 +39,13 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 	}
 
 	@Override
-	public void openTransaction(int transactionId, int computerId, int shopId,
+	public long openTransaction(int computerId, int shopId,
 			int sessionId, int staffId) {
+		
 		Date date = new Date();
+		long transactionId = getMaxTransaction(computerId);
+		long receiptId = getMaxReceiptId(transactionId, computerId, date.getYear(), date.getMonth());
+		
 		ContentValues cv = new ContentValues();
 		cv.put("transaction_id", transactionId);
 		cv.put("computer_id", computerId);
@@ -53,10 +57,20 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 		cv.put("sale_date", mposVar.dateFormat.format(date));
 		cv.put("receipt_year", date.getYear());
 		cv.put("receipt_month", date.getMonth());
+		cv.put("receipt_id", receiptId);
+		
+		dbHelper.open();
+		
+		if(!dbHelper.insert("order_transaction", cv))
+			transactionId = 0;
+		
+		dbHelper.close();
+		
+		return transactionId;
 	}
 
 	@Override
-	public void updateTransaction(int transactionId, int computerId,
+	public void updateTransaction(long transactionId, int computerId,
 			int staffId, double transVat, double transExclVat,
 			double serviceCharge) {
 		// TODO Auto-generated method stub
@@ -70,30 +84,32 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 	}
 
 	@Override
-	public int getMaxOrderDetail(int transactionId, int computerId) {
+	public long getMaxOrderDetail(long transactionId, int computerId) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public boolean addOrderDetail(int transactionId, int computerId,
+	public boolean addOrderDetail(long transactionId, int computerId,
 			int productId, double productPrice) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean deleteOrderDetail(int transactionId, int orderDetailId) {
+	public boolean deleteOrderDetail(long transactionId, long orderDetailId) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public long getMaxReceiptId(int year, int month) {
+	public long getMaxReceiptId(long transactionId, int computerId, int year, int month) {
 		long maxReceiptId = 0;
 		
 		String strSql = "SELECT MAX(receipt_id) FROM order_transaction " +
-				" WHERE receipt_year=" + year + 
+				" WHERE transaction_id=" + transactionId +
+				" AND computer_id=" + computerId +
+				" AND receipt_year=" + year + 
 				" AND receipt_month=" + month;
 		
 		dbHelper.open();
@@ -106,6 +122,15 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 		dbHelper.close();
 		
 		return ++maxReceiptId;
+	}
+
+	@Override
+	public long getCurrTransaction(int computerId) {
+		long transactionId = 0;
+		
+		String strSql = "";
+		
+		return transactionId;
 	}
 
 }
