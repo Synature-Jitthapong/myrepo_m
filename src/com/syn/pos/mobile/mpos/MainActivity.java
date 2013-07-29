@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.j1tth4.mobile.core.util.ImageLoader;
 import com.syn.pos.mobile.model.MenuGroups;
+import com.syn.pos.mobile.model.OrderTransaction;
+import com.syn.pos.mobile.mpos.dao.MPOSTransaction;
 import com.syn.pos.mobile.mpos.dao.MenuDept;
 import com.syn.pos.mobile.mpos.dao.MenuItem;
 
@@ -29,6 +31,11 @@ import android.widget.TextView;
 import android.widget.RadioGroup.LayoutParams;
 
 public class MainActivity extends Activity {
+	private MPOSVar mposVar;
+	private MPOSTransaction mposTrans;
+	private OrderTransaction orderTrans;
+	private OrderListAdapter orderAdapter;
+	
 	private double totalPrice = 0.0d;
 	private int totalQty = 0;
 	private List<MenuGroups.MenuDept> menuDeptLst;
@@ -56,6 +63,13 @@ public class MainActivity extends Activity {
 		menuGridView.setAdapter(menuAdapter);
 		
 		createMenuDept();
+	}
+	
+	private void init(){
+		mposVar = new MPOSVar(MainActivity.this);
+		mposTrans = new MPOSTransaction(MainActivity.this, mposVar);
+		
+		//mposTrans.getCurrTransaction(mposVar.com)
 	}
 	
 	public void holdBillClicked(final View v){

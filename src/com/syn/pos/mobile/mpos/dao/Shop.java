@@ -10,18 +10,64 @@ import com.j1tth4.mobile.core.sqlite.ISqliteHelper;
 import com.syn.pos.mobile.model.ShopData;
 
 public class Shop {
-	private final String TB_SHOP_DATA = "shop_property";
-	private final String TB_COMPUTER = "computer_property";
-	private final String TB_GLOBAL_PROPERTY = "global_property";
-	private final String TB_STAFF = "staffs";
-	private final String TB_FEATURE = "program_feature";
-	private final String TB_LANGUAGE = "language";
-	
-	
 	private ISqliteHelper dbHelper;
 	
 	public Shop(Context c){
 		dbHelper = new MPOSSqliteHelper(c);
+	}
+	
+	public ShopData.ComputerProperty getComputerProperty(){
+		ShopData.ComputerProperty computer = 
+				new ShopData.ComputerProperty();
+		
+		String strSql = "";
+		
+		dbHelper.open();
+		
+		dbHelper.close();
+		
+		return computer;
+	}
+	
+	public ShopData.ShopProperty getShopProperty(){
+		ShopData.ShopProperty sp = 
+				new ShopData.ShopProperty();
+		
+		String strSql = "SELECT * FROM shop_property";
+		
+		dbHelper.open();
+		Cursor cursor = dbHelper.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			sp.setShopID(cursor.getInt(cursor.getColumnIndex("shop_id")));
+			sp.setShopCode(cursor.getString(cursor.getColumnIndex("shop_code")));
+			sp.setShopName(cursor.getString(cursor.getColumnIndex("shop_name")));
+			sp.setShopType(cursor.getInt(cursor.getColumnIndex("shop_type")));
+			sp.setCalculateServiceChargeWhenFreeBill(
+					cursor.getInt(cursor.getColumnIndex("calculate_service_charge_when_freebill")));
+			sp.setCloseHour(cursor.getString(cursor.getColumnIndex("close_hour")));
+			sp.setFastFoodType(cursor.getInt(cursor.getColumnIndex("fast_food_type")));
+			sp.setTableType(cursor.getInt(cursor.getColumnIndex("table_type")));
+			sp.setVatType(cursor.getInt(cursor.getColumnIndex("vat_type")));
+			sp.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_charge")));
+			sp.setServiceChargeType(cursor.getInt(cursor.getColumnIndex("service_charge_type")));
+			sp.setOpenHour(cursor.getString(cursor.getColumnIndex("open_hour")));
+			sp.setCompanyName(cursor.getString(cursor.getColumnIndex("company_name")));
+			sp.setCompanyAddress1(cursor.getString(cursor.getColumnIndex("company_address_1")));
+			sp.setCompanyAddress2(cursor.getString(cursor.getColumnIndex("company_address_2")));
+			sp.setCompanyCity(cursor.getString(cursor.getColumnIndex("company_city")));
+			sp.setCompanyProvince(cursor.getString(cursor.getColumnIndex("company_province")));
+			sp.setCompanyZipCode(cursor.getString(cursor.getColumnIndex("company_zip_code")));
+			sp.setCompanyTelephone(cursor.getString(cursor.getColumnIndex("company_tel")));
+			sp.setCompanyFax(cursor.getString(cursor.getColumnIndex("company_fax")));
+			sp.setCompanyTaxID(cursor.getString(cursor.getColumnIndex("company_tax_id")));
+			sp.setCompanyRegisterID(cursor.getString(cursor.getColumnIndex("company_register_id")));
+			sp.setCompanyVat(cursor.getDouble(cursor.getColumnIndex("company_vat")));
+			cursor.moveToNext();
+		}
+		cursor.close();
+		dbHelper.close();
+		
+		return sp;
 	}
 	
 	public ShopData.GlobalProperty getGlobalProperty(){
@@ -29,7 +75,7 @@ public class Shop {
 				new ShopData.GlobalProperty();
 		
 		dbHelper.open();
-		Cursor cursor = dbHelper.rawQuery("SELECT * FROM " + TB_GLOBAL_PROPERTY);
+		Cursor cursor = dbHelper.rawQuery("SELECT * FROM global_property");
 		if(cursor.moveToFirst()){
 			gb.setCurrencyCode(cursor.getString(cursor.getColumnIndex("currency_code")));
 			gb.setCurrencySymbol(cursor.getString(cursor.getColumnIndex("currency_symbol")));
@@ -49,7 +95,7 @@ public class Shop {
 		boolean isSucc = false;
 		
 		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM " + TB_LANGUAGE);
+		dbHelper.execSQL("DELETE FROM language");
 		
 		for(ShopData.Language lang : langLst){
 			ContentValues cv = new ContentValues();
@@ -57,7 +103,7 @@ public class Shop {
 			cv.put("lang_name", lang.getLangName());
 			cv.put("lang_code", lang.getLangCode());
 			
-			isSucc = dbHelper.insert(TB_LANGUAGE, cv);
+			isSucc = dbHelper.insert("language", cv);
 		}
 		
 		dbHelper.close();
@@ -69,7 +115,7 @@ public class Shop {
 		boolean isSucc = false;
 		
 		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM " + TB_FEATURE);
+		dbHelper.execSQL("DELETE FROM program_feature");
 		
 		for(ShopData.ProgramFeature feature : featureLst){
 			ContentValues cv = new ContentValues();
@@ -79,7 +125,7 @@ public class Shop {
 			cv.put("feature_text", feature.getFeatureText());
 			cv.put("feature_desc", feature.getFeatureDesc());
 			
-			isSucc = dbHelper.insert(TB_FEATURE, cv);
+			isSucc = dbHelper.insert("program_feature", cv);
 		}
 		
 		dbHelper.close();
@@ -91,7 +137,7 @@ public class Shop {
 		boolean isSucc = false;
 		
 		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM " + TB_STAFF);
+		dbHelper.execSQL("DELETE FROM staffs");
 		
 		for(ShopData.Staff staff : staffLst){
 			ContentValues cv = new ContentValues();
@@ -100,7 +146,7 @@ public class Shop {
 			cv.put("staff_name", staff.getStaffName());
 			cv.put("staff_password", staff.getStaffPassword());
 			
-			isSucc = dbHelper.insert(TB_STAFF, cv);
+			isSucc = dbHelper.insert("staffs", cv);
 		}
 		
 		dbHelper.close();
@@ -112,7 +158,7 @@ public class Shop {
 		boolean isSucc = false;
 		
 		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM " + TB_GLOBAL_PROPERTY);
+		dbHelper.execSQL("DELETE FROM global_property");
 		
 		for(ShopData.GlobalProperty global : globalLst){
 			ContentValues cv = new ContentValues();
@@ -124,7 +170,7 @@ public class Shop {
 			cv.put("time_format", global.getTimeFormat());
 			cv.put("qty_format", global.getQtyFormat());
 			
-			isSucc = dbHelper.insert(TB_GLOBAL_PROPERTY, cv);
+			isSucc = dbHelper.insert("global_property", cv);
 		}
 		
 		dbHelper.close();
@@ -136,7 +182,7 @@ public class Shop {
 		boolean isSucc = false;
 		
 		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM " + TB_COMPUTER);
+		dbHelper.execSQL("DELETE FROM computer_property");
 		
 		for(ShopData.ComputerProperty comp : compLst){
 			ContentValues cv = new ContentValues();
@@ -145,7 +191,7 @@ public class Shop {
 			cv.put("device_code", comp.getDeviceCode());
 			cv.put("registration_number", comp.getRegistrationNumber());
 			
-			isSucc = dbHelper.insert(TB_COMPUTER, cv);
+			isSucc = dbHelper.insert("computer_property", cv);
 		}
 		
 		dbHelper.close();
@@ -157,7 +203,7 @@ public class Shop {
 		boolean isSucc = false;
 		
 		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM " + TB_SHOP_DATA);
+		dbHelper.execSQL("DELETE FROM shop_property");
 		
 		for(ShopData.ShopProperty shop : shopPropLst){
 			ContentValues cv = new ContentValues();
@@ -185,7 +231,7 @@ public class Shop {
 			cv.put("company_register_id", shop.getCompanyRegisterID());
 			cv.put("company_vat", shop.getCompanyVat());
 			
-			isSucc = dbHelper.insert(TB_SHOP_DATA, cv);
+			isSucc = dbHelper.insert("shop_property", cv);
 		}
 		dbHelper.close();
 		

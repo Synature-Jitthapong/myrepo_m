@@ -112,9 +112,9 @@ public final class R {
         public static final int textViewMenuDept=0x7f090033;
         public static final int textViewMenuDescript=0x7f090034;
         public static final int textViewMenuName=0x7f090032;
+        public static final int textViewOrderAmount=0x7f090038;
         public static final int textViewOrderName=0x7f090036;
         public static final int textViewOrderNo=0x7f090029;
-        public static final int textViewOrderQty=0x7f090038;
         public static final int textViewProductPrice=0x7f090011;
         public static final int textViewSubTotal=0x7f090006;
         public static final int textViewTotalPrice=0x7f090004;

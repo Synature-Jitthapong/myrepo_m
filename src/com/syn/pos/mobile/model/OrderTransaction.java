@@ -3,7 +3,7 @@ package com.syn.pos.mobile.model;
 import java.util.List;
 
 public class OrderTransaction {
-	private int transactionId;
+	private long transactionId;
 	private int computerId;
 	private int shopId;
 	private String openTime;
@@ -87,11 +87,11 @@ public class OrderTransaction {
 		this.orderDetailLst = orderDetailLst;
 	}
 
-	public int getTransactionId() {
+	public long getTransactionId() {
 		return transactionId;
 	}
 
-	public void setTransactionId(int transactionId) {
+	public void setTransactionId(long transactionId) {
 		this.transactionId = transactionId;
 	}
 
@@ -241,8 +241,8 @@ public class OrderTransaction {
 
 	// order detail class
 	public static class OrderDetail {
-		private int orderDetailId;
-		private int transactionId;
+		private long orderDetailId;
+		private long transactionId;
 		private int computerId;
 		private int productId;
 		private String productName;
@@ -298,16 +298,16 @@ public class OrderTransaction {
 		public void setTotalPrice(double totalPrice) {
 			this.totalPrice = totalPrice;
 		}
-		public int getOrderDetailId() {
+		public long getOrderDetailId() {
 			return orderDetailId;
 		}
-		public void setOrderDetailId(int orderDetailId) {
+		public void setOrderDetailId(long orderDetailId) {
 			this.orderDetailId = orderDetailId;
 		}
-		public int getTransactionId() {
+		public long getTransactionId() {
 			return transactionId;
 		}
-		public void setTransactionId(int transactionId) {
+		public void setTransactionId(long transactionId) {
 			this.transactionId = transactionId;
 		}
 		public int getComputerId() {
