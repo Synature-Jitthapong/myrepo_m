@@ -1,7 +1,5 @@
 package com.syn.pos.mobile.model;
 
-import java.util.List;
-
 public class OrderTransaction {
 	private long transactionId;
 	private int computerId;
@@ -18,19 +16,11 @@ public class OrderTransaction {
 	private int receiptMonth;
 	private int receiptId;
 	private String saleDate;
-	private double transactionVat;
-	private double transactionExcludeVat;
-	private double serviceCharge;
-	private double serviceChargeVat;
-	private double transactionVatAble;
 	private int sessionId;
 	private int voidStaffId;
 	private String voidReason;
 	private String voidTime;
 	private int memberId;
-	
-	public OrderDetail orderDetail;
-	public List<OrderDetail> orderDetailLst;
 	
 	public String getPaidTime() {
 		return paidTime;
@@ -62,14 +52,6 @@ public class OrderTransaction {
 
 	public void setReceiptMonth(int receiptMonth) {
 		this.receiptMonth = receiptMonth;
-	}
-
-	public double getTransactionExcludeVat() {
-		return transactionExcludeVat;
-	}
-
-	public void setTransactionExcludeVat(double transactionExcludeVat) {
-		this.transactionExcludeVat = transactionExcludeVat;
 	}
 
 	public String getVoidTime() {
@@ -168,38 +150,6 @@ public class OrderTransaction {
 		this.saleDate = saleDate;
 	}
 
-	public double getTransactionVat() {
-		return transactionVat;
-	}
-
-	public void setTransactionVat(double transactionVat) {
-		this.transactionVat = transactionVat;
-	}
-
-	public double getServiceCharge() {
-		return serviceCharge;
-	}
-
-	public void setServiceCharge(double serviceCharge) {
-		this.serviceCharge = serviceCharge;
-	}
-
-	public double getServiceChargeVat() {
-		return serviceChargeVat;
-	}
-
-	public void setServiceChargeVat(double serviceChargeVat) {
-		this.serviceChargeVat = serviceChargeVat;
-	}
-
-	public double getTransactionVatAble() {
-		return transactionVatAble;
-	}
-
-	public void setTransactionVatAble(double transactionVatAble) {
-		this.transactionVatAble = transactionVatAble;
-	}
-
 	public int getSessionId() {
 		return sessionId;
 	}
@@ -245,10 +195,15 @@ public class OrderTransaction {
 		private double memberDiscount;
 		private double eachProductDiscount;
 		private double vat;
+		private double excludeVat;
 		private double serviceCharge;
-		private double totalRetailPrice;
-		private double totalPrice;
-		
+
+		public double getExcludeVat() {
+			return excludeVat;
+		}
+		public void setExcludeVat(double excludeVat) {
+			this.excludeVat = excludeVat;
+		}
 		public double getProductAmount() {
 			return productAmount;
 		}
@@ -285,12 +240,6 @@ public class OrderTransaction {
 		public void setServiceCharge(double serviceCharge) {
 			this.serviceCharge = serviceCharge;
 		}
-		public double getTotalPrice() {
-			return totalPrice;
-		}
-		public void setTotalPrice(double totalPrice) {
-			this.totalPrice = totalPrice;
-		}
 		public long getOrderDetailId() {
 			return orderDetailId;
 		}
@@ -326,12 +275,6 @@ public class OrderTransaction {
 		}
 		public void setSaleMode(int saleMode) {
 			this.saleMode = saleMode;
-		}
-		public double getTotalRetailPrice() {
-			return totalRetailPrice;
-		}
-		public void setTotalRetailPrice(double totalRetailPrice) {
-			this.totalRetailPrice = totalRetailPrice;
 		}
 	}
 }

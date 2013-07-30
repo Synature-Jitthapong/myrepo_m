@@ -1,5 +1,7 @@
 package com.syn.pos.mobile.mpos.dao;
 
+import com.syn.pos.mobile.model.OrderTransaction;
+
 public interface IMPOSTransaction {
 	public long getMaxTransaction(int computerId);
 
@@ -15,5 +17,7 @@ public interface IMPOSTransaction {
 			int staffId, double transVat, double transExclVat,
 			double serviceCharge);
 
-	public void closeTransaction();
+	public void cancelTransaction(long transactionId);
+	
+	public OrderTransaction getSummary(long transactionId);
 }

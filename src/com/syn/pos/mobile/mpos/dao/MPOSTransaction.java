@@ -10,6 +10,7 @@ import android.database.Cursor;
 
 import com.j1tth4.mobile.core.sqlite.ISqliteHelper;
 import com.syn.pos.mobile.model.OrderTransaction;
+import com.syn.pos.mobile.model.OrderTransaction.OrderDetail;
 import com.syn.pos.mobile.mpos.Formatter;
 
 public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
@@ -81,9 +82,11 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 	}
 
 	@Override
-	public void closeTransaction() {
-		// TODO Auto-generated method stub
-		
+	public void cancelTransaction(long transactionId) {
+		dbHelper.open();
+		dbHelper.execSQL("DELETE FROM order_transaction WHERE transaction_id=" + transactionId);
+		dbHelper.execSQL("DELETE FROM order_detail WHERE transaction_id=" + transactionId);
+		dbHelper.close();
 	}
 
 	@Override
@@ -175,84 +178,92 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 		return transactionId;
 	}
 	
-	public OrderTransaction getOrder(long transactionId, int computerId, long orderDetailId){
-		OrderTransaction trans =
-				new OrderTransaction();
+	public OrderTransaction.OrderDetail getOrder(long transactionId, int computerId, long orderDetailId){
+		OrderTransaction.OrderDetail orderDetail =
+				new OrderTransaction.OrderDetail();
 		
-		String strSql = "SELECT a.transaction_id, a.computer_id, " +
-				" a.transaction_vat, a.service_charge, " +
-				" b.order_detail_id, b.product_id, b.product_name, b.product_amount, " +
-				" b.product_price " +
-				" FROM order_transaction a " +
-				" INNER JOIN order_detail b " +
-				" ON a.transaction_id = b.transaction_id " +
-				" AND a.computer_id = b.computer_id " +
-				" WHERE a.transaction_id=" + transactionId + 
-				" AND a.computer_id=" + computerId + 
-				" AND b.order_detail_id=" + orderDetailId;
+		String strSql = "SELECT order_detail_id, product_id, " +
+				" product_name, product_amount, product_price, " +
+				" vat, exclude_vat, member_discount, eatch_product_discount," +
+				" service_charge " +
+				" FROM order_detail " +
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId + 
+				" AND order_detail_id=" + orderDetailId;
 		
 		dbHelper.open();
 		Cursor cursor = dbHelper.rawQuery(strSql);
-		if(cursor.moveToFirst()){
-			trans.setTransactionId(cursor.getLong(cursor.getColumnIndex("transaction_id")));
-			trans.setComputerId(cursor.getInt(cursor.getColumnIndex("computer_id")));
-			trans.setTransactionVat(cursor.getDouble(cursor.getColumnIndex("transaction_vat")));
-			trans.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_charge")));
-			
-			trans.orderDetail =
-					 new OrderTransaction.OrderDetail();	
-			trans.orderDetail.setOrderDetailId(cursor.getLong(cursor.getColumnIndex("order_detail_id")));
-			trans.orderDetail.setProductId(cursor.getInt(cursor.getColumnIndex("product_id")));
-			trans.orderDetail.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
-			trans.orderDetail.setProductAmount(cursor.getDouble(cursor.getColumnIndex("product_amount")));
-			trans.orderDetail.setProductPrice(cursor.getDouble(cursor.getColumnIndex("product_price")));
-		
+		if(cursor.moveToFirst()){	
+			orderDetail.setOrderDetailId(cursor.getLong(cursor.getColumnIndex("order_detail_id")));
+			orderDetail.setProductId(cursor.getInt(cursor.getColumnIndex("product_id")));
+			orderDetail.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
+			orderDetail.setProductAmount(cursor.getDouble(cursor.getColumnIndex("product_amount")));
+			orderDetail.setProductPrice(cursor.getDouble(cursor.getColumnIndex("product_price")));
+			orderDetail.setVat(cursor.getDouble(cursor.getColumnIndex("vat")));
+			orderDetail.setExcludeVat(cursor.getDouble(cursor.getColumnIndex("exclude_vat")));
+			orderDetail.setMemberDiscount(cursor.getDouble(cursor.getColumnIndex("member_discount")));
+			orderDetail.setEachProductDiscount(cursor.getDouble(cursor.getColumnIndex("each_product_discount")));
+			orderDetail.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_charge")));
 		}
 		cursor.close();
 		dbHelper.close();
-		return trans;
+		return orderDetail;
 	}
 	
-	public OrderTransaction listAllOrders(long transactionId, int computerId){
-		OrderTransaction trans = new OrderTransaction();
+	public List<OrderTransaction.OrderDetail> listAllOrders(long transactionId, int computerId){
+		List<OrderTransaction.OrderDetail> orderLst =
+			new ArrayList<OrderTransaction.OrderDetail>();
 		
-		String strSql = "SELECT a.transaction_id, a.computer_id, " +
-				" a.transaction_vat, a.service_charge, " +
-				" b.order_detail_id, b.product_id, b.product_name, b.product_amount, " +
-				" b.product_price " +
-				" FROM order_transaction a " +
-				" INNER JOIN order_detail b " +
-				" ON a.transaction_id = b.transaction_id " +
-				" AND a.computer_id = b.computer_id" +
-				" WHERE a.transaction_id=" + transactionId + 
-				" AND a.computer_id=" + computerId;
+		String strSql = "SELECT order_detail_id, product_id, " +
+				" product_name, product_amount product_price," +
+				" vat, exclude_vat, member_discount, each_product_discount," +
+				" service_charge " +
+				" FROM order_detail " +
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId;
 		
 		dbHelper.open();
 		Cursor cursor = dbHelper.rawQuery(strSql);
-		trans.orderDetailLst =
-				new ArrayList<OrderTransaction.OrderDetail>();
 		if(cursor.moveToFirst()){
 			do{
-				trans.setTransactionId(cursor.getLong(cursor.getColumnIndex("transaction_id")));
-				trans.setComputerId(cursor.getInt(cursor.getColumnIndex("computer_id")));
-				trans.setTransactionVat(cursor.getDouble(cursor.getColumnIndex("transaction_vat")));
-				trans.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_charge")));
-				
-				OrderTransaction.OrderDetail od = 
+				OrderTransaction.OrderDetail orderDetail = 
 						new OrderTransaction.OrderDetail();
-				od.setOrderDetailId(cursor.getLong(cursor.getColumnIndex("order_detail_id")));
-				od.setProductId(cursor.getInt(cursor.getColumnIndex("product_id")));
-				od.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
-				od.setProductAmount(cursor.getDouble(cursor.getColumnIndex("product_amount")));
-				od.setProductPrice(cursor.getDouble(cursor.getColumnIndex("product_price")));
+				orderDetail.setOrderDetailId(cursor.getLong(cursor.getColumnIndex("order_detail_id")));
+				orderDetail.setProductId(cursor.getInt(cursor.getColumnIndex("product_id")));
+				orderDetail.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
+				orderDetail.setProductAmount(cursor.getDouble(cursor.getColumnIndex("product_amount")));
+				orderDetail.setProductPrice(cursor.getDouble(cursor.getColumnIndex("product_price")));
+				orderDetail.setVat(cursor.getDouble(cursor.getColumnIndex("vat")));
+				orderDetail.setExcludeVat(cursor.getDouble(cursor.getColumnIndex("exclude_vat")));
+				orderDetail.setMemberDiscount(cursor.getDouble(cursor.getColumnIndex("member_discount")));
+				orderDetail.setEachProductDiscount(cursor.getDouble(cursor.getColumnIndex("each_product_discount")));
+				orderDetail.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_charge")));
 				
-				trans.orderDetailLst.add(od);
+				orderLst.add(orderDetail);
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
 		dbHelper.close();
 		
-		return trans;
+		return orderLst;
+	}
+
+	@Override
+	public OrderTransaction getSummary(long transactionId) {
+		String strSql = "SELECT a.transaction_vat, SUM(b.product_amount) AS TotalAmount," +
+				" SUM(b.product_price) AS TotalPrice "+
+				" FROM order_transaction a " +
+				" INNER JOIN order_detail b " +
+				" ON a.transaction_id = b.transaction_id " +
+				" AND a.computer_id = b.computer_id " +
+				" WHERE a.transaction_id=" + transactionId;
+		return null;
+	}
+
+	@Override
+	public boolean deleteAllOrderDetail(long transactionId) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

@@ -17,8 +17,10 @@ import com.syn.pos.mobile.mpos.dao.Shop;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -42,6 +44,7 @@ public class MainActivity extends Activity {
 	private Formatter format;
 	private MPOSTransaction mposTrans;
 	private OrderTransaction orderTrans;
+	private List<OrderTransaction.OrderDetail> orderLst;
 	private OrderListAdapter orderAdapter;
 	private long transactionId;
 	
@@ -91,8 +94,8 @@ public class MainActivity extends Activity {
 		}
 		Log.i(TAG, "transactionId= " + transactionId);
 		
-		orderTrans = mposTrans.listAllOrders(transactionId, compProp.getComputerID());
-		orderAdapter = new OrderListAdapter(MainActivity.this, format, orderTrans);
+		orderLst = mposTrans.listAllOrders(transactionId, compProp.getComputerID());
+		orderAdapter = new OrderListAdapter(MainActivity.this, format, orderLst);
 		orderListView.setAdapter(orderAdapter);
 		orderListView.setSelection(orderAdapter.getCount());
 		
@@ -375,13 +378,9 @@ public class MainActivity extends Activity {
 							compProp.getComputerID(), mi.getProductID(), mi.getMenuName_0(), 1, 
 							mi.getProductPricePerUnit());
 					Log.i(TAG, "orderDetailId= " + orderDetailId);
-					OrderTransaction trans = 
+					OrderTransaction.OrderDetail order = 
 							mposTrans.getOrder(transactionId, compProp.getComputerID(), orderDetailId);
-					
-					orderTrans.setTransactionVat(trans.getTransactionVat());
-					orderTrans.setServiceCharge(trans.getServiceCharge());
-					orderTrans.orderDetailLst.add(trans.orderDetail);
-					
+					orderLst.add(order);
 					totalPrice += mi.getProductPricePerUnit();
 					
 					updateTotalPrice();
@@ -416,7 +415,28 @@ public class MainActivity extends Activity {
 	
 	private void updateTotalPrice(){
 		tvSubTotal.setText(format.currencyFormat(totalPrice));
-		tvTransVat.setText(format.currencyFormat(orderTrans.getTransactionVat()));
-		tvTotalPrice.setText(format.currencyFormat(totalPrice + orderTrans.getTransactionVat()));
+	}
+	
+	public void clearBillClicked(final View v){
+		new AlertDialog.Builder(MainActivity.this)
+		.setTitle("Clear bill")
+		.setMessage("Are you sure you want to clear bill?")
+		.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		})
+		.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				mposTrans.cancelTransaction(transactionId);
+
+				init();
+			}
+		})
+		.show();
 	}
 }

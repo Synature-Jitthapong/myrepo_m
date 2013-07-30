@@ -8,4 +8,6 @@ public interface IOrderDetail {
 
 	//public boolean updateOrderDetail(int tr)
 	public boolean deleteOrderDetail(long transactionId, long orderDetailId);
+	
+	public boolean deleteAllOrderDetail(long transactionId);
 }

@@ -1,5 +1,7 @@
 package com.syn.pos.mobile.mpos;
 
+import java.util.List;
+
 import com.syn.pos.mobile.model.OrderTransaction;
 
 import android.content.Context;
@@ -11,24 +13,24 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class OrderListAdapter extends BaseAdapter{
-	private OrderTransaction orderTrans;
+	private List<OrderTransaction.OrderDetail> orderDetailLst;
 	private LayoutInflater inflater;
 	private Formatter format;
 	
-	public OrderListAdapter (Context c, Formatter format, OrderTransaction trans){
-		this.orderTrans = trans;
+	public OrderListAdapter (Context c, Formatter format, List<OrderTransaction.OrderDetail> orderLst){
+		this.orderDetailLst = orderLst;
 		this.format = format;
 		inflater = LayoutInflater.from(c);
 	}
 
 	@Override
 	public int getCount() {
-		return orderTrans.orderDetailLst != null ? orderTrans.orderDetailLst.size() : 0;
+		return orderDetailLst != null ? orderDetailLst.size() : 0;
 	}
 
 	@Override
 	public OrderTransaction.OrderDetail getItem(int position) {
-		return orderTrans.orderDetailLst.get(position);
+		return orderDetailLst.get(position);
 	}
 
 	@Override
@@ -39,7 +41,7 @@ public class OrderListAdapter extends BaseAdapter{
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		OrderTransaction.OrderDetail orderDetail = 
-				orderTrans.orderDetailLst.get(position);
+				orderDetailLst.get(position);
 		ViewHolder holder;
 		if(convertView == null){
 			convertView = inflater.inflate(R.layout.order_list_template, null);
