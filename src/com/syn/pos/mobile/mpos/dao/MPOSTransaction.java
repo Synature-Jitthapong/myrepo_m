@@ -197,7 +197,8 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 			trans.setTransactionId(cursor.getLong(cursor.getColumnIndex("transaction_id")));
 			trans.setComputerId(cursor.getInt(cursor.getColumnIndex("computer_id")));
 			trans.setTransactionVat(cursor.getDouble(cursor.getColumnIndex("transaction_vat")));
-			trans.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_cahrge")));
+			trans.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_charge")));
+			
 			trans.orderDetail =
 					 new OrderTransaction.OrderDetail();	
 			trans.orderDetail.setOrderDetailId(cursor.getLong(cursor.getColumnIndex("order_detail_id")));
@@ -235,7 +236,7 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 				trans.setTransactionId(cursor.getLong(cursor.getColumnIndex("transaction_id")));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex("computer_id")));
 				trans.setTransactionVat(cursor.getDouble(cursor.getColumnIndex("transaction_vat")));
-				trans.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_cahrge")));
+				trans.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_charge")));
 				
 				OrderTransaction.OrderDetail od = 
 						new OrderTransaction.OrderDetail();

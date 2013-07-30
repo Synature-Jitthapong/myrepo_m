@@ -45,8 +45,9 @@ public class MainActivity extends Activity {
 	private OrderListAdapter orderAdapter;
 	private long transactionId;
 	
-	private double totalPrice = 0.0d;
-	private int totalQty = 0;
+	private double totalPrice;
+	private double totalQty;
+	
 	private List<MenuGroups.MenuDept> menuDeptLst;
 	private List<MenuGroups.MenuItem> menuLst;
 	private MenuAdapter menuAdapter;
@@ -55,7 +56,10 @@ public class MainActivity extends Activity {
 	
 	private GridView menuGridView;
 	private ListView orderListView;
+	private TextView tvSubTotal;
 	private TextView tvTotalPrice;
+	private TextView tvTransVat;
+	private TextView tvDiscount;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +69,9 @@ public class MainActivity extends Activity {
 		orderListView = (ListView) findViewById(R.id.listViewOrder);
 		menuGridView = (GridView) findViewById(R.id.gridViewMenu);
 		tvTotalPrice = (TextView) findViewById(R.id.textViewTotalPrice);
+		tvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
+		tvTransVat = (TextView) findViewById(R.id.textViewTransVat);
+		tvDiscount = (TextView) findViewById(R.id.textViewDiscount);
 	
 		init();
 	}
@@ -375,6 +382,10 @@ public class MainActivity extends Activity {
 					orderTrans.setServiceCharge(trans.getServiceCharge());
 					orderTrans.orderDetailLst.add(trans.orderDetail);
 					
+					totalPrice += mi.getProductPricePerUnit();
+					
+					updateTotalPrice();
+					
 					orderAdapter.notifyDataSetChanged();
 					orderListView.smoothScrollToPosition(orderAdapter.getCount());
 				}
@@ -403,7 +414,9 @@ public class MainActivity extends Activity {
 //	}
 	
 	
-	private void updateTextPrice(){
-		tvTotalPrice.setText("0");
+	private void updateTotalPrice(){
+		tvSubTotal.setText(format.currencyFormat(totalPrice));
+		tvTransVat.setText(format.currencyFormat(orderTrans.getTransactionVat()));
+		tvTotalPrice.setText(format.currencyFormat(totalPrice + orderTrans.getTransactionVat()));
 	}
 }

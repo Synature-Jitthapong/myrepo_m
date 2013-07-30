@@ -75,7 +75,6 @@ int id listViewOrder 0x7f09000f
 int id progressBar1 0x7f090009
 int id progressBarMenu 0x7f090024
 int id textView3 0x7f090014
-int id textView4 0x7f090015
 int id textViewBarcode 0x7f09000d
 int id textViewDiscount 0x7f090013
 int id textViewHoldTitle 0x7f090012
@@ -91,6 +90,7 @@ int id textViewOrderPrice 0x7f09000a
 int id textViewProductPrice 0x7f090011
 int id textViewSubTotal 0x7f090006
 int id textViewTotalPrice 0x7f090004
+int id textViewTransVat 0x7f090015
 int layout activity_login 0x7f030000
 int layout activity_main 0x7f030001
 int layout hold_order_layout 0x7f030002

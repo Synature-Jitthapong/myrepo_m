@@ -102,7 +102,6 @@ public final class R {
         public static final int progressBar1=0x7f090009;
         public static final int progressBarMenu=0x7f090024;
         public static final int textView3=0x7f090014;
-        public static final int textView4=0x7f090015;
         public static final int textViewBarcode=0x7f09000d;
         public static final int textViewDiscount=0x7f090013;
         public static final int textViewHoldTitle=0x7f090012;
@@ -118,6 +117,7 @@ public final class R {
         public static final int textViewProductPrice=0x7f090011;
         public static final int textViewSubTotal=0x7f090006;
         public static final int textViewTotalPrice=0x7f090004;
+        public static final int textViewTransVat=0x7f090015;
     }
     public static final class layout {
         public static final int activity_login=0x7f030000;
