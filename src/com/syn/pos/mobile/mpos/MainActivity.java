@@ -6,9 +6,11 @@ import java.util.List;
 import com.j1tth4.mobile.core.util.ImageLoader;
 import com.syn.pos.mobile.model.MenuGroups;
 import com.syn.pos.mobile.model.OrderTransaction;
+import com.syn.pos.mobile.model.ShopData;
 import com.syn.pos.mobile.mpos.dao.MPOSTransaction;
 import com.syn.pos.mobile.mpos.dao.MenuDept;
 import com.syn.pos.mobile.mpos.dao.MenuItem;
+import com.syn.pos.mobile.mpos.dao.Shop;
 
 
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,10 +34,15 @@ import android.widget.TextView;
 import android.widget.RadioGroup.LayoutParams;
 
 public class MainActivity extends Activity {
-	private MPOSVar mposVar;
+	private static final String TAG = "MPOSMainActivity";
+	private Shop shop;
+	private ShopData.ShopProperty shopProp;
+	private ShopData.ComputerProperty compProp;
+	private Formatter format;
 	private MPOSTransaction mposTrans;
 	private OrderTransaction orderTrans;
 	private OrderListAdapter orderAdapter;
+	private long transactionId;
 	
 	private double totalPrice = 0.0d;
 	private int totalQty = 0;
@@ -56,20 +64,35 @@ public class MainActivity extends Activity {
 		orderListView = (ListView) findViewById(R.id.listViewOrder);
 		menuGridView = (GridView) findViewById(R.id.gridViewMenu);
 		tvTotalPrice = (TextView) findViewById(R.id.textViewTotalPrice);
-		
 	
+		init();
+	}
+	
+	private void init(){
+		shop = new Shop(MainActivity.this);
+		format = new Formatter(MainActivity.this);
+		mposTrans = new MPOSTransaction(MainActivity.this, format);
+		
+		shopProp = shop.getShopProperty();
+		compProp = shop.getComputerProperty();
+		
+		transactionId = mposTrans.getCurrTransaction(compProp.getComputerID());
+		if(transactionId == 0){
+			transactionId = mposTrans.openTransaction(compProp.getComputerID(), 
+					shopProp.getShopID(), 1, 1);
+		}
+		Log.i(TAG, "transactionId= " + transactionId);
+		
+		orderTrans = mposTrans.listAllOrders(transactionId, compProp.getComputerID());
+		orderAdapter = new OrderListAdapter(MainActivity.this, format, orderTrans);
+		orderListView.setAdapter(orderAdapter);
+		orderListView.setSelection(orderAdapter.getCount());
+		
 		menuLst = new ArrayList<MenuGroups.MenuItem>();
 		menuAdapter = new MenuAdapter();
 		menuGridView.setAdapter(menuAdapter);
 		
 		createMenuDept();
-	}
-	
-	private void init(){
-		mposVar = new MPOSVar(MainActivity.this);
-		mposTrans = new MPOSTransaction(MainActivity.this, mposVar);
-		
-		//mposTrans.getCurrTransaction(mposVar.com)
 	}
 	
 	public void holdBillClicked(final View v){
@@ -314,7 +337,7 @@ public class MainActivity extends Activity {
 			
 			//imgLoader.displayImage(globalVar.getImageUrl() + mi.getImgUrl(), holder.imgMenu);
 			holder.tvMenuName.setText(mi.getMenuName_0());
-			holder.btnOrder.setText(Double.toString(mi.getProductPricePerUnit()));
+			holder.btnOrder.setText(format.currencyFormat(mi.getProductPricePerUnit()));
 			
 			holder.imgMenu.setOnClickListener(new OnClickListener(){
 
@@ -340,19 +363,15 @@ public class MainActivity extends Activity {
 
 				@Override
 				public void onClick(View v) {
-//					MenuGroups.MenuDept en item = new MenuDataItem();
-//					item.setProductID(mi.getProductID());
-//					item.setMenuName(mi.getMenuName());
-//					item.setProductQty(1);
-//					item.setPricePerUnit(mi.getPricePerUnit());
-//					
-//					ORDER_LST.add(item);
-//					TOTAL_QTY += item.getProductQty();
-//					TOTAL_PRICE += item.getPricePerUnit() * item.getProductQty();
-//					updateTextPrice();
-//					
-//					orderAdapter.notifyDataSetChanged();
-//					orderListView.smoothScrollToPosition(ORDER_LST.size());
+					long orderDetailId = mposTrans.addOrderDetail(transactionId, 
+							compProp.getComputerID(), mi.getProductID(), mi.getMenuName_0(), 1, 
+							mi.getProductPricePerUnit());
+					Log.i(TAG, "orderDetailId= " + orderDetailId);
+					orderTrans.orderDetailLst.add(
+							mposTrans.getOrder(transactionId, compProp.getComputerID(), orderDetailId));
+					
+					orderAdapter.notifyDataSetChanged();
+					orderListView.smoothScrollToPosition(orderAdapter.getCount());
 				}
 				
 			});

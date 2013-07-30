@@ -17,27 +17,28 @@ public class LoginActivity extends Activity {
 
 	public void loginClicked(final View v){
 		final Intent intent = new Intent(this, MainActivity.class);
-
-		MPOSService.sync(this, new IServiceStateListener(){
-
-			@Override
-			public void onProgress() {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void onSuccess() {
-				startActivity(intent);
-			}
-
-			@Override
-			public void onFail(String msg) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
+		startActivity(intent);
+		
+//		MPOSService.sync(this, new IServiceStateListener(){
+//
+//			@Override
+//			public void onProgress() {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//
+//			@Override
+//			public void onSuccess() {
+//				startActivity(intent);
+//			}
+//
+//			@Override
+//			public void onFail(String msg) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//			
+//		});
 	}
 
 }

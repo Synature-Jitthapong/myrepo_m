@@ -29,7 +29,8 @@ public class OrderTransaction {
 	private String voidTime;
 	private int memberId;
 	
-	private List<OrderDetail> orderDetailLst;
+	public OrderDetail orderDetail;
+	public List<OrderDetail> orderDetailLst;
 	
 	public String getPaidTime() {
 		return paidTime;
@@ -77,14 +78,6 @@ public class OrderTransaction {
 
 	public void setVoidTime(String voidTime) {
 		this.voidTime = voidTime;
-	}
-
-	public List<OrderDetail> getOrderDetailLst() {
-		return orderDetailLst;
-	}
-
-	public void setOrderDetailLst(List<OrderDetail> orderDetailLst) {
-		this.orderDetailLst = orderDetailLst;
 	}
 
 	public long getTransactionId() {

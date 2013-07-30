@@ -20,10 +20,18 @@ public class Shop {
 		ShopData.ComputerProperty computer = 
 				new ShopData.ComputerProperty();
 		
-		String strSql = "";
+		String strSql = "SELECT * FROM computer_property";
 		
 		dbHelper.open();
-		
+		Cursor cursor = dbHelper.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			computer.setComputerID(cursor.getInt(cursor.getColumnIndex("computer_id")));
+			computer.setComputerName(cursor.getString(cursor.getColumnIndex("computer_name")));
+			computer.setDeviceCode(cursor.getString(cursor.getColumnIndex("device_code")));
+			computer.setRegistrationNumber(cursor.getString(cursor.getColumnIndex("registration_number")));
+			cursor.moveToNext();
+		}
+		cursor.close();
 		dbHelper.close();
 		
 		return computer;
