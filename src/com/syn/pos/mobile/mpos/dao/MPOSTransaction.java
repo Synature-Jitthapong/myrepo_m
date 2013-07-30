@@ -194,6 +194,10 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 		dbHelper.open();
 		Cursor cursor = dbHelper.rawQuery(strSql);
 		if(cursor.moveToFirst()){
+			trans.setTransactionId(cursor.getLong(cursor.getColumnIndex("transaction_id")));
+			trans.setComputerId(cursor.getInt(cursor.getColumnIndex("computer_id")));
+			trans.setTransactionVat(cursor.getDouble(cursor.getColumnIndex("transaction_vat")));
+			trans.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_cahrge")));
 			trans.orderDetail =
 					 new OrderTransaction.OrderDetail();	
 			trans.orderDetail.setOrderDetailId(cursor.getLong(cursor.getColumnIndex("order_detail_id")));
@@ -230,6 +234,8 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 			do{
 				trans.setTransactionId(cursor.getLong(cursor.getColumnIndex("transaction_id")));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex("computer_id")));
+				trans.setTransactionVat(cursor.getDouble(cursor.getColumnIndex("transaction_vat")));
+				trans.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_cahrge")));
 				
 				OrderTransaction.OrderDetail od = 
 						new OrderTransaction.OrderDetail();

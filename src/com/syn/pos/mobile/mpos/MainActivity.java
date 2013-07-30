@@ -7,6 +7,7 @@ import com.j1tth4.mobile.core.util.ImageLoader;
 import com.syn.pos.mobile.model.MenuGroups;
 import com.syn.pos.mobile.model.OrderTransaction;
 import com.syn.pos.mobile.model.ShopData;
+import com.syn.pos.mobile.model.OrderTransaction.OrderDetail;
 import com.syn.pos.mobile.mpos.dao.MPOSTransaction;
 import com.syn.pos.mobile.mpos.dao.MenuDept;
 import com.syn.pos.mobile.mpos.dao.MenuItem;
@@ -367,8 +368,12 @@ public class MainActivity extends Activity {
 							compProp.getComputerID(), mi.getProductID(), mi.getMenuName_0(), 1, 
 							mi.getProductPricePerUnit());
 					Log.i(TAG, "orderDetailId= " + orderDetailId);
-					orderTrans.orderDetailLst.add(
-							mposTrans.getOrder(transactionId, compProp.getComputerID(), orderDetailId));
+					OrderTransaction trans = 
+							mposTrans.getOrder(transactionId, compProp.getComputerID(), orderDetailId);
+					
+					orderTrans.setTransactionVat(trans.getTransactionVat());
+					orderTrans.setServiceCharge(trans.getServiceCharge());
+					orderTrans.orderDetailLst.add(trans.orderDetail);
 					
 					orderAdapter.notifyDataSetChanged();
 					orderListView.smoothScrollToPosition(orderAdapter.getCount());
