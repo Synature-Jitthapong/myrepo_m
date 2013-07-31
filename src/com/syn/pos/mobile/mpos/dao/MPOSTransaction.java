@@ -122,7 +122,7 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 		cv.put("product_name", productName);
 		cv.put("product_amount", productAmount);
 		cv.put("product_price", productPrice);
-		cv.put("vat", vatType == 1 ? productPrice * 100 / 107 : productPrice * 107 / 100);
+		cv.put("vat", format.defaultFormat(productPrice * 7 / 100));
 		
 		dbHelper.open();
 		if(!dbHelper.insert("order_detail", cv))
