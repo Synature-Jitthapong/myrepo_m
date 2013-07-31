@@ -375,7 +375,8 @@ public class MainActivity extends Activity {
 				@Override
 				public void onClick(View v) {
 					long orderDetailId = mposTrans.addOrderDetail(transactionId, 
-							compProp.getComputerID(), mi.getProductID(), mi.getMenuName_0(), 1, 
+							compProp.getComputerID(), mi.getProductID(), mi.getProductTypeID(), 
+							mi.getVatType(), 0, mi.getMenuName_0(), 1, 
 							mi.getProductPricePerUnit());
 					Log.i(TAG, "orderDetailId= " + orderDetailId);
 					OrderTransaction.OrderDetail order = 

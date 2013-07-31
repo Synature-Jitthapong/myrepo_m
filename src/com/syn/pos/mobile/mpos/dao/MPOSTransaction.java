@@ -109,7 +109,8 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 
 	@Override
 	public long addOrderDetail(long transactionId, int computerId,
-			int productId, String productName, double productAmount, double productPrice) {
+			int productId, int productType, int vatType, double serviceCharge,
+			String productName, double productAmount, double productPrice) {
 		
 		long orderDetailId = getMaxOrderDetail(transactionId, computerId);
 		
@@ -121,6 +122,7 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 		cv.put("product_name", productName);
 		cv.put("product_amount", productAmount);
 		cv.put("product_price", productPrice);
+		cv.put("vat", vatType == 1 ? productPrice * 100 / 107 : productPrice * 107 / 100);
 		
 		dbHelper.open();
 		if(!dbHelper.insert("order_detail", cv))
@@ -184,7 +186,7 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 		
 		String strSql = "SELECT order_detail_id, product_id, " +
 				" product_name, product_amount, product_price, " +
-				" vat, exclude_vat, member_discount, eatch_product_discount," +
+				" vat, exclude_vat, member_discount, each_product_discount," +
 				" service_charge " +
 				" FROM order_detail " +
 				" WHERE transaction_id=" + transactionId + 
@@ -215,7 +217,7 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 			new ArrayList<OrderTransaction.OrderDetail>();
 		
 		String strSql = "SELECT order_detail_id, product_id, " +
-				" product_name, product_amount product_price," +
+				" product_name, product_amount, product_price," +
 				" vat, exclude_vat, member_discount, each_product_discount," +
 				" service_charge " +
 				" FROM order_detail " +
