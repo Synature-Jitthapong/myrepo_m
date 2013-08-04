@@ -113,6 +113,7 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 			String productName, double productAmount, double productPrice) {
 		
 		long orderDetailId = getMaxOrderDetail(transactionId, computerId);
+		double vat = calculateVat(productPrice, productAmount);
 		
 		ContentValues cv = new ContentValues();
 		cv.put("order_detail_id", orderDetailId);
@@ -122,7 +123,7 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 		cv.put("product_name", productName);
 		cv.put("product_amount", productAmount);
 		cv.put("product_price", productPrice);
-		cv.put("vat", format.defaultFormat(productPrice * 7 / 100));
+		cv.put("vat", vat);
 		
 		dbHelper.open();
 		if(!dbHelper.insert("order_detail", cv))
@@ -251,21 +252,39 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 	}
 
 	@Override
-	public OrderTransaction getSummary(long transactionId) {
-		String strSql = "SELECT a.transaction_vat, SUM(b.product_amount) AS TotalAmount," +
-				" SUM(b.product_price) AS TotalPrice "+
-				" FROM order_transaction a " +
-				" INNER JOIN order_detail b " +
-				" ON a.transaction_id = b.transaction_id " +
-				" AND a.computer_id = b.computer_id " +
-				" WHERE a.transaction_id=" + transactionId;
-		return null;
+	public OrderTransaction.OrderDetail getSummary(long transactionId) {
+		OrderTransaction.OrderDetail order = 
+				new OrderTransaction.OrderDetail();
+		
+		String strSql = "SELECT SUM(product_amount) AS TotalAmount," +
+				" SUM(product_price) AS TotalPrice, SUM(vat) AS TotalVat "+
+				" FROM order_detail " +
+				" WHERE transaction_id=" + transactionId;
+		
+		dbHelper.open();
+		Cursor cursor = dbHelper.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			order.setProductAmount(cursor.getDouble(cursor.getColumnIndex("TotalAmount")));
+			order.setProductPrice(cursor.getDouble(cursor.getColumnIndex("TotalPrice")));
+			order.setVat(cursor.getDouble(cursor.getColumnIndex("TotalVat")));
+			cursor.moveToNext();
+		}
+		cursor.close();
+		dbHelper.close();
+		return order;
 	}
 
 	@Override
 	public boolean deleteAllOrderDetail(long transactionId) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public double calculateVat(double productPrice, double productAmount) {
+		double vat = 0.0000d;
+		vat = productPrice * productAmount * 0.07;
+		return vat;
 	}
 
 }

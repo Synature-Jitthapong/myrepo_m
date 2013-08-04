@@ -19,5 +19,7 @@ public interface IMPOSTransaction {
 
 	public void cancelTransaction(long transactionId);
 	
-	public OrderTransaction getSummary(long transactionId);
+	public OrderTransaction.OrderDetail getSummary(long transactionId);
+	
+	public double calculateVat(double productPrice, double productAmount);
 }

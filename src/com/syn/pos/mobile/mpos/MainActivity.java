@@ -415,6 +415,11 @@ public class MainActivity extends Activity {
 	
 	
 	private void updateTotalPrice(){
+		OrderTransaction.OrderDetail summaryOrder = 
+				mposTrans.getSummary(transactionId);
+		
+		tvTransVat.setText(format.currencyFormat(summaryOrder.getVat()));
+		
 		tvSubTotal.setText(format.currencyFormat(totalPrice));
 	}
 	
