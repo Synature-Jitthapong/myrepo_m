@@ -1,5 +1,7 @@
 package com.syn.pos.mobile.mpos;
 
+import android.content.Context;
+
 import com.syn.pos.mobile.mpos.dao.MPOSTransaction;
 
 public abstract class MPOS {
@@ -14,6 +16,7 @@ public abstract class MPOS {
 	}
 	
 	public long getCurrentTransaction(int computerId){
+		return computerId;
 		
 	}
 }
