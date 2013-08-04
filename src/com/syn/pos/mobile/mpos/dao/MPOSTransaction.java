@@ -282,7 +282,9 @@ public class MPOSTransaction implements IMPOSTransaction, IOrderDetail {
 
 	@Override
 	public double calculateVat(double productPrice, double productAmount) {
-		return productPrice * productAmount * 0.07;
+		double vat = 0.0000d;
+		vat = productPrice * productAmount * 0.07;
+		return vat;
 	}
 
 }
