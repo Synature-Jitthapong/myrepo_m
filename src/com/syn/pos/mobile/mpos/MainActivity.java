@@ -95,13 +95,17 @@ public class MainActivity extends Activity {
 		Log.i(TAG, "transactionId= " + transactionId);
 		
 		orderLst = mposTrans.listAllOrders(transactionId, compProp.getComputerID());
+		
 		orderAdapter = new OrderListAdapter(MainActivity.this, format, orderLst);
+		updateTotalPrice();
+		
 		orderListView.setAdapter(orderAdapter);
 		orderListView.setSelection(orderAdapter.getCount());
 		
 		menuLst = new ArrayList<MenuGroups.MenuItem>();
 		menuAdapter = new MenuAdapter();
 		menuGridView.setAdapter(menuAdapter);
+		
 		
 		createMenuDept();
 	}
