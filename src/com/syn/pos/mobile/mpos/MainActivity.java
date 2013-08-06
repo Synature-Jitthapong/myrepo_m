@@ -422,7 +422,7 @@ public class MainActivity extends Activity {
 		OrderTransaction.OrderDetail summaryOrder = 
 				mposTrans.getSummary(transactionId);
 		
-		tvTransVat.setText(format.currencyFormat(summaryOrder.getVat()));
+		//tvTransVat.setText(format.currencyFormat(summaryOrder.getVat()));
 		
 		tvSubTotal.setText(format.currencyFormat(totalPrice));
 	}
