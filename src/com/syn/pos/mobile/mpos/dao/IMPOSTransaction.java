@@ -2,7 +2,7 @@ package com.syn.pos.mobile.mpos.dao;
 
 import com.syn.pos.mobile.model.OrderTransaction;
 
-public interface IMPOSTransaction extends IPOS {
+public interface IMPOSTransaction {
 	public long getMaxTransaction(int computerId);
 
 	public long getMaxReceiptId(long transactionId, int computerId, int year,
@@ -15,7 +15,7 @@ public interface IMPOSTransaction extends IPOS {
 
 	public void updateTransaction(long transactionId, int computerId,
 			int staffId, double transVat, double transExclVat,
-			double serviceCharge);
+			double serviceCharge, double serviceChargeVat);
 
 	public void cancelTransaction(long transactionId);
 	

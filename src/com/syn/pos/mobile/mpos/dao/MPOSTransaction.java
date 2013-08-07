@@ -13,7 +13,7 @@ import com.syn.pos.mobile.model.OrderTransaction;
 import com.syn.pos.mobile.model.OrderTransaction.OrderDetail;
 import com.syn.pos.mobile.mpos.Formatter;
 
-public class MPOSTransaction extends Vat implements IMPOSTransaction, IOrderDetail {
+public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrderDetail {
 	
 	private ISqliteHelper dbHelper;
 	private Formatter format;
@@ -76,9 +76,9 @@ public class MPOSTransaction extends Vat implements IMPOSTransaction, IOrderDeta
 	@Override
 	public void updateTransaction(long transactionId, int computerId,
 			int staffId, double transVat, double transExclVat,
-			double serviceCharge) {
-		// TODO Auto-generated method stub
-		
+			double serviceCharge, double serviceChargeVat) {
+
+		String strSql = "";
 	}
 
 	@Override
@@ -113,7 +113,6 @@ public class MPOSTransaction extends Vat implements IMPOSTransaction, IOrderDeta
 			String productName, double productAmount, double productPrice) {
 		
 		long orderDetailId = getMaxOrderDetail(transactionId, computerId);
-		double vat = calculateVat(productPrice, productAmount, 0.07);
 		
 		ContentValues cv = new ContentValues();
 		cv.put("order_detail_id", orderDetailId);
@@ -123,7 +122,6 @@ public class MPOSTransaction extends Vat implements IMPOSTransaction, IOrderDeta
 		cv.put("product_name", productName);
 		cv.put("product_amount", productAmount);
 		cv.put("product_price", productPrice);
-		cv.put("vat", vat);
 		
 		dbHelper.open();
 		if(!dbHelper.insert("order_detail", cv))
