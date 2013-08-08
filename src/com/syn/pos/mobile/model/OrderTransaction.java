@@ -27,7 +27,6 @@ public class OrderTransaction {
 	private float transactionVatExclude;
 	private float serviceCharge;
 	private float serviceChargeVat;
-	public OrderDetail orderDetail;
 
 	public void setTransactionId(int transactionId) {
 		this.transactionId = transactionId;
@@ -229,6 +228,42 @@ public class OrderTransaction {
 		private float productPrice;
 		private float memberDiscount;
 		private float eachProductDiscount;
+		private float vat;
+		private float vatExclude;
+		private float serviceCharge;
+		private float serviceChargeVat;
+
+		public float getVat() {
+			return vat;
+		}
+
+		public void setVat(float vat) {
+			this.vat = vat;
+		}
+
+		public float getVatExclude() {
+			return vatExclude;
+		}
+
+		public void setVatExclude(float vatExclude) {
+			this.vatExclude = vatExclude;
+		}
+
+		public float getServiceCharge() {
+			return serviceCharge;
+		}
+
+		public void setServiceCharge(float serviceCharge) {
+			this.serviceCharge = serviceCharge;
+		}
+		
+		public float getServiceChargeVat() {
+			return serviceChargeVat;
+		}
+
+		public void setServiceChargeVat(float serviceChargeVat) {
+			this.serviceChargeVat = serviceChargeVat;
+		}
 
 		public double getProductAmount() {
 			return productAmount;

@@ -21,6 +21,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -140,6 +141,11 @@ public class MainActivity extends Activity {
 		
 		dialog.setContentView(holdView);
 		dialog.show();
+	}
+	
+	public void discountClicked(final View v){
+		Intent intent = new Intent(MainActivity.this, DiscountActivity.class);
+		startActivity(intent);
 	}
 	
 	public void logoutClicked(final View v){
@@ -415,11 +421,12 @@ public class MainActivity extends Activity {
 	
 	
 	private void updateTotalPrice(){
-		orderTrans = mposTrans.getSummary(transactionId);
+		OrderTransaction.OrderDetail orderDetail
+			= mposTrans.getSummary(transactionId);
 		
-		tvTransVat.setText(format.currencyFormat(orderTrans.getTransactionVatExclude()));
-		tvSubTotal.setText(format.currencyFormat(orderTrans.orderDetail.getProductPrice()));
-		tvTotalPrice.setText(format.currencyFormat(orderTrans.orderDetail.getProductPrice()));
+		tvTransVat.setText(format.currencyFormat(orderDetail.getVat()));
+		tvSubTotal.setText(format.currencyFormat(orderDetail.getProductPrice()));
+		tvTotalPrice.setText(format.currencyFormat(orderDetail.getProductPrice()));
 	}
 	
 	public void clearBillClicked(final View v){

@@ -55,6 +55,7 @@ public class MenuItem {
 				mi.setProductBarCode(cursor.getString(cursor.getColumnIndex("product_bar_code")));
 				mi.setProductPricePerUnit(cursor.getFloat(cursor.getColumnIndex(colSaleModePrice)));
 				mi.setIsOutOfStock(cursor.getInt(cursor.getColumnIndex("is_out_of_stock")));
+				mi.setVatType(cursor.getInt(cursor.getColumnIndex("vat_type")));
 				mi.setProductUnitName(cursor.getString(cursor.getColumnIndex("product_unit_name")));
 				mi.setMenuName_0(cursor.getString(cursor.getColumnIndex("menu_name_0")));
 				mi.setMenuName_1(cursor.getString(cursor.getColumnIndex("menu_name_1")));

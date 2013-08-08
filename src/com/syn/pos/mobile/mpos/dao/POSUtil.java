@@ -1,9 +1,11 @@
 package com.syn.pos.mobile.mpos.dao;
 
+import java.math.BigDecimal;
+
 public abstract class POSUtil implements IPOS {
 	
-	public double calculateVat(double productPrice, double productAmount, double vat){
-		return productPrice * productAmount * toVatPercent(vat);
+	public BigDecimal calculateVat(float productPrice, float productAmount, float vat){
+		return new BigDecimal(productPrice * productAmount * toVatPercent(vat));
 	}
 	
 	protected double toVatPercent(double vat){

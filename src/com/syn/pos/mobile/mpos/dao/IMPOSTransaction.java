@@ -19,6 +19,6 @@ public interface IMPOSTransaction {
 
 	public void cancelTransaction(int transactionId);
 	
-	public OrderTransaction getSummary(int transactionId);
+	public OrderTransaction.OrderDetail getSummary(int transactionId);
 	
 }

@@ -3,8 +3,6 @@
 
     <string name="app_name">MPOS</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_main">MainActivity</string>
     <string name="button_login">Login</string>
     <string name="user_name">User name:</string>
     <string name="pass_word">Password:</string>
@@ -24,5 +22,14 @@
     <string name="button_confirm_hold">Ok</string>
     <string name="button_cancel_hold">Cancel</string>
     <string name="title_hold_order">Hold order</string>
+    <string name="title_activity_discount">DiscountActivity</string>
+    <string name="title_discount">Discount</string>
+    <string name="sub_total">Sub total</string>
+    <string name="discount">Discount</string>
+    <string name="vat">Vat</string>
+    <string name="exclude_vat">Vat exclude</string>
+    <string name="total_price">Total</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_ok">Ok</string>
 
 </resources>

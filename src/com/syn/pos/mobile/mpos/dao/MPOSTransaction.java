@@ -1,6 +1,7 @@
 package com.syn.pos.mobile.mpos.dao;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -54,11 +55,11 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 		cv.put("shop_id", shopId);
 		cv.put("session_id", sessionId);
 		cv.put("open_staff_id", staffId);
-		cv.put("open_time", format.dateTimeFormat(date));
+		cv.put("open_time", date.getTime());
 		cv.put("open_staff_id", staffId);
-		cv.put("sale_date", format.dateFormat(date));
-		cv.put("receipt_year", date.getYear());
-		cv.put("receipt_month", date.getMonth());
+		cv.put("sale_date", date.getTime());
+		cv.put("receipt_year", Calendar.getInstance().get(Calendar.YEAR));
+		cv.put("receipt_month", Calendar.getInstance().get(Calendar.MONTH));
 		
 		dbHelper.open();
 		
@@ -119,6 +120,11 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 		cv.put("product_name", productName);
 		cv.put("product_amount", productAmount);
 		cv.put("product_price", productPrice);
+		
+		if(vatType == 1)
+			cv.put("vat", calculateVat(productPrice, productAmount, 7).toString());
+		else if(vatType == 2)
+			cv.put("vat_exclude", calculateVat(productPrice, productAmount, 7).toString());
 		
 		dbHelper.open();
 		if(!dbHelper.insert("order_detail", cv))
@@ -240,36 +246,36 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 	}
 
 	@Override
-	public OrderTransaction getSummary(int transactionId) {
-		OrderTransaction orderTrans = 
-				new OrderTransaction();
+	public OrderTransaction.OrderDetail getSummary(int transactionId) {
+		OrderTransaction.OrderDetail orderDetail = 
+					new OrderTransaction.OrderDetail();
 		
-		String strSql = "SELECT a.transaction_vat, a.transaction_exclude_vat " +
-				" a.service_charge, a.service_charge_vat, SUM(b.product_amount) AS TotalAmount," +
-				" SUM(b.product_price) AS TotalPrice "+
-				" FROM order_transaction a " +
-				" INNER JOIN order_detail b " +
-				" ON a.transaction_id=b.transaction_id " +
-				" AND a.computer_id=b.computer_id " +
-				" WHERE a.transaction_id=" + transactionId;
+		String strSql = "SELECT SUM(product_amount) AS TotalAmount," +
+				" SUM(product_price) AS TotalPrice, SUM(vat) AS TotalVat," +
+				" SUM(vat_exclude) AS TotalVatExclude, " +
+				" SUM(service_charge) AS TotalServiceCharge," +
+				" SUM(service_charge_vat) AS TotalServiceChargeVat, " +
+				" SUM(each_product_discount) AS TotalProductDiscount," +
+				" SUM(member_discount) AS TotalMemberDiscount "+
+				" FROM order_detail " +
+				" WHERE transaction_id=" + transactionId;
 		
 		dbHelper.open();
 		Cursor cursor = dbHelper.rawQuery(strSql);
-		if(cursor.moveToFirst()){
-			orderTrans.setTransactionVat(cursor.getFloat(cursor.getColumnIndex("transaction_vat")));
-			orderTrans.setTransactionVatExclude(cursor.getFloat(cursor.getColumnIndex("transaction_exclude_vat")));
-			orderTrans.setServiceCharge(cursor.getFloat(cursor.getColumnIndex("service_charge")));
-			orderTrans.setServiceChargeVat(cursor.getFloat(cursor.getColumnIndex("service_charge_vat")));
-			
-			orderTrans.orderDetail = new OrderTransaction.OrderDetail();
-			orderTrans.orderDetail.setProductAmount(cursor.getFloat(cursor.getColumnIndex("TotalAmount")));
-			orderTrans.orderDetail.setProductPrice(cursor.getFloat(cursor.getColumnIndex("TotalPrice")));
-			
+		if(cursor.moveToFirst()){			
+			orderDetail.setProductAmount(cursor.getFloat(cursor.getColumnIndex("TotalAmount")));
+			orderDetail.setProductPrice(cursor.getFloat(cursor.getColumnIndex("TotalPrice")));
+			orderDetail.setVat(cursor.getFloat(cursor.getColumnIndex("TotalVat")));
+			orderDetail.setVatExclude(cursor.getFloat(cursor.getColumnIndex("TotalVatExclude")));
+			orderDetail.setServiceCharge(cursor.getFloat(cursor.getColumnIndex("TotalServiceCharge")));
+			orderDetail.setServiceChargeVat(cursor.getFloat(cursor.getColumnIndex("TotalServiceChargeVat")));
+			orderDetail.setEachProductDiscount(cursor.getFloat(cursor.getColumnIndex("TotalProductDiscount")));
+			orderDetail.setMemberDiscount(cursor.getFloat(cursor.getColumnIndex("TotalMemberDiscount")));
 			cursor.moveToNext();
 		}
 		cursor.close();
 		dbHelper.close();
-		return orderTrans;
+		return orderDetail;
 	}
 
 	@Override
