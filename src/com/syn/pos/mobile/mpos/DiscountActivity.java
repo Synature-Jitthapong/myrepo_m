@@ -38,9 +38,9 @@ public class DiscountActivity extends Activity {
 		setContentView(R.layout.activity_discount);
 	
 		lvDiscount = (ListView) findViewById(R.id.listViewDiscount);
-		tvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
-		tvTotalDiscount = (TextView) findViewById(R.id.textViewDiscount);
-		tvTotalPrice = (TextView) findViewById(R.id.textViewTotalPrice);
+		tvSubTotal = (TextView) findViewById(R.id.textViewDisSubTotal);
+		tvTotalDiscount = (TextView) findViewById(R.id.textViewDisDiscount);
+		tvTotalPrice = (TextView) findViewById(R.id.textViewDisTotal);
 		
 		Intent intent = getIntent();
 		transactionId = intent.getIntExtra("transactionId", 0);

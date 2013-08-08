@@ -203,6 +203,7 @@ public class MainActivity extends Activity {
 						1f);
 
 				if(i == 0){
+					btnCat.callOnClick();
 					btnCat.setBackgroundResource(R.drawable.orange_button_left);
 					
 				}else if(i == menuDeptLst.size() - 1){
