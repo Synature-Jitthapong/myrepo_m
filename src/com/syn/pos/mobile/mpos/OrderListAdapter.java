@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class OrderListAdapter extends BaseAdapter{
@@ -48,7 +49,7 @@ public class OrderListAdapter extends BaseAdapter{
 			holder = new ViewHolder();
 			holder.tvOrderNo = (TextView) convertView.findViewById(R.id.textViewOrderNo);
 			holder.tvOrderName = (TextView) convertView.findViewById(R.id.textViewOrderName);
-			holder.tvOrderAmount = (TextView) convertView.findViewById(R.id.textViewOrderAmount);
+			holder.txtOrderAmount = (EditText) convertView.findViewById(R.id.editTextOrderAmount);
 			holder.tvOrderPrice = (TextView) convertView.findViewById(R.id.textViewOrderPrice);
 			holder.btnMinus = (Button) convertView.findViewById(R.id.buttonOrderMinus);
 			holder.btnPlus = (Button) convertView.findViewById(R.id.buttonOrderPlus);
@@ -59,7 +60,7 @@ public class OrderListAdapter extends BaseAdapter{
 		
 		holder.tvOrderNo.setText(Integer.toString(position + 1));
 		holder.tvOrderName.setText(orderDetail.getProductName());
-		holder.tvOrderAmount.setText(format.qtyFormat(orderDetail.getProductAmount()));
+		holder.txtOrderAmount.setText(format.qtyFormat(orderDetail.getProductAmount()));
 		holder.tvOrderPrice.setText(format.currencyFormat(orderDetail.getProductPrice()));
 		
 		return convertView;
@@ -68,7 +69,7 @@ public class OrderListAdapter extends BaseAdapter{
 	private class ViewHolder{
 		TextView tvOrderNo;
 		TextView tvOrderName;
-		TextView tvOrderAmount;
+		EditText txtOrderAmount;
 		TextView tvOrderPrice;
 		Button btnMinus;
 		Button btnPlus;

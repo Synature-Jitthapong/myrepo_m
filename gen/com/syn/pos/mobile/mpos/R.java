@@ -63,7 +63,6 @@ public final class R {
         public static final int HeaderLayout=0x7f0a0022;
         public static final int LeftLayout=0x7f0a0016;
         public static final int LinearLayout1=0x7f0a0000;
-        public static final int LinearLayout1layout_width==0x7f0a0032;
         public static final int LinearLayout2=0x7f0a003c;
         public static final int MainLayout=0x7f0a0015;
         public static final int MenuCatLayout=0x7f0a002b;
@@ -94,6 +93,7 @@ public final class R {
         public static final int buttonSwitchUser=0x7f0a0028;
         public static final int buttonUtility=0x7f0a0027;
         public static final int editTextDisPrice=0x7f0a0036;
+        public static final int editTextOrderAmount=0x7f0a0047;
         public static final int editTextPassWord=0x7f0a0011;
         public static final int editTextRemark=0x7f0a0039;
         public static final int editTextUserName=0x7f0a000f;
@@ -103,7 +103,7 @@ public final class R {
         public static final int imageViewLogo=0x7f0a000b;
         public static final int imageViewMenu=0x7f0a0040;
         public static final int imageViewMenuDetail=0x7f0a003f;
-        public static final int listView1=0x7f0a0002;
+        public static final int listViewDiscount=0x7f0a0002;
         public static final int listViewOrder=0x7f0a0019;
         public static final int progressBar1=0x7f0a0013;
         public static final int progressBarMenu=0x7f0a002d;
@@ -115,8 +115,9 @@ public final class R {
         public static final int textView6=0x7f0a0007;
         public static final int textView7=0x7f0a0008;
         public static final int textViewBarcode=0x7f0a0017;
-        public static final int textViewDisNo=0x7f0a0033;
-        public static final int textViewDisProName=0x7f0a0034;
+        public static final int textViewDisNo=0x7f0a0032;
+        public static final int textViewDisProAmount=0x7f0a0034;
+        public static final int textViewDisProName=0x7f0a0033;
         public static final int textViewDisProPrice=0x7f0a0035;
         public static final int textViewDisTotalPrice=0x7f0a0037;
         public static final int textViewDiscount=0x7f0a001d;
@@ -126,7 +127,6 @@ public final class R {
         public static final int textViewMenuDept=0x7f0a0042;
         public static final int textViewMenuDescript=0x7f0a0043;
         public static final int textViewMenuName=0x7f0a0041;
-        public static final int textViewOrderAmount=0x7f0a0047;
         public static final int textViewOrderName=0x7f0a0045;
         public static final int textViewOrderNo=0x7f0a0038;
         public static final int textViewOrderPrice=0x7f0a0014;

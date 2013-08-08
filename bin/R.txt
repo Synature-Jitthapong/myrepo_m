@@ -36,7 +36,6 @@ int id FeatureLayout 0x7f0a0023
 int id HeaderLayout 0x7f0a0022
 int id LeftLayout 0x7f0a0016
 int id LinearLayout1 0x7f0a0000
-int id LinearLayout1layout_width= 0x7f0a0032
 int id LinearLayout2 0x7f0a003c
 int id MainLayout 0x7f0a0015
 int id MenuCatLayout 0x7f0a002b
@@ -67,6 +66,7 @@ int id buttonSetMember 0x7f0a002f
 int id buttonSwitchUser 0x7f0a0028
 int id buttonUtility 0x7f0a0027
 int id editTextDisPrice 0x7f0a0036
+int id editTextOrderAmount 0x7f0a0047
 int id editTextPassWord 0x7f0a0011
 int id editTextRemark 0x7f0a0039
 int id editTextUserName 0x7f0a000f
@@ -76,7 +76,7 @@ int id imageButton1 0x7f0a000d
 int id imageViewLogo 0x7f0a000b
 int id imageViewMenu 0x7f0a0040
 int id imageViewMenuDetail 0x7f0a003f
-int id listView1 0x7f0a0002
+int id listViewDiscount 0x7f0a0002
 int id listViewOrder 0x7f0a0019
 int id progressBar1 0x7f0a0013
 int id progressBarMenu 0x7f0a002d
@@ -88,8 +88,9 @@ int id textView5 0x7f0a0006
 int id textView6 0x7f0a0007
 int id textView7 0x7f0a0008
 int id textViewBarcode 0x7f0a0017
-int id textViewDisNo 0x7f0a0033
-int id textViewDisProName 0x7f0a0034
+int id textViewDisNo 0x7f0a0032
+int id textViewDisProAmount 0x7f0a0034
+int id textViewDisProName 0x7f0a0033
 int id textViewDisProPrice 0x7f0a0035
 int id textViewDisTotalPrice 0x7f0a0037
 int id textViewDiscount 0x7f0a001d
@@ -99,7 +100,6 @@ int id textViewMember 0x7f0a0018
 int id textViewMenuDept 0x7f0a0042
 int id textViewMenuDescript 0x7f0a0043
 int id textViewMenuName 0x7f0a0041
-int id textViewOrderAmount 0x7f0a0047
 int id textViewOrderName 0x7f0a0045
 int id textViewOrderNo 0x7f0a0038
 int id textViewOrderPrice 0x7f0a0014

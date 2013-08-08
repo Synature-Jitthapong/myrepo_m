@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-sdk
-        android:minSdkVersion="10"
+        android:minSdkVersion="15"
         android:targetSdkVersion="17" />
 
     <application
@@ -37,7 +37,7 @@
         </activity>
         <activity
             android:name="com.syn.pos.mobile.mpos.DiscountActivity"
-            android:label="@string/title_activity_discount" >
+            android:label="@string/title_activity_discount" android:screenOrientation="landscape" android:windowSoftInputMode="stateHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.pos.mobile.mpos.MainActivity" />

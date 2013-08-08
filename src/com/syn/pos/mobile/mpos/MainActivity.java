@@ -145,6 +145,8 @@ public class MainActivity extends Activity {
 	
 	public void discountClicked(final View v){
 		Intent intent = new Intent(MainActivity.this, DiscountActivity.class);
+		intent.putExtra("transactionId", transactionId);
+		intent.putExtra("computerId", compProp.getComputerID());
 		startActivity(intent);
 	}
 	
