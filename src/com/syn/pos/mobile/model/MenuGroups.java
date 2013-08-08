@@ -86,7 +86,7 @@ public class MenuGroups {
 		private String MenuCommentName_3;
 		private int MenuCommentOrdering;
 		private int MenuCommentGroupID;
-		private double commentQty;
+		private float commentQty;
 		private boolean isChecked;
 		
 		public int getMenuCommentGroupID() {
@@ -104,11 +104,10 @@ public class MenuGroups {
 		public void toggleCheck(){
 			this.isChecked = !isChecked;
 		}
-		
-		public double getCommentQty() {
+		public float getCommentQty() {
 			return commentQty;
 		}
-		public void setCommentQty(double commentQty) {
+		public void setCommentQty(float commentQty) {
 			this.commentQty = commentQty;
 		}
 		public int getMenuCommentID() {

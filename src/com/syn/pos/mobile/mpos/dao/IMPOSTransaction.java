@@ -3,22 +3,22 @@ package com.syn.pos.mobile.mpos.dao;
 import com.syn.pos.mobile.model.OrderTransaction;
 
 public interface IMPOSTransaction {
-	public long getMaxTransaction(int computerId);
+	public int getMaxTransaction(int computerId);
 
-	public long getMaxReceiptId(long transactionId, int computerId, int year,
+	public int getMaxReceiptId(int transactionId, int computerId, int year,
 			int month);
 
-	public long getCurrTransaction(int computerId);
+	public int getCurrTransaction(int computerId);
 
-	public long openTransaction(int computerId, int shopId, int sessionId,
+	public int openTransaction(int computerId, int shopId, int sessionId,
 			int staffId);
 
-	public void updateTransaction(long transactionId, int computerId,
-			int staffId, double transVat, double transExclVat,
-			double serviceCharge, double serviceChargeVat);
+	public void updateTransaction(int transactionId, int computerId,
+			int staffId, float transVat, float transExclVat,
+			float serviceCharge, float serviceChargeVat);
 
-	public void cancelTransaction(long transactionId);
+	public void cancelTransaction(int transactionId);
 	
-	public OrderTransaction.OrderDetail getSummary(long transactionId);
+	public OrderTransaction getSummary(int transactionId);
 	
 }

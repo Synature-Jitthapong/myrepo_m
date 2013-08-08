@@ -147,7 +147,7 @@ public class ProductGroups {
     {
         private int iQuestionID;
         private int iAnsOptionID;
-        private double fAnsValue;
+        private float fAnsValue;
         private String szAnsText;
 
 		public int getiQuestionID() {
@@ -162,10 +162,10 @@ public class ProductGroups {
 		public void setiAnsOptionID(int iAnsOptionID) {
 			this.iAnsOptionID = iAnsOptionID;
 		}
-		public double getfAnsValue() {
+		public float getfAnsValue() {
 			return fAnsValue;
 		}
-		public void setfAnsValue(double fAnsValue) {
+		public void setfAnsValue(float fAnsValue) {
 			this.fAnsValue = fAnsValue;
 		}
 		public String getSzAnsText() {
@@ -183,7 +183,7 @@ public class ProductGroups {
 		private int QuestionTypeID;
 		private int IsRequired;
 		private int Ordering;
-		private double questionValue;
+		private float questionValue;
 		private int questionOptId;
 		private int optionId;
 		private boolean requireSelect;
@@ -200,10 +200,10 @@ public class ProductGroups {
 		public void setOptionId(int optionId) {
 			this.optionId = optionId;
 		}
-		public double getQuestionValue() {
+		public float getQuestionValue() {
 			return questionValue;
 		}
-		public void setQuestionValue(double questionValue) {
+		public void setQuestionValue(float questionValue) {
 			this.questionValue = questionValue;
 		}
 		public int getQuestionOptId() {
@@ -458,58 +458,65 @@ public class ProductGroups {
 		private String ProductCode;
 		private String ProductBarCode;
 		private int ProductTypeID;
-		private double ProductPricePerUnit;
+		private float ProductPricePerUnit;
 		private String ProductUnitName;
 		private String ProductDesc;
 		private int DiscountAllow;
 		private int PrinterID;
 		private int PrintGroup;
 		private int VatType;
-		private double VatRate;
+		private float VatRate;
 		private int HasServiceCharge;
 		private int Activate;
 		private int IsOutOfStock;
 		private int SaleMode1;
-		private double ProductPricePerUnit1;
+		private float ProductPricePerUnit1;
 		private int SaleMode2;
-		private double ProductPricePerUnit2;
+		private float ProductPricePerUnit2;
 		private int SaleMode3;
-		private double ProductPricePerUnit3;
+		private float ProductPricePerUnit3;
 		private int SaleMode4;
-		private double ProductPricePerUnit4;
+		private float ProductPricePerUnit4;
 		private int SaleMode5;
-		private double ProductPricePerUnit5;
+		private float ProductPricePerUnit5;
 		private String UpdateDate;
 		
-		public double getProductPricePerUnit1() {
+		
+		public float getProductPricePerUnit1() {
 			return ProductPricePerUnit1;
 		}
-		public void setProductPricePerUnit1(double productPricePerUnit1) {
+		public void setProductPricePerUnit1(float productPricePerUnit1) {
 			ProductPricePerUnit1 = productPricePerUnit1;
 		}
-		public double getProductPricePerUnit2() {
+		public float getProductPricePerUnit2() {
 			return ProductPricePerUnit2;
 		}
-		public void setProductPricePerUnit2(double productPricePerUnit2) {
+		public void setProductPricePerUnit2(float productPricePerUnit2) {
 			ProductPricePerUnit2 = productPricePerUnit2;
 		}
-		public double getProductPricePerUnit3() {
+		public float getProductPricePerUnit3() {
 			return ProductPricePerUnit3;
 		}
-		public void setProductPricePerUnit3(double productPricePerUnit3) {
+		public void setProductPricePerUnit3(float productPricePerUnit3) {
 			ProductPricePerUnit3 = productPricePerUnit3;
 		}
-		public double getProductPricePerUnit4() {
+		public float getProductPricePerUnit4() {
 			return ProductPricePerUnit4;
 		}
-		public void setProductPricePerUnit4(double productPricePerUnit4) {
+		public void setProductPricePerUnit4(float productPricePerUnit4) {
 			ProductPricePerUnit4 = productPricePerUnit4;
 		}
-		public double getProductPricePerUnit5() {
+		public float getProductPricePerUnit5() {
 			return ProductPricePerUnit5;
 		}
-		public void setProductPricePerUnit5(double productPricePerUnit5) {
+		public void setProductPricePerUnit5(float productPricePerUnit5) {
 			ProductPricePerUnit5 = productPricePerUnit5;
+		}
+		public void setProductPricePerUnit(float productPricePerUnit) {
+			ProductPricePerUnit = productPricePerUnit;
+		}
+		public void setVatRate(float vatRate) {
+			VatRate = vatRate;
 		}
 		public int getProductID() {
 			return ProductID;
@@ -553,11 +560,9 @@ public class ProductGroups {
 		public void setProductTypeID(int productTypeID) {
 			ProductTypeID = productTypeID;
 		}
-		public double getProductPricePerUnit() {
+		
+		public float getProductPricePerUnit() {
 			return ProductPricePerUnit;
-		}
-		public void setProductPricePerUnit(double productPricePerUnit) {
-			ProductPricePerUnit = productPricePerUnit;
 		}
 		public String getProductUnitName() {
 			return ProductUnitName;
@@ -595,11 +600,8 @@ public class ProductGroups {
 		public void setVatType(int vatType) {
 			VatType = vatType;
 		}
-		public double getVatRate() {
+		public float getVatRate() {
 			return VatRate;
-		}
-		public void setVatRate(double vatRate) {
-			VatRate = vatRate;
 		}
 		public int getHasServiceCharge() {
 			return HasServiceCharge;
@@ -656,8 +658,8 @@ public class ProductGroups {
         private int ProductID;
         private int SaleMode;
         private int ChildProductID;
-        private double ChildProductAmount;
-        private double FlexibleProductPrice;
+        private float ChildProductAmount;
+        private float FlexibleProductPrice;
         private int FlexibleIncludePrice;
         
 		public int getPGroupID() {
@@ -684,16 +686,16 @@ public class ProductGroups {
 		public void setChildProductID(int childProductID) {
 			ChildProductID = childProductID;
 		}
-		public double getChildProductAmount() {
+		public float getChildProductAmount() {
 			return ChildProductAmount;
 		}
-		public void setChildProductAmount(double childProductAmount) {
+		public void setChildProductAmount(float childProductAmount) {
 			ChildProductAmount = childProductAmount;
 		}
-		public double getFlexibleProductPrice() {
+		public float getFlexibleProductPrice() {
 			return FlexibleProductPrice;
 		}
-		public void setFlexibleProductPrice(double flexibleProductPrice) {
+		public void setFlexibleProductPrice(float flexibleProductPrice) {
 			FlexibleProductPrice = flexibleProductPrice;
 		}
 		public int getFlexibleIncludePrice() {
@@ -709,7 +711,7 @@ public class ProductGroups {
 		private int SaleMode;
 		private int SetGroupNo;
 		private String SetGroupName;
-		private double RequireAmount;
+		private float RequireAmount;
 		private String MenuImageLink;
 		private int totalPCompSet;
 		
@@ -750,10 +752,10 @@ public class ProductGroups {
 		public void setSetGroupName(String setGroupName) {
 			SetGroupName = setGroupName;
 		}
-		public double getRequireAmount() {
+		public float getRequireAmount() {
 			return RequireAmount;
 		}
-		public void setRequireAmount(double requireAmount) {
+		public void setRequireAmount(float requireAmount) {
 			RequireAmount = requireAmount;
 		}
 	}
@@ -763,8 +765,8 @@ public class ProductGroups {
         private int ProductID;
         private int SaleMode;
         private int ChildProductID;
-        private double ChildProductAmount;
-        private double FlexibleProductPrice;
+        private float ChildProductAmount;
+        private float FlexibleProductPrice;
         private int FlexibleIncludePrice;
         
 		public int getPGroupID() {
@@ -791,16 +793,16 @@ public class ProductGroups {
 		public void setChildProductID(int childProductID) {
 			ChildProductID = childProductID;
 		}
-		public double getChildProductAmount() {
+		public float getChildProductAmount() {
 			return ChildProductAmount;
 		}
-		public void setChildProductAmount(double childProductAmount) {
+		public void setChildProductAmount(float childProductAmount) {
 			ChildProductAmount = childProductAmount;
 		}
-		public double getFlexibleProductPrice() {
+		public float getFlexibleProductPrice() {
 			return FlexibleProductPrice;
 		}
-		public void setFlexibleProductPrice(double flexibleProductPrice) {
+		public void setFlexibleProductPrice(float flexibleProductPrice) {
 			FlexibleProductPrice = flexibleProductPrice;
 		}
 		public int getFlexibleIncludePrice() {

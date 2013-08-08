@@ -46,10 +46,7 @@ public class MainActivity extends Activity {
 	private OrderTransaction orderTrans;
 	private List<OrderTransaction.OrderDetail> orderLst;
 	private OrderListAdapter orderAdapter;
-	private long transactionId;
-	
-	private double totalPrice;
-	private double totalQty;
+	private int transactionId;
 	
 	private List<MenuGroups.MenuDept> menuDeptLst;
 	private List<MenuGroups.MenuItem> menuLst;
@@ -378,7 +375,7 @@ public class MainActivity extends Activity {
 
 				@Override
 				public void onClick(View v) {
-					long orderDetailId = mposTrans.addOrderDetail(transactionId, 
+					int orderDetailId = mposTrans.addOrderDetail(transactionId, 
 							compProp.getComputerID(), mi.getProductID(), mi.getProductTypeID(), 
 							mi.getVatType(), 0, mi.getMenuName_0(), 1, 
 							mi.getProductPricePerUnit());
@@ -386,7 +383,6 @@ public class MainActivity extends Activity {
 					OrderTransaction.OrderDetail order = 
 							mposTrans.getOrder(transactionId, compProp.getComputerID(), orderDetailId);
 					orderLst.add(order);
-					totalPrice += mi.getProductPricePerUnit();
 					
 					updateTotalPrice();
 					
@@ -419,12 +415,11 @@ public class MainActivity extends Activity {
 	
 	
 	private void updateTotalPrice(){
-		OrderTransaction.OrderDetail summaryOrder = 
-				mposTrans.getSummary(transactionId);
+		orderTrans = mposTrans.getSummary(transactionId);
 		
-		//tvTransVat.setText(format.currencyFormat(summaryOrder.getVat()));
-		
-		tvSubTotal.setText(format.currencyFormat(totalPrice));
+		tvTransVat.setText(format.currencyFormat(orderTrans.getTransactionVatExclude()));
+		tvSubTotal.setText(format.currencyFormat(orderTrans.orderDetail.getProductPrice()));
+		tvTotalPrice.setText(format.currencyFormat(orderTrans.orderDetail.getProductPrice()));
 	}
 	
 	public void clearBillClicked(final View v){

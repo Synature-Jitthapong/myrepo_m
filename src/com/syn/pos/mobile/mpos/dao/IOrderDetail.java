@@ -1,14 +1,14 @@
 package com.syn.pos.mobile.mpos.dao;
 
 public interface IOrderDetail {
-	public long getMaxOrderDetail(long transactionId, int computerId);
+	public int getMaxOrderDetail(int transactionId, int computerId);
 
-	public long addOrderDetail(long transactionId, int computerId,
-			int productId, int productType, int vatType, double serviceCharge,
-			String productName, double productAmount, double productPrice);
+	public int addOrderDetail(int transactionId, int computerId,
+			int productId, int productType, int vatType, float serviceCharge,
+			String productName, float productAmount, float productPrice);
 
 	// public boolean updateOrderDetail(int tr)
-	public boolean deleteOrderDetail(long transactionId, long orderDetailId);
+	public boolean deleteOrderDetail(int transactionId, int orderDetailId);
 
-	public boolean deleteAllOrderDetail(long transactionId);
+	public boolean deleteAllOrderDetail(int transactionId);
 }

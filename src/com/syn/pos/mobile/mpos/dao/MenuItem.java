@@ -53,7 +53,7 @@ public class MenuItem {
 				MenuGroups.MenuItem mi = new MenuGroups.MenuItem();
 				mi.setProductID(cursor.getInt(cursor.getColumnIndex("product_id")));
 				mi.setProductBarCode(cursor.getString(cursor.getColumnIndex("product_bar_code")));
-				mi.setProductPricePerUnit(cursor.getDouble(cursor.getColumnIndex(colSaleModePrice)));
+				mi.setProductPricePerUnit(cursor.getFloat(cursor.getColumnIndex(colSaleModePrice)));
 				mi.setIsOutOfStock(cursor.getInt(cursor.getColumnIndex("is_out_of_stock")));
 				mi.setProductUnitName(cursor.getString(cursor.getColumnIndex("product_unit_name")));
 				mi.setMenuName_0(cursor.getString(cursor.getColumnIndex("menu_name_0")));

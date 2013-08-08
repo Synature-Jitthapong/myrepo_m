@@ -1,13 +1,15 @@
 package com.syn.pos.mobile.model;
 
+import java.util.List;
+
 public class OrderTransaction {
-	private long transactionId;
+	private int transactionId;
 	private int computerId;
 	private int shopId;
-	private String openTime;
-	private String closeTime;
+	private long openTime;
+	private long closeTime;
 	private int openStaffId;
-	private String paidTime;
+	private long paidTime;
 	private int paidStaffId;
 	private int transactionStatusId;
 	private int saleMode;
@@ -15,19 +17,92 @@ public class OrderTransaction {
 	private int receiptYear;
 	private int receiptMonth;
 	private int receiptId;
-	private String saleDate;
+	private long saleDate;
 	private int sessionId;
 	private int voidStaffId;
 	private String voidReason;
-	private String voidTime;
+	private long voidTime;
 	private int memberId;
-	
-	public String getPaidTime() {
+	private float transactionVat;
+	private float transactionVatExclude;
+	private float serviceCharge;
+	private float serviceChargeVat;
+	public OrderDetail orderDetail;
+
+	public void setTransactionId(int transactionId) {
+		this.transactionId = transactionId;
+	}
+
+	public long getOpenTime() {
+		return openTime;
+	}
+
+	public void setOpenTime(long openTime) {
+		this.openTime = openTime;
+	}
+
+	public long getCloseTime() {
+		return closeTime;
+	}
+
+	public void setCloseTime(long closeTime) {
+		this.closeTime = closeTime;
+	}
+
+	public long getPaidTime() {
 		return paidTime;
 	}
 
-	public void setPaidTime(String paidTime) {
+	public void setPaidTime(long paidTime) {
 		this.paidTime = paidTime;
+	}
+
+	public long getSaleDate() {
+		return saleDate;
+	}
+
+	public void setSaleDate(long saleDate) {
+		this.saleDate = saleDate;
+	}
+
+	public long getVoidTime() {
+		return voidTime;
+	}
+
+	public void setVoidTime(long voidTime) {
+		this.voidTime = voidTime;
+	}
+
+	public float getTransactionVat() {
+		return transactionVat;
+	}
+
+	public void setTransactionVat(float transactionVat) {
+		this.transactionVat = transactionVat;
+	}
+
+	public float getTransactionVatExclude() {
+		return transactionVatExclude;
+	}
+
+	public void setTransactionVatExclude(float transactionVatExclude) {
+		this.transactionVatExclude = transactionVatExclude;
+	}
+
+	public float getServiceCharge() {
+		return serviceCharge;
+	}
+
+	public void setServiceCharge(float serviceCharge) {
+		this.serviceCharge = serviceCharge;
+	}
+
+	public float getServiceChargeVat() {
+		return serviceChargeVat;
+	}
+
+	public void setServiceChargeVat(float serviceChargeVat) {
+		this.serviceChargeVat = serviceChargeVat;
 	}
 
 	public int getPaidStaffId() {
@@ -54,22 +129,6 @@ public class OrderTransaction {
 		this.receiptMonth = receiptMonth;
 	}
 
-	public String getVoidTime() {
-		return voidTime;
-	}
-
-	public void setVoidTime(String voidTime) {
-		this.voidTime = voidTime;
-	}
-
-	public long getTransactionId() {
-		return transactionId;
-	}
-
-	public void setTransactionId(long transactionId) {
-		this.transactionId = transactionId;
-	}
-
 	public int getComputerId() {
 		return computerId;
 	}
@@ -84,22 +143,6 @@ public class OrderTransaction {
 
 	public void setShopId(int shopId) {
 		this.shopId = shopId;
-	}
-
-	public String getOpenTime() {
-		return openTime;
-	}
-
-	public void setOpenTime(String openTime) {
-		this.openTime = openTime;
-	}
-
-	public String getCloseTime() {
-		return closeTime;
-	}
-
-	public void setCloseTime(String closeTime) {
-		this.closeTime = closeTime;
 	}
 
 	public int getOpenStaffId() {
@@ -142,14 +185,6 @@ public class OrderTransaction {
 		this.receiptId = receiptId;
 	}
 
-	public String getSaleDate() {
-		return saleDate;
-	}
-
-	public void setSaleDate(String saleDate) {
-		this.saleDate = saleDate;
-	}
-
 	public int getSessionId() {
 		return sessionId;
 	}
@@ -173,7 +208,7 @@ public class OrderTransaction {
 	public void setVoidReason(String voidReason) {
 		this.voidReason = voidReason;
 	}
-	
+
 	public int getMemberId() {
 		return memberId;
 	}
@@ -184,95 +219,93 @@ public class OrderTransaction {
 
 	// order detail class
 	public static class OrderDetail {
-		private long orderDetailId;
-		private long transactionId;
+		private int orderDetailId;
+		private int transactionId;
 		private int computerId;
 		private int productId;
 		private String productName;
 		private int saleMode;
-		private double productAmount;
-		private double productPrice;
-		private double memberDiscount;
-		private double eachProductDiscount;
-		private double vat;
-		private double excludeVat;
-		private double serviceCharge;
+		private float productAmount;
+		private float productPrice;
+		private float memberDiscount;
+		private float eachProductDiscount;
 
-		public double getExcludeVat() {
-			return excludeVat;
-		}
-		public void setExcludeVat(double excludeVat) {
-			this.excludeVat = excludeVat;
-		}
 		public double getProductAmount() {
 			return productAmount;
 		}
-		public void setProductAmount(double productAmount) {
-			this.productAmount = productAmount;
-		}
-		public double getProductPrice() {
-			return productPrice;
-		}
-		public void setProductPrice(double productPrice) {
-			this.productPrice = productPrice;
-		}
-		public double getMemberDiscount() {
-			return memberDiscount;
-		}
-		public void setMemberDiscount(double memberDiscount) {
-			this.memberDiscount = memberDiscount;
-		}
-		public double getEachProductDiscount() {
-			return eachProductDiscount;
-		}
-		public void setEachProductDiscount(double eachProductDiscount) {
-			this.eachProductDiscount = eachProductDiscount;
-		}
-		public double getVat() {
-			return vat;
-		}
-		public void setVat(double vat) {
-			this.vat = vat;
-		}
-		public double getServiceCharge() {
-			return serviceCharge;
-		}
-		public void setServiceCharge(double serviceCharge) {
-			this.serviceCharge = serviceCharge;
-		}
-		public long getOrderDetailId() {
+
+		public int getOrderDetailId() {
 			return orderDetailId;
 		}
-		public void setOrderDetailId(long orderDetailId) {
+
+		public void setOrderDetailId(int orderDetailId) {
 			this.orderDetailId = orderDetailId;
 		}
-		public long getTransactionId() {
+
+		public int getTransactionId() {
 			return transactionId;
 		}
-		public void setTransactionId(long transactionId) {
+
+		public void setTransactionId(int transactionId) {
 			this.transactionId = transactionId;
 		}
+
+		public float getProductPrice() {
+			return productPrice;
+		}
+
+		public void setProductPrice(float productPrice) {
+			this.productPrice = productPrice;
+		}
+
+		public float getMemberDiscount() {
+			return memberDiscount;
+		}
+
+		public void setMemberDiscount(float memberDiscount) {
+			this.memberDiscount = memberDiscount;
+		}
+
+		public float getEachProductDiscount() {
+			return eachProductDiscount;
+		}
+
+		public void setEachProductDiscount(float eachProductDiscount) {
+			this.eachProductDiscount = eachProductDiscount;
+		}
+
+		public void setProductAmount(float productAmount) {
+			this.productAmount = productAmount;
+		}
+
 		public int getComputerId() {
 			return computerId;
 		}
+
 		public void setComputerId(int computerId) {
 			this.computerId = computerId;
 		}
+
 		public int getProductId() {
 			return productId;
 		}
+
 		public void setProductId(int productId) {
 			this.productId = productId;
 		}
+
 		public String getProductName() {
 			return productName;
 		}
+
 		public void setProductName(String productName) {
 			this.productName = productName;
 		}
+
 		public int getSaleMode() {
 			return saleMode;
 		}
+
 		public void setSaleMode(int saleMode) {
 			this.saleMode = saleMode;
 		}
