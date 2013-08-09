@@ -7,6 +7,7 @@ import com.syn.pos.mobile.model.OrderTransaction;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -17,11 +18,16 @@ public class OrderListAdapter extends BaseAdapter{
 	private List<OrderTransaction.OrderDetail> orderDetailLst;
 	private LayoutInflater inflater;
 	private Formatter format;
+	private IListButtonClick listener;
+	private IAdapterState state;
 	
-	public OrderListAdapter (Context c, Formatter format, List<OrderTransaction.OrderDetail> orderLst){
+	public OrderListAdapter (Context c, Formatter format, 
+			List<OrderTransaction.OrderDetail> orderLst, IListButtonClick onClick, IAdapterState adapterState){
 		this.orderDetailLst = orderLst;
 		this.format = format;
 		inflater = LayoutInflater.from(c);
+		listener = onClick;
+		state = adapterState;
 	}
 
 	@Override
@@ -40,8 +46,8 @@ public class OrderListAdapter extends BaseAdapter{
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		OrderTransaction.OrderDetail orderDetail = 
+	public View getView(final int position, View convertView, ViewGroup parent) {
+		final OrderTransaction.OrderDetail orderDetail = 
 				orderDetailLst.get(position);
 		ViewHolder holder;
 		if(convertView == null){
@@ -63,9 +69,32 @@ public class OrderListAdapter extends BaseAdapter{
 		holder.txtOrderAmount.setText(format.qtyFormat(orderDetail.getProductAmount()));
 		holder.tvOrderPrice.setText(format.currencyFormat(orderDetail.getProductPrice()));
 		
+		holder.btnMinus.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				listener.onMinusClick(position);
+			}
+			
+		});
+		holder.btnPlus.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				listener.onPlusClick(position);
+			}
+			
+		});
+		
 		return convertView;
 	}
 	
+	@Override
+	public void notifyDataSetChanged() {
+		state.onNotify();
+		super.notifyDataSetChanged();
+	}
+
 	private class ViewHolder{
 		TextView tvOrderNo;
 		TextView tvOrderName;
@@ -74,4 +103,5 @@ public class OrderListAdapter extends BaseAdapter{
 		Button btnMinus;
 		Button btnPlus;
 	}
+
 }

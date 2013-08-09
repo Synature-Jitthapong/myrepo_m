@@ -94,7 +94,44 @@ public class MainActivity extends Activity {
 		
 		orderLst = mposTrans.listAllOrders(transactionId, compProp.getComputerID());
 		
-		orderAdapter = new OrderListAdapter(MainActivity.this, format, orderLst);
+		orderAdapter = new OrderListAdapter(MainActivity.this, format, orderLst, new IListButtonClick(){
+			OrderTransaction.OrderDetail order;
+			float qty;
+			@Override
+			public void onMinusClick(int position) {
+				order = orderLst.get(position);
+				qty = order.getProductAmount();
+				if(--qty > 0){
+					order.setProductAmount(qty);
+					mposTrans.updateOrderDetail(transactionId, compProp.getComputerID(), 
+							order.getOrderDetailId(), order.getVatType(), 
+							order.getProductAmount(), order.getProductPrice());
+				}
+				
+				orderAdapter.notifyDataSetChanged();
+			}
+
+			@Override
+			public void onPlusClick(int position) {
+				order = orderLst.get(position);
+				qty = order.getProductAmount();
+				order.setProductAmount(++qty);
+				mposTrans.updateOrderDetail(transactionId, compProp.getComputerID(), 
+						order.getOrderDetailId(), order.getVatType(), 
+						order.getProductAmount(), order.getProductPrice());
+				
+				orderAdapter.notifyDataSetChanged();
+			}
+			
+		}, new IAdapterState(){
+
+			@Override
+			public void onNotify() {
+				updateTotalPrice();
+			}
+			
+		});
+		
 		updateTotalPrice();
 		
 		orderListView.setAdapter(orderAdapter);
@@ -219,100 +256,6 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-	/*
-	// order adapter
-	private class OrderAdapter extends BaseAdapter{
-		private LayoutInflater inflater;
-		public OrderAdapter(){
-			inflater = LayoutInflater.from(MainActivity.this);
-		}
-		
-		@Override
-		public int getCount() {
-			return ORDER_LST.size();
-		}
-
-		@Override
-		public MenuDataItem getItem(int position) {
-			return ORDER_LST.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			final MenuDataItem mi = ORDER_LST.get(position);
-			final ViewHolder holder;
-			if(convertView == null){
-				convertView = inflater.inflate(R.layout.order_list_template, null);
-				holder = new ViewHolder();
-				holder.tvOrderNo = (TextView) convertView.findViewById(R.id.textViewOrderNo);
-				holder.tvOrderName = (TextView) convertView.findViewById(R.id.textViewOrderName);
-				holder.tvOrderQty = (TextView) convertView.findViewById(R.id.textViewOrderQty);
-				holder.btnOrderMinus = (Button) convertView.findViewById(R.id.buttonOrderMinus);
-				holder.btnOrderPlus = (Button) convertView.findViewById(R.id.buttonOrderPlus);
-				convertView.setTag(holder);
-			}else{
-				holder = (ViewHolder) convertView.getTag();
-			}
-			
-			holder.tvOrderNo.setText(globalVar.getQtyFormat().format(position + 1) + ".");
-			holder.tvOrderName.setText(mi.getMenuName());
-			holder.tvOrderQty.setText(globalVar.getQtyFormat().format(mi.getProductQty()));
-			
-			holder.btnOrderMinus.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					double orderQty = mi.getProductQty();
-					if(--orderQty >= 1){
-						// update 
-						TOTAL_QTY -= orderQty;
-						TOTAL_PRICE -= mi.getPricePerUnit();
-						updateTextPrice();
-						
-						mi.setProductQty(orderQty);
-						holder.tvOrderQty.setText(globalVar.getQtyFormat().format(orderQty));
-					}
-					
-				}
-				
-			});
-			holder.btnOrderPlus.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					double orderQty = mi.getProductQty();
-					++orderQty;
-					// update 
-					TOTAL_QTY += orderQty;
-					TOTAL_PRICE += mi.getPricePerUnit();
-					updateTextPrice();
-					
-					mi.setProductQty(orderQty);
-					
-					holder.tvOrderQty.setText(globalVar.getQtyFormat().format(orderQty));
-				}
-				
-			});
-			return convertView;
-		}
-		
-		private class ViewHolder{
-			TextView tvOrderNo;
-			TextView tvOrderName;
-			TextView tvOrderQty;
-			Button btnOrderMinus;
-			Button btnOrderPlus;
-		}
-		
-	}
-	*/
-	
-	
 	// menu item adapter
 	private class MenuAdapter extends BaseAdapter{
 		private LayoutInflater inflater;
@@ -412,16 +355,6 @@ public class MainActivity extends Activity {
 			TextView tvMenuDescript;
 		}
 	}
-	
-//	private class ResizeMenuImage extends ResizeImage{
-//		public ResizeMenuImage(Context context, int theme, ImageView img) {
-//			super(context, theme);
-//	
-//			img.setOnTouchListener(this);
-//		}
-//		
-//	}
-	
 	
 	private void updateTotalPrice(){
 		OrderTransaction.OrderDetail orderDetail

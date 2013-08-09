@@ -1,5 +1,6 @@
 package com.syn.pos.mobile.mpos.dao;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -120,6 +121,7 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 		cv.put("product_name", productName);
 		cv.put("product_amount", productAmount);
 		cv.put("product_price", productPrice);
+		cv.put("vat_type", vatType);
 		
 		if(vatType == 1)
 			cv.put("vat", calculateVat(productPrice, productAmount, 7).toString());
@@ -251,7 +253,7 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 					new OrderTransaction.OrderDetail();
 		
 		String strSql = "SELECT SUM(product_amount) AS TotalAmount," +
-				" SUM(product_price) AS TotalPrice, SUM(vat) AS TotalVat," +
+				" SUM(product_price * product_amount) AS TotalPrice, SUM(vat) AS TotalVat," +
 				" SUM(vat_exclude) AS TotalVatExclude, " +
 				" SUM(service_charge) AS TotalServiceCharge," +
 				" SUM(service_charge_vat) AS TotalServiceChargeVat, " +
@@ -294,6 +296,59 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 	public void discount() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public boolean updateOrderDetail(int transactionId, int computerId,
+			int orderDetailId, int vatType, float productAmount, float productPrice) {
+		boolean isSucc = false;
+		
+		BigDecimal vat = calculateVat(productPrice, productAmount, 7);
+		
+		String strSql = "UPDATE order_detail SET product_amount=" + productAmount +
+				", product_price=" + productPrice;
+		
+		if(vatType == 1)
+			strSql += ", vat=" + vat;
+		else if(vatType == 2)
+			strSql += ", vat_exclude=" + vat;
+		
+		strSql +=" WHERE transaction_id=" + transactionId +
+				" AND order_detail_id=" + orderDetailId + 
+				" AND computer_id=" + computerId;
+		
+		dbHelper.open();
+		isSucc = dbHelper.execSQL(strSql);
+		dbHelper.close();
+		return isSucc;
+	}
+
+	@Override
+	public boolean updateOrderDetail(int transactionId, int computerId,
+			int orderDetailId, int vatType, float productAmount, float productPrice,
+			float eatchProductDiscount, float memberDiscount) {
+		boolean isSucc = false;
+
+		BigDecimal vat = calculateVat(productPrice, productAmount, 7);
+		
+		String strSql = "UPDATE order_detail SET product_amount=" + productAmount +
+				", product_price=" + productPrice;
+		
+		if(vatType == 1)
+			strSql += ", vat=" + vat;
+		else if(vatType == 2)
+			strSql += ", vat_exclude=" + vat;
+		
+		strSql += ", eatch_product_discount=" + eatchProductDiscount +
+				", member_discount=" + memberDiscount +
+				" WHERE transaction_id=" + transactionId +
+				" AND order_detail_id=" + orderDetailId + 
+				" AND computer_id=" + computerId;
+		
+		dbHelper.open();
+		isSucc = dbHelper.execSQL(strSql);
+		dbHelper.close();
+		return isSucc;
 	}
 
 }
