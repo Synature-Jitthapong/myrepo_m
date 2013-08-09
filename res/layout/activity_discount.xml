@@ -12,15 +12,34 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical" >
 
         <TextView
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/title_discount"
             android:textSize="48sp" />
 
+        <Button
+            android:id="@+id/buttonDisCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dip"
+            android:minWidth="64dip"
+            android:onClick="cancelClicked"
+            android:text="@string/button_cancel" />
+
+        <Button
+            android:id="@+id/buttonDisOk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dip"
+            android:minWidth="64dip"
+            android:onClick="okClicked"
+            android:text="@string/button_ok" />
     </LinearLayout>
 
     <LinearLayout
@@ -110,31 +129,6 @@
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
         </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="right" >
-
-        <Button
-            android:id="@+id/buttonDisCancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="48dip"
-            android:minWidth="64dip"
-            android:onClick="cancelClicked"
-            android:text="@string/button_cancel" />
-
-        <Button
-            android:id="@+id/buttonDisOk"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="48dip"
-            android:minWidth="64dip"
-            android:onClick="okClicked"
-            android:text="@string/button_ok" />
 
     </LinearLayout>
 

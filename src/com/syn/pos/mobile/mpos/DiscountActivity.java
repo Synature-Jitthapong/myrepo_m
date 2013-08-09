@@ -130,7 +130,7 @@ public class DiscountActivity extends Activity {
 			holder.tvProductName.setText(orderDetail.getProductName());
 			holder.tvProductAmount.setText(format.qtyFormat(orderDetail.getProductAmount()));
 			holder.tvProductPrice.setText(format.currencyFormat(orderDetail.getProductPrice()));
-			holder.tvTotalDiscount.setText(format.currencyFormat(orderDetail.getEachProductDiscount()));
+			holder.tvTotalDiscount.setText(format.currencyFormat(orderDetail.getProductAmount() * orderDetail.getProductPrice()));
 			return convertView;
 		}
 		
