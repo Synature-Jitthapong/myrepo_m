@@ -191,7 +191,7 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 		
 		String strSql = "SELECT order_detail_id, " +
 				" product_id, product_name, product_amount, product_price, " +
-				" member_discount, each_product_discount " +
+				" vat_type, member_discount, each_product_discount " +
 				" FROM order_detail " +
 				" WHERE transaction_id=" + transactionId + 
 				" AND computer_id=" + computerId + 
@@ -205,6 +205,7 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 			orderDetail.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
 			orderDetail.setProductAmount(cursor.getFloat(cursor.getColumnIndex("product_amount")));
 			orderDetail.setProductPrice(cursor.getFloat(cursor.getColumnIndex("product_price")));
+			orderDetail.setVatType(cursor.getInt(cursor.getColumnIndex("vat_type")));
 			orderDetail.setMemberDiscount(cursor.getFloat(cursor.getColumnIndex("member_discount")));
 			orderDetail.setEachProductDiscount(cursor.getFloat(cursor.getColumnIndex("each_product_discount")));
 		}
