@@ -34,4 +34,7 @@
     <string name="title_activity_payment">Payment</string>
     <string name="total">Total</string>
     <string name="change">Change</string>
+    <string name="item">Items</string>
+    <string name="price">Price</string>
+    <string />
 </resources>
