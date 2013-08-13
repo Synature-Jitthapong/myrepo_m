@@ -31,5 +31,7 @@
     <string name="total_price">Total</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_ok">Ok</string>
-
+    <string name="title_activity_payment">Payment</string>
+    <string name="total">Total</string>
+    <string name="change">Change</string>
 </resources>

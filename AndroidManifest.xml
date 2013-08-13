@@ -37,10 +37,16 @@
         </activity>
         <activity
             android:name="com.syn.pos.mobile.mpos.DiscountActivity"
-            android:label="@string/title_activity_discount" android:screenOrientation="landscape" android:windowSoftInputMode="adjustPan">
+            android:label="@string/title_activity_discount"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="adjustPan" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.pos.mobile.mpos.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.syn.pos.mobile.mpos.PaymentActivity"
+            android:label="@string/title_activity_payment" >
         </activity>
     </application>
 

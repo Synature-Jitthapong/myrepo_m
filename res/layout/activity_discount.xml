@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="48dip"
-            android:minWidth="64dip"
+            android:minWidth="100dp"
             android:onClick="cancelClicked"
             android:text="@string/button_cancel" />
 
@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="48dip"
-            android:minWidth="64dip"
+            android:minWidth="100dp"
             android:onClick="okClicked"
             android:text="@string/button_ok" />
     </LinearLayout>
