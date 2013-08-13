@@ -14,7 +14,7 @@ import com.j1tth4.mobile.core.sqlite.ISqliteHelper;
 import com.syn.pos.mobile.model.OrderTransaction;
 import com.syn.pos.mobile.mpos.Formatter;
 
-public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrderDetail {
+public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrderDetail, IPaymentDetail {
 	
 	private ISqliteHelper dbHelper;
 	private Formatter format;
@@ -351,6 +351,76 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 		isSucc = dbHelper.execSQL(strSql);
 		dbHelper.close();
 		return isSucc;
+	}
+
+	@Override
+	public int getMaxPaymentDetailId(int transactionId, int computerId) {
+		int maxPaymentId = 0;
+		dbHelper.open();
+		
+		String strSql = "SELECT MAX(payment_detail_id) " +
+				" WHERE transaction_id=" + transactionId +
+				" AND computer_id=" + computerId;
+		
+		Cursor cursor = dbHelper.rawQuery(strSql);
+		
+		if(cursor.moveToFirst()){
+			maxPaymentId = cursor.getInt(0);
+		}
+		cursor.close();
+		
+		dbHelper.close();
+		return maxPaymentId + 1;
+	}
+
+	@Override
+	public boolean addPaymentDetail(int transactionId,
+			int computerId, int payTypeId) {
+		boolean isSuccess = false;
+		int paymentId = getMaxPaymentDetailId(transactionId, computerId);
+		
+		ContentValues cv = new ContentValues();
+		cv.put("payment_detail_id", paymentId);
+		cv.put("transaction_id", transactionId);
+		cv.put("computer_id", computerId);
+		cv.put("pay_type_id", payTypeId);
+		
+		dbHelper.open();
+		isSuccess = dbHelper.insert("payment_detail", cv);
+		dbHelper.close();
+		return isSuccess;
+	}
+
+	@Override
+	public boolean updatePaymentDetail(int paymentId, int payTypeId,
+			float paymentAmount, String creditCardNo, int expireMonth,
+			int expireYear, String bankName, int creditCardTypeId) {
+		boolean isSuccess = false;
+		
+		String strSql = "UPDATE payment_detail SET " +
+				" pay_type_id=" + payTypeId + ", " +
+				" payment_amount=" + paymentAmount + ", " +
+				" credit_card_no='" + creditCardNo + "', " +
+				" expire_month=" + expireMonth + ", " +
+				" expire_year=" + expireYear + ", " +
+				" bank_name='" + bankName + "', " + 
+				" credit_card_type=" + creditCardTypeId +
+				" WHERE payment_detail_id=" + paymentId;
+		
+		dbHelper.open();
+		isSuccess = dbHelper.execSQL(strSql);
+		dbHelper.close();
+		return isSuccess;
+	}
+
+	@Override
+	public void deletePaymentDetail(int paymentId) {
+		String strSql = "DELETE FROM payment_detail " +
+				" WHERE payment_detail_id=" + paymentId;
+		
+		dbHelper.open();
+		dbHelper.execSQL(strSql);
+		dbHelper.close();
 	}
 
 }
