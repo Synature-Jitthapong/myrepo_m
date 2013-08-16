@@ -360,7 +360,8 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 		int maxPaymentId = 0;
 		dbHelper.open();
 		
-		String strSql = "SELECT MAX(payment_detail_id) " +
+		String strSql = "SELECT MAX(pay_detail_id) " +
+				" FROM payment_detail " +
 				" WHERE transaction_id=" + transactionId +
 				" AND computer_id=" + computerId;
 		
@@ -377,15 +378,23 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 
 	@Override
 	public boolean addPaymentDetail(int transactionId,
-			int computerId, int payTypeId) {
+			int computerId, int payTypeId, float payAmount,
+			String creditCardNo, int expireMonth, 
+			int expireYear, int bankId,int creditCardTypeId) {
 		boolean isSuccess = false;
 		int paymentId = getMaxPaymentDetailId(transactionId, computerId);
 		
 		ContentValues cv = new ContentValues();
-		cv.put("payment_detail_id", paymentId);
+		cv.put("pay_detail_id", paymentId);
 		cv.put("transaction_id", transactionId);
 		cv.put("computer_id", computerId);
 		cv.put("pay_type_id", payTypeId);
+		cv.put("pay_amount", payAmount);
+		cv.put("credit_card_no", creditCardNo);
+		cv.put("expire_month", expireMonth);
+		cv.put("expire_year", expireYear);
+		cv.put("bankId", bankId);
+		cv.put("credit_card_type", creditCardTypeId);
 		
 		dbHelper.open();
 		isSuccess = dbHelper.insert("payment_detail", cv);
@@ -396,18 +405,18 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 	@Override
 	public boolean updatePaymentDetail(int paymentId, int payTypeId,
 			float paymentAmount, String creditCardNo, int expireMonth,
-			int expireYear, String bankName, int creditCardTypeId) {
+			int expireYear, int bankId, int creditCardTypeId) {
 		boolean isSuccess = false;
 		
 		String strSql = "UPDATE payment_detail SET " +
 				" pay_type_id=" + payTypeId + ", " +
-				" payment_amount=" + paymentAmount + ", " +
+				" pay_amount=" + paymentAmount + ", " +
 				" credit_card_no='" + creditCardNo + "', " +
 				" expire_month=" + expireMonth + ", " +
 				" expire_year=" + expireYear + ", " +
-				" bank_name='" + bankName + "', " + 
+				" bank_id='" + bankId + "', " + 
 				" credit_card_type=" + creditCardTypeId +
-				" WHERE payment_detail_id=" + paymentId;
+				" WHERE pay_detail_id=" + paymentId;
 		
 		dbHelper.open();
 		isSuccess = dbHelper.execSQL(strSql);
@@ -418,7 +427,7 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 	@Override
 	public void deletePaymentDetail(int paymentId) {
 		String strSql = "DELETE FROM payment_detail " +
-				" WHERE payment_detail_id=" + paymentId;
+				" WHERE pay_detail_id=" + paymentId;
 		
 		dbHelper.open();
 		dbHelper.execSQL(strSql);
@@ -441,9 +450,9 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 			do{
 				Payment.PaymentDetail payDetail
 					= new Payment.PaymentDetail();
-				payDetail.setPaymentDetailID(cursor.getInt(cursor.getColumnIndex("payment_detail_id")));
+				payDetail.setPaymentDetailID(cursor.getInt(cursor.getColumnIndex("pay_detail_id")));
 				payDetail.setPayTypeID(cursor.getInt(cursor.getColumnIndex("pay_type_id")));
-				payDetail.setPayAmount(cursor.getFloat(cursor.getColumnIndex("payment_amount")));
+				payDetail.setPayAmount(cursor.getFloat(cursor.getColumnIndex("pay_amount")));
 				payDetail.setRemark(cursor.getString(cursor.getColumnIndex("remark")));
 				paymentLst.add(payDetail);
 			}while(cursor.moveToNext());
