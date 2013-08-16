@@ -2,7 +2,7 @@ package com.syn.pos.mobile.mpos.dao;
 
 import android.content.Context;
 
-import com.j1tth4.mobile.core.sqlite.SqliteDatabase;
+import com.j1tth4.mobile.sqlite.SqliteDatabase;
 
 public class MPOSSqliteDatabase extends SqliteDatabase{
 	private static final String dbDir = "mpos";

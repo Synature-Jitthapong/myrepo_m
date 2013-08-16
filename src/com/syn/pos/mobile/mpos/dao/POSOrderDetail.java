@@ -1,6 +1,6 @@
 package com.syn.pos.mobile.mpos.dao;
 
-public interface IOrderDetail {
+public interface POSOrderDetail {
 	public int getMaxOrderDetail(int transactionId, int computerId);
 
 	public int addOrderDetail(int transactionId, int computerId,

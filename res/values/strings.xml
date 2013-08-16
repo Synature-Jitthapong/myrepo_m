@@ -34,6 +34,13 @@
     <string name="title_activity_payment">Payment</string>
     <string name="total">Total</string>
     <string name="change">Change</string>
-    <string name="item">Items</string>
+    <string name="item_name">Items</string>
     <string name="price">Price</string>
+    <string name="pay_type">Pay type</string>
+    <string name="pay_detail">Detail</string>
+    <string name="pay_amount">Amount</string>
+    <string name="total_payment">Total pay</string>
+    <string name="to_be_paid">To be paid</string>
+    <string name="item_no">#</string>
+    <string name="amount">Amount</string>
 </resources>

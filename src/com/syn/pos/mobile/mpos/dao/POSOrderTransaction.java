@@ -2,7 +2,7 @@ package com.syn.pos.mobile.mpos.dao;
 
 import com.syn.pos.mobile.model.OrderTransaction;
 
-public interface IMPOSTransaction {
+public interface POSOrderTransaction {
 	public int getMaxTransaction(int computerId);
 
 	public int getMaxReceiptId(int transactionId, int computerId, int year,
@@ -18,7 +18,4 @@ public interface IMPOSTransaction {
 			float serviceCharge, float serviceChargeVat);
 
 	public void cancelTransaction(int transactionId);
-	
-	public OrderTransaction.OrderDetail getSummary(int transactionId);
-	
 }

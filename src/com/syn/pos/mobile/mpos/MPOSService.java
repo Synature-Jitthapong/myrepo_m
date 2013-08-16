@@ -6,7 +6,7 @@ import org.ksoap2.serialization.PropertyInfo;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.j1tth4.mobile.core.util.JSONUtil;
+import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.pos.mobile.model.MenuGroups;
 import com.syn.pos.mobile.model.ProductGroups;
 import com.syn.pos.mobile.model.ShopData;

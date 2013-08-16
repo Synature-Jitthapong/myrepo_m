@@ -1,6 +1,6 @@
 package com.syn.pos.mobile.mpos.dao;
 
-public interface IPaymentDetail {
+public interface POSPayment {
 	public int getMaxPaymentDetailId(int transactionId, int computerId);
 	public boolean addPaymentDetail(int transactionId, int computerId, int payTypeId);
 	public boolean updatePaymentDetail(int paymentId, int payTypeId, float paymentAmount, 

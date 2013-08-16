@@ -3,7 +3,7 @@ package com.syn.pos.mobile.mpos;
 import java.lang.reflect.Type;
 
 import com.google.gson.reflect.TypeToken;
-import com.j1tth4.mobile.core.util.JSONUtil;
+import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.pos.mobile.model.WebServiceResult;
 
 public class ServiceResult {

@@ -11,19 +11,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 public class DiscountActivity extends Activity {
 	private static final String TAG = "DiscountActivity";
+	private Context context;
 	private Formatter format;
 	private MPOSTransaction mposTrans;
 	private OrderTransaction orderTrans;
 	
 	private List<OrderTransaction.OrderDetail> orderLst;
-	private ListView lvDiscount;
+	private TableLayout tbLayoutDiscount;
 	private TextView tvSubTotal;
 	private TextView tvTotalDiscount;
 	private TextView tvTotalVat;
@@ -37,7 +43,9 @@ public class DiscountActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_discount);
 	
-		lvDiscount = (ListView) findViewById(R.id.listViewDiscount);
+		context = DiscountActivity.this;
+		
+		tbLayoutDiscount = (TableLayout) findViewById(R.id.tableLayoutDiscount);
 		tvSubTotal = (TextView) findViewById(R.id.textViewDisSubTotal);
 		tvTotalDiscount = (TextView) findViewById(R.id.textViewDisDiscount);
 		tvTotalPrice = (TextView) findViewById(R.id.textViewDisTotal);
@@ -59,8 +67,28 @@ public class DiscountActivity extends Activity {
 	
 	private void loadOrder(){
 		orderLst = mposTrans.listAllOrders(transactionId, computerId);
-		DiscountAdapter adapter = new DiscountAdapter();
-		lvDiscount.setAdapter(adapter);	
+		
+		LayoutInflater inflater = LayoutInflater.from(context);
+		for(int i = 0; i < orderLst.size(); i++){
+			View v = inflater.inflate(R.layout.discount_template, null);
+			TextView tvDiscountNo = (TextView) v.findViewById(R.id.textViewDisNo);
+			TextView tvDiscountProName = (TextView) v.findViewById(R.id.textViewDisProName);
+			TextView tvDiscountProAmount = (TextView) v.findViewById(R.id.textViewDisProAmount);
+			TextView tvDiscountProPrice = (TextView) v.findViewById(R.id.textViewDisProPrice);
+			EditText txtDisPrice = (EditText) v.findViewById(R.id.editTextDisPrice);
+			TextView tvDisTotalPrice = (TextView) v.findViewById(R.id.textViewDisTotalPrice);
+			
+			OrderTransaction.OrderDetail order = 
+					orderLst.get(i);
+			
+			tvDiscountNo.setText(Integer.toString(i + 1));
+			tvDiscountProName.setText(order.getProductName());
+			tvDiscountProAmount.setText(Float.toString(order.getProductAmount()));
+			tvDiscountProPrice.setText(Float.toString(order.getProductPrice()));
+			tvDisTotalPrice.setText(Float.toString(order.getProductPrice()));
+			
+			tbLayoutDiscount.addView(v);
+		}
 	}
 	
 	private void summaryPrice(){
@@ -82,66 +110,5 @@ public class DiscountActivity extends Activity {
 	
 	public void cancelClicked(final View v){
 		exit();
-	}
-	
-	private class DiscountAdapter extends BaseAdapter{
-		private LayoutInflater inflater;
-		
-		public DiscountAdapter(){
-			inflater = LayoutInflater.from(DiscountActivity.this);
-		}
-		
-		@Override
-		public int getCount() {
-			return orderLst != null ? orderLst.size() : 0;
-		}
-
-		@Override
-		public OrderTransaction.OrderDetail getItem(int position) {
-			return orderLst.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			OrderTransaction.OrderDetail orderDetail = 
-					orderLst.get(position);
-			ViewHolder holder;
-			if(convertView == null){
-				convertView = inflater.inflate(R.layout.discount_template, null);
-				holder = new ViewHolder();
-				holder.tvDiscountNo = (TextView) convertView.findViewById(R.id.textViewDisNo);
-				holder.tvProductName = (TextView) convertView.findViewById(R.id.textViewDisProName);
-				holder.tvProductAmount = (TextView) convertView.findViewById(R.id.textViewDisProAmount);
-				holder.tvProductPrice = (TextView) convertView.findViewById(R.id.textViewDisProPrice);
-				holder.tvTotalDiscount = (TextView) convertView.findViewById(R.id.textViewDisTotalPrice);
-				holder.txtDiscount = (EditText) convertView.findViewById(R.id.editTextDisPrice);
-				
-				convertView.setTag(holder);
-			}else{
-				holder = (ViewHolder) convertView.getTag();
-			}
-			
-			holder.tvDiscountNo.setText(Integer.toString(position + 1));
-			holder.tvProductName.setText(orderDetail.getProductName());
-			holder.tvProductAmount.setText(format.qtyFormat(orderDetail.getProductAmount()));
-			holder.tvProductPrice.setText(format.currencyFormat(orderDetail.getProductPrice()));
-			holder.tvTotalDiscount.setText(format.currencyFormat(orderDetail.getProductAmount() * orderDetail.getProductPrice()));
-			return convertView;
-		}
-		
-		private class ViewHolder{
-			TextView tvDiscountNo;
-			TextView tvProductName;
-			TextView tvProductAmount;
-			TextView tvProductPrice;
-			TextView tvTotalDiscount;
-			EditText txtDiscount;
-		}
-		
 	}
 }

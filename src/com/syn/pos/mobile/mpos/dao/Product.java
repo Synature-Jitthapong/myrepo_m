@@ -5,7 +5,7 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 
-import com.j1tth4.mobile.core.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.ISqliteHelper;
 import com.syn.pos.mobile.model.ProductGroups;
 
 public class Product {

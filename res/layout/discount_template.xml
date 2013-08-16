@@ -9,7 +9,8 @@
         android:id="@+id/textViewDisNo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="1dp"
+        android:padding="4dp"
         android:text="1"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -17,8 +18,9 @@
         android:id="@+id/textViewDisProName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="1dp"
         android:layout_weight="1"
+        android:padding="4dp"
         android:text="Name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -26,7 +28,8 @@
         android:id="@+id/textViewDisProAmount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="1dp"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -34,7 +37,8 @@
         android:id="@+id/textViewDisProPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="1dp"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -42,10 +46,11 @@
         android:id="@+id/editTextDisPrice"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="1dp"
         android:ems="10"
         android:gravity="right|center_vertical"
-        android:inputType="number" >
+        android:inputType="number"
+        android:padding="4dp" >
 
         <requestFocus />
     </EditText>
@@ -54,6 +59,8 @@
         android:id="@+id/textViewDisTotalPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 

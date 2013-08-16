@@ -16,7 +16,6 @@ public class Formatter {
 	private SimpleDateFormat timeFormat;
 	private DecimalFormat qtyFormat;
 	private DecimalFormat currencyFormat;
-	private DecimalFormat defaultFormat;
 	
 	public Formatter(Context c){
 		dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
@@ -24,7 +23,6 @@ public class Formatter {
 		timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
 		qtyFormat = new DecimalFormat("#,###.####");
 		currencyFormat = new DecimalFormat("#,###.####");
-		defaultFormat = new DecimalFormat("#,###.0000");
 		
 		Shop s = new Shop(c);
 		ShopData.GlobalProperty gb =
@@ -54,15 +52,11 @@ public class Formatter {
 		return timeFormat.format(d);
 	}
 	
-	public String qtyFormat(double qty){
+	public String qtyFormat(float qty){
 		return qtyFormat.format(qty);
 	}
 	
-	public String currencyFormat(double currency){
+	public String currencyFormat(float currency){
 		return currencyFormat.format(currency);
-	}
-	
-	public String defaultFormat(double number){
-		return defaultFormat.format(number);
 	}
 }

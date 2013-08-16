@@ -2,7 +2,7 @@ package com.syn.pos.mobile.mpos;
 
 import org.ksoap2.serialization.PropertyInfo;
 
-import com.j1tth4.mobile.core.util.DotNetWebServiceTask;
+import com.j1tth4.mobile.util.DotNetWebServiceTask;
 
 import android.content.Context;
 
