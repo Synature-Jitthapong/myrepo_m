@@ -92,9 +92,14 @@ public class PaymentActivity extends Activity {
 		}
 	}
 	
-	private void addPayment(){
-		mposTrans.addPaymentDetail(transactionId, computerId, 1, totalPay, "",
-				1, 2017, 1, 1);
+	private void addPayment(int payType){
+		if(payType == 1){
+			mposTrans.addPaymentDetail(transactionId, computerId, 1, totalPay, "",
+					1, 2017, 1, 1);
+		}else{
+			mposTrans.updatePaymentDetail(transactionId, computerId, payType, totalPay, "",
+					1, 2017, 1, 1);
+		}
 		loadPayDetail();
 	}
 	
@@ -167,7 +172,7 @@ public class PaymentActivity extends Activity {
 			strTotalPay.append(".");
 			break;
 		case R.id.btnPayEnter:
-			addPayment();
+			addPayment(1);
 			break;
 		}
 		

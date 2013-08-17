@@ -5,8 +5,8 @@ public interface POSPayment {
 	public boolean addPaymentDetail(int transactionId, int computerId, 
 			int payTypeId, float payAmount, String creditCardNo, 
 			int expireMonth, int expireYear, int bankId, int creditCardTypeId);
-	public boolean updatePaymentDetail(int paymentId, int payTypeId, float paymentAmount, 
-			String creditCardNo, int expireMonth, int expireYear, int bankId, 
-			int creditCardTypeId);
+	public boolean updatePaymentDetail(int transactionId, int computerId, 
+			int payTypeId, float paymentAmount, String creditCardNo, 
+			int expireMonth, int expireYear, int bankId, int creditCardTypeId);
 	public void deletePaymentDetail(int paymentId);
 }

@@ -403,7 +403,7 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 	}
 
 	@Override
-	public boolean updatePaymentDetail(int paymentId, int payTypeId,
+	public boolean updatePaymentDetail(int transactionId, int computerId, int payTypeId,
 			float paymentAmount, String creditCardNo, int expireMonth,
 			int expireYear, int bankId, int creditCardTypeId) {
 		boolean isSuccess = false;
@@ -416,7 +416,8 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 				" expire_year=" + expireYear + ", " +
 				" bank_id='" + bankId + "', " + 
 				" credit_card_type=" + creditCardTypeId +
-				" WHERE pay_detail_id=" + paymentId;
+				" WHERE transaction_id=" + transactionId +
+				" AND computer_id=" + computerId;
 		
 		dbHelper.open();
 		isSuccess = dbHelper.execSQL(strSql);
