@@ -393,7 +393,7 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 		cv.put("credit_card_no", creditCardNo);
 		cv.put("expire_month", expireMonth);
 		cv.put("expire_year", expireYear);
-		cv.put("bankId", bankId);
+		cv.put("bank_id", bankId);
 		cv.put("credit_card_type", creditCardTypeId);
 		
 		dbHelper.open();

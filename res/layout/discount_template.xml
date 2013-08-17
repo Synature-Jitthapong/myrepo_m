@@ -26,18 +26,20 @@
 
     <TextView
         android:id="@+id/textViewDisProAmount"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
+        android:gravity="right"
         android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/textViewDisProPrice"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
+        android:gravity="right"
         android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -57,9 +59,10 @@
 
     <TextView
         android:id="@+id/textViewDisTotalPrice"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
+        android:gravity="right"
         android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />

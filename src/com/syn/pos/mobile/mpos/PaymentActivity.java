@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 public class PaymentActivity extends Activity {
@@ -31,7 +32,7 @@ public class PaymentActivity extends Activity {
 	private float totalPay;
 	private float changeAmount;
 	
-	private LinearLayout payDetailLayout;
+	private TableLayout tableLayoutPaydetail;
 	private TextView tvTotalPayment;
 	private EditText txtTotalPay;
 	private EditText txtChange;
@@ -43,7 +44,7 @@ public class PaymentActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_payment);
 		
-		payDetailLayout = (LinearLayout) findViewById(R.id.layoutPayDetail);
+		tableLayoutPaydetail = (TableLayout) findViewById(R.id.tableLayoutPaydetail);
 		tvTotalPayment = (TextView) findViewById(R.id.textViewTotalPayment);
 		txtTotalPay = (EditText) findViewById(R.id.editTextTotalPay);
 		txtChange = (EditText) findViewById(R.id.editTextChange);
@@ -84,10 +85,10 @@ public class PaymentActivity extends Activity {
 			TextView tvPayDetail = (TextView) v.findViewById(R.id.textViewPayDetail);
 			TextView tvPayAmount = (TextView) v.findViewById(R.id.textViewPayAmount);
 			
-			tvPayType.setText(payment.getPayTypeID());
+			tvPayType.setText(Integer.toString(payment.getPayTypeID()));
 			tvPayDetail.setText(payment.getRemark());
 			tvPayAmount.setText(format.currencyFormat(payment.getPayAmount()));
-			payDetailLayout.addView(v);
+			tableLayoutPaydetail.addView(v);
 		}
 	}
 	

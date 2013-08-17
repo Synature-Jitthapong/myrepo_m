@@ -39,7 +39,6 @@
             android:minWidth="100dp"
             android:onClick="onOkClicked"
             android:text="@string/button_ok" />
-
     </LinearLayout>
 
     <LinearLayout
@@ -63,7 +62,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Button" />
-
             </LinearLayout>
         </HorizontalScrollView>
 
@@ -80,7 +78,6 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textSize="32sp" />
         </LinearLayout>
-
     </LinearLayout>
 
     <LinearLayout
@@ -95,10 +92,8 @@
             android:orientation="vertical" >
 
             <TableLayout
-                android:id="@+id/tableLayoutPayType"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" >
+                android:layout_height="wrap_content" >
 
                 <TableRow
                     android:id="@+id/tableRow11"
@@ -107,9 +102,11 @@
 
                     <TextView
                         android:id="@+id/textView4"
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_marginRight="1dp"
+                        android:background="@color/dark_grey"
+                        android:padding="4dp"
                         android:text="@string/pay_type"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -117,42 +114,40 @@
                         android:id="@+id/textView5"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginRight="1dp"
                         android:layout_weight="1"
+                        android:background="@color/dark_grey"
+                        android:padding="4dp"
                         android:text="@string/pay_detail"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
                         android:id="@+id/textView6"
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_marginRight="1dp"
+                        android:background="@color/dark_grey"
+                        android:padding="4dp"
                         android:text="@string/pay_amount"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/tableRow14"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_span="3" >
-
-                    <ScrollView
-                        android:id="@+id/scrollView1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" >
-
-                        <LinearLayout
-                            android:id="@+id/layoutPayDetail"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical" >
-
-                        </LinearLayout>
-                    </ScrollView>
                 </TableRow>
 
             </TableLayout>
+
+            <ScrollView
+                android:id="@+id/scrollView1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" >
+
+                <TableLayout
+                    android:id="@+id/tableLayoutPaydetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
+                </TableLayout>
+
+            </ScrollView>
 
             <TableLayout
                 android:layout_width="match_parent"
@@ -180,7 +175,6 @@
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:inputType="number" />
-
                 </TableRow>
 
                 <TableRow
@@ -205,10 +199,8 @@
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:inputType="number" />
-
                 </TableRow>
             </TableLayout>
-
         </LinearLayout>
 
         <LinearLayout
@@ -251,7 +243,6 @@
 
                             <requestFocus />
                         </EditText>
-
                     </TableRow>
 
                     <TableRow
@@ -275,7 +266,6 @@
                             android:focusable="false"
                             android:focusableInTouchMode="false"
                             android:inputType="number" />
-
                     </TableRow>
                 </TableLayout>
 
@@ -323,7 +313,6 @@
                                 android:minWidth="48dp"
                                 android:onClick="onBtnPriceClick"
                                 android:text="&lt;&lt;" />
-
                         </TableRow>
 
                         <TableRow
@@ -362,7 +351,6 @@
                                 android:minWidth="48dp"
                                 android:onClick="onBtnPriceClick"
                                 android:text="C" />
-
                         </TableRow>
 
                         <TableRow
@@ -401,7 +389,6 @@
                                 android:minWidth="48dp"
                                 android:onClick="onBtnPriceClick"
                                 android:text="0" />
-
                         </TableRow>
 
                         <TableRow
@@ -425,7 +412,6 @@
                                 android:minWidth="48dp"
                                 android:onClick="onBtnPriceClick"
                                 android:text="Enter" />
-
                         </TableRow>
                     </TableLayout>
 
@@ -451,7 +437,6 @@
                                 android:layout_height="wrap_content"
                                 android:minWidth="100dp"
                                 android:onClick="onBtnPriceClick" />
-
                         </TableRow>
 
                         <TableRow
@@ -470,7 +455,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:onClick="onBtnPriceClick" />
-
                         </TableRow>
 
                         <TableRow
@@ -490,7 +474,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:onClick="onBtnPriceClick" />
-
                         </TableRow>
 
                         <TableRow
@@ -499,13 +482,9 @@
                             android:layout_height="wrap_content" >
                         </TableRow>
                     </TableLayout>
-
                 </LinearLayout>
-
             </LinearLayout>
-
         </LinearLayout>
-
     </LinearLayout>
 
 </LinearLayout>
