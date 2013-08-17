@@ -1,9 +1,10 @@
 package com.syn.pos.mobile.mpos;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.j1tth4.mobile.core.util.ImageLoader;
+import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.pos.mobile.model.MenuGroups;
 import com.syn.pos.mobile.model.OrderTransaction;
 import com.syn.pos.mobile.model.ShopData;
@@ -178,6 +179,13 @@ public class MainActivity extends Activity {
 		
 		dialog.setContentView(holdView);
 		dialog.show();
+	}
+	
+	public void paymentClicked(final View v){
+		Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
+		intent.putExtra("transactionId", transactionId);
+		intent.putExtra("computerId", compProp.getComputerID());
+		startActivity(intent);
 	}
 	
 	public void discountClicked(final View v){
@@ -360,7 +368,7 @@ public class MainActivity extends Activity {
 		OrderTransaction.OrderDetail orderDetail
 			= mposTrans.getSummary(transactionId);
 		
-		tvTransVat.setText(format.currencyFormat(orderDetail.getVat()));
+		tvTransVat.setText(format.currencyFormat(orderDetail.getVatExclude()));
 		tvSubTotal.setText(format.currencyFormat(orderDetail.getProductPrice()));
 		tvTotalPrice.setText(format.currencyFormat(orderDetail.getProductPrice()));
 	}

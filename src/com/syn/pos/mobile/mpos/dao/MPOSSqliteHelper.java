@@ -1,6 +1,6 @@
 package com.syn.pos.mobile.mpos.dao;
 
-import com.j1tth4.mobile.core.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.ISqliteHelper;
 
 import android.content.ContentValues;
 import android.content.Context;

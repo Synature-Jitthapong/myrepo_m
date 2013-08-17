@@ -29,6 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="100dp"
+            android:onClick="onCancelClicked"
             android:text="@string/button_cancel" />
 
         <Button
@@ -36,8 +37,47 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="100dp"
+            android:onClick="onOkClicked"
             android:text="@string/button_ok" />
+    </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <HorizontalScrollView
+            android:id="@+id/horizontalScrollView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/button1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Button" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right" >
+
+            <TextView
+                android:id="@+id/textViewTotalPayment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.00"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="32sp" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -45,54 +85,123 @@
         android:layout_height="wrap_content"
         android:layout_weight="1" >
 
-        <ScrollView
-            android:id="@+id/scrollView1"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1.2" >
+            android:layout_weight="1"
+            android:orientation="vertical" >
 
-            <LinearLayout
+            <TableLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical" >
+                android:layout_height="wrap_content" >
 
-                <TableLayout
-                    android:id="@+id/tableLayoutPayType"
+                <TableRow
+                    android:id="@+id/tableRow11"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" >
 
-                    <TableRow
-                        android:id="@+id/tableRow11"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" >
+                    <TextView
+                        android:id="@+id/textView4"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="1dp"
+                        android:background="@color/dark_grey"
+                        android:padding="4dp"
+                        android:text="@string/pay_type"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                        <TextView
-                            android:id="@+id/textView4"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/item"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    <TextView
+                        android:id="@+id/textView5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:background="@color/dark_grey"
+                        android:padding="4dp"
+                        android:text="@string/pay_detail"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                        <TextView
-                            android:id="@+id/textView5"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/price"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    <TextView
+                        android:id="@+id/textView6"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="1dp"
+                        android:background="@color/dark_grey"
+                        android:padding="4dp"
+                        android:text="@string/pay_amount"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+                </TableRow>
 
-                        <TextView
-                            android:id="@+id/textView6"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="total price"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
+            </TableLayout>
 
-                    </TableRow>
+            <ScrollView
+                android:id="@+id/scrollView1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" >
 
+                <TableLayout
+                    android:id="@+id/tableLayoutPaydetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
                 </TableLayout>
 
-            </LinearLayout>
-        </ScrollView>
+            </ScrollView>
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <TableRow
+                    android:id="@+id/tableRow12"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical" >
+
+                    <TextView
+                        android:id="@+id/textView7"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/total_payment"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <EditText
+                        android:id="@+id/editTextTotalPaid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:enabled="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:inputType="number" />
+                </TableRow>
+
+                <TableRow
+                    android:id="@+id/tableRow13"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical" >
+
+                    <TextView
+                        android:id="@+id/textView8"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/to_be_paid"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <EditText
+                        android:id="@+id/editTextTobePaid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:enabled="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:inputType="number" />
+                </TableRow>
+            </TableLayout>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -102,22 +211,8 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="right" >
-
-                <TextView
-                    android:id="@+id/textViewTotalPayment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0.00"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textSize="32sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_margin="8dp"
                 android:orientation="vertical" >
 
                 <TableLayout
@@ -141,11 +236,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:ems="10"
+                            android:enabled="false"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
                             android:inputType="number" >
 
                             <requestFocus />
                         </EditText>
-
                     </TableRow>
 
                     <TableRow
@@ -165,8 +262,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:ems="10"
+                            android:enabled="false"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
                             android:inputType="number" />
-
                     </TableRow>
                 </TableLayout>
 
@@ -188,6 +287,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
+                                android:onClick="onBtnPriceClick"
                                 android:text="7" />
 
                             <Button
@@ -195,6 +295,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
+                                android:onClick="onBtnPriceClick"
                                 android:text="8" />
 
                             <Button
@@ -202,6 +303,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
+                                android:onClick="onBtnPriceClick"
                                 android:text="9" />
 
                             <Button
@@ -209,8 +311,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
+                                android:onClick="onBtnPriceClick"
                                 android:text="&lt;&lt;" />
-
                         </TableRow>
 
                         <TableRow
@@ -223,6 +325,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
+                                android:onClick="onBtnPriceClick"
                                 android:text="4" />
 
                             <Button
@@ -230,6 +333,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
+                                android:onClick="onBtnPriceClick"
                                 android:text="5" />
 
                             <Button
@@ -237,15 +341,16 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
+                                android:onClick="onBtnPriceClick"
                                 android:text="6" />
 
                             <Button
-                                android:id="@+id/button8"
+                                android:id="@+id/btnPayC"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
-                                android:text="Button" />
-
+                                android:onClick="onBtnPriceClick"
+                                android:text="C" />
                         </TableRow>
 
                         <TableRow
@@ -258,6 +363,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
+                                android:onClick="onBtnPriceClick"
                                 android:text="1" />
 
                             <Button
@@ -265,6 +371,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
+                                android:onClick="onBtnPriceClick"
                                 android:text="2" />
 
                             <Button
@@ -272,15 +379,16 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
+                                android:onClick="onBtnPriceClick"
                                 android:text="3" />
 
                             <Button
-                                android:id="@+id/button12"
+                                android:id="@+id/btnPay0"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
-                                android:text="Button" />
-
+                                android:onClick="onBtnPriceClick"
+                                android:text="0" />
                         </TableRow>
 
                         <TableRow
@@ -289,19 +397,21 @@
                             android:layout_height="wrap_content" >
 
                             <Button
-                                android:id="@+id/btnDot"
+                                android:id="@+id/btnPayDot"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="48dp"
+                                android:onClick="onBtnPriceClick"
                                 android:text="." />
 
                             <Button
-                                android:id="@+id/btn0"
+                                android:id="@+id/btnPayEnter"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_span="3"
                                 android:minWidth="48dp"
-                                android:text="0" />
-
+                                android:onClick="onBtnPriceClick"
+                                android:text="Enter" />
                         </TableRow>
                     </TableLayout>
 
@@ -318,20 +428,15 @@
                                 android:id="@+id/imageButton1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:minWidth="100dp" />
+                                android:minWidth="100dp"
+                                android:onClick="onBtnPriceClick" />
 
                             <ImageButton
                                 android:id="@+id/imageButton2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:minWidth="100dp" />
-
-                            <ImageButton
-                                android:id="@+id/imageButton3"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:minWidth="100dp" />
-
+                                android:minWidth="100dp"
+                                android:onClick="onBtnPriceClick" />
                         </TableRow>
 
                         <TableRow
@@ -342,24 +447,33 @@
                             <ImageButton
                                 android:id="@+id/imageButton4"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
+                                android:layout_height="wrap_content"
+                                android:onClick="onBtnPriceClick" />
 
                             <ImageButton
                                 android:id="@+id/imageButton5"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
-
-                            <ImageButton
-                                android:id="@+id/imageButton6"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
-
+                                android:layout_height="wrap_content"
+                                android:onClick="onBtnPriceClick" />
                         </TableRow>
 
                         <TableRow
                             android:id="@+id/tableRow9"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" >
+
+                            <ImageButton
+                                android:id="@+id/imageButton3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="100dp"
+                                android:onClick="onBtnPriceClick" />
+
+                            <ImageButton
+                                android:id="@+id/imageButton6"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:onClick="onBtnPriceClick" />
                         </TableRow>
 
                         <TableRow
@@ -368,13 +482,9 @@
                             android:layout_height="wrap_content" >
                         </TableRow>
                     </TableLayout>
-
                 </LinearLayout>
-
             </LinearLayout>
-
         </LinearLayout>
-
     </LinearLayout>
 
 </LinearLayout>

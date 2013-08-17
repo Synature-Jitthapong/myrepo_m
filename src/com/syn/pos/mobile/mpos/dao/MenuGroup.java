@@ -7,7 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-import com.j1tth4.mobile.core.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.ISqliteHelper;
 import com.syn.pos.mobile.model.MenuGroups;
 
 public class MenuGroup {

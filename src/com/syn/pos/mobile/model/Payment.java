@@ -8,7 +8,7 @@ public class Payment {
 	
 	public static class PaymentAmountButton{
 		private int PaymentAmountID;
-		private double PaymentAmount;
+		private float PaymentAmount;
 		
 		public int getPaymentAmountID() {
 			return PaymentAmountID;
@@ -16,10 +16,10 @@ public class Payment {
 		public void setPaymentAmountID(int paymentAmountID) {
 			PaymentAmountID = paymentAmountID;
 		}
-		public double getPaymentAmount() {
+		public float getPaymentAmount() {
 			return PaymentAmount;
 		}
-		public void setPaymentAmount(double paymentAmount) {
+		public void setPaymentAmount(float paymentAmount) {
 			PaymentAmount = paymentAmount;
 		}
 	}
@@ -30,7 +30,7 @@ public class Payment {
 		private int ComputerID;
 		private int ShopID;
 		private int PayTypeID;
-		private double PayAmount;
+		private float PayAmount;
 		private String CreaditCardNo;
 		private int ExpireMonth;
 		private int ExpireYear;
@@ -68,10 +68,10 @@ public class Payment {
 		public void setPayTypeID(int payTypeID) {
 			PayTypeID = payTypeID;
 		}
-		public double getPayAmount() {
+		public float getPayAmount() {
 			return PayAmount;
 		}
-		public void setPayAmount(double payAmount) {
+		public void setPayAmount(float payAmount) {
 			PayAmount = payAmount;
 		}
 		public String getCreaditCardNo() {

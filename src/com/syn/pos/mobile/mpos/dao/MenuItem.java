@@ -3,7 +3,7 @@ package com.syn.pos.mobile.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.j1tth4.mobile.core.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.ISqliteHelper;
 import com.syn.pos.mobile.model.MenuGroups;
 
 import android.content.ContentValues;

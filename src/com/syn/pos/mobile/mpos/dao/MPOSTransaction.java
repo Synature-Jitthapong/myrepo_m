@@ -10,11 +10,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-import com.j1tth4.mobile.core.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.pos.POSUtil;
+import com.j1tth4.mobile.sqlite.ISqliteHelper;
 import com.syn.pos.mobile.model.OrderTransaction;
+import com.syn.pos.mobile.model.Payment;
 import com.syn.pos.mobile.mpos.Formatter;
 
-public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrderDetail, IPaymentDetail {
+public class MPOSTransaction extends POSUtil implements POSOrderTransaction, 
+	POSOrderDetail, POSPayment {
 	
 	private ISqliteHelper dbHelper;
 	private Formatter format;
@@ -124,9 +127,9 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 		cv.put("vat_type", vatType);
 		
 		if(vatType == 1)
-			cv.put("vat", calculateVat(productPrice, productAmount, 7).toString());
+			cv.put("vat", calculateVat(productPrice, productAmount, 7));
 		else if(vatType == 2)
-			cv.put("vat_exclude", calculateVat(productPrice, productAmount, 7).toString());
+			cv.put("vat_exclude", calculateVat(productPrice, productAmount, 7));
 		
 		dbHelper.open();
 		if(!dbHelper.insert("order_detail", cv))
@@ -249,7 +252,6 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 		return orderDetailLst;
 	}
 
-	@Override
 	public OrderTransaction.OrderDetail getSummary(int transactionId) {
 		OrderTransaction.OrderDetail orderDetail = 
 					new OrderTransaction.OrderDetail();
@@ -305,7 +307,7 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 			int orderDetailId, int vatType, float productAmount, float productPrice) {
 		boolean isSucc = false;
 		
-		BigDecimal vat = calculateVat(productPrice, productAmount, 7);
+		float vat = calculateVat(productPrice, productAmount, 7);
 		
 		String strSql = "UPDATE order_detail SET product_amount=" + productAmount +
 				", product_price=" + productPrice;
@@ -331,7 +333,7 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 			float eatchProductDiscount, float memberDiscount) {
 		boolean isSucc = false;
 
-		BigDecimal vat = calculateVat(productPrice, productAmount, 7);
+		float vat = calculateVat(productPrice, productAmount, 7);
 		
 		String strSql = "UPDATE order_detail SET product_amount=" + productAmount +
 				", product_price=" + productPrice;
@@ -358,7 +360,8 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 		int maxPaymentId = 0;
 		dbHelper.open();
 		
-		String strSql = "SELECT MAX(payment_detail_id) " +
+		String strSql = "SELECT MAX(pay_detail_id) " +
+				" FROM payment_detail " +
 				" WHERE transaction_id=" + transactionId +
 				" AND computer_id=" + computerId;
 		
@@ -375,15 +378,23 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 
 	@Override
 	public boolean addPaymentDetail(int transactionId,
-			int computerId, int payTypeId) {
+			int computerId, int payTypeId, float payAmount,
+			String creditCardNo, int expireMonth, 
+			int expireYear, int bankId,int creditCardTypeId) {
 		boolean isSuccess = false;
 		int paymentId = getMaxPaymentDetailId(transactionId, computerId);
 		
 		ContentValues cv = new ContentValues();
-		cv.put("payment_detail_id", paymentId);
+		cv.put("pay_detail_id", paymentId);
 		cv.put("transaction_id", transactionId);
 		cv.put("computer_id", computerId);
 		cv.put("pay_type_id", payTypeId);
+		cv.put("pay_amount", payAmount);
+		cv.put("credit_card_no", creditCardNo);
+		cv.put("expire_month", expireMonth);
+		cv.put("expire_year", expireYear);
+		cv.put("bank_id", bankId);
+		cv.put("credit_card_type", creditCardTypeId);
 		
 		dbHelper.open();
 		isSuccess = dbHelper.insert("payment_detail", cv);
@@ -394,18 +405,18 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 	@Override
 	public boolean updatePaymentDetail(int paymentId, int payTypeId,
 			float paymentAmount, String creditCardNo, int expireMonth,
-			int expireYear, String bankName, int creditCardTypeId) {
+			int expireYear, int bankId, int creditCardTypeId) {
 		boolean isSuccess = false;
 		
 		String strSql = "UPDATE payment_detail SET " +
 				" pay_type_id=" + payTypeId + ", " +
-				" payment_amount=" + paymentAmount + ", " +
+				" pay_amount=" + paymentAmount + ", " +
 				" credit_card_no='" + creditCardNo + "', " +
 				" expire_month=" + expireMonth + ", " +
 				" expire_year=" + expireYear + ", " +
-				" bank_name='" + bankName + "', " + 
+				" bank_id='" + bankId + "', " + 
 				" credit_card_type=" + creditCardTypeId +
-				" WHERE payment_detail_id=" + paymentId;
+				" WHERE pay_detail_id=" + paymentId;
 		
 		dbHelper.open();
 		isSuccess = dbHelper.execSQL(strSql);
@@ -416,11 +427,45 @@ public class MPOSTransaction extends POSUtil implements IMPOSTransaction, IOrder
 	@Override
 	public void deletePaymentDetail(int paymentId) {
 		String strSql = "DELETE FROM payment_detail " +
-				" WHERE payment_detail_id=" + paymentId;
+				" WHERE pay_detail_id=" + paymentId;
 		
 		dbHelper.open();
 		dbHelper.execSQL(strSql);
 		dbHelper.close();
 	}
 
+	public List<Payment.PaymentDetail> listPayment(int transactionId, int computerId){
+		List<Payment.PaymentDetail> paymentLst = 
+				new ArrayList<Payment.PaymentDetail>();
+		
+		String strSql = "SELECT * " +
+				" FROM payment_detail " +
+				" WHERE transaction_id=" + transactionId +
+				" AND computer_id=" + computerId;
+		
+		dbHelper.open();
+		
+		Cursor cursor = dbHelper.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			do{
+				Payment.PaymentDetail payDetail
+					= new Payment.PaymentDetail();
+				payDetail.setPaymentDetailID(cursor.getInt(cursor.getColumnIndex("pay_detail_id")));
+				payDetail.setPayTypeID(cursor.getInt(cursor.getColumnIndex("pay_type_id")));
+				payDetail.setPayAmount(cursor.getFloat(cursor.getColumnIndex("pay_amount")));
+				payDetail.setRemark(cursor.getString(cursor.getColumnIndex("remark")));
+				paymentLst.add(payDetail);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		dbHelper.close();
+		
+		return paymentLst;
+	}
+
+	@Override
+	public void printReceipt() {
+		// TODO Auto-generated method stub
+		
+	}
 }

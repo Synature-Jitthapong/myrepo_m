@@ -156,6 +156,7 @@
                 android:id="@+id/buttonCash"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="paymentClicked"
                 android:text="@string/button_cash" />
 
         </LinearLayout>
