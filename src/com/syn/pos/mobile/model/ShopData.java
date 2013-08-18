@@ -6,7 +6,6 @@ public class ShopData {
 	public List<ShopProperty> ShopProperty;
 	public List<ComputerProperty> ComputerProperty;
 	public List<Staff> Staffs;
-	public List<StaffPermission> StaffPermission;
 	public List<GlobalProperty> GlobalProperty;
 	public List<Language> Language;
 	public List<ProgramFeature> ProgramFeature;
@@ -41,14 +40,6 @@ public class ShopData {
 
 	public void setStaffs(List<Staff> staffs) {
 		Staffs = staffs;
-	}
-
-	public List<StaffPermission> getStaffPermission() {
-		return StaffPermission;
-	}
-
-	public void setStaffPermission(List<StaffPermission> staffPermission) {
-		StaffPermission = staffPermission;
 	}
 
 	public List<GlobalProperty> getGlobalProperty() {

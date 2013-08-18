@@ -9,4 +9,5 @@ public interface POSPayment {
 			int payTypeId, float paymentAmount, String creditCardNo, 
 			int expireMonth, int expireYear, int bankId, int creditCardTypeId);
 	public void deletePaymentDetail(int paymentId);
+	public void deleteAllPaymentDetail(int transactionId);
 }

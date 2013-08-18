@@ -17,5 +17,5 @@ public interface POSOrderTransaction {
 			int staffId, float transVat, float transExclVat,
 			float serviceCharge, float serviceChargeVat);
 
-	public void cancelTransaction(int transactionId);
+	public void deleteTransaction(int transactionId);
 }

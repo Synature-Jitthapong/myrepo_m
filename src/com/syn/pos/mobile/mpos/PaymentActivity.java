@@ -14,6 +14,8 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -56,7 +58,6 @@ public class PaymentActivity extends Activity {
 		computerId = intent.getIntExtra("computerId", 0);
 		
 		init();
-		loadSummary();
 	}
 	
 	private void init(){
@@ -64,6 +65,8 @@ public class PaymentActivity extends Activity {
 		format = new Formatter(context);
 		
 		mposTrans = new MPOSTransaction(context, format);
+		loadSummary();
+		loadPayDetail();
 	}
 	
 	private void loadSummary(){
@@ -72,14 +75,17 @@ public class PaymentActivity extends Activity {
 		
 		totalPrice = order.getProductPrice();
 		
-		displayPayment();
+		displayTotalPrice();
 	}
 	
 	private void loadPayDetail(){
 		List<Payment.PaymentDetail> payLst = mposTrans.listPayment(transactionId, computerId);
-
+		float totalPaid = mposTrans.getTotalPaid(transactionId, computerId);
+		float tobePaid = totalPrice - totalPaid; 
+		
 		LayoutInflater inflater = LayoutInflater.from(context);
-		for(Payment.PaymentDetail payment : payLst){
+		tableLayoutPaydetail.removeAllViews();
+		for(final Payment.PaymentDetail payment : payLst){
 			View v = inflater.inflate(R.layout.payment_detail_template, null);
 			TextView tvPayType = (TextView) v.findViewById(R.id.textViewPayType);
 			TextView tvPayDetail = (TextView) v.findViewById(R.id.textViewPayDetail);
@@ -88,8 +94,26 @@ public class PaymentActivity extends Activity {
 			tvPayType.setText(Integer.toString(payment.getPayTypeID()));
 			tvPayDetail.setText(payment.getRemark());
 			tvPayAmount.setText(format.currencyFormat(payment.getPayAmount()));
+			
+			v.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View arg0) {
+					deletePayment(payment.getPayTypeID());
+				}
+				
+			});
 			tableLayoutPaydetail.addView(v);
 		}
+		
+		txtTotalPaid.setText(format.currencyFormat(totalPaid));
+		if(tobePaid >= 0)
+			txtTobePaid.setText(format.currencyFormat(tobePaid));
+	}
+	
+	private void deletePayment(int paymentId){
+		mposTrans.deletePaymentDetail(paymentId);
+		loadPayDetail();
 	}
 	
 	private void addPayment(int payType){
@@ -103,11 +127,16 @@ public class PaymentActivity extends Activity {
 		loadPayDetail();
 	}
 	
-	private void displayPayment(){
+	private void displayTotalPrice(){
 		tvTotalPayment.setText(format.currencyFormat(totalPrice));
 
 		strTotalPay = new StringBuilder();
 		displayTotalPaid();
+	}
+	
+	private void displayChange(){
+		float change = totalPay - totalPrice;
+		txtChange.setText(format.currencyFormat(change));
 	}
 	
 	private void displayTotalPaid(){
@@ -166,16 +195,22 @@ public class PaymentActivity extends Activity {
 			strTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPayDel:
-			strTotalPay.deleteCharAt(strTotalPay.length());
+			try {
+				strTotalPay.deleteCharAt(strTotalPay.length() - 1);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		case R.id.btnPayDot:
 			strTotalPay.append(".");
 			break;
 		case R.id.btnPayEnter:
 			addPayment(1);
+			strTotalPay = new StringBuilder();
+			displayChange();
 			break;
 		}
-		
 		displayTotalPaid();
 	}
 }

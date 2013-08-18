@@ -84,11 +84,16 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 	}
 
 	@Override
-	public void cancelTransaction(int transactionId) {
+	public void deleteTransaction(int transactionId){
 		dbHelper.open();
 		dbHelper.execSQL("DELETE FROM order_transaction WHERE transaction_id=" + transactionId);
-		dbHelper.execSQL("DELETE FROM order_detail WHERE transaction_id=" + transactionId);
 		dbHelper.close();
+	}
+	
+	public void cancelTransaction(int transactionId) {
+		deleteTransaction(transactionId);
+		deleteAllOrderDetail(transactionId);
+		deleteAllPaymentDetail(transactionId);
 	}
 
 	@Override
@@ -286,8 +291,11 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 
 	@Override
 	public boolean deleteAllOrderDetail(int transactionId) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean isSuccess = false;
+		dbHelper.open();
+		isSuccess = dbHelper.execSQL("DELETE FROM order_detail WHERE transaction_id=" + transactionId);
+		dbHelper.close();
+		return isSuccess;
 	}
 
 	@Override
@@ -435,6 +443,27 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 		dbHelper.close();
 	}
 
+	public float getTotalPaid(int transactionId, int computerId){
+		float totalPaid = 0.0f;
+	
+		String strSql = "SELECT SUM(pay_amount) " +
+				" FROM payment_detail " +
+				" WHERE transaction_id=" + transactionId +
+				" AND computer_id=" + computerId;
+		
+		dbHelper.open();
+		
+		Cursor cursor = dbHelper.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			totalPaid = cursor.getFloat(0);
+		}
+		cursor.close();
+				
+		dbHelper.close();
+		
+		return totalPaid;
+	}
+	
 	public List<Payment.PaymentDetail> listPayment(int transactionId, int computerId){
 		List<Payment.PaymentDetail> paymentLst = 
 				new ArrayList<Payment.PaymentDetail>();
@@ -468,5 +497,12 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 	public void printReceipt() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void deleteAllPaymentDetail(int transactionId) {
+		dbHelper.open();
+		dbHelper.execSQL("DELETE FROM payment_detail WHERE transactionId=" + transactionId);
+		dbHelper.close();
 	}
 }

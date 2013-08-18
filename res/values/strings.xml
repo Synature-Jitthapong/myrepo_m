@@ -43,4 +43,5 @@
     <string name="to_be_paid">To be paid</string>
     <string name="item_no">#</string>
     <string name="amount">Amount</string>
+    <string name="credit_pay">Credit Card</string>
 </resources>
