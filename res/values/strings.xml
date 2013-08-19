@@ -32,7 +32,7 @@
     <string name="button_cancel">Cancel</string>
     <string name="button_ok">Ok</string>
     <string name="title_activity_payment">Payment</string>
-    <string name="total">Total</string>
+    <string name="total_receive">Total receive</string>
     <string name="change">Change</string>
     <string name="item_name">Items</string>
     <string name="price">Price</string>
@@ -40,7 +40,7 @@
     <string name="pay_detail">Detail</string>
     <string name="pay_amount">Amount</string>
     <string name="total_payment">Total pay</string>
-    <string name="to_be_paid">To be paid</string>
+    <string name="to_be_paid">Payment left</string>
     <string name="item_no">#</string>
     <string name="amount">Amount</string>
     <string name="credit_pay">Credit Card</string>
@@ -48,7 +48,7 @@
     <string name="credit_card_no">Credit card NO</string>
     <string name="bank">Bank</string>
     <string name="card_type">Card type</string>
-    <string name="expire_date">Expire date</string>
+    <string name="expire_date">Expire</string>
     <string name="approval_code">Approval code</string>
     <string name="button_enter">Enter</string>
     

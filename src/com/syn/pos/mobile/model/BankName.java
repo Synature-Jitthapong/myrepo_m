@@ -25,4 +25,9 @@ public class BankName {
 	public void setBankName(String bankName) {
 		this.bankName = bankName;
 	}
+
+	@Override
+	public String toString() {
+		return bankName;
+	}
 }

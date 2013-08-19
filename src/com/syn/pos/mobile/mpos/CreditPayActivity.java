@@ -29,12 +29,12 @@ public class CreditPayActivity extends Activity {
 	private int computerId;
 	private float totalPrice;
 	private float totalPay;
-	private float totalPaid;
 	private Formatter format;
 	private MPOSTransaction mposTrans;
 	private List<BankName> bankLst;
 	private List<CreditCardType> creditCardLst;
 	
+	private StringBuilder strTotalPaid;
 	private EditText txtTotalPrice;
 	private EditText txtTotalPay;
 	private EditText txtCardNo;
@@ -47,6 +47,7 @@ public class CreditPayActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_credit_pay);
+		context = CreditPayActivity.this;
 	
 		txtTotalPrice = (EditText) findViewById(R.id.editTextCreditTotalPrice);
 		txtTotalPay = (EditText) findViewById(R.id.editTextCreditPayAmount);
@@ -54,7 +55,7 @@ public class CreditPayActivity extends Activity {
 		spinnerBank = (Spinner) findViewById(R.id.spinnerBank);
 		spinnerCardType = (Spinner) findViewById(R.id.spinnerCardType);
 		spinnerExpireMonth = (Spinner) findViewById(R.id.spinnerExpMonth);
-		spinnerBank = (Spinner) findViewById(R.id.spinnerExpYear);
+		spinnerExpireYear = (Spinner) findViewById(R.id.spinnerExpYear);
 		
 		Intent intent = getIntent();
 		transactionId = intent.getIntExtra("transactionId", 0);
@@ -70,6 +71,7 @@ public class CreditPayActivity extends Activity {
 	private void init(){
 		format = new Formatter(context);
 		mposTrans = new MPOSTransaction(context, format);
+		strTotalPaid = new StringBuilder();
 		
 		loadTotalPrice();
 		loadCreditCardType();
@@ -87,6 +89,25 @@ public class CreditPayActivity extends Activity {
 	
 	private void displayTotalPrice(){
 		txtTotalPrice.setText(format.currencyFormat(totalPrice));
+		
+		displayTotalPaid();
+	}
+
+	private void displayTotalPaid(){
+		try {
+			totalPay = Float.parseFloat(strTotalPaid.toString());
+		} catch (NumberFormatException e) {
+			totalPay = 0.0f;
+			e.printStackTrace();
+		}
+		
+		txtTotalPay.setText(format.currencyFormat(totalPay));
+	}
+	
+	private void addPayment(){
+		if(mposTrans.addPaymentDetail(transactionId, computerId, 2, 
+					totalPay, "xx", 7, 2017, 1, 1))
+			finish();
 	}
 	
 	private void loadCreditCardType(){
@@ -94,7 +115,8 @@ public class CreditPayActivity extends Activity {
 		creditCardLst = credit.listAllCreditCardType();
 		
 		ArrayAdapter<CreditCardType> adapter = 
-				new ArrayAdapter<CreditCardType>(context, android.R.layout.simple_spinner_item, creditCardLst);
+				new ArrayAdapter<CreditCardType>(context, 
+						android.R.layout.simple_dropdown_item_1line, creditCardLst);
 		spinnerCardType.setAdapter(adapter);
 		spinnerCardType.setOnItemSelectedListener(new OnItemSelectedListener(){
 
@@ -119,7 +141,8 @@ public class CreditPayActivity extends Activity {
 		bankLst = bank.listAllBank();
 		
 		ArrayAdapter<BankName> adapter = 
-				new ArrayAdapter<BankName>(context, android.R.layout.simple_spinner_item, bankLst);
+				new ArrayAdapter<BankName>(context, 
+						android.R.layout.simple_dropdown_item_1line, bankLst);
 		spinnerBank.setAdapter(adapter);
 		spinnerBank.setOnItemSelectedListener(new OnItemSelectedListener(){
 
@@ -139,11 +162,59 @@ public class CreditPayActivity extends Activity {
 		});
 	}
 	
+	public void creditPayClicked(final View v){
+		switch (v.getId()) {
+		case R.id.btnCredit0:
+			strTotalPaid.append("0");
+			break;
+		case R.id.btnCredit1:
+			strTotalPaid.append("1");
+			break;
+		case R.id.btnCredit2:
+			strTotalPaid.append("2");
+			break;
+		case R.id.btnCredit3:
+			strTotalPaid.append("3");
+			break;
+		case R.id.btnCredit4:
+			strTotalPaid.append("4");
+			break;
+		case R.id.btnCredit5:
+			strTotalPaid.append("5");
+			break;
+		case R.id.btnCredit6:
+			strTotalPaid.append("6");
+			break;
+		case R.id.btnCredit7:
+			strTotalPaid.append("7");
+			break;
+		case R.id.btnCredit8:
+			strTotalPaid.append("8");
+			break;
+		case R.id.btnCredit9:
+			strTotalPaid.append("9");
+			break;
+		case R.id.btnCreditDel:
+			try {
+				strTotalPaid.deleteCharAt(strTotalPaid.length() - 1);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			break;
+		case R.id.btnCreditDot:
+			strTotalPaid.append(".");
+			break;
+		}
+
+		displayTotalPaid();
+	}
+	
 	public void cancelPayClicked(final View v){
 		finish();
 	}
 	
 	public void okPayClicked(final View v){
-		finish();
+		addPayment();
 	}
 }

@@ -111,6 +111,7 @@
                     android:id="@+id/buttonLogin"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_span="2"
                     android:onClick="loginClicked"
                     android:text="@string/button_login" />
 
@@ -127,7 +128,7 @@
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="gone" />
+                    android:layout_span="2" />
 
             </TableRow>
 

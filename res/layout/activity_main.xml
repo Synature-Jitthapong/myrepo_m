@@ -39,7 +39,7 @@
         <TextView
             android:id="@+id/textViewBarcode"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:background="@android:color/white"
             android:padding="4dp"
             android:text="Bar Code"
@@ -149,6 +149,7 @@
                 android:id="@+id/buttonDiscount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="100dp"
                 android:onClick="discountClicked"
                 android:text="@string/button_discount" />
 
@@ -156,6 +157,7 @@
                 android:id="@+id/buttonCash"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="100dp"
                 android:onClick="paymentClicked"
                 android:text="@string/button_cash" />
 
@@ -187,6 +189,7 @@
                     android:id="@+id/buttonHoldBill"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="100dp"
                     android:onClick="holdBillClicked"
                     android:text="@string/button_hold_bill"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -195,6 +198,7 @@
                     android:id="@+id/buttonInventory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="100dp"
                     android:text="@string/button_inventory"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -202,6 +206,7 @@
                     android:id="@+id/buttonReport"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="100dp"
                     android:text="@string/button_report"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -209,6 +214,7 @@
                     android:id="@+id/buttonUtility"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="100dp"
                     android:text="@string/button_utility"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -216,6 +222,7 @@
                     android:id="@+id/buttonSwitchUser"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="100dp"
                     android:text="@string/button_switch_user"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -223,6 +230,7 @@
                     android:id="@+id/buttonLogout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="100dp"
                     android:onClick="logoutClicked"
                     android:text="@string/button_logout"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -290,6 +298,7 @@
                     android:id="@+id/buttonHold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="100dp"
                     android:onClick="holdOrderClicked"
                     android:text="@string/button_hold" />
 
@@ -297,12 +306,14 @@
                     android:id="@+id/buttonSetMember"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="100dp"
                     android:text="@string/button_set_member" />
 
                 <Button
                     android:id="@+id/buttonNewMember"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="100dp"
                     android:text="@string/button_addnew_member" />
 
             </LinearLayout>
@@ -311,6 +322,7 @@
                 android:id="@+id/buttonClearBill"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="100dp"
                 android:onClick="clearBillClicked"
                 android:text="@string/button_clear_bill" />
 
