@@ -17,5 +17,7 @@ public interface POSOrderTransaction {
 			int staffId, float transVat, float transExclVat,
 			float serviceCharge, float serviceChargeVat);
 
-	public void deleteTransaction(int transactionId);
+	public boolean successTransaction(int transactionId, int computerId);
+	public boolean holdTransaction(int transactionId, int computerId, String remark);
+	public boolean deleteTransaction(int transactionId);
 }

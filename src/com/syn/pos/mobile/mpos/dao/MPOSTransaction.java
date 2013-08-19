@@ -17,7 +17,7 @@ import com.syn.pos.mobile.model.Payment;
 import com.syn.pos.mobile.mpos.Formatter;
 
 public class MPOSTransaction extends POSUtil implements POSOrderTransaction, 
-	POSOrderDetail, POSPayment {
+	POSOrderDetail, POSPaymentDetail {
 	
 	private ISqliteHelper dbHelper;
 	private Formatter format;
@@ -76,6 +76,20 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 	}
 
 	@Override
+	public boolean successTransaction(int transactionId, int computerId){
+		boolean isSuccess = false;
+		String strSql = "UPDATE order_transaction " +
+				" SET transaction_status_id=2 " +
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId;
+		
+		dbHelper.open();
+		isSuccess = dbHelper.execSQL(strSql);
+		dbHelper.close();
+		return isSuccess;
+	}
+	
+	@Override
 	public void updateTransaction(int transactionId, int computerId,
 			int staffId, float transVat, float transExclVat,
 			float serviceCharge, float serviceChargeVat) {
@@ -84,10 +98,12 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 	}
 
 	@Override
-	public void deleteTransaction(int transactionId){
+	public boolean deleteTransaction(int transactionId){
+		boolean isSuccess = false;
 		dbHelper.open();
 		dbHelper.execSQL("DELETE FROM order_transaction WHERE transaction_id=" + transactionId);
 		dbHelper.close();
+		return isSuccess;
 	}
 	
 	public void cancelTransaction(int transactionId) {
@@ -504,5 +520,18 @@ public class MPOSTransaction extends POSUtil implements POSOrderTransaction,
 		dbHelper.open();
 		dbHelper.execSQL("DELETE FROM payment_detail WHERE transactionId=" + transactionId);
 		dbHelper.close();
+	}
+
+	@Override
+	public boolean holdTransaction(int transactionId, int computerId, String remark) {
+		boolean isSuccess = false;
+		
+		dbHelper.open();
+		isSuccess = dbHelper.execSQL("UPDATE order_transaction SET transaction_status_id = 9, " +
+				" remark='" + remark + "' " +
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
+		dbHelper.close();
+		return isSuccess;
 	}
 }

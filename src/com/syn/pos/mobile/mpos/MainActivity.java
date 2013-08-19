@@ -74,8 +74,6 @@ public class MainActivity extends Activity {
 		tvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
 		tvTransVat = (TextView) findViewById(R.id.textViewTransVat);
 		tvDiscount = (TextView) findViewById(R.id.textViewDiscount);
-	
-		init();
 	}
 	
 	private void init(){
@@ -201,6 +199,7 @@ public class MainActivity extends Activity {
 	
 	@Override
 	protected void onResume() {
+		init();
 		super.onResume();
 	}
 	

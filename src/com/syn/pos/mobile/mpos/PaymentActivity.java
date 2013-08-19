@@ -9,7 +9,9 @@ import com.syn.pos.mobile.mpos.dao.MPOSTransaction;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,6 +34,7 @@ public class PaymentActivity extends Activity {
 	private StringBuilder strTotalPay;
 	private float totalPrice;
 	private float totalPay;
+	private float totalPaid;
 	private float changeAmount;
 	
 	private TableLayout tableLayoutPaydetail;
@@ -56,20 +59,24 @@ public class PaymentActivity extends Activity {
 		Intent intent = getIntent();
 		transactionId = intent.getIntExtra("transactionId", 0);
 		computerId = intent.getIntExtra("computerId", 0);
-		
-		init();
 	}
 	
+	@Override
+	protected void onResume() {
+		init();
+		super.onResume();
+	}
+
 	private void init(){
 		context = PaymentActivity.this;
 		format = new Formatter(context);
 		
 		mposTrans = new MPOSTransaction(context, format);
-		loadSummary();
+		loadTotalPrice();
 		loadPayDetail();
 	}
 	
-	private void loadSummary(){
+	private void loadTotalPrice(){
 		OrderTransaction.OrderDetail order = 
 				mposTrans.getSummary(transactionId);
 		
@@ -80,7 +87,7 @@ public class PaymentActivity extends Activity {
 	
 	private void loadPayDetail(){
 		List<Payment.PaymentDetail> payLst = mposTrans.listPayment(transactionId, computerId);
-		float totalPaid = mposTrans.getTotalPaid(transactionId, computerId);
+		totalPaid = mposTrans.getTotalPaid(transactionId, computerId);
 		float tobePaid = totalPrice - totalPaid; 
 		
 		LayoutInflater inflater = LayoutInflater.from(context);
@@ -99,7 +106,7 @@ public class PaymentActivity extends Activity {
 
 				@Override
 				public void onClick(View arg0) {
-					deletePayment(payment.getPayTypeID());
+					deletePayment(payment.getPaymentDetailID());
 				}
 				
 			});
@@ -107,8 +114,10 @@ public class PaymentActivity extends Activity {
 		}
 		
 		txtTotalPaid.setText(format.currencyFormat(totalPaid));
-		if(tobePaid >= 0)
-			txtTobePaid.setText(format.currencyFormat(tobePaid));
+		if(tobePaid < 0)
+			tobePaid = 0.0f;
+		
+		txtTobePaid.setText(format.currencyFormat(tobePaid));
 	}
 	
 	private void deletePayment(int paymentId){
@@ -135,8 +144,8 @@ public class PaymentActivity extends Activity {
 	}
 	
 	private void displayChange(){
-		float change = totalPay - totalPrice;
-		txtChange.setText(format.currencyFormat(change));
+//		float change = totalPay - totalPrice;
+//		txtChange.setText(format.currencyFormat(change));
 	}
 	
 	private void displayTotalPaid(){
@@ -148,12 +157,49 @@ public class PaymentActivity extends Activity {
 		txtTotalPay.setText(format.currencyFormat(totalPay));
 	}
 	
+	public void creditPayClicked(final View v){
+		Intent intent = new Intent(PaymentActivity.this, CreditPayActivity.class);
+		intent.putExtra("transactionId", transactionId);
+		intent.putExtra("computerId", computerId);
+		startActivity(intent);
+	}
+	
 	public void onCancelClicked(final View v){
 		finish();
 	}
 	
 	public void onOkClicked(final View v){
-		finish();
+		if(totalPaid >=totalPrice){
+			mposTrans.successTransaction(transactionId, computerId);
+			if(totalPaid - totalPrice > 0){
+				new AlertDialog.Builder(context)
+				.setTitle("Change")
+				.setMessage(format.currencyFormat(totalPaid - totalPrice))
+				.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+					}
+				})
+				.show();
+			}else{
+				finish();
+			}
+		}else{
+			new AlertDialog.Builder(context)
+			.setTitle("Payment")
+			.setMessage("ใส่จำนวนเงินให้พอ")
+			.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					
+				}
+			})
+			.show();
+			
+		}
 	}
 
 	/*

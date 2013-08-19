@@ -44,4 +44,13 @@
     <string name="item_no">#</string>
     <string name="amount">Amount</string>
     <string name="credit_pay">Credit Card</string>
+    <string name="title_activity_credit_pay">Credit card Payment</string>
+    <string name="credit_card_no">Credit card NO</string>
+    <string name="bank">Bank</string>
+    <string name="card_type">Card type</string>
+    <string name="expire_date">Expire date</string>
+    <string name="approval_code">Approval code</string>
+    <string name="button_enter">Enter</string>
+    
+
 </resources>

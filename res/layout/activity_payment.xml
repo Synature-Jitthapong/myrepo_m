@@ -65,7 +65,9 @@
                     android:id="@+id/btnCreditPay"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:onClick="creditPayClicked"
                     android:text="@string/credit_pay" />
+
             </LinearLayout>
         </HorizontalScrollView>
 
