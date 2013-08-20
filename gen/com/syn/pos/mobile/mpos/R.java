@@ -17,22 +17,22 @@ public final class R {
     public static final class attr {
     }
     public static final class color {
-        public static final int dark_grey=0x7f07000f;
-        public static final int disabled=0x7f07000e;
-        public static final int grey_light=0x7f070000;
-        public static final int grey_stroke=0x7f07000d;
-        public static final int light_blue=0x7f070002;
-        public static final int light_green_end=0x7f070006;
-        public static final int light_green_start=0x7f070005;
-        public static final int light_grey_end=0x7f070004;
-        public static final int light_grey_start=0x7f070003;
-        public static final int light_lemon_end=0x7f070008;
-        public static final int light_lemon_start=0x7f070007;
-        public static final int light_orenge_end=0x7f07000a;
-        public static final int light_orenge_start=0x7f070009;
-        public static final int light_red_end=0x7f07000c;
-        public static final int light_red_start=0x7f07000b;
-        public static final int smoke_white=0x7f070001;
+        public static final int dark_grey=0x7f05000f;
+        public static final int disabled=0x7f05000e;
+        public static final int grey_light=0x7f050000;
+        public static final int grey_stroke=0x7f05000d;
+        public static final int light_blue=0x7f050002;
+        public static final int light_green_end=0x7f050006;
+        public static final int light_green_start=0x7f050005;
+        public static final int light_grey_end=0x7f050004;
+        public static final int light_grey_start=0x7f050003;
+        public static final int light_lemon_end=0x7f050008;
+        public static final int light_lemon_start=0x7f050007;
+        public static final int light_orenge_end=0x7f05000a;
+        public static final int light_orenge_start=0x7f050009;
+        public static final int light_red_end=0x7f05000c;
+        public static final int light_red_start=0x7f05000b;
+        public static final int smoke_white=0x7f050001;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -41,22 +41,21 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f080000;
-        public static final int activity_vertical_margin=0x7f080001;
+        public static final int activity_horizontal_margin=0x7f060000;
+        public static final int activity_vertical_margin=0x7f060001;
     }
     public static final class drawable {
         public static final int header_2=0x7f020000;
-        public static final int ic_launcher=0x7f020001;
-        public static final int layout_bg=0x7f020002;
-        public static final int logo=0x7f020003;
-        public static final int no_food=0x7f020004;
-        public static final int orange_button_center=0x7f020005;
-        public static final int orange_button_left=0x7f020006;
-        public static final int orange_button_right=0x7f020007;
-        public static final int panel_bg=0x7f020008;
-        public static final int radius_bg=0x7f020009;
-        public static final int red_button=0x7f02000a;
-        public static final int shape_white_normal=0x7f02000b;
+        public static final int layout_bg=0x7f020001;
+        public static final int logo=0x7f020002;
+        public static final int no_food=0x7f020003;
+        public static final int orange_button_center=0x7f020004;
+        public static final int orange_button_left=0x7f020005;
+        public static final int orange_button_right=0x7f020006;
+        public static final int panel_bg=0x7f020007;
+        public static final int radius_bg=0x7f020008;
+        public static final int red_button=0x7f020009;
+        public static final int shape_white_normal=0x7f02000a;
     }
     public static final class id {
         public static final int FeatureLayout=0x7f09004b;
@@ -226,85 +225,74 @@ public final class R {
         public static final int payment_detail_template=0x7f03000b;
     }
     public static final class string {
-        public static final int action_settings=0x7f050001;
-        public static final int amount=0x7f050029;
-        public static final int app_name=0x7f050000;
-        public static final int approval_code=0x7f050030;
-        public static final int bank=0x7f05002d;
-        public static final int button_addnew_member=0x7f05000b;
-        public static final int button_cancel=0x7f05001c;
-        public static final int button_cancel_hold=0x7f050013;
-        public static final int button_cash=0x7f05000e;
-        public static final int button_clear_bill=0x7f05000f;
-        public static final int button_confirm_hold=0x7f050012;
-        public static final int button_discount=0x7f05000d;
-        public static final int button_enter=0x7f050031;
-        public static final int button_hold=0x7f05000c;
-        public static final int button_hold_bill=0x7f050006;
-        public static final int button_inventory=0x7f050005;
-        public static final int button_login=0x7f050002;
-        public static final int button_logout=0x7f050010;
-        public static final int button_ok=0x7f05001d;
-        public static final int button_report=0x7f050007;
-        public static final int button_set_member=0x7f05000a;
-        public static final int button_switch_user=0x7f050009;
-        public static final int button_utility=0x7f050008;
-        public static final int card_type=0x7f05002e;
-        public static final int change=0x7f050020;
-        public static final int credit_card_no=0x7f05002c;
-        public static final int credit_pay=0x7f05002a;
-        public static final int discount=0x7f050018;
-        public static final int exclude_vat=0x7f05001a;
-        public static final int expire_date=0x7f05002f;
-        public static final int item_name=0x7f050021;
-        public static final int item_no=0x7f050028;
-        public static final int pass_word=0x7f050004;
-        public static final int pay_amount=0x7f050025;
-        public static final int pay_detail=0x7f050024;
-        public static final int pay_type=0x7f050023;
-        public static final int price=0x7f050022;
-        public static final int sub_total=0x7f050017;
-        public static final int text_hold_order_remark=0x7f050011;
-        public static final int title_activity_credit_pay=0x7f05002b;
-        public static final int title_activity_discount=0x7f050015;
-        public static final int title_activity_payment=0x7f05001e;
-        public static final int title_discount=0x7f050016;
-        public static final int title_hold_order=0x7f050014;
-        public static final int to_be_paid=0x7f050027;
-        public static final int total_payment=0x7f050026;
-        public static final int total_price=0x7f05001b;
-        public static final int total_receive=0x7f05001f;
-        public static final int user_name=0x7f050003;
-        public static final int vat=0x7f050019;
+        public static final int action_settings=0x7f070001;
+        public static final int amount=0x7f070029;
+        public static final int app_name=0x7f070000;
+        public static final int approval_code=0x7f070030;
+        public static final int bank=0x7f07002d;
+        public static final int button_addnew_member=0x7f07000b;
+        public static final int button_cancel=0x7f07001c;
+        public static final int button_cancel_hold=0x7f070013;
+        public static final int button_cash=0x7f07000e;
+        public static final int button_clear_bill=0x7f07000f;
+        public static final int button_confirm_hold=0x7f070012;
+        public static final int button_discount=0x7f07000d;
+        public static final int button_enter=0x7f070031;
+        public static final int button_hold=0x7f07000c;
+        public static final int button_hold_bill=0x7f070006;
+        public static final int button_inventory=0x7f070005;
+        public static final int button_login=0x7f070002;
+        public static final int button_logout=0x7f070010;
+        public static final int button_ok=0x7f07001d;
+        public static final int button_report=0x7f070007;
+        public static final int button_set_member=0x7f07000a;
+        public static final int button_switch_user=0x7f070009;
+        public static final int button_utility=0x7f070008;
+        public static final int card_type=0x7f07002e;
+        public static final int change=0x7f070020;
+        public static final int credit_card_no=0x7f07002c;
+        public static final int credit_pay=0x7f07002a;
+        public static final int discount=0x7f070018;
+        public static final int exclude_vat=0x7f07001a;
+        public static final int expire_date=0x7f07002f;
+        public static final int item_name=0x7f070021;
+        public static final int item_no=0x7f070028;
+        public static final int pass_word=0x7f070004;
+        public static final int pay_amount=0x7f070025;
+        public static final int pay_detail=0x7f070024;
+        public static final int pay_type=0x7f070023;
+        public static final int price=0x7f070022;
+        public static final int sub_total=0x7f070017;
+        public static final int text_hold_order_remark=0x7f070011;
+        public static final int title_activity_credit_pay=0x7f07002b;
+        public static final int title_activity_discount=0x7f070015;
+        public static final int title_activity_payment=0x7f07001e;
+        public static final int title_discount=0x7f070016;
+        public static final int title_hold_order=0x7f070014;
+        public static final int to_be_paid=0x7f070027;
+        public static final int total_payment=0x7f070026;
+        public static final int total_price=0x7f07001b;
+        public static final int total_receive=0x7f07001f;
+        public static final int user_name=0x7f070003;
+        public static final int vat=0x7f070019;
     }
     public static final class style {
         /** 
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
-    
-
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        
-
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         
          */
-        public static final int AppBaseTheme=0x7f060000;
+        public static final int AppBaseTheme=0x7f080001;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
- Application theme. 
- All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f060001;
+        public static final int AppTheme=0x7f080002;
         /** 
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     
          */
-        public static final int CustomDialog=0x7f060002;
+        public static final int CustomDialog=0x7f080000;
     }
 }
