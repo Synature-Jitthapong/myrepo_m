@@ -7,10 +7,6 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import com.j1tth4.mobile.pos.Order;
-import com.j1tth4.mobile.pos.Payment;
-import com.j1tth4.mobile.pos.Transaction;
-import com.j1tth4.mobile.pos.Util;
 import com.j1tth4.mobile.sqlite.ISqliteHelper;
 import com.syn.mpos.model.OrderTransaction;
 
