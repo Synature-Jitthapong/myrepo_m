@@ -13,7 +13,7 @@
         android:layout_marginRight="1dp"
         android:padding="4dp"
         android:text="Paytype"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/textViewPayDetail"
@@ -23,15 +23,16 @@
         android:layout_weight="1"
         android:padding="4dp"
         android:text="Detail"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/textViewPayAmount"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
+        android:gravity="right"
         android:padding="4dp"
         android:text="Amount"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </TableRow>

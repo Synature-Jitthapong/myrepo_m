@@ -20,7 +20,7 @@
         android:logo="@drawable/logo"
         android:theme="@style/AppBaseTheme" >
         <activity
-            android:name="com.syn.pos.mobile.mpos.LoginActivity"
+            android:name="com.syn.mpos.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden" >
@@ -31,12 +31,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.syn.pos.mobile.mpos.MainActivity"
+            android:name="com.syn.mpos.MainActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
-            android:name="com.syn.pos.mobile.mpos.DiscountActivity"
+            android:name="com.syn.mpos.DiscountActivity"
             android:label="@string/title_activity_discount"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustPan" >
@@ -45,11 +45,11 @@
                 android:value="com.syn.pos.mobile.mpos.MainActivity" />
         </activity>
         <activity
-            android:name="com.syn.pos.mobile.mpos.PaymentActivity"
+            android:name="com.syn.mpos.PaymentActivity"
             android:label="@string/title_activity_payment" android:screenOrientation="landscape">
         </activity>
         <activity
-            android:name="com.syn.pos.mobile.mpos.CreditPayActivity"
+            android:name="com.syn.mpos.CreditPayActivity"
             android:label="@string/title_activity_credit_pay" android:theme="@style/CustomDialog" android:screenOrientation="landscape">
         </activity>
     </application>

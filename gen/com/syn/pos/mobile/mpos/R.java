@@ -271,9 +271,9 @@ public final class R {
         public static final int title_discount=0x7f050016;
         public static final int title_hold_order=0x7f050014;
         public static final int to_be_paid=0x7f050027;
-        public static final int total=0x7f05001f;
         public static final int total_payment=0x7f050026;
         public static final int total_price=0x7f05001b;
+        public static final int total_receive=0x7f05001f;
         public static final int user_name=0x7f050003;
         public static final int vat=0x7f050019;
     }
