@@ -3,7 +3,7 @@ package com.syn.mpos;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.syn.mpos.data.MPOSTransaction;
+import com.syn.mpos.db.MPOSTransaction;
 import com.syn.mpos.model.OrderTransaction;
 import com.syn.mpos.model.Payment;
 import com.syn.pos.mobile.mpos.R;

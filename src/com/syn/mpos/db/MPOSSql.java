@@ -1,4 +1,4 @@
-package com.syn.mpos.data;
+package com.syn.mpos.db;
 
 public class MPOSSql {
 	public static final String TB_SHOP = 

@@ -1,4 +1,4 @@
-package com.syn.mpos.data;
+package com.syn.mpos.db;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -249,7 +249,7 @@ public class MPOSTransaction extends Util implements Transaction, Order, Payment
 				= new ArrayList<OrderTransaction.OrderDetail>();
 		
 		String strSql = "SELECT order_detail_id, product_id, product_name, " +
-				" product_amount, product_price, vat_type, " +
+				" product_amount, product_price, sale_price, vat_type, " +
 				" member_discount, each_product_discount " +
 				" FROM order_detail " +
 				" WHERE transaction_id=" + transactionId + 
@@ -266,6 +266,7 @@ public class MPOSTransaction extends Util implements Transaction, Order, Payment
 				orderDetail.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
 				orderDetail.setProductAmount(cursor.getFloat(cursor.getColumnIndex("product_amount")));
 				orderDetail.setProductPrice(cursor.getFloat(cursor.getColumnIndex("product_price")));
+				orderDetail.setSalePrice(cursor.getFloat(cursor.getColumnIndex("sale_price")));
 				orderDetail.setVatType(cursor.getInt(cursor.getColumnIndex("vat_type")));
 				orderDetail.setMemberDiscount(cursor.getFloat(cursor.getColumnIndex("member_discount")));
 				orderDetail.setEachProductDiscount(cursor.getFloat(cursor.getColumnIndex("each_product_discount")));
@@ -317,6 +318,23 @@ public class MPOSTransaction extends Util implements Transaction, Order, Payment
 		dbHelper.open();
 		isSuccess = dbHelper.execSQL("DELETE FROM order_detail WHERE transaction_id=" + transactionId);
 		dbHelper.close();
+		return isSuccess;
+	}
+
+	@Override
+	public boolean discountEatchProduct(int orderDetailId, int transactionId,
+			int computerId, float discount, float salePrice) {
+		boolean isSuccess = false;
+		
+		dbHelper.open();
+		isSuccess = dbHelper.execSQL("UPDATE order_detail SET " +
+				" each_product_discount=" + discount + ", " + 
+				" sale_price=" + salePrice +
+				" WHERE order_detail_id=" + orderDetailId + 
+				" AND transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
+		dbHelper.close();
+		
 		return isSuccess;
 	}
 

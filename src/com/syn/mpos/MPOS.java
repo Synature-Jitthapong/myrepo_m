@@ -2,7 +2,7 @@ package com.syn.mpos;
 
 import android.content.Context;
 
-import com.syn.mpos.data.MPOSTransaction;
+import com.syn.mpos.db.MPOSTransaction;
 
 public abstract class MPOS {
 	private MPOSTransaction mposTrans;

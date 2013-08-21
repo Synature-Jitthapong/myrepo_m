@@ -226,6 +226,7 @@ public class OrderTransaction {
 		private int saleMode;
 		private float productAmount;
 		private float productPrice;
+		private float salePrice;
 		private float memberDiscount;
 		private float eachProductDiscount;
 		private int vatType;
@@ -233,6 +234,14 @@ public class OrderTransaction {
 		private float vatExclude;
 		private float serviceCharge;
 		private float serviceChargeVat;
+
+		public float getSalePrice() {
+			return salePrice;
+		}
+
+		public void setSalePrice(float salePrice) {
+			this.salePrice = salePrice;
+		}
 
 		public int getVatType() {
 			return vatType;

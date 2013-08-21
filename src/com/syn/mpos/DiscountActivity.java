@@ -2,13 +2,14 @@ package com.syn.mpos;
 
 import java.util.List;
 
-import com.syn.mpos.data.MPOSTransaction;
+import com.syn.mpos.db.MPOSTransaction;
 import com.syn.mpos.model.OrderTransaction;
 import com.syn.pos.mobile.mpos.R;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
@@ -76,17 +77,44 @@ public class DiscountActivity extends Activity {
 			TextView tvDiscountProName = (TextView) v.findViewById(R.id.textViewDisProName);
 			TextView tvDiscountProAmount = (TextView) v.findViewById(R.id.textViewDisProAmount);
 			TextView tvDiscountProPrice = (TextView) v.findViewById(R.id.textViewDisProPrice);
-			EditText txtDisPrice = (EditText) v.findViewById(R.id.editTextDisPrice);
+			final EditText txtDisPrice = (EditText) v.findViewById(R.id.editTextDisPrice);
 			TextView tvDisTotalPrice = (TextView) v.findViewById(R.id.textViewDisTotalPrice);
 			
-			OrderTransaction.OrderDetail order = 
+			final OrderTransaction.OrderDetail order = 
 					orderLst.get(i);
 			
 			tvDiscountNo.setText(Integer.toString(i + 1));
 			tvDiscountProName.setText(order.getProductName());
-			tvDiscountProAmount.setText(Float.toString(order.getProductAmount()));
-			tvDiscountProPrice.setText(Float.toString(order.getProductPrice()));
-			tvDisTotalPrice.setText(Float.toString(order.getProductPrice()));
+			tvDiscountProAmount.setText(format.qtyFormat(order.getProductAmount()));
+			tvDiscountProPrice.setText(format.currencyFormat(order.getProductPrice()));
+			tvDisTotalPrice.setText(format.currencyFormat(order.getSalePrice()));
+			txtDisPrice.setText(format.currencyFormat(order.getEachProductDiscount()));
+			
+			txtDisPrice.setOnFocusChangeListener(new OnFocusChangeListener(){
+
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) {
+					if(!hasFocus){
+						float discount = 0.0f;
+						float salePrice = order.getProductPrice();
+						
+						try {
+							discount = Float.parseFloat(txtDisPrice.getText().toString());
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+						}
+						
+						salePrice = order.getProductPrice() - discount;
+						
+						mposTrans.discountEatchProduct(order.getOrderDetailId(),
+								transactionId, computerId, discount, salePrice);
+						
+						order.setSalePrice(salePrice);
+						order.setEachProductDiscount(discount);
+					}
+				}
+				
+			});
 			
 			tbLayoutDiscount.addView(v);
 		}

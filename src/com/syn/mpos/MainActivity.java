@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
-import com.syn.mpos.data.MPOSTransaction;
-import com.syn.mpos.data.MenuDept;
-import com.syn.mpos.data.MenuItem;
-import com.syn.mpos.data.Shop;
+import com.syn.mpos.db.MPOSTransaction;
+import com.syn.mpos.db.MenuDept;
+import com.syn.mpos.db.MenuItem;
+import com.syn.mpos.db.Shop;
 import com.syn.mpos.model.MenuGroups;
 import com.syn.mpos.model.OrderTransaction;
 import com.syn.mpos.model.ShopData;

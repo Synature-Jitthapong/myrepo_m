@@ -2,9 +2,9 @@ package com.syn.mpos;
 
 import java.util.List;
 
-import com.syn.mpos.data.Bank;
-import com.syn.mpos.data.CreditCard;
-import com.syn.mpos.data.MPOSTransaction;
+import com.syn.mpos.db.Bank;
+import com.syn.mpos.db.CreditCard;
+import com.syn.mpos.db.MPOSTransaction;
 import com.syn.mpos.model.BankName;
 import com.syn.mpos.model.CreditCardType;
 import com.syn.mpos.model.OrderTransaction;
