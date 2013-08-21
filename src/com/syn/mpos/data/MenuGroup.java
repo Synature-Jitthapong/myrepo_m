@@ -7,13 +7,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-import com.j1tth4.mobile.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.MenuGroups;
 
 public class MenuGroup {
 	private final String TB_MENU_GROUP = "menu_group";
 
-	private ISqliteHelper dbHelper;
+	private SqliteHelper dbHelper;
 	
 	public MenuGroup(Context c) {
 		dbHelper = new MPOSSqliteHelper(c);

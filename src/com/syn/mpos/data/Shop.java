@@ -6,11 +6,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-import com.j1tth4.mobile.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.ShopData;
 
 public class Shop {
-	private ISqliteHelper dbHelper;
+	private SqliteHelper dbHelper;
 	
 	public Shop(Context c){
 		dbHelper = new MPOSSqliteHelper(c);

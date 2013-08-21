@@ -7,7 +7,7 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import com.j1tth4.mobile.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.OrderTransaction;
 
 /**
@@ -17,7 +17,7 @@ import com.syn.mpos.model.OrderTransaction;
  */
 public class MPOSTransaction extends Util implements Transaction, Order, Payment{
 	
-	private ISqliteHelper dbHelper;
+	private SqliteHelper dbHelper;
 	
 	public MPOSTransaction (Context c){
 		dbHelper = new MPOSSqliteHelper(c);

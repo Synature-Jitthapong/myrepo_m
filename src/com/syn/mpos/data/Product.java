@@ -5,13 +5,13 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 
-import com.j1tth4.mobile.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.ProductGroups;
 
 public class Product {
 	private final String TB_PRODUCT = "products";
 	
-	private ISqliteHelper dbHelper;
+	private SqliteHelper dbHelper;
 	
 	public Product(Context c){
 		dbHelper = new MPOSSqliteHelper(c);

@@ -6,11 +6,11 @@ import java.util.List;
 import android.content.Context;
 import android.database.Cursor;
 
-import com.j1tth4.mobile.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.BankName;
 
 public class Bank {
-	private ISqliteHelper dbHelper;
+	private SqliteHelper dbHelper;
 	
 	public Bank(Context c){
 		dbHelper = new MPOSSqliteHelper(c);

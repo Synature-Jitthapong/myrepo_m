@@ -3,7 +3,7 @@ package com.syn.mpos.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.j1tth4.mobile.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.MenuGroups;
 
 import android.content.ContentValues;
@@ -17,7 +17,7 @@ public class MenuItem {
 	private String saleModeParam = "sale_mode_1 = 1";
 	private String colSaleModePrice = "product_price";
 	
-	private ISqliteHelper dbHelper;
+	private SqliteHelper dbHelper;
 	
 	public MenuItem(Context c) {
 		dbHelper = new MPOSSqliteHelper(c);

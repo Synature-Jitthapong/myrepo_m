@@ -2,7 +2,7 @@ package com.syn.mpos.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.j1tth4.mobile.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.MenuGroups;
 
 import android.content.ContentValues;
@@ -12,7 +12,7 @@ import android.database.Cursor;
 public class MenuDept{
 	private final String tbMenuDept = "menu_dept";
 	
-	private ISqliteHelper dbHelper;
+	private SqliteHelper dbHelper;
 	
 	public MenuDept(Context c) {
 		dbHelper = new MPOSSqliteHelper(c);

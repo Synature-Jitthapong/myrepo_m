@@ -1,14 +1,16 @@
 package com.syn.mpos.data;
 
-import com.j1tth4.mobile.sqlite.ISqliteHelper;
+import com.j1tth4.mobile.sqlite.SqliteHelper;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
-public class MPOSSqliteHelper implements ISqliteHelper {
+public class MPOSSqliteHelper implements SqliteHelper {
 	
+	private SQLiteDatabase db;
 	private MPOSSqliteDatabase sqlite;
 	private MPOSLog mposLog;
 	
@@ -19,12 +21,12 @@ public class MPOSSqliteHelper implements ISqliteHelper {
 	
 	@Override
 	public void open() {
-		sqlite.openDataBase();
+		db = sqlite.getWritableDatabase();
 	}
 
 	@Override
 	public void close() {
-		sqlite.closeDataBase();
+		sqlite.close();
 	}
 
 	@Override
@@ -32,7 +34,7 @@ public class MPOSSqliteHelper implements ISqliteHelper {
 		boolean isSucc = false;
 		
 		try {
-			sqlite.db.insertOrThrow(table, null, cv);
+			db.insertOrThrow(table, null, cv);
 			isSucc = true;
 		} catch (SQLException e) {
 			isSucc = false;
@@ -44,7 +46,7 @@ public class MPOSSqliteHelper implements ISqliteHelper {
 
 	@Override
 	public Cursor rawQuery(String sqlQuery){
-		Cursor cursor = sqlite.db.rawQuery(sqlQuery, null);
+		Cursor cursor = db.rawQuery(sqlQuery, null);
 		return cursor;
 	}
 
@@ -52,7 +54,7 @@ public class MPOSSqliteHelper implements ISqliteHelper {
 	public boolean execSQL(String sqlExec){
 		boolean isSucc = false;
 		try {
-			sqlite.db.execSQL(sqlExec);
+			db.execSQL(sqlExec);
 			isSucc = true;
 		} catch (SQLException e) {
 			isSucc = false;
