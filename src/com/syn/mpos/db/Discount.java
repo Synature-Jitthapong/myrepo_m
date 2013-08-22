@@ -11,5 +11,6 @@ import com.syn.mpos.model.OrderTransaction;
  */
 public interface Discount {
 	boolean discountEatchProduct(int orderDetailId, int transactionId, 
-			int computerId, int vatType, float amount, float discount, float salePrice);
+			int computerId, int vatType, float amount, float discount, 
+			float salePrice, float totalSalePrice);
 }

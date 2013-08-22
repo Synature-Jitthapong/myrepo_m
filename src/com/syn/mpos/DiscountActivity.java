@@ -80,9 +80,13 @@ public class DiscountActivity extends Activity {
 		isEdited = true;
 		
 		float salePrice = productPrice;
-		salePrice = productPrice - discount;
-		mposTrans.discountEatchProduct(orderDetailId,
-				transactionId, computerId, vatType, amount, discount, salePrice);
+		float totalSalePrice = productPrice;
+	
+		salePrice = productPrice - (discount / amount);
+		totalSalePrice = productPrice - discount;
+		
+		mposTrans.discountEatchProduct(orderDetailId, transactionId, computerId, 
+				vatType, amount, discount, salePrice, totalSalePrice);
 		
 		summaryPrice();
 		return salePrice;

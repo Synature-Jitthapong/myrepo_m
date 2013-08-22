@@ -292,8 +292,8 @@ public class MPOSTransaction extends Util implements Transaction, Order, Payment
 					new OrderTransaction.OrderDetail();
 		
 		String strSql = "SELECT SUM(product_amount) AS TotalAmount," +
-				" SUM(product_price * product_amount) AS TotalPrice, " +
-				" SUM(sale_price * product_amount) AS TotalSalePrice, " +
+				" SUM(total_product_price) AS TotalPrice, " +
+				" SUM(total_sale_price) AS TotalSalePrice, " +
 				" SUM(vat) AS TotalVat," +
 				" SUM(vat_exclude) AS TotalVatExclude, " +
 				" SUM(service_charge) AS TotalServiceCharge," +
@@ -333,11 +333,11 @@ public class MPOSTransaction extends Util implements Transaction, Order, Payment
 
 	@Override
 	public boolean discountEatchProduct(int orderDetailId, int transactionId,
-			int computerId, int vatType, float amount, float discount, float salePrice) {
+			int computerId, int vatType, float amount, float discount, 
+			float salePrice, float totalSalePrice) {
 		boolean isSuccess = false;
 		
 		float vat = calculateVat(salePrice, amount, 7);
-		float totalSalePrice = salePrice * amount;
 		
 		String strSql = "UPDATE order_detail SET " +
 				" each_product_discount=" + discount + ", " + 
