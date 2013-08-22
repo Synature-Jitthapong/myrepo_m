@@ -7,9 +7,14 @@ import com.syn.mpos.model.OrderTransaction;
 import com.syn.pos.mobile.mpos.R;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
@@ -20,7 +25,9 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 
 public class DiscountActivity extends Activity {
@@ -29,6 +36,7 @@ public class DiscountActivity extends Activity {
 	private Formatter format;
 	private MPOSTransaction mposTrans;
 	private OrderTransaction orderTrans;
+	private boolean isEdited = false;
 	
 	private List<OrderTransaction.OrderDetail> orderLst;
 	private TableLayout tbLayoutDiscount;
@@ -67,6 +75,19 @@ public class DiscountActivity extends Activity {
 		}
 	}
 	
+	private float calculateDiscount(int orderDetailId, int vatType, float amount, 
+			float productPrice, float discount){
+		isEdited = true;
+		
+		float salePrice = productPrice;
+		salePrice = productPrice - discount;
+		mposTrans.discountEatchProduct(orderDetailId,
+				transactionId, computerId, vatType, amount, discount, salePrice);
+		
+		summaryPrice();
+		return salePrice;
+	}
+	
 	private void loadOrder(){
 		orderLst = mposTrans.listAllOrders(transactionId, computerId);
 		
@@ -78,7 +99,7 @@ public class DiscountActivity extends Activity {
 			TextView tvDiscountProAmount = (TextView) v.findViewById(R.id.textViewDisProAmount);
 			TextView tvDiscountProPrice = (TextView) v.findViewById(R.id.textViewDisProPrice);
 			final EditText txtDisPrice = (EditText) v.findViewById(R.id.editTextDisPrice);
-			TextView tvDisTotalPrice = (TextView) v.findViewById(R.id.textViewDisTotalPrice);
+			final TextView tvDisSalePrice = (TextView) v.findViewById(R.id.textViewDisSalePrice);
 			
 			final OrderTransaction.OrderDetail order = 
 					orderLst.get(i);
@@ -86,32 +107,60 @@ public class DiscountActivity extends Activity {
 			tvDiscountNo.setText(Integer.toString(i + 1));
 			tvDiscountProName.setText(order.getProductName());
 			tvDiscountProAmount.setText(format.qtyFormat(order.getProductAmount()));
-			tvDiscountProPrice.setText(format.currencyFormat(order.getProductPrice()));
-			tvDisTotalPrice.setText(format.currencyFormat(order.getSalePrice()));
+			tvDiscountProPrice.setText(format.currencyFormat(order.getTotalPrice()));
+			tvDisSalePrice.setText(format.currencyFormat(order.getSalePrice()));
 			txtDisPrice.setText(format.currencyFormat(order.getEachProductDiscount()));
-			
+			txtDisPrice.setSelectAllOnFocus(true);
+
 			txtDisPrice.setOnFocusChangeListener(new OnFocusChangeListener(){
 
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
 					if(!hasFocus){
 						float discount = 0.0f;
-						float salePrice = order.getProductPrice();
-						
 						try {
 							discount = Float.parseFloat(txtDisPrice.getText().toString());
 						} catch (NumberFormatException e) {
 							e.printStackTrace();
 						}
 						
-						salePrice = order.getProductPrice() - discount;
-						
-						mposTrans.discountEatchProduct(order.getOrderDetailId(),
-								transactionId, computerId, discount, salePrice);
-						
-						order.setSalePrice(salePrice);
-						order.setEachProductDiscount(discount);
+						if(discount > 0 && order.getTotalPrice() >= discount){
+							float salePrice = calculateDiscount(order.getOrderDetailId(), order.getVatType(), 
+									order.getProductAmount(), order.getProductPrice(), discount);
+							
+							tvDisSalePrice.setText(format.currencyFormat(salePrice));
+						}else{
+							txtDisPrice.setText(format.currencyFormat(order.getEachProductDiscount()));
+						}
 					}
+				}
+				
+			});
+			
+			txtDisPrice.setOnKeyListener(new OnKeyListener(){
+
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event) {
+					if((event.getAction() == KeyEvent.ACTION_DOWN) && 
+							keyCode == KeyEvent.KEYCODE_ENTER){
+						float discount = 0.0f;
+						try {
+							discount = Float.parseFloat(txtDisPrice.getText().toString());
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+						}
+						
+						if(discount > 0 && order.getTotalPrice() >= discount){
+							float salePrice = calculateDiscount(order.getOrderDetailId(), order.getVatType(), 
+									order.getProductAmount(), order.getProductPrice(), discount);
+	
+							tvDisSalePrice.setText(format.currencyFormat(salePrice));
+						}else{
+							txtDisPrice.setText(format.currencyFormat(order.getEachProductDiscount()));
+						}
+						return true;
+					}
+					return false;
 				}
 				
 			});
@@ -126,7 +175,8 @@ public class DiscountActivity extends Activity {
 
 		tvSubTotal.setText(format.currencyFormat(orderDetail.getProductPrice()));
 		tvTotalDiscount.setText(format.currencyFormat(orderDetail.getEachProductDiscount()));
-		tvTotalPrice.setText(format.currencyFormat(orderDetail.getProductPrice() - orderDetail.getEachProductDiscount()));
+		
+		tvTotalPrice.setText(format.currencyFormat(orderDetail.getTotalPrice()));
 	}
 	
 	private void exit(){
@@ -138,6 +188,34 @@ public class DiscountActivity extends Activity {
 	}
 	
 	public void cancelClicked(final View v){
+		if(isEdited){
+			new AlertDialog.Builder(context)
+			.setTitle(R.string.information)
+			.setIcon(android.R.drawable.ic_dialog_info)
+			.setMessage(R.string.confirm_cancel)
+			.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					exit();
+				}
+			})
+			.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					exit();
+				}
+			})
+			.show();
+		}else{
+			exit();
+		}
+	}
+	
+	public void onBackClicked(final View v){
 		exit();
 	}
 }

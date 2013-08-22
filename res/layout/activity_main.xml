@@ -3,7 +3,7 @@
     android:id="@+id/MainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_grey"
+    android:background="@color/grey_light"
     android:orientation="horizontal"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -21,8 +21,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@drawable/header_2"
-            android:gravity="center_vertical" >
+            android:background="@color/grey_light"
+            android:gravity="center_vertical"
+            android:padding="4dp" >
 
             <TextView
                 android:id="@+id/textViewTotalPrice"
@@ -31,8 +32,8 @@
                 android:gravity="right"
                 android:text="0.00"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/smoke_white"
-                android:textSize="32sp" />
+                android:textSize="32sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -40,7 +41,8 @@
             android:id="@+id/textViewBarcode"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:background="@android:color/white"
+            android:layout_marginRight="1dp"
+            android:background="@color/smoke_white"
             android:padding="4dp"
             android:text="Bar Code"
             android:textAppearance="?android:attr/textAppearanceMediumInverse"
@@ -50,6 +52,9 @@
             android:id="@+id/textViewMember"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@color/smoke_white"
             android:padding="4dp"
             android:text="Member"
             android:textAppearance="?android:attr/textAppearanceSmallInverse" />
@@ -58,24 +63,22 @@
             android:id="@+id/listViewOrder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
             android:layout_marginRight="1dp"
             android:layout_weight="1"
-            android:background="@color/grey_light" >
+            android:background="@color/smoke_white" >
 
         </ListView>
 
-        <LinearLayout
-            android:id="@+id/SummaryBillLayout"
+        <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="1dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="1dp"
-            android:paddingTop="2dp" >
+            android:layout_marginRight="1dp"
+            android:background="@color/smoke_white" >
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
 
                 <TextView
@@ -83,7 +86,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Sub Total:"
+                    android:text="@string/sub_total"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
@@ -93,11 +96,11 @@
                     android:gravity="right"
                     android:text="0.00"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
+            </TableRow>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TableRow
+                android:id="@+id/tableRow2"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
 
                 <TextView
@@ -105,20 +108,22 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Discount:"
+                    android:text="@string/discount"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
                     android:id="@+id/textViewDiscount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="right"
                     android:text="0.00"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            </LinearLayout>
+            </TableRow>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TableRow
+                android:id="@+id/tableRow3"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
 
                 <TextView
@@ -126,23 +131,25 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Vat"
+                    android:text="@string/vat_exclude"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
                     android:id="@+id/textViewTransVat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="right"
                     android:text="0.00"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            </LinearLayout>
+            </TableRow>
 
-        </LinearLayout>
+        </TableLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/grey_light"
             android:padding="4dp" >
 
             <Button
@@ -175,13 +182,13 @@
         <RelativeLayout
             android:id="@+id/HeaderLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="50dp"
+            android:background="@color/grey_light" >
 
             <LinearLayout
                 android:id="@+id/FeatureLayout"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginBottom="4dp"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:padding="4dp" >
 
@@ -242,9 +249,10 @@
         <HorizontalScrollView
             android:id="@+id/horizontalScrollViewMenuDept"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="1dp"
-            android:background="@color/grey_light"
+            android:background="@color/smoke_white"
+            android:minHeight="48dp"
             android:padding="4dp" >
 
             <LinearLayout
@@ -265,28 +273,19 @@
                 android:id="@+id/gridViewMenu"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="1dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/smoke_white"
                 android:horizontalSpacing="4dp"
                 android:numColumns="4"
                 android:verticalSpacing="4dp" >
 
             </GridView>
 
-            <ProgressBar
-                android:id="@+id/progressBarMenu"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
-
         </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/grey_light"
             android:padding="4dp" >
 
             <LinearLayout

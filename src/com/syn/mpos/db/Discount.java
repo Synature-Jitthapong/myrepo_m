@@ -1,5 +1,9 @@
 package com.syn.mpos.db;
 
+import java.util.List;
+
+import com.syn.mpos.model.OrderTransaction;
+
 /**
  * 
  * @author j1tth4
@@ -7,5 +11,5 @@ package com.syn.mpos.db;
  */
 public interface Discount {
 	boolean discountEatchProduct(int orderDetailId, int transactionId, 
-			int computerId, float discount, float salePrice);
+			int computerId, int vatType, float amount, float discount, float salePrice);
 }

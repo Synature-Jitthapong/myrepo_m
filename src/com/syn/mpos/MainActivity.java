@@ -75,6 +75,16 @@ public class MainActivity extends Activity {
 		tvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
 		tvTransVat = (TextView) findViewById(R.id.textViewTransVat);
 		tvDiscount = (TextView) findViewById(R.id.textViewDiscount);
+
+		loadMenu();
+	}
+	
+	private void loadMenu(){
+		menuLst = new ArrayList<MenuGroups.MenuItem>();
+		menuAdapter = new MenuAdapter();
+		menuGridView.setAdapter(menuAdapter);
+
+		createMenuDept();
 	}
 	
 	private void init(){
@@ -136,13 +146,6 @@ public class MainActivity extends Activity {
 		
 		orderListView.setAdapter(orderAdapter);
 		orderListView.setSelection(orderAdapter.getCount());
-		
-		menuLst = new ArrayList<MenuGroups.MenuItem>();
-		menuAdapter = new MenuAdapter();
-		menuGridView.setAdapter(menuAdapter);
-		
-		
-		createMenuDept();
 	}
 	
 	public void holdBillClicked(final View v){
@@ -339,7 +342,7 @@ public class MainActivity extends Activity {
 							compProp.getComputerID(), mi.getProductID(), mi.getProductTypeID(), 
 							mi.getVatType(), 0, mi.getMenuName_0(), 1, 
 							mi.getProductPricePerUnit());
-					Log.i(TAG, "orderDetailId= " + orderDetailId);
+					
 					OrderTransaction.OrderDetail order = 
 							mposTrans.getOrder(transactionId, compProp.getComputerID(), orderDetailId);
 					orderLst.add(order);
@@ -370,7 +373,8 @@ public class MainActivity extends Activity {
 		
 		tvTransVat.setText(format.currencyFormat(orderDetail.getVatExclude()));
 		tvSubTotal.setText(format.currencyFormat(orderDetail.getProductPrice()));
-		tvTotalPrice.setText(format.currencyFormat(orderDetail.getProductPrice()));
+		tvDiscount.setText(format.currencyFormat(orderDetail.getEachProductDiscount()));
+		tvTotalPrice.setText(format.currencyFormat(orderDetail.getTotalPrice()));
 	}
 	
 	public void clearBillClicked(final View v){

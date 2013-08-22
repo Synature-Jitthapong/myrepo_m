@@ -16,10 +16,6 @@ public interface Order extends Discount{
 			int orderDetailId, int vatType, float productAmount,
 			float productPrice);
 
-	boolean updateOrderDetail(int transactionId, int computerId,
-			int orderDetailId, int vatType, float productAmount,
-			float productPrice, float eatchProductDiscount, float memberDiscount);
-
 	boolean deleteOrderDetail(int transactionId, int orderDetailId);
 
 	boolean deleteAllOrderDetail(int transactionId);

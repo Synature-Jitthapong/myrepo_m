@@ -28,7 +28,7 @@
     <string name="discount">Discount</string>
     <string name="vat">Vat</string>
     <string name="exclude_vat">Vat exclude</string>
-    <string name="total_price">Total</string>
+    <string name="total_price">Total price</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_ok">Ok</string>
     <string name="title_activity_payment">Payment</string>
@@ -51,6 +51,11 @@
     <string name="expire_date">Expire</string>
     <string name="approval_code">Approval code</string>
     <string name="button_enter">Enter</string>
+    <string name="qty">Qty</string>
+    <string name="sale_price">Sale price</string>
+    <string name="vat_exclude">Vat exclude</string>
+    <string name="information">Information</string>
+    <string name="confirm_cancel">Are you sure to cancel?</string>
     
 
 </resources>

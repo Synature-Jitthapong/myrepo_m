@@ -36,7 +36,7 @@
 
     <TextView
         android:id="@+id/textViewDisProPrice"
-        android:layout_width="100dp"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
         android:gravity="right"
@@ -51,15 +51,15 @@
         android:layout_marginRight="1dp"
         android:ems="10"
         android:gravity="right|center_vertical"
-        android:inputType="number"
+        android:inputType="number|numberSigned|numberDecimal"
         android:padding="4dp" >
 
         <requestFocus />
     </EditText>
 
     <TextView
-        android:id="@+id/textViewDisTotalPrice"
-        android:layout_width="100dp"
+        android:id="@+id/textViewDisSalePrice"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
         android:gravity="right"
