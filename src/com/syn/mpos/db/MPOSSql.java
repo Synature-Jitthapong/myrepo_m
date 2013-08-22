@@ -404,6 +404,31 @@ public class MPOSSql {
 			" product_amount  REAL(18,4) NOT NULL DEFAULT 0, " +
 			" product_price  REAL(18,4) NOT NULL DEFAULT 0, " +
 			" sale_price  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" total_sale_price  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" total_product_price  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" vat_type  INTEGER NOT NULL DEFAULT 1, " +
+			" vat  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" vat_exclude  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" service_charge  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" service_charge_vat  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" member_discount  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" each_product_discount  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" PRIMARY KEY (order_detail_id ASC, transaction_id ASC, computer_id ASC) " +
+			" );";
+	
+	public static final String TB_ORDER_TMP = 
+			" CREATE TABLE order_detail ( " +
+			" order_detail_id  INTEGER NOT NULL DEFAULT 0, " +
+			" transaction_id  INTEGER NOT NULL DEFAULT 0, " +
+			" computer_id  INTEGER NOT NULL DEFAULT 0, " +
+			" product_id  INTEGER NOT NULL DEFAULT 0, " +
+			" product_name  TEXT NOT NULL, " +
+			" sale_mode  INTEGER NOT NULL DEFAULT 1, " +
+			" product_amount  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" product_price  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" sale_price  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" total_sale_price  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" total_product_price  REAL(18,4) NOT NULL DEFAULT 0, " +
 			" vat_type  INTEGER NOT NULL DEFAULT 1, " +
 			" vat  REAL(18,4) NOT NULL DEFAULT 0, " +
 			" vat_exclude  REAL(18,4) NOT NULL DEFAULT 0, " +
