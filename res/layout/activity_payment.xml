@@ -133,7 +133,6 @@
                         android:id="@+id/textView6"
                         android:layout_width="100dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="1dp"
                         android:background="@color/grey_light"
                         android:padding="4dp"
                         android:text="@string/pay_amount"
@@ -301,7 +300,9 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center" >
 
                     <TableLayout
                         android:layout_width="wrap_content"
@@ -466,7 +467,7 @@
 
                     <TableLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent" >
+                        android:layout_height="wrap_content" >
 
                         <TableRow
                             android:id="@+id/tableRow7"

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/itemReceive" android:title="@string/receive_stock"></item>
+    <item android:id="@+id/itemStockCount" android:title="@string/count_stock"></item>
+    <item android:id="@+id/itemStockCard" android:title="@string/stock_card"></item>
+    
+
+</menu>

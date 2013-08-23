@@ -62,6 +62,12 @@
     <string name="enter_enough_money">Please enter enough money.</string>
     <string name="button_close">Close</string>
     <string name="payment">Payment</string>
+    <string name="receive_stock">Receive</string>
+    <string name="count_stock">Count stock</string>
+    <string name="stock_card">Stock card</string>
+    <string name="inventory">Inventory</string>
+    <string name="sale_report">Sale report</string>
+    <string name="sale_report_by_product">Sale report by product</string>
     
 
 </resources>

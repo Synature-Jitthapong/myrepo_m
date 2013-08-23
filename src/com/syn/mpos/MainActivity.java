@@ -3,7 +3,6 @@ package com.syn.mpos;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.db.MPOSTransaction;
 import com.syn.mpos.db.MenuDept;
@@ -14,8 +13,6 @@ import com.syn.mpos.model.OrderTransaction;
 import com.syn.mpos.model.ShopData;
 import com.syn.mpos.model.OrderTransaction.OrderDetail;
 import com.syn.pos.mobile.mpos.R;
-
-
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -36,7 +33,9 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.RadioGroup.LayoutParams;
 
 public class MainActivity extends Activity {
@@ -50,6 +49,7 @@ public class MainActivity extends Activity {
 	private List<OrderTransaction.OrderDetail> orderLst;
 	private OrderListAdapter orderAdapter;
 	private int transactionId;
+	private Context context;
 	
 	private List<MenuGroups.MenuDept> menuDeptLst;
 	private List<MenuGroups.MenuItem> menuLst;
@@ -68,6 +68,8 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		context = MainActivity.this;
 		
 		orderListView = (ListView) findViewById(R.id.listViewOrder);
 		menuGridView = (GridView) findViewById(R.id.gridViewMenu);
@@ -88,9 +90,9 @@ public class MainActivity extends Activity {
 	}
 	
 	private void init(){
-		shop = new Shop(MainActivity.this);
-		format = new Formatter(MainActivity.this);
-		mposTrans = new MPOSTransaction(MainActivity.this);
+		shop = new Shop(context);
+		format = new Formatter(context);
+		mposTrans = new MPOSTransaction(context);
 		
 		shopProp = shop.getShopProperty();
 		compProp = shop.getComputerProperty();
@@ -104,7 +106,7 @@ public class MainActivity extends Activity {
 		
 		orderLst = mposTrans.listAllOrders(transactionId, compProp.getComputerID());
 		
-		orderAdapter = new OrderListAdapter(MainActivity.this, format, orderLst, new ListButtonOnClickListener(){
+		orderAdapter = new OrderListAdapter(context, format, orderLst, new ListButtonOnClickListener(){
 			OrderTransaction.OrderDetail order;
 			float qty;
 			@Override
@@ -148,17 +150,43 @@ public class MainActivity extends Activity {
 		orderListView.setSelection(orderAdapter.getCount());
 	}
 	
-	public void holdBillClicked(final View v){
-		
+	public void reportClicked(final View v){
+		PopupMenu popup = new PopupMenu(this, v);
+		popup.getMenuInflater().inflate(R.menu.report_function,
+				popup.getMenu());
+
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(android.view.MenuItem item) {
+				return false;
+			}
+		});
+
+		popup.show();
+	}
+	
+	public void inventClicked(final View v){
+		PopupMenu popup = new PopupMenu(this, v);
+		popup.getMenuInflater().inflate(R.menu.inventory_function,
+				popup.getMenu());
+
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(android.view.MenuItem item) {
+				return false;
+			}
+		});
+
+		popup.show();
 	}
 	
 	public void holdOrderClicked(final View v){
 		final Dialog dialog = 
-				new Dialog(MainActivity.this);
+				new Dialog(context);
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.getWindow().setGravity(Gravity.TOP);
 		
-		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+		LayoutInflater inflater = LayoutInflater.from(context);
 		View holdView = inflater.inflate(R.layout.hold_order_layout, null);
 		Button btnConfirm = (Button) holdView.findViewById(R.id.buttonConfirmHold);
 		Button btnCancel = (Button) holdView.findViewById(R.id.buttonCancelHold);
@@ -184,21 +212,21 @@ public class MainActivity extends Activity {
 	}
 	
 	public void paymentClicked(final View v){
-		Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
+		Intent intent = new Intent(context, PaymentActivity.class);
 		intent.putExtra("transactionId", transactionId);
 		intent.putExtra("computerId", compProp.getComputerID());
 		startActivity(intent);
 	}
 	
 	public void discountClicked(final View v){
-		Intent intent = new Intent(MainActivity.this, DiscountActivity.class);
+		Intent intent = new Intent(context, DiscountActivity.class);
 		intent.putExtra("transactionId", transactionId);
 		intent.putExtra("computerId", compProp.getComputerID());
 		startActivity(intent);
 	}
 	
 	public void logoutClicked(final View v){
-		MainActivity.this.finish();
+		finish();
 	}
 	
 	@Override
@@ -209,13 +237,13 @@ public class MainActivity extends Activity {
 	
 	// menu catgory
 	protected void createMenuDept(){
-		MenuDept menuDept = new MenuDept(MainActivity.this);
+		MenuDept menuDept = new MenuDept(context);
 		menuDeptLst = menuDept.listMenuDept();
 		
 		if(menuDeptLst.size() > 0){
 			
 			LayoutInflater inflater = 
-					LayoutInflater.from(MainActivity.this);
+					LayoutInflater.from(context);
 			int i = 0;
 			for(final MenuGroups.MenuDept md : menuDeptLst){
 				final View v = inflater.inflate(R.layout.menu_catgory_tempate, null);
@@ -235,7 +263,7 @@ public class MainActivity extends Activity {
 							lastBtn.setSelected(false);
 						}
 						// load menu
-						MenuItem mi = new MenuItem(MainActivity.this);
+						MenuItem mi = new MenuItem(context);
 						menuLst = mi.listMenuItem(md.getMenuDeptID(), 1);
 						menuAdapter.notifyDataSetChanged();
 						
@@ -272,8 +300,8 @@ public class MainActivity extends Activity {
 		private LayoutInflater inflater;
 		private ImageLoader imgLoader;
 		public MenuAdapter(){
-			inflater = LayoutInflater.from(MainActivity.this);
-//			imgLoader = new ImageLoader(MainActivity.this, R.drawable.no_food, 
+			inflater = LayoutInflater.from(context);
+//			imgLoader = new ImageLoader(context, R.drawable.no_food, 
 //					globalVar.MENU_IMAGE_CACHE_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 			
 		}
@@ -318,14 +346,14 @@ public class MainActivity extends Activity {
 
 				@Override
 				public void onClick(View v) {
-					final LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+					final LayoutInflater inflater = LayoutInflater.from(context);
 					View menuDetailView = inflater.inflate(R.layout.menu_detail_layout, null);
 					ImageView imvMenuDetail = (ImageView) menuDetailView.findViewById(R.id.imageViewMenuDetail);
-//					ImageLoader imgLoader2 = new ImageLoader(MainActivity.this, 
+//					ImageLoader imgLoader2 = new ImageLoader(context, 
 //							R.drawable.no_food, globalVar.MENU_IMAGE_CACHE_DIR, ImageLoader.IMAGE_SIZE.LARGE);
 //					imgLoader2.displayImage(globalVar.getImageUrl() + mi.getImgUrl(), imvMenuDetail);
 					
-					final Dialog dialog = new Dialog(MainActivity.this);
+					final Dialog dialog = new Dialog(context);
 					dialog.getWindow().setGravity(Gravity.LEFT); 
 					dialog.setContentView(menuDetailView);
 					dialog.setContentView(menuDetailView);
@@ -378,7 +406,7 @@ public class MainActivity extends Activity {
 	}
 	
 	public void clearBillClicked(final View v){
-		new AlertDialog.Builder(MainActivity.this)
+		new AlertDialog.Builder(context)
 		.setIcon(android.R.drawable.ic_dialog_alert)
 		.setTitle(R.string.clear_bill)
 		.setMessage(R.string.confirm_clear_bill)

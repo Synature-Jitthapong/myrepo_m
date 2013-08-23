@@ -19,19 +19,12 @@
         android:gravity="center_vertical"
         android:paddingLeft="4dp" >
 
-        <ImageView
-            android:id="@+id/imageViewLogo"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_marginRight="2dp"
-            android:src="@drawable/logo" />
-
         <TextView
             android:id="@+id/textViewLogoText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="MPOS"
+            android:text="mPOS"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="48sp" />
 
@@ -51,18 +44,23 @@
 
         <TableLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:background="@drawable/box_bg"
+            android:padding="48dp" >
 
             <TableRow
                 android:id="@+id/tableRow1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="4dp"
                 android:gravity="center_vertical|center" >
 
                 <TextView
                     android:id="@+id/textViewTotalPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="4dp"
+                    android:gravity="right"
                     android:text="@string/user_name"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -71,23 +69,22 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:textAppearance="?android:attr/textAppearanceLargeInverse" >
-
-                    <requestFocus />
-                </EditText>
-
+                    android:textAppearance="?android:attr/textAppearanceLargeInverse" />
             </TableRow>
 
             <TableRow
                 android:id="@+id/tableRow2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="4dp"
                 android:gravity="center_vertical|center" >
 
                 <TextView
                     android:id="@+id/textViewSubTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="4dp"
+                    android:gravity="right"
                     android:text="@string/pass_word"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -98,13 +95,14 @@
                     android:ems="10"
                     android:inputType="textPassword"
                     android:textAppearance="?android:attr/textAppearanceLargeInverse" />
-
             </TableRow>
 
             <TableRow
                 android:id="@+id/tableRow3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="8dp"
                 android:gravity="right" >
 
                 <Button
@@ -114,24 +112,7 @@
                     android:layout_span="2"
                     android:onClick="loginClicked"
                     android:text="@string/button_login" />
-
             </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center" >
-
-                <ProgressBar
-                    android:id="@+id/progressBar1"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_span="2" />
-
-            </TableRow>
-
         </TableLayout>
 
     </LinearLayout>

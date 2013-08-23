@@ -16,4 +16,5 @@
     <color name="grey_stroke">#AFAFAF</color>
     <color name="disabled">#E2E2E2</color>
     <color name="dark_grey">#BBBBBB</color>
+    <color name="grey_light_blue">#FFF2F5F7</color>
 </resources>

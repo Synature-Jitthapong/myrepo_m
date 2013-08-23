@@ -28,6 +28,11 @@ public class MPOSService {
 	public static void sync(final Context c, final IServiceStateListener listener){
 		final String url = "http://61.90.204.61/promise6_table/ws_mpos.asmx";
 		final ProgressDialog progress = new ProgressDialog(c);
+		progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		progress.setIndeterminate(false);
+		progress.setCancelable(false);   
+		progress.setMax(100);
+		
 		new AuthenDevice(c, new IServiceStateListener(){
 
 			@Override
@@ -38,6 +43,7 @@ public class MPOSService {
 
 			@Override
 			public void onSuccess() {
+				progress.setProgress(100 / 4);
 				new LoadShopTask(c, new IServiceStateListener(){
 
 					@Override
@@ -47,6 +53,7 @@ public class MPOSService {
 
 					@Override
 					public void onSuccess() {
+						progress.setProgress(100 / 2);
 						new LoadProductTask(c, new IServiceStateListener(){
 
 							@Override
@@ -56,6 +63,7 @@ public class MPOSService {
 
 							@Override
 							public void onSuccess() {
+								progress.setProgress(100 / 1);
 								new LoadMenuTask(c, new IServiceStateListener(){
 
 									@Override
@@ -65,6 +73,7 @@ public class MPOSService {
 
 									@Override
 									public void onSuccess() {
+										progress.setProgress(100 / 1);
 										progress.dismiss();
 										listener.onSuccess();
 									}

@@ -206,6 +206,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:minWidth="100dp"
+                    android:onClick="inventClicked"
                     android:text="@string/button_inventory"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -214,6 +215,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:minWidth="100dp"
+                    android:onClick="reportClicked"
                     android:text="@string/button_report"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
