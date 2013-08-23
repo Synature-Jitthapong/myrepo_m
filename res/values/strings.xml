@@ -56,6 +56,12 @@
     <string name="vat_exclude">Vat exclude</string>
     <string name="information">Information</string>
     <string name="confirm_cancel">Are you sure to cancel?</string>
+    <string name="clear_bill">Clear bill</string>
+    <string name="confirm_clear_bill">Are you sure you want to clear bill?</string>
+    <string name="change">Change</string>
+    <string name="enter_enough_money">Please enter enough money.</string>
+    <string name="button_close">Close</string>
+    <string name="payment">Payment</string>
     
 
 </resources>

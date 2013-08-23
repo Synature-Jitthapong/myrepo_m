@@ -224,9 +224,8 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical" >
 
@@ -475,18 +474,27 @@
                             android:layout_height="wrap_content" >
 
                             <ImageButton
-                                android:id="@+id/imageButton1"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:minWidth="100dp"
-                                android:onClick="onBtnPriceClick" />
+                                android:id="@+id/btnPay1000"
+                                android:layout_width="120dp"
+                                android:layout_height="64dp"
+                                android:minHeight="64dp"
+                                android:minWidth="120dp"
+                                android:onClick="onBtnPriceClick"
+                                android:padding="1dp"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/money1000" />
 
                             <ImageButton
-                                android:id="@+id/imageButton2"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:minWidth="100dp"
-                                android:onClick="onBtnPriceClick" />
+                                android:id="@+id/btnPay50"
+                                android:layout_width="120dp"
+                                android:layout_height="64dp"
+                                android:minHeight="64dp"
+                                android:minWidth="120dp"
+                                android:onClick="onBtnPriceClick"
+                                android:padding="1dp"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/money50" />
+
                         </TableRow>
 
                         <TableRow
@@ -495,16 +503,27 @@
                             android:layout_height="wrap_content" >
 
                             <ImageButton
-                                android:id="@+id/imageButton4"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:onClick="onBtnPriceClick" />
+                                android:id="@+id/btnPay500"
+                                android:layout_width="120dp"
+                                android:layout_height="64dp"
+                                android:minHeight="64dp"
+                                android:minWidth="120dp"
+                                android:onClick="onBtnPriceClick"
+                                android:padding="1dp"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/money500" />
 
                             <ImageButton
-                                android:id="@+id/imageButton5"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:onClick="onBtnPriceClick" />
+                                android:id="@+id/btnPay20"
+                                android:layout_width="120dp"
+                                android:layout_height="64dp"
+                                android:minHeight="64dp"
+                                android:minWidth="120dp"
+                                android:onClick="onBtnPriceClick"
+                                android:padding="1dp"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/money20" />
+
                         </TableRow>
 
                         <TableRow
@@ -513,17 +532,24 @@
                             android:layout_height="wrap_content" >
 
                             <ImageButton
-                                android:id="@+id/imageButton3"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:minWidth="100dp"
-                                android:onClick="onBtnPriceClick" />
+                                android:id="@+id/btnPay100"
+                                android:layout_width="120dp"
+                                android:layout_height="64dp"
+                                android:minHeight="64dp"
+                                android:minWidth="120dp"
+                                android:onClick="onBtnPriceClick"
+                                android:padding="1dp"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/money100" />
 
                             <ImageButton
                                 android:id="@+id/imageButton6"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:minHeight="64dp"
+                                android:minWidth="120dp"
                                 android:onClick="onBtnPriceClick" />
+
                         </TableRow>
 
                         <TableRow

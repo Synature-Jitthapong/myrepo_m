@@ -22,5 +22,5 @@ public interface Transaction {
 
 	boolean holdTransaction(int transactionId, int computerId, String remark);
 
-	boolean deleteTransaction(int transactionId);
+	boolean deleteTransaction(int transactionId, int computerId);
 }

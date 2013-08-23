@@ -33,6 +33,7 @@ public class MPOSSqliteDatabase extends SQLiteOpenHelper{
 		MPOSSql.TB_MENU_DEPT,
 		MPOSSql.TB_MENU_GROUP,
 		MPOSSql.TB_ORDER,
+		MPOSSql.TB_ORDER_TMP,
 		MPOSSql.TB_ORDER_COMM,
 		MPOSSql.TB_ORDER_SET,
 		MPOSSql.TB_ORDER_SET_COMM,

@@ -417,7 +417,7 @@ public class MPOSSql {
 			" );";
 	
 	public static final String TB_ORDER_TMP = 
-			" CREATE TABLE order_detail ( " +
+			" CREATE TABLE order_detail_tmp ( " +
 			" order_detail_id  INTEGER NOT NULL DEFAULT 0, " +
 			" transaction_id  INTEGER NOT NULL DEFAULT 0, " +
 			" computer_id  INTEGER NOT NULL DEFAULT 0, " +

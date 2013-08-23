@@ -99,7 +99,12 @@ public class PaymentActivity extends Activity {
 			TextView tvPayDetail = (TextView) v.findViewById(R.id.textViewPayDetail);
 			TextView tvPayAmount = (TextView) v.findViewById(R.id.textViewPayAmount);
 			
-			tvPayType.setText(payment.getPayTypeName());
+			String payTypeName = payment.getPayTypeID() == 1 ? "Cash" : "Credit";
+			if(payment.getPayTypeName() != null){
+				payTypeName = payment.getPayTypeName();
+			}
+			
+			tvPayType.setText(payTypeName);
 			tvPayDetail.setText(payment.getRemark());
 			tvPayAmount.setText(format.currencyFormat(payment.getPayAmount()));
 			
@@ -126,15 +131,12 @@ public class PaymentActivity extends Activity {
 		loadPayDetail();
 	}
 	
-	private void addPayment(int payType){
-		if(payType == 1){
-			mposTrans.addPaymentDetail(transactionId, computerId, 1, totalPay, "",
-					1, 2017, 1, 1);
-		}else{
-			mposTrans.updatePaymentDetail(transactionId, computerId, payType, totalPay, "",
-					1, 2017, 1, 1);
+	private void addPayment(){
+		if(totalPay > 0){
+				mposTrans.addPaymentDetail(transactionId, computerId, 1, totalPay, "",
+						0, 0, 0, 0);
+			loadPayDetail();
 		}
-		loadPayDetail();
 	}
 	
 	private void displayTotalPrice(){
@@ -166,6 +168,7 @@ public class PaymentActivity extends Activity {
 	}
 	
 	public void onCancelClicked(final View v){
+		mposTrans.deleteAllPaymentDetail(transactionId, computerId);
 		finish();
 	}
 	
@@ -174,9 +177,9 @@ public class PaymentActivity extends Activity {
 			mposTrans.successTransaction(transactionId, computerId);
 			if(totalPaid - totalPrice > 0){
 				new AlertDialog.Builder(context)
-				.setTitle("Change")
+				.setTitle(R.string.change)
 				.setMessage(format.currencyFormat(totalPaid - totalPrice))
-				.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+				.setNeutralButton(R.string.button_close, new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -189,9 +192,10 @@ public class PaymentActivity extends Activity {
 			}
 		}else{
 			new AlertDialog.Builder(context)
-			.setTitle("Payment")
-			.setMessage("ใส่จำนวนเงินให้พอ")
-			.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setTitle(R.string.payment)
+			.setMessage(R.string.enter_enough_money)
+			.setNeutralButton(R.string.button_close, new DialogInterface.OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -238,6 +242,41 @@ public class PaymentActivity extends Activity {
 		case R.id.btnPay9:
 			strTotalPay.append("9");
 			break;
+		case R.id.btnPay20:
+			strTotalPay.append("20");
+			displayTotalPaid();
+			addPayment();
+			strTotalPay = new StringBuilder();
+			displayChange();
+			break;
+		case R.id.btnPay50:
+			strTotalPay.append("50");
+			displayTotalPaid();
+			addPayment();
+			strTotalPay = new StringBuilder();
+			displayChange();
+			break;
+		case R.id.btnPay100:
+			strTotalPay.append("100");
+			displayTotalPaid();
+			addPayment();
+			strTotalPay = new StringBuilder();
+			displayChange();
+			break;
+		case R.id.btnPay500:
+			strTotalPay.append("500");
+			displayTotalPaid();
+			addPayment();
+			strTotalPay = new StringBuilder();
+			displayChange();
+			break;
+		case R.id.btnPay1000:
+			strTotalPay.append("1000");
+			displayTotalPaid();
+			addPayment();
+			strTotalPay = new StringBuilder();
+			displayChange();
+			break;
 		case R.id.btnPayC:
 			strTotalPay = new StringBuilder();
 			break;
@@ -253,7 +292,7 @@ public class PaymentActivity extends Activity {
 			strTotalPay.append(".");
 			break;
 		case R.id.btnPayEnter:
-			addPayment(1);
+			addPayment();
 			strTotalPay = new StringBuilder();
 			displayChange();
 			break;

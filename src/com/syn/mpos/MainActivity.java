@@ -379,20 +379,21 @@ public class MainActivity extends Activity {
 	
 	public void clearBillClicked(final View v){
 		new AlertDialog.Builder(MainActivity.this)
-		.setTitle("Clear bill")
-		.setMessage("Are you sure you want to clear bill?")
-		.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setTitle(R.string.clear_bill)
+		.setMessage(R.string.confirm_clear_bill)
+		.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				
 			}
 		})
-		.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+		.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				mposTrans.cancelTransaction(transactionId);
+				mposTrans.cancelTransaction(transactionId, compProp.getComputerID());
 
 				init();
 			}

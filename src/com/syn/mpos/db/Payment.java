@@ -18,5 +18,5 @@ public interface Payment {
 
 	boolean deletePaymentDetail(int paymentId);
 
-	boolean deleteAllPaymentDetail(int transactionId);
+	boolean deleteAllPaymentDetail(int transactionId, int computerId);
 }
