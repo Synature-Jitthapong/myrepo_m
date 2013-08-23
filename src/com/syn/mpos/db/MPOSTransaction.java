@@ -9,7 +9,6 @@ import android.content.Context;
 import android.database.Cursor;
 import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.OrderTransaction;
-import com.syn.mpos.model.OrderTransaction.OrderDetail;
 
 /**
  * 

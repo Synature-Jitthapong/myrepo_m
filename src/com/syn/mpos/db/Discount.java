@@ -1,9 +1,5 @@
 package com.syn.mpos.db;
 
-import java.util.List;
-
-import com.syn.mpos.model.OrderTransaction;
-
 /**
  * 
  * @author j1tth4
