@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * @author j1tth4
  *
  */
-public class MPOSSqliteDatabase extends SQLiteOpenHelper{
+public class MPOSSQLiteDatabase extends SQLiteOpenHelper{
 	private static final String DB_NAME = "mpos.db";
 	private static final int DB_VER = 1;
 	
@@ -56,7 +56,7 @@ public class MPOSSqliteDatabase extends SQLiteOpenHelper{
 		MPOSSql.TB_TRANS,
 	};
 
-	public MPOSSqliteDatabase(Context context) {
+	public MPOSSQLiteDatabase(Context context) {
 		super(context, DB_NAME, null, DB_VER);
 	}
 

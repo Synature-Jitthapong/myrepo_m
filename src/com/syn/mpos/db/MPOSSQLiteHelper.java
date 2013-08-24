@@ -1,35 +1,34 @@
 package com.syn.mpos.db;
 
-import com.j1tth4.mobile.sqlite.SqliteHelper;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class MPOSSqliteHelper implements SqliteHelper {
-	
+/**
+ * 
+ * @author j1tth4
+ *
+ */
+public class MPOSSQLiteHelper{
 	private SQLiteDatabase db;
-	private MPOSSqliteDatabase sqlite;
+	private MPOSSQLiteDatabase sqlite;
 	private MPOSLog mposLog;
 	
-	public MPOSSqliteHelper(Context c){
-		sqlite = new MPOSSqliteDatabase(c);
+	public MPOSSQLiteHelper(Context c){
+		sqlite = new MPOSSQLiteDatabase(c);
 		mposLog = new MPOSLog(c);
 	}
 	
-	@Override
 	public void open() {
 		db = sqlite.getWritableDatabase();
 	}
 
-	@Override
 	public void close() {
 		sqlite.close();
 	}
 
-	@Override
 	public boolean insert(String table, ContentValues cv){
 		boolean isSucc = false;
 		
@@ -44,13 +43,11 @@ public class MPOSSqliteHelper implements SqliteHelper {
 		return isSucc;
 	}
 
-	@Override
 	public Cursor rawQuery(String sqlQuery){
 		Cursor cursor = db.rawQuery(sqlQuery, null);
 		return cursor;
 	}
 
-	@Override
 	public boolean execSQL(String sqlExec){
 		boolean isSucc = false;
 		try {

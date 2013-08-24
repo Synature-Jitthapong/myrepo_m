@@ -6,17 +6,15 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-
-import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.MenuGroups;
 
 public class MenuGroup {
 	private final String TB_MENU_GROUP = "menu_group";
 
-	private SqliteHelper dbHelper;
+	private MPOSSQLiteHelper dbHelper;
 	
 	public MenuGroup(Context c) {
-		dbHelper = new MPOSSqliteHelper(c);
+		dbHelper = new MPOSSQLiteHelper(c);
 	}
 	
 	public List<MenuGroups.MenuGroup> listAllMenuGroup() {

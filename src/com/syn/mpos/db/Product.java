@@ -4,24 +4,20 @@ import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
-
-import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.ProductGroups;
 
 public class Product {
-	private final String TB_PRODUCT = "products";
-	
-	private SqliteHelper dbHelper;
+	private MPOSSQLiteHelper dbHelper;
 	
 	public Product(Context c){
-		dbHelper = new MPOSSqliteHelper(c);
+		dbHelper = new MPOSSQLiteHelper(c);
 	}
 	
 	public boolean addProducts(List<ProductGroups.Products> productLst){
 		boolean isSucc = false;
 		
 		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM " + TB_PRODUCT);
+		dbHelper.execSQL("DELETE FROM products");
 		
 		for(ProductGroups.Products p : productLst){
 			ContentValues cv = new ContentValues();
@@ -52,7 +48,7 @@ public class Product {
 			cv.put("product_price_5", p.getProductPricePerUnit5());
 			cv.put("updatedate", p.getUpdateDate());
 			
-			isSucc = dbHelper.insert(TB_PRODUCT, cv);
+			isSucc = dbHelper.insert("products", cv);
 		}
 		
 		dbHelper.close();

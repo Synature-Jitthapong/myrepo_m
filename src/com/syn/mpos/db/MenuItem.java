@@ -2,25 +2,24 @@ package com.syn.mpos.db;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.MenuGroups;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
+/**
+ * 
+ * @author j1tth4
+ *
+ */
 public class MenuItem {
-	private final String TB_MENU_ITEM = "menu_item";
-	private final String TB_PRODUCT = "products";
-
 	private String saleModeParam = "sale_mode_1 = 1";
 	private String colSaleModePrice = "product_price";
 	
-	private SqliteHelper dbHelper;
+	private MPOSSQLiteHelper dbHelper;
 	
 	public MenuItem(Context c) {
-		dbHelper = new MPOSSqliteHelper(c);
+		dbHelper = new MPOSSQLiteHelper(c);
 	}
 	
 	public List<MenuGroups.MenuItem> listMenuItem(int menuDeptId, int saleMode){
@@ -37,8 +36,8 @@ public class MenuItem {
 				" b." + colSaleModePrice + ", " +
 				" b.discount_allow, b.is_out_of_stock, " +
 				" b.vat_type, b.product_unit_name " +
-				" FROM " + TB_MENU_ITEM + " a " +
-				" LEFT JOIN " + TB_PRODUCT + " b " +
+				" FROM menu_item a " +
+				" LEFT JOIN products b " +
 				" ON a.product_id=b.product_id " +
 				" WHERE a.menu_dept_id=" + menuDeptId +
 				" AND b." + saleModeParam + 
@@ -76,7 +75,7 @@ public class MenuItem {
 		boolean isSucc = false;
 		
 		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM " + TB_MENU_ITEM);
+		dbHelper.execSQL("DELETE FROM menu_item");
 		
 		ContentValues cv = new ContentValues();
 		for (MenuGroups.MenuItem mi : mgLst) {
@@ -101,7 +100,7 @@ public class MenuItem {
 			cv.put("updatedate", mi.getUpdateDate());
 			cv.put("menu_activate", mi.getMenuActivate());
 
-			isSucc = dbHelper.insert(TB_MENU_ITEM, cv);
+			isSucc = dbHelper.insert("menu_item", cv);
 		}
 		dbHelper.close();
 		return isSucc;

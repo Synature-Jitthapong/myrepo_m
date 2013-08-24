@@ -5,15 +5,13 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-
-import com.j1tth4.mobile.sqlite.SqliteHelper;
 import com.syn.mpos.model.ShopData;
 
 public class Shop {
-	private SqliteHelper dbHelper;
+	private MPOSSQLiteHelper dbHelper;
 	
 	public Shop(Context c){
-		dbHelper = new MPOSSqliteHelper(c);
+		dbHelper = new MPOSSQLiteHelper(c);
 	}
 	
 	public ShopData.ComputerProperty getComputerProperty(){
