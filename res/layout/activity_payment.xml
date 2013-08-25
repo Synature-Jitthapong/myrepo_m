@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:minWidth="100dp"
             android:onClick="onCancelClicked"
-            android:text="@string/button_cancel" />
+            android:text="@android:string/cancel" />
 
         <Button
             android:id="@+id/buttonOkPayment"
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:minWidth="100dp"
             android:onClick="onOkClicked"
-            android:text="@string/button_ok" />
+            android:text="@android:string/ok" />
     </LinearLayout>
 
     <LinearLayout

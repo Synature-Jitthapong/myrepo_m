@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/title_discount"
+            android:text="@string/discount"
             android:textSize="48sp" />
 
         <Button
@@ -33,7 +33,7 @@
             android:minHeight="48dip"
             android:minWidth="100dp"
             android:onClick="cancelClicked"
-            android:text="@string/button_cancel" />
+            android:text="@android:string/cancel" />
 
         <Button
             android:id="@+id/buttonDisOk"
@@ -42,7 +42,7 @@
             android:minHeight="48dip"
             android:minWidth="100dp"
             android:onClick="okClicked"
-            android:text="@string/button_ok" />
+            android:text="@android:string/ok" />
     </LinearLayout>
 
     <TableLayout

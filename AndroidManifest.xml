@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.syn.pos.mobile.mpos"
+    package="com.syn.mpos"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -37,7 +37,7 @@
         </activity>
         <activity
             android:name="com.syn.mpos.DiscountActivity"
-            android:label="@string/title_activity_discount"
+            android:label="@string/discount"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustPan" >
             <meta-data

@@ -1,6 +1,6 @@
 package com.syn.mpos;
 
-import com.syn.pos.mobile.mpos.R;
+import com.syn.mpos.R;
 
 import android.os.Bundle;
 import android.app.Activity;

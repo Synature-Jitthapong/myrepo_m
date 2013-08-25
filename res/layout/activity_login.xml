@@ -111,7 +111,7 @@
                     android:layout_height="wrap_content"
                     android:layout_span="2"
                     android:onClick="loginClicked"
-                    android:text="@string/button_login" />
+                    android:text="@string/login" />
             </TableRow>
         </TableLayout>
 

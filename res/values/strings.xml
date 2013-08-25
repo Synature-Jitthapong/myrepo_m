@@ -2,35 +2,24 @@
 <resources>
 
     <string name="app_name">MPOS</string>
-    <string name="action_settings">Settings</string>
-    <string name="button_login">Login</string>
+    <string name="login">Login</string>
     <string name="user_name">User name:</string>
     <string name="pass_word">Password:</string>
-    <string name="button_inventory">Inventory</string>
-    <string name="button_hold_bill">Hold bill</string>
-    <string name="button_report">Reports</string>
-    <string name="button_utility">Utility</string>
-    <string name="button_switch_user">Switch user</string>
-    <string name="button_set_member">Set member</string>
-    <string name="button_addnew_member">New member</string>
-    <string name="button_hold">Hold</string>
-    <string name="button_discount">Discount</string>
-    <string name="button_cash">Cash</string>
-    <string name="button_clear_bill">Clear bill</string>
-    <string name="button_logout">Logout</string>
-    <string name="text_hold_order_remark">Remark:</string>
-    <string name="button_confirm_hold">Ok</string>
-    <string name="button_cancel_hold">Cancel</string>
-    <string name="title_hold_order">Hold order</string>
-    <string name="title_activity_discount">DiscountActivity</string>
-    <string name="title_discount">Discount</string>
-    <string name="sub_total">Sub total</string>
+    <string name="inventory">Inventory</string>
+    <string name="hold_bill">Hold bill</string>
+    <string name="report">Reports</string>
+    <string name="utility">Utility</string>
+    <string name="switch_user">Switch user</string>
+    <string name="set_member">Set member</string>
+    <string name="addnew_member">New member</string>
     <string name="discount">Discount</string>
+    <string name="cash">Cash</string>
+    <string name="cancel_bill">Cancel bill</string>
+    <string name="logout">Logout</string>
+    <string name="sub_total">Sub total</string>
     <string name="vat">Vat</string>
     <string name="exclude_vat">Vat exclude</string>
     <string name="total_price">Total price</string>
-    <string name="button_cancel">Cancel</string>
-    <string name="button_ok">Ok</string>
     <string name="title_activity_payment">Payment</string>
     <string name="total_receive">Total receive</string>
     <string name="change">Change</string>
@@ -50,7 +39,7 @@
     <string name="card_type">Card type</string>
     <string name="expire_date">Expire</string>
     <string name="approval_code">Approval code</string>
-    <string name="button_enter">Enter</string>
+    <string name="enter">Enter</string>
     <string name="qty">Qty</string>
     <string name="sale_price">Sale price</string>
     <string name="vat_exclude">Vat exclude</string>
@@ -59,14 +48,19 @@
     <string name="clear_bill">Clear bill</string>
     <string name="confirm_clear_bill">Are you sure you want to clear bill?</string>
     <string name="enter_enough_money">Please enter enough money.</string>
-    <string name="button_close">Close</string>
+    <string name="close">Close</string>
     <string name="payment">Payment</string>
     <string name="receive_stock">Receive</string>
     <string name="count_stock">Count stock</string>
     <string name="stock_card">Stock card</string>
-    <string name="inventory">Inventory</string>
     <string name="sale_report">Sale report</string>
     <string name="sale_report_by_product">Sale report by product</string>
+    <string name="remark">Remark</string>
+    <string name="load_product">Load product</string>
+    <string name="check_device">Check device</string>
+    <string name="load_shop">Load shop data</string>
+    <string name="load_menu">Load menu</string>
+    <string name="error">Error</string>
     
 
 </resources>

@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:minWidth="100dp"
             android:onClick="cancelPayClicked"
-            android:text="@string/button_cancel" />
+            android:text="@android:string/cancel" />
 
         <Button
             android:id="@+id/btnCreditPayOk"
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:minWidth="100dp"
             android:onClick="okPayClicked"
-            android:text="@string/button_ok" />
+            android:text="@android:string/ok" />
 
     </LinearLayout>
 

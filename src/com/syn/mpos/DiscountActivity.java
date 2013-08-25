@@ -2,9 +2,9 @@ package com.syn.mpos;
 
 import java.util.List;
 
+import com.syn.mpos.R;
 import com.syn.mpos.db.MPOSTransaction;
 import com.syn.mpos.model.OrderTransaction;
-import com.syn.pos.mobile.mpos.R;
 
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -234,7 +234,7 @@ public class DiscountActivity extends Activity {
 			.setTitle(R.string.information)
 			.setIcon(android.R.drawable.ic_dialog_info)
 			.setMessage(R.string.confirm_cancel)
-			.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+			.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -242,7 +242,7 @@ public class DiscountActivity extends Activity {
 					exit();
 				}
 			})
-			.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {

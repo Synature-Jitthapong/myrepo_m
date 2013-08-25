@@ -18,15 +18,18 @@ import com.syn.mpos.model.ShopData;
 import com.syn.mpos.model.WebServiceResult;
 import com.syn.mpos.model.ShopData.ShopProperty;
 
+import android.R;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.widget.TextView;
 
 public class MPOSService {
 	
 	public static void sync(final Context c, final IServiceStateListener listener){
 		final String url = "http://61.90.204.61/promise6_table/ws_mpos.asmx";
+		final TextView tvProgress = new TextView(c);
 		final ProgressDialog progress = new ProgressDialog(c);
 		progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		progress.setIndeterminate(false);
@@ -37,43 +40,47 @@ public class MPOSService {
 
 			@Override
 			public void onProgress() {
-				progress.setMessage("check device");
+				tvProgress.setText(com.syn.mpos.R.string.check_device);
+				progress.setMessage(tvProgress.getText());
 				progress.show();
 			}
 
 			@Override
 			public void onSuccess() {
-				progress.setProgress(100 / 4);
+				progress.setProgress(25);
 				new LoadShopTask(c, new IServiceStateListener(){
 
 					@Override
 					public void onProgress() {
-						progress.setMessage("load shop");
+						tvProgress.setText(com.syn.mpos.R.string.load_shop);
+						progress.setMessage(tvProgress.getText());
 					}
 
 					@Override
 					public void onSuccess() {
-						progress.setProgress(100 / 2);
+						progress.setProgress(50);
 						new LoadProductTask(c, new IServiceStateListener(){
 
 							@Override
 							public void onProgress() {
-								progress.setMessage("load product");
+								tvProgress.setText(com.syn.mpos.R.string.load_product);
+								progress.setMessage(tvProgress.getText());
 							}
 
 							@Override
 							public void onSuccess() {
-								progress.setProgress(100 / 1);
+								progress.setProgress(75);
 								new LoadMenuTask(c, new IServiceStateListener(){
 
 									@Override
 									public void onProgress() {
-										progress.setMessage("load menu");
+										tvProgress.setText(com.syn.mpos.R.string.load_menu);
+										progress.setMessage(tvProgress.getText());
 									}
 
 									@Override
 									public void onSuccess() {
-										progress.setProgress(100 / 1);
+										progress.setProgress(100);
 										progress.dismiss();
 										listener.onSuccess();
 									}
@@ -97,10 +104,10 @@ public class MPOSService {
 					public void onFail(String msg) {
 						progress.dismiss();
 						new AlertDialog.Builder(c)
-						.setTitle("Error")
+						.setTitle(com.syn.mpos.R.string.error)
 						.setIcon(android.R.drawable.ic_dialog_alert)
 						.setMessage(msg)
-						.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+						.setNeutralButton(com.syn.mpos.R.string.close, new DialogInterface.OnClickListener() {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {

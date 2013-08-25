@@ -2,8 +2,8 @@ package com.syn.mpos;
 
 import java.util.List;
 
+import com.syn.mpos.R;
 import com.syn.mpos.model.OrderTransaction;
-import com.syn.pos.mobile.mpos.R;
 
 import android.content.Context;
 import android.view.LayoutInflater;

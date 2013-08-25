@@ -2,13 +2,13 @@ package com.syn.mpos;
 
 import java.util.List;
 
+import com.syn.mpos.R;
 import com.syn.mpos.db.Bank;
 import com.syn.mpos.db.CreditCard;
 import com.syn.mpos.db.MPOSTransaction;
 import com.syn.mpos.model.BankName;
 import com.syn.mpos.model.CreditCardType;
 import com.syn.mpos.model.OrderTransaction;
-import com.syn.pos.mobile.mpos.R;
 
 import android.os.Bundle;
 import android.app.Activity;

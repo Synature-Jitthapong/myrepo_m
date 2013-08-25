@@ -3,10 +3,10 @@ package com.syn.mpos;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.syn.mpos.R;
 import com.syn.mpos.db.MPOSTransaction;
 import com.syn.mpos.model.OrderTransaction;
 import com.syn.mpos.model.Payment;
-import com.syn.pos.mobile.mpos.R;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -179,7 +179,7 @@ public class PaymentActivity extends Activity {
 				new AlertDialog.Builder(context)
 				.setTitle(R.string.change)
 				.setMessage(format.currencyFormat(totalPaid - totalPrice))
-				.setNeutralButton(R.string.button_close, new DialogInterface.OnClickListener() {
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -195,7 +195,7 @@ public class PaymentActivity extends Activity {
 			.setIcon(android.R.drawable.ic_dialog_alert)
 			.setTitle(R.string.payment)
 			.setMessage(R.string.enter_enough_money)
-			.setNeutralButton(R.string.button_close, new DialogInterface.OnClickListener() {
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {

@@ -1,9 +1,9 @@
 package com.syn.mpos;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import com.j1tth4.mobile.util.ImageLoader;
+import com.syn.mpos.R;
 import com.syn.mpos.db.MPOSTransaction;
 import com.syn.mpos.db.MenuDept;
 import com.syn.mpos.db.MenuItem;
@@ -11,10 +11,7 @@ import com.syn.mpos.db.Shop;
 import com.syn.mpos.model.MenuGroups;
 import com.syn.mpos.model.OrderTransaction;
 import com.syn.mpos.model.ShopData;
-import com.syn.mpos.model.OrderTransaction.OrderDetail;
-import com.syn.pos.mobile.mpos.R;
 import android.os.Bundle;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -25,17 +22,16 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.RadioGroup.LayoutParams;
 
 public class MainActivity extends Activity {
@@ -45,7 +41,6 @@ public class MainActivity extends Activity {
 	private ShopData.ComputerProperty compProp;
 	private Formatter format;
 	private MPOSTransaction mposTrans;
-	private OrderTransaction orderTrans;
 	private List<OrderTransaction.OrderDetail> orderLst;
 	private OrderListAdapter orderAdapter;
 	private int transactionId;
@@ -93,7 +88,6 @@ public class MainActivity extends Activity {
 		shop = new Shop(context);
 		format = new Formatter(context);
 		mposTrans = new MPOSTransaction(context);
-		
 		shopProp = shop.getShopProperty();
 		compProp = shop.getComputerProperty();
 		
@@ -102,10 +96,10 @@ public class MainActivity extends Activity {
 			transactionId = mposTrans.openTransaction(compProp.getComputerID(), 
 					shopProp.getShopID(), 1, 1);
 		}
+		
 		Log.i(TAG, "transactionId= " + transactionId);
 		
 		orderLst = mposTrans.listAllOrders(transactionId, compProp.getComputerID());
-		
 		orderAdapter = new OrderListAdapter(context, format, orderLst, new ListButtonOnClickListener(){
 			OrderTransaction.OrderDetail order;
 			float qty;
@@ -145,7 +139,6 @@ public class MainActivity extends Activity {
 		});
 		
 		updateTotalPrice();
-		
 		orderListView.setAdapter(orderAdapter);
 		orderListView.setSelection(orderAdapter.getCount());
 	}
@@ -181,34 +174,25 @@ public class MainActivity extends Activity {
 	}
 	
 	public void holdOrderClicked(final View v){
-		final Dialog dialog = 
-				new Dialog(context);
-		dialog.setCanceledOnTouchOutside(false);
-		dialog.getWindow().setGravity(Gravity.TOP);
-		
-		LayoutInflater inflater = LayoutInflater.from(context);
-		View holdView = inflater.inflate(R.layout.hold_order_layout, null);
-		Button btnConfirm = (Button) holdView.findViewById(R.id.buttonConfirmHold);
-		Button btnCancel = (Button) holdView.findViewById(R.id.buttonCancelHold);
-		btnConfirm.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				dialog.dismiss();
-			}
+		EditText txtHoldRemark = new EditText(context);
+		new AlertDialog.Builder(context)
+		.setTitle(R.string.hold_bill)
+		.setView(txtHoldRemark)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
-		});
-		btnCancel.setOnClickListener(new OnClickListener(){
-
 			@Override
-			public void onClick(View v) {
-				dialog.dismiss();
+			public void onClick(DialogInterface dialog, int which) {
+				
 			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			
-		});
-		
-		dialog.setContentView(holdView);
-		dialog.show();
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		})
+		.show();
 	}
 	
 	public void paymentClicked(final View v){
@@ -410,14 +394,14 @@ public class MainActivity extends Activity {
 		.setIcon(android.R.drawable.ic_dialog_alert)
 		.setTitle(R.string.clear_bill)
 		.setMessage(R.string.confirm_clear_bill)
-		.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				
 			}
 		})
-		.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
