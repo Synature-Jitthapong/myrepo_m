@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
 					shopProp.getShopID(), 1, 1);
 		}
 		
-		Log.i(TAG, "transactionId= " + transactionId);
+		//Log.i(TAG, "transactionId= " + transactionId);
 		
 		orderLst = mposTrans.listAllOrders(transactionId, compProp.getComputerID());
 		orderAdapter = new OrderListAdapter(context, format, orderLst, new ListButtonOnClickListener(){
