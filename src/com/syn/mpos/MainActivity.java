@@ -153,6 +153,12 @@ public class MainActivity extends Activity {
 		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(android.view.MenuItem item) {
+				switch(item.getItemId()){
+				case R.id.itemSaleByProduct:
+					Intent intent = new Intent(MainActivity.this, SaleReportActivity.class);
+					startActivity(intent);
+					return true;
+				}
 				return false;
 			}
 		});

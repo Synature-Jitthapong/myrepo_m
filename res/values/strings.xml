@@ -62,7 +62,12 @@
     <string name="load_menu">Load menu</string>
     <string name="error">Error</string>
     <string name="hold">Hold</string>
-    <string name="title_item_list">Items</string>
-    <string name="title_item_detail">Item Detail</string>
+    <string name="title_activity_sale_report">Sale Report</string>
+    <string name="create_report">Create report</string>
+    <string name="code">Code</string>
+    <string name="product_name">Product Name</string>
+    <string name="unit_price">Unit Price</string>
+    <string name="to">To</string>
+    <string name="condition">Condition</string>
 
 </resources>
