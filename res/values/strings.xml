@@ -61,6 +61,8 @@
     <string name="load_shop">Load shop data</string>
     <string name="load_menu">Load menu</string>
     <string name="error">Error</string>
-    
+    <string name="hold">Hold</string>
+    <string name="title_item_list">Items</string>
+    <string name="title_item_detail">Item Detail</string>
 
 </resources>

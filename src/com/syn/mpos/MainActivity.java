@@ -29,8 +29,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.RadioGroup.LayoutParams;
 
@@ -173,11 +175,25 @@ public class MainActivity extends Activity {
 		popup.show();
 	}
 	
+	public void holdBillClicked(final View v){
+		
+	}
+	
 	public void holdOrderClicked(final View v){
+		LayoutParams param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		param.setMargins(8, 0, 8, 0);
+		
+		LinearLayout layout = new LinearLayout(context);
 		EditText txtHoldRemark = new EditText(context);
+		txtHoldRemark.setLines(2);
+		txtHoldRemark.setGravity(Gravity.TOP);
+		txtHoldRemark.setLayoutParams(param);
+		layout.addView(txtHoldRemark);
+		
 		new AlertDialog.Builder(context)
 		.setTitle(R.string.hold_bill)
-		.setView(txtHoldRemark)
+		.setView(layout)
+		
 		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
 			@Override

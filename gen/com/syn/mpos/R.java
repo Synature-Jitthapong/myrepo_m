@@ -260,6 +260,7 @@ public final class R {
         public static final int error=0x7f07003b;
         public static final int exclude_vat=0x7f070011;
         public static final int expire_date=0x7f070024;
+        public static final int hold=0x7f07003c;
         public static final int hold_bill=0x7f070005;
         public static final int information=0x7f07002a;
         public static final int inventory=0x7f070004;
@@ -289,6 +290,8 @@ public final class R {
         public static final int switch_user=0x7f070008;
         public static final int title_activity_credit_pay=0x7f070020;
         public static final int title_activity_payment=0x7f070013;
+        public static final int title_item_detail=0x7f07003e;
+        public static final int title_item_list=0x7f07003d;
         public static final int to_be_paid=0x7f07001c;
         public static final int total_payment=0x7f07001b;
         public static final int total_price=0x7f070012;

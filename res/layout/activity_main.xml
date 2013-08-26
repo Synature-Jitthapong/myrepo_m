@@ -41,7 +41,10 @@
             android:id="@+id/textViewBarcode"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginRight="1dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="4dp"
             android:background="@color/smoke_white"
             android:padding="4dp"
             android:text="Bar Code"
@@ -52,9 +55,8 @@
             android:id="@+id/textViewMember"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="1dp"
-            android:layout_marginRight="1dp"
-            android:background="@color/smoke_white"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:padding="4dp"
             android:text="Member"
             android:textAppearance="?android:attr/textAppearanceSmallInverse" />
@@ -63,8 +65,10 @@
             android:id="@+id/listViewOrder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="1dp"
-            android:layout_marginRight="1dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="4dp"
             android:layout_weight="1"
             android:background="@color/smoke_white" >
 
@@ -73,7 +77,10 @@
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="1dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="4dp"
             android:background="@color/smoke_white" >
 
             <TableRow
@@ -252,7 +259,9 @@
             android:id="@+id/horizontalScrollViewMenuDept"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="1dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="4dp"
             android:background="@color/smoke_white"
             android:minHeight="48dp"
             android:padding="4dp" >
@@ -275,6 +284,9 @@
                 android:id="@+id/gridViewMenu"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginBottom="4dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="4dp"
                 android:background="@color/smoke_white"
                 android:horizontalSpacing="4dp"
                 android:numColumns="4"
@@ -301,7 +313,7 @@
                     android:layout_height="wrap_content"
                     android:minWidth="100dp"
                     android:onClick="holdOrderClicked"
-                    android:text="@string/hold_bill" />
+                    android:text="@string/hold" />
 
                 <Button
                     android:id="@+id/buttonSetMember"
