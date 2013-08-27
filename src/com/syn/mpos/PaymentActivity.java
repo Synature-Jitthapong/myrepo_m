@@ -81,7 +81,7 @@ public class PaymentActivity extends Activity {
 		OrderTransaction.OrderDetail order = 
 				mposTrans.getSummary(transactionId);
 		
-		totalPrice = order.getProductPrice();
+		totalPrice = order.getTotalPrice();
 		
 		displayTotalPrice();
 	}

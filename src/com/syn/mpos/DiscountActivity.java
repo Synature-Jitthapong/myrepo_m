@@ -37,63 +37,67 @@ public class DiscountActivity extends Activity {
 	private MPOSTransaction mposTrans;
 	private OrderTransaction orderTrans;
 	private boolean isEdited = false;
-	
+
 	private List<OrderTransaction.OrderDetail> orderLst;
 	private TableLayout tbLayoutDiscount;
 	private TextView tvSubTotal;
 	private TextView tvTotalDiscount;
 	private TextView tvTotalVat;
 	private TextView tvTotalPrice;
-	
+	private TableRow tbRowVat;
+
 	private int transactionId;
 	private int computerId;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_discount);
-	
+
 		context = DiscountActivity.this;
-		
+
 		tbLayoutDiscount = (TableLayout) findViewById(R.id.tableLayoutDiscount);
 		tvSubTotal = (TextView) findViewById(R.id.textViewDisSubTotal);
 		tvTotalDiscount = (TextView) findViewById(R.id.textViewDisDiscount);
 		tvTotalPrice = (TextView) findViewById(R.id.textViewDisTotal);
-		
+		tbRowVat = (TableRow) findViewById(R.id.tbRowVat);
+
 		Intent intent = getIntent();
 		transactionId = intent.getIntExtra("transactionId", 0);
 		computerId = intent.getIntExtra("computerId", 0);
-		
-		if(transactionId != 0 && computerId != 0){
+
+		if (transactionId != 0 && computerId != 0) {
 			format = new Formatter(DiscountActivity.this);
-			mposTrans = new MPOSTransaction(DiscountActivity.this);	
-			
+			mposTrans = new MPOSTransaction(DiscountActivity.this);
+
 			loadOrder();
 			summaryPrice();
-		}else{
+		} else {
 			exit();
 		}
 	}
-	
-	private float calculateDiscount(int orderDetailId, int vatType, float amount, 
-			float productPrice, float totalProductPrice, float discount){
+
+	private float calculateDiscount(int orderDetailId, int vatType,
+			float amount, float productPrice, float totalProductPrice,
+			float discount) {
 		isEdited = true;
-		
+
 		float salePrice = productPrice;
 		float totalSalePrice = productPrice;
-	
+
 		salePrice = productPrice - (discount / amount);
 		totalSalePrice = totalProductPrice - discount;
-		
-		mposTrans.discountEatchProduct(orderDetailId, transactionId, computerId, 
-				vatType, amount, discount, salePrice, totalSalePrice);
-		
+
+		mposTrans.discountEatchProduct(orderDetailId, transactionId,
+				computerId, vatType, amount, discount, salePrice,
+				totalSalePrice);
+
 		summaryPrice();
 		return totalSalePrice;
 	}
-	
-	private void loadOrder(){
-		if(mposTrans.copyOrderToTmp(transactionId, computerId)){
+
+	private void loadOrder() {
+		if (mposTrans.copyOrderToTmp(transactionId, computerId)) {
 			orderLst = mposTrans.listAllOrdersTmp(transactionId, computerId);
 
 			LayoutInflater inflater = LayoutInflater.from(context);
@@ -111,6 +115,8 @@ public class DiscountActivity extends Activity {
 						.findViewById(R.id.editTextDisPrice);
 				final TextView tvDisSalePrice = (TextView) v
 						.findViewById(R.id.textViewDisSalePrice);
+				final TextView tvProductPrice = (TextView) v
+						.findViewById(R.id.tvProductPrice);
 
 				final OrderTransaction.OrderDetail order = orderLst.get(i);
 
@@ -118,6 +124,8 @@ public class DiscountActivity extends Activity {
 				tvDiscountProName.setText(order.getProductName());
 				tvDiscountProAmount.setText(format.qtyFormat(order
 						.getProductAmount()));
+				tvProductPrice.setText(format.currencyFormat(order
+						.getProductPrice()));
 				tvDiscountProPrice.setText(format.currencyFormat(order
 						.getTotalPrice()));
 				tvDisSalePrice.setText(format.currencyFormat(order
@@ -127,9 +135,9 @@ public class DiscountActivity extends Activity {
 				txtDisPrice.setSelectAllOnFocus(true);
 
 				// select at first row
-				if(i == 0)
+				if (i == 0)
 					txtDisPrice.setSelection(i);
-				
+
 				// on focus change event
 				txtDisPrice
 						.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -205,53 +213,65 @@ public class DiscountActivity extends Activity {
 				tbLayoutDiscount.addView(v);
 			}
 		}
-		
-		
-	}
-	
-	private void summaryPrice(){
-		OrderTransaction.OrderDetail orderDetail = 
-				mposTrans.getSummaryTmp(transactionId);
 
-		tvSubTotal.setText(format.currencyFormat(orderDetail.getProductPrice()));
-		tvTotalDiscount.setText(format.currencyFormat(orderDetail.getEachProductDiscount()));
+	}
+
+	private void summaryPrice() {
+		OrderTransaction.OrderDetail orderDetail = mposTrans
+				.getSummaryTmp(transactionId);
+
+		if(orderDetail.getVatExclude() > 0)
+			tbRowVat.setVisibility(View.VISIBLE);
+		else
+			tbRowVat.setVisibility(View.GONE);
 		
-		tvTotalPrice.setText(format.currencyFormat(orderDetail.getTotalPrice()));
+		tvSubTotal
+				.setText(format.currencyFormat(orderDetail.getProductPrice()));
+		tvTotalDiscount.setText(format.currencyFormat(orderDetail
+				.getEachProductDiscount()));
+
+		tvTotalPrice
+				.setText(format.currencyFormat(orderDetail.getTotalPrice()));
 	}
-	
-	private void exit(){
-		DiscountActivity.this.finish();	
+
+	private void exit() {
+		DiscountActivity.this.finish();
 	}
-	
-	public void okClicked(final View v){
-		if(mposTrans.confirmDiscount(transactionId, computerId))
+
+	public void okClicked(final View v) {
+		if (mposTrans.confirmDiscount(transactionId, computerId))
 			exit();
 	}
-	
-	public void cancelClicked(final View v){
-		if(isEdited){
+
+	public void cancelClicked(final View v) {
+		if (isEdited) {
 			new AlertDialog.Builder(context)
-			.setTitle(R.string.information)
-			.setIcon(android.R.drawable.ic_dialog_info)
-			.setMessage(R.string.confirm_cancel)
-			.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					mposTrans.cancelDiscount(transactionId, computerId);
-					exit();
-				}
-			})
-			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					mposTrans.confirmDiscount(transactionId, computerId);
-					exit();
-				}
-			})
-			.show();
-		}else{
+					.setTitle(R.string.information)
+					.setIcon(android.R.drawable.ic_dialog_info)
+					.setMessage(R.string.confirm_cancel)
+					.setNegativeButton(android.R.string.cancel,
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									mposTrans.cancelDiscount(transactionId,
+											computerId);
+									exit();
+								}
+							})
+					.setPositiveButton(android.R.string.ok,
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									mposTrans.confirmDiscount(transactionId,
+											computerId);
+									exit();
+								}
+							}).show();
+		} else {
 			exit();
 		}
 	}

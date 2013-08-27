@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.RadioGroup.LayoutParams;
 
@@ -54,6 +55,7 @@ public class MainActivity extends Activity {
 	
 	private int menuDeptId = -1;
 	
+	private TableRow tbRowVat;
 	private GridView menuGridView;
 	private ListView orderListView;
 	private TextView tvSubTotal;
@@ -74,6 +76,7 @@ public class MainActivity extends Activity {
 		tvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
 		tvTransVat = (TextView) findViewById(R.id.textViewTransVat);
 		tvDiscount = (TextView) findViewById(R.id.textViewDiscount);
+		tbRowVat = (TableRow) findViewById(R.id.tbRowVat);
 
 		loadMenu();
 	}
@@ -404,6 +407,11 @@ public class MainActivity extends Activity {
 	private void updateTotalPrice(){
 		OrderTransaction.OrderDetail orderDetail
 			= mposTrans.getSummary(transactionId);
+		
+		if(orderDetail.getVatExclude() > 0)
+			tbRowVat.setVisibility(View.VISIBLE);
+		else
+			tbRowVat.setVisibility(View.GONE);
 		
 		tvTransVat.setText(format.currencyFormat(orderDetail.getVatExclude()));
 		tvSubTotal.setText(format.currencyFormat(orderDetail.getProductPrice()));

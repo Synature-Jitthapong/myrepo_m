@@ -69,5 +69,6 @@
     <string name="unit_price">Unit Price</string>
     <string name="to">To</string>
     <string name="condition">Condition</string>
+    <string name="product_group">Product Group &gt;&gt;</string>
 
 </resources>
