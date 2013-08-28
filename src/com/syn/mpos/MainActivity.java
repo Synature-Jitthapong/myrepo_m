@@ -156,9 +156,15 @@ public class MainActivity extends Activity {
 		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(android.view.MenuItem item) {
+				Intent intent = new Intent(MainActivity.this, SaleReportActivity.class);
+				
 				switch(item.getItemId()){
 				case R.id.itemSaleByProduct:
-					Intent intent = new Intent(MainActivity.this, SaleReportActivity.class);
+					intent.putExtra("mode", 1);
+					startActivity(intent);
+					return true;
+				case R.id.itemSaleReport:
+					intent.putExtra("mode", 2);
 					startActivity(intent);
 					return true;
 				}

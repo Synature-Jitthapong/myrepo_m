@@ -14,6 +14,7 @@ import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 public class SaleReportActivity extends Activity {
 	private static final String TAG = "SaleReportActivity"; 
 	private Context context;
+	private int mode = 1;
 	private Calendar calendar;
 	private Formatter format;
 	private Report report;
@@ -47,6 +49,9 @@ public class SaleReportActivity extends Activity {
 		tbReport = (TableLayout) findViewById(R.id.tbReport);
 		btnDateFrom = (Button) findViewById(R.id.btnDateFrom);
 		btnDateTo = (Button) findViewById(R.id.btnDateTo);
+		
+		Intent intent = getIntent();
+		mode = intent.getIntExtra("mode", 1);
 		
 		context = SaleReportActivity.this;
 		format = new Formatter(context);
@@ -98,10 +103,42 @@ public class SaleReportActivity extends Activity {
 	}
 
 	public void createReportClicked(final View v){
-		createReport();
+		if(mode == 1)
+			createReportByProduct();
+		else if(mode == 2)
+			createReportByBill();
 	}
 	
-	private void createReport(){
+	private void createReportByBill(){
+		report = new Report(context, dateFrom, dateTo);
+		ArrayList<HashMap<String, String>> reportLst = 
+				report.getSaleReportByBill();
+
+		tbReport.removeAllViews();
+		LayoutInflater inflater = LayoutInflater.from(context);
+		for(HashMap<String, String> order : reportLst){
+			View tbRowDetail = inflater.inflate(R.layout.sale_report_template, null); 
+			TextView tvCode = (TextView) tbRowDetail.findViewById(R.id.tvProCode);
+			TextView tvName = (TextView) tbRowDetail.findViewById(R.id.tvProName);
+			TextView tvUnitPrice = (TextView) tbRowDetail.findViewById(R.id.tvUnitPrice);
+			TextView tvQty = (TextView) tbRowDetail.findViewById(R.id.tvQty);
+			TextView tvSubTotal = (TextView) tbRowDetail.findViewById(R.id.tvSubTotal);
+			TextView tvDiscount = (TextView) tbRowDetail.findViewById(R.id.tvDiscount);
+			TextView tvTotalPrice = (TextView) tbRowDetail.findViewById(R.id.tvTotalPrice);
+			TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVat);
+			
+			
+			tvCode.setText(order.get("totalBill"));
+			tvQty.setText(format.qtyFormat(Float.parseFloat(order.get("totalAmount"))));
+			tvSubTotal.setText(format.currencyFormat(Float.parseFloat(order.get("totalProductPrice"))));
+			tvDiscount.setText(format.currencyFormat(Float.parseFloat(order.get("totalDiscount"))));
+			tvTotalPrice.setText(format.currencyFormat(Float.parseFloat(order.get("totalSalePrice"))));
+			
+			tbReport.addView(tbRowDetail);
+		}
+	}
+	
+	private void createReportByProduct(){
 		report = new Report(context, dateFrom, dateTo);
 		mGroupLst = report.getGroupOfMenu();
 		
