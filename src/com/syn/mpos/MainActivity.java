@@ -1,6 +1,7 @@
 package com.syn.mpos;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.R;
@@ -33,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
+import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.RadioGroup.LayoutParams;
@@ -191,7 +193,54 @@ public class MainActivity extends Activity {
 	}
 	
 	public void holdBillClicked(final View v){
+		LayoutInflater inflater = LayoutInflater.from(context);
+		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
+		TableLayout tbHold = (TableLayout) holdBillView.findViewById(R.id.tbHoldBill);
+	
+		final Dialog d = new Dialog(context);
+		d.setTitle(R.string.hold_bill);
+		d.setContentView(holdBillView);
 		
+		List<OrderTransaction> billLst = mposTrans.listHoldOrder(compProp.getComputerID());
+		
+		Calendar c = Calendar.getInstance();
+	
+		for(int i = 0; i < billLst.size(); i++){
+			final OrderTransaction trans = billLst.get(i);
+					
+			View template = inflater.inflate(R.layout.hold_bill_template, null);
+			TextView tvNo = (TextView) template.findViewById(R.id.tvNo);
+			TextView tvOpenTime = (TextView) template.findViewById(R.id.tvOpenTime);
+			TextView tvOpenStaff = (TextView) template.findViewById(R.id.tvOpenStaff);
+			TextView tvRemark = (TextView) template.findViewById(R.id.tvRemark);
+			
+			tvNo.setText((i + 1) + ".");
+			c.setTimeInMillis(trans.getOpenTime());
+			tvOpenTime.setText(format.dateTimeFormat(c.getTime()));
+			tvOpenStaff.setText(trans.getStaffName());
+			tvRemark.setText(trans.getRemark());
+			
+			
+			template.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					
+					if(mposTrans.prepareTransaction(trans.getTransactionId(), 
+							trans.getComputerId())){
+						orderLst = mposTrans.listAllOrders(trans.getTransactionId(), 
+								trans.getComputerId());
+						
+						orderAdapter.notifyDataSetChanged();
+						d.dismiss();
+					}
+				}
+				
+			});
+			
+			tbHold.addView(template);
+		}
+		d.show();
 	}
 	
 	public void holdOrderClicked(final View v){
@@ -199,8 +248,7 @@ public class MainActivity extends Activity {
 		param.setMargins(8, 0, 8, 0);
 		
 		LinearLayout layout = new LinearLayout(context);
-		EditText txtHoldRemark = new EditText(context);
-		txtHoldRemark.setLines(2);
+		final EditText txtHoldRemark = new EditText(context);
 		txtHoldRemark.setGravity(Gravity.TOP);
 		txtHoldRemark.setLayoutParams(param);
 		layout.addView(txtHoldRemark);
@@ -220,7 +268,10 @@ public class MainActivity extends Activity {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				
+				if(mposTrans.holdTransaction(transactionId, compProp.getComputerID(), 
+						txtHoldRemark.getText().toString())){
+					init();
+				}
 			}
 		})
 		.show();
@@ -230,6 +281,7 @@ public class MainActivity extends Activity {
 		Intent intent = new Intent(context, PaymentActivity.class);
 		intent.putExtra("transactionId", transactionId);
 		intent.putExtra("computerId", compProp.getComputerID());
+		intent.putExtra("staffId", 1);
 		startActivity(intent);
 	}
 	
@@ -414,15 +466,23 @@ public class MainActivity extends Activity {
 		OrderTransaction.OrderDetail orderDetail
 			= mposTrans.getSummary(transactionId);
 		
-		if(orderDetail.getVatExclude() > 0)
+		float subTotal = orderDetail.getProductPrice();
+		float vatExclude = orderDetail.getVatExclude();
+		float vat = orderDetail.getVat();
+		float eachProductDiscount = orderDetail.getEachProductDiscount();
+		float memberDiscount = orderDetail.getMemberDiscount();
+		float totalDiscount = eachProductDiscount + memberDiscount;
+		float totalPrice = subTotal - totalDiscount;
+		
+		if(vatExclude > 0)
 			tbRowVat.setVisibility(View.VISIBLE);
 		else
 			tbRowVat.setVisibility(View.GONE);
 		
-		tvTransVat.setText(format.currencyFormat(orderDetail.getVatExclude()));
-		tvSubTotal.setText(format.currencyFormat(orderDetail.getProductPrice()));
-		tvDiscount.setText(format.currencyFormat(orderDetail.getEachProductDiscount()));
-		tvTotalPrice.setText(format.currencyFormat(orderDetail.getTotalPrice()));
+		tvTransVat.setText(format.currencyFormat(vatExclude));
+		tvSubTotal.setText(format.currencyFormat(subTotal));
+		tvDiscount.setText(format.currencyFormat(totalDiscount));
+		tvTotalPrice.setText(format.currencyFormat(totalPrice));
 	}
 	
 	public void clearBillClicked(final View v){

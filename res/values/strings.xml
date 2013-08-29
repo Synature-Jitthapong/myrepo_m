@@ -70,5 +70,16 @@
     <string name="to">To</string>
     <string name="condition">Condition</string>
     <string name="product_group">Product Group &gt;&gt;</string>
+    <string name="date">Date</string>
+    <string name="total_bill">#Bill</string>
+    <string name="service_charge_short">SC</string>
+    <string name="discount_short">Disc</string>
+    <string name="total_sale">Total Sale</string>
+    <string name="vatable">Vatable</string>
+    <string name="total_vat">Total VAT</string>
+    <string name="diff">Diff</string>
+    <string name="num_row">#</string>
+    <string name="staff">Staff</string>
+    <string name="open_time">Open time</string>
 
 </resources>

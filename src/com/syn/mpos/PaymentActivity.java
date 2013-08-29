@@ -31,6 +31,7 @@ public class PaymentActivity extends Activity {
 	private Formatter format;
 	private int transactionId;
 	private int computerId;
+	private int staffId;
 	
 	private StringBuilder strTotalPay;
 	private float totalPrice;
@@ -60,6 +61,10 @@ public class PaymentActivity extends Activity {
 		Intent intent = getIntent();
 		transactionId = intent.getIntExtra("transactionId", 0);
 		computerId = intent.getIntExtra("computerId", 0);
+		staffId = intent.getIntExtra("staffId", 0);
+		
+		if(transactionId == 0 || computerId == 0 || staffId == 0)
+			finish();
 	}
 	
 	@Override
@@ -81,7 +86,12 @@ public class PaymentActivity extends Activity {
 		OrderTransaction.OrderDetail order = 
 				mposTrans.getSummary(transactionId);
 		
-		totalPrice = order.getTotalPrice();
+		float subTotal = order.getProductPrice();
+		float eachProductDiscount = order.getEachProductDiscount();
+		float memberDiscount = order.getMemberDiscount();
+		float totalDiscount = eachProductDiscount + memberDiscount;
+		
+		totalPrice = subTotal - totalDiscount;
 		
 		displayTotalPrice();
 	}
@@ -174,7 +184,7 @@ public class PaymentActivity extends Activity {
 	
 	public void onOkClicked(final View v){
 		if(totalPaid >=totalPrice){
-			mposTrans.successTransaction(transactionId, computerId);
+			mposTrans.successTransaction(transactionId, computerId, staffId);
 			if(totalPaid - totalPrice > 0){
 				new AlertDialog.Builder(context)
 				.setTitle(R.string.change)

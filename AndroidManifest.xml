@@ -39,7 +39,7 @@
             android:name="com.syn.mpos.DiscountActivity"
             android:label="@string/discount"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="stateHidden|adjustPan" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.pos.mobile.mpos.MainActivity" />

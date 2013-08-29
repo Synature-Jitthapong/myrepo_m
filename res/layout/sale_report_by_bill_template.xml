@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:layout_weight="1"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvTotalBill"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:gravity="right"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvTotalPrice"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:gravity="right"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvTotalDisc"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:gravity="right"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvSubTotal"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:gravity="right"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvSc"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:gravity="right"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvTotalSale"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:gravity="right"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvVatable"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:gravity="right"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvTotalVat"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:gravity="right"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvCash"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:gravity="right"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvTotalPay"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:gravity="right"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvDiff"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+</TableRow>

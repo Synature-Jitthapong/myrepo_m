@@ -35,7 +35,6 @@ public class DiscountActivity extends Activity {
 	private Context context;
 	private Formatter format;
 	private MPOSTransaction mposTrans;
-	private OrderTransaction orderTrans;
 	private boolean isEdited = false;
 
 	private List<OrderTransaction.OrderDetail> orderLst;
@@ -77,23 +76,15 @@ public class DiscountActivity extends Activity {
 		}
 	}
 
-	private float calculateDiscount(int orderDetailId, int vatType,
-			float amount, float productPrice, float totalProductPrice,
-			float discount) {
+	private float calculateDiscount(int orderDetailId, int vatType, float totalPrice, float discount) {
 		isEdited = true;
 
-		float salePrice = productPrice;
-		float totalSalePrice = productPrice;
-
-		salePrice = productPrice - (discount / amount);
-		totalSalePrice = totalProductPrice - discount;
-
+		float totalPriceAfterDiscount = totalPrice - discount;
 		mposTrans.discountEatchProduct(orderDetailId, transactionId,
-				computerId, vatType, amount, discount, salePrice,
-				totalSalePrice);
+				computerId, vatType, totalPrice, discount);
 
 		summaryPrice();
-		return totalSalePrice;
+		return totalPriceAfterDiscount;
 	}
 
 	private void loadOrder() {
@@ -158,9 +149,8 @@ public class DiscountActivity extends Activity {
 										float salePrice = calculateDiscount(
 												order.getOrderDetailId(),
 												order.getVatType(),
-												order.getProductAmount(),
-												order.getProductPrice(),
-												order.getTotalPrice(), discount);
+												order.getTotalPrice(),
+												discount);
 
 										tvDisSalePrice.setText(format
 												.currencyFormat(salePrice));
@@ -193,9 +183,8 @@ public class DiscountActivity extends Activity {
 								float salePrice = calculateDiscount(
 										order.getOrderDetailId(),
 										order.getVatType(),
-										order.getProductAmount(),
-										order.getProductPrice(),
-										order.getTotalPrice(), discount);
+										order.getTotalPrice(), 
+										discount);
 
 								tvDisSalePrice.setText(format
 										.currencyFormat(salePrice));
@@ -220,18 +209,18 @@ public class DiscountActivity extends Activity {
 		OrderTransaction.OrderDetail orderDetail = mposTrans
 				.getSummaryTmp(transactionId);
 
+		float subTotal = orderDetail.getProductPrice();
+		float totalDiscount = orderDetail.getEachProductDiscount();
+		float totalPrice = subTotal - totalDiscount;
+		
 		if(orderDetail.getVatExclude() > 0)
 			tbRowVat.setVisibility(View.VISIBLE);
 		else
 			tbRowVat.setVisibility(View.GONE);
 		
-		tvSubTotal
-				.setText(format.currencyFormat(orderDetail.getProductPrice()));
-		tvTotalDiscount.setText(format.currencyFormat(orderDetail
-				.getEachProductDiscount()));
-
-		tvTotalPrice
-				.setText(format.currencyFormat(orderDetail.getTotalPrice()));
+		tvSubTotal.setText(format.currencyFormat(subTotal));
+		tvTotalDiscount.setText(format.currencyFormat(totalDiscount));
+		tvTotalPrice.setText(format.currencyFormat(totalPrice));
 	}
 
 	private void exit() {
