@@ -14,6 +14,7 @@ import com.syn.mpos.db.Product;
 import com.syn.mpos.db.Shop;
 import com.syn.mpos.model.MenuGroups;
 import com.syn.mpos.model.ProductGroups;
+import com.syn.mpos.model.Setting;
 import com.syn.mpos.model.ShopData;
 import com.syn.mpos.model.WebServiceResult;
 import com.syn.mpos.model.ShopData.ShopProperty;
@@ -27,8 +28,8 @@ import android.widget.TextView;
 
 public class MPOSService {
 	
-	public static void sync(final Context c, final IServiceStateListener listener){
-		final String url = "http://61.90.204.61/promise6_table/ws_mpos.asmx";
+	public static void sync(Setting.ConnectionSetting connSetting, final Context c, final IServiceStateListener listener){
+		final String url = connSetting.getFullUrl();//"http://61.90.204.61/promise6_table/ws_mpos.asmx";
 		final TextView tvProgress = new TextView(c);
 		final ProgressDialog progress = new ProgressDialog(c);
 		progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);

@@ -1,6 +1,6 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/LinearLayout1"
+    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/smoke_white"
@@ -12,41 +12,17 @@
     tools:context=".LoginActivity" >
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:background="@color/grey_light"
-        android:gravity="center_vertical"
-        android:paddingLeft="4dp" >
-
-        <TextView
-            android:id="@+id/textViewLogoText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="mPOS"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="48sp" />
-
-        <ImageButton
-            android:id="@+id/imageButton1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_preferences" />
-
-    </LinearLayout>
-
-    <LinearLayout
+        android:id="@+id/LinearLayout3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/login_bg"
         android:gravity="center"
         android:orientation="vertical" >
 
         <TableLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/box_bg"
-            android:padding="48dp" >
+            android:layout_height="wrap_content" >
 
             <TableRow
                 android:id="@+id/tableRow1"
@@ -70,6 +46,7 @@
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:textAppearance="?android:attr/textAppearanceLargeInverse" />
+
             </TableRow>
 
             <TableRow
@@ -92,9 +69,11 @@
                     android:id="@+id/editTextPassWord"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="?android:attr/editTextBackground"
                     android:ems="10"
                     android:inputType="textPassword"
                     android:textAppearance="?android:attr/textAppearanceLargeInverse" />
+
             </TableRow>
 
             <TableRow
@@ -103,7 +82,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginTop="8dp"
-                android:gravity="right" >
+                android:gravity="right"
+                android:paddingTop="24dp" >
 
                 <Button
                     android:id="@+id/buttonLogin"
@@ -114,7 +94,15 @@
                     android:text="@string/login" />
             </TableRow>
         </TableLayout>
-
     </LinearLayout>
 
-</LinearLayout>
+    <ImageButton
+        android:id="@+id/btnSetting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:onClick="settingClicked"
+        android:src="@android:drawable/ic_menu_manage" />
+
+</RelativeLayout>
