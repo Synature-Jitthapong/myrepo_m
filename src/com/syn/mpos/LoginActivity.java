@@ -32,7 +32,7 @@ public class LoginActivity extends Activity {
 	}
 	
 	public void settingClicked(final View v){
-		Intent intent = new Intent(context, SettingsActivity.class);
+		Intent intent = new Intent(context, PreferenceWithHeaders.class);
 		startActivity(intent);
 	}
 	

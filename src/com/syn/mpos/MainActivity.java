@@ -24,6 +24,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -398,7 +399,6 @@ public class MainActivity extends Activity {
 				holder.imgMenu = (ImageView) convertView.findViewById(R.id.imageViewMenu);
 				holder.tvMenuName = (TextView) convertView.findViewById(R.id.textViewMenuName);
 				holder.tvMenuDeptName = (TextView) convertView.findViewById(R.id.textViewMenuDept);
-				holder.btnOrder = (Button) convertView.findViewById(R.id.buttonOrder);
 				holder.tvMenuDescript = (TextView) convertView.findViewById(R.id.textViewMenuDescript);
 				convertView.setTag(holder);
 			}else{
@@ -407,12 +407,11 @@ public class MainActivity extends Activity {
 			
 			//imgLoader.displayImage(globalVar.getImageUrl() + mi.getImgUrl(), holder.imgMenu);
 			holder.tvMenuName.setText(mi.getMenuName_0());
-			holder.btnOrder.setText(format.currencyFormat(mi.getProductPricePerUnit()));
 			
-			holder.imgMenu.setOnClickListener(new OnClickListener(){
-
+			convertView.setOnLongClickListener(new OnLongClickListener(){
+				
 				@Override
-				public void onClick(View v) {
+				public boolean onLongClick(View v) {
 					final LayoutInflater inflater = LayoutInflater.from(context);
 					View menuDetailView = inflater.inflate(R.layout.menu_detail_layout, null);
 					ImageView imvMenuDetail = (ImageView) menuDetailView.findViewById(R.id.imageViewMenuDetail);
@@ -425,11 +424,12 @@ public class MainActivity extends Activity {
 					dialog.setContentView(menuDetailView);
 					dialog.setContentView(menuDetailView);
 					dialog.show();
+					return true;
 				}
 				
 			});
 			
-			holder.btnOrder.setOnClickListener(new OnClickListener(){
+			convertView.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
@@ -456,7 +456,6 @@ public class MainActivity extends Activity {
 		private class ViewHolder{
 			ImageView imgMenu;
 			TextView tvMenuName;
-			Button btnOrder;
 			TextView tvMenuDeptName;
 			TextView tvMenuDescript;
 		}

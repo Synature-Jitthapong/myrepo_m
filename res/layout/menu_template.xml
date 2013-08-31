@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/RelativeLayout1"
-    android:layout_width="wrap_content"
-    android:layout_height="120dp"
-    android:background="@drawable/menu_bg"
-    android:minHeight="90dip"
-    android:orientation="horizontal"
-    android:paddingLeft="0dp" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:drawable/list_selector_background"
+    android:gravity="center"
+    android:orientation="vertical" >
 
     <ImageView
         android:id="@+id/imageViewMenu"
         android:layout_width="90dp"
         android:layout_height="90dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:src="@drawable/no_food" />
 
     <TextView
         android:id="@+id/textViewMenuName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/imageViewMenu"
-        android:layout_toRightOf="@+id/imageViewMenu"
         android:lines="1"
         android:text="-"
         android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -31,7 +27,6 @@
         android:id="@+id/textViewMenuDept"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textViewMenuName"
         android:lines="1"
         android:text="-"
         android:textStyle="bold"
@@ -41,20 +36,7 @@
         android:id="@+id/textViewMenuDescript"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textViewMenuName"
-        android:layout_below="@+id/textViewMenuDept"
         android:lines="2"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <Button
-        android:id="@+id/buttonOrder"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:minWidth="64dp"
-        android:text="Button"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-</RelativeLayout>
+</LinearLayout>
