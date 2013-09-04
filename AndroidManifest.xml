@@ -59,10 +59,9 @@
             android:name="com.syn.mpos.SaleReportActivity"
             android:label="@string/title_activity_sale_report" >
         </activity>
-        <activity android:name="com.syn.mpos.PreferenceWithHeaders"
-            android:theme="@style/android:Theme.Holo.Light"
-            android:label="Preference"
-            android:enabled="true">
+        <activity
+            android:name="com.syn.mpos.SettingsActivity"
+            android:label="@string/title_activity_setting" >
         </activity>
     </application>
 

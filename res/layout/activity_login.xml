@@ -45,6 +45,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
+                    android:lines="1"
+                    android:nextFocusDown="@+id/editTextPassWord"
+                    android:singleLine="true"
                     android:textAppearance="?android:attr/textAppearanceLargeInverse" />
 
             </TableRow>
@@ -72,6 +75,9 @@
                     android:background="?android:attr/editTextBackground"
                     android:ems="10"
                     android:inputType="textPassword"
+                    android:lines="1"
+                    android:nextFocusDown="@+id/buttonLogin"
+                    android:singleLine="true"
                     android:textAppearance="?android:attr/textAppearanceLargeInverse" />
 
             </TableRow>

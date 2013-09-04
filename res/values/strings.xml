@@ -81,5 +81,20 @@
     <string name="num_row">#</string>
     <string name="staff">Staff</string>
     <string name="open_time">Open time</string>
+    <string name="ip_address">IP Address</string>
+    <string name="ip_address_summary">IP Address of server</string>
+    <string name="web_service">Web Service</string>
+    <string name="web_service_summary">Setting webservice name</string>
+    <string name="pref_header_connection">Connection</string>
+    <string name="title_activity_setting">Settings</string>
+    <string name="connection">Connection</string>
+    <string name="connection_summary">Setting connection such as IP Address, Webservice</string>
+    <string name="incorrect_password">Incorrect password!</string>
+    <string name="incorrect_user">Incorrect user!</string>
+    <string name="enter_username">Please enter username</string>
+    <string name="enter_password">Please enter password</string>
+    <string name="sync">Sync</string>
+    <string name="sync_time">Sync time</string>
+    <string name="login_sync">Alway sync data when login</string>
 
 </resources>

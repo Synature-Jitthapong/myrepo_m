@@ -29,7 +29,7 @@ import android.widget.TextView;
 public class MPOSService {
 	
 	public static void sync(Setting.ConnectionSetting connSetting, final Context c, final IServiceStateListener listener){
-		final String url = "http://61.90.204.61/promise6_table/ws_mpos.asmx"; //connSetting.getFullUrl();
+		final String url = connSetting.getFullUrl(); //url = "http://61.90.204.61/promise6_table/ws_mpos.asmx";
 		final TextView tvProgress = new TextView(c);
 		final ProgressDialog progress = new ProgressDialog(c);
 		progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);

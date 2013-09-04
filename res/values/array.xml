@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sync_list">
+        <item >1 hour</item>
+        <item >6 hour</item>
+    </string-array>
+    <string-array name="syn_list_val">
+        <item >10000</item>
+        <item >60000</item>
+    </string-array>
+</resources>

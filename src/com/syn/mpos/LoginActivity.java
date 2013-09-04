@@ -1,21 +1,27 @@
 package com.syn.mpos;
 
 import com.syn.mpos.R;
-import com.syn.mpos.db.Configuration;
+import com.syn.mpos.db.Login;
 import com.syn.mpos.model.Setting;
+import com.syn.mpos.model.ShopData;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.view.Menu;
+import android.content.SharedPreferences;
 import android.view.View;
+import android.widget.EditText;
 
 public class LoginActivity extends Activity {
 	private Context context;
-	private Configuration config;
+	private SharedPreferences sharedPref;
+	private Setting.Sync syncSetting;
 	private Setting.ConnectionSetting connSetting;
+	
+	private EditText txtUser;
+	private EditText txtPass;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -23,44 +29,89 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.activity_login);
 		context = LoginActivity.this;
 		
-		init();
+		txtUser = (EditText) findViewById(R.id.editTextUserName);
+		txtPass = (EditText) findViewById(R.id.editTextPassWord);
+		
 	}
 
 	private void init(){
-		config = new Configuration(context);
-		connSetting = config.getConnectionSetting();
+		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		connSetting = new Setting.ConnectionSetting();
+		syncSetting = new Setting.Sync();
+		
+		connSetting.setIpAddress(sharedPref.getString("pref_ipaddress", ""));
+		connSetting.setServiceName(sharedPref.getString("pref_webservice", ""));
+		connSetting.setFullUrl("http://" + connSetting.getIpAddress() + "/" + connSetting.getServiceName() + "/ws_mpos.asmx");
+		syncSetting.setSyncWhenLogin(sharedPref.getBoolean("pref_syncwhenlogin", false));
 	}
 	
+	@Override
+	protected void onResume() {
+		init();
+		
+		super.onResume();
+	}
+
 	public void settingClicked(final View v){
-		Intent intent = new Intent(context, PreferenceWithHeaders.class);
+		Intent intent = new Intent(context, SettingsActivity.class);
 		startActivity(intent);
 	}
 	
 	public void loginClicked(final View v){
+		String user = "";
+		String pass = "";
 		
-		final Intent intent = new Intent(context, MainActivity.class);
-		//startActivity(intent);
-		
-		MPOSService.sync(connSetting, context, new IServiceStateListener(){
-
-			@Override
-			public void onProgress() {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void onSuccess() {
-				startActivity(intent);
-			}
-
-			@Override
-			public void onFail(String msg) {
-				// TODO Auto-generated method stub
-				
-			}
+		if(!txtUser.getText().toString().isEmpty()){
+			user = txtUser.getText().toString();
 			
-		});
+			if(!txtPass.getText().toString().isEmpty()){
+				pass = txtPass.getText().toString();
+				
+				Login login = new Login(context, user, pass);
+				if(login.checkUser()){
+					ShopData.Staff s = login.checkLogin();
+					if(s != null){
+						final Intent intent = new Intent(context, MainActivity.class);
+						
+						if(syncSetting.isSyncWhenLogin()){
+							MPOSService.sync(connSetting, context, new IServiceStateListener(){
+					
+								@Override
+								public void onProgress() {
+									// TODO Auto-generated method stub
+									
+								}
+					
+								@Override
+								public void onSuccess() {
+									startActivity(intent);
+								}
+					
+								@Override
+								public void onFail(String msg) {
+									// TODO Auto-generated method stub
+									
+								}
+								
+							});
+						}else{
+							startActivity(intent);
+						}
+					}else{
+						Util.alert(context, android.R.drawable.ic_dialog_alert, 
+								R.string.login, R.string.incorrect_password);
+					}
+				}else{
+					Util.alert(context, android.R.drawable.ic_dialog_alert, 
+							R.string.login, R.string.incorrect_user);
+				}
+			}else{
+				Util.alert(context, android.R.drawable.ic_dialog_alert, 
+						R.string.login, R.string.enter_password);
+			}
+		}else{
+			Util.alert(context, android.R.drawable.ic_dialog_alert, 
+					R.string.login, R.string.enter_username);
+		}
 	}
-
 }
