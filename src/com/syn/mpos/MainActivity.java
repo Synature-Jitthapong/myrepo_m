@@ -114,12 +114,12 @@ public class MainActivity extends Activity {
 			@Override
 			public void onMinusClick(int position) {
 				order = orderLst.get(position);
-				qty = order.getProductAmount();
+				qty = order.getQty();
 				if(--qty > 0){
-					order.setProductAmount(qty);
+					order.setQty(qty);
 					mposTrans.updateOrderDetail(transactionId, compProp.getComputerID(), 
 							order.getOrderDetailId(), order.getVatType(), 
-							order.getProductAmount(), order.getProductPrice());
+							order.getQty(), order.getPricePerUnit());
 				}
 				
 				orderAdapter.notifyDataSetChanged();
@@ -128,11 +128,11 @@ public class MainActivity extends Activity {
 			@Override
 			public void onPlusClick(int position) {
 				order = orderLst.get(position);
-				qty = order.getProductAmount();
-				order.setProductAmount(++qty);
+				qty = order.getQty();
+				order.setQty(++qty);
 				mposTrans.updateOrderDetail(transactionId, compProp.getComputerID(), 
 						order.getOrderDetailId(), order.getVatType(), 
-						order.getProductAmount(), order.getProductPrice());
+						order.getQty(), order.getPricePerUnit());
 				
 				orderAdapter.notifyDataSetChanged();
 			}
@@ -435,7 +435,7 @@ public class MainActivity extends Activity {
 				public void onClick(View v) {
 					int orderDetailId = mposTrans.addOrderDetail(transactionId, 
 							compProp.getComputerID(), mi.getProductID(), mi.getProductTypeID(), 
-							mi.getVatType(), 0, mi.getMenuName_0(), 1, 
+							mi.getVatType(), mi.getMenuName_0(), 1, 
 							mi.getProductPricePerUnit());
 					
 					OrderTransaction.OrderDetail order = 
@@ -463,9 +463,9 @@ public class MainActivity extends Activity {
 	
 	private void updateTotalPrice(){
 		OrderTransaction.OrderDetail orderDetail
-			= mposTrans.getSummary(transactionId);
+			= mposTrans.getSummary(transactionId, compProp.getComputerID());
 		
-		float subTotal = orderDetail.getProductPrice();
+		float subTotal = orderDetail.getTotalRetailPrice();
 		float vatExclude = orderDetail.getVatExclude();
 		float vat = orderDetail.getVat();
 		float eachProductDiscount = orderDetail.getEachProductDiscount();
