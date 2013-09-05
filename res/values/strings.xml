@@ -96,5 +96,7 @@
     <string name="sync">Sync</string>
     <string name="sync_time">Sync time</string>
     <string name="login_sync">Alway sync data when login</string>
+    <string name="modify">modify</string>
+    <string name="delete">delete</string>
 
 </resources>

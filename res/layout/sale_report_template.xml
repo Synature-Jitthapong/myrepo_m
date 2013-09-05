@@ -7,69 +7,86 @@
         android:id="@+id/tvProCode"
         android:layout_width="140dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
-        android:paddingRight="4dp"
+        android:background="@color/smoke_white"
+        android:padding="4dp"
+        android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvProName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
         android:layout_weight="1"
-        android:paddingRight="4dp"
+        android:background="@color/smoke_white"
+        android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvUnitPrice"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
-        android:paddingRight="4dp"
+        android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvQty"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
-        android:paddingRight="4dp"
+        android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvSubTotal"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
-        android:paddingRight="4dp"
+        android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvDiscount"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
-        android:paddingRight="4dp"
+        android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvTotalPrice"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
-        android:paddingRight="4dp"
+        android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvVat"
         android:layout_width="40dp"
         android:layout_height="wrap_content"
-        android:paddingRight="4dp"
+        android:layout_marginBottom="1dp"
+        android:background="@color/smoke_white"
+        android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </TableRow>

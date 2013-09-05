@@ -26,6 +26,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,7 +42,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.RadioGroup.LayoutParams;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements POS {
 	private static final String TAG = "MPOSMainActivity";
 	private Shop shop;
 	private ShopData.ShopProperty shopProp;
@@ -63,7 +65,7 @@ public class MainActivity extends Activity {
 	private ListView orderListView;
 	private TextView tvSubTotal;
 	private TextView tvTotalPrice;
-	private TextView tvTransVat;
+	private TextView tvVatExclude;
 	private TextView tvDiscount;
 	
 	@Override
@@ -77,7 +79,7 @@ public class MainActivity extends Activity {
 		menuGridView = (GridView) findViewById(R.id.gridViewMenu);
 		tvTotalPrice = (TextView) findViewById(R.id.textViewTotalPrice);
 		tvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
-		tvTransVat = (TextView) findViewById(R.id.textViewTransVat);
+		tvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
 		tvDiscount = (TextView) findViewById(R.id.textViewDiscount);
 		tbRowVat = (TableRow) findViewById(R.id.tbRowVat);
 
@@ -92,7 +94,8 @@ public class MainActivity extends Activity {
 		createMenuDept();
 	}
 	
-	private void init(){
+	@Override
+	public void init(){
 		shop = new Shop(context);
 		format = new Formatter(context);
 		mposTrans = new MPOSTransaction(context);
@@ -141,12 +144,48 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onNotify() {
-				updateTotalPrice();
+				summary();
 			}
 			
 		});
 		
-		updateTotalPrice();
+		// set on order click
+		orderListView.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View v, final int position,
+					long id) {
+				final OrderTransaction.OrderDetail orderDetail = 
+						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
+				
+				PopupMenu popup = new PopupMenu(context, v);
+				popup.getMenuInflater().inflate(R.menu.order_function,
+						popup.getMenu());
+
+				popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+					@Override
+					public boolean onMenuItemClick(android.view.MenuItem item) {
+						switch(item.getItemId()){
+						case R.id.itemOrderModify:
+							
+							return true;
+						case R.id.itemOrderDelete:
+							if(mposTrans.deleteOrderDetail(transactionId, compProp.getComputerID(), 
+								orderDetail.getOrderDetailId())){
+								orderLst.remove(position);
+								orderAdapter.notifyDataSetChanged();
+							}
+							return true;
+						}
+						return false;
+					}
+				});
+
+				popup.show();
+			}
+		});
+		
+		summary();
 		orderListView.setAdapter(orderAdapter);
 		orderListView.setSelection(orderAdapter.getCount());
 	}
@@ -442,7 +481,7 @@ public class MainActivity extends Activity {
 							mposTrans.getOrder(transactionId, compProp.getComputerID(), orderDetailId);
 					orderLst.add(order);
 					
-					updateTotalPrice();
+					summary();
 					
 					orderAdapter.notifyDataSetChanged();
 					orderListView.smoothScrollToPosition(orderAdapter.getCount());
@@ -461,27 +500,29 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-	private void updateTotalPrice(){
+	@Override
+	public void summary(){
 		OrderTransaction.OrderDetail orderDetail
 			= mposTrans.getSummary(transactionId, compProp.getComputerID());
 		
 		float subTotal = orderDetail.getTotalRetailPrice();
-		float vatExclude = orderDetail.getVatExclude();
-		float vat = orderDetail.getVat();
-		float eachProductDiscount = orderDetail.getEachProductDiscount();
-		float memberDiscount = orderDetail.getMemberDiscount();
-		float totalDiscount = eachProductDiscount + memberDiscount;
-		float totalPrice = subTotal - totalDiscount;
+		float vat = orderDetail.getVat();	// vat exclude
+		float totalSalePrice = orderDetail.getTotalSalePrice() + vat;
+		float totalDiscount = orderDetail.getPriceDiscount() + orderDetail.getMemberDiscount();
 		
-		if(vatExclude > 0)
+		// update trans vat
+		mposTrans.updateTransactionVat(transactionId, compProp.getComputerID(), 
+				totalSalePrice, vat);
+		
+		if(vat > 0)
 			tbRowVat.setVisibility(View.VISIBLE);
 		else
 			tbRowVat.setVisibility(View.GONE);
 		
-		tvTransVat.setText(format.currencyFormat(vatExclude));
+		tvVatExclude.setText(format.currencyFormat(vat));
 		tvSubTotal.setText(format.currencyFormat(subTotal));
 		tvDiscount.setText(format.currencyFormat(totalDiscount));
-		tvTotalPrice.setText(format.currencyFormat(totalPrice));
+		tvTotalPrice.setText(format.currencyFormat(totalSalePrice));
 	}
 	
 	public void clearBillClicked(final View v){
@@ -506,5 +547,23 @@ public class MainActivity extends Activity {
 			}
 		})
 		.show();
+	}
+
+	@Override
+	public void addOrder() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteOrder() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateOrderQty() {
+		// TODO Auto-generated method stub
+		
 	}
 }

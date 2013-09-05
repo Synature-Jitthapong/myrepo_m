@@ -81,9 +81,9 @@ public class CreditPayActivity extends Activity {
 	
 	private void loadTotalPrice(){
 		OrderTransaction.OrderDetail order = 
-				mposTrans.getSummary(transactionId);
+				mposTrans.getSummary(transactionId, computerId);
 		
-		totalPrice = order.getProductPrice(); 
+		totalPrice = order.getTotalSalePrice(); 
 		
 		displayTotalPrice();
 	}

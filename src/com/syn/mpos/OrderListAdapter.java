@@ -67,8 +67,8 @@ public class OrderListAdapter extends BaseAdapter{
 		
 		holder.tvOrderNo.setText(Integer.toString(position + 1));
 		holder.tvOrderName.setText(orderDetail.getProductName());
-		holder.txtOrderAmount.setText(format.qtyFormat(orderDetail.getProductAmount()));
-		holder.tvOrderPrice.setText(format.currencyFormat(orderDetail.getProductPrice()));
+		holder.txtOrderAmount.setText(format.qtyFormat(orderDetail.getQty()));
+		holder.tvOrderPrice.setText(format.currencyFormat(orderDetail.getPricePerUnit()));
 		
 		holder.btnMinus.setOnClickListener(new OnClickListener(){
 

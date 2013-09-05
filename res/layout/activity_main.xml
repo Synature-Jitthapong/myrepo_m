@@ -25,10 +25,17 @@
             android:gravity="center_vertical"
             android:padding="4dp" >
 
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/logo" />
+
             <TextView
                 android:id="@+id/textViewTotalPrice"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:gravity="right"
                 android:text="0.00"
                 android:textAppearance="?android:attr/textAppearanceLarge"
@@ -143,7 +150,7 @@
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
-                    android:id="@+id/textViewTransVat"
+                    android:id="@+id/textViewVatExclude"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="right"
@@ -259,7 +266,7 @@
         <HorizontalScrollView
             android:id="@+id/horizontalScrollViewMenuDept"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginBottom="4dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="4dp"

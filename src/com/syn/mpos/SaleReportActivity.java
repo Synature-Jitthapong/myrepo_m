@@ -129,6 +129,7 @@ public class SaleReportActivity extends Activity {
 			TextView tvSubTotal = (TextView) tbRowDetail.findViewById(R.id.tvSubTotal);
 			TextView tvSc = (TextView) tbRowDetail.findViewById(R.id.tvSc);
 			TextView tvTotalSale = (TextView) tbRowDetail.findViewById(R.id.tvTotalSale);
+			TextView tvTotalVat = (TextView) tbRowDetail.findViewById(R.id.tvTotalVat);
 			TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVatable);
 			TextView tvCash = (TextView) tbRowDetail.findViewById(R.id.tvCash);
 			TextView tvTotalPay = (TextView) tbRowDetail.findViewById(R.id.tvTotalPay);
@@ -144,10 +145,11 @@ public class SaleReportActivity extends Activity {
 			tvSubTotal.setText(format.currencyFormat(reportDetail.getSubTotal()));
 			tvSc.setText(format.currencyFormat(reportDetail.getServiceCharge()));
 			tvTotalSale.setText(format.currencyFormat(reportDetail.getTotalSale()));
+			tvTotalVat.setText(format.currencyFormat(reportDetail.getTotalVat()));
 			tvVatable.setText(format.currencyFormat(reportDetail.getVatable()));
 			tvCash.setText(format.currencyFormat(reportDetail.getCash()));
 			tvTotalPay.setText(format.currencyFormat(reportDetail.getTotalPayment()));
-			tvDiff.setText(format.currencyFormat(reportDetail.getTotalPrice() - reportDetail.getSubTotal()));
+			tvDiff.setText("0.00");
 			
 			tbReport.addView(tbRowDetail);
 		}
@@ -162,13 +164,13 @@ public class SaleReportActivity extends Activity {
 
 		for(Report report : reportLst){
 			View tbRowHead = inflater.inflate(R.layout.sale_report_template, null);
-			tbRowHead.setBackgroundResource(android.R.color.holo_orange_dark);
+			//tbRowHead.setBackgroundResource(android.R.color.holo_orange_dark);
 			TextView tvGroup = (TextView) tbRowHead.findViewById(R.id.tvProName);
 			TextView tvProGroup = (TextView) tbRowHead.findViewById(R.id.tvProCode);
 			
 			tvProGroup.setText(R.string.product_group);
-			tvProGroup.setTextColor(Color.WHITE);
-			tvGroup.setTextColor(Color.WHITE);
+			//tvProGroup.setTextColor(Color.WHITE);
+			//tvGroup.setTextColor(Color.WHITE);
 			tvGroup.setText(report.getProductGroupName() + ":" + report.getProductDeptName());
 			
 			tbReport.addView(tbRowHead);
@@ -186,11 +188,12 @@ public class SaleReportActivity extends Activity {
 				
 				tvCode.setText(reportDetail.getProductCode());
 				tvName.setText(reportDetail.getProductName());
-				tvUnitPrice.setText(format.currencyFormat(reportDetail.getProductPrice()));
-				tvQty.setText(format.qtyFormat(reportDetail.getProductAmount()));
+				tvUnitPrice.setText(format.currencyFormat(reportDetail.getPricePerUnit()));
+				tvQty.setText(format.qtyFormat(reportDetail.getQty()));
 				tvSubTotal.setText(format.currencyFormat(reportDetail.getSubTotal()));
 				tvDiscount.setText(format.currencyFormat(reportDetail.getDiscount()));
 				tvTotalPrice.setText(format.currencyFormat(reportDetail.getTotalPrice()));
+				tvVatable.setText(reportDetail.getVat().equals("1") ? "V" : "");
 				
 				tbReport.addView(tbRowDetail);
 			}

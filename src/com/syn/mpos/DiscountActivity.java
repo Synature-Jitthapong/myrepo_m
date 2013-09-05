@@ -70,7 +70,7 @@ public class DiscountActivity extends Activity {
 			mposTrans = new MPOSTransaction(DiscountActivity.this);
 
 			loadOrder();
-			summaryPrice();
+			summary();
 		} else {
 			exit();
 		}
@@ -83,7 +83,7 @@ public class DiscountActivity extends Activity {
 		mposTrans.discountEatchProduct(orderDetailId, transactionId,
 				computerId, vatType, totalPrice, discount);
 
-		summaryPrice();
+		summary();
 		return totalPriceAfterDiscount;
 	}
 
@@ -113,16 +113,11 @@ public class DiscountActivity extends Activity {
 
 				tvDiscountNo.setText(Integer.toString(i + 1));
 				tvDiscountProName.setText(order.getProductName());
-				tvDiscountProAmount.setText(format.qtyFormat(order
-						.getProductAmount()));
-				tvProductPrice.setText(format.currencyFormat(order
-						.getProductPrice()));
-				tvDiscountProPrice.setText(format.currencyFormat(order
-						.getTotalPrice()));
-				tvDisSalePrice.setText(format.currencyFormat(order
-						.getSalePrice()));
-				txtDisPrice.setText(format.currencyFormat(order
-						.getEachProductDiscount()));
+				tvDiscountProAmount.setText(format.qtyFormat(order.getQty()));
+				tvProductPrice.setText(format.currencyFormat(order.getPricePerUnit()));
+				tvDiscountProPrice.setText(format.currencyFormat(order.getTotalRetailPrice()));
+				tvDisSalePrice.setText(format.currencyFormat(order.getTotalSalePrice()));
+				txtDisPrice.setText(format.currencyFormat(order.getPriceDiscount()));
 				txtDisPrice.setSelectAllOnFocus(true);
 
 				// select at first row
@@ -145,18 +140,17 @@ public class DiscountActivity extends Activity {
 									}
 
 									if (discount >= 0
-											&& order.getTotalPrice() >= discount) {
+											&& order.getTotalRetailPrice() >= discount) {
 										float salePrice = calculateDiscount(
 												order.getOrderDetailId(),
 												order.getVatType(),
-												order.getTotalPrice(),
+												order.getTotalRetailPrice(),
 												discount);
 
 										tvDisSalePrice.setText(format
 												.currencyFormat(salePrice));
 									} else {
-										txtDisPrice.setText(format.currencyFormat(order
-												.getEachProductDiscount()));
+										txtDisPrice.setText(format.currencyFormat(order.getPriceDiscount()));
 									}
 								}
 							}
@@ -179,18 +173,18 @@ public class DiscountActivity extends Activity {
 							}
 
 							if (discount >= 0
-									&& order.getTotalPrice() >= discount) {
+									&& order.getTotalRetailPrice() >= discount) {
 								float salePrice = calculateDiscount(
 										order.getOrderDetailId(),
 										order.getVatType(),
-										order.getTotalPrice(), 
+										order.getTotalRetailPrice(), 
 										discount);
 
 								tvDisSalePrice.setText(format
 										.currencyFormat(salePrice));
 							} else {
 								txtDisPrice.setText(format.currencyFormat(order
-										.getEachProductDiscount()));
+										.getPriceDiscount()));
 							}
 							return true;
 						}
@@ -205,22 +199,23 @@ public class DiscountActivity extends Activity {
 
 	}
 
-	private void summaryPrice() {
+	private void summary() {
 		OrderTransaction.OrderDetail orderDetail = mposTrans
-				.getSummaryTmp(transactionId);
+				.getSummaryTmp(transactionId, computerId);
 
-		float subTotal = orderDetail.getProductPrice();
-		float totalDiscount = orderDetail.getEachProductDiscount();
-		float totalPrice = subTotal - totalDiscount;
+		float subTotal = orderDetail.getTotalRetailPrice();
+		float vat = orderDetail.getVat();
+		float totalSalePrice = orderDetail.getTotalSalePrice() + vat;
+		float totalDiscount = orderDetail.getPriceDiscount() + orderDetail.getMemberDiscount();
 		
-		if(orderDetail.getVatExclude() > 0)
+		if(orderDetail.getVat() > 0)
 			tbRowVat.setVisibility(View.VISIBLE);
 		else
 			tbRowVat.setVisibility(View.GONE);
 		
 		tvSubTotal.setText(format.currencyFormat(subTotal));
 		tvTotalDiscount.setText(format.currencyFormat(totalDiscount));
-		tvTotalPrice.setText(format.currencyFormat(totalPrice));
+		tvTotalPrice.setText(format.currencyFormat(totalSalePrice));
 	}
 
 	private void exit() {

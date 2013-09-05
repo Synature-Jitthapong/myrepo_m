@@ -7,24 +7,33 @@
         android:id="@+id/tvDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
         android:layout_weight="1"
+        android:background="@color/smoke_white"
+        android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvTotalBill"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
+        android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvTotalPrice"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -32,8 +41,11 @@
         android:id="@+id/tvTotalDisc"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -41,8 +53,11 @@
         android:id="@+id/tvSubTotal"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -50,8 +65,11 @@
         android:id="@+id/tvSc"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -59,8 +77,11 @@
         android:id="@+id/tvTotalSale"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -68,8 +89,11 @@
         android:id="@+id/tvVatable"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -77,8 +101,11 @@
         android:id="@+id/tvTotalVat"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -86,8 +113,11 @@
         android:id="@+id/tvCash"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -95,8 +125,11 @@
         android:id="@+id/tvTotalPay"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -104,7 +137,10 @@
         android:id="@+id/tvDiff"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:background="@color/smoke_white"
         android:gravity="right"
+        android:padding="4dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 

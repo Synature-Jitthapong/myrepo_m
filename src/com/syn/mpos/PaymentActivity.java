@@ -34,7 +34,7 @@ public class PaymentActivity extends Activity {
 	private int staffId;
 	
 	private StringBuilder strTotalPay;
-	private float totalPrice;
+	private float totalSalePrice;
 	private float totalPay;
 	private float totalPaid;
 	private float changeAmount;
@@ -78,20 +78,16 @@ public class PaymentActivity extends Activity {
 		format = new Formatter(context);
 		
 		mposTrans = new MPOSTransaction(context);
-		loadTotalPrice();
+		summary();
 		loadPayDetail();
 	}
 	
-	private void loadTotalPrice(){
-		OrderTransaction.OrderDetail order = 
-				mposTrans.getSummary(transactionId);
+	private void summary(){
+		OrderTransaction.OrderDetail orderDetail = 
+				mposTrans.getSummary(transactionId, computerId);
 		
-		float subTotal = order.getProductPrice();
-		float eachProductDiscount = order.getEachProductDiscount();
-		float memberDiscount = order.getMemberDiscount();
-		float totalDiscount = eachProductDiscount + memberDiscount;
-		
-		totalPrice = subTotal - totalDiscount;
+		float vat = orderDetail.getVat();
+		totalSalePrice = orderDetail.getTotalSalePrice() + vat;
 		
 		displayTotalPrice();
 	}
@@ -99,7 +95,7 @@ public class PaymentActivity extends Activity {
 	private void loadPayDetail(){
 		List<Payment.PaymentDetail> payLst = mposTrans.listPayment(transactionId, computerId);
 		totalPaid = mposTrans.getTotalPaid(transactionId, computerId);
-		float tobePaid = totalPrice - totalPaid; 
+		float tobePaid = totalSalePrice - totalPaid; 
 		
 		LayoutInflater inflater = LayoutInflater.from(context);
 		tableLayoutPaydetail.removeAllViews();
@@ -150,7 +146,7 @@ public class PaymentActivity extends Activity {
 	}
 	
 	private void displayTotalPrice(){
-		tvTotalPayment.setText(format.currencyFormat(totalPrice));
+		tvTotalPayment.setText(format.currencyFormat(totalSalePrice));
 
 		strTotalPay = new StringBuilder();
 		displayTotalPaid();
@@ -183,12 +179,12 @@ public class PaymentActivity extends Activity {
 	}
 	
 	public void onOkClicked(final View v){
-		if(totalPaid >=totalPrice){
+		if(totalPaid >=totalSalePrice){
 			mposTrans.successTransaction(transactionId, computerId, staffId);
-			if(totalPaid - totalPrice > 0){
+			if(totalPaid - totalSalePrice > 0){
 				new AlertDialog.Builder(context)
 				.setTitle(R.string.change)
-				.setMessage(format.currencyFormat(totalPaid - totalPrice))
+				.setMessage(format.currencyFormat(totalPaid - totalSalePrice))
 				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 					
 					@Override

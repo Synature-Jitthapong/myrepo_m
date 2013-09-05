@@ -31,6 +31,8 @@ public class LoginActivity extends Activity {
 		
 		txtUser = (EditText) findViewById(R.id.editTextUserName);
 		txtPass = (EditText) findViewById(R.id.editTextPassWord);
+		txtUser.setSelectAllOnFocus(true);
+		txtPass.setSelectAllOnFocus(true);
 		
 	}
 
@@ -58,45 +60,54 @@ public class LoginActivity extends Activity {
 	}
 	
 	public void loginClicked(final View v){
+		if(syncSetting.isSyncWhenLogin()){
+			MPOSService.sync(connSetting, context, new IServiceStateListener(){
+	
+				@Override
+				public void onProgress() {
+					// TODO Auto-generated method stub
+					
+				}
+	
+				@Override
+				public void onSuccess() {		
+					checkLogin();
+				}
+	
+				@Override
+				public void onFail(String msg) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+			});
+		}else{
+			checkLogin();
+		}
+		
+	}
+	
+	private void gotoMainActivity(){
+		Intent intent = new Intent(context, MainActivity.class);
+		startActivity(intent);
+	}
+	
+	private void checkLogin(){
 		String user = "";
 		String pass = "";
-		
+	
 		if(!txtUser.getText().toString().isEmpty()){
 			user = txtUser.getText().toString();
 			
 			if(!txtPass.getText().toString().isEmpty()){
 				pass = txtPass.getText().toString();
-				
 				Login login = new Login(context, user, pass);
+				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();
+					
 					if(s != null){
-						final Intent intent = new Intent(context, MainActivity.class);
-						
-						if(syncSetting.isSyncWhenLogin()){
-							MPOSService.sync(connSetting, context, new IServiceStateListener(){
-					
-								@Override
-								public void onProgress() {
-									// TODO Auto-generated method stub
-									
-								}
-					
-								@Override
-								public void onSuccess() {
-									startActivity(intent);
-								}
-					
-								@Override
-								public void onFail(String msg) {
-									// TODO Auto-generated method stub
-									
-								}
-								
-							});
-						}else{
-							startActivity(intent);
-						}
+						gotoMainActivity();
 					}else{
 						Util.alert(context, android.R.drawable.ic_dialog_alert, 
 								R.string.login, R.string.incorrect_password);
