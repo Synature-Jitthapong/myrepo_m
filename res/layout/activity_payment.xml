@@ -189,7 +189,8 @@
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:inputType="number"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textColor="@android:color/black"
                         android:textStyle="bold" />
 
                 </TableRow>
@@ -218,7 +219,8 @@
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:inputType="number"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textColor="@android:color/black"
                         android:textStyle="bold" />
 
                 </TableRow>
@@ -266,7 +268,8 @@
                             android:focusable="false"
                             android:focusableInTouchMode="false"
                             android:inputType="number"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textAppearance="?android:attr/textAppearanceLarge"
+                            android:textColor="@android:color/black"
                             android:textStyle="bold" >
 
                             <requestFocus />
@@ -296,7 +299,8 @@
                             android:focusable="false"
                             android:focusableInTouchMode="false"
                             android:inputType="number"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textAppearance="?android:attr/textAppearanceLarge"
+                            android:textColor="@android:color/black"
                             android:textStyle="bold" />
 
                     </TableRow>

@@ -1,5 +1,7 @@
 package com.syn.mpos;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.syn.mpos.R;
@@ -12,6 +14,7 @@ import com.syn.mpos.model.OrderTransaction;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.view.Menu;
@@ -21,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -30,6 +34,8 @@ public class CreditPayActivity extends Activity {
 	private int computerId;
 	private float totalPrice;
 	private float totalPay;
+	private Calendar calendar;
+	private long date;
 	private Formatter format;
 	private MPOSTransaction mposTrans;
 	private List<BankName> bankLst;
@@ -41,8 +47,6 @@ public class CreditPayActivity extends Activity {
 	private EditText txtCardNo;
 	private Spinner spinnerBank;
 	private Spinner spinnerCardType;
-	private Spinner spinnerExpireMonth;
-	private Spinner spinnerExpireYear;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +59,6 @@ public class CreditPayActivity extends Activity {
 		txtCardNo = (EditText) findViewById(R.id.editTextCreditNo);
 		spinnerBank = (Spinner) findViewById(R.id.spinnerBank);
 		spinnerCardType = (Spinner) findViewById(R.id.spinnerCardType);
-		spinnerExpireMonth = (Spinner) findViewById(R.id.spinnerExpMonth);
-		spinnerExpireYear = (Spinner) findViewById(R.id.spinnerExpYear);
 		
 		Intent intent = getIntent();
 		transactionId = intent.getIntExtra("transactionId", 0);
@@ -70,6 +72,10 @@ public class CreditPayActivity extends Activity {
 	}
 
 	private void init(){
+		Calendar c = Calendar.getInstance();
+		calendar = new GregorianCalendar(c.get(Calendar.YEAR), 
+				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+		
 		format = new Formatter(context);
 		mposTrans = new MPOSTransaction(context);
 		strTotalPaid = new StringBuilder();
@@ -77,6 +83,18 @@ public class CreditPayActivity extends Activity {
 		loadTotalPrice();
 		loadCreditCardType();
 		loadBankName();
+	}
+	
+	public void cardExpClicked(final View v){
+		DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
+			
+			@Override
+			public void onSetDate(long date) {
+				calendar.setTimeInMillis(date);
+				date = calendar.getTimeInMillis();
+			}
+		});
+		dialogFragment.show(getFragmentManager(), "Condition");
 	}
 	
 	private void loadTotalPrice(){

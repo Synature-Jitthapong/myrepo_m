@@ -53,11 +53,11 @@
             android:name="com.syn.mpos.CreditPayActivity"
             android:label="@string/title_activity_credit_pay"
             android:screenOrientation="landscape"
-            android:theme="@style/CustomDialog" >
+            android:theme="@android:style/Theme.Holo.Light.Dialog.NoActionBar" >
         </activity>
         <activity
             android:name="com.syn.mpos.SaleReportActivity"
-            android:label="@string/title_activity_sale_report" >
+            android:label="@string/title_activity_sale_report" android:screenOrientation="landscape">
         </activity>
         <activity
             android:name="com.syn.mpos.SettingsActivity"

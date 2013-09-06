@@ -13,7 +13,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         android:src="@drawable/no_food" />
 
 </RelativeLayout>

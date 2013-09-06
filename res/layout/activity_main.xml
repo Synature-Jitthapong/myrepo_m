@@ -35,6 +35,7 @@
                 android:id="@+id/textViewTotalPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
                 android:layout_weight="1"
                 android:gravity="right"
                 android:text="0.00"
@@ -53,9 +54,11 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="4dp"
             android:background="@color/smoke_white"
+            android:gravity="center_vertical"
             android:padding="4dp"
             android:text="Bar Code"
             android:textAppearance="?android:attr/textAppearanceMediumInverse"
+            android:textColor="@color/dark_grey"
             android:textSize="24sp" />
 
         <TextView
@@ -66,7 +69,8 @@
             android:layout_marginRight="8dp"
             android:padding="4dp"
             android:text="Member"
-            android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+            android:textAppearance="?android:attr/textAppearanceSmallInverse"
+            android:textColor="@color/dark_grey" />
 
         <ListView
             android:id="@+id/listViewOrder"
@@ -88,7 +92,8 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="4dp"
-            android:background="@color/smoke_white" >
+            android:background="@color/smoke_white"
+            android:padding="4dp" >
 
             <TableRow
                 android:id="@+id/tableRow1"
@@ -271,8 +276,7 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="4dp"
             android:background="@color/smoke_white"
-            android:minHeight="48dp"
-            android:padding="4dp" >
+            android:minHeight="48dp" >
 
             <LinearLayout
                 android:id="@+id/MenuCatLayout"

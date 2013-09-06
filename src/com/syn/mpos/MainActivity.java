@@ -11,14 +11,17 @@ import com.syn.mpos.db.MenuItem;
 import com.syn.mpos.db.Shop;
 import com.syn.mpos.model.MenuGroups;
 import com.syn.mpos.model.OrderTransaction;
+import com.syn.mpos.model.Setting;
 import com.syn.mpos.model.ShopData;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -53,6 +56,8 @@ public class MainActivity extends Activity implements POS {
 	private OrderListAdapter orderAdapter;
 	private int transactionId;
 	private Context context;
+	private Setting setting;
+	private SharedPreferences sharedPref;
 	
 	private List<MenuGroups.MenuDept> menuDeptLst;
 	private List<MenuGroups.MenuItem> menuLst;
@@ -96,6 +101,11 @@ public class MainActivity extends Activity implements POS {
 	
 	@Override
 	public void init(){
+		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		setting = new Setting();
+		setting.setMenuImageUrl("http://" + sharedPref.getString("pref_ipaddress", "") + "/" + 
+				sharedPref.getString("pref_webservice", "") + "/Resources/Shop/MenuImage/");
+		
 		shop = new Shop(context);
 		format = new Formatter(context);
 		mposTrans = new MPOSTransaction(context);
@@ -201,11 +211,11 @@ public class MainActivity extends Activity implements POS {
 				Intent intent = new Intent(MainActivity.this, SaleReportActivity.class);
 				
 				switch(item.getItemId()){
-				case R.id.itemSaleByProduct:
+				case R.id.itemSaleReport:
 					intent.putExtra("mode", 1);
 					startActivity(intent);
 					return true;
-				case R.id.itemSaleReport:
+				case R.id.itemSaleByProduct:
 					intent.putExtra("mode", 2);
 					startActivity(intent);
 					return true;
@@ -385,16 +395,9 @@ public class MainActivity extends Activity implements POS {
 						LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
 						1f);
 
-				if(i == 0){
+				if(i == 0)
 					btnCat.callOnClick();
-					btnCat.setBackgroundResource(R.drawable.orange_button_left);
-					
-				}else if(i == menuDeptLst.size() - 1){
-					btnCat.setBackgroundResource(R.drawable.orange_button_right);
-				}else{
-					btnCat.setBackgroundResource(R.drawable.orange_button_center);
-				}
-				
+		
 				menuCatLayout.addView(v, layoutParam);
 				
 				i++;
@@ -408,8 +411,8 @@ public class MainActivity extends Activity implements POS {
 		private ImageLoader imgLoader;
 		public MenuAdapter(){
 			inflater = LayoutInflater.from(context);
-//			imgLoader = new ImageLoader(context, R.drawable.no_food, 
-//					globalVar.MENU_IMAGE_CACHE_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+			imgLoader = new ImageLoader(context, R.drawable.no_food, 
+					"mpos_img");
 			
 		}
 		
@@ -437,14 +440,12 @@ public class MainActivity extends Activity implements POS {
 				holder = new ViewHolder();
 				holder.imgMenu = (ImageView) convertView.findViewById(R.id.imageViewMenu);
 				holder.tvMenuName = (TextView) convertView.findViewById(R.id.textViewMenuName);
-				holder.tvMenuDeptName = (TextView) convertView.findViewById(R.id.textViewMenuDept);
-				holder.tvMenuDescript = (TextView) convertView.findViewById(R.id.textViewMenuDescript);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
 			
-			//imgLoader.displayImage(globalVar.getImageUrl() + mi.getImgUrl(), holder.imgMenu);
+			imgLoader.displayImage(setting.getMenuImageUrl() + mi.getMenuImageLink(), holder.imgMenu);
 			holder.tvMenuName.setText(mi.getMenuName_0());
 			
 			convertView.setOnLongClickListener(new OnLongClickListener(){
@@ -454,13 +455,12 @@ public class MainActivity extends Activity implements POS {
 					final LayoutInflater inflater = LayoutInflater.from(context);
 					View menuDetailView = inflater.inflate(R.layout.menu_detail_layout, null);
 					ImageView imvMenuDetail = (ImageView) menuDetailView.findViewById(R.id.imageViewMenuDetail);
-//					ImageLoader imgLoader2 = new ImageLoader(context, 
-//							R.drawable.no_food, globalVar.MENU_IMAGE_CACHE_DIR, ImageLoader.IMAGE_SIZE.LARGE);
-//					imgLoader2.displayImage(globalVar.getImageUrl() + mi.getImgUrl(), imvMenuDetail);
+					ImageLoader imgLoader2 = new ImageLoader(context, 
+							R.drawable.no_food, "mpos_img", ImageLoader.IMAGE_SIZE.LARGE);
+					imgLoader2.displayImage(setting.getMenuImageUrl() + mi.getMenuImageLink(), imvMenuDetail);
 					
-					final Dialog dialog = new Dialog(context);
+					final Dialog dialog = new Dialog(context, R.style.CustomDialog);
 					dialog.getWindow().setGravity(Gravity.LEFT); 
-					dialog.setContentView(menuDetailView);
 					dialog.setContentView(menuDetailView);
 					dialog.show();
 					return true;
@@ -495,8 +495,6 @@ public class MainActivity extends Activity implements POS {
 		private class ViewHolder{
 			ImageView imgMenu;
 			TextView tvMenuName;
-			TextView tvMenuDeptName;
-			TextView tvMenuDescript;
 		}
 	}
 	

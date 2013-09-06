@@ -41,7 +41,7 @@ public class DiscountActivity extends Activity {
 	private TableLayout tbLayoutDiscount;
 	private TextView tvSubTotal;
 	private TextView tvTotalDiscount;
-	private TextView tvTotalVat;
+	private TextView tvVat;
 	private TextView tvTotalPrice;
 	private TableRow tbRowVat;
 
@@ -60,6 +60,7 @@ public class DiscountActivity extends Activity {
 		tvTotalDiscount = (TextView) findViewById(R.id.textViewDisDiscount);
 		tvTotalPrice = (TextView) findViewById(R.id.textViewDisTotal);
 		tbRowVat = (TableRow) findViewById(R.id.tbRowVat);
+		tvVat = (TextView) findViewById(R.id.tvVat);
 
 		Intent intent = getIntent();
 		transactionId = intent.getIntExtra("transactionId", 0);
@@ -94,23 +95,15 @@ public class DiscountActivity extends Activity {
 			LayoutInflater inflater = LayoutInflater.from(context);
 			for (int i = 0; i < orderLst.size(); i++) {
 				View v = inflater.inflate(R.layout.discount_template, null);
-				TextView tvDiscountNo = (TextView) v
-						.findViewById(R.id.textViewDisNo);
-				TextView tvDiscountProName = (TextView) v
-						.findViewById(R.id.textViewDisProName);
-				TextView tvDiscountProAmount = (TextView) v
-						.findViewById(R.id.textViewDisProAmount);
-				TextView tvDiscountProPrice = (TextView) v
-						.findViewById(R.id.textViewDisProPrice);
-				final EditText txtDisPrice = (EditText) v
-						.findViewById(R.id.editTextDisPrice);
-				final TextView tvDisSalePrice = (TextView) v
-						.findViewById(R.id.textViewDisSalePrice);
-				final TextView tvProductPrice = (TextView) v
-						.findViewById(R.id.tvProductPrice);
+				TextView tvDiscountNo = (TextView) v.findViewById(R.id.textViewDisNo);
+				TextView tvDiscountProName = (TextView) v.findViewById(R.id.textViewDisProName);
+				TextView tvDiscountProAmount = (TextView) v.findViewById(R.id.textViewDisProAmount);
+				TextView tvDiscountProPrice = (TextView) v.findViewById(R.id.textViewDisProPrice);
+				final EditText txtDisPrice = (EditText) v.findViewById(R.id.editTextDisPrice);
+				final TextView tvDisSalePrice = (TextView) v.findViewById(R.id.textViewDisSalePrice);
+				final TextView tvProductPrice = (TextView) v.findViewById(R.id.tvProductPrice);
 
 				final OrderTransaction.OrderDetail order = orderLst.get(i);
-
 				tvDiscountNo.setText(Integer.toString(i + 1));
 				tvDiscountProName.setText(order.getProductName());
 				tvDiscountProAmount.setText(format.qtyFormat(order.getQty()));
@@ -119,10 +112,6 @@ public class DiscountActivity extends Activity {
 				tvDisSalePrice.setText(format.currencyFormat(order.getTotalSalePrice()));
 				txtDisPrice.setText(format.currencyFormat(order.getPriceDiscount()));
 				txtDisPrice.setSelectAllOnFocus(true);
-
-				// select at first row
-				if (i == 0)
-					txtDisPrice.setSelection(i);
 
 				// on focus change event
 				txtDisPrice
@@ -215,6 +204,7 @@ public class DiscountActivity extends Activity {
 		
 		tvSubTotal.setText(format.currencyFormat(subTotal));
 		tvTotalDiscount.setText(format.currencyFormat(totalDiscount));
+		tvVat.setText(format.currencyFormat(orderDetail.getVat()));
 		tvTotalPrice.setText(format.currencyFormat(totalSalePrice));
 	}
 

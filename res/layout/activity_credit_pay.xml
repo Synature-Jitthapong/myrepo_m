@@ -77,7 +77,8 @@
                     android:enabled="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@android:color/black"
                     android:textStyle="bold" />
 
             </TableRow>
@@ -104,7 +105,8 @@
                     android:enabled="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@android:color/black"
                     android:textStyle="bold" />
 
             </TableRow>
@@ -128,10 +130,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:enabled="false"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@android:color/black"
                     android:textStyle="bold" />
 
             </TableRow>
@@ -190,19 +190,13 @@
                     android:text="@string/expire_date"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
 
-                <Spinner
-                    android:id="@+id/spinnerExpMonth"
+                <Button
+                    android:id="@+id/btnPopCardExp"
+                    style="?android:attr/spinnerStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_span="1"
-                    android:layout_weight="1" />
-
-                <Spinner
-                    android:id="@+id/spinnerExpYear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_span="1"
-                    android:layout_weight="1" />
+                    android:onClick="cardExpClicked"
+                    android:text="@string/expire_date" />
 
             </TableRow>
         </TableLayout>

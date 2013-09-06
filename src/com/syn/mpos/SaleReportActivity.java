@@ -3,6 +3,7 @@ package com.syn.mpos;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 
 import com.syn.mpos.db.Reporting;
 import com.syn.mpos.model.Report;
@@ -32,6 +33,7 @@ public class SaleReportActivity extends Activity {
 	
 	private Button btnDateFrom;
 	private Button btnDateTo;
+	private TextView tvActTitle;
 	private TableLayout tbReport;
 	private TableRow trProductReportHeader;
 	private TableRow trBillReportHeader;
@@ -41,6 +43,7 @@ public class SaleReportActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sale_report);
 		
+		tvActTitle = (TextView) findViewById(R.id.tvSaleReportTitle);
 		tbReport = (TableLayout) findViewById(R.id.tbReport);
 		trProductReportHeader = (TableRow) findViewById(R.id.tableRowByProduct);
 		trBillReportHeader = (TableRow) findViewById(R.id.tableRowByBill);
@@ -51,11 +54,13 @@ public class SaleReportActivity extends Activity {
 		mode = intent.getIntExtra("mode", 1);
 		
 		if(mode == 1){
-			trBillReportHeader.setVisibility(View.GONE);
-			trProductReportHeader.setVisibility(View.VISIBLE);
-		}else if (mode == 2){
+			tvActTitle.setText(R.string.sale_report_by_product);
 			trBillReportHeader.setVisibility(View.VISIBLE);
 			trProductReportHeader.setVisibility(View.GONE);
+		}else if (mode == 2){
+			tvActTitle.setText(R.string.sale_report_by_bill);
+			trBillReportHeader.setVisibility(View.GONE);
+			trProductReportHeader.setVisibility(View.VISIBLE);
 		}
 		
 		context = SaleReportActivity.this;
@@ -109,9 +114,9 @@ public class SaleReportActivity extends Activity {
 
 	public void createReportClicked(final View v){
 		if(mode == 1)
-			createReportByProduct();
-		else if(mode == 2)
 			createReportByBill();
+		else if(mode == 2)
+			createReportByProduct();
 	}
 	
 	private void createReportByBill(){
@@ -122,8 +127,7 @@ public class SaleReportActivity extends Activity {
 		LayoutInflater inflater = LayoutInflater.from(context);
 		for(Report.ReportDetail reportDetail : reportData.reportDetail){
 			View tbRowDetail = inflater.inflate(R.layout.sale_report_by_bill_template, null);
-			TextView tvDate = (TextView) tbRowDetail.findViewById(R.id.tvDate);
-			TextView tvTotalBill = (TextView) tbRowDetail.findViewById(R.id.tvTotalBill);
+			TextView tvReceiptNo = (TextView) tbRowDetail.findViewById(R.id.tvReceipt);
 			TextView tvTotalPrice = (TextView) tbRowDetail.findViewById(R.id.tvTotalPrice);
 			TextView tvTotalDisc = (TextView) tbRowDetail.findViewById(R.id.tvTotalDisc);
 			TextView tvSubTotal = (TextView) tbRowDetail.findViewById(R.id.tvSubTotal);
@@ -131,15 +135,8 @@ public class SaleReportActivity extends Activity {
 			TextView tvTotalSale = (TextView) tbRowDetail.findViewById(R.id.tvTotalSale);
 			TextView tvTotalVat = (TextView) tbRowDetail.findViewById(R.id.tvTotalVat);
 			TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVatable);
-			TextView tvCash = (TextView) tbRowDetail.findViewById(R.id.tvCash);
-			TextView tvTotalPay = (TextView) tbRowDetail.findViewById(R.id.tvTotalPay);
-			TextView tvDiff = (TextView) tbRowDetail.findViewById(R.id.tvDiff);
-			
-			Calendar c = Calendar.getInstance();
-			c.setTimeInMillis(reportDetail.getSaleDate());
-			
-			tvDate.setText(format.dateFormat(c.getTime()));
-			tvTotalBill.setText(format.qtyFormat(reportDetail.getTotalBill()));
+
+			tvReceiptNo.setText(reportDetail.getReceiptNo());
 			tvTotalPrice.setText(format.currencyFormat(reportDetail.getTotalPrice()));
 			tvTotalDisc.setText(format.currencyFormat(reportDetail.getDiscount()));
 			tvSubTotal.setText(format.currencyFormat(reportDetail.getSubTotal()));
@@ -147,12 +144,41 @@ public class SaleReportActivity extends Activity {
 			tvTotalSale.setText(format.currencyFormat(reportDetail.getTotalSale()));
 			tvTotalVat.setText(format.currencyFormat(reportDetail.getTotalVat()));
 			tvVatable.setText(format.currencyFormat(reportDetail.getVatable()));
-			tvCash.setText(format.currencyFormat(reportDetail.getCash()));
-			tvTotalPay.setText(format.currencyFormat(reportDetail.getTotalPayment()));
-			tvDiff.setText("0.00");
 			
 			tbReport.addView(tbRowDetail);
 		}
+		
+		// summary
+		Report.ReportDetail summary = report.getSummaryByBill();
+		View tbRowSumm = inflater.inflate(R.layout.sale_report_by_bill_template, null);
+		TextView tvReceiptNo = (TextView) tbRowSumm.findViewById(R.id.tvReceipt);
+		TextView tvTotalPrice = (TextView) tbRowSumm.findViewById(R.id.tvTotalPrice);
+		TextView tvTotalDisc = (TextView) tbRowSumm.findViewById(R.id.tvTotalDisc);
+		TextView tvSubTotal = (TextView) tbRowSumm.findViewById(R.id.tvSubTotal);
+		TextView tvSc = (TextView) tbRowSumm.findViewById(R.id.tvSc);
+		TextView tvTotalSale = (TextView) tbRowSumm.findViewById(R.id.tvTotalSale);
+		TextView tvTotalVat = (TextView) tbRowSumm.findViewById(R.id.tvTotalVat);
+		TextView tvVatable = (TextView) tbRowSumm.findViewById(R.id.tvVatable);
+
+		tvReceiptNo.setBackgroundResource(R.color.high_light_blue);
+		tvTotalPrice.setBackgroundResource(R.color.high_light_blue);
+		tvTotalDisc.setBackgroundResource(R.color.high_light_blue);
+		tvSubTotal.setBackgroundResource(R.color.high_light_blue);
+		tvSc.setBackgroundResource(R.color.high_light_blue);
+		tvTotalSale.setBackgroundResource(R.color.high_light_blue);
+		tvTotalVat.setBackgroundResource(R.color.high_light_blue);
+		tvVatable.setBackgroundResource(R.color.high_light_blue);
+		
+		tvReceiptNo.setText(R.string.summary);
+		tvTotalPrice.setText(format.currencyFormat(summary.getTotalPrice()));
+		tvTotalDisc.setText(format.currencyFormat(summary.getDiscount()));
+		tvSubTotal.setText(format.currencyFormat(summary.getSubTotal()));
+		tvSc.setText(format.currencyFormat(summary.getServiceCharge()));
+		tvTotalSale.setText(format.currencyFormat(summary.getTotalSale()));
+		tvTotalVat.setText(format.currencyFormat(summary.getTotalVat()));
+		tvVatable.setText(format.currencyFormat(summary.getVatable()));
+		
+		tbReport.addView(tbRowSumm);
 	}
 	
 	private void createReportByProduct(){
@@ -162,20 +188,32 @@ public class SaleReportActivity extends Activity {
 		tbReport.removeAllViews();
 		LayoutInflater inflater = LayoutInflater.from(context);
 
-		for(Report report : reportLst){
+		for(Report reportData : reportLst){
 			View tbRowHead = inflater.inflate(R.layout.sale_report_template, null);
-			//tbRowHead.setBackgroundResource(android.R.color.holo_orange_dark);
-			TextView tvGroup = (TextView) tbRowHead.findViewById(R.id.tvProName);
-			TextView tvProGroup = (TextView) tbRowHead.findViewById(R.id.tvProCode);
+			TextView tvGroupCode = (TextView) tbRowHead.findViewById(R.id.tvProCode);
+			TextView tvGroupName = (TextView) tbRowHead.findViewById(R.id.tvProName);
+			TextView tvGroupUnitPrice = (TextView) tbRowHead.findViewById(R.id.tvUnitPrice);
+			TextView tvGroupQty = (TextView) tbRowHead.findViewById(R.id.tvQty);
+			TextView tvGroupSubTotal = (TextView) tbRowHead.findViewById(R.id.tvSubTotal);
+			TextView tvGroupDiscount = (TextView) tbRowHead.findViewById(R.id.tvDiscount);
+			TextView tvGroupTotalPrice = (TextView) tbRowHead.findViewById(R.id.tvTotalPrice);
+			TextView tvGroupVatable = (TextView) tbRowHead.findViewById(R.id.tvVat);
 			
-			tvProGroup.setText(R.string.product_group);
-			//tvProGroup.setTextColor(Color.WHITE);
-			//tvGroup.setTextColor(Color.WHITE);
-			tvGroup.setText(report.getProductGroupName() + ":" + report.getProductDeptName());
+			tvGroupCode.setBackgroundResource(R.color.light_blue);
+			tvGroupName.setBackgroundResource(R.color.light_blue);
+			tvGroupQty.setBackgroundResource(R.color.light_blue);
+			tvGroupUnitPrice.setBackgroundResource(R.color.light_blue);
+			tvGroupSubTotal.setBackgroundResource(R.color.light_blue);
+			tvGroupDiscount.setBackgroundResource(R.color.light_blue);
+			tvGroupTotalPrice.setBackgroundResource(R.color.light_blue);
+			tvGroupVatable.setBackgroundResource(R.color.light_blue);
+			
+			tvGroupCode.setText(R.string.product_group);
+			tvGroupName.setText(reportData.getProductGroupName() + ":" + reportData.getProductDeptName());
 			
 			tbReport.addView(tbRowHead);
 	
-			for(Report.ReportDetail reportDetail : report.reportDetail){
+			for(Report.ReportDetail reportDetail : reportData.reportDetail){
 				View tbRowDetail = inflater.inflate(R.layout.sale_report_template, null); 
 				TextView tvCode = (TextView) tbRowDetail.findViewById(R.id.tvProCode);
 				TextView tvName = (TextView) tbRowDetail.findViewById(R.id.tvProName);
@@ -196,7 +234,45 @@ public class SaleReportActivity extends Activity {
 				tvVatable.setText(reportDetail.getVat().equals("1") ? "V" : "");
 				
 				tbReport.addView(tbRowDetail);
+				tbReport.setOnClickListener(new OnClickListener(){
+
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						
+					}
+				});
 			}
+			
+			// summary dept
+			Report.ReportDetail deptSumm = report.getSummaryByDept(reportData.getProductDeptId());
+			View tbRowDetail = inflater.inflate(R.layout.sale_report_template, null); 
+			TextView tvCode = (TextView) tbRowDetail.findViewById(R.id.tvProCode);
+			TextView tvName = (TextView) tbRowDetail.findViewById(R.id.tvProName);
+			TextView tvQty = (TextView) tbRowDetail.findViewById(R.id.tvQty);
+			TextView tvUnitPrice = (TextView) tbRowDetail.findViewById(R.id.tvUnitPrice);
+			TextView tvSubTotal = (TextView) tbRowDetail.findViewById(R.id.tvSubTotal);
+			TextView tvDiscount = (TextView) tbRowDetail.findViewById(R.id.tvDiscount);
+			TextView tvTotalPrice = (TextView) tbRowDetail.findViewById(R.id.tvTotalPrice);
+			TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVat);
+			
+			tvCode.setBackgroundResource(R.color.high_light_blue);
+			tvName.setBackgroundResource(R.color.high_light_blue);
+			tvQty.setBackgroundResource(R.color.high_light_blue);
+			tvUnitPrice.setBackgroundResource(R.color.high_light_blue);
+			tvSubTotal.setBackgroundResource(R.color.high_light_blue);
+			tvDiscount.setBackgroundResource(R.color.high_light_blue);
+			tvTotalPrice.setBackgroundResource(R.color.high_light_blue);
+			tvVatable.setBackgroundResource(R.color.high_light_blue);
+			
+			tvCode.setText(R.string.summary);
+			tvName.setText(reportData.getProductDeptName());
+			tvQty.setText(format.qtyFormat(deptSumm.getQty()));
+			tvSubTotal.setText(format.currencyFormat(deptSumm.getSubTotal()));
+			tvDiscount.setText(format.currencyFormat(deptSumm.getDiscount()));
+			tvTotalPrice.setText(format.currencyFormat(deptSumm.getTotalPrice()));
+			
+			tbReport.addView(tbRowDetail);
 		}
 	}
 }

@@ -17,8 +17,7 @@ import android.widget.EditText;
 public class LoginActivity extends Activity {
 	private Context context;
 	private SharedPreferences sharedPref;
-	private Setting.Sync syncSetting;
-	private Setting.ConnectionSetting connSetting;
+	private Setting setting;
 	
 	private EditText txtUser;
 	private EditText txtPass;
@@ -34,17 +33,19 @@ public class LoginActivity extends Activity {
 		txtUser.setSelectAllOnFocus(true);
 		txtPass.setSelectAllOnFocus(true);
 		
+		txtUser.setText("admin");
+		txtPass.setText("admin");
+		
 	}
 
 	private void init(){
 		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		connSetting = new Setting.ConnectionSetting();
-		syncSetting = new Setting.Sync();
+		setting = new Setting();
 		
-		connSetting.setIpAddress(sharedPref.getString("pref_ipaddress", ""));
-		connSetting.setServiceName(sharedPref.getString("pref_webservice", ""));
-		connSetting.setFullUrl("http://" + connSetting.getIpAddress() + "/" + connSetting.getServiceName() + "/ws_mpos.asmx");
-		syncSetting.setSyncWhenLogin(sharedPref.getBoolean("pref_syncwhenlogin", false));
+		setting.conn.setIpAddress(sharedPref.getString("pref_ipaddress", ""));
+		setting.conn.setServiceName(sharedPref.getString("pref_webservice", ""));
+		setting.conn.setFullUrl("http://" + setting.conn.getIpAddress() + "/" + setting.conn.getServiceName() + "/ws_mpos.asmx");
+		setting.sync.setSyncWhenLogin(sharedPref.getBoolean("pref_syncwhenlogin", false));
 	}
 	
 	@Override
@@ -60,8 +61,8 @@ public class LoginActivity extends Activity {
 	}
 	
 	public void loginClicked(final View v){
-		if(syncSetting.isSyncWhenLogin()){
-			MPOSService.sync(connSetting, context, new IServiceStateListener(){
+		if(setting.sync.isSyncWhenLogin()){
+			MPOSService.sync(setting.conn, context, new IServiceStateListener(){
 	
 				@Override
 				public void onProgress() {

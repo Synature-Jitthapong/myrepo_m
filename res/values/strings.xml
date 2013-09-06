@@ -54,6 +54,7 @@
     <string name="count_stock">Count stock</string>
     <string name="stock_card">Stock card</string>
     <string name="sale_report">Sale report</string>
+    <string name="sale_report_by_bill">Sale report by bill</string>
     <string name="sale_report_by_product">Sale report by product</string>
     <string name="remark">Remark</string>
     <string name="load_product">Load product</string>
@@ -70,7 +71,6 @@
     <string name="to">To</string>
     <string name="condition">Condition</string>
     <string name="product_group">Product Group &gt;&gt;</string>
-    <string name="date">Date</string>
     <string name="total_bill">#Bill</string>
     <string name="service_charge_short">SC</string>
     <string name="discount_short">Disc</string>
@@ -98,5 +98,7 @@
     <string name="login_sync">Alway sync data when login</string>
     <string name="modify">modify</string>
     <string name="delete">delete</string>
+    <string name="summary">Summary</string>
+    <string name="receipt_no">Receipt No.</string>
 
 </resources>
