@@ -3,10 +3,17 @@ package com.syn.mpos;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.epson.eposprint.BatteryStatusChangeEventListener;
+import com.epson.eposprint.Builder;
+import com.epson.eposprint.EposException;
+import com.epson.eposprint.Print;
+import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.R;
 import com.syn.mpos.db.MPOSTransaction;
+import com.syn.mpos.db.Shop;
 import com.syn.mpos.model.OrderTransaction;
 import com.syn.mpos.model.Payment;
+import com.syn.mpos.model.ShopData.ShopProperty;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -24,7 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-public class PaymentActivity extends Activity {
+public class PaymentActivity extends Activity  implements StatusChangeEventListener, BatteryStatusChangeEventListener {
 	private final String TAG = "PaymentActivity";
 	private Context context;
 	private MPOSTransaction mposTrans;
@@ -181,6 +188,9 @@ public class PaymentActivity extends Activity {
 	public void onOkClicked(final View v){
 		if(totalPaid >=totalSalePrice){
 			mposTrans.successTransaction(transactionId, computerId, staffId);
+			
+			print();
+			
 			if(totalPaid - totalSalePrice > 0){
 				new AlertDialog.Builder(context)
 				.setTitle(R.string.change)
@@ -304,5 +314,125 @@ public class PaymentActivity extends Activity {
 			break;
 		}
 		displayTotalPaid();
+	}
+
+	private String createSpace(int minLength, int maxLength){
+		StringBuilder space = new StringBuilder();
+		for(int sp = minLength; sp < maxLength; sp++){
+			space.append(" ");
+		}
+		return space.toString();
+	}
+	
+	private void print(){
+		Print printer = new Print(context);
+		printer.setStatusChangeEventCallback(this);
+		printer.setBatteryStatusChangeEventCallback(this);
+		
+		try {
+			printer.openPrinter(Print.DEVTYPE_TCP, "1.1.0.163", 0, 1000);
+			
+			Builder builder = new Builder("TM-T88V", Builder.MODEL_ANK, context);
+			builder.addTextLang(Builder.LANG_TH);
+			builder.addTextFont(Builder.FONT_B);
+			builder.addTextAlign(Builder.ALIGN_LEFT);
+			builder.addTextLineSpace(30);
+			builder.addTextSize(1, 1);
+			builder.addTextStyle(Builder.FALSE, Builder.FALSE, Builder.FALSE, Builder.COLOR_1);
+			builder.addTextPosition(100);
+			
+			// add text
+			OrderTransaction trans = mposTrans.getTransaction(transactionId, computerId);
+			OrderTransaction.OrderDetail summary = 
+					mposTrans.getSummary(transactionId, computerId);
+	    	List<OrderTransaction.OrderDetail> orderLst = 
+	    			mposTrans.listAllOrders(transactionId, computerId);
+	    	
+	    	Shop s = new Shop(context);
+	    	ShopProperty shopProp = s.getShopProperty();
+
+			builder.addTextAlign(Builder.ALIGN_CENTER);
+			builder.addText("ใบเสร็จรับเงิน/ใบกำกับภาษีอย่างย่อ\n");
+//			builder.addText("\t" + shopProp.getCompanyName() + "\t\n");
+			builder.addText("\t" + shopProp.getShopName() + "\t\n");
+//			builder.addText("\t" + shopProp.getCompanyAddress1() + "\n");
+//			builder.addText("\t" + shopProp.getCompanyAddress2() + "\n");
+//			builder.addText("\t" + shopProp.getCompanyTaxID() + "\n");
+			builder.addTextPosition(0);
+			builder.addText("______________________________________________________\n");
+
+	    	for(int i = 0; i < orderLst.size(); i++){
+	    		OrderTransaction.OrderDetail order = 
+	    				orderLst.get(i);
+
+	    		builder.addText(Integer.toString(i + 1) + " ");
+	    		builder.addText(order.getProductName());
+	    		
+	    		int len = order.getProductName().length();
+	    		builder.addText(createSpace(len, 30));
+	    		builder.addText(format.qtyFormat(order.getQty()));
+	    		builder.addText("          ");
+	    		builder.addText(format.currencyFormat(order.getTotalSalePrice()));
+	    		builder.addText("\n");
+	    	}
+	    	
+	    	builder.addText("______________________________________________________\n");
+	    	String total = "Total";
+	    	String net = "Net";
+	    	String discount = "Discount";
+	    	String vatable = "Vatable";
+	    	String vat = "Vat";
+	    	
+	    	builder.addText(total + createSpace(total.length(), 44));
+	    	builder.addText(format.currencyFormat(summary.getTotalRetailPrice()) + "\n");
+	    	builder.addText(discount + createSpace(discount.length(), 44));
+	    	builder.addText(format.currencyFormat(summary.getPriceDiscount()) + "\n");
+	    	builder.addText(net + createSpace(net.length(), 44));
+	    	builder.addText(format.currencyFormat(summary.getTotalSalePrice()) + "\n");
+	    	
+	    	builder.addText("______________________________________________________\n");
+	    	builder.addText(vatable + createSpace(vatable.length(), 44));
+	    	builder.addText(format.currencyFormat(trans.getTransactionVatable()) + "\n");
+	    	builder.addText(vat + createSpace(vat.length(), 44));
+	    	builder.addText(shopProp.getCompanyVat() + "\n");
+			builder.addFeedUnit(30);
+			builder.addCut(Builder.CUT_FEED);
+
+			// send builder data
+			int[] status = new int[1];
+			int[] battery = new int[1];
+			try {
+				printer.sendData(builder, 10000, status, battery);
+			} catch (EposException e) {
+//				Util.alert(context, android.R.drawable.ic_dialog_alert,
+//						R.string.title_activity_payment, e.getErrorStatus());
+			}
+
+			if (builder != null) {
+				builder.clearCommandBuffer();
+			}
+		} catch (EposException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			
+		try {
+			printer.closePrinter();
+			printer = null;
+		} catch (EposException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	@Override
+	public void onBatteryStatusChangeEvent(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChangeEvent(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 }

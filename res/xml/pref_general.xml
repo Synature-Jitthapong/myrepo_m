@@ -10,7 +10,7 @@
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
     <PreferenceCategory android:key="pref_connection" android:title="@string/connection" android:summary="@string/connection_summary"><EditTextPreference android:title="@string/ip_address" android:summary="@string/ip_address_summary" android:key="pref_ipaddress"/><EditTextPreference android:title="@string/web_service" android:summary="@string/web_service_summary" android:key="pref_webservice"/></PreferenceCategory>
     <PreferenceCategory android:key="pref_sync" android:title="@string/sync">
-        <CheckBoxPreference android:key="pref_syncwhenlogin" android:title="@string/login_sync" android:defaultValue="false" android:summaryOn="sync" android:summaryOff="not sync"/><ListPreference android:key="pref_listsync" android:title="@string/sync" android:dialogTitle="@string/sync_time" android:entryValues="@array/syn_list_val" android:entries="@array/sync_list"/>
+        <CheckBoxPreference android:key="pref_syncwhenlogin" android:title="@string/login_sync" android:defaultValue="false" android:summaryOn="sync" android:summaryOff="not sync"/><ListPreference android:key="pref_listsync" android:title="@string/sync" android:dialogTitle="@string/sync_time" android:entryValues="@array/syn_list_val" android:entries="@array/sync_list" android:enabled="false"/>
         
     </PreferenceCategory>
     

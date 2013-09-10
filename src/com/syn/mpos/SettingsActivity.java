@@ -56,6 +56,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 		// Add 'general' preferences.
 		addPreferencesFromResource(R.xml.pref_general);
+		addPreferencesFromResource(R.xml.pref_printer);
 
 		// Bind the summaries of EditText/List/Dialog/Ringtone preferences to
 		// their values. When their values change, their summaries are updated
@@ -63,6 +64,8 @@ public class SettingsActivity extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference("pref_ipaddress"));
 		bindPreferenceSummaryToValue(findPreference("pref_webservice"));
 		bindPreferenceSummaryToValue(findPreference("pref_listsync"));
+		bindPreferenceSummaryToValue(findPreference("pref_printer_ip"));
+		bindPreferenceSummaryToValue(findPreference("pref_printer_name"));
 	}
 
 	/** {@inheritDoc} */
@@ -163,10 +166,13 @@ public class SettingsActivity extends PreferenceActivity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_general);
+			addPreferencesFromResource(R.xml.pref_printer);
 
 			bindPreferenceSummaryToValue(findPreference("pref_ipaddress"));
 			bindPreferenceSummaryToValue(findPreference("pref_webservice"));
 			bindPreferenceSummaryToValue(findPreference("pref_listsync"));
+			bindPreferenceSummaryToValue(findPreference("pref_printer_ip"));
+			bindPreferenceSummaryToValue(findPreference("pref_printer_name"));
 		}
 	}
 }

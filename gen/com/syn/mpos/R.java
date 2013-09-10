@@ -337,6 +337,10 @@ public final class R {
         public static final int payment=0x7f090030;
         public static final int pref_header_connection=0x7f090054;
         public static final int price=0x7f090017;
+        public static final int print_text=0x7f090066;
+        public static final int printer_ip=0x7f090063;
+        public static final int printer_name=0x7f090064;
+        public static final int printer_setting=0x7f090065;
         public static final int product_group=0x7f090045;
         public static final int product_name=0x7f090041;
         public static final int qty=0x7f090027;
@@ -401,5 +405,6 @@ public final class R {
     public static final class xml {
         public static final int pref_general=0x7f050000;
         public static final int pref_headers=0x7f050001;
+        public static final int pref_printer=0x7f050002;
     }
 }
