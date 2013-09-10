@@ -54,11 +54,11 @@ public class SaleReportActivity extends Activity {
 		mode = intent.getIntExtra("mode", 1);
 		
 		if(mode == 1){
-			tvActTitle.setText(R.string.sale_report_by_product);
+			tvActTitle.setText(R.string.sale_report_by_bill);
 			trBillReportHeader.setVisibility(View.VISIBLE);
 			trProductReportHeader.setVisibility(View.GONE);
 		}else if (mode == 2){
-			tvActTitle.setText(R.string.sale_report_by_bill);
+			tvActTitle.setText(R.string.sale_report_by_product);
 			trBillReportHeader.setVisibility(View.GONE);
 			trProductReportHeader.setVisibility(View.VISIBLE);
 		}

@@ -39,6 +39,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	private int transactionId;
 	private int computerId;
 	private int staffId;
+	private Print printer;
 	
 	private StringBuilder strTotalPay;
 	private float totalSalePrice;
@@ -78,6 +79,18 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	protected void onResume() {
 		init();
 		super.onResume();
+	}
+
+	@Override
+	protected void onDestroy() {
+		try {
+			printer.closePrinter();
+			printer = null;
+		} catch (EposException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		super.onDestroy();
 	}
 
 	private void init(){
@@ -325,13 +338,12 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 	
 	private void print(){
-		Print printer = new Print(context);
+		printer = new Print(context);
 		printer.setStatusChangeEventCallback(this);
 		printer.setBatteryStatusChangeEventCallback(this);
 		
 		try {
-			printer.openPrinter(Print.DEVTYPE_TCP, "1.1.0.163", 0, 1000);
-			
+			printer.openPrinter(Print.DEVTYPE_TCP, "1.1.0.163", 0, 1000);	
 			Builder builder = new Builder("TM-T88V", Builder.MODEL_ANK, context);
 			builder.addTextLang(Builder.LANG_TH);
 			builder.addTextFont(Builder.FONT_B);
@@ -353,11 +365,11 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 
 			builder.addTextAlign(Builder.ALIGN_CENTER);
 			builder.addText("ใบเสร็จรับเงิน/ใบกำกับภาษีอย่างย่อ\n");
-//			builder.addText("\t" + shopProp.getCompanyName() + "\t\n");
+			builder.addText("\t" + shopProp.getCompanyName() + "\t\n");
 			builder.addText("\t" + shopProp.getShopName() + "\t\n");
-//			builder.addText("\t" + shopProp.getCompanyAddress1() + "\n");
-//			builder.addText("\t" + shopProp.getCompanyAddress2() + "\n");
-//			builder.addText("\t" + shopProp.getCompanyTaxID() + "\n");
+			builder.addText("\t" + shopProp.getCompanyAddress1() + "\n");
+			builder.addText("\t" + shopProp.getCompanyAddress2() + "\n");
+			builder.addText("\t" + shopProp.getCompanyTaxID() + "\n");
 			builder.addTextPosition(0);
 			builder.addText("______________________________________________________\n");
 
@@ -365,7 +377,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	    		OrderTransaction.OrderDetail order = 
 	    				orderLst.get(i);
 
-	    		builder.addText(Integer.toString(i + 1) + " ");
+	    		builder.addText(Integer.toString(i + 1) + createSpace(1, 3));
 	    		builder.addText(order.getProductName());
 	    		
 	    		int len = order.getProductName().length();
@@ -383,17 +395,17 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	    	String vatable = "Vatable";
 	    	String vat = "Vat";
 	    	
-	    	builder.addText(total + createSpace(total.length(), 44));
+	    	builder.addText(total + createSpace(total.length(), 43));
 	    	builder.addText(format.currencyFormat(summary.getTotalRetailPrice()) + "\n");
-	    	builder.addText(discount + createSpace(discount.length(), 44));
+	    	builder.addText(discount + createSpace(discount.length(), 43));
 	    	builder.addText(format.currencyFormat(summary.getPriceDiscount()) + "\n");
-	    	builder.addText(net + createSpace(net.length(), 44));
+	    	builder.addText(net + createSpace(net.length(), 43));
 	    	builder.addText(format.currencyFormat(summary.getTotalSalePrice()) + "\n");
 	    	
 	    	builder.addText("______________________________________________________\n");
-	    	builder.addText(vatable + createSpace(vatable.length(), 44));
+	    	builder.addText(vatable + createSpace(vatable.length(), 43));
 	    	builder.addText(format.currencyFormat(trans.getTransactionVatable()) + "\n");
-	    	builder.addText(vat + createSpace(vat.length(), 44));
+	    	builder.addText(vat + createSpace(vat.length(), 43));
 	    	builder.addText(shopProp.getCompanyVat() + "\n");
 			builder.addFeedUnit(30);
 			builder.addCut(Builder.CUT_FEED);
@@ -411,14 +423,6 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			if (builder != null) {
 				builder.clearCommandBuffer();
 			}
-		} catch (EposException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-			
-		try {
-			printer.closePrinter();
-			printer = null;
 		} catch (EposException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
