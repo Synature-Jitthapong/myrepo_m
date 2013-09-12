@@ -56,47 +56,47 @@ public class MPOSService {
 					@Override
 					public void onSuccess() {
 						//progress.setProgress(100);
-						progress.dismiss();
-						listener.onSuccess();
-//						new LoadProductTask(c, new IServiceStateListener(){
-//
-//							@Override
-//							public void onProgress() {
-//								tvProgress.setText(com.syn.mpos.R.string.load_product);
-//								progress.setMessage(tvProgress.getText());
-//							}
-//
-//							@Override
-//							public void onSuccess() {
-//								progress.setProgress(75);
-//								new LoadMenuTask(c, new IServiceStateListener(){
-//
-//									@Override
-//									public void onProgress() {
-//										tvProgress.setText(com.syn.mpos.R.string.load_menu);
-//										progress.setMessage(tvProgress.getText());
-//									}
-//
-//									@Override
-//									public void onSuccess() {
-//										progress.setProgress(100);
-//										progress.dismiss();
-//										listener.onSuccess();
-//									}
-//
-//									@Override
-//									public void onFail(String msg) {
-//										progress.dismiss();
-//									}
-//									
-//								}).execute(url);
-//							}
-//
-//							@Override
-//							public void onFail(String msg) {
-//								progress.dismiss();
-//							}
-//						}).execute(url);
+//						progress.dismiss();
+//						listener.onSuccess();
+						new LoadProductTask(c, new IServiceStateListener(){
+
+							@Override
+							public void onProgress() {
+								tvProgress.setText(com.syn.mpos.R.string.load_product);
+								progress.setMessage(tvProgress.getText());
+							}
+
+							@Override
+							public void onSuccess() {
+								progress.setProgress(75);
+								new LoadMenuTask(c, new IServiceStateListener(){
+
+									@Override
+									public void onProgress() {
+										tvProgress.setText(com.syn.mpos.R.string.load_menu);
+										progress.setMessage(tvProgress.getText());
+									}
+
+									@Override
+									public void onSuccess() {
+										progress.setProgress(100);
+										progress.dismiss();
+										listener.onSuccess();
+									}
+
+									@Override
+									public void onFail(String msg) {
+										progress.dismiss();
+									}
+									
+								}).execute(url);
+							}
+
+							@Override
+							public void onFail(String msg) {
+								progress.dismiss();
+							}
+						}).execute(url);
 					}
 
 					@Override

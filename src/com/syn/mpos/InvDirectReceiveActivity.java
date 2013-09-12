@@ -5,10 +5,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 
 public class InvDirectReceiveActivity extends Activity {
 	
@@ -35,15 +34,33 @@ public class InvDirectReceiveActivity extends Activity {
 				
 			}
 		});
+		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
 		AlertDialog dialog = builder.create();
-		dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
-			
+		dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new OnClickListener(){
+
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				
 			}
+			
+		});
+		dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				
+			}
+			
 		});
 		dialog.show();
 	}
