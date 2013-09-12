@@ -7,10 +7,14 @@ import java.util.List;
 import com.syn.mpos.R;
 import com.syn.mpos.db.Bank;
 import com.syn.mpos.db.CreditCard;
+import com.syn.mpos.db.MPOSOrder;
+import com.syn.mpos.db.MPOSPayment;
 import com.syn.mpos.db.MPOSTransaction;
 import com.syn.mpos.model.BankName;
 import com.syn.mpos.model.CreditCardType;
 import com.syn.mpos.model.OrderTransaction;
+import com.syn.pos.Order;
+import com.syn.pos.Payment;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -28,57 +32,59 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-public class CreditPayActivity extends Activity {
-	private Context context;
-	private int transactionId;
-	private int computerId;
-	private float totalPrice;
-	private float totalPay;
-	private Calendar calendar;
-	private long date;
-	private Formatter format;
-	private MPOSTransaction mposTrans;
-	private List<BankName> bankLst;
-	private List<CreditCardType> creditCardLst;
+public class CreditPayActivity extends Activity{
+	private Context mContext; 
+	private int mTransactionId;
+	private int mComputerId;
+	private int mBankId;
+	private int mCardTypeId;
+	private float mTotalPrice;
+	private float mTotalPay;
+	private Calendar mCalendar;
+	private Formatter mFormat;
+	private Order mOrder;
+	private Payment mPayment;
+	private List<BankName> mBankLst;
+	private List<CreditCardType> mCreditCardLst;
 	
-	private StringBuilder strTotalPaid;
-	private EditText txtTotalPrice;
-	private EditText txtTotalPay;
-	private EditText txtCardNo;
-	private Spinner spinnerBank;
-	private Spinner spinnerCardType;
+	private StringBuilder mStrTotalPaid;
+	private EditText mTxtTotalPrice;
+	private EditText mTxtTotalPay;
+	private EditText mTxtCardNo;
+	private Spinner mSpinnerBank;
+	private Spinner mSpinnerCardType;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_credit_pay);
-		context = CreditPayActivity.this;
+		mContext = CreditPayActivity.this;
 	
-		txtTotalPrice = (EditText) findViewById(R.id.editTextCreditTotalPrice);
-		txtTotalPay = (EditText) findViewById(R.id.editTextCreditPayAmount);
-		txtCardNo = (EditText) findViewById(R.id.editTextCreditNo);
-		spinnerBank = (Spinner) findViewById(R.id.spinnerBank);
-		spinnerCardType = (Spinner) findViewById(R.id.spinnerCardType);
-		
+		mTxtTotalPrice = (EditText) findViewById(R.id.editTextCreditTotalPrice);
+		mTxtTotalPay = (EditText) findViewById(R.id.editTextCreditPayAmount);
+		mTxtCardNo = (EditText) findViewById(R.id.editTextCreditNo);
+		mSpinnerBank = (Spinner) findViewById(R.id.spinnerBank);
+		mSpinnerCardType = (Spinner) findViewById(R.id.spinnerCardType);
+
 		Intent intent = getIntent();
-		transactionId = intent.getIntExtra("transactionId", 0);
-		computerId = intent.getIntExtra("computerId", 0);
-	}
-	
-	@Override
-	protected void onResume() {
-		init();
-		super.onResume();
+		mTransactionId = intent.getIntExtra("transactionId", 0);
+		mComputerId = intent.getIntExtra("computerId", 0);
+		if(mTransactionId != 0 && mComputerId != 0){
+			init();
+		}else{
+			finish();
+		}
 	}
 
 	private void init(){
 		Calendar c = Calendar.getInstance();
-		calendar = new GregorianCalendar(c.get(Calendar.YEAR), 
+		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 		
-		format = new Formatter(context);
-		mposTrans = new MPOSTransaction(context);
-		strTotalPaid = new StringBuilder();
+		mFormat = new Formatter(mContext);
+		mOrder = new MPOSOrder(mContext);
+		mPayment = new MPOSPayment(mContext);
+		mStrTotalPaid = new StringBuilder();
 		
 		loadTotalPrice();
 		loadCreditCardType();
@@ -90,8 +96,7 @@ public class CreditPayActivity extends Activity {
 			
 			@Override
 			public void onSetDate(long date) {
-				calendar.setTimeInMillis(date);
-				date = calendar.getTimeInMillis();
+				mCalendar.setTimeInMillis(date);
 			}
 		});
 		dialogFragment.show(getFragmentManager(), "Condition");
@@ -99,51 +104,60 @@ public class CreditPayActivity extends Activity {
 	
 	private void loadTotalPrice(){
 		OrderTransaction.OrderDetail order = 
-				mposTrans.getSummary(transactionId, computerId);
+				mOrder.getSummary(mTransactionId, mComputerId);
 		
-		totalPrice = order.getTotalSalePrice(); 
+		mTotalPrice = order.getTotalSalePrice(); 
 		
 		displayTotalPrice();
 	}
 	
 	private void displayTotalPrice(){
-		txtTotalPrice.setText(format.currencyFormat(totalPrice));
+		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalPrice));
 		
 		displayTotalPaid();
 	}
 
 	private void displayTotalPaid(){
 		try {
-			totalPay = Float.parseFloat(strTotalPaid.toString());
+			mTotalPay = Float.parseFloat(mStrTotalPaid.toString());
 		} catch (NumberFormatException e) {
-			totalPay = 0.0f;
+			mTotalPay = 0.0f;
 			e.printStackTrace();
 		}
 		
-		txtTotalPay.setText(format.currencyFormat(totalPay));
+		mTxtTotalPay.setText(mFormat.currencyFormat(mTotalPay));
 	}
 	
 	private void addPayment(){
-		if(mposTrans.addPaymentDetail(transactionId, computerId, 2, 
-					totalPay, "xx", 7, 2017, 1, 1))
-			finish();
+		String cardNo = mTxtCardNo.getText().toString();
+		int expYear = mCalendar.get(Calendar.YEAR);
+		int expMonth = mCalendar.get(Calendar.MONTH);
+		
+		if(!cardNo.isEmpty()){
+			if(mPayment.addPaymentDetail(mTransactionId, mComputerId, PaymentActivity.PAY_TYPE_CREDIT, 
+						mTotalPay, cardNo, expMonth, expYear, mBankId, mCardTypeId)){
+				finish();
+			}
+		}else{
+			Util.alert(mContext, android.R.drawable.ic_dialog_alert, R.string.payment, R.string.promp_card_no);
+		}
 	}
 	
 	private void loadCreditCardType(){
-		CreditCard credit = new CreditCard(context);
-		creditCardLst = credit.listAllCreditCardType();
+		CreditCard credit = new CreditCard(mContext);
+		mCreditCardLst = credit.listAllCreditCardType();
 		
 		ArrayAdapter<CreditCardType> adapter = 
-				new ArrayAdapter<CreditCardType>(context, 
-						android.R.layout.simple_dropdown_item_1line, creditCardLst);
-		spinnerCardType.setAdapter(adapter);
-		spinnerCardType.setOnItemSelectedListener(new OnItemSelectedListener(){
+				new ArrayAdapter<CreditCardType>(mContext, 
+						android.R.layout.simple_dropdown_item_1line, mCreditCardLst);
+		mSpinnerCardType.setAdapter(adapter);
+		mSpinnerCardType.setOnItemSelectedListener(new OnItemSelectedListener(){
 
 			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-				// TODO Auto-generated method stub
-				
+			public void onItemSelected(AdapterView<?> parent, View v,
+					int position, long id) {
+				CreditCardType card = (CreditCardType) parent.getItemAtPosition(position);
+				mCardTypeId = card.getCreditCardTypeId();
 			}
 
 			@Override
@@ -156,20 +170,20 @@ public class CreditPayActivity extends Activity {
 	}
 	
 	private void loadBankName(){
-		Bank bank = new Bank(context);
-		bankLst = bank.listAllBank();
+		Bank bank = new Bank(mContext);
+		mBankLst = bank.listAllBank();
 		
 		ArrayAdapter<BankName> adapter = 
-				new ArrayAdapter<BankName>(context, 
-						android.R.layout.simple_dropdown_item_1line, bankLst);
-		spinnerBank.setAdapter(adapter);
-		spinnerBank.setOnItemSelectedListener(new OnItemSelectedListener(){
+				new ArrayAdapter<BankName>(mContext, 
+						android.R.layout.simple_dropdown_item_1line, mBankLst);
+		mSpinnerBank.setAdapter(adapter);
+		mSpinnerBank.setOnItemSelectedListener(new OnItemSelectedListener(){
 
 			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-				// TODO Auto-generated method stub
-				
+			public void onItemSelected(AdapterView<?> parent, View v,
+					int position, long id) {
+				BankName bank = (BankName) parent.getItemAtPosition(position);
+				mBankId = bank.getBankNameId();
 			}
 
 			@Override
@@ -184,45 +198,45 @@ public class CreditPayActivity extends Activity {
 	public void creditPayClicked(final View v){
 		switch (v.getId()) {
 		case R.id.btnCredit0:
-			strTotalPaid.append("0");
+			mStrTotalPaid.append("0");
 			break;
 		case R.id.btnCredit1:
-			strTotalPaid.append("1");
+			mStrTotalPaid.append("1");
 			break;
 		case R.id.btnCredit2:
-			strTotalPaid.append("2");
+			mStrTotalPaid.append("2");
 			break;
 		case R.id.btnCredit3:
-			strTotalPaid.append("3");
+			mStrTotalPaid.append("3");
 			break;
 		case R.id.btnCredit4:
-			strTotalPaid.append("4");
+			mStrTotalPaid.append("4");
 			break;
 		case R.id.btnCredit5:
-			strTotalPaid.append("5");
+			mStrTotalPaid.append("5");
 			break;
 		case R.id.btnCredit6:
-			strTotalPaid.append("6");
+			mStrTotalPaid.append("6");
 			break;
 		case R.id.btnCredit7:
-			strTotalPaid.append("7");
+			mStrTotalPaid.append("7");
 			break;
 		case R.id.btnCredit8:
-			strTotalPaid.append("8");
+			mStrTotalPaid.append("8");
 			break;
 		case R.id.btnCredit9:
-			strTotalPaid.append("9");
+			mStrTotalPaid.append("9");
 			break;
 		case R.id.btnCreditDel:
 			try {
-				strTotalPaid.deleteCharAt(strTotalPaid.length() - 1);
+				mStrTotalPaid.deleteCharAt(mStrTotalPaid.length() - 1);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			break;
 		case R.id.btnCreditDot:
-			strTotalPaid.append(".");
+			mStrTotalPaid.append(".");
 			break;
 		}
 

@@ -57,11 +57,16 @@
         </activity>
         <activity
             android:name="com.syn.mpos.SaleReportActivity"
-            android:label="@string/title_activity_sale_report" android:screenOrientation="landscape">
+            android:label="@string/title_activity_sale_report"
+            android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="com.syn.mpos.SettingsActivity"
             android:label="@string/title_activity_setting" >
+        </activity>
+        <activity
+            android:name="com.syn.mpos.InvDirectReceiveActivity"
+            android:label="@string/title_activity_inv_direct_receive" >
         </activity>
     </application>
 

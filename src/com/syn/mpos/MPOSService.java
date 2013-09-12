@@ -29,76 +29,74 @@ import android.widget.TextView;
 public class MPOSService {
 	
 	public static void sync(Setting.Connection connSetting, final Context c, final IServiceStateListener listener){
-		final String url = connSetting.getFullUrl(); //url = "http://61.90.204.61/promise6_table/ws_mpos.asmx";
+		final String url = connSetting.getFullUrl();
 		final TextView tvProgress = new TextView(c);
 		final ProgressDialog progress = new ProgressDialog(c);
-		progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		progress.setIndeterminate(false);
-		progress.setCancelable(false);   
-		progress.setMax(100);
 		
 		new AuthenDevice(c, new IServiceStateListener(){
 
 			@Override
 			public void onProgress() {
-				tvProgress.setText(com.syn.mpos.R.string.check_device);
+				tvProgress.setText(com.syn.mpos.R.string.progress);
 				progress.setMessage(tvProgress.getText());
 				progress.show();
 			}
 
 			@Override
 			public void onSuccess() {
-				progress.setProgress(25);
+				//progress.setProgress(25);
 				new LoadShopTask(c, new IServiceStateListener(){
 
 					@Override
 					public void onProgress() {
-						tvProgress.setText(com.syn.mpos.R.string.load_shop);
-						progress.setMessage(tvProgress.getText());
+						//tvProgress.setText(com.syn.mpos.R.string.load_shop);
+						//progress.setMessage(tvProgress.getText());
 					}
 
 					@Override
 					public void onSuccess() {
-						progress.setProgress(50);
-						new LoadProductTask(c, new IServiceStateListener(){
-
-							@Override
-							public void onProgress() {
-								tvProgress.setText(com.syn.mpos.R.string.load_product);
-								progress.setMessage(tvProgress.getText());
-							}
-
-							@Override
-							public void onSuccess() {
-								progress.setProgress(75);
-								new LoadMenuTask(c, new IServiceStateListener(){
-
-									@Override
-									public void onProgress() {
-										tvProgress.setText(com.syn.mpos.R.string.load_menu);
-										progress.setMessage(tvProgress.getText());
-									}
-
-									@Override
-									public void onSuccess() {
-										progress.setProgress(100);
-										progress.dismiss();
-										listener.onSuccess();
-									}
-
-									@Override
-									public void onFail(String msg) {
-										progress.dismiss();
-									}
-									
-								}).execute(url);
-							}
-
-							@Override
-							public void onFail(String msg) {
-								progress.dismiss();
-							}
-						}).execute(url);
+						//progress.setProgress(100);
+						progress.dismiss();
+						listener.onSuccess();
+//						new LoadProductTask(c, new IServiceStateListener(){
+//
+//							@Override
+//							public void onProgress() {
+//								tvProgress.setText(com.syn.mpos.R.string.load_product);
+//								progress.setMessage(tvProgress.getText());
+//							}
+//
+//							@Override
+//							public void onSuccess() {
+//								progress.setProgress(75);
+//								new LoadMenuTask(c, new IServiceStateListener(){
+//
+//									@Override
+//									public void onProgress() {
+//										tvProgress.setText(com.syn.mpos.R.string.load_menu);
+//										progress.setMessage(tvProgress.getText());
+//									}
+//
+//									@Override
+//									public void onSuccess() {
+//										progress.setProgress(100);
+//										progress.dismiss();
+//										listener.onSuccess();
+//									}
+//
+//									@Override
+//									public void onFail(String msg) {
+//										progress.dismiss();
+//									}
+//									
+//								}).execute(url);
+//							}
+//
+//							@Override
+//							public void onFail(String msg) {
+//								progress.dismiss();
+//							}
+//						}).execute(url);
 					}
 
 					@Override

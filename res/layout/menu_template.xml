@@ -3,15 +3,18 @@
     android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:background="@drawable/menu_selector"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:padding="8dp" >
 
     <ImageView
         android:id="@+id/imageViewMenu"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:layout_margin="4dp"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:minHeight="100dip"
@@ -23,10 +26,23 @@
         android:id="@+id/textViewMenuName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:layout_below="@+id/imageViewMenu"
-        android:layout_centerHorizontal="true"
+        android:gravity="center|top"
+        android:lines="2"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/textViewMenuPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/textViewMenuName"
         android:gravity="center"
         android:lines="1"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
 
 </RelativeLayout>

@@ -1,19 +1,21 @@
 package com.syn.mpos;
 
-import java.math.BigDecimal;
 import java.util.List;
-
 import com.epson.eposprint.BatteryStatusChangeEventListener;
 import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.R;
+import com.syn.mpos.db.MPOSOrder;
+import com.syn.mpos.db.MPOSPayment;
 import com.syn.mpos.db.MPOSTransaction;
 import com.syn.mpos.db.Shop;
 import com.syn.mpos.model.OrderTransaction;
-import com.syn.mpos.model.Payment;
 import com.syn.mpos.model.ShopData.ShopProperty;
+import com.syn.pos.Order;
+import com.syn.pos.Payment;
+import com.syn.pos.Transaction;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -22,19 +24,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
 public class PaymentActivity extends Activity  implements StatusChangeEventListener, BatteryStatusChangeEventListener {
 	private final String TAG = "PaymentActivity";
+	public static final int PAY_TYPE_CASH = 1;
+	public static final int PAY_TYPE_CREDIT = 2;
 	private Context context;
-	private MPOSTransaction mposTrans;
+	private Transaction mTrans;
+	private Payment mPayment;
+	private Order mOrder;
 	private Formatter format;
 	private int transactionId;
 	private int computerId;
@@ -45,12 +48,10 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	private float totalSalePrice;
 	private float totalPay;
 	private float totalPaid;
-	private float changeAmount;
 	
 	private TableLayout tableLayoutPaydetail;
 	private TextView tvTotalPayment;
 	private EditText txtTotalPay;
-	private EditText txtChange;
 	private EditText txtTotalPaid;
 	private EditText txtTobePaid;
 	
@@ -62,7 +63,6 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		tableLayoutPaydetail = (TableLayout) findViewById(R.id.tableLayoutPaydetail);
 		tvTotalPayment = (TextView) findViewById(R.id.textViewTotalPayment);
 		txtTotalPay = (EditText) findViewById(R.id.editTextTotalPay);
-		txtChange = (EditText) findViewById(R.id.editTextChange);
 		txtTotalPaid = (EditText) findViewById(R.id.editTextTotalPaid);
 		txtTobePaid = (EditText) findViewById(R.id.editTextTobePaid);
 		
@@ -71,40 +71,27 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		computerId = intent.getIntExtra("computerId", 0);
 		staffId = intent.getIntExtra("staffId", 0);
 		
-		if(transactionId == 0 || computerId == 0 || staffId == 0)
+		if(transactionId != 0 && computerId != 0 && staffId != 0){
+			init();
+		}else{
 			finish();
-	}
-	
-	@Override
-	protected void onResume() {
-		init();
-		super.onResume();
-	}
-
-	@Override
-	protected void onDestroy() {
-		try {
-			printer.closePrinter();
-			printer = null;
-		} catch (EposException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-		super.onDestroy();
 	}
 
 	private void init(){
 		context = PaymentActivity.this;
 		format = new Formatter(context);
+		mTrans = new MPOSTransaction(context);
+		mPayment = new MPOSPayment(context);
+		mOrder = new MPOSOrder(context);
 		
-		mposTrans = new MPOSTransaction(context);
 		summary();
 		loadPayDetail();
 	}
 	
 	private void summary(){
 		OrderTransaction.OrderDetail orderDetail = 
-				mposTrans.getSummary(transactionId, computerId);
+				mOrder.getSummary(transactionId, computerId);
 		
 		float vat = orderDetail.getVat();
 		totalSalePrice = orderDetail.getTotalSalePrice() + vat;
@@ -113,19 +100,20 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 	
 	private void loadPayDetail(){
-		List<Payment.PaymentDetail> payLst = mposTrans.listPayment(transactionId, computerId);
-		totalPaid = mposTrans.getTotalPaid(transactionId, computerId);
+		List<com.syn.mpos.model.Payment.PaymentDetail> payLst = 
+				mPayment.listPayment(transactionId, computerId);
+		totalPaid = mPayment.getTotalPaid(transactionId, computerId);
 		float tobePaid = totalSalePrice - totalPaid; 
 		
 		LayoutInflater inflater = LayoutInflater.from(context);
 		tableLayoutPaydetail.removeAllViews();
-		for(final Payment.PaymentDetail payment : payLst){
+		for(final com.syn.mpos.model.Payment.PaymentDetail payment : payLst){
 			View v = inflater.inflate(R.layout.payment_detail_template, null);
 			TextView tvPayType = (TextView) v.findViewById(R.id.textViewPayType);
 			TextView tvPayDetail = (TextView) v.findViewById(R.id.textViewPayDetail);
 			TextView tvPayAmount = (TextView) v.findViewById(R.id.textViewPayAmount);
 			
-			String payTypeName = payment.getPayTypeID() == 1 ? "Cash" : "Credit";
+			String payTypeName = payment.getPayTypeID() == PAY_TYPE_CASH ? "Cash" : "Credit";
 			if(payment.getPayTypeName() != null){
 				payTypeName = payment.getPayTypeName();
 			}
@@ -153,13 +141,13 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 	
 	private void deletePayment(int paymentId){
-		mposTrans.deletePaymentDetail(paymentId);
+		mPayment.deletePaymentDetail(paymentId);
 		loadPayDetail();
 	}
 	
 	private void addPayment(){
 		if(totalPay > 0){
-				mposTrans.addPaymentDetail(transactionId, computerId, 1, totalPay, "",
+				mPayment.addPaymentDetail(transactionId, computerId, PAY_TYPE_CASH, totalPay, "",
 						0, 0, 0, 0);
 			loadPayDetail();
 		}
@@ -170,11 +158,6 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 
 		strTotalPay = new StringBuilder();
 		displayTotalPaid();
-	}
-	
-	private void displayChange(){
-//		float change = totalPay - totalPrice;
-//		txtChange.setText(format.currencyFormat(change));
 	}
 	
 	private void displayTotalPaid(){
@@ -194,13 +177,13 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 	
 	public void onCancelClicked(final View v){
-		mposTrans.deleteAllPaymentDetail(transactionId, computerId);
+		mPayment.deleteAllPaymentDetail(transactionId, computerId);
 		finish();
 	}
 	
 	public void onOkClicked(final View v){
 		if(totalPaid >=totalSalePrice){
-			mposTrans.successTransaction(transactionId, computerId, staffId);
+			mTrans.successTransaction(transactionId, computerId, staffId);
 			
 			print();
 			
@@ -276,35 +259,30 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			displayTotalPaid();
 			addPayment();
 			strTotalPay = new StringBuilder();
-			displayChange();
 			break;
 		case R.id.btnPay50:
 			strTotalPay.append("50");
 			displayTotalPaid();
 			addPayment();
 			strTotalPay = new StringBuilder();
-			displayChange();
 			break;
 		case R.id.btnPay100:
 			strTotalPay.append("100");
 			displayTotalPaid();
 			addPayment();
 			strTotalPay = new StringBuilder();
-			displayChange();
 			break;
 		case R.id.btnPay500:
 			strTotalPay.append("500");
 			displayTotalPaid();
 			addPayment();
 			strTotalPay = new StringBuilder();
-			displayChange();
 			break;
 		case R.id.btnPay1000:
 			strTotalPay.append("1000");
 			displayTotalPaid();
 			addPayment();
 			strTotalPay = new StringBuilder();
-			displayChange();
 			break;
 		case R.id.btnPayC:
 			strTotalPay = new StringBuilder();
@@ -323,7 +301,6 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		case R.id.btnPayEnter:
 			addPayment();
 			strTotalPay = new StringBuilder();
-			displayChange();
 			break;
 		}
 		displayTotalPaid();
@@ -351,25 +328,30 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			builder.addTextLineSpace(30);
 			builder.addTextSize(1, 1);
 			builder.addTextStyle(Builder.FALSE, Builder.FALSE, Builder.FALSE, Builder.COLOR_1);
-			builder.addTextPosition(100);
 			
-			// add text
-			OrderTransaction trans = mposTrans.getTransaction(transactionId, computerId);
+			OrderTransaction trans = mTrans.getTransaction(transactionId, computerId);
 			OrderTransaction.OrderDetail summary = 
-					mposTrans.getSummary(transactionId, computerId);
+					mOrder.getSummary(transactionId, computerId);
 	    	List<OrderTransaction.OrderDetail> orderLst = 
-	    			mposTrans.listAllOrders(transactionId, computerId);
+	    			mOrder.listAllOrders(transactionId, computerId);
 	    	
 	    	Shop s = new Shop(context);
 	    	ShopProperty shopProp = s.getShopProperty();
 
-			builder.addTextAlign(Builder.ALIGN_CENTER);
+			builder.addTextPosition(100);
 			builder.addText("ใบเสร็จรับเงิน/ใบกำกับภาษีอย่างย่อ\n");
-			builder.addText("\t" + shopProp.getCompanyName() + "\t\n");
-			builder.addText("\t" + shopProp.getShopName() + "\t\n");
-			builder.addText("\t" + shopProp.getCompanyAddress1() + "\n");
-			builder.addText("\t" + shopProp.getCompanyAddress2() + "\n");
-			builder.addText("\t" + shopProp.getCompanyTaxID() + "\n");
+			
+			if(!shopProp.getCompanyName().isEmpty()) 
+				builder.addText("\t" + shopProp.getCompanyName() + "\t\n");
+			if(!shopProp.getShopName().isEmpty())
+				builder.addText("\t" + shopProp.getShopName() + "\t\n");
+			if(!shopProp.getCompanyAddress1().isEmpty())
+				builder.addText("\t" + shopProp.getCompanyAddress1() + "\n");
+			if(!shopProp.getCompanyAddress2().isEmpty())
+				builder.addText("\t" + shopProp.getCompanyAddress2() + "\n");
+			if(!shopProp.getCompanyTaxID().isEmpty())
+				builder.addText("\t" + shopProp.getCompanyTaxID() + "\n");
+			
 			builder.addTextPosition(0);
 			builder.addText("______________________________________________________\n");
 
@@ -423,6 +405,14 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			if (builder != null) {
 				builder.clearCommandBuffer();
 			}
+		} catch (EposException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			printer.closePrinter();
+			printer = null;
 		} catch (EposException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.List;
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.R;
+import com.syn.mpos.db.MPOSOrder;
+import com.syn.mpos.db.MPOSPayment;
 import com.syn.mpos.db.MPOSTransaction;
 import com.syn.mpos.db.MenuDept;
 import com.syn.mpos.db.MenuItem;
@@ -12,7 +14,12 @@ import com.syn.mpos.db.Shop;
 import com.syn.mpos.model.MenuGroups;
 import com.syn.mpos.model.OrderTransaction;
 import com.syn.mpos.model.Setting;
-import com.syn.mpos.model.ShopData;
+import com.syn.mpos.model.ShopData.ComputerProperty;
+import com.syn.mpos.model.ShopData.ShopProperty;
+import com.syn.pos.Order;
+import com.syn.pos.Payment;
+import com.syn.pos.Transaction;
+
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
@@ -22,7 +29,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +45,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
-import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -47,107 +52,118 @@ import android.widget.RadioGroup.LayoutParams;
 
 public class MainActivity extends Activity implements POS {
 	private static final String TAG = "MPOSMainActivity";
-	private Shop shop;
-	private ShopData.ShopProperty shopProp;
-	private ShopData.ComputerProperty compProp;
-	private Formatter format;
-	private MPOSTransaction mposTrans;
-	private List<OrderTransaction.OrderDetail> orderLst;
-	private OrderListAdapter orderAdapter;
-	private int transactionId;
-	private Context context;
-	private Setting setting;
-	private SharedPreferences sharedPref;
+	private Shop mShop;
+	private Formatter mFormat;
+	private Transaction mTrans;
+	private Order mOrder;
+	private Payment mPayment;
 	
-	private List<MenuGroups.MenuDept> menuDeptLst;
-	private List<MenuGroups.MenuItem> menuLst;
-	private MenuAdapter menuAdapter;
+	private List<OrderTransaction.OrderDetail> mOrderLst;
+	private OrderListAdapter mOrderAdapter;
+	private int mTransactionId;
+	private int mComputerId;
+	private int mStaffId;
+	private int mSessionId;
+	private Context mContext;
+	private Setting mSetting;
+	private SharedPreferences mSharedPref;
 	
-	private int menuDeptId = -1;
+	private List<MenuGroups.MenuDept> mMenuDeptLst;
+	private List<MenuGroups.MenuItem> mMenuItemLst;
+	private MenuAdapter mMenuItemAdapter;
+	private int mMenuDeptId = -1;
 	
-	private TableRow tbRowVat;
-	private GridView menuGridView;
-	private ListView orderListView;
-	private TextView tvSubTotal;
-	private TextView tvTotalPrice;
-	private TextView tvVatExclude;
-	private TextView tvDiscount;
+	private TableRow mTbRowVat;
+	private GridView mMenuGridView;
+	private ListView mOrderListView;
+	private TextView mTvSubTotal;
+	private TextView mTvTotalPrice;
+	private TextView mTvVatExclude;
+	private TextView mTvDiscount;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		context = MainActivity.this;
+		mContext = MainActivity.this;
 		
-		orderListView = (ListView) findViewById(R.id.listViewOrder);
-		menuGridView = (GridView) findViewById(R.id.gridViewMenu);
-		tvTotalPrice = (TextView) findViewById(R.id.textViewTotalPrice);
-		tvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
-		tvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
-		tvDiscount = (TextView) findViewById(R.id.textViewDiscount);
-		tbRowVat = (TableRow) findViewById(R.id.tbRowVat);
+		mOrderListView = (ListView) findViewById(R.id.listViewOrder);
+		mMenuGridView = (GridView) findViewById(R.id.gridViewMenu);
+		mTvTotalPrice = (TextView) findViewById(R.id.textViewTotalPrice);
+		mTvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
+		mTvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
+		mTvDiscount = (TextView) findViewById(R.id.textViewDiscount);
+		mTbRowVat = (TableRow) findViewById(R.id.tbRowVat);
 
+		Intent intent = getIntent();
+		mStaffId = intent.getIntExtra("staffId", 0);
+		mSessionId = intent.getIntExtra("sessionId", 0);
+		
 		loadMenu();
 	}
 	
 	private void loadMenu(){
-		menuLst = new ArrayList<MenuGroups.MenuItem>();
-		menuAdapter = new MenuAdapter();
-		menuGridView.setAdapter(menuAdapter);
+		mMenuItemLst = new ArrayList<MenuGroups.MenuItem>();
+		mMenuItemAdapter = new MenuAdapter();
+		mMenuGridView.setAdapter(mMenuItemAdapter);
 
 		createMenuDept();
 	}
 	
 	@Override
 	public void init(){
-		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		setting = new Setting();
-		setting.setMenuImageUrl("http://" + sharedPref.getString("pref_ipaddress", "") + "/" + 
-				sharedPref.getString("pref_webservice", "") + "/Resources/Shop/MenuImage/");
+		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		mSetting = new Setting();
+		mSetting.setMenuImageUrl("http://" + mSharedPref.getString("pref_ipaddress", "") + "/" + 
+				mSharedPref.getString("pref_webservice", "") + "/Resources/Shop/MenuImage/");
 		
-		shop = new Shop(context);
-		format = new Formatter(context);
-		mposTrans = new MPOSTransaction(context);
-		shopProp = shop.getShopProperty();
-		compProp = shop.getComputerProperty();
+		mShop = new Shop(mContext);
+		mFormat = new Formatter(mContext);
+		mTrans = new MPOSTransaction(mContext);
+		mOrder = new MPOSOrder(mContext);
+		mPayment = new MPOSPayment(mContext);
 		
-		transactionId = mposTrans.getCurrTransaction(compProp.getComputerID());
-		if(transactionId == 0){
-			transactionId = mposTrans.openTransaction(compProp.getComputerID(), 
-					shopProp.getShopID(), 1, 1);
+		ShopProperty shopProp = mShop.getShopProperty();
+		ComputerProperty compProp = mShop.getComputerProperty();
+		
+		mComputerId = compProp.getComputerID();
+		mTransactionId = mTrans.getCurrTransaction(compProp.getComputerID());
+		if(mTransactionId == 0){
+			mTransactionId = mTrans.openTransaction(compProp.getComputerID(), 
+					shopProp.getShopID(), mSessionId, mStaffId);
 		}
 		
 		//Log.i(TAG, "transactionId= " + transactionId);
 		
-		orderLst = mposTrans.listAllOrders(transactionId, compProp.getComputerID());
-		orderAdapter = new OrderListAdapter(context, format, orderLst, new ListButtonOnClickListener(){
+		mOrderLst = mOrder.listAllOrders(mTransactionId, mComputerId);
+		mOrderAdapter = new OrderListAdapter(mContext, mFormat, mOrderLst, new ListButtonOnClickListener(){
 			OrderTransaction.OrderDetail order;
 			float qty;
 			@Override
 			public void onMinusClick(int position) {
-				order = orderLst.get(position);
+				order = mOrderLst.get(position);
 				qty = order.getQty();
 				if(--qty > 0){
 					order.setQty(qty);
-					mposTrans.updateOrderDetail(transactionId, compProp.getComputerID(), 
+					mOrder.updateOrderDetail(mTransactionId, mComputerId, 
 							order.getOrderDetailId(), order.getVatType(), 
 							order.getQty(), order.getPricePerUnit());
 				}
 				
-				orderAdapter.notifyDataSetChanged();
+				mOrderAdapter.notifyDataSetChanged();
 			}
 
 			@Override
 			public void onPlusClick(int position) {
-				order = orderLst.get(position);
+				order = mOrderLst.get(position);
 				qty = order.getQty();
 				order.setQty(++qty);
-				mposTrans.updateOrderDetail(transactionId, compProp.getComputerID(), 
+				mOrder.updateOrderDetail(mTransactionId, mComputerId, 
 						order.getOrderDetailId(), order.getVatType(), 
 						order.getQty(), order.getPricePerUnit());
 				
-				orderAdapter.notifyDataSetChanged();
+				mOrderAdapter.notifyDataSetChanged();
 			}
 			
 		}, new AdapterStateListener(){
@@ -160,7 +176,7 @@ public class MainActivity extends Activity implements POS {
 		});
 		
 		// set on order click
-		orderListView.setOnItemClickListener(new OnItemClickListener(){
+		mOrderListView.setOnItemClickListener(new OnItemClickListener(){
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View v, final int position,
@@ -168,7 +184,7 @@ public class MainActivity extends Activity implements POS {
 				final OrderTransaction.OrderDetail orderDetail = 
 						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 				
-				PopupMenu popup = new PopupMenu(context, v);
+				PopupMenu popup = new PopupMenu(mContext, v);
 				popup.getMenuInflater().inflate(R.menu.order_function,
 						popup.getMenu());
 
@@ -180,10 +196,10 @@ public class MainActivity extends Activity implements POS {
 							
 							return true;
 						case R.id.itemOrderDelete:
-							if(mposTrans.deleteOrderDetail(transactionId, compProp.getComputerID(), 
+							if(mOrder.deleteOrderDetail(mTransactionId, mComputerId, 
 								orderDetail.getOrderDetailId())){
-								orderLst.remove(position);
-								orderAdapter.notifyDataSetChanged();
+								mOrderLst.remove(position);
+								mOrderAdapter.notifyDataSetChanged();
 							}
 							return true;
 						}
@@ -196,8 +212,8 @@ public class MainActivity extends Activity implements POS {
 		});
 		
 		summary();
-		orderListView.setAdapter(orderAdapter);
-		orderListView.setSelection(orderAdapter.getCount());
+		mOrderListView.setAdapter(mOrderAdapter);
+		mOrderListView.setSelection(mOrderAdapter.getCount());
 	}
 	
 	public void reportClicked(final View v){
@@ -235,6 +251,13 @@ public class MainActivity extends Activity implements POS {
 		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(android.view.MenuItem item) {
+				Intent intent = null;
+				switch(item.getItemId()){
+				case R.id.itemReceive:
+					intent = new Intent(MainActivity.this, InvDirectReceiveActivity.class);
+					startActivity(intent);
+					return true;
+				}
 				return false;
 			}
 		});
@@ -243,15 +266,15 @@ public class MainActivity extends Activity implements POS {
 	}
 	
 	public void holdBillClicked(final View v){
-		LayoutInflater inflater = LayoutInflater.from(context);
+		LayoutInflater inflater = LayoutInflater.from(mContext);
 		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
 		TableLayout tbHold = (TableLayout) holdBillView.findViewById(R.id.tbHoldBill);
 	
-		final Dialog d = new Dialog(context);
+		final Dialog d = new Dialog(mContext);
 		d.setTitle(R.string.hold_bill);
 		d.setContentView(holdBillView);
 		
-		List<OrderTransaction> billLst = mposTrans.listHoldOrder(compProp.getComputerID());
+		List<OrderTransaction> billLst = mOrder.listHoldOrder(mComputerId);
 		
 		Calendar c = Calendar.getInstance();
 	
@@ -266,7 +289,7 @@ public class MainActivity extends Activity implements POS {
 			
 			tvNo.setText((i + 1) + ".");
 			c.setTimeInMillis(trans.getOpenTime());
-			tvOpenTime.setText(format.dateTimeFormat(c.getTime()));
+			tvOpenTime.setText(mFormat.dateTimeFormat(c.getTime()));
 			tvOpenStaff.setText(trans.getStaffName());
 			tvRemark.setText(trans.getRemark());
 			
@@ -276,12 +299,12 @@ public class MainActivity extends Activity implements POS {
 				@Override
 				public void onClick(View v) {
 					
-					if(mposTrans.prepareTransaction(trans.getTransactionId(), 
+					if(mTrans.prepareTransaction(trans.getTransactionId(), 
 							trans.getComputerId())){
-						orderLst = mposTrans.listAllOrders(trans.getTransactionId(), 
+						mOrderLst = mOrder.listAllOrders(trans.getTransactionId(), 
 								trans.getComputerId());
 						
-						orderAdapter.notifyDataSetChanged();
+						mOrderAdapter.notifyDataSetChanged();
 						d.dismiss();
 					}
 				}
@@ -297,13 +320,13 @@ public class MainActivity extends Activity implements POS {
 		LayoutParams param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		param.setMargins(8, 0, 8, 0);
 		
-		LinearLayout layout = new LinearLayout(context);
-		final EditText txtHoldRemark = new EditText(context);
+		LinearLayout layout = new LinearLayout(mContext);
+		final EditText txtHoldRemark = new EditText(mContext);
 		txtHoldRemark.setGravity(Gravity.TOP);
 		txtHoldRemark.setLayoutParams(param);
 		layout.addView(txtHoldRemark);
 		
-		new AlertDialog.Builder(context)
+		new AlertDialog.Builder(mContext)
 		.setTitle(R.string.hold_bill)
 		.setView(layout)
 		
@@ -318,7 +341,7 @@ public class MainActivity extends Activity implements POS {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				if(mposTrans.holdTransaction(transactionId, compProp.getComputerID(), 
+				if(mTrans.holdTransaction(mTransactionId, mComputerId, 
 						txtHoldRemark.getText().toString())){
 					init();
 				}
@@ -328,17 +351,17 @@ public class MainActivity extends Activity implements POS {
 	}
 	
 	public void paymentClicked(final View v){
-		Intent intent = new Intent(context, PaymentActivity.class);
-		intent.putExtra("transactionId", transactionId);
-		intent.putExtra("computerId", compProp.getComputerID());
+		Intent intent = new Intent(mContext, PaymentActivity.class);
+		intent.putExtra("transactionId", mTransactionId);
+		intent.putExtra("computerId", mComputerId);
 		intent.putExtra("staffId", 1);
 		startActivity(intent);
 	}
 	
 	public void discountClicked(final View v){
-		Intent intent = new Intent(context, DiscountActivity.class);
-		intent.putExtra("transactionId", transactionId);
-		intent.putExtra("computerId", compProp.getComputerID());
+		Intent intent = new Intent(mContext, DiscountActivity.class);
+		intent.putExtra("transactionId", mTransactionId);
+		intent.putExtra("computerId", mComputerId);
 		startActivity(intent);
 	}
 	
@@ -354,15 +377,15 @@ public class MainActivity extends Activity implements POS {
 	
 	// menu catgory
 	protected void createMenuDept(){
-		MenuDept menuDept = new MenuDept(context);
-		menuDeptLst = menuDept.listMenuDept();
+		MenuDept menuDept = new MenuDept(mContext);
+		mMenuDeptLst = menuDept.listMenuDept();
 		
-		if(menuDeptLst.size() > 0){
+		if(mMenuDeptLst.size() > 0){
 			
 			LayoutInflater inflater = 
-					LayoutInflater.from(context);
+					LayoutInflater.from(mContext);
 			int i = 0;
-			for(final MenuGroups.MenuDept md : menuDeptLst){
+			for(final MenuGroups.MenuDept md : mMenuDeptLst){
 				final View v = inflater.inflate(R.layout.menu_catgory_tempate, null);
 				final Button btnCat = (Button) v.findViewById(R.id.button1);
 				btnCat.setId(md.getMenuDeptID());
@@ -375,16 +398,16 @@ public class MainActivity extends Activity implements POS {
 					public void onClick(View v) {
 						// display menu
 						btnCat.setSelected(true);
-						if(menuDeptId != -1 && menuDeptId != v.getId()){
-							Button lastBtn = (Button)findViewById(menuDeptId);
+						if(mMenuDeptId != -1 && mMenuDeptId != v.getId()){
+							Button lastBtn = (Button)findViewById(mMenuDeptId);
 							lastBtn.setSelected(false);
 						}
 						// load menu
-						MenuItem mi = new MenuItem(context);
-						menuLst = mi.listMenuItem(md.getMenuDeptID(), 1);
-						menuAdapter.notifyDataSetChanged();
+						MenuItem mi = new MenuItem(mContext);
+						mMenuItemLst = mi.listMenuItem(md.getMenuDeptID(), 1);
+						mMenuItemAdapter.notifyDataSetChanged();
 						
-						menuDeptId = v.getId();
+						mMenuDeptId = v.getId();
 					}
 					
 				});
@@ -410,20 +433,20 @@ public class MainActivity extends Activity implements POS {
 		private LayoutInflater inflater;
 		private ImageLoader imgLoader;
 		public MenuAdapter(){
-			inflater = LayoutInflater.from(context);
-			imgLoader = new ImageLoader(context, R.drawable.no_food, 
+			inflater = LayoutInflater.from(mContext);
+			imgLoader = new ImageLoader(mContext, R.drawable.no_food, 
 					"mpos_img");
 			
 		}
 		
 		@Override
 		public int getCount() {
-			return menuLst.size();
+			return mMenuItemLst.size();
 		}
 
 		@Override
 		public MenuGroups.MenuItem getItem(int position) {
-			return menuLst.get(position);
+			return mMenuItemLst.get(position);
 		}
 
 		@Override
@@ -433,33 +456,35 @@ public class MainActivity extends Activity implements POS {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			final MenuGroups.MenuItem mi = menuLst.get(position);
+			final MenuGroups.MenuItem mi = mMenuItemLst.get(position);
 			ViewHolder holder;
 			if(convertView == null){
 				convertView = inflater.inflate(R.layout.menu_template, null);
 				holder = new ViewHolder();
 				holder.imgMenu = (ImageView) convertView.findViewById(R.id.imageViewMenu);
 				holder.tvMenuName = (TextView) convertView.findViewById(R.id.textViewMenuName);
+				holder.tvMenuPrice = (TextView) convertView.findViewById(R.id.textViewMenuPrice);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
 			
-			imgLoader.displayImage(setting.getMenuImageUrl() + mi.getMenuImageLink(), holder.imgMenu);
+			imgLoader.displayImage(mSetting.getMenuImageUrl() + mi.getMenuImageLink(), holder.imgMenu);
 			holder.tvMenuName.setText(mi.getMenuName_0());
+			holder.tvMenuPrice.setText(mFormat.currencyFormat(mi.getProductPricePerUnit()));
 			
 			convertView.setOnLongClickListener(new OnLongClickListener(){
 				
 				@Override
 				public boolean onLongClick(View v) {
-					final LayoutInflater inflater = LayoutInflater.from(context);
+					final LayoutInflater inflater = LayoutInflater.from(mContext);
 					View menuDetailView = inflater.inflate(R.layout.menu_detail_layout, null);
 					ImageView imvMenuDetail = (ImageView) menuDetailView.findViewById(R.id.imageViewMenuDetail);
-					ImageLoader imgLoader2 = new ImageLoader(context, 
+					ImageLoader imgLoader2 = new ImageLoader(mContext, 
 							R.drawable.no_food, "mpos_img", ImageLoader.IMAGE_SIZE.LARGE);
-					imgLoader2.displayImage(setting.getMenuImageUrl() + mi.getMenuImageLink(), imvMenuDetail);
+					imgLoader2.displayImage(mSetting.getMenuImageUrl() + mi.getMenuImageLink(), imvMenuDetail);
 					
-					final Dialog dialog = new Dialog(context, R.style.CustomDialog);
+					final Dialog dialog = new Dialog(mContext, R.style.CustomDialog);
 					dialog.getWindow().setGravity(Gravity.LEFT); 
 					dialog.setContentView(menuDetailView);
 					dialog.show();
@@ -472,19 +497,19 @@ public class MainActivity extends Activity implements POS {
 
 				@Override
 				public void onClick(View v) {
-					int orderDetailId = mposTrans.addOrderDetail(transactionId, 
-							compProp.getComputerID(), mi.getProductID(), mi.getProductTypeID(), 
+					int orderDetailId = mOrder.addOrderDetail(mTransactionId, 
+							mComputerId, mi.getProductID(), mi.getProductTypeID(), 
 							mi.getVatType(), mi.getMenuName_0(), 1, 
 							mi.getProductPricePerUnit());
 					
 					OrderTransaction.OrderDetail order = 
-							mposTrans.getOrder(transactionId, compProp.getComputerID(), orderDetailId);
-					orderLst.add(order);
+							mOrder.getOrder(mTransactionId, mComputerId, orderDetailId);
+					mOrderLst.add(order);
 					
 					summary();
 					
-					orderAdapter.notifyDataSetChanged();
-					orderListView.smoothScrollToPosition(orderAdapter.getCount());
+					mOrderAdapter.notifyDataSetChanged();
+					mOrderListView.smoothScrollToPosition(mOrderAdapter.getCount());
 				}
 				
 			});
@@ -495,13 +520,14 @@ public class MainActivity extends Activity implements POS {
 		private class ViewHolder{
 			ImageView imgMenu;
 			TextView tvMenuName;
+			TextView tvMenuPrice;
 		}
 	}
 	
 	@Override
 	public void summary(){
 		OrderTransaction.OrderDetail orderDetail
-			= mposTrans.getSummary(transactionId, compProp.getComputerID());
+			= mOrder.getSummary(mTransactionId, mComputerId);
 		
 		float subTotal = orderDetail.getTotalRetailPrice();
 		float vat = orderDetail.getVat();	// vat exclude
@@ -509,22 +535,22 @@ public class MainActivity extends Activity implements POS {
 		float totalDiscount = orderDetail.getPriceDiscount() + orderDetail.getMemberDiscount();
 		
 		// update trans vat
-		mposTrans.updateTransactionVat(transactionId, compProp.getComputerID(), 
+		mTrans.updateTransactionVat(mTransactionId, mComputerId, 
 				totalSalePrice, vat);
 		
 		if(vat > 0)
-			tbRowVat.setVisibility(View.VISIBLE);
+			mTbRowVat.setVisibility(View.VISIBLE);
 		else
-			tbRowVat.setVisibility(View.GONE);
+			mTbRowVat.setVisibility(View.GONE);
 		
-		tvVatExclude.setText(format.currencyFormat(vat));
-		tvSubTotal.setText(format.currencyFormat(subTotal));
-		tvDiscount.setText(format.currencyFormat(totalDiscount));
-		tvTotalPrice.setText(format.currencyFormat(totalSalePrice));
+		mTvVatExclude.setText(mFormat.currencyFormat(vat));
+		mTvSubTotal.setText(mFormat.currencyFormat(subTotal));
+		mTvDiscount.setText(mFormat.currencyFormat(totalDiscount));
+		mTvTotalPrice.setText(mFormat.currencyFormat(totalSalePrice));
 	}
 	
 	public void clearBillClicked(final View v){
-		new AlertDialog.Builder(context)
+		new AlertDialog.Builder(mContext)
 		.setIcon(android.R.drawable.ic_dialog_alert)
 		.setTitle(R.string.clear_bill)
 		.setMessage(R.string.confirm_clear_bill)
@@ -539,7 +565,9 @@ public class MainActivity extends Activity implements POS {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				mposTrans.cancelTransaction(transactionId, compProp.getComputerID());
+				mTrans.deleteTransaction(mTransactionId, mComputerId);
+				mOrder.deleteAllOrderDetail(mTransactionId, mComputerId);
+				mPayment.deleteAllPaymentDetail(mTransactionId, mComputerId);
 
 				init();
 			}
