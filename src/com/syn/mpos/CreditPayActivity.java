@@ -53,6 +53,7 @@ public class CreditPayActivity extends Activity{
 	private EditText mTxtCardNo;
 	private Spinner mSpinnerBank;
 	private Spinner mSpinnerCardType;
+	private Button mBtnExpire;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,7 @@ public class CreditPayActivity extends Activity{
 		mTxtCardNo = (EditText) findViewById(R.id.editTextCreditNo);
 		mSpinnerBank = (Spinner) findViewById(R.id.spinnerBank);
 		mSpinnerCardType = (Spinner) findViewById(R.id.spinnerCardType);
+		mBtnExpire = (Button) findViewById(R.id.btnPopCardExp);
 
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -97,6 +99,7 @@ public class CreditPayActivity extends Activity{
 			@Override
 			public void onSetDate(long date) {
 				mCalendar.setTimeInMillis(date);
+				mBtnExpire.setText(mFormat.dateFormat(mCalendar.getTime()));
 			}
 		});
 		dialogFragment.show(getFragmentManager(), "Condition");

@@ -78,11 +78,15 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		computerId = intent.getIntExtra("computerId", 0);
 		staffId = intent.getIntExtra("staffId", 0);
 		
-		if(transactionId != 0 && computerId != 0 && staffId != 0){
-			init();
-		}else{
+		if(transactionId == 0 || computerId == 0 || staffId == 0){
 			finish();
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		init();
+		super.onResume();
 	}
 
 	private void init(){
