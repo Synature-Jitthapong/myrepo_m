@@ -18,6 +18,7 @@ import com.syn.pos.Payment;
 import com.syn.pos.Transaction;
 
 import android.os.Bundle;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -30,7 +31,8 @@ import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-public class PaymentActivity extends Activity  implements StatusChangeEventListener, BatteryStatusChangeEventListener {
+public class PaymentActivity extends Activity  implements OnConfirmClickListener,
+	StatusChangeEventListener, BatteryStatusChangeEventListener {
 	private final String TAG = "PaymentActivity";
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
@@ -59,7 +61,12 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_payment);
-		
+
+		ActionBar actionBar = getActionBar();
+		actionBar.setCustomView(R.layout.confirm_button);
+	    actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM
+	            | ActionBar.DISPLAY_SHOW_HOME);
+
 		tableLayoutPaydetail = (TableLayout) findViewById(R.id.tableLayoutPaydetail);
 		tvTotalPayment = (TextView) findViewById(R.id.textViewTotalPayment);
 		txtTotalPay = (EditText) findViewById(R.id.editTextTotalPay);
@@ -174,49 +181,6 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		intent.putExtra("transactionId", transactionId);
 		intent.putExtra("computerId", computerId);
 		startActivity(intent);
-	}
-	
-	public void onCancelClicked(final View v){
-		mPayment.deleteAllPaymentDetail(transactionId, computerId);
-		finish();
-	}
-	
-	public void onOkClicked(final View v){
-		if(totalPaid >=totalSalePrice){
-			mTrans.successTransaction(transactionId, computerId, staffId);
-			
-			print();
-			
-			if(totalPaid - totalSalePrice > 0){
-				new AlertDialog.Builder(context)
-				.setTitle(R.string.change)
-				.setMessage(format.currencyFormat(totalPaid - totalSalePrice))
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						finish();
-					}
-				})
-				.show();
-			}else{
-				finish();
-			}
-		}else{
-			new AlertDialog.Builder(context)
-			.setIcon(android.R.drawable.ic_dialog_alert)
-			.setTitle(R.string.payment)
-			.setMessage(R.string.enter_enough_money)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					
-				}
-			})
-			.show();
-			
-		}
 	}
 
 	/*
@@ -428,5 +392,50 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	public void onStatusChangeEvent(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onOkClick(View v) {
+		if(totalPaid >=totalSalePrice){
+			mTrans.successTransaction(transactionId, computerId, staffId);
+			
+			print();
+			
+			if(totalPaid - totalSalePrice > 0){
+				new AlertDialog.Builder(context)
+				.setTitle(R.string.change)
+				.setMessage(format.currencyFormat(totalPaid - totalSalePrice))
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+					}
+				})
+				.show();
+			}else{
+				finish();
+			}
+		}else{
+			new AlertDialog.Builder(context)
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setTitle(R.string.payment)
+			.setMessage(R.string.enter_enough_money)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					
+				}
+			})
+			.show();
+			
+		}
+	}
+
+	@Override
+	public void onCancelClick(View v) {
+		mPayment.deleteAllPaymentDetail(transactionId, computerId);
+		finish();
 	}
 }

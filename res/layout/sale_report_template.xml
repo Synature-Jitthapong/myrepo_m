@@ -13,7 +13,7 @@
         android:background="@color/smoke_white"
         android:padding="4dp"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvProName"
@@ -23,7 +23,8 @@
         android:layout_marginRight="1dp"
         android:layout_weight="1"
         android:background="@color/smoke_white"
-        android:padding="4dp" />
+        android:padding="4dp"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvUnitPrice"
@@ -34,7 +35,7 @@
         android:background="@color/smoke_white"
         android:gravity="right"
         android:padding="4dp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvQty"
@@ -45,7 +46,7 @@
         android:background="@color/smoke_white"
         android:gravity="right"
         android:padding="4dp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvSubTotal"
@@ -56,7 +57,7 @@
         android:background="@color/smoke_white"
         android:gravity="right"
         android:padding="4dp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvDiscount"
@@ -67,7 +68,7 @@
         android:background="@color/smoke_white"
         android:gravity="right"
         android:padding="4dp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvTotalPrice"
@@ -78,7 +79,7 @@
         android:background="@color/smoke_white"
         android:gravity="right"
         android:padding="4dp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvVat"
@@ -87,6 +88,6 @@
         android:layout_marginBottom="1dp"
         android:background="@color/smoke_white"
         android:padding="4dp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </TableRow>

@@ -10,54 +10,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".SaleReportActivity" >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/grey_light"
-        android:gravity="center_vertical" >
-
-        <TextView
-            android:id="@+id/tvSaleReportTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/title_activity_sale_report"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="32sp" />
-
-        <Button
-            android:id="@+id/btnDateFrom"
-            style="?android:attr/spinnerStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableLeft="@android:drawable/ic_menu_day" />
-
-        <TextView
-            android:id="@+id/textView9"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@string/to"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <Button
-            android:id="@+id/btnDateTo"
-            style="?android:attr/spinnerStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableLeft="@android:drawable/ic_menu_month" />
-
-        <Button
-            android:id="@+id/btnGenReport"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="100dp"
-            android:onClick="createReportClicked"
-            android:text="@string/create_report"
-            android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-
-    </LinearLayout>
-
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
@@ -78,7 +30,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/receipt_no"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView12"
@@ -90,7 +42,7 @@
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/total_price"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView13"
@@ -101,7 +53,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/discount_short"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView14"
@@ -113,7 +65,7 @@
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/sub_total"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView15"
@@ -124,7 +76,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/service_charge_short"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView16"
@@ -136,7 +88,7 @@
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/total_sale"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView17"
@@ -147,7 +99,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/vatable"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView18"
@@ -159,7 +111,7 @@
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/total_vat"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
         </TableRow>
 
@@ -178,7 +130,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/code"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView2"
@@ -190,7 +142,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/product_name"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView3"
@@ -201,7 +153,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/unit_price"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView4"
@@ -212,7 +164,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/qty"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView5"
@@ -223,7 +175,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/sub_total"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView6"
@@ -234,7 +186,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/discount"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView7"
@@ -245,7 +197,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/total_price"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView8"
@@ -255,7 +207,7 @@
                 android:background="@color/grey_light"
                 android:padding="4dp"
                 android:text="@string/vat"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
         </TableRow>
 

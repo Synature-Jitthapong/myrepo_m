@@ -9,6 +9,7 @@ import com.syn.mpos.db.Reporting;
 import com.syn.mpos.model.Report;
 
 import android.os.Bundle;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
@@ -33,7 +34,8 @@ public class SaleReportActivity extends Activity {
 	
 	private Button btnDateFrom;
 	private Button btnDateTo;
-	private TextView tvActTitle;
+	private Button btnCreateReport;
+	private TextView mTvTitle;
 	private TableLayout tbReport;
 	private TableRow trProductReportHeader;
 	private TableRow trBillReportHeader;
@@ -43,22 +45,28 @@ public class SaleReportActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sale_report);
 		
-		tvActTitle = (TextView) findViewById(R.id.tvSaleReportTitle);
+		ActionBar actionBar = getActionBar();
+		actionBar.setCustomView(R.layout.date_condition);
+	    actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM
+	            | ActionBar.DISPLAY_SHOW_HOME);
+		
 		tbReport = (TableLayout) findViewById(R.id.tbReport);
 		trProductReportHeader = (TableRow) findViewById(R.id.tableRowByProduct);
 		trBillReportHeader = (TableRow) findViewById(R.id.tableRowByBill);
-		btnDateFrom = (Button) findViewById(R.id.btnDateFrom);
-		btnDateTo = (Button) findViewById(R.id.btnDateTo);
+		btnDateFrom = (Button) actionBar.getCustomView().findViewById(R.id.btnDateFrom);
+		btnDateTo = (Button) actionBar.getCustomView().findViewById(R.id.btnDateTo);
+		btnCreateReport = (Button) actionBar.getCustomView().findViewById(R.id.btnGenReport);
+		mTvTitle = (TextView) actionBar.getCustomView().findViewById(R.id.textView1);
 		
 		Intent intent = getIntent();
 		mode = intent.getIntExtra("mode", 1);
 		
 		if(mode == 1){
-			tvActTitle.setText(R.string.sale_report_by_bill);
+			mTvTitle.setText(R.string.sale_report_by_bill);
 			trBillReportHeader.setVisibility(View.VISIBLE);
 			trProductReportHeader.setVisibility(View.GONE);
 		}else if (mode == 2){
-			tvActTitle.setText(R.string.sale_report_by_product);
+			mTvTitle.setText(R.string.sale_report_by_product);
 			trBillReportHeader.setVisibility(View.GONE);
 			trProductReportHeader.setVisibility(View.VISIBLE);
 		}
@@ -110,13 +118,17 @@ public class SaleReportActivity extends Activity {
 			}
 			
 		});
-	}
+		
+		btnCreateReport.setOnClickListener(new OnClickListener(){
 
-	public void createReportClicked(final View v){
-		if(mode == 1)
-			createReportByBill();
-		else if(mode == 2)
-			createReportByProduct();
+			@Override
+			public void onClick(View v) {
+				if (mode == 1)
+					createReportByBill();
+				else if (mode == 2)
+					createReportByProduct();
+			}
+		});
 	}
 	
 	private void createReportByBill(){

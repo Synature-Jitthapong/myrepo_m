@@ -7,15 +7,12 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:textColor">#FF000000</item>
     </style>
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
-	    <item name="android:windowActionBar">false</item>
+    <style name="AppBaseThemeNoAction" parent="AppBaseTheme">
+        <item name="android:windowActionBar">false</item>
 	    <item name="android:windowNoTitle">true</item>
-        <!--
-        android:Theme.Light.NoTitleBar
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
+    </style>
+    <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
+	    
     </style>
 
     <!-- Application theme. -->

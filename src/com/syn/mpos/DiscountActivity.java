@@ -7,9 +7,12 @@ import com.syn.mpos.db.MPOSOrder;
 import com.syn.mpos.model.OrderTransaction;
 import com.syn.pos.Order;
 
+import android.inputmethodservice.KeyboardView;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
@@ -17,13 +20,14 @@ import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
-public class DiscountActivity extends Activity {
+public class DiscountActivity extends Activity implements OnConfirmClickListener{
 	private static final String TAG = "DiscountActivity";
 	private Context mContext;
 	private int mTransactionId;
@@ -41,11 +45,15 @@ public class DiscountActivity extends Activity {
 	private TableRow mTbRowVat;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_discount);
-
 		mContext = DiscountActivity.this;
+		
+		ActionBar actionBar = getActionBar();
+		actionBar.setCustomView(R.layout.confirm_button);
+	    actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM
+	            | ActionBar.DISPLAY_SHOW_HOME);
 
 		mTbLayoutDiscount = (TableLayout) findViewById(R.id.tableLayoutDiscount);
 		mTvSubTotal = (TextView) findViewById(R.id.textViewDisSubTotal);
@@ -67,6 +75,18 @@ public class DiscountActivity extends Activity {
 		} else {
 			exit();
 		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO Auto-generated method stub
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	private float calculateDiscount(int orderDetailId, int vatType, float totalPrice, float discount) {
@@ -204,12 +224,14 @@ public class DiscountActivity extends Activity {
 		DiscountActivity.this.finish();
 	}
 
-	public void okClicked(final View v) {
+	@Override
+	public void onOkClick(View v) {
 		if (mOrder.confirmDiscount(mTransactionId, mComputerId))
 			exit();
 	}
 
-	public void cancelClicked(final View v) {
+	@Override
+	public void onCancelClick(View v) {
 		if (mIsEdited) {
 			new AlertDialog.Builder(mContext)
 					.setTitle(R.string.information)

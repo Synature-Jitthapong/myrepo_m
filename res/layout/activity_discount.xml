@@ -11,40 +11,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".DiscountActivity" >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
-        android:background="@color/grey_light"
-        android:gravity="center_vertical" >
-
-        <TextView
-            android:id="@+id/textView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/discount"
-            android:textSize="32sp" />
-
-        <Button
-            android:id="@+id/buttonDisCancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="48dip"
-            android:minWidth="100dp"
-            android:onClick="cancelClicked"
-            android:text="@android:string/cancel" />
-
-        <Button
-            android:id="@+id/buttonDisOk"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="48dip"
-            android:minWidth="100dp"
-            android:onClick="okClicked"
-            android:text="@android:string/ok" />
-    </LinearLayout>
-
     <TableLayout
         android:id="@+id/TableLayout1"
         android:layout_width="match_parent"
@@ -256,5 +222,4 @@
         </TableLayout>
 
     </TableLayout>
-
 </LinearLayout>

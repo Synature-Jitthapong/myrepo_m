@@ -22,6 +22,7 @@ import com.syn.pos.Transaction;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -50,7 +51,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.RadioGroup.LayoutParams;
 
-public class MainActivity extends Activity implements POS {
+public class MainActivity extends Activity implements POS, OnMPOSFunctionClickListener {
 	private static final String TAG = "MPOSMainActivity";
 	private Shop mShop;
 	private Formatter mFormat;
@@ -85,16 +86,20 @@ public class MainActivity extends Activity implements POS {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
 		mContext = MainActivity.this;
 		
+		ActionBar actionBar = getActionBar();
+		actionBar.setCustomView(R.layout.function_button);
+	    actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM
+	            | ActionBar.DISPLAY_SHOW_HOME);
+	    
 		mOrderListView = (ListView) findViewById(R.id.listViewOrder);
 		mMenuGridView = (GridView) findViewById(R.id.gridViewMenu);
-		mTvTotalPrice = (TextView) findViewById(R.id.textViewTotalPrice);
 		mTvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
 		mTvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
 		mTvDiscount = (TextView) findViewById(R.id.textViewDiscount);
 		mTbRowVat = (TableRow) findViewById(R.id.tbRowVat);
+		mTvTotalPrice = (TextView) actionBar.getCustomView().findViewById(R.id.textView1);
 
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
@@ -216,140 +221,6 @@ public class MainActivity extends Activity implements POS {
 		mOrderListView.setSelection(mOrderAdapter.getCount());
 	}
 	
-	public void reportClicked(final View v){
-		PopupMenu popup = new PopupMenu(this, v);
-		popup.getMenuInflater().inflate(R.menu.report_function,
-				popup.getMenu());
-
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(android.view.MenuItem item) {
-				Intent intent = new Intent(MainActivity.this, SaleReportActivity.class);
-				
-				switch(item.getItemId()){
-				case R.id.itemSaleReport:
-					intent.putExtra("mode", 1);
-					startActivity(intent);
-					return true;
-				case R.id.itemSaleByProduct:
-					intent.putExtra("mode", 2);
-					startActivity(intent);
-					return true;
-				}
-				return false;
-			}
-		});
-
-		popup.show();
-	}
-	
-	public void inventClicked(final View v){
-		PopupMenu popup = new PopupMenu(this, v);
-		popup.getMenuInflater().inflate(R.menu.inventory_function,
-				popup.getMenu());
-
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(android.view.MenuItem item) {
-				Intent intent = null;
-				switch(item.getItemId()){
-				case R.id.itemReceive:
-					intent = new Intent(MainActivity.this, InvDirectReceiveActivity.class);
-					startActivity(intent);
-					return true;
-				}
-				return false;
-			}
-		});
-
-		popup.show();
-	}
-	
-	public void holdBillClicked(final View v){
-		LayoutInflater inflater = LayoutInflater.from(mContext);
-		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
-		TableLayout tbHold = (TableLayout) holdBillView.findViewById(R.id.tbHoldBill);
-	
-		final Dialog d = new Dialog(mContext);
-		d.setTitle(R.string.hold_bill);
-		d.setContentView(holdBillView);
-		
-		List<OrderTransaction> billLst = mOrder.listHoldOrder(mComputerId);
-		
-		Calendar c = Calendar.getInstance();
-	
-		for(int i = 0; i < billLst.size(); i++){
-			final OrderTransaction trans = billLst.get(i);
-					
-			View template = inflater.inflate(R.layout.hold_bill_template, null);
-			TextView tvNo = (TextView) template.findViewById(R.id.tvNo);
-			TextView tvOpenTime = (TextView) template.findViewById(R.id.tvOpenTime);
-			TextView tvOpenStaff = (TextView) template.findViewById(R.id.tvOpenStaff);
-			TextView tvRemark = (TextView) template.findViewById(R.id.tvRemark);
-			
-			tvNo.setText((i + 1) + ".");
-			c.setTimeInMillis(trans.getOpenTime());
-			tvOpenTime.setText(mFormat.dateTimeFormat(c.getTime()));
-			tvOpenStaff.setText(trans.getStaffName());
-			tvRemark.setText(trans.getRemark());
-			
-			
-			template.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					
-					if(mTrans.prepareTransaction(trans.getTransactionId(), 
-							trans.getComputerId())){
-						mOrderLst = mOrder.listAllOrders(trans.getTransactionId(), 
-								trans.getComputerId());
-						
-						mOrderAdapter.notifyDataSetChanged();
-						d.dismiss();
-					}
-				}
-				
-			});
-			
-			tbHold.addView(template);
-		}
-		d.show();
-	}
-	
-	public void holdOrderClicked(final View v){
-		LayoutParams param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		param.setMargins(8, 0, 8, 0);
-		
-		LinearLayout layout = new LinearLayout(mContext);
-		final EditText txtHoldRemark = new EditText(mContext);
-		txtHoldRemark.setGravity(Gravity.TOP);
-		txtHoldRemark.setLayoutParams(param);
-		layout.addView(txtHoldRemark);
-		
-		new AlertDialog.Builder(mContext)
-		.setTitle(R.string.hold_bill)
-		.setView(layout)
-		
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-			}
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if(mTrans.holdTransaction(mTransactionId, mComputerId, 
-						txtHoldRemark.getText().toString())){
-					init();
-				}
-			}
-		})
-		.show();
-	}
-	
 	public void paymentClicked(final View v){
 		Intent intent = new Intent(mContext, PaymentActivity.class);
 		intent.putExtra("transactionId", mTransactionId);
@@ -364,11 +235,7 @@ public class MainActivity extends Activity implements POS {
 		intent.putExtra("computerId", mComputerId);
 		startActivity(intent);
 	}
-	
-	public void logoutClicked(final View v){
-		finish();
-	}
-	
+
 	@Override
 	protected void onResume() {
 		init();
@@ -589,7 +456,160 @@ public class MainActivity extends Activity implements POS {
 
 	@Override
 	public void updateOrderQty() {
+		LayoutParams param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		param.setMargins(8, 0, 8, 0);
+		
+		LinearLayout layout = new LinearLayout(mContext);
+		final EditText txtHoldRemark = new EditText(mContext);
+		txtHoldRemark.setGravity(Gravity.TOP);
+		txtHoldRemark.setLayoutParams(param);
+		layout.addView(txtHoldRemark);
+		
+		new AlertDialog.Builder(mContext)
+		.setTitle(R.string.hold_bill)
+		.setView(layout)
+		
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if(mTrans.holdTransaction(mTransactionId, mComputerId, 
+						txtHoldRemark.getText().toString())){
+					init();
+				}
+			}
+		})
+		.show();
+	}
+
+	@Override
+	public void onHoldBillClick(View v) {
+		LayoutInflater inflater = LayoutInflater.from(mContext);
+		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
+		TableLayout tbHold = (TableLayout) holdBillView.findViewById(R.id.tbHoldBill);
+	
+		final Dialog d = new Dialog(mContext);
+		d.setTitle(R.string.hold_bill);
+		d.setContentView(holdBillView);
+		
+		List<OrderTransaction> billLst = mOrder.listHoldOrder(mComputerId);
+		
+		Calendar c = Calendar.getInstance();
+	
+		for(int i = 0; i < billLst.size(); i++){
+			final OrderTransaction trans = billLst.get(i);
+					
+			View template = inflater.inflate(R.layout.hold_bill_template, null);
+			TextView tvNo = (TextView) template.findViewById(R.id.tvNo);
+			TextView tvOpenTime = (TextView) template.findViewById(R.id.tvOpenTime);
+			TextView tvOpenStaff = (TextView) template.findViewById(R.id.tvOpenStaff);
+			TextView tvRemark = (TextView) template.findViewById(R.id.tvRemark);
+			
+			tvNo.setText((i + 1) + ".");
+			c.setTimeInMillis(trans.getOpenTime());
+			tvOpenTime.setText(mFormat.dateTimeFormat(c.getTime()));
+			tvOpenStaff.setText(trans.getStaffName());
+			tvRemark.setText(trans.getRemark());
+			
+			
+			template.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					
+					if(mTrans.prepareTransaction(trans.getTransactionId(), 
+							trans.getComputerId())){
+						mOrderLst = mOrder.listAllOrders(trans.getTransactionId(), 
+								trans.getComputerId());
+						
+						mOrderAdapter.notifyDataSetChanged();
+						d.dismiss();
+					}
+				}
+				
+			});
+			
+			tbHold.addView(template);
+		}
+		d.show();
+	}
+
+	@Override
+	public void onInventoryClick(View v) {
+		PopupMenu popup = new PopupMenu(this, v);
+		popup.getMenuInflater().inflate(R.menu.inventory_function,
+				popup.getMenu());
+
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(android.view.MenuItem item) {
+				Intent intent = null;
+				switch(item.getItemId()){
+				case R.id.itemReceive:
+					intent = new Intent(MainActivity.this, InvDirectReceiveActivity.class);
+					startActivity(intent);
+					return true;
+				case R.id.itemStockCount:
+					intent = new Intent(MainActivity.this, StockCountActivity.class);
+					startActivity(intent);
+					return true;
+				}
+				return false;
+			}
+		});
+
+		popup.show();
+	}
+
+	@Override
+	public void onReportClick(View v) {
+		PopupMenu popup = new PopupMenu(this, v);
+		popup.getMenuInflater().inflate(R.menu.report_function,
+				popup.getMenu());
+
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(android.view.MenuItem item) {
+				Intent intent = new Intent(MainActivity.this, SaleReportActivity.class);
+				
+				switch(item.getItemId()){
+				case R.id.itemSaleReport:
+					intent.putExtra("mode", 1);
+					startActivity(intent);
+					return true;
+				case R.id.itemSaleByProduct:
+					intent.putExtra("mode", 2);
+					startActivity(intent);
+					return true;
+				}
+				return false;
+			}
+		});
+
+		popup.show();
+	}
+
+	@Override
+	public void onUtilityClick(View v) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onSwitchUserClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onLogoutClick(View v) {
+		finish();
 	}
 }
