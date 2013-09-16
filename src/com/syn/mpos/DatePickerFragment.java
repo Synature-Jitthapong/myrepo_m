@@ -1,7 +1,6 @@
 package com.syn.mpos;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 import android.annotation.SuppressLint;

@@ -5,21 +5,16 @@ import java.util.Calendar;
 import java.util.List;
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.R;
-import com.syn.mpos.db.MPOSOrder;
-import com.syn.mpos.db.MPOSPayment;
-import com.syn.mpos.db.MPOSTransaction;
-import com.syn.mpos.db.MenuDept;
-import com.syn.mpos.db.MenuItem;
-import com.syn.mpos.db.Shop;
-import com.syn.mpos.model.MenuGroups;
-import com.syn.mpos.model.OrderTransaction;
-import com.syn.mpos.model.Setting;
-import com.syn.mpos.model.ShopData.ComputerProperty;
-import com.syn.mpos.model.ShopData.ShopProperty;
-import com.syn.pos.Order;
-import com.syn.pos.Payment;
-import com.syn.pos.Transaction;
-
+import com.syn.mpos.database.MenuDept;
+import com.syn.mpos.database.MenuItem;
+import com.syn.mpos.database.Shop;
+import com.syn.mpos.transaction.MPOSPayment;
+import com.syn.mpos.transaction.MPOSTransaction;
+import com.syn.pos.MenuGroups;
+import com.syn.pos.OrderTransaction;
+import com.syn.pos.Setting;
+import com.syn.pos.ShopData.ComputerProperty;
+import com.syn.pos.ShopData.ShopProperty;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.ActionBar;
@@ -52,12 +47,11 @@ import android.widget.TextView;
 import android.widget.RadioGroup.LayoutParams;
 
 public class MainActivity extends Activity implements POS, OnMPOSFunctionClickListener {
-	private static final String TAG = "MPOSMainActivity";
+	//private static final String TAG = "MPOSMainActivity";
 	private Shop mShop;
 	private Formatter mFormat;
-	private Transaction mTrans;
-	private Order mOrder;
-	private Payment mPayment;
+	private MPOSTransaction mTrans;
+	private MPOSPayment mPayment;
 	
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private OrderListAdapter mOrderAdapter;
@@ -126,7 +120,6 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 		mShop = new Shop(mContext);
 		mFormat = new Formatter(mContext);
 		mTrans = new MPOSTransaction(mContext);
-		mOrder = new MPOSOrder(mContext);
 		mPayment = new MPOSPayment(mContext);
 		
 		ShopProperty shopProp = mShop.getShopProperty();
@@ -141,7 +134,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 		
 		//Log.i(TAG, "transactionId= " + transactionId);
 		
-		mOrderLst = mOrder.listAllOrders(mTransactionId, mComputerId);
+		mOrderLst = mTrans.listAllOrders(mTransactionId, mComputerId);
 		mOrderAdapter = new OrderListAdapter(mContext, mFormat, mOrderLst, new ListButtonOnClickListener(){
 			OrderTransaction.OrderDetail order;
 			float qty;
@@ -151,7 +144,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 				qty = order.getQty();
 				if(--qty > 0){
 					order.setQty(qty);
-					mOrder.updateOrderDetail(mTransactionId, mComputerId, 
+					mTrans.updateOrderDetail(mTransactionId, mComputerId, 
 							order.getOrderDetailId(), order.getVatType(), 
 							order.getQty(), order.getPricePerUnit());
 				}
@@ -164,7 +157,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 				order = mOrderLst.get(position);
 				qty = order.getQty();
 				order.setQty(++qty);
-				mOrder.updateOrderDetail(mTransactionId, mComputerId, 
+				mTrans.updateOrderDetail(mTransactionId, mComputerId, 
 						order.getOrderDetailId(), order.getVatType(), 
 						order.getQty(), order.getPricePerUnit());
 				
@@ -201,7 +194,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 							
 							return true;
 						case R.id.itemOrderDelete:
-							if(mOrder.deleteOrderDetail(mTransactionId, mComputerId, 
+							if(mTrans.deleteOrderDetail(mTransactionId, mComputerId, 
 								orderDetail.getOrderDetailId())){
 								mOrderLst.remove(position);
 								mOrderAdapter.notifyDataSetChanged();
@@ -364,13 +357,13 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 
 				@Override
 				public void onClick(View v) {
-					int orderDetailId = mOrder.addOrderDetail(mTransactionId, 
+					int orderDetailId = mTrans.addOrderDetail(mTransactionId, 
 							mComputerId, mi.getProductID(), mi.getProductTypeID(), 
 							mi.getVatType(), mi.getMenuName_0(), 1, 
 							mi.getProductPricePerUnit());
 					
 					OrderTransaction.OrderDetail order = 
-							mOrder.getOrder(mTransactionId, mComputerId, orderDetailId);
+							mTrans.getOrder(mTransactionId, mComputerId, orderDetailId);
 					mOrderLst.add(order);
 					
 					summary();
@@ -394,7 +387,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 	@Override
 	public void summary(){
 		OrderTransaction.OrderDetail orderDetail
-			= mOrder.getSummary(mTransactionId, mComputerId);
+			= mTrans.getSummary(mTransactionId, mComputerId);
 		
 		float subTotal = orderDetail.getTotalRetailPrice();
 		float vat = orderDetail.getVat();	// vat exclude
@@ -433,7 +426,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				mTrans.deleteTransaction(mTransactionId, mComputerId);
-				mOrder.deleteAllOrderDetail(mTransactionId, mComputerId);
+				mTrans.deleteAllOrderDetail(mTransactionId, mComputerId);
 				mPayment.deleteAllPaymentDetail(mTransactionId, mComputerId);
 
 				init();
@@ -499,7 +492,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 		d.setTitle(R.string.hold_bill);
 		d.setContentView(holdBillView);
 		
-		List<OrderTransaction> billLst = mOrder.listHoldOrder(mComputerId);
+		List<OrderTransaction> billLst = mTrans.listHoldOrder(mComputerId);
 		
 		Calendar c = Calendar.getInstance();
 	
@@ -526,7 +519,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 					
 					if(mTrans.prepareTransaction(trans.getTransactionId(), 
 							trans.getComputerId())){
-						mOrderLst = mOrder.listAllOrders(trans.getTransactionId(), 
+						mOrderLst = mTrans.listAllOrders(trans.getTransactionId(), 
 								trans.getComputerId());
 						
 						mOrderAdapter.notifyDataSetChanged();

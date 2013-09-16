@@ -1,13 +1,11 @@
 package com.syn.mpos;
 
 import com.syn.mpos.R;
-import com.syn.mpos.db.Login;
-import com.syn.mpos.model.Setting;
-import com.syn.mpos.model.ShopData;
-
+import com.syn.mpos.database.Login;
+import com.syn.pos.Setting;
+import com.syn.pos.ShopData;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;

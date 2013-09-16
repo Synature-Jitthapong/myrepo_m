@@ -1,25 +1,17 @@
 package com.syn.mpos;
 
 import java.lang.reflect.Type;
-
-import org.ksoap2.serialization.PropertyInfo;
-
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
-import com.syn.mpos.db.MenuDept;
-import com.syn.mpos.db.MenuGroup;
-import com.syn.mpos.db.MenuItem;
-import com.syn.mpos.db.Product;
-import com.syn.mpos.db.Shop;
-import com.syn.mpos.model.MenuGroups;
-import com.syn.mpos.model.ProductGroups;
-import com.syn.mpos.model.Setting;
-import com.syn.mpos.model.ShopData;
-import com.syn.mpos.model.WebServiceResult;
-import com.syn.mpos.model.ShopData.ShopProperty;
-
-import android.R;
+import com.syn.mpos.database.MenuDept;
+import com.syn.mpos.database.MenuGroup;
+import com.syn.mpos.database.MenuItem;
+import com.syn.mpos.database.Product;
+import com.syn.mpos.database.Shop;
+import com.syn.pos.MenuGroups;
+import com.syn.pos.ProductGroups;
+import com.syn.pos.Setting;
+import com.syn.pos.ShopData;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;

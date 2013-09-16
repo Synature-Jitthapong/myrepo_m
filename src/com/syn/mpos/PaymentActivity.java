@@ -7,16 +7,12 @@ import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.R;
-import com.syn.mpos.db.MPOSOrder;
-import com.syn.mpos.db.MPOSPayment;
-import com.syn.mpos.db.MPOSTransaction;
-import com.syn.mpos.db.Shop;
-import com.syn.mpos.model.OrderTransaction;
-import com.syn.mpos.model.ShopData.ShopProperty;
-import com.syn.pos.Order;
+import com.syn.mpos.database.Shop;
+import com.syn.mpos.transaction.MPOSPayment;
+import com.syn.mpos.transaction.MPOSTransaction;
+import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
-import com.syn.pos.Transaction;
-
+import com.syn.pos.ShopData.ShopProperty;
 import android.os.Bundle;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -33,13 +29,12 @@ import android.widget.TextView;
 
 public class PaymentActivity extends Activity  implements OnConfirmClickListener,
 	StatusChangeEventListener, BatteryStatusChangeEventListener {
-	private final String TAG = "PaymentActivity";
+	//private final String TAG = "PaymentActivity";
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 	private Context context;
-	private Transaction mTrans;
-	private Payment mPayment;
-	private Order mOrder;
+	private MPOSTransaction mTrans;
+	private MPOSPayment mPayment;
 	private Formatter format;
 	private int transactionId;
 	private int computerId;
@@ -94,7 +89,6 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		format = new Formatter(context);
 		mTrans = new MPOSTransaction(context);
 		mPayment = new MPOSPayment(context);
-		mOrder = new MPOSOrder(context);
 		
 		summary();
 		loadPayDetail();
@@ -102,7 +96,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	
 	private void summary(){
 		OrderTransaction.OrderDetail orderDetail = 
-				mOrder.getSummary(transactionId, computerId);
+				mTrans.getSummary(transactionId, computerId);
 		
 		float vat = orderDetail.getVat();
 		totalSalePrice = orderDetail.getTotalSalePrice() + vat;
@@ -111,14 +105,14 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	}
 	
 	private void loadPayDetail(){
-		List<com.syn.mpos.model.Payment.PaymentDetail> payLst = 
+		List<Payment.PaymentDetail> payLst = 
 				mPayment.listPayment(transactionId, computerId);
 		totalPaid = mPayment.getTotalPaid(transactionId, computerId);
 		float tobePaid = totalSalePrice - totalPaid; 
 		
 		LayoutInflater inflater = LayoutInflater.from(context);
 		tableLayoutPaydetail.removeAllViews();
-		for(final com.syn.mpos.model.Payment.PaymentDetail payment : payLst){
+		for(final Payment.PaymentDetail payment : payLst){
 			View v = inflater.inflate(R.layout.payment_detail_template, null);
 			TextView tvPayType = (TextView) v.findViewById(R.id.textViewPayType);
 			TextView tvPayDetail = (TextView) v.findViewById(R.id.textViewPayDetail);
@@ -299,9 +293,9 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 			
 			OrderTransaction trans = mTrans.getTransaction(transactionId, computerId);
 			OrderTransaction.OrderDetail summary = 
-					mOrder.getSummary(transactionId, computerId);
+					mTrans.getSummary(transactionId, computerId);
 	    	List<OrderTransaction.OrderDetail> orderLst = 
-	    			mOrder.listAllOrders(transactionId, computerId);
+	    			mTrans.listAllOrders(transactionId, computerId);
 	    	
 	    	Shop s = new Shop(context);
 	    	ShopProperty shopProp = s.getShopProperty();

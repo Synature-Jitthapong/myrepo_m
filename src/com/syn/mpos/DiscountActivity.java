@@ -1,13 +1,9 @@
 package com.syn.mpos;
 
 import java.util.List;
-
 import com.syn.mpos.R;
-import com.syn.mpos.db.MPOSOrder;
-import com.syn.mpos.model.OrderTransaction;
-import com.syn.pos.Order;
-
-import android.inputmethodservice.KeyboardView;
+import com.syn.mpos.transaction.MPOSTransaction;
+import com.syn.pos.OrderTransaction;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -28,12 +24,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 
 public class DiscountActivity extends Activity implements OnConfirmClickListener{
-	private static final String TAG = "DiscountActivity";
+	//private static final String TAG = "DiscountActivity";
 	private Context mContext;
 	private int mTransactionId;
 	private int mComputerId;
 	private Formatter mFormat;
-	private Order mOrder;
+	private MPOSTransaction mTrans;
 	private boolean mIsEdited = false;
 
 	private List<OrderTransaction.OrderDetail> mOrderLst;
@@ -68,7 +64,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 
 		if (mTransactionId != 0 && mComputerId != 0) {
 			mFormat = new Formatter(mContext);
-			mOrder = new MPOSOrder(mContext);
+			mTrans = new MPOSTransaction(mContext);
 			
 			loadOrder();
 			summary();
@@ -93,7 +89,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		mIsEdited = true;
 
 		float totalPriceAfterDiscount = totalPrice - discount;
-		mOrder.discountEatchProduct(orderDetailId, mTransactionId,
+		mTrans.discountEatchProduct(orderDetailId, mTransactionId,
 				mComputerId, vatType, totalPrice, discount);
 
 		summary();
@@ -101,8 +97,8 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 	}
 
 	private void loadOrder() {
-		if (mOrder.copyOrderToTmp(mTransactionId, mComputerId)) {
-			mOrderLst = mOrder.listAllOrdersTmp(mTransactionId, mComputerId);
+		if (mTrans.copyOrderToTmp(mTransactionId, mComputerId)) {
+			mOrderLst = mTrans.listAllOrdersTmp(mTransactionId, mComputerId);
 
 			LayoutInflater inflater = LayoutInflater.from(mContext);
 			for (int i = 0; i < mOrderLst.size(); i++) {
@@ -202,7 +198,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 
 	private void summary() {
 		OrderTransaction.OrderDetail orderDetail = 
-				mOrder.getSummaryTmp(mTransactionId, mComputerId);
+				mTrans.getSummaryTmp(mTransactionId, mComputerId);
 
 		float subTotal = orderDetail.getTotalRetailPrice();
 		float vat = orderDetail.getVat();
@@ -226,7 +222,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 
 	@Override
 	public void onOkClick(View v) {
-		if (mOrder.confirmDiscount(mTransactionId, mComputerId))
+		if (mTrans.confirmDiscount(mTransactionId, mComputerId))
 			exit();
 	}
 
@@ -243,7 +239,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									mOrder.cancelDiscount(mTransactionId,
+									mTrans.cancelDiscount(mTransactionId,
 											mComputerId);
 									exit();
 								}
@@ -254,7 +250,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									mOrder.confirmDiscount(mTransactionId,
+									mTrans.confirmDiscount(mTransactionId,
 											mComputerId);
 									exit();
 								}

@@ -3,18 +3,14 @@ package com.syn.mpos;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
-
-import com.syn.mpos.db.Reporting;
-import com.syn.mpos.model.Report;
-
+import com.syn.mpos.database.Reporting;
+import com.syn.pos.Report;
 import android.os.Bundle;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,7 +20,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 public class SaleReportActivity extends Activity {
-	private static final String TAG = "SaleReportActivity"; 
+	//private static final String TAG = "SaleReportActivity"; 
 	private Context context;
 	private int mode = 1;
 	private Calendar calendar;

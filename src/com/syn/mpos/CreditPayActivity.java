@@ -3,31 +3,23 @@ package com.syn.mpos;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-
 import com.syn.mpos.R;
-import com.syn.mpos.db.Bank;
-import com.syn.mpos.db.CreditCard;
-import com.syn.mpos.db.MPOSOrder;
-import com.syn.mpos.db.MPOSPayment;
-import com.syn.mpos.db.MPOSTransaction;
-import com.syn.mpos.model.BankName;
-import com.syn.mpos.model.CreditCardType;
-import com.syn.mpos.model.OrderTransaction;
-import com.syn.pos.Order;
-import com.syn.pos.Payment;
-
+import com.syn.mpos.database.Bank;
+import com.syn.mpos.database.CreditCard;
+import com.syn.mpos.transaction.MPOSPayment;
+import com.syn.mpos.transaction.MPOSTransaction;
+import com.syn.pos.BankName;
+import com.syn.pos.CreditCardType;
+import com.syn.pos.OrderTransaction;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
-import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -42,8 +34,8 @@ public class CreditPayActivity extends Activity{
 	private float mTotalPay;
 	private Calendar mCalendar;
 	private Formatter mFormat;
-	private Order mOrder;
-	private Payment mPayment;
+	private MPOSTransaction mTrans;
+	private MPOSPayment mPayment;
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
 	
@@ -84,7 +76,7 @@ public class CreditPayActivity extends Activity{
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 		
 		mFormat = new Formatter(mContext);
-		mOrder = new MPOSOrder(mContext);
+		mTrans = new MPOSTransaction(mContext);
 		mPayment = new MPOSPayment(mContext);
 		mStrTotalPaid = new StringBuilder();
 		
@@ -107,7 +99,7 @@ public class CreditPayActivity extends Activity{
 	
 	private void loadTotalPrice(){
 		OrderTransaction.OrderDetail order = 
-				mOrder.getSummary(mTransactionId, mComputerId);
+				mTrans.getSummary(mTransactionId, mComputerId);
 		
 		mTotalPrice = order.getTotalSalePrice(); 
 		

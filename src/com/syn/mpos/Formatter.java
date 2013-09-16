@@ -5,8 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import com.syn.mpos.db.Shop;
-import com.syn.mpos.model.ShopData;
+import com.syn.mpos.database.Shop;
+import com.syn.pos.ShopData;
 
 import android.content.Context;
 
