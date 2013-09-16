@@ -14,6 +14,7 @@ public class Product {
 		dbHelper = new MPOSSQLiteHelper(c);
 	}
 	
+	
 	public boolean addProducts(List<ProductGroups.Products> productLst){
 		boolean isSucc = false;
 		

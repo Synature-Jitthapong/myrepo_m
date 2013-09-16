@@ -591,8 +591,27 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 
 	@Override
 	public void onUtilityClick(View v) {
-		// TODO Auto-generated method stub
-		
+		PopupMenu popup = new PopupMenu(this, v);
+		popup.getMenuInflater().inflate(R.menu.utility_function,
+				popup.getMenu());
+
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(android.view.MenuItem item) {
+				Intent intent = null;
+				
+				switch(item.getItemId()){
+				case R.id.itemVoidBill:
+					intent = new Intent(MainActivity.this, VoidBillActivity.class);
+					intent.putExtra("staffId", mStaffId);
+					startActivity(intent);
+					return true;
+				}
+				return false;
+			}
+		});
+
+		popup.show();
 	}
 
 	@Override

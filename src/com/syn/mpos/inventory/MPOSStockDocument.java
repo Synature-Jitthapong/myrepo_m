@@ -32,6 +32,22 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		mDbHelper = new MPOSSQLiteHelper(context);
 	}
 	
+	public int getCurrentDocument(int shopId, int documentTypeId){
+		int documentId = 0;
+		String strSql = "SELECT document_id " +
+				" FROM document " +
+				" WHERE shop_id=" + shopId +
+				" AND document_type_id=" + documentTypeId;
+		mDbHelper.open();
+		Cursor cursor = mDbHelper.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			documentId = cursor.getInt(0);
+		}
+		cursor.close();
+		mDbHelper.close();
+		return documentId;
+	}
+	
 	@Override
 	public int getMaxDocument(int shopId, int docTypeId) {
 		int maxDocId = 0;
@@ -113,9 +129,8 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 	}
 
 	@Override
-	public boolean addDocumentDetail(int documentId, int shopId, float materialId, 
+	public int addDocumentDetail(int documentId, int shopId, float materialId, 
 			float materialQty, float materialPrice, String unitName) {
-		boolean isSuccess = false;
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
 		
 		ContentValues cv = new ContentValues();
@@ -130,16 +145,15 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		cv.put("material_tax_price", 0);
 		
 		mDbHelper.open();
-		isSuccess = mDbHelper.insert("docdetail", cv);
+		if(!mDbHelper.insert("docdetail", cv)) docDetailId = 0; 
 		mDbHelper.close();
-		return isSuccess;
+		return docDetailId;
 	}
 
 	@Override
-	public boolean addDocumentDetail(int documentId, int shopId,
+	public int addDocumentDetail(int documentId, int shopId,
 			float materialId, float materialQty, float materialPrice,
 			int taxType, String unitName) {
-		boolean isSuccess = false;
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
 		float totalPrice = materialPrice * materialQty;
 		float tax = taxType == 2 ? calculateVat(totalPrice, 7) : 0;
@@ -157,9 +171,9 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		cv.put("material_tax_price", tax);
 		
 		mDbHelper.open();
-		isSuccess = mDbHelper.insert("docdetail", cv);
+		if(!mDbHelper.insert("docdetail", cv)) docDetailId = 0;
 		mDbHelper.close();
-		return isSuccess;
+		return docDetailId;
 	}
 
 	@Override
@@ -249,8 +263,7 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 	}
 
 	@Override
-	public boolean createDocument(int shopId, int documentTypeId, int staffId) {
-		boolean isSuccess = false;
+	public int createDocument(int shopId, int documentTypeId, int staffId) {
 		int documentId = getMaxDocument(shopId, documentTypeId);
 		Calendar date = getDate();
 		Calendar dateTime = getDateTime();
@@ -265,9 +278,9 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		cv.put("update_date", dateTime.getTimeInMillis());
 		
 		mDbHelper.open();
-		isSuccess = mDbHelper.insert("document", cv);
+		if(!mDbHelper.insert("document", cv)) documentId = 0;
 		mDbHelper.close();
-		return isSuccess;
+		return documentId;
 	}
 
 }

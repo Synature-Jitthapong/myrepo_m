@@ -12,6 +12,7 @@ import com.j1tth4.mobile.sqlite.SQLiteHelper;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Util;
 import com.syn.pos.OrderTransaction;
+import com.syn.pos.Report;
 import com.syn.pos.transaction.OrderCreation;
 import com.syn.pos.transaction.TransactionCreation;
 
@@ -91,8 +92,8 @@ public class MPOSTransaction extends Util implements TransactionCreation, OrderC
 		String strSql = "UPDATE order_transaction " +
 				" SET transaction_status_id=2, " +
 				" receipt_id=" + receiptId + ", " +
-				" close_time=" + calendar.getTimeInMillis() + ", " +
-				" paid_time=" + calendar.getTimeInMillis() + ", " + 
+				" close_time='" + calendar.getTimeInMillis() + "', " +
+				" paid_time='" + calendar.getTimeInMillis() + "', " + 
 				" paid_staff_id=" + staffId +
 				" WHERE transaction_id=" + transactionId + 
 				" AND computer_id=" + computerId;
@@ -416,6 +417,40 @@ public class MPOSTransaction extends Util implements TransactionCreation, OrderC
 			mDbHelper.close();
 		}
 		return isSuccess;
+	}
+	
+	public void voidTransaction(int transactionId, int computerId, int staffId){
+		
+	}
+	
+	public List<OrderTransaction> listTransaction(long saleDate){
+		List<OrderTransaction> transLst = 
+				new ArrayList<OrderTransaction>();
+		String strSql = "SELECT * FROM order_transaction " +
+				" WHERE sale_date='" + saleDate + "' " +
+				" AND transaction_status_id=2 " +
+				" ORDER BY sale_date";
+		
+		mDbHelper.open();
+		Cursor cursor = mDbHelper.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			do{
+				String receiptYear = String.format("%04d", cursor.getInt(cursor.getColumnIndex("receipt_year")));
+				String receiptMonth = String.format("%02d", cursor.getInt(cursor.getColumnIndex("receipt_month")));
+				String receiptId = String.format("%06d", cursor.getInt(cursor.getColumnIndex("receipt_id")));
+				
+				OrderTransaction trans = new OrderTransaction();
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex("transaction_id")));
+				trans.setComputerId(cursor.getInt(cursor.getColumnIndex("computer_id")));
+				trans.setPaidTime(cursor.getLong(cursor.getColumnIndex("paid_time")));
+				trans.setReceiptNo(receiptMonth + receiptYear + receiptId);
+				
+				transLst.add(trans);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		mDbHelper.close();
+		return transLst;
 	}
 	
 	public OrderTransaction.OrderDetail getSummaryTmp(int transactionId, int computerId) {

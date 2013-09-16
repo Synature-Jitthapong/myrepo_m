@@ -23,7 +23,8 @@
             android:name="com.syn.mpos.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden" android:theme="@style/AppBaseThemeNoAction">
+            android:theme="@style/AppBaseThemeNoAction"
+            android:windowSoftInputMode="stateHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -71,6 +72,10 @@
         <activity
             android:name="com.syn.mpos.StockCountActivity"
             android:label="@string/title_activity_stock_count" >
+        </activity>
+        <activity
+            android:name="com.syn.mpos.VoidBillActivity"
+            android:label="@string/title_activity_void_bill" >
         </activity>
     </application>
 

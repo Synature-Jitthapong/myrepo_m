@@ -87,8 +87,10 @@ public class LoginActivity extends Activity {
 		
 	}
 	
-	private void gotoMainActivity(){
+	private void gotoMainActivity(int staffId, int sessionId){
 		Intent intent = new Intent(context, MainActivity.class);
+		intent.putExtra("staffId", staffId);
+		intent.putExtra("sessionId", sessionId);
 		startActivity(intent);
 	}
 	
@@ -107,7 +109,7 @@ public class LoginActivity extends Activity {
 					ShopData.Staff s = login.checkLogin();
 					
 					if(s != null){
-						gotoMainActivity();
+						gotoMainActivity(s.getStaffID(), 1);
 					}else{
 						Util.alert(context, android.R.drawable.ic_dialog_alert, 
 								R.string.login, R.string.incorrect_password);
