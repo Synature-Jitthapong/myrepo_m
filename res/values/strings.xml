@@ -131,5 +131,32 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="sale_date">Sale Date</string>
     <string name="paid_time">Paid Time</string>
     <string name="confirm_void_bill">Are you sure you want to void bill?</string>
+    <string name="enter_reason">Please enter reason</string>
+    <string name="reason">Reason</string>
+    <string name="btn_void">Void</string>
+    <string name="title_activity_add_member">Add Member</string>
+    <string name="member_code">Member Code</string>
+    <string name="gender">Gender</string>
+    <string name="member_group">Member Group</string>
+    <string name="member_name">Member Name</string>
+    <string name="member_lastname">Last Name</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="address_1">Address #1</string>
+    <string name="address_2">Address #2</string>
+    <string name="city">City</string>
+    <string name="province">Province</string>
+    <string name="zipcode">Zip Code</string>
+    <string name="birth_day">Birth Day</string>
+    <string name="phone_no">Phone No</string>
+    <string name="email">Email</string>
+    <string name="fax_no">Fax No</string>
+    <string name="mobile_no">Mobile No</string>
+    <string name="title_search_member">Search Member</string>
+    <string name="title_add_product">Add Product</string>
+    <string name="title_activity_add_product">AddProductActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="confirm">Confirm</string>
+    <string name="save">Save</string>
 
 </resources>

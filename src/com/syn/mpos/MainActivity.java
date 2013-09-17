@@ -55,6 +55,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 	
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private OrderListAdapter mOrderAdapter;
+	private int mShopId;
 	private int mTransactionId;
 	private int mComputerId;
 	private int mStaffId;
@@ -125,6 +126,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 		ShopProperty shopProp = mShop.getShopProperty();
 		ComputerProperty compProp = mShop.getComputerProperty();
 		
+		mShopId = mShop.getShopProperty().getShopID();
 		mComputerId = compProp.getComputerID();
 		mTransactionId = mTrans.getCurrTransaction(compProp.getComputerID());
 		if(mTransactionId == 0){
@@ -547,10 +549,14 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 				switch(item.getItemId()){
 				case R.id.itemReceive:
 					intent = new Intent(MainActivity.this, InvDirectReceiveActivity.class);
+					intent.putExtra("shopId", mShopId);
+					intent.putExtra("staffId", mStaffId);
 					startActivity(intent);
 					return true;
 				case R.id.itemStockCount:
 					intent = new Intent(MainActivity.this, StockCountActivity.class);
+					intent.putExtra("shopId", mShopId);
+					intent.putExtra("staffId", mStaffId);
 					startActivity(intent);
 					return true;
 				}
@@ -623,5 +629,17 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 	@Override
 	public void onLogoutClick(View v) {
 		finish();
+	}
+	
+	public void setMemberClicked(final View v){
+		Intent intent = new Intent(mContext, AddMemberActivity.class);
+		intent.putExtra("mode", "search");
+		startActivity(intent);	
+	}
+	
+	public void newMemberClicked(final View v){
+		Intent intent = new Intent(mContext, AddMemberActivity.class);
+		intent.putExtra("mode", "add");
+		startActivity(intent);
 	}
 }

@@ -18,9 +18,9 @@ public class Formatter {
 	private DecimalFormat currencyFormat;
 	
 	public Formatter(Context c){
-		dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-		dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-		timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
+		dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+		dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+		timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 		qtyFormat = new DecimalFormat("#,###.####");
 		currencyFormat = new DecimalFormat("#,###.####");
 		

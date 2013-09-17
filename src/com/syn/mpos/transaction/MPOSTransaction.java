@@ -419,8 +419,22 @@ public class MPOSTransaction extends Util implements TransactionCreation, OrderC
 		return isSuccess;
 	}
 	
-	public void voidTransaction(int transactionId, int computerId, int staffId){
+	public boolean voidTransaction(int transactionId, int computerId, int staffId, String reason){
+		boolean isSuccess = false;
+		Calendar dateTime = getDateTime();
 		
+		String strSql = "UPDATE order_transaction " +
+				" SET transaction_status_id=9, " +
+				" void_staff_id=" + staffId + ", " + 
+				" void_reason='" + reason + "', " +
+				" void_time='" + dateTime.getTimeInMillis() + "' " +
+				" WHERE transaction_id=" + transactionId +
+				" AND computer_id=" + computerId;
+		
+		mDbHelper.open();
+		isSuccess = mDbHelper.execSQL(strSql);
+		mDbHelper.close();
+		return isSuccess;
 	}
 	
 	public List<OrderTransaction> listTransaction(long saleDate){

@@ -8,12 +8,19 @@ import com.syn.pos.inventory.Document;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 
 public class InvDirectReceiveActivity extends Activity {
 	
@@ -23,6 +30,8 @@ public class InvDirectReceiveActivity extends Activity {
 	private int mShopId;
 	private int mStaffId;
 	private Context mContext;
+	
+	private MenuItem menuItem;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,61 +52,34 @@ public class InvDirectReceiveActivity extends Activity {
 		super.onResume();
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.direct_receive, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent = null;
+	    switch (item.getItemId()) {
+		    case R.id.itemSearch:
+		    	return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+
 	private void init(){
 		mDocument = new MPOSStockDocument(mContext);
 		mDocumentId = mDocument.getCurrentDocument(mShopId, 
 				MPOSStockDocument.DIRECT_RECEIVE_DOC);
 		if(mDocumentId > 0){
 			// load document
-			docDetailLst = mDocument.listAllDocDetail(mDocumentId, mShopId);
+			//docDetailLst = mDocument.listAllDocDetail(mDocumentId, mShopId);
 		}else{
 			// create new document
 			mDocumentId = mDocument.createDocument(mShopId, MPOSStockDocument.DIRECT_RECEIVE_DOC, mStaffId);
 		}
-	}
-	
-	public void popReceiveClicked(final View v){
-		LayoutInflater inflater = LayoutInflater.from(mContext);
-		View addProView = inflater.inflate(R.layout.add_product_layout, null);
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		builder.setView(addProView);
-		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		
-		AlertDialog dialog = builder.create();
-		dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
-		dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
-		dialog.show();
 	}
 }

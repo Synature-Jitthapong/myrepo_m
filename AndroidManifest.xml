@@ -77,6 +77,16 @@
             android:name="com.syn.mpos.VoidBillActivity"
             android:label="@string/title_activity_void_bill" >
         </activity>
+        <activity
+            android:name="com.syn.mpos.AddMemberActivity"
+            android:label="@string/title_activity_add_member"
+            android:theme="@android:style/Theme.Holo.Light.Dialog.NoActionBar"
+            android:windowSoftInputMode="stateHidden" >
+        </activity>
+        <activity
+            android:name="com.syn.mpos.AddProductActivity"
+            android:label="@string/title_activity_add_product" android:theme="@android:style/Theme.Holo.Light.Dialog">
+        </activity>
     </application>
 
 </manifest>

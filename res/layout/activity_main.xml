@@ -237,6 +237,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:minWidth="100dp"
+                    android:onClick="setMemberClicked"
                     android:text="@string/set_member" />
 
                 <Button
@@ -244,6 +245,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:minWidth="100dp"
+                    android:onClick="newMemberClicked"
                     android:text="@string/addnew_member" />
 
             </LinearLayout>

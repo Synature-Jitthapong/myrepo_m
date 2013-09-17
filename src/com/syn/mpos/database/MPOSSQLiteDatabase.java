@@ -76,6 +76,10 @@ public class MPOSSQLiteDatabase extends SQLiteOpenHelper{
 		for(String strSql : MPOSSql.CARD_SQL){
 			db.execSQL(strSql);
 		}
+		
+		for(String strSql : MPOSSql.DOC_TYPE){
+			db.execSQL(strSql);
+		}
 	}
 
 	@Override

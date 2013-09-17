@@ -8,4 +8,15 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".StockCountActivity" >
 
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_margin="8dp"
+        android:background="@color/smoke_white" >
+
+    </ListView>
+
 </RelativeLayout>

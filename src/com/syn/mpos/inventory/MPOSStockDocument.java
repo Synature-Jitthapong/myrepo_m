@@ -2,6 +2,7 @@ package com.syn.mpos.inventory;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
@@ -51,7 +52,7 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 	@Override
 	public int getMaxDocument(int shopId, int docTypeId) {
 		int maxDocId = 0;
-		String strSql = "SELECT MAX(documetn_id) " +
+		String strSql = "SELECT MAX(document_id) " +
 				" FROM document " +
 				" WHERE shop_id=" + shopId +
 				" AND document_type_id=" + docTypeId;
@@ -240,20 +241,24 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		return null;
 	}
 
-	public List<DocDetail> listAllDocDetail(int documentId, int shopId) {
-		List<DocDetail> docDetailLst = 
-				new ArrayList<DocDetail>();
-		String strSql = "SELECT * FROM docdetail " +
-				" WHERE document_id=" + documentId + 
-				" AND shop_id=" + shopId;
+	public List<HashMap<String, String>> listAllDocDetail(int documentId, int shopId) {
+		List<HashMap<String, String>> docDetailLst = 
+				new ArrayList<HashMap<String,String>>();
+		String strSql = "SELECT a.material_id, a.material_c.product_code, " +
+				" FROM docdetail a " +
+				" LEFT JOIN menu_item b " +
+				" ON a.material_id=b.product_id " +
+				" LEFT JOIN products c " +
+				" ON b.product_id=c.product_id " +
+				" WHERE a.document_id=" + documentId + 
+				" AND a.shop_id=" + shopId + 
+				" AND b.menu_activate=1 " +
+				" AND c.activate=1";
 		
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if(cursor.moveToFirst()){
 			do{
-				DocDetail docDetail = new DocDetail();
-				docDetail.setDocDetailId(cursor.getInt(cursor.getColumnIndex("docdetail_id")));
-				docDetail.setMaterialId(cursor.getInt(cursor.getColumnIndex("material_id")));
 				
 			}while(cursor.moveToNext());
 		}
@@ -261,7 +266,7 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		mDbHelper.close();
 		return docDetailLst;
 	}
-
+	
 	@Override
 	public int createDocument(int shopId, int documentTypeId, int staffId) {
 		int documentId = getMaxDocument(shopId, documentTypeId);
@@ -283,4 +288,91 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		return documentId;
 	}
 
+	/**
+	 * list stock 
+	 * @param dateFrom
+	 * @param dateTo
+	 * @return
+	 */
+	public List<HashMap<String, String>> listStock(long dateFrom, long dateTo) {
+		List<HashMap<String, String>> stockLst = 
+				new ArrayList<HashMap<String,String>>();
+		
+		calculateStock(dateFrom, dateTo);
+		
+		String strSql = "SELECT a.product_id, a.product_code, b.menu_name_0, " +
+				" c.material_qty, c.material_count_qty " +
+				" FROM products a " +
+				" LEFT JOIN menu_item b " +
+				" ON a.product_id=b.product_id " +
+				" LEFT OUTER JOIN stock_tmp c " +
+				" ON a.product_id=c.material_id " +
+				" WHERE a.activate=1 " +
+				" AND b.menu_activate=1";
+		
+		mDbHelper.open();
+		Cursor cursor = mDbHelper.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			do{
+				HashMap<String, String> mat = new HashMap<String, String>();
+				mat.put("productId", cursor.getString(cursor.getColumnIndex("product_id")));
+				mat.put("productCode", cursor.getString(cursor.getColumnIndex("product_code")));
+				mat.put("productName", cursor.getString(cursor.getColumnIndex("menu_name_0")));
+				mat.put("currQty", cursor.getString(cursor.getColumnIndex("material_qty")));
+				mat.put("countQty", cursor.getString(cursor.getColumnIndex("material_count_qty")));
+				stockLst.add(mat);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		mDbHelper.close();
+		return stockLst;
+	}
+	
+	/**
+	 * calculate current stock
+	 * @param dateFrom
+	 * @param dateTo
+	 * @return
+	 */
+	protected boolean calculateStock(long dateFrom, long dateTo){
+		boolean isSuccess = false;
+		if(createStockTmp()){
+			String strSql = "INSERT INTO stock_tmp " +
+					" SELECT b.material_id, " +
+					" SUM(b.material_qty * c.movement_in_stock), " +
+					" b.material_count_qty " +
+					" FROM document a " +
+					" LEFT JOIN doc_detail b " +
+					" ON a.document_id=b.document_id " +
+					" AND a.shop_id=b.shop_id " +
+					" LEFT JOIN document_type c " +
+					" ON a.document_type_id=c.document_type_id " +
+					" WHERE a.document_date >=" + dateFrom + 
+					" AND a.document_date <=" + dateTo + 
+					" AND a.document_status_id=2 " +
+					" GROUP BY b.material_id";
+			
+			mDbHelper.open();
+			isSuccess = mDbHelper.execSQL(strSql);
+			mDbHelper.close();
+		}
+		return isSuccess;
+	}
+
+	/**
+	 * create stock temp table
+	 * @return
+	 */
+	protected boolean createStockTmp(){
+		boolean isSuccess = false;
+		String strSql = " CREATE TABLE stock_tmp ( " +
+				" material_id  INTEGER NOT NULL, " +
+				" material_qty REAL DEFAULT 0, " +
+				" material_count_qty  REAL DEFAULT 0);";
+		
+		mDbHelper.open();
+		isSuccess = mDbHelper.execSQL(strSql);
+		mDbHelper.close();
+		return isSuccess;
+	}
 }

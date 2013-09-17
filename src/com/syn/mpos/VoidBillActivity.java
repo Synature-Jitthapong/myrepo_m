@@ -56,6 +56,8 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 	            | ActionBar.DISPLAY_SHOW_HOME);
 		((TextView) actionBar.getCustomView().findViewById(R.id.textView1))
 				.setText(R.string.title_activity_void_bill);
+		((Button) actionBar.getCustomView().findViewById(R.id.button2))
+				.setText(R.string.btn_void);
 
 		mFormat = new Formatter(mContext);
 		Calendar c = Calendar.getInstance();
@@ -110,6 +112,10 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 		mTrans = new MPOSTransaction(mContext);
 	}
 	
+	private void clearTbVoidItem(){
+		tbVoidItem.removeAllViews();
+	}
+	
 	private void searchVoidItem(){
 		List<OrderTransaction.OrderDetail> orderLst = 
 				mTrans.listAllOrders(mTransactionId, mComputerId);
@@ -118,7 +124,7 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 		txtReceiptDate.setText(mReceiptDate);
 		
 		LayoutInflater inflater = LayoutInflater.from(mContext);
-		tbVoidItem.removeAllViews();
+		clearTbVoidItem();
 		for(OrderTransaction.OrderDetail order : orderLst){
 			View voidItemView = inflater.inflate(R.layout.void_item_template, null);
 			TextView tvItem = (TextView) voidItemView.findViewById(R.id.tvItem);
@@ -175,8 +181,13 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 	
 	@Override
 	public void onOkClick(View v) {
+		final EditText txtVoidReason = new EditText(mContext);
+		txtVoidReason.setHint(R.string.reason);
+		
 		new AlertDialog.Builder(mContext)
 		.setTitle(R.string.void_bill)
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setView(txtVoidReason)
 		.setMessage(R.string.confirm_void_bill)
 		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
@@ -188,7 +199,15 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				mTrans.voidTransaction(mTransactionId, mComputerId, mStaffId);
+				String voidReason = txtVoidReason.getText().toString();
+				if(!voidReason.isEmpty()){
+					mTrans.voidTransaction(mTransactionId, mComputerId, mStaffId, voidReason);
+					searchBill();
+					clearTbVoidItem();
+				}else{
+					Util.alert(mContext, android.R.drawable.ic_dialog_alert, 
+							R.string.void_bill, R.string.enter_reason);
+				}
 			}
 		})
 		.show();

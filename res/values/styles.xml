@@ -3,7 +3,7 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="CustomDialog" parent="android:Theme.Dialog">
+    <style name="CustomDialog" parent="android:Theme.Holo.Light.Dialog.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:textColor">#FF000000</item>
     </style>

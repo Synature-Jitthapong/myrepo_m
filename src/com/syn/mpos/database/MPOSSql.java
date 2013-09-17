@@ -382,14 +382,14 @@ public class MPOSSql {
 			" sale_date  TEXT, " +
 			" session_id  INTEGER NOT NULL DEFAULT 0, " +
 			" void_staff_id  INTEGER NOT NULL DEFAULT 0, " +
-			" void_reason  TEXT(200), " +
+			" void_reason  TEXT, " +
 			" void_time  TEXT, " +
 			" member_id  INTEGER NOT NULL DEFAULT 0, " +
-			" transaction_vat  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" transaction_exclude_vat  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" transaction_vatable  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" service_charge  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" service_charge_vat  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" transaction_vat  REAL NOT NULL DEFAULT 0, " +
+			" transaction_exclude_vat  REAL NOT NULL DEFAULT 0, " +
+			" transaction_vatable  REAL NOT NULL DEFAULT 0, " +
+			" service_charge  REAL NOT NULL DEFAULT 0, " +
+			" service_charge_vat  REAL NOT NULL DEFAULT 0, " +
 			" remark  TEXT, " +
 			" transaction_note  TEXT, " +
 			" PRIMARY KEY (transaction_id ASC, computer_id ASC) " +
@@ -403,14 +403,14 @@ public class MPOSSql {
 			" product_id  INTEGER NOT NULL DEFAULT 0, " +
 			" product_type_id  INTEGER NOT NULL DEFAULT 0, " +
 			" product_name  TEXT NOT NULL, " +
-			" qty  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" price_per_unit  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" total_retail_price  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" total_sale_price  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" qty  REAL NOT NULL DEFAULT 0, " +
+			" price_per_unit  REAL NOT NULL DEFAULT 0, " +
+			" total_retail_price  REAL NOT NULL DEFAULT 0, " +
+			" total_sale_price  REAL NOT NULL DEFAULT 0, " +
 			" vat_type  INTEGER NOT NULL DEFAULT 1, " +
-			" vat  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" member_discount  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" price_discount  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" vat  REAL NOT NULL DEFAULT 0, " +
+			" member_discount  REAL NOT NULL DEFAULT 0, " +
+			" price_discount  REAL NOT NULL DEFAULT 0, " +
 			" PRIMARY KEY (order_detail_id ASC, transaction_id ASC, computer_id ASC) " +
 			" );";
 	
@@ -422,14 +422,14 @@ public class MPOSSql {
 			" product_id  INTEGER NOT NULL DEFAULT 0, " +
 			" product_type_id  INTEGER NOT NULL DEFAULT 0, " +
 			" product_name  TEXT NOT NULL, " +
-			" qty  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" price_per_unit  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" total_retail_price  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" total_sale_price  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" qty  REAL NOT NULL DEFAULT 0, " +
+			" price_per_unit  REAL NOT NULL DEFAULT 0, " +
+			" total_retail_price  REAL NOT NULL DEFAULT 0, " +
+			" total_sale_price  REAL NOT NULL DEFAULT 0, " +
 			" vat_type  INTEGER NOT NULL DEFAULT 1, " +
-			" vat  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" member_discount  REAL(18,4) NOT NULL DEFAULT 0, " +
-			" price_discount  REAL(18,4) NOT NULL DEFAULT 0, " +
+			" vat  REAL NOT NULL DEFAULT 0, " +
+			" member_discount  REAL NOT NULL DEFAULT 0, " +
+			" price_discount  REAL NOT NULL DEFAULT 0, " +
 			" PRIMARY KEY (order_detail_id ASC, transaction_id ASC, computer_id ASC) " +
 			" );";
 	
@@ -514,11 +514,12 @@ public class MPOSSql {
 			" shop_id  INTEGER NOT NULL, " +
 			" material_id  INTEGER NOT NULL, " +
 			" unit_name  TEXT NOT NULL, " +
-			" material_qty  REAL(18,4) DEFAULT 0, " +
-			" material_price_per_unit  REAL(18,4) DEFAULT 0, " +
-			" material_net_price  REAL(18,4) DEFAULT 0, " +
+			" material_qty  REAL DEFAULT 0, " +
+			" material_count_qty  REAL DEFAULT 0, " +
+			" material_price_per_unit  REAL DEFAULT 0, " +
+			" material_net_price  REAL DEFAULT 0, " +
 			" material_tax_type  INTEGER DEFAULT 1, " +
-			" material_tax_price  REAL(18,4) DEFAULT 0, " +
+			" material_tax_price  REAL DEFAULT 0, " +
 			" PRIMARY KEY (docdetail_id ASC, document_id ASC, shop_id ASC) " +
 			" );";
 	
@@ -548,6 +549,7 @@ public class MPOSSql {
 		" INSERT INTO `bank_name` VALUES (20, 'อื่น ๆ'); ",
 		" INSERT INTO `bank_name` VALUES (21, 'TDB'); "
 	};
+	
 	public static final String[] CARD_SQL = {
 		" INSERT INTO `creditcard_type` VALUES (1, 'VISA'); ",
 		" INSERT INTO `creditcard_type` VALUES (2, 'Master'); ",
@@ -556,5 +558,18 @@ public class MPOSSql {
 		" INSERT INTO `creditcard_type` VALUES (5, 'JCB'); ",
 		" INSERT INTO `creditcard_type` VALUES (6, 'VS-GOLD'); ",
 		" INSERT INTO `creditcard_type` VALUES (7, 'MC-GOLD');"
+	};
+	
+	public static final String[] DOC_TYPE = {
+		" INSERT INTO `document_type` VALUES (7, 'xxxST', 'Monthly Stock Card', 0); ",
+		" INSERT INTO `document_type` VALUES (10, 'xxxR', 'Transfer Stock', 1); ",
+		" INSERT INTO `document_type` VALUES (18, 'xxxDS', 'Add From Daily Stock', 1); ",
+		" INSERT INTO `document_type` VALUES (19, 'xxxDS', 'Reduce From Daily Stock', -1); ",
+		" INSERT INTO `document_type` VALUES (20, 'xxxSD', 'Material From Sale Document', -1); ",
+		" INSERT INTO `document_type` VALUES (21, 'xxxVD', 'Material From Void Document', 1); ",
+		" INSERT INTO `document_type` VALUES (22, 'xxxMS', 'Add From Monthly Stock', 1); ",
+		" INSERT INTO `document_type` VALUES (23, 'xxxMS', 'Reduce From Monthly Stock', -1); ",
+		" INSERT INTO `document_type` VALUES (24, 'xxxST', 'Daily Stock Card', 0); ",
+		" INSERT INTO `document_type` VALUES (39, 'xxxRO', 'Direct Receive Order', 1); ",
 	};
 }
