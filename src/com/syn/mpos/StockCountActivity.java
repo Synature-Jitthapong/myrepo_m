@@ -2,19 +2,25 @@ package com.syn.mpos;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
-
+import com.syn.mpos.inventory.MPOSStockCount;
 import com.syn.mpos.inventory.MPOSStockDocument;
-import com.syn.pos.inventory.Document;
-
+import com.syn.mpos.inventory.StockMaterial;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
@@ -22,73 +28,172 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class StockCountActivity extends Activity {
-	
+
 	private Context mContext;
 	private Formatter mFormat;
-	private MPOSStockDocument mStock;
+	private MPOSStockCount mStockCount;
 	private int mDocumentId;
-	private List<HashMap<String, String>> mStockLst;
+	private List<StockMaterial> mStockLst;
 	private StockAdapter mStockAdapter;
 	private Calendar mCalendar;
 	private int mStaffId;
 	private int mShopId;
-	
+
+	private MenuItem mItemSave;
+	private MenuItem mItemConfirm;
+	private MenuItem mItemCancel;
 	private ListView lvStock;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_stock_count);
 		mContext = StockCountActivity.this;
-		
+
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mShopId = intent.getIntExtra("shopId", 0);
-		if(mStaffId == 0 || mShopId == 0)
+		if (mStaffId == 0 || mShopId == 0)
 			finish();
-		
+
 		lvStock = (ListView) findViewById(R.id.listView1);
-		
+
 		init();
 	}
-	
-	private void init(){
+
+	private void init() {
 		mCalendar = Calendar.getInstance();
+		Calendar dateFrom = new GregorianCalendar(mCalendar.get(Calendar.YEAR),
+				mCalendar.get(Calendar.MONTH), 1);
 		mFormat = new Formatter(mContext);
-		mStock = new MPOSStockDocument(mContext);
-		mDocumentId = mStock.getCurrentDocument(mShopId, MPOSStockDocument.DAILY_DOC);
-		if(mDocumentId == 0)
-			mDocumentId = mStock.createDocument(mShopId, MPOSStockDocument.DAILY_DOC, mStaffId);
-		
-		Calendar dateFrom = new GregorianCalendar(mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), 1);
-		
-		mStockLst = mStock.listStock(dateFrom.getTimeInMillis(), mCalendar.getTimeInMillis());
+		mStockCount = new MPOSStockCount(mContext, dateFrom.getTimeInMillis(),
+				mCalendar.getTimeInMillis());
+
+		mDocumentId = mStockCount.getCurrentDocument(mShopId,
+				MPOSStockDocument.DAILY_DOC);
+		if (mDocumentId == 0) {
+			mDocumentId = mStockCount.createDocument(mShopId,
+					MPOSStockDocument.DAILY_DOC, mStaffId);
+			mStockLst = mStockCount.listStock();
+		} else {
+			mStockLst = mStockCount.listStock(mDocumentId, mShopId);
+		}
+
 		mStockAdapter = new StockAdapter();
 		lvStock.setAdapter(mStockAdapter);
 	}
 
 	@Override
+	protected void onDestroy() {
+		mStockCount.clearDocument();
+		super.onDestroy();
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.action_confirm, menu);
+		mItemSave = (MenuItem) menu.findItem(R.id.itemSave);
+		mItemConfirm = (MenuItem) menu.findItem(R.id.itemConfirm);
+		mItemCancel = (MenuItem) menu.findItem(R.id.itemCancel);
+		if(mDocumentId > 0){
+			mItemConfirm.setEnabled(true);
+			mItemCancel.setEnabled(true);
+		}else{
+			mItemConfirm.setEnabled(false);
+			mItemCancel.setEnabled(false);
+		}
 		return true;
 	}
 
-	private class StockAdapter extends BaseAdapter{
-		
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		final EditText txtRemark;
+
+		switch (item.getItemId()) {
+		case R.id.itemSave:
+			mItemSave = item;
+			new SaveStockCountTask().execute();
+			return true;
+		case R.id.itemConfirm:
+			mItemConfirm = item;
+
+			txtRemark = new EditText(mContext);
+			new AlertDialog.Builder(mContext)
+					.setView(txtRemark)
+					.setTitle(R.string.confirm)
+					.setMessage(R.string.confirm_stock_count)
+					.setNegativeButton(android.R.string.cancel,
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+
+								}
+							})
+					.setPositiveButton(android.R.string.ok,
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									mStockCount.confirmStock(mDocumentId,
+											mShopId, mStaffId, txtRemark
+													.getText().toString());
+								}
+							}).show();
+			return true;
+		case R.id.itemClose:
+			finish();
+			return true;
+		case R.id.itemCancel:
+			new AlertDialog.Builder(mContext)
+			.setTitle(R.string.confirm)
+			.setMessage(R.string.confirm_stock_count)
+			.setNegativeButton(android.R.string.cancel,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog,
+								int which) {
+
+						}
+					})
+			.setPositiveButton(android.R.string.ok,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog,
+								int which) {
+							if(mStockCount.cancelDocument(mDocumentId, mShopId, mStaffId, "test cancel")){
+								init();
+							}else{
+								// do alert error
+							}
+						}
+					}).show();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	private class StockAdapter extends BaseAdapter {
+
 		private LayoutInflater inflater;
-		
-		public StockAdapter(){
+
+		public StockAdapter() {
 			inflater = LayoutInflater.from(mContext);
 		}
-		
+
 		@Override
 		public int getCount() {
 			return mStockLst != null ? mStockLst.size() : 0;
 		}
 
 		@Override
-		public HashMap<String, String> getItem(int position) {
+		public StockMaterial getItem(int position) {
 			return mStockLst.get(position);
 		}
 
@@ -99,34 +204,79 @@ public class StockCountActivity extends Activity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			HashMap<String, String> stock = mStockLst.get(position);
-			ViewHolder holder = null;
-			if(convertView == null){
-				convertView = inflater.inflate(R.layout.stock_count_template, null);
+			final StockMaterial stock = mStockLst.get(position);
+			final ViewHolder holder;
+
+			if (convertView == null) {
+				convertView = inflater.inflate(R.layout.stock_count_template,
+						null);
 				holder = new ViewHolder();
-				holder.tvItemNo = (TextView) convertView.findViewById(R.id.tvItemNo);
-				holder.tvItemCode = (TextView) convertView.findViewById(R.id.tvItemCode);
-				holder.tvItemName = (TextView) convertView.findViewById(R.id.tvItemName);
-				holder.tvItemCurrQty = (TextView) convertView.findViewById(R.id.tvItemCurrQty);
-				holder.txtItemQty = (EditText) convertView.findViewById(R.id.txtItemQty);
-				holder.tvItemDiff = (TextView) convertView.findViewById(R.id.tvItemDiff);
-				holder.tvItemUnit = (TextView) convertView.findViewById(R.id.tvItemUnit);
+				holder.tvItemNo = (TextView) convertView
+						.findViewById(R.id.tvItemNo);
+				holder.tvItemCode = (TextView) convertView
+						.findViewById(R.id.tvItemCode);
+				holder.tvItemName = (TextView) convertView
+						.findViewById(R.id.tvItemName);
+				holder.tvItemCurrQty = (TextView) convertView
+						.findViewById(R.id.tvItemCurrQty);
+				holder.txtItemQty = (EditText) convertView
+						.findViewById(R.id.txtItemQty);
+				holder.tvItemDiff = (TextView) convertView
+						.findViewById(R.id.tvItemDiff);
+				holder.tvItemUnit = (TextView) convertView
+						.findViewById(R.id.tvItemUnit);
 				
 				convertView.setTag(holder);
-			}else{
+			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
-			
+
+			final float currQty = stock.getCurrQty();
+			final float countQty = stock.getCountQty();
+			float diffQty = countQty - currQty;
+
 			holder.tvItemNo.setText(Integer.toString(position + 1));
-			holder.tvItemCode.setText(stock.get("productCode"));
-			holder.tvItemName.setText(stock.get("productName"));
-			holder.tvItemCurrQty.setText(stock.get("currQty"));
-			holder.txtItemQty.setText(stock.get("countQty"));
+			holder.tvItemCode.setText(stock.getCode());
+			holder.tvItemName.setText(stock.getName());
+			holder.tvItemCurrQty.setText(mFormat.qtyFormat(currQty));
+			holder.txtItemQty.setText(mFormat.qtyFormat(countQty));
+			holder.tvItemDiff.setText(mFormat.qtyFormat(diffQty));
+			holder.tvItemUnit.setText("unit");
+			holder.txtItemQty.clearFocus();
+			holder.txtItemQty.setOnKeyListener(new OnKeyListener() {
+
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event) {
+					float enterCount = 0.0f;
+					try {
+						enterCount = Float.parseFloat(holder.txtItemQty
+								.getText().toString());
+					} catch (NumberFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					stock.setCountQty(enterCount);
+					holder.tvItemDiff.setText(mFormat.qtyFormat(enterCount - currQty));
+					return false;
+				}
+
+			});
 			
+			holder.txtItemQty.setOnFocusChangeListener(new OnFocusChangeListener(){
+
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) {
+					if(hasFocus){
+						((EditText) v).selectAll();
+					}
+				}
+				
+			});
 			return convertView;
 		}
-		
-		private class ViewHolder{
+
+		private class ViewHolder {
 			TextView tvItemNo;
 			TextView tvItemCode;
 			TextView tvItemName;
@@ -135,5 +285,47 @@ public class StockCountActivity extends Activity {
 			TextView tvItemDiff;
 			TextView tvItemUnit;
 		}
+	}
+
+	private class SaveStockCountTask extends AsyncTask<Void, Void, Boolean> {
+
+		private ProgressDialog progress;
+
+		public SaveStockCountTask() {
+			progress = new ProgressDialog(mContext);
+			progress.setCancelable(false);
+			TextView tvProgress = new TextView(mContext);
+			tvProgress.setText(R.string.progress);
+			progress.setMessage(tvProgress.getText().toString());
+		}
+
+		@Override
+		protected void onPostExecute(Boolean isSuccess) {
+			if (progress.isShowing())
+				progress.dismiss();
+
+			mItemSave.setEnabled(true);
+			if (isSuccess) {
+				mItemConfirm.setEnabled(true);
+			} else {
+				Util.alert(mContext, android.R.drawable.ic_dialog_alert,
+						R.string.error, R.string.error_save_stock);
+			}
+			super.onPostExecute(isSuccess);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			progress.show();
+			mItemSave.setEnabled(false);
+			super.onPreExecute();
+		}
+
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			return mStockCount.saveStock(mDocumentId, mShopId, mStaffId, "",
+					mStockLst);
+		}
+
 	}
 }

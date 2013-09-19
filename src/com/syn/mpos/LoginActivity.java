@@ -10,6 +10,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
@@ -45,18 +47,37 @@ public class LoginActivity extends Activity {
 		setting.conn.setServiceName(sharedPref.getString("pref_webservice", ""));
 		setting.conn.setFullUrl("http://" + setting.conn.getIpAddress() + "/" + setting.conn.getServiceName() + "/ws_mpos.asmx");
 		setting.sync.setSyncWhenLogin(sharedPref.getBoolean("pref_syncwhenlogin", false));
+		
+		if(setting.conn.getIpAddress().equals("") || 
+				setting.conn.getServiceName().equals("")){
+			Intent intent = new Intent(context, SettingsActivity.class);
+			startActivity(intent);
+		}
 	}
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.action_setting, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		case R.id.itemSetting:
+			Intent intent = new Intent(context, SettingsActivity.class);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);	
+		}
+	}
+
 	@Override
 	protected void onResume() {
 		init();
 		
 		super.onResume();
-	}
-
-	public void settingClicked(final View v){
-		Intent intent = new Intent(context, SettingsActivity.class);
-		startActivity(intent);
 	}
 	
 	public void loginClicked(final View v){

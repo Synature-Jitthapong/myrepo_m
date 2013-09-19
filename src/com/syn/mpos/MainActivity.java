@@ -559,6 +559,12 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 					intent.putExtra("staffId", mStaffId);
 					startActivity(intent);
 					return true;
+				case R.id.itemStockCard:
+					intent = new Intent(MainActivity.this, StockCardActivity.class);
+					intent.putExtra("shopId", mShopId);
+					intent.putExtra("staffId", mStaffId);
+					startActivity(intent);
+					return true;
 				}
 				return false;
 			}

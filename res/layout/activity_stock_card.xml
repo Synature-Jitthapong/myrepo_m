@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".StockCountActivity" >
+    tools:context=".StockCardActivity" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +22,10 @@
             style="@style/ColumnHeader"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
+            android:layout_marginRight="1dp"
+            android:background="@color/grey_light"
             android:gravity="center"
+            android:padding="4dp"
             android:text="@string/item_no"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -31,7 +34,10 @@
             style="@style/ColumnHeader"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:layout_marginRight="1dp"
+            android:background="@color/grey_light"
             android:lines="1"
+            android:padding="4dp"
             android:text="@string/product_code"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -49,6 +55,37 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
+            android:id="@+id/textView10"
+            style="@style/ColumnHeader"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/init"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textView8"
+            style="@style/ColumnHeader"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="1dp"
+            android:background="@color/grey_light"
+            android:lines="1"
+            android:padding="4dp"
+            android:text="@string/receive"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textView9"
+            style="@style/ColumnHeader"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="1dp"
+            android:background="@color/grey_light"
+            android:padding="4dp"
+            android:text="@string/sale"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
             android:id="@+id/textView7"
             style="@style/ColumnHeader"
             android:layout_width="100dp"
@@ -57,7 +94,7 @@
             android:background="@color/grey_light"
             android:lines="1"
             android:padding="4dp"
-            android:text="@string/balance"
+            android:text="@string/endding"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
@@ -69,7 +106,7 @@
             android:background="@color/grey_light"
             android:lines="1"
             android:padding="4dp"
-            android:text="@string/qty"
+            android:text="@string/variance"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
@@ -86,7 +123,6 @@
 
         <TextView
             android:id="@+id/textView6"
-            style="@style/ColumnHeader"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:background="@color/grey_light"
@@ -95,7 +131,6 @@
             android:text="@string/unit_name"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:visibility="gone" />
-
     </LinearLayout>
 
     <ListView

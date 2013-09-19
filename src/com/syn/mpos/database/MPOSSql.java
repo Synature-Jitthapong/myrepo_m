@@ -47,30 +47,30 @@ public class MPOSSql {
 	public static final String TB_STAFF = 
 			" CREATE TABLE staffs ( " +
 			" staff_id  INTEGER NOT NULL DEFAULT 0, " +
-			" staff_code  TEXT(20), " +
-			" staff_name  TEXT(100), " +
-			" staff_password  TEXT(100), " +
+			" staff_code  TEXT, " +
+			" staff_name  TEXT, " +
+			" staff_password  TEXT, " +
 			" PRIMARY KEY (staff_id) " +
 			" );";
 	
 	public static final String TB_COMP = 
 			" CREATE TABLE computer_property ( " +
 			" computer_id  INTEGER NOT NULL DEFAULT 0, " +
-			" computer_name  TEXT(50), " +
-			" device_code  TEXT(50), " +
-			" registration_number  TEXT(50), " +
+			" computer_name  TEXT, " +
+			" device_code  TEXT, " +
+			" registration_number  TEXT, " +
 			" PRIMARY KEY (computer_id ASC) " +
 			" );";
 	
 	public static final String TB_GB_PROP =
 			" CREATE TABLE global_property ( " + 
-			" currency_symbol  TEXT(10), " +
-			" currency_code  TEXT(10), " +
-			" currency_name  TEXT(20), " +
-			" currency_format  TEXT(20), " +
-			" date_format  TEXT(20), " +
-			" time_format  TEXT(20), " +
-			" qty_format  TEXT(20) " +
+			" currency_symbol  TEXT, " +
+			" currency_code  TEXT, " +
+			" currency_name  TEXT, " +
+			" currency_format  TEXT, " +
+			" date_format  TEXT, " +
+			" time_format  TEXT, " +
+			" qty_format  TEXT " +
 			" );";
 	
 	public static final String TB_PROVINCE =
@@ -118,7 +118,7 @@ public class MPOSSql {
 			" transaction_id  INTEGER NOT NULL, " +
 			" computer_id  INTEGER NOT NULL, " +
 			" pay_type_id  INTEGER NOT NULL, " +
-			" pay_amount  REAL(18,4) NOT NULL, " +
+			" pay_amount  REAL NOT NULL, " +
 			" credit_card_no  TEXT, " +
 			" expire_month  INTEGER, " +
 			" expire_year  INTEGER, " +
@@ -136,8 +136,8 @@ public class MPOSSql {
 			" session_date  TEXT NOT NULL, " +
 			" open_date_time  TEXT NOT NULL, " +
 			" close_date_time  TEXT NOT NULL, " +
-			" open_amount  REAL(18,4) NOT NULL, " +
-			" close_amount  REAL(18,4) NOT NULL, " +
+			" open_amount  REAL NOT NULL, " +
+			" close_amount  REAL NOT NULL, " +
 			" is_endday  INTEGER NOT NULL, " +
 			" PRIMARY KEY (session_id, computer_id, shop_id) " +
 			" );";
@@ -147,7 +147,7 @@ public class MPOSSql {
 			" session_date  TEXT NOT NULL, " +
 			" endday_date_time  TEXT NOT NULL, " +
 			" total_qty_receipt  INTEGER NOT NULL, " +
-			" total_amount_receipt  REAL(18,4) NOT NULL, " +
+			" total_amount_receipt  REAL NOT NULL, " +
 			" is_send_to_hq  INTEGER NOT NULL, " +
 			" send_to_hq_date_time  TEXT NOT NULL, " +
 			" PRIMARY KEY (session_date) " +
@@ -156,8 +156,8 @@ public class MPOSSql {
 	public static final String TB_PRO_GROUP = 
 			" CREATE TABLE product_group ( " +
 			" product_group_id  INTEGER NOT NULL, " +
-			" product_group_code  TEXT(30), " +
-			" product_group_name  TEXT(50), " +
+			" product_group_code  TEXT, " +
+			" product_group_name  TEXT, " +
 			" is_comment  INTEGER NOT NULL DEFAULT 0, " +
 			" product_group_type  INTEGER NOT NULL DEFAULT 0, " +
 			" product_group_ordering  INTEGER NOT NULL DEFAULT 0, " +
@@ -169,8 +169,8 @@ public class MPOSSql {
 			" CREATE TABLE product_dept ( " +
 			" product_dept_id  INTEGER NOT NULL, " +
 			" product_group_id  INTEGER NOT NULL, " +
-			" product_dept_code  TEXT(30), " +
-			" product_dept_name  TEXT(50), " +
+			" product_dept_code  TEXT, " +
+			" product_dept_name  TEXT, " +
 			" product_dept_ordering  INTEGER NOT NULL DEFAULT 0, " +
 			" updatedate  TEXT, " +
 			" PRIMARY KEY (product_dept_id) " +
@@ -181,15 +181,15 @@ public class MPOSSql {
 			" product_id  INTEGER NOT NULL, " +
 			" product_dept_id  INTEGER NOT NULL, " +
 			" product_group_id  INTEGER NOT NULL DEFAULT 0, " +
-			" product_code  TEXT(30), " +
-			" product_bar_code  TEXT(30), " +
+			" product_code  TEXT, " +
+			" product_bar_code  TEXT, " +
 			" product_type_id  INTEGER NOT NULL DEFAULT 0, " +
 			" product_price  REAL NOT NULL DEFAULT 0.0, " +
-			" product_unit_name  TEXT(50), " +
-			" product_desc  TEXT(200), " +
+			" product_unit_name  TEXT, " +
+			" product_desc  TEXT, " +
 			" discount_allow  INTEGER DEFAULT 0, " +
 			" vat_type  INTEGER NOT NULL DEFAULT 0, " +
-			" vat_rate  REAL(3,2) NOT NULL DEFAULT 0.0, " +
+			" vat_rate  REAL NOT NULL DEFAULT 0.0, " +
 			" has_service_charge  INTEGER NOT NULL DEFAULT 0, " +
 			" activate  INTEGER NOT NULL DEFAULT 1, " +
 			" is_out_of_stock  INTEGER NOT NULL DEFAULT 0, " +
@@ -234,7 +234,7 @@ public class MPOSSql {
 			" product_id  INTEGER NOT NULL DEFAULT 0, " +
 			" sale_mode  INTEGER NOT NULL DEFAULT 0, " +
 			" child_product_id  INTEGER NOT NULL DEFAULT 0, " +
-			" child_product_amount  REAL(18,4) NOT NULL, " +
+			" child_product_amount  REAL NOT NULL, " +
 			" flexible_product_price  REAL NOT NULL, " +
 			" flexible_include_price  INTEGER NOT NULL, " +
 			" PRIMARY KEY (p_group_id, product_id, sale_mode, child_product_id) " +
@@ -260,10 +260,10 @@ public class MPOSSql {
 			" CREATE TABLE menu_dept ( " +
 			" menu_dept_id  INTEGER NOT NULL DEFAULT 0, " +
 			" menu_group_id  INTEGER, " +
-			" menu_dept_name_0  TEXT(100), " +
-			" menu_dept_name_1  TEXT(100), " +
-			" menu_dept_name_2  TEXT(100), " +
-			" menu_dept_name_3  TEXT(100), " +
+			" menu_dept_name_0  TEXT, " +
+			" menu_dept_name_1  TEXT, " +
+			" menu_dept_name_2  TEXT, " +
+			" menu_dept_name_3  TEXT, " +
 			" menu_dept_ordering  INTEGER NOT NULL DEFAULT 0, " +
 			" updatedate  TEXT, " +
 			" PRIMARY KEY (menu_dept_id) " +
@@ -272,10 +272,10 @@ public class MPOSSql {
 	public static final String TB_MENU_GROUP = 
 			" CREATE TABLE menu_group ( " +
 			" menu_group_id  INTEGER NOT NULL, " +
-			" menu_group_name_0  TEXT(100), " +
-			" menu_group_name_1  TEXT(100), " +
-			" menu_group_name_2  TEXT(100), " +
-			" menu_group_name_3  TEXT(100), " +
+			" menu_group_name_0  TEXT, " +
+			" menu_group_name_1  TEXT, " +
+			" menu_group_name_2  TEXT, " +
+			" menu_group_name_3  TEXT, " +
 			" menu_group_type_id  INTEGER NOT NULL DEFAULT 0, " +
 			" menu_group_ordering  INTEGER NOT NULL DEFAULT 0, " +
 			" updatedate  TEXT, " +
@@ -289,23 +289,23 @@ public class MPOSSql {
 			" product_id  INTEGER NOT NULL DEFAULT 0, " +
 			" menu_dept_id  INTEGER NOT NULL DEFAULT 0, " +
 			" menu_group_id  INTEGER NOT NULL DEFAULT 0, " +
-			" menu_name_0  TEXT(100), " +
-			" menu_name_1  TEXT(100), " +
-			" menu_name_2  TEXT(100), " +
-			" menu_name_3  TEXT(100), " +
-			" menu_desc_0  TEXT(100), " +
-			" menu_desc_1  TEXT(100), " +
-			" menu_desc_2  TEXT(100), " +
-			" menu_desc_3  TEXT(100), " +
-			" menu_long_desc_0  TEXT(100), " +
-			" menu_long_desc_1  TEXT(100), " +
-			" menu_long_desc_2  TEXT(100), " +
-			" menu_long_desc_3  TEXT(100), " +
-			" menu_short_name_0  TEXT(5), " +
-			" menu_short_name_1  TEXT(5), " +
-			" menu_short_name_2  TEXT(5), " +
-			" menu_short_name_3  TEXT(5), " +
-			" menu_image_link  TEXT(100), " +
+			" menu_name_0  TEXT, " +
+			" menu_name_1  TEXT, " +
+			" menu_name_2  TEXT, " +
+			" menu_name_3  TEXT, " +
+			" menu_desc_0  TEXT, " +
+			" menu_desc_1  TEXT, " +
+			" menu_desc_2  TEXT, " +
+			" menu_desc_3  TEXT, " +
+			" menu_long_desc_0  TEXT, " +
+			" menu_long_desc_1  TEXT, " +
+			" menu_long_desc_2  TEXT, " +
+			" menu_long_desc_3  TEXT, " +
+			" menu_short_name_0  TEXT, " +
+			" menu_short_name_1  TEXT, " +
+			" menu_short_name_2  TEXT, " +
+			" menu_short_name_3  TEXT, " +
+			" menu_image_link  TEXT, " +
 			" menu_ordering  INTEGER NOT NULL DEFAULT 0, " +
 			" updatedate  TEXT, " +
 			" menu_activate  INTEGER NOT NULL DEFAULT 0 " +
@@ -329,10 +329,10 @@ public class MPOSSql {
 			" CREATE TABLE menu_comment ( " +
 			" menu_comment_id  INTEGER NOT NULL, " +
 			" menu_comment_group_id  INTEGER NOT NULL DEFAULT 0, " +
-			" menu_comment_name_0  TEXT(50), " +
-			" menu_comment_name_1  TEXT(50), " +
-			" menu_comment_name_2  TEXT(50), " +
-			" menu_comment_name_3  TEXT(50), " +
+			" menu_comment_name_0  TEXT, " +
+			" menu_comment_name_1  TEXT, " +
+			" menu_comment_name_2  TEXT, " +
+			" menu_comment_name_3  TEXT, " +
 			" menu_comment_ordering  INTEGER, " +
 			" updatedate  TEXT, " +
 			" PRIMARY KEY (menu_comment_id) " +
@@ -495,6 +495,8 @@ public class MPOSSql {
 			" CREATE TABLE document ( " +
 			" document_id  INTEGER NOT NULL, " +
 			" shop_id  INTEGER NOT NULL, " +
+			" ref_document_id  INTEGER, " +
+			" ref_shop_id  INTEGER, " +
 			" document_type_id  INTEGER NOT NULL, " +
 			" document_no  TEXT, " +
 			" document_date, " +
@@ -513,7 +515,7 @@ public class MPOSSql {
 			" document_id  INTEGER NOT NULL, " +
 			" shop_id  INTEGER NOT NULL, " +
 			" material_id  INTEGER NOT NULL, " +
-			" unit_name  TEXT NOT NULL, " +
+			" unit_name  TEXT, " +
 			" material_qty  REAL DEFAULT 0, " +
 			" material_count_qty  REAL DEFAULT 0, " +
 			" material_price_per_unit  REAL DEFAULT 0, " +

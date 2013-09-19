@@ -27,7 +27,7 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 	public static final int DOC_STATUS_APPROVE = 2;
 	public static final int DOC_STATUS_CANCLE = 99;
 	
-	private SQLiteHelper mDbHelper;
+	protected SQLiteHelper mDbHelper;
 	
 	public MPOSStockDocument(Context context){
 		mDbHelper = new MPOSSQLiteHelper(context);
@@ -38,7 +38,8 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		String strSql = "SELECT document_id " +
 				" FROM document " +
 				" WHERE shop_id=" + shopId +
-				" AND document_type_id=" + documentTypeId;
+				" AND document_type_id=" + documentTypeId + 
+				" AND document_status=1";
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if(cursor.moveToFirst()){
@@ -50,12 +51,11 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 	}
 	
 	@Override
-	public int getMaxDocument(int shopId, int docTypeId) {
+	public int getMaxDocument(int shopId) {
 		int maxDocId = 0;
 		String strSql = "SELECT MAX(document_id) " +
 				" FROM document " +
-				" WHERE shop_id=" + shopId +
-				" AND document_type_id=" + docTypeId;
+				" WHERE shop_id=" + shopId;
 		
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
@@ -114,7 +114,7 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 	@Override
 	public int getMaxDocumentDetail(int documentId, int shopId) {
 		int docDetailId = 0;
-		String strSql = "SELECT MAX(docdetail_id " +
+		String strSql = "SELECT MAX(docdetail_id) " +
 				" FROM docdetail " +
 				" WHERE document_id=" + documentId + 
 				" AND shop_id=" + shopId;
@@ -131,7 +131,7 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 
 	@Override
 	public int addDocumentDetail(int documentId, int shopId, float materialId, 
-			float materialQty, float materialPrice, String unitName) {
+			float materialQty, float materialCountQty, float materialPrice, String unitName) {
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
 		
 		ContentValues cv = new ContentValues();
@@ -140,6 +140,7 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		cv.put("shop_id", shopId);
 		cv.put("material_id", materialId);
 		cv.put("material_qty", materialQty);
+		cv.put("material_count_qty", materialCountQty);
 		cv.put("material_price_per_unit", materialPrice);
 		cv.put("material_net_price", materialPrice);
 		cv.put("material_tax_type", 1);
@@ -153,8 +154,8 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 
 	@Override
 	public int addDocumentDetail(int documentId, int shopId,
-			float materialId, float materialQty, float materialPrice,
-			int taxType, String unitName) {
+			float materialId, float materialQty, float materialCountQty,
+			float materialPrice, int taxType, String unitName) {
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
 		float totalPrice = materialPrice * materialQty;
 		float tax = taxType == 2 ? calculateVat(totalPrice, 7) : 0;
@@ -166,6 +167,7 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		cv.put("shop_id", shopId);
 		cv.put("material_id", materialId);
 		cv.put("material_qty", materialQty);
+		cv.put("material_count_qty", materialCountQty);
 		cv.put("material_price_per_unit", materialPrice);
 		cv.put("material_net_price", netPrice);
 		cv.put("material_tax_type", taxType);
@@ -223,11 +225,24 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 	}
 
 	@Override
-	public boolean deleteDocumentDetail(int docDetailId, int shopId, int documentId) {
+	public boolean deleteDocumentDetail(int docDetailId, int documentId, int shopId) {
 		boolean isSuccess = false;
 		String strSql = "DELETE FROM docdetail " +
 				" WHERE docdetail_id=" + docDetailId + 
 				" AND document_id=" + documentId + 
+				" AND shop_id=" + shopId;
+		
+		mDbHelper.open();
+		isSuccess = mDbHelper.execSQL(strSql);
+		mDbHelper.close();
+		return isSuccess;
+	}
+	
+	@Override
+	public boolean deleteDocumentDetail(int documentId, int shopId) {
+		boolean isSuccess = false;
+		String strSql = "DELETE FROM docdetail " +
+				" WHERE document_id=" + documentId + 
 				" AND shop_id=" + shopId;
 		
 		mDbHelper.open();
@@ -240,36 +255,16 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	public List<HashMap<String, String>> listAllDocDetail(int documentId, int shopId) {
-		List<HashMap<String, String>> docDetailLst = 
-				new ArrayList<HashMap<String,String>>();
-		String strSql = "SELECT a.material_id, a.material_c.product_code, " +
-				" FROM docdetail a " +
-				" LEFT JOIN menu_item b " +
-				" ON a.material_id=b.product_id " +
-				" LEFT JOIN products c " +
-				" ON b.product_id=c.product_id " +
-				" WHERE a.document_id=" + documentId + 
-				" AND a.shop_id=" + shopId + 
-				" AND b.menu_activate=1 " +
-				" AND c.activate=1";
-		
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
-		if(cursor.moveToFirst()){
-			do{
-				
-			}while(cursor.moveToNext());
-		}
-		cursor.close();
-		mDbHelper.close();
-		return docDetailLst;
-	}
 	
+	public void clearDocument(){
+		mDbHelper.open();
+		mDbHelper.execSQL("DELETE FROM document WHERE document_status=0");
+		mDbHelper.close();
+	}
+
 	@Override
 	public int createDocument(int shopId, int documentTypeId, int staffId) {
-		int documentId = getMaxDocument(shopId, documentTypeId);
+		int documentId = getMaxDocument(shopId);
 		Calendar date = getDate();
 		Calendar dateTime = getDateTime();
 		
@@ -287,92 +282,29 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		mDbHelper.close();
 		return documentId;
 	}
-
-	/**
-	 * list stock 
-	 * @param dateFrom
-	 * @param dateTo
-	 * @return
-	 */
-	public List<HashMap<String, String>> listStock(long dateFrom, long dateTo) {
-		List<HashMap<String, String>> stockLst = 
-				new ArrayList<HashMap<String,String>>();
-		
-		calculateStock(dateFrom, dateTo);
-		
-		String strSql = "SELECT a.product_id, a.product_code, b.menu_name_0, " +
-				" c.material_qty, c.material_count_qty " +
-				" FROM products a " +
-				" LEFT JOIN menu_item b " +
-				" ON a.product_id=b.product_id " +
-				" LEFT OUTER JOIN stock_tmp c " +
-				" ON a.product_id=c.material_id " +
-				" WHERE a.activate=1 " +
-				" AND b.menu_activate=1";
-		
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
-		if(cursor.moveToFirst()){
-			do{
-				HashMap<String, String> mat = new HashMap<String, String>();
-				mat.put("productId", cursor.getString(cursor.getColumnIndex("product_id")));
-				mat.put("productCode", cursor.getString(cursor.getColumnIndex("product_code")));
-				mat.put("productName", cursor.getString(cursor.getColumnIndex("menu_name_0")));
-				mat.put("currQty", cursor.getString(cursor.getColumnIndex("material_qty")));
-				mat.put("countQty", cursor.getString(cursor.getColumnIndex("material_count_qty")));
-				stockLst.add(mat);
-			}while(cursor.moveToNext());
-		}
-		cursor.close();
-		mDbHelper.close();
-		return stockLst;
-	}
 	
-	/**
-	 * calculate current stock
-	 * @param dateFrom
-	 * @param dateTo
-	 * @return
-	 */
-	protected boolean calculateStock(long dateFrom, long dateTo){
-		boolean isSuccess = false;
-		if(createStockTmp()){
-			String strSql = "INSERT INTO stock_tmp " +
-					" SELECT b.material_id, " +
-					" SUM(b.material_qty * c.movement_in_stock), " +
-					" b.material_count_qty " +
-					" FROM document a " +
-					" LEFT JOIN doc_detail b " +
-					" ON a.document_id=b.document_id " +
-					" AND a.shop_id=b.shop_id " +
-					" LEFT JOIN document_type c " +
-					" ON a.document_type_id=c.document_type_id " +
-					" WHERE a.document_date >=" + dateFrom + 
-					" AND a.document_date <=" + dateTo + 
-					" AND a.document_status_id=2 " +
-					" GROUP BY b.material_id";
-			
-			mDbHelper.open();
-			isSuccess = mDbHelper.execSQL(strSql);
-			mDbHelper.close();
-		}
-		return isSuccess;
-	}
-
-	/**
-	 * create stock temp table
-	 * @return
-	 */
-	protected boolean createStockTmp(){
-		boolean isSuccess = false;
-		String strSql = " CREATE TABLE stock_tmp ( " +
-				" material_id  INTEGER NOT NULL, " +
-				" material_qty REAL DEFAULT 0, " +
-				" material_count_qty  REAL DEFAULT 0);";
+	@Override
+	public int createDocument(int shopId, int refDocumentId, int refShopId,
+			int documentTypeId, int staffId) {
+		int documentId = getMaxDocument(shopId);
+		Calendar date = getDate();
+		Calendar dateTime = getDateTime();
+		
+		ContentValues cv = new ContentValues();
+		cv.put("document_id", documentId);
+		cv.put("shop_id", shopId);
+		cv.put("ref_document_id", refDocumentId);
+		cv.put("ref_shop_id", refShopId);
+		cv.put("document_type_id", documentTypeId);
+		cv.put("document_status", DOC_STATUS_NEW);
+		cv.put("document_date", date.getTimeInMillis());
+		cv.put("update_by", staffId);
+		cv.put("update_date", dateTime.getTimeInMillis());
 		
 		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL(strSql);
+		if(!mDbHelper.insert("document", cv)) documentId = 0;
 		mDbHelper.close();
-		return isSuccess;
+		return documentId;
 	}
+
 }

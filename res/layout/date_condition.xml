@@ -5,20 +5,13 @@
     android:gravity="right|center_vertical"
     android:orientation="horizontal" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
     <Button
         android:id="@+id/btnDateFrom"
         style="?android:attr/spinnerStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableLeft="@android:drawable/ic_menu_day" />
+        android:drawableLeft="@android:drawable/ic_menu_day"
+        android:onClick="onDateFromClick" />
 
     <TextView
         android:id="@+id/textView9"
@@ -33,13 +26,15 @@
         style="?android:attr/spinnerStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableLeft="@android:drawable/ic_menu_month" />
+        android:drawableLeft="@android:drawable/ic_menu_month"
+        android:onClick="onDateToClick" />
 
     <Button
         android:id="@+id/btnGenReport"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="100dp"
+        android:onClick="onClick"
         android:text="@string/create_report"
         android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 

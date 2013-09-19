@@ -5,11 +5,10 @@
     android:layout_height="wrap_content"
     android:background="@android:drawable/list_selector_background"
     android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:padding="4dp" >
+    android:orientation="horizontal" >
 
     <TextView
-        android:id="@+id/tvItemNo"
+        android:id="@+id/tvNo"
         style="@style/ColumnDetail"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
@@ -19,7 +18,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:id="@+id/tvItemCode"
+        android:id="@+id/tvCode"
         style="@style/ColumnDetail"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
@@ -28,7 +27,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:id="@+id/tvItemName"
+        android:id="@+id/tvName"
         style="@style/ColumnDetail"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -38,37 +37,15 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:id="@+id/tvItemCurrQty"
+        android:id="@+id/tvInit"
         style="@style/ColumnDetail"
-        android:layout_width="120dp"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_marginRight="1dp"
         android:gravity="right"
-        android:lines="1"
-        android:paddingRight="2dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <LinearLayout
-        android:layout_width="100dp"
-        android:layout_height="wrap_content" >
-
-        <EditText
-            android:id="@+id/txtItemQty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="5"
-            android:gravity="center_vertical|right"
-            android:inputType="number"
-            android:lines="1"
-            android:singleLine="true" >
-
-            <requestFocus />
-        </EditText>
-
-    </LinearLayout>
-
     <TextView
-        android:id="@+id/tvItemDiff"
+        android:id="@+id/tvReceive"
         style="@style/ColumnDetail"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
@@ -79,12 +56,39 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:id="@+id/tvItemUnit"
+        android:id="@+id/tvSale"
         style="@style/ColumnDetail"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:layout_marginRight="1dp"
+        android:gravity="right"
         android:lines="1"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:visibility="gone" />
+        android:paddingRight="2dp"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvEndding"
+        style="@style/ColumnDetail"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:lines="1"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvVariance"
+        style="@style/ColumnDetail"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvDiff"
+        style="@style/ColumnDetail"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </LinearLayout>

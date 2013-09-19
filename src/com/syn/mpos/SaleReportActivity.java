@@ -12,6 +12,8 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -19,7 +21,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-public class SaleReportActivity extends Activity {
+public class SaleReportActivity extends Activity implements OnDateConditionListener {
 	//private static final String TAG = "SaleReportActivity"; 
 	private Context context;
 	private int mode = 1;
@@ -31,7 +33,6 @@ public class SaleReportActivity extends Activity {
 	private Button btnDateFrom;
 	private Button btnDateTo;
 	private Button btnCreateReport;
-	private TextView mTvTitle;
 	private TableLayout tbReport;
 	private TableRow trProductReportHeader;
 	private TableRow trBillReportHeader;
@@ -41,28 +42,19 @@ public class SaleReportActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sale_report);
 		
-		ActionBar actionBar = getActionBar();
-		actionBar.setCustomView(R.layout.date_condition);
-	    actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM
-	            | ActionBar.DISPLAY_SHOW_HOME);
-		
 		tbReport = (TableLayout) findViewById(R.id.tbReport);
 		trProductReportHeader = (TableRow) findViewById(R.id.tableRowByProduct);
 		trBillReportHeader = (TableRow) findViewById(R.id.tableRowByBill);
-		btnDateFrom = (Button) actionBar.getCustomView().findViewById(R.id.btnDateFrom);
-		btnDateTo = (Button) actionBar.getCustomView().findViewById(R.id.btnDateTo);
-		btnCreateReport = (Button) actionBar.getCustomView().findViewById(R.id.btnGenReport);
-		mTvTitle = (TextView) actionBar.getCustomView().findViewById(R.id.textView1);
 		
 		Intent intent = getIntent();
 		mode = intent.getIntExtra("mode", 1);
 		
 		if(mode == 1){
-			mTvTitle.setText(R.string.sale_report_by_bill);
+			setTitle(R.string.sale_report_by_bill);
 			trBillReportHeader.setVisibility(View.VISIBLE);
 			trProductReportHeader.setVisibility(View.GONE);
 		}else if (mode == 2){
-			mTvTitle.setText(R.string.sale_report_by_product);
+			setTitle(R.string.sale_report_by_product);
 			trBillReportHeader.setVisibility(View.GONE);
 			trProductReportHeader.setVisibility(View.VISIBLE);
 		}
@@ -72,61 +64,24 @@ public class SaleReportActivity extends Activity {
 		Calendar c = Calendar.getInstance();
 		calendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-		btnDateFrom.setText(format.dateFormat(calendar.getTime()));
-		btnDateTo.setText(format.dateFormat(calendar.getTime()));
+		
 		dateFrom = calendar.getTimeInMillis();
 		dateTo = calendar.getTimeInMillis();
-		
-		btnDateFrom.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
-					
-					@Override
-					public void onSetDate(long date) {
-						calendar.setTimeInMillis(date);
-						dateFrom = calendar.getTimeInMillis();
-						
-						btnDateFrom.setText(format.dateFormat(calendar.getTime()));
-					}
-				});
-				dialogFragment.show(getFragmentManager(), "Condition");
-			}
-			
-		});
-		
-		btnDateTo.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
-					
-					@Override
-					public void onSetDate(long date) {
-						calendar.setTimeInMillis(date);
-						dateTo = calendar.getTimeInMillis();
-						
-						btnDateTo.setText(format.dateFormat(calendar.getTime()));
-					}
-				});
-				dialogFragment.show(getFragmentManager(), "Condition");
-			}
-			
-		});
-		
-		btnCreateReport.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				if (mode == 1)
-					createReportByBill();
-				else if (mode == 2)
-					createReportByProduct();
-			}
-		});
 	}
 	
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.action_sale_report, menu);
+		MenuItem menuItem = (MenuItem) menu.findItem(R.id.itemDateCondition);
+		btnDateFrom = (Button) menuItem.getActionView().findViewById(R.id.btnDateFrom);
+		btnDateTo = (Button) menuItem.getActionView().findViewById(R.id.btnDateTo);
+		btnDateFrom.setText(format.dateFormat(calendar.getTime()));
+		btnDateTo.setText(format.dateFormat(calendar.getTime()));
+		return super.onCreateOptionsMenu(menu);
+	}
+
+
 	private void createReportByBill(){
 		report = new Reporting(context, dateFrom, dateTo);
 		Report reportData = report.getSaleReportByBill();
@@ -282,5 +237,43 @@ public class SaleReportActivity extends Activity {
 			
 			tbReport.addView(tbRowDetail);
 		}
+	}
+
+	@Override
+	public void onDateFromClick(View v) {
+		DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
+			
+			@Override
+			public void onSetDate(long date) {
+				calendar.setTimeInMillis(date);
+				dateFrom = calendar.getTimeInMillis();
+				
+				btnDateFrom.setText(format.dateFormat(calendar.getTime()));
+			}
+		});
+		dialogFragment.show(getFragmentManager(), "Condition");
+	}
+
+	@Override
+	public void onDateToClick(View v) {
+		DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
+			
+			@Override
+			public void onSetDate(long date) {
+				calendar.setTimeInMillis(date);
+				dateTo = calendar.getTimeInMillis();
+				
+				btnDateTo.setText(format.dateFormat(calendar.getTime()));
+			}
+		});
+		dialogFragment.show(getFragmentManager(), "Condition");
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (mode == 1)
+			createReportByBill();
+		else if (mode == 2)
+			createReportByProduct();
 	}
 }
