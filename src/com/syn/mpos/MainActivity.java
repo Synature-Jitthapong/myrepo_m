@@ -548,7 +548,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 				Intent intent = null;
 				switch(item.getItemId()){
 				case R.id.itemReceive:
-					intent = new Intent(MainActivity.this, InvDirectReceiveActivity.class);
+					intent = new Intent(MainActivity.this, DirectReceiveActivity.class);
 					intent.putExtra("shopId", mShopId);
 					intent.putExtra("staffId", mStaffId);
 					startActivity(intent);

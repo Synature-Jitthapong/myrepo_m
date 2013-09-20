@@ -156,10 +156,10 @@ public final class R {
         public static final int imageViewMenu=0x7f0c00b5;
         public static final int imageViewMenuDetail=0x7f0c00b4;
         public static final int itemBill=0x7f0c00f0;
-        public static final int itemCancel=0x7f0c00e5;
+        public static final int itemCancel=0x7f0c00e4;
         public static final int itemClose=0x7f0c00e2;
         public static final int itemCloseShift=0x7f0c00f4;
-        public static final int itemConfirm=0x7f0c00e4;
+        public static final int itemConfirm=0x7f0c00e5;
         public static final int itemDateCondition=0x7f0c00e6;
         public static final int itemEndday=0x7f0c00f3;
         public static final int itemInfo=0x7f0c00f5;
@@ -325,27 +325,29 @@ public final class R {
         public static final int activity_main=0x7f030007;
         public static final int activity_payment=0x7f030008;
         public static final int activity_sale_report=0x7f030009;
-        public static final int activity_stock_card=0x7f03000a;
-        public static final int activity_stock_count=0x7f03000b;
-        public static final int activity_void_bill=0x7f03000c;
-        public static final int confirm_button=0x7f03000d;
-        public static final int date_condition=0x7f03000e;
-        public static final int discount_template=0x7f03000f;
-        public static final int function_button=0x7f030010;
-        public static final int hold_bill_layout=0x7f030011;
-        public static final int hold_bill_template=0x7f030012;
-        public static final int menu_catgory_tempate=0x7f030013;
-        public static final int menu_detail_layout=0x7f030014;
-        public static final int menu_template=0x7f030015;
-        public static final int order_list_template=0x7f030016;
-        public static final int payment_detail_template=0x7f030017;
-        public static final int preference_widget_mypreference=0x7f030018;
-        public static final int receipt_template=0x7f030019;
-        public static final int sale_report_by_bill_template=0x7f03001a;
-        public static final int sale_report_template=0x7f03001b;
-        public static final int stock_card_template=0x7f03001c;
-        public static final int stock_count_template=0x7f03001d;
-        public static final int void_item_template=0x7f03001e;
+        public static final int activity_search_product=0x7f03000a;
+        public static final int activity_stock_card=0x7f03000b;
+        public static final int activity_stock_count=0x7f03000c;
+        public static final int activity_void_bill=0x7f03000d;
+        public static final int confirm_button=0x7f03000e;
+        public static final int date_condition=0x7f03000f;
+        public static final int discount_template=0x7f030010;
+        public static final int function_button=0x7f030011;
+        public static final int hold_bill_layout=0x7f030012;
+        public static final int hold_bill_template=0x7f030013;
+        public static final int menu_catgory_tempate=0x7f030014;
+        public static final int menu_detail_layout=0x7f030015;
+        public static final int menu_template=0x7f030016;
+        public static final int order_list_template=0x7f030017;
+        public static final int payment_detail_template=0x7f030018;
+        public static final int preference_widget_mypreference=0x7f030019;
+        public static final int receipt_template=0x7f03001a;
+        public static final int sale_report_by_bill_template=0x7f03001b;
+        public static final int sale_report_template=0x7f03001c;
+        public static final int search_product_template=0x7f03001d;
+        public static final int stock_card_template=0x7f03001e;
+        public static final int stock_count_template=0x7f03001f;
+        public static final int void_item_template=0x7f030020;
     }
     public static final class menu {
         public static final int action_confirm=0x7f0b0000;
@@ -496,6 +498,7 @@ public final class R {
         public static final int title_activity_inv_direct_receive=0x7f090069;
         public static final int title_activity_payment=0x7f090013;
         public static final int title_activity_sale_report=0x7f09003e;
+        public static final int title_activity_search_product=0x7f0900a6;
         public static final int title_activity_setting=0x7f090055;
         public static final int title_activity_stock_card=0x7f0900a0;
         public static final int title_activity_stock_count=0x7f090071;
@@ -546,5 +549,6 @@ public final class R {
         public static final int pref_general=0x7f050000;
         public static final int pref_headers=0x7f050001;
         public static final int pref_printer=0x7f050002;
+        public static final int searchable=0x7f050003;
     }
 }

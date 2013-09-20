@@ -15,13 +15,46 @@ import android.database.Cursor;
  *
  */
 public class MenuItem {
-	private String saleModeParam = "sale_mode_1 = 1";
-	private String colSaleModePrice = "product_price";
+	private String mSaleModeParam = "sale_mode_1 = 1";
+	private String mColSaleModePrice = "product_price";
 	
-	private MPOSSQLiteHelper dbHelper;
+	private MPOSSQLiteHelper mDbHelper;
 	
 	public MenuItem(Context c) {
-		dbHelper = new MPOSSQLiteHelper(c);
+		mDbHelper = new MPOSSQLiteHelper(c);
+	}
+	
+	public List<MenuGroups.MenuItem> listMenuItem(String query){
+		List<MenuGroups.MenuItem> menuLst 
+			= new ArrayList<MenuGroups.MenuItem>();
+		
+		String strSql = "SELECT a.menu_name_0, b.product_id, b.product_code, " +
+				" b.product_bar_code, b.product_price " +
+				" FROM menu_item a" +
+				" LEFT JOIN products b" +
+				" ON a.product_id=b.product_id" +
+				" WHERE (b.product_code LIKE '%" + query + "%' " +
+				" OR a.menu_name_0 LIKE '%" + query + "%') " +
+				" AND a.menu_activate=1 " +
+				" AND b.activate=1";
+		
+		mDbHelper.open();
+		Cursor cursor = mDbHelper.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			do{
+				MenuGroups.MenuItem menu = 
+						new MenuGroups.MenuItem();
+				menu.setProductID(cursor.getInt(cursor.getColumnIndex("product_id")));
+				menu.setProductCode(cursor.getString(cursor.getColumnIndex("product_code")));
+				menu.setProductBarCode(cursor.getString(cursor.getColumnIndex("product_bar_code")));
+				menu.setMenuName_0(cursor.getString(cursor.getColumnIndex("menu_name_0")));
+				menu.setProductPricePerUnit(cursor.getFloat(cursor.getColumnIndex("product_price")));
+				menuLst.add(menu);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		mDbHelper.close();
+		return menuLst;
 	}
 	
 	public List<MenuGroups.MenuItem> listMenuItem(int menuDeptId, int saleMode){
@@ -35,26 +68,26 @@ public class MenuItem {
 				" a.menu_short_name_0, a.menu_short_name_1, " +
 				" a.menu_image_link, " +
 				" b.product_id, b.product_code, b.product_bar_code, " +
-				" b." + colSaleModePrice + ", " +
+				" b." + mColSaleModePrice + ", " +
 				" b.discount_allow, b.is_out_of_stock, " +
 				" b.vat_type, b.product_unit_name " +
 				" FROM menu_item a " +
 				" LEFT JOIN products b " +
 				" ON a.product_id=b.product_id " +
 				" WHERE a.menu_dept_id=" + menuDeptId +
-				" AND b." + saleModeParam + 
+				" AND b." + mSaleModeParam + 
 				" AND a.menu_activate=1 " +
 				" ORDER BY a.menu_ordering";	
 		
-		dbHelper.open();
+		mDbHelper.open();
 		
-		Cursor cursor = dbHelper.rawQuery(strSql);
+		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if(cursor.moveToFirst()){
 			do{
 				MenuGroups.MenuItem mi = new MenuGroups.MenuItem();
 				mi.setProductID(cursor.getInt(cursor.getColumnIndex("product_id")));
 				mi.setProductBarCode(cursor.getString(cursor.getColumnIndex("product_bar_code")));
-				mi.setProductPricePerUnit(cursor.getFloat(cursor.getColumnIndex(colSaleModePrice)));
+				mi.setProductPricePerUnit(cursor.getFloat(cursor.getColumnIndex(mColSaleModePrice)));
 				mi.setIsOutOfStock(cursor.getInt(cursor.getColumnIndex("is_out_of_stock")));
 				mi.setVatType(cursor.getInt(cursor.getColumnIndex("vat_type")));
 				mi.setProductUnitName(cursor.getString(cursor.getColumnIndex("product_unit_name")));
@@ -68,7 +101,7 @@ public class MenuItem {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		dbHelper.close();
+		mDbHelper.close();
 		
 		return miLst;
 	}
@@ -76,8 +109,8 @@ public class MenuItem {
 	public boolean addMenuItem(List<MenuGroups.MenuItem> mgLst) {
 		boolean isSucc = false;
 		
-		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM menu_item");
+		mDbHelper.open();
+		mDbHelper.execSQL("DELETE FROM menu_item");
 		
 		ContentValues cv = new ContentValues();
 		for (MenuGroups.MenuItem mi : mgLst) {
@@ -102,25 +135,25 @@ public class MenuItem {
 			cv.put("updatedate", mi.getUpdateDate());
 			cv.put("menu_activate", mi.getMenuActivate());
 
-			isSucc = dbHelper.insert("menu_item", cv);
+			isSucc = mDbHelper.insert("menu_item", cv);
 		}
-		dbHelper.close();
+		mDbHelper.close();
 		return isSucc;
 	}
 
 	private void filterSaleMode(int saleMode){
 		switch(saleMode){
 		case 1:
-			saleModeParam = "sale_mode_1 = 1";
-			colSaleModePrice = "product_price";
+			mSaleModeParam = "sale_mode_1 = 1";
+			mColSaleModePrice = "product_price";
 			break;
 		case 2:
-			saleModeParam = "sale_mode_2 = 1";
-			colSaleModePrice = "product_price_2";
+			mSaleModeParam = "sale_mode_2 = 1";
+			mColSaleModePrice = "product_price_2";
 			break;
 		case 3:
-			saleModeParam = "sale_mode_3 = 1";
-			colSaleModePrice = "product_price_3";
+			mSaleModeParam = "sale_mode_3 = 1";
+			mColSaleModePrice = "product_price_3";
 			break;
 		}
 	}

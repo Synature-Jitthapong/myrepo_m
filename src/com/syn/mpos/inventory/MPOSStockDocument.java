@@ -1,9 +1,6 @@
 package com.syn.mpos.inventory;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -14,7 +11,7 @@ import com.syn.pos.inventory.Document.DocDetail;
 import com.syn.pos.inventory.DocumentCreation;
 import com.syn.pos.inventory.DocumentDetailCreation;
 
-public class MPOSStockDocument extends Util implements DocumentCreation, DocumentDetailCreation {
+public abstract class MPOSStockDocument extends Util implements DocumentCreation, DocumentDetailCreation {
 	
 	public static final int SALE_DOC = 20;
 	public static final int VOID_DOC = 21;
@@ -33,6 +30,12 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 		mDbHelper = new MPOSSQLiteHelper(context);
 	}
 	
+	/**
+	 * get working document by document type
+	 * @param shopId
+	 * @param documentTypeId
+	 * @return
+	 */
 	public int getCurrentDocument(int shopId, int documentTypeId){
 		int documentId = 0;
 		String strSql = "SELECT document_id " +
@@ -72,6 +75,57 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 			int documentYear, int documentTypeId) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public void clearDocument(){
+		mDbHelper.open();
+		mDbHelper.execSQL("DELETE FROM document WHERE document_status=0");
+		mDbHelper.close();
+	}
+
+	@Override
+	public int createDocument(int shopId, int documentTypeId, int staffId) {
+		int documentId = getMaxDocument(shopId);
+		Calendar date = getDate();
+		Calendar dateTime = getDateTime();
+		
+		ContentValues cv = new ContentValues();
+		cv.put("document_id", documentId);
+		cv.put("shop_id", shopId);
+		cv.put("document_type_id", documentTypeId);
+		cv.put("document_status", DOC_STATUS_NEW);
+		cv.put("document_date", date.getTimeInMillis());
+		cv.put("update_by", staffId);
+		cv.put("update_date", dateTime.getTimeInMillis());
+		
+		mDbHelper.open();
+		if(!mDbHelper.insert("document", cv)) documentId = 0;
+		mDbHelper.close();
+		return documentId;
+	}
+
+	@Override
+	public int createDocument(int shopId, int refDocumentId, int refShopId,
+			int documentTypeId, int staffId) {
+		int documentId = getMaxDocument(shopId);
+		Calendar date = getDate();
+		Calendar dateTime = getDateTime();
+		
+		ContentValues cv = new ContentValues();
+		cv.put("document_id", documentId);
+		cv.put("shop_id", shopId);
+		cv.put("ref_document_id", refDocumentId);
+		cv.put("ref_shop_id", refShopId);
+		cv.put("document_type_id", documentTypeId);
+		cv.put("document_status", DOC_STATUS_NEW);
+		cv.put("document_date", date.getTimeInMillis());
+		cv.put("update_by", staffId);
+		cv.put("update_date", dateTime.getTimeInMillis());
+		
+		mDbHelper.open();
+		if(!mDbHelper.insert("document", cv)) documentId = 0;
+		mDbHelper.close();
+		return documentId;
 	}
 
 	private boolean updateDocument(int documentId, int shopId, int documentStatus, 
@@ -254,57 +308,6 @@ public class MPOSStockDocument extends Util implements DocumentCreation, Documen
 	public DocDetail getDocDetail(int docDetailId, int documentId, int shopId) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-	
-	public void clearDocument(){
-		mDbHelper.open();
-		mDbHelper.execSQL("DELETE FROM document WHERE document_status=0");
-		mDbHelper.close();
-	}
-
-	@Override
-	public int createDocument(int shopId, int documentTypeId, int staffId) {
-		int documentId = getMaxDocument(shopId);
-		Calendar date = getDate();
-		Calendar dateTime = getDateTime();
-		
-		ContentValues cv = new ContentValues();
-		cv.put("document_id", documentId);
-		cv.put("shop_id", shopId);
-		cv.put("document_type_id", documentTypeId);
-		cv.put("document_status", DOC_STATUS_NEW);
-		cv.put("document_date", date.getTimeInMillis());
-		cv.put("update_by", staffId);
-		cv.put("update_date", dateTime.getTimeInMillis());
-		
-		mDbHelper.open();
-		if(!mDbHelper.insert("document", cv)) documentId = 0;
-		mDbHelper.close();
-		return documentId;
-	}
-	
-	@Override
-	public int createDocument(int shopId, int refDocumentId, int refShopId,
-			int documentTypeId, int staffId) {
-		int documentId = getMaxDocument(shopId);
-		Calendar date = getDate();
-		Calendar dateTime = getDateTime();
-		
-		ContentValues cv = new ContentValues();
-		cv.put("document_id", documentId);
-		cv.put("shop_id", shopId);
-		cv.put("ref_document_id", refDocumentId);
-		cv.put("ref_shop_id", refShopId);
-		cv.put("document_type_id", documentTypeId);
-		cv.put("document_status", DOC_STATUS_NEW);
-		cv.put("document_date", date.getTimeInMillis());
-		cv.put("update_by", staffId);
-		cv.put("update_date", dateTime.getTimeInMillis());
-		
-		mDbHelper.open();
-		if(!mDbHelper.insert("document", cv)) documentId = 0;
-		mDbHelper.close();
-		return documentId;
 	}
 
 }
