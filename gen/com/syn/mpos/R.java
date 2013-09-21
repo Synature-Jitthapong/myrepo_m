@@ -65,6 +65,7 @@ public final class R {
         public static final int no_food=0x7f02000b;
         public static final int orange_button_center=0x7f02000c;
         public static final int pie15=0x7f02000d;
+        public static final int popup_bg_9=0x7f02000e;
     }
     public static final class id {
         public static final int LeftLayout=0x7f0c0066;
@@ -340,14 +341,15 @@ public final class R {
         public static final int menu_template=0x7f030016;
         public static final int order_list_template=0x7f030017;
         public static final int payment_detail_template=0x7f030018;
-        public static final int preference_widget_mypreference=0x7f030019;
-        public static final int receipt_template=0x7f03001a;
-        public static final int sale_report_by_bill_template=0x7f03001b;
-        public static final int sale_report_template=0x7f03001c;
-        public static final int search_product_template=0x7f03001d;
-        public static final int stock_card_template=0x7f03001e;
-        public static final int stock_count_template=0x7f03001f;
-        public static final int void_item_template=0x7f030020;
+        public static final int popup_list=0x7f030019;
+        public static final int preference_widget_mypreference=0x7f03001a;
+        public static final int receipt_template=0x7f03001b;
+        public static final int sale_report_by_bill_template=0x7f03001c;
+        public static final int sale_report_template=0x7f03001d;
+        public static final int search_product_template=0x7f03001e;
+        public static final int stock_card_template=0x7f03001f;
+        public static final int stock_count_template=0x7f030020;
+        public static final int void_item_template=0x7f030021;
     }
     public static final class menu {
         public static final int action_confirm=0x7f0b0000;
