@@ -28,6 +28,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -42,6 +43,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
+import android.widget.RadioGroup;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Spinner;
@@ -278,7 +280,7 @@ public class DirectReceiveActivity extends Activity implements OnActionExpandLis
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			StockMaterial stock = mStockLst.get(position);
+			final StockMaterial stock = mStockLst.get(position);
 			ViewHolder holder;
 			
 			if(convertView == null){
@@ -289,7 +291,8 @@ public class DirectReceiveActivity extends Activity implements OnActionExpandLis
 				holder.tvName = (TextView) convertView.findViewById(R.id.tvName);
 				holder.txtQty = (EditText) convertView.findViewById(R.id.txtQty);
 				holder.txtPrice = (EditText) convertView.findViewById(R.id.txtPrice);
-				holder.spTaxType = (Spinner) convertView.findViewById(R.id.spTaxType);
+				holder.rdoTaxType = (RadioGroup) convertView.findViewById(R.id.rdoTaxType);
+				
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
@@ -300,6 +303,69 @@ public class DirectReceiveActivity extends Activity implements OnActionExpandLis
 			holder.tvName.setText(stock.getName());
 			holder.txtQty.setText(mFormat.qtyFormat(stock.getCurrQty()));
 			holder.txtPrice.setText(mFormat.currencyFormat(stock.getPricePerUnit()));
+			holder.txtQty.setOnFocusChangeListener(new OnFocusChangeListener(){
+
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) {
+					if(hasFocus)
+						((EditText) v).selectAll();
+				}
+				
+			});
+			
+			holder.txtPrice.setOnFocusChangeListener(new OnFocusChangeListener(){
+
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) {
+					if(hasFocus)
+						((EditText) v).selectAll();
+				}
+				
+			});
+			
+			holder.txtQty.setOnKeyListener(new OnKeyListener(){
+
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event) {
+					float qty = stock.getCountQty();
+					
+					qty = Float.parseFloat(((EditText) v).getText().toString());
+					
+					mReceiveStock.updateDocumentDetail(stock.getId(), mDocumentId, 
+							mShopId, stock.getMatId(), qty, stock.getPricePerUnit(), stock.getTaxType(), "");
+					
+					return true;
+				}
+				
+			});
+			
+			holder.txtPrice.setOnKeyListener(new OnKeyListener(){
+
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event) {
+					float price = stock.getPricePerUnit();
+					
+					price = Float.parseFloat(((EditText) v).getText().toString());
+					
+					mReceiveStock.updateDocumentDetail(stock.getId(), mDocumentId, 
+							mShopId, stock.getMatId(), stock.getCurrQty(), price, stock.getTaxType(), "");
+					
+					return true;
+				}
+				
+			});
+			
+			switch(stock.getTaxType()){
+			case 0:
+				holder.rdoTaxType.findViewById(R.id.rdoNoVat).setSelected(true);
+				break;
+			case 1:
+				holder.rdoTaxType.findViewById(R.id.rdoIncludeVat).setSelected(true);
+				break;
+			case 2:
+				holder.rdoTaxType.findViewById(R.id.rdoExcludeVat).setSelected(true);
+				break;
+			}
 			return convertView;
 		}
 		
@@ -309,7 +375,7 @@ public class DirectReceiveActivity extends Activity implements OnActionExpandLis
 			TextView tvName;
 			EditText txtQty;
 			EditText txtPrice;
-			Spinner spTaxType;
+			RadioGroup rdoTaxType;
 		}
 		
 	}

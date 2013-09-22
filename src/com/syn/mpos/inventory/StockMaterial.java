@@ -2,6 +2,7 @@ package com.syn.mpos.inventory;
 
 public class StockMaterial {
 	private int id;
+	private int matId;
 	private String code;
 	private String name;
 	private float init;
@@ -13,7 +14,7 @@ public class StockMaterial {
 	private float countQty;
 	private float pricePerUnit;
 	private float netPrice;
-	private float taxType;
+	private int taxType;
 	private float taxPrice;
 
 	public StockMaterial() {
@@ -41,9 +42,10 @@ public class StockMaterial {
 		this.diff = diff;
 	}
 	
-	public StockMaterial(int id, String code, String name, float qty,
+	public StockMaterial(int id, int matId, String code, String name, float qty,
 			float pricePerUnit, float netPrice, int taxType, float taxPrice) {
 		this.id = id;
+		this.matId = matId;
 		this.code = code;
 		this.name = name;
 		this.currQty = qty;
@@ -51,6 +53,14 @@ public class StockMaterial {
 		this.netPrice = netPrice;
 		this.taxType = taxType;
 		this.taxPrice = taxPrice;
+	}
+
+	public int getMatId() {
+		return matId;
+	}
+
+	public void setMatId(int matId) {
+		this.matId = matId;
 	}
 
 	public float getPricePerUnit() {
@@ -69,11 +79,11 @@ public class StockMaterial {
 		this.netPrice = netPrice;
 	}
 
-	public float getTaxType() {
+	public int getTaxType() {
 		return taxType;
 	}
 
-	public void setTaxType(float taxType) {
+	public void setTaxType(int taxType) {
 		this.taxType = taxType;
 	}
 

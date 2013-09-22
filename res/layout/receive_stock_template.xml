@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="horizontal" >
 
     <TextView
@@ -9,6 +9,7 @@
         style="@style/ColumnDetail"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -21,7 +22,7 @@
     <TextView
         android:id="@+id/tvName"
         style="@style/ColumnDetail"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -32,6 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
         android:ems="10"
+        android:gravity="center_vertical|right"
         android:inputType="number" >
 
         <requestFocus />
@@ -43,11 +45,32 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
         android:ems="10"
+        android:gravity="center_vertical|right"
         android:inputType="number" />
 
-    <Spinner
-        android:id="@+id/spTaxType"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content" />
+    <RadioGroup
+        android:id="@+id/rdoTaxType"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content" >
+
+        <RadioButton
+            android:id="@+id/rdoNoVat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/no_vat" />
+
+        <RadioButton
+            android:id="@+id/rdoIncludeVat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vat_include" />
+
+        <RadioButton
+            android:id="@+id/rdoExcludeVat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vat_exclude" />
+    </RadioGroup>
 
 </LinearLayout>
