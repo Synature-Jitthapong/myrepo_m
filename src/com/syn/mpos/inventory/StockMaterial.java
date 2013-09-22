@@ -11,6 +11,10 @@ public class StockMaterial {
 	private float diff;
 	private float currQty;
 	private float countQty;
+	private float pricePerUnit;
+	private float netPrice;
+	private float taxType;
+	private float taxPrice;
 
 	public StockMaterial() {
 
@@ -35,6 +39,50 @@ public class StockMaterial {
 		this.sale = sale;
 		this.variance = variance;
 		this.diff = diff;
+	}
+	
+	public StockMaterial(int id, String code, String name, float qty,
+			float pricePerUnit, float netPrice, int taxType, float taxPrice) {
+		this.id = id;
+		this.code = code;
+		this.name = name;
+		this.currQty = qty;
+		this.pricePerUnit = pricePerUnit;
+		this.netPrice = netPrice;
+		this.taxType = taxType;
+		this.taxPrice = taxPrice;
+	}
+
+	public float getPricePerUnit() {
+		return pricePerUnit;
+	}
+
+	public void setPricePerUnit(float pricePerUnit) {
+		this.pricePerUnit = pricePerUnit;
+	}
+
+	public float getNetPrice() {
+		return netPrice;
+	}
+
+	public void setNetPrice(float netPrice) {
+		this.netPrice = netPrice;
+	}
+
+	public float getTaxType() {
+		return taxType;
+	}
+
+	public void setTaxType(float taxType) {
+		this.taxType = taxType;
+	}
+
+	public float getTaxPrice() {
+		return taxPrice;
+	}
+
+	public void setTaxPrice(float taxPrice) {
+		this.taxPrice = taxPrice;
 	}
 
 	public float getInit() {
