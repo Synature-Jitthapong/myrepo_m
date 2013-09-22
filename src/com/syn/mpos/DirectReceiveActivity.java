@@ -334,7 +334,7 @@ public class DirectReceiveActivity extends Activity implements OnActionExpandLis
 					mReceiveStock.updateDocumentDetail(stock.getId(), mDocumentId, 
 							mShopId, stock.getMatId(), qty, stock.getPricePerUnit(), stock.getTaxType(), "");
 					
-					return true;
+					return false;
 				}
 				
 			});
@@ -350,7 +350,7 @@ public class DirectReceiveActivity extends Activity implements OnActionExpandLis
 					mReceiveStock.updateDocumentDetail(stock.getId(), mDocumentId, 
 							mShopId, stock.getMatId(), stock.getCurrQty(), price, stock.getTaxType(), "");
 					
-					return true;
+					return false;
 				}
 				
 			});
