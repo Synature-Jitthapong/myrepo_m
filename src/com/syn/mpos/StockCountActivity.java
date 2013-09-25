@@ -39,9 +39,6 @@ public class StockCountActivity extends Activity {
 	private int mStaffId;
 	private int mShopId;
 
-	private MenuItem mItemSave;
-	private MenuItem mItemConfirm;
-	private MenuItem mItemCancel;
 	private ListView lvStock;
 
 	@Override
@@ -75,6 +72,7 @@ public class StockCountActivity extends Activity {
 			mDocumentId = mStockCount.createDocument(mShopId,
 					MPOSStockDocument.DAILY_DOC, mStaffId);
 			mStockLst = mStockCount.listStock();
+			new SaveStockCountTask().execute();
 		} else {
 			mStockLst = mStockCount.listStock(mDocumentId, mShopId);
 		}
@@ -92,16 +90,6 @@ public class StockCountActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.action_confirm, menu);
-		mItemSave = (MenuItem) menu.findItem(R.id.itemSave);
-		mItemConfirm = (MenuItem) menu.findItem(R.id.itemConfirm);
-		mItemCancel = (MenuItem) menu.findItem(R.id.itemCancel);
-		if(mDocumentId > 0){
-			mItemConfirm.setEnabled(true);
-			mItemCancel.setEnabled(true);
-		}else{
-			mItemConfirm.setEnabled(false);
-			mItemCancel.setEnabled(false);
-		}
 		return true;
 	}
 
@@ -111,13 +99,7 @@ public class StockCountActivity extends Activity {
 		final EditText txtRemark;
 
 		switch (item.getItemId()) {
-		case R.id.itemSave:
-			mItemSave = item;
-			new SaveStockCountTask().execute();
-			return true;
 		case R.id.itemConfirm:
-			mItemConfirm = item;
-
 			txtRemark = new EditText(mContext);
 			new AlertDialog.Builder(mContext)
 					.setView(txtRemark)
@@ -167,7 +149,7 @@ public class StockCountActivity extends Activity {
 						public void onClick(DialogInterface dialog,
 								int which) {
 							if(mStockCount.cancelDocument(mDocumentId, mShopId, mStaffId, "test cancel")){
-								init();
+								finish();
 							}else{
 								// do alert error
 							}
@@ -225,6 +207,7 @@ public class StockCountActivity extends Activity {
 						.findViewById(R.id.tvItemDiff);
 				holder.tvItemUnit = (TextView) convertView
 						.findViewById(R.id.tvItemUnit);
+				holder.txtItemQty.setSelectAllOnFocus(true);
 				
 				convertView.setTag(holder);
 			} else {
@@ -243,36 +226,30 @@ public class StockCountActivity extends Activity {
 			holder.tvItemDiff.setText(mFormat.qtyFormat(diffQty));
 			holder.tvItemUnit.setText("unit");
 			holder.txtItemQty.clearFocus();
-			holder.txtItemQty.setOnKeyListener(new OnKeyListener() {
+			
+			holder.txtItemQty.setOnKeyListener(new OnKeyListener(){
 
 				@Override
 				public boolean onKey(View v, int keyCode, KeyEvent event) {
-					float enterCount = 0.0f;
-					try {
-						enterCount = Float.parseFloat(holder.txtItemQty
-								.getText().toString());
-					} catch (NumberFormatException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if(event.getAction() == KeyEvent.ACTION_UP){
+						float enterCount = 0.0f;
+						EditText txtQty = (EditText) v;
+						
+						try {
+							enterCount = Float.parseFloat(txtQty.getText().toString());
+						} catch (NumberFormatException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+	
+						stock.setCountQty(enterCount);
+						holder.tvItemDiff.setText(mFormat.qtyFormat(enterCount - currQty));
 					}
-
-					stock.setCountQty(enterCount);
-					holder.tvItemDiff.setText(mFormat.qtyFormat(enterCount - currQty));
 					return false;
-				}
-
-			});
-			
-			holder.txtItemQty.setOnFocusChangeListener(new OnFocusChangeListener(){
-
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					if(hasFocus){
-						((EditText) v).selectAll();
-					}
 				}
 				
 			});
+		
 			return convertView;
 		}
 
@@ -304,10 +281,7 @@ public class StockCountActivity extends Activity {
 			if (progress.isShowing())
 				progress.dismiss();
 
-			mItemSave.setEnabled(true);
-			if (isSuccess) {
-				mItemConfirm.setEnabled(true);
-			} else {
+			if (!isSuccess) {
 				Util.alert(mContext, android.R.drawable.ic_dialog_alert,
 						R.string.error, R.string.error_save_stock);
 			}
@@ -317,7 +291,6 @@ public class StockCountActivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			progress.show();
-			mItemSave.setEnabled(false);
 			super.onPreExecute();
 		}
 

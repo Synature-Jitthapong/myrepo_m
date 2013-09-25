@@ -25,6 +25,7 @@ public class MPOSSQLiteDatabase extends SQLiteOpenHelper{
 		MPOSSql.TB_DOC_TYPE_GROUP_VAL,
 		MPOSSql.TB_GB_PROP,
 		MPOSSql.TB_LANG,
+		MPOSSql.TB_MEMBER_GROUP,
 		MPOSSql.TB_MEMBER,
 		MPOSSql.TB_MENU,
 		MPOSSql.TB_MENU_COMM,
@@ -78,6 +79,14 @@ public class MPOSSQLiteDatabase extends SQLiteOpenHelper{
 		}
 		
 		for(String strSql : MPOSSql.DOC_TYPE){
+			db.execSQL(strSql);
+		}
+		
+		for(String strSql : MPOSSql.PROVINCE){
+			db.execSQL(strSql);
+		}
+		
+		for(String strSql : MPOSSql.MG){
 			db.execSQL(strSql);
 		}
 	}

@@ -9,6 +9,7 @@ import com.syn.mpos.database.MenuDept;
 import com.syn.mpos.database.MenuItem;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.transaction.MPOSPayment;
+import com.syn.mpos.transaction.MPOSSession;
 import com.syn.mpos.transaction.MPOSTransaction;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.OrderTransaction;
@@ -27,6 +28,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -46,13 +49,13 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.RadioGroup.LayoutParams;
 
-public class MainActivity extends Activity implements POS, OnMPOSFunctionClickListener {
+public class MainActivity extends Activity implements OnMPOSFunctionClickListener {
 	//private static final String TAG = "MPOSMainActivity";
 	private Shop mShop;
 	private Formatter mFormat;
+	private MPOSSession mSession;
 	private MPOSTransaction mTrans;
 	private MPOSPayment mPayment;
-	
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private OrderListAdapter mOrderAdapter;
 	private int mShopId;
@@ -73,7 +76,6 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 	private GridView mMenuGridView;
 	private ListView mOrderListView;
 	private TextView mTvSubTotal;
-	private TextView mTvTotalPrice;
 	private TextView mTvVatExclude;
 	private TextView mTvDiscount;
 	
@@ -83,18 +85,12 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 		setContentView(R.layout.activity_main);
 		mContext = MainActivity.this;
 		
-		ActionBar actionBar = getActionBar();
-		actionBar.setCustomView(R.layout.function_button);
-	    actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM
-	            | ActionBar.DISPLAY_SHOW_HOME);
-	    
 		mOrderListView = (ListView) findViewById(R.id.listViewOrder);
 		mMenuGridView = (GridView) findViewById(R.id.gridViewMenu);
 		mTvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
 		mTvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
 		mTvDiscount = (TextView) findViewById(R.id.textViewDiscount);
 		mTbRowVat = (TableRow) findViewById(R.id.tbRowVat);
-		mTvTotalPrice = (TextView) actionBar.getCustomView().findViewById(R.id.textView1);
 
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
@@ -111,7 +107,6 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 		createMenuDept();
 	}
 	
-	@Override
 	public void init(){
 		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 		mSetting = new Setting();
@@ -122,6 +117,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 		mFormat = new Formatter(mContext);
 		mTrans = new MPOSTransaction(mContext);
 		mPayment = new MPOSPayment(mContext);
+		mSession = new MPOSSession(mContext);
 		
 		ShopProperty shopProp = mShop.getShopProperty();
 		ComputerProperty compProp = mShop.getComputerProperty();
@@ -185,16 +181,13 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 				
 				PopupMenu popup = new PopupMenu(mContext, v);
-				popup.getMenuInflater().inflate(R.menu.order_function,
+				popup.getMenuInflater().inflate(R.menu.action_order_function,
 						popup.getMenu());
 
 				popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(android.view.MenuItem item) {
 						switch(item.getItemId()){
-						case R.id.itemOrderModify:
-							
-							return true;
 						case R.id.itemOrderDelete:
 							if(mTrans.deleteOrderDetail(mTransactionId, mComputerId, 
 								orderDetail.getOrderDetailId())){
@@ -218,9 +211,10 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 	
 	public void paymentClicked(final View v){
 		Intent intent = new Intent(mContext, PaymentActivity.class);
+		intent.putExtra("shopId", mShopId);
 		intent.putExtra("transactionId", mTransactionId);
 		intent.putExtra("computerId", mComputerId);
-		intent.putExtra("staffId", 1);
+		intent.putExtra("staffId", mStaffId);
 		startActivity(intent);
 	}
 	
@@ -333,7 +327,11 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 			
 			imgLoader.displayImage(mSetting.getMenuImageUrl() + mi.getMenuImageLink(), holder.imgMenu);
 			holder.tvMenuName.setText(mi.getMenuName_0());
-			holder.tvMenuPrice.setText(mFormat.currencyFormat(mi.getProductPricePerUnit()));
+			
+			if(mi.getProductPricePerUnit() >= 0)
+				holder.tvMenuPrice.setText(mFormat.currencyFormat(mi.getProductPricePerUnit()));
+			else
+				holder.tvMenuPrice.setText("N/A");
 			
 			convertView.setOnLongClickListener(new OnLongClickListener(){
 				
@@ -386,7 +384,6 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 		}
 	}
 	
-	@Override
 	public void summary(){
 		OrderTransaction.OrderDetail orderDetail
 			= mTrans.getSummary(mTransactionId, mComputerId);
@@ -408,7 +405,7 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 		mTvVatExclude.setText(mFormat.currencyFormat(vat));
 		mTvSubTotal.setText(mFormat.currencyFormat(subTotal));
 		mTvDiscount.setText(mFormat.currencyFormat(totalDiscount));
-		mTvTotalPrice.setText(mFormat.currencyFormat(totalSalePrice));
+		setTitle(mFormat.currencyFormat(totalSalePrice));
 	}
 	
 	public void clearBillClicked(final View v){
@@ -437,19 +434,6 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 		.show();
 	}
 
-	@Override
-	public void addOrder() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void deleteOrder() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void updateOrderQty() {
 		LayoutParams param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		param.setMargins(8, 0, 8, 0);
@@ -482,6 +466,73 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 			}
 		})
 		.show();
+	}
+
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.action_main_function, menu);
+		
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(android.view.MenuItem item) {
+		Intent intent = null;
+		switch (item.getItemId()) {
+		case R.id.itemHoldBill:
+			onHoldBillClick(item.getActionView());
+			return true;
+		case R.id.itemSwUser:
+			onSwitchUserClick(item.getActionView());
+			return true;
+		case R.id.itemLogout:
+			onLogoutClick(item.getActionView());
+			return true;
+		case R.id.itemReceive:
+			intent = new Intent(MainActivity.this, DirectReceiveActivity.class);
+			intent.putExtra("shopId", mShopId);
+			intent.putExtra("staffId", mStaffId);
+			startActivity(intent);
+			return true;
+		case R.id.itemStockCount:
+			intent = new Intent(MainActivity.this, StockCountActivity.class);
+			intent.putExtra("shopId", mShopId);
+			intent.putExtra("staffId", mStaffId);
+			startActivity(intent);
+			return true;
+		case R.id.itemStockCard:
+			intent = new Intent(MainActivity.this, StockCardActivity.class);
+			intent.putExtra("shopId", mShopId);
+			intent.putExtra("staffId", mStaffId);
+			startActivity(intent);
+			return true;
+		case R.id.itemSaleReport:
+			intent = new Intent(MainActivity.this, SaleReportActivity.class);
+			intent.putExtra("mode", 1);
+			startActivity(intent);
+			return true;
+		case R.id.itemSaleByProduct:
+			intent = new Intent(MainActivity.this, SaleReportActivity.class);
+			intent.putExtra("mode", 2);
+			startActivity(intent);
+			return true;
+		case R.id.itemVoidBill:
+			intent = new Intent(MainActivity.this, VoidBillActivity.class);
+			intent.putExtra("shopId", mShopId);
+			intent.putExtra("staffId", mStaffId);
+			startActivity(intent);
+			return true;
+		case R.id.itemCloseShift:
+			mSession.closeShift(mSessionId, mComputerId, mStaffId, 0, 0);
+			return true;
+		case R.id.itemEndday:
+			mSession.closeShift(mSessionId, mComputerId, mStaffId, 0, 1);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -537,96 +588,6 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 	}
 
 	@Override
-	public void onInventoryClick(View v) {
-		PopupMenu popup = new PopupMenu(this, v);
-		popup.getMenuInflater().inflate(R.menu.inventory_function,
-				popup.getMenu());
-
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(android.view.MenuItem item) {
-				Intent intent = null;
-				switch(item.getItemId()){
-				case R.id.itemReceive:
-					intent = new Intent(MainActivity.this, DirectReceiveActivity.class);
-					intent.putExtra("shopId", mShopId);
-					intent.putExtra("staffId", mStaffId);
-					startActivity(intent);
-					return true;
-				case R.id.itemStockCount:
-					intent = new Intent(MainActivity.this, StockCountActivity.class);
-					intent.putExtra("shopId", mShopId);
-					intent.putExtra("staffId", mStaffId);
-					startActivity(intent);
-					return true;
-				case R.id.itemStockCard:
-					intent = new Intent(MainActivity.this, StockCardActivity.class);
-					intent.putExtra("shopId", mShopId);
-					intent.putExtra("staffId", mStaffId);
-					startActivity(intent);
-					return true;
-				}
-				return false;
-			}
-		});
-
-		popup.show();
-	}
-
-	@Override
-	public void onReportClick(View v) {
-		PopupMenu popup = new PopupMenu(this, v);
-		popup.getMenuInflater().inflate(R.menu.report_function,
-				popup.getMenu());
-
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(android.view.MenuItem item) {
-				Intent intent = new Intent(MainActivity.this, SaleReportActivity.class);
-				
-				switch(item.getItemId()){
-				case R.id.itemSaleReport:
-					intent.putExtra("mode", 1);
-					startActivity(intent);
-					return true;
-				case R.id.itemSaleByProduct:
-					intent.putExtra("mode", 2);
-					startActivity(intent);
-					return true;
-				}
-				return false;
-			}
-		});
-
-		popup.show();
-	}
-
-	@Override
-	public void onUtilityClick(View v) {
-		PopupMenu popup = new PopupMenu(this, v);
-		popup.getMenuInflater().inflate(R.menu.utility_function,
-				popup.getMenu());
-
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(android.view.MenuItem item) {
-				Intent intent = null;
-				
-				switch(item.getItemId()){
-				case R.id.itemVoidBill:
-					intent = new Intent(MainActivity.this, VoidBillActivity.class);
-					intent.putExtra("staffId", mStaffId);
-					startActivity(intent);
-					return true;
-				}
-				return false;
-			}
-		});
-
-		popup.show();
-	}
-
-	@Override
 	public void onSwitchUserClick(View v) {
 		// TODO Auto-generated method stub
 		
@@ -639,12 +600,16 @@ public class MainActivity extends Activity implements POS, OnMPOSFunctionClickLi
 	
 	public void setMemberClicked(final View v){
 		Intent intent = new Intent(mContext, AddMemberActivity.class);
+		intent.putExtra("shopId", mShopId);
+		intent.putExtra("staffId", mStaffId);
 		intent.putExtra("mode", "search");
 		startActivity(intent);	
 	}
 	
 	public void newMemberClicked(final View v){
 		Intent intent = new Intent(mContext, AddMemberActivity.class);
+		intent.putExtra("shopId", mShopId);
+		intent.putExtra("staffId", mStaffId);
 		intent.putExtra("mode", "add");
 		startActivity(intent);
 	}

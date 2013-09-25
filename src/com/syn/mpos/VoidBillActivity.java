@@ -1,14 +1,15 @@
 package com.syn.mpos;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import com.syn.mpos.inventory.MPOSSaleStock;
 import com.syn.mpos.transaction.MPOSTransaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -17,47 +18,52 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TableLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class VoidBillActivity extends Activity implements OnConfirmClickListener {
 	
 	private Context mContext;
 	private MPOSTransaction mTrans;
+	private MPOSSaleStock mSaleStock;
+	private List<OrderTransaction> mTransLst;
+	private List<OrderTransaction.OrderDetail> mOrderLst;
+	private BillAdapter mBillAdapter;
+	private BillDetailAdapter mBillDetailAdapter;
 	private Calendar mCalendar;
 	private Formatter mFormat;
 	private long mDate;
 	private int mTransactionId;
 	private int mComputerId;
+	private int mShopId;
 	private int mStaffId;
 	private String mReceiptNo;
 	private String mReceiptDate;
 	
-	private TableLayout tbReceipt;
-	private TableLayout tbVoidItem;
+	private ListView mLvBill;
+	private ListView mLvBillDetail;
 	private EditText txtReceiptNo;
 	private EditText txtReceiptDate;
 	private Button btnBillDate; 
 	private Button btnSearch;
+	private MenuItem mItemConfirm;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_void_bill);
 		mContext = VoidBillActivity.this;
-		
-		ActionBar actionBar = getActionBar();
-		actionBar.setCustomView(R.layout.confirm_button);
-	    actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM
-	            | ActionBar.DISPLAY_SHOW_HOME);
-		((TextView) actionBar.getCustomView().findViewById(R.id.textView1))
-				.setText(R.string.title_activity_void_bill);
-		((Button) actionBar.getCustomView().findViewById(R.id.button2))
-				.setText(R.string.btn_void);
 
 		mFormat = new Formatter(mContext);
 		Calendar c = Calendar.getInstance();
@@ -67,8 +73,8 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 		
 		txtReceiptNo = (EditText) findViewById(R.id.txtReceiptNo);
 		txtReceiptDate = (EditText) findViewById(R.id.txtSaleDate);
-		tbReceipt = (TableLayout) findViewById(R.id.tbReceipt);
-		tbVoidItem = (TableLayout) findViewById(R.id.tbVoidItem);
+		mLvBill = (ListView) findViewById(R.id.lvBill);
+		mLvBillDetail = (ListView) findViewById(R.id.lvBillDetail);
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 	    
@@ -101,58 +107,123 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 	    });
 	    
 	    Intent intent = getIntent();
+	    mShopId = intent.getIntExtra("shopId", 0);
 	    mStaffId = intent.getIntExtra("staffId", 0);
-	    if(mStaffId == 0)
+	    
+	    if(mShopId == 0 || mStaffId == 0)
 	    	finish();
 	    
 	    init();
 	}
 
-	private void init(){
-		mTrans = new MPOSTransaction(mContext);
-	}
-	
-	private void clearTbVoidItem(){
-		tbVoidItem.removeAllViews();
-	}
-	
-	private void searchVoidItem(){
-		List<OrderTransaction.OrderDetail> orderLst = 
-				mTrans.listAllOrders(mTransactionId, mComputerId);
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.action_confirm, menu);
+		menu.findItem(R.id.itemClose).setVisible(false);
+		mItemConfirm = menu.findItem(R.id.itemConfirm);
+		mItemConfirm.setEnabled(false);
 		
-		txtReceiptNo.setText(mReceiptNo);
-		txtReceiptDate.setText(mReceiptDate);
-		
-		LayoutInflater inflater = LayoutInflater.from(mContext);
-		clearTbVoidItem();
-		for(OrderTransaction.OrderDetail order : orderLst){
-			View voidItemView = inflater.inflate(R.layout.void_item_template, null);
-			TextView tvItem = (TextView) voidItemView.findViewById(R.id.tvItem);
-			TextView tvQty = (TextView) voidItemView.findViewById(R.id.tvQty);
-			TextView tvPrice = (TextView) voidItemView.findViewById(R.id.tvPrice);
-			TextView tvTotalPrice = (TextView) voidItemView.findViewById(R.id.tvTotalPrice);
-			
-			tvItem.setText(order.getProductName());
-			tvQty.setText(mFormat.qtyFormat(order.getQty()));
-			tvPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
-			tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
-			
-			tbVoidItem.addView(voidItemView);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		case R.id.itemCancel:
+			onCancelClick(item.getActionView());
+			return true;
+		case R.id.itemConfirm:
+			onConfirmClick(item.getActionView());
+			return true;
+		default:
+		return super.onOptionsItemSelected(item);
 		}
 	}
 	
-	private void searchBill(){
-		List<OrderTransaction> transLst = 
-				mTrans.listTransaction(mDate);
+	private void init(){
+		mTrans = new MPOSTransaction(mContext);
+		mSaleStock = new MPOSSaleStock(mContext);
+		mTransLst = new ArrayList<OrderTransaction>();
+		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
+		mBillAdapter = new BillAdapter();
+		mBillDetailAdapter = new BillDetailAdapter();
+		mLvBill.setAdapter(mBillAdapter);
+		mLvBillDetail.setAdapter(mBillDetailAdapter);
 		
-		LayoutInflater inflater = LayoutInflater.from(mContext);
-		tbReceipt.removeAllViews();
-		for(final OrderTransaction trans : transLst){
-			View receiptView = inflater.inflate(R.layout.receipt_template, null);
-			TextView tvReceiptNo = (TextView) receiptView.findViewById(R.id.tvReceiptNo);
-			TextView tvPaidTime = (TextView) receiptView.findViewById(R.id.tvPaidTime);
+		mLvBill.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View v, int position,
+					long id) {
+				Calendar c = Calendar.getInstance();
+				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
+				c.setTimeInMillis(trans.getPaidTime());
+				
+				mTransactionId = trans.getTransactionId();
+				mComputerId = trans.getComputerId();
+				mReceiptNo = trans.getReceiptNo();
+				mReceiptDate = mFormat.dateTimeFormat(c.getTime());
+				
+				mItemConfirm.setEnabled(true);
+				searchVoidItem();
+			}
+		});
+	}
+	
+	private class BillAdapter extends BaseAdapter{
+		LayoutInflater inflater;
+		
+		public BillAdapter(){
+			inflater = LayoutInflater.from(mContext);
+		}
+		
+		@Override
+		public int getCount() {
+			return mTransLst != null ? mTransLst.size() : 0;
+		}
+
+		@Override
+		public OrderTransaction getItem(int position) {
+			return mTransLst.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public void notifyDataSetChanged() {
+			mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
+			mBillDetailAdapter.notifyDataSetChanged();
+			mReceiptNo = "";
+			mReceiptDate = "";
+			txtReceiptNo.setText(mReceiptNo);
+			txtReceiptDate.setText(mReceiptDate);
 			
-			final Calendar c = Calendar.getInstance();
+			mItemConfirm.setEnabled(false);
+			
+			super.notifyDataSetChanged();
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			final OrderTransaction trans = mTransLst.get(position);
+			ViewHolder holder;
+			
+			if(convertView == null){
+				convertView = inflater.inflate(R.layout.receipt_template, null);
+				holder = new ViewHolder();
+				holder.tvReceiptNo = (TextView) convertView.findViewById(R.id.tvReceiptNo);
+				holder.tvPaidTime = (TextView) convertView.findViewById(R.id.tvPaidTime);
+				
+				convertView.setTag(holder);
+			}else{
+				holder = (ViewHolder) convertView.getTag();
+			}
+			
+			Calendar c = Calendar.getInstance();
 			try {
 				c.setTimeInMillis(trans.getPaidTime());
 			} catch (Exception e) {
@@ -160,27 +231,96 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 				e.printStackTrace();
 			}
 			
-			tvReceiptNo.setText(trans.getReceiptNo());
-			tvPaidTime.setText(mFormat.dateTimeFormat(c.getTime()));
-			receiptView.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					mTransactionId = trans.getTransactionId();
-					mComputerId = trans.getComputerId();
-					mReceiptNo = trans.getReceiptNo();
-					mReceiptDate = mFormat.dateTimeFormat(c.getTime());
-					searchVoidItem();
-				}
-				
-			});
+			holder.tvReceiptNo.setText(trans.getReceiptNo());
+			holder.tvPaidTime.setText(mFormat.dateTimeFormat(c.getTime()));
 			
-			tbReceipt.addView(receiptView);
+			return convertView;
+		}
+		
+		private class ViewHolder{
+			TextView tvReceiptNo;
+			TextView tvPaidTime;
 		}
 	}
 	
+	private class BillDetailAdapter extends BaseAdapter{
+		
+		LayoutInflater inflater;
+		
+		public BillDetailAdapter(){
+			inflater = LayoutInflater.from(mContext);
+		}
+		
+		@Override
+		public int getCount() {
+			return mOrderLst != null ? mOrderLst.size() : 0;
+		}
+
+		@Override
+		public OrderTransaction.OrderDetail getItem(int position) {
+			return mOrderLst.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			OrderTransaction.OrderDetail order = mOrderLst.get(position);
+			ViewHolder holder;
+			
+			if(convertView == null){
+				convertView = inflater.inflate(R.layout.void_item_template, null);
+				holder = new ViewHolder();
+				
+				holder.tvItem = (TextView) convertView.findViewById(R.id.tvItem);
+				holder.tvQty = (TextView) convertView.findViewById(R.id.tvQty);
+				holder.tvPrice = (TextView) convertView.findViewById(R.id.tvPrice);
+				holder.tvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
+				
+				convertView.setTag(holder);
+			}else{
+				holder = (ViewHolder) convertView.getTag();
+			}
+		
+			holder.tvItem.setText(order.getProductName());
+			holder.tvQty.setText(mFormat.qtyFormat(order.getQty()));
+			holder.tvPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
+			holder.tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
+			
+			return convertView;
+		}
+		
+		private class ViewHolder{
+			TextView tvItem;
+			TextView tvQty;
+			TextView tvPrice;
+			TextView tvTotalPrice;
+		}
+	}
+	
+	private void searchBill(){
+		mTransLst = mTrans.listTransaction(mDate);
+		mBillAdapter.notifyDataSetChanged();
+	}
+	
+	private void searchVoidItem(){
+		txtReceiptNo.setText(mReceiptNo);
+		txtReceiptDate.setText(mReceiptDate);
+		
+		mOrderLst = mTrans.listAllOrders(mTransactionId, mComputerId);
+		mBillDetailAdapter.notifyDataSetChanged();
+	}
+	
+	@Override 
+	public void onSaveClick(View v){
+		
+	}
+	
 	@Override
-	public void onOkClick(View v) {
+	public void onConfirmClick(View v) {
 		final EditText txtVoidReason = new EditText(mContext);
 		txtVoidReason.setHint(R.string.reason);
 		
@@ -201,9 +341,15 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 			public void onClick(DialogInterface dialog, int which) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					mTrans.voidTransaction(mTransactionId, mComputerId, mStaffId, voidReason);
-					searchBill();
-					clearTbVoidItem();
+					if(mTrans.voidTransaction(mTransactionId, mComputerId, mStaffId, voidReason)){
+				    	List<OrderTransaction.OrderDetail> orderLst = 
+				    			mTrans.listAllOrders(mTransactionId, mComputerId);
+						
+				    	if(mSaleStock.createVoidDocument(mShopId, mStaffId, orderLst, voidReason)){
+							searchBill();
+							hideKeyboard();
+				    	}
+					}
 				}else{
 					Util.alert(mContext, android.R.drawable.ic_dialog_alert, 
 							R.string.void_bill, R.string.enter_reason);
@@ -217,5 +363,9 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 	public void onCancelClick(View v) {
 		finish();
 	}
-
+	
+	private void hideKeyboard(){
+		getWindow().setSoftInputMode(
+			      WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+	}
 }

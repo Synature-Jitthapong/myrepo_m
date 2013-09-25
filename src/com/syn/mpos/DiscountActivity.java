@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
@@ -45,11 +46,6 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_discount);
 		mContext = DiscountActivity.this;
-		
-		ActionBar actionBar = getActionBar();
-		actionBar.setCustomView(R.layout.confirm_button);
-	    actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM
-	            | ActionBar.DISPLAY_SHOW_HOME);
 
 		mTbLayoutDiscount = (TableLayout) findViewById(R.id.tableLayoutDiscount);
 		mTvSubTotal = (TextView) findViewById(R.id.textViewDisSubTotal);
@@ -75,14 +71,24 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// TODO Auto-generated method stub
+		switch(item.getItemId()){
+		case R.id.itemCancel:
+			onCancelClick(item.getActionView());
+			return true;
+		case R.id.itemConfirm:
+			onConfirmClick(item.getActionView());
+			return true;
+		default:
 		return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// TODO Auto-generated method stub
-		return super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.action_confirm, menu);
+		menu.findItem(R.id.itemClose).setVisible(false);
+		return true;
 	}
 
 	private float calculateDiscount(int orderDetailId, int vatType, float totalPrice, float discount) {
@@ -221,7 +227,12 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 	}
 
 	@Override
-	public void onOkClick(View v) {
+	public void onSaveClick(View v){
+		
+	}
+	
+	@Override
+	public void onConfirmClick(View v) {
 		if (mTrans.confirmDiscount(mTransactionId, mComputerId))
 			exit();
 	}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/itemHoldBill" android:showAsAction="always|withText" android:title="@string/hold_bill"></item>
+    <item android:id="@+id/itemInventory" android:showAsAction="always|withText" android:title="@string/inventory">
+    <menu><item android:id="@+id/itemReceive" android:title="@string/receive_stock"></item><item android:id="@+id/itemStockCount" android:title="@string/count_stock"></item><item android:id="@+id/itemStockCard" android:title="@string/stock_card"></item></menu>
+</item>
+    <item android:id="@+id/itemReport" android:showAsAction="always|withText" android:title="@string/report">
+        <menu><item android:id="@+id/itemSaleReport" android:title="@string/sale_report_by_bill"></item><item android:id="@+id/itemSaleByProduct" android:title="@string/sale_report_by_product"></item></menu>
+    </item>
+    <item android:id="@+id/itemUtility" android:showAsAction="always|withText" android:title="@string/utility">
+        <menu><item android:id="@+id/itemBill" android:title="@string/bill_cat">
+        <menu>
+            <item android:id="@+id/itemVoidBill" android:title="@string/void_bill"/>
+        </menu>
+    </item><item android:id="@+id/itemSession" android:title="@string/session_cat">
+        <menu>
+            <item android:id="@+id/itemEndday" android:title="@string/endday"/>
+            <item android:id="@+id/itemCloseShift" android:title="@string/close_shift"/>
+        </menu>
+    </item><item android:id="@+id/itemInfo" android:title="@string/shop_info"></item>
+</menu>
+    </item>
+    <item android:id="@+id/itemSwUser" android:showAsAction="always|withText" android:title="@string/switch_user"></item>
+    <item android:id="@+id/itemLogout" android:showAsAction="always|withText" android:title="@string/logout"></item>
+    
+
+</menu>

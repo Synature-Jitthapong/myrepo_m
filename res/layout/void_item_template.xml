@@ -3,53 +3,45 @@
     android:id="@+id/TableRow1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/dark_grey"
+    android:background="@drawable/list_selector"
     android:gravity="center_vertical"
     android:orientation="vertical" >
 
     <TextView
         android:id="@+id/tvItem"
+        style="@style/ColumnDetail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
         android:layout_weight="1"
-        android:background="@color/smoke_white"
         android:lines="1"
-        android:padding="4dp"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvQty"
+        style="@style/ColumnDetail"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
-        android:background="@color/smoke_white"
         android:gravity="right"
-        android:padding="4dp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvPrice"
+        style="@style/ColumnDetail"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
-        android:background="@color/smoke_white"
         android:gravity="right"
-        android:padding="4dp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvTotalPrice"
+        style="@style/ColumnDetail"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
-        android:background="@color/smoke_white"
         android:gravity="right"
-        android:padding="4dp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </TableRow>

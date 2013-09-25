@@ -23,12 +23,33 @@
         <item name="android:windowActionBar">false</item>
 	    <item name="android:windowNoTitle">true</item>
     </style>
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
-	    
+    
+    <!--  Large title  -->
+    <style name="AppTheme.LargeTitle" parent="android:Theme.Holo.Light">
+    	<item name="android:actionBarStyle">@style/AppTheme.LargeTitle.ActionBarStyle</item>
+    	<item name="android:actionMenuTextAppearance">@style/AppTheme.Menu.LowerCase</item>
+  	</style>
+  	<style name="AppTheme.LargeTitle.ActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar">
+    	<item name="android:titleTextStyle">@style/AppTheme.LargeTitle.ActionBar.TitleTextStyle</item>
+  	</style>
+  	<style name="AppTheme.LargeTitle.ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+    	<item name="android:textSize">32sp</item>
+    	<item name="android:textStyle">bold</item>
+  	</style>
+  
+  	<!-- Menu item lower case -->
+  	<style name="AppTheme.Menu.LowerCase" parent="android:TextAppearance.Holo.Widget.ActionBar.Menu">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    	<item name="android:minWidth">100dp</item>
     </style>
-
+    
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>  
+    
+    <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
     </style>
 </resources>

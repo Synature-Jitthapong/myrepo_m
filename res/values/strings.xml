@@ -3,7 +3,7 @@
 
     <string name="app_name">MPOS</string>
     <string name="login">Login</string>
-    <string name="user_name">User name:</string>
+    <string name="user_name">Username:</string>
     <string name="pass_word">Password:</string>
     <string name="inventory">Inventory</string>
     <string name="hold_bill">Hold bill</string>
@@ -171,5 +171,11 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="variance">Variance</string>
     <string name="endding">Endding</string>
     <string name="title_activity_search_product">Search Product</string>
+    <string name="save_success">Save successfully.</string>
+    <string name="confirm_success">Confirm successfully.</string>
+    <string name="cancel_success">Cancel successfully.</string>
+    <string name="confirm_stock_receive">Are you sure you want to confirm?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
 </resources>

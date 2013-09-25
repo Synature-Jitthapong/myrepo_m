@@ -137,8 +137,9 @@
         android:id="@+id/listView1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true"
-        android:background="@color/smoke_white" >
+        android:background="@color/smoke_white"
+        android:choiceMode="singleChoice"
+        android:listSelector="@drawable/list_selector" >
 
     </ListView>
 

@@ -2,8 +2,11 @@ package com.syn.mpos;
 
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
+import com.syn.mpos.database.Shop;
+import com.syn.mpos.transaction.MPOSSession;
 import com.syn.pos.Setting;
 import com.syn.pos.ShopData;
+
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
@@ -16,41 +19,52 @@ import android.view.View;
 import android.widget.EditText;
 
 public class LoginActivity extends Activity {
-	private Context context;
-	private SharedPreferences sharedPref;
-	private Setting setting;
+	private Context mContext;
+	private int mShopId;
+	private int mComputerId;
+	private int mSessionId;
+	private Shop mShop;
+	private MPOSSession mSession;
+	private SharedPreferences mSharedPref;
+	private Setting mSetting;
 	
-	private EditText txtUser;
-	private EditText txtPass;
+	private EditText mTxtUser;
+	private EditText mTxtPass;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		context = LoginActivity.this;
+		mContext = LoginActivity.this;
 		
-		txtUser = (EditText) findViewById(R.id.editTextUserName);
-		txtPass = (EditText) findViewById(R.id.editTextPassWord);
-		txtUser.setSelectAllOnFocus(true);
-		txtPass.setSelectAllOnFocus(true);
+		mTxtUser = (EditText) findViewById(R.id.editTextUserName);
+		mTxtPass = (EditText) findViewById(R.id.editTextPassWord);
+		mTxtUser.setSelectAllOnFocus(true);
+		mTxtPass.setSelectAllOnFocus(true);
 		
-		txtUser.setText("admin");
-		txtPass.setText("admin");
+		mTxtUser.setText("admin");
+		mTxtPass.setText("admin");
 		
 	}
 
 	private void init(){
-		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		setting = new Setting();
+		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		mSetting = new Setting();
 		
-		setting.conn.setIpAddress(sharedPref.getString("pref_ipaddress", ""));
-		setting.conn.setServiceName(sharedPref.getString("pref_webservice", ""));
-		setting.conn.setFullUrl("http://" + setting.conn.getIpAddress() + "/" + setting.conn.getServiceName() + "/ws_mpos.asmx");
-		setting.sync.setSyncWhenLogin(sharedPref.getBoolean("pref_syncwhenlogin", false));
+		mSetting.conn.setIpAddress(mSharedPref.getString("pref_ipaddress", ""));
+		mSetting.conn.setServiceName(mSharedPref.getString("pref_webservice", ""));
+		mSetting.conn.setFullUrl("http://" + mSetting.conn.getIpAddress() + "/" + mSetting.conn.getServiceName() + "/ws_mpos.asmx");
+		mSetting.sync.setSyncWhenLogin(mSharedPref.getBoolean("pref_syncwhenlogin", false));
 		
-		if(setting.conn.getIpAddress().equals("") || 
-				setting.conn.getServiceName().equals("")){
-			Intent intent = new Intent(context, SettingsActivity.class);
+		mShop = new Shop(mContext);
+		mShopId = mShop.getShopProperty().getShopID();
+		mComputerId = mShop.getComputerProperty().getComputerID();
+		
+		mSession = new MPOSSession(mContext);
+		
+		if(mSetting.conn.getIpAddress().equals("") || 
+				mSetting.conn.getServiceName().equals("")){
+			Intent intent = new Intent(mContext, SettingsActivity.class);
 			startActivity(intent);
 		}
 	}
@@ -65,7 +79,7 @@ public class LoginActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case R.id.itemSetting:
-			Intent intent = new Intent(context, SettingsActivity.class);
+			Intent intent = new Intent(mContext, SettingsActivity.class);
 			startActivity(intent);
 			return true;
 		default:
@@ -81,8 +95,8 @@ public class LoginActivity extends Activity {
 	}
 	
 	public void loginClicked(final View v){
-		if(setting.sync.isSyncWhenLogin()){
-			MPOSService.sync(setting.conn, context, new IServiceStateListener(){
+		if(mSetting.sync.isSyncWhenLogin()){
+			MPOSService.sync(mSetting.conn, mContext, new IServiceStateListener(){
 	
 				@Override
 				public void onProgress() {
@@ -108,10 +122,10 @@ public class LoginActivity extends Activity {
 		
 	}
 	
-	private void gotoMainActivity(int staffId, int sessionId){
-		Intent intent = new Intent(context, MainActivity.class);
+	private void gotoMainActivity(int staffId){
+		Intent intent = new Intent(mContext, MainActivity.class);
 		intent.putExtra("staffId", staffId);
-		intent.putExtra("sessionId", sessionId);
+		intent.putExtra("sessionId", mSessionId);
 		startActivity(intent);
 	}
 	
@@ -119,32 +133,37 @@ public class LoginActivity extends Activity {
 		String user = "";
 		String pass = "";
 	
-		if(!txtUser.getText().toString().isEmpty()){
-			user = txtUser.getText().toString();
+		if(!mTxtUser.getText().toString().isEmpty()){
+			user = mTxtUser.getText().toString();
 			
-			if(!txtPass.getText().toString().isEmpty()){
-				pass = txtPass.getText().toString();
-				Login login = new Login(context, user, pass);
+			if(!mTxtPass.getText().toString().isEmpty()){
+				pass = mTxtPass.getText().toString();
+				Login login = new Login(mContext, user, pass);
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();
 					
 					if(s != null){
-						gotoMainActivity(s.getStaffID(), 1);
+						mSessionId = mSession.getCurrentSession(mShopId, mComputerId);
+						if(mSessionId == 0){
+							mSessionId = mSession.addSession(mShopId, mComputerId, s.getStaffID(), 0);
+						}
+						
+						gotoMainActivity(s.getStaffID());
 					}else{
-						Util.alert(context, android.R.drawable.ic_dialog_alert, 
+						Util.alert(mContext, android.R.drawable.ic_dialog_alert, 
 								R.string.login, R.string.incorrect_password);
 					}
 				}else{
-					Util.alert(context, android.R.drawable.ic_dialog_alert, 
+					Util.alert(mContext, android.R.drawable.ic_dialog_alert, 
 							R.string.login, R.string.incorrect_user);
 				}
 			}else{
-				Util.alert(context, android.R.drawable.ic_dialog_alert, 
+				Util.alert(mContext, android.R.drawable.ic_dialog_alert, 
 						R.string.login, R.string.enter_password);
 			}
 		}else{
-			Util.alert(context, android.R.drawable.ic_dialog_alert, 
+			Util.alert(mContext, android.R.drawable.ic_dialog_alert, 
 					R.string.login, R.string.enter_username);
 		}
 	}

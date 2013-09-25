@@ -137,17 +137,17 @@
                         android:layout_marginRight="8dp" >
 
                         <RadioButton
-                            android:id="@+id/radio0"
+                            android:id="@+id/rdoMale"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checked="true"
                             android:text="@string/male" />
 
                         <RadioButton
-                            android:id="@+id/radio1"
+                            android:id="@+id/rdoFemale"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/gender" />
+                            android:text="@string/female" />
                     </RadioGroup>
 
                     <TextView
@@ -445,11 +445,12 @@
                         android:textAppearance="?android:attr/textAppearanceLarge" />
 
                     <EditText
-                        android:id="@+id/txtRema"
-                        android:layout_span="2"
+                        android:id="@+id/txtRemark"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_span="2"
                         android:ems="10" >
+
                     </EditText>
 
                 </TableRow>

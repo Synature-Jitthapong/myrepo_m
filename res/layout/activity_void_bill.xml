@@ -64,45 +64,39 @@
 
                 <TextView
                     android:id="@+id/textView8"
+                    style="@style/ColumnHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="1dp"
                     android:layout_marginRight="1dp"
                     android:layout_weight="1"
                     android:background="@color/grey_light"
                     android:padding="4dp"
-                    android:text="@string/receipt_no" />
+                    android:text="@string/receipt_no"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
                     android:id="@+id/textView9"
+                    style="@style/ColumnHeader"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="1dp"
-                    android:background="@color/grey_light"
+                    android:layout_marginRight="0dp"
                     android:padding="4dp"
-                    android:text="@string/paid_time" />
+                    android:text="@string/paid_time"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
             </TableRow>
-        </TableLayout>
 
-        <ScrollView
-            android:id="@+id/scrollView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <LinearLayout
+            <ListView
+                android:id="@+id/lvBill"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical" >
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:choiceMode="singleChoice"
+                android:listSelector="@drawable/list_selector" >
 
-                <TableLayout
-                    android:id="@+id/tbReceipt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-                </TableLayout>
+            </ListView>
 
-            </LinearLayout>
-        </ScrollView>
+        </TableLayout>
 
     </LinearLayout>
 
@@ -142,7 +136,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="15"
-                    android:enabled="false" >
+                    android:enabled="false"
+                    android:textColor="@android:color/black" >
 
                 </EditText>
 
@@ -168,7 +163,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="15"
-                    android:enabled="false" />
+                    android:enabled="false"
+                    android:textColor="@android:color/black" />
 
             </TableRow>
         </TableLayout>
@@ -186,65 +182,57 @@
 
                 <TextView
                     android:id="@+id/textView4"
+                    style="@style/ColumnHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="1dp"
                     android:layout_marginRight="1dp"
                     android:layout_weight="1"
                     android:background="@color/grey_light"
                     android:padding="4dp"
-                    android:text="@string/item_name" />
+                    android:text="@string/item_name"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
                     android:id="@+id/textView5"
+                    style="@style/ColumnHeader"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="1dp"
                     android:layout_marginRight="1dp"
                     android:background="@color/grey_light"
                     android:padding="4dp"
-                    android:text="@string/qty" />
+                    android:text="@string/qty"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
                     android:id="@+id/textView6"
+                    style="@style/ColumnHeader"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="1dp"
                     android:layout_marginRight="1dp"
                     android:background="@color/grey_light"
                     android:padding="4dp"
-                    android:text="@string/price" />
+                    android:text="@string/price"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
                     android:id="@+id/textView7"
+                    style="@style/ColumnHeader"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="1dp"
+                    android:layout_marginRight="0dp"
                     android:background="@color/grey_light"
                     android:padding="4dp"
-                    android:text="@string/total_price" />
+                    android:text="@string/total_price"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
             </TableRow>
         </TableLayout>
 
-        <ScrollView
-            android:id="@+id/scrollView1"
+        <ListView
+            android:id="@+id/lvBillDetail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical" >
-
-                <TableLayout
-                    android:id="@+id/tbVoidItem"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-                </TableLayout>
-
-            </LinearLayout>
-        </ScrollView>
+        </ListView>
 
     </LinearLayout>
 

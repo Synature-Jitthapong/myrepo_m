@@ -74,7 +74,7 @@ public class MPOSSql {
 			" );";
 	
 	public static final String TB_PROVINCE =
-			" CREATE TABLE province ( " +
+			" CREATE TABLE provinces ( " +
 			" province_id  INTEGER NOT NULL, " +
 			" province_name  TEXT NOT NULL, " +
 			" PRIMARY KEY (province_id) " +
@@ -133,23 +133,25 @@ public class MPOSSql {
 			" session_id  INTEGER NOT NULL, " +
 			" computer_id  INTEGER NOT NULL, " +
 			" shop_id  INTEGER NOT NULL, " +
-			" session_date  TEXT NOT NULL, " +
-			" open_date_time  TEXT NOT NULL, " +
-			" close_date_time  TEXT NOT NULL, " +
-			" open_amount  REAL NOT NULL, " +
-			" close_amount  REAL NOT NULL, " +
-			" is_endday  INTEGER NOT NULL, " +
+			" open_staff_id  INTEGER NOT NULL, " +
+			" close_staff_id  INTEGER, " +
+			" session_date  TEXT, " +
+			" open_date_time  TEXT, " +
+			" close_date_time  TEXT, " +
+			" open_amount  REAL, " +
+			" close_amount  REAL, " +
+			" is_endday  INTEGER, " +
 			" PRIMARY KEY (session_id, computer_id, shop_id) " +
 			" );";
 	
 	public static final String TB_SESSION_END =
 			" CREATE TABLE session_end_day ( " +
 			" session_date  TEXT NOT NULL, " +
-			" endday_date_time  TEXT NOT NULL, " +
-			" total_qty_receipt  INTEGER NOT NULL, " +
-			" total_amount_receipt  REAL NOT NULL, " +
-			" is_send_to_hq  INTEGER NOT NULL, " +
-			" send_to_hq_date_time  TEXT NOT NULL, " +
+			" endday_date_time  TEXT, " +
+			" total_qty_receipt  INTEGER, " +
+			" total_amount_receipt  REAL, " +
+			" is_send_to_hq  INTEGER, " +
+			" send_to_hq_date_time  TEXT, " +
 			" PRIMARY KEY (session_date) " +
 			" );";
 	
@@ -338,29 +340,39 @@ public class MPOSSql {
 			" PRIMARY KEY (menu_comment_id) " +
 			" );";
 	
+	public static final String TB_MEMBER_GROUP = 
+			" CREATE TABLE member_group ( " +
+			" member_group_id INTEGER, " +
+			" shop_id INTEGER, " +
+			" member_group_code TEXT, " +
+			" member_group_name TEXT, " +
+			" PRIMARY KEY (member_group_id, shop_id) " +
+			" ); ";
+	
 	public static final String TB_MEMBER = 
 			" CREATE TABLE members ( " +
-			" member_id  INTEGER NOT NULL, " +
-			" shop_id  INTEGER NOT NULL, " +
-			" member_group_id  INTEGER NOT NULL, " +
-			" member_code  TEXT NOT NULL, " +
-			" member_gender  INTEGER NOT NULL, " +
-			" member_firstname  TEXT NOT NULL, " +
-			" member_lastname  TEXT NOT NULL, " +
-			" member_address1  TEXT NOT NULL, " +
+			" member_id  INTEGER, " +
+			" shop_id  INTEGER, " +
+			" member_group_id  INTEGER, " +
+			" member_code  TEXT, " +
+			" member_gender  INTEGER, " +
+			" member_firstname  TEXT, " +
+			" member_lastname  TEXT, " +
+			" member_address1  TEXT, " +
 			" member_address2  TEXT, " +
-			" member_city  TEXT NOT NULL, " +
-			" member_province  INTEGER NOT NULL, " +
-			" member_zipcode  TEXT NOT NULL, " +
+			" member_city  TEXT, " +
+			" member_province  INTEGER, " +
+			" member_zipcode  TEXT, " +
 			" member_tel  TEXT, " +
 			" member_mobile  TEXT, " +
 			" member_fax  TEXT, " +
 			" member_email  TEXT, " +
 			" member_birthday  INTEGER, " +
 			" member_expiredate  INTEGER, " +
-			" updateby  INTEGER, " +
-			" updatedate  INTEGER, " +
+			" update_by  INTEGER, " +
+			" update_date  INTEGER, " +
 			" insert_at_shop_id  INTEGER, " +
+			" remark TEXT, " +
 			" PRIMARY KEY (member_id ASC, shop_id ASC) " +
 			" );";
 
@@ -573,5 +585,19 @@ public class MPOSSql {
 		" INSERT INTO `document_type` VALUES (23, 'xxxMS', 'Reduce From Monthly Stock', -1); ",
 		" INSERT INTO `document_type` VALUES (24, 'xxxST', 'Daily Stock Card', 0); ",
 		" INSERT INTO `document_type` VALUES (39, 'xxxRO', 'Direct Receive Order', 1); ",
+	};
+	
+	public static final String[] MG = {
+		" INSERT INTO `member_group` VALUES (1, 4, 'MG1', 'Member Group 1'); ",
+		" INSERT INTO `member_group` VALUES (2, 4, 'MG2', 'Member Group 2'); ",
+		" INSERT INTO `member_group` VALUES (3, 4, 'MG3', 'Member Group 3'); ",
+	};
+	
+	public static final String[] PROVINCE = {
+		" INSERT INTO `provinces` VALUES (1, 'Chiang Mai'); ",
+		" INSERT INTO `provinces` VALUES (2, 'Chiang Rai'); ",
+		" INSERT INTO `provinces` VALUES (3, 'Kamphaeng Phet'); ",
+		" INSERT INTO `provinces` VALUES (4, 'Lampang'); ",
+		" INSERT INTO `provinces` VALUES (5, 'Lamphun'); "
 	};
 }

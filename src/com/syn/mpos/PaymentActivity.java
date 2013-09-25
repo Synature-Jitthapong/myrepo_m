@@ -8,6 +8,7 @@ import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Shop;
+import com.syn.mpos.inventory.MPOSSaleStock;
 import com.syn.mpos.transaction.MPOSPayment;
 import com.syn.mpos.transaction.MPOSTransaction;
 import com.syn.pos.OrderTransaction;
@@ -21,6 +22,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -32,19 +36,21 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	//private final String TAG = "PaymentActivity";
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
-	private Context context;
+	private Context mContext;
 	private MPOSTransaction mTrans;
 	private MPOSPayment mPayment;
-	private Formatter format;
-	private int transactionId;
-	private int computerId;
-	private int staffId;
-	private Print printer;
+	private MPOSSaleStock mSaleStock;
+	private Formatter mFormat;
+	private int mShopId;
+	private int mTransactionId;
+	private int mComputerId;
+	private int mStaffId;
+	private Print mPrinter;
 	
-	private StringBuilder strTotalPay;
-	private float totalSalePrice;
-	private float totalPay;
-	private float totalPaid;
+	private StringBuilder mStrTotalPay;
+	private float mTotalSalePrice;
+	private float mTotalPay;
+	private float mTotalPaid;
 	
 	private TableLayout tableLayoutPaydetail;
 	private TextView tvTotalPayment;
@@ -53,14 +59,9 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	private EditText txtTobePaid;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_payment);
-
-		ActionBar actionBar = getActionBar();
-		actionBar.setCustomView(R.layout.confirm_button);
-	    actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM
-	            | ActionBar.DISPLAY_SHOW_HOME);
 
 		tableLayoutPaydetail = (TableLayout) findViewById(R.id.tableLayoutPaydetail);
 		tvTotalPayment = (TextView) findViewById(R.id.textViewTotalPayment);
@@ -69,12 +70,37 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		txtTobePaid = (EditText) findViewById(R.id.editTextTobePaid);
 		
 		Intent intent = getIntent();
-		transactionId = intent.getIntExtra("transactionId", 0);
-		computerId = intent.getIntExtra("computerId", 0);
-		staffId = intent.getIntExtra("staffId", 0);
 		
-		if(transactionId == 0 || computerId == 0 || staffId == 0){
+		mShopId = intent.getIntExtra("shopId", 0);
+		mTransactionId = intent.getIntExtra("transactionId", 0);
+		mComputerId = intent.getIntExtra("computerId", 0);
+		mStaffId = intent.getIntExtra("staffId", 0);
+		
+		if (mShopId == 0 || mTransactionId == 0 || mComputerId == 0
+				|| mStaffId == 0) {
 			finish();
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.action_confirm, menu);
+		menu.findItem(R.id.itemClose).setVisible(false);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		case R.id.itemCancel:
+			onCancelClick(item.getActionView());
+			return true;
+		case R.id.itemConfirm:
+			onConfirmClick(item.getActionView());
+			return true;
+		default:
+		return super.onOptionsItemSelected(item);
 		}
 	}
 
@@ -85,10 +111,11 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	}
 
 	private void init(){
-		context = PaymentActivity.this;
-		format = new Formatter(context);
-		mTrans = new MPOSTransaction(context);
-		mPayment = new MPOSPayment(context);
+		mContext = PaymentActivity.this;
+		mFormat = new Formatter(mContext);
+		mTrans = new MPOSTransaction(mContext);
+		mPayment = new MPOSPayment(mContext);
+		mSaleStock = new MPOSSaleStock(mContext);
 		
 		summary();
 		loadPayDetail();
@@ -96,21 +123,21 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	
 	private void summary(){
 		OrderTransaction.OrderDetail orderDetail = 
-				mTrans.getSummary(transactionId, computerId);
+				mTrans.getSummary(mTransactionId, mComputerId);
 		
 		float vat = orderDetail.getVat();
-		totalSalePrice = orderDetail.getTotalSalePrice() + vat;
+		mTotalSalePrice = orderDetail.getTotalSalePrice() + vat;
 		
 		displayTotalPrice();
 	}
 	
 	private void loadPayDetail(){
 		List<Payment.PaymentDetail> payLst = 
-				mPayment.listPayment(transactionId, computerId);
-		totalPaid = mPayment.getTotalPaid(transactionId, computerId);
-		float tobePaid = totalSalePrice - totalPaid; 
+				mPayment.listPayment(mTransactionId, mComputerId);
+		mTotalPaid = mPayment.getTotalPaid(mTransactionId, mComputerId);
+		float tobePaid = mTotalSalePrice - mTotalPaid; 
 		
-		LayoutInflater inflater = LayoutInflater.from(context);
+		LayoutInflater inflater = LayoutInflater.from(mContext);
 		tableLayoutPaydetail.removeAllViews();
 		for(final Payment.PaymentDetail payment : payLst){
 			View v = inflater.inflate(R.layout.payment_detail_template, null);
@@ -125,7 +152,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 			
 			tvPayType.setText(payTypeName);
 			tvPayDetail.setText(payment.getRemark());
-			tvPayAmount.setText(format.currencyFormat(payment.getPayAmount()));
+			tvPayAmount.setText(mFormat.currencyFormat(payment.getPayAmount()));
 			
 			v.setOnClickListener(new OnClickListener(){
 
@@ -138,11 +165,11 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 			tableLayoutPaydetail.addView(v);
 		}
 		
-		txtTotalPaid.setText(format.currencyFormat(totalPaid));
+		txtTotalPaid.setText(mFormat.currencyFormat(mTotalPaid));
 		if(tobePaid < 0)
 			tobePaid = 0.0f;
 		
-		txtTobePaid.setText(format.currencyFormat(tobePaid));
+		txtTobePaid.setText(mFormat.currencyFormat(tobePaid));
 	}
 	
 	private void deletePayment(int paymentId){
@@ -151,33 +178,33 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	}
 	
 	private void addPayment(){
-		if(totalPay > 0){
-				mPayment.addPaymentDetail(transactionId, computerId, PAY_TYPE_CASH, totalPay, "",
+		if(mTotalPay > 0){
+				mPayment.addPaymentDetail(mTransactionId, mComputerId, PAY_TYPE_CASH, mTotalPay, "",
 						0, 0, 0, 0);
 			loadPayDetail();
 		}
 	}
 	
 	private void displayTotalPrice(){
-		tvTotalPayment.setText(format.currencyFormat(totalSalePrice));
+		tvTotalPayment.setText(mFormat.currencyFormat(mTotalSalePrice));
 
-		strTotalPay = new StringBuilder();
+		mStrTotalPay = new StringBuilder();
 		displayTotalPaid();
 	}
 	
 	private void displayTotalPaid(){
 		try {
-			totalPay = Float.parseFloat(strTotalPay.toString());
+			mTotalPay = Float.parseFloat(mStrTotalPay.toString());
 		} catch (NumberFormatException e) {
-			totalPay = 0.0f;
+			mTotalPay = 0.0f;
 		}
-		txtTotalPay.setText(format.currencyFormat(totalPay));
+		txtTotalPay.setText(mFormat.currencyFormat(mTotalPay));
 	}
 	
 	public void creditPayClicked(final View v){
 		Intent intent = new Intent(PaymentActivity.this, CreditPayActivity.class);
-		intent.putExtra("transactionId", transactionId);
-		intent.putExtra("computerId", computerId);
+		intent.putExtra("transactionId", mTransactionId);
+		intent.putExtra("computerId", mComputerId);
 		startActivity(intent);
 	}
 
@@ -187,82 +214,82 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	public void onBtnPriceClick(final View v){
 		switch(v.getId()){
 		case R.id.btnPay0:
-			strTotalPay.append("0");
+			mStrTotalPay.append("0");
 			break;
 		case R.id.btnPay1:
-			strTotalPay.append("1");
+			mStrTotalPay.append("1");
 			break;
 		case R.id.btnPay2:
-			strTotalPay.append("2");
+			mStrTotalPay.append("2");
 			break;
 		case R.id.btnPay3:
-			strTotalPay.append("3");
+			mStrTotalPay.append("3");
 			break;
 		case R.id.btnPay4:
-			strTotalPay.append("4");
+			mStrTotalPay.append("4");
 			break;
 		case R.id.btnPay5:
-			strTotalPay.append("5");
+			mStrTotalPay.append("5");
 			break;
 		case R.id.btnPay6:
-			strTotalPay.append("6");
+			mStrTotalPay.append("6");
 			break;
 		case R.id.btnPay7:
-			strTotalPay.append("7");
+			mStrTotalPay.append("7");
 			break;
 		case R.id.btnPay8:
-			strTotalPay.append("8");
+			mStrTotalPay.append("8");
 			break;
 		case R.id.btnPay9:
-			strTotalPay.append("9");
+			mStrTotalPay.append("9");
 			break;
 		case R.id.btnPay20:
-			strTotalPay.append("20");
+			mStrTotalPay.append("20");
 			displayTotalPaid();
 			addPayment();
-			strTotalPay = new StringBuilder();
+			mStrTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPay50:
-			strTotalPay.append("50");
+			mStrTotalPay.append("50");
 			displayTotalPaid();
 			addPayment();
-			strTotalPay = new StringBuilder();
+			mStrTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPay100:
-			strTotalPay.append("100");
+			mStrTotalPay.append("100");
 			displayTotalPaid();
 			addPayment();
-			strTotalPay = new StringBuilder();
+			mStrTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPay500:
-			strTotalPay.append("500");
+			mStrTotalPay.append("500");
 			displayTotalPaid();
 			addPayment();
-			strTotalPay = new StringBuilder();
+			mStrTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPay1000:
-			strTotalPay.append("1000");
+			mStrTotalPay.append("1000");
 			displayTotalPaid();
 			addPayment();
-			strTotalPay = new StringBuilder();
+			mStrTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPayC:
-			strTotalPay = new StringBuilder();
+			mStrTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPayDel:
 			try {
-				strTotalPay.deleteCharAt(strTotalPay.length() - 1);
+				mStrTotalPay.deleteCharAt(mStrTotalPay.length() - 1);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			break;
 		case R.id.btnPayDot:
-			strTotalPay.append(".");
+			mStrTotalPay.append(".");
 			break;
 		case R.id.btnPayEnter:
 			addPayment();
-			strTotalPay = new StringBuilder();
+			mStrTotalPay = new StringBuilder();
 			break;
 		}
 		displayTotalPaid();
@@ -276,28 +303,24 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		return space.toString();
 	}
 	
-	private void print(){
-		printer = new Print(context);
-		printer.setStatusChangeEventCallback(this);
-		printer.setBatteryStatusChangeEventCallback(this);
+	private void print(OrderTransaction trans, 
+			OrderTransaction.OrderDetail summary, 
+			List<OrderTransaction.OrderDetail> orderLst){
+		mPrinter = new Print(mContext);
+		mPrinter.setStatusChangeEventCallback(this);
+		mPrinter.setBatteryStatusChangeEventCallback(this);
 		
 		try {
-			printer.openPrinter(Print.DEVTYPE_TCP, "1.1.0.163", 0, 1000);	
-			Builder builder = new Builder("TM-T88V", Builder.MODEL_ANK, context);
+			mPrinter.openPrinter(Print.DEVTYPE_TCP, "1.1.0.163", 0, 1000);	
+			Builder builder = new Builder("TM-T88V", Builder.MODEL_ANK, mContext);
 			builder.addTextLang(Builder.LANG_TH);
 			builder.addTextFont(Builder.FONT_B);
 			builder.addTextAlign(Builder.ALIGN_LEFT);
 			builder.addTextLineSpace(30);
 			builder.addTextSize(1, 1);
 			builder.addTextStyle(Builder.FALSE, Builder.FALSE, Builder.FALSE, Builder.COLOR_1);
-			
-			OrderTransaction trans = mTrans.getTransaction(transactionId, computerId);
-			OrderTransaction.OrderDetail summary = 
-					mTrans.getSummary(transactionId, computerId);
-	    	List<OrderTransaction.OrderDetail> orderLst = 
-	    			mTrans.listAllOrders(transactionId, computerId);
-	    	
-	    	Shop s = new Shop(context);
+
+	    	Shop s = new Shop(mContext);
 	    	ShopProperty shopProp = s.getShopProperty();
 
 			builder.addTextPosition(100);
@@ -326,9 +349,9 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	    		
 	    		int len = order.getProductName().length();
 	    		builder.addText(createSpace(len, 30));
-	    		builder.addText(format.qtyFormat(order.getQty()));
+	    		builder.addText(mFormat.qtyFormat(order.getQty()));
 	    		builder.addText("          ");
-	    		builder.addText(format.currencyFormat(order.getTotalSalePrice()));
+	    		builder.addText(mFormat.currencyFormat(order.getTotalSalePrice()));
 	    		builder.addText("\n");
 	    	}
 	    	
@@ -340,15 +363,15 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	    	String vat = "Vat";
 	    	
 	    	builder.addText(total + createSpace(total.length(), 43));
-	    	builder.addText(format.currencyFormat(summary.getTotalRetailPrice()) + "\n");
+	    	builder.addText(mFormat.currencyFormat(summary.getTotalRetailPrice()) + "\n");
 	    	builder.addText(discount + createSpace(discount.length(), 43));
-	    	builder.addText(format.currencyFormat(summary.getPriceDiscount()) + "\n");
+	    	builder.addText(mFormat.currencyFormat(summary.getPriceDiscount()) + "\n");
 	    	builder.addText(net + createSpace(net.length(), 43));
-	    	builder.addText(format.currencyFormat(summary.getTotalSalePrice()) + "\n");
+	    	builder.addText(mFormat.currencyFormat(summary.getTotalSalePrice()) + "\n");
 	    	
 	    	builder.addText("______________________________________________________\n");
 	    	builder.addText(vatable + createSpace(vatable.length(), 43));
-	    	builder.addText(format.currencyFormat(trans.getTransactionVatable()) + "\n");
+	    	builder.addText(mFormat.currencyFormat(trans.getTransactionVatable()) + "\n");
 	    	builder.addText(vat + createSpace(vat.length(), 43));
 	    	builder.addText(shopProp.getCompanyVat() + "\n");
 			builder.addFeedUnit(30);
@@ -358,7 +381,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 			int[] status = new int[1];
 			int[] battery = new int[1];
 			try {
-				printer.sendData(builder, 10000, status, battery);
+				mPrinter.sendData(builder, 10000, status, battery);
 			} catch (EposException e) {
 //				Util.alert(context, android.R.drawable.ic_dialog_alert,
 //						R.string.title_activity_payment, e.getErrorStatus());
@@ -373,8 +396,8 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		}
 		
 		try {
-			printer.closePrinter();
-			printer = null;
+			mPrinter.closePrinter();
+			mPrinter = null;
 		} catch (EposException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -392,30 +415,46 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		
 	}
 
+	@Override 
+	public void onSaveClick(View v){
+		
+	}
+	
 	@Override
-	public void onOkClick(View v) {
-		if(totalPaid >=totalSalePrice){
-			mTrans.successTransaction(transactionId, computerId, staffId);
-			
-			print();
-			
-			if(totalPaid - totalSalePrice > 0){
-				new AlertDialog.Builder(context)
-				.setTitle(R.string.change)
-				.setMessage(format.currencyFormat(totalPaid - totalSalePrice))
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						finish();
-					}
-				})
-				.show();
+	public void onConfirmClick(View v) {
+		if(mTotalPaid >=mTotalSalePrice){
+			if(mTrans.successTransaction(mTransactionId, mComputerId, mStaffId)){
+				
+				OrderTransaction trans = mTrans.getTransaction(mTransactionId, mComputerId);
+				OrderTransaction.OrderDetail summary = 
+						mTrans.getSummary(mTransactionId, mComputerId);
+		    	List<OrderTransaction.OrderDetail> orderLst = 
+		    			mTrans.listAllOrders(mTransactionId, mComputerId);
+		    	
+				print(trans, summary, orderLst);
+				mSaleStock.createSaleDocument(mShopId, mStaffId, orderLst);
+				
+				if(mTotalPaid - mTotalSalePrice > 0){
+					new AlertDialog.Builder(mContext)
+					.setTitle(R.string.change)
+					.setMessage(mFormat.currencyFormat(mTotalPaid - mTotalSalePrice))
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							finish();
+						}
+					})
+					.show();
+				}else{
+					finish();
+				}
+				
 			}else{
-				finish();
+				
 			}
 		}else{
-			new AlertDialog.Builder(context)
+			new AlertDialog.Builder(mContext)
 			.setIcon(android.R.drawable.ic_dialog_alert)
 			.setTitle(R.string.payment)
 			.setMessage(R.string.enter_enough_money)
@@ -433,7 +472,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 
 	@Override
 	public void onCancelClick(View v) {
-		mPayment.deleteAllPaymentDetail(transactionId, computerId);
+		mPayment.deleteAllPaymentDetail(mTransactionId, mComputerId);
 		finish();
 	}
 }

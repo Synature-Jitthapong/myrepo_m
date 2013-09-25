@@ -23,7 +23,7 @@ import com.syn.pos.transaction.TransactionCreation;
  */
 public class MPOSTransaction extends Util implements TransactionCreation, OrderCreation{
 	
-	private SQLiteHelper mDbHelper;
+	protected SQLiteHelper mDbHelper;
 	
 	public MPOSTransaction(Context context) {
 		mDbHelper = new MPOSSQLiteHelper(context);

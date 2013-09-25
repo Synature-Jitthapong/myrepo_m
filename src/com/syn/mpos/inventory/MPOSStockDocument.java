@@ -184,10 +184,11 @@ public abstract class MPOSStockDocument extends Util implements DocumentCreation
 	}
 
 	@Override
-	public int addDocumentDetail(int documentId, int shopId, float materialId, 
-			float materialQty, float materialCountQty, float materialPrice, String unitName) {
+	public int addDocumentDetail(int documentId, int shopId, float materialId,
+			float materialQty, float materialCountQty, float materialPrice,
+			String unitName) {
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
-		
+
 		ContentValues cv = new ContentValues();
 		cv.put("docdetail_id", docDetailId);
 		cv.put("document_id", documentId);
@@ -199,9 +200,10 @@ public abstract class MPOSStockDocument extends Util implements DocumentCreation
 		cv.put("material_net_price", materialPrice);
 		cv.put("material_tax_type", 1);
 		cv.put("material_tax_price", 0);
-		
+
 		mDbHelper.open();
-		if(!mDbHelper.insert("docdetail", cv)) docDetailId = 0; 
+		if (!mDbHelper.insert("docdetail", cv))
+			docDetailId = 0;
 		mDbHelper.close();
 		return docDetailId;
 	}

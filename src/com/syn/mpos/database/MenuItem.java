@@ -28,7 +28,8 @@ public class MenuItem {
 		List<MenuGroups.MenuItem> menuLst 
 			= new ArrayList<MenuGroups.MenuItem>();
 		
-		String strSql = "SELECT a.menu_name_0, b.product_id, b.product_code, " +
+		String strSql = "SELECT a.menu_name_0, a.menu_image_link, " +
+				" b.product_id, b.product_code, " +
 				" b.product_bar_code, b.product_price " +
 				" FROM menu_item a" +
 				" LEFT JOIN products b" +
@@ -48,6 +49,7 @@ public class MenuItem {
 				menu.setProductCode(cursor.getString(cursor.getColumnIndex("product_code")));
 				menu.setProductBarCode(cursor.getString(cursor.getColumnIndex("product_bar_code")));
 				menu.setMenuName_0(cursor.getString(cursor.getColumnIndex("menu_name_0")));
+				menu.setMenuImageLink(cursor.getString(cursor.getColumnIndex("menu_image_link")));
 				menu.setProductPricePerUnit(cursor.getFloat(cursor.getColumnIndex("product_price")));
 				menuLst.add(menu);
 			}while(cursor.moveToNext());

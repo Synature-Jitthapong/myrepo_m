@@ -33,7 +33,7 @@
         <activity
             android:name="com.syn.mpos.MainActivity"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden" android:theme="@style/AppTheme.LargeTitle">
         </activity>
         <activity
             android:name="com.syn.mpos.DiscountActivity"
@@ -66,16 +66,15 @@
         </activity>
         <activity
             android:name="com.syn.mpos.DirectReceiveActivity"
-            android:label="@string/title_activity_inv_direct_receive" >
+            android:label="@string/title_activity_inv_direct_receive" android:screenOrientation="landscape" android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
             android:name="com.syn.mpos.StockCountActivity"
-            android:label="@string/title_activity_stock_count"
-            android:windowSoftInputMode="adjustPan" >
+            android:label="@string/title_activity_stock_count" android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
             android:name="com.syn.mpos.VoidBillActivity"
-            android:label="@string/title_activity_void_bill" >
+            android:label="@string/title_activity_void_bill" android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
             android:name="com.syn.mpos.AddMemberActivity"

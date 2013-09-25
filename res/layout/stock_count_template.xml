@@ -62,7 +62,6 @@
             android:lines="1"
             android:singleLine="true" >
 
-            <requestFocus />
         </EditText>
 
     </LinearLayout>

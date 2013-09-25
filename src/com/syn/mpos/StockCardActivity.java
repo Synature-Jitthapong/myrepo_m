@@ -66,7 +66,7 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.stock_card, menu);
+		getMenuInflater().inflate(R.menu.action_stock_card, menu);
 		MenuItem menuItem = (MenuItem) menu.findItem(R.id.itemDateCondition);
 		btnDateFrom = (Button) menuItem.getActionView().findViewById(R.id.btnDateFrom);
 		btnDateTo = (Button) menuItem.getActionView().findViewById(R.id.btnDateTo);
@@ -182,6 +182,12 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 			holder.tvEndding.setText(mFormat.qtyFormat(endding));
 			holder.tvVariance.setText(mFormat.qtyFormat(variance));
 			holder.tvDiff.setText(mFormat.qtyFormat(diff));
+			
+			if(position % 2 == 0)
+				convertView.setBackgroundResource(R.color.grey_light);
+			else
+				convertView.setBackgroundResource(R.color.smoke_white);
+				
 			return convertView;
 		}
 		
