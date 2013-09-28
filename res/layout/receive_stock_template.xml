@@ -34,7 +34,7 @@
         android:layout_marginRight="1dp"
         android:ems="10"
         android:gravity="center_vertical|right"
-        android:inputType="number"
+        android:inputType="number|numberSigned|numberDecimal"
         android:lines="1"
         android:singleLine="true" >
 
@@ -47,7 +47,7 @@
         android:layout_marginRight="1dp"
         android:ems="10"
         android:gravity="center_vertical|right"
-        android:inputType="number"
+        android:inputType="number|numberSigned|numberDecimal"
         android:lines="1"
         android:singleLine="true" />
 

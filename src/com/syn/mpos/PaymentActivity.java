@@ -1,5 +1,6 @@
 package com.syn.mpos;
 
+import java.util.ArrayList;
 import java.util.List;
 import com.epson.eposprint.BatteryStatusChangeEventListener;
 import com.epson.eposprint.Builder;
@@ -27,7 +28,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
@@ -36,10 +42,13 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	//private final String TAG = "PaymentActivity";
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
+
 	private Context mContext;
 	private MPOSTransaction mTrans;
 	private MPOSPayment mPayment;
 	private MPOSSaleStock mSaleStock;
+	private List<Payment.PaymentDetail> mPayLst;
+	private PaymentAdapter mPaymentAdapter;
 	private Formatter mFormat;
 	private int mShopId;
 	private int mTransactionId;
@@ -52,8 +61,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	private float mTotalPay;
 	private float mTotalPaid;
 	
-	private TableLayout tableLayoutPaydetail;
-	private TextView tvTotalPayment;
+	private ListView mLvPayment;
 	private EditText txtTotalPay;
 	private EditText txtTotalPaid;
 	private EditText txtTobePaid;
@@ -63,8 +71,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_payment);
 
-		tableLayoutPaydetail = (TableLayout) findViewById(R.id.tableLayoutPaydetail);
-		tvTotalPayment = (TextView) findViewById(R.id.textViewTotalPayment);
+		mLvPayment = (ListView) findViewById(R.id.listView1);
 		txtTotalPay = (EditText) findViewById(R.id.editTextTotalPay);
 		txtTotalPaid = (EditText) findViewById(R.id.editTextTotalPaid);
 		txtTobePaid = (EditText) findViewById(R.id.editTextTobePaid);
@@ -116,6 +123,20 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		mTrans = new MPOSTransaction(mContext);
 		mPayment = new MPOSPayment(mContext);
 		mSaleStock = new MPOSSaleStock(mContext);
+		mPaymentAdapter = new PaymentAdapter();
+		mPayLst = new ArrayList<Payment.PaymentDetail>();
+		mLvPayment.setAdapter(mPaymentAdapter);
+		mLvPayment.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View v, int position,
+					long id) {
+				Payment.PaymentDetail payment = 
+						(Payment.PaymentDetail) parent.getItemAtPosition(position);
+				deletePayment(payment.getPaymentDetailID());
+			}
+			
+		});
 		
 		summary();
 		loadPayDetail();
@@ -131,40 +152,72 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		displayTotalPrice();
 	}
 	
-	private void loadPayDetail(){
-		List<Payment.PaymentDetail> payLst = 
-				mPayment.listPayment(mTransactionId, mComputerId);
-		mTotalPaid = mPayment.getTotalPaid(mTransactionId, mComputerId);
-		float tobePaid = mTotalSalePrice - mTotalPaid; 
+	private class PaymentAdapter extends BaseAdapter{
 		
-		LayoutInflater inflater = LayoutInflater.from(mContext);
-		tableLayoutPaydetail.removeAllViews();
-		for(final Payment.PaymentDetail payment : payLst){
-			View v = inflater.inflate(R.layout.payment_detail_template, null);
-			TextView tvPayType = (TextView) v.findViewById(R.id.textViewPayType);
-			TextView tvPayDetail = (TextView) v.findViewById(R.id.textViewPayDetail);
-			TextView tvPayAmount = (TextView) v.findViewById(R.id.textViewPayAmount);
+		private LayoutInflater inflater;
+		
+		public PaymentAdapter(){
+			inflater = LayoutInflater.from(mContext);
+		}
+
+		@Override
+		public int getCount() {
+			return mPayLst != null ? mPayLst.size() : 0;
+		}
+
+		@Override
+		public Payment.PaymentDetail getItem(int position) {
+			return mPayLst.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			Payment.PaymentDetail payment = mPayLst.get(position);
+			ViewHolder holder;
+			
+			if(convertView == null){
+				convertView = inflater.inflate(R.layout.payment_detail_template, null);
+				holder = new ViewHolder();
+				holder.tvPayType = (TextView) convertView.findViewById(R.id.tvPayType);
+				holder.tvPayDetail = (TextView) convertView.findViewById(R.id.tvPayDetail);
+				holder.tvPayAmount = (TextView) convertView.findViewById(R.id.tvPayAmount);
+				convertView.setTag(holder);
+			}else{
+				holder = (ViewHolder) convertView.getTag();
+			}
 			
 			String payTypeName = payment.getPayTypeID() == PAY_TYPE_CASH ? "Cash" : "Credit";
 			if(payment.getPayTypeName() != null){
 				payTypeName = payment.getPayTypeName();
 			}
 			
-			tvPayType.setText(payTypeName);
-			tvPayDetail.setText(payment.getRemark());
-			tvPayAmount.setText(mFormat.currencyFormat(payment.getPayAmount()));
+			holder.tvPayType.setText(payTypeName);
+			holder.tvPayDetail.setText(payment.getRemark());
+			holder.tvPayAmount.setText(mFormat.currencyFormat(payment.getPayAmount()));
 			
-			v.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View arg0) {
-					deletePayment(payment.getPaymentDetailID());
-				}
-				
-			});
-			tableLayoutPaydetail.addView(v);
+			return convertView;
 		}
 		
+		private class ViewHolder{
+			TextView tvPayType;
+			TextView tvPayDetail;
+			TextView tvPayAmount;
+		}
+	}
+	
+	private void loadPayDetail(){
+		mPayLst = mPayment.listPayment(mTransactionId, mComputerId);
+		mPaymentAdapter.notifyDataSetChanged();
+		
+		mTotalPaid = mPayment.getTotalPaid(mTransactionId, mComputerId);
+		
+		float tobePaid = mTotalSalePrice - mTotalPaid; 
+
 		txtTotalPaid.setText(mFormat.currencyFormat(mTotalPaid));
 		if(tobePaid < 0)
 			tobePaid = 0.0f;
@@ -186,7 +239,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	}
 	
 	private void displayTotalPrice(){
-		tvTotalPayment.setText(mFormat.currencyFormat(mTotalSalePrice));
+		setTitle(mFormat.currencyFormat(mTotalSalePrice));
 
 		mStrTotalPay = new StringBuilder();
 		displayTotalPaid();

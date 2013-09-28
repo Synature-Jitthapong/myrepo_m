@@ -26,9 +26,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnActionExpandListener;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -202,7 +204,24 @@ public class DirectReceiveActivity extends Activity implements
 		mStockLst = new ArrayList<StockMaterial>();
 		mStockAdapter = new ReceiveStockAdapter();
 		mListViewStock.setAdapter(mStockAdapter);
+		mListViewStock.setOnTouchListener(new OnTouchListener(){
 
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if(event.getAction() == KeyEvent.ACTION_DOWN){
+					EditText txtQty = (EditText) v.findViewById(R.id.txtQty);
+					EditText txtPrice = (EditText) v.findViewById(R.id.txtPrice);
+					
+					if(txtQty.isFocused())
+						txtQty.clearFocus();
+					if(txtPrice.isFocused())
+						txtPrice.clearFocus();
+				}
+				return false;
+			}
+			
+		});
+		
 		mDocumentId = mReceiveStock.getCurrentDocument(mShopId,
 				MPOSStockDocument.DIRECT_RECEIVE_DOC);
 		if (mDocumentId == 0) {
@@ -402,43 +421,38 @@ public class DirectReceiveActivity extends Activity implements
 				}
 			});
 			
-			holder.txtQty.setOnKeyListener(new OnKeyListener(){
+			holder.txtQty.setOnFocusChangeListener(new OnFocusChangeListener(){
 
 				@Override
-				public boolean onKey(View v, int keyCode, KeyEvent event) {
-					if(event.getAction() == KeyEvent.ACTION_UP){
-						EditText txtQty = (EditText) v;
-						try {
-							stock.setCurrQty(Float.parseFloat(txtQty.getText().toString()));
-							updateStock(stock);
-						} catch (NumberFormatException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+				public void onFocusChange(View v, boolean hasFocus) {
+					EditText txtQty = (EditText) v;
+					try {
+						stock.setCurrQty(Float.parseFloat(txtQty.getText().toString()));
+						updateStock(stock);
+					} catch (NumberFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-					return false;
 				}
 				
 			});
 			
-			holder.txtPrice.setOnKeyListener(new OnKeyListener(){
+			holder.txtPrice.setOnFocusChangeListener(new OnFocusChangeListener(){
 
 				@Override
-				public boolean onKey(View v, int keyCode, KeyEvent event) {
-					if(event.getAction() == KeyEvent.ACTION_UP){
-						EditText txtPrice = (EditText) v;
-						try {
-							stock.setPricePerUnit(Float.parseFloat(txtPrice.getText().toString()));
-							updateStock(stock);
-						} catch (NumberFormatException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+				public void onFocusChange(View v, boolean hasFocus) {
+					EditText txtPrice = (EditText) v;
+					try {
+						stock.setPricePerUnit(Float.parseFloat(txtPrice.getText().toString()));
+						updateStock(stock);
+					} catch (NumberFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-					return false;
 				}
 				
 			});
+			
 			return convertView;
 		}
 

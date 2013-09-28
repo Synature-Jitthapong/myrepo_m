@@ -29,6 +29,10 @@
     	<item name="android:actionBarStyle">@style/AppTheme.LargeTitle.ActionBarStyle</item>
     	<item name="android:actionMenuTextAppearance">@style/AppTheme.Menu.LowerCase</item>
   	</style>
+  	<style name="AppTheme.LargeTitle.LargeMenu" parent="android:Theme.Holo.Light">
+    	<item name="android:actionBarStyle">@style/AppTheme.LargeTitle.ActionBarStyle</item>
+    	<item name="android:actionMenuTextAppearance">@style/AppTheme.Menu.LowerCaseLarge</item>
+  	</style>
   	<style name="AppTheme.LargeTitle.ActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar">
     	<item name="android:titleTextStyle">@style/AppTheme.LargeTitle.ActionBar.TitleTextStyle</item>
   	</style>
@@ -38,13 +42,15 @@
   	</style>
   
   	<!-- Menu item lower case -->
-  	<style name="AppTheme.Menu.LowerCase" parent="android:TextAppearance.Holo.Widget.ActionBar.Menu">
-        <item name="android:textAllCaps">false</item>
+  	<style name="AppTheme.Menu.LowerCaseLarge" parent="AppTheme.Menu.LowerCase">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
+    </style>
+    <style name="AppTheme.Menu.LowerCase" parent="android:TextAppearance.Holo.Widget.ActionBar.Menu">
+        <item name="android:textAllCaps">false</item>
+    	<item name="android:textSize">14sp</item>
     	<item name="android:minWidth">100dp</item>
     </style>
-    
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->

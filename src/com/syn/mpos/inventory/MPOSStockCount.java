@@ -237,7 +237,7 @@ public class MPOSStockCount extends MPOSStockDocument {
 		List<StockMaterial> stockLst = 
 				new ArrayList<StockMaterial>();
 		
-		String strSql = "SELECT b.material_id, c.product_code, " +
+		String strSql = "SELECT b.docdetail_id, b.material_id, c.product_code, " +
 				" d.menu_name_0, e.material_qty, b.material_count_qty " +
 				" FROM document a " +
 				" LEFT JOIN docdetail b " +
@@ -258,13 +258,13 @@ public class MPOSStockCount extends MPOSStockDocument {
 		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if(cursor.moveToFirst()){
 			do{
-				StockMaterial mat = new StockMaterial(
-						cursor.getInt(cursor.getColumnIndex("material_id")),
-						cursor.getString(cursor.getColumnIndex("product_code")),
-						cursor.getString(cursor.getColumnIndex("menu_name_0")),
-						cursor.getFloat(cursor.getColumnIndex("material_qty")),
-						cursor.getFloat(cursor.getColumnIndex("material_count_qty"))
-						);
+				StockMaterial mat = new StockMaterial();
+				mat.setId(cursor.getInt(cursor.getColumnIndex("docdetail_id")));
+				mat.setMatId(cursor.getInt(cursor.getColumnIndex("material_id")));
+				mat.setCode(cursor.getString(cursor.getColumnIndex("product_code")));
+				mat.setName(cursor.getString(cursor.getColumnIndex("menu_name_0")));
+				mat.setCurrQty(cursor.getFloat(cursor.getColumnIndex("material_qty")));
+				mat.setCountQty(cursor.getFloat(cursor.getColumnIndex("material_count_qty")));
 				stockLst.add(mat);
 			}while(cursor.moveToNext());
 		}

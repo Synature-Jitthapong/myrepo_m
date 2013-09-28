@@ -18,9 +18,11 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
@@ -39,7 +41,7 @@ public class StockCountActivity extends Activity {
 	private int mStaffId;
 	private int mShopId;
 
-	private ListView lvStock;
+	private ListView mLvStock;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +55,7 @@ public class StockCountActivity extends Activity {
 		if (mStaffId == 0 || mShopId == 0)
 			finish();
 
-		lvStock = (ListView) findViewById(R.id.listView1);
+		mLvStock = (ListView) findViewById(R.id.listView1);
 
 		init();
 	}
@@ -71,14 +73,27 @@ public class StockCountActivity extends Activity {
 		if (mDocumentId == 0) {
 			mDocumentId = mStockCount.createDocument(mShopId,
 					MPOSStockDocument.DAILY_DOC, mStaffId);
-			mStockLst = mStockCount.listStock();
 			new SaveStockCountTask().execute();
 		} else {
 			mStockLst = mStockCount.listStock(mDocumentId, mShopId);
 		}
 
 		mStockAdapter = new StockAdapter();
-		lvStock.setAdapter(mStockAdapter);
+		mLvStock.setAdapter(mStockAdapter);
+		mLvStock.setOnTouchListener(new OnTouchListener(){
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if(event.getAction() == KeyEvent.ACTION_DOWN){
+					EditText txtItemQty = (EditText) v.findViewById(R.id.txtItemQty);
+					if(txtItemQty != null){
+						txtItemQty.clearFocus();
+					}
+				}
+				return false;
+			}
+			
+		});
 	}
 
 	@Override
@@ -123,6 +138,18 @@ public class StockCountActivity extends Activity {
 									mStockCount.confirmStock(mDocumentId,
 											mShopId, mStaffId, txtRemark
 													.getText().toString());
+									
+									new AlertDialog.Builder(mContext)
+									.setIcon(android.R.drawable.ic_dialog_info)
+									.setTitle(R.string.confirm)
+									.setMessage(R.string.confirm_success)
+									.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											finish();
+										}
+									}).show();
 								}
 							}).show();
 			return true;
@@ -227,29 +254,34 @@ public class StockCountActivity extends Activity {
 			holder.tvItemUnit.setText("unit");
 			holder.txtItemQty.clearFocus();
 			
-			holder.txtItemQty.setOnKeyListener(new OnKeyListener(){
+			holder.txtItemQty.setOnFocusChangeListener(new OnFocusChangeListener(){
 
 				@Override
-				public boolean onKey(View v, int keyCode, KeyEvent event) {
-					if(event.getAction() == KeyEvent.ACTION_UP){
-						float enterCount = 0.0f;
-						EditText txtQty = (EditText) v;
-						
-						try {
-							enterCount = Float.parseFloat(txtQty.getText().toString());
-						} catch (NumberFormatException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-	
-						stock.setCountQty(enterCount);
-						holder.tvItemDiff.setText(mFormat.qtyFormat(enterCount - currQty));
+				public void onFocusChange(View v, boolean hasFocus) {
+					float enterCount = 0.0f;
+					EditText txtQty = (EditText) v;
+					
+					try {
+						enterCount = Float.parseFloat(txtQty.getText().toString());
+					} catch (NumberFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-					return false;
+
+					mStockCount.updateDocumentDetail(stock.getId(), 
+							mDocumentId, mShopId, stock.getMatId(), 
+							enterCount, stock.getPricePerUnit(), "");
+
+					holder.tvItemDiff.setText(mFormat.qtyFormat(enterCount - currQty));
 				}
 				
 			});
 		
+			if(position % 2 == 0)
+				convertView.setBackgroundResource(R.color.smoke_white);
+			else
+				convertView.setBackgroundResource(R.color.grey_light);
+			
 			return convertView;
 		}
 
@@ -281,6 +313,9 @@ public class StockCountActivity extends Activity {
 			if (progress.isShowing())
 				progress.dismiss();
 
+			mStockLst = mStockCount.listStock(mDocumentId, mShopId);
+			mStockAdapter.notifyDataSetChanged();
+			
 			if (!isSuccess) {
 				Util.alert(mContext, android.R.drawable.ic_dialog_alert,
 						R.string.error, R.string.error_save_stock);

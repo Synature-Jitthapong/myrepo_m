@@ -33,13 +33,13 @@
         <activity
             android:name="com.syn.mpos.MainActivity"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden" android:theme="@style/AppTheme.LargeTitle">
+            android:windowSoftInputMode="stateHidden" android:theme="@style/AppTheme.LargeTitle.LargeMenu">
         </activity>
         <activity
             android:name="com.syn.mpos.DiscountActivity"
             android:label="@string/discount"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.pos.mobile.mpos.MainActivity" />
@@ -47,7 +47,7 @@
         <activity
             android:name="com.syn.mpos.PaymentActivity"
             android:label="@string/title_activity_payment"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="landscape" android:theme="@style/AppTheme.LargeTitle">
         </activity>
         <activity
             android:name="com.syn.mpos.CreditPayActivity"

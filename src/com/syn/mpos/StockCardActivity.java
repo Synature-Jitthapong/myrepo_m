@@ -182,11 +182,11 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 			holder.tvEndding.setText(mFormat.qtyFormat(endding));
 			holder.tvVariance.setText(mFormat.qtyFormat(variance));
 			holder.tvDiff.setText(mFormat.qtyFormat(diff));
-			
+
 			if(position % 2 == 0)
-				convertView.setBackgroundResource(R.color.grey_light);
-			else
 				convertView.setBackgroundResource(R.color.smoke_white);
+			else
+				convertView.setBackgroundResource(R.color.grey_light);
 				
 			return convertView;
 		}
