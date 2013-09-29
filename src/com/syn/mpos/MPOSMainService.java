@@ -14,7 +14,7 @@ public class MPOSMainService extends DotNetWebServiceTask{
 		
 		property = new PropertyInfo();
 		property.setName("iShopID");
-		property.setValue(4);
+		property.setValue(8);
 		property.setType(int.class);
 		soapRequest.addProperty(property);
 		

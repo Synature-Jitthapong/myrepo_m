@@ -5,58 +5,61 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TableLayout
-        android:id="@+id/tbHoldBill"
+    <TableRow
+        android:id="@+id/tableRow1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="wrap_content" >
 
-        <TableRow
-            android:id="@+id/tableRow1"
+        <TextView
+            android:id="@+id/textView1"
+            style="@style/ColumnHeader"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:layout_marginRight="1dp"
+            android:gravity="center"
+            android:minWidth="30dp"
+            android:text="@string/num_row"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <TextView
-                android:id="@+id/textView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="1dp"
-                android:background="@color/grey_light"
-                android:gravity="center"
-                android:minWidth="30dp"
-                android:text="@string/num_row"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+        <TextView
+            android:id="@+id/textView2"
+            style="@style/ColumnHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="1dp"
+            android:layout_weight="1"
+            android:background="@color/grey_light"
+            android:text="@string/open_time"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="1dp"
-                android:layout_weight="1"
-                android:background="@color/grey_light"
-                android:text="@string/open_time"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+        <TextView
+            android:id="@+id/textView3"
+            style="@style/ColumnHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="1dp"
+            android:background="@color/grey_light"
+            android:minWidth="100dp"
+            android:text="@string/staff"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="1dp"
-                android:background="@color/grey_light"
-                android:minWidth="100dp"
-                android:text="@string/staff"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+        <TextView
+            android:id="@+id/textView4"
+            style="@style/ColumnHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="0dp"
+            android:background="@color/grey_light"
+            android:minWidth="200dp"
+            android:text="@string/remark"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/grey_light"
-                android:minWidth="200dp"
-                android:text="@string/remark"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+    </TableRow>
 
-        </TableRow>
-
-    </TableLayout>
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
 
 </LinearLayout>

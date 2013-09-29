@@ -535,58 +535,113 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		}
 	}
 
+	public void holdOrderClicked(final View v){
+		final EditText txtRemark = new EditText(mContext);
+		new AlertDialog.Builder(mContext)
+		.setView(txtRemark)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				String remark = txtRemark.getText().toString();
+
+				if(mTrans.holdTransaction(mTransactionId, mComputerId, remark)){	
+					init();
+				}
+			}
+		}).show();
+	}
+	
 	@Override
 	public void onHoldBillClick(View v) {
 		LayoutInflater inflater = LayoutInflater.from(mContext);
 		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
-		TableLayout tbHold = (TableLayout) holdBillView.findViewById(R.id.tbHoldBill);
-	
-		final Dialog d = new Dialog(mContext);
-		d.setTitle(R.string.hold_bill);
-		d.setContentView(holdBillView);
-		
+		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
 		List<OrderTransaction> billLst = mTrans.listHoldOrder(mComputerId);
+		HoldBillAdapter billAdapter = new HoldBillAdapter(billLst);
+		lvHoldBill.setAdapter(billAdapter);
 		
-		Calendar c = Calendar.getInstance();
-	
-		for(int i = 0; i < billLst.size(); i++){
-			final OrderTransaction trans = billLst.get(i);
-					
-			View template = inflater.inflate(R.layout.hold_bill_template, null);
-			TextView tvNo = (TextView) template.findViewById(R.id.tvNo);
-			TextView tvOpenTime = (TextView) template.findViewById(R.id.tvOpenTime);
-			TextView tvOpenStaff = (TextView) template.findViewById(R.id.tvOpenStaff);
-			TextView tvRemark = (TextView) template.findViewById(R.id.tvRemark);
+		new AlertDialog.Builder(mContext, R.style.CustomDialog)
+		.setView(holdBillView)
+		.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 			
-			tvNo.setText((i + 1) + ".");
-			c.setTimeInMillis(trans.getOpenTime());
-			tvOpenTime.setText(mFormat.dateTimeFormat(c.getTime()));
-			tvOpenStaff.setText(trans.getStaffName());
-			tvRemark.setText(trans.getRemark());
-			
-			
-			template.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					
-					if(mTrans.prepareTransaction(trans.getTransactionId(), 
-							trans.getComputerId())){
-						mOrderLst = mTrans.listAllOrders(trans.getTransactionId(), 
-								trans.getComputerId());
-						
-						mOrderAdapter.notifyDataSetChanged();
-						d.dismiss();
-					}
-				}
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
 				
-			});
-			
-			tbHold.addView(template);
-		}
-		d.show();
+			}
+		}).show();
 	}
 
+	private class HoldBillAdapter extends BaseAdapter{
+		
+		LayoutInflater inflater;
+		List<OrderTransaction> transLst;
+		Calendar c;
+		
+		public HoldBillAdapter(List<OrderTransaction> transLst){
+			inflater = LayoutInflater.from(mContext);
+			this.transLst = transLst;
+			c = Calendar.getInstance();
+		}
+		
+		@Override
+		public int getCount() {
+			return transLst != null ? transLst.size() : 0;
+		}
+
+		@Override
+		public OrderTransaction getItem(int position) {
+			return transLst.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			OrderTransaction trans = transLst.get(position);
+			ViewHolder holder;
+			
+			if(convertView == null){
+				convertView = inflater.inflate(R.layout.hold_bill_template, null);
+				holder = new ViewHolder();
+				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
+				holder.tvOpenTime = (TextView) convertView.findViewById(R.id.tvOpenTime);
+				holder.tvOpenStaff = (TextView) convertView.findViewById(R.id.tvOpenStaff);
+				holder.tvRemark = (TextView) convertView.findViewById(R.id.tvRemark);
+				convertView.setTag(holder);
+			}else{
+				holder = (ViewHolder) convertView.getTag();
+			}
+			
+			c.setTimeInMillis(trans.getOpenTime());
+			holder.tvNo.setText(Integer.toString(position + 1) + ".");
+			holder.tvOpenTime.setText(mFormat.dateTimeFormat(c.getTime()));
+			holder.tvOpenStaff.setText(trans.getStaffName());
+			holder.tvRemark.setText(trans.getRemark());
+			
+			return convertView;
+		}
+		
+		private class ViewHolder{
+			TextView tvNo;
+			TextView tvOpenTime;
+			TextView tvOpenStaff;
+			TextView tvRemark;
+		}
+	}
+	
 	@Override
 	public void onSwitchUserClick(View v) {
 		// TODO Auto-generated method stub

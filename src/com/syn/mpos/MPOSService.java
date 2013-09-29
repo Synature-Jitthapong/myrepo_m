@@ -160,16 +160,20 @@ public class MPOSService {
 			JSONUtil jsonUtil = new JSONUtil();
 			Type type = new TypeToken<ShopData>() {}.getType();
 			
-			ShopData shopData = (ShopData) jsonUtil.toObject(type, result);
-			
-			Shop shop = new Shop(context);
-			if(shop.addShopProperty(shopData.getShopProperty())){
-				if(shop.addComputerProperty(shopData.getComputerProperty())){
-					if(shop.addGlobalProperty(shopData.getGlobalProperty())){
-						if(shop.addStaff(shopData.getStaffs())){
-							if(shop.addLanguage(shopData.getLanguage())){
-								if(shop.addProgramFeature(shopData.getProgramFeature())){
-									serviceState.onSuccess();
+			try {
+				ShopData shopData = (ShopData) jsonUtil.toObject(type, result);
+				
+				Shop shop = new Shop(context);
+				if(shop.addShopProperty(shopData.getShopProperty())){
+					if(shop.addComputerProperty(shopData.getComputerProperty())){
+						if(shop.addGlobalProperty(shopData.getGlobalProperty())){
+							if(shop.addStaff(shopData.getStaffs())){
+								if(shop.addLanguage(shopData.getLanguage())){
+									if(shop.addProgramFeature(shopData.getProgramFeature())){
+										serviceState.onSuccess();
+									}else{
+										
+									}
 								}else{
 									
 								}
@@ -180,13 +184,17 @@ public class MPOSService {
 							
 						}
 					}else{
-						
+						serviceState.onFail("cannot update computer");
 					}
 				}else{
-					serviceState.onFail("cannot update computer");
+					
 				}
-			}else{
-				
+			} catch (Exception e) {
+				if(!result.isEmpty()){
+					serviceState.onFail(result);
+				}else{
+					serviceState.onFail(e.getMessage());
+				}
 			}
 		}
 
