@@ -67,8 +67,11 @@ public class MPOSStockCount extends MPOSStockDocument {
 				super.DAILY_REDUCE_DOC, staffId);
 		if(documentId > 0){
 			for(Document.DocDetail docDetail : docDetailLst){
+				float materialQty = docDetail.getMaterialQty() < 0 ? 
+						docDetail.getMaterialQty() * -1 : docDetail.getMaterialQty();
+				
 				addDocumentDetail(documentId, shopId, docDetail.getMaterialId(), 
-						docDetail.getMaterialQty(), 0, 0, "");
+						materialQty, 0, 0, "");
 				isSuccess = true;
 			}
 			isSuccess = approveDocument(documentId, shopId, staffId, "adjust from daily count");
@@ -111,11 +114,11 @@ public class MPOSStockCount extends MPOSStockDocument {
 		List<Document.DocDetail> docDetailLst = 
 				new ArrayList<Document.DocDetail>();
 		String strSql = "SELECT document_id, shop_id, material_id, " +
-				" (material_count_qty - material_qty) * -1 AS material_qty " +
+				" material_qty - material_balance AS material_qty " +
 				" FROM docdetail " +
 				" WHERE document_id=" + documentId +
 				" AND shop_id=" + shopId +
-				" AND material_count_qty - material_qty < 0";
+				" AND material_qty - material_balance < 0";
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if(cursor.moveToFirst()){
@@ -143,11 +146,11 @@ public class MPOSStockCount extends MPOSStockDocument {
 		List<Document.DocDetail> docDetailLst = 
 				new ArrayList<Document.DocDetail>();
 		String strSql = "SELECT document_id, shop_id, material_id," +
-				" material_count_qty + material_qty AS material_qty " +
+				" material_qty - material_balance AS material_qty " +
 				" FROM docdetail " +
 				" WHERE document_id=" + documentId +
 				" AND shop_id=" + shopId +
-				" AND material_count_qty - material_qty > 0";
+				" AND material_qty - material_balance > 0";
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if(cursor.moveToFirst()){
@@ -178,9 +181,10 @@ public class MPOSStockCount extends MPOSStockDocument {
 		
 		deleteDocumentDetail(documentId, shopId);
 		for (StockMaterial stock : stockLst) {
+			float countQty = stock.getCurrQty() > 0 ? stock.getCurrQty() : 0;
 			try {
 				addDocumentDetail(documentId, shopId, stock.getId(),
-						stock.getCurrQty(), stock.getCountQty(), 0, "");
+						countQty, stock.getCurrQty(), 0, "");
 				isSuccess = true;
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -198,7 +202,7 @@ public class MPOSStockCount extends MPOSStockDocument {
 		List<StockMaterial> stockLst = 
 				new ArrayList<StockMaterial>();
 		
-		String strSql = " SELECT a.material_qty, b.product_id, " +
+		String strSql = " SELECT a.material_qty, a.material_qty, b.product_id, " +
 				" b.product_code, c.menu_name_0 " +
 				" FROM stock_tmp a " +
 				" LEFT JOIN products b " +
@@ -238,7 +242,7 @@ public class MPOSStockCount extends MPOSStockDocument {
 				new ArrayList<StockMaterial>();
 		
 		String strSql = "SELECT b.docdetail_id, b.material_id, c.product_code, " +
-				" d.menu_name_0, e.material_qty, b.material_count_qty " +
+				" d.menu_name_0, e.material_qty AS currQty, b.material_qty AS countQty " +
 				" FROM document a " +
 				" LEFT JOIN docdetail b " +
 				" ON a.document_id=b.document_id " +
@@ -263,8 +267,8 @@ public class MPOSStockCount extends MPOSStockDocument {
 				mat.setMatId(cursor.getInt(cursor.getColumnIndex("material_id")));
 				mat.setCode(cursor.getString(cursor.getColumnIndex("product_code")));
 				mat.setName(cursor.getString(cursor.getColumnIndex("menu_name_0")));
-				mat.setCurrQty(cursor.getFloat(cursor.getColumnIndex("material_qty")));
-				mat.setCountQty(cursor.getFloat(cursor.getColumnIndex("material_count_qty")));
+				mat.setCurrQty(cursor.getFloat(cursor.getColumnIndex("currQty")));
+				mat.setCountQty(cursor.getFloat(cursor.getColumnIndex("countQty")));
 				stockLst.add(mat);
 			}while(cursor.moveToNext());
 		}

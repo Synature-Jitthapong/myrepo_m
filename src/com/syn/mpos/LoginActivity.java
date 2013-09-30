@@ -9,6 +9,7 @@ import com.syn.pos.ShopData;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings.Secure;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +28,7 @@ public class LoginActivity extends Activity {
 	private MPOSSession mSession;
 	private SharedPreferences mSharedPref;
 	private Setting mSetting;
+	private String deviceCode;
 	
 	private EditText mTxtUser;
 	private EditText mTxtPass;
@@ -36,6 +38,8 @@ public class LoginActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 		mContext = LoginActivity.this;
+		deviceCode = Secure.getString(this.getContentResolver(),
+				Secure.ANDROID_ID);
 		
 		mTxtUser = (EditText) findViewById(R.id.editTextUserName);
 		mTxtPass = (EditText) findViewById(R.id.editTextPassWord);
@@ -96,7 +100,7 @@ public class LoginActivity extends Activity {
 	
 	public void loginClicked(final View v){
 		if(mSetting.sync.isSyncWhenLogin()){
-			MPOSService.sync(mSetting.conn, mContext, new IServiceStateListener(){
+			MPOSService.sync(mSetting.conn, mContext, deviceCode, new IServiceStateListener(){
 	
 				@Override
 				public void onProgress() {

@@ -86,10 +86,10 @@ public class MPOSSession extends MPOSTransaction implements SessionCreation {
 		Calendar dateTime = getDateTime();
 		
 		String strSql = "UPDATE session SET " +
-				" close_staffId=" + closeStaffId + ", " +
+				" close_staff_id=" + closeStaffId + ", " +
 				" close_date_time='" + dateTime.getTimeInMillis() + "', " +
 				" close_amount=" + closeAmount + ", " +
-				" is_end_day=" + isEnday +
+				" is_endday=" + isEnday +
 				" WHERE session_id=" + sessionId +
 				" AND computer_id=" + computerId;
 		

@@ -1,5 +1,6 @@
 package com.syn.mpos;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -20,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
@@ -67,35 +69,38 @@ public class StockCountActivity extends Activity {
 		mFormat = new Formatter(mContext);
 		mStockCount = new MPOSStockCount(mContext, dateFrom.getTimeInMillis(),
 				mCalendar.getTimeInMillis());
-
-		mDocumentId = mStockCount.getCurrentDocument(mShopId,
-				MPOSStockDocument.DAILY_DOC);
-		if (mDocumentId == 0) {
-			mDocumentId = mStockCount.createDocument(mShopId,
-					MPOSStockDocument.DAILY_DOC, mStaffId);
-			new SaveStockCountTask().execute();
-		} else {
-			mStockLst = mStockCount.listStock(mDocumentId, mShopId);
-		}
-
+		mStockLst = new ArrayList<StockMaterial>();
 		mStockAdapter = new StockAdapter();
 		mLvStock.setAdapter(mStockAdapter);
-		mLvStock.setOnTouchListener(new OnTouchListener(){
+		mLvStock.setOnTouchListener(new OnTouchListener() {
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				if(event.getAction() == KeyEvent.ACTION_DOWN){
-					EditText txtItemQty = (EditText) v.findViewById(R.id.txtItemQty);
-					if(txtItemQty != null){
+				if (event.getAction() == KeyEvent.ACTION_DOWN) {
+					EditText txtItemQty = (EditText) v
+							.findViewById(R.id.txtItemQty);
+					if (txtItemQty != null) {
 						txtItemQty.clearFocus();
 					}
 				}
 				return false;
 			}
-			
-		});
-	}
 
+		});
+		
+		mDocumentId = mStockCount.getCurrentDocument(mShopId,
+				MPOSStockDocument.DAILY_DOC);
+		if (mDocumentId == 0) {
+			mDocumentId = mStockCount.createDocument(mShopId,
+					MPOSStockDocument.DAILY_DOC, mStaffId);
+			mStockLst = mStockCount.listStock();
+			new SaveStockCountTask().execute();
+		} else {
+			mStockLst = mStockCount.listStock(mDocumentId, mShopId);
+			mStockAdapter.notifyDataSetChanged();
+		}
+	}
+	
 	@Override
 	protected void onDestroy() {
 		mStockCount.clearDocument();
@@ -126,7 +131,7 @@ public class StockCountActivity extends Activity {
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-
+									hideKeyboard();
 								}
 							})
 					.setPositiveButton(android.R.string.ok,
@@ -139,6 +144,7 @@ public class StockCountActivity extends Activity {
 											mShopId, mStaffId, txtRemark
 													.getText().toString());
 									
+									
 									new AlertDialog.Builder(mContext)
 									.setIcon(android.R.drawable.ic_dialog_info)
 									.setTitle(R.string.confirm)
@@ -147,6 +153,7 @@ public class StockCountActivity extends Activity {
 										
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
+											hideKeyboard();
 											finish();
 										}
 									}).show();
@@ -234,7 +241,6 @@ public class StockCountActivity extends Activity {
 						.findViewById(R.id.tvItemDiff);
 				holder.tvItemUnit = (TextView) convertView
 						.findViewById(R.id.tvItemUnit);
-				holder.txtItemQty.setSelectAllOnFocus(true);
 				
 				convertView.setTag(holder);
 			} else {
@@ -253,28 +259,32 @@ public class StockCountActivity extends Activity {
 			holder.tvItemDiff.setText(mFormat.qtyFormat(diffQty));
 			holder.tvItemUnit.setText("unit");
 			holder.txtItemQty.clearFocus();
+			holder.txtItemQty.setSelectAllOnFocus(true);
 			
 			holder.txtItemQty.setOnFocusChangeListener(new OnFocusChangeListener(){
 
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
-					float enterCount = 0.0f;
 					EditText txtQty = (EditText) v;
 					
-					try {
-						enterCount = Float.parseFloat(txtQty.getText().toString());
-					} catch (NumberFormatException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if(!hasFocus){
+						float enterCount = 0.0f;
+						
+						try {
+							enterCount = Float.parseFloat(txtQty.getText().toString());
+						} catch (NumberFormatException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+	
+						mStockCount.updateDocumentDetail(stock.getId(), 
+								mDocumentId, mShopId, stock.getMatId(), 
+								enterCount, stock.getPricePerUnit(), "");
+						
+						stock.setCountQty(enterCount);
+						holder.tvItemDiff.setText(mFormat.qtyFormat(enterCount - currQty));
 					}
-
-					mStockCount.updateDocumentDetail(stock.getId(), 
-							mDocumentId, mShopId, stock.getMatId(), 
-							enterCount, stock.getPricePerUnit(), "");
-
-					holder.tvItemDiff.setText(mFormat.qtyFormat(enterCount - currQty));
 				}
-				
 			});
 		
 			if(position % 2 == 0)
@@ -313,10 +323,10 @@ public class StockCountActivity extends Activity {
 			if (progress.isShowing())
 				progress.dismiss();
 
-			mStockLst = mStockCount.listStock(mDocumentId, mShopId);
-			mStockAdapter.notifyDataSetChanged();
-			
-			if (!isSuccess) {
+			if (isSuccess) {
+				mStockLst = mStockCount.listStock(mDocumentId, mShopId);
+				mStockAdapter.notifyDataSetChanged();
+			}else{
 				Util.alert(mContext, android.R.drawable.ic_dialog_alert,
 						R.string.error, R.string.error_save_stock);
 			}
@@ -335,5 +345,10 @@ public class StockCountActivity extends Activity {
 					mStockLst);
 		}
 
+	}	
+	
+	private void hideKeyboard(){
+		getWindow().setSoftInputMode(
+			      WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 	}
 }

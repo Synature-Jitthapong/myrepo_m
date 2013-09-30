@@ -634,13 +634,16 @@ public class MPOSTransaction extends Util implements TransactionCreation, OrderC
 		List<OrderTransaction> transLst = 
 				new ArrayList<OrderTransaction>();
 		
+		Calendar c = getDate();
+		
 		String strSql = "SELECT a.transaction_id, a.computer_id, " +
 				" a.open_time, a.remark, " +
 				" b.staff_code, b.staff_name " +
 				" FROM order_transaction a " +
 				" LEFT JOIN staffs b " +
 				" ON a.open_staff_id=b.staff_id " +
-				" WHERE a.computer_id=" + computerId + 
+				" WHERE a.computer_id=" + computerId +
+				" AND a.sale_date='" + c.getTimeInMillis() + "' " +
 				" AND a.transaction_status_id=9";
 		
 		mDbHelper.open();

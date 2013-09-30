@@ -185,7 +185,7 @@ public abstract class MPOSStockDocument extends Util implements DocumentCreation
 
 	@Override
 	public int addDocumentDetail(int documentId, int shopId, float materialId,
-			float materialQty, float materialCountQty, float materialPrice,
+			float materialQty, float materialBalance, float materialPrice,
 			String unitName) {
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
 
@@ -194,8 +194,8 @@ public abstract class MPOSStockDocument extends Util implements DocumentCreation
 		cv.put("document_id", documentId);
 		cv.put("shop_id", shopId);
 		cv.put("material_id", materialId);
+		cv.put("material_balance", materialBalance);
 		cv.put("material_qty", materialQty);
-		cv.put("material_count_qty", materialCountQty);
 		cv.put("material_price_per_unit", materialPrice);
 		cv.put("material_net_price", materialPrice);
 		cv.put("material_tax_type", 1);
@@ -210,7 +210,7 @@ public abstract class MPOSStockDocument extends Util implements DocumentCreation
 
 	@Override
 	public int addDocumentDetail(int documentId, int shopId,
-			float materialId, float materialQty, float materialCountQty,
+			float materialId, float materialQty, float materialBalance,
 			float materialPrice, int taxType, String unitName) {
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
 		float totalPrice = materialPrice * materialQty;
@@ -222,8 +222,8 @@ public abstract class MPOSStockDocument extends Util implements DocumentCreation
 		cv.put("document_id", documentId);
 		cv.put("shop_id", shopId);
 		cv.put("material_id", materialId);
+		cv.put("material_balance", materialBalance);
 		cv.put("material_qty", materialQty);
-		cv.put("material_count_qty", materialCountQty);
 		cv.put("material_price_per_unit", materialPrice);
 		cv.put("material_net_price", netPrice);
 		cv.put("material_tax_type", taxType);

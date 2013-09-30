@@ -171,7 +171,7 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 			float sale = stock.getSale();
 			float endding = init + receive + sale;
 			float variance = stock.getVariance();
-			float diff = endding + variance;
+			float diff = variance == 0 ? 0 : endding + variance;
 			
 			holder.tvNo.setText(Integer.toString(position + 1));
 			holder.tvCode.setText(stock.getCode());

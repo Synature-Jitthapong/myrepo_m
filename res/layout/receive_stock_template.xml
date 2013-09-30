@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/list_selector"
     android:orientation="horizontal" >
 
     <TextView
@@ -19,13 +20,26 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <TextView
-        android:id="@+id/tvName"
-        style="@style/ColumnDetail"
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/tvName"
+            style="@style/ColumnDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <ImageButton
+            android:id="@+id/imgBtnDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_delete" />
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/txtQty"

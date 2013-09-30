@@ -529,7 +529,7 @@ public class MPOSSql {
 			" material_id  INTEGER NOT NULL, " +
 			" unit_name  TEXT, " +
 			" material_qty  REAL DEFAULT 0, " +
-			" material_count_qty  REAL DEFAULT 0, " +
+			" material_balance  REAL DEFAULT 0, " +
 			" material_price_per_unit  REAL DEFAULT 0, " +
 			" material_net_price  REAL DEFAULT 0, " +
 			" material_tax_type  INTEGER DEFAULT 1, " +

@@ -28,6 +28,7 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnActionExpandListener;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
@@ -38,6 +39,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -101,6 +103,7 @@ public class DirectReceiveActivity extends Activity implements
 		inflater.inflate(R.menu.action_stock_receive, menu);
 
 		mItemSearch = menu.findItem(R.id.itemSearch);
+		
 		mSearchView = (SearchView) mItemSearch.getActionView();
 		mSearchView.setOnQueryTextListener(new OnQueryTextListener() {
 
@@ -347,7 +350,7 @@ public class DirectReceiveActivity extends Activity implements
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			final StockMaterial stock = mStockLst.get(position);
 			final ViewHolder holder;
 
@@ -366,8 +369,8 @@ public class DirectReceiveActivity extends Activity implements
 						.findViewById(R.id.txtPrice);
 				holder.rdoTaxType = (RadioGroup) convertView
 						.findViewById(R.id.rdoTaxType);
-				holder.txtPrice.setSelectAllOnFocus(true);
-				holder.txtQty.setSelectAllOnFocus(true);
+				holder.imgBtnDelete = (ImageButton) 
+						convertView.findViewById(R.id.imgBtnDelete);
 				convertView.setTag(holder);
 			} else {
 				holder = (ViewHolder) convertView.getTag();
@@ -382,6 +385,8 @@ public class DirectReceiveActivity extends Activity implements
 
 			holder.txtQty.clearFocus();
 			holder.txtPrice.clearFocus();
+			holder.txtPrice.setSelectAllOnFocus(true);
+			holder.txtQty.setSelectAllOnFocus(true);
 			
 			switch(stock.getTaxType()){
 			case 0:
@@ -426,12 +431,14 @@ public class DirectReceiveActivity extends Activity implements
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
 					EditText txtQty = (EditText) v;
-					try {
-						stock.setCurrQty(Float.parseFloat(txtQty.getText().toString()));
-						updateStock(stock);
-					} catch (NumberFormatException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if(!hasFocus){
+						try {
+							stock.setCurrQty(Float.parseFloat(txtQty.getText().toString()));
+							updateStock(stock);
+						} catch (NumberFormatException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 				
@@ -442,17 +449,46 @@ public class DirectReceiveActivity extends Activity implements
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
 					EditText txtPrice = (EditText) v;
-					try {
-						stock.setPricePerUnit(Float.parseFloat(txtPrice.getText().toString()));
-						updateStock(stock);
-					} catch (NumberFormatException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if(!hasFocus){
+						try {
+							stock.setPricePerUnit(Float.parseFloat(txtPrice.getText().toString()));
+							updateStock(stock);
+						} catch (NumberFormatException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 				
 			});
 			
+			holder.imgBtnDelete.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					new AlertDialog.Builder(mContext)
+					.setTitle(R.string.delete)
+					.setMessage(R.string.confirm_delete_item)
+					.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							
+						}
+					})
+					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							mReceiveStock.deleteDocumentDetail(stock.getId(), mDocumentId, mShopId);
+							mStockLst.remove(position);
+							mStockAdapter.notifyDataSetChanged();
+						}
+					}).show();
+				}
+				
+			});
 			return convertView;
 		}
 
@@ -463,6 +499,7 @@ public class DirectReceiveActivity extends Activity implements
 			EditText txtQty;
 			EditText txtPrice;
 			RadioGroup rdoTaxType;
+			ImageButton imgBtnDelete;
 		}
 
 	}
@@ -488,41 +525,43 @@ public class DirectReceiveActivity extends Activity implements
 
 	@Override
 	public void onConfirmClick(View v) {
-		final EditText txtRemark = new EditText(mContext);
-		txtRemark.setHint(R.string.remark);
-
-		new AlertDialog.Builder(mContext)
-				.setTitle(R.string.confirm)
-				.setMessage(R.string.confirm_stock_receive)
-				.setView(txtRemark)
-				.setNegativeButton(android.R.string.cancel,
-						new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-
-							}
-						})
-				.setPositiveButton(android.R.string.ok,
-						new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								String remark = txtRemark.getText().toString();
-
-								if (mReceiveStock.approveDocument(mDocumentId,
-										mShopId, mStaffId, remark)) {
-									Util.alert(mContext,
-											android.R.drawable.ic_dialog_alert,
-											R.string.confirm,
-											R.string.confirm_success);
-									
-									init();
+		if(mStockLst.size() > 0){
+			final EditText txtRemark = new EditText(mContext);
+			txtRemark.setHint(R.string.remark);
+	
+			new AlertDialog.Builder(mContext)
+					.setTitle(R.string.confirm)
+					.setMessage(R.string.confirm_stock_receive)
+					.setView(txtRemark)
+					.setNegativeButton(android.R.string.cancel,
+							new DialogInterface.OnClickListener() {
+	
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+	
 								}
-							}
-						}).show();
+							})
+					.setPositiveButton(android.R.string.ok,
+							new DialogInterface.OnClickListener() {
+	
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									String remark = txtRemark.getText().toString();
+	
+									if (mReceiveStock.approveDocument(mDocumentId,
+											mShopId, mStaffId, remark)) {
+										Util.alert(mContext,
+												android.R.drawable.ic_dialog_alert,
+												R.string.confirm,
+												R.string.confirm_success);
+										
+										init();
+									}
+								}
+							}).show();
+		}
 	}
 
 	@Override

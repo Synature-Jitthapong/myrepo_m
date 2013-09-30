@@ -1,6 +1,9 @@
 package com.syn.mpos;
 
 import java.lang.reflect.Type;
+
+import org.ksoap2.serialization.PropertyInfo;
+
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.database.MenuDept;
@@ -19,13 +22,15 @@ import android.content.DialogInterface;
 import android.widget.TextView;
 
 public class MPOSService {
+	public static int shopId = 0;
 	
-	public static void sync(Setting.Connection connSetting, final Context c, final IServiceStateListener listener){
+	public static void sync(Setting.Connection connSetting, 
+			final Context c, final String deviceCode, final IServiceStateListener listener){
 		final String url = connSetting.getFullUrl();
 		final TextView tvProgress = new TextView(c);
 		final ProgressDialog progress = new ProgressDialog(c);
 		
-		new AuthenDevice(c, new IServiceStateListener(){
+		new AuthenDevice(c, deviceCode, new IServiceStateListener(){
 
 			@Override
 			public void onProgress() {
@@ -37,7 +42,7 @@ public class MPOSService {
 			@Override
 			public void onSuccess() {
 				//progress.setProgress(25);
-				new LoadShopTask(c, new IServiceStateListener(){
+				new LoadShopTask(c, shopId, deviceCode, new IServiceStateListener(){
 
 					@Override
 					public void onProgress() {
@@ -50,7 +55,7 @@ public class MPOSService {
 						//progress.setProgress(100);
 //						progress.dismiss();
 //						listener.onSuccess();
-						new LoadProductTask(c, new IServiceStateListener(){
+						new LoadProductTask(c, deviceCode, new IServiceStateListener(){
 
 							@Override
 							public void onProgress() {
@@ -61,7 +66,7 @@ public class MPOSService {
 							@Override
 							public void onSuccess() {
 								progress.setProgress(75);
-								new LoadMenuTask(c, new IServiceStateListener(){
+								new LoadMenuTask(c, deviceCode, new IServiceStateListener(){
 
 									@Override
 									public void onProgress() {
@@ -122,8 +127,15 @@ public class MPOSService {
 	// load products
 	public static class LoadProductTask extends MPOSMainService{
 
-		public LoadProductTask(Context c, IServiceStateListener listener) {
-			super(c, "WSmPOS_JSON_LoadProductDataV2");
+		public LoadProductTask(Context c, String deviceCode, IServiceStateListener listener) {
+			super(c, deviceCode, "WSmPOS_JSON_LoadProductDataV2");
+			
+			property = new PropertyInfo();
+			property.setName("iShopID");
+			property.setValue(shopId);
+			property.setType(int.class);
+			soapRequest.addProperty(property);
+			
 			serviceState = listener;
 		}
 
@@ -150,8 +162,15 @@ public class MPOSService {
 	// load shop data
 	public static class LoadShopTask extends MPOSMainService{
 
-		public LoadShopTask(Context c, IServiceStateListener listener) {
-			super(c, "WSmPOS_JSON_LoadShopData");
+		public LoadShopTask(Context c, int shopId, String deviceCode, IServiceStateListener listener) {
+			super(c, deviceCode, "WSmPOS_JSON_LoadShopData");
+			
+			property = new PropertyInfo();
+			property.setName("iShopID");
+			property.setValue(shopId);
+			property.setType(int.class);
+			soapRequest.addProperty(property);
+			
 			serviceState = listener;
 		}
 
@@ -207,8 +226,15 @@ public class MPOSService {
 	// load menu data
 	public static class LoadMenuTask extends MPOSMainService{
 		
-		public LoadMenuTask(Context c, IServiceStateListener listener) {
-			super(c, "WSmPOS_JSON_LoadMenuDataV2");
+		public LoadMenuTask(Context c, String deviceCode, IServiceStateListener listener) {
+			super(c, deviceCode, "WSmPOS_JSON_LoadMenuDataV2");
+			
+			property = new PropertyInfo();
+			property.setName("iShopID");
+			property.setValue(shopId);
+			property.setType(int.class);
+			soapRequest.addProperty(property);
+			
 			serviceState = listener;
 		}
 
@@ -247,14 +273,13 @@ public class MPOSService {
 	// check authen shop
 	public static class AuthenDevice extends MPOSMainService{
 		
-		public AuthenDevice(Context c, IServiceStateListener listener) {
-			super(c, "WSmPOS_CheckAuthenShopDevice");
+		public AuthenDevice(Context c, String deviceCode, IServiceStateListener listener) {
+			super(c, deviceCode, "WSmPOS_CheckAuthenShopDevice");
 			serviceState = listener;
 		}
 
 		@Override
 		protected void onPostExecute(String result) {
-			int shopId = 0;
 			try {
 				shopId = Integer.parseInt(result); 
 				if (shopId > 0) {

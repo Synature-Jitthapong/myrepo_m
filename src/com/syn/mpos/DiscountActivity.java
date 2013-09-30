@@ -148,7 +148,6 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 				holder.tvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
 				holder.txtDiscount = (EditText) convertView.findViewById(R.id.txtDisPrice);
 				holder.tvSalePrice = (TextView) convertView.findViewById(R.id.tvSalePrice);
-				holder.txtDiscount.setSelectAllOnFocus(true);
 				
 				convertView.setTag(holder);
 			}else{
@@ -163,6 +162,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 			holder.txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
 			holder.tvSalePrice.setText(mFormat.currencyFormat(order.getTotalSalePrice()));
 			holder.txtDiscount.clearFocus();
+			holder.txtDiscount.setSelectAllOnFocus(true);
 			
 			holder.txtDiscount.setOnFocusChangeListener(new OnFocusChangeListener(){
 

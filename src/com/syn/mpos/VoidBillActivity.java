@@ -333,7 +333,7 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				
+				hideKeyboard();
 			}
 		}).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			
