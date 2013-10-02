@@ -6,7 +6,6 @@ import java.util.List;
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.R;
 import com.syn.mpos.database.MenuDept;
-import com.syn.mpos.database.MenuItem;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.transaction.MPOSPayment;
 import com.syn.mpos.transaction.MPOSSession;
@@ -30,6 +29,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
@@ -77,9 +77,11 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 	private TextView mTvSubTotal;
 	private TextView mTvVatExclude;
 	private TextView mTvDiscount;
+	private TextView mTvTotalPrice;
 	private Button mBtnDiscount;
 	private Button mBtnCash;
 	private Button mBtnHold;
+	private MenuItem mItemHoldBill;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +89,7 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		setContentView(R.layout.activity_main);
 		mContext = MainActivity.this;
 		
+		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 		mOrderListView = (ListView) findViewById(R.id.listViewOrder);
 		mMenuGridView = (GridView) findViewById(R.id.gridViewMenu);
 		mTvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
@@ -134,7 +137,7 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 			mTransactionId = mTrans.openTransaction(compProp.getComputerID(), 
 					shopProp.getShopID(), mSessionId, mStaffId);
 		}
-		
+		countHoldOrder();
 		loadOrder();
 	}
 	
@@ -326,7 +329,7 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 							lastBtn.setSelected(false);
 						}
 						// load menu
-						MenuItem mi = new MenuItem(mContext);
+						com.syn.mpos.database.MenuItem mi = new com.syn.mpos.database.MenuItem(mContext);
 						mMenuItemLst = mi.listMenuItem(md.getMenuDeptID(), 1);
 						mMenuItemAdapter.notifyDataSetChanged();
 						
@@ -526,7 +529,7 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		mTvVatExclude.setText(mFormat.currencyFormat(vat));
 		mTvSubTotal.setText(mFormat.currencyFormat(subTotal));
 		mTvDiscount.setText(mFormat.currencyFormat(totalDiscount));
-		setTitle(mFormat.currencyFormat(totalSalePrice));
+		mTvTotalPrice.setText(mFormat.currencyFormat(totalSalePrice));
 	}
 	
 	public void clearBillClicked(final View v){
@@ -594,12 +597,13 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.action_main_function, menu);
-		
+		mItemHoldBill = menu.findItem(R.id.itemHoldBill);
+		countHoldOrder();
 		return true;
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(android.view.MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		final Intent intent;
 		switch (item.getItemId()) {
 		case R.id.itemHoldBill:
@@ -722,6 +726,22 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		}).show();
 	}
 	
+	private void countHoldOrder(){
+		int totalHold = mTrans.countHoldOrder(mComputerId);
+
+		if(totalHold > 0){
+			TextView tv = new TextView(mContext);
+			tv.setText(R.string.hold_bill);
+			tv.append("(" + totalHold + ")");
+			try {
+				mItemHoldBill.setTitle(tv.getText().toString());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	@Override
 	public void onHoldBillClick(View v) {
 		LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -834,6 +854,13 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 			holder.tvOpenStaff.setText(trans.getStaffName());
 			holder.tvRemark.setText(trans.getRemark());
 			
+			if(position % 2 == 0)
+			{
+				convertView.setBackgroundResource(R.color.smoke_white);
+			}else{
+				convertView.setBackgroundResource(R.color.light_gray);
+			}
+			
 			return convertView;
 		}
 		
@@ -853,7 +880,26 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 
 	@Override
 	public void onLogoutClick(View v) {
-		finish();
+		new AlertDialog.Builder(mContext)
+		.setTitle(R.string.logout)
+		.setIcon(android.R.drawable.ic_dialog_info)
+		.setMessage(R.string.confirm_logout)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+		})
+		.show();
 	}
 	
 	public void setMemberClicked(final View v){

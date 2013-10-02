@@ -16,6 +16,9 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -24,7 +27,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-public class CreditPayActivity extends Activity{
+public class CreditPayActivity extends Activity implements OnConfirmClickListener{
 	private Context mContext; 
 	private int mTransactionId;
 	private int mComputerId;
@@ -39,7 +42,6 @@ public class CreditPayActivity extends Activity{
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
 	
-	private StringBuilder mStrTotalPaid;
 	private EditText mTxtTotalPrice;
 	private EditText mTxtTotalPay;
 	private EditText mTxtCardNo;
@@ -78,7 +80,6 @@ public class CreditPayActivity extends Activity{
 		mFormat = new Formatter(mContext);
 		mTrans = new MPOSTransaction(mContext);
 		mPayment = new MPOSPayment(mContext);
-		mStrTotalPaid = new StringBuilder();
 		
 		loadTotalPrice();
 		loadCreditCardType();
@@ -101,26 +102,13 @@ public class CreditPayActivity extends Activity{
 		OrderTransaction.OrderDetail order = 
 				mTrans.getSummary(mTransactionId, mComputerId);
 		
-		mTotalPrice = order.getTotalSalePrice(); 
+		mTotalPrice = order.getTotalSalePrice() + order.getVat(); 
 		
 		displayTotalPrice();
 	}
 	
 	private void displayTotalPrice(){
 		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalPrice));
-		
-		displayTotalPaid();
-	}
-
-	private void displayTotalPaid(){
-		try {
-			mTotalPay = Float.parseFloat(mStrTotalPaid.toString());
-		} catch (NumberFormatException e) {
-			mTotalPay = 0.0f;
-			e.printStackTrace();
-		}
-		
-		mTxtTotalPay.setText(mFormat.currencyFormat(mTotalPay));
 	}
 	
 	private void addPayment(){
@@ -128,13 +116,25 @@ public class CreditPayActivity extends Activity{
 		int expYear = mCalendar.get(Calendar.YEAR);
 		int expMonth = mCalendar.get(Calendar.MONTH);
 		
-		if(!cardNo.isEmpty()){
+		try {
+			mTotalPay = Float.parseFloat(mTxtTotalPay.getText().toString());
+		} catch (NumberFormatException e) {
+			mTotalPay = 0.0f;
+			e.printStackTrace();
+		}
+		
+		mTxtTotalPay.setText(mFormat.currencyFormat(mTotalPay));
+		if(!cardNo.isEmpty() && mTotalPay > 0){
 			if(mPayment.addPaymentDetail(mTransactionId, mComputerId, PaymentActivity.PAY_TYPE_CREDIT, 
 						mTotalPay, cardNo, expMonth, expYear, mBankId, mCardTypeId)){
 				finish();
 			}
 		}else{
-			Util.alert(mContext, android.R.drawable.ic_dialog_alert, R.string.payment, R.string.promp_card_no);
+			if(cardNo.isEmpty()){
+				Util.alert(mContext, android.R.drawable.ic_dialog_alert, R.string.payment, R.string.promp_card_no);
+			}else if(mTotalPay == 0){
+				Util.alert(mContext, android.R.drawable.ic_dialog_alert, R.string.payment, R.string.enter_enough_money);
+			}
 		}
 	}
 	
@@ -189,60 +189,45 @@ public class CreditPayActivity extends Activity{
 			
 		});
 	}
-	
-	public void creditPayClicked(final View v){
-		switch (v.getId()) {
-		case R.id.btnCredit0:
-			mStrTotalPaid.append("0");
-			break;
-		case R.id.btnCredit1:
-			mStrTotalPaid.append("1");
-			break;
-		case R.id.btnCredit2:
-			mStrTotalPaid.append("2");
-			break;
-		case R.id.btnCredit3:
-			mStrTotalPaid.append("3");
-			break;
-		case R.id.btnCredit4:
-			mStrTotalPaid.append("4");
-			break;
-		case R.id.btnCredit5:
-			mStrTotalPaid.append("5");
-			break;
-		case R.id.btnCredit6:
-			mStrTotalPaid.append("6");
-			break;
-		case R.id.btnCredit7:
-			mStrTotalPaid.append("7");
-			break;
-		case R.id.btnCredit8:
-			mStrTotalPaid.append("8");
-			break;
-		case R.id.btnCredit9:
-			mStrTotalPaid.append("9");
-			break;
-		case R.id.btnCreditDel:
-			try {
-				mStrTotalPaid.deleteCharAt(mStrTotalPaid.length() - 1);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			break;
-		case R.id.btnCreditDot:
-			mStrTotalPaid.append(".");
-			break;
-		}
 
-		displayTotalPaid();
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.action_confirm, menu);
+		menu.findItem(R.id.itemClose).setVisible(false);
+
+		return super.onCreateOptionsMenu(menu);
 	}
-	
-	public void cancelPayClicked(final View v){
-		finish();
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		case R.id.itemCancel:
+			finish();
+			return true;
+		case R.id.itemConfirm:
+			addPayment();
+			return true;
+		default :
+			return super.onOptionsItemSelected(item);
+		}
 	}
-	
-	public void okPayClicked(final View v){
-		addPayment();
+
+	@Override
+	public void onSaveClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onConfirmClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCancelClick(View v) {
+		// TODO Auto-generated method stub
+		
 	}
 }

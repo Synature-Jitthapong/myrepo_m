@@ -25,6 +25,7 @@ public class MenuGroup {
 		String strSql = " SELECT * FROM " +
 				TB_MENU_GROUP + 
 				" WHERE menu_group_type_id=0 " +
+				" AND activate = 1 " +
 				" ORDER BY menu_group_ordering";
 
 		dbHelper.open();
@@ -68,6 +69,7 @@ public class MenuGroup {
 			cv.put("menu_group_type_id", mg.getMenuGroupType());
 			cv.put("menu_group_ordering", mg.getMenuGroupOrdering());
 			cv.put("updatedate", mg.getUpdateDate());
+			cv.put("activate", mg.getActivate());
 			
 			isSucc = dbHelper.insert(TB_MENU_GROUP, cv);
 		}

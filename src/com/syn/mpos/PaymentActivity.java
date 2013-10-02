@@ -62,9 +62,10 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	private float mTotalPaid;
 	
 	private ListView mLvPayment;
-	private EditText txtTotalPay;
-	private EditText txtTotalPaid;
-	private EditText txtTobePaid;
+	private EditText mTxtTotalPay;
+	private EditText mTxtTotalPaid;
+	private EditText mTxtTobePaid;
+	private EditText mTxtTotalPrice;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
@@ -72,9 +73,10 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		setContentView(R.layout.activity_payment);
 
 		mLvPayment = (ListView) findViewById(R.id.listView1);
-		txtTotalPay = (EditText) findViewById(R.id.editTextTotalPay);
-		txtTotalPaid = (EditText) findViewById(R.id.editTextTotalPaid);
-		txtTobePaid = (EditText) findViewById(R.id.editTextTobePaid);
+		mTxtTotalPay = (EditText) findViewById(R.id.editTextTotalPay);
+		mTxtTotalPaid = (EditText) findViewById(R.id.editTextTotalPaid);
+		mTxtTobePaid = (EditText) findViewById(R.id.editTextTobePaid);
+		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
 		
 		Intent intent = getIntent();
 		
@@ -218,11 +220,11 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		
 		float tobePaid = mTotalSalePrice - mTotalPaid; 
 
-		txtTotalPaid.setText(mFormat.currencyFormat(mTotalPaid));
+		mTxtTotalPaid.setText(mFormat.currencyFormat(mTotalPaid));
 		if(tobePaid < 0)
 			tobePaid = 0.0f;
 		
-		txtTobePaid.setText(mFormat.currencyFormat(tobePaid));
+		mTxtTobePaid.setText(mFormat.currencyFormat(tobePaid));
 	}
 	
 	private void deletePayment(int paymentId){
@@ -239,7 +241,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	}
 	
 	private void displayTotalPrice(){
-		setTitle(mFormat.currencyFormat(mTotalSalePrice));
+		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));
 
 		mStrTotalPay = new StringBuilder();
 		displayTotalPaid();
@@ -251,7 +253,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		} catch (NumberFormatException e) {
 			mTotalPay = 0.0f;
 		}
-		txtTotalPay.setText(mFormat.currencyFormat(mTotalPay));
+		mTxtTotalPay.setText(mFormat.currencyFormat(mTotalPay));
 	}
 	
 	public void creditPayClicked(final View v){

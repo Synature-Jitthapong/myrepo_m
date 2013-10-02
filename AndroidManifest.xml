@@ -33,7 +33,7 @@
         <activity
             android:name="com.syn.mpos.MainActivity"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden|stateAlwaysHidden" android:theme="@style/AppTheme.LargeTitle.LargeMenu">
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden">
         </activity>
         <activity
             android:name="com.syn.mpos.DiscountActivity"
@@ -47,13 +47,12 @@
         <activity
             android:name="com.syn.mpos.PaymentActivity"
             android:label="@string/title_activity_payment"
-            android:screenOrientation="landscape" android:theme="@style/AppTheme.LargeTitle">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name="com.syn.mpos.CreditPayActivity"
             android:label="@string/title_activity_credit_pay"
-            android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.Holo.Light.Dialog.NoActionBar" >
+            android:screenOrientation="landscape" android:windowSoftInputMode="stateHidden|adjustPan">
         </activity>
         <activity
             android:name="com.syn.mpos.SaleReportActivity"
@@ -79,13 +78,7 @@
         <activity
             android:name="com.syn.mpos.AddMemberActivity"
             android:label="@string/title_activity_add_member"
-            android:theme="@android:style/Theme.Holo.Light.Dialog.NoActionBar"
             android:windowSoftInputMode="stateHidden" >
-        </activity>
-        <activity
-            android:name="com.syn.mpos.AddProductActivity"
-            android:label="@string/title_activity_add_product"
-            android:theme="@android:style/Theme.Holo.Light.Dialog" >
         </activity>
         <activity
             android:name="com.syn.mpos.StockCardActivity"

@@ -9,6 +9,9 @@ import com.syn.mpos.database.Province;
 import com.syn.pos.MemberGroup;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -28,7 +31,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 
-public class AddMemberActivity extends Activity {
+public class AddMemberActivity extends Activity implements OnConfirmClickListener{
 
 	private Context mContext;
 	private Formatter mFormat; 
@@ -55,7 +58,6 @@ public class AddMemberActivity extends Activity {
 	private EditText mTxtMemberFax;
 	private EditText mTxtMemberEmail;
 	private EditText mTxtRemark;
-	private TextView mTvTitle;
 	private Button mBtnSearch;
 	private Button mBtnExpDate;
 	private Button mBtnBirthDay;
@@ -75,7 +77,6 @@ public class AddMemberActivity extends Activity {
 		mRdoGender = (RadioGroup) findViewById(R.id.rdoGender);
 		mSpMemGroup = (Spinner) findViewById(R.id.spMemGroup);
 		mSpProvince = (Spinner) findViewById(R.id.spProvince);
-		mTvTitle = (TextView) findViewById(R.id.tvTitle);
 		mTxtMemberCode = (EditText) findViewById(R.id.txtMemberCode);
 		mTxtMemberFName = (EditText) findViewById(R.id.txtFirstName);
 		mTxtMemberLName = (EditText) findViewById(R.id.txtLastName);
@@ -95,10 +96,10 @@ public class AddMemberActivity extends Activity {
 		mShopId = intent.getIntExtra("shopId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
 		if(mMode.equals("add")){
-			mTvTitle.setText(R.string.title_activity_add_member);
+			setTitle(R.string.title_activity_add_member);
 			mBtnSearch.setVisibility(View.GONE);
 		}else if(mMode.equals("search")){
-			mTvTitle.setText(R.string.title_search_member);
+			setTitle(R.string.title_search_member);
 			mBtnSearch.setVisibility(View.VISIBLE);
 		}
 		
@@ -282,7 +283,44 @@ public class AddMemberActivity extends Activity {
 		}
 	}
 	
-	public void cancelClicked(final View v){
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.action_confirm, menu);
+		menu.findItem(R.id.itemClose).setVisible(false);
+		
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		case R.id.itemConfirm:
+			onConfirmClick(item.getActionView());
+			return true;
+		case R.id.itemCancel:
+			onCancelClick(item.getActionView());
+			return true;
+		default :
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
+	public void onSaveClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onConfirmClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCancelClick(View v) {
 		finish();
 	}
 }

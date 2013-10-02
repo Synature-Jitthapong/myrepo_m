@@ -27,7 +27,7 @@
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
                 android:layout_weight="1"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/receipt_no"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/total_price"
@@ -50,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/discount_short"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/sub_total"
@@ -73,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/service_charge_short"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -84,7 +84,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/total_sale"
@@ -96,7 +96,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/vatable"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -107,7 +107,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/total_vat"
@@ -127,7 +127,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/code"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -139,7 +139,7 @@
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
                 android:layout_weight="1"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/product_name"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -150,7 +150,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/unit_price"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -161,7 +161,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/qty"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -172,7 +172,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/sub_total"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -183,7 +183,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/discount"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -194,7 +194,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/total_price"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -204,7 +204,7 @@
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
-                android:background="@color/grey_light"
+                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/vat"
                 android:textAppearance="?android:attr/textAppearanceMedium" />

@@ -25,7 +25,7 @@ public class MenuDept{
 		dbHelper.open();
 		
 		String strSql = "SELECT * FROM " + tbMenuDept +
-				" ORDER BY menu_dept_ordering";
+				" WHERE activate = 1 ORDER BY menu_dept_ordering";
 		
 		Cursor cursor = dbHelper.rawQuery(strSql);
 
@@ -67,6 +67,7 @@ public class MenuDept{
 			cv.put("menu_dept_name_3", md.getMenuDeptName_3());
 			cv.put("menu_dept_ordering", md.getMenuDeptOrdering());
 			cv.put("updatedate", md.getUpdateDate());
+			cv.put("activate", md.getActivate());
 			
 			isSucc = dbHelper.insert(tbMenuDept, cv);
 		}

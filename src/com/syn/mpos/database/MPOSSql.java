@@ -268,6 +268,7 @@ public class MPOSSql {
 			" menu_dept_name_3  TEXT, " +
 			" menu_dept_ordering  INTEGER NOT NULL DEFAULT 0, " +
 			" updatedate  TEXT, " +
+			" activate INTEGER, " +
 			" PRIMARY KEY (menu_dept_id) " +
 			" );";
 	
@@ -281,6 +282,7 @@ public class MPOSSql {
 			" menu_group_type_id  INTEGER NOT NULL DEFAULT 0, " +
 			" menu_group_ordering  INTEGER NOT NULL DEFAULT 0, " +
 			" updatedate  TEXT, " +
+			" activate INTEGER, " +
 			" PRIMARY KEY (menu_group_id) " +
 			" ); ";
 

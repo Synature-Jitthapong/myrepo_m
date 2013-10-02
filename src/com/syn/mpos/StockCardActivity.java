@@ -186,7 +186,7 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 			if(position % 2 == 0)
 				convertView.setBackgroundResource(R.color.smoke_white);
 			else
-				convertView.setBackgroundResource(R.color.grey_light);
+				convertView.setBackgroundResource(R.color.light_gray);
 				
 			return convertView;
 		}

@@ -3,7 +3,7 @@
     android:id="@+id/MainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey_light"
+    android:background="@color/light_gray"
     android:orientation="horizontal"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -19,7 +19,7 @@
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/textViewBarcode"
+            android:id="@+id/tvTotalPrice"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginBottom="4dp"
@@ -27,12 +27,12 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="4dp"
             android:background="@color/smoke_white"
-            android:gravity="center_vertical"
+            android:gravity="right|center_vertical"
             android:padding="4dp"
-            android:text="Bar Code"
             android:textAppearance="?android:attr/textAppearanceMediumInverse"
-            android:textColor="@color/dark_grey"
-            android:textSize="24sp" />
+            android:textColor="@android:color/black"
+            android:textSize="32sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/textViewMember"
@@ -143,26 +143,32 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/grey_light"
+            android:background="@color/light_gray"
             android:padding="4dp" >
 
             <Button
                 android:id="@+id/buttonDiscount"
+                style="@style/ButtonTextWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/blue_button"
                 android:enabled="false"
                 android:minWidth="100dp"
                 android:onClick="discountClicked"
-                android:text="@string/discount" />
+                android:text="@string/discount"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <Button
                 android:id="@+id/buttonCash"
+                style="@style/ButtonTextWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/green_button"
                 android:enabled="false"
                 android:minWidth="100dp"
                 android:onClick="paymentClicked"
-                android:text="@string/cash" />
+                android:text="@string/cash"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
         </LinearLayout>
 
@@ -182,13 +188,12 @@
             android:layout_marginBottom="4dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="4dp"
-            android:background="@color/smoke_white"
             android:minHeight="48dp" >
 
             <LinearLayout
                 android:id="@+id/MenuCatLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal" >
 
             </LinearLayout>
@@ -218,7 +223,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/grey_light"
+            android:background="@color/light_gray"
             android:padding="4dp" >
 
             <LinearLayout
@@ -228,38 +233,50 @@
 
                 <Button
                     android:id="@+id/buttonHold"
+                    style="@style/ButtonText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/gray_button"
                     android:enabled="false"
                     android:minWidth="100dp"
                     android:onClick="holdOrderClicked"
-                    android:text="@string/hold" />
+                    android:text="@string/hold"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <Button
                     android:id="@+id/buttonSetMember"
+                    style="@style/ButtonText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/gray_button"
                     android:minWidth="100dp"
                     android:onClick="setMemberClicked"
-                    android:text="@string/set_member" />
+                    android:text="@string/set_member"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <Button
                     android:id="@+id/buttonNewMember"
+                    style="@style/ButtonText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/gray_button"
                     android:minWidth="100dp"
                     android:onClick="newMemberClicked"
-                    android:text="@string/addnew_member" />
+                    android:text="@string/addnew_member"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
             </LinearLayout>
 
             <Button
                 android:id="@+id/buttonClearBill"
+                style="@style/ButtonTextWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/red_button"
                 android:minWidth="100dp"
                 android:onClick="clearBillClicked"
-                android:text="@string/cancel_bill" />
+                android:text="@string/cancel_bill"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
         </LinearLayout>
 

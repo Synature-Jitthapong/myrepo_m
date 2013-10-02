@@ -65,7 +65,8 @@ public class Reporting {
 	public Report getSaleReportByBill(){
 		Report report = new Report();
 		
-		String strSql = " SELECT a.receipt_year, a.receipt_month, a.receipt_id, " +
+		String strSql = " SELECT a.receipt_year, a.receipt_month, " +
+				" a.receipt_id, c.document_type_header, " +
 				" SUM(a.service_charge) AS totalServiceCharge, " +
 				" SUM(a.transaction_vatable) AS transVatable, " +
 				" SUM(a.transaction_vat) AS transVat, " +
@@ -77,6 +78,8 @@ public class Reporting {
 				" LEFT JOIN order_detail b " +
 				" ON a.transaction_id=b.transaction_id " +
 				" AND a.computer_id=b.computer_id " +
+				" LEFT JOIN document_type c " +
+				" ON a.document_type_id=c.document_type_id " +
 				" WHERE a.transaction_status_id=2 " +
 				" AND a.sale_date >= " + dateFrom + 
 				" AND a.sale_date <= " + dateTo + 
@@ -89,11 +92,12 @@ public class Reporting {
 			do{
 				Report.ReportDetail reportDetail = 
 						new Report.ReportDetail();
+				String docTypeHeader = cursor.getString(cursor.getColumnIndex("document_type_header"));
 				String receiptYear = String.format("%04d", cursor.getInt(cursor.getColumnIndex("receipt_year")));
 				String receiptMonth = String.format("%02d", cursor.getInt(cursor.getColumnIndex("receipt_month")));
 				String receiptId = String.format("%06d", cursor.getInt(cursor.getColumnIndex("receipt_id")));
 				
-				reportDetail.setReceiptNo(receiptMonth + receiptYear + receiptId);
+				reportDetail.setReceiptNo(docTypeHeader + receiptMonth + receiptYear + receiptId);
 				reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("totalPrice")));
 				reportDetail.setSubTotal(cursor.getFloat(cursor.getColumnIndex("subTotal")));
 				reportDetail.setServiceCharge(cursor.getFloat(cursor.getColumnIndex("totalServiceCharge")));

@@ -3,7 +3,7 @@
     android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey_light"
+    android:background="@color/light_gray"
     android:orientation="horizontal"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -17,53 +17,92 @@
         android:orientation="vertical" >
 
         <TableRow
-            android:id="@+id/tableRow2"
+            android:id="@+id/tableRow11"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/dark_grey" >
+            android:layout_height="wrap_content" >
 
-            <TextView
-                android:id="@+id/textView1"
-                style="@style/ColumnHeader"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/pay_type"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <TextView
-                android:id="@+id/textView3"
-                style="@style/ColumnHeader"
+            <EditText
+                android:id="@+id/txtTotalPrice"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/pay_detail"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:ems="5"
+                android:enabled="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"
+                android:textSize="32sp"
+                android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/textView4"
-                style="@style/ColumnHeader"
+            <Button
+                android:id="@+id/btnCreditPay"
+                style="@style/ButtonTextWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="0dp"
-                android:text="@string/pay_amount"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
+                android:background="@drawable/blue_button"
+                android:onClick="creditPayClicked"
+                android:text="@string/credit_pay" />
         </TableRow>
 
-        <ListView
-            android:id="@+id/listView1"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@color/smoke_white" >
+            android:background="@color/dark_grey"
+            android:orientation="vertical"
+            android:padding="1dp" >
 
-        </ListView>
+            <TableRow
+                android:id="@+id/tableRow2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/dark_grey" >
+
+                <TextView
+                    android:id="@+id/textView1"
+                    style="@style/ColumnHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pay_type"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    style="@style/ColumnHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/pay_detail"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <TextView
+                    android:id="@+id/textView4"
+                    style="@style/ColumnHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="0dp"
+                    android:text="@string/pay_amount"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+            </TableRow>
+
+            <ListView
+                android:id="@+id/listView1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@color/smoke_white" >
+
+            </ListView>
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:gravity="bottom"
         android:orientation="vertical"
         android:padding="8dp" >
 
@@ -94,6 +133,7 @@
                     android:enabled="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
+                    android:gravity="center_vertical"
                     android:inputType="number"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="@android:color/black"
@@ -127,11 +167,13 @@
                     android:enabled="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
+                    android:gravity="center_vertical"
                     android:inputType="number"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="@android:color/black"
                     android:textSize="32sp"
                     android:textStyle="bold" />
+
             </TableRow>
         </TableLayout>
 
@@ -158,18 +200,12 @@
                 android:enabled="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
+                android:gravity="center_vertical"
                 android:inputType="number"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@android:color/black"
                 android:textSize="32sp"
                 android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/btnCreditPay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="creditPayClicked"
-                android:text="@string/credit_pay" />
 
         </TableRow>
 

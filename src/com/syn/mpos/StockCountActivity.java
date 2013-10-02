@@ -259,7 +259,6 @@ public class StockCountActivity extends Activity {
 			holder.tvItemDiff.setText(mFormat.qtyFormat(diffQty));
 			holder.tvItemUnit.setText("unit");
 			holder.txtItemQty.clearFocus();
-			holder.txtItemQty.setSelectAllOnFocus(true);
 			
 			holder.txtItemQty.setOnFocusChangeListener(new OnFocusChangeListener(){
 
@@ -283,6 +282,9 @@ public class StockCountActivity extends Activity {
 						
 						stock.setCountQty(enterCount);
 						holder.tvItemDiff.setText(mFormat.qtyFormat(enterCount - currQty));
+					}else{
+						if(!txtQty.isFocusable())
+							txtQty.selectAll();
 					}
 				}
 			});
@@ -290,7 +292,7 @@ public class StockCountActivity extends Activity {
 			if(position % 2 == 0)
 				convertView.setBackgroundResource(R.color.smoke_white);
 			else
-				convertView.setBackgroundResource(R.color.grey_light);
+				convertView.setBackgroundResource(R.color.light_gray);
 			
 			return convertView;
 		}

@@ -46,8 +46,8 @@ public class LoginActivity extends Activity {
 		mTxtUser.setSelectAllOnFocus(true);
 		mTxtPass.setSelectAllOnFocus(true);
 		
-		mTxtUser.setText("admin");
-		mTxtPass.setText("admin");
+		mTxtUser.setText("1");
+		mTxtPass.setText("1");
 		
 	}
 

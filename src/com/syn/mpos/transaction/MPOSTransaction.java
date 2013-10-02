@@ -65,6 +65,7 @@ public class MPOSTransaction extends Util implements TransactionCreation, OrderC
 		cv.put("shop_id", shopId);
 		cv.put("session_id", sessionId);
 		cv.put("open_staff_id", staffId);
+		cv.put("document_type_id", 20);
 		cv.put("open_time", dateTime.getTimeInMillis());
 		cv.put("open_staff_id", staffId);
 		cv.put("sale_date", date.getTimeInMillis());
@@ -173,6 +174,22 @@ public class MPOSTransaction extends Util implements TransactionCreation, OrderC
 		return isSuccess;
 	}
 
+	public int countHoldOrder(int computerId){
+		int total = 0;
+		String strSql = "SELECT COUNT(transaction_id) " +
+				" FROM order_transaction " +
+				" WHERE transaction_status_id=9" +
+				" AND computer_id=" + computerId;
+		mDbHelper.open();
+		Cursor cursor = mDbHelper.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			total = cursor.getInt(0);
+		}
+		cursor.close();
+		mDbHelper.close();
+		return total;
+	}
+	
 	@Override
 	public boolean holdTransaction(int transactionId, int computerId, String remark) {
 		boolean isSuccess = false;
@@ -440,15 +457,21 @@ public class MPOSTransaction extends Util implements TransactionCreation, OrderC
 	public List<OrderTransaction> listTransaction(long saleDate){
 		List<OrderTransaction> transLst = 
 				new ArrayList<OrderTransaction>();
-		String strSql = "SELECT * FROM order_transaction " +
-				" WHERE sale_date='" + saleDate + "' " +
-				" AND transaction_status_id=2 " +
-				" ORDER BY sale_date";
+		String strSql = "SELECT a.transaction_id, a.computer_id, " +
+				" a.paid_time, a.receipt_year, a.receipt_month, a.receipt_id, " +
+				" b.document_type_header " +
+				" FROM order_transaction a " +
+				" LEFT JOIN document_type b " +
+				" ON a.document_type_id = b.document_type_id " +
+				" WHERE a.sale_date='" + saleDate + "' " +
+				" AND a.transaction_status_id=2 " +
+				" ORDER BY a.sale_date";
 		
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if(cursor.moveToFirst()){
 			do{
+				String docTypeHeader = cursor.getString(cursor.getColumnIndex("document_type_header"));
 				String receiptYear = String.format("%04d", cursor.getInt(cursor.getColumnIndex("receipt_year")));
 				String receiptMonth = String.format("%02d", cursor.getInt(cursor.getColumnIndex("receipt_month")));
 				String receiptId = String.format("%06d", cursor.getInt(cursor.getColumnIndex("receipt_id")));
@@ -457,7 +480,7 @@ public class MPOSTransaction extends Util implements TransactionCreation, OrderC
 				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex("transaction_id")));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex("computer_id")));
 				trans.setPaidTime(cursor.getLong(cursor.getColumnIndex("paid_time")));
-				trans.setReceiptNo(receiptMonth + receiptYear + receiptId);
+				trans.setReceiptNo(docTypeHeader + receiptMonth + receiptYear + receiptId);
 				
 				transLst.add(trans);
 			}while(cursor.moveToNext());

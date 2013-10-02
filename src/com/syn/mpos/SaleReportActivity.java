@@ -123,14 +123,14 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 		TextView tvTotalVat = (TextView) tbRowSumm.findViewById(R.id.tvTotalVat);
 		TextView tvVatable = (TextView) tbRowSumm.findViewById(R.id.tvVatable);
 
-		tvReceiptNo.setBackgroundResource(R.color.high_light_blue);
-		tvTotalPrice.setBackgroundResource(R.color.high_light_blue);
-		tvTotalDisc.setBackgroundResource(R.color.high_light_blue);
-		tvSubTotal.setBackgroundResource(R.color.high_light_blue);
-		tvSc.setBackgroundResource(R.color.high_light_blue);
-		tvTotalSale.setBackgroundResource(R.color.high_light_blue);
-		tvTotalVat.setBackgroundResource(R.color.high_light_blue);
-		tvVatable.setBackgroundResource(R.color.high_light_blue);
+		tvReceiptNo.setBackgroundResource(R.color.light_gray);
+		tvTotalPrice.setBackgroundResource(R.color.light_gray);
+		tvTotalDisc.setBackgroundResource(R.color.light_gray);
+		tvSubTotal.setBackgroundResource(R.color.light_gray);
+		tvSc.setBackgroundResource(R.color.light_gray);
+		tvTotalSale.setBackgroundResource(R.color.light_gray);
+		tvTotalVat.setBackgroundResource(R.color.light_gray);
+		tvVatable.setBackgroundResource(R.color.light_gray);
 		
 		tvReceiptNo.setText(R.string.summary);
 		tvTotalPrice.setText(format.currencyFormat(summary.getTotalPrice()));
@@ -162,14 +162,14 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 			TextView tvGroupTotalPrice = (TextView) tbRowHead.findViewById(R.id.tvTotalPrice);
 			TextView tvGroupVatable = (TextView) tbRowHead.findViewById(R.id.tvVat);
 			
-			tvGroupCode.setBackgroundResource(R.color.light_blue);
-			tvGroupName.setBackgroundResource(R.color.light_blue);
-			tvGroupQty.setBackgroundResource(R.color.light_blue);
-			tvGroupUnitPrice.setBackgroundResource(R.color.light_blue);
-			tvGroupSubTotal.setBackgroundResource(R.color.light_blue);
-			tvGroupDiscount.setBackgroundResource(R.color.light_blue);
-			tvGroupTotalPrice.setBackgroundResource(R.color.light_blue);
-			tvGroupVatable.setBackgroundResource(R.color.light_blue);
+			tvGroupCode.setBackgroundResource(R.color.light_gray);
+			tvGroupName.setBackgroundResource(R.color.light_gray);
+			tvGroupQty.setBackgroundResource(R.color.light_gray);
+			tvGroupUnitPrice.setBackgroundResource(R.color.light_gray);
+			tvGroupSubTotal.setBackgroundResource(R.color.light_gray);
+			tvGroupDiscount.setBackgroundResource(R.color.light_gray);
+			tvGroupTotalPrice.setBackgroundResource(R.color.light_gray);
+			tvGroupVatable.setBackgroundResource(R.color.light_gray);
 			
 			tvGroupCode.setText(R.string.product_group);
 			tvGroupName.setText(reportData.getProductGroupName() + ":" + reportData.getProductDeptName());
@@ -219,14 +219,14 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 			TextView tvTotalPrice = (TextView) tbRowDetail.findViewById(R.id.tvTotalPrice);
 			TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVat);
 			
-			tvCode.setBackgroundResource(R.color.high_light_blue);
-			tvName.setBackgroundResource(R.color.high_light_blue);
-			tvQty.setBackgroundResource(R.color.high_light_blue);
-			tvUnitPrice.setBackgroundResource(R.color.high_light_blue);
-			tvSubTotal.setBackgroundResource(R.color.high_light_blue);
-			tvDiscount.setBackgroundResource(R.color.high_light_blue);
-			tvTotalPrice.setBackgroundResource(R.color.high_light_blue);
-			tvVatable.setBackgroundResource(R.color.high_light_blue);
+			tvCode.setBackgroundResource(R.color.light_gray);
+			tvName.setBackgroundResource(R.color.light_gray);
+			tvQty.setBackgroundResource(R.color.light_gray);
+			tvUnitPrice.setBackgroundResource(R.color.light_gray);
+			tvSubTotal.setBackgroundResource(R.color.light_gray);
+			tvDiscount.setBackgroundResource(R.color.light_gray);
+			tvTotalPrice.setBackgroundResource(R.color.light_gray);
+			tvVatable.setBackgroundResource(R.color.light_gray);
 			
 			tvCode.setText(R.string.summary);
 			tvName.setText(reportData.getProductDeptName());
