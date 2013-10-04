@@ -13,9 +13,9 @@
 
     <LinearLayout
         android:id="@+id/LeftLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="2.5"
+        android:layout_weight="0.5"
         android:orientation="vertical" >
 
         <TextView
@@ -43,18 +43,17 @@
             android:padding="4dp"
             android:text="Member"
             android:textAppearance="?android:attr/textAppearanceSmallInverse"
-            android:textColor="@color/dark_grey" />
+            android:textColor="@color/dark_gray" />
 
         <ListView
             android:id="@+id/listViewOrder"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_marginBottom="4dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="4dp"
             android:layout_weight="1"
-            android:animateLayoutChanges="true"
             android:background="@color/smoke_white" >
 
         </ListView>
@@ -62,7 +61,6 @@
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="4dp"
@@ -156,7 +154,7 @@
                 android:minWidth="100dp"
                 android:onClick="discountClicked"
                 android:text="@string/discount"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
             <Button
                 android:id="@+id/buttonCash"
@@ -168,7 +166,7 @@
                 android:minWidth="100dp"
                 android:onClick="paymentClicked"
                 android:text="@string/cash"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
         </LinearLayout>
 
@@ -176,7 +174,7 @@
 
     <LinearLayout
         android:id="@+id/RightLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:orientation="vertical" >
@@ -199,26 +197,17 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1" >
+        <GridView
+            android:id="@+id/gridViewMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginRight="8dp"
+            android:layout_weight="1"
+            android:horizontalSpacing="4dp"
+            android:numColumns="5"
+            android:verticalSpacing="4dp" >
 
-            <GridView
-                android:id="@+id/gridViewMenu"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="4dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="4dp"
-                android:animateLayoutChanges="true"
-                android:horizontalSpacing="4dp"
-                android:numColumns="5"
-                android:verticalSpacing="4dp" >
-
-            </GridView>
-
-        </FrameLayout>
+        </GridView>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -227,7 +216,7 @@
             android:padding="4dp" >
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1" >
 
@@ -241,7 +230,7 @@
                     android:minWidth="100dp"
                     android:onClick="holdOrderClicked"
                     android:text="@string/hold"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
+                    android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
                 <Button
                     android:id="@+id/buttonSetMember"
@@ -252,7 +241,7 @@
                     android:minWidth="100dp"
                     android:onClick="setMemberClicked"
                     android:text="@string/set_member"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
+                    android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
                 <Button
                     android:id="@+id/buttonNewMember"
@@ -263,7 +252,7 @@
                     android:minWidth="100dp"
                     android:onClick="newMemberClicked"
                     android:text="@string/addnew_member"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
+                    android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
             </LinearLayout>
 
@@ -276,7 +265,7 @@
                 android:minWidth="100dp"
                 android:onClick="clearBillClicked"
                 android:text="@string/cancel_bill"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
         </LinearLayout>
 

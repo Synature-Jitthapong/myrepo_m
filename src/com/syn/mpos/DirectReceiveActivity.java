@@ -352,55 +352,39 @@ public class DirectReceiveActivity extends Activity implements
 		@Override
 		public View getView(final int position, View convertView, ViewGroup parent) {
 			final StockMaterial stock = mStockLst.get(position);
-			final ViewHolder holder;
-
-			if (convertView == null) {
-				convertView = inflater.inflate(R.layout.receive_stock_template,
-						null);
-				holder = new ViewHolder();
-				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
-				holder.tvCode = (TextView) convertView
-						.findViewById(R.id.tvCode);
-				holder.tvName = (TextView) convertView
-						.findViewById(R.id.tvName);
-				holder.txtQty = (EditText) convertView
-						.findViewById(R.id.txtQty);
-				holder.txtPrice = (EditText) convertView
-						.findViewById(R.id.txtPrice);
-				holder.rdoTaxType = (RadioGroup) convertView
-						.findViewById(R.id.rdoTaxType);
-				holder.imgBtnDelete = (ImageButton) 
-						convertView.findViewById(R.id.imgBtnDelete);
-				convertView.setTag(holder);
-			} else {
-				holder = (ViewHolder) convertView.getTag();
-			}
-
-			holder.tvNo.setText(Integer.toString(position + 1));
-			holder.tvCode.setText(stock.getCode());
-			holder.tvName.setText(stock.getName());
-			holder.txtQty.setText(mFormat.qtyFormat(stock.getCurrQty()));
-			holder.txtPrice.setText(mFormat.currencyFormat(stock
-					.getPricePerUnit()));
-
-			holder.txtQty.clearFocus();
-			holder.txtPrice.clearFocus();
-			holder.txtPrice.setSelectAllOnFocus(true);
-			holder.txtQty.setSelectAllOnFocus(true);
+			View rowView = convertView;
 			
+			rowView = inflater.inflate(R.layout.receive_stock_template,null);
+			
+			TextView tvNo = (TextView) rowView.findViewById(R.id.tvNo);
+			TextView tvCode = (TextView) rowView.findViewById(R.id.tvCode);
+			TextView tvName = (TextView) rowView.findViewById(R.id.tvName);
+			EditText txtQty = (EditText) rowView.findViewById(R.id.txtQty);
+			EditText txtPrice = (EditText) rowView.findViewById(R.id.txtPrice);
+			txtQty.setSelectAllOnFocus(true);
+			txtPrice.setSelectAllOnFocus(true);
+			RadioGroup rdoTaxType = (RadioGroup) rowView.findViewById(R.id.rdoTaxType);
+			ImageView imgBtnDelete = (ImageView) rowView.findViewById(R.id.imgDel);
+			
+			tvNo.setText(Integer.toString(position + 1));
+			tvCode.setText(stock.getCode());
+			tvName.setText(stock.getName());
+			txtQty.setText(mFormat.qtyFormat(stock.getCurrQty()));
+			txtPrice.setText(mFormat.currencyFormat(stock.getPricePerUnit()));
+
 			switch(stock.getTaxType()){
 			case 0:
-				holder.rdoTaxType.check(R.id.rdoNoVat);
+				rdoTaxType.check(R.id.rdoNoVat);
 				break;
 			case 1:
-				holder.rdoTaxType.check(R.id.rdoIncludeVat);
+				rdoTaxType.check(R.id.rdoIncludeVat);
 				break;
 			case 2:
-				holder.rdoTaxType.check(R.id.rdoExcludeVat);
+				rdoTaxType.check(R.id.rdoExcludeVat);
 				break;
 			}
 			
-			holder.rdoTaxType.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+			rdoTaxType.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 				@Override
 				public void onCheckedChanged(RadioGroup group, int checkedId) {
 					RadioButton rdoTax;
@@ -426,7 +410,7 @@ public class DirectReceiveActivity extends Activity implements
 				}
 			});
 			
-			holder.txtQty.setOnFocusChangeListener(new OnFocusChangeListener(){
+			txtQty.setOnFocusChangeListener(new OnFocusChangeListener(){
 
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
@@ -444,7 +428,7 @@ public class DirectReceiveActivity extends Activity implements
 				
 			});
 			
-			holder.txtPrice.setOnFocusChangeListener(new OnFocusChangeListener(){
+			txtPrice.setOnFocusChangeListener(new OnFocusChangeListener(){
 
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
@@ -462,7 +446,7 @@ public class DirectReceiveActivity extends Activity implements
 				
 			});
 			
-			holder.imgBtnDelete.setOnClickListener(new OnClickListener(){
+			imgBtnDelete.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
@@ -489,19 +473,8 @@ public class DirectReceiveActivity extends Activity implements
 				}
 				
 			});
-			return convertView;
+			return rowView;
 		}
-
-		private class ViewHolder {
-			TextView tvNo;
-			TextView tvCode;
-			TextView tvName;
-			EditText txtQty;
-			EditText txtPrice;
-			RadioGroup rdoTaxType;
-			ImageButton imgBtnDelete;
-		}
-
 	}
 
 	@Override

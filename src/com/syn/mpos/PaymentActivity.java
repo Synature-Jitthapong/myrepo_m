@@ -33,6 +33,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -128,17 +129,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<Payment.PaymentDetail>();
 		mLvPayment.setAdapter(mPaymentAdapter);
-		mLvPayment.setOnItemClickListener(new OnItemClickListener(){
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View v, int position,
-					long id) {
-				Payment.PaymentDetail payment = 
-						(Payment.PaymentDetail) parent.getItemAtPosition(position);
-				deletePayment(payment.getPaymentDetailID());
-			}
-			
-		});
+		mStrTotalPay = new StringBuilder();
 		
 		summary();
 		loadPayDetail();
@@ -150,7 +141,6 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		
 		float vat = orderDetail.getVat();
 		mTotalSalePrice = orderDetail.getTotalSalePrice() + vat;
-		
 		displayTotalPrice();
 	}
 	
@@ -179,36 +169,33 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			Payment.PaymentDetail payment = mPayLst.get(position);
-			ViewHolder holder;
+			final Payment.PaymentDetail payment = mPayLst.get(position);
+			View rowView = convertView;
 			
-			if(convertView == null){
-				convertView = inflater.inflate(R.layout.payment_detail_template, null);
-				holder = new ViewHolder();
-				holder.tvPayType = (TextView) convertView.findViewById(R.id.tvPayType);
-				holder.tvPayDetail = (TextView) convertView.findViewById(R.id.tvPayDetail);
-				holder.tvPayAmount = (TextView) convertView.findViewById(R.id.tvPayAmount);
-				convertView.setTag(holder);
-			}else{
-				holder = (ViewHolder) convertView.getTag();
-			}
+			rowView = inflater.inflate(R.layout.payment_detail_template, null);
+			TextView tvPayType = (TextView) rowView.findViewById(R.id.tvPayType);
+			TextView tvPayDetail = (TextView) rowView.findViewById(R.id.tvPayDetail);
+			TextView tvPayAmount = (TextView) rowView.findViewById(R.id.tvPayAmount);
+			ImageView imgDel = (ImageView) rowView.findViewById(R.id.imgDel);
 			
 			String payTypeName = payment.getPayTypeID() == PAY_TYPE_CASH ? "Cash" : "Credit";
 			if(payment.getPayTypeName() != null){
 				payTypeName = payment.getPayTypeName();
 			}
 			
-			holder.tvPayType.setText(payTypeName);
-			holder.tvPayDetail.setText(payment.getRemark());
-			holder.tvPayAmount.setText(mFormat.currencyFormat(payment.getPayAmount()));
+			tvPayType.setText(payTypeName);
+			tvPayDetail.setText(payment.getRemark());
+			tvPayAmount.setText(mFormat.currencyFormat(payment.getPayAmount()));
+			imgDel.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					deletePayment(payment.getPaymentDetailID());
+				}
+				
+			});
 			
-			return convertView;
-		}
-		
-		private class ViewHolder{
-			TextView tvPayType;
-			TextView tvPayDetail;
-			TextView tvPayAmount;
+			return rowView;
 		}
 	}
 	
@@ -238,12 +225,12 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 						0, 0, 0, 0);
 			loadPayDetail();
 		}
+		mStrTotalPay = new StringBuilder();
+		mTxtTotalPay.setText("");
 	}
 	
 	private void displayTotalPrice(){
 		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));
-
-		mStrTotalPay = new StringBuilder();
 		displayTotalPaid();
 	}
 	
@@ -270,66 +257,77 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		switch(v.getId()){
 		case R.id.btnPay0:
 			mStrTotalPay.append("0");
+			displayTotalPaid();
 			break;
 		case R.id.btnPay1:
 			mStrTotalPay.append("1");
+			displayTotalPaid();
 			break;
 		case R.id.btnPay2:
 			mStrTotalPay.append("2");
+			displayTotalPaid();
 			break;
 		case R.id.btnPay3:
 			mStrTotalPay.append("3");
+			displayTotalPaid();
 			break;
 		case R.id.btnPay4:
 			mStrTotalPay.append("4");
+			displayTotalPaid();
 			break;
 		case R.id.btnPay5:
 			mStrTotalPay.append("5");
+			displayTotalPaid();
 			break;
 		case R.id.btnPay6:
 			mStrTotalPay.append("6");
+			displayTotalPaid();
 			break;
 		case R.id.btnPay7:
 			mStrTotalPay.append("7");
+			displayTotalPaid();
 			break;
 		case R.id.btnPay8:
 			mStrTotalPay.append("8");
+			displayTotalPaid();
 			break;
 		case R.id.btnPay9:
 			mStrTotalPay.append("9");
+			displayTotalPaid();
 			break;
 		case R.id.btnPay20:
+			mStrTotalPay = new StringBuilder();
 			mStrTotalPay.append("20");
 			displayTotalPaid();
 			addPayment();
-			mStrTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPay50:
+			mStrTotalPay = new StringBuilder();
 			mStrTotalPay.append("50");
 			displayTotalPaid();
 			addPayment();
-			mStrTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPay100:
+			mStrTotalPay = new StringBuilder();
 			mStrTotalPay.append("100");
 			displayTotalPaid();
 			addPayment();
-			mStrTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPay500:
+			mStrTotalPay = new StringBuilder();
 			mStrTotalPay.append("500");
 			displayTotalPaid();
 			addPayment();
-			mStrTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPay1000:
+			mStrTotalPay = new StringBuilder();
 			mStrTotalPay.append("1000");
 			displayTotalPaid();
 			addPayment();
-			mStrTotalPay = new StringBuilder();
 			break;
 		case R.id.btnPayC:
 			mStrTotalPay = new StringBuilder();
+			displayTotalPaid();
 			break;
 		case R.id.btnPayDel:
 			try {
@@ -338,16 +336,17 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			displayTotalPaid();
 			break;
 		case R.id.btnPayDot:
 			mStrTotalPay.append(".");
+			displayTotalPaid();
 			break;
 		case R.id.btnPayEnter:
 			addPayment();
 			mStrTotalPay = new StringBuilder();
 			break;
 		}
-		displayTotalPaid();
 	}
 
 	private String createSpace(int minLength, int maxLength){
@@ -492,6 +491,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 				if(mTotalPaid - mTotalSalePrice > 0){
 					new AlertDialog.Builder(mContext)
 					.setTitle(R.string.change)
+					.setCancelable(false)
 					.setMessage(mFormat.currencyFormat(mTotalPaid - mTotalSalePrice))
 					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 						

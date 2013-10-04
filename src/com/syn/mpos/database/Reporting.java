@@ -67,10 +67,10 @@ public class Reporting {
 		
 		String strSql = " SELECT a.receipt_year, a.receipt_month, " +
 				" a.receipt_id, c.document_type_header, " +
-				" SUM(a.service_charge) AS totalServiceCharge, " +
-				" SUM(a.transaction_vatable) AS transVatable, " +
-				" SUM(a.transaction_vat) AS transVat, " +
-				" SUM(a.transaction_exclude_vat) AS transExcludeVat, " +
+				" a.service_charge AS totalServiceCharge, " +
+				" a.transaction_vatable AS transVatable, " +
+				" a.transaction_vat AS transVat, " +
+				" a.transaction_exclude_vat AS transExcludeVat, " +
 				" SUM(b.total_retail_price) AS totalPrice, " +
 				" SUM(b.total_sale_price) AS subTotal, " +
 				" SUM(b.price_discount + b.member_discount) AS totalDiscount " +

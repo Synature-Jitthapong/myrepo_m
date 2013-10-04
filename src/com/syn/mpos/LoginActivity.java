@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class LoginActivity extends Activity {
 	private Context mContext;
@@ -32,6 +33,7 @@ public class LoginActivity extends Activity {
 	
 	private EditText mTxtUser;
 	private EditText mTxtPass;
+	private TextView mTvDeviceCode;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,12 +45,13 @@ public class LoginActivity extends Activity {
 		
 		mTxtUser = (EditText) findViewById(R.id.editTextUserName);
 		mTxtPass = (EditText) findViewById(R.id.editTextPassWord);
+		mTvDeviceCode = (TextView) findViewById(R.id.tvDeviceCode);
 		mTxtUser.setSelectAllOnFocus(true);
 		mTxtPass.setSelectAllOnFocus(true);
 		
 		mTxtUser.setText("1");
 		mTxtPass.setText("1");
-		
+		mTvDeviceCode.setText(deviceCode);
 	}
 
 	private void init(){

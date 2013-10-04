@@ -2,17 +2,23 @@
 <TableRow xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/dark_grey" >
+    android:background="@color/dark_gray" >
 
     <TextView
         android:id="@+id/tvReceipt"
-        android:layout_width="wrap_content"
+        style="@style/ColumnDetail"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
         android:layout_weight="1"
         android:background="@color/smoke_white"
+        android:ellipsize="marquee"
+        android:fadingEdge="horizontal"
+        android:marqueeRepeatLimit="marquee_forever"
         android:padding="4dp"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -92,7 +98,6 @@
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
-        android:layout_marginRight="1dp"
         android:background="@color/smoke_white"
         android:gravity="right"
         android:padding="4dp"

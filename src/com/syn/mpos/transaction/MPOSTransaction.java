@@ -141,10 +141,12 @@ public class MPOSTransaction extends Util implements TransactionCreation, OrderC
 	@Override
 	public int getCurrTransaction(int computerId) {
 		int transactionId = 0;
+		Calendar c = getDate();
 		
 		String strSql = "SELECT transaction_id FROM order_transaction " +
 				" WHERE computer_id = " + computerId + 
-				" AND transaction_status_id = 1";
+				" AND transaction_status_id = 1 " +
+				" AND sale_date='" + c.getTimeInMillis() + "' ";
 		
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
@@ -176,10 +178,13 @@ public class MPOSTransaction extends Util implements TransactionCreation, OrderC
 
 	public int countHoldOrder(int computerId){
 		int total = 0;
+		Calendar c = getDate();
+		
 		String strSql = "SELECT COUNT(transaction_id) " +
 				" FROM order_transaction " +
 				" WHERE transaction_status_id=9" +
-				" AND computer_id=" + computerId;
+				" AND computer_id=" + computerId + 
+				" AND sale_date='" + c.getTimeInMillis() + "'";
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if(cursor.moveToFirst()){

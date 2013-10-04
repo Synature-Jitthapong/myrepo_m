@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,7 +33,6 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 	
 	private Button btnDateFrom;
 	private Button btnDateTo;
-	private Button btnCreateReport;
 	private TableLayout tbReport;
 	private TableRow trProductReportHeader;
 	private TableRow trBillReportHeader;
@@ -68,8 +68,7 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 		dateFrom = calendar.getTimeInMillis();
 		dateTo = calendar.getTimeInMillis();
 	}
-	
-	
+		
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.action_sale_report, menu);
@@ -81,13 +80,21 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 		return super.onCreateOptionsMenu(menu);
 	}
 
-
 	private void createReportByBill(){
 		report = new Reporting(context, dateFrom, dateTo);
 		Report reportData = report.getSaleReportByBill();
 
 		tbReport.removeAllViews();
 		LayoutInflater inflater = LayoutInflater.from(context);
+		
+		float totalPrice = 0.0f;
+		float totalDisc = 0.0f;
+		float totalSub = 0.0f;
+		float totalSc = 0.0f;
+		float totalSale = 0.0f;
+		float totalVatable = 0.0f;
+		float totalVat = 0.0f;
+		
 		for(Report.ReportDetail reportDetail : reportData.reportDetail){
 			View tbRowDetail = inflater.inflate(R.layout.sale_report_by_bill_template, null);
 			TextView tvReceiptNo = (TextView) tbRowDetail.findViewById(R.id.tvReceipt);
@@ -96,23 +103,32 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 			TextView tvSubTotal = (TextView) tbRowDetail.findViewById(R.id.tvSubTotal);
 			TextView tvSc = (TextView) tbRowDetail.findViewById(R.id.tvSc);
 			TextView tvTotalSale = (TextView) tbRowDetail.findViewById(R.id.tvTotalSale);
-			TextView tvTotalVat = (TextView) tbRowDetail.findViewById(R.id.tvTotalVat);
 			TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVatable);
+			TextView tvTotalVat = (TextView) tbRowDetail.findViewById(R.id.tvTotalVat);
 
 			tvReceiptNo.setText(reportDetail.getReceiptNo());
+			tvReceiptNo.setSelected(true);
+			
 			tvTotalPrice.setText(format.currencyFormat(reportDetail.getTotalPrice()));
 			tvTotalDisc.setText(format.currencyFormat(reportDetail.getDiscount()));
 			tvSubTotal.setText(format.currencyFormat(reportDetail.getSubTotal()));
 			tvSc.setText(format.currencyFormat(reportDetail.getServiceCharge()));
 			tvTotalSale.setText(format.currencyFormat(reportDetail.getTotalSale()));
-			tvTotalVat.setText(format.currencyFormat(reportDetail.getTotalVat()));
 			tvVatable.setText(format.currencyFormat(reportDetail.getVatable()));
+			tvTotalVat.setText(format.currencyFormat(reportDetail.getTotalVat()));
 			
 			tbReport.addView(tbRowDetail);
+			
+			totalPrice += reportDetail.getTotalPrice();
+			totalDisc += reportDetail.getDiscount();
+			totalSub += reportDetail.getSubTotal();
+			totalSc += reportDetail.getServiceCharge();
+			totalSale += reportDetail.getTotalSale();
+			totalVatable += reportDetail.getVatable();
+			totalVat += reportDetail.getTotalVat();
 		}
 		
 		// summary
-		Report.ReportDetail summary = report.getSummaryByBill();
 		View tbRowSumm = inflater.inflate(R.layout.sale_report_by_bill_template, null);
 		TextView tvReceiptNo = (TextView) tbRowSumm.findViewById(R.id.tvReceipt);
 		TextView tvTotalPrice = (TextView) tbRowSumm.findViewById(R.id.tvTotalPrice);
@@ -123,23 +139,24 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 		TextView tvTotalVat = (TextView) tbRowSumm.findViewById(R.id.tvTotalVat);
 		TextView tvVatable = (TextView) tbRowSumm.findViewById(R.id.tvVatable);
 
-		tvReceiptNo.setBackgroundResource(R.color.light_gray);
-		tvTotalPrice.setBackgroundResource(R.color.light_gray);
-		tvTotalDisc.setBackgroundResource(R.color.light_gray);
-		tvSubTotal.setBackgroundResource(R.color.light_gray);
-		tvSc.setBackgroundResource(R.color.light_gray);
-		tvTotalSale.setBackgroundResource(R.color.light_gray);
-		tvTotalVat.setBackgroundResource(R.color.light_gray);
-		tvVatable.setBackgroundResource(R.color.light_gray);
+		tvReceiptNo.setBackgroundResource(R.color.gray_light_blue);
+		tvTotalPrice.setBackgroundResource(R.color.gray_light_blue);
+		tvTotalDisc.setBackgroundResource(R.color.gray_light_blue);
+		tvSubTotal.setBackgroundResource(R.color.gray_light_blue);
+		tvSc.setBackgroundResource(R.color.gray_light_blue);
+		tvTotalSale.setBackgroundResource(R.color.gray_light_blue);
+		tvTotalVat.setBackgroundResource(R.color.gray_light_blue);
+		tvVatable.setBackgroundResource(R.color.gray_light_blue);
 		
 		tvReceiptNo.setText(R.string.summary);
-		tvTotalPrice.setText(format.currencyFormat(summary.getTotalPrice()));
-		tvTotalDisc.setText(format.currencyFormat(summary.getDiscount()));
-		tvSubTotal.setText(format.currencyFormat(summary.getSubTotal()));
-		tvSc.setText(format.currencyFormat(summary.getServiceCharge()));
-		tvTotalSale.setText(format.currencyFormat(summary.getTotalSale()));
-		tvTotalVat.setText(format.currencyFormat(summary.getTotalVat()));
-		tvVatable.setText(format.currencyFormat(summary.getVatable()));
+		tvReceiptNo.setGravity(Gravity.RIGHT);
+		tvTotalPrice.setText(format.currencyFormat(totalPrice));
+		tvTotalDisc.setText(format.currencyFormat(totalDisc));
+		tvSubTotal.setText(format.currencyFormat(totalSub));
+		tvSc.setText(format.currencyFormat(totalSc));
+		tvTotalSale.setText(format.currencyFormat(totalSale));
+		tvTotalVat.setText(format.currencyFormat(totalVat));
+		tvVatable.setText(format.currencyFormat(totalVatable));
 		
 		tbReport.addView(tbRowSumm);
 	}
@@ -151,6 +168,11 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 		tbReport.removeAllViews();
 		LayoutInflater inflater = LayoutInflater.from(context);
 
+		float totalQty = 0.0f;
+		float totalSub = 0.0f;
+		float totalDisc = 0.0f;
+		float totalPrice = 0.0f;
+		
 		for(Report reportData : reportLst){
 			View tbRowHead = inflater.inflate(R.layout.sale_report_template, null);
 			TextView tvGroupCode = (TextView) tbRowHead.findViewById(R.id.tvProCode);
@@ -205,6 +227,11 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 						
 					}
 				});
+				
+				totalQty += reportDetail.getQty();
+				totalSub += reportDetail.getSubTotal();
+				totalDisc += reportDetail.getDiscount();
+				totalPrice += reportDetail.getTotalPrice();
 			}
 			
 			// summary dept
@@ -219,16 +246,17 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 			TextView tvTotalPrice = (TextView) tbRowDetail.findViewById(R.id.tvTotalPrice);
 			TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVat);
 			
-			tvCode.setBackgroundResource(R.color.light_gray);
-			tvName.setBackgroundResource(R.color.light_gray);
-			tvQty.setBackgroundResource(R.color.light_gray);
-			tvUnitPrice.setBackgroundResource(R.color.light_gray);
-			tvSubTotal.setBackgroundResource(R.color.light_gray);
-			tvDiscount.setBackgroundResource(R.color.light_gray);
-			tvTotalPrice.setBackgroundResource(R.color.light_gray);
-			tvVatable.setBackgroundResource(R.color.light_gray);
+			tvCode.setBackgroundResource(R.color.gray_light_blue);
+			tvName.setBackgroundResource(R.color.gray_light_blue);
+			tvQty.setBackgroundResource(R.color.gray_light_blue);
+			tvUnitPrice.setBackgroundResource(R.color.gray_light_blue);
+			tvSubTotal.setBackgroundResource(R.color.gray_light_blue);
+			tvDiscount.setBackgroundResource(R.color.gray_light_blue);
+			tvTotalPrice.setBackgroundResource(R.color.gray_light_blue);
+			tvVatable.setBackgroundResource(R.color.gray_light_blue);
 			
 			tvCode.setText(R.string.summary);
+			tvCode.setGravity(Gravity.RIGHT);
 			tvName.setText(reportData.getProductDeptName());
 			tvQty.setText(format.qtyFormat(deptSumm.getQty()));
 			tvSubTotal.setText(format.currencyFormat(deptSumm.getSubTotal()));
@@ -237,6 +265,35 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 			
 			tbReport.addView(tbRowDetail);
 		}
+		
+		// sum all
+		View tbRowDetail = inflater.inflate(R.layout.sale_report_template, null); 
+		TextView tvCode = (TextView) tbRowDetail.findViewById(R.id.tvProCode);
+		TextView tvName = (TextView) tbRowDetail.findViewById(R.id.tvProName);
+		TextView tvQty = (TextView) tbRowDetail.findViewById(R.id.tvQty);
+		TextView tvUnitPrice = (TextView) tbRowDetail.findViewById(R.id.tvUnitPrice);
+		TextView tvSubTotal = (TextView) tbRowDetail.findViewById(R.id.tvSubTotal);
+		TextView tvDiscount = (TextView) tbRowDetail.findViewById(R.id.tvDiscount);
+		TextView tvTotalPrice = (TextView) tbRowDetail.findViewById(R.id.tvTotalPrice);
+		TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVat);
+		
+		tvCode.setBackgroundResource(R.color.gray_light_blue);
+		tvName.setBackgroundResource(R.color.gray_light_blue);
+		tvQty.setBackgroundResource(R.color.gray_light_blue);
+		tvUnitPrice.setBackgroundResource(R.color.gray_light_blue);
+		tvSubTotal.setBackgroundResource(R.color.gray_light_blue);
+		tvDiscount.setBackgroundResource(R.color.gray_light_blue);
+		tvTotalPrice.setBackgroundResource(R.color.gray_light_blue);
+		tvVatable.setBackgroundResource(R.color.gray_light_blue);
+		
+		tvCode.setText(R.string.total);
+		tvCode.setGravity(Gravity.RIGHT);
+		tvQty.setText(format.qtyFormat(totalQty));
+		tvSubTotal.setText(format.currencyFormat(totalSub));
+		tvDiscount.setText(format.currencyFormat(totalDisc));
+		tvTotalPrice.setText(format.currencyFormat(totalPrice));
+		
+		tbReport.addView(tbRowDetail);
 	}
 
 	@Override

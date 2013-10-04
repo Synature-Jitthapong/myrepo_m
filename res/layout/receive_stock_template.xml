@@ -33,13 +33,14 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <ImageButton
-            android:id="@+id/imgBtnDelete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_delete" />
-
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imgDel"
+        style="@style/ColumnDetail"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_delete" />
 
     <EditText
         android:id="@+id/txtQty"
@@ -68,7 +69,8 @@
     <RadioGroup
         android:id="@+id/rdoTaxType"
         android:layout_width="180dp"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
 
         <RadioButton
             android:id="@+id/rdoNoVat"

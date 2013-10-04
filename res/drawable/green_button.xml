@@ -5,6 +5,11 @@
         <shape>
             <solid 
                 android:color="@android:color/holo_blue_light" />
+            <padding 
+                android:left="8dp"
+                android:top="8dp"
+                android:right="8dp"
+                android:bottom="8dp"/>
         </shape>
     </item>
     <item 
@@ -12,6 +17,11 @@
         <shape>
             <solid 
                 android:color="@android:color/holo_blue_light" />
+            <padding 
+                android:left="8dp"
+                android:top="8dp"
+                android:right="8dp"
+                android:bottom="8dp"/>
         </shape>
     </item>
     <item
@@ -19,12 +29,22 @@
          <shape>
             <solid 
                 android:color="@color/disabled" />
+            <padding 
+                android:left="8dp"
+                android:top="8dp"
+                android:right="8dp"
+                android:bottom="8dp"/>
         </shape>
     </item>
     <item>
         <shape>
            	<solid 
            	    android:color="@color/green_light"/>
+            <padding 
+                android:left="8dp"
+                android:top="8dp"
+                android:right="8dp"
+                android:bottom="8dp"/>
         </shape>
    </item>
 

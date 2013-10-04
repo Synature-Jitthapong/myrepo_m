@@ -46,16 +46,19 @@
 
             <Button
                 android:id="@+id/btnSearch"
+                style="@style/ButtonTextWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/search" />
+                android:background="@drawable/blue_button"
+                android:text="@string/search"
+                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
         </TableRow>
 
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/dark_grey" >
+            android:background="@color/dark_gray" >
 
             <TableRow
                 android:id="@+id/tableRow5"
@@ -180,7 +183,7 @@
                 android:id="@+id/tableRow3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/dark_grey"
+                android:background="@color/dark_gray"
                 android:gravity="center_vertical" >
 
                 <TextView

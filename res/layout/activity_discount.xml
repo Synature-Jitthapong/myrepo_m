@@ -15,7 +15,7 @@
         android:id="@+id/tableRow4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/dark_grey" >
+        android:background="@color/dark_gray" >
 
         <TextView
             android:id="@+id/textView4"
@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/item_no"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/textView5"
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/product_name"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/textView6"
@@ -40,7 +40,7 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="@string/qty"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/textView7"
@@ -48,7 +48,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/price"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/textView8"
@@ -56,7 +56,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/total_price"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/textView9"
@@ -64,7 +64,7 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="@string/discount"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/textView10"
@@ -72,7 +72,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/sale_price"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </TableRow>
 
@@ -89,7 +89,7 @@
         android:id="@+id/TableLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp" >
+        android:layout_margin="4dp" >
 
         <TableRow
             android:id="@+id/tableRow1"
@@ -108,11 +108,13 @@
                 android:id="@+id/txtSubTotal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
                 android:ems="5"
                 android:enabled="false"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" >
+
             </EditText>
 
             <TextView
@@ -126,6 +128,7 @@
                 android:id="@+id/txtTotalDiscount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
                 android:ems="5"
                 android:enabled="false"
                 android:textAppearance="?android:attr/textAppearanceLarge"

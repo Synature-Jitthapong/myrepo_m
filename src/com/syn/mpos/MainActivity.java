@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.InputType;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -103,6 +104,19 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mSessionId = intent.getIntExtra("sessionId", 0);
+		if(mStaffId == 0 || mSessionId == 0){
+			new AlertDialog.Builder(mContext)
+			.setTitle(R.string.error)
+			.setMessage("staffId=" + mStaffId + ", sessionId=" + mSessionId)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					finish();
+				}
+			})
+			.show();
+		}
 		
 		loadMenu();
 	}
@@ -176,27 +190,21 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		public View getView(final int position, View convertView, ViewGroup parent) {
 			final OrderTransaction.OrderDetail orderDetail = 
 					mOrderLst.get(position);
-			ViewHolder holder;
-			if(convertView == null){
-				convertView = inflater.inflate(R.layout.order_list_template, null);
-				holder = new ViewHolder();
-				holder.tvOrderNo = (TextView) convertView.findViewById(R.id.textViewOrderNo);
-				holder.tvOrderName = (TextView) convertView.findViewById(R.id.textViewOrderName);
-				holder.txtOrderAmount = (EditText) convertView.findViewById(R.id.editTextOrderAmount);
-				holder.tvOrderPrice = (TextView) convertView.findViewById(R.id.textViewOrderPrice);
-				holder.btnMinus = (Button) convertView.findViewById(R.id.buttonOrderMinus);
-				holder.btnPlus = (Button) convertView.findViewById(R.id.buttonOrderPlus);
-				convertView.setTag(holder);
-			}else{
-				holder = (ViewHolder) convertView.getTag();
-			}
+
+			convertView = inflater.inflate(R.layout.order_list_template, null);
+			TextView tvOrderNo = (TextView) convertView.findViewById(R.id.textViewOrderNo);
+			TextView tvOrderName = (TextView) convertView.findViewById(R.id.textViewOrderName);
+			EditText txtOrderAmount = (EditText) convertView.findViewById(R.id.editTextOrderAmount);
+			TextView tvOrderPrice = (TextView) convertView.findViewById(R.id.textViewOrderPrice);
+			Button btnMinus = (Button) convertView.findViewById(R.id.buttonOrderMinus);
+			Button btnPlus = (Button) convertView.findViewById(R.id.buttonOrderPlus);
+		
+			tvOrderNo.setText(Integer.toString(position + 1) + ".");
+			tvOrderName.setText(orderDetail.getProductName());
+			txtOrderAmount.setText(mFormat.qtyFormat(orderDetail.getQty()));
+			tvOrderPrice.setText(mFormat.currencyFormat(orderDetail.getPricePerUnit()));
 			
-			holder.tvOrderNo.setText(Integer.toString(position + 1));
-			holder.tvOrderName.setText(orderDetail.getProductName());
-			holder.txtOrderAmount.setText(mFormat.qtyFormat(orderDetail.getQty()));
-			holder.tvOrderPrice.setText(mFormat.currencyFormat(orderDetail.getPricePerUnit()));
-			
-			holder.btnMinus.setOnClickListener(new OnClickListener(){
+			btnMinus.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
@@ -235,7 +243,7 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 				
 			});
 			
-			holder.btnPlus.setOnClickListener(new OnClickListener(){
+			btnPlus.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
@@ -267,15 +275,6 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 			}
 			summary();
 			super.notifyDataSetChanged();
-		}
-
-		private class ViewHolder{
-			TextView tvOrderNo;
-			TextView tvOrderName;
-			EditText txtOrderAmount;
-			TextView tvOrderPrice;
-			Button btnMinus;
-			Button btnPlus;
 		}
 	}
 
@@ -834,41 +833,20 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			OrderTransaction trans = transLst.get(position);
-			ViewHolder holder;
-			
-			if(convertView == null){
-				convertView = inflater.inflate(R.layout.hold_bill_template, null);
-				holder = new ViewHolder();
-				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
-				holder.tvOpenTime = (TextView) convertView.findViewById(R.id.tvOpenTime);
-				holder.tvOpenStaff = (TextView) convertView.findViewById(R.id.tvOpenStaff);
-				holder.tvRemark = (TextView) convertView.findViewById(R.id.tvRemark);
-				convertView.setTag(holder);
-			}else{
-				holder = (ViewHolder) convertView.getTag();
-			}
-			
+
+			convertView = inflater.inflate(R.layout.hold_bill_template, null);
+			TextView tvNo = (TextView) convertView.findViewById(R.id.tvNo);
+			TextView tvOpenTime = (TextView) convertView.findViewById(R.id.tvOpenTime);
+			TextView tvOpenStaff = (TextView) convertView.findViewById(R.id.tvOpenStaff);
+			TextView tvRemark = (TextView) convertView.findViewById(R.id.tvRemark);
+
 			c.setTimeInMillis(trans.getOpenTime());
-			holder.tvNo.setText(Integer.toString(position + 1) + ".");
-			holder.tvOpenTime.setText(mFormat.dateTimeFormat(c.getTime()));
-			holder.tvOpenStaff.setText(trans.getStaffName());
-			holder.tvRemark.setText(trans.getRemark());
-			
-			if(position % 2 == 0)
-			{
-				convertView.setBackgroundResource(R.color.smoke_white);
-			}else{
-				convertView.setBackgroundResource(R.color.light_gray);
-			}
-			
+			tvNo.setText(Integer.toString(position + 1) + ".");
+			tvOpenTime.setText(mFormat.dateTimeFormat(c.getTime()));
+			tvOpenStaff.setText(trans.getStaffName());
+			tvRemark.setText(trans.getRemark());
+
 			return convertView;
-		}
-		
-		private class ViewHolder{
-			TextView tvNo;
-			TextView tvOpenTime;
-			TextView tvOpenStaff;
-			TextView tvRemark;
 		}
 	}
 	
@@ -918,6 +896,16 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		startActivity(intent);
 	}
 	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if(keyCode == KeyEvent.KEYCODE_BACK){
+			
+			return true;
+		}else{
+			return super.onKeyDown(keyCode, event);
+		}
+	}
+
 	private void hideKeyboard(){
 		getWindow().setSoftInputMode(
 			      WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);

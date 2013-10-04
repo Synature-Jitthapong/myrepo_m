@@ -3,9 +3,9 @@
     <color name="light_gray">#FFEBEBEB</color>
     <color name="smoke_white">#FFFDFDFD</color>
     <color name="disabled">#FFE2E2E2</color>
-    <color name="dark_grey">#FFBBBBBB</color>
+    <color name="dark_gray">#FFBBBBBB</color>
     <color name="gray">#FFCACACA</color>
-    <color name="grey_light_blue">#FFF2F5F7</color>
+    <color name="gray_light_blue">#FFF2F5F7</color>
     <color name="high_light_blue">#FFF1FAFF</color>
     <color name="blue_light">#FF1D78B2</color>
     <color name="green_dark">#FF307741</color>

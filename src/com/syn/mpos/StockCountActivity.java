@@ -198,7 +198,7 @@ public class StockCountActivity extends Activity {
 	private class StockAdapter extends BaseAdapter {
 
 		private LayoutInflater inflater;
-
+		
 		public StockAdapter() {
 			inflater = LayoutInflater.from(mContext);
 		}
@@ -221,91 +221,73 @@ public class StockCountActivity extends Activity {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			final StockMaterial stock = mStockLst.get(position);
-			final ViewHolder holder;
+			View rowView = convertView;
 
-			if (convertView == null) {
-				convertView = inflater.inflate(R.layout.stock_count_template,
-						null);
-				holder = new ViewHolder();
-				holder.tvItemNo = (TextView) convertView
-						.findViewById(R.id.tvItemNo);
-				holder.tvItemCode = (TextView) convertView
-						.findViewById(R.id.tvItemCode);
-				holder.tvItemName = (TextView) convertView
-						.findViewById(R.id.tvItemName);
-				holder.tvItemCurrQty = (TextView) convertView
-						.findViewById(R.id.tvItemCurrQty);
-				holder.txtItemQty = (EditText) convertView
-						.findViewById(R.id.txtItemQty);
-				holder.tvItemDiff = (TextView) convertView
-						.findViewById(R.id.tvItemDiff);
-				holder.tvItemUnit = (TextView) convertView
-						.findViewById(R.id.tvItemUnit);
-				
-				convertView.setTag(holder);
-			} else {
-				holder = (ViewHolder) convertView.getTag();
-			}
+			rowView = inflater.inflate(R.layout.stock_count_template, null);
+			TextView tvItemNo = (TextView) rowView.findViewById(R.id.tvItemNo);
+			TextView tvItemCode = (TextView) rowView
+					.findViewById(R.id.tvItemCode);
+			TextView tvItemName = (TextView) rowView
+					.findViewById(R.id.tvItemName);
+			TextView tvItemCurrQty = (TextView) rowView
+					.findViewById(R.id.tvItemCurrQty);
+			EditText txtItemQty = (EditText) rowView
+					.findViewById(R.id.txtItemQty);
+			final TextView tvItemDiff = (TextView) rowView
+					.findViewById(R.id.tvItemDiff);
+			TextView tvItemUnit = (TextView) rowView
+					.findViewById(R.id.tvItemUnit);
+
+			txtItemQty.setSelectAllOnFocus(true);
 
 			final float currQty = stock.getCurrQty();
 			final float countQty = stock.getCountQty();
 			float diffQty = countQty - currQty;
 
-			holder.tvItemNo.setText(Integer.toString(position + 1));
-			holder.tvItemCode.setText(stock.getCode());
-			holder.tvItemName.setText(stock.getName());
-			holder.tvItemCurrQty.setText(mFormat.qtyFormat(currQty));
-			holder.txtItemQty.setText(mFormat.qtyFormat(countQty));
-			holder.tvItemDiff.setText(mFormat.qtyFormat(diffQty));
-			holder.tvItemUnit.setText("unit");
-			holder.txtItemQty.clearFocus();
-			
-			holder.txtItemQty.setOnFocusChangeListener(new OnFocusChangeListener(){
+			tvItemNo.setText(Integer.toString(position + 1));
+			tvItemCode.setText(stock.getCode());
+			tvItemName.setText(stock.getName());
+			tvItemCurrQty.setText(mFormat.qtyFormat(currQty));
+			txtItemQty.setText(mFormat.qtyFormat(countQty));
+			tvItemDiff.setText(mFormat.qtyFormat(diffQty));
+			tvItemUnit.setText("unit");
+
+			txtItemQty.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
 					EditText txtQty = (EditText) v;
-					
-					if(!hasFocus){
+
+					if (!hasFocus) {
 						float enterCount = 0.0f;
-						
+
 						try {
-							enterCount = Float.parseFloat(txtQty.getText().toString());
+							enterCount = Float.parseFloat(txtQty.getText()
+									.toString());
 						} catch (NumberFormatException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-	
-						mStockCount.updateDocumentDetail(stock.getId(), 
-								mDocumentId, mShopId, stock.getMatId(), 
+
+						mStockCount.updateDocumentDetail(stock.getId(),
+								mDocumentId, mShopId, stock.getMatId(),
 								enterCount, stock.getPricePerUnit(), "");
-						
+
 						stock.setCountQty(enterCount);
-						holder.tvItemDiff.setText(mFormat.qtyFormat(enterCount - currQty));
-					}else{
-						if(!txtQty.isFocusable())
-							txtQty.selectAll();
+						tvItemDiff.setText(mFormat.qtyFormat(enterCount
+								- currQty));
 					}
 				}
 			});
-		
-			if(position % 2 == 0)
-				convertView.setBackgroundResource(R.color.smoke_white);
+
+			if (position % 2 == 0)
+				rowView.setBackgroundResource(R.color.smoke_white);
 			else
-				convertView.setBackgroundResource(R.color.light_gray);
-			
-			return convertView;
+				rowView.setBackgroundResource(R.color.light_gray);
+
+			return rowView;
 		}
 
-		private class ViewHolder {
-			TextView tvItemNo;
-			TextView tvItemCode;
-			TextView tvItemName;
-			TextView tvItemCurrQty;
-			EditText txtItemQty;
-			TextView tvItemDiff;
-			TextView tvItemUnit;
-		}
 	}
 
 	private class SaveStockCountTask extends AsyncTask<Void, Void, Boolean> {

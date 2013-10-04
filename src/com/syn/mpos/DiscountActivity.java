@@ -26,6 +26,7 @@ import android.widget.ListView;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -66,7 +67,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		if (mTransactionId != 0 && mComputerId != 0) {
 			init();
 		} else {
-			exit();
+			finish();
 		}
 	}
 
@@ -136,84 +137,66 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		public View getView(int position, View convertView, ViewGroup parent) {
 			final OrderTransaction.OrderDetail order =
 					mOrderLst.get(position);
-			final ViewHolder holder;
 			
-			if(convertView == null){
-				convertView = inflater.inflate(R.layout.discount_template, null);
-				holder = new ViewHolder();
-				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
-				holder.tvName = (TextView) convertView.findViewById(R.id.tvName);
-				holder.tvQty = (TextView) convertView.findViewById(R.id.tvQty);
-				holder.tvUnitPrice = (TextView) convertView.findViewById(R.id.tvPrice);
-				holder.tvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
-				holder.txtDiscount = (EditText) convertView.findViewById(R.id.txtDisPrice);
-				holder.tvSalePrice = (TextView) convertView.findViewById(R.id.tvSalePrice);
-				
-				convertView.setTag(holder);
-			}else{
-				holder = (ViewHolder) convertView.getTag();
-			}
+			View rowView = convertView;
+			rowView = inflater.inflate(R.layout.discount_template, null);
+			TextView tvNo = (TextView) rowView.findViewById(R.id.tvNo);
+			TextView tvName = (TextView) rowView.findViewById(R.id.tvName);
+			TextView tvQty = (TextView) rowView.findViewById(R.id.tvQty);
+			TextView tvUnitPrice = (TextView) rowView.findViewById(R.id.tvPrice);
+			TextView tvTotalPrice = (TextView) rowView.findViewById(R.id.tvTotalPrice);
+			EditText txtDiscount = (EditText) rowView.findViewById(R.id.txtDisPrice);
+			txtDiscount.setSelectAllOnFocus(true);
+			final TextView tvSalePrice = (TextView) rowView.findViewById(R.id.tvSalePrice);
 			
-			holder.tvNo.setText(Integer.toString(position + 1));
-			holder.tvName.setText(order.getProductName());
-			holder.tvQty.setText(mFormat.qtyFormat(order.getQty()));
-			holder.tvUnitPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
-			holder.txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
-			holder.tvSalePrice.setText(mFormat.currencyFormat(order.getTotalSalePrice()));
-			holder.txtDiscount.clearFocus();
-			holder.txtDiscount.setSelectAllOnFocus(true);
-			
-			holder.txtDiscount.setOnFocusChangeListener(new OnFocusChangeListener(){
+			tvNo.setText(Integer.toString(position + 1) + ".");
+			tvName.setText(order.getProductName());
+			tvQty.setText(mFormat.qtyFormat(order.getQty()));
+			tvUnitPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
+			tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
+			txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
+			tvSalePrice.setText(mFormat.currencyFormat(order.getTotalSalePrice()));
+
+			txtDiscount.setOnFocusChangeListener(new OnFocusChangeListener(){
 
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
 					EditText txtDisPrice = (EditText) v;
-					if(!hasFocus){
-						float discount = 0.0f;
-						
-						try {
-							discount = Float.parseFloat(txtDisPrice
-									.getText().toString());
-						} catch (NumberFormatException e) {
-							e.printStackTrace();
-						}
-
-						if (discount >= 0
-								&& order.getTotalRetailPrice() >= discount) {
-							float salePrice = calculateDiscount(
-									order.getOrderDetailId(),
-									order.getVatType(),
-									order.getTotalRetailPrice(),
-									discount);
-
-							holder.tvSalePrice.setText(mFormat
-									.currencyFormat(salePrice));
-						} else {
-							txtDisPrice.setText(mFormat.currencyFormat(order.getPriceDiscount()));
-						}	
+					float discount = 0.0f;
+					
+					try {
+						discount = Float.parseFloat(txtDisPrice
+								.getText().toString());
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
 					}
+
+					if (discount >= 0
+							&& order.getTotalRetailPrice() >= discount) {
+						float salePrice = calculateDiscount(
+								order.getOrderDetailId(),
+								order.getVatType(),
+								order.getTotalRetailPrice(),
+								discount);
+						
+						order.setPriceDiscount(discount);
+						order.setTotalSalePrice(salePrice);
+						tvSalePrice.setText(mFormat.currencyFormat(salePrice));
+					} else {
+						Toast toast = Toast.makeText(mContext, 
+								R.string.not_allow_discount, Toast.LENGTH_SHORT);
+						toast.show();
+						txtDisPrice.setText(mFormat.currencyFormat(order.getPriceDiscount()));
+					}	
 				}
-				
 			});
 
 			if(position % 2 == 0)
-				convertView.setBackgroundResource(R.color.smoke_white);
+				rowView.setBackgroundResource(R.color.smoke_white);
 			else
-				convertView.setBackgroundResource(R.color.light_gray);
+				rowView.setBackgroundResource(R.color.light_gray);
 			
-			
-			return convertView;
-		}
-		
-		public class ViewHolder{
-			TextView tvNo;
-			TextView tvName;
-			TextView tvQty;
-			TextView tvUnitPrice;
-			TextView tvTotalPrice;
-			EditText txtDiscount;
-			TextView tvSalePrice;
+			return rowView;
 		}
 	}
 	
@@ -262,10 +245,6 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		mTxtTotalPrice.setText(mFormat.currencyFormat(totalSalePrice));
 	}
 
-	private void exit() {
-		DiscountActivity.this.finish();
-	}
-
 	@Override
 	public void onSaveClick(View v){
 		
@@ -274,7 +253,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 	@Override
 	public void onConfirmClick(View v) {
 		if (mTrans.confirmDiscount(mTransactionId, mComputerId))
-			exit();
+			finish();
 	}
 
 	@Override
@@ -284,7 +263,15 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 					.setTitle(R.string.information)
 					.setIcon(android.R.drawable.ic_dialog_info)
 					.setMessage(R.string.confirm_cancel)
-					.setNegativeButton(android.R.string.cancel,
+					.setNegativeButton(R.string.no,
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+								}
+							})
+					.setPositiveButton(R.string.yes,
 							new DialogInterface.OnClickListener() {
 
 								@Override
@@ -292,22 +279,21 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 										int which) {
 									mTrans.cancelDiscount(mTransactionId,
 											mComputerId);
-									exit();
-								}
-							})
-					.setPositiveButton(android.R.string.ok,
-							new DialogInterface.OnClickListener() {
-
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									mTrans.confirmDiscount(mTransactionId,
-											mComputerId);
-									exit();
+									finish();
 								}
 							}).show();
 		} else {
-			exit();
+			finish();
+		}
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			onCancelClick(null);
+			return true;
+		} else {
+			return super.onKeyDown(keyCode, event);
 		}
 	}
 }

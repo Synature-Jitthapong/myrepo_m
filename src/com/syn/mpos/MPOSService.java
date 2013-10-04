@@ -118,6 +118,18 @@ public class MPOSService {
 
 			@Override
 			public void onFail(String msg) {
+				new AlertDialog.Builder(c)
+				.setTitle(R.string.error)
+				.setMessage(R.string.device_not_register)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						
+					}
+				})
+				.show();
 				progress.dismiss();
 			}
 			

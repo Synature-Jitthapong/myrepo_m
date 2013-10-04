@@ -18,27 +18,27 @@
             android:id="@+id/tableRowByBill"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/dark_grey" >
+            android:background="@color/dark_gray" >
 
             <TextView
                 android:id="@+id/textView10"
+                style="@style/ColumnHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
                 android:layout_weight="1"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/receipt_no"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView12"
+                style="@style/ColumnHeader"
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/total_price"
@@ -46,22 +46,22 @@
 
             <TextView
                 android:id="@+id/textView13"
+                style="@style/ColumnHeader"
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/discount_short"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView14"
+                style="@style/ColumnHeader"
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/sub_total"
@@ -69,22 +69,22 @@
 
             <TextView
                 android:id="@+id/textView15"
+                style="@style/ColumnHeader"
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/service_charge_short"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView16"
+                style="@style/ColumnHeader"
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/total_sale"
@@ -92,22 +92,22 @@
 
             <TextView
                 android:id="@+id/textView17"
+                style="@style/ColumnHeader"
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/vatable"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView18"
+                style="@style/ColumnHeader"
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="1dp"
+                android:layout_marginRight="0dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:singleLine="true"
                 android:text="@string/total_vat"
@@ -119,92 +119,93 @@
             android:id="@+id/tableRowByProduct"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/dark_grey" >
+            android:background="@color/dark_gray" >
 
             <TextView
                 android:id="@+id/textView1"
+                style="@style/ColumnHeader"
                 android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/code"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView2"
+                style="@style/ColumnHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
                 android:layout_weight="1"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/product_name"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView3"
+                style="@style/ColumnHeader"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/unit_price"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView4"
+                style="@style/ColumnHeader"
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/qty"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView5"
+                style="@style/ColumnHeader"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/sub_total"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView6"
+                style="@style/ColumnHeader"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/discount"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView7"
+                style="@style/ColumnHeader"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/total_price"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView8"
+                style="@style/ColumnHeader"
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="0dp"
                 android:layout_marginTop="1dp"
-                android:background="@color/light_gray"
                 android:padding="4dp"
                 android:text="@string/vat"
                 android:textAppearance="?android:attr/textAppearanceMedium" />

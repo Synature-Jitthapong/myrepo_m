@@ -5,20 +5,21 @@
     -->
     <style name="ButtonTextWhite" parent="ButtonText">
 	    <item name="android:textColor" >#ffffff</item>
-	    <item name="android:shadowColor" >#000000</item>
     </style>
     
+    <!--
+	    <item name="android:shadowColor" >#000000</item>
+	    <item name="android:shadowDx" >0</item>
+	    <item name="android:shadowDy" >-1</item>
+	    <item name="android:shadowRadius" >1</item>
+	    <item name="android:shadowColor" >#f0f0f0</item> -->
     <style name="ButtonText">
         <item name="android:layout_width" >wrap_content</item>
 	    <item name="android:layout_height" >wrap_content</item>
 	    <item name="android:gravity" >center</item>
 	    <item name="android:textStyle">normal</item>
-	    <item name="android:shadowDx" >0</item>
-	    <item name="android:shadowDy" >-1</item>
-	    <item name="android:shadowRadius" >1</item>
-	    <item name="android:shadowColor" >#f0f0f0</item>
-	    <item name="android:layout_margin" >2dp</item>
-	    <item name="android:minHeight">38dp</item>
+	    <item name="android:layout_margin" >4dp</item>
+	    <item name="android:minHeight">48dp</item>
 	    <item name="android:minWidth">100dp</item>
     </style>
     

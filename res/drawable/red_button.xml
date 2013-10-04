@@ -6,10 +6,10 @@
             <solid 
                 android:color="@color/red_dark" />
             <padding 
-                android:bottom="10dp"
-                android:left="10dp" 
-                android:right="10dp" 
-                android:top="10dp" />
+                android:left="8dp"
+                android:top="8dp"
+                android:right="8dp"
+                android:bottom="8dp"/>
         </shape>
     </item>
     <item 
@@ -18,10 +18,10 @@
             <solid 
                 android:color="@android:color/holo_blue_light" />
             <padding 
-                android:bottom="10dp" 
-                android:left="10dp" 
-                android:right="10dp" 
-                android:top="10dp" />
+                android:left="8dp"
+                android:top="8dp"
+                android:right="8dp"
+                android:bottom="8dp"/>
         </shape>
     </item>
     <item
@@ -30,10 +30,10 @@
             <solid 
                 android:color="@color/disabled" />
             <padding 
-                android:bottom="10dp" 
-                android:left="10dp" 
-                android:right="10dp" 
-                android:top="10dp" />
+                android:left="8dp"
+                android:top="8dp"
+                android:right="8dp"
+                android:bottom="8dp"/>
         </shape>
     </item>
     <item>
@@ -41,10 +41,10 @@
            	<solid 
            	    android:color="@color/red_dark"/>
             <padding 
-                android:bottom="10dp" 
-                android:left="10dp" 
-                android:right="10dp" 
-                android:top="10dp" />
+                android:left="8dp"
+                android:top="8dp"
+                android:right="8dp"
+                android:bottom="8dp"/>
         </shape></item>
 
 </selector>
