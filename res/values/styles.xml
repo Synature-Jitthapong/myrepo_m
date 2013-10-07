@@ -3,6 +3,15 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
+    <style name="SectionHead" parent="android:Widget.Holo.Light.TextView">
+        <item name="android:drawableBottom">@drawable/section_head</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:textColor">@android:color/holo_blue_light</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+    
     <style name="ButtonTextWhite" parent="ButtonText">
 	    <item name="android:textColor" >#ffffff</item>
     </style>

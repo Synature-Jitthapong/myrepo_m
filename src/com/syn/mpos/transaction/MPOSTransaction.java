@@ -302,17 +302,7 @@ public class MPOSTransaction extends Util {
 		return isSuccess;
 	}
 
-	public boolean deleteAllOrderDetail(int transactionId, int computerId) {
-		boolean isSuccess = false;
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL("DELETE FROM order_detail "
-				+ " WHERE transaction_id=" + transactionId
-				+ " AND computer_id=" + computerId);
-		mDbHelper.close();
-		return isSuccess;
-	}
-
-	private boolean deleteOrderDetail(int transactionId, int computerId) {
+	public boolean deleteOrderDetail(int transactionId, int computerId) {
 		boolean isSuccess = false;
 
 		String strSql = "DELETE FROM order_detail " + " WHERE transaction_id="
@@ -640,7 +630,7 @@ public class MPOSTransaction extends Util {
 		String strSql = "SELECT order_detail_id, product_id, product_name, "
 				+ " qty, price_per_unit, total_retail_price, total_sale_price, "
 				+ " vat_type, member_discount, price_discount "
-				+ " FROM order_detail " + " WHERE transaction_id="
+				+ " FROM order_detail WHERE transaction_id="
 				+ transactionId + " AND computer_id=" + computerId;
 
 		mDbHelper.open();
@@ -684,9 +674,9 @@ public class MPOSTransaction extends Util {
 		Calendar c = getDate();
 
 		String strSql = "SELECT a.transaction_id, a.computer_id, "
-				+ " a.open_time, a.remark, " + " b.staff_code, b.staff_name "
-				+ " FROM order_transaction a " + " LEFT JOIN staffs b "
-				+ " ON a.open_staff_id=b.staff_id " + " WHERE a.computer_id="
+				+ " a.open_time, a.remark, b.staff_code, b.staff_name "
+				+ " FROM order_transaction a LEFT JOIN staffs b "
+				+ " ON a.open_staff_id=b.staff_id  WHERE a.computer_id="
 				+ computerId + " AND a.sale_date='" + c.getTimeInMillis()
 				+ "' " + " AND a.transaction_status_id=9";
 

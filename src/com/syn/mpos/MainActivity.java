@@ -428,10 +428,22 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 							R.drawable.no_food, "mpos_img", ImageLoader.IMAGE_SIZE.LARGE);
 					imgLoader2.displayImage(mSetting.getMenuImageUrl() + mi.getMenuImageLink(), imvMenuDetail);
 					
-					final Dialog dialog = new Dialog(mContext, R.style.CustomDialog);
-					dialog.getWindow().setGravity(Gravity.LEFT); 
-					dialog.setContentView(menuDetailView);
-					dialog.show();
+//					final Dialog dialog = new Dialog(mContext, R.style.CustomDialog);
+//					dialog.getWindow().setGravity(Gravity.LEFT); 
+//					dialog.setContentView(menuDetailView);
+//					dialog.show();
+					
+					int x = (int)v.getX();
+					int y = (int)v.getY();
+					PopupWindow popup = new PopupWindow(mContext);
+					popup.setContentView(menuDetailView);
+//					popup.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
+//					popup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+					popup.setWidth(400);
+					popup.setHeight(400);
+					popup.setFocusable(true);
+					popup.showAtLocation(v, Gravity.CENTER, x, y);
+					
 					return true;
 				}
 				
@@ -550,7 +562,7 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				mTrans.deleteTransaction(mTransactionId, mComputerId);
-				mTrans.deleteAllOrderDetail(mTransactionId, mComputerId);
+				mTrans.deleteOrderDetail(mTransactionId, mComputerId);
 				mPayment.deleteAllPaymentDetail(mTransactionId, mComputerId);
 
 				init();

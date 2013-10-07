@@ -388,7 +388,7 @@ public class MPOSSql {
 			" paid_time  TEXT, " +
 			" paid_staff_id  INTEGER, " +
 			" close_time  TEXT, " +
-			" transaction_status_id  INTEGER, " +
+			" transaction_status_id  INTEGER DEFAULT 1, " +
 			" document_type_id  INTEGER, " +
 			" receipt_year  INTEGER, " +
 			" receipt_month  INTEGER, " +

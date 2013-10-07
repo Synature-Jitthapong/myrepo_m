@@ -64,6 +64,7 @@ public final class R {
         public static final int pie15=0x7f020011;
         public static final int popup_bg_9=0x7f020012;
         public static final int red_button=0x7f020013;
+        public static final int section_head=0x7f020014;
     }
     public static final class id {
         public static final int LeftLayout=0x7f0c0047;
@@ -327,7 +328,7 @@ public final class R {
         public static final int approval_code=0x7f090025;
         public static final int balance=0x7f09009b;
         public static final int bank=0x7f090022;
-        public static final int bill_cat=0x7f090072;
+        public static final int bill_utility=0x7f090072;
         public static final int birth_day=0x7f090090;
         public static final int btn_void=0x7f090082;
         public static final int cancel_bill=0x7f09000d;
@@ -366,7 +367,7 @@ public final class R {
         public static final int discount=0x7f09000b;
         public static final int discount_short=0x7f090048;
         public static final int email=0x7f090092;
-        public static final int endday=0x7f090075;
+        public static final int endday=0x7f090076;
         public static final int endding=0x7f0900a5;
         public static final int enter=0x7f090026;
         public static final int enter_enough_money=0x7f09002e;
@@ -451,7 +452,7 @@ public final class R {
         public static final int save_success=0x7f0900a7;
         public static final int search=0x7f09007b;
         public static final int service_charge_short=0x7f090047;
-        public static final int session_cat=0x7f090073;
+        public static final int session_utility=0x7f090073;
         public static final int set_member=0x7f090009;
         public static final int setting=0x7f09009f;
         public static final int shop_info=0x7f090078;
@@ -460,9 +461,9 @@ public final class R {
         public static final int sub_total=0x7f09000f;
         public static final int summary=0x7f090061;
         public static final int switch_user=0x7f090008;
-        public static final int syn_cat=0x7f090076;
         public static final int sync=0x7f09005c;
         public static final int sync_time=0x7f09005d;
+        public static final int sync_utility=0x7f090074;
         public static final int title_activity_add_member=0x7f090083;
         public static final int title_activity_add_product=0x7f090097;
         public static final int title_activity_credit_pay=0x7f090020;
@@ -496,21 +497,21 @@ public final class R {
         public static final int vat_include=0x7f09006f;
         public static final int vat_type=0x7f09006d;
         public static final int vatable=0x7f09004a;
-        public static final int void_bill=0x7f090074;
+        public static final int void_bill=0x7f090075;
         public static final int web_service=0x7f090052;
         public static final int web_service_summary=0x7f090053;
         public static final int yes=0x7f0900ab;
         public static final int zipcode=0x7f09008f;
     }
     public static final class style {
-        public static final int ActionBarStyle=0x7f0a0008;
-        public static final int AppBaseTheme=0x7f0a0009;
-        public static final int AppBaseThemeNoAction=0x7f0a0005;
+        public static final int ActionBarStyle=0x7f0a0009;
+        public static final int AppBaseTheme=0x7f0a000a;
+        public static final int AppBaseThemeNoAction=0x7f0a0006;
         /**  Application theme. 
  <item name="android:actionBarStyle">@style/ActionBarStyle</item> 
          */
-        public static final int AppTheme=0x7f0a0007;
-        public static final int AppTheme_Menu_LowerCase=0x7f0a0006;
+        public static final int AppTheme=0x7f0a0008;
+        public static final int AppTheme_Menu_LowerCase=0x7f0a0007;
         /** 
 	    <item name="android:shadowColor" >#000000</item>
 	    <item name="android:shadowDx" >0</item>
@@ -518,16 +519,17 @@ public final class R {
 	    <item name="android:shadowRadius" >1</item>
 	    <item name="android:shadowColor" >#f0f0f0</item> 
          */
-        public static final int ButtonText=0x7f0a0001;
+        public static final int ButtonText=0x7f0a0002;
+        public static final int ButtonTextWhite=0x7f0a0001;
+        public static final int ColumnDetail=0x7f0a0003;
+        public static final int ColumnHeader=0x7f0a0004;
+        public static final int CustomDialog=0x7f0a0005;
         /** 
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     
          */
-        public static final int ButtonTextWhite=0x7f0a0000;
-        public static final int ColumnDetail=0x7f0a0002;
-        public static final int ColumnHeader=0x7f0a0003;
-        public static final int CustomDialog=0x7f0a0004;
+        public static final int SectionHead=0x7f0a0000;
     }
     public static final class xml {
         public static final int pref_general=0x7f050000;
