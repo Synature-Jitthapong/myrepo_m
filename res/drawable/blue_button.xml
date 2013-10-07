@@ -5,6 +5,10 @@
         <shape>
             <solid 
                 android:color="@android:color/holo_blue_light" />
+            <corners 
+                android:radius="3dp"/>
+            <stroke 
+                android:color="@color/gray"/>
             <padding 
                 android:left="8dp"
                 android:top="8dp"
@@ -17,6 +21,10 @@
         <shape>
             <solid 
                 android:color="@android:color/holo_blue_light" />
+            <corners 
+                android:radius="3dp"/>
+            <stroke 
+                android:color="@color/gray"/>
             <padding 
                 android:left="8dp"
                 android:top="8dp"
@@ -29,6 +37,10 @@
          <shape>
             <solid 
                 android:color="@color/disabled" />
+            <corners 
+                android:radius="3dp"/>
+            <stroke 
+                android:color="@color/gray"/>
             <padding 
                 android:left="8dp"
                 android:top="8dp"
@@ -40,6 +52,10 @@
         <shape>
            	<solid 
            	    android:color="@color/blue_light"/>
+            <corners 
+                android:radius="3dp"/>
+            <stroke 
+                android:color="@color/gray"/>
             <padding 
                 android:left="8dp"
                 android:top="8dp"
