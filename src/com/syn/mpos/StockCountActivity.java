@@ -36,7 +36,7 @@ public class StockCountActivity extends Activity {
 	private Context mContext;
 	private Formatter mFormat;
 	private MPOSStockCount mStockCount;
-	private int mDocumentId;
+	private int mStcDocId;
 	private List<StockMaterial> mStockLst;
 	private StockAdapter mStockAdapter;
 	private Calendar mCalendar;
@@ -87,20 +87,22 @@ public class StockCountActivity extends Activity {
 			}
 
 		});
-		
-		mDocumentId = mStockCount.getCurrentDocument(mShopId,
+
+		mStcDocId = mStockCount.getCurrentDocument(mShopId,
 				MPOSStockDocument.DAILY_DOC);
-		if (mDocumentId == 0) {
-			mDocumentId = mStockCount.createDocument(mShopId,
+
+		if (mStcDocId == 0) {
+			mStcDocId = mStockCount.createDocument(mShopId,
 					MPOSStockDocument.DAILY_DOC, mStaffId);
+
 			mStockLst = mStockCount.listStock();
 			new SaveStockCountTask().execute();
 		} else {
-			mStockLst = mStockCount.listStock(mDocumentId, mShopId);
+			mStockLst = mStockCount.listStock(mStcDocId, mShopId);
 			mStockAdapter.notifyDataSetChanged();
 		}
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		mStockCount.clearDocument();
@@ -140,23 +142,28 @@ public class StockCountActivity extends Activity {
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									mStockCount.confirmStock(mDocumentId,
+									mStockCount.confirmStock(mStcDocId,
 											mShopId, mStaffId, txtRemark
 													.getText().toString());
-									
-									
+
 									new AlertDialog.Builder(mContext)
-									.setIcon(android.R.drawable.ic_dialog_info)
-									.setTitle(R.string.confirm)
-									.setMessage(R.string.confirm_success)
-									.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-										
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											hideKeyboard();
-											finish();
-										}
-									}).show();
+											.setIcon(
+													android.R.drawable.ic_dialog_info)
+											.setTitle(R.string.confirm)
+											.setMessage(
+													R.string.confirm_success)
+											.setNeutralButton(
+													R.string.close,
+													new DialogInterface.OnClickListener() {
+
+														@Override
+														public void onClick(
+																DialogInterface dialog,
+																int which) {
+															hideKeyboard();
+															finish();
+														}
+													}).show();
 								}
 							}).show();
 			return true;
@@ -165,30 +172,31 @@ public class StockCountActivity extends Activity {
 			return true;
 		case R.id.itemCancel:
 			new AlertDialog.Builder(mContext)
-			.setTitle(R.string.confirm)
-			.setMessage(R.string.confirm_stock_count)
-			.setNegativeButton(android.R.string.cancel,
-					new DialogInterface.OnClickListener() {
+					.setTitle(R.string.confirm)
+					.setMessage(R.string.confirm_stock_count)
+					.setNegativeButton(android.R.string.cancel,
+							new DialogInterface.OnClickListener() {
 
-						@Override
-						public void onClick(DialogInterface dialog,
-								int which) {
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
 
-						}
-					})
-			.setPositiveButton(android.R.string.ok,
-					new DialogInterface.OnClickListener() {
+								}
+							})
+					.setPositiveButton(android.R.string.ok,
+							new DialogInterface.OnClickListener() {
 
-						@Override
-						public void onClick(DialogInterface dialog,
-								int which) {
-							if(mStockCount.cancelDocument(mDocumentId, mShopId, mStaffId, "test cancel")){
-								finish();
-							}else{
-								// do alert error
-							}
-						}
-					}).show();
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									if (mStockCount.cancelDocument(mStcDocId,
+											mShopId, mStaffId, "test cancel")) {
+										finish();
+									} else {
+										// do alert error
+									}
+								}
+							}).show();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -198,7 +206,7 @@ public class StockCountActivity extends Activity {
 	private class StockAdapter extends BaseAdapter {
 
 		private LayoutInflater inflater;
-		
+
 		public StockAdapter() {
 			inflater = LayoutInflater.from(mContext);
 		}
@@ -270,7 +278,7 @@ public class StockCountActivity extends Activity {
 						}
 
 						mStockCount.updateDocumentDetail(stock.getId(),
-								mDocumentId, mShopId, stock.getMatId(),
+								mStcDocId, mShopId, stock.getMatId(),
 								enterCount, stock.getPricePerUnit(), "");
 
 						stock.setCountQty(enterCount);
@@ -308,9 +316,9 @@ public class StockCountActivity extends Activity {
 				progress.dismiss();
 
 			if (isSuccess) {
-				mStockLst = mStockCount.listStock(mDocumentId, mShopId);
+				mStockLst = mStockCount.listStock(mStcDocId, mShopId);
 				mStockAdapter.notifyDataSetChanged();
-			}else{
+			} else {
 				Util.alert(mContext, android.R.drawable.ic_dialog_alert,
 						R.string.error, R.string.error_save_stock);
 			}
@@ -325,14 +333,14 @@ public class StockCountActivity extends Activity {
 
 		@Override
 		protected Boolean doInBackground(Void... params) {
-			return mStockCount.saveStock(mDocumentId, mShopId, mStaffId, "",
+			return mStockCount.saveStock(mStcDocId, mShopId, mStaffId, "",
 					mStockLst);
 		}
 
-	}	
-	
-	private void hideKeyboard(){
+	}
+
+	private void hideKeyboard() {
 		getWindow().setSoftInputMode(
-			      WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 	}
 }

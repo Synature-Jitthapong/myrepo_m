@@ -45,8 +45,10 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RadioGroup.LayoutParams;
 
 public class MainActivity extends Activity implements OnMPOSFunctionClickListener {
@@ -642,61 +644,116 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 			intent.putExtra("mode", 2);
 			startActivity(intent);
 			return true;
-		case R.id.itemVoidBill:
-			intent = new Intent(MainActivity.this, VoidBillActivity.class);
-			intent.putExtra("shopId", mShopId);
-			intent.putExtra("staffId", mStaffId);
-			startActivity(intent);
-			return true;
-		case R.id.itemCloseShift:
-			new AlertDialog.Builder(mContext)
-			.setTitle(R.string.close_shift)
-			.setMessage(R.string.confirm_close_shift)
-			.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					// TODO Auto-generated method stub
-					
-				}
-			})
-			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if(mSession.closeShift(mSessionId, mComputerId, mStaffId, 0, 0)){
-						finish();
-					}
-				}
-			}).show();
-			return true;
-		case R.id.itemEndday:
-			new AlertDialog.Builder(mContext)
-			.setTitle(R.string.endday)
-			.setMessage(R.string.confirm_endday)
-			.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					// TODO Auto-generated method stub
-					
-				}
-			})
-			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if(mSession.closeShift(mSessionId, mComputerId, mStaffId, 0, 1)){
-						finish();
-					}
-				}
-			}).show();
+		case R.id.itemUtility:
+			popupUtility();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
+	private void popupUtility(){
+		LayoutInflater inflater = LayoutInflater.from(mContext);
+		View utilView = inflater.inflate(R.layout.utility_popup, null);
+		Button btnVoid = (Button) utilView.findViewById(R.id.btnVoidBill);
+		Button btnCloseShift =  (Button) utilView.findViewById(R.id.btnCloseShift);
+		Button btnEndday =  (Button) utilView.findViewById(R.id.btnEndday);
+		Button btnSync = (Button) utilView.findViewById(R.id.btnSync);
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setTitle(R.string.utility);
+		builder.setView(utilView);
+		builder.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		});
+		
+		final AlertDialog d = builder.create();	
+		
+		btnVoid.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
+				intent.putExtra("shopId", mShopId);
+				intent.putExtra("staffId", mStaffId);
+				startActivity(intent);
+				d.dismiss();
+			}
+			
+		});
+		
+		btnCloseShift.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				new AlertDialog.Builder(mContext)
+				.setTitle(R.string.close_shift)
+				.setMessage(R.string.confirm_close_shift)
+				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						
+					}
+				})
+				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if(mSession.closeShift(mSessionId, mComputerId, mStaffId, 0, 0)){
+							finish();
+						}
+					}
+				}).show();
+				d.dismiss();
+			}
+			
+		});
+		
+		btnEndday.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				new AlertDialog.Builder(mContext)
+				.setTitle(R.string.endday)
+				.setMessage(R.string.confirm_endday)
+				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						
+					}
+				})
+				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if(mSession.closeShift(mSessionId, mComputerId, mStaffId, 0, 1)){
+							finish();
+						}
+					}
+				}).show();
+				d.dismiss();
+			}
+			
+		});
+		
+		btnSync.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				d.dismiss();
+			}
+			
+		});
+	}
+	
 	public void holdOrderClicked(final View v){
 		final EditText txtRemark = new EditText(mContext);
 		txtRemark.setHint(R.string.remark);

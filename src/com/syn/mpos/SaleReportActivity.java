@@ -286,8 +286,8 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 		tvTotalPrice.setBackgroundResource(R.color.gray_light_blue);
 		tvVatable.setBackgroundResource(R.color.gray_light_blue);
 		
-		tvCode.setText(R.string.total);
-		tvCode.setGravity(Gravity.RIGHT);
+		tvName.setText(R.string.total);
+		tvName.setGravity(Gravity.RIGHT);
 		tvQty.setText(format.qtyFormat(totalQty));
 		tvSubTotal.setText(format.currencyFormat(totalSub));
 		tvDiscount.setText(format.currencyFormat(totalDisc));

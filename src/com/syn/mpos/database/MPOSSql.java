@@ -380,30 +380,30 @@ public class MPOSSql {
 
 	public static final String TB_TRANS = 
 			" CREATE TABLE order_transaction ( " +
-			" transaction_id  INTEGER NOT NULL DEFAULT 0, " +
-			" computer_id  INTEGER NOT NULL DEFAULT 0, " +
-			" shop_id  INTEGER NOT NULL DEFAULT 0, " +
+			" transaction_id  INTEGER, " +
+			" computer_id  INTEGER, " +
+			" shop_id  INTEGER, " +
 			" open_time  TEXT, " +
-			" open_staff_id  INTEGER NOT NULL DEFAULT 0, " +
+			" open_staff_id  INTEGER, " +
 			" paid_time  TEXT, " +
-			" paid_staff_id  INTEGER NOT NULL DEFAULT 0, " +
+			" paid_staff_id  INTEGER, " +
 			" close_time  TEXT, " +
-			" transaction_status_id  INTEGER NOT NULL DEFAULT 1, " +
-			" document_type_id  INTEGER NOT NULL DEFAULT 8, " +
-			" receipt_year  INTEGER NOT NULL DEFAULT 0, " +
-			" receipt_month  INTEGER NOT NULL DEFAULT 0, " +
-			" receipt_id  INTEGER NOT NULL DEFAULT 0, " +
+			" transaction_status_id  INTEGER, " +
+			" document_type_id  INTEGER, " +
+			" receipt_year  INTEGER, " +
+			" receipt_month  INTEGER, " +
+			" receipt_id  INTEGER, " +
 			" sale_date  TEXT, " +
-			" session_id  INTEGER NOT NULL DEFAULT 0, " +
-			" void_staff_id  INTEGER NOT NULL DEFAULT 0, " +
+			" session_id  INTEGER, " +
+			" void_staff_id  INTEGER, " +
 			" void_reason  TEXT, " +
 			" void_time  TEXT, " +
-			" member_id  INTEGER NOT NULL DEFAULT 0, " +
-			" transaction_vat  REAL NOT NULL DEFAULT 0, " +
-			" transaction_exclude_vat  REAL NOT NULL DEFAULT 0, " +
-			" transaction_vatable  REAL NOT NULL DEFAULT 0, " +
-			" service_charge  REAL NOT NULL DEFAULT 0, " +
-			" service_charge_vat  REAL NOT NULL DEFAULT 0, " +
+			" member_id  INTEGER, " +
+			" transaction_vat  REAL, " +
+			" transaction_exclude_vat  REAL, " +
+			" transaction_vatable  REAL, " +
+			" service_charge  REAL, " +
+			" service_charge_vat  REAL, " +
 			" remark  TEXT, " +
 			" transaction_note  TEXT, " +
 			" PRIMARY KEY (transaction_id ASC, computer_id ASC) " +
@@ -411,39 +411,39 @@ public class MPOSSql {
 
 	public static final String TB_ORDER = 
 			" CREATE TABLE order_detail ( " +
-			" order_detail_id  INTEGER NOT NULL DEFAULT 0, " +
-			" transaction_id  INTEGER NOT NULL DEFAULT 0, " +
-			" computer_id  INTEGER NOT NULL DEFAULT 0, " +
-			" product_id  INTEGER NOT NULL DEFAULT 0, " +
-			" product_type_id  INTEGER NOT NULL DEFAULT 0, " +
-			" product_name  TEXT NOT NULL, " +
-			" qty  REAL NOT NULL DEFAULT 0, " +
-			" price_per_unit  REAL NOT NULL DEFAULT 0, " +
-			" total_retail_price  REAL NOT NULL DEFAULT 0, " +
-			" total_sale_price  REAL NOT NULL DEFAULT 0, " +
-			" vat_type  INTEGER NOT NULL DEFAULT 1, " +
-			" vat  REAL NOT NULL DEFAULT 0, " +
-			" member_discount  REAL NOT NULL DEFAULT 0, " +
-			" price_discount  REAL NOT NULL DEFAULT 0, " +
+			" order_detail_id  INTEGER, " +
+			" transaction_id  INTEGER, " +
+			" computer_id  INTEGER, " +
+			" product_id  INTEGER, " +
+			" product_type_id  INTEGER, " +
+			" product_name  TEXT, " +
+			" qty  REAL, " +
+			" price_per_unit  REAL, " +
+			" total_retail_price  REAL, " +
+			" total_sale_price  REAL, " +
+			" vat_type  INTEGER, " +
+			" vat  REAL, " +
+			" member_discount  REAL, " +
+			" price_discount  REAL, " +
 			" PRIMARY KEY (order_detail_id ASC, transaction_id ASC, computer_id ASC) " +
 			" );";
 	
 	public static final String TB_ORDER_TMP = 
 			" CREATE TABLE order_detail_tmp ( " +
-			" order_detail_id  INTEGER NOT NULL DEFAULT 0, " +
-			" transaction_id  INTEGER NOT NULL DEFAULT 0, " +
-			" computer_id  INTEGER NOT NULL DEFAULT 0, " +
-			" product_id  INTEGER NOT NULL DEFAULT 0, " +
-			" product_type_id  INTEGER NOT NULL DEFAULT 0, " +
-			" product_name  TEXT NOT NULL, " +
-			" qty  REAL NOT NULL DEFAULT 0, " +
-			" price_per_unit  REAL NOT NULL DEFAULT 0, " +
-			" total_retail_price  REAL NOT NULL DEFAULT 0, " +
-			" total_sale_price  REAL NOT NULL DEFAULT 0, " +
-			" vat_type  INTEGER NOT NULL DEFAULT 1, " +
-			" vat  REAL NOT NULL DEFAULT 0, " +
-			" member_discount  REAL NOT NULL DEFAULT 0, " +
-			" price_discount  REAL NOT NULL DEFAULT 0, " +
+			" order_detail_id  INTEGER, " +
+			" transaction_id  INTEGER, " +
+			" computer_id  INTEGER, " +
+			" product_id  INTEGER, " +
+			" product_type_id  INTEGER, " +
+			" product_name  TEXT, " +
+			" qty  REAL, " +
+			" price_per_unit  REAL, " +
+			" total_retail_price  REAL, " +
+			" total_sale_price  REAL, " +
+			" vat_type  INTEGER, " +
+			" vat  REAL, " +
+			" member_discount  REAL, " +
+			" price_discount  REAL, " +
 			" PRIMARY KEY (order_detail_id ASC, transaction_id ASC, computer_id ASC) " +
 			" );";
 	
@@ -472,70 +472,68 @@ public class MPOSSql {
 
 	public static final String TB_ORDER_SET_COMM = 
 			" CREATE TABLE order_set_comment ( " +
-			" transaction_id  INTEGER NOT NULL, " +
-			" order_detail_id  INTEGER NOT NULL, " +
-			" order_set_id  INTEGER NOT NULL, " +
-			" menu_comment_id  INTEGER NOT NULL DEFAULT 0, " +
-			" p_group_id  INTEGER NOT NULL DEFAULT 0, " +
-			" product_id  INTEGER NOT NULL DEFAULT 0, " +
-			" product_amount  REAL NOT NULL DEFAULT 0, " +
-			" product_price  REAL NOT NULL DEFAULT 0 " +
+			" transaction_id  INTEGER, " +
+			" order_detail_id  INTEGER, " +
+			" order_set_id  INTEGER, " +
+			" menu_comment_id  INTEGER, " +
+			" p_group_id  INTEGER, " +
+			" product_id  INTEGER, " +
+			" product_amount  REAL, " +
+			" product_price  REAL " +
 			" );";
 	
 	public static final String TB_DOC_TYPE_GROUP = 
 			" CREATE TABLE document_type_group ( " +
-			" document_type_group_id  INTEGER NOT NULL, " +
-			" group_header  TEXT NOT NULL, " +
-			" group_ordering  INTEGER NOT NULL " +
+			" document_type_group_id  INTEGER, " +
+			" group_header  TEXT, " +
+			" group_ordering  INTEGER" +
 			" );";
 	
 	public static final String TB_DOC_TYPE_GROUP_VAL = 
 			" CREATE TABLE document_type_group_value ( " +
-			" doc_type_group_id  INTEGER NOT NULL, " +
-			" document_type_id  INTEGER NOT NULL, " +
-			" PRIMARY KEY (doc_type_group_id ASC, document_type_id ASC) " +
+			" doc_type_group_id  INTEGER, " +
+			" document_type_id  INTEGER" +
 			" );";
 	
 	public static final String TB_DOC_TYPE = 
 			" CREATE TABLE document_type ( " +
-			" document_type_id  INTEGER NOT NULL, " +
-			" document_type_header  TEXT NOT NULL, " +
-			" document_type_name  TEXT NOT NULL, " +
-			" movement_in_stock  INTEGER NOT NULL DEFAULT 0, " +
-			" PRIMARY KEY (document_type_id) " +
+			" document_type_id  INTEGER, " +
+			" document_type_header  TEXT, " +
+			" document_type_name  TEXT, " +
+			" movement_in_stock  INTEGER " +
 			" );";
 	
 	public static final String TB_DOC = 
 			" CREATE TABLE document ( " +
-			" document_id  INTEGER NOT NULL, " +
-			" shop_id  INTEGER NOT NULL, " +
+			" document_id  INTEGER, " +
+			" shop_id  INTEGER, " +
 			" ref_document_id  INTEGER, " +
 			" ref_shop_id  INTEGER, " +
-			" document_type_id  INTEGER NOT NULL, " +
+			" document_type_id  INTEGER, " +
 			" document_no  TEXT, " +
 			" document_date, " +
-			" update_by  INTEGER NOT NULL, " +
-			" update_date  TEXT NOT NULL, " +
-			" document_status  INTEGER NOT NULL, " +
+			" update_by  INTEGER, " +
+			" update_date  TEXT, " +
+			" document_status  INTEGER, " +
 			" remark  TEXT, " +
-			" is_send_to_hq  INTEGER DEFAULT 0, " +
-			" send_to_hq_datetime  TEXT, " +
-			" PRIMARY KEY (document_id, shop_id) " +
+			" is_send_to_hq  INTEGER, " +
+			" send_to_hq_datetime  TEXT," +
+			" PRIMARY KEY (document_id ASC, shop_id ASC) " +
 			" );";
 
 	public static final String TB_DOC_DETAIL = 
 			" CREATE TABLE docdetail ( " +
-			" docdetail_id  INTEGER NOT NULL, " +
-			" document_id  INTEGER NOT NULL, " +
-			" shop_id  INTEGER NOT NULL, " +
-			" material_id  INTEGER NOT NULL, " +
+			" docdetail_id  INTEGER, " +
+			" document_id  INTEGER, " +
+			" shop_id  INTEGER, " +
+			" material_id  INTEGER, " +
 			" unit_name  TEXT, " +
-			" material_qty  REAL DEFAULT 0, " +
-			" material_balance  REAL DEFAULT 0, " +
-			" material_price_per_unit  REAL DEFAULT 0, " +
-			" material_net_price  REAL DEFAULT 0, " +
-			" material_tax_type  INTEGER DEFAULT 1, " +
-			" material_tax_price  REAL DEFAULT 0, " +
+			" material_qty  REAL, " +
+			" material_balance  REAL, " +
+			" material_price_per_unit  REAL, " +
+			" material_net_price  REAL, " +
+			" material_tax_type  INTEGER, " +
+			" material_tax_price  REAL, " +
 			" PRIMARY KEY (docdetail_id ASC, document_id ASC, shop_id ASC) " +
 			" );";
 	

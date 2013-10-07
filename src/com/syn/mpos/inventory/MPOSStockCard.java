@@ -1,6 +1,7 @@
 package com.syn.mpos.inventory;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import android.content.Context;
@@ -61,6 +62,10 @@ public class MPOSStockCard {
 	 */
 	protected boolean calculateStockCard(long dateFrom, long dateTo){
 		boolean isSuccess = false;
+		Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(dateFrom);
+		int month = c.get(Calendar.MONTH);
+		
 		if(createStockCardTmp()){
 			String strSql = "INSERT INTO stock_card_tmp " +
 					" SELECT p.product_id, " +
@@ -72,8 +77,7 @@ public class MPOSStockCard {
 					" LEFT JOIN document_type c " +
 					" ON a.document_type_id=c.document_type_id " +
 					" WHERE p.product_id=b.material_id " +
-					" AND a.document_date >=" + dateFrom + 
-					" AND a.document_date <=" + dateTo + 
+					" AND a.document_month=" + month +
 					" AND a.document_status=2 " +
 					" AND a.document_type_id = 10 " +
 					" GROUP BY b.material_id ),  " +

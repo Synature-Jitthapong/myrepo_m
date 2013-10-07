@@ -12,16 +12,15 @@
     tools:context=".VoidBillActivity" >
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="4dp"
         android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:background="@color/smoke_white"
-        android:orientation="vertical"
-        android:padding="1dp" >
+        android:background="@drawable/background_card"
+        android:orientation="vertical" >
 
         <TableRow
             android:id="@+id/tableRow1"
@@ -69,7 +68,7 @@
                 <TextView
                     android:id="@+id/textView8"
                     style="@style/ColumnHeader"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="1dp"
                     android:layout_weight="1"
@@ -106,16 +105,15 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:background="@color/smoke_white"
-        android:orientation="vertical"
-        android:padding="1dp" >
+        android:background="@drawable/background_card"
+        android:orientation="vertical" >
 
         <TableLayout
             android:layout_width="match_parent"

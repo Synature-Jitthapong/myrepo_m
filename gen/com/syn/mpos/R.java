@@ -44,25 +44,26 @@ public final class R {
         public static final int activity_vertical_margin=0x7f080001;
     }
     public static final class drawable {
-        public static final int blue_button=0x7f020000;
-        public static final int gray_button=0x7f020001;
-        public static final int green_button=0x7f020002;
-        public static final int ic_ab_back_holo_light=0x7f020003;
-        public static final int list_selector=0x7f020004;
-        public static final int login_bg=0x7f020005;
-        public static final int logo=0x7f020006;
-        public static final int menu_bg=0x7f020007;
-        public static final int menu_selector=0x7f020008;
-        public static final int money100=0x7f020009;
-        public static final int money1000=0x7f02000a;
-        public static final int money20=0x7f02000b;
-        public static final int money50=0x7f02000c;
-        public static final int money500=0x7f02000d;
-        public static final int no_food=0x7f02000e;
-        public static final int orange_button=0x7f02000f;
-        public static final int pie15=0x7f020010;
-        public static final int popup_bg_9=0x7f020011;
-        public static final int red_button=0x7f020012;
+        public static final int background_card=0x7f020000;
+        public static final int blue_button=0x7f020001;
+        public static final int gray_button=0x7f020002;
+        public static final int green_button=0x7f020003;
+        public static final int ic_ab_back_holo_light=0x7f020004;
+        public static final int list_selector=0x7f020005;
+        public static final int login_bg=0x7f020006;
+        public static final int logo=0x7f020007;
+        public static final int menu_bg=0x7f020008;
+        public static final int menu_selector=0x7f020009;
+        public static final int money100=0x7f02000a;
+        public static final int money1000=0x7f02000b;
+        public static final int money20=0x7f02000c;
+        public static final int money50=0x7f02000d;
+        public static final int money500=0x7f02000e;
+        public static final int no_food=0x7f02000f;
+        public static final int orange_button=0x7f020010;
+        public static final int pie15=0x7f020011;
+        public static final int popup_bg_9=0x7f020012;
+        public static final int red_button=0x7f020013;
     }
     public static final class id {
         public static final int LeftLayout=0x7f0c0047;
@@ -77,9 +78,11 @@ public final class R {
         public static final int TableRow1=0x7f0c007e;
         public static final int btnBillDate=0x7f0c0076;
         public static final int btnBirthDay=0x7f0c000f;
+        public static final int btnCloseShift=0x7f0c00bb;
         public static final int btnCreditPay=0x7f0c005a;
         public static final int btnDateFrom=0x7f0c007b;
         public static final int btnDateTo=0x7f0c007c;
+        public static final int btnEndday=0x7f0c00bc;
         public static final int btnExp=0x7f0c002e;
         public static final int btnGenReport=0x7f0c007d;
         public static final int btnPay0=0x7f0c006c;
@@ -103,7 +106,10 @@ public final class R {
         public static final int btnPayEnter=0x7f0c006d;
         public static final int btnPopCardExp=0x7f0c0038;
         public static final int btnSearch=0x7f0c0005;
+        public static final int btnSync=0x7f0c00bd;
+        public static final int btnVoidBill=0x7f0c00ba;
         public static final int button1=0x7f0c0089;
+        public static final int button5=0x7f0c00be;
         public static final int buttonCash=0x7f0c0051;
         public static final int buttonClearBill=0x7f0c0059;
         public static final int buttonDiscount=0x7f0c0050;
@@ -128,29 +134,23 @@ public final class R {
         public static final int imageViewMenu=0x7f0c008b;
         public static final int imageViewMenuDetail=0x7f0c008a;
         public static final int imgDel=0x7f0c0097;
-        public static final int itemBill=0x7f0c00c8;
-        public static final int itemCancel=0x7f0c00bd;
-        public static final int itemClose=0x7f0c00bc;
-        public static final int itemCloseShift=0x7f0c00cc;
-        public static final int itemConfirm=0x7f0c00be;
-        public static final int itemDateCondition=0x7f0c00d0;
-        public static final int itemEndday=0x7f0c00cb;
-        public static final int itemHoldBill=0x7f0c00bf;
-        public static final int itemInfo=0x7f0c00cd;
-        public static final int itemInventory=0x7f0c00c0;
-        public static final int itemLogout=0x7f0c00cf;
-        public static final int itemReceive=0x7f0c00c1;
-        public static final int itemReport=0x7f0c00c4;
-        public static final int itemSaleByProduct=0x7f0c00c6;
-        public static final int itemSaleReport=0x7f0c00c5;
-        public static final int itemSearch=0x7f0c00d2;
-        public static final int itemSession=0x7f0c00ca;
-        public static final int itemSetting=0x7f0c00d1;
-        public static final int itemStockCard=0x7f0c00c3;
-        public static final int itemStockCount=0x7f0c00c2;
-        public static final int itemSwUser=0x7f0c00ce;
-        public static final int itemUtility=0x7f0c00c7;
-        public static final int itemVoidBill=0x7f0c00c9;
+        public static final int itemCancel=0x7f0c00c1;
+        public static final int itemClose=0x7f0c00c0;
+        public static final int itemConfirm=0x7f0c00c2;
+        public static final int itemDateCondition=0x7f0c00ce;
+        public static final int itemHoldBill=0x7f0c00c3;
+        public static final int itemInventory=0x7f0c00c4;
+        public static final int itemLogout=0x7f0c00cd;
+        public static final int itemReceive=0x7f0c00c5;
+        public static final int itemReport=0x7f0c00c8;
+        public static final int itemSaleByProduct=0x7f0c00ca;
+        public static final int itemSaleReport=0x7f0c00c9;
+        public static final int itemSearch=0x7f0c00d0;
+        public static final int itemSetting=0x7f0c00cf;
+        public static final int itemStockCard=0x7f0c00c7;
+        public static final int itemStockCount=0x7f0c00c6;
+        public static final int itemSwUser=0x7f0c00cc;
+        public static final int itemUtility=0x7f0c00cb;
         public static final int listView1=0x7f0c0039;
         public static final int listViewOrder=0x7f0c004a;
         public static final int lvBill=0x7f0c0077;
@@ -216,17 +216,16 @@ public final class R {
         public static final int textViewVatExclude=0x7f0c004f;
         public static final int tvCode=0x7f0c009a;
         public static final int tvDeviceCode=0x7f0c0045;
-        public static final int tvDiff=0x7f0c00b3;
         public static final int tvDiscount=0x7f0c00ab;
         public static final int tvEndding=0x7f0c00b1;
         public static final int tvInit=0x7f0c00ae;
-        public static final int tvItem=0x7f0c00bb;
-        public static final int tvItemCode=0x7f0c00b5;
-        public static final int tvItemCurrQty=0x7f0c00b7;
-        public static final int tvItemDiff=0x7f0c00b9;
-        public static final int tvItemName=0x7f0c00b6;
-        public static final int tvItemNo=0x7f0c00b4;
-        public static final int tvItemUnit=0x7f0c00ba;
+        public static final int tvItem=0x7f0c00bf;
+        public static final int tvItemCode=0x7f0c00b4;
+        public static final int tvItemCurrQty=0x7f0c00b6;
+        public static final int tvItemDiff=0x7f0c00b8;
+        public static final int tvItemName=0x7f0c00b5;
+        public static final int tvItemNo=0x7f0c00b3;
+        public static final int tvItemUnit=0x7f0c00b9;
         public static final int tvName=0x7f0c0080;
         public static final int tvNo=0x7f0c007f;
         public static final int tvOpenStaff=0x7f0c0086;
@@ -262,7 +261,7 @@ public final class R {
         public static final int txtEmail=0x7f0c002c;
         public static final int txtFaxNo=0x7f0c0029;
         public static final int txtFirstName=0x7f0c0012;
-        public static final int txtItemQty=0x7f0c00b8;
+        public static final int txtItemQty=0x7f0c00b7;
         public static final int txtLastName=0x7f0c0014;
         public static final int txtMemberCode=0x7f0c0004;
         public static final int txtMobileNo=0x7f0c0027;
@@ -307,7 +306,8 @@ public final class R {
         public static final int search_product_template=0x7f03001a;
         public static final int stock_card_template=0x7f03001b;
         public static final int stock_count_template=0x7f03001c;
-        public static final int void_item_template=0x7f03001d;
+        public static final int utility_popup=0x7f03001d;
+        public static final int void_item_template=0x7f03001e;
     }
     public static final class menu {
         public static final int action_confirm=0x7f0b0000;
@@ -503,10 +503,11 @@ public final class R {
         public static final int zipcode=0x7f09008f;
     }
     public static final class style {
-        public static final int AppBaseTheme=0x7f0a0008;
+        public static final int ActionBarStyle=0x7f0a0008;
+        public static final int AppBaseTheme=0x7f0a0009;
         public static final int AppBaseThemeNoAction=0x7f0a0005;
         /**  Application theme. 
- All customizations that are NOT specific to a particular API-level can go here. 
+ <item name="android:actionBarStyle">@style/ActionBarStyle</item> 
          */
         public static final int AppTheme=0x7f0a0007;
         public static final int AppTheme_Menu_LowerCase=0x7f0a0006;

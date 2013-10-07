@@ -53,9 +53,11 @@
     </style>
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <!-- <item name="android:actionBarStyle">@style/ActionBarStyle</item> -->
     </style>  
-    
+     <style name="ActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">#FF3F9FE0</item>
+    </style>
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
     </style>
 </resources>
