@@ -672,6 +672,7 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		});
 		
 		final AlertDialog d = builder.create();	
+		d.show();
 		
 		btnVoid.setOnClickListener(new OnClickListener(){
 
