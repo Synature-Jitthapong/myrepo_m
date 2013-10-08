@@ -19,7 +19,6 @@
         android:focusableInTouchMode="true"
         android:minHeight="100dip"
         android:minWidth="100dip"
-        android:scaleType="centerCrop"
         android:src="@drawable/no_food" />
 
     <TextView

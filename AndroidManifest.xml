@@ -39,7 +39,7 @@
             android:name="com.syn.mpos.DiscountActivity"
             android:label="@string/discount"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden|adjustPan">
+            android:windowSoftInputMode="stateHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.pos.mobile.mpos.MainActivity" />
@@ -52,7 +52,7 @@
         <activity
             android:name="com.syn.mpos.CreditPayActivity"
             android:label="@string/title_activity_credit_pay"
-            android:screenOrientation="landscape" android:windowSoftInputMode="stateHidden|adjustPan">
+            android:screenOrientation="landscape" android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
             android:name="com.syn.mpos.SaleReportActivity"
@@ -65,20 +65,20 @@
         </activity>
         <activity
             android:name="com.syn.mpos.DirectReceiveActivity"
-            android:label="@string/title_activity_inv_direct_receive" android:screenOrientation="landscape" android:windowSoftInputMode="stateHidden|adjustPan">
+            android:label="@string/title_activity_inv_direct_receive" android:screenOrientation="landscape" android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
             android:name="com.syn.mpos.StockCountActivity"
-            android:label="@string/title_activity_stock_count" android:windowSoftInputMode="stateHidden|adjustPan">
+            android:label="@string/title_activity_stock_count" android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
             android:name="com.syn.mpos.VoidBillActivity"
-            android:label="@string/title_activity_void_bill" android:windowSoftInputMode="stateHidden|adjustPan">
+            android:label="@string/title_activity_void_bill" android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
             android:name="com.syn.mpos.AddMemberActivity"
             android:label="@string/title_activity_add_member"
-            android:windowSoftInputMode="stateHidden|adjustPan" >
+            android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
             android:name="com.syn.mpos.StockCardActivity"

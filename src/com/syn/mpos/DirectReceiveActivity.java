@@ -124,8 +124,21 @@ public class DirectReceiveActivity extends Activity implements
 		return true;
 	}
 
+	private void clearFocus(final View v){
+		v.clearFocus();
+	}
+	
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		clearFocus(getCurrentFocus());
+		return super.onTouchEvent(event);
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		clearFocus(getCurrentFocus());
+		
 		switch (item.getItemId()) {
 		case R.id.itemConfirm:
 			onConfirmClick(item.getActionView());
@@ -211,15 +224,7 @@ public class DirectReceiveActivity extends Activity implements
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				if(event.getAction() == KeyEvent.ACTION_DOWN){
-					EditText txtQty = (EditText) v.findViewById(R.id.txtQty);
-					EditText txtPrice = (EditText) v.findViewById(R.id.txtPrice);
-					
-					if(txtQty.isFocused())
-						txtQty.clearFocus();
-					if(txtPrice.isFocused())
-						txtPrice.clearFocus();
-				}
+				clearFocus(v);
 				return false;
 			}
 			
@@ -525,12 +530,17 @@ public class DirectReceiveActivity extends Activity implements
 	
 									if (mReceiveStock.approveDocument(mDocumentId,
 											mShopId, mStaffId, remark)) {
-										Util.alert(mContext,
-												android.R.drawable.ic_dialog_alert,
-												R.string.confirm,
-												R.string.confirm_success);
 										
-										init();
+										new AlertDialog.Builder(mContext)
+										.setTitle(R.string.confirm)
+										.setMessage(R.string.confirm_success)
+										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+											
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+												finish();
+											}
+										}).show();
 									}
 								}
 							}).show();
@@ -565,12 +575,18 @@ public class DirectReceiveActivity extends Activity implements
 
 								if (mReceiveStock.cancelDocument(mDocumentId,
 										mShopId, mStaffId, remark)) {
-									Util.alert(mContext,
-											android.R.drawable.ic_dialog_alert,
-											R.string.confirm,
-											R.string.confirm_success);
 									
-									finish();
+									new AlertDialog.Builder(mContext)
+									.setIcon(android.R.drawable.ic_dialog_alert)
+									.setTitle(android.R.string.cancel)
+									.setMessage(R.string.cancel_success)
+									.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											finish();
+										}
+									}).show();
 								}
 							}
 						}).show();

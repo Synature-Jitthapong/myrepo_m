@@ -76,13 +76,7 @@ public class StockCountActivity extends Activity {
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				if (event.getAction() == KeyEvent.ACTION_DOWN) {
-					EditText txtItemQty = (EditText) v
-							.findViewById(R.id.txtItemQty);
-					if (txtItemQty != null) {
-						txtItemQty.clearFocus();
-					}
-				}
+				clearFocus(v);
 				return false;
 			}
 
@@ -102,7 +96,17 @@ public class StockCountActivity extends Activity {
 			mStockAdapter.notifyDataSetChanged();
 		}
 	}
-
+	
+	private void clearFocus(final View v){
+		v.clearFocus();
+	}
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		clearFocus(getCurrentFocus());
+		return super.onTouchEvent(event);
+	}
+	
 	@Override
 	protected void onDestroy() {
 		mStockCount.clearDocument();

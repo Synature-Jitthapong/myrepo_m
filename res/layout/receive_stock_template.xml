@@ -51,7 +51,8 @@
         android:gravity="center_vertical|right"
         android:inputType="number|numberSigned|numberDecimal"
         android:lines="1"
-        android:singleLine="true" >
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceLarge" >
 
     </EditText>
 
@@ -64,7 +65,8 @@
         android:gravity="center_vertical|right"
         android:inputType="number|numberSigned|numberDecimal"
         android:lines="1"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <RadioGroup
         android:id="@+id/rdoTaxType"

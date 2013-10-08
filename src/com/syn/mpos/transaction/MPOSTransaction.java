@@ -47,12 +47,12 @@ public class MPOSTransaction extends Util {
 
 	public int getMaxReceiptId(int computerId, int year, int month) {
 		int maxReceiptId = 0;
-	
+
 		String strSql = "SELECT MAX(receipt_id) FROM order_transaction "
 				+ " WHERE computer_id=" + computerId + " AND receipt_year="
 				+ year + " AND receipt_month=" + month
 				+ " AND transaction_status_id = 2";
-	
+
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if (cursor.moveToFirst()) {
@@ -61,18 +61,17 @@ public class MPOSTransaction extends Util {
 		}
 		cursor.close();
 		mDbHelper.close();
-	
+
 		return maxReceiptId + 1;
 	}
 
 	public int getMaxOrderDetail(int transactionId, int computerId) {
 		int orderDetailId = 0;
-	
-		String strSql = "SELECT MAX(order_detail_id) " +
-				" FROM order_detail " +
-				" WHERE transaction_id=" + transactionId +
-				" AND computer_id=" + computerId;
-	
+
+		String strSql = "SELECT MAX(order_detail_id) " + " FROM order_detail "
+				+ " WHERE transaction_id=" + transactionId
+				+ " AND computer_id=" + computerId;
+
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if (cursor.moveToFirst()) {
@@ -81,19 +80,19 @@ public class MPOSTransaction extends Util {
 		}
 		cursor.close();
 		mDbHelper.close();
-	
+
 		return orderDetailId + 1;
 	}
 
 	public int getCurrTransaction(int computerId) {
 		int transactionId = 0;
 		Calendar c = getDate();
-	
+
 		String strSql = "SELECT transaction_id FROM order_transaction "
 				+ " WHERE computer_id = " + computerId
 				+ " AND transaction_status_id = 1 " + " AND sale_date='"
 				+ c.getTimeInMillis() + "' ";
-	
+
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if (cursor.moveToFirst()) {
@@ -162,16 +161,16 @@ public class MPOSTransaction extends Util {
 
 	public boolean prepareTransaction(int transactionId, int computerId) {
 		boolean isSuccess = false;
-	
+
 		String strSql = "UPDATE order_transaction SET "
 				+ " transaction_status_id=1, remark='' "
 				+ " WHERE transaction_id=" + transactionId
 				+ " AND computer_id=" + computerId;
-	
+
 		mDbHelper.open();
 		isSuccess = mDbHelper.execSQL(strSql);
 		mDbHelper.close();
-	
+
 		return isSuccess;
 	}
 
@@ -283,17 +282,18 @@ public class MPOSTransaction extends Util {
 	}
 
 	public boolean discountEatchProduct(int orderDetailId, int transactionId,
-			int computerId, int vatType, float totalPrice, float discount) {
+			int computerId, int vatType, float salePrice, float discount,
+			int disType) {
 		boolean isSuccess = false;
 
-		float priceAfterDiscount = totalPrice - discount;
-		float vat = vatType == 2 ? calculateVat(priceAfterDiscount, 7) : 0.0f;
+		float vat = vatType == 2 ? calculateVat(salePrice, 7) : 0.0f;
 
 		String strSql = "UPDATE order_detail_tmp SET " + " price_discount="
-				+ discount + ", " + " total_sale_price=" + priceAfterDiscount
-				+ ", " + " vat=" + vat + " WHERE order_detail_id="
-				+ orderDetailId + " AND transaction_id=" + transactionId
-				+ " AND computer_id=" + computerId;
+				+ discount + ", " + " total_sale_price=" + salePrice + ", "
+				+ " vat=" + vat + ", discount_type=" + disType
+				+ " WHERE order_detail_id=" + orderDetailId
+				+ " AND transaction_id=" + transactionId + " AND computer_id="
+				+ computerId;
 
 		mDbHelper.open();
 		isSuccess = mDbHelper.execSQL(strSql);
@@ -584,7 +584,7 @@ public class MPOSTransaction extends Util {
 
 		String strSql = "SELECT order_detail_id, product_id, product_name, "
 				+ " qty, price_per_unit, total_retail_price, total_sale_price, "
-				+ " vat_type, member_discount, price_discount "
+				+ " vat_type, member_discount, price_discount, discount_type "
 				+ " FROM order_detail_tmp " + " WHERE transaction_id="
 				+ transactionId + " AND computer_id=" + computerId;
 
@@ -613,6 +613,8 @@ public class MPOSTransaction extends Util {
 						.getColumnIndex("member_discount")));
 				orderDetail.setPriceDiscount(cursor.getFloat(cursor
 						.getColumnIndex("price_discount")));
+				orderDetail.setDiscountType(cursor.getInt(cursor
+						.getColumnIndex("discount_type")));
 
 				orderDetailLst.add(orderDetail);
 			} while (cursor.moveToNext());
@@ -630,8 +632,8 @@ public class MPOSTransaction extends Util {
 		String strSql = "SELECT order_detail_id, product_id, product_name, "
 				+ " qty, price_per_unit, total_retail_price, total_sale_price, "
 				+ " vat_type, member_discount, price_discount "
-				+ " FROM order_detail WHERE transaction_id="
-				+ transactionId + " AND computer_id=" + computerId;
+				+ " FROM order_detail WHERE transaction_id=" + transactionId
+				+ " AND computer_id=" + computerId;
 
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);

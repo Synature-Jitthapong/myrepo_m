@@ -55,9 +55,44 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="4dp"
             android:layout_weight="1"
-            android:background="@drawable/background_card" >
+            android:background="@drawable/background_card"
+            android:choiceMode="multipleChoice"
+            android:listSelector="@drawable/list_selector" >
 
         </ListView>
+
+        <LinearLayout
+            android:id="@+id/layoutOrderCtrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:orientation="horizontal"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:visibility="gone" >
+
+            <ImageButton
+                android:id="@+id/btnModOrder"
+                style="@style/ButtonText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="@drawable/blue_button"
+                android:minWidth="48dp"
+                android:src="@android:drawable/ic_menu_edit" />
+
+            <ImageButton
+                android:id="@+id/btnDelOrder"
+                style="@style/ButtonText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="@drawable/red_button"
+                android:minHeight="48dp"
+                android:minWidth="48dp"
+                android:src="@android:drawable/ic_menu_delete" />
+
+        </LinearLayout>
 
         <TableLayout
             android:layout_width="match_parent"

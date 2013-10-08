@@ -80,7 +80,7 @@
             android:background="@color/light_gray"
             android:lines="1"
             android:padding="4dp"
-            android:text="@string/diff"
+            android:text="@string/variance"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView

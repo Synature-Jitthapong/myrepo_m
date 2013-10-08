@@ -21,8 +21,8 @@ public class Formatter {
 		dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 		dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 		timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-		qtyFormat = new DecimalFormat("#,###.####");
-		currencyFormat = new DecimalFormat("#,###.####");
+		qtyFormat = new DecimalFormat("#,##0.####");
+		currencyFormat = new DecimalFormat("#,##0.####");
 		
 		Shop s = new Shop(c);
 		ShopData.GlobalProperty gb =
@@ -32,10 +32,10 @@ public class Formatter {
 			dateFormat.applyPattern(gb.getDateFormat());
 		if(!gb.getTimeFormat().equals(""))
 			timeFormat.applyPattern(gb.getTimeFormat());
-		if(!gb.getQtyFormat().equals(""))
-			qtyFormat.applyPattern(gb.getQtyFormat());
-		if(!gb.getCurrencyFormat().equals(""))
-			currencyFormat.applyPattern(gb.getCurrencyFormat());
+//		if(!gb.getQtyFormat().equals(""))
+//			qtyFormat.applyPattern(gb.getQtyFormat());
+//		if(!gb.getCurrencyFormat().equals(""))
+//			currencyFormat.applyPattern(gb.getCurrencyFormat());
 		if(!gb.getDateFormat().equals("") && !gb.getTimeFormat().equals(""))
 			dateTimeFormat.applyPattern(gb.getDateFormat() + " " + gb.getTimeFormat());
 	}

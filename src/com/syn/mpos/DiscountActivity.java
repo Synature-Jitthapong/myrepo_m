@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
@@ -22,7 +23,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -44,6 +49,8 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 	private boolean mIsEdited = false;
 
 	private List<OrderTransaction.OrderDetail> mOrderLst;
+	private LinearLayout mLayoutVat;
+	private EditText mTxtExcVat;
 	private ListView mLvDiscount;
 	private EditText mTxtSubTotal;
 	private EditText mTxtTotalDiscount;
@@ -55,6 +62,8 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		setContentView(R.layout.activity_discount);
 		mContext = DiscountActivity.this;
 
+		mLayoutVat = (LinearLayout) findViewById(R.id.layoutVat);
+		mTxtExcVat = (EditText) findViewById(R.id.txtExcVat);
 		mLvDiscount = (ListView) findViewById(R.id.listView1);
 		mTxtSubTotal = (EditText) findViewById(R.id.txtSubTotal);
 		mTxtTotalDiscount = (EditText) findViewById(R.id.txtTotalDiscount);
@@ -73,6 +82,8 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		clearFocus(getCurrentFocus());
+		
 		switch(item.getItemId()){
 		case R.id.itemCancel:
 			onCancelClick(item.getActionView());
@@ -93,15 +104,38 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		return true;
 	}
 	
-	private float calculateDiscount(int orderDetailId, int vatType, float totalPrice, float discount) {
-		mIsEdited = true;
-
-		float totalPriceAfterDiscount = totalPrice - discount;
-		mTrans.discountEatchProduct(orderDetailId, mTransactionId,
-				mComputerId, vatType, totalPrice, discount);
-
-		summary();
-		return totalPriceAfterDiscount;
+	private boolean updateDiscount(int position, int orderDetailId, int vatType, 
+			float totalPrice, float discount, int disType, TextView tvSalePrice) {
+		
+		if(discount >= 0){
+			if(disType == 1){
+				if(totalPrice < discount)
+					return false;
+			}else if(disType==2){
+				if(discount > 100){
+					return false;
+				}
+				discount = totalPrice * discount / 100;
+			}
+				
+			float totalPriceAfterDiscount = totalPrice - discount;
+			mTrans.discountEatchProduct(orderDetailId, mTransactionId,
+					mComputerId, vatType, totalPriceAfterDiscount, discount, disType);
+	
+			OrderTransaction.OrderDetail order = 
+					mOrderLst.get(position);
+			order.setPriceDiscount(discount);
+			order.setTotalSalePrice(totalPriceAfterDiscount);
+			mOrderLst.set(position, order);
+			
+			tvSalePrice.setText(mFormat.currencyFormat(totalPriceAfterDiscount));
+			summary();
+			mIsEdited = true;
+			
+			return true;
+		}
+		
+		return false;
 	}
 
 	private class DiscountAdapter extends BaseAdapter{
@@ -134,7 +168,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			final OrderTransaction.OrderDetail order =
 					mOrderLst.get(position);
 			
@@ -145,7 +179,8 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 			TextView tvQty = (TextView) rowView.findViewById(R.id.tvQty);
 			TextView tvUnitPrice = (TextView) rowView.findViewById(R.id.tvPrice);
 			TextView tvTotalPrice = (TextView) rowView.findViewById(R.id.tvTotalPrice);
-			EditText txtDiscount = (EditText) rowView.findViewById(R.id.txtDisPrice);
+			final EditText txtDiscount = (EditText) rowView.findViewById(R.id.txtDisPrice);
+			RadioGroup rgDisType = (RadioGroup) rowView.findViewById(R.id.rdoDisType);
 			txtDiscount.setSelectAllOnFocus(true);
 			final TextView tvSalePrice = (TextView) rowView.findViewById(R.id.tvSalePrice);
 			
@@ -157,37 +192,90 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 			txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
 			tvSalePrice.setText(mFormat.currencyFormat(order.getTotalSalePrice()));
 
+			switch(order.getDiscountType()){
+			case 1:
+				rgDisType.check(R.id.rdoPrice);
+				break;
+				
+			case 2:
+				rgDisType.check(R.id.rdoPercent);
+				txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount() * 100 / order.getTotalRetailPrice()));
+				break;
+			}
+			
+			rgDisType.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+
+				@Override
+				public void onCheckedChanged(RadioGroup group, int checkedId) {
+					RadioButton rdoDisType;
+					
+					switch(checkedId){
+					case R.id.rdoPrice:
+						rdoDisType = (RadioButton) group.findViewById(checkedId);
+						if(rdoDisType.isChecked())
+							order.setDiscountType(1);
+						
+						break;
+					case R.id.rdoPercent:
+						rdoDisType = (RadioButton) group.findViewById(checkedId);
+						if(rdoDisType.isChecked())
+							order.setDiscountType(2);
+							
+						break;
+					}
+					
+					float discount = 0.0f;
+					try {
+						discount = Float.parseFloat(txtDiscount.getText().toString());
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+					}
+					
+					if (updateDiscount(position, order.getOrderDetailId(),
+							order.getVatType(), order.getTotalRetailPrice(),
+							discount, order.getDiscountType(),
+							tvSalePrice)) {
+
+					} else {
+						Toast toast = Toast
+								.makeText(mContext,
+										R.string.not_allow_discount,
+										Toast.LENGTH_SHORT);
+						toast.show();
+						txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
+					}
+				}
+				
+			});
+			
 			txtDiscount.setOnFocusChangeListener(new OnFocusChangeListener(){
 
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
-					EditText txtDisPrice = (EditText) v;
-					float discount = 0.0f;
-					
-					try {
-						discount = Float.parseFloat(txtDisPrice
-								.getText().toString());
-					} catch (NumberFormatException e) {
-						e.printStackTrace();
-					}
+					if (!hasFocus) {
+						EditText txtDisPrice = (EditText) v;
+						float discount = 0.0f;
 
-					if (discount >= 0
-							&& order.getTotalRetailPrice() >= discount) {
-						float salePrice = calculateDiscount(
-								order.getOrderDetailId(),
+						try {
+							discount = Float.parseFloat(txtDisPrice.getText()
+									.toString());
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+						}
+
+						if (updateDiscount(position, order.getOrderDetailId(),
 								order.getVatType(),
-								order.getTotalRetailPrice(),
-								discount);
-						
-						order.setPriceDiscount(discount);
-						order.setTotalSalePrice(salePrice);
-						tvSalePrice.setText(mFormat.currencyFormat(salePrice));
-					} else {
-						Toast toast = Toast.makeText(mContext, 
-								R.string.not_allow_discount, Toast.LENGTH_SHORT);
-						toast.show();
-						txtDisPrice.setText(mFormat.currencyFormat(order.getPriceDiscount()));
-					}	
+								order.getTotalRetailPrice(), discount,
+								order.getDiscountType(), tvSalePrice)) {
+
+						} else {
+							Toast toast = Toast.makeText(mContext,
+									R.string.not_allow_discount,
+									Toast.LENGTH_SHORT);
+							toast.show();
+							txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
+						}
+					}
 				}
 			});
 
@@ -200,6 +288,20 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		}
 	}
 	
+	private void clearFocus(View v){
+		v.clearFocus();
+		hideKeyboard();
+	}
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		if(event.getAction() == MotionEvent.ACTION_DOWN){
+			View v = getCurrentFocus();
+			clearFocus(v);
+		}
+		return super.onTouchEvent(event);
+	}
+
 	private void init(){
 		mFormat = new Formatter(mContext);
 		mTrans = new MPOSTransaction(mContext);
@@ -210,17 +312,11 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				if(event.getAction() == KeyEvent.ACTION_DOWN){
-					EditText txtDisCount = (EditText) v.findViewById(R.id.txtDisPrice);
-					if(txtDisCount != null){
-						txtDisCount.clearFocus();
-					}
-				}
+				clearFocus(v);
 				return false;
 			}
 			
 		});
-		
 		loadOrder();
 	}
 
@@ -240,6 +336,12 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		float totalSalePrice = orderDetail.getTotalSalePrice() + vat;
 		float totalDiscount = orderDetail.getPriceDiscount() + orderDetail.getMemberDiscount();
 
+		if(vat > 0)
+			mLayoutVat.setVisibility(View.VISIBLE);
+		else
+			mLayoutVat.setVisibility(View.GONE);
+		
+		mTxtExcVat.setText(mFormat.currencyFormat(vat));
 		mTxtSubTotal.setText(mFormat.currencyFormat(subTotal));
 		mTxtTotalDiscount.setText(mFormat.currencyFormat(totalDiscount));
 		mTxtTotalPrice.setText(mFormat.currencyFormat(totalSalePrice));
@@ -286,7 +388,12 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 			finish();
 		}
 	}
-
+	
+	private void hideKeyboard(){
+		getWindow().setSoftInputMode(
+			      WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+	}
+	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {

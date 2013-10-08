@@ -399,11 +399,11 @@ public class MPOSSql {
 			" void_reason  TEXT, " +
 			" void_time  TEXT, " +
 			" member_id  INTEGER, " +
-			" transaction_vat  REAL, " +
-			" transaction_exclude_vat  REAL, " +
-			" transaction_vatable  REAL, " +
-			" service_charge  REAL, " +
-			" service_charge_vat  REAL, " +
+			" transaction_vat  REAL DEFAULT 0, " +
+			" transaction_exclude_vat  REAL DEFAULT 0, " +
+			" transaction_vatable  REAL DEFAULT 0, " +
+			" service_charge  REAL DEFAULT 0, " +
+			" service_charge_vat  REAL DEFAULT 0, " +
 			" remark  TEXT, " +
 			" transaction_note  TEXT, " +
 			" PRIMARY KEY (transaction_id ASC, computer_id ASC) " +
@@ -415,16 +415,17 @@ public class MPOSSql {
 			" transaction_id  INTEGER, " +
 			" computer_id  INTEGER, " +
 			" product_id  INTEGER, " +
-			" product_type_id  INTEGER, " +
+			" product_type_id  INTEGER DEFAULT 1, " +
 			" product_name  TEXT, " +
-			" qty  REAL, " +
-			" price_per_unit  REAL, " +
-			" total_retail_price  REAL, " +
-			" total_sale_price  REAL, " +
-			" vat_type  INTEGER, " +
-			" vat  REAL, " +
-			" member_discount  REAL, " +
-			" price_discount  REAL, " +
+			" qty  REAL DEFAULT 0, " +
+			" price_per_unit  REAL DEFAULT 0, " +
+			" total_retail_price  REAL DEFAULT 0, " +
+			" total_sale_price  REAL DEFAULT 0, " +
+			" vat_type  INTEGER DEFAULT 1, " +
+			" vat  REAL DEFAULT 0, " +
+			" member_discount  REAL DEFAULT 0, " +
+			" price_discount  REAL DEFAULT 0, " +
+			" discount_type INTEGER DEFAULT 1, " +
 			" PRIMARY KEY (order_detail_id ASC, transaction_id ASC, computer_id ASC) " +
 			" );";
 	
@@ -434,16 +435,17 @@ public class MPOSSql {
 			" transaction_id  INTEGER, " +
 			" computer_id  INTEGER, " +
 			" product_id  INTEGER, " +
-			" product_type_id  INTEGER, " +
+			" product_type_id  INTEGER DEFAULT 1, " +
 			" product_name  TEXT, " +
-			" qty  REAL, " +
-			" price_per_unit  REAL, " +
-			" total_retail_price  REAL, " +
-			" total_sale_price  REAL, " +
-			" vat_type  INTEGER, " +
-			" vat  REAL, " +
-			" member_discount  REAL, " +
-			" price_discount  REAL, " +
+			" qty  REAL DEFAULT 0, " +
+			" price_per_unit  REAL DEFAULT 0, " +
+			" total_retail_price  REAL DEFAULT 0, " +
+			" total_sale_price  REAL DEFAULT 0, " +
+			" vat_type  INTEGER DEFAULT 1, " +
+			" vat  REAL DEFAULT 0, " +
+			" member_discount  REAL DEFAULT 0, " +
+			" price_discount  REAL DEFAULT 0, " +
+			" discount_type INTEGER DEFAULT 1, " +
 			" PRIMARY KEY (order_detail_id ASC, transaction_id ASC, computer_id ASC) " +
 			" );";
 	
@@ -511,10 +513,12 @@ public class MPOSSql {
 			" ref_shop_id  INTEGER, " +
 			" document_type_id  INTEGER, " +
 			" document_no  TEXT, " +
-			" document_date, " +
+			" document_date TEXT, " +
+			" document_year INTEGER, " +
+			" document_month INTEGER, " +
 			" update_by  INTEGER, " +
 			" update_date  TEXT, " +
-			" document_status  INTEGER, " +
+			" document_status  INTEGER DEFAULT 1, " +
 			" remark  TEXT, " +
 			" is_send_to_hq  INTEGER, " +
 			" send_to_hq_datetime  TEXT," +
@@ -528,12 +532,12 @@ public class MPOSSql {
 			" shop_id  INTEGER, " +
 			" material_id  INTEGER, " +
 			" unit_name  TEXT, " +
-			" material_qty  REAL, " +
-			" material_balance  REAL, " +
-			" material_price_per_unit  REAL, " +
-			" material_net_price  REAL, " +
-			" material_tax_type  INTEGER, " +
-			" material_tax_price  REAL, " +
+			" material_qty  REAL DEFAULT 0, " +
+			" material_balance  REAL DEFAULT 0, " +
+			" material_price_per_unit  REAL DEFAULT 0, " +
+			" material_net_price  REAL DEFAULT 0, " +
+			" material_tax_type  INTEGER DEFAULT 1, " +
+			" material_tax_price  REAL DEFAULT 0, " +
 			" PRIMARY KEY (docdetail_id ASC, document_id ASC, shop_id ASC) " +
 			" );";
 	

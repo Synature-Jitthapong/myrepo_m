@@ -343,8 +343,10 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 			displayTotalPaid();
 			break;
 		case R.id.btnPayEnter:
-			addPayment();
-			mStrTotalPay = new StringBuilder();
+			if(!mStrTotalPay.toString().isEmpty()){
+				addPayment();
+				mStrTotalPay = new StringBuilder();
+			}
 			break;
 		}
 	}
