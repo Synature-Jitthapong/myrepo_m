@@ -12,11 +12,12 @@
     tools:context=".PaymentActivity" >
 
     <LinearLayout
-        android:layout_width="350dp"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="4dp"
+        android:layout_weight="0.6"
         android:orientation="vertical" >
 
         <TableRow

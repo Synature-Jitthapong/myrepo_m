@@ -153,20 +153,26 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 
 				if(mOrderSelLst.size() > 0){
-					if (mOrderSelLst.contains(order)) mOrderSelLst.remove(order);
-					else mOrderSelLst.add(order);
+					if (mOrderSelLst.contains(order)) 
+						mOrderSelLst.remove(order);
+					else 
+						mOrderSelLst.add(order);
 				}else{
 					mOrderSelLst.add(order);
 				}
 				
 				if(mOrderSelLst.size() > 1){
-					if(mLayoutOrderCtrl.getVisibility() == View.GONE) 
-						mLayoutOrderCtrl.setVisibility(View.VISIBLE);
 					mBtnOrderMod.setEnabled(false);
-				}else if(mOrderSelLst.size() == 0){
-					mLayoutOrderCtrl.setVisibility(View.GONE);
 				}else{
 					mBtnOrderMod.setEnabled(true);
+				}
+				
+				if(mOrderSelLst.size() > 0){
+					if(mLayoutOrderCtrl.getVisibility() == View.GONE) 
+						mLayoutOrderCtrl.setVisibility(View.VISIBLE);
+				}
+				else if(mOrderSelLst.size() == 0){
+					mLayoutOrderCtrl.setVisibility(View.GONE);
 				}
 			}
 			
