@@ -6,10 +6,8 @@ import java.util.List;
 import com.syn.mpos.database.Reporting;
 import com.syn.pos.Report;
 import android.os.Bundle;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.Intent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,7 +22,6 @@ import android.widget.TextView;
 
 public class SaleReportActivity extends Activity implements OnDateConditionListener {
 	//private static final String TAG = "SaleReportActivity"; 
-	private Context context;
 	private int mode = 1;
 	private Calendar calendar;
 	private Formatter format;
@@ -59,8 +56,7 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 			trProductReportHeader.setVisibility(View.VISIBLE);
 		}
 		
-		context = SaleReportActivity.this;
-		format = new Formatter(context);
+		format = new Formatter(SaleReportActivity.this);
 		Calendar c = Calendar.getInstance();
 		calendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -81,11 +77,11 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 	}
 
 	private void createReportByBill(){
-		report = new Reporting(context, dateFrom, dateTo);
+		report = new Reporting(SaleReportActivity.this, dateFrom, dateTo);
 		Report reportData = report.getSaleReportByBill();
 
 		tbReport.removeAllViews();
-		LayoutInflater inflater = LayoutInflater.from(context);
+		LayoutInflater inflater = LayoutInflater.from(SaleReportActivity.this);
 		
 		float totalPrice = 0.0f;
 		float totalDisc = 0.0f;
@@ -162,11 +158,11 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 	}
 	
 	private void createReportByProduct(){
-		report = new Reporting(context, dateFrom, dateTo);
+		report = new Reporting(SaleReportActivity.this, dateFrom, dateTo);
 		List<Report> reportLst = report.getSaleReportByProduct();
 		
 		tbReport.removeAllViews();
-		LayoutInflater inflater = LayoutInflater.from(context);
+		LayoutInflater inflater = LayoutInflater.from(SaleReportActivity.this);
 
 		float totalQty = 0.0f;
 		float totalSub = 0.0f;

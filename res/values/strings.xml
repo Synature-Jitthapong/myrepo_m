@@ -50,8 +50,11 @@
     <string name="enter_enough_money">Please enter enough money.</string>
     <string name="close">Close</string>
     <string name="payment">Payment</string>
-    <string name="receive_stock">Direct Receive</string>
+    <string name="receive_stock">Receive Stock</string>
+    <string name="direct_receive_stock">Direct Receive</string>
+    <string name="stock_counting">Stock counting</string>
     <string name="count_stock">Count stock</string>
+    <string name="stock_movement">Stock Movement</string>
     <string name="stock_card">Stock card</string>
     <string name="sale_report">Sale report</string>
     <string name="sale_report_by_bill">Sale report by bill</string>
@@ -177,6 +180,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="confirm_stock_receive">Are you sure you want to confirm?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="confirm_delete">Are you sure you want to delete selected</string>
     <string name="confirm_delete_item">Are you sure you want to delete this item?</string>
     <string name="hold_order">Please hold current order.</string>
     <string name="enter_price">Please enter product price.</string>
@@ -187,5 +191,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="device_not_register">Device not register</string>
     <string name="not_allow_discount">Not allow discount more than total price!</string>
     <string name="total">Total</string>
+    <string name="confirm_cancel_stock_count">Are you sure you want to cancel stock count?</string>
+    <string name="title_activity_manage_product">ManageProductActivity</string>
 
 </resources>

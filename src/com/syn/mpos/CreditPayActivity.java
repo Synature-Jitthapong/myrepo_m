@@ -14,7 +14,6 @@ import com.syn.pos.OrderTransaction;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,7 +27,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 public class CreditPayActivity extends Activity implements OnConfirmClickListener{
-	private Context mContext; 
 	private int mTransactionId;
 	private int mComputerId;
 	private int mBankId;
@@ -53,7 +51,6 @@ public class CreditPayActivity extends Activity implements OnConfirmClickListene
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_credit_pay);
-		mContext = CreditPayActivity.this;
 	
 		mTxtTotalPrice = (EditText) findViewById(R.id.editTextCreditTotalPrice);
 		mTxtTotalPay = (EditText) findViewById(R.id.editTextCreditPayAmount);
@@ -77,9 +74,9 @@ public class CreditPayActivity extends Activity implements OnConfirmClickListene
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 		
-		mFormat = new Formatter(mContext);
-		mTrans = new MPOSTransaction(mContext);
-		mPayment = new MPOSPayment(mContext);
+		mFormat = new Formatter(CreditPayActivity.this);
+		mTrans = new MPOSTransaction(CreditPayActivity.this);
+		mPayment = new MPOSPayment(CreditPayActivity.this);
 		
 		loadTotalPrice();
 		loadCreditCardType();
@@ -131,19 +128,19 @@ public class CreditPayActivity extends Activity implements OnConfirmClickListene
 			}
 		}else{
 			if(cardNo.isEmpty()){
-				Util.alert(mContext, android.R.drawable.ic_dialog_alert, R.string.payment, R.string.promp_card_no);
+				Util.alert(CreditPayActivity.this, android.R.drawable.ic_dialog_alert, R.string.payment, R.string.promp_card_no);
 			}else if(mTotalPay == 0){
-				Util.alert(mContext, android.R.drawable.ic_dialog_alert, R.string.payment, R.string.enter_enough_money);
+				Util.alert(CreditPayActivity.this, android.R.drawable.ic_dialog_alert, R.string.payment, R.string.enter_enough_money);
 			}
 		}
 	}
 	
 	private void loadCreditCardType(){
-		CreditCard credit = new CreditCard(mContext);
+		CreditCard credit = new CreditCard(CreditPayActivity.this);
 		mCreditCardLst = credit.listAllCreditCardType();
 		
 		ArrayAdapter<CreditCardType> adapter = 
-				new ArrayAdapter<CreditCardType>(mContext, 
+				new ArrayAdapter<CreditCardType>(CreditPayActivity.this, 
 						android.R.layout.simple_dropdown_item_1line, mCreditCardLst);
 		mSpinnerCardType.setAdapter(adapter);
 		mSpinnerCardType.setOnItemSelectedListener(new OnItemSelectedListener(){
@@ -165,11 +162,11 @@ public class CreditPayActivity extends Activity implements OnConfirmClickListene
 	}
 	
 	private void loadBankName(){
-		Bank bank = new Bank(mContext);
+		Bank bank = new Bank(CreditPayActivity.this);
 		mBankLst = bank.listAllBank();
 		
 		ArrayAdapter<BankName> adapter = 
-				new ArrayAdapter<BankName>(mContext, 
+				new ArrayAdapter<BankName>(CreditPayActivity.this, 
 						android.R.layout.simple_dropdown_item_1line, mBankLst);
 		mSpinnerBank.setAdapter(adapter);
 		mSpinnerBank.setOnItemSelectedListener(new OnItemSelectedListener(){

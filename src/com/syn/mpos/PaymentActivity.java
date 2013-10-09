@@ -16,10 +16,8 @@ import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
 import com.syn.pos.ShopData.ShopProperty;
 import android.os.Bundle;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -29,13 +27,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TableLayout;
 import android.widget.TextView;
 
 public class PaymentActivity extends Activity  implements OnConfirmClickListener,
@@ -44,7 +39,6 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 
-	private Context mContext;
 	private MPOSTransaction mTrans;
 	private MPOSPayment mPayment;
 	private MPOSSaleStock mSaleStock;
@@ -121,11 +115,10 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	}
 
 	private void init(){
-		mContext = PaymentActivity.this;
-		mFormat = new Formatter(mContext);
-		mTrans = new MPOSTransaction(mContext);
-		mPayment = new MPOSPayment(mContext);
-		mSaleStock = new MPOSSaleStock(mContext);
+		mFormat = new Formatter(PaymentActivity.this);
+		mTrans = new MPOSTransaction(PaymentActivity.this);
+		mPayment = new MPOSPayment(PaymentActivity.this);
+		mSaleStock = new MPOSSaleStock(PaymentActivity.this);
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<Payment.PaymentDetail>();
 		mLvPayment.setAdapter(mPaymentAdapter);
@@ -149,7 +142,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		private LayoutInflater inflater;
 		
 		public PaymentAdapter(){
-			inflater = LayoutInflater.from(mContext);
+			inflater = LayoutInflater.from(PaymentActivity.this);
 		}
 
 		@Override
@@ -362,13 +355,13 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	private void print(OrderTransaction trans, 
 			OrderTransaction.OrderDetail summary, 
 			List<OrderTransaction.OrderDetail> orderLst){
-		mPrinter = new Print(mContext);
+		mPrinter = new Print(PaymentActivity.this);
 		mPrinter.setStatusChangeEventCallback(this);
 		mPrinter.setBatteryStatusChangeEventCallback(this);
 		
 		try {
 			mPrinter.openPrinter(Print.DEVTYPE_TCP, "1.1.0.163", 0, 1000);	
-			Builder builder = new Builder("TM-T88V", Builder.MODEL_ANK, mContext);
+			Builder builder = new Builder("TM-T88V", Builder.MODEL_ANK, PaymentActivity.this);
 			builder.addTextLang(Builder.LANG_TH);
 			builder.addTextFont(Builder.FONT_B);
 			builder.addTextAlign(Builder.ALIGN_LEFT);
@@ -376,7 +369,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 			builder.addTextSize(1, 1);
 			builder.addTextStyle(Builder.FALSE, Builder.FALSE, Builder.FALSE, Builder.COLOR_1);
 
-	    	Shop s = new Shop(mContext);
+	    	Shop s = new Shop(PaymentActivity.this);
 	    	ShopProperty shopProp = s.getShopProperty();
 
 			builder.addTextPosition(100);
@@ -491,7 +484,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 				mSaleStock.createSaleDocument(mShopId, mStaffId, orderLst);
 				
 				if(mTotalPaid - mTotalSalePrice > 0){
-					new AlertDialog.Builder(mContext)
+					new AlertDialog.Builder(PaymentActivity.this)
 					.setTitle(R.string.change)
 					.setCancelable(false)
 					.setMessage(mFormat.currencyFormat(mTotalPaid - mTotalSalePrice))
@@ -511,7 +504,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 				
 			}
 		}else{
-			new AlertDialog.Builder(mContext)
+			new AlertDialog.Builder(PaymentActivity.this)
 			.setIcon(android.R.drawable.ic_dialog_alert)
 			.setTitle(R.string.payment)
 			.setMessage(R.string.enter_enough_money)

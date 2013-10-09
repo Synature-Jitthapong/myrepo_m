@@ -1,10 +1,8 @@
 package com.syn.mpos;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.view.WindowManager;
 
 public class Util {
 	public static void alert(Context context, int icon, int title, String mesg){

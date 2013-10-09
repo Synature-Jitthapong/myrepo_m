@@ -81,14 +81,6 @@
             android:background="@drawable/green_button"
             android:text="@string/sync" />
 
-        <Button
-            android:id="@+id/button5"
-            style="@style/ButtonText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/gray_button"
-            android:text="Button" />
-
     </LinearLayout>
 
 </LinearLayout>

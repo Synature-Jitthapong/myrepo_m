@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.Menu;
@@ -21,7 +20,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class LoginActivity extends Activity {
-	private Context mContext;
 	private int mShopId;
 	private int mComputerId;
 	private int mSessionId;
@@ -39,7 +37,6 @@ public class LoginActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		mContext = LoginActivity.this;
 		deviceCode = Secure.getString(this.getContentResolver(),
 				Secure.ANDROID_ID);
 		
@@ -63,15 +60,15 @@ public class LoginActivity extends Activity {
 		mSetting.conn.setFullUrl("http://" + mSetting.conn.getIpAddress() + "/" + mSetting.conn.getServiceName() + "/ws_mpos.asmx");
 		mSetting.sync.setSyncWhenLogin(mSharedPref.getBoolean("pref_syncwhenlogin", false));
 		
-		mShop = new Shop(mContext);
+		mShop = new Shop(LoginActivity.this);
 		mShopId = mShop.getShopProperty().getShopID();
 		mComputerId = mShop.getComputerProperty().getComputerID();
 		
-		mSession = new MPOSSession(mContext);
+		mSession = new MPOSSession(LoginActivity.this);
 		
 		if(mSetting.conn.getIpAddress().equals("") || 
 				mSetting.conn.getServiceName().equals("")){
-			Intent intent = new Intent(mContext, SettingsActivity.class);
+			Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
 			startActivity(intent);
 		}
 	}
@@ -86,7 +83,7 @@ public class LoginActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case R.id.itemSetting:
-			Intent intent = new Intent(mContext, SettingsActivity.class);
+			Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
 			startActivity(intent);
 			return true;
 		default:
@@ -103,7 +100,7 @@ public class LoginActivity extends Activity {
 	
 	public void loginClicked(final View v){
 		if(mSetting.sync.isSyncWhenLogin()){
-			MPOSService.sync(mSetting.conn, mContext, deviceCode, new IServiceStateListener(){
+			MPOSService.sync(mSetting.conn, LoginActivity.this, deviceCode, new IServiceStateListener(){
 	
 				@Override
 				public void onProgress() {
@@ -130,7 +127,7 @@ public class LoginActivity extends Activity {
 	}
 	
 	private void gotoMainActivity(int staffId){
-		Intent intent = new Intent(mContext, MainActivity.class);
+		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 		intent.putExtra("staffId", staffId);
 		intent.putExtra("sessionId", mSessionId);
 		startActivity(intent);
@@ -145,7 +142,7 @@ public class LoginActivity extends Activity {
 			
 			if(!mTxtPass.getText().toString().isEmpty()){
 				pass = mTxtPass.getText().toString();
-				Login login = new Login(mContext, user, pass);
+				Login login = new Login(LoginActivity.this, user, pass);
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();
@@ -158,19 +155,19 @@ public class LoginActivity extends Activity {
 						
 						gotoMainActivity(s.getStaffID());
 					}else{
-						Util.alert(mContext, android.R.drawable.ic_dialog_alert, 
+						Util.alert(LoginActivity.this, android.R.drawable.ic_dialog_alert, 
 								R.string.login, R.string.incorrect_password);
 					}
 				}else{
-					Util.alert(mContext, android.R.drawable.ic_dialog_alert, 
+					Util.alert(LoginActivity.this, android.R.drawable.ic_dialog_alert, 
 							R.string.login, R.string.incorrect_user);
 				}
 			}else{
-				Util.alert(mContext, android.R.drawable.ic_dialog_alert, 
+				Util.alert(LoginActivity.this, android.R.drawable.ic_dialog_alert, 
 						R.string.login, R.string.enter_password);
 			}
 		}else{
-			Util.alert(mContext, android.R.drawable.ic_dialog_alert, 
+			Util.alert(LoginActivity.this, android.R.drawable.ic_dialog_alert, 
 					R.string.login, R.string.enter_username);
 		}
 	}

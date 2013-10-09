@@ -24,6 +24,7 @@ public class MPOSTransaction extends Util {
 	protected SQLiteHelper mDbHelper;
 
 	public MPOSTransaction(Context context) {
+		super(context);
 		mDbHelper = new MPOSSQLiteHelper(context);
 	}
 
@@ -222,7 +223,7 @@ public class MPOSTransaction extends Util {
 	public boolean updateTransactionVat(int transactionId, int computerId,
 			float totalSalePrice, float vatExclude) {
 		boolean isSuccess = false;
-		float vat = calculateVat(totalSalePrice, 7);
+		float vat = calculateVat(totalSalePrice);
 
 		String strSql = "UPDATE order_transaction SET " + " transaction_vat="
 				+ vat + ", " + " transaction_vatable=" + totalSalePrice + ", "
@@ -286,7 +287,7 @@ public class MPOSTransaction extends Util {
 			int disType) {
 		boolean isSuccess = false;
 
-		float vat = vatType == 2 ? calculateVat(salePrice, 7) : 0.0f;
+		float vat = vatType == 2 ? calculateVat(salePrice) : 0.0f;
 
 		String strSql = "UPDATE order_detail_tmp SET " + " price_discount="
 				+ discount + ", " + " total_sale_price=" + salePrice + ", "
@@ -335,7 +336,7 @@ public class MPOSTransaction extends Util {
 		boolean isSucc = false;
 
 		float totalRetailPrice = pricePerUnit * qty;
-		float vat = vatType == 2 ? calculateVat(totalRetailPrice, 7) : 0.0f;
+		float vat = vatType == 2 ? calculateVat(totalRetailPrice) : 0.0f;
 
 		String strSql = "UPDATE order_detail SET " + " qty=" + qty + ", "
 				+ " price_per_unit=" + pricePerUnit + ", "
@@ -357,7 +358,7 @@ public class MPOSTransaction extends Util {
 
 		int orderDetailId = getMaxOrderDetail(transactionId, computerId);
 		float totalRetailPrice = pricePerUnit * qty;
-		float vat = vatType == 2 ? calculateVat(totalRetailPrice, 7) : 0.0f;
+		float vat = vatType == 2 ? calculateVat(totalRetailPrice) : 0.0f;
 
 		ContentValues cv = new ContentValues();
 		cv.put("order_detail_id", orderDetailId);

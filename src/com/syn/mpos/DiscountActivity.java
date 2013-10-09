@@ -14,13 +14,9 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
-import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -28,19 +24,15 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
 public class DiscountActivity extends Activity implements OnConfirmClickListener{
 	//private static final String TAG = "DiscountActivity";
-	private Context mContext;
 	private int mTransactionId;
 	private int mComputerId;
 	private Formatter mFormat;
@@ -60,7 +52,6 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_discount);
-		mContext = DiscountActivity.this;
 
 		mLayoutVat = (LinearLayout) findViewById(R.id.layoutVat);
 		mTxtExcVat = (EditText) findViewById(R.id.txtExcVat);
@@ -143,7 +134,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		private LayoutInflater inflater;
 		
 		public DiscountAdapter (){
-			inflater = LayoutInflater.from(mContext);
+			inflater = LayoutInflater.from(DiscountActivity.this);
 		}
 		
 		@Override
@@ -238,7 +229,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 
 					} else {
 						Toast toast = Toast
-								.makeText(mContext,
+								.makeText(DiscountActivity.this,
 										R.string.not_allow_discount,
 										Toast.LENGTH_SHORT);
 						toast.show();
@@ -269,7 +260,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 								order.getDiscountType(), tvSalePrice)) {
 
 						} else {
-							Toast toast = Toast.makeText(mContext,
+							Toast toast = Toast.makeText(DiscountActivity.this,
 									R.string.not_allow_discount,
 									Toast.LENGTH_SHORT);
 							toast.show();
@@ -303,8 +294,8 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 	}
 
 	private void init(){
-		mFormat = new Formatter(mContext);
-		mTrans = new MPOSTransaction(mContext);
+		mFormat = new Formatter(DiscountActivity.this);
+		mTrans = new MPOSTransaction(DiscountActivity.this);
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
@@ -361,7 +352,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 	@Override
 	public void onCancelClick(View v) {
 		if (mIsEdited) {
-			new AlertDialog.Builder(mContext)
+			new AlertDialog.Builder(DiscountActivity.this)
 					.setTitle(R.string.information)
 					.setIcon(android.R.drawable.ic_dialog_info)
 					.setMessage(R.string.confirm_cancel)

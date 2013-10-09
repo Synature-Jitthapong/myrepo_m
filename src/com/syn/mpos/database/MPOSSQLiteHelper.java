@@ -14,23 +14,24 @@ import android.database.sqlite.SQLiteDatabase;
  *
  */
 public class MPOSSQLiteHelper implements SQLiteHelper{
-	private SQLiteDatabase db;
-	private MPOSSQLiteDatabase sqlite;
+	public static String mErrMsg;
+	private SQLiteDatabase mDb;
+	private MPOSSQLiteDatabase mSqlite;
 	private MPOSLog mposLog;
 	
 	public MPOSSQLiteHelper(Context c){
-		sqlite = new MPOSSQLiteDatabase(c);
+		mSqlite = new MPOSSQLiteDatabase(c);
 		mposLog = new MPOSLog(c);
 	}
 	
 	@Override
 	public void open() {
-		db = sqlite.getWritableDatabase();
+		mDb = mSqlite.getWritableDatabase();
 	}
 	
 	@Override
 	public void close() {
-		sqlite.close();
+		mSqlite.close();
 	}
 
 	@Override
@@ -38,19 +39,19 @@ public class MPOSSQLiteHelper implements SQLiteHelper{
 		boolean isSucc = false;
 		
 		try {
-			db.insertOrThrow(table, null, cv);
+			mDb.insertOrThrow(table, null, cv);
 			isSucc = true;
 		} catch (SQLException e) {
 			isSucc = false;
 			mposLog.appendLog(e.getMessage());
-			e.printStackTrace();
+			mErrMsg = e.getMessage();
 		}
 		return isSucc;
 	}
 
 	@Override
 	public Cursor rawQuery(String sqlQuery){
-		Cursor cursor = db.rawQuery(sqlQuery, null);
+		Cursor cursor = mDb.rawQuery(sqlQuery, null);
 		return cursor;
 	}
 
@@ -58,12 +59,12 @@ public class MPOSSQLiteHelper implements SQLiteHelper{
 	public boolean execSQL(String sqlExec){
 		boolean isSucc = false;
 		try {
-			db.execSQL(sqlExec);
+			mDb.execSQL(sqlExec);
 			isSucc = true;
 		} catch (SQLException e) {
 			isSucc = false;
 			mposLog.appendLog(sqlExec + " " + e.getMessage());
-			e.printStackTrace();
+			mErrMsg = e.getMessage();
 		}
 		return isSucc;
 	}

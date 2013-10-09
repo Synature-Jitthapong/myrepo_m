@@ -6,13 +6,11 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.syn.mpos.inventory.MPOSStockCard;
-import com.syn.mpos.inventory.MPOSStockCount;
 import com.syn.mpos.inventory.StockMaterial;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,8 +22,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class StockCardActivity extends Activity implements OnDateConditionListener{
-
-	private Context mContext;
 	private Formatter mFormat;
 	private MPOSStockCard mStockCard;
 	private List<StockMaterial> mStockLst;
@@ -42,7 +38,6 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_stock_card);
-		mContext = StockCardActivity.this;
 		
 		lvStock = (ListView) findViewById(R.id.listView1);
 		
@@ -50,8 +45,8 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 	}
 
 	private void init(){
-		mStockCard = new MPOSStockCard(mContext);
-		mFormat = new Formatter(mContext);
+		mStockCard = new MPOSStockCard(StockCardActivity.this);
+		mFormat = new Formatter(StockCardActivity.this);
 		mCalendarFrom = Calendar.getInstance();
 		mCalendarTo = Calendar.getInstance();
 		mCalendarFrom = new GregorianCalendar(mCalendarFrom.get(Calendar.YEAR), 
@@ -127,7 +122,7 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 		private LayoutInflater inflater;
 		
 		public StockCardAdapter(){
-			inflater = LayoutInflater.from(mContext);
+			inflater = LayoutInflater.from(StockCardActivity.this);
 		}
 		
 		@Override

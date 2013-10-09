@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -33,8 +32,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class VoidBillActivity extends Activity implements OnConfirmClickListener {
-	
-	private Context mContext;
 	private MPOSTransaction mTrans;
 	private MPOSSaleStock mSaleStock;
 	private List<OrderTransaction> mTransLst;
@@ -63,9 +60,8 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_void_bill);
-		mContext = VoidBillActivity.this;
 
-		mFormat = new Formatter(mContext);
+		mFormat = new Formatter(VoidBillActivity.this);
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -142,8 +138,8 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 	}
 	
 	private void init(){
-		mTrans = new MPOSTransaction(mContext);
-		mSaleStock = new MPOSSaleStock(mContext);
+		mTrans = new MPOSTransaction(VoidBillActivity.this);
+		mSaleStock = new MPOSSaleStock(VoidBillActivity.this);
 		mTransLst = new ArrayList<OrderTransaction>();
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -175,7 +171,7 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 		LayoutInflater inflater;
 		
 		public BillAdapter(){
-			inflater = LayoutInflater.from(mContext);
+			inflater = LayoutInflater.from(VoidBillActivity.this);
 		}
 		
 		@Override
@@ -248,7 +244,7 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 		LayoutInflater inflater;
 		
 		public BillDetailAdapter(){
-			inflater = LayoutInflater.from(mContext);
+			inflater = LayoutInflater.from(VoidBillActivity.this);
 		}
 		
 		@Override
@@ -321,10 +317,10 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 	
 	@Override
 	public void onConfirmClick(View v) {
-		final EditText txtVoidReason = new EditText(mContext);
+		final EditText txtVoidReason = new EditText(VoidBillActivity.this);
 		txtVoidReason.setHint(R.string.reason);
 		
-		new AlertDialog.Builder(mContext)
+		new AlertDialog.Builder(VoidBillActivity.this)
 		.setTitle(R.string.void_bill)
 		.setIcon(android.R.drawable.ic_dialog_alert)
 		.setView(txtVoidReason)
@@ -351,7 +347,7 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 				    	}
 					}
 				}else{
-					Util.alert(mContext, android.R.drawable.ic_dialog_alert, 
+					Util.alert(VoidBillActivity.this, android.R.drawable.ic_dialog_alert, 
 							R.string.void_bill, R.string.enter_reason);
 				}
 			}

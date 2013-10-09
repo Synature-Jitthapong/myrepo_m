@@ -24,6 +24,7 @@ public abstract class MPOSStockDocument extends Util {
 	protected SQLiteHelper mDbHelper;
 
 	public MPOSStockDocument(Context context) {
+		super(context);
 		mDbHelper = new MPOSSQLiteHelper(context);
 	}
 
@@ -202,7 +203,7 @@ public abstract class MPOSStockDocument extends Util {
 			int taxType, String unitName) {
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
 		float totalPrice = materialPrice * materialQty;
-		float tax = taxType == 2 ? calculateVat(totalPrice, 7) : 0;
+		float tax = taxType == 2 ? calculateVat(totalPrice) : 0;
 		float netPrice = totalPrice + tax;
 
 		ContentValues cv = new ContentValues();
@@ -247,7 +248,7 @@ public abstract class MPOSStockDocument extends Util {
 			int taxType, String unitName) {
 		boolean isSuccess = false;
 		float totalPrice = materialPrice * materialQty;
-		float tax = taxType == 2 ? calculateVat(totalPrice, 7) : 0;
+		float tax = taxType == 2 ? calculateVat(totalPrice) : 0;
 		float netPrice = totalPrice + tax;
 
 		String strSql = "UPDATE docdetail " + " SET material_qty="

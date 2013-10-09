@@ -3,12 +3,23 @@ package com.syn.mpos.database;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import com.syn.pos.ShopData.ShopProperty;
+
+import android.content.Context;
+
 /**
  * 
  * @author j1tth4
  *
  */
 public abstract class Util {
+	public static float mVatRate = 7f;
+	
+	public Util(Context c){
+		Shop s = new Shop(c);
+		ShopProperty sp = s.getShopProperty();
+		mVatRate = sp.getCompanyVat();
+	}
 	
 	protected Calendar getDate(){
 		Calendar calendar = Calendar.getInstance();
@@ -24,12 +35,12 @@ public abstract class Util {
 				calendar.get(Calendar.SECOND));
 	}
 	
-	protected float calculateVat(float totalPrice, float vatRate){
-		float vatAmount = totalPrice * toVatPercent(vatRate);
+	protected float calculateVat(float totalPrice){
+		float vatAmount = totalPrice * toVatPercent();
 		return vatAmount;
 	}
 	
-	protected float toVatPercent(float vat){
-		return vat / 100;
+	protected float toVatPercent(){
+		return mVatRate / 100;
 	}
 }

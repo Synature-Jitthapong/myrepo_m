@@ -15,6 +15,7 @@ public class Member extends Util {
 	private SQLiteHelper mDbHelper;
 	
 	public Member(Context context){
+		super(context);
 		mDbHelper = new MPOSSQLiteHelper(context);
 	}
 	

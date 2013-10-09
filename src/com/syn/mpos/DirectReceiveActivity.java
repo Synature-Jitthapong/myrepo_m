@@ -14,13 +14,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,16 +26,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
-import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -66,7 +59,6 @@ public class DirectReceiveActivity extends Activity implements
 	private int mDocumentId;
 	private int mShopId;
 	private int mStaffId;
-	private Context mContext;
 
 	private MenuItem mItemSearch;
 	private SearchView mSearchView;
@@ -79,7 +71,6 @@ public class DirectReceiveActivity extends Activity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_direct_receive);
-		mContext = DirectReceiveActivity.this;
 
 		Intent intent = getIntent();
 		mShopId = intent.getIntExtra("shopId", 0);
@@ -155,11 +146,11 @@ public class DirectReceiveActivity extends Activity implements
 	}
 
 	private void setupPopSearch() {
-		menuItem = new com.syn.mpos.database.MenuItem(mContext);
+		menuItem = new com.syn.mpos.database.MenuItem(DirectReceiveActivity.this);
 		menuLst = new ArrayList<MenuGroups.MenuItem>();
 		mResultAdapter = new ResultAdapter();
 
-		LayoutInflater inflater = LayoutInflater.from(mContext);
+		LayoutInflater inflater = LayoutInflater.from(DirectReceiveActivity.this);
 		mPopSearch = inflater.inflate(R.layout.popup_list, null);
 		mListViewResult = (ListView) mPopSearch.findViewById(R.id.listView1);
 		mListViewResult.setAdapter(mResultAdapter);
@@ -180,7 +171,7 @@ public class DirectReceiveActivity extends Activity implements
 
 		});
 
-		mPopup = new PopupWindow(mContext);
+		mPopup = new PopupWindow(DirectReceiveActivity.this);
 		mPopup.setContentView(mPopSearch);
 		mPopup.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
 		mPopup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
@@ -215,8 +206,8 @@ public class DirectReceiveActivity extends Activity implements
 				+ mSharedPref.getString("pref_webservice", "")
 				+ "/Resources/Shop/MenuImage/");
 
-		mFormat = new Formatter(mContext);
-		mReceiveStock = new MPOSReceiveStock(mContext);
+		mFormat = new Formatter(DirectReceiveActivity.this);
+		mReceiveStock = new MPOSReceiveStock(DirectReceiveActivity.this);
 		mStockLst = new ArrayList<StockMaterial>();
 		mStockAdapter = new ReceiveStockAdapter();
 		mListViewStock.setAdapter(mStockAdapter);
@@ -266,9 +257,9 @@ public class DirectReceiveActivity extends Activity implements
 		private ImageLoader imgLoader;
 
 		public ResultAdapter() {
-			inflater = LayoutInflater.from(mContext);
+			inflater = LayoutInflater.from(DirectReceiveActivity.this);
 
-			imgLoader = new ImageLoader(mContext, R.drawable.no_food,
+			imgLoader = new ImageLoader(DirectReceiveActivity.this, R.drawable.no_food,
 					"mpos_img");
 		}
 
@@ -336,7 +327,7 @@ public class DirectReceiveActivity extends Activity implements
 		private LayoutInflater inflater;
 
 		public ReceiveStockAdapter() {
-			inflater = LayoutInflater.from(mContext);
+			inflater = LayoutInflater.from(DirectReceiveActivity.this);
 		}
 
 		@Override
@@ -455,7 +446,7 @@ public class DirectReceiveActivity extends Activity implements
 
 				@Override
 				public void onClick(View v) {
-					new AlertDialog.Builder(mContext)
+					new AlertDialog.Builder(DirectReceiveActivity.this)
 					.setTitle(R.string.delete)
 					.setMessage(R.string.confirm_delete_item)
 					.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -504,10 +495,10 @@ public class DirectReceiveActivity extends Activity implements
 	@Override
 	public void onConfirmClick(View v) {
 		if(mStockLst.size() > 0){
-			final EditText txtRemark = new EditText(mContext);
+			final EditText txtRemark = new EditText(DirectReceiveActivity.this);
 			txtRemark.setHint(R.string.remark);
 	
-			new AlertDialog.Builder(mContext)
+			new AlertDialog.Builder(DirectReceiveActivity.this)
 					.setTitle(R.string.confirm)
 					.setMessage(R.string.confirm_stock_receive)
 					.setView(txtRemark)
@@ -531,7 +522,7 @@ public class DirectReceiveActivity extends Activity implements
 									if (mReceiveStock.approveDocument(mDocumentId,
 											mShopId, mStaffId, remark)) {
 										
-										new AlertDialog.Builder(mContext)
+										new AlertDialog.Builder(DirectReceiveActivity.this)
 										.setTitle(R.string.confirm)
 										.setMessage(R.string.confirm_success)
 										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -549,10 +540,10 @@ public class DirectReceiveActivity extends Activity implements
 
 	@Override
 	public void onCancelClick(View v) {
-		final EditText txtRemark = new EditText(mContext);
+		final EditText txtRemark = new EditText(DirectReceiveActivity.this);
 		txtRemark.setHint(R.string.remark);
 
-		new AlertDialog.Builder(mContext)
+		new AlertDialog.Builder(DirectReceiveActivity.this)
 				.setTitle(android.R.string.cancel)
 				.setMessage(R.string.confirm_cancel)
 				.setView(txtRemark)
@@ -576,7 +567,7 @@ public class DirectReceiveActivity extends Activity implements
 								if (mReceiveStock.cancelDocument(mDocumentId,
 										mShopId, mStaffId, remark)) {
 									
-									new AlertDialog.Builder(mContext)
+									new AlertDialog.Builder(DirectReceiveActivity.this)
 									.setIcon(android.R.drawable.ic_dialog_alert)
 									.setTitle(android.R.string.cancel)
 									.setMessage(R.string.cancel_success)

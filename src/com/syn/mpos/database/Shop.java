@@ -55,7 +55,7 @@ public class Shop {
 			sp.setFastFoodType(cursor.getInt(cursor.getColumnIndex("fast_food_type")));
 			sp.setTableType(cursor.getInt(cursor.getColumnIndex("table_type")));
 			sp.setVatType(cursor.getInt(cursor.getColumnIndex("vat_type")));
-			sp.setServiceCharge(cursor.getDouble(cursor.getColumnIndex("service_charge")));
+			sp.setServiceCharge(cursor.getFloat(cursor.getColumnIndex("service_charge")));
 			sp.setServiceChargeType(cursor.getInt(cursor.getColumnIndex("service_charge_type")));
 			sp.setOpenHour(cursor.getString(cursor.getColumnIndex("open_hour")));
 			sp.setCompanyName(cursor.getString(cursor.getColumnIndex("company_name")));
@@ -68,7 +68,7 @@ public class Shop {
 			sp.setCompanyFax(cursor.getString(cursor.getColumnIndex("company_fax")));
 			sp.setCompanyTaxID(cursor.getString(cursor.getColumnIndex("company_tax_id")));
 			sp.setCompanyRegisterID(cursor.getString(cursor.getColumnIndex("company_register_id")));
-			sp.setCompanyVat(cursor.getDouble(cursor.getColumnIndex("company_vat")));
+			sp.setCompanyVat(cursor.getFloat(cursor.getColumnIndex("company_vat")));
 			cursor.moveToNext();
 		}
 		cursor.close();
@@ -138,6 +138,23 @@ public class Shop {
 		dbHelper.close();
 		
 		return isSucc;
+	}
+	
+	public ShopData.Staff getStaff(int staffId){
+		ShopData.Staff s = null;
+		String strSql = "SELECT * FROM staffs " +
+				" WHERE staff_id=" + staffId;
+		
+		dbHelper.open();
+		Cursor cursor = dbHelper.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			s = new ShopData.Staff();
+			s.setStaffCode(cursor.getString(cursor.getColumnIndex("staff_code")));
+			s.setStaffName(cursor.getString(cursor.getColumnIndex("staff_name")));
+		}
+		cursor.close();
+		dbHelper.close();
+		return s;
 	}
 	
 	public boolean addStaff(List<ShopData.Staff> staffLst){

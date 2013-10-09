@@ -12,10 +12,8 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +21,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnFocusChangeListener;
-import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -32,8 +29,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class StockCountActivity extends Activity {
-
-	private Context mContext;
 	private Formatter mFormat;
 	private MPOSStockCount mStockCount;
 	private int mStcDocId;
@@ -49,7 +44,6 @@ public class StockCountActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_stock_count);
-		mContext = StockCountActivity.this;
 
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
@@ -66,8 +60,8 @@ public class StockCountActivity extends Activity {
 		mCalendar = Calendar.getInstance();
 		Calendar dateFrom = new GregorianCalendar(mCalendar.get(Calendar.YEAR),
 				mCalendar.get(Calendar.MONTH), 1);
-		mFormat = new Formatter(mContext);
-		mStockCount = new MPOSStockCount(mContext, dateFrom.getTimeInMillis(),
+		mFormat = new Formatter(StockCountActivity.this);
+		mStockCount = new MPOSStockCount(StockCountActivity.this, dateFrom.getTimeInMillis(),
 				mCalendar.getTimeInMillis());
 		mStockLst = new ArrayList<StockMaterial>();
 		mStockAdapter = new StockAdapter();
@@ -126,8 +120,8 @@ public class StockCountActivity extends Activity {
 
 		switch (item.getItemId()) {
 		case R.id.itemConfirm:
-			txtRemark = new EditText(mContext);
-			new AlertDialog.Builder(mContext)
+			txtRemark = new EditText(StockCountActivity.this);
+			new AlertDialog.Builder(StockCountActivity.this)
 					.setView(txtRemark)
 					.setTitle(R.string.confirm)
 					.setMessage(R.string.confirm_stock_count)
@@ -150,7 +144,7 @@ public class StockCountActivity extends Activity {
 											mShopId, mStaffId, txtRemark
 													.getText().toString());
 
-									new AlertDialog.Builder(mContext)
+									new AlertDialog.Builder(StockCountActivity.this)
 											.setIcon(
 													android.R.drawable.ic_dialog_info)
 											.setTitle(R.string.confirm)
@@ -175,9 +169,9 @@ public class StockCountActivity extends Activity {
 			finish();
 			return true;
 		case R.id.itemCancel:
-			new AlertDialog.Builder(mContext)
-					.setTitle(R.string.confirm)
-					.setMessage(R.string.confirm_stock_count)
+			new AlertDialog.Builder(StockCountActivity.this)
+					.setTitle(android.R.string.cancel)
+					.setMessage(R.string.confirm_cancel_stock_count)
 					.setNegativeButton(android.R.string.cancel,
 							new DialogInterface.OnClickListener() {
 
@@ -212,7 +206,7 @@ public class StockCountActivity extends Activity {
 		private LayoutInflater inflater;
 
 		public StockAdapter() {
-			inflater = LayoutInflater.from(mContext);
+			inflater = LayoutInflater.from(StockCountActivity.this);
 		}
 
 		@Override
@@ -307,9 +301,9 @@ public class StockCountActivity extends Activity {
 		private ProgressDialog progress;
 
 		public SaveStockCountTask() {
-			progress = new ProgressDialog(mContext);
+			progress = new ProgressDialog(StockCountActivity.this);
 			progress.setCancelable(false);
-			TextView tvProgress = new TextView(mContext);
+			TextView tvProgress = new TextView(StockCountActivity.this);
 			tvProgress.setText(R.string.progress);
 			progress.setMessage(tvProgress.getText().toString());
 		}
@@ -323,7 +317,7 @@ public class StockCountActivity extends Activity {
 				mStockLst = mStockCount.listStock(mStcDocId, mShopId);
 				mStockAdapter.notifyDataSetChanged();
 			} else {
-				Util.alert(mContext, android.R.drawable.ic_dialog_alert,
+				Util.alert(StockCountActivity.this, android.R.drawable.ic_dialog_alert,
 						R.string.error, R.string.error_save_stock);
 			}
 			super.onPostExecute(isSuccess);

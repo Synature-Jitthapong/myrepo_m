@@ -1,7 +1,6 @@
 package com.syn.mpos;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.syn.mpos.database.Member;
@@ -24,16 +23,13 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 
 public class AddMemberActivity extends Activity implements OnConfirmClickListener{
-
-	private Context mContext;
+	
 	private Formatter mFormat; 
 	private Calendar mCalendar;
 	private Member mMember;
@@ -69,7 +65,6 @@ public class AddMemberActivity extends Activity implements OnConfirmClickListene
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_member);
-		mContext = AddMemberActivity.this;
 		
 		mBtnSearch = (Button) findViewById(R.id.btnSearch);
 		mBtnExpDate = (Button) findViewById(R.id.btnExp);
@@ -113,17 +108,17 @@ public class AddMemberActivity extends Activity implements OnConfirmClickListene
 		List<MemberGroup> mgLst = mMember.listMemberGroups(mShopId);
 		
 		ArrayAdapter<MemberGroup> adapter = new ArrayAdapter<MemberGroup>(
-				mContext, android.R.layout.simple_spinner_dropdown_item, mgLst);
+				AddMemberActivity.this, android.R.layout.simple_spinner_dropdown_item, mgLst);
 		
 		mSpMemGroup.setAdapter(adapter);
 	}
 	
 	private void setupProvince(){
-		Province province = new Province(mContext);
+		Province province = new Province(AddMemberActivity.this);
 		List<com.syn.pos.Province> pLst = province.listProvince(); 
 		
 		ArrayAdapter<com.syn.pos.Province> adapter = new ArrayAdapter<com.syn.pos.Province>(
-				mContext, android.R.layout.simple_spinner_dropdown_item, pLst);
+				AddMemberActivity.this, android.R.layout.simple_spinner_dropdown_item, pLst);
 		
 		mSpProvince.setAdapter(adapter);
 	}
@@ -240,8 +235,8 @@ public class AddMemberActivity extends Activity implements OnConfirmClickListene
 	}
 	
 	private void init(){
-		mMember = new Member(mContext);
-		mFormat = new Formatter(mContext);
+		mMember = new Member(AddMemberActivity.this);
+		mFormat = new Formatter(AddMemberActivity.this);
 		mCalendar = Calendar.getInstance();
 		mBtnExpDate.setText(mFormat.dateFormat(mCalendar.getTime()));
 		mBtnBirthDay.setText(mFormat.dateFormat(mCalendar.getTime()));

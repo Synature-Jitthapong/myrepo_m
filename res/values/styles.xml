@@ -1,8 +1,4 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-     <!--
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
-    -->
     <style name="SectionHead" parent="android:Widget.Holo.Light.TextView">
         <item name="android:drawableBottom">@drawable/section_head</item>
         <item name="android:drawablePadding">4dp</item>
@@ -11,17 +7,9 @@
         <item name="android:textColor">@android:color/holo_blue_light</item>
         <item name="android:textSize">18sp</item>
     </style>
-    
     <style name="ButtonTextWhite" parent="ButtonText">
 	    <item name="android:textColor" >#ffffff</item>
     </style>
-    
-    <!--
-	    <item name="android:shadowColor" >#000000</item>
-	    <item name="android:shadowDx" >0</item>
-	    <item name="android:shadowDy" >-1</item>
-	    <item name="android:shadowRadius" >1</item>
-	    <item name="android:shadowColor" >#f0f0f0</item> -->
     <style name="ButtonText">
         <item name="android:layout_width" >wrap_content</item>
 	    <item name="android:layout_height" >wrap_content</item>
@@ -31,34 +19,17 @@
 	    <item name="android:minHeight">48dp</item>
 	    <item name="android:minWidth">100dp</item>
     </style>
-    
     <style name="ColumnDetail" parent="android:style/Widget.TextView">
         <item name="android:padding">4dp</item>
         <item name="android:layout_marginRight">1dp</item>
         <item name="android:lines">1</item>
     </style>
-    
     <style name="ColumnHeader" parent="android:style/Widget.TextView">
         <item name="android:background">@color/light_gray</item>
         <item name="android:padding">4dp</item>
         <item name="android:gravity">center</item>
         <item name="android:layout_marginRight">1dp</item>
 		<item name="android:lines">1</item>
-    </style>
-    
-    <style name="CustomDialog" parent="android:Theme.Holo.Light.Dialog.NoActionBar">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:textColor">#FF000000</item>
-    </style>
-    <style name="AppBaseThemeNoAction" parent="AppBaseTheme">
-        <item name="android:windowActionBar">false</item>
-	    <item name="android:windowNoTitle">true</item>
-    </style>
-    
-    <style name="AppTheme.Menu.LowerCase" parent="android:TextAppearance.Holo.Widget.ActionBar.Menu">
-        <item name="android:textAllCaps">false</item>
-    	<item name="android:textSize">14sp</item>
-    	<item name="android:minWidth">100dp</item>
     </style>
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">

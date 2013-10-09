@@ -33,13 +33,13 @@
         <activity
             android:name="com.syn.mpos.MainActivity"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden|stateAlwaysHidden">
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden" >
         </activity>
         <activity
             android:name="com.syn.mpos.DiscountActivity"
             android:label="@string/discount"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.pos.mobile.mpos.MainActivity" />
@@ -47,12 +47,13 @@
         <activity
             android:name="com.syn.mpos.PaymentActivity"
             android:label="@string/title_activity_payment"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="com.syn.mpos.CreditPayActivity"
             android:label="@string/title_activity_credit_pay"
-            android:screenOrientation="landscape" android:windowSoftInputMode="stateHidden">
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
             android:name="com.syn.mpos.SaleReportActivity"
@@ -65,15 +66,19 @@
         </activity>
         <activity
             android:name="com.syn.mpos.DirectReceiveActivity"
-            android:label="@string/title_activity_inv_direct_receive" android:screenOrientation="landscape" android:windowSoftInputMode="stateHidden">
+            android:label="@string/title_activity_inv_direct_receive"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
             android:name="com.syn.mpos.StockCountActivity"
-            android:label="@string/title_activity_stock_count" android:windowSoftInputMode="stateHidden">
+            android:label="@string/title_activity_stock_count"
+            android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
             android:name="com.syn.mpos.VoidBillActivity"
-            android:label="@string/title_activity_void_bill" android:windowSoftInputMode="stateHidden">
+            android:label="@string/title_activity_void_bill"
+            android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
             android:name="com.syn.mpos.AddMemberActivity"
@@ -83,6 +88,10 @@
         <activity
             android:name="com.syn.mpos.StockCardActivity"
             android:label="@string/title_activity_stock_card" >
+        </activity>
+        <activity
+            android:name="com.syn.mpos.ManageProductActivity"
+            android:label="@string/title_activity_manage_product" >
         </activity>
     </application>
 
