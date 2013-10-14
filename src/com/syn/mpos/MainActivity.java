@@ -7,13 +7,13 @@ import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.MenuDept;
+import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.transaction.MPOSPayment;
 import com.syn.mpos.transaction.MPOSSession;
 import com.syn.mpos.transaction.MPOSTransaction;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.OrderTransaction;
-import com.syn.pos.Setting;
 import com.syn.pos.ShopData;
 import com.syn.pos.ShopData.ComputerProperty;
 import com.syn.pos.ShopData.ShopProperty;
@@ -68,7 +68,7 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 	private int mStaffId;
 	private int mSessionId;
 	private Setting mSetting;
-	private SharedPreferences mSharedPref;
+	private Setting.Connection mConn;
 	
 	private List<MenuGroups.MenuDept> mMenuDeptLst;
 	private List<MenuGroups.MenuItem> mMenuItemLst;
@@ -132,10 +132,14 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 	}
 	
 	public void init(){
-		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		mSetting = new Setting();
-		mSetting.setMenuImageUrl("http://" + mSharedPref.getString("pref_ipaddress", "") + "/" + 
-				mSharedPref.getString("pref_webservice", "") + "/Resources/Shop/MenuImage/");
+		mSetting = new Setting(this);
+		mConn = mSetting.getConnection();
+		
+		mConn.setFullUrl(mConn.getProtocal() + mConn.getAddress() + 
+				"/" + mConn.getBackoffice() + "/" + mConn.getService());
+		
+		mSetting.setMenuImageUrl(mConn.getProtocal() + mConn.getAddress() + "/" + 
+				mConn.getBackoffice() + "/Resources/Shop/MenuImage/");
 		
 		mShop = new Shop(MainActivity.this);
 		mFormat = new Formatter(MainActivity.this);
@@ -491,6 +495,7 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		Button btnCloseShift =  (Button) utilView.findViewById(R.id.btnCloseShift);
 		Button btnEndday =  (Button) utilView.findViewById(R.id.btnEndday);
 		Button btnSync = (Button) utilView.findViewById(R.id.btnSync);
+		Button btnManageProduct = (Button) utilView.findViewById(R.id.btnManageProduct);
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 		builder.setTitle(R.string.utility);
@@ -582,6 +587,16 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 			@Override
 			public void onClick(View v) {
 				d.dismiss();
+			}
+			
+		});
+		
+		btnManageProduct.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(MainActivity.this, ManageProductActivity.class);
+				startActivity(intent);
 			}
 			
 		});

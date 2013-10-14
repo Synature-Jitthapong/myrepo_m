@@ -11,52 +11,57 @@
         style="@style/SectionHead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/bill_utility"
+        android:text="@string/general"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="8dp" >
 
-        <Button
-            android:id="@+id/btnVoidBill"
-            style="@style/ButtonText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/gray_button"
-            android:text="@string/void_bill" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/btnVoidBill"
+                style="@style/ButtonText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/gray_button"
+                android:text="@string/void_bill" />
 
-    <TextView
-        android:id="@+id/textView2"
-        style="@style/SectionHead"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/session_utility"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+            <Button
+                android:id="@+id/btnCloseShift"
+                style="@style/ButtonText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/gray_button"
+                android:text="@string/close_shift" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp" >
+            <Button
+                android:id="@+id/btnEndday"
+                style="@style/ButtonText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/gray_button"
+                android:text="@string/endday" />
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/btnCloseShift"
-            style="@style/ButtonText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/gray_button"
-            android:text="@string/close_shift" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
-        <Button
-            android:id="@+id/btnEndday"
-            style="@style/ButtonText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/gray_button"
-            android:text="@string/endday" />
+            <Button
+                android:id="@+id/btnManageProduct"
+                style="@style/ButtonText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/gray_button"
+                android:text="@string/manage_product" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

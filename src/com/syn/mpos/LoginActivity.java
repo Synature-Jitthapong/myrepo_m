@@ -2,17 +2,14 @@ package com.syn.mpos;
 
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
+import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.transaction.MPOSSession;
-import com.syn.pos.Setting;
 import com.syn.pos.ShopData;
-
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,8 +22,8 @@ public class LoginActivity extends Activity {
 	private int mSessionId;
 	private Shop mShop;
 	private MPOSSession mSession;
-	private SharedPreferences mSharedPref;
 	private Setting mSetting;
+	private Setting.Connection mConn;
 	private String deviceCode;
 	
 	private EditText mTxtUser;
@@ -52,13 +49,11 @@ public class LoginActivity extends Activity {
 	}
 
 	private void init(){
-		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		mSetting = new Setting();
+		mSetting = new Setting(this);
+		mConn = mSetting.getConnection();
 		
-		mSetting.conn.setIpAddress(mSharedPref.getString("pref_ipaddress", ""));
-		mSetting.conn.setServiceName(mSharedPref.getString("pref_webservice", ""));
-		mSetting.conn.setFullUrl("http://" + mSetting.conn.getIpAddress() + "/" + mSetting.conn.getServiceName() + "/ws_mpos.asmx");
-		mSetting.sync.setSyncWhenLogin(mSharedPref.getBoolean("pref_syncwhenlogin", false));
+		mConn.setFullUrl(mConn.getProtocal() + mConn.getAddress() + 
+				"/" + mConn.getBackoffice() + "/" + mConn.getService());
 		
 		mShop = new Shop(LoginActivity.this);
 		mShopId = mShop.getShopProperty().getShopID();
@@ -66,9 +61,9 @@ public class LoginActivity extends Activity {
 		
 		mSession = new MPOSSession(LoginActivity.this);
 		
-		if(mSetting.conn.getIpAddress().equals("") || 
-				mSetting.conn.getServiceName().equals("")){
-			Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
+		if(mConn.getAddress().isEmpty() || 
+				mConn.getBackoffice().isEmpty()){
+			Intent intent = new Intent(LoginActivity.this, SettingActivity.class);
 			startActivity(intent);
 		}
 	}
@@ -83,7 +78,7 @@ public class LoginActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case R.id.itemSetting:
-			Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
+			Intent intent = new Intent(LoginActivity.this, SettingActivity.class);
 			startActivity(intent);
 			return true;
 		default:
@@ -99,31 +94,30 @@ public class LoginActivity extends Activity {
 	}
 	
 	public void loginClicked(final View v){
-		if(mSetting.sync.isSyncWhenLogin()){
-			MPOSService.sync(mSetting.conn, LoginActivity.this, deviceCode, new IServiceStateListener(){
-	
-				@Override
-				public void onProgress() {
-					// TODO Auto-generated method stub
-					
-				}
-	
-				@Override
-				public void onSuccess() {		
-					checkLogin();
-				}
-	
-				@Override
-				public void onFail(String msg) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-			});
-		}else{
+//		if(mSetting.sync.isSyncWhenLogin()){
+//			MPOSService.sync(mSetting.conn, LoginActivity.this, deviceCode, new IServiceStateListener(){
+//	
+//				@Override
+//				public void onProgress() {
+//					// TODO Auto-generated method stub
+//					
+//				}
+//	
+//				@Override
+//				public void onSuccess() {		
+//					checkLogin();
+//				}
+//	
+//				@Override
+//				public void onFail(String msg) {
+//					// TODO Auto-generated method stub
+//					
+//				}
+//				
+//			});
+//		}else{
 			checkLogin();
-		}
-		
+		//}
 	}
 	
 	private void gotoMainActivity(int staffId){

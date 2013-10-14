@@ -1,6 +1,26 @@
 package com.syn.mpos.database;
 
 public class MPOSSql {
+	public static final String TB_CONN_SETTING = 
+			" CREATE TABLE conn_setting (" +
+			" address TEXT, " +
+			" backoffice TEXT " +
+			"); ";
+
+	public static final String TB_SYNC_ITEM = 
+			" CREATE TABLE sync_item (" +
+			" sync_item_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			" sync_enable INTEGER DEFAULT 1, " +
+			" sync_item_name TEXT, " +
+			" sync_time TEXT, " +
+			" sync_already INTEGER DEFAULT 0 " +
+			");";
+	
+	public static final String TB_PRINTER_SETTING = 
+			" CREATE TABLE printer_setting (" +
+			" printer_ip TEXT " +
+			");";
+	
 	public static final String TB_SHOP = 
 			" CREATE TABLE shop_property ( " +
 			" shop_id  INTEGER, " +

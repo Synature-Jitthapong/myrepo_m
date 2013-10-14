@@ -61,10 +61,6 @@
             android:screenOrientation="landscape" >
         </activity>
         <activity
-            android:name="com.syn.mpos.SettingsActivity"
-            android:label="@string/title_activity_setting" >
-        </activity>
-        <activity
             android:name="com.syn.mpos.DirectReceiveActivity"
             android:label="@string/title_activity_inv_direct_receive"
             android:screenOrientation="landscape"
@@ -92,6 +88,14 @@
         <activity
             android:name="com.syn.mpos.ManageProductActivity"
             android:label="@string/title_activity_manage_product" >
+        </activity>
+        <activity
+            android:name="com.syn.mpos.PrinterDiscoverActivity"
+            android:label="@string/printer_discover" >
+        </activity>
+        <activity
+            android:name="com.syn.mpos.SettingActivity"
+            android:label="@string/title_activity_setting" >
         </activity>
     </application>
 

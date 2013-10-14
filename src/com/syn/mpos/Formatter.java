@@ -32,10 +32,10 @@ public class Formatter {
 			dateFormat.applyPattern(gb.getDateFormat());
 		if(!gb.getTimeFormat().equals(""))
 			timeFormat.applyPattern(gb.getTimeFormat());
-//		if(!gb.getQtyFormat().equals(""))
-//			qtyFormat.applyPattern(gb.getQtyFormat());
-//		if(!gb.getCurrencyFormat().equals(""))
-//			currencyFormat.applyPattern(gb.getCurrencyFormat());
+		if(!gb.getQtyFormat().equals(""))
+			qtyFormat.applyPattern(gb.getQtyFormat());
+		if(!gb.getCurrencyFormat().equals(""))
+			currencyFormat.applyPattern(gb.getCurrencyFormat());
 		if(!gb.getDateFormat().equals("") && !gb.getTimeFormat().equals(""))
 			dateTimeFormat.applyPattern(gb.getDateFormat() + " " + gb.getTimeFormat());
 	}

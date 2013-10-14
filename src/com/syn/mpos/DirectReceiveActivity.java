@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
+import com.syn.mpos.database.Setting;
 import com.syn.mpos.inventory.MPOSReceiveStock;
 import com.syn.mpos.inventory.MPOSStockDocument;
 import com.syn.mpos.inventory.StockMaterial;
 import com.syn.pos.MenuGroups;
-import com.syn.pos.Setting;
-
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
@@ -50,8 +49,8 @@ public class DirectReceiveActivity extends Activity implements
 	private MPOSReceiveStock mReceiveStock;
 	private Formatter mFormat;
 	private com.syn.mpos.database.MenuItem menuItem;
-	private SharedPreferences mSharedPref;
 	private Setting mSetting;
+	private Setting.Connection mConn;
 	private List<MenuGroups.MenuItem> menuLst;
 	private ResultAdapter mResultAdapter;
 	private ReceiveStockAdapter mStockAdapter;
@@ -199,12 +198,11 @@ public class DirectReceiveActivity extends Activity implements
 	}
 
 	private void init() {
-		mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		mSetting = new Setting();
-		mSetting.setMenuImageUrl("http://"
-				+ mSharedPref.getString("pref_ipaddress", "") + "/"
-				+ mSharedPref.getString("pref_webservice", "")
-				+ "/Resources/Shop/MenuImage/");
+		mSetting = new Setting(this);
+		mConn = mSetting.getConnection();
+		
+		mSetting.setMenuImageUrl(mConn.getProtocal() + mConn.getAddress() + "/" + 
+				mConn.getBackoffice() + "/Resources/Shop/MenuImage/");
 
 		mFormat = new Formatter(DirectReceiveActivity.this);
 		mReceiveStock = new MPOSReceiveStock(DirectReceiveActivity.this);
