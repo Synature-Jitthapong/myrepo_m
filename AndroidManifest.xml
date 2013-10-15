@@ -90,10 +90,6 @@
             android:label="@string/title_activity_manage_product" >
         </activity>
         <activity
-            android:name="com.syn.mpos.PrinterDiscoverActivity"
-            android:label="@string/printer_discover" >
-        </activity>
-        <activity
             android:name="com.syn.mpos.SettingActivity"
             android:label="@string/title_activity_setting" >
         </activity>

@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.ListFragment;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -24,7 +25,7 @@ import com.epson.epsonio.EpsonIoException;
 import com.epson.epsonio.Finder;
 import com.epson.epsonio.IoStatus;
 
-public class PrinterDiscoverActivity extends ListActivity implements Runnable, 
+public class PrinterDiscoverFragment extends ListFragment implements Runnable, 
 	OnItemClickListener, StatusChangeEventListener, BatteryStatusChangeEventListener {
 	public static final int DISCOVERY_INTERVAL = 500;
 	private List<HashMap<String, String>> mPrinterLst;
@@ -34,11 +35,11 @@ public class PrinterDiscoverActivity extends ListActivity implements Runnable,
 	private Handler mHandler;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
 		
 		mPrinterLst = new ArrayList<HashMap<String, String>>();
-		mPrinterAdapter = new SimpleAdapter(this, mPrinterLst, 
+		mPrinterAdapter = new SimpleAdapter(getActivity(), mPrinterLst, 
 				android.R.layout.simple_list_item_1, 
 				new String[]{"Printer"}, new int[] {android.R.id.text1});
 		
@@ -47,47 +48,19 @@ public class PrinterDiscoverActivity extends ListActivity implements Runnable,
 		
 		// start find thread scheduler
 		mScheduler = Executors.newSingleThreadScheduledExecutor();
+		findStart();
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 		
 	}
+
 	
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
+	public void onDestroyView() {
+		super.onDestroyView();
 		
-		//stop find
-        if(mFuture != null){
-        	mFuture.cancel(false);
-            while(!mFuture.isDone()){
-                try{
-                    Thread.sleep(DISCOVERY_INTERVAL);
-                }catch(Exception e){
-                    break;
-               }
-            }
-            mFuture = null;
-        }
-        if(mScheduler != null){
-        	mScheduler.shutdown();
-        	mScheduler = null;
-        }
-        //stop old finder
-        while(true) {
-            try{
-                Finder.stop();
-                break;
-            }catch(EpsonIoException e){
-                if(e.getStatus() != IoStatus.ERR_PROCESSING){
-                    break;
-                }
-            }
-        }	
-	}
-
-	public void stopFind(){
 		//stop find
         if(mFuture != null){
         	mFuture.cancel(false);
@@ -118,7 +91,7 @@ public class PrinterDiscoverActivity extends ListActivity implements Runnable,
 	}
 	
 	// find start/restart
-	public void findStart() {
+	private void findStart() {
 		if (mScheduler == null) {
 			return;
 		}
@@ -154,7 +127,7 @@ public class PrinterDiscoverActivity extends ListActivity implements Runnable,
 
 		// get device type and find
 		try {
-			Finder.start(this, DevType.TCP, "255.255.255.255");
+			Finder.start(getActivity(), DevType.TCP, "255.255.255.255");
 		} catch (EpsonIoException e) {
 			e.printStackTrace();
 		}
@@ -166,11 +139,11 @@ public class PrinterDiscoverActivity extends ListActivity implements Runnable,
 
 	@Override
 	public void onBatteryStatusChangeEvent(final String deviceName, final int bat) {
-		runOnUiThread(new Runnable(){
+		getActivity().runOnUiThread(new Runnable(){
 
 			@Override
 			public synchronized void run() {
-				new AlertDialog.Builder(PrinterDiscoverActivity.this)
+				new AlertDialog.Builder(getActivity())
 				.setTitle(R.string.error)
 				.setMessage(deviceName + " status: " + bat)
 				.show();
@@ -181,11 +154,11 @@ public class PrinterDiscoverActivity extends ListActivity implements Runnable,
 
 	@Override
 	public void onStatusChangeEvent(final String deviceName, final int status) {
-		runOnUiThread(new Runnable(){
+		getActivity().runOnUiThread(new Runnable(){
 
 			@Override
 			public synchronized void run() {
-				new AlertDialog.Builder(PrinterDiscoverActivity.this)
+				new AlertDialog.Builder(getActivity())
 				.setTitle(R.string.error)
 				.setMessage(deviceName + " status: " + status)
 				.show();

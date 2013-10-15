@@ -61,8 +61,8 @@ public class LoginActivity extends Activity {
 		
 		mSession = new MPOSSession(LoginActivity.this);
 		
-		if(mConn.getAddress().isEmpty() || 
-				mConn.getBackoffice().isEmpty()){
+		if(mConn.getAddress() == null || 
+				mConn.getBackoffice() == null){
 			Intent intent = new Intent(LoginActivity.this, SettingActivity.class);
 			startActivity(intent);
 		}
@@ -95,28 +95,28 @@ public class LoginActivity extends Activity {
 	
 	public void loginClicked(final View v){
 //		if(mSetting.sync.isSyncWhenLogin()){
-//			MPOSService.sync(mSetting.conn, LoginActivity.this, deviceCode, new IServiceStateListener(){
-//	
-//				@Override
-//				public void onProgress() {
-//					// TODO Auto-generated method stub
-//					
-//				}
-//	
-//				@Override
-//				public void onSuccess() {		
-//					checkLogin();
-//				}
-//	
-//				@Override
-//				public void onFail(String msg) {
-//					// TODO Auto-generated method stub
-//					
-//				}
-//				
-//			});
-//		}else{
-			checkLogin();
+			MPOSService.sync(mConn, LoginActivity.this, deviceCode, new IServiceStateListener(){
+	
+				@Override
+				public void onProgress() {
+					// TODO Auto-generated method stub
+					
+				}
+	
+				@Override
+				public void onSuccess() {		
+					checkLogin();
+				}
+	
+				@Override
+				public void onFail(String msg) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+			});
+		//}else{
+		//	checkLogin();
 		//}
 	}
 	
