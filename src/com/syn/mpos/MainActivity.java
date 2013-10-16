@@ -2,7 +2,11 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
@@ -24,7 +28,13 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.text.InputType;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -52,7 +62,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.RadioGroup.LayoutParams;
 
-public class MainActivity extends Activity implements OnMPOSFunctionClickListener {
+public class MainActivity extends FragmentActivity implements OnMPOSFunctionClickListener {
 	//private static final String TAG = "MPOSMainActivity";
 	private Shop mShop;
 	private Formatter mFormat;
@@ -69,14 +79,12 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 	private int mSessionId;
 	private Setting mSetting;
 	private Setting.Connection mConn;
-	
-	private List<MenuGroups.MenuDept> mMenuDeptLst;
-	private List<MenuGroups.MenuItem> mMenuItemLst;
-	private MenuAdapter mMenuItemAdapter;
-	private int mMenuDeptId = -1;
+
+	private PagerSlidingTabStrip tabs;
+	private ViewPager pager;
+	private MenuItemPagerAdapter adapter;
 	
 	private TableRow mTbRowVat;
-	private GridView mMenuGridView;
 	private ListView mOrderListView;
 	private TextView mTvSubTotal;
 	private TextView mTvVatExclude;
@@ -96,13 +104,24 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 	
+		tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+		pager = (ViewPager) findViewById(R.id.pager);
+		adapter = new MenuItemPagerAdapter(getSupportFragmentManager());
+		
+		pager.setAdapter(adapter);
+
+		final int pageMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
+				.getDisplayMetrics());
+		pager.setPageMargin(pageMargin);
+
+		tabs.setViewPager(pager);
+		
 		mLayoutOrderCtrl = (RelativeLayout) findViewById(R.id.layoutOrderCtrl);
 		mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
 		mBtnClearSelOrder = (ImageButton) findViewById(R.id.btnClearSelOrder);
 		mTvOrderSelected = (TextView) findViewById(R.id.tvOrderSelected);
 		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 		mOrderListView = (ListView) findViewById(R.id.listViewOrder);
-		mMenuGridView = (GridView) findViewById(R.id.gridViewMenu);
 		mTvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
 		mTvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
 		mTvDiscount = (TextView) findViewById(R.id.textViewDiscount);
@@ -127,8 +146,6 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 			})
 			.show();
 		}
-		
-		createMenu();
 	}
 	
 	public void init(){
@@ -161,14 +178,6 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		registerOrderListEvent();
 		countHoldOrder();
 		loadOrder();
-	}
-
-	private void createMenu(){
-		mMenuItemLst = new ArrayList<MenuGroups.MenuItem>();
-		mMenuItemAdapter = new MenuAdapter();
-		mMenuGridView.setAdapter(mMenuItemAdapter);
-
-		createMenuDept();
 	}
 	
 	private void registerOrderListEvent(){
@@ -279,59 +288,6 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 	protected void onResume() {
 		init();
 		super.onResume();
-	}
-
-	// menu catgory
-	private void createMenuDept(){
-		MenuDept menuDept = new MenuDept(MainActivity.this);
-		mMenuDeptLst = menuDept.listMenuDept();
-		
-		if(mMenuDeptLst.size() > 0){
-			
-			LayoutInflater inflater = 
-					LayoutInflater.from(MainActivity.this);
-			int i = 0;
-			for(final MenuGroups.MenuDept md : mMenuDeptLst){
-				final View v = inflater.inflate(R.layout.menu_catgory_tempate, null);
-				final Button btnCat = (Button) v.findViewById(R.id.button1);
-				btnCat.setId(md.getMenuDeptID());
-				
-				btnCat.setText(md.getMenuDeptName_0());
-				
-				btnCat.setOnClickListener(new OnClickListener(){
-	
-					@Override
-					public void onClick(View v) {
-						// display menu
-						btnCat.setSelected(true);
-						if(mMenuDeptId != -1 && mMenuDeptId != v.getId()){
-							Button lastBtn = (Button)findViewById(mMenuDeptId);
-							lastBtn.setSelected(false);
-						}
-						// load menu
-						com.syn.mpos.database.MenuItem mi = new com.syn.mpos.database.MenuItem(MainActivity.this);
-						mMenuItemLst = mi.listMenuItem(md.getMenuDeptID(), 1);
-						mMenuItemAdapter.notifyDataSetChanged();
-						
-						mMenuDeptId = v.getId();
-					}
-					
-				});
-	
-				//add to viewgroup
-				ViewGroup menuCatLayout = (ViewGroup) findViewById(R.id.MenuCatLayout);
-				LayoutParams layoutParam = new LayoutParams(
-						LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
-						1f);
-	
-				if(i == 0)
-					btnCat.callOnClick();
-		
-				menuCatLayout.addView(v, layoutParam);
-				
-				i++;
-			}
-		}
 	}
 
 	public void summary(){
@@ -961,165 +917,6 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 		}
 	}
 
-	// menu item adapter
-	private class MenuAdapter extends BaseAdapter{
-		private LayoutInflater inflater;
-		private ImageLoader imgLoader;
-		public MenuAdapter(){
-			inflater = LayoutInflater.from(MainActivity.this);
-			imgLoader = new ImageLoader(MainActivity.this, R.drawable.no_food, 
-					"mpos_img");
-		}
-		
-		@Override
-		public int getCount() {
-			return mMenuItemLst.size();
-		}
-	
-		@Override
-		public MenuGroups.MenuItem getItem(int position) {
-			return mMenuItemLst.get(position);
-		}
-	
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-	
-		private void addOrder(int productId, int productType, int vatType,
-				String menuName, float qty, float pricePerUnit){
-			int orderDetailId = mTrans.addOrderDetail(mTransactionId, 
-					mComputerId, productId, productType, 
-					vatType, menuName, qty, pricePerUnit);
-			
-			OrderTransaction.OrderDetail order = 
-					mTrans.getOrder(mTransactionId, mComputerId, orderDetailId);
-			mOrderLst.add(order);
-	
-			mOrderAdapter.notifyDataSetChanged();
-			mOrderListView.smoothScrollToPosition(mOrderAdapter.getCount());
-		}
-		
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			final MenuGroups.MenuItem mi = mMenuItemLst.get(position);
-			ViewHolder holder;
-			if(convertView == null){
-				convertView = inflater.inflate(R.layout.menu_template, null);
-				holder = new ViewHolder();
-				holder.imgMenu = (ImageView) convertView.findViewById(R.id.imageViewMenu);
-				holder.tvMenuName = (TextView) convertView.findViewById(R.id.textViewMenuName);
-				holder.tvMenuPrice = (TextView) convertView.findViewById(R.id.textViewMenuPrice);
-				convertView.setTag(holder);
-			}else{
-				holder = (ViewHolder) convertView.getTag();
-			}
-			
-			imgLoader.displayImage(mSetting.getMenuImageUrl() + mi.getMenuImageLink(), holder.imgMenu);
-			holder.tvMenuName.setText(mi.getMenuName_0());
-			
-			if(mi.getProductPricePerUnit() >= 0)
-				holder.tvMenuPrice.setText(mFormat.currencyFormat(mi.getProductPricePerUnit()));
-			else
-				holder.tvMenuPrice.setText("N/A");
-			
-			convertView.setOnLongClickListener(new OnLongClickListener(){
-				
-				@Override
-				public boolean onLongClick(View v) {
-					final LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-					View menuDetailView = inflater.inflate(R.layout.menu_detail_layout, null);
-					ImageView imvMenuDetail = (ImageView) menuDetailView.findViewById(R.id.imageViewMenuDetail);
-					ImageLoader imgLoader2 = new ImageLoader(MainActivity.this, 
-							R.drawable.no_food, "mpos_img", ImageLoader.IMAGE_SIZE.LARGE);
-					imgLoader2.displayImage(mSetting.getMenuImageUrl() + mi.getMenuImageLink(), imvMenuDetail);
-	
-					int x = (int)v.getX();
-					int y = (int)v.getY();
-					PopupWindow popup = new PopupWindow(MainActivity.this);
-					popup.setContentView(menuDetailView);
-					popup.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
-					popup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-					popup.setFocusable(true);
-					popup.showAtLocation(v, Gravity.CENTER, x, y);
-					
-					return true;
-				}
-				
-			});
-			
-			convertView.setOnClickListener(new OnClickListener(){
-	
-				@Override
-				public void onClick(View v) {
-					// open price
-					if(mi.getProductPricePerUnit() == -1){
-						final EditText txtPrice = new EditText(MainActivity.this);
-						txtPrice.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | 
-								InputType.TYPE_NUMBER_FLAG_SIGNED);
-						new AlertDialog.Builder(MainActivity.this)
-						.setTitle(mi.getMenuName_0())
-						.setMessage(R.string.enter_price)
-						.setView(txtPrice)
-						.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								String price = txtPrice.getText().toString();
-								if(!price.isEmpty()){
-									try {
-										addOrder(mi.getProductID(), mi.getProductTypeID(),
-												mi.getVatType(), mi.getMenuName_0(), 1,
-												Float.parseFloat(price));
-									} catch (NumberFormatException e) {
-										new AlertDialog.Builder(MainActivity.this)
-										.setTitle(R.string.error)
-										.setMessage(R.string.enter_price)
-										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-											
-											@Override
-											public void onClick(DialogInterface dialog, int which) {
-												hideKeyboard();
-											}
-										})
-										.show();
-									}
-									hideKeyboard();
-								}else{
-									new AlertDialog.Builder(MainActivity.this)
-									.setTitle(R.string.open_price)
-									.setMessage(R.string.enter_price)
-									.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-										
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											hideKeyboard();
-										}
-									})
-									.show();
-								}
-							}
-						})
-						.show();
-					}else{
-						addOrder(mi.getProductID(), mi.getProductTypeID(),
-								mi.getVatType(), mi.getMenuName_0(), 1,
-								mi.getProductPricePerUnit());
-					}
-				}
-				
-			});
-			
-			return convertView;
-		}
-		
-		private class ViewHolder{
-			ImageView imgMenu;
-			TextView tvMenuName;
-			TextView tvMenuPrice;
-		}
-	}
-	
 	private class HoldBillAdapter extends BaseAdapter{
 		
 		LayoutInflater inflater;
@@ -1165,5 +962,47 @@ public class MainActivity extends Activity implements OnMPOSFunctionClickListene
 
 			return convertView;
 		}
+	}
+	
+	public class MenuItemPagerAdapter extends FragmentPagerAdapter{
+		List<HashMap<String, Object>> menuPagerLst;
+		
+		public MenuItemPagerAdapter(FragmentManager fm) {
+			super(fm);
+			
+			menuPagerLst = new ArrayList<HashMap<String, Object>>();
+			for(int i = 0; i < 10; i ++){
+				
+				List<HashMap<String, Object>> menuLst = 
+						new ArrayList<HashMap<String, Object>>();
+				for(int j = 0; j < 100; j++){
+					HashMap<String, Object> menu = new HashMap<String, Object>();
+					menu.put("menu", j);
+					menuLst.add(menu);
+				}
+
+				HashMap<String, Object> menu = new HashMap<String, Object>();
+				menu.put("items", menuLst);
+				menu.put("page", i);
+				
+				menuPagerLst.add(menu);
+			}
+		}
+		
+		@Override
+		public CharSequence getPageTitle(int position) {
+			return menuPagerLst.get(position).get("page").toString();
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			return MenuPageFragment.newInstance(position);
+		}
+
+		@Override
+		public int getCount() {
+			return menuPagerLst.size();
+		}
+		
 	}
 }

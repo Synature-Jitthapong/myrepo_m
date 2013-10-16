@@ -95,28 +95,28 @@ public class LoginActivity extends Activity {
 	
 	public void loginClicked(final View v){
 //		if(mSetting.sync.isSyncWhenLogin()){
-			MPOSService.sync(mConn, LoginActivity.this, deviceCode, new IServiceStateListener(){
-	
-				@Override
-				public void onProgress() {
-					// TODO Auto-generated method stub
-					
-				}
-	
-				@Override
-				public void onSuccess() {		
-					checkLogin();
-				}
-	
-				@Override
-				public void onFail(String msg) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-			});
+//			MPOSService.sync(mConn, LoginActivity.this, deviceCode, new IServiceStateListener(){
+//	
+//				@Override
+//				public void onProgress() {
+//					// TODO Auto-generated method stub
+//					
+//				}
+//	
+//				@Override
+//				public void onSuccess() {		
+//					checkLogin();
+//				}
+//	
+//				@Override
+//				public void onFail(String msg) {
+//					// TODO Auto-generated method stub
+//					
+//				}
+//				
+//			});
 		//}else{
-		//	checkLogin();
+		checkLogin();
 		//}
 	}
 	
