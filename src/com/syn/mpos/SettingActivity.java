@@ -47,7 +47,8 @@ public class SettingActivity extends Activity {
 			super.onActivityCreated(savedInstanceState);
 			
 			setListAdapter(new ArrayAdapter<String>(getActivity(), 
-					android.R.layout.simple_list_item_1, settings));
+					android.R.layout.simple_list_item_activated_1, settings));
+            getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 			
 			showSetting(0);
 		}
@@ -59,7 +60,7 @@ public class SettingActivity extends Activity {
 		
 		private void showSetting(int position){
 			getListView().setItemChecked(position, true);
-
+			
             FragmentTransaction ft = null;
 			switch(position){
 			case 0:
@@ -88,16 +89,15 @@ public class SettingActivity extends Activity {
 	}
 	
 	public static class SyncSettingFragment extends Fragment{
-		private List<Setting.SyncItem> mSyncLst;
+		private String[] syncItem = {"Shops", "Products", "Sale", "Stock"};
 		
 		@Override
 		public void onActivityCreated(Bundle savedInstanceState) {
 			super.onActivityCreated(savedInstanceState);
-			mSyncLst = mSetting.listSyncItem();
 			
 			ListView lvSync = (ListView) getActivity().findViewById(R.id.lvSync);
-			lvSync.setAdapter(new ArrayAdapter<Setting.SyncItem>(getActivity(), 
-					android.R.layout.simple_list_item_activated_1, mSyncLst));
+			lvSync.setAdapter(new ArrayAdapter<String>(getActivity(), 
+					android.R.layout.simple_list_item_activated_1, syncItem));
 		}
 
 		@Override
