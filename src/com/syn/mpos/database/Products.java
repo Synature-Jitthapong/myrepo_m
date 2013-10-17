@@ -7,19 +7,18 @@ import android.content.Context;
 
 import com.syn.pos.ProductGroups;
 
-public class Product {
-	private MPOSSQLiteHelper dbHelper;
+public class Products {
+	private MPOSSQLiteHelper mSqlite;
 	
-	public Product(Context c){
-		dbHelper = new MPOSSQLiteHelper(c);
+	public Products(Context c){
+		mSqlite = new MPOSSQLiteHelper(c);
 	}
-	
 	
 	public boolean addProducts(List<ProductGroups.Products> productLst){
 		boolean isSucc = false;
 		
-		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM products");
+		mSqlite.open();
+		mSqlite.execSQL("DELETE FROM products WHERE create_from_device=0");
 		
 		for(ProductGroups.Products p : productLst){
 			ContentValues cv = new ContentValues();
@@ -50,11 +49,15 @@ public class Product {
 			cv.put("product_price_5", p.getProductPricePerUnit5());
 			cv.put("updatedate", p.getUpdateDate());
 			
-			isSucc = dbHelper.insert("products", cv);
+			isSucc = mSqlite.insert("products", cv);
 		}
 		
-		dbHelper.close();
+		mSqlite.close();
 		
 		return isSucc;
+	}
+	
+	public static class Product{
+		
 	}
 }

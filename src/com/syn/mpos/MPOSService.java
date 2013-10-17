@@ -9,7 +9,7 @@ import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.database.MenuDept;
 import com.syn.mpos.database.MenuGroup;
 import com.syn.mpos.database.MenuItem;
-import com.syn.mpos.database.Product;
+import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 import com.syn.pos.MenuGroups;
@@ -157,7 +157,7 @@ public class MPOSService {
 			Type type = new TypeToken<ProductGroups>() {}.getType();
 			
 			ProductGroups productData = (ProductGroups) jsonUtil.toObject(type, result);
-			Product p = new Product(context);
+			Products p = new Products(context);
 			p.addProducts(productData.getProduct());
 			
 			
