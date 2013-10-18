@@ -55,6 +55,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	private float mTotalSalePrice;
 	private float mTotalPay;
 	private float mTotalPaid;
+	private float mPaymentLeft;
 	
 	private ListView mLvPayment;
 	private EditText mTxtTotalPay;
@@ -198,13 +199,13 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		
 		mTotalPaid = mPayment.getTotalPaid(mTransactionId, mComputerId);
 		
-		float tobePaid = mTotalSalePrice - mTotalPaid; 
+		mPaymentLeft = mTotalSalePrice - mTotalPaid; 
 
 		mTxtTotalPaid.setText(mFormat.currencyFormat(mTotalPaid));
-		if(tobePaid < 0)
-			tobePaid = 0.0f;
+		if(mPaymentLeft < 0)
+			mPaymentLeft = 0.0f;
 		
-		mTxtTobePaid.setText(mFormat.currencyFormat(tobePaid));
+		mTxtTobePaid.setText(mFormat.currencyFormat(mPaymentLeft));
 	}
 	
 	private void deletePayment(int paymentId){
@@ -213,7 +214,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	}
 	
 	private void addPayment(){
-		if(mTotalPay > 0){
+		if(mTotalPay > 0 && mPaymentLeft > 0){
 				mPayment.addPaymentDetail(mTransactionId, mComputerId, PAY_TYPE_CASH, mTotalPay, "",
 						0, 0, 0, 0);
 			loadPayDetail();

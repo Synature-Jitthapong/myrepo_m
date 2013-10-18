@@ -22,7 +22,7 @@ public class MPOSSql {
 			");";
 	
 	public static final String TB_SHOP = 
-			" CREATE TABLE shop_property ( " +
+			" CREATE TABLE shop ( " +
 			" shop_id INTEGER, " +
 			" shop_code TEXT, " +
 			" shop_name TEXT, " +
@@ -48,6 +48,14 @@ public class MPOSSql {
 			" company_vat REAL " +
 			" );";
 	
+	public static final String TB_COMPUTER = 
+			" CREATE TABLE computer ( " +
+			" computer_id INTEGER PRIMARY KEY, " +
+			" computer_name TEXT, " +
+			" device_code TEXT, " +
+			" registration_number TEXT" +
+			");";
+
 	public static final String TB_PROGRAM_FEATURE = 
 			" CREATE TABLE program_feature ( " +
 			" feature_id INTEGER PRIMARY KEY, " +
@@ -69,14 +77,6 @@ public class MPOSSql {
 			" staff_code TEXT, " +
 			" staff_name TEXT, " +
 			" staff_password TEXT " +
-			");";
-	
-	public static final String TB_COMPUTER = 
-			" CREATE TABLE computer ( " +
-			" computer_id INTEGER PRIMARY KEY, " +
-			" computer_name TEXT, " +
-			" device_code TEXT, " +
-			" registration_number TEXT" +
 			");";
 	
 	public static final String TB_PROPERTY =
@@ -125,9 +125,9 @@ public class MPOSSql {
 	
 	public static final String TB_PAY_DETAIL = 
 			" CREATE TABLE payment_detail ( " +
-			" pay_detail_id INTEGER PRIMARY KEY, " +
-			" transaction_id INTEGER PRIMARY KEY, " +
-			" computer_id INTEGER PRIMARY KEY, " +
+			" pay_detail_id INTEGER, " +
+			" transaction_id INTEGER, " +
+			" computer_id INTEGER, " +
 			" pay_type_id INTEGER DEFAULT 1, " +
 			" pay_amount REAL DEFAULT 0, " +
 			" credit_card_no TEXT, " +
@@ -135,14 +135,15 @@ public class MPOSSql {
 			" expire_year INTEGER, " +
 			" bank_id INTEGER, " +
 			" credit_card_type INTEGER, " +
-			" remark TEXT" +
+			" remark TEXT, " +
+			" PRIMARY KEY (pay_detail_id, transaction_id, computer_id) " +
 			");";
 	
 	public static final String TB_SESSION = 
 			" CREATE TABLE session ( " +
-			" session_id INTEGER PRIMARY KEY, " +
-			" computer_id INTEGER PRIMARY KEY, " +
-			" shop_id INTEGER PRIMARY KEY, " +
+			" session_id INTEGER, " +
+			" computer_id INTEGER, " +
+			" shop_id INTEGER, " +
 			" open_staff_id INTEGER, " +
 			" close_staff_id INTEGER, " +
 			" session_date TEXT, " +
@@ -150,7 +151,8 @@ public class MPOSSql {
 			" close_date_time TEXT, " +
 			" open_amount REAL, " +
 			" close_amount REAL, " +
-			" is_endday INTEGER" +
+			" is_endday INTEGER, " +
+			" PRIMARY KEY (session_id, computer_id) " +
 			");";
 	
 	public static final String TB_SESSION_END =
@@ -190,7 +192,7 @@ public class MPOSSql {
 			" product_dept_id INTEGER, " +
 			" product_group_id INTEGER, " +
 			" product_code TEXT, " +
-			" product_bar_code TEXT, " +
+			" product_barcode TEXT, " +
 			" product_name TEXT, " +
 			" product_desc TEXT, " +
 			" product_type_id INTEGER DEFAULT 0, " +
@@ -203,21 +205,23 @@ public class MPOSSql {
 			" activated INTEGER DEFAULT 1, " +
 			" is_out_of_stock INTEGER DEFAULT 0, " +
 			" create_from_device INTEGER DEFAULT 0, " +
-			" pic_name TEXT " +
+			" pic_name TEXT," +
+			" product_ordering INTEGER " +
 			");";
 
 	public static final String TB_MEMBER_GROUP = 
 			" CREATE TABLE member_group ( " +
-			" member_group_id INTEGER PRIMARY KEY, " +
-			" shop_id INTEGER PRIMARY KEY, " +
+			" member_group_id INTEGER, " +
+			" shop_id INTEGER, " +
 			" member_group_code TEXT, " +
-			" member_group_name TEXT" +
+			" member_group_name TEXT, " +
+			" PRIMARY KEY (member_group_id, shop_id) " +
 			"); ";
 	
 	public static final String TB_MEMBER = 
 			" CREATE TABLE members ( " +
-			" member_id INTEGER PRIMARY KEY, " +
-			" shop_id INTEGER PRIMARY KEY, " +
+			" member_id INTEGER, " +
+			" shop_id INTEGER, " +
 			" member_group_id INTEGER, " +
 			" member_code TEXT, " +
 			" member_gender INTEGER, " +
@@ -237,13 +241,14 @@ public class MPOSSql {
 			" update_by INTEGER, " +
 			" update_date INTEGER, " +
 			" insert_at_shop_id INTEGER, " +
-			" remark TEXT" +
+			" remark TEXT, " +
+			" PRIMARY KEY (member_id, shop_id) " +
 			");";
 
 	public static final String TB_TRANS = 
 			" CREATE TABLE order_transaction ( " +
-			" transaction_id INTEGER PRIMARY KEY, " +
-			" computer_id INTEGER PRIMARY KEY, " +
+			" transaction_id INTEGER, " +
+			" computer_id INTEGER, " +
 			" shop_id INTEGER, " +
 			" open_time TEXT, " +
 			" open_staff_id INTEGER, " +
@@ -267,14 +272,15 @@ public class MPOSSql {
 			" service_charge REAL DEFAULT 0, " +
 			" service_charge_vat REAL DEFAULT 0, " +
 			" remark TEXT, " +
-			" transaction_note TEXT" +
+			" transaction_note TEXT, " +
+			" PRIMARY KEY (transaction_id, computer_id) " +
 			");";
 
 	public static final String TB_ORDER = 
 			" CREATE TABLE order_detail ( " +
-			" order_detail_id INTEGER PRIMARY KEY, " +
-			" transaction_id INTEGER PRIMARY KEY, " +
-			" computer_id INTEGER PRIMARY KEY, " +
+			" order_detail_id INTEGER, " +
+			" transaction_id INTEGER, " +
+			" computer_id INTEGER, " +
 			" product_id INTEGER, " +
 			" product_type_id INTEGER DEFAULT 1, " +
 			" order_qty REAL DEFAULT 1, " +
@@ -285,14 +291,15 @@ public class MPOSSql {
 			" vat REAL DEFAULT 0, " +
 			" member_discount REAL DEFAULT 0, " +
 			" price_discount REAL DEFAULT 0, " +
-			" discount_type INTEGER DEFAULT 1" +
+			" discount_type INTEGER DEFAULT 1, " +
+			" PRIMARY KEY (order_detail_id, transaction_id, computer_id) " +
 			");";
 	
 	public static final String TB_ORDER_TMP = 
 			" CREATE TABLE order_detail_tmp ( " +
-			" order_detail_id INTEGER PRIMARY KEY, " +
-			" transaction_id INTEGER PRIMARY KEY, " +
-			" computer_id INTEGER PRIMARY KEY, " +
+			" order_detail_id INTEGER, " +
+			" transaction_id INTEGER, " +
+			" computer_id INTEGER, " +
 			" product_id INTEGER, " +
 			" product_type_id INTEGER DEFAULT 1, " +
 			" order_qty REAL DEFAULT 1, " +
@@ -303,7 +310,8 @@ public class MPOSSql {
 			" vat REAL DEFAULT 0, " +
 			" member_discount REAL DEFAULT 0, " +
 			" price_discount REAL DEFAULT 0, " +
-			" discount_type INTEGER DEFAULT 1" +
+			" discount_type INTEGER DEFAULT 1, " +
+			" PRIMARY KEY (order_detail_id, transaction_id, computer_id) " +
 			");";
 	
 	public static final String TB_DOC_TYPE_GROUP = 
@@ -329,8 +337,8 @@ public class MPOSSql {
 	
 	public static final String TB_DOC = 
 			" CREATE TABLE document ( " +
-			" document_id INTEGER PRIMARY KEY, " +
-			" shop_id INTEGER PRIMARY KEY, " +
+			" document_id INTEGER, " +
+			" shop_id INTEGER, " +
 			" ref_document_id INTEGER, " +
 			" ref_shop_id INTEGER, " +
 			" document_type_id INTEGER, " +
@@ -343,14 +351,15 @@ public class MPOSSql {
 			" document_status INTEGER DEFAULT 1, " +
 			" remark TEXT, " +
 			" is_send_to_hq INTEGER DEFAULT 0, " +
-			" send_to_hq_datetime TEXT" +
+			" send_to_hq_datetime TEXT, " +
+			" PRIMARY KEY (document_id, shop_id) " +
 			");";
 
 	public static final String TB_DOC_DETAIL = 
 			" CREATE TABLE docdetail ( " +
-			" docdetail_id  INTEGER PRIMARY KEY, " +
-			" document_id  INTEGER PRIMARY KEY, " +
-			" shop_id  INTEGER PRIMARY KEY, " +
+			" docdetail_id  INTEGER, " +
+			" document_id  INTEGER, " +
+			" shop_id  INTEGER, " +
 			" material_id  INTEGER, " +
 			" unit_name  TEXT, " +
 			" material_qty  REAL DEFAULT 0, " +
@@ -358,7 +367,8 @@ public class MPOSSql {
 			" material_price_per_unit  REAL DEFAULT 0, " +
 			" material_net_price  REAL DEFAULT 0, " +
 			" material_tax_type  INTEGER DEFAULT 1, " +
-			" material_tax_price  REAL DEFAULT 0" +
+			" material_tax_price  REAL DEFAULT 0, " +
+			" PRIMARY KEY (docdetail_id, document_id, shop_id) " +
 			");";
 	
 	/**

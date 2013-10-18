@@ -13,10 +13,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -28,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
@@ -170,9 +174,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 			TextView tvQty = (TextView) rowView.findViewById(R.id.tvQty);
 			TextView tvUnitPrice = (TextView) rowView.findViewById(R.id.tvPrice);
 			TextView tvTotalPrice = (TextView) rowView.findViewById(R.id.tvTotalPrice);
-			final EditText txtDiscount = (EditText) rowView.findViewById(R.id.txtDisPrice);
-			RadioGroup rgDisType = (RadioGroup) rowView.findViewById(R.id.rdoDisType);
-			txtDiscount.setSelectAllOnFocus(true);
+			TextView tvDiscount = (TextView) rowView.findViewById(R.id.tvDiscount);
 			final TextView tvSalePrice = (TextView) rowView.findViewById(R.id.tvSalePrice);
 			
 			tvNo.setText(Integer.toString(position + 1) + ".");
@@ -180,100 +182,45 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 			tvQty.setText(mFormat.qtyFormat(order.getQty()));
 			tvUnitPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
 			tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
-			txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
+			tvDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
 			tvSalePrice.setText(mFormat.currencyFormat(order.getTotalSalePrice()));
 
-			switch(order.getDiscountType()){
-			case 1:
-				rgDisType.check(R.id.rdoPrice);
-				break;
-				
-			case 2:
-				rgDisType.check(R.id.rdoPercent);
-				txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount() * 100 / order.getTotalRetailPrice()));
-				break;
-			}
-			
-			rgDisType.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+//			
+//			txtDiscount.setOnFocusChangeListener(new OnFocusChangeListener(){
+//
+//				@Override
+//				public void onFocusChange(View v, boolean hasFocus) {
+//					if (!hasFocus) {
+//						EditText txtDisPrice = (EditText) v;
+//						float discount = 0.0f;
+//
+//						try {
+//							discount = Float.parseFloat(txtDisPrice.getText()
+//									.toString());
+//						} catch (NumberFormatException e) {
+//							e.printStackTrace();
+//						}
+//
+//						if (updateDiscount(position, order.getOrderDetailId(),
+//								order.getVatType(),
+//								order.getTotalRetailPrice(), discount,
+//								order.getDiscountType(), tvSalePrice)) {
+//
+//						} else {
+//							Toast toast = Toast.makeText(DiscountActivity.this,
+//									R.string.not_allow_discount,
+//									Toast.LENGTH_SHORT);
+//							toast.show();
+//							txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
+//						}
+//					}
+//				}
+//			});
 
-				@Override
-				public void onCheckedChanged(RadioGroup group, int checkedId) {
-					RadioButton rdoDisType;
-					
-					switch(checkedId){
-					case R.id.rdoPrice:
-						rdoDisType = (RadioButton) group.findViewById(checkedId);
-						if(rdoDisType.isChecked())
-							order.setDiscountType(1);
-						
-						break;
-					case R.id.rdoPercent:
-						rdoDisType = (RadioButton) group.findViewById(checkedId);
-						if(rdoDisType.isChecked())
-							order.setDiscountType(2);
-							
-						break;
-					}
-					
-					float discount = 0.0f;
-					try {
-						discount = Float.parseFloat(txtDiscount.getText().toString());
-					} catch (NumberFormatException e) {
-						e.printStackTrace();
-					}
-					
-					if (updateDiscount(position, order.getOrderDetailId(),
-							order.getVatType(), order.getTotalRetailPrice(),
-							discount, order.getDiscountType(),
-							tvSalePrice)) {
-
-					} else {
-						Toast toast = Toast
-								.makeText(DiscountActivity.this,
-										R.string.not_allow_discount,
-										Toast.LENGTH_SHORT);
-						toast.show();
-						txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
-					}
-				}
-				
-			});
-			
-			txtDiscount.setOnFocusChangeListener(new OnFocusChangeListener(){
-
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					if (!hasFocus) {
-						EditText txtDisPrice = (EditText) v;
-						float discount = 0.0f;
-
-						try {
-							discount = Float.parseFloat(txtDisPrice.getText()
-									.toString());
-						} catch (NumberFormatException e) {
-							e.printStackTrace();
-						}
-
-						if (updateDiscount(position, order.getOrderDetailId(),
-								order.getVatType(),
-								order.getTotalRetailPrice(), discount,
-								order.getDiscountType(), tvSalePrice)) {
-
-						} else {
-							Toast toast = Toast.makeText(DiscountActivity.this,
-									R.string.not_allow_discount,
-									Toast.LENGTH_SHORT);
-							toast.show();
-							txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
-						}
-					}
-				}
-			});
-
-			if(position % 2 == 0)
-				rowView.setBackgroundResource(R.color.smoke_white);
-			else
-				rowView.setBackgroundResource(R.color.light_gray);
+//			if(position % 2 == 0)
+//				rowView.setBackgroundResource(R.color.smoke_white);
+//			else
+//				rowView.setBackgroundResource(R.color.light_gray);
 			
 			return rowView;
 		}
@@ -299,14 +246,63 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
-		mLvDiscount.setOnTouchListener(new OnTouchListener(){
+		mLvDiscount.setOnItemClickListener(new OnItemClickListener(){
 
 			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				clearFocus(v);
-				return false;
-			}
+			public void onItemClick(AdapterView<?> parent, View v, int position,
+					long id) {
+				
+				final OrderTransaction.OrderDetail order = 
+						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
+				
+				LayoutInflater inflater = (LayoutInflater)
+						DiscountActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				v = inflater.inflate(R.layout.discount_dialog, null);
+				final EditText txtDiscount = (EditText) v.findViewById(R.id.txtDiscount);
+				final TextView tvTotalPrice = (TextView) v.findViewById(R.id.tvTotalPrice);
+				final RadioGroup rdoDisType = (RadioGroup) v.findViewById(R.id.rdoDisType);
+				
+				tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
+				txtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
+				txtDiscount.setSelectAllOnFocus(true);
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder(DiscountActivity.this);
+				builder.setTitle(order.getProductName());
+				builder.setView(v);
+				builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+					}
+				});
+				builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+					}
+				});
 			
+				AlertDialog dialog = builder.create();
+//				dialog.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new OnClickListener(){
+//
+//					@Override
+//					public void onClick(View v) {
+//						
+//					}
+//					
+//				});
+//				dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new OnClickListener(){
+//
+//					@Override
+//					public void onClick(View v) {
+//						
+//					}
+//					
+//				});
+				dialog.show();
+			}
 		});
 		loadOrder();
 	}

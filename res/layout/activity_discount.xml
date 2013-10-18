@@ -15,6 +15,7 @@
         android:id="@+id/tableRow4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
         android:background="@color/dark_gray" >
 
         <TextView
@@ -67,13 +68,6 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
-            android:id="@+id/textView11"
-            style="@style/ColumnHeader"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
             android:id="@+id/textView10"
             style="@style/ColumnHeader"
             android:layout_width="120dp"
@@ -88,7 +82,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@drawable/background_card" >
+        android:background="@drawable/background_card"
+        android:listSelector="@drawable/list_selector" >
 
     </ListView>
 

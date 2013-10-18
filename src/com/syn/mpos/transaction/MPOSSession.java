@@ -24,13 +24,13 @@ public class MPOSSession extends MPOSTransaction {
 		String strSql = "SELECT MAX(session_id) " + " FROM session 	"
 				+ " WHERE shop_id=" + shopId + " AND computer_id=" + computerId;
 
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery(strSql);
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return sessionId + 1;
 	}
 
@@ -50,9 +50,9 @@ public class MPOSSession extends MPOSTransaction {
 		cv.put("open_amount", openAmount);
 		cv.put("is_endday", 0);
 
-		mDbHelper.open();
-		mDbHelper.insert("session", cv);
-		mDbHelper.close();
+		mSqlite.open();
+		mSqlite.insert("session", cv);
+		mSqlite.close();
 		return sessionId;
 	}
 
@@ -67,9 +67,9 @@ public class MPOSSession extends MPOSTransaction {
 		cv.put("total_qty_receipt", totalQtyReceipt);
 		cv.put("total_amount_receipt", totalAmountReceipt);
 
-		mDbHelper.open();
-		isSuccess = mDbHelper.insert("session_end_day", cv);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.insert("session_end_day", cv);
+		mSqlite.close();
 		return isSuccess;
 	}
 
@@ -85,9 +85,9 @@ public class MPOSSession extends MPOSTransaction {
 				+ " WHERE session_id=" + sessionId + " AND computer_id="
 				+ computerId;
 
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL(strSql);
+		mSqlite.close();
 		return isSuccess;
 	}
 
@@ -97,12 +97,12 @@ public class MPOSSession extends MPOSTransaction {
 				+ " WHERE shop_id=" + shopId + " AND computer_id=" + computerId
 				+ " AND is_endday=0";
 
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery(strSql);
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}
-		mDbHelper.close();
+		mSqlite.close();
 		return sessionId;
 	}
 

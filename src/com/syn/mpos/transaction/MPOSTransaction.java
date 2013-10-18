@@ -12,7 +12,6 @@ import com.j1tth4.mobile.sqlite.SQLiteHelper;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Util;
 import com.syn.pos.OrderTransaction;
-import com.syn.pos.Report;
 
 /**
  * 
@@ -21,47 +20,46 @@ import com.syn.pos.Report;
  */
 public class MPOSTransaction extends Util {
 
-	protected SQLiteHelper mDbHelper;
+	protected SQLiteHelper mSqlite;
 
 	public MPOSTransaction(Context context) {
 		super(context);
-		mDbHelper = new MPOSSQLiteHelper(context);
+		mSqlite = new MPOSSQLiteHelper(context);
 	}
 
 	public int getMaxTransaction(int computerId) {
 		int transactionId = 0;
-
-		String strSql = "SELECT MAX(transaction_id) FROM order_transaction "
-				+ " WHERE computer_id=" + computerId;
-
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery( "SELECT MAX(transaction_id) " +
+				" FROM order_transaction " +
+				" WHERE computer_id=" + computerId);
 		if (cursor.moveToFirst()) {
 			transactionId = cursor.getInt(0);
 			cursor.moveToNext();
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 
 		return transactionId + 1;
 	}
 
 	public int getMaxReceiptId(int computerId, int year, int month) {
 		int maxReceiptId = 0;
-
-		String strSql = "SELECT MAX(receipt_id) FROM order_transaction "
-				+ " WHERE computer_id=" + computerId + " AND receipt_year="
-				+ year + " AND receipt_month=" + month
-				+ " AND transaction_status_id = 2";
-
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT MAX(receipt_id) " +
+				" FROM order_transaction " +
+				" WHERE computer_id=" + computerId + 
+				" AND receipt_year=" + year + 
+				" AND receipt_month=" + month +
+				" AND transaction_status_id = 2");
 		if (cursor.moveToFirst()) {
 			maxReceiptId = cursor.getInt(0);
 			cursor.moveToNext();
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 
 		return maxReceiptId + 1;
 	}
@@ -69,18 +67,17 @@ public class MPOSTransaction extends Util {
 	public int getMaxOrderDetail(int transactionId, int computerId) {
 		int orderDetailId = 0;
 
-		String strSql = "SELECT MAX(order_detail_id) " + " FROM order_detail "
-				+ " WHERE transaction_id=" + transactionId
-				+ " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery(" SELECT MAX(order_detail_id) " + 
+				" FROM order_detail " + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
 		if (cursor.moveToFirst()) {
 			orderDetailId = cursor.getInt(0);
 			cursor.moveToNext();
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 
 		return orderDetailId + 1;
 	}
@@ -89,20 +86,19 @@ public class MPOSTransaction extends Util {
 		int transactionId = 0;
 		Calendar c = getDate();
 
-		String strSql = "SELECT transaction_id FROM order_transaction "
-				+ " WHERE computer_id = " + computerId
-				+ " AND transaction_status_id = 1 " + " AND sale_date='"
-				+ c.getTimeInMillis() + "' ";
-
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT transaction_id " +
+				" FROM order_transaction " + 
+				" WHERE computer_id = " + computerId + 
+				" AND transaction_status_id = 1 " + 
+				" AND sale_date='" + c.getTimeInMillis() + "' ");
 		if (cursor.moveToFirst()) {
 			if (cursor.getLong(0) != 0)
 				transactionId = cursor.getInt(0);
 			cursor.moveToNext();
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return transactionId;
 	}
 
@@ -129,12 +125,12 @@ public class MPOSTransaction extends Util {
 		cv.put("receipt_year", dateTime.get(Calendar.YEAR));
 		cv.put("receipt_month", dateTime.get(Calendar.MONTH));
 
-		mDbHelper.open();
+		mSqlite.open();
 
-		if (!mDbHelper.insert("order_transaction", cv))
+		if (!mSqlite.insert("order_transaction", cv))
 			transactionId = 0;
 
-		mDbHelper.close();
+		mSqlite.close();
 
 		return transactionId;
 	}
@@ -147,41 +143,39 @@ public class MPOSTransaction extends Util {
 		int receiptId = getMaxReceiptId(computerId,
 				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH));
 
-		String strSql = "UPDATE order_transaction "
-				+ " SET transaction_status_id=2, " + " receipt_id=" + receiptId
-				+ ", " + " close_time='" + calendar.getTimeInMillis() + "', "
-				+ " paid_time='" + calendar.getTimeInMillis() + "', "
-				+ " paid_staff_id=" + staffId + " WHERE transaction_id="
-				+ transactionId + " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("UPDATE order_transaction " + 
+				" SET transaction_status_id=2, " + 
+				" receipt_id=" + receiptId + ", " + 
+				" close_time='" + calendar.getTimeInMillis() + "', " + 
+				" paid_time='" + calendar.getTimeInMillis() + "', " + 
+				" paid_staff_id=" + staffId + 
+				" WHERE transaction_id="+ transactionId + 
+				" AND computer_id=" + computerId);
+		mSqlite.close();
 		return isSuccess;
 	}
 
 	public boolean prepareTransaction(int transactionId, int computerId) {
 		boolean isSuccess = false;
 
-		String strSql = "UPDATE order_transaction SET "
-				+ " transaction_status_id=1, remark='' "
-				+ " WHERE transaction_id=" + transactionId
-				+ " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("UPDATE order_transaction SET " + 
+				" transaction_status_id=1, remark='' " + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
+		mSqlite.close();
 
 		return isSuccess;
 	}
 
 	public boolean deleteTransaction(int transactionId, int computerId) {
 		boolean isSuccess = false;
-		mDbHelper.open();
-		mDbHelper.execSQL("DELETE FROM order_transaction "
-				+ " WHERE transaction_id=" + transactionId
-				+ " AND computer_id=" + computerId);
-		mDbHelper.close();
+		mSqlite.open();
+		mSqlite.execSQL("DELETE FROM order_transaction " + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
+		mSqlite.close();
 		return isSuccess;
 	}
 
@@ -189,17 +183,17 @@ public class MPOSTransaction extends Util {
 		int total = 0;
 		Calendar c = getDate();
 
-		String strSql = "SELECT COUNT(transaction_id) "
-				+ " FROM order_transaction " + " WHERE transaction_status_id=9"
-				+ " AND computer_id=" + computerId + " AND sale_date='"
-				+ c.getTimeInMillis() + "'";
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT COUNT(transaction_id) " + 
+				" FROM order_transaction " + 
+				" WHERE transaction_status_id=9" + 
+				" AND computer_id=" + computerId + 
+				" AND sale_date='" + c.getTimeInMillis() + "'");
 		if (cursor.moveToFirst()) {
 			total = cursor.getInt(0);
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return total;
 	}
 
@@ -207,16 +201,13 @@ public class MPOSTransaction extends Util {
 			String remark) {
 		boolean isSuccess = false;
 
-		mDbHelper.open();
-		isSuccess = mDbHelper
-				.execSQL("UPDATE order_transaction SET transaction_status_id = 9, "
-						+ " remark='"
-						+ remark
-						+ "' "
-						+ " WHERE transaction_id="
-						+ transactionId
-						+ " AND computer_id=" + computerId);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("UPDATE order_transaction SET " +
+				" transaction_status_id = 9, " + 
+				" remark='" + remark + "' " + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
+		mSqlite.close();
 		return isSuccess;
 	}
 
@@ -225,27 +216,24 @@ public class MPOSTransaction extends Util {
 		boolean isSuccess = false;
 		float vat = calculateVat(totalSalePrice);
 
-		String strSql = "UPDATE order_transaction SET " + " transaction_vat="
-				+ vat + ", " + " transaction_vatable=" + totalSalePrice + ", "
-				+ " transaction_exclude_vat=" + vatExclude
-				+ " WHERE transaction_id=" + transactionId
-				+ " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("UPDATE order_transaction SET " + 
+				" transaction_vat=" + vat + ", " + 
+				" transaction_vatable=" + totalSalePrice + ", " + 
+				" transaction_exclude_vat=" + vatExclude + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
+		mSqlite.close();
 		return isSuccess;
 	}
 
 	public OrderTransaction getTransaction(int transactionId, int computerId) {
 		OrderTransaction trans = new OrderTransaction();
 
-		String strSql = "SELECT * FROM order_transaction "
-				+ " WHERE transaction_id=" + transactionId
-				+ " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM order_transaction " + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
 		if (cursor.moveToFirst()) {
 			trans.setTransactionVatable(cursor.getFloat(cursor
 					.getColumnIndex("transaction_vatable")));
@@ -262,7 +250,7 @@ public class MPOSTransaction extends Util {
 					.getColumnIndex("receipt_id")));
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return trans;
 	}
 
@@ -270,14 +258,13 @@ public class MPOSTransaction extends Util {
 		boolean isSuccess = false;
 
 		if (deleteOrderDetail(transactionId, computerId)) {
-			String strSql = "INSERT INTO order_detail "
-					+ " SELECT * FROM order_detail_tmp "
-					+ " WHERE transaction_id=" + transactionId
-					+ " AND computer_id=" + computerId;
-
-			mDbHelper.open();
-			isSuccess = mDbHelper.execSQL(strSql);
-			mDbHelper.close();
+			
+			mSqlite.open();
+			isSuccess = mSqlite.execSQL("INSERT INTO order_detail " + 
+					" SELECT * FROM order_detail_tmp " + 
+					" WHERE transaction_id=" + transactionId + 
+					" AND computer_id=" + computerId);
+			mSqlite.close();
 		}
 		return isSuccess;
 	}
@@ -289,16 +276,16 @@ public class MPOSTransaction extends Util {
 
 		float vat = vatType == 2 ? calculateVat(salePrice) : 0.0f;
 
-		String strSql = "UPDATE order_detail_tmp SET " + " price_discount="
-				+ discount + ", " + " total_sale_price=" + salePrice + ", "
-				+ " vat=" + vat + ", discount_type=" + disType
-				+ " WHERE order_detail_id=" + orderDetailId
-				+ " AND transaction_id=" + transactionId + " AND computer_id="
-				+ computerId;
-
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("UPDATE order_detail_tmp SET " + 
+				" price_discount=" + discount + ", " + 
+				" total_sale_price=" + salePrice + ", " + 
+				" vat=" + vat + ", " + 
+				" discount_type=" + disType + 
+				" WHERE order_detail_id=" + orderDetailId + 
+				" AND transaction_id=" + transactionId + 
+				" AND computer_id="+ computerId);
+		mSqlite.close();
 
 		return isSuccess;
 	}
@@ -306,12 +293,11 @@ public class MPOSTransaction extends Util {
 	public boolean deleteOrderDetail(int transactionId, int computerId) {
 		boolean isSuccess = false;
 
-		String strSql = "DELETE FROM order_detail " + " WHERE transaction_id="
-				+ transactionId + " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("DELETE FROM order_detail " + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
+		mSqlite.close();
 
 		return isSuccess;
 	}
@@ -320,44 +306,44 @@ public class MPOSTransaction extends Util {
 			int orderDetailId) {
 		boolean isSuccess = false;
 
-		String strSql = "DELETE FROM order_detail " + " WHERE order_detail_id="
-				+ orderDetailId + " AND transaction_id=" + transactionId
-				+ " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("DELETE FROM order_detail " + 
+				" WHERE order_detail_id=" + orderDetailId + 
+				" AND transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
+		mSqlite.close();
 
 		return isSuccess;
 	}
 
 	public boolean updateOrderDetail(int transactionId, int computerId,
-			int orderDetailId, int vatType, float qty, float pricePerUnit) {
+			int orderDetailId, int vatType, float orderQty, float pricePerUnit) {
 		boolean isSucc = false;
 
-		float totalRetailPrice = pricePerUnit * qty;
+		float totalRetailPrice = pricePerUnit * orderQty;
 		float vat = vatType == 2 ? calculateVat(totalRetailPrice) : 0.0f;
 
-		String strSql = "UPDATE order_detail SET " + " qty=" + qty + ", "
-				+ " price_per_unit=" + pricePerUnit + ", "
-				+ " total_retail_price=" + totalRetailPrice + ", "
-				+ " total_sale_price=" + totalRetailPrice + ", " + " vat="
-				+ vat + ", " + " price_discount=0 " + " WHERE transaction_id="
-				+ transactionId + " AND order_detail_id=" + orderDetailId
-				+ " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		isSucc = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		mSqlite.open();
+		isSucc = mSqlite.execSQL("UPDATE order_detail SET " + 
+				" order_qty=" + orderQty + ", " + 
+				" unit_price=" + pricePerUnit + ", " + 
+				" total_retail_price=" + totalRetailPrice + ", " + 
+				" total_sale_price=" + totalRetailPrice + ", " + 
+				" vat=" + vat + ", " + 
+				" price_discount=0 " + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND order_detail_id=" + orderDetailId + 
+				" AND computer_id=" + computerId);
+		mSqlite.close();
 		return isSucc;
 	}
 
 	public int addOrderDetail(int transactionId, int computerId, int productId,
-			int productType, int vatType, String productName, float qty,
+			int productType, int vatType, float orderQty,
 			float pricePerUnit) {
 
 		int orderDetailId = getMaxOrderDetail(transactionId, computerId);
-		float totalRetailPrice = pricePerUnit * qty;
+		float totalRetailPrice = pricePerUnit * orderQty;
 		float vat = vatType == 2 ? calculateVat(totalRetailPrice) : 0.0f;
 
 		ContentValues cv = new ContentValues();
@@ -365,18 +351,17 @@ public class MPOSTransaction extends Util {
 		cv.put("transaction_id", transactionId);
 		cv.put("computer_id", computerId);
 		cv.put("product_id", productId);
-		cv.put("product_name", productName);
-		cv.put("qty", qty);
-		cv.put("price_per_unit", pricePerUnit);
+		cv.put("order_qty", orderQty);
+		cv.put("unit_price", pricePerUnit);
 		cv.put("total_retail_price", totalRetailPrice);
 		cv.put("total_sale_price", totalRetailPrice);
 		cv.put("vat_type", vatType);
 		cv.put("vat", vat);
 
-		mDbHelper.open();
-		if (!mDbHelper.insert("order_detail", cv))
+		mSqlite.open();
+		if (!mSqlite.insert("order_detail", cv))
 			orderDetailId = 0;
-		mDbHelper.close();
+		mSqlite.close();
 
 		return orderDetailId;
 	}
@@ -389,13 +374,11 @@ public class MPOSTransaction extends Util {
 	private boolean deleteOrderDetailTmp(int transactionId, int computerId) {
 		boolean isSuccess = false;
 
-		String strSql = "DELETE FROM order_detail_tmp "
-				+ " WHERE transaction_id=" + transactionId
-				+ " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("DELETE FROM order_detail_tmp " + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
+		mSqlite.close();
 
 		return isSuccess;
 	}
@@ -404,13 +387,13 @@ public class MPOSTransaction extends Util {
 		boolean isSuccess = false;
 
 		if (deleteOrderDetailTmp(transactionId, computerId)) {
-			String strSql = "INSERT INTO order_detail_tmp "
-					+ " SELECT * FROM order_detail " + " WHERE transaction_id="
-					+ transactionId + " AND computer_id=" + computerId;
 
-			mDbHelper.open();
-			isSuccess = mDbHelper.execSQL(strSql);
-			mDbHelper.close();
+			mSqlite.open();
+			isSuccess = mSqlite.execSQL("INSERT INTO order_detail_tmp " + 
+					" SELECT * FROM order_detail " + 
+					" WHERE transaction_id=" + transactionId + 
+					" AND computer_id=" + computerId);
+			mSqlite.close();
 		}
 		return isSuccess;
 	}
@@ -420,31 +403,30 @@ public class MPOSTransaction extends Util {
 		boolean isSuccess = false;
 		Calendar dateTime = getDateTime();
 
-		String strSql = "UPDATE order_transaction "
-				+ " SET transaction_status_id=9, " + " void_staff_id="
-				+ staffId + ", " + " void_reason='" + reason + "', "
-				+ " void_time='" + dateTime.getTimeInMillis() + "' "
-				+ " WHERE transaction_id=" + transactionId
-				+ " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("UPDATE order_transaction " + 
+				" SET transaction_status_id=9, " + 
+				" void_staff_id=" + staffId + ", " + 
+				" void_reason='" + reason + "', " + 
+				" void_time='" + dateTime.getTimeInMillis() + "' " + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
+		mSqlite.close();
 		return isSuccess;
 	}
 
 	public List<OrderTransaction> listTransaction(long saleDate) {
 		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
-		String strSql = "SELECT a.transaction_id, a.computer_id, "
-				+ " a.paid_time, a.receipt_year, a.receipt_month, a.receipt_id, "
-				+ " b.document_type_header " + " FROM order_transaction a "
-				+ " LEFT JOIN document_type b "
-				+ " ON a.document_type_id = b.document_type_id "
-				+ " WHERE a.sale_date='" + saleDate + "' "
-				+ " AND a.transaction_status_id=2 " + " ORDER BY a.sale_date";
 
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT a.transaction_id, a.computer_id, " + 
+				" a.paid_time, a.receipt_year, a.receipt_month, a.receipt_id, " + 
+				" b.document_type_header " + " FROM order_transaction a " + 
+				" LEFT JOIN document_type b " + 
+				" ON a.document_type_id = b.document_type_id " + 
+				" WHERE a.sale_date='" + saleDate + "' " + 
+				" AND a.transaction_status_id=2 " + 
+				" ORDER BY a.sale_date");
 		if (cursor.moveToFirst()) {
 			do {
 				String docTypeHeader = cursor.getString(cursor
@@ -470,7 +452,7 @@ public class MPOSTransaction extends Util {
 			} while (cursor.moveToNext());
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return transLst;
 	}
 
@@ -478,17 +460,16 @@ public class MPOSTransaction extends Util {
 			int computerId) {
 		OrderTransaction.OrderDetail orderDetail = new OrderTransaction.OrderDetail();
 
-		String strSql = "SELECT SUM(qty) AS TotalQty,"
-				+ " SUM(total_retail_price) AS SubTotal, "
-				+ " SUM(total_sale_price) AS TotalPrice, "
-				+ " SUM(vat) AS TotalVat, "
-				+ " SUM(price_discount) AS TotalPriceDiscount,"
-				+ " SUM(member_discount) AS TotalMemberDiscount "
-				+ " FROM order_detail_tmp " + " WHERE transaction_id="
-				+ transactionId + " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT SUM(order_qty) AS TotalQty," + 
+				" SUM(total_retail_price) AS SubTotal, " + 
+				" SUM(total_sale_price) AS TotalPrice, " + 
+				" SUM(vat) AS TotalVat, " + 
+				" SUM(price_discount) AS TotalPriceDiscount," + 
+				" SUM(member_discount) AS TotalMemberDiscount " + 
+				" FROM order_detail_tmp " + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
 		if (cursor.moveToFirst()) {
 			orderDetail.setQty(cursor.getFloat(cursor
 					.getColumnIndex("TotalQty")));
@@ -505,7 +486,7 @@ public class MPOSTransaction extends Util {
 			cursor.moveToNext();
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return orderDetail;
 	}
 
@@ -513,17 +494,16 @@ public class MPOSTransaction extends Util {
 			int computerId) {
 		OrderTransaction.OrderDetail orderDetail = new OrderTransaction.OrderDetail();
 
-		String strSql = "SELECT SUM(qty) AS TotalQty,"
-				+ " SUM(total_retail_price) AS SubTotal, "
-				+ " SUM(total_sale_price) AS TotalPrice, "
-				+ " SUM(vat) AS TotalVat, "
-				+ " SUM(price_discount) AS TotalPriceDiscount,"
-				+ " SUM(member_discount) AS TotalMemberDiscount "
-				+ " FROM order_detail " + " WHERE transaction_id="
-				+ transactionId + " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT SUM(order_qty) AS TotalQty," + 
+				" SUM(total_retail_price) AS SubTotal, " + 
+				" SUM(total_sale_price) AS TotalPrice, " + 
+				" SUM(vat) AS TotalVat, " + 
+				" SUM(price_discount) AS TotalPriceDiscount," + 
+				" SUM(member_discount) AS TotalMemberDiscount " + 
+				" FROM order_detail " + 
+				" WHERE transaction_id=" + transactionId + 
+				" AND computer_id=" + computerId);
 		if (cursor.moveToFirst()) {
 			orderDetail.setQty(cursor.getFloat(cursor
 					.getColumnIndex("TotalQty")));
@@ -540,7 +520,7 @@ public class MPOSTransaction extends Util {
 			cursor.moveToNext();
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return orderDetail;
 	}
 
@@ -548,15 +528,16 @@ public class MPOSTransaction extends Util {
 			int computerId, int orderDetailId) {
 		OrderTransaction.OrderDetail orderDetail = new OrderTransaction.OrderDetail();
 
-		String strSql = "SELECT order_detail_id, "
-				+ " product_id, product_name, qty, price_per_unit, "
-				+ " vat_type, member_discount, price_discount "
-				+ " FROM order_detail " + " WHERE transaction_id="
-				+ transactionId + " AND computer_id=" + computerId
-				+ " AND order_detail_id=" + orderDetailId;
-
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT a.order_detail_id, " + 
+				" a.product_id, b.product_name, a.order_qty, a.unit_price, " + 
+				" a.vat_type, a.member_discount, a.price_discount " + 
+				" FROM order_detail a " +
+				" LEFT JOIN products b " +
+				" ON a.product_id=b.product_id " + 
+				" WHERE a.transaction_id=" + transactionId + 
+				" AND a.computer_id=" + computerId + 
+				" AND a.order_detail_id=" + orderDetailId);
 		if (cursor.moveToFirst()) {
 			orderDetail.setOrderDetailId(cursor.getInt(cursor
 					.getColumnIndex("order_detail_id")));
@@ -564,9 +545,9 @@ public class MPOSTransaction extends Util {
 					.getColumnIndex("product_id")));
 			orderDetail.setProductName(cursor.getString(cursor
 					.getColumnIndex("product_name")));
-			orderDetail.setQty(cursor.getFloat(cursor.getColumnIndex("qty")));
+			orderDetail.setQty(cursor.getFloat(cursor.getColumnIndex("order_qty")));
 			orderDetail.setPricePerUnit(cursor.getFloat(cursor
-					.getColumnIndex("price_per_unit")));
+					.getColumnIndex("unit_price")));
 			orderDetail.setVatType(cursor.getInt(cursor
 					.getColumnIndex("vat_type")));
 			orderDetail.setMemberDiscount(cursor.getFloat(cursor
@@ -575,7 +556,7 @@ public class MPOSTransaction extends Util {
 					.getColumnIndex("price_discount")));
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return orderDetail;
 	}
 
@@ -583,14 +564,16 @@ public class MPOSTransaction extends Util {
 			int transactionId, int computerId) {
 		List<OrderTransaction.OrderDetail> orderDetailLst = new ArrayList<OrderTransaction.OrderDetail>();
 
-		String strSql = "SELECT order_detail_id, product_id, product_name, "
-				+ " qty, price_per_unit, total_retail_price, total_sale_price, "
-				+ " vat_type, member_discount, price_discount, discount_type "
-				+ " FROM order_detail_tmp " + " WHERE transaction_id="
-				+ transactionId + " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT a.order_detail_id, a.product_id," +
+				" b.product_name, a.order_qty, a.unit_price, a.total_retail_price, " +
+				" a.total_sale_price, a.vat_type, a.member_discount, a.price_discount, " +
+				" a.discount_type " +
+				" FROM order_detail_tmp a" +
+				" LEFT JOIN products b " +
+				" ON a.product_id=b.product_id " + 
+				" WHERE a.transaction_id="+ transactionId + 
+				" AND a.computer_id=" + computerId);
 		if (cursor.moveToFirst()) {
 			do {
 				OrderTransaction.OrderDetail orderDetail = new OrderTransaction.OrderDetail();
@@ -601,9 +584,9 @@ public class MPOSTransaction extends Util {
 				orderDetail.setProductName(cursor.getString(cursor
 						.getColumnIndex("product_name")));
 				orderDetail
-						.setQty(cursor.getFloat(cursor.getColumnIndex("qty")));
+						.setQty(cursor.getFloat(cursor.getColumnIndex("order_qty")));
 				orderDetail.setPricePerUnit(cursor.getFloat(cursor
-						.getColumnIndex("price_per_unit")));
+						.getColumnIndex("unit_price")));
 				orderDetail.setTotalRetailPrice(cursor.getFloat(cursor
 						.getColumnIndex("total_retail_price")));
 				orderDetail.setTotalSalePrice(cursor.getFloat(cursor
@@ -621,23 +604,26 @@ public class MPOSTransaction extends Util {
 			} while (cursor.moveToNext());
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 
 		return orderDetailLst;
 	}
 
 	public List<OrderTransaction.OrderDetail> listAllOrders(int transactionId,
 			int computerId) {
-		List<OrderTransaction.OrderDetail> orderDetailLst = new ArrayList<OrderTransaction.OrderDetail>();
+		List<OrderTransaction.OrderDetail> orderDetailLst = 
+				new ArrayList<OrderTransaction.OrderDetail>();
 
-		String strSql = "SELECT order_detail_id, product_id, product_name, "
-				+ " qty, price_per_unit, total_retail_price, total_sale_price, "
-				+ " vat_type, member_discount, price_discount "
-				+ " FROM order_detail WHERE transaction_id=" + transactionId
-				+ " AND computer_id=" + computerId;
-
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT a.order_detail_id, " +
+				" a.product_id, b.product_name, a.order_qty, a.unit_price, " +
+				" a.total_retail_price, a.total_sale_price, " +
+				" a.vat_type, a.member_discount, a.price_discount " +
+				" FROM order_detail a" +
+				" LEFT JOIN products b" +
+				" ON a.product_id=b.product_id " +
+				" WHERE a.transaction_id=" + transactionId +
+				" AND a.computer_id=" + computerId);
 		if (cursor.moveToFirst()) {
 			do {
 				OrderTransaction.OrderDetail orderDetail = new OrderTransaction.OrderDetail();
@@ -648,9 +634,9 @@ public class MPOSTransaction extends Util {
 				orderDetail.setProductName(cursor.getString(cursor
 						.getColumnIndex("product_name")));
 				orderDetail
-						.setQty(cursor.getFloat(cursor.getColumnIndex("qty")));
+						.setQty(cursor.getFloat(cursor.getColumnIndex("order_qty")));
 				orderDetail.setPricePerUnit(cursor.getFloat(cursor
-						.getColumnIndex("price_per_unit")));
+						.getColumnIndex("unit_price")));
 				orderDetail.setTotalRetailPrice(cursor.getFloat(cursor
 						.getColumnIndex("total_retail_price")));
 				orderDetail.setTotalSalePrice(cursor.getFloat(cursor
@@ -666,7 +652,7 @@ public class MPOSTransaction extends Util {
 			} while (cursor.moveToNext());
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 
 		return orderDetailLst;
 	}
@@ -676,16 +662,16 @@ public class MPOSTransaction extends Util {
 
 		Calendar c = getDate();
 
-		String strSql = "SELECT a.transaction_id, a.computer_id, "
-				+ " a.open_time, a.remark, b.staff_code, b.staff_name "
-				+ " FROM order_transaction a LEFT JOIN staffs b "
-				+ " ON a.open_staff_id=b.staff_id  WHERE a.computer_id="
-				+ computerId + " AND a.sale_date='" + c.getTimeInMillis()
-				+ "' " + " AND a.transaction_status_id=9";
+		mSqlite.open();
 
-		mDbHelper.open();
-
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		Cursor cursor = mSqlite.rawQuery("SELECT a.transaction_id, a.computer_id, " + 
+				" a.open_time, a.remark, b.staff_code, b.staff_name " + 
+				" FROM order_transaction a " +
+				" LEFT JOIN staffs b " + 
+				" ON a.open_staff_id=b.staff_id  " +
+				" WHERE a.computer_id=" + computerId + 
+				" AND a.sale_date='" + c.getTimeInMillis() + "' " + 
+				" AND a.transaction_status_id=9");
 		if (cursor.moveToFirst()) {
 			do {
 				OrderTransaction trans = new OrderTransaction();
@@ -705,7 +691,7 @@ public class MPOSTransaction extends Util {
 			} while (cursor.moveToNext());
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 
 		return transLst;
 	}

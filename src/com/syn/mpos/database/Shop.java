@@ -9,20 +9,18 @@ import android.database.Cursor;
 import com.syn.pos.ShopData;
 
 public class Shop {
-	private MPOSSQLiteHelper dbHelper;
+	private MPOSSQLiteHelper mSqlite;
 	
 	public Shop(Context c){
-		dbHelper = new MPOSSQLiteHelper(c);
+		mSqlite = new MPOSSQLiteHelper(c);
 	}
 	
 	public ShopData.ComputerProperty getComputerProperty(){
 		ShopData.ComputerProperty computer = 
 				new ShopData.ComputerProperty();
 		
-		String strSql = "SELECT * FROM computer_property";
-		
-		dbHelper.open();
-		Cursor cursor = dbHelper.rawQuery(strSql);
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM computer");
 		if(cursor.moveToFirst()){
 			computer.setComputerID(cursor.getInt(cursor.getColumnIndex("computer_id")));
 			computer.setComputerName(cursor.getString(cursor.getColumnIndex("computer_name")));
@@ -31,7 +29,7 @@ public class Shop {
 			cursor.moveToNext();
 		}
 		cursor.close();
-		dbHelper.close();
+		mSqlite.close();
 		
 		return computer;
 	}
@@ -39,11 +37,9 @@ public class Shop {
 	public ShopData.ShopProperty getShopProperty(){
 		ShopData.ShopProperty sp = 
 				new ShopData.ShopProperty();
-		
-		String strSql = "SELECT * FROM shop_property";
-		
-		dbHelper.open();
-		Cursor cursor = dbHelper.rawQuery(strSql);
+
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM shop");
 		if(cursor.moveToFirst()){
 			sp.setShopID(cursor.getInt(cursor.getColumnIndex("shop_id")));
 			sp.setShopCode(cursor.getString(cursor.getColumnIndex("shop_code")));
@@ -72,7 +68,7 @@ public class Shop {
 			cursor.moveToNext();
 		}
 		cursor.close();
-		dbHelper.close();
+		mSqlite.close();
 		
 		return sp;
 	}
@@ -81,8 +77,8 @@ public class Shop {
 		ShopData.GlobalProperty gb = 
 				new ShopData.GlobalProperty();
 		
-		dbHelper.open();
-		Cursor cursor = dbHelper.rawQuery("SELECT * FROM global_property");
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM property");
 		if(cursor.moveToFirst()){
 			gb.setCurrencyCode(cursor.getString(cursor.getColumnIndex("currency_code")));
 			gb.setCurrencySymbol(cursor.getString(cursor.getColumnIndex("currency_symbol")));
@@ -93,16 +89,16 @@ public class Shop {
 			gb.setQtyFormat(cursor.getString(cursor.getColumnIndex("qty_format")));
 			cursor.moveToNext();
 		}
-		dbHelper.close();
+		mSqlite.close();
 		
 		return gb;
 	}
 	
-	public boolean addLanguage(List<ShopData.Language> langLst){
+	public boolean insertLanguage(List<ShopData.Language> langLst){
 		boolean isSucc = false;
 		
-		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM language");
+		mSqlite.open();
+		mSqlite.execSQL("DELETE FROM language");
 		
 		for(ShopData.Language lang : langLst){
 			ContentValues cv = new ContentValues();
@@ -110,19 +106,19 @@ public class Shop {
 			cv.put("lang_name", lang.getLangName());
 			cv.put("lang_code", lang.getLangCode());
 			
-			isSucc = dbHelper.insert("language", cv);
+			isSucc = mSqlite.insert("language", cv);
 		}
 		
-		dbHelper.close();
+		mSqlite.close();
 		
 		return isSucc;
 	}
 	
-	public boolean addProgramFeature(List<ShopData.ProgramFeature> featureLst){
+	public boolean insertProgramFeature(List<ShopData.ProgramFeature> featureLst){
 		boolean isSucc = false;
 		
-		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM program_feature");
+		mSqlite.open();
+		mSqlite.execSQL("DELETE FROM program_feature");
 		
 		for(ShopData.ProgramFeature feature : featureLst){
 			ContentValues cv = new ContentValues();
@@ -132,36 +128,35 @@ public class Shop {
 			cv.put("feature_text", feature.getFeatureText());
 			cv.put("feature_desc", feature.getFeatureDesc());
 			
-			isSucc = dbHelper.insert("program_feature", cv);
+			isSucc = mSqlite.insert("program_feature", cv);
 		}
 		
-		dbHelper.close();
+		mSqlite.close();
 		
 		return isSucc;
 	}
 	
 	public ShopData.Staff getStaff(int staffId){
 		ShopData.Staff s = null;
-		String strSql = "SELECT * FROM staffs " +
-				" WHERE staff_id=" + staffId;
-		
-		dbHelper.open();
-		Cursor cursor = dbHelper.rawQuery(strSql);
+	
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM staffs " +
+				" WHERE staff_id=" + staffId);
 		if(cursor.moveToFirst()){
 			s = new ShopData.Staff();
 			s.setStaffCode(cursor.getString(cursor.getColumnIndex("staff_code")));
 			s.setStaffName(cursor.getString(cursor.getColumnIndex("staff_name")));
 		}
 		cursor.close();
-		dbHelper.close();
+		mSqlite.close();
 		return s;
 	}
 	
-	public boolean addStaff(List<ShopData.Staff> staffLst){
+	public boolean insertStaff(List<ShopData.Staff> staffLst){
 		boolean isSucc = false;
 		
-		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM staffs");
+		mSqlite.open();
+		mSqlite.execSQL("DELETE FROM staffs");
 		
 		for(ShopData.Staff staff : staffLst){
 			ContentValues cv = new ContentValues();
@@ -170,19 +165,19 @@ public class Shop {
 			cv.put("staff_name", staff.getStaffName());
 			cv.put("staff_password", staff.getStaffPassword());
 			
-			isSucc = dbHelper.insert("staffs", cv);
+			isSucc = mSqlite.insert("staffs", cv);
 		}
 		
-		dbHelper.close();
+		mSqlite.close();
 		
 		return isSucc;
 	}
 	
-	public boolean addGlobalProperty(List<ShopData.GlobalProperty> globalLst){
+	public boolean insertProperty(List<ShopData.GlobalProperty> globalLst){
 		boolean isSucc = false;
 		
-		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM global_property");
+		mSqlite.open();
+		mSqlite.execSQL("DELETE FROM property");
 		
 		for(ShopData.GlobalProperty global : globalLst){
 			ContentValues cv = new ContentValues();
@@ -194,19 +189,19 @@ public class Shop {
 			cv.put("time_format", global.getTimeFormat());
 			cv.put("qty_format", global.getQtyFormat());
 			
-			isSucc = dbHelper.insert("global_property", cv);
+			isSucc = mSqlite.insert("property", cv);
 		}
 		
-		dbHelper.close();
+		mSqlite.close();
 		
 		return isSucc;
 	}
 	
-	public boolean addComputerProperty(List<ShopData.ComputerProperty> compLst){
+	public boolean insertComputer(List<ShopData.ComputerProperty> compLst){
 		boolean isSucc = false;
 		
-		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM computer_property");
+		mSqlite.open();
+		mSqlite.execSQL("DELETE FROM computer");
 		
 		for(ShopData.ComputerProperty comp : compLst){
 			ContentValues cv = new ContentValues();
@@ -215,19 +210,19 @@ public class Shop {
 			cv.put("device_code", comp.getDeviceCode());
 			cv.put("registration_number", comp.getRegistrationNumber());
 			
-			isSucc = dbHelper.insert("computer_property", cv);
+			isSucc = mSqlite.insert("computer", cv);
 		}
 		
-		dbHelper.close();
+		mSqlite.close();
 		
 		return isSucc;
 	}
 	
-	public boolean addShopProperty(List<ShopData.ShopProperty> shopPropLst){
+	public boolean insertShop(List<ShopData.ShopProperty> shopPropLst){
 		boolean isSucc = false;
 		
-		dbHelper.open();
-		dbHelper.execSQL("DELETE FROM shop_property");
+		mSqlite.open();
+		mSqlite.execSQL("DELETE FROM shop");
 		
 		for(ShopData.ShopProperty shop : shopPropLst){
 			ContentValues cv = new ContentValues();
@@ -255,9 +250,9 @@ public class Shop {
 			cv.put("company_register_id", shop.getCompanyRegisterID());
 			cv.put("company_vat", shop.getCompanyVat());
 			
-			isSucc = dbHelper.insert("shop_property", cv);
+			isSucc = mSqlite.insert("shop", cv);
 		}
-		dbHelper.close();
+		mSqlite.close();
 		
 		return isSucc;
 	}

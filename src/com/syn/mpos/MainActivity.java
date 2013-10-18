@@ -8,9 +8,11 @@ import java.util.Map;
 
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.j1tth4.mobile.util.ImageLoader;
+import com.syn.mpos.MenuPageFragment.OnMenuItemClick;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.MenuDept;
+import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.transaction.MPOSPayment;
@@ -25,6 +27,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -77,7 +80,7 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 	private int mComputerId;
 	private int mStaffId;
 	private int mSessionId;
-	private Setting mSetting;
+	public static Setting mSetting;
 	private Setting.Connection mConn;
 
 	private PagerSlidingTabStrip tabs;
@@ -115,6 +118,7 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		pager.setPageMargin(pageMargin);
 
 		tabs.setViewPager(pager);
+		tabs.setIndicatorColor(0xFF3F9FE0);
 		
 		mLayoutOrderCtrl = (RelativeLayout) findViewById(R.id.layoutOrderCtrl);
 		mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
@@ -797,12 +801,6 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 
 	private class OrderListAdapter extends BaseAdapter{
 		
-		private LayoutInflater inflater;
-		
-		public OrderListAdapter (){
-			inflater = LayoutInflater.from(MainActivity.this);
-		}
-	
 		@Override
 		public int getCount() {
 			return mOrderLst != null ? mOrderLst.size() : 0;
@@ -823,6 +821,9 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 			final OrderTransaction.OrderDetail orderDetail = 
 					mOrderLst.get(position);
 	
+			LayoutInflater inflater = (LayoutInflater) 
+				MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			
 			convertView = inflater.inflate(R.layout.order_list_template, null);
 			CheckBox chk = (CheckBox) convertView.findViewById(R.id.checkBox1);
 			TextView tvOrderNo = (TextView) convertView.findViewById(R.id.textViewOrderNo);
@@ -965,44 +966,42 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 	}
 	
 	public class MenuItemPagerAdapter extends FragmentPagerAdapter{
-		List<HashMap<String, Object>> menuPagerLst;
+		private Products p;
+		private List<Products.ProductDept> mPdLst;
 		
 		public MenuItemPagerAdapter(FragmentManager fm) {
 			super(fm);
 			
-			menuPagerLst = new ArrayList<HashMap<String, Object>>();
-			for(int i = 0; i < 10; i ++){
-				
-				List<HashMap<String, Object>> menuLst = 
-						new ArrayList<HashMap<String, Object>>();
-				for(int j = 0; j < 100; j++){
-					HashMap<String, Object> menu = new HashMap<String, Object>();
-					menu.put("menu", j);
-					menuLst.add(menu);
-				}
-
-				HashMap<String, Object> menu = new HashMap<String, Object>();
-				menu.put("items", menuLst);
-				menu.put("page", i);
-				
-				menuPagerLst.add(menu);
-			}
+			p = new Products(MainActivity.this);
+			mPdLst = p.listProductDept();
 		}
 		
 		@Override
 		public CharSequence getPageTitle(int position) {
-			return menuPagerLst.get(position).get("page").toString();
+			return mPdLst.get(position).getProductDeptName();
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			return MenuPageFragment.newInstance(position);
+			int deptId = mPdLst.get(position).getProductDeptId();
+			return MenuPageFragment.newInstance(MainActivity.this, mTrans, 
+					mTransactionId, mComputerId, deptId, menuItemClicked);
 		}
 
 		@Override
 		public int getCount() {
-			return menuPagerLst.size();
+			return mPdLst.size();
 		}
 		
 	}
+	
+	MenuPageFragment.OnMenuItemClick menuItemClicked = new MenuPageFragment.OnMenuItemClick(){
+
+		@Override
+		public void onClick(int orderId) {
+			mOrderLst.add(mTrans.getOrder(mTransactionId, mComputerId, orderId));
+			mOrderAdapter.notifyDataSetChanged();
+			mOrderListView.smoothScrollToPosition(mOrderAdapter.getCount());
+		}
+	};
 }
