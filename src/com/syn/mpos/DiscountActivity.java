@@ -6,7 +6,6 @@ import com.syn.mpos.R;
 import com.syn.mpos.transaction.MPOSTransaction;
 import com.syn.pos.OrderTransaction;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -38,9 +37,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
 
-public class DiscountActivity extends Activity implements OnConfirmClickListener, KeyPadFragment.KeyPadListener{
+public class DiscountActivity extends Activity{
 	//private static final String TAG = "DiscountActivity";
 	private int mTransactionId;
 	private int mComputerId;
@@ -48,7 +46,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 	private MPOSTransaction mTrans;
 	private DiscountAdapter mDisAdapter;
 	private boolean mIsEdited = false;
-	private DiscountPopup mDiscountPopup = null;
+	private int mDiscountType = 1; // 1 = price, 2 = percent
 
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private LinearLayout mLayoutVat;
@@ -87,10 +85,11 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		
 		switch(item.getItemId()){
 		case R.id.action_cancel:
-			onCancelClick(item.getActionView());
+			cancel();
 			return true;
 		case R.id.action_confirm:
-			onConfirmClick(item.getActionView());
+			if (mTrans.confirmDiscount(mTransactionId, mComputerId))
+				finish();
 			return true;
 		default:
 		return super.onOptionsItemSelected(item);
@@ -164,8 +163,6 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		public void notifyDataSetChanged() {
 			summary();
 			super.notifyDataSetChanged();
-			
-			mLvDiscount.setSelection(mLvDiscount.getSelectedItemPosition() + 1);
 		}
 
 		@Override
@@ -226,45 +223,53 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 				final OrderTransaction.OrderDetail order = 
 						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 				
-				if(mDiscountPopup == null){
-					mDiscountPopup = DiscountPopup.newInstance();
-				}else{
-					mDiscountPopup.dismiss();
-				}
-				mDiscountPopup.show(getFragmentManager(), "DiscountPopup");
+				final DiscountPopup discountPopup = 
+						DiscountPopup.newInstance(mFormat.currencyFormat(order.getPriceDiscount()),
+								mDiscountType, new OnKeyListener(){
+	
+								@Override
+								public boolean onKey(View v, int keyCode, KeyEvent event) {
+									float discount = 0.0f;
+									try {
+										discount = Float.parseFloat(((EditText) 
+												v.findViewById(R.id.txtDiscount)).getText().toString());
+									} catch (NumberFormatException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									
+									mDiscountType = order.getDiscountType();
+									if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER){
+										updateDiscount(position, order.getOrderDetailId(), 
+												order.getVatType(), order.getTotalRetailPrice(), 
+												discount, mDiscountType);
 				
-//				mActTvItemName.setText(order.getProductName());
-//				mActTxtDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
-//				mActTxtDiscount.requestFocus();
-//				final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//				imm.showSoftInput(mActTxtDiscount, InputMethodManager.SHOW_IMPLICIT);
-//				mActTxtDiscount.setOnKeyListener(new OnKeyListener(){
-//
-//					@Override
-//					public boolean onKey(View v, int keyCode, KeyEvent event) {
-//						float discount = 0.0f;
-//						try {
-//							discount = Float.parseFloat(((EditText)v.findViewById(R.id.editText1)).getText().toString());
-//						} catch (NumberFormatException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
-//						
-//						if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER){
-//							updateDiscount(position, order.getOrderDetailId(), 
-//									order.getVatType(), order.getTotalRetailPrice(), 
-//									discount, order.getDiscountType());
-//
-//							imm.hideSoftInputFromWindow(mActTxtDiscount.getWindowToken(), 0);
-//							mActTvItemName.setText(null);
-//							mActTxtDiscount.setText(null);
-//							mDisAdapter.notifyDataSetChanged();
-//							return true;
-//						}
-//						return false;
-//					}
-//					
-//				});
+										mDisAdapter.notifyDataSetChanged();
+										return true;
+									}
+									return false;
+								}
+							
+							}, new OnCheckedChangeListener(){
+				
+								@Override
+								public void onCheckedChanged(RadioGroup group,
+										int checkedId) {
+									RadioButton rdo = (RadioButton) group.findViewById(checkedId);
+									switch(checkedId){
+									case R.id.rdoPrice:
+										if(rdo.isChecked())
+											mDiscountType = 1;
+										break;
+									case R.id.rdoPercent:
+										if(rdo.isChecked())
+											mDiscountType = 2;
+										break;
+									}
+								}
+								
+							});
+				discountPopup.show(getFragmentManager(), "DiscountPopup");
 			}
 		});
 		loadOrder();
@@ -297,19 +302,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 		mTxtTotalPrice.setText(mFormat.currencyFormat(totalSalePrice));
 	}
 
-	@Override
-	public void onSaveClick(View v){
-		
-	}
-	
-	@Override
-	public void onConfirmClick(View v) {
-		if (mTrans.confirmDiscount(mTransactionId, mComputerId))
-			finish();
-	}
-
-	@Override
-	public void onCancelClick(View v) {
+	private void cancel(){
 		if (mIsEdited) {
 			new AlertDialog.Builder(DiscountActivity.this)
 					.setTitle(R.string.information)
@@ -336,7 +329,7 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 							}).show();
 		} else {
 			finish();
-		}
+		}	
 	}
 	
 	private void hideKeyboard(){
@@ -347,89 +340,10 @@ public class DiscountActivity extends Activity implements OnConfirmClickListener
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			onCancelClick(null);
+			cancel();
 			return true;
 		} else {
 			return super.onKeyDown(keyCode, event);
 		}
 	}
-
-	@Override
-	public void onKey0(int key0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKey1(int key1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKey2(int key2) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKey3(int key3) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKey4(int key4) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKey5(int key5) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKey6(int key6) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKey7(int key7) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKey8(int key8) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKey9(int key9) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKeyDot(String keyDot) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKeyDel() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onKeyEnter() {
-		// TODO Auto-generated method stub
-		
-	}
-	
 }
