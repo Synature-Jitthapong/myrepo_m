@@ -92,11 +92,9 @@
 
                 <Button
                     android:id="@+id/buttonLogin"
-                    style="@style/ButtonTextWhite"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_span="2"
-                    android:background="@drawable/blue_button"
                     android:onClick="loginClicked"
                     android:text="@string/login"
                     android:textAppearance="?android:attr/textAppearanceMediumInverse" />

@@ -286,15 +286,15 @@ containing a value of this type.
         public static final int lvBillDetail=0x7f0b0084;
         public static final int lvSync=0x7f0b00df;
         public static final int pager=0x7f0b005a;
-        public static final int rdoDisType=0x7f0b008d;
+        public static final int rdoDisType=0x7f0b008c;
         public static final int rdoExcludeVat=0x7f0b00c4;
         public static final int rdoFemale=0x7f0b000d;
         public static final int rdoGender=0x7f0b000b;
         public static final int rdoIncludeVat=0x7f0b00c3;
         public static final int rdoMale=0x7f0b000c;
         public static final int rdoNoVat=0x7f0b00c2;
-        public static final int rdoPercent=0x7f0b008f;
-        public static final int rdoPrice=0x7f0b008e;
+        public static final int rdoPercent=0x7f0b008e;
+        public static final int rdoPrice=0x7f0b008d;
         public static final int rdoTaxType=0x7f0b00c1;
         public static final int scrollView1=0x7f0b0001;
         public static final int settingCatFrag=0x7f0b007e;
@@ -397,7 +397,7 @@ containing a value of this type.
         public static final int txtAddress=0x7f0b0087;
         public static final int txtBackoffice=0x7f0b0088;
         public static final int txtCity=0x7f0b001d;
-        public static final int txtDiscount=0x7f0b008c;
+        public static final int txtDiscount=0x7f0b008f;
         public static final int txtEmail=0x7f0b002c;
         public static final int txtExcVat=0x7f0b003e;
         public static final int txtFaxNo=0x7f0b0029;

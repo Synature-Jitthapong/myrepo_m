@@ -46,6 +46,7 @@ public class DiscountActivity extends Activity{
 	private MPOSTransaction mTrans;
 	private DiscountAdapter mDisAdapter;
 	private boolean mIsEdited = false;
+	private DiscountPopup mDiscountPopup;
 	private int mDiscountType = 1; // 1 = price, 2 = percent
 
 	private List<OrderTransaction.OrderDetail> mOrderLst;
@@ -222,10 +223,15 @@ public class DiscountActivity extends Activity{
 				
 				final OrderTransaction.OrderDetail order = 
 						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
+
+				mDiscountType = order.getDiscountType();
 				
-				final DiscountPopup discountPopup = 
+				if(mDiscountPopup != null)
+					mDiscountPopup = null;
+				
+				mDiscountPopup = 
 						DiscountPopup.newInstance(mFormat.currencyFormat(order.getPriceDiscount()),
-								mDiscountType, new OnKeyListener(){
+							mDiscountType, new OnKeyListener(){
 	
 								@Override
 								public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -238,12 +244,12 @@ public class DiscountActivity extends Activity{
 										e.printStackTrace();
 									}
 									
-									mDiscountType = order.getDiscountType();
 									if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER){
 										updateDiscount(position, order.getOrderDetailId(), 
 												order.getVatType(), order.getTotalRetailPrice(), 
 												discount, mDiscountType);
-				
+										mDiscountPopup.dismiss();
+										
 										mDisAdapter.notifyDataSetChanged();
 										return true;
 									}
@@ -269,7 +275,7 @@ public class DiscountActivity extends Activity{
 								}
 								
 							});
-				discountPopup.show(getFragmentManager(), "DiscountPopup");
+				mDiscountPopup.show(getFragmentManager(), "DiscountPopup");
 			}
 		});
 		loadOrder();

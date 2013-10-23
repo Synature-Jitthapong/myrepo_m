@@ -12,6 +12,11 @@
     <uses-sdk
         android:minSdkVersion="15"
         android:targetSdkVersion="17" />
+    <supports-screens android:normalScreens="false" android:smallScreens="false" android:largeScreens="true"/>
+    <uses-feature android:required="false" android:name="android.hardware.camera"/>
+    <uses-feature android:required="false" android:name="android.hardware.camera.front"/>
+    <uses-feature android:required="false" android:name="android.hardware.camera.flash"/>
+    <uses-feature android:required="false" android:name="android.hardware.camera.autofocus"/>
 
     <application
         android:allowBackup="true"

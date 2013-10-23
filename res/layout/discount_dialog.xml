@@ -1,26 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/LinearLayout1"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/background_card"
     android:gravity="center"
     android:orientation="horizontal"
     android:padding="8dp" >
-
-    <EditText
-        android:id="@+id/txtDiscount"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:ems="10"
-        android:hint="@string/discount"
-        android:inputType="numberDecimal" />
 
     <RadioGroup
         android:id="@+id/rdoDisType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:orientation="horizontal" >
 
         <RadioButton
@@ -37,4 +29,19 @@
             android:text="@string/percent" />
     </RadioGroup>
 
-</LinearLayout>
+    <EditText
+        android:id="@+id/txtDiscount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/rdoDisType"
+        android:layout_weight="1"
+        android:ems="10"
+        android:hint="@string/discount"
+        android:inputType="numberDecimal" >
+
+        <requestFocus />
+    </EditText>
+
+</RelativeLayout>
