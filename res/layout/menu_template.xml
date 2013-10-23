@@ -17,8 +17,8 @@
         android:layout_margin="4dp"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:minHeight="100dip"
-        android:minWidth="100dip"
+        android:minHeight="90dip"
+        android:minWidth="90dip"
         android:src="@drawable/no_food" />
 
     <TextView

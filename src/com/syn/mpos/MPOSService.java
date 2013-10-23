@@ -125,7 +125,7 @@ public class MPOSService {
 
 			@Override
 			public void onError(String mesg) {
-				dialog(c, R.string.check_device, c.getString(R.string.device_not_register));
+				dialog(c, R.string.check_device, mesg);
 				listener.onError(mesg);
 				progress.dismiss();
 			}
@@ -272,7 +272,10 @@ public class MPOSService {
 		protected void onPostExecute(String result) {
 			try {
 				int shopId = Integer.parseInt(result);
-				this.listener.onAuthenSuccess(shopId);
+				if(shopId > 0)
+					this.listener.onAuthenSuccess(shopId);
+				else
+					this.listener.onError(context.getString(R.string.device_not_register));
 			} catch (NumberFormatException e) {
 				this.listener.onError(e.getMessage());
 			}

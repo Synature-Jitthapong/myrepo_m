@@ -38,8 +38,7 @@
         <activity
             android:name="com.syn.mpos.DiscountActivity"
             android:label="@string/discount"
-            android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden" >
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.pos.mobile.mpos.MainActivity" />
@@ -93,6 +92,7 @@
             android:name="com.syn.mpos.SettingActivity"
             android:label="@string/title_activity_setting" >
         </activity>
+        <activity android:theme="@android:style/Theme.Holo.Light.Dialog" android:label="@string/discount" android:name="DiscountDialogFragment"></activity>
     </application>
 
 </manifest>

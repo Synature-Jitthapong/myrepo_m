@@ -72,6 +72,7 @@
             style="@style/ColumnHeader"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:layout_marginRight="0dp"
             android:text="@string/sale_price"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -84,7 +85,6 @@
         android:layout_weight="1"
         android:background="@drawable/background_card"
         android:listSelector="@drawable/list_selector" >
-
     </ListView>
 
     <TableLayout
@@ -118,6 +118,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@android:color/black" >
 
+                <requestFocus />
             </EditText>
 
             <TextView
@@ -137,10 +138,7 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/black" >
-
-                <requestFocus />
-            </EditText>
+                android:textColor="@android:color/black" />
 
             <LinearLayout
                 android:id="@+id/layoutVat"
@@ -159,6 +157,7 @@
                     android:id="@+id/txtExcVat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:ems="5"
                     android:enabled="false"
                     android:focusable="false"
@@ -166,7 +165,6 @@
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="@android:color/black"
                     android:textStyle="bold" />
-
             </LinearLayout>
 
             <TextView
@@ -187,7 +185,6 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
-
         </TableRow>
     </TableLayout>
 
