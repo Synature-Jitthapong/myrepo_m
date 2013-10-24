@@ -184,8 +184,10 @@
 
             <Button
                 android:id="@+id/buttonDiscount"
+                style="@style/ButtonTextWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/blue_button"
                 android:enabled="false"
                 android:minWidth="100dp"
                 android:onClick="discountClicked"
@@ -194,13 +196,16 @@
 
             <Button
                 android:id="@+id/buttonCash"
+                style="@style/ButtonTextWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/green_button"
                 android:enabled="false"
                 android:minWidth="100dp"
                 android:onClick="paymentClicked"
                 android:text="@string/cash"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+
         </LinearLayout>
     </LinearLayout>
 
@@ -245,8 +250,10 @@
 
                 <Button
                     android:id="@+id/buttonHold"
+                    style="@style/ButtonText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/gray_button"
                     android:enabled="false"
                     android:minWidth="100dp"
                     android:onClick="holdOrderClicked"
@@ -281,12 +288,15 @@
 
             <Button
                 android:id="@+id/buttonClearBill"
+                style="@style/ButtonTextWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/red_button"
                 android:minWidth="100dp"
                 android:onClick="clearBillClicked"
                 android:text="@string/cancel_bill"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+
         </LinearLayout>
     </LinearLayout>
 

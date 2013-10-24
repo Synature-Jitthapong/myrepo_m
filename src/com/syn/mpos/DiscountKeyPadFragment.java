@@ -33,7 +33,7 @@ public class DiscountKeyPadFragment extends KeyPadFragment implements KeyPadFrag
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.discount_dialog, container, false);
+		return inflater.inflate(R.layout.discount_input, container, false);
 	}
 
 	void setTxtDiscount(){

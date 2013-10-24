@@ -33,8 +33,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PaymentActivity extends Activity  implements OnConfirmClickListener,
-	StatusChangeEventListener, BatteryStatusChangeEventListener {
+public class PaymentActivity extends Activity  implements StatusChangeEventListener, 
+	BatteryStatusChangeEventListener {
 	//private final String TAG = "PaymentActivity";
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
@@ -99,10 +99,10 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case R.id.itemCancel:
-			onCancelClick(item.getActionView());
+			cancel();
 			return true;
 		case R.id.itemConfirm:
-			onConfirmClick(item.getActionView());
+			confirm();
 			return true;
 		default:
 		return super.onOptionsItemSelected(item);
@@ -464,14 +464,8 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override 
-	public void onSaveClick(View v){
-		
-	}
 	
-	@Override
-	public void onConfirmClick(View v) {
+	public void confirm() {
 		if(mTotalPaid >=mTotalSalePrice){
 			if(mTrans.successTransaction(mTransactionId, mComputerId, mStaffId)){
 				
@@ -521,8 +515,7 @@ public class PaymentActivity extends Activity  implements OnConfirmClickListener
 		}
 	}
 
-	@Override
-	public void onCancelClick(View v) {
+	public void cancel() {
 		mPayment.deleteAllPaymentDetail(mTransactionId, mComputerId);
 		finish();
 	}

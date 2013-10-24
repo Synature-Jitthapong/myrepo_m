@@ -3,8 +3,8 @@
 
     <string name="app_name">MPOS</string>
     <string name="login">Login</string>
-    <string name="user_name">Username:</string>
-    <string name="pass_word">Password:</string>
+    <string name="user_name">Username</string>
+    <string name="pass_word">Password</string>
     <string name="inventory">Inventory</string>
     <string name="hold_bill">Hold bill</string>
     <string name="report">Reports</string>
@@ -164,7 +164,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="balance">Balance</string>
     <string name="unit_name">Unit</string>
     <string name="error_save_stock">an error occurred during save stock material!</string>
-    <string name="confirm_stock_count">When you confirm this stock count the system will be calculate stock balance base on amount that you input.</string>
+    <string name="confirm_stock_count">Are you sure you want to confirm this stockcount?</string>
     <string name="setting">Setting</string>
     <string name="close">Close</string>
     <string name="title_activity_stock_card">Stock Card</string>

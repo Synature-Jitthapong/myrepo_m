@@ -6,14 +6,16 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import com.syn.mpos.inventory.MPOSStockCount;
 import com.syn.mpos.inventory.MPOSStockDocument;
-import com.syn.mpos.inventory.StockMaterial;
+import com.syn.mpos.inventory.StockProduct;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,23 +24,32 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
-public class StockCountActivity extends Activity {
+public class StockCountActivity extends Activity implements OnEditorActionListener{
 	private Formatter mFormat;
 	private MPOSStockCount mStockCount;
 	private int mStcDocId;
-	private List<StockMaterial> mStockLst;
+	private StockProduct mStockProduct;
+	private List<StockProduct> mStockLst;
 	private StockAdapter mStockAdapter;
 	private Calendar mCalendar;
+	private int mPosition = -1;
 	private int mStaffId;
 	private int mShopId;
 
 	private ListView mLvStock;
+	private EditText mTxtCountStock;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,17 +74,26 @@ public class StockCountActivity extends Activity {
 		mFormat = new Formatter(StockCountActivity.this);
 		mStockCount = new MPOSStockCount(StockCountActivity.this, dateFrom.getTimeInMillis(),
 				mCalendar.getTimeInMillis());
-		mStockLst = new ArrayList<StockMaterial>();
+		mStockLst = new ArrayList<StockProduct>();
 		mStockAdapter = new StockAdapter();
 		mLvStock.setAdapter(mStockAdapter);
-		mLvStock.setOnTouchListener(new OnTouchListener() {
+		
+		mLvStock.setOnItemClickListener(new OnItemClickListener(){
 
 			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				clearFocus(v);
-				return false;
+			public void onItemClick(AdapterView<?> parent, View v, int position,
+					long id) {
+				mPosition = position;
+				mStockProduct = (StockProduct) parent.getItemAtPosition(position);
+				
+				mTxtCountStock.setText(mFormat.qtyFormat(mStockProduct.getCountQty()));
+				mTxtCountStock.selectAll();
+				mTxtCountStock.requestFocus();
+				
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(mTxtCountStock,
+                        InputMethodManager.SHOW_IMPLICIT);
 			}
-
 		});
 
 		mStcDocId = mStockCount.getCurrentDocument(mShopId,
@@ -91,16 +111,6 @@ public class StockCountActivity extends Activity {
 		}
 	}
 	
-	private void clearFocus(final View v){
-		v.clearFocus();
-	}
-	
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		clearFocus(getCurrentFocus());
-		return super.onTouchEvent(event);
-	}
-	
 	@Override
 	protected void onDestroy() {
 		mStockCount.clearDocument();
@@ -109,20 +119,18 @@ public class StockCountActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.action_confirm, menu);
+		getMenuInflater().inflate(R.menu.action_stockcount, menu);
+		MenuItem item = menu.findItem(R.id.action_input_num);
+		mTxtCountStock = (EditText) item.getActionView().findViewById(R.id.editText1);
+		mTxtCountStock.setOnEditorActionListener(this);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-
-		final EditText txtRemark;
-
 		switch (item.getItemId()) {
-		case R.id.itemConfirm:
-			txtRemark = new EditText(StockCountActivity.this);
+		case R.id.action_confirm:
 			new AlertDialog.Builder(StockCountActivity.this)
-					.setView(txtRemark)
 					.setTitle(R.string.confirm)
 					.setMessage(R.string.confirm_stock_count)
 					.setNegativeButton(android.R.string.cancel,
@@ -131,7 +139,6 @@ public class StockCountActivity extends Activity {
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									hideKeyboard();
 								}
 							})
 					.setPositiveButton(android.R.string.ok,
@@ -140,35 +147,28 @@ public class StockCountActivity extends Activity {
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									mStockCount.confirmStock(mStcDocId,
-											mShopId, mStaffId, txtRemark
-													.getText().toString());
+									mStockCount.confirmStock(mStcDocId,mShopId, mStaffId, "");
 
 									new AlertDialog.Builder(StockCountActivity.this)
-											.setIcon(
-													android.R.drawable.ic_dialog_info)
+											.setIcon(android.R.drawable.ic_dialog_info)
 											.setTitle(R.string.confirm)
-											.setMessage(
-													R.string.confirm_success)
-											.setNeutralButton(
-													R.string.close,
+											.setMessage(R.string.confirm_success)
+											.setNeutralButton(R.string.close,
 													new DialogInterface.OnClickListener() {
 
 														@Override
-														public void onClick(
-																DialogInterface dialog,
+														public void onClick(DialogInterface dialog,
 																int which) {
-															hideKeyboard();
 															finish();
 														}
 													}).show();
 								}
 							}).show();
 			return true;
-		case R.id.itemClose:
+		case R.id.action_close:
 			finish();
 			return true;
-		case R.id.itemCancel:
+		case R.id.action_cancel:
 			new AlertDialog.Builder(StockCountActivity.this)
 					.setTitle(android.R.string.cancel)
 					.setMessage(R.string.confirm_cancel_stock_count)
@@ -215,7 +215,7 @@ public class StockCountActivity extends Activity {
 		}
 
 		@Override
-		public StockMaterial getItem(int position) {
+		public StockProduct getItem(int position) {
 			return mStockLst.get(position);
 		}
 
@@ -225,26 +225,23 @@ public class StockCountActivity extends Activity {
 		}
 
 		@Override
+		public void notifyDataSetChanged() {
+			super.notifyDataSetChanged();
+		}
+
+		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			final StockMaterial stock = mStockLst.get(position);
+			final StockProduct stock = mStockLst.get(position);
 			View rowView = convertView;
 
 			rowView = inflater.inflate(R.layout.stock_count_template, null);
 			TextView tvItemNo = (TextView) rowView.findViewById(R.id.tvItemNo);
-			TextView tvItemCode = (TextView) rowView
-					.findViewById(R.id.tvItemCode);
-			TextView tvItemName = (TextView) rowView
-					.findViewById(R.id.tvItemName);
-			TextView tvItemCurrQty = (TextView) rowView
-					.findViewById(R.id.tvItemCurrQty);
-			EditText txtItemQty = (EditText) rowView
-					.findViewById(R.id.txtItemQty);
-			final TextView tvItemDiff = (TextView) rowView
-					.findViewById(R.id.tvItemDiff);
-			TextView tvItemUnit = (TextView) rowView
-					.findViewById(R.id.tvItemUnit);
-
-			txtItemQty.setSelectAllOnFocus(true);
+			TextView tvItemCode = (TextView) rowView.findViewById(R.id.tvItemCode);
+			TextView tvItemName = (TextView) rowView.findViewById(R.id.tvItemName);
+			TextView tvItemCurrQty = (TextView) rowView.findViewById(R.id.tvItemCurrQty);
+			TextView tvCount = (TextView) rowView.findViewById(R.id.tvCount);
+			final TextView tvItemDiff = (TextView) rowView.findViewById(R.id.tvItemDiff);
+			TextView tvItemUnit = (TextView) rowView.findViewById(R.id.tvItemUnit);
 
 			final float currQty = stock.getCurrQty();
 			final float countQty = stock.getCountQty();
@@ -254,42 +251,42 @@ public class StockCountActivity extends Activity {
 			tvItemCode.setText(stock.getCode());
 			tvItemName.setText(stock.getName());
 			tvItemCurrQty.setText(mFormat.qtyFormat(currQty));
-			txtItemQty.setText(mFormat.qtyFormat(countQty));
+			tvCount.setText(mFormat.qtyFormat(countQty));
 			tvItemDiff.setText(mFormat.qtyFormat(diffQty));
 			tvItemUnit.setText("unit");
 
-			txtItemQty.setOnFocusChangeListener(new OnFocusChangeListener() {
-
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					EditText txtQty = (EditText) v;
-
-					if (!hasFocus) {
-						float enterCount = 0.0f;
-
-						try {
-							enterCount = Float.parseFloat(txtQty.getText()
-									.toString());
-						} catch (NumberFormatException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-
-						mStockCount.updateDocumentDetail(stock.getId(),
-								mStcDocId, mShopId, stock.getMatId(),
-								enterCount, stock.getPricePerUnit(), "");
-
-						stock.setCountQty(enterCount);
-						tvItemDiff.setText(mFormat.qtyFormat(enterCount
-								- currQty));
-					}
-				}
-			});
-
-			if (position % 2 == 0)
-				rowView.setBackgroundResource(R.color.smoke_white);
-			else
-				rowView.setBackgroundResource(R.color.light_gray);
+//			txtItemQty.setOnFocusChangeListener(new OnFocusChangeListener() {
+//
+//				@Override
+//				public void onFocusChange(View v, boolean hasFocus) {
+//					EditText txtQty = (EditText) v;
+//
+//					if (!hasFocus) {
+//						float enterCount = 0.0f;
+//
+//						try {
+//							enterCount = Float.parseFloat(txtQty.getText()
+//									.toString());
+//						} catch (NumberFormatException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//
+//						mStockCount.updateDocumentDetail(stock.getId(),
+//								mStcDocId, mShopId, stock.getProId(),
+//								enterCount, stock.getUnitPrice(), "");
+//
+//						stock.setCountQty(enterCount);
+//						tvItemDiff.setText(mFormat.qtyFormat(enterCount
+//								- currQty));
+//					}
+//				}
+//			});
+//
+//			if (position % 2 == 0)
+//				rowView.setBackgroundResource(R.color.smoke_white);
+//			else
+//				rowView.setBackgroundResource(R.color.light_gray);
 
 			return rowView;
 		}
@@ -337,8 +334,28 @@ public class StockCountActivity extends Activity {
 
 	}
 
-	private void hideKeyboard() {
-		getWindow().setSoftInputMode(
-				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+	@Override
+	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+		if(EditorInfo.IME_ACTION_DONE == actionId){
+			float count = 0.0f;
+			try {
+				count = Float.parseFloat(v.getText().toString());
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			mStockCount.updateDocumentDetail(mStockProduct.getId(),
+					mStcDocId, mShopId, mStockProduct.getProId(),
+					count, mStockProduct.getUnitPrice(), "");
+			
+			StockProduct stock = mStockProduct;
+			stock.setCountQty(count);
+			mStockLst.set(mPosition, stock);
+			mStockAdapter.notifyDataSetChanged();
+			
+			return true;
+		}
+		return false;
 	}
 }

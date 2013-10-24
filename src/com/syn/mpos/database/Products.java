@@ -17,6 +17,38 @@ public class Products {
 		mSqlite = new MPOSSQLiteHelper(c);
 	}
 	
+	public List<Product> listProduct(String query){
+		List<Product> pLst = new ArrayList<Product>();
+		String strSql = "SELECT product_id, " +
+				" product_code, " +
+				" product_barcode, " +
+				" product_name, " +
+				" pic_name, " +
+				" product_price " +
+				" FROM products " +
+				" WHERE (product_code LIKE '%" + query + "%' " +
+				" OR product_name LIKE '%" + query + "%') " +
+				" AND activated=1";
+		
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery(strSql);
+		if(cursor.moveToFirst()){
+			do{
+				Product p = new Product();
+				p.setProductId(cursor.getInt(cursor.getColumnIndex("product_id")));
+				p.setProductCode(cursor.getString(cursor.getColumnIndex("product_code")));
+				p.setProductBarCode(cursor.getString(cursor.getColumnIndex("product_barcode")));
+				p.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
+				p.setPicName(cursor.getString(cursor.getColumnIndex("pic_name")));
+				p.setProductPrice(cursor.getFloat(cursor.getColumnIndex("product_price")));
+				pLst.add(p);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		mSqlite.close();
+		return pLst;
+	}
+	
 	public List<Product> listProduct(int deptId){
 		List<Product> pLst = new ArrayList<Product>();
 		
@@ -90,19 +122,20 @@ public class Products {
 		return pgLst;
 	}
 	
-	public boolean insertProductGroup(List<ProductGroups.ProductGroup> pgLst){
+	public boolean insertProductGroup(List<ProductGroups.ProductGroup> pgLst,
+			List<MenuGroups.MenuGroup> mgLst){
 		boolean isSuccess = false;
 		
 		mSqlite.open();
 		mSqlite.execSQL("DELETE FROM product_group WHERE create_from_device=0");
-		for(ProductGroups.ProductGroup pg : pgLst){
+		for(MenuGroups.MenuGroup mg : mgLst){
 			ContentValues cv = new ContentValues();
-			cv.put("product_group_id", pg.getProductGroupId());
-			cv.put("product_group_code", pg.getProductGroupCode());
-			cv.put("product_group_name", pg.getProductGroupName());
-			cv.put("product_group_type", pg.getProductGroupType());
-			cv.put("is_comment", pg.getIsComment());
-			cv.put("product_group_ordering", pg.getProductGroupOrdering());
+			cv.put("product_group_id", mg.getMenuGroupID());
+			cv.put("product_group_code", "x");
+			cv.put("product_group_name", mg.getMenuGroupName_0());
+			cv.put("product_group_type", mg.getMenuGroupType());
+			cv.put("is_comment", 0);
+			cv.put("product_group_ordering", mg.getMenuGroupOrdering());
 			
 			isSuccess = mSqlite.insert("product_group", cv);
 		}
@@ -110,18 +143,19 @@ public class Products {
 		return isSuccess;
 	}
 	
-	public boolean insertProductDept(List<ProductGroups.ProductDept> pdLst){
+	public boolean insertProductDept(List<ProductGroups.ProductDept> pdLst, 
+			List<MenuGroups.MenuDept> mdLst){
 		boolean isSuccess = false;
 		
 		mSqlite.open();
 		mSqlite.execSQL("DELETE FROM product_dept WHERE create_from_device=0");
-		for(ProductGroups.ProductDept pd : pdLst){
+		for(MenuGroups.MenuDept md : mdLst){
 			ContentValues cv = new ContentValues();
-			cv.put("product_dept_id", pd.getProductDeptID());
-			cv.put("product_group_id", pd.getProductGroupID());
-			cv.put("product_dept_code", pd.getProductDeptCode());
-			cv.put("product_dept_name", pd.getProductDeptName());
-			cv.put("product_dept_ordering", pd.getProductDeptOrdering());
+			cv.put("product_dept_id", md.getMenuDeptID());
+			cv.put("product_group_id", md.getMenuGroupID());
+			cv.put("product_dept_code", "");
+			cv.put("product_dept_name", md.getMenuDeptName_0());
+			cv.put("product_dept_ordering", md.getMenuDeptOrdering());
 			
 			isSuccess = mSqlite.insert("product_dept", cv);
 		}

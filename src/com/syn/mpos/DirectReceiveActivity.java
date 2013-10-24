@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
+import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.inventory.MPOSReceiveStock;
 import com.syn.mpos.inventory.MPOSStockDocument;
-import com.syn.mpos.inventory.StockMaterial;
+import com.syn.mpos.inventory.StockProduct;
 import com.syn.pos.MenuGroups;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,19 +42,20 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 public class DirectReceiveActivity extends Activity implements
-		OnActionExpandListener, OnConfirmClickListener {
+		OnActionExpandListener, OnEditorActionListener {
 
 	private MPOSReceiveStock mReceiveStock;
 	private Formatter mFormat;
-	private com.syn.mpos.database.MenuItem menuItem;
+	private Products mProduct;
 	private Setting mSetting;
 	private Setting.Connection mConn;
-	private List<MenuGroups.MenuItem> menuLst;
+	private List<Products.Product> mProductLst;
 	private ResultAdapter mResultAdapter;
 	private ReceiveStockAdapter mStockAdapter;
-	private List<StockMaterial> mStockLst;
+	private List<StockProduct> mStockLst;
 	private int mDocumentId;
 	private int mShopId;
 	private int mStaffId;
@@ -65,6 +66,8 @@ public class DirectReceiveActivity extends Activity implements
 	private View mPopSearch;
 	private ListView mListViewStock;
 	private ListView mListViewResult;
+	private EditText mTxtReceiveQty;
+	private EditText mTxtReceivePrice;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +94,10 @@ public class DirectReceiveActivity extends Activity implements
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.action_stock_receive, menu);
-
+		MenuItem itemReceiveInput = menu.findItem(R.id.itemReceiveInput);
+		mTxtReceiveQty = (EditText) itemReceiveInput.getActionView().findViewById(R.id.editText1);
+		mTxtReceivePrice = (EditText) itemReceiveInput.getActionView().findViewById(R.id.editText2);
+		
 		mItemSearch = menu.findItem(R.id.itemSearch);
 		
 		mSearchView = (SearchView) mItemSearch.getActionView();
@@ -104,7 +110,7 @@ public class DirectReceiveActivity extends Activity implements
 
 			@Override
 			public boolean onQueryTextSubmit(String query) {
-				menuLst = menuItem.listMenuItem(query);
+				mProductLst = mProduct.listProduct(query);
 				mResultAdapter.notifyDataSetChanged();
 				return true;
 			}
@@ -131,10 +137,10 @@ public class DirectReceiveActivity extends Activity implements
 		
 		switch (item.getItemId()) {
 		case R.id.itemConfirm:
-			onConfirmClick(item.getActionView());
+			confirm();
 			return true;
 		case R.id.itemCancel:
-			onCancelClick(item.getActionView());
+			cancel();
 			return true;
 		case R.id.itemClose:
 			finish();
@@ -145,8 +151,8 @@ public class DirectReceiveActivity extends Activity implements
 	}
 
 	private void setupPopSearch() {
-		menuItem = new com.syn.mpos.database.MenuItem(DirectReceiveActivity.this);
-		menuLst = new ArrayList<MenuGroups.MenuItem>();
+		mProduct = new Products(this);
+		mProductLst = new ArrayList<Products.Product>();
 		mResultAdapter = new ResultAdapter();
 
 		LayoutInflater inflater = LayoutInflater.from(DirectReceiveActivity.this);
@@ -158,11 +164,10 @@ public class DirectReceiveActivity extends Activity implements
 			@Override
 			public void onItemClick(AdapterView<?> parent, View v,
 					int position, long id) {
-				MenuGroups.MenuItem menuItem = (MenuGroups.MenuItem) parent
+				Products.Product p = (Products.Product) parent
 						.getItemAtPosition(position);
 
-				addSelectedProduct(menuItem.getProductID(), 1,
-						menuItem.getProductPricePerUnit(), 0);
+				addSelectedProduct(p.getProductId(), 1, p.getProductPrice(), 0);
 				
 				hideKeyboard();
 				mPopup.dismiss();
@@ -206,7 +211,7 @@ public class DirectReceiveActivity extends Activity implements
 
 		mFormat = new Formatter(DirectReceiveActivity.this);
 		mReceiveStock = new MPOSReceiveStock(DirectReceiveActivity.this);
-		mStockLst = new ArrayList<StockMaterial>();
+		mStockLst = new ArrayList<StockProduct>();
 		mStockAdapter = new ReceiveStockAdapter();
 		mListViewStock.setAdapter(mStockAdapter);
 		mListViewStock.setOnTouchListener(new OnTouchListener(){
@@ -232,10 +237,10 @@ public class DirectReceiveActivity extends Activity implements
 		mStockAdapter.notifyDataSetChanged();
 	}
 
-	private void updateStock(StockMaterial stock){
+	private void updateStock(StockProduct stock){
 		mReceiveStock.updateDocumentDetail(stock.getId(),
-				mDocumentId, mShopId, stock.getMatId(),
-				stock.getCurrQty(), stock.getPricePerUnit(),
+				mDocumentId, mShopId, stock.getProId(),
+				stock.getCurrQty(), stock.getUnitPrice(),
 				stock.getTaxType(), "");	
 	}
 	
@@ -263,12 +268,12 @@ public class DirectReceiveActivity extends Activity implements
 
 		@Override
 		public int getCount() {
-			return menuLst != null ? menuLst.size() : 0;
+			return mProductLst != null ? mProductLst.size() : 0;
 		}
 
 		@Override
-		public MenuGroups.MenuItem getItem(int position) {
-			return menuLst.get(position);
+		public Products.Product getItem(int position) {
+			return mProductLst.get(position);
 		}
 
 		@Override
@@ -284,7 +289,7 @@ public class DirectReceiveActivity extends Activity implements
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			MenuGroups.MenuItem menu = menuLst.get(position);
+			Products.Product p = mProductLst.get(position);
 			ViewHolder holder;
 
 			if (convertView == null) {
@@ -304,10 +309,10 @@ public class DirectReceiveActivity extends Activity implements
 			}
 
 			imgLoader.displayImage(
-					mSetting.getMenuImageUrl() + menu.getMenuImageLink(),
+					mSetting.getMenuImageUrl() + p.getPicName(),
 					holder.img);
-			holder.tvCode.setText(menu.getProductCode());
-			holder.tvName.setText(menu.getMenuName_0());
+			holder.tvCode.setText(p.getProductCode());
+			holder.tvName.setText(p.getProductName());
 
 			return convertView;
 		}
@@ -334,7 +339,7 @@ public class DirectReceiveActivity extends Activity implements
 		}
 
 		@Override
-		public StockMaterial getItem(int position) {
+		public StockProduct getItem(int position) {
 			return mStockLst.get(position);
 		}
 
@@ -345,7 +350,7 @@ public class DirectReceiveActivity extends Activity implements
 
 		@Override
 		public View getView(final int position, View convertView, ViewGroup parent) {
-			final StockMaterial stock = mStockLst.get(position);
+			final StockProduct stock = mStockLst.get(position);
 			View rowView = convertView;
 			
 			rowView = inflater.inflate(R.layout.receive_stock_template,null);
@@ -353,18 +358,16 @@ public class DirectReceiveActivity extends Activity implements
 			TextView tvNo = (TextView) rowView.findViewById(R.id.tvNo);
 			TextView tvCode = (TextView) rowView.findViewById(R.id.tvCode);
 			TextView tvName = (TextView) rowView.findViewById(R.id.tvName);
-			EditText txtQty = (EditText) rowView.findViewById(R.id.txtQty);
-			EditText txtPrice = (EditText) rowView.findViewById(R.id.txtPrice);
-			txtQty.setSelectAllOnFocus(true);
-			txtPrice.setSelectAllOnFocus(true);
+			TextView tvQty = (EditText) rowView.findViewById(R.id.tvQty);
+			TextView tvPrice = (EditText) rowView.findViewById(R.id.tvPrice);
 			RadioGroup rdoTaxType = (RadioGroup) rowView.findViewById(R.id.rdoTaxType);
 			ImageView imgBtnDelete = (ImageView) rowView.findViewById(R.id.imgDel);
 			
 			tvNo.setText(Integer.toString(position + 1));
 			tvCode.setText(stock.getCode());
 			tvName.setText(stock.getName());
-			txtQty.setText(mFormat.qtyFormat(stock.getCurrQty()));
-			txtPrice.setText(mFormat.currencyFormat(stock.getPricePerUnit()));
+			tvQty.setText(mFormat.qtyFormat(stock.getCurrQty()));
+			tvPrice.setText(mFormat.currencyFormat(stock.getUnitPrice()));
 
 			switch(stock.getTaxType()){
 			case 0:
@@ -381,20 +384,17 @@ public class DirectReceiveActivity extends Activity implements
 			rdoTaxType.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 				@Override
 				public void onCheckedChanged(RadioGroup group, int checkedId) {
-					RadioButton rdoTax;
+					RadioButton rdoTax = (RadioButton) group.findViewById(checkedId);
 					switch(checkedId){
 					case R.id.rdoNoVat:
-						rdoTax = (RadioButton) group.findViewById(checkedId);
 						if(rdoTax.isChecked())
 							stock.setTaxType(0);
 						break;
 					case R.id.rdoIncludeVat:
-						rdoTax = (RadioButton) group.findViewById(checkedId);
 						if(rdoTax.isChecked())
 							stock.setTaxType(1);
 						break;
 					case R.id.rdoExcludeVat:
-						rdoTax = (RadioButton) group.findViewById(checkedId);
 						if(rdoTax.isChecked())
 							stock.setTaxType(2);
 						break;
@@ -404,41 +404,41 @@ public class DirectReceiveActivity extends Activity implements
 				}
 			});
 			
-			txtQty.setOnFocusChangeListener(new OnFocusChangeListener(){
-
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					EditText txtQty = (EditText) v;
-					if(!hasFocus){
-						try {
-							stock.setCurrQty(Float.parseFloat(txtQty.getText().toString()));
-							updateStock(stock);
-						} catch (NumberFormatException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-				
-			});
-			
-			txtPrice.setOnFocusChangeListener(new OnFocusChangeListener(){
-
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					EditText txtPrice = (EditText) v;
-					if(!hasFocus){
-						try {
-							stock.setPricePerUnit(Float.parseFloat(txtPrice.getText().toString()));
-							updateStock(stock);
-						} catch (NumberFormatException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-				
-			});
+//			txtQty.setOnFocusChangeListener(new OnFocusChangeListener(){
+//
+//				@Override
+//				public void onFocusChange(View v, boolean hasFocus) {
+//					EditText txtQty = (EditText) v;
+//					if(!hasFocus){
+//						try {
+//							stock.setCurrQty(Float.parseFloat(txtQty.getText().toString()));
+//							updateStock(stock);
+//						} catch (NumberFormatException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//					}
+//				}
+//				
+//			});
+//			
+//			txtPrice.setOnFocusChangeListener(new OnFocusChangeListener(){
+//
+//				@Override
+//				public void onFocusChange(View v, boolean hasFocus) {
+//					EditText txtPrice = (EditText) v;
+//					if(!hasFocus){
+//						try {
+//							stock.setUnitPrice(Float.parseFloat(txtPrice.getText().toString()));
+//							updateStock(stock);
+//						} catch (NumberFormatException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//					}
+//				}
+//				
+//			});
 			
 			imgBtnDelete.setOnClickListener(new OnClickListener(){
 
@@ -485,13 +485,7 @@ public class DirectReceiveActivity extends Activity implements
 		return true;
 	}
 
-	@Override
-	public void onSaveClick(final View v) {
-		
-	}
-
-	@Override
-	public void onConfirmClick(View v) {
+	public void confirm() {
 		if(mStockLst.size() > 0){
 			final EditText txtRemark = new EditText(DirectReceiveActivity.this);
 			txtRemark.setHint(R.string.remark);
@@ -536,8 +530,7 @@ public class DirectReceiveActivity extends Activity implements
 		}
 	}
 
-	@Override
-	public void onCancelClick(View v) {
+	public void cancel() {
 		final EditText txtRemark = new EditText(DirectReceiveActivity.this);
 		txtRemark.setHint(R.string.remark);
 
@@ -584,5 +577,11 @@ public class DirectReceiveActivity extends Activity implements
 	private void hideKeyboard(){
 		getWindow().setSoftInputMode(
 			      WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+	}
+
+	@Override
+	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

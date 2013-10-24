@@ -360,14 +360,14 @@ public class MPOSSql {
 			" docdetail_id  INTEGER, " +
 			" document_id  INTEGER, " +
 			" shop_id  INTEGER, " +
-			" material_id  INTEGER, " +
+			" product_id  INTEGER, " +
 			" unit_name  TEXT, " +
-			" material_qty  REAL DEFAULT 0, " +
-			" material_balance  REAL DEFAULT 0, " +
-			" material_price_per_unit  REAL DEFAULT 0, " +
-			" material_net_price  REAL DEFAULT 0, " +
-			" material_tax_type  INTEGER DEFAULT 1, " +
-			" material_tax_price  REAL DEFAULT 0, " +
+			" product_qty  REAL DEFAULT 0, " +
+			" product_balance  REAL DEFAULT 0, " +
+			" product_unit_price  REAL DEFAULT 0, " +
+			" product_net_price  REAL DEFAULT 0, " +
+			" product_tax_type  INTEGER DEFAULT 1, " +
+			" product_tax_price  REAL DEFAULT 0, " +
 			" PRIMARY KEY (docdetail_id, document_id, shop_id) " +
 			");";
 	

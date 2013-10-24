@@ -107,19 +107,6 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 	
-		tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-		pager = (ViewPager) findViewById(R.id.pager);
-		adapter = new MenuItemPagerAdapter(getSupportFragmentManager());
-		
-		pager.setAdapter(adapter);
-
-		final int pageMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
-				.getDisplayMetrics());
-		pager.setPageMargin(pageMargin);
-
-		tabs.setViewPager(pager);
-		tabs.setIndicatorColor(0xFF3F9FE0);
-		
 		mLayoutOrderCtrl = (RelativeLayout) findViewById(R.id.layoutOrderCtrl);
 		mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
 		mBtnClearSelOrder = (ImageButton) findViewById(R.id.btnClearSelOrder);
@@ -150,6 +137,19 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 			})
 			.show();
 		}
+		
+		mOrderListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+		
+		tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+		pager = (ViewPager) findViewById(R.id.pager);
+		
+		adapter = new MenuItemPagerAdapter(getSupportFragmentManager());
+		pager.setAdapter(adapter);
+		final int pageMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
+				.getDisplayMetrics());
+		pager.setPageMargin(pageMargin);
+		tabs.setViewPager(pager);
+		tabs.setIndicatorColor(0xFF3F9FE0);
 	}
 	
 	public void init(){
@@ -1001,7 +1001,7 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		public void onClick(int orderId) {
 			mOrderLst.add(mTrans.getOrder(mTransactionId, mComputerId, orderId));
 			mOrderAdapter.notifyDataSetChanged();
-			mOrderListView.smoothScrollToPosition(mOrderAdapter.getCount());
+			//mOrderListView.smoothScrollToPosition(mOrderAdapter.getCount());
 		}
 	};
 }

@@ -1,8 +1,8 @@
 package com.syn.mpos.inventory;
 
-public class StockMaterial {
+public class StockProduct {
 	private int id;
-	private int matId;
+	private int proId;
 	private String code;
 	private String name;
 	private float init;
@@ -12,63 +12,29 @@ public class StockMaterial {
 	private float diff;
 	private float currQty;
 	private float countQty;
-	private float pricePerUnit;
+	private float unitPrice;
 	private float netPrice;
 	private int taxType;
 	private float taxPrice;
 
-	public StockMaterial() {
+	public StockProduct() {
 
 	}
 
-	public StockMaterial(int id, String code, String name, float currQty,
-			float countQty) {
-		this.id = id;
-		this.code = code;
-		this.name = name;
-		this.currQty = currQty;
-		this.countQty = countQty;
+	public int getProId() {
+		return proId;
 	}
 
-	public StockMaterial(int id, String code, String name, float init,
-			float receive, float sale, float variance, float diff) {
-		this.id = id;
-		this.code = code;
-		this.name = name;
-		this.init = init;
-		this.receive = receive;
-		this.sale = sale;
-		this.variance = variance;
-		this.diff = diff;
-	}
-	
-	public StockMaterial(int id, int matId, String code, String name, float qty,
-			float pricePerUnit, float netPrice, int taxType, float taxPrice) {
-		this.id = id;
-		this.matId = matId;
-		this.code = code;
-		this.name = name;
-		this.currQty = qty;
-		this.pricePerUnit = pricePerUnit;
-		this.netPrice = netPrice;
-		this.taxType = taxType;
-		this.taxPrice = taxPrice;
+	public void setProId(int proId) {
+		this.proId = proId;
 	}
 
-	public int getMatId() {
-		return matId;
+	public float getUnitPrice() {
+		return unitPrice;
 	}
 
-	public void setMatId(int matId) {
-		this.matId = matId;
-	}
-
-	public float getPricePerUnit() {
-		return pricePerUnit;
-	}
-
-	public void setPricePerUnit(float pricePerUnit) {
-		this.pricePerUnit = pricePerUnit;
+	public void setUnitPrice(float unitPrice) {
+		this.unitPrice = unitPrice;
 	}
 
 	public float getNetPrice() {

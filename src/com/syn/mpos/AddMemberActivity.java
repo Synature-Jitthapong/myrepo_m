@@ -28,7 +28,7 @@ import android.app.DialogFragment;
 import android.content.Intent;
 import android.graphics.Color;
 
-public class AddMemberActivity extends Activity implements OnConfirmClickListener{
+public class AddMemberActivity extends Activity implements{
 	
 	private Formatter mFormat; 
 	private Calendar mCalendar;

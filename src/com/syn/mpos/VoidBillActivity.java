@@ -31,7 +31,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class VoidBillActivity extends Activity implements OnConfirmClickListener {
+public class VoidBillActivity extends Activity {
 	private MPOSTransaction mTrans;
 	private MPOSSaleStock mSaleStock;
 	private List<OrderTransaction> mTransLst;
@@ -127,10 +127,10 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case R.id.itemCancel:
-			onCancelClick(item.getActionView());
+			cancel();
 			return true;
 		case R.id.itemConfirm:
-			onConfirmClick(item.getActionView());
+			confirm();
 			return true;
 		default:
 		return super.onOptionsItemSelected(item);
@@ -309,14 +309,8 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 		mOrderLst = mTrans.listAllOrders(mTransactionId, mComputerId);
 		mBillDetailAdapter.notifyDataSetChanged();
 	}
-	
-	@Override 
-	public void onSaveClick(View v){
-		
-	}
-	
-	@Override
-	public void onConfirmClick(View v) {
+
+	public void confirm() {
 		final EditText txtVoidReason = new EditText(VoidBillActivity.this);
 		txtVoidReason.setHint(R.string.reason);
 		
@@ -355,8 +349,7 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 		.show();
 	}
 
-	@Override
-	public void onCancelClick(View v) {
+	public void cancel() {
 		finish();
 	}
 	

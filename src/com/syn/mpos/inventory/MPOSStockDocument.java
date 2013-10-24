@@ -37,9 +37,11 @@ public abstract class MPOSStockDocument extends Util {
 	 */
 	public int getCurrentDocument(int shopId, int documentTypeId) {
 		int documentId = 0;
-		String strSql = "SELECT document_id " + " FROM document "
-				+ " WHERE shop_id=" + shopId + " AND document_type_id="
-				+ documentTypeId + " AND document_status=1";
+		String strSql = "SELECT document_id " +
+				" FROM document " + 
+				" WHERE shop_id=" + shopId + 
+				" AND document_type_id=" + documentTypeId + 
+				" AND document_status=1";
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
 		if (cursor.moveToFirst()) {
@@ -52,8 +54,9 @@ public abstract class MPOSStockDocument extends Util {
 
 	public int getMaxDocument(int shopId) {
 		int maxDocId = 0;
-		String strSql = "SELECT MAX(document_id) " + " FROM document "
-				+ " WHERE shop_id=" + shopId;
+		String strSql = "SELECT MAX(document_id) " + 
+				" FROM document " + 
+				" WHERE shop_id=" + shopId;
 
 		mDbHelper.open();
 		Cursor cursor = mDbHelper.rawQuery(strSql);
@@ -144,11 +147,13 @@ public abstract class MPOSStockDocument extends Util {
 		boolean isSuccess = false;
 		Calendar dateTime = getDateTime();
 
-		String strSql = "UPDATE document " + " SET document_status="
-				+ documentStatus + ", " + " update_by=" + staffId + ", "
-				+ " update_date='" + dateTime.getTimeInMillis() + "', "
-				+ " remark='" + remark + "' " + " WHERE document_id="
-				+ documentId + " AND shop_id=" + shopId;
+		String strSql = "UPDATE document " + 
+				" SET document_status=" + documentStatus + ", " + 
+				" update_by=" + staffId + ", " + 
+				" update_date='" + dateTime.getTimeInMillis() + "', " + 
+				" remark='" + remark + "' " + 
+				" WHERE document_id=" + documentId + 
+				" AND shop_id=" + shopId;
 
 		mDbHelper.open();
 		isSuccess = mDbHelper.execSQL(strSql);
@@ -174,8 +179,8 @@ public abstract class MPOSStockDocument extends Util {
 				remark);
 	}
 
-	public int addDocumentDetail(int documentId, int shopId, float materialId,
-			float materialQty, float materialBalance, float materialPrice,
+	public int addDocumentDetail(int documentId, int shopId, int productId,
+			float productQty, float productBalance, float productPrice,
 			String unitName) {
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
 
@@ -183,13 +188,13 @@ public abstract class MPOSStockDocument extends Util {
 		cv.put("docdetail_id", docDetailId);
 		cv.put("document_id", documentId);
 		cv.put("shop_id", shopId);
-		cv.put("material_id", materialId);
-		cv.put("material_balance", materialBalance);
-		cv.put("material_qty", materialQty);
-		cv.put("material_price_per_unit", materialPrice);
-		cv.put("material_net_price", materialPrice);
-		cv.put("material_tax_type", 1);
-		cv.put("material_tax_price", 0);
+		cv.put("product_id", productId);
+		cv.put("product_balance", productBalance);
+		cv.put("product_qty", productQty);
+		cv.put("product_unit_price", productPrice);
+		cv.put("product_net_price", productPrice);
+		cv.put("product_tax_type", 1);
+		cv.put("product_tax_price", 0);
 
 		mDbHelper.open();
 		if (!mDbHelper.insert("docdetail", cv))
@@ -198,11 +203,11 @@ public abstract class MPOSStockDocument extends Util {
 		return docDetailId;
 	}
 
-	public int addDocumentDetail(int documentId, int shopId, float materialId,
-			float materialQty, float materialBalance, float materialPrice,
+	public int addDocumentDetail(int documentId, int shopId, float productId,
+			float productQty, float productBalance, float productPrice,
 			int taxType, String unitName) {
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
-		float totalPrice = materialPrice * materialQty;
+		float totalPrice = productPrice * productQty;
 		float tax = taxType == 2 ? calculateVat(totalPrice) : 0;
 		float netPrice = totalPrice + tax;
 
@@ -210,13 +215,13 @@ public abstract class MPOSStockDocument extends Util {
 		cv.put("docdetail_id", docDetailId);
 		cv.put("document_id", documentId);
 		cv.put("shop_id", shopId);
-		cv.put("material_id", materialId);
-		cv.put("material_balance", materialBalance);
-		cv.put("material_qty", materialQty);
-		cv.put("material_price_per_unit", materialPrice);
-		cv.put("material_net_price", netPrice);
-		cv.put("material_tax_type", taxType);
-		cv.put("material_tax_price", tax);
+		cv.put("product_id", productId);
+		cv.put("product_balance", productBalance);
+		cv.put("product_qty", productQty);
+		cv.put("product_unit_price", productPrice);
+		cv.put("product_net_price", netPrice);
+		cv.put("product_tax_type", taxType);
+		cv.put("product_tax_price", tax);
 
 		mDbHelper.open();
 		if (!mDbHelper.insert("docdetail", cv))
@@ -226,16 +231,18 @@ public abstract class MPOSStockDocument extends Util {
 	}
 
 	public boolean updateDocumentDetail(int docDetailId, int documentId,
-			int shopId, int materialId, float materialQty, float materialPrice,
+			int shopId, int productId, float productQty, float productPrice,
 			String unitName) {
 		boolean isSuccess = false;
-		float totalPrice = materialPrice * materialQty;
+		float totalPrice = productPrice * productQty;
 
-		String strSql = "UPDATE docdetail " + " SET material_qty="
-				+ materialQty + ", " + " material_price_per_unit="
-				+ materialPrice + ", " + " material_net_price=" + totalPrice
-				+ " WHERE docdetail_id=" + docDetailId + " AND document_id="
-				+ documentId + " AND shop_id=" + shopId;
+		String strSql = "UPDATE docdetail " + 
+				" SET product_qty=" + productQty + ", " + 
+				" product_unit_price=" + productPrice + ", " + 
+				" product_net_price=" + totalPrice + 
+				" WHERE docdetail_id=" + docDetailId + 
+				" AND document_id=" + documentId + 
+				" AND shop_id=" + shopId;
 
 		mDbHelper.open();
 		isSuccess = mDbHelper.execSQL(strSql);
@@ -244,19 +251,21 @@ public abstract class MPOSStockDocument extends Util {
 	}
 
 	public boolean updateDocumentDetail(int docDetailId, int documentId,
-			int shopId, int materialId, float materialQty, float materialPrice,
+			int shopId, int productId, float productQty, float productPrice,
 			int taxType, String unitName) {
 		boolean isSuccess = false;
-		float totalPrice = materialPrice * materialQty;
+		float totalPrice = productPrice * productQty;
 		float tax = taxType == 2 ? calculateVat(totalPrice) : 0;
 		float netPrice = totalPrice + tax;
 
-		String strSql = "UPDATE docdetail " + " SET material_qty="
-				+ materialQty + ", " + " material_price_per_unit="
-				+ materialPrice + ", " + " material_net_price=" + netPrice
-				+ ", " + " material_tax_type=" + taxType
-				+ " WHERE docdetail_id=" + docDetailId + " AND document_id="
-				+ documentId + " AND shop_id=" + shopId;
+		String strSql = "UPDATE docdetail " + 
+				" SET product_qty=" + productQty + ", " + 
+				" product_unit_price=" + productPrice + ", " + 
+				" product_net_price=" + netPrice + ", " + 
+				" product_tax_type=" + taxType + 
+				" WHERE docdetail_id=" + docDetailId + 
+				" AND document_id="+ documentId + 
+				" AND shop_id=" + shopId;
 
 		mDbHelper.open();
 		isSuccess = mDbHelper.execSQL(strSql);
@@ -267,9 +276,10 @@ public abstract class MPOSStockDocument extends Util {
 	public boolean deleteDocumentDetail(int docDetailId, int documentId,
 			int shopId) {
 		boolean isSuccess = false;
-		String strSql = "DELETE FROM docdetail " + " WHERE docdetail_id="
-				+ docDetailId + " AND document_id=" + documentId
-				+ " AND shop_id=" + shopId;
+		String strSql = "DELETE FROM docdetail " + 
+				" WHERE docdetail_id=" + docDetailId + 
+				" AND document_id=" + documentId + 
+				" AND shop_id=" + shopId;
 
 		mDbHelper.open();
 		isSuccess = mDbHelper.execSQL(strSql);
@@ -279,8 +289,9 @@ public abstract class MPOSStockDocument extends Util {
 
 	public boolean deleteDocumentDetail(int documentId, int shopId) {
 		boolean isSuccess = false;
-		String strSql = "DELETE FROM docdetail " + " WHERE document_id="
-				+ documentId + " AND shop_id=" + shopId;
+		String strSql = "DELETE FROM docdetail " + 
+				" WHERE document_id=" + documentId + 
+				" AND shop_id=" + shopId;
 
 		mDbHelper.open();
 		isSuccess = mDbHelper.execSQL(strSql);

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/action_input_num" android:showAsAction="always" android:actionLayout="@layout/input_num"></item><item android:id="@+id/action_close" android:showAsAction="always|withText" android:title="@string/close"></item><item android:id="@+id/action_cancel" android:showAsAction="always|withText" android:title="@android:string/cancel"></item>
+    
+    <item android:id="@+id/action_confirm" android:showAsAction="always|withText" android:title="@string/confirm"></item>
+    
+    
+
+</menu>
