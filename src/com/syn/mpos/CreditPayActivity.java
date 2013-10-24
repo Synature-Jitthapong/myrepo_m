@@ -26,7 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-public class CreditPayActivity extends Activity implements OnConfirmClickListener{
+public class CreditPayActivity extends Activity {
 	private int mTransactionId;
 	private int mComputerId;
 	private int mBankId;
@@ -208,23 +208,5 @@ public class CreditPayActivity extends Activity implements OnConfirmClickListene
 		default :
 			return super.onOptionsItemSelected(item);
 		}
-	}
-
-	@Override
-	public void onSaveClick(View v) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onConfirmClick(View v) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onCancelClick(View v) {
-		// TODO Auto-generated method stub
-		
 	}
 }

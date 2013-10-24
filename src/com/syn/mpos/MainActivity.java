@@ -2,43 +2,31 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
-import com.j1tth4.mobile.util.ImageLoader;
-import com.syn.mpos.MenuPageFragment.OnMenuItemClick;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
-import com.syn.mpos.database.MenuDept;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.transaction.MPOSPayment;
 import com.syn.mpos.transaction.MPOSSession;
 import com.syn.mpos.transaction.MPOSTransaction;
-import com.syn.pos.MenuGroups;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
 import com.syn.pos.ShopData.ComputerProperty;
 import com.syn.pos.ShopData.ShopProperty;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.InputType;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,7 +35,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -55,17 +42,14 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.RadioGroup.LayoutParams;
 
-public class MainActivity extends FragmentActivity implements OnMPOSFunctionClickListener {
+public class MainActivity extends FragmentActivity implements OnMPOSFunctionClickListener,
+	MenuPageFragment.OnMenuItemClick{
 	//private static final String TAG = "MPOSMainActivity";
 	private Shop mShop;
 	private Formatter mFormat;
@@ -984,24 +968,21 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		@Override
 		public Fragment getItem(int position) {
 			int deptId = mPdLst.get(position).getProductDeptId();
-			return MenuPageFragment.newInstance(MainActivity.this, mTrans, 
-					mTransactionId, mComputerId, deptId, menuItemClicked);
+			return MenuPageFragment.newInstance(MainActivity.this, deptId);
 		}
 
 		@Override
 		public int getCount() {
 			return mPdLst.size();
-		}
-		
+		}		
 	}
 	
-	MenuPageFragment.OnMenuItemClick menuItemClicked = new MenuPageFragment.OnMenuItemClick(){
-
-		@Override
-		public void onClick(int orderId) {
-			mOrderLst.add(mTrans.getOrder(mTransactionId, mComputerId, orderId));
-			mOrderAdapter.notifyDataSetChanged();
-			//mOrderListView.smoothScrollToPosition(mOrderAdapter.getCount());
-		}
-	};
+	@Override
+	public void onClick(int productId, int productTypeId, int vatType, float productPrice) {
+		int orderId = mTrans.addOrderDetail(mTransactionId, 
+				mComputerId, productId, productTypeId,vatType, 1, productPrice);
+		
+		mOrderLst.add(mTrans.getOrder(mTransactionId, mComputerId, orderId));
+		mOrderAdapter.notifyDataSetChanged();
+	}
 }

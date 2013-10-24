@@ -28,7 +28,7 @@ import android.app.DialogFragment;
 import android.content.Intent;
 import android.graphics.Color;
 
-public class AddMemberActivity extends Activity implements{
+public class AddMemberActivity extends Activity {
 	
 	private Formatter mFormat; 
 	private Calendar mCalendar;
@@ -292,30 +292,13 @@ public class AddMemberActivity extends Activity implements{
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case R.id.itemConfirm:
-			onConfirmClick(item.getActionView());
+			
 			return true;
 		case R.id.itemCancel:
-			onCancelClick(item.getActionView());
+			
 			return true;
 		default :
 			return super.onOptionsItemSelected(item);
 		}
-	}
-
-	@Override
-	public void onSaveClick(View v) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onConfirmClick(View v) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onCancelClick(View v) {
-		finish();
 	}
 }
