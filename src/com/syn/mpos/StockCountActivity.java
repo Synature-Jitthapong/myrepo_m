@@ -48,8 +48,10 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 	private int mStaffId;
 	private int mShopId;
 
+	private MenuItem mItemInput;
 	private ListView mLvStock;
 	private EditText mTxtCountStock;
+	private TextView mTvItemName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +88,8 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 				mPosition = position;
 				mStockProduct = (StockProduct) parent.getItemAtPosition(position);
 				
+				mItemInput.setVisible(true);
+				mTvItemName.setText(mStockProduct.getName());
 				mTxtCountStock.setText(mFormat.qtyFormat(mStockProduct.getCountQty()));
 				mTxtCountStock.selectAll();
 				mTxtCountStock.requestFocus();
@@ -120,8 +124,9 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.action_stockcount, menu);
-		MenuItem item = menu.findItem(R.id.action_input_num);
-		mTxtCountStock = (EditText) item.getActionView().findViewById(R.id.editText1);
+		mItemInput = menu.findItem(R.id.itemInputNum);
+		mTxtCountStock = (EditText) mItemInput.getActionView().findViewById(R.id.editText1);
+		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);
 		mTxtCountStock.setOnEditorActionListener(this);
 		return true;
 	}
@@ -129,7 +134,7 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.action_confirm:
+		case R.id.itemConfirm:
 			new AlertDialog.Builder(StockCountActivity.this)
 					.setTitle(R.string.confirm)
 					.setMessage(R.string.confirm_stock_count)
@@ -165,10 +170,10 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 								}
 							}).show();
 			return true;
-		case R.id.action_close:
+		case R.id.itemClose:
 			finish();
 			return true;
-		case R.id.action_cancel:
+		case R.id.itemCancel:
 			new AlertDialog.Builder(StockCountActivity.this)
 					.setTitle(android.R.string.cancel)
 					.setMessage(R.string.confirm_cancel_stock_count)
@@ -334,6 +339,12 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 
 	}
 
+	void clearActionInput(){
+		mTvItemName.setText(null);
+		mTxtCountStock.setText(null);
+		mItemInput.setVisible(false);
+	}
+	
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 		if(EditorInfo.IME_ACTION_DONE == actionId){
@@ -354,6 +365,11 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 			mStockLst.set(mPosition, stock);
 			mStockAdapter.notifyDataSetChanged();
 			
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+			
+            clearActionInput();
+            
 			return true;
 		}
 		return false;

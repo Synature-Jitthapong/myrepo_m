@@ -38,7 +38,7 @@
             android:background="@color/light_gray"
             android:lines="1"
             android:padding="4dp"
-            android:text="@string/product_code"
+            android:text="@string/code"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
@@ -51,7 +51,7 @@
             android:background="@color/light_gray"
             android:lines="1"
             android:padding="4dp"
-            android:text="@string/product_name"
+            android:text="@string/item_name"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
@@ -119,6 +119,16 @@
             android:text="@string/unit_name"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/textView5"
+            style="@style/ColumnHeader"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="0dp"
+            android:text="@string/summary"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
     </LinearLayout>
 
     <ListView

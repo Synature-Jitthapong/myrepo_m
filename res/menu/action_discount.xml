@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/action_discount_edit" android:actionLayout="@layout/discount_input" android:showAsAction="always"></item><item android:id="@+id/action_cancel" android:title="@android:string/cancel" android:showAsAction="always|withText"></item>
-    <item android:id="@+id/action_confirm" android:title="@string/confirm" android:showAsAction="always|withText"></item>
+    <item android:id="@+id/itemDiscountInput" android:actionLayout="@layout/discount_input" android:showAsAction="always" android:visible="false"></item><item android:id="@+id/itemCancel" android:title="@android:string/cancel" android:showAsAction="always|withText"></item>
+    <item android:id="@+id/itemConfirm" android:title="@string/confirm" android:showAsAction="always|withText"></item>
     
     
 

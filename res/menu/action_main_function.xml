@@ -15,6 +15,12 @@
         </menu>
     </item>
     <item android:id="@+id/itemUtility" android:showAsAction="always|withText" android:title="@string/utility">
+        <menu>
+            <item android:id="@+id/itemVoid" android:title="@string/void_bill"/>
+            <item android:id="@+id/itemCloseShift" android:title="@string/close_shift"/>
+            <item android:id="@+id/itemEndday" android:title="@string/endday"/>
+            <item android:id="@+id/itemSync" android:title="@string/sync"/>
+        </menu>
     </item>
     <item android:id="@+id/itemSwUser" android:showAsAction="always|withText" android:title="@string/switch_user"></item>
     <item android:id="@+id/itemLogout" android:showAsAction="always|withText" android:title="@string/logout"></item>

@@ -122,8 +122,6 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 			.show();
 		}
 		
-		mOrderListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-		
 		tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 		pager = (ViewPager) findViewById(R.id.pager);
 		
@@ -133,7 +131,7 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 				.getDisplayMetrics());
 		pager.setPageMargin(pageMargin);
 		tabs.setViewPager(pager);
-		tabs.setIndicatorColor(0xFF3F9FE0);
+		tabs.setIndicatorColor(0xFF1D78B2);
 	}
 	
 	public void init(){
@@ -424,126 +422,78 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 			intent.putExtra("mode", 2);
 			startActivity(intent);
 			return true;
-		case R.id.itemUtility:
-			popupUtility();
+		case R.id.itemVoid:
+			voidBill();
+			return true;
+		case R.id.itemCloseShift:
+			closeShift();
+			return true;
+		case R.id.itemEndday:
+			endday();
+			return true;
+		case R.id.itemSync:
+			sync();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
-	private void popupUtility(){
-		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-		View utilView = inflater.inflate(R.layout.utility_popup, null);
-		Button btnVoid = (Button) utilView.findViewById(R.id.btnVoidBill);
-		Button btnCloseShift =  (Button) utilView.findViewById(R.id.btnCloseShift);
-		Button btnEndday =  (Button) utilView.findViewById(R.id.btnEndday);
-		Button btnSync = (Button) utilView.findViewById(R.id.btnSync);
-		Button btnManageProduct = (Button) utilView.findViewById(R.id.btnManageProduct);
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-		builder.setTitle(R.string.utility);
-		builder.setView(utilView);
-		builder.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+	void voidBill(){
+		Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
+		intent.putExtra("shopId", mShopId);
+		intent.putExtra("staffId", mStaffId);
+		startActivity(intent);
+	}
+	
+	void closeShift(){
+		new AlertDialog.Builder(MainActivity.this)
+		.setTitle(R.string.close_shift)
+		.setMessage(R.string.confirm_close_shift)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
 				
 			}
-		});
-		
-		final AlertDialog d = builder.create();	
-		d.show();
-		
-		btnVoid.setOnClickListener(new OnClickListener(){
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if(mSession.closeShift(mSessionId, mComputerId, mStaffId, 0, 0)){
+					finish();
+				}
+			}
+		}).show();
+	}
 	
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
-				intent.putExtra("shopId", mShopId);
-				intent.putExtra("staffId", mStaffId);
-				startActivity(intent);
-				d.dismiss();
-			}
+	void endday(){
+		new AlertDialog.Builder(MainActivity.this)
+		.setTitle(R.string.endday)
+		.setMessage(R.string.confirm_endday)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
-		});
-		
-		btnCloseShift.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if(mSession.closeShift(mSessionId, mComputerId, mStaffId, 0, 1)){
+					finish();
+				}
+			}
+		}).show();
+	}
 	
-			@Override
-			public void onClick(View v) {
-				new AlertDialog.Builder(MainActivity.this)
-				.setTitle(R.string.close_shift)
-				.setMessage(R.string.confirm_close_shift)
-				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
-						
-					}
-				})
-				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if(mSession.closeShift(mSessionId, mComputerId, mStaffId, 0, 0)){
-							finish();
-						}
-					}
-				}).show();
-				d.dismiss();
-			}
-			
-		});
+	void sync(){
 		
-		btnEndday.setOnClickListener(new OnClickListener(){
-	
-			@Override
-			public void onClick(View v) {
-				new AlertDialog.Builder(MainActivity.this)
-				.setTitle(R.string.endday)
-				.setMessage(R.string.confirm_endday)
-				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
-						
-					}
-				})
-				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if(mSession.closeShift(mSessionId, mComputerId, mStaffId, 0, 1)){
-							finish();
-						}
-					}
-				}).show();
-				d.dismiss();
-			}
-			
-		});
-		
-		btnSync.setOnClickListener(new OnClickListener(){
-	
-			@Override
-			public void onClick(View v) {
-				d.dismiss();
-			}
-			
-		});
-		
-		btnManageProduct.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, ManageProductActivity.class);
-				startActivity(intent);
-			}
-			
-		});
 	}
 
 	private void countHoldOrder(){
@@ -983,6 +933,7 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 				mComputerId, productId, productTypeId,vatType, 1, productPrice);
 		
 		mOrderLst.add(mTrans.getOrder(mTransactionId, mComputerId, orderId));
+		mOrderListView.smoothScrollToPosition(mOrderLst.size());
 		mOrderAdapter.notifyDataSetChanged();
 	}
 }

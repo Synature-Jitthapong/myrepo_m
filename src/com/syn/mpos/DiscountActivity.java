@@ -56,6 +56,8 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	private EditText mTxtTotalPrice;
 	private EditText mTxtDiscount;
 	private RadioGroup mRdoDiscountType;
+	private TextView mTvItemName;
+	private MenuItem mItemInput;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
@@ -83,10 +85,10 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
-		case R.id.action_cancel:
+		case R.id.itemCancel:
 			cancel();
 			return true;
-		case R.id.action_confirm:
+		case R.id.itemConfirm:
 			if (mTrans.confirmDiscount(mTransactionId, mComputerId))
 				finish();
 			return true;
@@ -99,9 +101,10 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.action_discount, menu);
-		MenuItem item = menu.findItem(R.id.action_discount_edit);
-		mTxtDiscount = (EditText) item.getActionView().findViewById(R.id.txtDiscount);
-		mRdoDiscountType = (RadioGroup) item.getActionView().findViewById(R.id.rdoDisType);
+		mItemInput = menu.findItem(R.id.itemDiscountInput);
+		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);
+		mTxtDiscount = (EditText) mItemInput.getActionView().findViewById(R.id.txtDiscount);
+		mRdoDiscountType = (RadioGroup) mItemInput.getActionView().findViewById(R.id.rdoDisType);
 		mTxtDiscount.setOnEditorActionListener(this);
 		mRdoDiscountType.setOnCheckedChangeListener(this);
 		return true;
@@ -209,6 +212,8 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				mOrder = 
 						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 
+				mItemInput.setVisible(true);
+				mTvItemName.setText(mOrder.getProductName());
 				mTxtDiscount.setText(mFormat.currencyFormat(mOrder.getPriceDiscount()));
 				mTxtDiscount.selectAll();
 				mTxtDiscount.requestFocus();
@@ -285,6 +290,12 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		}	
 	}
 	
+	void clearActionInput(){
+		mTvItemName.setText(null);
+		mTxtDiscount.setText(null);
+		mItemInput.setVisible(false);
+	}
+	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -309,7 +320,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			break;
 		}
 	}
-
+	
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 		if(EditorInfo.IME_ACTION_DONE == actionId){
@@ -322,6 +333,11 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			}
 			mDiscount = discount;
 			updateDiscount();
+
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+			
+            clearActionInput();
 			return true;
 		}
 		return false;

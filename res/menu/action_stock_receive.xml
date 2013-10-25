@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <item android:id="@+id/itemReceiveInput" android:showAsAction="always" android:actionLayout="@layout/receive_stock_input" android:visible="false"></item><item android:id="@+id/itemSearch" android:showAsAction="always|withText" android:icon="@android:drawable/ic_menu_search" android:actionViewClass="android.widget.SearchView" android:title="@string/search"/><item android:id="@+id/itemClose" android:title="@string/close" android:showAsAction="always|withText"></item><item android:id="@+id/itemCancel" android:title="@android:string/cancel" android:showAsAction="always|withText"></item><item android:id="@+id/itemConfirm" android:title="@string/confirm" android:showAsAction="always|withText"></item>
+    <item android:id="@+id/itemReceiveInput" android:showAsAction="always" android:actionLayout="@layout/receive_stock_input" android:visible="false"></item><item android:id="@+id/itemSearch" android:showAsAction="ifRoom|collapseActionView" android:icon="@android:drawable/ic_menu_search" android:actionViewClass="android.widget.SearchView" android:title="@string/search"/><item android:id="@+id/itemClose" android:title="@string/close" android:showAsAction="always|withText"></item><item android:id="@+id/itemCancel" android:title="@android:string/cancel" android:showAsAction="always|withText"></item><item android:id="@+id/itemConfirm" android:title="@string/confirm" android:showAsAction="always|withText"></item>
     
     
     

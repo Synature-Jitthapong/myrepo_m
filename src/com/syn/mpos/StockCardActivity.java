@@ -155,6 +155,7 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 				holder.tvSale = (TextView) convertView.findViewById(R.id.tvSale);
 				holder.tvEndding = (TextView) convertView.findViewById(R.id.tvEndding);
 				holder.tvVariance = (TextView) convertView.findViewById(R.id.tvVariance);
+				holder.tvSummary = (TextView) convertView.findViewById(R.id.tvSummary);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
@@ -165,6 +166,7 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 			float sale = stock.getSale();
 			float endding = init + receive + sale;
 			float variance = stock.getVariance();
+			float summary = endding + variance;
 			
 			holder.tvNo.setText(Integer.toString(position + 1));
 			holder.tvCode.setText(stock.getCode());
@@ -174,7 +176,8 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 			holder.tvSale.setText(mFormat.qtyFormat(sale));
 			holder.tvEndding.setText(mFormat.qtyFormat(endding));
 			holder.tvVariance.setText(mFormat.qtyFormat(variance));
-
+			holder.tvSummary.setText(mFormat.qtyFormat(summary));
+			
 			if(position % 2 == 0)
 				convertView.setBackgroundResource(R.color.smoke_white);
 			else
@@ -192,6 +195,7 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 			TextView tvSale;
 			TextView tvEndding;
 			TextView tvVariance;
+			TextView tvSummary;
 		}
 	}
 }

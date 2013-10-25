@@ -124,32 +124,31 @@ public class Reporting {
 		Report.ReportDetail reportDetail =
 				new Report.ReportDetail();
 		
-		String strSql = " SELECT d.product_code, b.product_name, " +
-				" b.price_per_unit, " +
-				" SUM(b.qty) AS totalQty, " +
+		String strSql = " SELECT SUM(b.order_qty) AS totalQty, " +
 				" SUM(b.total_retail_price) AS totalPrice, " +
 				" SUM(b.total_sale_price) AS subTotal, " +
 				" SUM(b.price_discount + b.member_discount) AS totalDiscount, " +
-				" d.vat_type " +
+				" c.product_code, " +
+				" c.product_name, " +
+				" c.product_price, " +
+				" c.vat_type " +
 				" FROM order_transaction a " +
 				" LEFT JOIN order_detail b " +
 				" ON a.transaction_id=b.transaction_id " +
 				" AND a.computer_id=b.computer_id " +
-				" LEFT JOIN menu_item c " +
+				" LEFT JOIN products c " +
 				" ON b.product_id=c.product_id " +
-				" LEFT JOIN products d " +
-				" ON c.product_id=d.product_id " +
 				" WHERE a.sale_date >= " + dateFrom + 
 				" AND a.sale_date <= " + dateTo +
-				" GROUP BY c.menu_group_id " +
-				" ORDER BY d.product_id ";
+				" GROUP BY c.product_group_id " +
+				" ORDER BY c.product_id ";
 		
 		dbHelper.open();
 		Cursor cursor = dbHelper.rawQuery(strSql);
 		if(cursor.moveToFirst()){
 			reportDetail.setProductCode(cursor.getString(cursor.getColumnIndex("product_code")));
 			reportDetail.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
-			reportDetail.setPricePerUnit(cursor.getFloat(cursor.getColumnIndex("price_per_unit")));
+			reportDetail.setPricePerUnit(cursor.getFloat(cursor.getColumnIndex("product_price")));
 			reportDetail.setQty(cursor.getFloat(cursor.getColumnIndex("totalQty")));
 			reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("totalPrice")));
 			reportDetail.setDiscount(cursor.getFloat(cursor.getColumnIndex("totalDiscount")));
@@ -165,33 +164,32 @@ public class Reporting {
 		Report.ReportDetail reportDetail =
 				new Report.ReportDetail();
 		
-		String strSql = " SELECT d.product_code, b.product_name, " +
-				" b.price_per_unit, " +
-				" SUM(b.qty) AS totalQty, " +
+		String strSql = " SELECT SUM(b.order_qty) AS totalQty, " +
 				" SUM(b.total_retail_price) AS totalPrice, " +
 				" SUM(b.total_sale_price) AS subTotal, " +
 				" SUM(b.price_discount + b.member_discount) AS totalDiscount, " +
-				" d.vat_type " +
+				" c.product_code, " +
+				" c.product_name, " +
+				" c.product_price, " +
+				" c.vat_type " +
 				" FROM order_transaction a " +
 				" LEFT JOIN order_detail b " +
 				" ON a.transaction_id=b.transaction_id " +
 				" AND a.computer_id=b.computer_id " +
-				" LEFT JOIN menu_item c " +
+				" LEFT JOIN products c " +
 				" ON b.product_id=c.product_id " +
-				" LEFT JOIN products d " +
-				" ON c.product_id=d.product_id " +
-				" WHERE c.menu_dept_id=" + deptId +
+				" WHERE c.product_dept_id=" + deptId +
 				" AND a.sale_date >= " + dateFrom + 
 				" AND a.sale_date <= " + dateTo +
-				" GROUP BY c.menu_dept_id " +
-				" ORDER BY d.product_id ";
+				" GROUP BY c.product_dept_id " +
+				" ORDER BY c.product_id ";
 		
 		dbHelper.open();
 		Cursor cursor = dbHelper.rawQuery(strSql);
 		if(cursor.moveToFirst()){
 			reportDetail.setProductCode(cursor.getString(cursor.getColumnIndex("product_code")));
 			reportDetail.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
-			reportDetail.setPricePerUnit(cursor.getFloat(cursor.getColumnIndex("price_per_unit")));
+			reportDetail.setPricePerUnit(cursor.getFloat(cursor.getColumnIndex("product_price")));
 			reportDetail.setQty(cursor.getFloat(cursor.getColumnIndex("totalQty")));
 			reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("totalPrice")));
 			reportDetail.setDiscount(cursor.getFloat(cursor.getColumnIndex("totalDiscount")));
@@ -206,11 +204,13 @@ public class Reporting {
 	public List<Report> getSaleReportByProduct(){
 		List<Report> reportLst = new ArrayList<Report>();
 		
-		String strSql = "SELECT a.menu_group_id, b.menu_dept_id, " +
-				" a.menu_group_name_0, b.menu_dept_name_0 " +
-				" FROM menu_group a " +
-				" LEFT JOIN menu_dept b " +
-				" ON a.menu_group_id=b.menu_group_id";
+		String strSql = "SELECT a.product_group_id, " +
+				" b.product_dept_id, " +
+				" a.product_group_name, " +
+				" b.product_dept_name " +
+				" FROM product_group a " +
+				" LEFT JOIN product_dept b " +
+				" ON a.product_group_id=b.product_group_id";
 		
 		dbHelper.open();
 		
@@ -218,31 +218,30 @@ public class Reporting {
 		if(cursor1.moveToFirst()){
 			do{
 				Report report = new Report();
-				report.setProductGroupId(cursor1.getInt(cursor1.getColumnIndex("menu_group_id")));
-				report.setProductDeptId(cursor1.getInt(cursor1.getColumnIndex("menu_dept_id")));
-				report.setProductGroupName(cursor1.getString(cursor1.getColumnIndex("menu_group_name_0")));
-				report.setProductDeptName(cursor1.getString(cursor1.getColumnIndex("menu_dept_name_0")));
+				report.setProductGroupId(cursor1.getInt(cursor1.getColumnIndex("product_group_id")));
+				report.setProductDeptId(cursor1.getInt(cursor1.getColumnIndex("product_dept_id")));
+				report.setProductGroupName(cursor1.getString(cursor1.getColumnIndex("product_group_name")));
+				report.setProductDeptName(cursor1.getString(cursor1.getColumnIndex("product_dept_name")));
 			
-				strSql = " SELECT d.product_code, b.product_name, " +
-						" b.price_per_unit, " +
-						" SUM(b.qty) AS totalQty, " +
+				strSql = " SELECT SUM(b.order_qty) AS totalQty, " +
 						" SUM(b.total_retail_price) AS totalPrice, " +
 						" SUM(b.total_sale_price) AS subTotal, " +
 						" SUM(b.price_discount + b.member_discount) AS totalDiscount, " +
-						" d.vat_type " +
+						" c.product_code, " +
+						" c.product_name, " +
+						" c.product_price, " +
+						" c.vat_type " +
 						" FROM order_transaction a " +
 						" LEFT JOIN order_detail b " +
 						" ON a.transaction_id=b.transaction_id " +
 						" AND a.computer_id=b.computer_id " +
-						" LEFT JOIN menu_item c " +
+						" LEFT JOIN products c " +
 						" ON b.product_id=c.product_id " +
-						" LEFT JOIN products d " +
-						" ON c.product_id=d.product_id " +
-						" WHERE c.menu_dept_id=" + cursor1.getInt(cursor1.getColumnIndex("menu_dept_id")) +
+						" WHERE c.product_dept_id=" + cursor1.getInt(cursor1.getColumnIndex("product_dept_id")) +
 						" AND a.sale_date >= " + dateFrom + 
 						" AND a.sale_date <= " + dateTo +
-						" GROUP BY d.product_id " +
-						" ORDER BY d.product_id ";
+						" GROUP BY c.product_id " +
+						" ORDER BY c.product_id ";
 				
 				Cursor cursor2 = dbHelper.rawQuery(strSql);
 			
@@ -252,7 +251,7 @@ public class Reporting {
 								new Report.ReportDetail();
 						reportDetail.setProductCode(cursor2.getString(cursor2.getColumnIndex("product_code")));
 						reportDetail.setProductName(cursor2.getString(cursor2.getColumnIndex("product_name")));
-						reportDetail.setPricePerUnit(cursor2.getFloat(cursor2.getColumnIndex("price_per_unit")));
+						reportDetail.setPricePerUnit(cursor2.getFloat(cursor2.getColumnIndex("product_price")));
 						reportDetail.setQty(cursor2.getFloat(cursor2.getColumnIndex("totalQty")));
 						reportDetail.setTotalPrice(cursor2.getFloat(cursor2.getColumnIndex("totalPrice")));
 						reportDetail.setDiscount(cursor2.getFloat(cursor2.getColumnIndex("totalDiscount")));

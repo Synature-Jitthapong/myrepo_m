@@ -10,12 +10,16 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MenuPageFragment extends Fragment {
@@ -70,7 +74,6 @@ public class MenuPageFragment extends Fragment {
 				listener.onClick(p.getProductId(), p.getProductTypeId(), 
 						p.getVatType(), p.getProductPrice());
 			}
-			
 		});
 		return v;
 	}

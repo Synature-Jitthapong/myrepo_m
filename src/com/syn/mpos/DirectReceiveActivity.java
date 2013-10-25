@@ -13,6 +13,7 @@ import com.syn.pos.MenuGroups;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.KeyEvent;
@@ -26,6 +27,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -56,16 +59,20 @@ public class DirectReceiveActivity extends Activity implements
 	private ResultAdapter mResultAdapter;
 	private ReceiveStockAdapter mStockAdapter;
 	private List<StockProduct> mStockLst;
+	private StockProduct mStock;
+	private int mPosition = -1;
 	private int mDocumentId;
 	private int mShopId;
 	private int mStaffId;
 
 	private MenuItem mItemSearch;
+	private MenuItem mItemInput;
 	private SearchView mSearchView;
 	private PopupWindow mPopup;
 	private View mPopSearch;
 	private ListView mListViewStock;
 	private ListView mListViewResult;
+	private TextView mTvItemName;
 	private EditText mTxtReceiveQty;
 	private EditText mTxtReceivePrice;
 
@@ -94,24 +101,48 @@ public class DirectReceiveActivity extends Activity implements
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.action_stock_receive, menu);
-		MenuItem itemReceiveInput = menu.findItem(R.id.itemReceiveInput);
-		mTxtReceiveQty = (EditText) itemReceiveInput.getActionView().findViewById(R.id.editText1);
-		mTxtReceivePrice = (EditText) itemReceiveInput.getActionView().findViewById(R.id.editText2);
+		
+		mItemInput = menu.findItem(R.id.itemReceiveInput);
+		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);
+		mTxtReceiveQty = (EditText) mItemInput.getActionView().findViewById(R.id.editText1);
+		mTxtReceivePrice = (EditText) mItemInput.getActionView().findViewById(R.id.editText2);
+		mTxtReceiveQty.setSelectAllOnFocus(true);
+		mTxtReceivePrice.setSelectAllOnFocus(true);
+		mTxtReceiveQty.setOnEditorActionListener(this);
+		mTxtReceivePrice.setOnEditorActionListener(this);
 		
 		mItemSearch = menu.findItem(R.id.itemSearch);
-		
 		mSearchView = (SearchView) mItemSearch.getActionView();
 		mSearchView.setOnQueryTextListener(new OnQueryTextListener() {
 
 			@Override
-			public boolean onQueryTextChange(String newText) {
+			public boolean onQueryTextChange(String query) {
 				return false;
 			}
 
 			@Override
 			public boolean onQueryTextSubmit(String query) {
+
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(mSearchView.getWindowToken(), 0);
+                
 				mProductLst = mProduct.listProduct(query);
-				mResultAdapter.notifyDataSetChanged();
+				if(mProductLst.size() > 0){
+					mResultAdapter.notifyDataSetChanged();
+				}else{
+					new AlertDialog.Builder(DirectReceiveActivity.this)
+					.setTitle(R.string.search)
+					.setMessage(R.string.not_found_item)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							
+						}
+					})
+					.show();
+				}
 				return true;
 			}
 
@@ -120,21 +151,8 @@ public class DirectReceiveActivity extends Activity implements
 		return true;
 	}
 
-	private void clearFocus(final View v){
-		v.clearFocus();
-	}
-	
-	
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		clearFocus(getCurrentFocus());
-		return super.onTouchEvent(event);
-	}
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		clearFocus(getCurrentFocus());
-		
 		switch (item.getItemId()) {
 		case R.id.itemConfirm:
 			confirm();
@@ -149,7 +167,15 @@ public class DirectReceiveActivity extends Activity implements
 			return super.onOptionsItemSelected(item);
 		}
 	}
-
+	
+	void clearActionInput(){
+		mTvItemName.setText(null);
+		mTxtReceiveQty.setText(null);
+		mTxtReceivePrice.setText(null);
+		
+		mItemInput.setVisible(false);
+	}
+	
 	private void setupPopSearch() {
 		mProduct = new Products(this);
 		mProductLst = new ArrayList<Products.Product>();
@@ -168,9 +194,11 @@ public class DirectReceiveActivity extends Activity implements
 						.getItemAtPosition(position);
 
 				addSelectedProduct(p.getProductId(), 1, p.getProductPrice(), 0);
+				clearActionInput();
 				
-				hideKeyboard();
 				mPopup.dismiss();
+				if(mItemSearch.isActionViewExpanded())
+					mItemSearch.collapseActionView();
 			}
 
 		});
@@ -179,15 +207,6 @@ public class DirectReceiveActivity extends Activity implements
 		mPopup.setContentView(mPopSearch);
 		mPopup.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
 		mPopup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-		mPopup.setOnDismissListener(new OnDismissListener() {
-
-			@Override
-			public void onDismiss() {
-				if (mItemSearch.isActionViewExpanded())
-					mItemSearch.collapseActionView();
-			}
-
-		});
 		mPopup.setFocusable(true);
 	}
 
@@ -214,12 +233,27 @@ public class DirectReceiveActivity extends Activity implements
 		mStockLst = new ArrayList<StockProduct>();
 		mStockAdapter = new ReceiveStockAdapter();
 		mListViewStock.setAdapter(mStockAdapter);
-		mListViewStock.setOnTouchListener(new OnTouchListener(){
+		mListViewStock.setOnItemClickListener(new OnItemClickListener(){
 
 			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				clearFocus(v);
-				return false;
+			public void onItemClick(AdapterView<?> parent, View v, int position,
+					long id) {
+				mPosition = position;
+				mStock = (StockProduct) parent.getItemAtPosition(position);
+
+				if(mItemSearch.isActionViewExpanded())
+					mItemSearch.collapseActionView();
+				
+				mItemInput.setVisible(true);
+				
+				mTvItemName.setText(mStock.getName());
+				mTxtReceiveQty.setText(mFormat.qtyFormat(mStock.getReceive()));
+				mTxtReceivePrice.setText(mFormat.currencyFormat(mStock.getUnitPrice()));
+				mTxtReceiveQty.selectAll();
+				mTxtReceiveQty.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(mTxtReceiveQty,
+                        InputMethodManager.SHOW_IMPLICIT);
 			}
 			
 		});
@@ -237,11 +271,11 @@ public class DirectReceiveActivity extends Activity implements
 		mStockAdapter.notifyDataSetChanged();
 	}
 
-	private void updateStock(StockProduct stock){
-		mReceiveStock.updateDocumentDetail(stock.getId(),
-				mDocumentId, mShopId, stock.getProId(),
-				stock.getCurrQty(), stock.getUnitPrice(),
-				stock.getTaxType(), "");	
+	private void updateStock(){
+		mReceiveStock.updateDocumentDetail(mStock.getId(),
+				mDocumentId, mShopId, mStock.getProId(),
+				mStock.getReceive(), mStock.getUnitPrice(),
+				mStock.getTaxType(), "");	
 	}
 	
 	private void addSelectedProduct(int materialId, float materialQty,
@@ -293,15 +327,11 @@ public class DirectReceiveActivity extends Activity implements
 			ViewHolder holder;
 
 			if (convertView == null) {
-				convertView = inflater.inflate(
-						R.layout.search_product_template, null);
+				convertView = inflater.inflate(R.layout.search_product_template, null);
 				holder = new ViewHolder();
-				holder.img = (ImageView) convertView
-						.findViewById(R.id.imageView1);
-				holder.tvCode = (TextView) convertView
-						.findViewById(R.id.tvCode);
-				holder.tvName = (TextView) convertView
-						.findViewById(R.id.tvName);
+				holder.img = (ImageView) convertView.findViewById(R.id.imageView1);
+				holder.tvCode = (TextView) convertView.findViewById(R.id.tvCode);
+				holder.tvName = (TextView) convertView.findViewById(R.id.tvName);
 
 				convertView.setTag(holder);
 			} else {
@@ -358,88 +388,16 @@ public class DirectReceiveActivity extends Activity implements
 			TextView tvNo = (TextView) rowView.findViewById(R.id.tvNo);
 			TextView tvCode = (TextView) rowView.findViewById(R.id.tvCode);
 			TextView tvName = (TextView) rowView.findViewById(R.id.tvName);
-			TextView tvQty = (EditText) rowView.findViewById(R.id.tvQty);
-			TextView tvPrice = (EditText) rowView.findViewById(R.id.tvPrice);
-			RadioGroup rdoTaxType = (RadioGroup) rowView.findViewById(R.id.rdoTaxType);
+			TextView tvQty = (TextView) rowView.findViewById(R.id.tvQty);
+			TextView tvPrice = (TextView) rowView.findViewById(R.id.tvPrice);
 			ImageView imgBtnDelete = (ImageView) rowView.findViewById(R.id.imgDel);
 			
 			tvNo.setText(Integer.toString(position + 1));
 			tvCode.setText(stock.getCode());
 			tvName.setText(stock.getName());
-			tvQty.setText(mFormat.qtyFormat(stock.getCurrQty()));
+			tvQty.setText(mFormat.qtyFormat(stock.getReceive()));
 			tvPrice.setText(mFormat.currencyFormat(stock.getUnitPrice()));
 
-			switch(stock.getTaxType()){
-			case 0:
-				rdoTaxType.check(R.id.rdoNoVat);
-				break;
-			case 1:
-				rdoTaxType.check(R.id.rdoIncludeVat);
-				break;
-			case 2:
-				rdoTaxType.check(R.id.rdoExcludeVat);
-				break;
-			}
-			
-			rdoTaxType.setOnCheckedChangeListener(new OnCheckedChangeListener(){
-				@Override
-				public void onCheckedChanged(RadioGroup group, int checkedId) {
-					RadioButton rdoTax = (RadioButton) group.findViewById(checkedId);
-					switch(checkedId){
-					case R.id.rdoNoVat:
-						if(rdoTax.isChecked())
-							stock.setTaxType(0);
-						break;
-					case R.id.rdoIncludeVat:
-						if(rdoTax.isChecked())
-							stock.setTaxType(1);
-						break;
-					case R.id.rdoExcludeVat:
-						if(rdoTax.isChecked())
-							stock.setTaxType(2);
-						break;
-					}
-					
-					updateStock(stock);
-				}
-			});
-			
-//			txtQty.setOnFocusChangeListener(new OnFocusChangeListener(){
-//
-//				@Override
-//				public void onFocusChange(View v, boolean hasFocus) {
-//					EditText txtQty = (EditText) v;
-//					if(!hasFocus){
-//						try {
-//							stock.setCurrQty(Float.parseFloat(txtQty.getText().toString()));
-//							updateStock(stock);
-//						} catch (NumberFormatException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
-//					}
-//				}
-//				
-//			});
-//			
-//			txtPrice.setOnFocusChangeListener(new OnFocusChangeListener(){
-//
-//				@Override
-//				public void onFocusChange(View v, boolean hasFocus) {
-//					EditText txtPrice = (EditText) v;
-//					if(!hasFocus){
-//						try {
-//							stock.setUnitPrice(Float.parseFloat(txtPrice.getText().toString()));
-//							updateStock(stock);
-//						} catch (NumberFormatException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
-//					}
-//				}
-//				
-//			});
-			
 			imgBtnDelete.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -462,6 +420,7 @@ public class DirectReceiveActivity extends Activity implements
 							mReceiveStock.deleteDocumentDetail(stock.getId(), mDocumentId, mShopId);
 							mStockLst.remove(position);
 							mStockAdapter.notifyDataSetChanged();
+							clearActionInput();
 						}
 					}).show();
 				}
@@ -487,13 +446,10 @@ public class DirectReceiveActivity extends Activity implements
 
 	public void confirm() {
 		if(mStockLst.size() > 0){
-			final EditText txtRemark = new EditText(DirectReceiveActivity.this);
-			txtRemark.setHint(R.string.remark);
-	
+
 			new AlertDialog.Builder(DirectReceiveActivity.this)
 					.setTitle(R.string.confirm)
 					.setMessage(R.string.confirm_stock_receive)
-					.setView(txtRemark)
 					.setNegativeButton(android.R.string.cancel,
 							new DialogInterface.OnClickListener() {
 	
@@ -509,10 +465,8 @@ public class DirectReceiveActivity extends Activity implements
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									String remark = txtRemark.getText().toString();
-	
 									if (mReceiveStock.approveDocument(mDocumentId,
-											mShopId, mStaffId, remark)) {
+											mShopId, mStaffId, "")) {
 										
 										new AlertDialog.Builder(DirectReceiveActivity.this)
 										.setTitle(R.string.confirm)
@@ -574,14 +528,41 @@ public class DirectReceiveActivity extends Activity implements
 						}).show();
 	}
 
-	private void hideKeyboard(){
-		getWindow().setSoftInputMode(
-			      WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-	}
-
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		// TODO Auto-generated method stub
+		if(EditorInfo.IME_ACTION_DONE == actionId){
+			float qty = mStock.getReceive();
+			float price = mStock.getUnitPrice();
+			
+			if(v.getId() == R.id.editText1){
+				try {
+					qty = Float.parseFloat(v.getText().toString());
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}else if(v.getId() == R.id.editText2){
+				try {
+					price = Float.parseFloat(v.getText().toString());
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			mStock.setReceive(qty);
+			mStock.setUnitPrice(price);
+			
+			updateStock();
+			mStockLst.set(mPosition, mStock);
+			mStockAdapter.notifyDataSetChanged();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+			
+			clearActionInput();
+            
+			return true;
+		}
 		return false;
 	}
 }

@@ -6,18 +6,6 @@
     android:orientation="horizontal"
     android:padding="8dp" >
 
-    <EditText
-        android:id="@+id/txtDiscount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:ems="10"
-        android:hint="@string/discount"
-        android:imeOptions="actionDone"
-        android:inputType="number|numberSigned|numberDecimal" >
-    </EditText>
-
     <RadioGroup
         android:id="@+id/rdoDisType"
         android:layout_width="wrap_content"
@@ -39,5 +27,26 @@
             android:layout_height="wrap_content"
             android:text="@string/percent" />
     </RadioGroup>
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txtDiscount"
+        android:layout_alignBottom="@+id/txtDiscount"
+        android:layout_alignParentLeft="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/txtDiscount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/textView1"
+        android:ems="10"
+        android:hint="@string/discount"
+        android:imeOptions="actionDone"
+        android:inputType="number|numberSigned|numberDecimal" >
+    </EditText>
 
 </RelativeLayout>

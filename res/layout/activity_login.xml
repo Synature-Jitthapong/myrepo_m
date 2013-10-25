@@ -39,13 +39,11 @@
 
     <Button
         android:id="@+id/buttonLogin"
-        style="@style/ButtonTextWhite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/editTextPassWord"
         android:layout_below="@+id/editTextPassWord"
         android:layout_span="2"
-        android:background="@drawable/blue_button"
         android:onClick="loginClicked"
         android:text="@string/login"
         android:textAppearance="?android:attr/textAppearanceMediumInverse" />
@@ -56,12 +54,15 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="160dp"
         android:ems="10"
         android:hint="@string/user_name"
         android:lines="1"
         android:nextFocusDown="@+id/editTextPassWord"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLargeInverse" />
+        android:textAppearance="?android:attr/textAppearanceLargeInverse" >
+
+        <requestFocus />
+    </EditText>
 
 </RelativeLayout>

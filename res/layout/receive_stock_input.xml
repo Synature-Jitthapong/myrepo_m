@@ -6,25 +6,36 @@
     android:orientation="vertical" >
 
     <EditText
-        android:id="@+id/editText1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:ems="5"
-        android:imeOptions="actionDone"
-        android:inputType="number|numberSigned|numberDecimal" >
-
-    </EditText>
-
-    <EditText
         android:id="@+id/editText2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/editText1"
         android:ems="5"
+        android:hint="@string/price"
         android:imeOptions="actionDone"
         android:inputType="number|numberSigned|numberDecimal" />
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/textView1"
+        android:ems="5"
+        android:hint="@string/qty"
+        android:imeOptions="actionDone"
+        android:inputType="number|numberSigned|numberDecimal" >
+
+    </EditText>
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/editText1"
+        android:layout_alignBottom="@+id/editText1"
+        android:layout_alignParentLeft="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

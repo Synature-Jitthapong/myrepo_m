@@ -44,7 +44,7 @@ public class MPOSReceiveStock extends MPOSStockDocument{
 				mat.setProId(cursor.getInt(cursor.getColumnIndex("product_id")));
 				mat.setCode(cursor.getString(cursor.getColumnIndex("product_code")));
 				mat.setName(cursor.getString(cursor.getColumnIndex("product_name")));
-				mat.setCurrQty(cursor.getFloat(cursor.getColumnIndex("product_qty")));
+				mat.setReceive(cursor.getFloat(cursor.getColumnIndex("product_qty")));
 				mat.setUnitPrice(cursor.getFloat(cursor.getColumnIndex("product_unit_price")));
 				mat.setNetPrice(cursor.getFloat(cursor.getColumnIndex("product_net_price")));
 				mat.setTaxType(cursor.getInt(cursor.getColumnIndex("product_tax_type")));
