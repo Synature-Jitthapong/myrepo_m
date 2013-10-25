@@ -10,10 +10,10 @@ public class MPOSSql {
 	public static final String TB_SYNC_ITEM = 
 			" CREATE TABLE sync_item (" +
 			" sync_item_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-			" sync_enable INTEGER DEFAULT 1, " +
+			" sync_enabled INTEGER DEFAULT 1, " +
 			" sync_item_name TEXT, " +
 			" sync_time TEXT, " +
-			" sync_already INTEGER DEFAULT 0 " +
+			" sync_status INTEGER DEFAULT 0 " +
 			");";
 	
 	public static final String TB_PRINTER_SETTING = 

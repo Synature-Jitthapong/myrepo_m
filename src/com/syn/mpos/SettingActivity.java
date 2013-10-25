@@ -3,6 +3,7 @@ package com.syn.mpos;
 import java.util.List;
 
 import com.syn.mpos.database.Setting;
+import com.syn.mpos.database.Sync;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -17,7 +18,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -33,11 +37,11 @@ public class SettingActivity extends Activity {
 		mSetting = new Setting(this);
 	}
 
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		getMenuInflater().inflate(R.menu.setting, menu);
-//		return true;
-//	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.setting, menu);
+		return true;
+	}
 
 	public static class SettingCategoryFragment extends ListFragment{
 		String[] settings = {"Connection", "Sync", "Printer"};
@@ -87,17 +91,30 @@ public class SettingActivity extends Activity {
 			}
 		}
 	}
-	
+
 	public static class SyncSettingFragment extends Fragment{
-		private String[] syncItem = {"Shops", "Products", "Sale", "Stock"};
+		private List<Sync.SyncItem> mSyncLst;
 		
 		@Override
 		public void onActivityCreated(Bundle savedInstanceState) {
 			super.onActivityCreated(savedInstanceState);
 			
+			Sync sync = new Sync(getActivity());
+			mSyncLst = sync.listSync();
+			
 			ListView lvSync = (ListView) getActivity().findViewById(R.id.lvSync);
-			lvSync.setAdapter(new ArrayAdapter<String>(getActivity(), 
-					android.R.layout.simple_list_item_activated_1, syncItem));
+			lvSync.setAdapter(new ArrayAdapter<Sync.SyncItem>(getActivity(), 
+					android.R.layout.simple_list_item_activated_1, mSyncLst));
+			
+			lvSync.setOnItemClickListener(new OnItemClickListener(){
+
+				@Override
+				public void onItemClick(AdapterView<?> parent, View v,
+						int position, long id) {
+					
+				}
+				
+			});
 		}
 
 		@Override
@@ -105,7 +122,6 @@ public class SettingActivity extends Activity {
 				Bundle savedInstanceState) {
 			return inflater.inflate(R.layout.sync_setting_fragment, container, false);
 		}
-		
 	}
 	
 	public static class ConnectionSettingFragment extends Fragment{
