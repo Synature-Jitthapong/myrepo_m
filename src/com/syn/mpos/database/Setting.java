@@ -1,8 +1,5 @@
 package com.syn.mpos.database;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -34,44 +31,6 @@ public class Setting {
 		cursor.close();
 		mDbHelper.close();
 		return p;
-	}
-	
-	public SyncItem getSyncItem(int itemId){
-		SyncItem syncItem = new SyncItem();
-		String strSql = "SELECT * FROM sync_item WHERE sync_item_id=" + itemId;
-		
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
-		if(cursor.moveToFirst()){
-			syncItem.setSyncItemId(cursor.getInt(cursor.getColumnIndex("sync_item_id")));
-			syncItem.setSyncEnable(cursor.getInt(cursor.getColumnIndex("sync_enable")) == 1 ? true : false);
-			syncItem.setSyncItemName(cursor.getString(cursor.getColumnIndex("sync_item_name")));
-			syncItem.setSyncAlready(cursor.getInt(cursor.getColumnIndex("sync_already")) == 1 ? true : false);
-			syncItem.setSyncTime(cursor.getLong(cursor.getColumnIndex("sync_time")));
-		}
-		cursor.close();
-		mDbHelper.close();
-		return syncItem;
-	}
-	
-	public List<SyncItem> listSyncItem(){
-		List<SyncItem> syncLst = new ArrayList<SyncItem>();
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery("SELECT * FROM sync_item");
-		if(cursor.moveToFirst()){
-			do{
-				SyncItem syncItem = new SyncItem();
-				syncItem.setSyncItemId(cursor.getInt(cursor.getColumnIndex("sync_item_id")));
-				syncItem.setSyncEnable(cursor.getInt(cursor.getColumnIndex("sync_enable")) == 1 ? true : false);
-				syncItem.setSyncItemName(cursor.getString(cursor.getColumnIndex("sync_item_name")));
-				syncItem.setSyncAlready(cursor.getInt(cursor.getColumnIndex("sync_already")) == 1 ? true : false);
-				syncItem.setSyncTime(cursor.getLong(cursor.getColumnIndex("sync_time")));
-				syncLst.add(syncItem);
-			}while(cursor.moveToNext());
-		}
-		cursor.close();
-		mDbHelper.close();
-		return syncLst;
 	}
 	
 	public Connection getConnection(){
@@ -158,10 +117,10 @@ public class Setting {
 	
 	public static class SyncItem{
 		private int syncItemId;
-		private boolean syncEnable;
 		private String syncItemName;
+		private boolean syncEnabled;
 		private long syncTime;
-		private boolean syncAlready;
+		private int syncStatus;
 		
 		public int getSyncItemId() {
 			return syncItemId;
@@ -169,17 +128,17 @@ public class Setting {
 		public void setSyncItemId(int syncItemId) {
 			this.syncItemId = syncItemId;
 		}
-		public boolean isSyncEnable() {
-			return syncEnable;
-		}
-		public void setSyncEnable(boolean syncEnable) {
-			this.syncEnable = syncEnable;
-		}
 		public String getSyncItemName() {
 			return syncItemName;
 		}
 		public void setSyncItemName(String syncItemName) {
 			this.syncItemName = syncItemName;
+		}
+		public boolean isSyncEnabled() {
+			return syncEnabled;
+		}
+		public void setSyncEnabled(boolean syncEnabled) {
+			this.syncEnabled = syncEnabled;
 		}
 		public long getSyncTime() {
 			return syncTime;
@@ -187,11 +146,16 @@ public class Setting {
 		public void setSyncTime(long syncTime) {
 			this.syncTime = syncTime;
 		}
-		public boolean isSyncAlready() {
-			return syncAlready;
+		public int getSyncStatus() {
+			return syncStatus;
 		}
-		public void setSyncAlready(boolean syncAlready) {
-			this.syncAlready = syncAlready;
+		public void setSyncStatus(int syncStatus) {
+			this.syncStatus = syncStatus;
+		}
+		
+		@Override
+		public String toString() {
+			return syncItemName;
 		}
 	}
 	

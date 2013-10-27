@@ -18,32 +18,39 @@ import android.content.DialogInterface;
 
 public class MPOSService {
 	
-	public static ProgressDialog progress;
+	public Context mContext;
+	public Setting.Connection mSettingConn;
+	public ProgressDialog mProgress;
 	
-	public static void loadImportantData(Setting.Connection connSetting, 
-			final Context c, final String deviceCode, final OnServiceProcessListener listener){
+	public MPOSService(Context c, Setting.Connection conn){
+		mContext = c;
+		mSettingConn = conn;
+		mProgress = new ProgressDialog(c);
+	}
+	
+	public void loadShopData(final String deviceCode, 
+			final OnServiceProcessListener listener){
 
-		progress = new ProgressDialog(c);
-		progress.show();
-		final String url = connSetting.getFullUrl();
+		mProgress.show();
+		final String url = mSettingConn.getFullUrl();
 		
-		new AuthenDevice(c, deviceCode, new OnAuthenDeviceListener(){
+		new AuthenDevice(deviceCode, new OnAuthenDeviceListener(){
 
 			@Override
 			public void onAuthenSuccess(final int shopId) {
 				// load shop data
-				new LoadShopTask(c, shopId, deviceCode, new OnLoadShopListener(){
+				new LoadShopTask(shopId, deviceCode, new OnLoadShopListener(){
 
 					@Override
 					public void onError(String mesg) {
 						listener.onError(mesg);
-						dialog(c, R.string.load_shop, mesg);
-						progress.dismiss();
+						dialog(mContext, R.string.load_shop, mesg);
+						mProgress.dismiss();
 					}
 
 					@Override
 					public void onLoadShopSuccess(ShopData sd) {
-						Shop shop = new Shop(c);
+						Shop shop = new Shop(mContext);
 						try {
 							shop.insertShop(sd.getShopProperty());
 							shop.insertComputer(sd.getComputerProperty());
@@ -52,65 +59,8 @@ public class MPOSService {
 							shop.insertLanguage(sd.getLanguage());
 							shop.insertProgramFeature(sd.getProgramFeature());
 							
-							// load menu
-							new LoadMenuTask(c, shopId, deviceCode, new OnLoadMenuListener(){
-
-								@Override
-								public void onError(String mesg) {
-									listener.onError(mesg);
-									dialog(c, R.string.load_menu, mesg);
-									progress.dismiss();
-								}
-
-								@Override
-								public void onLoadMenuSuccess(final MenuGroups mgs) {
-									
-									new LoadProductTask(c, shopId, deviceCode, new OnLoadProductListener(){
-
-										@Override
-										public void onError(String mesg) {
-											listener.onError(mesg);
-											dialog(c, R.string.load_product, mesg);
-											progress.dismiss();
-										}
-
-										@Override
-										public void onLoadProductSuccess(ProductGroups pgs) {
-											Products p = new Products(c);
-											try {
-												p.insertProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
-												p.insertProductDept(pgs.getProductDept(), mgs.getMenuDept());
-												p.insertProducts(pgs.getProduct(), mgs.getMenuItem());
-												
-												listener.onSuccess();
-											} catch (Exception e) {
-												dialog(c, R.string.load_product, e.getMessage());
-												listener.onError(e.getMessage());
-											}
-
-											progress.dismiss();
-										}
-
-										@Override
-										public void onSuccess() {
-											// TODO Auto-generated method stub
-											
-										}
-										
-									}).execute(url);
-								}
-
-								@Override
-								public void onSuccess() {
-									// TODO Auto-generated method stub
-									
-								}
-								
-							}).execute(url);
-							// load menu
-							
 						} catch (Exception e) {
-							dialog(c, R.string.load_shop, e.getMessage());
+							dialog(mContext, R.string.load_shop, e.getMessage());
 						}
 					}
 
@@ -125,9 +75,9 @@ public class MPOSService {
 
 			@Override
 			public void onError(String mesg) {
-				dialog(c, R.string.check_device, mesg);
+				dialog(mContext, R.string.check_device, mesg);
 				listener.onError(mesg);
-				progress.dismiss();
+				mProgress.dismiss();
 			}
 
 			@Override
@@ -139,6 +89,70 @@ public class MPOSService {
 		}).execute(url);
 	}
 
+	public void loadProductData(final int shopId, final String deviceCode, 
+			final OnServiceProcessListener listener){
+		
+		mProgress.show();
+		final String url = mSettingConn.getFullUrl();
+		
+		// load menu
+		new LoadMenuTask(shopId, deviceCode, new OnLoadMenuListener(){
+
+			@Override
+			public void onError(String mesg) {
+				listener.onError(mesg);
+				dialog(mContext, R.string.load_menu, mesg);
+				mProgress.dismiss();
+			}
+
+			@Override
+			public void onLoadMenuSuccess(final MenuGroups mgs) {
+				
+				new LoadProductTask(shopId, deviceCode, new OnLoadProductListener(){
+
+					@Override
+					public void onError(String mesg) {
+						listener.onError(mesg);
+						dialog(mContext, R.string.load_product, mesg);
+						mProgress.dismiss();
+					}
+
+					@Override
+					public void onLoadProductSuccess(ProductGroups pgs) {
+						Products p = new Products(mContext);
+						try {
+							p.insertProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
+							p.insertProductDept(pgs.getProductDept(), mgs.getMenuDept());
+							p.insertProducts(pgs.getProduct(), mgs.getMenuItem());
+							
+							listener.onSuccess();
+						} catch (Exception e) {
+							dialog(mContext, R.string.load_product, e.getMessage());
+							listener.onError(e.getMessage());
+						}
+
+						mProgress.dismiss();
+					}
+
+					@Override
+					public void onSuccess() {
+						// TODO Auto-generated method stub
+						
+					}
+					
+				}).execute(url);
+			}
+
+			@Override
+			public void onSuccess() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		}).execute(url);
+		// load menu
+	}
+	
 	private static void dialog(Context c, int title, String mesg){
 		new AlertDialog.Builder(c)
 		.setTitle(title)
@@ -155,12 +169,13 @@ public class MPOSService {
 	}
 	
 	// load shop data
-	public static class LoadShopTask extends MPOSMainService{
+	public class LoadShopTask extends MPOSMainService{
 
 		private OnLoadShopListener listener;
 		
-		public LoadShopTask(Context c, int shopId, String deviceCode, OnLoadShopListener listener) {
-			super(c, deviceCode, "WSmPOS_JSON_LoadShopData");
+		public LoadShopTask(int shopId, String deviceCode, 
+				OnLoadShopListener listener) {
+			super(mContext, deviceCode, "WSmPOS_JSON_LoadShopData");
 			
 			property = new PropertyInfo();
 			property.setName("iShopID");
@@ -186,17 +201,18 @@ public class MPOSService {
 
 		@Override
 		protected void onPreExecute() {
-			progress.setMessage(context.getString(R.string.load_shop));
+			mProgress.setMessage(context.getString(R.string.load_shop));
 		}
 	}
 	
 	// load products
-	public static class LoadProductTask extends MPOSMainService{
+	public class LoadProductTask extends MPOSMainService{
 		
 		private OnLoadProductListener listener;
 		
-		public LoadProductTask(Context c, int shopId, String deviceCode, OnLoadProductListener listener) {
-			super(c, deviceCode, "WSmPOS_JSON_LoadProductDataV2");
+		public LoadProductTask(int shopId, String deviceCode, 
+				OnLoadProductListener listener) {
+			super(mContext, deviceCode, "WSmPOS_JSON_LoadProductDataV2");
 			
 			property = new PropertyInfo();
 			property.setName("iShopID");
@@ -219,17 +235,18 @@ public class MPOSService {
 
 		@Override
 		protected void onPreExecute() {
-			progress.setMessage(context.getString(R.string.load_product));
+			mProgress.setMessage(context.getString(R.string.load_product));
 		}
 	}
 	
 	// load menu data
-	public static class LoadMenuTask extends MPOSMainService{
+	public class LoadMenuTask extends MPOSMainService{
 		
 		private OnLoadMenuListener listener;
 		
-		public LoadMenuTask(Context c, int shopId, String deviceCode, OnLoadMenuListener listener) {
-			super(c, deviceCode, "WSmPOS_JSON_LoadMenuDataV2");
+		public LoadMenuTask(int shopId, String deviceCode, 
+				OnLoadMenuListener listener) {
+			super(mContext, deviceCode, "WSmPOS_JSON_LoadMenuDataV2");
 			
 			property = new PropertyInfo();
 			property.setName("iShopID");
@@ -252,19 +269,18 @@ public class MPOSService {
 
 		@Override
 		protected void onPreExecute() {
-			progress.setMessage(context.getString(R.string.load_menu));
+			mProgress.setMessage(context.getString(R.string.load_menu));
 		}
-		
-		
 	}
 
 	// check authen shop
-	public static class AuthenDevice extends MPOSMainService{
+	public class AuthenDevice extends MPOSMainService{
 		
 		private OnAuthenDeviceListener listener;
 		
-		public AuthenDevice(Context c, String deviceCode, OnAuthenDeviceListener listener) {
-			super(c, deviceCode, "WSmPOS_CheckAuthenShopDevice");
+		public AuthenDevice(String deviceCode, 
+				OnAuthenDeviceListener listener) {
+			super(mContext, deviceCode, "WSmPOS_CheckAuthenShopDevice");
 			this.listener = listener;
 		}
 
@@ -283,7 +299,7 @@ public class MPOSService {
 
 		@Override
 		protected void onPreExecute() {
-			progress.setMessage(context.getString(R.string.check_device));
+			mProgress.setMessage(context.getString(R.string.check_device));
 		}
 	}	
 	

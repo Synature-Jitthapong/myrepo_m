@@ -1,9 +1,10 @@
 package com.syn.mpos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.database.Setting;
-import com.syn.mpos.database.Sync;
+import com.syn.mpos.database.Shop;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -28,6 +29,8 @@ import android.widget.ListView;
 
 public class SettingActivity extends Activity {
 	private static Setting mSetting;
+	private static Shop mShop;
+	private static String mDeviceCode;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,7 @@ public class SettingActivity extends Activity {
 		setContentView(R.layout.activity_setting);
 		
 		mSetting = new Setting(this);
+		mShop = new Shop(this);
 	}
 
 	@Override
@@ -93,17 +97,29 @@ public class SettingActivity extends Activity {
 	}
 
 	public static class SyncSettingFragment extends Fragment{
-		private List<Sync.SyncItem> mSyncLst;
+		private List<Setting.SyncItem> mSyncLst;
 		
 		@Override
 		public void onActivityCreated(Bundle savedInstanceState) {
 			super.onActivityCreated(savedInstanceState);
 			
-			Sync sync = new Sync(getActivity());
-			mSyncLst = sync.listSync();
+			mSyncLst = new ArrayList<Setting.SyncItem>();
+			Setting.SyncItem syncItem = new Setting.SyncItem();
+			syncItem.setSyncItemId(1);
+			syncItem.setSyncItemName(getActivity().getString(R.string.sync_product));
+			mSyncLst.add(syncItem);
+			
+			syncItem = new Setting.SyncItem();
+			syncItem.setSyncItemId(2);
+			syncItem.setSyncItemName(getActivity().getString(R.string.sync_sale));
+			mSyncLst.add(syncItem);
+			
+			syncItem.setSyncItemId(3);
+			syncItem.setSyncItemName(getActivity().getString(R.string.sync_stock));
+			mSyncLst.add(syncItem);
 			
 			ListView lvSync = (ListView) getActivity().findViewById(R.id.lvSync);
-			lvSync.setAdapter(new ArrayAdapter<Sync.SyncItem>(getActivity(), 
+			lvSync.setAdapter(new ArrayAdapter<Setting.SyncItem>(getActivity(), 
 					android.R.layout.simple_list_item_activated_1, mSyncLst));
 			
 			lvSync.setOnItemClickListener(new OnItemClickListener(){
@@ -111,7 +127,35 @@ public class SettingActivity extends Activity {
 				@Override
 				public void onItemClick(AdapterView<?> parent, View v,
 						int position, long id) {
+					Setting.SyncItem syncItem = (Setting.SyncItem) 
+							parent.getItemAtPosition(position);
 					
+					MPOSService mposService = new MPOSService(getActivity(),
+							mSetting.getConnection());
+					
+					switch(syncItem.getSyncItemId()){
+					case 1:
+						mposService.loadProductData(mShop.getShopProperty().getShopID(), 
+								mDeviceCode, new MPOSService.OnServiceProcessListener() {
+									
+									@Override
+									public void onSuccess() {
+										// TODO Auto-generated method stub
+										
+									}
+									
+									@Override
+									public void onError(String mesg) {
+										// TODO Auto-generated method stub
+										
+									}
+								});
+						break;
+					case 2:
+						break;
+					case 3:
+						break;
+					}
 				}
 				
 			});

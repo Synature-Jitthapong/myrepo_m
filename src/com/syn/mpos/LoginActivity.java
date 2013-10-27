@@ -24,7 +24,7 @@ public class LoginActivity extends Activity {
 	private MPOSSession mSession;
 	private Setting mSetting;
 	private Setting.Connection mConn;
-	private String deviceCode;
+	private String mDeviceCode;
 	
 	private EditText mTxtUser;
 	private EditText mTxtPass;
@@ -34,7 +34,7 @@ public class LoginActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		deviceCode = Secure.getString(this.getContentResolver(),
+		mDeviceCode = Secure.getString(this.getContentResolver(),
 				Secure.ANDROID_ID);
 		
 		mTxtUser = (EditText) findViewById(R.id.editTextUserName);
@@ -45,7 +45,7 @@ public class LoginActivity extends Activity {
 		
 		mTxtUser.setText("1");
 		mTxtPass.setText("1");
-		mTvDeviceCode.setText(deviceCode);
+		mTvDeviceCode.setText(mDeviceCode);
 	}
 
 	private void init(){
@@ -89,25 +89,27 @@ public class LoginActivity extends Activity {
 	@Override
 	protected void onResume() {
 		init();
-		
 		super.onResume();
 	}
 	
 	public void loginClicked(final View v){
-//		MPOSService.loadImportantData(mConn, LoginActivity.this, deviceCode,
-//				new MPOSService.OnServiceProcessListener() {
-//
-//					@Override
-//					public void onSuccess() {
-//						checkLogin();
-//					}
-//
-//					@Override
-//					public void onError(String mesg) {
-//						
-//					}
-//				});
-		checkLogin();
+		if(mShopId == 0){
+			MPOSService mposService = new MPOSService(this, mConn);
+			mposService.loadShopData(mDeviceCode, new MPOSService.OnServiceProcessListener() {
+				
+				@Override
+				public void onSuccess() {
+					checkLogin();
+				}
+				
+				@Override
+				public void onError(String mesg) {
+					
+				}
+			});
+		}else{
+			checkLogin();
+		}
 	}
 	
 	private void gotoMainActivity(int staffId){
