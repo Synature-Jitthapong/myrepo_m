@@ -341,8 +341,18 @@ public class VoidBillActivity extends Activity {
 				    	}
 					}
 				}else{
-					Util.alert(VoidBillActivity.this, android.R.drawable.ic_dialog_alert, 
-							R.string.void_bill, R.string.enter_reason);
+					new AlertDialog.Builder(getApplicationContext())
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle(R.string.void_bill)
+					.setMessage(R.string.enter_reason)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							
+						}
+					})
+					.show();
 				}
 			}
 		})

@@ -49,13 +49,15 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 public class MainActivity extends FragmentActivity implements OnMPOSFunctionClickListener,
-	MenuPageFragment.OnMenuItemClick{
+	MenuPageFragment.OnMenuItemClick, ManageProductDialogFragment.OnManageProductDismissListener{
 	//private static final String TAG = "MPOSMainActivity";
 	private Shop mShop;
 	private Formatter mFormat;
 	private MPOSSession mSession;
 	private MPOSTransaction mTrans;
 	private MPOSPayment mPayment;
+	private Products mProduct;
+	private List<Products.ProductDept> mProductDeptLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private List<OrderTransaction.OrderDetail> mOrderSelLst;
 	private OrderListAdapter mOrderAdapter;
@@ -67,9 +69,9 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 	public static Setting mSetting;
 	private Setting.Connection mConn;
 
-	private PagerSlidingTabStrip tabs;
-	private ViewPager pager;
-	private MenuItemPagerAdapter adapter;
+	private PagerSlidingTabStrip mTabs;
+	private ViewPager mPager;
+	private MenuItemPagerAdapter mPageAdapter;
 	
 	private TableRow mTbRowVat;
 	private ListView mOrderListView;
@@ -122,16 +124,9 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 			.show();
 		}
 		
-		tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-		pager = (ViewPager) findViewById(R.id.pager);
-		
-		adapter = new MenuItemPagerAdapter(getSupportFragmentManager());
-		pager.setAdapter(adapter);
-		final int pageMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
-				.getDisplayMetrics());
-		pager.setPageMargin(pageMargin);
-		tabs.setViewPager(pager);
-		tabs.setIndicatorColor(0xFF1D78B2);
+		mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+		mPager = (ViewPager) findViewById(R.id.pager);
+		setupMenuItemPager();
 	}
 	
 	public void init(){
@@ -164,6 +159,32 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		registerOrderListEvent();
 		countHoldOrder();
 		loadOrder();
+	}
+	
+	void setupMenuItemPager(){
+		mProduct = new Products(this);
+		mProductDeptLst = mProduct.listProductDept();
+		if (mProductDeptLst.size() > 0) {
+			mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
+			mPager.setAdapter(mPageAdapter);
+			final int pageMargin = (int) TypedValue.applyDimension(
+					TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
+							.getDisplayMetrics());
+			mPager.setPageMargin(pageMargin);
+			mTabs.setViewPager(mPager);
+			mTabs.setIndicatorColor(0xFF1D78B2);
+		}else{
+			manageProduct();
+		}
+	}
+	
+	void manageProduct(){
+		Products.ProductDept pd = new Products.ProductDept();
+		pd.setProductDeptName("+Add New");
+		mProductDeptLst.add(0, pd);
+		mPageAdapter.notifyDataSetChanged();
+//		ManageProductDialogFragment manageProduct = ManageProductDialogFragment.newInstance();
+//		manageProduct.show(getSupportFragmentManager(), "ManageProductDialog");	
 	}
 	
 	private void registerOrderListEvent(){
@@ -431,6 +452,9 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		case R.id.itemEndday:
 			endday();
 			return true;
+		case R.id.itemManageProduct:
+			manageProduct();
+			return true;
 		case R.id.itemSync:
 			sync();
 			return true;
@@ -493,7 +517,9 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 	}
 	
 	void sync(){
-		
+		Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+		intent.putExtra("settingPosition", 1);
+		startActivity(intent);
 	}
 
 	private void countHoldOrder(){
@@ -656,20 +682,60 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 								mStaffId = s.getStaffID();
 								init();
 							}else{
-								Util.alert(MainActivity.this, android.R.drawable.ic_dialog_alert, 
-										R.string.login, R.string.incorrect_password);
+								new AlertDialog.Builder(getApplicationContext())
+								.setIcon(android.R.drawable.ic_dialog_alert)
+								.setTitle(R.string.login)
+								.setMessage(R.string.incorrect_password)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										
+									}
+								})
+								.show();
 							}
 						}else{
-							Util.alert(MainActivity.this, android.R.drawable.ic_dialog_alert, 
-									R.string.login, R.string.incorrect_user);
+							new AlertDialog.Builder(getApplicationContext())
+							.setIcon(android.R.drawable.ic_dialog_alert)
+							.setTitle(R.string.login)
+							.setMessage(R.string.incorrect_user)
+							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									
+								}
+							})
+							.show();
 						}
 					}else{
-						Util.alert(MainActivity.this, android.R.drawable.ic_dialog_alert, 
-								R.string.login, R.string.enter_password);
+						new AlertDialog.Builder(getApplicationContext())
+						.setIcon(android.R.drawable.ic_dialog_alert)
+						.setTitle(R.string.login)
+						.setMessage(R.string.enter_password)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								
+							}
+						})
+						.show();
 					}
 				}else{
-					Util.alert(MainActivity.this, android.R.drawable.ic_dialog_alert, 
-							R.string.login, R.string.enter_username);
+					new AlertDialog.Builder(getApplicationContext())
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle(R.string.login)
+					.setMessage(R.string.enter_username)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							
+						}
+					})
+					.show();
 				}
 			}
 		});
@@ -900,30 +966,25 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 	}
 	
 	public class MenuItemPagerAdapter extends FragmentPagerAdapter{
-		private Products p;
-		private List<Products.ProductDept> mPdLst;
-		
+
 		public MenuItemPagerAdapter(FragmentManager fm) {
 			super(fm);
-			
-			p = new Products(MainActivity.this);
-			mPdLst = p.listProductDept();
 		}
 		
 		@Override
 		public CharSequence getPageTitle(int position) {
-			return mPdLst.get(position).getProductDeptName();
+			return mProductDeptLst.get(position).getProductDeptName();
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			int deptId = mPdLst.get(position).getProductDeptId();
+			int deptId = mProductDeptLst.get(position).getProductDeptId();
 			return MenuPageFragment.newInstance(MainActivity.this, deptId);
 		}
 
 		@Override
 		public int getCount() {
-			return mPdLst.size();
+			return mProductDeptLst.size();
 		}		
 	}
 	
@@ -935,5 +996,10 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		mOrderLst.add(mTrans.getOrder(mTransactionId, mComputerId, orderId));
 		mOrderListView.smoothScrollToPosition(mOrderLst.size());
 		mOrderAdapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onDismiss() {
+		setupMenuItemPager();
 	}
 }

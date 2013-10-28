@@ -50,4 +50,23 @@
             android:hint="@string/backoffice" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tvDeviceCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="code"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="14dp"
+        android:layout_toLeftOf="@+id/tvDeviceCode"
+        android:text="Device code:"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
 </RelativeLayout>

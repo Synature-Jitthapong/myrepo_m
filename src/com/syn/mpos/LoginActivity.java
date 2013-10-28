@@ -9,6 +9,8 @@ import com.syn.pos.ShopData;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,7 +30,6 @@ public class LoginActivity extends Activity {
 	
 	private EditText mTxtUser;
 	private EditText mTxtPass;
-	private TextView mTvDeviceCode;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +40,11 @@ public class LoginActivity extends Activity {
 		
 		mTxtUser = (EditText) findViewById(R.id.editTextUserName);
 		mTxtPass = (EditText) findViewById(R.id.editTextPassWord);
-		mTvDeviceCode = (TextView) findViewById(R.id.tvDeviceCode);
 		mTxtUser.setSelectAllOnFocus(true);
 		mTxtPass.setSelectAllOnFocus(true);
 		
 		mTxtUser.setText("1");
 		mTxtPass.setText("1");
-		mTvDeviceCode.setText(mDeviceCode);
 	}
 
 	private void init(){
@@ -141,20 +140,60 @@ public class LoginActivity extends Activity {
 						
 						gotoMainActivity(s.getStaffID());
 					}else{
-						Util.alert(LoginActivity.this, android.R.drawable.ic_dialog_alert, 
-								R.string.login, R.string.incorrect_password);
+						new AlertDialog.Builder(getApplicationContext())
+						.setIcon(android.R.drawable.ic_dialog_alert)
+						.setTitle(R.string.login)
+						.setMessage(R.string.incorrect_password)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								
+							}
+						})
+						.show();
 					}
 				}else{
-					Util.alert(LoginActivity.this, android.R.drawable.ic_dialog_alert, 
-							R.string.login, R.string.incorrect_user);
+					new AlertDialog.Builder(getApplicationContext())
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle(R.string.login)
+					.setMessage(R.string.incorrect_user)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							
+						}
+					})
+					.show();
 				}
 			}else{
-				Util.alert(LoginActivity.this, android.R.drawable.ic_dialog_alert, 
-						R.string.login, R.string.enter_password);
+				new AlertDialog.Builder(getApplicationContext())
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.login)
+				.setMessage(R.string.enter_password)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+					}
+				})
+				.show();
 			}
 		}else{
-			Util.alert(LoginActivity.this, android.R.drawable.ic_dialog_alert, 
-					R.string.login, R.string.enter_username);
+			new AlertDialog.Builder(getApplicationContext())
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setTitle(R.string.login)
+			.setMessage(R.string.enter_username)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					
+				}
+			})
+			.show();
 		}
 	}
 }

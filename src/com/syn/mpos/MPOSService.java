@@ -26,6 +26,7 @@ public class MPOSService {
 		mContext = c;
 		mSettingConn = conn;
 		mProgress = new ProgressDialog(c);
+		mProgress.setCancelable(false);
 	}
 	
 	public void loadShopData(final String deviceCode, 
@@ -42,10 +43,9 @@ public class MPOSService {
 				new LoadShopTask(shopId, deviceCode, new OnLoadShopListener(){
 
 					@Override
-					public void onError(String mesg) {
-						listener.onError(mesg);
-						dialog(mContext, R.string.load_shop, mesg);
+					public void onError(String err) {
 						mProgress.dismiss();
+						listener.onError(err);
 					}
 
 					@Override
@@ -59,31 +59,21 @@ public class MPOSService {
 							shop.insertLanguage(sd.getLanguage());
 							shop.insertProgramFeature(sd.getProgramFeature());
 							
+							listener.onSuccess();
 						} catch (Exception e) {
-							dialog(mContext, R.string.load_shop, e.getMessage());
+							listener.onError(e.getMessage());
 						}
-					}
 
-					@Override
-					public void onSuccess() {
-						// TODO Auto-generated method stub
-						
+						mProgress.dismiss();
 					}
 					
 				}).execute(url);
 			}
 
 			@Override
-			public void onError(String mesg) {
-				dialog(mContext, R.string.check_device, mesg);
-				listener.onError(mesg);
+			public void onError(String err) {
 				mProgress.dismiss();
-			}
-
-			@Override
-			public void onSuccess() {
-				// TODO Auto-generated method stub
-				
+				listener.onError(err);
 			}
 			
 		}).execute(url);
@@ -99,10 +89,9 @@ public class MPOSService {
 		new LoadMenuTask(shopId, deviceCode, new OnLoadMenuListener(){
 
 			@Override
-			public void onError(String mesg) {
-				listener.onError(mesg);
-				dialog(mContext, R.string.load_menu, mesg);
+			public void onError(String err) {
 				mProgress.dismiss();
+				listener.onError(err);
 			}
 
 			@Override
@@ -111,10 +100,9 @@ public class MPOSService {
 				new LoadProductTask(shopId, deviceCode, new OnLoadProductListener(){
 
 					@Override
-					public void onError(String mesg) {
-						listener.onError(mesg);
-						dialog(mContext, R.string.load_product, mesg);
+					public void onError(String err) {
 						mProgress.dismiss();
+						listener.onError(err);
 					}
 
 					@Override
@@ -127,45 +115,17 @@ public class MPOSService {
 							
 							listener.onSuccess();
 						} catch (Exception e) {
-							dialog(mContext, R.string.load_product, e.getMessage());
 							listener.onError(e.getMessage());
 						}
 
 						mProgress.dismiss();
 					}
-
-					@Override
-					public void onSuccess() {
-						// TODO Auto-generated method stub
-						
-					}
 					
 				}).execute(url);
-			}
-
-			@Override
-			public void onSuccess() {
-				// TODO Auto-generated method stub
-				
 			}
 			
 		}).execute(url);
 		// load menu
-	}
-	
-	private static void dialog(Context c, int title, String mesg){
-		new AlertDialog.Builder(c)
-		.setTitle(title)
-		.setMessage(mesg)
-		.setCancelable(false)
-		.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				
-			}
-		}).show();
 	}
 	
 	// load shop data
@@ -201,7 +161,7 @@ public class MPOSService {
 
 		@Override
 		protected void onPreExecute() {
-			mProgress.setMessage(context.getString(R.string.load_shop));
+			mProgress.setMessage(context.getString(R.string.sync_shop_progress));
 		}
 	}
 	
@@ -228,14 +188,20 @@ public class MPOSService {
 			JSONUtil jsonUtil = new JSONUtil();
 			Type type = new TypeToken<ProductGroups>() {}.getType();
 			
-			ProductGroups productData = (ProductGroups) jsonUtil.toObject(type, result);
+			ProductGroups productData;
+			try {
+				productData = (ProductGroups) jsonUtil.toObject(type, result);
+				this.listener.onLoadProductSuccess(productData);
+			} catch (Exception e) {
+				this.listener.onError(result);
+				e.printStackTrace();
+			}
 			
-			this.listener.onLoadProductSuccess(productData);
 		}
 
 		@Override
 		protected void onPreExecute() {
-			mProgress.setMessage(context.getString(R.string.load_product));
+			mProgress.setMessage(context.getString(R.string.sync_product_progress));
 		}
 	}
 	
@@ -262,14 +228,18 @@ public class MPOSService {
 			JSONUtil jsonUtil = new JSONUtil();
 			Type type = new TypeToken<MenuGroups>() {}.getType();
 			
-			MenuGroups menuGroup = (MenuGroups) jsonUtil.toObject(type, result);
-			
-			this.listener.onLoadMenuSuccess(menuGroup);
+			try {
+				MenuGroups menuGroup = (MenuGroups) jsonUtil.toObject(type, result);
+				this.listener.onLoadMenuSuccess(menuGroup);
+			} catch (Exception e) {
+				this.listener.onError(result);
+				e.printStackTrace();
+			}
 		}
 
 		@Override
 		protected void onPreExecute() {
-			mProgress.setMessage(context.getString(R.string.load_menu));
+			mProgress.setMessage(context.getString(R.string.sync_menu_progress));
 		}
 	}
 
@@ -293,7 +263,7 @@ public class MPOSService {
 				else
 					this.listener.onError(context.getString(R.string.device_not_register));
 			} catch (NumberFormatException e) {
-				this.listener.onError(e.getMessage());
+				this.listener.onError(context.getString(R.string.device_not_register));
 			}
 		}
 
@@ -303,20 +273,24 @@ public class MPOSService {
 		}
 	}	
 	
-	public static interface OnLoadMenuListener extends OnServiceProcessListener{
+	public static interface OnLoadMenuListener extends OnServiceError{
 		void onLoadMenuSuccess(MenuGroups mgs);
 	}
 	
-	public static interface OnLoadProductListener extends OnServiceProcessListener{
+	public static interface OnLoadProductListener extends OnServiceError{
 		void onLoadProductSuccess(ProductGroups pgs);
 	}
 	
-	public static interface OnLoadShopListener extends OnServiceProcessListener{
+	public static interface OnLoadShopListener extends OnServiceError{
 		void onLoadShopSuccess(ShopData sd);
 	}
 	
-	public static interface OnAuthenDeviceListener extends OnServiceProcessListener{
+	public static interface OnAuthenDeviceListener extends OnServiceError{
 		void onAuthenSuccess(int shopId);
+	}
+	
+	public static interface OnServiceError{
+		void onError(String error);
 	}
 	
 	public static interface OnServiceProcessListener{

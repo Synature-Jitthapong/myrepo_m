@@ -49,6 +49,31 @@ public class Products {
 		return pLst;
 	}
 	
+	public Product getProduct(int proId){
+		Product p = new Product();
+		
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM products" +
+				" WHERE product_id=" + proId +
+				" AND activated=1" +
+				" ORDER BY product_ordering");
+		if(cursor.moveToFirst()){
+			p.setProductId(cursor.getInt(cursor.getColumnIndex("product_id")));
+			p.setProductCode(cursor.getString(cursor.getColumnIndex("product_code")));
+			p.setProductBarCode(cursor.getString(cursor.getColumnIndex("product_barcode")));
+			p.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
+			p.setProductPrice(cursor.getFloat(cursor.getColumnIndex("product_price")));
+			p.setVatType(cursor.getInt(cursor.getColumnIndex("vat_type")));
+			p.setVatRate(cursor.getFloat(cursor.getColumnIndex("vat_rate")));
+			p.setDiscountAllow(cursor.getInt(cursor.getColumnIndex("discount_allow")));
+			p.setPicName(cursor.getString(cursor.getColumnIndex("pic_name")));
+			p.setHasServiceCharge(cursor.getInt(cursor.getColumnIndex("has_service_charge")));
+		}
+		cursor.close();
+		mSqlite.close();
+		return p;
+	}
+	
 	public List<Product> listProduct(int deptId){
 		List<Product> pLst = new ArrayList<Product>();
 		
@@ -77,6 +102,23 @@ public class Products {
 		cursor.close();
 		mSqlite.close();
 		return pLst;
+	}
+	
+	public ProductDept getProductDept(int deptId){
+		ProductDept pd = new ProductDept();
+		
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM product_dept " +
+				" WHERE product_dept_id=" + deptId);
+		if(cursor.moveToFirst()){
+			pd.setProductDeptId(cursor.getInt(cursor.getColumnIndex("product_dept_id")));
+			pd.setProductGroupId(cursor.getInt(cursor.getColumnIndex("product_group_id")));
+			pd.setProductDeptCode(cursor.getString(cursor.getColumnIndex("product_dept_code")));
+			pd.setProductDeptName(cursor.getString(cursor.getColumnIndex("product_dept_name")));
+		}
+		cursor.close();
+		mSqlite.close();
+		return pd;
 	}
 	
 	public List<ProductDept> listProductDept(){
@@ -143,6 +185,23 @@ public class Products {
 		return isSuccess;
 	}
 	
+	public int insertProductDept(String deptCode, String deptName){
+		int deptId = getMaxProductDept();
+		mSqlite.open();
+		ContentValues cv = new ContentValues();
+		cv.put("product_dept_id", deptId);
+		cv.put("product_group_id", 0);
+		cv.put("product_dept_code", deptCode);
+		cv.put("product_dept_name", deptName);
+		cv.put("product_dept_ordering", 0);
+		cv.put("create_from_device", 1);
+		
+		if(!mSqlite.insert("product_dept", cv))
+			deptId = 0;
+		mSqlite.close();
+		return deptId;
+	}
+	
 	public boolean insertProductDept(List<ProductGroups.ProductDept> pdLst, 
 			List<MenuGroups.MenuDept> mdLst){
 		boolean isSuccess = false;
@@ -161,6 +220,39 @@ public class Products {
 		}
 		mSqlite.close();
 		return isSuccess;
+	}
+	
+	public int insertProducts(int deptId, String pCode, String pBarcode,
+			String pName, float pUnitPrice){
+		
+		int maxId = getMaxProduct();
+		
+		mSqlite.open();
+		ContentValues cv = new ContentValues();
+		cv.put("product_id", maxId);
+		cv.put("product_dept_id", deptId);
+		cv.put("product_group_id", 0);
+		cv.put("product_code", pCode);
+		cv.put("product_barcode", pBarcode);
+		cv.put("product_name", pName);
+		cv.put("product_type_id", 1);
+		cv.put("product_price", pUnitPrice);
+		cv.put("product_unit_name", "");
+		cv.put("product_desc", "");
+		cv.put("discount_allow", 1);
+		cv.put("vat_type", 1);
+		cv.put("vat_rate", 0.7);
+		cv.put("has_service_charge", 0);
+		cv.put("activated", 1);
+		cv.put("is_out_of_stock", 0);
+		cv.put("create_from_device", 1);
+		
+		if(!mSqlite.insert("products", cv))
+			maxId = 0;
+		
+		mSqlite.close();
+		
+		return maxId;
 	}
 	
 	public boolean insertProducts(List<ProductGroups.Products> productLst,
@@ -202,6 +294,34 @@ public class Products {
 		mSqlite.close();
 		
 		return isSucc;
+	}
+	
+	public int getMaxProduct(){
+		int maxId = 0;
+		
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT MAX(product_id) " +
+				"FROM products");
+		
+		if(cursor.moveToFirst()){
+			maxId = cursor.getInt(0);
+		}
+		cursor.close();
+		mSqlite.close();
+		return maxId + 1;
+	}
+	
+	public int getMaxProductDept(){
+		int maxId = 0;
+		
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT MAX(product_dept_id) FROM product_dept");
+		if(cursor.moveToFirst()){
+			maxId = cursor.getInt(0);
+		}
+		cursor.close();
+		mSqlite.close();
+		return maxId + 1;
 	}
 	
 	public static class Product{
@@ -311,6 +431,10 @@ public class Products {
 		public void setPicName(String picName) {
 			this.picName = picName;
 		}
+		@Override
+		public String toString() {
+			return productName;
+		}
 	}
 	
 	public static class ProductDept{
@@ -342,6 +466,11 @@ public class Products {
 		}
 		public void setProductDeptName(String productDeptName) {
 			this.productDeptName = productDeptName;
+		}
+		
+		@Override
+		public String toString() {
+			return productDeptName;
 		}
 	}
 	

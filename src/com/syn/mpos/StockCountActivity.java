@@ -319,8 +319,18 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 				mStockLst = mStockCount.listStock(mStcDocId, mShopId);
 				mStockAdapter.notifyDataSetChanged();
 			} else {
-				Util.alert(StockCountActivity.this, android.R.drawable.ic_dialog_alert,
-						R.string.error, R.string.error_save_stock);
+				new AlertDialog.Builder(getApplicationContext())
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.error)
+				.setMessage(R.string.error_save_stock)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+					}
+				})
+				.show();
 			}
 			super.onPostExecute(isSuccess);
 		}

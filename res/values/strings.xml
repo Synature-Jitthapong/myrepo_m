@@ -60,10 +60,10 @@
     <string name="sale_report_by_bill">Sale report by bill</string>
     <string name="sale_report_by_product">Sale report by product</string>
     <string name="remark">Remark</string>
-    <string name="load_product">Load product</string>
+    <string name="sync_product_progress">Sync product</string>
     <string name="check_device">Check device</string>
-    <string name="load_shop">Load shop data</string>
-    <string name="load_menu">Load menu</string>
+    <string name="sync_shop_progress">Sync shop data</string>
+    <string name="sync_menu_progress">Sync menu</string>
     <string name="error">Error</string>
     <string name="hold">Hold</string>
     <string name="title_activity_sale_report">Sale Report</string>
@@ -207,5 +207,12 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="sync_stock_summary">Sync stock data</string>
     <string name="sync_shop">Shop</string>
     <string name="sync_shop_summary">Sync shop data</string>
+    <string name="update_data_success">Update data successfully.</string>
+    <string name="update_data">Update data</string>
+    <string name="save_success">Save successfully.</string>
+    <string name="enter_ipaddress">Please enter IP Address.</string>
+    <string name="enter_backoffice">Please enter backoffice name.</string>
+    <string name="product_dept">Product Dept.</string>
+    <string name="product_dept_code">Dept Code</string>
 
 </resources>

@@ -13,7 +13,9 @@ import com.syn.pos.CreditCardType;
 import com.syn.pos.OrderTransaction;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -128,9 +130,31 @@ public class CreditPayActivity extends Activity {
 			}
 		}else{
 			if(cardNo.isEmpty()){
-				Util.alert(CreditPayActivity.this, android.R.drawable.ic_dialog_alert, R.string.payment, R.string.promp_card_no);
+				new AlertDialog.Builder(getApplicationContext())
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.payment)
+				.setMessage(R.string.promp_card_no)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+					}
+				})
+				.show();
 			}else if(mTotalPay == 0){
-				Util.alert(CreditPayActivity.this, android.R.drawable.ic_dialog_alert, R.string.payment, R.string.enter_enough_money);
+				new AlertDialog.Builder(getApplicationContext())
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.payment)
+				.setMessage(R.string.enter_enough_money)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+					}
+				})
+				.show();
 			}
 		}
 	}

@@ -7,30 +7,33 @@ import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 
 import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.ListFragment;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class SettingActivity extends Activity {
 	private static Setting mSetting;
 	private static Shop mShop;
 	private static String mDeviceCode;
+	private static Setting.Connection mConn;
+	private static int mSettingPosition;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,14 @@ public class SettingActivity extends Activity {
 		
 		mSetting = new Setting(this);
 		mShop = new Shop(this);
+		mConn = mSetting.getConnection();
+		mConn.setFullUrl(mConn.getProtocal() + mConn.getAddress() + 
+				"/" + mConn.getBackoffice() + "/" + mConn.getService());
+		mDeviceCode = Secure.getString(this.getContentResolver(),
+				Secure.ANDROID_ID);
+		
+		Intent intent = getIntent();
+		mSettingPosition = intent.getIntExtra("settingPosition", 0);
 	}
 
 	@Override
@@ -58,7 +69,7 @@ public class SettingActivity extends Activity {
 					android.R.layout.simple_list_item_activated_1, settings));
             getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 			
-			showSetting(0);
+			showSetting(mSettingPosition);
 		}
 
 		@Override
@@ -113,7 +124,8 @@ public class SettingActivity extends Activity {
 			syncItem.setSyncItemId(2);
 			syncItem.setSyncItemName(getActivity().getString(R.string.sync_sale));
 			mSyncLst.add(syncItem);
-			
+
+			syncItem = new Setting.SyncItem();
 			syncItem.setSyncItemId(3);
 			syncItem.setSyncItemName(getActivity().getString(R.string.sync_stock));
 			mSyncLst.add(syncItem);
@@ -130,8 +142,7 @@ public class SettingActivity extends Activity {
 					Setting.SyncItem syncItem = (Setting.SyncItem) 
 							parent.getItemAtPosition(position);
 					
-					MPOSService mposService = new MPOSService(getActivity(),
-							mSetting.getConnection());
+					MPOSService mposService = new MPOSService(getActivity(),mConn);
 					
 					switch(syncItem.getSyncItemId()){
 					case 1:
@@ -140,14 +151,32 @@ public class SettingActivity extends Activity {
 									
 									@Override
 									public void onSuccess() {
-										// TODO Auto-generated method stub
-										
+										new AlertDialog.Builder(getActivity())
+										.setTitle(R.string.sync_product)
+										.setIcon(android.R.drawable.ic_dialog_alert)
+										.setMessage(R.string.update_data_success)
+										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+											
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+												
+											}
+										}).show();
 									}
 									
 									@Override
 									public void onError(String mesg) {
-										// TODO Auto-generated method stub
-										
+										new AlertDialog.Builder(getActivity())
+										.setTitle(R.string.sync_product)
+										.setIcon(android.R.drawable.ic_dialog_alert)
+										.setMessage(mesg)
+										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+											
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+												
+											}
+										}).show();
 									}
 								});
 						break;
@@ -169,19 +198,18 @@ public class SettingActivity extends Activity {
 	}
 	
 	public static class ConnectionSettingFragment extends Fragment{
-		private Setting.Connection mConn;
 		
 		@Override
 		public void onActivityCreated(Bundle savedInstanceState) {
 			super.onActivityCreated(savedInstanceState);
 
 		    //setHasOptionsMenu(true);
-		    
-			mConn = mSetting.getConnection();
 			
 			final EditText txtAddress = (EditText) getActivity().findViewById(R.id.txtAddress);
 			final EditText txtBackoffice = (EditText) getActivity().findViewById(R.id.txtBackoffice);
 			final Button btnSave = (Button) getActivity().findViewById(R.id.btnSave);
+			TextView tvDeviceCode = (TextView) getActivity().findViewById(R.id.tvDeviceCode);
+			tvDeviceCode.setText(mDeviceCode);
 			
 			txtAddress.setText(mConn.getAddress());
 			txtBackoffice.setText(mConn.getBackoffice());
@@ -195,8 +223,71 @@ public class SettingActivity extends Activity {
 					
 					if(!addr.isEmpty() && !backoffice.isEmpty()){
 						mSetting.addConnSetting(addr, backoffice);
-						btnSave.setText("Save successfully");
+						btnSave.setText(R.string.save_success);
 						btnSave.setEnabled(false);
+						
+						mConn = mSetting.getConnection();
+						mConn.setFullUrl(mConn.getProtocal() + mConn.getAddress() + 
+								"/" + mConn.getBackoffice() + "/" + mConn.getService());
+						
+						MPOSService mposService = new MPOSService(getActivity(), mConn);
+						mposService.loadShopData(mDeviceCode, new MPOSService.OnServiceProcessListener() {
+							
+							@Override
+							public void onSuccess() {
+								new AlertDialog.Builder(getActivity())
+								.setTitle(R.string.update_data)
+								.setMessage(R.string.update_data_success)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										// TODO Auto-generated method stub
+										
+									}
+								}).show();
+							}
+							
+							@Override
+							public void onError(String mesg) {
+								new AlertDialog.Builder(getActivity())
+								.setTitle(R.string.update_data)
+								.setMessage(mesg)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										// TODO Auto-generated method stub
+										
+									}
+								}).show();
+								btnSave.setEnabled(true);
+							}
+						});
+					}else{
+						if(addr.isEmpty()){
+							new AlertDialog.Builder(getActivity())
+							.setTitle(R.string.setting)
+							.setMessage(R.string.enter_ipaddress)
+							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									txtAddress.requestFocus();
+								}
+							}).show();
+						}else if(backoffice.isEmpty()){
+							new AlertDialog.Builder(getActivity())
+							.setTitle(R.string.setting)
+							.setMessage(R.string.enter_backoffice)
+							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									txtBackoffice.requestFocus();
+								}
+							}).show();
+						}
 					}
 				}
 				

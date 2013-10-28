@@ -19,7 +19,8 @@
             <item android:id="@+id/itemVoid" android:title="@string/void_bill"/>
             <item android:id="@+id/itemCloseShift" android:title="@string/close_shift"/>
             <item android:id="@+id/itemEndday" android:title="@string/endday"/>
-            <item android:id="@+id/itemSync" android:title="@string/sync"/>
+            <item android:id="@+id/itemManageProduct" android:title="@string/manage_product" /><item android:id="@+id/itemSync" android:title="@string/sync"/>
+            
         </menu>
     </item>
     <item android:id="@+id/itemSwUser" android:showAsAction="always|withText" android:title="@string/switch_user"></item>
