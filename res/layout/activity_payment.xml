@@ -1,6 +1,6 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/LinearLayout1"
+    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/light_gray"
@@ -11,467 +11,487 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".PaymentActivity" >
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="4dp"
-        android:layout_weight="0.6"
-        android:orientation="vertical" >
+    <TableRow
+        android:id="@+id/tableRow2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="11dp" >
+
+        <TextView
+            android:id="@+id/textView1"
+            style="@style/ColumnHeader"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:text="@string/pay_type"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textView3"
+            style="@style/ColumnHeader"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:text="@string/pay_detail"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textView4"
+            style="@style/ColumnHeader"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/pay_amount"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textView2"
+            style="@style/ColumnHeader"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="0dp"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+    </TableRow>
+
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tableRow2"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/tableRow2"
+        android:layout_below="@+id/tableRow2"
+        android:layout_weight="1"
+        android:background="@drawable/background_card" >
+
+    </ListView>
+
+    <TableLayout
+        android:id="@+id/TableLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="16dp"
+        android:layout_toRightOf="@+id/tableRow2" >
 
         <TableRow
-            android:id="@+id/tableRow2"
+            android:id="@+id/tableRow11"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/dark_gray" >
+            android:gravity="center_vertical" >
 
             <TextView
-                android:id="@+id/textView1"
-                style="@style/ColumnHeader"
+                android:id="@+id/textView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/pay_type"
+                android:layout_marginRight="4dp"
+                android:gravity="right"
+                android:text="@string/total_price"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <TextView
-                android:id="@+id/textView3"
-                style="@style/ColumnHeader"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/pay_detail"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <TextView
-                android:id="@+id/textView4"
-                style="@style/ColumnHeader"
+            <EditText
+                android:id="@+id/txtTotalPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/pay_amount"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:ems="5"
+                android:enabled="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                android:textColor="@android:color/black"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnCreditPay"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="creditPayClicked"
+                android:text="@string/credit_pay" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical" >
 
             <TextView
-                android:id="@+id/textView2"
-                style="@style/ColumnHeader"
-                android:layout_width="48dp"
+                android:id="@+id/textView7"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="0dp"
+                android:layout_marginRight="4dp"
+                android:gravity="right"
+                android:text="@string/total_payment"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <EditText
+                android:id="@+id/editTextTotalPaid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="5"
+                android:enabled="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="center_vertical"
+                android:inputType="number"
+                android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" >
+
+                <requestFocus />
+            </EditText>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical" >
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="4dp"
+                android:gravity="right"
+                android:text="@string/to_be_paid"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <EditText
+                android:id="@+id/editTextTobePaid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="5"
+                android:enabled="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="center_vertical"
+                android:inputType="number"
+                android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                android:textColor="@android:color/holo_red_dark"
+                android:textStyle="bold" />
+        </TableRow>
+    </TableLayout>
+
+    <TableLayout
+        android:id="@+id/TableLayout2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/TableLayout1"
+        android:layout_below="@+id/TableLayout1"
+        android:layout_marginRight="8dp" >
+
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:id="@+id/editTextTotalPay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_span="4"
+                android:ems="5"
+                android:enabled="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="center_vertical"
+                android:inputType="number"
+                android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/btnPay7"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="7"
+                android:textSize="32sp" />
+
+            <Button
+                android:id="@+id/btnPay8"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="8"
+                android:textSize="32sp" />
+
+            <Button
+                android:id="@+id/btnPay9"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="9"
+                android:textSize="32sp" />
+
+            <Button
+                android:id="@+id/btnPayDel"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="&lt;&lt;"
+                android:textSize="32sp" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/btnPay4"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="4"
+                android:textSize="32sp" />
+
+            <Button
+                android:id="@+id/btnPay5"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="5"
+                android:textSize="32sp" />
+
+            <Button
+                android:id="@+id/btnPay6"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="6"
+                android:textSize="32sp" />
+
+            <Button
+                android:id="@+id/btnPayC"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="C"
+                android:textSize="32sp" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/btnPay1"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="1"
+                android:textSize="32sp" />
+
+            <Button
+                android:id="@+id/btnPay2"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="2"
+                android:textSize="32sp" />
+
+            <Button
+                android:id="@+id/btnPay3"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="3"
+                android:textSize="32sp" />
+
+            <Button
+                android:id="@+id/btnPayDot"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="."
+                android:textSize="32sp" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/btnPay0"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="0"
+                android:textSize="32sp" />
+
+            <Button
+                android:id="@+id/btnPayEnter"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:layout_span="3"
+                android:minWidth="64dp"
+                android:onClick="onBtnPriceClick"
+                android:text="Enter"
+                android:textSize="32sp" />
+        </TableRow>
+    </TableLayout>
+
+    <TableLayout
+        android:id="@+id/TableLayout3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/TableLayout2"
+        android:layout_below="@+id/TableLayout1"
+        android:layout_marginTop="64dp"
+        android:layout_toRightOf="@+id/TableLayout2" >
+
+        <TableRow
+            android:id="@+id/tableRow10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right" >
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/btnPay1000"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="64dip"
+                android:minWidth="120dip"
+                android:onClick="onBtnPriceClick"
+                android:text="1000" />
+
+            <Button
+                android:id="@+id/btnPay50"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="64dip"
+                android:minWidth="120dip"
+                android:onClick="onBtnPriceClick"
+                android:text="50" />
 
         </TableRow>
 
-        <ListView
-            android:id="@+id/listView1"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@drawable/background_card" >
-        </ListView>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="650dp"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="8dp" >
-
-        <TableLayout
-            android:layout_width="match_parent"
+        <TableRow
+            android:id="@+id/tableRow8"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TableRow
-                android:id="@+id/tableRow11"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical" >
-
-                <TextView
-                    android:id="@+id/textView5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="4dp"
-                    android:gravity="right"
-                    android:text="@string/total_price"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <EditText
-                    android:id="@+id/txtTotalPrice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ems="5"
-                    android:enabled="false"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:gravity="center_vertical"
-                    android:textAppearance="?android:attr/textAppearanceLargeInverse"
-                    android:textColor="@android:color/black"
-                    android:textSize="32sp"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/btnCreditPay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="creditPayClicked"
-                    android:text="@string/credit_pay" />
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow12"
+            <Button
+                android:id="@+id/btnPay500"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical" >
+                android:minHeight="64dip"
+                android:minWidth="120dip"
+                android:onClick="onBtnPriceClick"
+                android:text="500" />
 
-                <TextView
-                    android:id="@+id/textView7"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="4dp"
-                    android:gravity="right"
-                    android:text="@string/total_payment"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <EditText
-                    android:id="@+id/editTextTotalPaid"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ems="5"
-                    android:enabled="false"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:gravity="center_vertical"
-                    android:inputType="number"
-                    android:textAppearance="?android:attr/textAppearanceLargeInverse"
-                    android:textColor="@android:color/black"
-                    android:textStyle="bold" >
-
-                    <requestFocus />
-                </EditText>
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow13"
+            <Button
+                android:id="@+id/btnPay20"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical" >
+                android:minHeight="64dip"
+                android:minWidth="120dip"
+                android:onClick="onBtnPriceClick"
+                android:text="20" />
 
-                <TextView
-                    android:id="@+id/textView8"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="4dp"
-                    android:gravity="right"
-                    android:text="@string/to_be_paid"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
+        </TableRow>
 
-                <EditText
-                    android:id="@+id/editTextTobePaid"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ems="5"
-                    android:enabled="false"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:gravity="center_vertical"
-                    android:inputType="number"
-                    android:textAppearance="?android:attr/textAppearanceLargeInverse"
-                    android:textColor="@android:color/holo_red_dark"
-                    android:textStyle="bold" />
-
-            </TableRow>
-        </TableLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TableRow
+            android:id="@+id/tableRow9"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TableLayout
+            <Button
+                android:id="@+id/btnPay100"
+                style="@style/ButtonText"
+                android:background="@drawable/gray_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="8dp" >
+                android:minHeight="64dip"
+                android:minWidth="120dip"
+                android:onClick="onBtnPriceClick"
+                android:text="100" />
 
-                <TableRow
-                    android:id="@+id/tableRow1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp" >
+        </TableRow>
+    </TableLayout>
 
-                    <EditText
-                        android:id="@+id/editTextTotalPay"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_span="4"
-                        android:ems="5"
-                        android:enabled="false"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        android:gravity="center_vertical"
-                        android:inputType="number"
-                        android:textAppearance="?android:attr/textAppearanceLargeInverse"
-                        android:textColor="@android:color/black"
-                        android:textStyle="bold" />
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/tableRow3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
-
-                    <Button
-                        android:id="@+id/btnPay7"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="7"
-                        android:textSize="32sp" />
-
-                    <Button
-                        android:id="@+id/btnPay8"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="8"
-                        android:textSize="32sp" />
-
-                    <Button
-                        android:id="@+id/btnPay9"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="9"
-                        android:textSize="32sp" />
-
-                    <Button
-                        android:id="@+id/btnPayDel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="&lt;&lt;"
-                        android:textSize="32sp" />
-
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/tableRow4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
-
-                    <Button
-                        android:id="@+id/btnPay4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="4"
-                        android:textSize="32sp" />
-
-                    <Button
-                        android:id="@+id/btnPay5"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="5"
-                        android:textSize="32sp" />
-
-                    <Button
-                        android:id="@+id/btnPay6"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="6"
-                        android:textSize="32sp" />
-
-                    <Button
-                        android:id="@+id/btnPayC"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="C"
-                        android:textSize="32sp" />
-
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/tableRow5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
-
-                    <Button
-                        android:id="@+id/btnPay1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="1"
-                        android:textSize="32sp" />
-
-                    <Button
-                        android:id="@+id/btnPay2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="2"
-                        android:textSize="32sp" />
-
-                    <Button
-                        android:id="@+id/btnPay3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="3"
-                        android:textSize="32sp" />
-
-                    <Button
-                        android:id="@+id/btnPayDot"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="."
-                        android:textSize="32sp" />
-
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/tableRow6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
-
-                    <Button
-                        android:id="@+id/btnPay0"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="0"
-                        android:textSize="32sp" />
-
-                    <Button
-                        android:id="@+id/btnPayEnter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:layout_span="3"
-                        android:minWidth="64dp"
-                        android:onClick="onBtnPriceClick"
-                        android:text="Enter"
-                        android:textSize="32sp" />
-
-                </TableRow>
-            </TableLayout>
-
-            <TableLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="48dp" >
-
-                <TableRow
-                    android:id="@+id/tableRow10"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="right" >
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/tableRow7"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
-
-                    <ImageButton
-                        android:id="@+id/btnPay1000"
-                        android:layout_width="170dp"
-                        android:layout_height="80dp"
-                        android:minHeight="64dp"
-                        android:minWidth="120dp"
-                        android:onClick="onBtnPriceClick"
-                        android:padding="1dp"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/money1000" />
-
-                    <ImageButton
-                        android:id="@+id/btnPay50"
-                        android:layout_width="170dp"
-                        android:layout_height="80dp"
-                        android:minHeight="64dp"
-                        android:minWidth="120dp"
-                        android:onClick="onBtnPriceClick"
-                        android:padding="1dp"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/money50" />
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/tableRow8"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
-
-                    <ImageButton
-                        android:id="@+id/btnPay500"
-                        android:layout_width="170dp"
-                        android:layout_height="80dp"
-                        android:minHeight="64dp"
-                        android:minWidth="120dp"
-                        android:onClick="onBtnPriceClick"
-                        android:padding="1dp"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/money500" />
-
-                    <ImageButton
-                        android:id="@+id/btnPay20"
-                        android:layout_width="170dp"
-                        android:layout_height="80dp"
-                        android:minHeight="64dp"
-                        android:minWidth="120dp"
-                        android:onClick="onBtnPriceClick"
-                        android:padding="1dp"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/money20" />
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/tableRow9"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
-
-                    <ImageButton
-                        android:id="@+id/btnPay100"
-                        android:layout_width="170dp"
-                        android:layout_height="80dp"
-                        android:minHeight="64dp"
-                        android:minWidth="120dp"
-                        android:onClick="onBtnPriceClick"
-                        android:padding="1dp"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/money100" />
-
-                </TableRow>
-            </TableLayout>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>

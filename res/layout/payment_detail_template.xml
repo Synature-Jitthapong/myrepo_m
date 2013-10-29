@@ -9,34 +9,31 @@
     <TextView
         android:id="@+id/tvPayType"
         style="@style/ColumnDetail"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
         android:padding="4dp"
-        android:text="Paytype"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
         android:id="@+id/tvPayDetail"
         style="@style/ColumnDetail"
-        android:layout_width="0dp"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
-        android:layout_weight="1"
         android:padding="4dp"
-        android:text="Detail"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
         android:id="@+id/tvPayAmount"
         style="@style/ColumnDetail"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
+        android:gravity="right"
         android:padding="4dp"
-        android:text="Amount"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ImageView
@@ -47,6 +44,6 @@
         android:layout_marginRight="0dp"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:src="@android:drawable/ic_delete" />
+        android:src="@drawable/ic_action_x" />
 
 </TableRow>

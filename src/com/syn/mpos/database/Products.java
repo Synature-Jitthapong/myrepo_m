@@ -185,6 +185,18 @@ public class Products {
 		return isSuccess;
 	}
 	
+	public boolean updateProductDept(int deptId, String deptCode, String deptName){
+		boolean isSuccess = false;
+		
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("UPDATE product_dept SET " +
+				"product_dept_code='" + deptCode + "', " +
+				"product_dept_name='" + deptName + "' " +
+				"WHERE product_dept_id=" + deptId);
+		mSqlite.close();
+		return isSuccess;
+	}
+	
 	public int insertProductDept(String deptCode, String deptName){
 		int deptId = getMaxProductDept();
 		mSqlite.open();
@@ -218,6 +230,19 @@ public class Products {
 			
 			isSuccess = mSqlite.insert("product_dept", cv);
 		}
+		mSqlite.close();
+		return isSuccess;
+	}
+	
+	public boolean updateProduct(int pId, String pCode, String pName, float price){
+		boolean isSuccess = false;
+		
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("UPDATE products SET " +
+				"product_code='" + pCode + "', " +
+				"product_name='" + pName + "', " +
+				"product_price=" + price +
+				" WHERE product_id=" + pId);
 		mSqlite.close();
 		return isSuccess;
 	}

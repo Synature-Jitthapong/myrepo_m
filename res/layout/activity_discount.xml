@@ -32,6 +32,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="left"
             android:text="@string/item_name"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -40,6 +41,7 @@
             style="@style/ColumnHeader"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
+            android:gravity="right"
             android:text="@string/qty"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -48,6 +50,7 @@
             style="@style/ColumnHeader"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:gravity="right"
             android:text="@string/price"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -56,6 +59,7 @@
             style="@style/ColumnHeader"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:gravity="right"
             android:text="@string/total_price"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -64,6 +68,7 @@
             style="@style/ColumnHeader"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
+            android:gravity="right"
             android:text="@string/discount"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -73,6 +78,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginRight="0dp"
+            android:gravity="right"
             android:text="@string/sale_price"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 

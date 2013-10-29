@@ -34,7 +34,7 @@
         style="@style/ColumnDetail"
         android:layout_width="48dp"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_delete" />
+        android:src="@drawable/ic_action_x" />
 
     <TextView
         android:id="@+id/tvQty"

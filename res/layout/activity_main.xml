@@ -36,8 +36,9 @@
             android:layout_height="0dp"
             android:layout_marginLeft="4dp"
             android:layout_weight="1"
-            android:background="@drawable/background_card"
+            android:background="@color/smoke_white"
             android:choiceMode="multipleChoice" >
+
         </ListView>
 
         <RelativeLayout
@@ -59,22 +60,26 @@
 
             <ImageButton
                 android:id="@+id/btnDelOrder"
+                style="@style/ButtonText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_margin="2dp"
+                android:background="@drawable/red_button"
                 android:minHeight="32dp"
                 android:minWidth="48dp"
                 android:src="@android:drawable/ic_menu_delete" />
 
             <ImageButton
                 android:id="@+id/btnClearSelOrder"
+                style="@style/ButtonText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_margin="2dp"
                 android:layout_toLeftOf="@+id/btnDelOrder"
+                android:background="@drawable/green_button"
                 android:minHeight="32dp"
                 android:minWidth="48dp"
                 android:src="@android:drawable/ic_menu_revert" />
@@ -85,8 +90,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="4dp"
-            android:layout_marginTop="4dp"
-            android:background="@drawable/background_card"
+            android:layout_marginTop="1dp"
+            android:background="@color/smoke_white"
             android:padding="4dp" >
 
             <TableRow
@@ -174,7 +179,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="right|center_vertical"
-                    android:padding="4dp"
+                    android:text="0.00"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="@android:color/black"
                     android:textStyle="bold" />
@@ -191,8 +196,10 @@
 
             <Button
                 android:id="@+id/buttonDiscount"
+                style="@style/ButtonTextWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/blue_button"
                 android:enabled="false"
                 android:minWidth="100dp"
                 android:onClick="discountClicked"
@@ -201,8 +208,10 @@
 
             <Button
                 android:id="@+id/buttonCash"
+                style="@style/ButtonTextWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/green_button"
                 android:enabled="false"
                 android:minWidth="100dp"
                 android:onClick="paymentClicked"
@@ -224,7 +233,7 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="48dip"
 	    android:layout_marginBottom="4dp"
-	    android:background="@drawable/background_card"
+	    android:background="@color/dark_gray"
 	    android:padding="4dp" />
 
     <android.support.v4.view.ViewPager
@@ -251,8 +260,10 @@
 
                 <Button
                     android:id="@+id/buttonHold"
+                    style="@style/ButtonText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/gray_button"
                     android:enabled="false"
                     android:minWidth="100dp"
                     android:onClick="holdOrderClicked"
@@ -287,8 +298,11 @@
 
             <Button
                 android:id="@+id/buttonClearBill"
+                style="@style/ButtonTextWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/red_button"
+                android:drawableLeft="@drawable/ic_action_x_dark"
                 android:minWidth="100dp"
                 android:onClick="clearBillClicked"
                 android:text="@string/cancel_bill"

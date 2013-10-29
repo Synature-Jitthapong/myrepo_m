@@ -1,8 +1,10 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/inputDiscountLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/light_gray"
+    android:gravity="center"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -10,50 +12,49 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".LoginActivity" >
 
-    <EditText
-        android:id="@+id/editTextPassWord"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editTextUserName"
-        android:layout_alignRight="@+id/editTextUserName"
-        android:layout_below="@+id/editTextUserName"
-        android:background="?android:attr/editTextBackground"
-        android:ems="10"
-        android:hint="@string/pass_word"
-        android:inputType="textPassword"
-        android:lines="1"
-        android:nextFocusDown="@+id/buttonLogin"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLargeInverse" >
+        android:orientation="vertical" >
 
-    </EditText>
-
-    <Button
-        android:id="@+id/buttonLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/editTextPassWord"
-        android:layout_below="@+id/editTextPassWord"
-        android:layout_span="2"
-        android:onClick="loginClicked"
-        android:text="@string/login"
-        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-
-    <EditText
-        android:id="@+id/editTextUserName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="160dp"
-        android:ems="10"
-        android:hint="@string/user_name"
-        android:lines="1"
-        android:nextFocusDown="@+id/editTextPassWord"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLargeInverse" >
-
+        <EditText
+            android:id="@+id/editTextUserName"
+            style="@style/EditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edittext_selector"
+            android:ems="10"
+            android:hint="@string/user_name"
+            android:lines="1"
+            android:nextFocusDown="@+id/editTextPassWord"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceLargeInverse" />
         <requestFocus />
-    </EditText>
 
-</RelativeLayout>
+        <EditText
+            android:id="@+id/editTextPassWord"
+            style="@style/EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edittext_selector"
+            android:ems="10"
+            android:hint="@string/pass_word"
+            android:inputType="textPassword"
+            android:lines="1"
+            android:nextFocusDown="@+id/buttonLogin"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceLargeInverse" />
+
+        <Button
+            android:id="@+id/buttonLogin"
+            style="@style/ButtonTextWhite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/blue_button"
+            android:drawableLeft="@drawable/ic_action_unlock_dark"
+            android:onClick="loginClicked"
+            android:text="@string/login"
+            android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+    </LinearLayout>
+
+</LinearLayout>

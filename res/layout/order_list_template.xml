@@ -9,10 +9,12 @@
 
     <Button
         android:id="@+id/buttonOrderPlus"
+        style="@style/ButtonText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
+        android:background="@drawable/gray_button"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:minWidth="48dp"
@@ -23,16 +25,17 @@
         android:id="@+id/editTextOrderAmount"
         android:layout_width="48dp"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/buttonOrderPlus"
         android:layout_alignBottom="@+id/buttonOrderPlus"
+        android:layout_alignTop="@+id/buttonOrderPlus"
         android:layout_toLeftOf="@+id/buttonOrderPlus"
-        android:clickable="false"
+        android:background="@drawable/edittext_selector"
         android:ems="10"
-        android:enabled="false"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:gravity="center"
+        android:imeOptions="actionDone"
         android:inputType="number"
+        android:singleLine="true"
         android:text="1"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@android:color/black" >
@@ -42,10 +45,12 @@
 
     <Button
         android:id="@+id/buttonOrderMinus"
+        style="@style/ButtonText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/editTextOrderAmount"
+        android:background="@drawable/gray_button"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:minWidth="48dp"
@@ -94,8 +99,8 @@
         android:layout_toLeftOf="@+id/buttonOrderMinus"
         android:layout_toRightOf="@+id/textViewOrderNo"
         android:gravity="bottom"
+        android:lines="1"
         android:marqueeRepeatLimit="marquee_forever"
-        android:maxLines="2"
         android:text="s" />
 
 </RelativeLayout>

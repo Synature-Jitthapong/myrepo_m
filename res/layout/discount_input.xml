@@ -26,6 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/percent" />
+
     </RadioGroup>
 
     <TextView
@@ -41,12 +42,15 @@
         android:id="@+id/txtDiscount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/textView1"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/edittext_selector"
         android:ems="10"
         android:hint="@string/discount"
         android:imeOptions="actionDone"
         android:inputType="number|numberSigned|numberDecimal" >
+
+        <requestFocus />
     </EditText>
 
 </RelativeLayout>

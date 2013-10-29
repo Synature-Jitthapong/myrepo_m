@@ -31,6 +31,8 @@
 
     <Button
         android:id="@+id/btnGenReport"
+        style="@style/ButtonText"
+        android:background="@drawable/gray_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onClick"

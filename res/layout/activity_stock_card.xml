@@ -14,7 +14,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/dark_gray"
         android:gravity="center_vertical" >
 
         <TextView
@@ -22,7 +21,6 @@
             style="@style/ColumnHeader"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="1dp"
             android:background="@color/light_gray"
             android:gravity="center"
             android:padding="4dp"
@@ -34,8 +32,8 @@
             style="@style/ColumnHeader"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="1dp"
             android:background="@color/light_gray"
+            android:gravity="left"
             android:lines="1"
             android:padding="4dp"
             android:text="@string/code"
@@ -46,9 +44,9 @@
             style="@style/ColumnHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="1dp"
             android:layout_weight="1"
             android:background="@color/light_gray"
+            android:gravity="left"
             android:lines="1"
             android:padding="4dp"
             android:text="@string/item_name"
@@ -59,6 +57,7 @@
             style="@style/ColumnHeader"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
+            android:gravity="right"
             android:text="@string/init"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -67,7 +66,6 @@
             style="@style/ColumnHeader"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="1dp"
             android:background="@color/light_gray"
             android:lines="1"
             android:padding="4dp"
@@ -79,7 +77,6 @@
             style="@style/ColumnHeader"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="1dp"
             android:background="@color/light_gray"
             android:padding="4dp"
             android:text="@string/sale"
@@ -90,7 +87,6 @@
             style="@style/ColumnHeader"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="1dp"
             android:background="@color/light_gray"
             android:lines="1"
             android:padding="4dp"
@@ -102,7 +98,6 @@
             style="@style/ColumnHeader"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="1dp"
             android:background="@color/light_gray"
             android:lines="1"
             android:padding="4dp"
@@ -125,7 +120,6 @@
             style="@style/ColumnHeader"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="0dp"
             android:text="@string/summary"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 

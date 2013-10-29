@@ -7,6 +7,7 @@ import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Products;
+import com.syn.mpos.database.Products.ProductDept;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.transaction.MPOSPayment;
@@ -25,6 +26,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -35,22 +37,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
-public class MainActivity extends FragmentActivity implements OnMPOSFunctionClickListener,
-	MenuPageFragment.OnMenuItemClick, ManageProductDialogFragment.OnManageProductDismissListener{
+public class MainActivity extends FragmentActivity implements MenuPageFragment.OnMenuItemClick{
 	//private static final String TAG = "MPOSMainActivity";
+	public static final int SYNC_MODE = 1;
+	public static final int MANAGE_PRODUCT_MODE = 2;
+	
 	private Shop mShop;
 	private Formatter mFormat;
 	private MPOSSession mSession;
@@ -179,12 +187,47 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 	}
 	
 	void manageProduct(){
-		Products.ProductDept pd = new Products.ProductDept();
-		pd.setProductDeptName("+Add New");
-		mProductDeptLst.add(0, pd);
-		mPageAdapter.notifyDataSetChanged();
-//		ManageProductDialogFragment manageProduct = ManageProductDialogFragment.newInstance();
-//		manageProduct.show(getSupportFragmentManager(), "ManageProductDialog");	
+//		LinearLayout layout = new LinearLayout(this);
+//		LinearLayout.LayoutParams param = 
+//				new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
+//						LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+//		
+//		layout.setOrientation(LinearLayout.HORIZONTAL);
+//		final EditText txtProductDeptCode = new EditText(this);
+//		final EditText txtProductDeptName = new EditText(this);
+//		txtProductDeptCode.setEms(5);
+//		txtProductDeptCode.setHint(R.string.product_dept_code);
+//		txtProductDeptName.setHint(R.string.product_dept);
+//		txtProductDeptCode.setLayoutParams(param);
+//		txtProductDeptName.setLayoutParams(param);
+//		
+//		layout.addView(txtProductDeptCode);
+//		layout.addView(txtProductDeptName);
+//		
+//		new AlertDialog.Builder(this)
+//		.setTitle(R.string.manage_product)
+//		.setView(layout)
+//		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+//			
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		})
+//		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+//			
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				mProduct.insertProductDept(txtProductDeptCode.getText().toString(), 
+//						txtProductDeptName.getText().toString());
+//				
+//				setupMenuItemPager();
+//			}
+//		}).show();
+		
+		Intent intent = new Intent(MainActivity.this, ManageProductActivity.class);
+		startActivityForResult(intent, MANAGE_PRODUCT_MODE);
 	}
 	
 	private void registerOrderListEvent(){
@@ -407,13 +450,13 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		Intent intent = null;
 		switch (item.getItemId()) {
 		case R.id.itemHoldBill:
-			onHoldBillClick(item.getActionView());
+			holdBill();
 			return true;
 		case R.id.itemSwUser:
-			onSwitchUserClick(item.getActionView());
+			switchUser();
 			return true;
 		case R.id.itemLogout:
-			onLogoutClick(item.getActionView());
+			logout();
 			return true;
 		case R.id.itemDirectReceive:
 			intent = new Intent(MainActivity.this, DirectReceiveActivity.class);
@@ -516,10 +559,22 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		}).show();
 	}
 	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		switch(requestCode){
+		case SYNC_MODE:
+			setupMenuItemPager();
+			break;
+		case MANAGE_PRODUCT_MODE:
+			setupMenuItemPager();
+			break;
+		}
+	}
+
 	void sync(){
 		Intent intent = new Intent(MainActivity.this, SettingActivity.class);
 		intent.putExtra("settingPosition", 1);
-		startActivity(intent);
+		this.startActivityForResult(intent, SYNC_MODE);
 	}
 
 	private void countHoldOrder(){
@@ -566,8 +621,7 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		}).show();
 	}
 
-	@Override
-	public void onHoldBillClick(View v) {
+	public void holdBill() {
 		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
 		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
 		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
@@ -644,8 +698,7 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		startActivity(intent);
 	}
 
-	@Override
-	public void onSwitchUserClick(View v) {
+	public void switchUser() {
 		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
 		View swUserView = inflater.inflate(R.layout.switch_user_popup, null);
 		final EditText txtUser = (EditText) swUserView.findViewById(R.id.txtUser);
@@ -744,8 +797,7 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		d.show();
 	}
 
-	@Override
-	public void onLogoutClick(View v) {
+	public void logout() {
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.logout)
 		.setIcon(android.R.drawable.ic_dialog_info)
@@ -828,7 +880,7 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 			CheckBox chk = (CheckBox) convertView.findViewById(R.id.checkBox1);
 			TextView tvOrderNo = (TextView) convertView.findViewById(R.id.textViewOrderNo);
 			TextView tvOrderName = (TextView) convertView.findViewById(R.id.textViewOrderName);
-			EditText txtOrderAmount = (EditText) convertView.findViewById(R.id.editTextOrderAmount);
+			final EditText txtOrderAmount = (EditText) convertView.findViewById(R.id.editTextOrderAmount);
 			TextView tvOrderPrice = (TextView) convertView.findViewById(R.id.textViewOrderPrice);
 			Button btnMinus = (Button) convertView.findViewById(R.id.buttonOrderMinus);
 			Button btnPlus = (Button) convertView.findViewById(R.id.buttonOrderPlus);
@@ -843,6 +895,31 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 				chk.setVisibility(View.VISIBLE);
 			else
 				chk.setVisibility(View.GONE);
+			
+			txtOrderAmount.setOnEditorActionListener(new OnEditorActionListener(){
+
+				@Override
+				public boolean onEditorAction(TextView v, int actionId,
+						KeyEvent event) {
+					if(EditorInfo.IME_ACTION_DONE == actionId){
+						float qty = orderDetail.getQty();
+						try {
+							qty = Float.parseFloat(txtOrderAmount.getText().toString());
+						} catch (NumberFormatException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+						mTrans.updateOrderDetail(mTransactionId, mComputerId, 
+								orderDetail.getOrderDetailId(), orderDetail.getVatType(), 
+								qty, orderDetail.getPricePerUnit());
+						
+						return true;
+					}
+					return false;
+				}
+				
+			});
 			
 			btnMinus.setOnClickListener(new OnClickListener(){
 	
@@ -965,7 +1042,7 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		}
 	}
 	
-	public class MenuItemPagerAdapter extends FragmentPagerAdapter{
+	public class MenuItemPagerAdapter extends FragmentStatePagerAdapter{
 
 		public MenuItemPagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -982,6 +1059,11 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 			return MenuPageFragment.newInstance(MainActivity.this, deptId);
 		}
 
+//		@Override
+//		public int getItemPosition(Object object) {
+//			return POSITION_NONE;
+//		}
+
 		@Override
 		public int getCount() {
 			return mProductDeptLst.size();
@@ -996,10 +1078,5 @@ public class MainActivity extends FragmentActivity implements OnMPOSFunctionClic
 		mOrderLst.add(mTrans.getOrder(mTransactionId, mComputerId, orderId));
 		mOrderListView.smoothScrollToPosition(mOrderLst.size());
 		mOrderAdapter.notifyDataSetChanged();
-	}
-
-	@Override
-	public void onDismiss() {
-		setupMenuItemPager();
 	}
 }

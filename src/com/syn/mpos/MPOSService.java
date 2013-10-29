@@ -155,7 +155,7 @@ public class MPOSService {
 				ShopData shopData = (ShopData) jsonUtil.toObject(type, result);
 				this.listener.onLoadShopSuccess(shopData);
 			} catch (Exception e) {
-				this.listener.onError(e.getMessage());
+				this.listener.onError(result);
 			}
 		}
 

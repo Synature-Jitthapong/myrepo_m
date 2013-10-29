@@ -93,7 +93,9 @@
             android:name="com.syn.mpos.SettingActivity"
             android:label="@string/title_activity_setting" >
         </activity>
-        <activity android:theme="@android:style/Theme.Holo.Light.Dialog" android:label="@string/discount" android:name="DiscountDialogFragment"></activity>
+        <activity 
+            android:label="@string/manage_product" 
+            android:name="com.syn.mpos.ManageProductActivity"></activity>
     </application>
 
 </manifest>
