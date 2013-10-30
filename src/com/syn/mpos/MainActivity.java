@@ -7,7 +7,6 @@ import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Products;
-import com.syn.mpos.database.Products.ProductDept;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.transaction.MPOSPayment;
@@ -25,7 +24,6 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.TypedValue;
@@ -37,27 +35,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends FragmentActivity implements MenuPageFragment.OnMenuItemClick{
 	//private static final String TAG = "MPOSMainActivity";
-	public static final int SYNC_MODE = 1;
-	public static final int MANAGE_PRODUCT_MODE = 2;
+	public static final int SYNC_REQUEST_CODE = 1;
+	public static final int MANAGE_PRODUCT_REQUEST_CODE = 2;
 	
 	private Shop mShop;
 	private Formatter mFormat;
@@ -227,7 +221,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 //		}).show();
 		
 		Intent intent = new Intent(MainActivity.this, ManageProductActivity.class);
-		startActivityForResult(intent, MANAGE_PRODUCT_MODE);
+		startActivityForResult(intent, MANAGE_PRODUCT_REQUEST_CODE);
 	}
 	
 	private void registerOrderListEvent(){
@@ -389,61 +383,16 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		})
 		.show();
 	}
-
-	//	public void updateOrderQty() {
-	//		LayoutParams param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-	//		param.setMargins(8, 0, 8, 0);
-	//		
-	//		LinearLayout layout = new LinearLayout(MainActivity.this);
-	//		final EditText txtHoldRemark = new EditText(MainActivity.this);
-	//		txtHoldRemark.setGravity(Gravity.TOP);
-	//		txtHoldRemark.setLayoutParams(param);
-	//		layout.addView(txtHoldRemark);
-	//		
-	//		new AlertDialog.Builder(MainActivity.this)
-	//		.setTitle(R.string.hold_bill)
-	//		.setView(layout)
-	//		
-	//		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-	//			
-	//			@Override
-	//			public void onClick(DialogInterface dialog, int which) {
-	//				
-	//			}
-	//		})
-	//		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-	//			
-	//			@Override
-	//			public void onClick(DialogInterface dialog, int which) {
-	//				if(mTrans.holdTransaction(mTransactionId, mComputerId, 
-	//						txtHoldRemark.getText().toString())){
-	//					init();
-	//				}
-	//			}
-	//		})
-	//		.show();
-	//	}
-	
-	//	private void getStaffInfo(){
-	//		Shop p = new Shop(MainActivity.this);
-	//		ShopData.Staff s = p.getStaff(mStaffId);
-	//		if(s != null){
-	//			TextView tvLogout = new TextView(MainActivity.this);
-	//			tvLogout.setText(R.string.logout);
-	//			tvLogout.append("\n" + s.getStaffName());
-	//			///mItemLogout.setTitle(tvLogout.getText());
-	//		}
-	//	}
 		
-		@Override
-		public boolean onCreateOptionsMenu(Menu menu) {
-			MenuInflater inflater = getMenuInflater();
-			inflater.inflate(R.menu.action_main_function, menu);
-			mItemHoldBill = menu.findItem(R.id.itemHoldBill);
-			
-			countHoldOrder();
-			return true;
-		}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.activity_main, menu);
+		mItemHoldBill = menu.findItem(R.id.itemHoldBill);
+		
+		countHoldOrder();
+		return true;
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -562,10 +511,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		switch(requestCode){
-		case SYNC_MODE:
+		case SYNC_REQUEST_CODE:
 			setupMenuItemPager();
 			break;
-		case MANAGE_PRODUCT_MODE:
+		case MANAGE_PRODUCT_REQUEST_CODE:
 			setupMenuItemPager();
 			break;
 		}
@@ -574,7 +523,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	void sync(){
 		Intent intent = new Intent(MainActivity.this, SettingActivity.class);
 		intent.putExtra("settingPosition", 1);
-		this.startActivityForResult(intent, SYNC_MODE);
+		this.startActivityForResult(intent, SYNC_REQUEST_CODE);
 	}
 
 	private void countHoldOrder(){
@@ -594,11 +543,15 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 
 	public void holdOrderClicked(final View v){
-		final EditText txtRemark = new EditText(MainActivity.this);
+		LayoutInflater inflater = (LayoutInflater)
+				MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		
+		View inputDialog = inflater.inflate(R.layout.input_text_dialog, null);
+		final EditText txtRemark = (EditText) inputDialog.findViewById(R.id.editText1);
 		txtRemark.setHint(R.string.remark);
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.hold)
-		.setView(txtRemark)
+		.setView(inputDialog)
 		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
 			@Override
@@ -735,7 +688,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 								mStaffId = s.getStaffID();
 								init();
 							}else{
-								new AlertDialog.Builder(getApplicationContext())
+								new AlertDialog.Builder(MainActivity.this)
 								.setIcon(android.R.drawable.ic_dialog_alert)
 								.setTitle(R.string.login)
 								.setMessage(R.string.incorrect_password)
@@ -749,7 +702,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 								.show();
 							}
 						}else{
-							new AlertDialog.Builder(getApplicationContext())
+							new AlertDialog.Builder(MainActivity.this)
 							.setIcon(android.R.drawable.ic_dialog_alert)
 							.setTitle(R.string.login)
 							.setMessage(R.string.incorrect_user)
@@ -763,7 +716,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 							.show();
 						}
 					}else{
-						new AlertDialog.Builder(getApplicationContext())
+						new AlertDialog.Builder(MainActivity.this)
 						.setIcon(android.R.drawable.ic_dialog_alert)
 						.setTitle(R.string.login)
 						.setMessage(R.string.enter_password)
@@ -777,7 +730,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 						.show();
 					}
 				}else{
-					new AlertDialog.Builder(getApplicationContext())
+					new AlertDialog.Builder(MainActivity.this)
 					.setIcon(android.R.drawable.ic_dialog_alert)
 					.setTitle(R.string.login)
 					.setMessage(R.string.enter_username)
@@ -895,31 +848,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 				chk.setVisibility(View.VISIBLE);
 			else
 				chk.setVisibility(View.GONE);
-			
-			txtOrderAmount.setOnEditorActionListener(new OnEditorActionListener(){
-
-				@Override
-				public boolean onEditorAction(TextView v, int actionId,
-						KeyEvent event) {
-					if(EditorInfo.IME_ACTION_DONE == actionId){
-						float qty = orderDetail.getQty();
-						try {
-							qty = Float.parseFloat(txtOrderAmount.getText().toString());
-						} catch (NumberFormatException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-						mTrans.updateOrderDetail(mTransactionId, mComputerId, 
-								orderDetail.getOrderDetailId(), orderDetail.getVatType(), 
-								qty, orderDetail.getPricePerUnit());
-						
-						return true;
-					}
-					return false;
-				}
-				
-			});
 			
 			btnMinus.setOnClickListener(new OnClickListener(){
 	

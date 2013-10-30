@@ -61,7 +61,7 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.action_stock_card, menu);
+		getMenuInflater().inflate(R.menu.activity_stock_card, menu);
 		MenuItem menuItem = (MenuItem) menu.findItem(R.id.itemDateCondition);
 		btnDateFrom = (Button) menuItem.getActionView().findViewById(R.id.btnDateFrom);
 		btnDateTo = (Button) menuItem.getActionView().findViewById(R.id.btnDateTo);

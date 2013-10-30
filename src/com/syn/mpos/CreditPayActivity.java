@@ -60,7 +60,8 @@ public class CreditPayActivity extends Activity {
 		mSpinnerBank = (Spinner) findViewById(R.id.spinnerBank);
 		mSpinnerCardType = (Spinner) findViewById(R.id.spinnerCardType);
 		mBtnExpire = (Button) findViewById(R.id.btnPopCardExp);
-
+		mTxtTotalPay.setSelectAllOnFocus(true);
+		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
@@ -130,7 +131,7 @@ public class CreditPayActivity extends Activity {
 			}
 		}else{
 			if(cardNo.isEmpty()){
-				new AlertDialog.Builder(getApplicationContext())
+				new AlertDialog.Builder(CreditPayActivity.this)
 				.setIcon(android.R.drawable.ic_dialog_alert)
 				.setTitle(R.string.payment)
 				.setMessage(R.string.promp_card_no)
@@ -143,7 +144,7 @@ public class CreditPayActivity extends Activity {
 				})
 				.show();
 			}else if(mTotalPay == 0){
-				new AlertDialog.Builder(getApplicationContext())
+				new AlertDialog.Builder(CreditPayActivity.this)
 				.setIcon(android.R.drawable.ic_dialog_alert)
 				.setTitle(R.string.payment)
 				.setMessage(R.string.enter_enough_money)

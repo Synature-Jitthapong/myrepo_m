@@ -28,8 +28,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -170,7 +170,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			TextView tvPayType = (TextView) rowView.findViewById(R.id.tvPayType);
 			TextView tvPayDetail = (TextView) rowView.findViewById(R.id.tvPayDetail);
 			TextView tvPayAmount = (TextView) rowView.findViewById(R.id.tvPayAmount);
-			ImageView imgDel = (ImageView) rowView.findViewById(R.id.imgDel);
+			Button imgDel = (Button) rowView.findViewById(R.id.button1);
 			
 			String payTypeName = payment.getPayTypeID() == PAY_TYPE_CASH ? "Cash" : "Credit";
 			if(payment.getPayTypeName() != null){

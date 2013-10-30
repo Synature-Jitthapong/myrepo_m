@@ -67,7 +67,7 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 		
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.action_sale_report, menu);
+		getMenuInflater().inflate(R.menu.activity_sale_report, menu);
 		MenuItem menuItem = (MenuItem) menu.findItem(R.id.itemDateCondition);
 		btnDateFrom = (Button) menuItem.getActionView().findViewById(R.id.btnDateFrom);
 		btnDateTo = (Button) menuItem.getActionView().findViewById(R.id.btnDateTo);

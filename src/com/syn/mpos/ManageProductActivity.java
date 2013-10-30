@@ -10,52 +10,39 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ManageProductActivity extends Activity implements OnClickListener{
+public class ManageProductActivity extends Activity{
 
 	private int mProductDeptId;
 	private Products mProduct;
 	private Formatter mFormat;
 	private List<Products.ProductDept> mPdLst;
 	private List<Products.Product> mPLst;
+	private Products.ProductDept mProDept;
 	private ProductDeptAdapter mPdAdapter;
 	private ProductAdapter mPAdapter;
 	private ListView mLvProductDept;
 	private ListView mLvProduct;
-	private EditText mTxtProductDeptCode;
-	private EditText mTxtProductDeptName;
-	private EditText mTxtProductCode;
-	private EditText mTxtProductName;
-	private EditText mTxtProductPrice;
-	
-	private Button mBtnAddProductDept;
-	private Button mBtnAddProduct;
+	private TextView mTxtDeptName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_manage_product);
 		
-		mTxtProductDeptCode = (EditText) findViewById(R.id.editText1);
-		mTxtProductDeptName = (EditText) findViewById(R.id.editText2);
-		mTxtProductCode = (EditText) findViewById(R.id.editText3);
-		mTxtProductName = (EditText) findViewById(R.id.editText4);
-		mTxtProductPrice = (EditText) findViewById(R.id.editText5);
+		mTxtDeptName = (TextView) findViewById(R.id.textView1);
 		mLvProductDept = (ListView) findViewById(R.id.listView1);
 		mLvProduct = (ListView) findViewById(R.id.listView2);
-		mBtnAddProductDept = (Button) findViewById(R.id.button1);
-		mBtnAddProduct = (Button) findViewById(R.id.button2);
 		
 		mProduct = new Products(this);
 		mFormat = new Formatter(this);
@@ -64,61 +51,115 @@ public class ManageProductActivity extends Activity implements OnClickListener{
 		mPdAdapter = new ProductDeptAdapter();
 		mLvProductDept.setAdapter(mPdAdapter);
 		
-		mBtnAddProductDept.setOnClickListener(this);
-		mBtnAddProduct.setOnClickListener(this);
+		showProduct(0);
 	}
 
 	void showProduct(int position){
 		mLvProductDept.setItemChecked(position, true);
 
-		Products.ProductDept pd = (Products.ProductDept) mLvProductDept.getItemAtPosition(position);
-		mProductDeptId = pd.getProductDeptId();
+		mProDept = (Products.ProductDept) mLvProductDept.getItemAtPosition(position);
+		mProductDeptId = mProDept.getProductDeptId();
 		mPLst = mProduct.listProduct(mProductDeptId);
 		mPAdapter = new ProductAdapter();
 		mLvProduct.setAdapter(mPAdapter);
+		mTxtDeptName.setText(mProDept.getProductDeptName());
 	}
 
 	@Override
-	public void onClick(View v) {
-		switch(v.getId()){
-		case R.id.button1 :
-			if(!mTxtProductDeptCode.getText().toString().isEmpty() && 
-					!mTxtProductDeptName.getText().toString().isEmpty()){
-				int deptId = mProduct.insertProductDept(mTxtProductDeptCode.getText().toString(), 
-						mTxtProductDeptName.getText().toString());
-				mPdLst.add(mProduct.getProductDept(deptId));
-				mPdAdapter.notifyDataSetChanged();
-				
-				mTxtProductDeptCode.setText(null);
-				mTxtProductDeptName.setText(null);
-				mTxtProductDeptCode.requestFocus();
-			}
-			break;
-		case R.id.button2:
-			if(!mTxtProductCode.getText().toString().isEmpty() &&
-					!mTxtProductName.getText().toString().isEmpty() &&
-					!mTxtProductPrice.getText().toString().isEmpty()){
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.activity_manage_product, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
 
-				float price = 0.0f;
-				try {
-					price = Float.parseFloat(mTxtProductPrice.getText().toString());
-				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				int proId = mProduct.insertProducts(mProductDeptId, mTxtProductCode.getText().toString(), 
-						mTxtProductCode.getText().toString(), mTxtProductName.getText().toString(), price);
-				mPLst.add(mProduct.getProduct(proId));
-				mPAdapter.notifyDataSetChanged();
-				
-				mTxtProductCode.setText(null);
-				mTxtProductName.setText(null);
-				mTxtProductPrice.setText(null);
-				mTxtProductCode.requestFocus();
-			}
-			break;
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.itemAddProDept:
+			addProductDept();
+			return true;
+		case R.id.itemAddPro:
+			addProduct();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	void addProduct(){
+		LayoutInflater inflater = (LayoutInflater)
+				ManageProductActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View proView = inflater.inflate(R.layout.edit_product_dialog, null);
+		final EditText txtProCode = (EditText) proView.findViewById(R.id.editText1);
+		final EditText txtProName = (EditText) proView.findViewById(R.id.editText2);
+		final EditText txtProPrice = (EditText) proView.findViewById(R.id.editText3);
+		
+		new AlertDialog.Builder(ManageProductActivity.this)
+		.setTitle(mProDept.getProductDeptName())
+		.setView(proView)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if(!txtProCode.getText().toString().isEmpty() &&
+						!txtProName.getText().toString().isEmpty() &&
+						!txtProPrice.getText().toString().isEmpty()){
+
+					float price = 0.0f;
+					try {
+						price = Float.parseFloat(txtProPrice.getText().toString());
+					} catch (NumberFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					int proId = mProduct.insertProducts(mProductDeptId, txtProCode.getText().toString(), 
+							txtProCode.getText().toString(), txtProName.getText().toString(), price);
+					mPLst.add(mProduct.getProduct(proId));
+					mPAdapter.notifyDataSetChanged();
+				}
+			}
+		}).show();
+	}
+	
+	void addProductDept(){
+		LayoutInflater inflater = (LayoutInflater)
+				ManageProductActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View deptView = inflater.inflate(R.layout.edit_productdept_dialog, null);
+			final EditText txtDeptCode = (EditText) deptView.findViewById(R.id.editText1);
+			final EditText txtDeptName = (EditText) deptView.findViewById(R.id.editText2);
+			
+			new AlertDialog.Builder(ManageProductActivity.this)
+			.setTitle(R.string.add)
+			.setView(deptView)
+			.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					
+				}
+			})
+			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if(!txtDeptCode.getText().toString().isEmpty() &&
+							!txtDeptName.getText().toString().isEmpty()){
+						int deptId = mProduct.insertProductDept(txtDeptCode.getText().toString(), 
+								txtDeptName.getText().toString());
+						mPdLst.add(mProduct.getProductDept(deptId));
+						mPdAdapter.notifyDataSetChanged();
+					}
+				}
+			}).show();
 	}
 	
 	class ProductAdapter extends BaseAdapter{

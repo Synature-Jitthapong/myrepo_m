@@ -34,10 +34,11 @@
     </style>
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
-        <!-- <item name="android:actionBarStyle">@style/ActionBarStyle</item> -->
+        <item name="android:windowBackground">@color/light_gray</item>
+       <item name="android:actionBarStyle">@style/ActionBarStyle</item>
     </style>  
-     <style name="ActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">#FF3F9FE0</item>
+     <style name="ActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
+        <item name="android:background">@drawable/actionbar_background</item>
     </style>
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
     </style>

@@ -1,6 +1,7 @@
 package com.syn.mpos;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.syn.mpos.database.Setting;
@@ -13,18 +14,22 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.ListFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -54,8 +59,19 @@ public class SettingActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.setting, menu);
+		getMenuInflater().inflate(R.menu.activity_setting, menu);
 		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		case R.id.itemClose:
+			finish();
+			return true;
+		default :
+		return super.onOptionsItemSelected(item);
+		}
 	}
 
 	public static class SettingCategoryFragment extends ListFragment{
@@ -107,9 +123,18 @@ public class SettingActivity extends Activity {
 		}
 	}
 
+	
 	public static class SyncSettingFragment extends Fragment{
 		private List<Setting.SyncItem> mSyncLst;
+		private SyncAdapter mSyncAdapter;
+		private Formatter mFormat;
 		
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			mFormat = new Formatter(getActivity());
+		}
+
 		@Override
 		public void onActivityCreated(Bundle savedInstanceState) {
 			super.onActivityCreated(savedInstanceState);
@@ -117,29 +142,32 @@ public class SettingActivity extends Activity {
 			mSyncLst = new ArrayList<Setting.SyncItem>();
 			Setting.SyncItem syncItem = new Setting.SyncItem();
 			syncItem.setSyncItemId(1);
+			syncItem.setSyncStatus(0);
 			syncItem.setSyncItemName(getActivity().getString(R.string.sync_product));
 			mSyncLst.add(syncItem);
 			
 			syncItem = new Setting.SyncItem();
 			syncItem.setSyncItemId(2);
+			syncItem.setSyncStatus(0);
 			syncItem.setSyncItemName(getActivity().getString(R.string.sync_sale));
 			mSyncLst.add(syncItem);
 
 			syncItem = new Setting.SyncItem();
 			syncItem.setSyncItemId(3);
+			syncItem.setSyncStatus(0);
 			syncItem.setSyncItemName(getActivity().getString(R.string.sync_stock));
 			mSyncLst.add(syncItem);
 			
-			ListView lvSync = (ListView) getActivity().findViewById(R.id.lvSync);
-			lvSync.setAdapter(new ArrayAdapter<Setting.SyncItem>(getActivity(), 
-					android.R.layout.simple_list_item_activated_1, mSyncLst));
+			mSyncAdapter = new SyncAdapter();
+			final ListView lvSync = (ListView) getActivity().findViewById(R.id.lvSync);
+			lvSync.setAdapter(mSyncAdapter);
 			
 			lvSync.setOnItemClickListener(new OnItemClickListener(){
 
 				@Override
 				public void onItemClick(AdapterView<?> parent, View v,
-						int position, long id) {
-					Setting.SyncItem syncItem = (Setting.SyncItem) 
+						final int position, long id) {
+					final Setting.SyncItem syncItem = (Setting.SyncItem) 
 							parent.getItemAtPosition(position);
 					
 					MPOSService mposService = new MPOSService(getActivity(),mConn);
@@ -151,6 +179,17 @@ public class SettingActivity extends Activity {
 									
 									@Override
 									public void onSuccess() {
+										
+										mSetting.addSyncItem(syncItem.getSyncItemId(), 
+												true, syncItem.getSyncItemName(), 1, 
+												new Date().getTime());
+										
+										syncItem.setSyncStatus(1);
+										syncItem.setSyncTime(new Date().getTime());
+										
+										mSyncLst.set(position, syncItem);
+										mSyncAdapter.notifyDataSetChanged();
+										
 										new AlertDialog.Builder(getActivity())
 										.setTitle(R.string.sync_product)
 										.setIcon(android.R.drawable.ic_dialog_alert)
@@ -166,6 +205,17 @@ public class SettingActivity extends Activity {
 									
 									@Override
 									public void onError(String mesg) {
+										
+										mSetting.addSyncItem(syncItem.getSyncItemId(), 
+												true, syncItem.getSyncItemName(), -1, 
+												new Date().getTime());
+										
+										syncItem.setSyncStatus(-1);
+										syncItem.setSyncTime(new Date().getTime());
+										
+										mSyncLst.set(position, syncItem);
+										mSyncAdapter.notifyDataSetChanged();
+										
 										new AlertDialog.Builder(getActivity())
 										.setTitle(R.string.sync_product)
 										.setIcon(android.R.drawable.ic_dialog_alert)
@@ -194,6 +244,49 @@ public class SettingActivity extends Activity {
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
 			return inflater.inflate(R.layout.sync_setting_fragment, container, false);
+		}
+		
+		class SyncAdapter extends BaseAdapter{
+
+			@Override
+			public int getCount() {
+				return mSyncLst.size();
+			}
+
+			@Override
+			public Setting.SyncItem getItem(int position) {
+				return mSyncLst.get(position);
+			}
+
+			@Override
+			public long getItemId(int position) {
+				return position;
+			}
+
+			@Override
+			public View getView(final int position, View convertView, ViewGroup parent) {
+				LayoutInflater inflater = (LayoutInflater)
+						getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				
+				convertView = inflater.inflate(R.layout.sync_item_template, null);
+				TextView tvSyncName = (TextView) convertView.findViewById(R.id.textView1);
+				TextView tvSyncSummary = (TextView) convertView.findViewById(R.id.textView2);
+				ImageView imgSyncStatus = (ImageView) convertView.findViewById(R.id.imageView1);
+				
+				tvSyncName.setText(mSyncLst.get(position).getSyncItemName());
+				if(mSyncLst.get(position).getSyncStatus() == 1){
+					tvSyncSummary.setText(mFormat.dateTimeFormat(new Date(mSyncLst.get(position).getSyncTime())));
+					imgSyncStatus.setImageResource(R.drawable.ic_action_check);
+				}else if(mSyncLst.get(position).getSyncStatus() == -1){
+					tvSyncSummary.setText(R.string.sync_fail);
+					imgSyncStatus.setImageResource(R.drawable.ic_action_alerts_and_states_error);
+				}else{
+					tvSyncSummary.setText(R.string.not_sync);
+					imgSyncStatus.setImageResource(R.drawable.ic_action_alerts_and_states_error);
+				}
+				return convertView;
+			}
+			
 		}
 	}
 	
@@ -300,17 +393,5 @@ public class SettingActivity extends Activity {
 			return inflater.inflate(R.layout.conn_setting_fragment, container, false);
 		}
 
-//		@Override
-//		public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//			inflater.inflate(R.menu.action_confirm, menu);
-//			super.onCreateOptionsMenu(menu, inflater);
-//		}
-//
-//		@Override
-//		public boolean onOptionsItemSelected(MenuItem item) {
-//			// TODO Auto-generated method stub
-//			return super.onOptionsItemSelected(item);
-//		}
-//		
 	}
 }

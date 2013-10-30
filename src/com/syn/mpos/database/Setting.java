@@ -5,11 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 
 public class Setting {
-	private MPOSSettingHelper mDbHelper; 
+	private MPOSSettingHelper mSqlite; 
 	private String menuImageUrl;
 
 	public Setting(Context c){
-		mDbHelper = new MPOSSettingHelper(c);
+		mSqlite = new MPOSSettingHelper(c);
 	}
 	
 	public String getMenuImageUrl() {
@@ -23,50 +23,73 @@ public class Setting {
 	public Printer getPrinter(){
 		Printer p = new Printer();
 		
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery("SELECT * FROM printer_setting");
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM printer_setting");
 		if(cursor.moveToFirst()){
 			p.setPrinterIp(cursor.getString(cursor.getColumnIndex("printer_ip")));
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return p;
 	}
 	
 	public Connection getConnection(){
 		Connection conn = new Connection();
 		
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery("SELECT * FROM conn_setting");
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM conn_setting");
 		if(cursor.moveToFirst()){
 			conn.setAddress(cursor.getString(cursor.getColumnIndex("address")));
 			conn.setBackoffice(cursor.getString(cursor.getColumnIndex("backoffice")));
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return conn;
 	}
 	
 	public boolean deleteSyncItem(int itemId){
 		boolean isSuccess = false;
 		
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL("DELETE FROM sync_item WHERE sync_item_id=" + itemId);
-		mDbHelper.close();
+		mSqlite.open();
+		isSuccess = mSqlite.execSQL("DELETE FROM sync_item WHERE sync_item_id=" + itemId);
+		mSqlite.close();
 		return isSuccess;
 	}
 	
-	public boolean addSyncItem(boolean enable, String syncItemName, long syncTime){
+	public SyncItem getSyncItem(int syncItemId){
+		SyncItem syncItem = new SyncItem();
+		
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * " +
+				" FROM sync_item " +
+				" WHERE sync_item_id=" + syncItemId);
+		if(cursor.moveToFirst()){
+			syncItem.setSyncItemId(syncItemId);
+			syncItem.setSyncItemName(cursor.getString(cursor.getColumnIndex("sync_name")));
+			syncItem.setSyncTime(cursor.getLong(cursor.getColumnIndex("sync_time")));
+			syncItem.setSyncEnabled(cursor.getInt(cursor.getColumnIndex("sync_enabled")) == 1 ? true : false);
+			syncItem.setSyncStatus(cursor.getInt(cursor.getColumnIndex("sync_status")));
+		}
+		cursor.close();
+		mSqlite.close();
+		return syncItem;
+	}
+	
+	public boolean addSyncItem(int syncItemId, boolean enable, String syncItemName, 
+			int syncStatus, long syncTime){
 		boolean isSuccess = false;
+		
 		ContentValues cv = new ContentValues();
+		cv.put("sync_item_id", syncItemId);
 		cv.put("sync_enable", enable == true ? 1 : 0);
 		cv.put("sync_item_name", syncItemName);
 		cv.put("sync_time", syncTime);
-		cv.put("sync_already", 0);
+		cv.put("sync_status", syncStatus);
 		
-		mDbHelper.open();
-		isSuccess = mDbHelper.insert("sync_item", cv);
-		mDbHelper.close();
+		mSqlite.open();
+		mSqlite.execSQL("DELETE FROM sync_item WHERE sync_item_id=" + syncItemId);
+		isSuccess = mSqlite.insert("sync_item", cv);
+		mSqlite.close();
 		return isSuccess;
 	}
 	
@@ -75,10 +98,10 @@ public class Setting {
 		ContentValues cv = new ContentValues();
 		cv.put("printer_ip", printerIp);
 		
-		mDbHelper.open();
-		mDbHelper.execSQL("DELETE FROM printer_setting");
-		isSuccess = mDbHelper.insert("printer_setting", cv);
-		mDbHelper.close();
+		mSqlite.open();
+		mSqlite.execSQL("DELETE FROM printer_setting");
+		isSuccess = mSqlite.insert("printer_setting", cv);
+		mSqlite.close();
 		return isSuccess;
 	}
 	
@@ -88,10 +111,10 @@ public class Setting {
 		cv.put("address", address);
 		cv.put("backoffice", backoffice);
 		
-		mDbHelper.open();
-		mDbHelper.execSQL("DELETE FROM conn_setting");
-		isSuccess = mDbHelper.insert("conn_setting", cv);
-		mDbHelper.close();
+		mSqlite.open();
+		mSqlite.execSQL("DELETE FROM conn_setting");
+		isSuccess = mSqlite.insert("conn_setting", cv);
+		mSqlite.close();
 		return isSuccess;
 	}
 	

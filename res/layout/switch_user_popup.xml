@@ -1,31 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical" >
+
+    <requestFocus />
 
     <EditText
         android:id="@+id/txtUser"
         style="@style/EditText"
-        android:background="@drawable/edittext_selector"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="129dp"
+        android:background="@drawable/edittext_selector"
         android:ems="10"
-        android:hint="@string/user_name" >
-
-        <requestFocus />
-    </EditText>
+        android:hint="@string/user_name" />
 
     <EditText
         android:id="@+id/txtPassword"
         style="@style/EditText"
-        android:background="@drawable/edittext_selector"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/txtUser"
+        android:background="@drawable/edittext_selector"
         android:ems="10"
         android:hint="@string/pass_word"
         android:inputType="textPassword" />
 
-</LinearLayout>
+</RelativeLayout>

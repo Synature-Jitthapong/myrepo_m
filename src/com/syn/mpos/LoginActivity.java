@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 
 public class LoginActivity extends Activity {
 	private int mShopId;
@@ -69,7 +68,7 @@ public class LoginActivity extends Activity {
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.action_setting, menu);
+		getMenuInflater().inflate(R.menu.activity_login, menu);
 		return true;
 	}
 

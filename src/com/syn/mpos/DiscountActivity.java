@@ -6,7 +6,6 @@ import com.syn.mpos.R;
 import com.syn.mpos.transaction.MPOSTransaction;
 import com.syn.pos.OrderTransaction;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -100,7 +99,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.action_discount, menu);
+		inflater.inflate(R.menu.activity_discount, menu);
 		mItemInput = menu.findItem(R.id.itemDiscountInput);
 		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);
 		mTxtDiscount = (EditText) mItemInput.getActionView().findViewById(R.id.txtDiscount);

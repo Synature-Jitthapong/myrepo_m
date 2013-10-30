@@ -73,6 +73,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="30dp"
         android:layout_toRightOf="@+id/tableRow2" >
 
         <TableRow
@@ -407,7 +408,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/TableLayout2"
         android:layout_below="@+id/TableLayout1"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="42dp"
         android:layout_toRightOf="@+id/TableLayout2" >
 
         <TableRow
@@ -425,24 +426,26 @@
             <Button
                 android:id="@+id/btnPay1000"
                 style="@style/ButtonText"
-                android:background="@drawable/gray_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/gray_button"
                 android:minHeight="64dip"
                 android:minWidth="120dip"
                 android:onClick="onBtnPriceClick"
-                android:text="1000" />
+                android:text="1000"
+                android:textSize="32sp" />
 
             <Button
                 android:id="@+id/btnPay50"
                 style="@style/ButtonText"
-                android:background="@drawable/gray_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/gray_button"
                 android:minHeight="64dip"
                 android:minWidth="120dip"
                 android:onClick="onBtnPriceClick"
-                android:text="50" />
+                android:text="50"
+                android:textSize="32sp" />
 
         </TableRow>
 
@@ -454,24 +457,26 @@
             <Button
                 android:id="@+id/btnPay500"
                 style="@style/ButtonText"
-                android:background="@drawable/gray_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/gray_button"
                 android:minHeight="64dip"
                 android:minWidth="120dip"
                 android:onClick="onBtnPriceClick"
-                android:text="500" />
+                android:text="500"
+                android:textSize="32sp" />
 
             <Button
                 android:id="@+id/btnPay20"
                 style="@style/ButtonText"
-                android:background="@drawable/gray_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/gray_button"
                 android:minHeight="64dip"
                 android:minWidth="120dip"
                 android:onClick="onBtnPriceClick"
-                android:text="20" />
+                android:text="20"
+                android:textSize="32sp" />
 
         </TableRow>
 
@@ -483,13 +488,14 @@
             <Button
                 android:id="@+id/btnPay100"
                 style="@style/ButtonText"
-                android:background="@drawable/gray_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/gray_button"
                 android:minHeight="64dip"
                 android:minWidth="120dip"
                 android:onClick="onBtnPriceClick"
-                android:text="100" />
+                android:text="100"
+                android:textSize="32sp" />
 
         </TableRow>
     </TableLayout>

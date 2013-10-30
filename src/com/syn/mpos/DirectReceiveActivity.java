@@ -9,7 +9,6 @@ import com.syn.mpos.database.Setting;
 import com.syn.mpos.inventory.MPOSReceiveStock;
 import com.syn.mpos.inventory.MPOSStockDocument;
 import com.syn.mpos.inventory.StockProduct;
-import com.syn.pos.MenuGroups;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -22,11 +21,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnActionExpandListener;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
-import android.view.View.OnTouchListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
@@ -34,14 +30,11 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.PopupWindow.OnDismissListener;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
@@ -100,7 +93,7 @@ public class DirectReceiveActivity extends Activity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.action_stock_receive, menu);
+		inflater.inflate(R.menu.activity_stock_receive, menu);
 		
 		mItemInput = menu.findItem(R.id.itemReceiveInput);
 		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);
@@ -390,7 +383,7 @@ public class DirectReceiveActivity extends Activity implements
 			TextView tvName = (TextView) rowView.findViewById(R.id.tvName);
 			TextView tvQty = (TextView) rowView.findViewById(R.id.tvQty);
 			TextView tvPrice = (TextView) rowView.findViewById(R.id.tvPrice);
-			ImageView imgBtnDelete = (ImageView) rowView.findViewById(R.id.imgDel);
+			Button btnDelete = (Button) rowView.findViewById(R.id.button1);
 			
 			tvNo.setText(Integer.toString(position + 1));
 			tvCode.setText(stock.getCode());
@@ -398,7 +391,7 @@ public class DirectReceiveActivity extends Activity implements
 			tvQty.setText(mFormat.qtyFormat(stock.getReceive()));
 			tvPrice.setText(mFormat.currencyFormat(stock.getUnitPrice()));
 
-			imgBtnDelete.setOnClickListener(new OnClickListener(){
+			btnDelete.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {

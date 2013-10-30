@@ -29,12 +29,14 @@
         android:layout_weight="1"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <ImageView
-        android:id="@+id/imgDel"
-        style="@style/ColumnDetail"
-        android:layout_width="48dp"
+    <Button
+        android:id="@+id/button1"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_action_x" />
+        android:drawableLeft="@drawable/ic_action_x"
+        android:minHeight="0dip"
+        android:minWidth="0dip" />
 
     <TextView
         android:id="@+id/tvQty"

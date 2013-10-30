@@ -19,17 +19,12 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.View.OnFocusChangeListener;
-import android.view.View.OnTouchListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -123,7 +118,7 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.action_stockcount, menu);
+		getMenuInflater().inflate(R.menu.activity_stockcount, menu);
 		mItemInput = menu.findItem(R.id.itemInputNum);
 		mTxtCountStock = (EditText) mItemInput.getActionView().findViewById(R.id.editText1);
 		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);

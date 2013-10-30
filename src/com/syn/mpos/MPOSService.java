@@ -10,11 +10,8 @@ import com.syn.mpos.database.Shop;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
-
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 
 public class MPOSService {
 	

@@ -9,12 +9,11 @@
 
     <Button
         android:id="@+id/buttonOrderPlus"
-        style="@style/ButtonText"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:background="@drawable/gray_button"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:minWidth="48dp"
@@ -45,17 +44,17 @@
 
     <Button
         android:id="@+id/buttonOrderMinus"
-        style="@style/ButtonText"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/editTextOrderAmount"
-        android:background="@drawable/gray_button"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:minWidth="48dp"
         android:text="-"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLargeInverse"
+        android:textSize="32sp" />
 
     <TextView
         android:id="@+id/textViewOrderNo"
