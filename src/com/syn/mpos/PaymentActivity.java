@@ -361,7 +361,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		mPrinter.setBatteryStatusChangeEventCallback(this);
 		
 		try {
-			mPrinter.openPrinter(Print.DEVTYPE_TCP, "1.1.0.163", 0, 1000);	
+			mPrinter.openPrinter(Print.DEVTYPE_TCP, "1.1.0.161", 0, 1000);	
 			Builder builder = new Builder("TM-T88V", Builder.MODEL_ANK, PaymentActivity.this);
 			builder.addTextLang(Builder.LANG_TH);
 			builder.addTextFont(Builder.FONT_B);
