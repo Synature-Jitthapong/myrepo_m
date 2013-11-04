@@ -40,8 +40,18 @@ public class Formatter {
 			dateTimeFormat.applyPattern(gb.getDateFormat() + " " + gb.getTimeFormat());
 	}
 	
+	public String dateFormat(Date d, String pattern){
+		dateFormat.applyPattern(pattern);
+		return dateFormat.format(d);	
+	}
+	
 	public String dateFormat(Date d){
 		return dateFormat.format(d);	
+	}
+	
+	public String dateTimeFormat(Date d, String pattern){
+		dateTimeFormat.applyPattern(pattern);
+		return dateTimeFormat.format(d);
 	}
 	
 	public String dateTimeFormat(Date d){
@@ -52,8 +62,18 @@ public class Formatter {
 		return timeFormat.format(d);
 	}
 	
+	public String qtyFormat(float qty, String pattern){
+		qtyFormat.applyPattern(pattern);
+		return qtyFormat.format(qty);
+	}
+	
 	public String qtyFormat(float qty){
 		return qtyFormat.format(qty);
+	}
+	
+	public String currencyFormat(float currency, String pattern){
+		currencyFormat.applyLocalizedPattern(pattern);
+		return currencyFormat.format(currency);
 	}
 	
 	public String currencyFormat(float currency){

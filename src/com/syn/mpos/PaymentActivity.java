@@ -1,6 +1,7 @@
 package com.syn.mpos;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import com.epson.eposprint.BatteryStatusChangeEventListener;
 import com.epson.eposprint.Builder;
@@ -8,6 +9,7 @@ import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.R;
+import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.inventory.MPOSSaleStock;
 import com.syn.mpos.transaction.MPOSPayment;
@@ -45,6 +47,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	private List<Payment.PaymentDetail> mPayLst;
 	private PaymentAdapter mPaymentAdapter;
 	private Formatter mFormat;
+	private Setting mSetting;
 	private int mShopId;
 	private int mTransactionId;
 	private int mComputerId;
@@ -124,6 +127,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		mPayLst = new ArrayList<Payment.PaymentDetail>();
 		mLvPayment.setAdapter(mPaymentAdapter);
 		mStrTotalPay = new StringBuilder();
+		mSetting = new Setting(this);
 		
 		summary();
 		loadPayDetail();
@@ -356,12 +360,13 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	private void print(OrderTransaction trans, 
 			OrderTransaction.OrderDetail summary, 
 			List<OrderTransaction.OrderDetail> orderLst){
+		String printerIp = mSetting.getPrinter().getPrinterIp();
 		mPrinter = new Print(PaymentActivity.this);
 		mPrinter.setStatusChangeEventCallback(this);
 		mPrinter.setBatteryStatusChangeEventCallback(this);
 		
 		try {
-			mPrinter.openPrinter(Print.DEVTYPE_TCP, "1.1.0.161", 0, 1000);	
+			mPrinter.openPrinter(Print.DEVTYPE_TCP, printerIp, 0, 1000);	
 			Builder builder = new Builder("TM-T88V", Builder.MODEL_ANK, PaymentActivity.this);
 			builder.addTextLang(Builder.LANG_TH);
 			builder.addTextFont(Builder.FONT_B);
@@ -373,32 +378,40 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	    	Shop s = new Shop(PaymentActivity.this);
 	    	ShopProperty shopProp = s.getShopProperty();
 
-			builder.addTextPosition(100);
-			builder.addText("ใบเสร็จรับเงิน/ใบกำกับภาษีอย่างย่อ\n");
-			
+			//builder.addTextPosition(100);
 			if(!shopProp.getCompanyName().isEmpty()) 
-				builder.addText("\t" + shopProp.getCompanyName() + "\t\n");
+				builder.addText(shopProp.getCompanyName() + "\n");
 			if(!shopProp.getShopName().isEmpty())
-				builder.addText("\t" + shopProp.getShopName() + "\t\n");
+				builder.addText(shopProp.getShopName() + "\n");
 			if(!shopProp.getCompanyAddress1().isEmpty())
-				builder.addText("\t" + shopProp.getCompanyAddress1() + "\n");
+				builder.addText(shopProp.getCompanyAddress1() + "\n");
 			if(!shopProp.getCompanyAddress2().isEmpty())
-				builder.addText("\t" + shopProp.getCompanyAddress2() + "\n");
-			if(!shopProp.getCompanyTaxID().isEmpty())
-				builder.addText("\t" + shopProp.getCompanyTaxID() + "\n");
+				builder.addText(shopProp.getCompanyAddress2() + "\n");
+			
+			builder.addText("RECEIPT/TAX INVOICE(ABB) \n");
+			builder.addText("TAX ID: " + shopProp.getCompanyTaxID() + "\n");
+			builder.addText("Date: " + mFormat.dateFormat(new Date(), "d/MM/yy") + "\n");
+			builder.addText("Receipt No: " + mTrans.getTransaction(mTransactionId, mComputerId).getReceiptNo() + "\n");
 			
 			builder.addTextPosition(0);
 			builder.addText("______________________________________________________\n");
 
+			int maxNameLength = 30;
 	    	for(int i = 0; i < orderLst.size(); i++){
 	    		OrderTransaction.OrderDetail order = 
 	    				orderLst.get(i);
 
-	    		builder.addText(Integer.toString(i + 1) + createSpace(1, 3));
-	    		builder.addText(order.getProductName());
-	    		
-	    		int len = order.getProductName().length();
-	    		builder.addText(createSpace(len, 30));
+	    		String no = Integer.toString(i + 1);
+	    		int noLength = no.length();
+	    		builder.addText(no + createSpace(noLength, 3));
+	    		int nameLength = order.getProductName().length();
+	    		if(nameLength > maxNameLength){
+	    			builder.addText(order.getProductName().substring(31, nameLength));
+	    			nameLength = maxNameLength;
+	    		}else{
+	    			builder.addText(order.getProductName());
+	    		}
+	    		builder.addText(createSpace(nameLength, maxNameLength));
 	    		builder.addText(mFormat.qtyFormat(order.getQty()));
 	    		builder.addText("          ");
 	    		builder.addText(mFormat.currencyFormat(order.getTotalSalePrice()));
@@ -406,24 +419,19 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	    	}
 	    	
 	    	builder.addText("______________________________________________________\n");
-	    	String total = "Total";
-	    	String net = "Net";
-	    	String discount = "Discount";
-	    	String vatable = "Vatable";
-	    	String vat = "Vat";
+	    	String total = getApplicationContext().getString(R.string.total);
+	    	String payment = getApplicationContext().getString(R.string.payment);
+	    	String change = getApplicationContext().getString(R.string.change);
+	    	String discount = getApplicationContext().getString(R.string.discount);
 	    	
-	    	builder.addText(total + createSpace(total.length(), 43));
-	    	builder.addText(mFormat.currencyFormat(summary.getTotalRetailPrice()) + "\n");
-	    	builder.addText(discount + createSpace(discount.length(), 43));
+	    	builder.addText(total + createSpace(total.length(), 44));
+	    	builder.addText(mTxtTotalPrice.getText() + "\n");
+	    	builder.addText(discount + createSpace(discount.length(), 44));
 	    	builder.addText(mFormat.currencyFormat(summary.getPriceDiscount()) + "\n");
-	    	builder.addText(net + createSpace(net.length(), 43));
-	    	builder.addText(mFormat.currencyFormat(summary.getTotalSalePrice()) + "\n");
-	    	
-	    	builder.addText("______________________________________________________\n");
-	    	builder.addText(vatable + createSpace(vatable.length(), 43));
-	    	builder.addText(mFormat.currencyFormat(trans.getTransactionVatable()) + "\n");
-	    	builder.addText(vat + createSpace(vat.length(), 43));
-	    	builder.addText(shopProp.getCompanyVat() + "\n");
+	    	builder.addText(payment + createSpace(payment.length(), 44));
+	    	builder.addText(mFormat.currencyFormat(mTotalPaid) + "\n");
+	    	builder.addText(change + createSpace(change.length(), 44));
+	    	builder.addText(mFormat.currencyFormat(mTotalPaid - mTotalSalePrice) + "\n");
 			builder.addFeedUnit(30);
 			builder.addCut(Builder.CUT_FEED);
 

@@ -42,8 +42,8 @@ public class LoginActivity extends Activity {
 		mTxtUser.setSelectAllOnFocus(true);
 		mTxtPass.setSelectAllOnFocus(true);
 		
-		mTxtUser.setText("1");
-		mTxtPass.setText("1");
+		mTxtUser.setText("nipon");
+		mTxtPass.setText("pospwnet");
 	}
 
 	private void init(){
@@ -139,7 +139,7 @@ public class LoginActivity extends Activity {
 						
 						gotoMainActivity(s.getStaffID());
 					}else{
-						new AlertDialog.Builder(getApplicationContext())
+						new AlertDialog.Builder(LoginActivity.this)
 						.setIcon(android.R.drawable.ic_dialog_alert)
 						.setTitle(R.string.login)
 						.setMessage(R.string.incorrect_password)
@@ -153,7 +153,7 @@ public class LoginActivity extends Activity {
 						.show();
 					}
 				}else{
-					new AlertDialog.Builder(getApplicationContext())
+					new AlertDialog.Builder(LoginActivity.this)
 					.setIcon(android.R.drawable.ic_dialog_alert)
 					.setTitle(R.string.login)
 					.setMessage(R.string.incorrect_user)
@@ -167,7 +167,7 @@ public class LoginActivity extends Activity {
 					.show();
 				}
 			}else{
-				new AlertDialog.Builder(getApplicationContext())
+				new AlertDialog.Builder(LoginActivity.this)
 				.setIcon(android.R.drawable.ic_dialog_alert)
 				.setTitle(R.string.login)
 				.setMessage(R.string.enter_password)
@@ -181,7 +181,7 @@ public class LoginActivity extends Activity {
 				.show();
 			}
 		}else{
-			new AlertDialog.Builder(getApplicationContext())
+			new AlertDialog.Builder(LoginActivity.this)
 			.setIcon(android.R.drawable.ic_dialog_alert)
 			.setTitle(R.string.login)
 			.setMessage(R.string.enter_username)

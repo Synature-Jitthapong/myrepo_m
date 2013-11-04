@@ -227,33 +227,6 @@ public class MPOSTransaction extends Util {
 		return isSuccess;
 	}
 
-	public OrderTransaction getTransaction(int transactionId, int computerId) {
-		OrderTransaction trans = new OrderTransaction();
-
-		mSqlite.open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM order_transaction " + 
-				" WHERE transaction_id=" + transactionId + 
-				" AND computer_id=" + computerId);
-		if (cursor.moveToFirst()) {
-			trans.setTransactionVatable(cursor.getFloat(cursor
-					.getColumnIndex("transaction_vatable")));
-			trans.setTransactionVat(cursor.getFloat(cursor
-					.getColumnIndex("transaction_vat")));
-			trans.setTransactionVatExclude(cursor.getFloat(cursor
-					.getColumnIndex("transaction_exclude_vat")));
-			trans.setSaleDate(cursor.getLong(cursor.getColumnIndex("sale_date")));
-			trans.setReceiptYear(cursor.getInt(cursor
-					.getColumnIndex("receipt_year")));
-			trans.setReceiptMonth(cursor.getInt(cursor
-					.getColumnIndex("receipt_month")));
-			trans.setReceiptId(cursor.getInt(cursor
-					.getColumnIndex("receipt_id")));
-		}
-		cursor.close();
-		mSqlite.close();
-		return trans;
-	}
-
 	public boolean confirmDiscount(int transactionId, int computerId) {
 		boolean isSuccess = false;
 
@@ -413,6 +386,44 @@ public class MPOSTransaction extends Util {
 				" AND computer_id=" + computerId);
 		mSqlite.close();
 		return isSuccess;
+	}
+
+	public OrderTransaction getTransaction(int transactionId, int computerId) {
+		OrderTransaction trans = new OrderTransaction();
+		
+		mSqlite.open();
+		Cursor cursor = mSqlite.rawQuery("SELECT a.transaction_id, a.computer_id, " + 
+				" a.paid_time, a.receipt_year, a.receipt_month, a.receipt_id, " + 
+				" b.document_type_header " + " FROM order_transaction a " + 
+				" LEFT JOIN document_type b " + 
+				" ON a.document_type_id = b.document_type_id " + 
+				" WHERE a.transaction_id=" + transactionId + 
+				" AND a.computer_id=" + computerId + 
+				" AND a.transaction_status_id=2 " + 
+				" ORDER BY a.sale_date");
+		
+		if (cursor.moveToFirst()) {
+				String docTypeHeader = cursor.getString(cursor
+						.getColumnIndex("document_type_header"));
+				String receiptYear = String.format("%04d",
+						cursor.getInt(cursor.getColumnIndex("receipt_year")));
+				String receiptMonth = String.format("%02d",
+						cursor.getInt(cursor.getColumnIndex("receipt_month")));
+				String receiptId = String.format("%06d",
+						cursor.getInt(cursor.getColumnIndex("receipt_id")));
+
+				trans.setTransactionId(cursor.getInt(cursor
+						.getColumnIndex("transaction_id")));
+				trans.setComputerId(cursor.getInt(cursor
+						.getColumnIndex("computer_id")));
+				trans.setPaidTime(cursor.getLong(cursor
+						.getColumnIndex("paid_time")));
+				trans.setReceiptNo(docTypeHeader + receiptMonth + receiptYear
+						+ receiptId);
+		}
+		cursor.close();
+		mSqlite.close();
+		return trans;
 	}
 
 	public List<OrderTransaction> listTransaction(long saleDate) {

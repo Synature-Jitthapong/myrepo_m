@@ -9,11 +9,12 @@
 
     <Button
         android:id="@+id/buttonOrderPlus"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/ButtonText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
+        android:background="@drawable/gray_button"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:minWidth="48dp"
@@ -44,29 +45,17 @@
 
     <Button
         android:id="@+id/buttonOrderMinus"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/ButtonText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/editTextOrderAmount"
+        android:background="@drawable/gray_button"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:minWidth="48dp"
         android:text="-"
-        android:textAppearance="?android:attr/textAppearanceLargeInverse"
-        android:textSize="32sp" />
-
-    <TextView
-        android:id="@+id/textViewOrderNo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/checkBox1"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/checkBox1"
-        android:gravity="center"
-        android:minWidth="18dp"
-        android:text="1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceLargeInverse" />
 
     <CheckBox
         android:id="@+id/checkBox1"
@@ -80,26 +69,33 @@
         android:visibility="visible" />
 
     <TextView
-        android:id="@+id/textViewOrderPrice"
+        android:id="@+id/textViewOrderNo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/textViewOrderNo"
-        android:layout_alignLeft="@+id/textViewOrderName"
-        android:layout_toLeftOf="@+id/buttonOrderMinus"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/checkBox1"
         android:text="1"
-        android:textStyle="bold" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/textViewOrderName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/textViewOrderPrice"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/buttonOrderMinus"
         android:layout_toRightOf="@+id/textViewOrderNo"
-        android:gravity="bottom"
         android:lines="1"
         android:marqueeRepeatLimit="marquee_forever"
         android:text="s" />
+
+    <TextView
+        android:id="@+id/textViewOrderPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textViewOrderName"
+        android:layout_alignRight="@+id/textViewOrderName"
+        android:layout_below="@+id/textViewOrderName"
+        android:text="1"
+        android:textStyle="bold" />
 
 </RelativeLayout>

@@ -67,6 +67,7 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 		btnDateTo = (Button) menuItem.getActionView().findViewById(R.id.btnDateTo);
 		btnDateFrom.setText(mFormat.dateFormat(mCalendarFrom.getTime()));
 		btnDateTo.setText(mFormat.dateFormat(mCalendarTo.getTime()));
+		((Button) menuItem.getActionView().findViewById(R.id.btnGenReport)).setText(R.string.view_stock);
 		return true;
 	}
 

@@ -63,7 +63,7 @@
         android:layout_alignRight="@+id/tableRow2"
         android:layout_below="@+id/tableRow2"
         android:layout_weight="1"
-        android:background="@drawable/background_card" >
+        android:background="@drawable/white_layer" >
 
     </ListView>
 

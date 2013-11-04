@@ -166,7 +166,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="error_save_stock">an error occurred during save stock material!</string>
     <string name="confirm_stock_count">Are you sure you want to confirm this stockcount?</string>
     <string name="setting">Setting</string>
-    <string name="close">Close</string>
     <string name="title_activity_stock_card">Stock Card</string>
     <string name="receive">Receive</string>
     <string name="init">Initial</string>
@@ -209,7 +208,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="sync_shop_summary">Sync shop data</string>
     <string name="update_data_success">Update data successfully.</string>
     <string name="update_data">Update data</string>
-    <string name="save_success">Save successfully.</string>
     <string name="enter_ipaddress">Please enter IP Address.</string>
     <string name="enter_backoffice">Please enter backoffice name.</string>
     <string name="product_dept">Product Dept.</string>
@@ -221,5 +219,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="add_product">Add product</string>
     <string name="sync_fail">Sync fail</string>
     <string name="not_sync">Not sync</string>
+    <string name="enter_printer_ip">Please enter printer IP.</string>
+    <string name="view_stock">View Stock</string>
 
 </resources>

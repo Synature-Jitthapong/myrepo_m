@@ -31,10 +31,10 @@
 
     <Button
         android:id="@+id/btnGenReport"
-        style="@style/ButtonText"
-        android:background="@drawable/gray_button"
+        style="@style/ButtonTextWhite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/blue_button"
         android:onClick="onClick"
         android:text="@string/create_report"
         android:textAppearance="?android:attr/textAppearanceMediumInverse" />

@@ -124,7 +124,8 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/black" >
+                android:textColor="@android:color/black"
+                android:textStyle="bold" >
 
                 <requestFocus />
             </EditText>
@@ -146,7 +147,8 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"
+                android:textSize="32sp" />
 
             <LinearLayout
                 android:id="@+id/layoutVat"
@@ -192,7 +194,9 @@
                 android:focusableInTouchMode="false"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@android:color/black"
+                android:textSize="32sp"
                 android:textStyle="bold" />
+
         </TableRow>
     </TableLayout>
 

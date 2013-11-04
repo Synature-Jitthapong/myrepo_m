@@ -38,7 +38,7 @@
         <activity
             android:name="com.syn.mpos.MainActivity"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden|stateAlwaysHidden" >
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden">
         </activity>
         <activity
             android:name="com.syn.mpos.DiscountActivity"
@@ -62,7 +62,7 @@
         <activity
             android:name="com.syn.mpos.SaleReportActivity"
             android:label="@string/title_activity_sale_report"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name="com.syn.mpos.DirectReceiveActivity"
@@ -73,7 +73,7 @@
         <activity
             android:name="com.syn.mpos.StockCountActivity"
             android:label="@string/title_activity_stock_count"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
             android:name="com.syn.mpos.VoidBillActivity"
@@ -87,7 +87,7 @@
         </activity>
         <activity
             android:name="com.syn.mpos.StockCardActivity"
-            android:label="@string/title_activity_stock_card" >
+            android:label="@string/title_activity_stock_card">
         </activity>
         <activity
             android:name="com.syn.mpos.SettingActivity"

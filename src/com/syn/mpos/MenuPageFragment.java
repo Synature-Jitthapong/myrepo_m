@@ -6,6 +6,7 @@ import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.Products;
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -23,9 +24,10 @@ public class MenuPageFragment extends Fragment {
 	private Products mProduct;
 	private List<Products.Product> mProductLst;
 	private MenuItemAdapter mAdapter;
+	private ImageLoader mImgLoader;
 	private int mDeptId;
 	
-	public static MenuPageFragment newInstance(Context c, int deptId){
+	public static MenuPageFragment newInstance(int deptId){
 		MenuPageFragment f = new MenuPageFragment();
 		Bundle b = new Bundle();
 		b.putInt("deptId", deptId);
@@ -38,6 +40,9 @@ public class MenuPageFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		
 		mDeptId = getArguments().getInt("deptId");
+
+		mImgLoader = new ImageLoader(getActivity(), R.drawable.no_food,
+				"mpos_img");
 		
 		mProduct = new Products(getActivity());
 		mProductLst = mProduct.listProduct(mDeptId);
@@ -79,14 +84,6 @@ public class MenuPageFragment extends Fragment {
 	}
 	
 	private class MenuItemAdapter extends BaseAdapter{
-		private Formatter mFormat;
-		private ImageLoader mImgLoader;
-		
-		public MenuItemAdapter(){
-			mFormat = new Formatter(getActivity());
-			mImgLoader = new ImageLoader(getActivity(), R.drawable.no_food,
-					"mpos_img");
-		}
 		
 		@Override
 		public int getCount() {
@@ -122,7 +119,7 @@ public class MenuPageFragment extends Fragment {
 			}
 			
 			holder.tvMenu.setText(p.getProductName());
-			holder.tvPrice.setText(mFormat.currencyFormat(p.getProductPrice()));
+			holder.tvPrice.setText(MainActivity.mFormat.currencyFormat(p.getProductPrice()));
 			mImgLoader.displayImage(MainActivity.mSetting.getMenuImageUrl() + p.getPicName(), holder.imgMenu);
 			return convertView;
 		}

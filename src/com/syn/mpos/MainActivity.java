@@ -17,6 +17,7 @@ import com.syn.pos.ShopData;
 import com.syn.pos.ShopData.ComputerProperty;
 import com.syn.pos.ShopData.ShopProperty;
 import android.os.Bundle;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -43,6 +44,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
@@ -53,8 +55,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	public static final int SYNC_REQUEST_CODE = 1;
 	public static final int MANAGE_PRODUCT_REQUEST_CODE = 2;
 	
+	public static Formatter mFormat;
 	private Shop mShop;
-	private Formatter mFormat;
 	private MPOSSession mSession;
 	private MPOSTransaction mTrans;
 	private MPOSPayment mPayment;
@@ -85,7 +87,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private Button mBtnCash;
 	private Button mBtnHold;
 	private MenuItem mItemHoldBill;
-	private RelativeLayout mLayoutOrderCtrl;
+	private LinearLayout mLayoutOrderCtrl;
 	private ImageButton mBtnDelSelOrder;
 	private ImageButton mBtnClearSelOrder;
 	private TextView mTvOrderSelected;
@@ -94,8 +96,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-	
-		mLayoutOrderCtrl = (RelativeLayout) findViewById(R.id.layoutOrderCtrl);
+
+		mLayoutOrderCtrl = (LinearLayout) findViewById(R.id.layoutOrderCtrl);
 		mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
 		mBtnClearSelOrder = (ImageButton) findViewById(R.id.btnClearSelOrder);
 		mTvOrderSelected = (TextView) findViewById(R.id.tvOrderSelected);
@@ -984,7 +986,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		@Override
 		public Fragment getItem(int position) {
 			int deptId = mProductDeptLst.get(position).getProductDeptId();
-			return MenuPageFragment.newInstance(MainActivity.this, deptId);
+			return MenuPageFragment.newInstance(deptId);
 		}
 
 //		@Override
@@ -1004,7 +1006,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 				mComputerId, productId, productTypeId,vatType, 1, productPrice);
 		
 		mOrderLst.add(mTrans.getOrder(mTransactionId, mComputerId, orderId));
-		mOrderListView.smoothScrollToPosition(mOrderLst.size());
 		mOrderAdapter.notifyDataSetChanged();
+		mOrderListView.smoothScrollToPosition(mOrderLst.size());
 	}
 }

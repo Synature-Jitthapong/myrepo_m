@@ -108,8 +108,7 @@
         <TableRow
             android:id="@+id/tableRowByProduct"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/dark_gray" >
+            android:layout_height="wrap_content" >
 
             <TextView
                 android:id="@+id/textView1"
@@ -199,7 +198,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/smoke_white" >
+            android:background="@drawable/white_layer" >
 
             <LinearLayout
                 android:layout_width="match_parent"

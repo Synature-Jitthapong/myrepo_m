@@ -113,7 +113,8 @@ public class SettingActivity extends Activity {
                 ft.commit();
 				break;
 			case 2:
-	            PrinterDiscoverFragment pf = new PrinterDiscoverFragment();
+	            //PrinterDiscoverFragment pf = new PrinterDiscoverFragment();
+				PrinterSettingFragment pf = new PrinterSettingFragment();
 				ft = getFragmentManager().beginTransaction();
 				ft.replace(R.id.details, pf);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -393,5 +394,50 @@ public class SettingActivity extends Activity {
 			return inflater.inflate(R.layout.conn_setting_fragment, container, false);
 		}
 
+	}
+	
+	public static class PrinterSettingFragment extends Fragment{
+
+		@Override
+		public void onActivityCreated(Bundle savedInstanceState) {
+			super.onActivityCreated(savedInstanceState);
+			
+			final EditText txtPrinterIp = (EditText) getActivity().findViewById(R.id.editText1);
+			final Button btnSave = (Button) getActivity().findViewById(R.id.button1);
+			
+			txtPrinterIp.setText(mSetting.getPrinter().getPrinterIp());
+			btnSave.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					String printerIp = txtPrinterIp.getText().toString();
+					
+					if(!printerIp.isEmpty()){
+						mSetting.addPrinterSetting(printerIp);
+						btnSave.setEnabled(false);
+						btnSave.setText(R.string.save_success);
+					}else{
+						new AlertDialog.Builder(getActivity())
+						.setTitle(R.string.setting)
+						.setMessage(R.string.enter_printer_ip)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								txtPrinterIp.requestFocus();
+							}
+						}).show();
+					}
+				}
+				
+			});
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			return inflater.inflate(R.layout.printer_setting_fragment, container, false);
+		}
+		
 	}
 }
