@@ -5,11 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 
 public class Setting {
-	private MPOSSettingHelper mSqlite; 
+	private MPOSSQLiteHelper mSqlite; 
 	private String menuImageUrl;
 
 	public Setting(Context c){
-		mSqlite = new MPOSSettingHelper(c);
+		mSqlite = new MPOSSQLiteHelper(c);
 	}
 	
 	public String getMenuImageUrl() {

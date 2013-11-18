@@ -1,37 +1,36 @@
 package com.syn.mpos.database;
 
 import com.j1tth4.mobile.sqlite.SQLiteHelper;
+import com.j1tth4.mobile.sqlite.SqliteExternalDatabase;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 /**
  * 
  * @author j1tth4
  *
  */
-public class MPOSSQLiteHelper implements SQLiteHelper{
+public class MPOSSQLiteHelper extends SqliteExternalDatabase implements SQLiteHelper{
+	public static final String DB_DIR = "MPOSDB";
+	public static final String DB_NAME = "mpos.db";
 	public static String mErrMsg;
-	private SQLiteDatabase mDb;
-	private MPOSSQLiteDatabase mSqlite;
 	private MPOSLog mposLog;
 	
-	public MPOSSQLiteHelper(Context c){
-		mSqlite = new MPOSSQLiteDatabase(c);
-		mposLog = new MPOSLog(c);
+	public MPOSSQLiteHelper(Context context) {
+		super(context, DB_DIR, DB_NAME);
 	}
 	
 	@Override
 	public void open() {
-		mDb = mSqlite.getWritableDatabase();
+		openDataBase();
 	}
 	
 	@Override
 	public void close() {
-		mSqlite.close();
+		closeDataBase();
 	}
 
 	@Override
@@ -39,7 +38,7 @@ public class MPOSSQLiteHelper implements SQLiteHelper{
 		boolean isSucc = false;
 		
 		try {
-			mDb.insertOrThrow(table, null, cv);
+			db.insertOrThrow(table, null, cv);
 			isSucc = true;
 		} catch (SQLException e) {
 			isSucc = false;
@@ -51,7 +50,7 @@ public class MPOSSQLiteHelper implements SQLiteHelper{
 
 	@Override
 	public Cursor rawQuery(String sqlQuery){
-		Cursor cursor = mDb.rawQuery(sqlQuery, null);
+		Cursor cursor = db.rawQuery(sqlQuery, null);
 		return cursor;
 	}
 
@@ -59,7 +58,7 @@ public class MPOSSQLiteHelper implements SQLiteHelper{
 	public boolean execSQL(String sqlExec){
 		boolean isSucc = false;
 		try {
-			mDb.execSQL(sqlExec);
+			db.execSQL(sqlExec);
 			isSucc = true;
 		} catch (SQLException e) {
 			isSucc = false;
