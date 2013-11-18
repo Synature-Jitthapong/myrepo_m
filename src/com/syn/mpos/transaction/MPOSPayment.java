@@ -5,13 +5,11 @@ import java.util.List;
 
 import com.j1tth4.mobile.sqlite.SQLiteHelper;
 import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.pos.PaymentCreation;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-public class MPOSPayment implements PaymentCreation {
+public class MPOSPayment {
 	
 	private SQLiteHelper mDbHelper;
 	
@@ -19,7 +17,6 @@ public class MPOSPayment implements PaymentCreation {
 		mDbHelper = new MPOSSQLiteHelper(context);
 	}
 	
-	@Override
 	public boolean deleteAllPaymentDetail(int transactionId, int computerId) {
 		boolean isSuccess = false;
 		
@@ -32,7 +29,6 @@ public class MPOSPayment implements PaymentCreation {
 		return isSuccess;
 	}
 	
-	@Override
 	public int getMaxPaymentDetailId(int transactionId, int computerId) {
 		int maxPaymentId = 0;
 		mDbHelper.open();
@@ -53,7 +49,6 @@ public class MPOSPayment implements PaymentCreation {
 		return maxPaymentId + 1;
 	}
 
-	@Override
 	public boolean addPaymentDetail(int transactionId,
 			int computerId, int payTypeId, float payAmount,
 			String creditCardNo, int expireMonth, 
@@ -79,7 +74,6 @@ public class MPOSPayment implements PaymentCreation {
 		return isSuccess;
 	}
 
-	@Override
 	public boolean updatePaymentDetail(int transactionId, int computerId, int payTypeId,
 			float paymentAmount, String creditCardNo, int expireMonth,
 			int expireYear, int bankId, int creditCardTypeId) {
@@ -102,7 +96,6 @@ public class MPOSPayment implements PaymentCreation {
 		return isSuccess;
 	}
 
-	@Override
 	public boolean deletePaymentDetail(int paymentId) {
 		String strSql = "DELETE FROM payment_detail " +
 				" WHERE pay_detail_id=" + paymentId;
@@ -116,7 +109,6 @@ public class MPOSPayment implements PaymentCreation {
 		return isSuccess;
 	}
 	
-	@Override
 	public float getTotalPaid(int transactionId, int computerId){
 		float totalPaid = 0.0f;
 	
@@ -138,7 +130,6 @@ public class MPOSPayment implements PaymentCreation {
 		return totalPaid;
 	}
 	
-	@Override
 	public List<com.syn.pos.Payment.PaymentDetail> listPayment(int transactionId, int computerId){
 		List<com.syn.pos.Payment.PaymentDetail> paymentLst = 
 				new ArrayList<com.syn.pos.Payment.PaymentDetail>();
