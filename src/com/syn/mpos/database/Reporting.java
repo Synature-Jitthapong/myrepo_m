@@ -101,7 +101,9 @@ public class Reporting {
 				reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("totalPrice")));
 				reportDetail.setSubTotal(cursor.getFloat(cursor.getColumnIndex("subTotal")));
 				reportDetail.setServiceCharge(cursor.getFloat(cursor.getColumnIndex("totalServiceCharge")));
-				reportDetail.setTotalSale(reportDetail.getSubTotal() + reportDetail.getServiceCharge());
+				reportDetail.setVatExclude(cursor.getFloat(cursor.getColumnIndex("transExcludeVat")));
+				reportDetail.setTotalSale(reportDetail.getSubTotal() + reportDetail.getServiceCharge() + 
+						reportDetail.getVatExclude());
 				reportDetail.setDiscount(cursor.getFloat(cursor.getColumnIndex("totalDiscount")));
 				reportDetail.setVatable(cursor.getFloat(cursor.getColumnIndex("transVatable")));
 				reportDetail.setTotalVat(cursor.getFloat(cursor.getColumnIndex("transVat")));

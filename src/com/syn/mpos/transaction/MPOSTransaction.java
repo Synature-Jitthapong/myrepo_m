@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 import com.j1tth4.mobile.sqlite.SQLiteHelper;
+import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Util;
 import com.syn.pos.OrderTransaction;
@@ -19,7 +20,13 @@ import com.syn.pos.OrderTransaction;
  * 
  */
 public class MPOSTransaction extends Util {
-
+	
+	public static final String TB_NAME = "OrderTransaction";
+	public static final String COL_TRANS_ID = "TransactionId";
+	public static final String COL_RECEIPT_YEAR = "ReceiptYear";
+	public static final String COL_RECEIPT_MONTH = "ReceiptMonth";
+	public static final String COL_RECEIPT_ID = "ReceiptId";
+	
 	protected SQLiteHelper mSqlite;
 
 	public MPOSTransaction(Context context) {
@@ -29,24 +36,21 @@ public class MPOSTransaction extends Util {
 
 	public int getMaxTransaction(int computerId) {
 		int transactionId = 0;
-		
 		mSqlite.open();
-		Cursor cursor = mSqlite.rawQuery( "SELECT MAX(transaction_id) " +
-				" FROM order_transaction " +
-				" WHERE computer_id=" + computerId);
+		Cursor cursor = mSqlite.rawQuery("SELECT MAX(" + COL_TRANS_ID + ") " +
+				" FROM " + TB_NAME +
+				" WHERE " + Computer.COL_COMPUTER_ID + "=" + computerId);
 		if (cursor.moveToFirst()) {
 			transactionId = cursor.getInt(0);
 			cursor.moveToNext();
 		}
 		cursor.close();
 		mSqlite.close();
-
 		return transactionId + 1;
 	}
 
 	public int getMaxReceiptId(int computerId, int year, int month) {
 		int maxReceiptId = 0;
-		
 		mSqlite.open();
 		Cursor cursor = mSqlite.rawQuery("SELECT MAX(receipt_id) " +
 				" FROM order_transaction " +
@@ -118,7 +122,7 @@ public class MPOSTransaction extends Util {
 		cv.put("shop_id", shopId);
 		cv.put("session_id", sessionId);
 		cv.put("open_staff_id", staffId);
-		cv.put("document_type_id", 20);
+		cv.put("document_type_id", 8);
 		cv.put("open_time", dateTime.getTimeInMillis());
 		cv.put("open_staff_id", staffId);
 		cv.put("sale_date", date.getTimeInMillis());
@@ -219,7 +223,7 @@ public class MPOSTransaction extends Util {
 		mSqlite.open();
 		isSuccess = mSqlite.execSQL("UPDATE order_transaction SET " + 
 				" transaction_vat=" + vat + ", " + 
-				" transaction_vatable=" + totalSalePrice + ", " + 
+				" transaction_vatable=" + (totalSalePrice + vatExclude) + ", " + 
 				" transaction_exclude_vat=" + vatExclude + 
 				" WHERE transaction_id=" + transactionId + 
 				" AND computer_id=" + computerId);
@@ -378,7 +382,7 @@ public class MPOSTransaction extends Util {
 
 		mSqlite.open();
 		isSuccess = mSqlite.execSQL("UPDATE order_transaction " + 
-				" SET transaction_status_id=9, " + 
+				" SET transaction_status_id=8, " + 
 				" void_staff_id=" + staffId + ", " + 
 				" void_reason='" + reason + "', " + 
 				" void_time='" + dateTime.getTimeInMillis() + "' " + 

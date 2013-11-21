@@ -53,6 +53,8 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_stock_count);
 
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mShopId = intent.getIntExtra("shopId", 0);
@@ -129,6 +131,9 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
 		case R.id.itemConfirm:
 			new AlertDialog.Builder(StockCountActivity.this)
 					.setTitle(R.string.confirm)

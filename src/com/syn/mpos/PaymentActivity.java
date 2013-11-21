@@ -71,6 +71,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_payment);
 
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        
 		mLvPayment = (ListView) findViewById(R.id.listView1);
 		mTxtTotalPay = (EditText) findViewById(R.id.editTextTotalPay);
 		mTxtTotalPaid = (EditText) findViewById(R.id.editTextTotalPaid);
@@ -101,6 +103,9 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
+		case android.R.id.home:
+			finish();
+			return true;
 		case R.id.itemCancel:
 			cancel();
 			return true;

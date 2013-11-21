@@ -61,6 +61,8 @@ public class VoidBillActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_void_bill);
 
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        
 		mFormat = new Formatter(VoidBillActivity.this);
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
@@ -126,6 +128,9 @@ public class VoidBillActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
+		case android.R.id.home:
+			finish();
+			return true;
 		case R.id.itemCancel:
 			cancel();
 			return true;

@@ -4,9 +4,13 @@ import java.lang.reflect.Type;
 import org.ksoap2.serialization.PropertyInfo;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
+import com.syn.mpos.database.Computer;
+import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.Language;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
+import com.syn.mpos.database.Staff;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
@@ -48,14 +52,16 @@ public class MPOSService {
 					@Override
 					public void onLoadShopSuccess(ShopData sd) {
 						Shop shop = new Shop(mContext);
+						Computer comp = new Computer(mContext);
+						GlobalProperty global = new GlobalProperty(mContext);
+						Language lang = new Language(mContext);
+						Staff staff = new Staff(mContext);
 						try {
 							shop.insertShop(sd.getShopProperty());
-							shop.insertComputer(sd.getComputerProperty());
-							shop.insertProperty(sd.getGlobalProperty());
-							shop.insertStaff(sd.getStaffs());
-							shop.insertLanguage(sd.getLanguage());
-							shop.insertProgramFeature(sd.getProgramFeature());
-							
+							comp.insertComputer(sd.getComputerProperty());
+							global.insertProperty(sd.getGlobalProperty());
+							staff.insertStaff(sd.getStaffs());
+							lang.insertLanguage(sd.getLanguage());
 							listener.onSuccess();
 						} catch (Exception e) {
 							listener.onError(e.getMessage());

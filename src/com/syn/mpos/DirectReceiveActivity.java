@@ -74,6 +74,8 @@ public class DirectReceiveActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_direct_receive);
 
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        
 		Intent intent = getIntent();
 		mShopId = intent.getIntExtra("shopId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
@@ -147,6 +149,9 @@ public class DirectReceiveActivity extends Activity implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
 		case R.id.itemConfirm:
 			confirm();
 			return true;

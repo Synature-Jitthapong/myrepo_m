@@ -1,6 +1,7 @@
 package com.syn.mpos;
 
 import com.syn.mpos.R;
+import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
@@ -22,6 +23,7 @@ public class LoginActivity extends Activity {
 	private int mComputerId;
 	private int mSessionId;
 	private Shop mShop;
+	private Computer mComputer;
 	private MPOSSession mSession;
 	private Setting mSetting;
 	private Setting.Connection mConn;
@@ -53,11 +55,12 @@ public class LoginActivity extends Activity {
 		mConn.setFullUrl(mConn.getProtocal() + mConn.getAddress() + 
 				"/" + mConn.getBackoffice() + "/" + mConn.getService());
 		
-		mShop = new Shop(LoginActivity.this);
-		mShopId = mShop.getShopProperty().getShopID();
-		mComputerId = mShop.getComputerProperty().getComputerID();
-		
+		mShop = new Shop(this);
+		mComputer = new Computer(this);
 		mSession = new MPOSSession(LoginActivity.this);
+
+		mShopId = mShop.getShopProperty().getShopID();
+		mComputerId = mComputer.getComputerProperty().getComputerID();
 		
 		if(mConn.getAddress() == null || 
 				mConn.getBackoffice() == null){
@@ -86,8 +89,8 @@ public class LoginActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		init();
 		super.onResume();
+		init();
 	}
 	
 	public void loginClicked(final View v){

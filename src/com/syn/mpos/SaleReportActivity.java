@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,7 +21,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-public class SaleReportActivity extends Activity implements OnDateConditionListener {
+public class SaleReportActivity extends Activity implements OnClickListener {
 	//private static final String TAG = "SaleReportActivity"; 
 	private int mode = 1;
 	private Calendar calendar;
@@ -38,7 +39,9 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sale_report);
-		
+
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        
 		tbReport = (TableLayout) findViewById(R.id.tbReport);
 		trProductReportHeader = (TableRow) findViewById(R.id.tableRowByProduct);
 		trBillReportHeader = (TableRow) findViewById(R.id.tableRowByBill);
@@ -73,7 +76,23 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 		btnDateTo = (Button) menuItem.getActionView().findViewById(R.id.btnDateTo);
 		btnDateFrom.setText(format.dateFormat(calendar.getTime()));
 		btnDateTo.setText(format.dateFormat(calendar.getTime()));
+		btnDateFrom.setOnClickListener(this);
+		btnDateTo.setOnClickListener(this);
 		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
+		case R.id.itemCreateReport:
+			createReport();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	private void createReportByBill(){
@@ -292,8 +311,7 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 		tbReport.addView(tbRowDetail);
 	}
 
-	@Override
-	public void onDateFromClick(View v) {
+	public void onDateFromClick() {
 		DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
 			
 			@Override
@@ -307,8 +325,7 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 		dialogFragment.show(getFragmentManager(), "Condition");
 	}
 
-	@Override
-	public void onDateToClick(View v) {
+	public void onDateToClick() {
 		DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
 			
 			@Override
@@ -322,11 +339,22 @@ public class SaleReportActivity extends Activity implements OnDateConditionListe
 		dialogFragment.show(getFragmentManager(), "Condition");
 	}
 
-	@Override
-	public void onClick(View v) {
+	public void createReport() {
 		if (mode == 1)
 			createReportByBill();
 		else if (mode == 2)
 			createReportByProduct();
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()){
+		case R.id.btnDateFrom:
+			onDateFromClick();
+			break;
+		case R.id.btnDateTo:
+			onDateToClick();
+			break;
+		}
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.List;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.syn.mpos.R;
+import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Setting;
@@ -17,7 +18,6 @@ import com.syn.pos.ShopData;
 import com.syn.pos.ShopData.ComputerProperty;
 import com.syn.pos.ShopData.ShopProperty;
 import android.os.Bundle;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -46,7 +46,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -57,6 +56,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 	public static Formatter mFormat;
 	private Shop mShop;
+	private Computer mComputer;
 	private MPOSSession mSession;
 	private MPOSTransaction mTrans;
 	private MPOSPayment mPayment;
@@ -143,14 +143,15 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mSetting.setMenuImageUrl(mConn.getProtocal() + mConn.getAddress() + "/" + 
 				mConn.getBackoffice() + "/Resources/Shop/MenuImage/");
 		
-		mShop = new Shop(MainActivity.this);
-		mFormat = new Formatter(MainActivity.this);
-		mTrans = new MPOSTransaction(MainActivity.this);
-		mPayment = new MPOSPayment(MainActivity.this);
-		mSession = new MPOSSession(MainActivity.this);
+		mShop = new Shop(this);
+		mComputer = new Computer(this);
+		mFormat = new Formatter(this);
+		mTrans = new MPOSTransaction(this);
+		mPayment = new MPOSPayment(this);
+		mSession = new MPOSSession(this);
 		
 		ShopProperty shopProp = mShop.getShopProperty();
-		ComputerProperty compProp = mShop.getComputerProperty();
+		ComputerProperty compProp = mComputer.getComputerProperty();
 		
 		mShopId = mShop.getShopProperty().getShopID();
 		mComputerId = compProp.getComputerID();
@@ -341,20 +342,20 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			= mTrans.getSummary(mTransactionId, mComputerId);
 		
 		float subTotal = orderDetail.getTotalRetailPrice();
-		float vat = orderDetail.getVat();	// vat exclude
-		float totalSalePrice = orderDetail.getTotalSalePrice() + vat;
+		float vatExclude = orderDetail.getVat();	// vat exclude
+		float totalSalePrice = orderDetail.getTotalSalePrice() + vatExclude;
 		float totalDiscount = orderDetail.getPriceDiscount() + orderDetail.getMemberDiscount();
 		
 		// update trans vat
 		mTrans.updateTransactionVat(mTransactionId, mComputerId, 
-				totalSalePrice, vat);
+				orderDetail.getTotalSalePrice(), vatExclude);
 		
-		if(vat > 0)
+		if(vatExclude > 0)
 			mTbRowVat.setVisibility(View.VISIBLE);
 		else
 			mTbRowVat.setVisibility(View.GONE);
 		
-		mTvVatExclude.setText(mFormat.currencyFormat(vat));
+		mTvVatExclude.setText(mFormat.currencyFormat(vatExclude));
 		mTvSubTotal.setText(mFormat.currencyFormat(subTotal));
 		mTvDiscount.setText(mFormat.currencyFormat(totalDiscount));
 		mTvTotalPrice.setText(mFormat.currencyFormat(totalSalePrice));

@@ -34,7 +34,7 @@ public class MPOSSQLiteHelper extends SqliteExternalDatabase implements SQLiteHe
 	}
 
 	@Override
-	public boolean insert(String table, ContentValues cv){
+	public boolean insert(String table, ContentValues cv) throws SQLException{
 		boolean isSucc = false;
 		
 		try {
@@ -47,7 +47,7 @@ public class MPOSSQLiteHelper extends SqliteExternalDatabase implements SQLiteHe
 		}
 		return isSucc;
 	}
-
+	
 	@Override
 	public Cursor rawQuery(String sqlQuery){
 		Cursor cursor = db.rawQuery(sqlQuery, null);
@@ -55,7 +55,7 @@ public class MPOSSQLiteHelper extends SqliteExternalDatabase implements SQLiteHe
 	}
 
 	@Override
-	public boolean execSQL(String sqlExec){
+	public boolean execSQL(String sqlExec) throws SQLException{
 		boolean isSucc = false;
 		try {
 			db.execSQL(sqlExec);

@@ -81,7 +81,7 @@ public class Setting {
 		
 		ContentValues cv = new ContentValues();
 		cv.put("sync_item_id", syncItemId);
-		cv.put("sync_enable", enable == true ? 1 : 0);
+		cv.put("sync_enabled", enable == true ? 1 : 0);
 		cv.put("sync_item_name", syncItemName);
 		cv.put("sync_time", syncTime);
 		cv.put("sync_status", syncStatus);

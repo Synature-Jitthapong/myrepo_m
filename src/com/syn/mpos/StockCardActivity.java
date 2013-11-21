@@ -11,17 +11,19 @@ import com.syn.mpos.inventory.StockProduct;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.support.v4.app.NavUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class StockCardActivity extends Activity implements OnDateConditionListener{
+public class StockCardActivity extends Activity implements OnClickListener{
 	private Formatter mFormat;
 	private MPOSStockCard mStockCard;
 	private List<StockProduct> mStockLst;
@@ -39,6 +41,8 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_stock_card);
 		
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        
 		lvStock = (ListView) findViewById(R.id.listView1);
 		
 		init();
@@ -67,23 +71,26 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 		btnDateTo = (Button) menuItem.getActionView().findViewById(R.id.btnDateTo);
 		btnDateFrom.setText(mFormat.dateFormat(mCalendarFrom.getTime()));
 		btnDateTo.setText(mFormat.dateFormat(mCalendarTo.getTime()));
-		((Button) menuItem.getActionView().findViewById(R.id.btnGenReport)).setText(R.string.view_stock);
+		btnDateFrom.setOnClickListener(this);
+		btnDateTo.setOnClickListener(this);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()){
-		case R.id.itemDateCondition:
-			
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
 			return true;
-		default :
+		case R.id.itemViewStock:
+			viewStock();
+			return true;
+		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
-	@Override
-	public void onDateFromClick(View v) {
+	public void onDateFromClick() {
 		DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
 			
 			@Override
@@ -97,8 +104,7 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 		dialogFragment.show(getFragmentManager(), "Condition");
 	}
 
-	@Override
-	public void onDateToClick(View v) {
+	public void onDateToClick() {
 		DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
 			
 			@Override
@@ -112,8 +118,7 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 		dialogFragment.show(getFragmentManager(), "Condition");
 	}
 
-	@Override
-	public void onClick(View v) {
+	public void viewStock() {
 		mStockLst = mStockCard.listStock(mDateFrom, mDateTo);
 		mStockCardAdapter.notifyDataSetChanged();
 	}
@@ -197,6 +202,18 @@ public class StockCardActivity extends Activity implements OnDateConditionListen
 			TextView tvEndding;
 			TextView tvVariance;
 			TextView tvSummary;
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()){
+		case R.id.btnDateFrom:
+			onDateFromClick();
+			break;
+		case R.id.btnDateTo:
+			onDateToClick();
+			break;
 		}
 	}
 }
