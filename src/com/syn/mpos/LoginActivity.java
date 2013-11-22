@@ -5,7 +5,7 @@ import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
-import com.syn.mpos.transaction.MPOSSession;
+import com.syn.mpos.database.transaction.MPOSSession;
 import com.syn.pos.ShopData;
 import android.os.Bundle;
 import android.provider.Settings.Secure;

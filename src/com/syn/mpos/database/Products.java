@@ -11,6 +11,22 @@ import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 
 public class Products {
+	public static final String TB_PRODUCT = "Products";
+	public static final String COL_PRODUCT_ID = "ProductId";
+	public static final String COL_PRODUCT_DEPT_ID = "ProductDeptId";
+	public static final String COL_PRODUCT_GROUP_ID = "ProductGroupId";
+	public static final String COL_PRODUCT_CODE = "ProductCode";
+	public static final String COL_PRODUCT_BAR_CODE = "ProductBarCode";
+	public static final String COL_PRODUCT_NAME = "ProductName";
+	public static final String COL_PRODUCT_DESC = "ProductDesc";
+	public static final String COL_PRODUCT_TYPE_ID = "ProductTypeId";
+	public static final String COL_PRODUCT_PRICE = "ProductPrice";
+	public static final String COL_PRODUCT_UNIT_NAME = "ProductUnitName";
+	public static final String COL_DISCOUNT_ALLOW = "DiscountAllow";
+	public static final String COL_VAT_TYPE = "VatType";
+	public static final String COL_VAT_RATE = "VatRate";
+	public static final String COL_IS_OUTOF_STOCK = "IsOutOfStock";
+	
 	private MPOSSQLiteHelper mSqlite;
 	
 	public Products(Context c){

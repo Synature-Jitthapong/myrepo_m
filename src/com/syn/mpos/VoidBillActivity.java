@@ -5,8 +5,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import com.syn.mpos.inventory.MPOSSaleStock;
-import com.syn.mpos.transaction.MPOSTransaction;
+import com.syn.mpos.database.inventory.MPOSSaleStock;
+import com.syn.mpos.database.transaction.MPOSTransaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;

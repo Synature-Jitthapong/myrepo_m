@@ -1,4 +1,4 @@
-package com.syn.mpos.inventory;
+package com.syn.mpos.database.inventory;
 
 import java.util.ArrayList;
 import java.util.Calendar;

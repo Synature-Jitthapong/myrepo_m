@@ -6,9 +6,10 @@ import java.util.List;
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Setting;
-import com.syn.mpos.inventory.MPOSReceiveStock;
-import com.syn.mpos.inventory.MPOSStockDocument;
-import com.syn.mpos.inventory.StockProduct;
+import com.syn.mpos.database.inventory.MPOSReceiveStock;
+import com.syn.mpos.database.inventory.MPOSStockDocument;
+import com.syn.mpos.database.inventory.StockProduct;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;

@@ -1,4 +1,4 @@
-package com.syn.mpos.transaction;
+package com.syn.mpos.database.transaction;
 
 import java.util.ArrayList;
 import java.util.List;

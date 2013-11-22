@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-import com.syn.mpos.inventory.MPOSStockCount;
-import com.syn.mpos.inventory.MPOSStockDocument;
-import com.syn.mpos.inventory.StockProduct;
+
+import com.syn.mpos.database.inventory.MPOSStockCount;
+import com.syn.mpos.database.inventory.MPOSStockDocument;
+import com.syn.mpos.database.inventory.StockProduct;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
