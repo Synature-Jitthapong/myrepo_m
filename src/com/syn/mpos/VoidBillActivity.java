@@ -5,8 +5,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import com.syn.mpos.database.inventory.MPOSSaleStock;
-import com.syn.mpos.database.transaction.MPOSTransaction;
+import com.syn.mpos.database.inventory.SaleStock;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
@@ -32,8 +32,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
-	private MPOSTransaction mTrans;
-	private MPOSSaleStock mSaleStock;
+	private Transaction mTrans;
+	private SaleStock mSaleStock;
 	private List<OrderTransaction> mTransLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private BillAdapter mBillAdapter;
@@ -143,8 +143,8 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void init(){
-		mTrans = new MPOSTransaction(VoidBillActivity.this);
-		mSaleStock = new MPOSSaleStock(VoidBillActivity.this);
+		mTrans = new Transaction(VoidBillActivity.this);
+		mSaleStock = new SaleStock(VoidBillActivity.this);
 		mTransLst = new ArrayList<OrderTransaction>();
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -311,7 +311,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText(mReceiptNo);
 		txtReceiptDate.setText(mReceiptDate);
 		
-		mOrderLst = mTrans.listAllOrders(mTransactionId, mComputerId);
+		mOrderLst = mTrans.listAllOrder(mTransactionId, mComputerId);
 		mBillDetailAdapter.notifyDataSetChanged();
 	}
 
@@ -338,7 +338,7 @@ public class VoidBillActivity extends Activity {
 				if(!voidReason.isEmpty()){
 					if(mTrans.voidTransaction(mTransactionId, mComputerId, mStaffId, voidReason)){
 				    	List<OrderTransaction.OrderDetail> orderLst = 
-				    			mTrans.listAllOrders(mTransactionId, mComputerId);
+				    			mTrans.listAllOrder(mTransactionId, mComputerId);
 						
 				    	if(mSaleStock.createVoidDocument(mShopId, mStaffId, orderLst, voidReason)){
 							searchBill();

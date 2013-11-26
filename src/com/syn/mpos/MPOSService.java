@@ -57,10 +57,10 @@ public class MPOSService {
 						Language lang = new Language(mContext);
 						Staff staff = new Staff(mContext);
 						try {
-							shop.insertShop(sd.getShopProperty());
+							shop.addShopProperty(sd.getShopProperty());
 							comp.insertComputer(sd.getComputerProperty());
 							global.insertProperty(sd.getGlobalProperty());
-							staff.insertStaff(sd.getStaffs());
+							staff.addStaff(sd.getStaffs());
 							lang.insertLanguage(sd.getLanguage());
 							listener.onSuccess();
 						} catch (Exception e) {

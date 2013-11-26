@@ -6,15 +6,15 @@ import java.util.List;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 
 import com.j1tth4.mobile.sqlite.SQLiteHelper;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 
-public class MPOSStockCard {
-	private SQLiteHelper mDbHelper;
-	
-	public MPOSStockCard(Context context){
-		mDbHelper = new MPOSSQLiteHelper(context);
+public class StockCard extends MPOSSQLiteHelper{
+
+	public StockCard(Context c){
+		super(c);
 	}
 	
 	public List<StockProduct> listStock(long dateFrom, long dateTo){
@@ -34,8 +34,8 @@ public class MPOSStockCard {
 					" ON a.id=b.product_id " +
 					" WHERE b.activated=1 ";
 			
-			mDbHelper.open();
-			Cursor cursor = mDbHelper.rawQuery(strSql);
+			open();
+			Cursor cursor = mSqlite.rawQuery(strSql, null);
 			if(cursor.moveToFirst()){
 				do{
 					StockProduct mat = new StockProduct();
@@ -50,7 +50,7 @@ public class MPOSStockCard {
 				}while(cursor.moveToNext());
 			}
 			cursor.close();
-			mDbHelper.close();
+			close();
 		}
 		return stockLst;
 	}
@@ -124,9 +124,14 @@ public class MPOSStockCard {
 					" FROM products p " +
 					" WHERE p.activated=1";
 			
-			mDbHelper.open();
-			isSuccess = mDbHelper.execSQL(strSql);
-			mDbHelper.close();
+			open();
+			try {
+				mSqlite.execSQL(strSql);
+				isSuccess = true;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			close();
 		}
 		return isSuccess;
 	}
@@ -144,10 +149,15 @@ public class MPOSStockCard {
 				" sale REAL DEFAULT 0, " +
 				" variance REAL DEFAULT 0);";
 		
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL("DROP TABLE IF EXISTS stock_card_tmp");
-		isSuccess = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		open();
+		try {
+			mSqlite.execSQL("DROP TABLE IF EXISTS stock_card_tmp");
+			mSqlite.execSQL(strSql);
+			isSuccess = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		close();
 		return isSuccess;
 	}
 }

@@ -8,8 +8,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import com.syn.pos.ShopData;
 
-public class GlobalProperty{
-	public static final String TB_NAME = "GlobalProperty";
+public class GlobalProperty extends MPOSSQLiteHelper{
+	public static final String TB_GLOBAL_PROPERTY = "GlobalProperty";
 	public static final String COL_CURRENCY_SYMBOL = "CurrencySymbol";
 	public static final String COL_CURRENCY_CODE = "CurrencyCode";
 	public static final String COL_CURRENCY_NAME = "CurrencyName";
@@ -18,17 +18,15 @@ public class GlobalProperty{
 	public static final String COL_DATE_FORMAT = "DateFormat";
 	public static final String COL_TIME_FORMAT = "TimeFormat";
 	
-	public MPOSSQLiteHelper mSqlite;
-	
 	public GlobalProperty(Context c){
-		mSqlite = new MPOSSQLiteHelper(c);
+		super(c);
 	}
 	
 	public ShopData.GlobalProperty getGlobalProperty() {
 		ShopData.GlobalProperty gb = 
 				new ShopData.GlobalProperty();
-		mSqlite.open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_NAME);
+		open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_GLOBAL_PROPERTY, null);
 		if (cursor.moveToFirst()) {
 			gb.setCurrencyCode(cursor.getString(cursor
 					.getColumnIndex(COL_CURRENCY_CODE)));
@@ -46,14 +44,13 @@ public class GlobalProperty{
 					.getColumnIndex(COL_QTY_FORMAT)));
 			cursor.moveToNext();
 		}
-		mSqlite.close();
+		close();
 		return gb;
 	}
 
-	public boolean insertProperty(List<ShopData.GlobalProperty> globalLst) throws SQLException{
-		boolean isSucc = false;
-		mSqlite.open();
-		mSqlite.execSQL("DELETE FROM " + TB_NAME);
+	public void insertProperty(List<ShopData.GlobalProperty> globalLst) throws SQLException{
+		open();
+		mSqlite.execSQL("DELETE FROM " + TB_GLOBAL_PROPERTY);
 		for (ShopData.GlobalProperty global : globalLst) {
 			ContentValues cv = new ContentValues();
 			cv.put(COL_CURRENCY_SYMBOL, global.getCurrencySymbol());
@@ -63,9 +60,8 @@ public class GlobalProperty{
 			cv.put(COL_DATE_FORMAT, global.getDateFormat());
 			cv.put(COL_TIME_FORMAT, global.getTimeFormat());
 			cv.put(COL_QTY_FORMAT, global.getQtyFormat());
-			isSucc = mSqlite.insert(TB_NAME, cv);
+			mSqlite.insertOrThrow(TB_GLOBAL_PROPERTY, null, cv);
 		}
 		mSqlite.close();
-		return isSucc;
 	}
 }

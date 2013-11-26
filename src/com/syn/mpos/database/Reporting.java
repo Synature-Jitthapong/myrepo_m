@@ -6,18 +6,17 @@ import com.syn.pos.Report;
 import android.content.Context;
 import android.database.Cursor;
 
-public class Reporting {
-	protected MPOSSQLiteHelper dbHelper;
+public class Reporting extends MPOSSQLiteHelper{
 	protected long dateFrom, dateTo;
 	
-	public Reporting(Context context, long dFrom, long dTo){
-		dbHelper = new MPOSSQLiteHelper(context);
+	public Reporting(Context c, long dFrom, long dTo){
+		super(c);
 		dateFrom = dFrom;
 		dateTo = dTo;
 	}
 	
-	public Reporting(Context context){
-		dbHelper = new MPOSSQLiteHelper(context);
+	public Reporting(Context c){
+		super(c);
 	}
 	
 	public Report.ReportDetail getSummaryByBill(){
@@ -40,8 +39,8 @@ public class Reporting {
 				" AND a.sale_date <= " + dateTo + 
 				" GROUP BY a.receipt_year, a.receipt_month";
 
-		dbHelper.open();
-		Cursor cursor = dbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor = mSqlite.rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("totalPrice")));
@@ -57,8 +56,7 @@ public class Reporting {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		dbHelper.close();
-		
+		close();
 		return reportDetail;
 	}
 	
@@ -85,9 +83,8 @@ public class Reporting {
 				" AND a.sale_date <= " + dateTo + 
 				" GROUP BY a.transaction_id";
 		
-		dbHelper.open();
-		
-		Cursor cursor = dbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor = mSqlite.rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				Report.ReportDetail reportDetail = 
@@ -116,9 +113,7 @@ public class Reporting {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		
-		dbHelper.close();
-		
+		close();
 		return report;
 	}
 	
@@ -145,8 +140,8 @@ public class Reporting {
 				" GROUP BY c.product_group_id " +
 				" ORDER BY c.product_id ";
 		
-		dbHelper.open();
-		Cursor cursor = dbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor = mSqlite.rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			reportDetail.setProductCode(cursor.getString(cursor.getColumnIndex("product_code")));
 			reportDetail.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
@@ -158,7 +153,7 @@ public class Reporting {
 			reportDetail.setVat(cursor.getString(cursor.getColumnIndex("vat_type")));
 		}
 		cursor.close();
-		dbHelper.close();
+		close();
 		return reportDetail;
 	}
 	
@@ -186,8 +181,8 @@ public class Reporting {
 				" GROUP BY c.product_dept_id " +
 				" ORDER BY c.product_id ";
 		
-		dbHelper.open();
-		Cursor cursor = dbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor = mSqlite.rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			reportDetail.setProductCode(cursor.getString(cursor.getColumnIndex("product_code")));
 			reportDetail.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
@@ -199,7 +194,7 @@ public class Reporting {
 			reportDetail.setVat(cursor.getString(cursor.getColumnIndex("vat_type")));
 		}
 		cursor.close();
-		dbHelper.close();
+		close();
 		return reportDetail;
 	}
 	
@@ -214,9 +209,8 @@ public class Reporting {
 				" LEFT JOIN product_dept b " +
 				" ON a.product_group_id=b.product_group_id";
 		
-		dbHelper.open();
-		
-		Cursor cursor1 = dbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor1 = mSqlite.rawQuery(strSql, null);
 		if(cursor1.moveToFirst()){
 			do{
 				Report report = new Report();
@@ -245,8 +239,7 @@ public class Reporting {
 						" GROUP BY c.product_id " +
 						" ORDER BY c.product_id ";
 				
-				Cursor cursor2 = dbHelper.rawQuery(strSql);
-			
+				Cursor cursor2 = mSqlite.rawQuery(strSql, null);
 				if(cursor2.moveToFirst()){
 					do{
 						Report.ReportDetail reportDetail = 
@@ -270,9 +263,7 @@ public class Reporting {
 			}while(cursor1.moveToNext());
 		}
 		cursor1.close();	
-		
-		dbHelper.close();
-		
+		close();
 		return reportLst;
 	}
 }

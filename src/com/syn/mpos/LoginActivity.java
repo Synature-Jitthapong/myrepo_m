@@ -5,7 +5,7 @@ import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
-import com.syn.mpos.database.transaction.MPOSSession;
+import com.syn.mpos.database.transaction.Session;
 import com.syn.pos.ShopData;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
@@ -24,7 +24,7 @@ public class LoginActivity extends Activity {
 	private int mSessionId;
 	private Shop mShop;
 	private Computer mComputer;
-	private MPOSSession mSession;
+	private Session mSession;
 	private Setting mSetting;
 	private Setting.Connection mConn;
 	private String mDeviceCode;
@@ -57,7 +57,7 @@ public class LoginActivity extends Activity {
 		
 		mShop = new Shop(this);
 		mComputer = new Computer(this);
-		mSession = new MPOSSession(LoginActivity.this);
+		mSession = new Session(LoginActivity.this);
 
 		mShopId = mShop.getShopProperty().getShopID();
 		mComputerId = mComputer.getComputerProperty().getComputerID();

@@ -7,8 +7,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import com.syn.pos.ShopData;
 
-public class Shop {
-	public static final String TB_NAME = "Shop";
+public class Shop extends MPOSSQLiteHelper{
+	public static final String TB_SHOP = "Shop";
 	public static final String COL_SHOP_ID = "ShopID";
 	public static final String COL_SHOP_CODE = "ShopCode";
 	public static final String COL_SHOP_NAME = "ShopName";
@@ -28,17 +28,15 @@ public class Shop {
 	public static final String COL_REGISTER_ID = "RegisterId";
 	public static final String COL_VAT = "Vat";
 	
-	private static MPOSSQLiteHelper mSqlite;
-	
 	public Shop(Context c){
-		mSqlite = new MPOSSQLiteHelper(c);
+		super(c);
 	}
 	
 	public ShopData.ShopProperty getShopProperty(){
 		ShopData.ShopProperty sp = 
 				new ShopData.ShopProperty();
-		mSqlite.open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_NAME);
+		open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_SHOP, null);
 		if(cursor.moveToFirst()){
 			sp.setShopID(cursor.getInt(cursor.getColumnIndex(COL_SHOP_ID)));
 			sp.setShopCode(cursor.getString(cursor.getColumnIndex(COL_SHOP_CODE)));
@@ -61,14 +59,13 @@ public class Shop {
 			cursor.moveToNext();
 		}
 		cursor.close();
-		mSqlite.close();		
+		close();		
 		return sp;
 	}
 
-	public boolean insertShop(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
-		boolean isSucc = false;
-		mSqlite.open();
-		mSqlite.execSQL("DELETE FROM " + TB_NAME);
+	public void addShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
+		open();
+		mSqlite.execSQL("DELETE FROM " + TB_SHOP);
 		for(ShopData.ShopProperty shop : shopPropLst){
 			ContentValues cv = new ContentValues();
 			cv.put(COL_SHOP_ID, shop.getShopID());
@@ -89,9 +86,8 @@ public class Shop {
 			cv.put(COL_TAX_ID, shop.getCompanyTaxID());
 			cv.put(COL_REGISTER_ID, shop.getCompanyRegisterID());
 			cv.put(COL_VAT, shop.getCompanyVat());
-			isSucc = mSqlite.insert(TB_NAME, cv);
+			mSqlite.insertOrThrow(TB_SHOP, null, cv);
 		}
-		mSqlite.close();
-		return isSucc;
+		close();
 	}
 }

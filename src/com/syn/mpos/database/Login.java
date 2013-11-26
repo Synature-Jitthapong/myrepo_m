@@ -6,13 +6,12 @@ import com.syn.pos.ShopData;
 import android.content.Context;
 import android.database.Cursor;
 
-public class Login{
-	private MPOSSQLiteHelper mSqlite;
+public class Login extends MPOSSQLiteHelper{
 	private String user;
 	private String passEncrypt;
 	
-	public Login(Context context, String user, String pass) {
-		mSqlite = new MPOSSQLiteHelper(context);
+	public Login(Context c, String user, String pass) {
+		super(c);
 		this.user = user;
 		Encryption encrypt = new EncryptSHA1();
 		passEncrypt = encrypt.sha1(pass);
@@ -20,10 +19,10 @@ public class Login{
 	
 	public boolean checkUser(){
 		boolean isFound = false;
-		mSqlite.open();
+		open();
 		Cursor cursor = mSqlite.rawQuery("SELECT " + Staff.COL_STAFF_CODE +
-				" FROM " + Staff.TB_NAME +
-				" WHERE " + Staff.COL_STAFF_CODE + "='" + user + "'");
+				" FROM " + Staff.TB_STAFF +
+				" WHERE " + Staff.COL_STAFF_CODE + "='" + user + "'", null);
 		if(cursor.moveToFirst()){
 			isFound = true;
 		}
@@ -34,10 +33,10 @@ public class Login{
 	
 	public ShopData.Staff checkLogin() {
 		ShopData.Staff s = null;
-		mSqlite.open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + Staff.TB_NAME +
+		open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + Staff.TB_STAFF +
 				" WHERE " + Staff.COL_STAFF_CODE + "='" + user + "' " + 
-				" AND " + Staff.COL_STAFF_PASS + "='" + passEncrypt + "'");
+				" AND " + Staff.COL_STAFF_PASS + "='" + passEncrypt + "'", null);
 		if(cursor.moveToFirst()){
 			s = new ShopData.Staff();
 			s.setStaffID(cursor.getInt(cursor.getColumnIndex(Staff.COL_STAFF_ID)));

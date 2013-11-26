@@ -316,7 +316,7 @@ public class SettingActivity extends Activity {
 					String backoffice = txtBackoffice.getText().toString();
 					
 					if(!addr.isEmpty() && !backoffice.isEmpty()){
-						mSetting.addConnSetting(addr, backoffice);
+						mSetting.addConnectionConfig(addr, backoffice);
 						btnSave.setText(R.string.save_success);
 						btnSave.setEnabled(false);
 						

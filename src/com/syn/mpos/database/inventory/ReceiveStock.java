@@ -6,9 +6,9 @@ import java.util.List;
 import android.content.Context;
 import android.database.Cursor;
 
-public class MPOSReceiveStock extends MPOSStockDocument{
+public class ReceiveStock extends StockDocument{
 
-	public MPOSReceiveStock(Context context) {
+	public ReceiveStock(Context context) {
 		super(context);
 	}
 
@@ -35,8 +35,8 @@ public class MPOSReceiveStock extends MPOSStockDocument{
 				" AND a.shop_id=" + shopId +
 				" AND c.activated=1 ";
 		
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor = mSqlite.rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				StockProduct mat = new StockProduct();
@@ -53,7 +53,7 @@ public class MPOSReceiveStock extends MPOSStockDocument{
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return stockLst;
 	}
 }

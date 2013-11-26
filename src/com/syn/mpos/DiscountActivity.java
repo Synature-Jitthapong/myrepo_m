@@ -3,7 +3,7 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.List;
 import com.syn.mpos.R;
-import com.syn.mpos.database.transaction.MPOSTransaction;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -41,7 +41,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	private int mTransactionId;
 	private int mComputerId;
 	private Formatter mFormat;
-	private MPOSTransaction mTrans;
+	private Transaction mTrans;
 	private DiscountAdapter mDisAdapter;
 	private boolean mIsEdited = false;
 
@@ -203,7 +203,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	
 	private void init(){
 		mFormat = new Formatter(DiscountActivity.this);
-		mTrans = new MPOSTransaction(DiscountActivity.this);
+		mTrans = new Transaction(DiscountActivity.this);
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);

@@ -7,11 +7,12 @@ import com.syn.pos.inventory.Document;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 
-public class MPOSStockCount extends MPOSStockDocument {
+public class StockCount extends StockDocument {
 
-	public MPOSStockCount(Context context) {
-		super(context);
+	public StockCount(Context c) {
+		super(c);
 	}
 	
 	/**
@@ -20,7 +21,7 @@ public class MPOSStockCount extends MPOSStockDocument {
 	 * @param dateFrom
 	 * @param dateTo
 	 */
-	public MPOSStockCount(Context context, long dateFrom, long dateTo){
+	public StockCount(Context context, long dateFrom, long dateTo){
 		super(context);
 		calculateStock(dateFrom, dateTo);
 	}
@@ -64,14 +65,14 @@ public class MPOSStockCount extends MPOSStockDocument {
 			int refShopId, int staffId, List<Document.DocDetail> docDetailLst) {
 		boolean isSuccess = false;
 		int documentId = createDocument(shopId, refDocumentId, refShopId,
-				super.DAILY_REDUCE_DOC, staffId);
+				DAILY_REDUCE_DOC, staffId);
 		if(documentId > 0){
 			for(Document.DocDetail docDetail : docDetailLst){
 				float productQty = docDetail.getProductQty() < 0 ? 
 						docDetail.getProductQty() * -1 : docDetail.getProductQty();
 				
 				addDocumentDetail(documentId, shopId, docDetail.getProductId(), 
-						productQty, 0, 0, "");
+						productQty, 0, "");
 				isSuccess = true;
 			}
 			isSuccess = approveDocument(documentId, shopId, staffId, "adjust from daily count");
@@ -92,11 +93,11 @@ public class MPOSStockCount extends MPOSStockDocument {
 			int refShopId, int staffId, List<Document.DocDetail> docDetailLst) {
 		boolean isSuccess = false;
 		int documentId = createDocument(shopId, refDocumentId, refShopId,
-				super.DAILY_ADD_DOC, staffId);
+				DAILY_ADD_DOC, staffId);
 		if(documentId > 0){
 			for(Document.DocDetail docDetail : docDetailLst){
 				addDocumentDetail(documentId, shopId, docDetail.getProductId(), 
-						docDetail.getProductQty(), 0, 0, "");
+						docDetail.getProductQty(), 0, "");
 				isSuccess = true;
 			}
 			isSuccess = approveDocument(documentId, shopId, staffId, "adjust from daily count");
@@ -121,8 +122,8 @@ public class MPOSStockCount extends MPOSStockDocument {
 				" WHERE document_id=" + documentId +
 				" AND shop_id=" + shopId +
 				" AND product_qty - product_balance < 0";
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor = mSqlite.rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				Document.DocDetail docDetail = new Document.DocDetail();
@@ -134,7 +135,7 @@ public class MPOSStockCount extends MPOSStockDocument {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		mDbHelper.close();
+		close();
 		return docDetailLst;
 	}
 	
@@ -155,8 +156,8 @@ public class MPOSStockCount extends MPOSStockDocument {
 				" WHERE document_id=" + documentId +
 				" AND shop_id=" + shopId +
 				" AND product_qty - product_balance > 0";
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor = mSqlite.rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				Document.DocDetail docDetail = new Document.DocDetail();
@@ -168,7 +169,7 @@ public class MPOSStockCount extends MPOSStockDocument {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		return docDetailLst;
 	}
 	
@@ -188,7 +189,7 @@ public class MPOSStockCount extends MPOSStockDocument {
 			float countQty = stock.getCurrQty() > 0 ? stock.getCurrQty() : 0;
 			try {
 				addDocumentDetail(documentId, shopId, stock.getProId(),
-						countQty, stock.getCurrQty(), 0, "");
+						countQty, stock.getCurrQty(), "");
 				isSuccess = true;
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -216,8 +217,8 @@ public class MPOSStockCount extends MPOSStockDocument {
 				" ON a.id=b.product_id " +
 				" WHERE b.activated=1 ";
 		
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor = mSqlite.rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				StockProduct mat = new StockProduct();
@@ -230,7 +231,7 @@ public class MPOSStockCount extends MPOSStockDocument {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		mDbHelper.close();
+		mSqlite.close();
 		
 		return stockLst;
 	}
@@ -263,8 +264,8 @@ public class MPOSStockCount extends MPOSStockDocument {
 				" AND a.shop_id=" + shopId +
 				" AND c.activated=1 ";
 		
-		mDbHelper.open();
-		Cursor cursor = mDbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor = mSqlite.rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				StockProduct mat = new StockProduct();
@@ -278,7 +279,7 @@ public class MPOSStockCount extends MPOSStockDocument {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		mDbHelper.close();
+		close();
 		return stockLst;
 	}
 	
@@ -309,9 +310,15 @@ public class MPOSStockCount extends MPOSStockDocument {
 					" FROM products p " +
 					" WHERE p.activated=1";
 			
-			mDbHelper.open();
-			isSuccess = mDbHelper.execSQL(strSql);
-			mDbHelper.close();
+			open();
+			try {
+				mSqlite.execSQL(strSql, null);
+				isSuccess = true;
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			mSqlite.close();
 		}
 		return isSuccess;
 	}
@@ -326,10 +333,16 @@ public class MPOSStockCount extends MPOSStockDocument {
 				" id  INTEGER, " +
 				" qty REAL DEFAULT 0);";
 		
-		mDbHelper.open();
-		isSuccess = mDbHelper.execSQL("DROP TABLE IF EXISTS stock_tmp");
-		isSuccess = mDbHelper.execSQL(strSql);
-		mDbHelper.close();
+		open();
+		try {
+			mSqlite.execSQL("DROP TABLE IF EXISTS stock_tmp");
+			mSqlite.execSQL(strSql);
+			isSuccess = true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		mSqlite.close();
 		return isSuccess;
 	}
 }

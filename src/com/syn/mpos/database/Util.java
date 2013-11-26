@@ -2,32 +2,20 @@ package com.syn.mpos.database;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-
-import com.syn.pos.ShopData.ShopProperty;
-
-import android.content.Context;
-
 /**
  * 
  * @author j1tth4
  *
  */
-public abstract class Util {
-	public static float mVatRate = 7f;
+public class Util {
 	
-	public Util(Context c){
-		Shop s = new Shop(c);
-		ShopProperty sp = s.getShopProperty();
-		mVatRate = sp.getCompanyVat();
-	}
-	
-	protected Calendar getDate(){
+	public static Calendar getDate(){
 		Calendar calendar = Calendar.getInstance();
 		return calendar = new GregorianCalendar(calendar.get(Calendar.YEAR), 
 				calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 	}
 	
-	protected Calendar getDateTime(){
+	public static Calendar getDateTime(){
 		Calendar calendar = Calendar.getInstance();
 		return calendar = new GregorianCalendar(calendar.get(Calendar.YEAR), 
 				calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
@@ -35,12 +23,12 @@ public abstract class Util {
 				calendar.get(Calendar.SECOND));
 	}
 	
-	protected float calculateVat(float totalPrice){
-		float vatAmount = totalPrice * toVatPercent();
+	public static float calculateVat(float totalPrice, float vatRate){
+		float vatAmount = totalPrice * toVatPercent(vatRate);
 		return vatAmount;
 	}
 	
-	protected float toVatPercent(){
-		return mVatRate / 100;
+	public static float toVatPercent(float vatRate){
+		return vatRate / 100;
 	}
 }

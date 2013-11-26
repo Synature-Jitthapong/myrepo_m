@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import com.syn.mpos.database.inventory.MPOSStockCard;
+import com.syn.mpos.database.inventory.StockCard;
 import com.syn.mpos.database.inventory.StockProduct;
 
 import android.os.Bundle;
@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 public class StockCardActivity extends Activity implements OnClickListener{
 	private Formatter mFormat;
-	private MPOSStockCard mStockCard;
+	private StockCard mStockCard;
 	private List<StockProduct> mStockLst;
 	private StockCardAdapter mStockCardAdapter;
 	private Calendar mCalendarFrom;
@@ -49,7 +49,7 @@ public class StockCardActivity extends Activity implements OnClickListener{
 	}
 
 	private void init(){
-		mStockCard = new MPOSStockCard(StockCardActivity.this);
+		mStockCard = new StockCard(StockCardActivity.this);
 		mFormat = new Formatter(StockCardActivity.this);
 		mCalendarFrom = Calendar.getInstance();
 		mCalendarTo = Calendar.getInstance();

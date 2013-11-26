@@ -3,13 +3,20 @@ package com.syn.mpos.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 
-public class Setting {
-	private MPOSSQLiteHelper mSqlite; 
+public class Setting extends MPOSSQLiteHelper{
+	public static final String TB_CONNECTION_CONFIG = "ConnectionConfig";
+	public static final String COL_ADDR = "Addr";
+	public static final String COL_BACKOFFICE = "BackOffice";
+	
+	public static final String TB_PRINTER_CONFIG = "PrinterConfig";
+	public static final String COL_PRINTER_IP = "PrinterIp";
+	
 	private String menuImageUrl;
 
 	public Setting(Context c){
-		mSqlite = new MPOSSQLiteHelper(c);
+		super(c);
 	}
 	
 	public String getMenuImageUrl() {
@@ -23,109 +30,55 @@ public class Setting {
 	public Printer getPrinter(){
 		Printer p = new Printer();
 		
-		mSqlite.open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM printer_setting");
+		open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_PRINTER_CONFIG, null);
 		if(cursor.moveToFirst()){
-			p.setPrinterIp(cursor.getString(cursor.getColumnIndex("printer_ip")));
+			p.setPrinterIp(cursor.getString(cursor.getColumnIndex(COL_PRINTER_IP)));
 		}
 		cursor.close();
-		mSqlite.close();
+		close();
 		return p;
 	}
 	
 	public Connection getConnection(){
 		Connection conn = new Connection();
 		
-		mSqlite.open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM conn_setting");
+		open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_CONNECTION_CONFIG, null);
 		if(cursor.moveToFirst()){
-			conn.setAddress(cursor.getString(cursor.getColumnIndex("address")));
-			conn.setBackoffice(cursor.getString(cursor.getColumnIndex("backoffice")));
+			conn.setAddress(cursor.getString(cursor.getColumnIndex(COL_ADDR)));
+			conn.setBackoffice(cursor.getString(cursor.getColumnIndex(COL_BACKOFFICE)));
+			conn.setFullUrl(conn.getProtocal() + conn.getAddress() + 
+					"/" + conn.getBackoffice() + "/" + conn.getService());
+			setMenuImageUrl(conn.getProtocal() + conn.getAddress() + "/" + 
+					conn.getBackoffice() + "/Resources/Shop/MenuImage/");
 		}
 		cursor.close();
-		mSqlite.close();
+		close();
 		return conn;
 	}
 	
-	public boolean deleteSyncItem(int itemId){
-		boolean isSuccess = false;
-		
-		mSqlite.open();
-		isSuccess = mSqlite.execSQL("DELETE FROM sync_item WHERE sync_item_id=" + itemId);
-		mSqlite.close();
-		return isSuccess;
-	}
-	
-	public SyncItem getSyncItem(int syncItemId){
-		SyncItem syncItem = new SyncItem();
-		
-		mSqlite.open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * " +
-				" FROM sync_item " +
-				" WHERE sync_item_id=" + syncItemId);
-		if(cursor.moveToFirst()){
-			syncItem.setSyncItemId(syncItemId);
-			syncItem.setSyncItemName(cursor.getString(cursor.getColumnIndex("sync_name")));
-			syncItem.setSyncTime(cursor.getLong(cursor.getColumnIndex("sync_time")));
-			syncItem.setSyncEnabled(cursor.getInt(cursor.getColumnIndex("sync_enabled")) == 1 ? true : false);
-			syncItem.setSyncStatus(cursor.getInt(cursor.getColumnIndex("sync_status")));
-		}
-		cursor.close();
-		mSqlite.close();
-		return syncItem;
-	}
-	
-	public boolean addSyncItem(int syncItemId, boolean enable, String syncItemName, 
-			int syncStatus, long syncTime){
-		boolean isSuccess = false;
-		
+	public void addPrinterSetting(String printerIp) throws SQLException{
 		ContentValues cv = new ContentValues();
-		cv.put("sync_item_id", syncItemId);
-		cv.put("sync_enabled", enable == true ? 1 : 0);
-		cv.put("sync_item_name", syncItemName);
-		cv.put("sync_time", syncTime);
-		cv.put("sync_status", syncStatus);
+		cv.put(COL_PRINTER_IP, printerIp);
 		
-		mSqlite.open();
-		mSqlite.execSQL("DELETE FROM sync_item WHERE sync_item_id=" + syncItemId);
-		isSuccess = mSqlite.insert("sync_item", cv);
-		mSqlite.close();
-		return isSuccess;
+		open();
+		mSqlite.execSQL("DELETE FROM " + TB_PRINTER_CONFIG);
+		mSqlite.insertOrThrow(TB_PRINTER_CONFIG, null, cv);
+		close();
 	}
 	
-	public boolean addPrinterSetting(String printerIp){
-		boolean isSuccess = false;
+	public void addConnectionConfig(String address, String backoffice) throws SQLException{
 		ContentValues cv = new ContentValues();
-		cv.put("printer_ip", printerIp);
+		cv.put(COL_ADDR, address);
+		cv.put(COL_BACKOFFICE, backoffice);
 		
-		mSqlite.open();
-		mSqlite.execSQL("DELETE FROM printer_setting");
-		isSuccess = mSqlite.insert("printer_setting", cv);
-		mSqlite.close();
-		return isSuccess;
+		open();
+		mSqlite.execSQL("DELETE FROM " + TB_CONNECTION_CONFIG);
+		mSqlite.insertOrThrow(TB_CONNECTION_CONFIG, null, cv);
+		close();
 	}
 	
-	public boolean addConnSetting(String address, String backoffice){
-		boolean isSuccess = false;
-		ContentValues cv = new ContentValues();
-		cv.put("address", address);
-		cv.put("backoffice", backoffice);
-		
-		mSqlite.open();
-		mSqlite.execSQL("DELETE FROM conn_setting");
-		isSuccess = mSqlite.insert("conn_setting", cv);
-		mSqlite.close();
-		return isSuccess;
-	}
-	
-//	public String getMenuImageUrl() {
-//		return menuImageUrl;
-//	}
-//
-//	public void setMenuImageUrl(String menuImageUrl) {
-//		this.menuImageUrl = menuImageUrl;
-//	}
-
 	public static class Printer{
 		private String printerIp;
 

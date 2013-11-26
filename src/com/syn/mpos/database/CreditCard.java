@@ -8,22 +8,24 @@ import android.database.Cursor;
 
 import com.syn.pos.CreditCardType;
 
-public class CreditCard {
-	private MPOSSQLiteHelper dbHelper;
+public class CreditCard extends MPOSSQLiteHelper {
+	public static final String TB_CREDIT_CARD_TYPE = "CreditCardType";
+	public static final String COL_CREDIT_CARD_TYPE_ID = "CreditCardTypeId";
+	public static final String COL_CREDIT_CARD_TYPE_NAME = "CreditCardTypeName";
+	public static final String COL_CREDIT_CARD_NO = "CreditCardNo";
+	public static final String COL_EXP_MONTH = "ExpMonth";
+	public static final String COL_EXP_YEAR = "ExpYear";
 	
 	public CreditCard(Context c){
-		dbHelper = new MPOSSQLiteHelper(c);
+		super(c);
 	}
 	
 	public List<CreditCardType> listAllCreditCardType(){
 		List<CreditCardType> creditCardLst = 
 				new ArrayList<CreditCardType>();
 		
-		String strSql = "SELECT * FROM creditcard_type";
-		
-		dbHelper.open();
-		
-		Cursor cursor = dbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_CREDIT_CARD_TYPE, null);
 		if(cursor.moveToFirst()){
 			do{
 				CreditCardType credit = new CreditCardType(
@@ -33,9 +35,7 @@ public class CreditCard {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		
-		dbHelper.close();
-		
+		close();
 		return creditCardLst;
 	}
 }

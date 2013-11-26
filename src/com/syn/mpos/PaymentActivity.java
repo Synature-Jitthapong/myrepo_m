@@ -11,9 +11,9 @@ import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
-import com.syn.mpos.database.inventory.MPOSSaleStock;
-import com.syn.mpos.database.transaction.MPOSPayment;
-import com.syn.mpos.database.transaction.MPOSTransaction;
+import com.syn.mpos.database.inventory.SaleStock;
+import com.syn.mpos.database.transaction.Payment;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
 import com.syn.pos.ShopData.ShopProperty;
@@ -41,9 +41,9 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 
-	private MPOSTransaction mTrans;
-	private MPOSPayment mPayment;
-	private MPOSSaleStock mSaleStock;
+	private Transaction mTrans;
+	private Payment mPayment;
+	private SaleStock mSaleStock;
 	private List<Payment.PaymentDetail> mPayLst;
 	private PaymentAdapter mPaymentAdapter;
 	private Formatter mFormat;
@@ -125,9 +125,9 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 
 	private void init(){
 		mFormat = new Formatter(PaymentActivity.this);
-		mTrans = new MPOSTransaction(PaymentActivity.this);
-		mPayment = new MPOSPayment(PaymentActivity.this);
-		mSaleStock = new MPOSSaleStock(PaymentActivity.this);
+		mTrans = new Transaction(PaymentActivity.this);
+		mPayment = new Payment(PaymentActivity.this);
+		mSaleStock = new SaleStock(PaymentActivity.this);
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<Payment.PaymentDetail>();
 		mLvPayment.setAdapter(mPaymentAdapter);
@@ -486,7 +486,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 				OrderTransaction.OrderDetail summary = 
 						mTrans.getSummary(mTransactionId, mComputerId);
 		    	List<OrderTransaction.OrderDetail> orderLst = 
-		    			mTrans.listAllOrders(mTransactionId, mComputerId);
+		    			mTrans.listAllOrder(mTransactionId, mComputerId);
 		    	
 				print(trans, summary, orderLst);
 				mSaleStock.createSaleDocument(mShopId, mStaffId, orderLst);

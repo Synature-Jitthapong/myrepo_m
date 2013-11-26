@@ -8,25 +8,21 @@ import android.database.Cursor;
 
 import com.syn.pos.BankName;
 
-public class Bank {
-	public static final String TB_NAME = "BankName";
+public class Bank extends MPOSSQLiteHelper{
+	public static final String TB_BANK = "BankName";
 	public static final String COL_BANK_ID = "BankID";
 	public static final String COL_BANK_NAME = "BankName";
 	
-	private MPOSSQLiteHelper dbHelper;
-	
 	public Bank(Context c){
-		dbHelper = new MPOSSQLiteHelper(c);
+		super(c);
 	}
 	
 	public List<BankName> listAllBank(){
 		List<BankName> bankLst = 
 				new ArrayList<BankName>();
 		
-		String strSql = "SELECT * FROM " + TB_NAME;
-		
-		dbHelper.open();
-		Cursor cursor = dbHelper.rawQuery(strSql);
+		open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_BANK, null);
 		if(cursor.moveToFirst()){
 			do{
 				BankName bank = new BankName(
@@ -36,7 +32,7 @@ public class Bank {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		dbHelper.close();
+		close();
 		return bankLst;
 	}
 }

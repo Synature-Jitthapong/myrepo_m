@@ -10,9 +10,9 @@ import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
-import com.syn.mpos.database.transaction.MPOSPayment;
-import com.syn.mpos.database.transaction.MPOSSession;
-import com.syn.mpos.database.transaction.MPOSTransaction;
+import com.syn.mpos.database.transaction.Payment;
+import com.syn.mpos.database.transaction.Session;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
 import com.syn.pos.ShopData.ComputerProperty;
@@ -57,9 +57,9 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	public static Formatter mFormat;
 	private Shop mShop;
 	private Computer mComputer;
-	private MPOSSession mSession;
-	private MPOSTransaction mTrans;
-	private MPOSPayment mPayment;
+	private Session mSession;
+	private Transaction mTrans;
+	private Payment mPayment;
 	private Products mProduct;
 	private List<Products.ProductDept> mProductDeptLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
@@ -71,7 +71,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private int mStaffId;
 	private int mSessionId;
 	public static Setting mSetting;
-	private Setting.Connection mConn;
 
 	private PagerSlidingTabStrip mTabs;
 	private ViewPager mPager;
@@ -134,21 +133,13 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 	
 	public void init(){
-		mSetting = new Setting(this);
-		mConn = mSetting.getConnection();
-		
-		mConn.setFullUrl(mConn.getProtocal() + mConn.getAddress() + 
-				"/" + mConn.getBackoffice() + "/" + mConn.getService());
-		
-		mSetting.setMenuImageUrl(mConn.getProtocal() + mConn.getAddress() + "/" + 
-				mConn.getBackoffice() + "/Resources/Shop/MenuImage/");
-		
 		mShop = new Shop(this);
 		mComputer = new Computer(this);
 		mFormat = new Formatter(this);
-		mTrans = new MPOSTransaction(this);
-		mPayment = new MPOSPayment(this);
-		mSession = new MPOSSession(this);
+		mTrans = new Transaction(this);
+		mPayment = new Payment(this);
+		mSession = new Session(this);
+		mSetting = new Setting(this);
 		
 		ShopProperty shopProp = mShop.getShopProperty();
 		ComputerProperty compProp = mComputer.getComputerProperty();
@@ -324,7 +315,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 	
 	private void loadOrder(){
-		mOrderLst = mTrans.listAllOrders(mTransactionId, mComputerId);
+		mOrderLst = mTrans.listAllOrder(mTransactionId, mComputerId);
 		mOrderAdapter = new OrderListAdapter();
 		mOrderListView.setAdapter(mOrderAdapter);
 		mOrderAdapter.notifyDataSetChanged();

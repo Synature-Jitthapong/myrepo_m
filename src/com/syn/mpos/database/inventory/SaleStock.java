@@ -6,9 +6,9 @@ import com.syn.pos.OrderTransaction;
 
 import android.content.Context;
 
-public class MPOSSaleStock extends MPOSStockDocument {
+public class SaleStock extends StockDocument {
 
-	public MPOSSaleStock(Context context) {
+	public SaleStock(Context context) {
 		super(context);
 	}
 
@@ -21,8 +21,7 @@ public class MPOSSaleStock extends MPOSStockDocument {
 		if (documentId > 0) {
 			for (OrderTransaction.OrderDetail order : orderLst) {
 				if (addDocumentDetail(documentId, shopId, order.getProductId(),
-						order.getQty(), 0, order.getPricePerUnit(),
-						order.getVatType(), remark) > 0) {
+						order.getQty(), order.getPricePerUnit(), "", remark) > 0) {
 					isSuccess = true;
 				} else {
 					isSuccess = false;
@@ -47,8 +46,7 @@ public class MPOSSaleStock extends MPOSStockDocument {
 		if (documentId > 0) {
 			for (OrderTransaction.OrderDetail order : orderLst) {
 				if (addDocumentDetail(documentId, shopId, order.getProductId(),
-						order.getQty(), 0, order.getPricePerUnit(),
-						order.getVatType(), "") > 0) {
+						order.getQty(), order.getPricePerUnit(), "") > 0) {
 					isSuccess = true;
 				} else {
 					isSuccess = false;

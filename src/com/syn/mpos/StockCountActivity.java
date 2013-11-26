@@ -5,8 +5,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import com.syn.mpos.database.inventory.MPOSStockCount;
-import com.syn.mpos.database.inventory.MPOSStockDocument;
+import com.syn.mpos.database.inventory.StockCount;
+import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.mpos.database.inventory.StockProduct;
 
 import android.os.AsyncTask;
@@ -35,7 +35,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class StockCountActivity extends Activity implements OnEditorActionListener{
 	private Formatter mFormat;
-	private MPOSStockCount mStockCount;
+	private StockCount mStockCount;
 	private int mStcDocId;
 	private StockProduct mStockProduct;
 	private List<StockProduct> mStockLst;
@@ -73,7 +73,7 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 		Calendar dateFrom = new GregorianCalendar(mCalendar.get(Calendar.YEAR),
 				mCalendar.get(Calendar.MONTH), 1);
 		mFormat = new Formatter(StockCountActivity.this);
-		mStockCount = new MPOSStockCount(StockCountActivity.this, dateFrom.getTimeInMillis(),
+		mStockCount = new StockCount(StockCountActivity.this, dateFrom.getTimeInMillis(),
 				mCalendar.getTimeInMillis());
 		mStockLst = new ArrayList<StockProduct>();
 		mStockAdapter = new StockAdapter();
@@ -100,11 +100,11 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 		});
 
 		mStcDocId = mStockCount.getCurrentDocument(mShopId,
-				MPOSStockDocument.DAILY_DOC);
+				StockDocument.DAILY_DOC);
 
 		if (mStcDocId == 0) {
 			mStcDocId = mStockCount.createDocument(mShopId,
-					MPOSStockDocument.DAILY_DOC, mStaffId);
+					StockDocument.DAILY_DOC, mStaffId);
 
 			mStockLst = mStockCount.listStock();
 			new SaveStockCountTask().execute();

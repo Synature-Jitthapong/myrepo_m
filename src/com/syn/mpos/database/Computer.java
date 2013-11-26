@@ -5,26 +5,26 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
+
 import com.syn.pos.ShopData;
 
-public class Computer {
-	public static final String TB_NAME = "Computer";
+public class Computer extends MPOSSQLiteHelper{
+	public static final String TB_COMPUTER = "Computer";
 	public static final String COL_COMPUTER_ID = "ComputerId";
 	public static final String COL_COMPUTER_NAME = "ComputerName";
 	public static final String COL_DEVICE_CODE = "DeviceCode";
 	public static final String COL_REGISTER_NUMBER = "RegisterNumber";
 	
-	private MPOSSQLiteHelper mSqlite;
-	
 	public Computer(Context c){
-		mSqlite = new MPOSSQLiteHelper(c);
+		super(c);
 	}
 	
 	public ShopData.ComputerProperty getComputerProperty() {
 		ShopData.ComputerProperty computer = 
 				new ShopData.ComputerProperty();
-		mSqlite.open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_NAME);
+		open();
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_COMPUTER, null);
 		if (cursor.moveToFirst()) {
 			computer.setComputerID(cursor.getInt(cursor
 					.getColumnIndex(COL_COMPUTER_ID)));
@@ -37,23 +37,21 @@ public class Computer {
 			cursor.moveToNext();
 		}
 		cursor.close();
-		mSqlite.close();
+		close();
 		return computer;
 	}
 
-	public boolean insertComputer(List<ShopData.ComputerProperty> compLst) {
-		boolean isSucc = false;
-		mSqlite.open();
-		mSqlite.execSQL("DELETE FROM " + TB_NAME);
+	public void insertComputer(List<ShopData.ComputerProperty> compLst) throws SQLException{
+		open();
+		mSqlite.execSQL("DELETE FROM " + TB_COMPUTER);
 		for (ShopData.ComputerProperty comp : compLst) {
 			ContentValues cv = new ContentValues();
 			cv.put(COL_COMPUTER_ID, comp.getComputerID());
 			cv.put(COL_COMPUTER_NAME, comp.getComputerName());
 			cv.put(COL_DEVICE_CODE, comp.getDeviceCode());
 			cv.put(COL_REGISTER_NUMBER, comp.getRegistrationNumber());
-			isSucc = mSqlite.insert(TB_NAME, cv);
+			mSqlite.insertOrThrow(TB_COMPUTER, null, cv);
 		}
-		mSqlite.close();
-		return isSucc;
+		close();
 	}
 }

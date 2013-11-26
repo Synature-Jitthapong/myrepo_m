@@ -6,8 +6,8 @@ import java.util.List;
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Setting;
-import com.syn.mpos.database.inventory.MPOSReceiveStock;
-import com.syn.mpos.database.inventory.MPOSStockDocument;
+import com.syn.mpos.database.inventory.ReceiveStock;
+import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.mpos.database.inventory.StockProduct;
 
 import android.os.Bundle;
@@ -44,7 +44,7 @@ import android.widget.TextView.OnEditorActionListener;
 public class DirectReceiveActivity extends Activity implements
 		OnActionExpandListener, OnEditorActionListener {
 
-	private MPOSReceiveStock mReceiveStock;
+	private ReceiveStock mReceiveStock;
 	private Formatter mFormat;
 	private Products mProduct;
 	private Setting mSetting;
@@ -228,7 +228,7 @@ public class DirectReceiveActivity extends Activity implements
 				mConn.getBackoffice() + "/Resources/Shop/MenuImage/");
 
 		mFormat = new Formatter(DirectReceiveActivity.this);
-		mReceiveStock = new MPOSReceiveStock(DirectReceiveActivity.this);
+		mReceiveStock = new ReceiveStock(DirectReceiveActivity.this);
 		mStockLst = new ArrayList<StockProduct>();
 		mStockAdapter = new ReceiveStockAdapter();
 		mListViewStock.setAdapter(mStockAdapter);
@@ -258,10 +258,10 @@ public class DirectReceiveActivity extends Activity implements
 		});
 		
 		mDocumentId = mReceiveStock.getCurrentDocument(mShopId,
-				MPOSStockDocument.DIRECT_RECEIVE_DOC);
+				StockDocument.DIRECT_RECEIVE_DOC);
 		if (mDocumentId == 0) {
 			mDocumentId = mReceiveStock.createDocument(mShopId,
-					MPOSStockDocument.DIRECT_RECEIVE_DOC, mStaffId);
+					StockDocument.DIRECT_RECEIVE_DOC, mStaffId);
 			
 			mReceiveStock.saveDocument(mDocumentId, mShopId, mStaffId,
 					"Save Receive");
