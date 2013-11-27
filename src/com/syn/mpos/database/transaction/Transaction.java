@@ -158,6 +158,125 @@ public class Transaction extends MPOSSQLiteHelper {
 		return trans;
 	}
 
+	public float getMemberDiscount(int transactionId, int computerId, boolean tempTable){
+		float memberDiscount = 0.0f;
+		
+		open();
+		Cursor cursor = getOrderColumn(
+				transactionId,
+				computerId,
+				new String[] { COL_MEMBER_DISCOUNT },
+				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? AND ",
+				new String[] { String.valueOf(transactionId),
+						String.valueOf(computerId)},
+				tempTable);
+		if(cursor.moveToFirst()){
+			memberDiscount = cursor.getFloat(0);
+		}
+		cursor.close();
+		close();
+		return memberDiscount;
+	}
+	
+	public float getPriceDiscount(int transactionId, int computerId, boolean tempTable){
+		float priceDiscount = 0.0f;
+		
+		open();
+		Cursor cursor = getOrderColumn(
+				transactionId,
+				computerId,
+				new String[] { COL_PRICE_DISCOUNT },
+				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? AND ",
+				new String[] { String.valueOf(transactionId),
+						String.valueOf(computerId)},
+				tempTable);
+		if(cursor.moveToFirst()){
+			priceDiscount = cursor.getFloat(0);
+		}
+		cursor.close();
+		close();
+		return priceDiscount;
+	}
+	
+	public float getTotalVatExclude(int transactionId, int computerId, boolean tempTable){
+		float totalVat = 0.0f;
+		
+		open();
+		Cursor cursor = getOrderColumn(
+				transactionId,
+				computerId,
+				new String[] { COL_TOTAL_VAT },
+				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? AND "
+						+ Products.COL_VAT_TYPE + "=?",
+				new String[] { String.valueOf(transactionId),
+						String.valueOf(computerId), String.valueOf(2) },
+				tempTable);
+		if(cursor.moveToFirst()){
+			totalVat = cursor.getFloat(0);
+		}
+		cursor.close();
+		close();
+		return totalVat;
+	}
+	
+	public float getTotalVatIncluded(int transactionId, int computerId, boolean tempTable){
+		float totalVat = 0.0f;
+		
+		open();
+		Cursor cursor = getOrderColumn(
+				transactionId,
+				computerId,
+				new String[] { COL_TOTAL_VAT },
+				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? AND "
+						+ Products.COL_VAT_TYPE + "=?",
+				new String[] { String.valueOf(transactionId),
+						String.valueOf(computerId), String.valueOf(1) },
+				tempTable);
+		if(cursor.moveToFirst()){
+			totalVat = cursor.getFloat(0);
+		}
+		cursor.close();
+		close();
+		return totalVat;
+	}
+	
+	public float getTotalSalePrice(int transactionId, int computerId, boolean tempTable){
+		float totalSalePrice = 0.0f;
+		
+		open();
+		Cursor cursor = getOrderColumn(transactionId, computerId, 
+				new String[]{COL_TOTAL_SALE_PRICE}, COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{String.valueOf(transactionId), String.valueOf(computerId)}, tempTable);
+		if(cursor.moveToFirst()){
+			totalSalePrice = cursor.getFloat(0);
+		}
+		cursor.close();
+		close();
+		return totalSalePrice;
+	}
+	
+	public float getTotalRetailPrice(int transactionId, int computerId, boolean tempTable){
+		float totalRetailPrice = 0.0f;
+		
+		open();
+		Cursor cursor = getOrderColumn(transactionId, computerId, 
+				new String[]{COL_TOTAL_RETAIL_PRICE}, 
+				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{String.valueOf(transactionId), String.valueOf(computerId)}, tempTable);
+		if(cursor.moveToFirst()){
+			totalRetailPrice = cursor.getFloat(0);
+		}
+		cursor.close();
+		close();
+		return totalRetailPrice;
+	}
+	
+	public Cursor getOrderColumn(int transactionId, int computerId, 
+			String[] colsToSelect, String selection, String[] selectArgs, boolean tempTable){
+		return mSqlite.query(tempTable == true ? TB_ORDER_TMP : TB_ORDER, colsToSelect, 
+				selection, selectArgs, null, null, null);
+	}
+
 	public OrderTransaction.OrderDetail getOrder(int transactionId,
 			int computerId, int orderDetailId) {
 		OrderTransaction.OrderDetail orderDetail = new OrderTransaction.OrderDetail();

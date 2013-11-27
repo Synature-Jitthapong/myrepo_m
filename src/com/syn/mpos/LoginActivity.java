@@ -51,20 +51,17 @@ public class LoginActivity extends Activity {
 	private void init(){
 		mSetting = new Setting(this);
 		mConn = mSetting.getConnection();
-		
-		mConn.setFullUrl(mConn.getProtocal() + mConn.getAddress() + 
-				"/" + mConn.getBackoffice() + "/" + mConn.getService());
-		
+
 		mShop = new Shop(this);
 		mComputer = new Computer(this);
-		mSession = new Session(LoginActivity.this);
+		mSession = new Session(this);
 
 		mShopId = mShop.getShopProperty().getShopID();
 		mComputerId = mComputer.getComputerProperty().getComputerID();
 		
 		if(mConn.getAddress() == null || 
 				mConn.getBackoffice() == null){
-			Intent intent = new Intent(LoginActivity.this, SettingActivity.class);
+			Intent intent = new Intent(this, SettingActivity.class);
 			startActivity(intent);
 		}
 	}
@@ -117,6 +114,8 @@ public class LoginActivity extends Activity {
 		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 		intent.putExtra("staffId", staffId);
 		intent.putExtra("sessionId", mSessionId);
+		intent.putExtra("shopId", mShopId);
+		intent.putExtra("mComputerId", mComputerId);
 		startActivity(intent);
 	}
 	

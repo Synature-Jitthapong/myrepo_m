@@ -13,7 +13,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class Payment extends MPOSSQLiteHelper {
+public class PaymentDetail extends MPOSSQLiteHelper {
 
 	public static final String TB_PAYMENT = "PaymentDetail";
 	public static final String COL_PAY_ID = "PayDetailId";
@@ -25,7 +25,7 @@ public class Payment extends MPOSSQLiteHelper {
 	public static final String COL_PAY_TYPE_CODE = "PayTypeCode";
 	public static final String COL_PAY_TYPE_NAME = "PayTypeName";
 	
-	public Payment(Context c) {
+	public PaymentDetail(Context c) {
 		super(c);
 	}
 	

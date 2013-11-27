@@ -6,7 +6,6 @@ import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.Products;
 import android.app.Activity;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -20,7 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MenuPageFragment extends Fragment {
-	private OnMenuItemClick listener;
+	private OnMenuItemClick mCallback;
 	private Products mProduct;
 	private List<Products.Product> mProductLst;
 	private MenuItemAdapter mAdapter;
@@ -54,7 +53,7 @@ public class MenuPageFragment extends Fragment {
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		if(activity instanceof OnMenuItemClick){
-			listener = (OnMenuItemClick) activity;
+			mCallback = (OnMenuItemClick) activity;
 		}
 	}
 
@@ -72,15 +71,15 @@ public class MenuPageFragment extends Fragment {
 				Products.Product p = 
 						(Products.Product) parent.getItemAtPosition(position);
 				
-				listener.onClick(p.getProductId(), p.getProductTypeId(), 
-						p.getVatType(), p.getProductPrice());
+				mCallback.onClick(p.getProductId(), p.getProductTypeId(), 
+						p.getVatType(), p.getVatRate(), p.getProductPrice());
 			}
 		});
 		return v;
 	}
 
 	public interface OnMenuItemClick{
-		void onClick(int productId, int productTypeId, int vatType, float productPrice);
+		void onClick(int productId, int productTypeId, int vatType, float vatRate, float productPrice);
 	}
 	
 	private class MenuItemAdapter extends BaseAdapter{

@@ -12,7 +12,7 @@ import com.syn.mpos.R;
 import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.inventory.SaleStock;
-import com.syn.mpos.database.transaction.Payment;
+import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
@@ -41,8 +41,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 
-	private Transaction mTrans;
-	private Payment mPayment;
+	private MPOSTransaction mTrans;
+	private PaymentDetail mPayment;
 	private SaleStock mSaleStock;
 	private List<Payment.PaymentDetail> mPayLst;
 	private PaymentAdapter mPaymentAdapter;
@@ -80,16 +80,10 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
 		
 		Intent intent = getIntent();
-		
 		mShopId = intent.getIntExtra("shopId", 0);
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
-		
-		if (mShopId == 0 || mTransactionId == 0 || mComputerId == 0
-				|| mStaffId == 0) {
-			finish();
-		}
 	}
 
 	@Override
@@ -124,10 +118,10 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 
 	private void init(){
-		mFormat = new Formatter(PaymentActivity.this);
-		mTrans = new Transaction(PaymentActivity.this);
-		mPayment = new Payment(PaymentActivity.this);
-		mSaleStock = new SaleStock(PaymentActivity.this);
+		mFormat = new Formatter(this);
+		mTrans = new MPOSTransaction(this, mShopId, mComputerId);
+		mPayment = new PaymentDetail(this);
+		mSaleStock = new SaleStock(this);
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<Payment.PaymentDetail>();
 		mLvPayment.setAdapter(mPaymentAdapter);
@@ -139,11 +133,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 	
 	private void summary(){
-		OrderTransaction.OrderDetail orderDetail = 
-				mTrans.getSummary(mTransactionId, mComputerId);
-		
-		float vat = orderDetail.getVat();
-		mTotalSalePrice = orderDetail.getTotalSalePrice() + vat;
+		float vat = mTrans.getTotalVatExclude(false);
+		mTotalSalePrice = mTrans.getTotalSalePrice(false) + vat;
 		displayTotalPrice();
 	}
 	
@@ -362,9 +353,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		return space.toString();
 	}
 	
-	private void print(OrderTransaction trans, 
-			OrderTransaction.OrderDetail summary, 
-			List<OrderTransaction.OrderDetail> orderLst){
+	private void print(){
 		String printerIp = mSetting.getPrinter().getPrinterIp();
 		mPrinter = new Print(PaymentActivity.this);
 		mPrinter.setStatusChangeEventCallback(this);
@@ -396,12 +385,14 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			builder.addText("RECEIPT/TAX INVOICE(ABB) \n");
 			builder.addText("TAX ID: " + shopProp.getCompanyTaxID() + "\n");
 			builder.addText("Date: " + mFormat.dateFormat(new Date(), "d/MM/yy") + "\n");
-			builder.addText("Receipt No: " + mTrans.getTransaction(mTransactionId, mComputerId).getReceiptNo() + "\n");
+			builder.addText("Receipt No: " + mTrans.getTransaction().getReceiptNo() + "\n");
 			
 			builder.addTextPosition(0);
 			builder.addText("______________________________________________________\n");
 
 			int maxNameLength = 30;
+			List<OrderTransaction.OrderDetail> orderLst = 
+					mTrans.listOrder();
 	    	for(int i = 0; i < orderLst.size(); i++){
 	    		OrderTransaction.OrderDetail order = 
 	    				orderLst.get(i);
@@ -432,7 +423,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	    	builder.addText(total + createSpace(total.length(), 44));
 	    	builder.addText(mTxtTotalPrice.getText() + "\n");
 	    	builder.addText(discount + createSpace(discount.length(), 44));
-	    	builder.addText(mFormat.currencyFormat(summary.getPriceDiscount()) + "\n");
+	    	builder.addText(mFormat.currencyFormat(mTrans.getPriceDiscount(false)) + "\n");
 	    	builder.addText(payment + createSpace(payment.length(), 44));
 	    	builder.addText(mFormat.currencyFormat(mTotalPaid) + "\n");
 	    	builder.addText(change + createSpace(change.length(), 44));
@@ -480,16 +471,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	
 	public void confirm() {
 		if(mTotalPaid >=mTotalSalePrice){
-			if(mTrans.successTransaction(mTransactionId, mComputerId, mStaffId)){
-				
-				OrderTransaction trans = mTrans.getTransaction(mTransactionId, mComputerId);
-				OrderTransaction.OrderDetail summary = 
-						mTrans.getSummary(mTransactionId, mComputerId);
-		    	List<OrderTransaction.OrderDetail> orderLst = 
-		    			mTrans.listAllOrder(mTransactionId, mComputerId);
-		    	
-				print(trans, summary, orderLst);
-				mSaleStock.createSaleDocument(mShopId, mStaffId, orderLst);
+			if(mTrans.successTransaction()){
+				print();
 				
 				if(mTotalPaid - mTotalSalePrice > 0){
 					new AlertDialog.Builder(PaymentActivity.this)

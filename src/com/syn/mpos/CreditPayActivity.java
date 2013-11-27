@@ -6,7 +6,7 @@ import java.util.List;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Bank;
 import com.syn.mpos.database.CreditCard;
-import com.syn.mpos.database.transaction.Payment;
+import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
@@ -38,7 +38,7 @@ public class CreditPayActivity extends Activity {
 	private Calendar mCalendar;
 	private Formatter mFormat;
 	private Transaction mTrans;
-	private Payment mPayment;
+	private PaymentDetail mPayment;
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
 	
@@ -79,7 +79,7 @@ public class CreditPayActivity extends Activity {
 		
 		mFormat = new Formatter(CreditPayActivity.this);
 		mTrans = new Transaction(CreditPayActivity.this);
-		mPayment = new Payment(CreditPayActivity.this);
+		mPayment = new PaymentDetail(CreditPayActivity.this);
 		
 		loadTotalPrice();
 		loadCreditCardType();

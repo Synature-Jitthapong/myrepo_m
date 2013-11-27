@@ -14,7 +14,6 @@ public class SaleStock extends StockDocument {
 
 	public boolean createVoidDocument(int shopId, int staffId,
 			List<OrderTransaction.OrderDetail> orderLst, String remark) {
-
 		boolean isSuccess = false;
 
 		int documentId = createDocument(shopId, VOID_DOC, staffId);
@@ -27,7 +26,6 @@ public class SaleStock extends StockDocument {
 					isSuccess = false;
 				}
 			}
-			
 			if(isSuccess)
 				isSuccess = approveDocument(documentId, shopId, staffId, "");
 		} else {
@@ -39,9 +37,8 @@ public class SaleStock extends StockDocument {
 	
 	public boolean createSaleDocument(int shopId, int staffId,
 			List<OrderTransaction.OrderDetail> orderLst) {
-
 		boolean isSuccess = false;
-
+		
 		int documentId = createDocument(shopId, SALE_DOC, staffId);
 		if (documentId > 0) {
 			for (OrderTransaction.OrderDetail order : orderLst) {
@@ -52,13 +49,11 @@ public class SaleStock extends StockDocument {
 					isSuccess = false;
 				}
 			}
-			
 			if(isSuccess)
 				isSuccess = approveDocument(documentId, shopId, staffId, "");
 		} else {
 			isSuccess = false;
 		}
-		
 		return isSuccess;
 	}
 }
