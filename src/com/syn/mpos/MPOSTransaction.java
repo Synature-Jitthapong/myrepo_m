@@ -9,15 +9,15 @@ import com.syn.pos.OrderTransaction;
 import android.content.Context;
 
 public class MPOSTransaction {
+	public static int mShopId;
+	public static int mStaffId;
+	public static int mSessionId;
+	public static int mTransactionId;
+	public static int mComputerId;
+	
 	public static String mErr;
 	private Context mContext;
 	private Transaction mTrans;
-	
-	private int mShopId;
-	private int mStaffId;
-	private int mSessionId;
-	private int mTransactionId;
-	private int mComputerId;
 	
 	public MPOSTransaction(Context c, int shopId, int computerId){
 		mContext = c;
@@ -59,8 +59,16 @@ public class MPOSTransaction {
 		return mTrans.getTotalSalePrice(mTransactionId, mComputerId, tempTable);
 	}
 	
+	public List<OrderTransaction> listTransaction(long saleDate){
+		return mTrans.listTransaction(saleDate);
+	}
+	
 	public List<OrderTransaction> listHoldOrder(){
 		return mTrans.listHoldOrder(mComputerId);
+	}
+	
+	public List<OrderTransaction.OrderDetail> listOrderTmp(){
+		return mTrans.listAllOrderTmp(mTransactionId, mComputerId);
 	}
 	
 	public List<OrderTransaction.OrderDetail> listOrder(){
@@ -69,6 +77,24 @@ public class MPOSTransaction {
 	
 	public OrderTransaction.OrderDetail getOrder(int orderDetailId){
 		return mTrans.getOrder(mTransactionId, mComputerId, orderDetailId);
+	}
+	
+	public boolean cancelDiscount(){
+		return mTrans.cancelDiscount(mTransactionId, mComputerId);
+	}
+	
+	public boolean confirmDiscount(){
+		return mTrans.confirmDiscount(mTransactionId, mComputerId);
+	}
+	
+	public boolean discountEatchProduct(int orderDetailId, float vatRate, 
+			float salePrice, float discount){
+		return mTrans.discountEatchProduct(orderDetailId, mTransactionId, 
+				mComputerId, vatRate, salePrice, discount);
+	}
+	
+	public boolean copyOrderToTmp(){
+		return mTrans.copyOrderToTmp(mTransactionId, mComputerId);
 	}
 	
 	public boolean updateOrder(int orderDetailId, float vatRate, float orderQty, float price){
@@ -165,13 +191,5 @@ public class MPOSTransaction {
 			mErr = "Cannot void transaction.";
 		}
 		return isVoided;
-	}
-
-	public void setTransactionId(int mTransactionId) {
-		this.mTransactionId = mTransactionId;
-	}
-
-	public int getTransactionId() {
-		return mTransactionId;
 	}
 }

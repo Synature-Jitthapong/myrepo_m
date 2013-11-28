@@ -67,6 +67,23 @@ public class Products extends MPOSSQLiteHelper {
 		return p;
 	}
 	
+	public float getVatRate(int productId){
+		float vatRate = 0.0f;
+		open();
+		Cursor cursor = getProductColumn(new String[]{COL_VAT_RATE}, COL_PRODUCT_ID + "=?", 
+				new String[]{String.valueOf(productId)});
+		if(cursor.moveToFirst()){
+			vatRate = cursor.getFloat(0);
+		}
+		cursor.close();
+		close();
+		return vatRate;
+	}
+	
+	private Cursor getProductColumn(String[] columns, String selection, String[] selectionArgs){
+		return mSqlite.query(TB_PRODUCT, columns, selection, selectionArgs, null, null, null);
+	}
+	
 	public Product getProduct(int proId){
 		Product p = null;
 		open();

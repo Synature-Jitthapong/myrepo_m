@@ -251,6 +251,7 @@ public abstract class StockDocument extends MPOSSQLiteHelper {
 		cv.put(Products.COL_PRODUCT_ID, productId);
 		cv.put(COL_PRODUCT_AMOUNT, productQty);
 		cv.put(Products.COL_PRODUCT_PRICE, productPrice);
+		cv.put(COL_UNIT_NAME, unitName);
 
 		open();
 		try {
@@ -275,6 +276,7 @@ public abstract class StockDocument extends MPOSSQLiteHelper {
 					" SET " + 
 					COL_PRODUCT_AMOUNT + "=" + productQty + ", " + 
 					Products.COL_PRODUCT_PRICE + "=" + productPrice + ", " + 
+					COL_UNIT_NAME + "='" + unitName + "' " +
 					" WHERE " + COL_DOC_DETAIL_ID + "=" + docDetailId + 
 					" AND " + COL_DOC_ID + "=" + documentId + 
 					" AND " + Shop.COL_SHOP_ID + "=" + shopId);

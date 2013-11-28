@@ -46,7 +46,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	//private static final String TAG = "MPOSMainActivity";
 	public static final int SYNC_REQUEST_CODE = 1;
 	public static final int MANAGE_PRODUCT_REQUEST_CODE = 2;
+	public static final boolean TEMP_TABLE = false;
 	
+	public static MPOSTransaction mTrans;
+	public static Products mProduct;
 	public static Formatter mFormat;
 	public static Setting mSetting;
 
@@ -55,8 +58,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private int mShopId;
 	private int mComputerId;
 	
-	private MPOSTransaction mTrans;
-	private Products mProduct;
 	private List<Products.ProductDept> mProductDeptLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private List<OrderTransaction.OrderDetail> mOrderSelLst;
@@ -132,52 +133,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			mTabs.setViewPager(mPager);
 			mTabs.setIndicatorColor(0xFF1D78B2);
 		}else{
-			manageProduct();
-		}
-	}
 	
-	void manageProduct(){
-//		LinearLayout layout = new LinearLayout(this);
-//		LinearLayout.LayoutParams param = 
-//				new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
-//						LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-//		
-//		layout.setOrientation(LinearLayout.HORIZONTAL);
-//		final EditText txtProductDeptCode = new EditText(this);
-//		final EditText txtProductDeptName = new EditText(this);
-//		txtProductDeptCode.setEms(5);
-//		txtProductDeptCode.setHint(R.string.product_dept_code);
-//		txtProductDeptName.setHint(R.string.product_dept);
-//		txtProductDeptCode.setLayoutParams(param);
-//		txtProductDeptName.setLayoutParams(param);
-//		
-//		layout.addView(txtProductDeptCode);
-//		layout.addView(txtProductDeptName);
-//		
-//		new AlertDialog.Builder(this)
-//		.setTitle(R.string.manage_product)
-//		.setView(layout)
-//		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-//			
-//			@Override
-//			public void onClick(DialogInterface dialog, int which) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//		})
-//		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//			
-//			@Override
-//			public void onClick(DialogInterface dialog, int which) {
-//				mProduct.insertProductDept(txtProductDeptCode.getText().toString(), 
-//						txtProductDeptName.getText().toString());
-//				
-//				setupMenuItemPager();
-//			}
-//		}).show();
-		
-		Intent intent = new Intent(MainActivity.this, ManageProductActivity.class);
-		startActivityForResult(intent, MANAGE_PRODUCT_REQUEST_CODE);
+		}
 	}
 	
 	private void registerOrderListEvent(){
@@ -386,9 +343,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		case R.id.itemEndday:
 			endday();
 			return true;
-		case R.id.itemManageProduct:
-			manageProduct();
-			return true;
 		case R.id.itemSync:
 			sync();
 			return true;
@@ -523,7 +477,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 				
 				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
 				if (mOrderLst.size() == 0) {
-					mTrans.setTransactionId(trans.getTransactionId());
+					MPOSTransaction.mTransactionId = trans.getTransactionId();
 				}
 			}
 			
@@ -569,17 +523,11 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 
 	public void paymentClicked(final View v){
 		Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
-		intent.putExtra("shopId", mShopId);
-		intent.putExtra("transactionId", mTrans.getTransactionId());
-		intent.putExtra("computerId", mComputerId);
-		intent.putExtra("staffId", mStaffId);
 		startActivity(intent);
 	}
 
 	public void discountClicked(final View v){
 		Intent intent = new Intent(MainActivity.this, DiscountActivity.class);
-		intent.putExtra("transactionId", mTrans.getTransactionId());
-		intent.putExtra("computerId", mComputerId);
 		startActivity(intent);
 	}
 
@@ -703,22 +651,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			}
 		})
 		.show();
-	}
-	
-	public void setMemberClicked(final View v){
-		Intent intent = new Intent(MainActivity.this, AddMemberActivity.class);
-		intent.putExtra("shopId", mShopId);
-		intent.putExtra("staffId", mStaffId);
-		intent.putExtra("mode", "search");
-		startActivity(intent);	
-	}
-	
-	public void newMemberClicked(final View v){
-		Intent intent = new Intent(MainActivity.this, AddMemberActivity.class);
-		intent.putExtra("shopId", mShopId);
-		intent.putExtra("staffId", mStaffId);
-		intent.putExtra("mode", "add");
-		startActivity(intent);
 	}
 	
 	@Override

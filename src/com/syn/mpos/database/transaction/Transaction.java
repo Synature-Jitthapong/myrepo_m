@@ -393,6 +393,40 @@ public class Transaction extends MPOSSQLiteHelper {
 		return orderDetail;
 	}
 
+	public List<OrderTransaction> listTransaction(long saleDate) {
+		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
+	
+		open();
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT a." + COL_TRANS_ID + ", " +
+				" a." + Computer.COL_COMPUTER_ID + ", " + 
+				" a." + COL_OPEN_TIME + ", " +
+				" a." + COL_TRANS_NOTE + ", " +
+				" b." + Staff.COL_STAFF_CODE + ", " +
+				" b." + Staff.COL_STAFF_NAME + 
+				" FROM " + TB_TRANS + " a " +
+				" LEFT JOIN " + Staff.TB_STAFF + " b " + 
+				" ON a." + COL_OPEN_STAFF + "=" +
+				" b." + Staff.COL_STAFF_ID +
+				" WHERE a." + COL_SALE_DATE + "='" + saleDate + "' " + 
+				" AND a." + COL_STATUS_ID + "=" + TRANS_STATUS_SUCCESS, null);
+		if (cursor.moveToFirst()) {
+			do {
+				OrderTransaction trans = new OrderTransaction();
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(COL_TRANS_ID)));
+				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
+				trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(COL_TRANS_NOTE)));
+				trans.setOpenTime(cursor.getLong(cursor.getColumnIndex(COL_OPEN_TIME)));
+				trans.setStaffName(cursor.getString(cursor.getColumnIndex(Staff.COL_STAFF_CODE))
+						+ ":" + cursor.getString(cursor.getColumnIndex(Staff.COL_STAFF_NAME)));
+				transLst.add(trans);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		close();
+		return transLst;
+	}
+	
 	public List<OrderTransaction> listHoldOrder(int computerId) {
 		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
 		Calendar c = Util.getDate();
@@ -646,6 +680,10 @@ public class Transaction extends MPOSSQLiteHelper {
 		return isSuccess;
 	}
 
+	public boolean cancelDiscount(int transactionId, int computerId) throws SQLException{
+		return deleteOrderDetailTmp(transactionId, computerId);
+	}
+	
 	public boolean confirmDiscount(int transactionId, int computerId) throws SQLException{
 		boolean isSuccess = false;
 		

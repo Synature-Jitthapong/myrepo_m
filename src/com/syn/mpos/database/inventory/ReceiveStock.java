@@ -46,9 +46,6 @@ public class ReceiveStock extends StockDocument{
 				mat.setName(cursor.getString(cursor.getColumnIndex("product_name")));
 				mat.setReceive(cursor.getFloat(cursor.getColumnIndex("product_qty")));
 				mat.setUnitPrice(cursor.getFloat(cursor.getColumnIndex("product_unit_price")));
-				mat.setNetPrice(cursor.getFloat(cursor.getColumnIndex("product_net_price")));
-				mat.setTaxType(cursor.getInt(cursor.getColumnIndex("product_tax_type")));
-				mat.setTaxPrice(cursor.getFloat(cursor.getColumnIndex("product_tax_price")));
 				stockLst.add(mat);
 			}while(cursor.moveToNext());
 		}

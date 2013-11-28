@@ -47,9 +47,6 @@ public class SettingActivity extends Activity {
 		
 		mSetting = new Setting(this);
 		mShop = new Shop(this);
-		mConn = mSetting.getConnection();
-		mConn.setFullUrl(mConn.getProtocal() + mConn.getAddress() + 
-				"/" + mConn.getBackoffice() + "/" + mConn.getService());
 		mDeviceCode = Secure.getString(this.getContentResolver(),
 				Secure.ANDROID_ID);
 		
@@ -180,11 +177,6 @@ public class SettingActivity extends Activity {
 									
 									@Override
 									public void onSuccess() {
-										
-										mSetting.addSyncItem(syncItem.getSyncItemId(), 
-												true, syncItem.getSyncItemName(), 1, 
-												new Date().getTime());
-										
 										syncItem.setSyncStatus(1);
 										syncItem.setSyncTime(new Date().getTime());
 										
@@ -206,10 +198,6 @@ public class SettingActivity extends Activity {
 									
 									@Override
 									public void onError(String mesg) {
-										
-										mSetting.addSyncItem(syncItem.getSyncItemId(), 
-												true, syncItem.getSyncItemName(), -1, 
-												new Date().getTime());
 										
 										syncItem.setSyncStatus(-1);
 										syncItem.setSyncTime(new Date().getTime());

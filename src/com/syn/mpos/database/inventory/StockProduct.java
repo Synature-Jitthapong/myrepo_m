@@ -13,12 +13,18 @@ public class StockProduct {
 	private float currQty;
 	private float countQty;
 	private float unitPrice;
-	private float netPrice;
-	private int taxType;
-	private float taxPrice;
+	private String unitName;
 
 	public StockProduct() {
 
+	}
+
+	public String getUnitName() {
+		return unitName;
+	}
+
+	public void setUnitName(String unitName) {
+		this.unitName = unitName;
 	}
 
 	public int getProId() {
@@ -35,30 +41,6 @@ public class StockProduct {
 
 	public void setUnitPrice(float unitPrice) {
 		this.unitPrice = unitPrice;
-	}
-
-	public float getNetPrice() {
-		return netPrice;
-	}
-
-	public void setNetPrice(float netPrice) {
-		this.netPrice = netPrice;
-	}
-
-	public int getTaxType() {
-		return taxType;
-	}
-
-	public void setTaxType(int taxType) {
-		this.taxType = taxType;
-	}
-
-	public float getTaxPrice() {
-		return taxPrice;
-	}
-
-	public void setTaxPrice(float taxPrice) {
-		this.taxPrice = taxPrice;
 	}
 
 	public float getInit() {

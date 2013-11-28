@@ -45,10 +45,6 @@ public class DirectReceiveActivity extends Activity implements
 		OnActionExpandListener, OnEditorActionListener {
 
 	private ReceiveStock mReceiveStock;
-	private Formatter mFormat;
-	private Products mProduct;
-	private Setting mSetting;
-	private Setting.Connection mConn;
 	private List<Products.Product> mProductLst;
 	private ResultAdapter mResultAdapter;
 	private ReceiveStockAdapter mStockAdapter;
@@ -76,12 +72,6 @@ public class DirectReceiveActivity extends Activity implements
 		setContentView(R.layout.activity_direct_receive);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        
-		Intent intent = getIntent();
-		mShopId = intent.getIntExtra("shopId", 0);
-		mStaffId = intent.getIntExtra("staffId", 0);
-		if (mShopId == 0 || mStaffId == 0)
-			finish();
 
 		mListViewStock = (ListView) findViewById(R.id.listView1);
 		setupPopSearch();
@@ -89,8 +79,8 @@ public class DirectReceiveActivity extends Activity implements
 
 	@Override
 	protected void onResume() {
-		init();
 		super.onResume();
+		init();
 	}
 
 	@Override
@@ -122,7 +112,7 @@ public class DirectReceiveActivity extends Activity implements
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(mSearchView.getWindowToken(), 0);
                 
-				mProductLst = mProduct.listProduct(query);
+				mProductLst = MainActivity.mProduct.listProduct(query);
 				if(mProductLst.size() > 0){
 					mResultAdapter.notifyDataSetChanged();
 				}else{
@@ -176,7 +166,6 @@ public class DirectReceiveActivity extends Activity implements
 	}
 	
 	private void setupPopSearch() {
-		mProduct = new Products(this);
 		mProductLst = new ArrayList<Products.Product>();
 		mResultAdapter = new ResultAdapter();
 
@@ -192,7 +181,7 @@ public class DirectReceiveActivity extends Activity implements
 				Products.Product p = (Products.Product) parent
 						.getItemAtPosition(position);
 
-				addSelectedProduct(p.getProductId(), 1, p.getProductPrice(), 0);
+				addSelectedProduct(p.getProductId(), 1, p.getProductPrice(), "");
 				clearActionInput();
 				
 				mPopup.dismiss();
@@ -221,13 +210,6 @@ public class DirectReceiveActivity extends Activity implements
 	}
 
 	private void init() {
-		mSetting = new Setting(this);
-		mConn = mSetting.getConnection();
-		
-		mSetting.setMenuImageUrl(mConn.getProtocal() + mConn.getAddress() + "/" + 
-				mConn.getBackoffice() + "/Resources/Shop/MenuImage/");
-
-		mFormat = new Formatter(DirectReceiveActivity.this);
 		mReceiveStock = new ReceiveStock(DirectReceiveActivity.this);
 		mStockLst = new ArrayList<StockProduct>();
 		mStockAdapter = new ReceiveStockAdapter();
@@ -246,8 +228,8 @@ public class DirectReceiveActivity extends Activity implements
 				mItemInput.setVisible(true);
 				
 				mTvItemName.setText(mStock.getName());
-				mTxtReceiveQty.setText(mFormat.qtyFormat(mStock.getReceive()));
-				mTxtReceivePrice.setText(mFormat.currencyFormat(mStock.getUnitPrice()));
+				mTxtReceiveQty.setText(MainActivity.mFormat.qtyFormat(mStock.getReceive()));
+				mTxtReceivePrice.setText(MainActivity.mFormat.currencyFormat(mStock.getUnitPrice()));
 				mTxtReceiveQty.selectAll();
 				mTxtReceiveQty.requestFocus();
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -273,14 +255,13 @@ public class DirectReceiveActivity extends Activity implements
 	private void updateStock(){
 		mReceiveStock.updateDocumentDetail(mStock.getId(),
 				mDocumentId, mShopId, mStock.getProId(),
-				mStock.getReceive(), mStock.getUnitPrice(),
-				mStock.getTaxType(), "");	
+				mStock.getReceive(), mStock.getUnitPrice(), "");	
 	}
 	
 	private void addSelectedProduct(int materialId, float materialQty,
-			float materialPrice, int taxType) {
+			float materialPrice, String unitName) {
 		mReceiveStock.addDocumentDetail(mDocumentId, mShopId, materialId,
-				materialQty, 0, materialPrice, taxType, "");
+				materialQty, materialPrice, unitName);
 
 		mStockLst = mReceiveStock.listStock(mDocumentId, mShopId);
 		mStockAdapter.notifyDataSetChanged();
@@ -338,7 +319,7 @@ public class DirectReceiveActivity extends Activity implements
 			}
 
 			imgLoader.displayImage(
-					mSetting.getMenuImageUrl() + p.getPicName(),
+					MainActivity.mSetting.getMenuImageUrl() + p.getPicName(),
 					holder.img);
 			holder.tvCode.setText(p.getProductCode());
 			holder.tvName.setText(p.getProductName());
@@ -394,8 +375,8 @@ public class DirectReceiveActivity extends Activity implements
 			tvNo.setText(Integer.toString(position + 1));
 			tvCode.setText(stock.getCode());
 			tvName.setText(stock.getName());
-			tvQty.setText(mFormat.qtyFormat(stock.getReceive()));
-			tvPrice.setText(mFormat.currencyFormat(stock.getUnitPrice()));
+			tvQty.setText(MainActivity.mFormat.qtyFormat(stock.getReceive()));
+			tvPrice.setText(MainActivity.mFormat.currencyFormat(stock.getUnitPrice()));
 
 			btnDelete.setOnClickListener(new OnClickListener(){
 

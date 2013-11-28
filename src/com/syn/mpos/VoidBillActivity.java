@@ -4,17 +4,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-
-import com.syn.mpos.database.inventory.SaleStock;
-import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
-
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,19 +27,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
-	private Transaction mTrans;
-	private SaleStock mSaleStock;
 	private List<OrderTransaction> mTransLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private BillAdapter mBillAdapter;
 	private BillDetailAdapter mBillDetailAdapter;
 	private Calendar mCalendar;
-	private Formatter mFormat;
 	private long mDate;
-	private int mTransactionId;
-	private int mComputerId;
-	private int mShopId;
-	private int mStaffId;
 	private String mReceiptNo;
 	private String mReceiptDate;
 	
@@ -63,7 +51,6 @@ public class VoidBillActivity extends Activity {
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
         
-		mFormat = new Formatter(VoidBillActivity.this);
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -76,7 +63,7 @@ public class VoidBillActivity extends Activity {
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 	    
-	    btnBillDate.setText(mFormat.dateFormat(mCalendar.getTime()));
+	    btnBillDate.setText(MainActivity.mFormat.dateFormat(mCalendar.getTime()));
 	    btnBillDate.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -88,7 +75,7 @@ public class VoidBillActivity extends Activity {
 						mCalendar.setTimeInMillis(date);
 						mDate = mCalendar.getTimeInMillis();
 						
-						btnBillDate.setText(mFormat.dateFormat(mCalendar.getTime()));
+						btnBillDate.setText(MainActivity.mFormat.dateFormat(mCalendar.getTime()));
 					}
 				});
 				dialogFragment.show(getFragmentManager(), "Condition");
@@ -103,13 +90,6 @@ public class VoidBillActivity extends Activity {
 			}
 	    	
 	    });
-	    
-	    Intent intent = getIntent();
-	    mShopId = intent.getIntExtra("shopId", 0);
-	    mStaffId = intent.getIntExtra("staffId", 0);
-	    
-	    if(mShopId == 0 || mStaffId == 0)
-	    	finish();
 	    
 	    init();
 	}
@@ -143,8 +123,6 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void init(){
-		mTrans = new Transaction(VoidBillActivity.this);
-		mSaleStock = new SaleStock(VoidBillActivity.this);
 		mTransLst = new ArrayList<OrderTransaction>();
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -161,10 +139,10 @@ public class VoidBillActivity extends Activity {
 				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
 				c.setTimeInMillis(trans.getPaidTime());
 				
-				mTransactionId = trans.getTransactionId();
-				mComputerId = trans.getComputerId();
+				MPOSTransaction.mTransactionId = trans.getTransactionId();
+				MPOSTransaction.mComputerId = trans.getComputerId();
 				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = mFormat.dateTimeFormat(c.getTime());
+				mReceiptDate = MainActivity.mFormat.dateTimeFormat(c.getTime());
 				
 				mItemConfirm.setEnabled(true);
 				searchVoidItem();
@@ -233,7 +211,7 @@ public class VoidBillActivity extends Activity {
 			}
 			
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
-			holder.tvPaidTime.setText(mFormat.dateTimeFormat(c.getTime()));
+			holder.tvPaidTime.setText(MainActivity.mFormat.dateTimeFormat(c.getTime()));
 			
 			return convertView;
 		}
@@ -287,9 +265,9 @@ public class VoidBillActivity extends Activity {
 			}
 		
 			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(mFormat.qtyFormat(order.getQty()));
-			holder.tvPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
+			holder.tvQty.setText(MainActivity.mFormat.qtyFormat(order.getQty()));
+			holder.tvPrice.setText(MainActivity.mFormat.currencyFormat(order.getPricePerUnit()));
+			holder.tvTotalPrice.setText(MainActivity.mFormat.currencyFormat(order.getTotalRetailPrice()));
 			
 			return convertView;
 		}
@@ -303,7 +281,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void searchBill(){
-		mTransLst = mTrans.listTransaction(mDate);
+		mTransLst = MainActivity.mTrans.listTransaction(mDate);
 		mBillAdapter.notifyDataSetChanged();
 	}
 	
@@ -311,7 +289,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText(mReceiptNo);
 		txtReceiptDate.setText(mReceiptDate);
 		
-		mOrderLst = mTrans.listAllOrder(mTransactionId, mComputerId);
+		mOrderLst = MainActivity.mTrans.listOrder();
 		mBillDetailAdapter.notifyDataSetChanged();
 	}
 
@@ -336,14 +314,8 @@ public class VoidBillActivity extends Activity {
 			public void onClick(DialogInterface dialog, int which) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					if(mTrans.voidTransaction(mTransactionId, mComputerId, mStaffId, voidReason)){
-				    	List<OrderTransaction.OrderDetail> orderLst = 
-				    			mTrans.listAllOrder(mTransactionId, mComputerId);
-						
-				    	if(mSaleStock.createVoidDocument(mShopId, mStaffId, orderLst, voidReason)){
-							searchBill();
-							hideKeyboard();
-				    	}
+					if(MainActivity.mTrans.voidTransaction(voidReason)){
+						hideKeyboard();
 					}
 				}else{
 					new AlertDialog.Builder(getApplicationContext())

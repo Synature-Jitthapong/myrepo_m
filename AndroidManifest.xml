@@ -95,11 +95,6 @@
                 android:value="com.syn.mpos.MainActivity" />
         </activity>
         <activity
-            android:name="com.syn.mpos.AddMemberActivity"
-            android:label="@string/title_activity_add_member"
-            android:windowSoftInputMode="stateHidden" >
-        </activity>
-        <activity
             android:name="com.syn.mpos.StockCardActivity"
             android:label="@string/title_activity_stock_card"
             android:screenOrientation="landscape">
@@ -111,9 +106,6 @@
             android:name="com.syn.mpos.SettingActivity"
             android:label="@string/title_activity_setting" >
         </activity>
-        <activity 
-            android:label="@string/manage_product" 
-            android:name="com.syn.mpos.ManageProductActivity"></activity>
     </application>
 
 </manifest>

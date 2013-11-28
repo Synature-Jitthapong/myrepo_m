@@ -6,17 +6,13 @@ import java.util.List;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Bank;
 import com.syn.mpos.database.CreditCard;
-import com.syn.mpos.database.transaction.PaymentDetail;
-import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
-import com.syn.pos.OrderTransaction;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,18 +25,13 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 public class CreditPayActivity extends Activity {
-	private int mTransactionId;
-	private int mComputerId;
 	private int mBankId;
 	private int mCardTypeId;
-	private float mTotalPrice;
-	private float mTotalPay;
+	
 	private Calendar mCalendar;
-	private Formatter mFormat;
-	private Transaction mTrans;
-	private PaymentDetail mPayment;
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
+	private float mTotalCreditPay;
 	
 	private EditText mTxtTotalPrice;
 	private EditText mTxtTotalPay;
@@ -62,14 +53,7 @@ public class CreditPayActivity extends Activity {
 		mBtnExpire = (Button) findViewById(R.id.btnPopCardExp);
 		mTxtTotalPay.setSelectAllOnFocus(true);
 		
-		Intent intent = getIntent();
-		mTransactionId = intent.getIntExtra("transactionId", 0);
-		mComputerId = intent.getIntExtra("computerId", 0);
-		if(mTransactionId != 0 && mComputerId != 0){
-			init();
-		}else{
-			finish();
-		}
+		init();
 	}
 
 	private void init(){
@@ -77,11 +61,7 @@ public class CreditPayActivity extends Activity {
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 		
-		mFormat = new Formatter(CreditPayActivity.this);
-		mTrans = new Transaction(CreditPayActivity.this);
-		mPayment = new PaymentDetail(CreditPayActivity.this);
-		
-		loadTotalPrice();
+		displayTotalPrice();
 		loadCreditCardType();
 		loadBankName();
 	}
@@ -92,23 +72,14 @@ public class CreditPayActivity extends Activity {
 			@Override
 			public void onSetDate(long date) {
 				mCalendar.setTimeInMillis(date);
-				mBtnExpire.setText(mFormat.dateFormat(mCalendar.getTime()));
+				mBtnExpire.setText(MainActivity.mFormat.dateFormat(mCalendar.getTime()));
 			}
 		});
 		dialogFragment.show(getFragmentManager(), "Condition");
 	}
 	
-	private void loadTotalPrice(){
-		OrderTransaction.OrderDetail order = 
-				mTrans.getSummary(mTransactionId, mComputerId);
-		
-		mTotalPrice = order.getTotalSalePrice() + order.getVat(); 
-		
-		displayTotalPrice();
-	}
-	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalPrice));
+		mTxtTotalPrice.setText(MainActivity.mFormat.currencyFormat(PaymentActivity.mTotalSalePrice));
 	}
 	
 	private void addPayment(){
@@ -117,16 +88,17 @@ public class CreditPayActivity extends Activity {
 		int expMonth = mCalendar.get(Calendar.MONTH);
 		
 		try {
-			mTotalPay = Float.parseFloat(mTxtTotalPay.getText().toString());
+			mTotalCreditPay = Float.parseFloat(mTxtTotalPay.getText().toString());
 		} catch (NumberFormatException e) {
-			mTotalPay = 0.0f;
+			mTotalCreditPay = 0.0f;
 			e.printStackTrace();
 		}
 		
-		mTxtTotalPay.setText(mFormat.currencyFormat(mTotalPay));
-		if(!cardNo.isEmpty() && mTotalPay > 0){
-			if(mPayment.addPaymentDetail(mTransactionId, mComputerId, PaymentActivity.PAY_TYPE_CREDIT, 
-						mTotalPay, cardNo, expMonth, expYear, mBankId, mCardTypeId)){
+		mTxtTotalPay.setText(MainActivity.mFormat.currencyFormat(mTotalCreditPay));
+		if(!cardNo.isEmpty() && mTotalCreditPay > 0){
+			if(PaymentActivity.mPayment.addPaymentDetail(MPOSTransaction.mTransactionId, 
+					MPOSTransaction.mComputerId, PaymentActivity.PAY_TYPE_CREDIT, 
+						mTotalCreditPay, cardNo, expMonth, expYear, mBankId, mCardTypeId)){
 				finish();
 			}
 		}else{
@@ -143,7 +115,7 @@ public class CreditPayActivity extends Activity {
 					}
 				})
 				.show();
-			}else if(mTotalPay == 0){
+			}else if(mTotalCreditPay == 0){
 				new AlertDialog.Builder(CreditPayActivity.this)
 				.setIcon(android.R.drawable.ic_dialog_alert)
 				.setTitle(R.string.payment)

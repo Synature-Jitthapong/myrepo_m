@@ -112,9 +112,9 @@ public class MPOSService {
 					public void onLoadProductSuccess(ProductGroups pgs) {
 						Products p = new Products(mContext);
 						try {
-							p.insertProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
-							p.insertProductDept(pgs.getProductDept(), mgs.getMenuDept());
-							p.insertProducts(pgs.getProduct(), mgs.getMenuItem());
+//							p.insertProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
+//							p.insertProductDept(pgs.getProductDept(), mgs.getMenuDept());
+//							p.insertProducts(pgs.getProduct(), mgs.getMenuItem());
 							
 							listener.onSuccess();
 						} catch (Exception e) {
