@@ -26,12 +26,10 @@
 
     <EditText
         android:id="@+id/editText1"
-        style="@style/EditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/textView1"
-        android:background="@drawable/edittext_selector"
         android:ems="10"
         android:hint="@string/printer_ip" />
 

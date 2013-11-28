@@ -49,6 +49,7 @@ public class SettingActivity extends Activity {
 		mShop = new Shop(this);
 		mDeviceCode = Secure.getString(this.getContentResolver(),
 				Secure.ANDROID_ID);
+		mConn = mSetting.getConnection();
 		
 		Intent intent = getIntent();
 		mSettingPosition = intent.getIntExtra("settingPosition", 0);
@@ -305,12 +306,9 @@ public class SettingActivity extends Activity {
 					
 					if(!addr.isEmpty() && !backoffice.isEmpty()){
 						mSetting.addConnectionConfig(addr, backoffice);
+						mConn = mSetting.getConnection();
 						btnSave.setText(R.string.save_success);
 						btnSave.setEnabled(false);
-						
-						mConn = mSetting.getConnection();
-						mConn.setFullUrl(mConn.getProtocal() + mConn.getAddress() + 
-								"/" + mConn.getBackoffice() + "/" + mConn.getService());
 						
 						MPOSService mposService = new MPOSService(getActivity(), mConn);
 						mposService.loadShopData(mDeviceCode, new MPOSService.OnServiceProcessListener() {

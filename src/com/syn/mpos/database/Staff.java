@@ -8,7 +8,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 
 public class Staff extends MPOSSQLiteHelper{
-	public static final String TB_STAFF = "Staff";
+	public static final String TB_STAFF = "Staffs";
 	public static final String COL_STAFF_ID = "StaffID";
 	public static final String COL_STAFF_CODE = "StaffCode";
 	public static final String COL_STAFF_NAME = "StaffName";
@@ -20,6 +20,7 @@ public class Staff extends MPOSSQLiteHelper{
 
 	public ShopData.Staff getStaff(int staffId){
 		ShopData.Staff s = null;
+		
 		open();
 		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_STAFF +
 				" WHERE " + COL_STAFF_ID + "=" + staffId, null);

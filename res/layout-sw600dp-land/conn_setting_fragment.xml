@@ -38,19 +38,15 @@
 
         <EditText
             android:id="@+id/txtAddress"
-            style="@style/EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_selector"
             android:ems="10"
             android:hint="@string/ip_address" />
 
         <EditText
             android:id="@+id/txtBackoffice"
-            style="@style/EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_selector"
             android:ems="10"
             android:hint="@string/backoffice" />
 

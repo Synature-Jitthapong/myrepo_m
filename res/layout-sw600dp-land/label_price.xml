@@ -5,13 +5,11 @@
 
     <EditText
         android:id="@+id/editText1"
-        style="@style/EditText"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="26dp"
-        android:background="@drawable/edittext_selector"
         android:clickable="false"
         android:ems="10"
         android:focusable="false"

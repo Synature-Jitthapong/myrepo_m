@@ -166,7 +166,7 @@ public class Transaction extends MPOSSQLiteHelper {
 				transactionId,
 				computerId,
 				new String[] { COL_MEMBER_DISCOUNT },
-				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? AND ",
+				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? ",
 				new String[] { String.valueOf(transactionId),
 						String.valueOf(computerId)},
 				tempTable);
@@ -186,7 +186,7 @@ public class Transaction extends MPOSSQLiteHelper {
 				transactionId,
 				computerId,
 				new String[] { COL_PRICE_DISCOUNT },
-				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? AND ",
+				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? ",
 				new String[] { String.valueOf(transactionId),
 						String.valueOf(computerId)},
 				tempTable);

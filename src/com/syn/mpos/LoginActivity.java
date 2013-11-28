@@ -27,7 +27,6 @@ public class LoginActivity extends Activity {
 	private Session mSession;
 	private Setting mSetting;
 	private Setting.Connection mConn;
-	private String mDeviceCode;
 	
 	private EditText mTxtUser;
 	private EditText mTxtPass;
@@ -36,16 +35,14 @@ public class LoginActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		mDeviceCode = Secure.getString(this.getContentResolver(),
-				Secure.ANDROID_ID);
 		
-		mTxtUser = (EditText) findViewById(R.id.editTextUserName);
-		mTxtPass = (EditText) findViewById(R.id.editTextPassWord);
+		mTxtUser = (EditText) findViewById(R.id.txtUser);
+		mTxtPass = (EditText) findViewById(R.id.txtPass);
 		mTxtUser.setSelectAllOnFocus(true);
 		mTxtPass.setSelectAllOnFocus(true);
 		
-		mTxtUser.setText("nipon");
-		mTxtPass.setText("pospwnet");
+		mTxtUser.setText("1");
+		mTxtPass.setText("1");
 	}
 
 	private void init(){
@@ -91,23 +88,23 @@ public class LoginActivity extends Activity {
 	}
 	
 	public void loginClicked(final View v){
-		if(mShopId == 0){
-			MPOSService mposService = new MPOSService(this, mConn);
-			mposService.loadShopData(mDeviceCode, new MPOSService.OnServiceProcessListener() {
-				
-				@Override
-				public void onSuccess() {
-					checkLogin();
-				}
-				
-				@Override
-				public void onError(String mesg) {
-					
-				}
-			});
-		}else{
+//		if(mShopId == 0){
+//			MPOSService mposService = new MPOSService(this, mConn);
+//			mposService.loadShopData(mDeviceCode, new MPOSService.OnServiceProcessListener() {
+//				
+//				@Override
+//				public void onSuccess() {
+//					checkLogin();
+//				}
+//				
+//				@Override
+//				public void onError(String mesg) {
+//					
+//				}
+//			});
+//		}else{
 			checkLogin();
-		}
+		//}
 	}
 	
 	private void gotoMainActivity(int staffId){
@@ -115,7 +112,7 @@ public class LoginActivity extends Activity {
 		intent.putExtra("staffId", staffId);
 		intent.putExtra("sessionId", mSessionId);
 		intent.putExtra("shopId", mShopId);
-		intent.putExtra("mComputerId", mComputerId);
+		intent.putExtra("computerId", mComputerId);
 		startActivity(intent);
 	}
 	

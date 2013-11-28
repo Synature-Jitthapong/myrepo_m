@@ -4,7 +4,7 @@
     <item android:state_pressed="true">
         <shape>
             <solid 
-                android:color="@android:color/holo_blue_light" />
+                android:color="@color/blue_dark_green" />
             <stroke 
                 android:color="@color/gray"/>
             <corners
@@ -20,7 +20,7 @@
         android:state_selected="true">
         <shape>
             <solid 
-                android:color="@android:color/holo_blue_light" />
+                android:color="@color/blue_dark_green" />
              <stroke 
                 android:color="@color/gray"/>
             <corners
@@ -51,7 +51,7 @@
     <item>
         <shape>
            	<solid 
-           	    android:color="@color/blue_light"/>
+           	    android:color="@color/blue_green"/>
             <stroke 
                 android:color="@color/gray"/>
             <corners

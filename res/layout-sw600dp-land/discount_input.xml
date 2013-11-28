@@ -44,7 +44,6 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/textView1"
-        android:background="@drawable/edittext_selector"
         android:ems="10"
         android:hint="@string/discount"
         android:imeOptions="actionDone"

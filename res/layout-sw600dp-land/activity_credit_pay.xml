@@ -51,12 +51,10 @@
 
     <EditText
         android:id="@+id/editTextCreditNo"
-        style="@style/EditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/editTextCreditPayAmount"
         android:layout_toRightOf="@+id/textView4"
-        android:background="@drawable/edittext_selector"
         android:ems="10"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/black"
@@ -103,12 +101,10 @@
 
     <EditText
         android:id="@+id/editTextCreditPayAmount"
-        style="@style/EditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/editTextCreditTotalPrice"
         android:layout_toRightOf="@+id/textView4"
-        android:background="@drawable/edittext_selector"
         android:ems="10"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/black"

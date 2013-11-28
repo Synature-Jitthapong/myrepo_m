@@ -26,14 +26,10 @@ public class Computer extends MPOSSQLiteHelper{
 		open();
 		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_COMPUTER, null);
 		if (cursor.moveToFirst()) {
-			computer.setComputerID(cursor.getInt(cursor
-					.getColumnIndex(COL_COMPUTER_ID)));
-			computer.setComputerName(cursor.getString(cursor
-					.getColumnIndex(COL_COMPUTER_NAME)));
-			computer.setDeviceCode(cursor.getString(cursor
-					.getColumnIndex(COL_DEVICE_CODE)));
-			computer.setRegistrationNumber(cursor.getString(cursor
-					.getColumnIndex(COL_REGISTER_NUMBER)));
+			computer.setComputerID(cursor.getInt(cursor.getColumnIndex(COL_COMPUTER_ID)));
+			computer.setComputerName(cursor.getString(cursor.getColumnIndex(COL_COMPUTER_NAME)));
+			computer.setDeviceCode(cursor.getString(cursor.getColumnIndex(COL_DEVICE_CODE)));
+			computer.setRegistrationNumber(cursor.getString(cursor.getColumnIndex(COL_REGISTER_NUMBER)));
 			cursor.moveToNext();
 		}
 		cursor.close();

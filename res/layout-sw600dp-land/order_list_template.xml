@@ -28,7 +28,6 @@
         android:layout_alignBottom="@+id/buttonOrderPlus"
         android:layout_alignTop="@+id/buttonOrderPlus"
         android:layout_toLeftOf="@+id/buttonOrderPlus"
-        android:background="@drawable/edittext_selector"
         android:ems="10"
         android:focusable="false"
         android:focusableInTouchMode="false"

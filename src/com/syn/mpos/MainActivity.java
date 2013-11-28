@@ -115,17 +115,26 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mSetting = new Setting(this);
 		mTrans = new MPOSTransaction(this, mShopId, mComputerId, mSessionId);
 		
-		registerOrderListEvent();
+		setupOrderListView();
 		countHoldOrder();
 		loadOrder();
 	}
 	
-	void setupMenuItemPager(){
+	private Products.ProductDept createProductDept(){
+		Products.ProductDept pd = new Products.ProductDept();
+		pd.setProductDeptId(1);
+		pd.setProductDeptName("Add New +");
+		return pd;
+	}
+	
+	private void setupMenuItemPager(){
 		mProduct = new Products(this);
 		mProductDeptLst = mProduct.listProductDept();
+		mProductDeptLst.add(createProductDept());
 		if (mProductDeptLst.size() > 0) {
 			mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
 			mPager.setAdapter(mPageAdapter);
+			
 			final int pageMargin = (int) TypedValue.applyDimension(
 					TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
 							.getDisplayMetrics());
@@ -137,7 +146,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 	}
 	
-	private void registerOrderListEvent(){
+	private void setupOrderListView(){
 		mOrderSelLst = new ArrayList<OrderTransaction.OrderDetail>();
 		
 		if(mOrderSelLst.size() == 0){
@@ -261,28 +270,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mTvTotalPrice.setText(mFormat.currencyFormat(totalSalePrice));
 	}
 
-	public void clearBillClicked(final View v){
-		new AlertDialog.Builder(MainActivity.this)
-		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setTitle(R.string.clear_bill)
-		.setMessage(R.string.confirm_clear_bill)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-			}
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				mTrans.clearTransaction();
-			}
-		})
-		.show();
-	}
-		
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -351,55 +338,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 	}
 
-	void voidBill(){
-		Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
-		intent.putExtra("shopId", mShopId);
-		intent.putExtra("staffId", mStaffId);
-		startActivity(intent);
-	}
-	
-	void closeShift(){
-		new AlertDialog.Builder(MainActivity.this)
-		.setTitle(R.string.close_shift)
-		.setMessage(R.string.confirm_close_shift)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				
-			}
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-			}
-		}).show();
-	}
-	
-	void endday(){
-		new AlertDialog.Builder(MainActivity.this)
-		.setTitle(R.string.endday)
-		.setMessage(R.string.confirm_endday)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				
-			}
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-			}
-		}).show();
-	}
-	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		switch(requestCode){
@@ -434,93 +372,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 	}
 
-	public void holdOrderClicked(final View v){
-		LayoutInflater inflater = (LayoutInflater)
-				MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		
-		View inputDialog = inflater.inflate(R.layout.input_text_dialog, null);
-		final EditText txtRemark = (EditText) inputDialog.findViewById(R.id.editText1);
-		txtRemark.setHint(R.string.remark);
-		new AlertDialog.Builder(MainActivity.this)
-		.setTitle(R.string.hold)
-		.setView(inputDialog)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				hideKeyboard();
-			}
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				String note = txtRemark.getText().toString();
-				mTrans.holdTransaction(note);
-				hideKeyboard();
-			}
-		}).show();
-	}
-
-	public void holdBill() {
-		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
-		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
-		List<OrderTransaction> billLst = mTrans.listHoldOrder();
-		HoldBillAdapter billAdapter = new HoldBillAdapter(billLst);
-		lvHoldBill.setAdapter(billAdapter);
-		lvHoldBill.setOnItemClickListener(new OnItemClickListener(){
-	
-			@Override
-			public void onItemClick(AdapterView<?> parent, View v, int position,
-					long id) {
-				
-				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
-				if (mOrderLst.size() == 0) {
-					MPOSTransaction.mTransactionId = trans.getTransactionId();
-				}
-			}
-			
-		});
-		
-		new AlertDialog.Builder(MainActivity.this)
-		.setTitle(R.string.hold_bill)
-		.setView(holdBillView)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				init();
-			}
-		}).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if(mOrderLst.size() > 0){
-					new AlertDialog.Builder(MainActivity.this)
-					.setTitle(R.string.hold)
-					.setMessage(R.string.hold_order)
-					.setNeutralButton(R.string.close,
-							new DialogInterface.OnClickListener() {
-	
-								@Override
-								public void onClick(
-										DialogInterface dialog,
-										int which) {
-	
-								}
-	
-							}).show();
-				}else{
-					// reset status 9 to status 1
-					mTrans.prepareTransaction();
-					loadOrder();
-				}
-			}
-		}).show();
-		
-	}
-
 	public void paymentClicked(final View v){
 		Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
 		startActivity(intent);
@@ -531,128 +382,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		startActivity(intent);
 	}
 
-	public void switchUser() {
-		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-		View swUserView = inflater.inflate(R.layout.switch_user_popup, null);
-		final EditText txtUser = (EditText) swUserView.findViewById(R.id.txtUser);
-		final EditText txtPassword = (EditText) swUserView.findViewById(R.id.txtPassword);
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-		builder.setTitle(R.string.switch_user);
-		builder.setView(swUserView);
-		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-			}
-		});
-		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				String user = "";
-				String pass = "";
-			
-				if(!txtUser.getText().toString().isEmpty()){
-					user = txtUser.getText().toString();
-					
-					if(!txtPassword.getText().toString().isEmpty()){
-						pass = txtPassword.getText().toString();
-						Login login = new Login(MainActivity.this, user, pass);
-						
-						if(login.checkUser()){
-							ShopData.Staff s = login.checkLogin();
-							
-							if(s != null){
-								mStaffId = s.getStaffID();
-								init();
-							}else{
-								new AlertDialog.Builder(MainActivity.this)
-								.setIcon(android.R.drawable.ic_dialog_alert)
-								.setTitle(R.string.login)
-								.setMessage(R.string.incorrect_password)
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										
-									}
-								})
-								.show();
-							}
-						}else{
-							new AlertDialog.Builder(MainActivity.this)
-							.setIcon(android.R.drawable.ic_dialog_alert)
-							.setTitle(R.string.login)
-							.setMessage(R.string.incorrect_user)
-							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									
-								}
-							})
-							.show();
-						}
-					}else{
-						new AlertDialog.Builder(MainActivity.this)
-						.setIcon(android.R.drawable.ic_dialog_alert)
-						.setTitle(R.string.login)
-						.setMessage(R.string.enter_password)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								
-							}
-						})
-						.show();
-					}
-				}else{
-					new AlertDialog.Builder(MainActivity.this)
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setTitle(R.string.login)
-					.setMessage(R.string.enter_username)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							
-						}
-					})
-					.show();
-				}
-			}
-		});
-		
-		final AlertDialog d = builder.create();	
-		d.show();
-	}
-
-	public void logout() {
-		new AlertDialog.Builder(MainActivity.this)
-		.setTitle(R.string.logout)
-		.setIcon(android.R.drawable.ic_dialog_info)
-		.setMessage(R.string.confirm_logout)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				
-			}
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				finish();
-			}
-		})
-		.show();
-	}
-	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if(keyCode == KeyEvent.KEYCODE_BACK){
@@ -833,7 +562,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 	
 	public class MenuItemPagerAdapter extends FragmentStatePagerAdapter{
-
+	
 		public MenuItemPagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
@@ -842,19 +571,299 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		public CharSequence getPageTitle(int position) {
 			return mProductDeptLst.get(position).getProductDeptName();
 		}
-
+	
 		@Override
 		public Fragment getItem(int position) {
 			int deptId = mProductDeptLst.get(position).getProductDeptId();
 			return MenuPageFragment.newInstance(deptId);
 		}
-
+	
 		@Override
 		public int getCount() {
 			return mProductDeptLst.size();
 		}		
 	}
+
+	public void clearBillClicked(final View v){
+		new AlertDialog.Builder(MainActivity.this)
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setTitle(R.string.clear_bill)
+		.setMessage(R.string.confirm_clear_bill)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				mTrans.clearTransaction();
+			}
+		})
+		.show();
+	}
+
+	private void voidBill(){
+		Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
+		intent.putExtra("shopId", mShopId);
+		intent.putExtra("staffId", mStaffId);
+		startActivity(intent);
+	}
+
+	private void closeShift(){
+		new AlertDialog.Builder(MainActivity.this)
+		.setTitle(R.string.close_shift)
+		.setMessage(R.string.confirm_close_shift)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		}).show();
+	}
+
+	private void endday(){
+		new AlertDialog.Builder(MainActivity.this)
+		.setTitle(R.string.endday)
+		.setMessage(R.string.confirm_endday)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		}).show();
+	}
+
+	public void holdOrderClicked(final View v){
+		LayoutInflater inflater = (LayoutInflater)
+				MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		
+		View inputDialog = inflater.inflate(R.layout.input_text_dialog, null);
+		final EditText txtRemark = (EditText) inputDialog.findViewById(R.id.editText1);
+		txtRemark.setHint(R.string.remark);
+		new AlertDialog.Builder(MainActivity.this)
+		.setTitle(R.string.hold)
+		.setView(inputDialog)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				hideKeyboard();
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				String note = txtRemark.getText().toString();
+				mTrans.holdTransaction(note);
+				hideKeyboard();
+			}
+		}).show();
+	}
+
+	public void holdBill() {
+		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
+		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
+		List<OrderTransaction> billLst = mTrans.listHoldOrder();
+		HoldBillAdapter billAdapter = new HoldBillAdapter(billLst);
+		lvHoldBill.setAdapter(billAdapter);
+		lvHoldBill.setOnItemClickListener(new OnItemClickListener(){
 	
+			@Override
+			public void onItemClick(AdapterView<?> parent, View v, int position,
+					long id) {
+				
+				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
+				if (mOrderLst.size() == 0) {
+					MPOSTransaction.mTransactionId = trans.getTransactionId();
+				}
+			}
+			
+		});
+		
+		new AlertDialog.Builder(MainActivity.this)
+		.setTitle(R.string.hold_bill)
+		.setView(holdBillView)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				init();
+			}
+		}).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if(mOrderLst.size() > 0){
+					new AlertDialog.Builder(MainActivity.this)
+					.setTitle(R.string.hold)
+					.setMessage(R.string.hold_order)
+					.setNeutralButton(R.string.close,
+							new DialogInterface.OnClickListener() {
+	
+								@Override
+								public void onClick(
+										DialogInterface dialog,
+										int which) {
+	
+								}
+	
+							}).show();
+				}else{
+					// reset status 9 to status 1
+					mTrans.prepareTransaction();
+					loadOrder();
+				}
+			}
+		}).show();
+		
+	}
+
+	public void switchUser() {
+		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+		View swUserView = inflater.inflate(R.layout.switch_user_popup, null);
+		final EditText txtUser = (EditText) swUserView.findViewById(R.id.txtUser);
+		final EditText txtPassword = (EditText) swUserView.findViewById(R.id.txtPassword);
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+		builder.setTitle(R.string.switch_user);
+		builder.setView(swUserView);
+		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		});
+		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				String user = "";
+				String pass = "";
+			
+				if(!txtUser.getText().toString().isEmpty()){
+					user = txtUser.getText().toString();
+					
+					if(!txtPassword.getText().toString().isEmpty()){
+						pass = txtPassword.getText().toString();
+						Login login = new Login(MainActivity.this, user, pass);
+						
+						if(login.checkUser()){
+							ShopData.Staff s = login.checkLogin();
+							
+							if(s != null){
+								mStaffId = s.getStaffID();
+								init();
+							}else{
+								new AlertDialog.Builder(MainActivity.this)
+								.setIcon(android.R.drawable.ic_dialog_alert)
+								.setTitle(R.string.login)
+								.setMessage(R.string.incorrect_password)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										
+									}
+								})
+								.show();
+							}
+						}else{
+							new AlertDialog.Builder(MainActivity.this)
+							.setIcon(android.R.drawable.ic_dialog_alert)
+							.setTitle(R.string.login)
+							.setMessage(R.string.incorrect_user)
+							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									
+								}
+							})
+							.show();
+						}
+					}else{
+						new AlertDialog.Builder(MainActivity.this)
+						.setIcon(android.R.drawable.ic_dialog_alert)
+						.setTitle(R.string.login)
+						.setMessage(R.string.enter_password)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								
+							}
+						})
+						.show();
+					}
+				}else{
+					new AlertDialog.Builder(MainActivity.this)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle(R.string.login)
+					.setMessage(R.string.enter_username)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							
+						}
+					})
+					.show();
+				}
+			}
+		});
+		
+		final AlertDialog d = builder.create();	
+		d.show();
+	}
+
+	public void logout() {
+		new AlertDialog.Builder(MainActivity.this)
+		.setTitle(R.string.logout)
+		.setIcon(android.R.drawable.ic_dialog_info)
+		.setMessage(R.string.confirm_logout)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+		})
+		.show();
+	}
+
 	@Override
 	public void onClick(int productId, int productTypeId, int vatType, float vatRate, float productPrice) {
 		int orderId = mTrans.addOrder(productId, productTypeId,vatType, vatRate, 1, productPrice);

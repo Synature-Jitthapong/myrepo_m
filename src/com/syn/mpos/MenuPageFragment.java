@@ -19,11 +19,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MenuPageFragment extends Fragment {
+	private static ImageLoader mImgLoader;
 	private OnMenuItemClick mCallback;
-	private Products mProduct;
 	private List<Products.Product> mProductLst;
 	private MenuItemAdapter mAdapter;
-	private ImageLoader mImgLoader;
 	private int mDeptId;
 	
 	public static MenuPageFragment newInstance(int deptId){
@@ -42,9 +41,8 @@ public class MenuPageFragment extends Fragment {
 
 		mImgLoader = new ImageLoader(getActivity(), R.drawable.no_food,
 				"mpos_img");
-		
-		mProduct = new Products(getActivity());
-		mProductLst = mProduct.listProduct(mDeptId);
+
+		mProductLst = MainActivity.mProduct.listProduct(mDeptId);
 		mAdapter = new MenuItemAdapter();
 		
 	}
