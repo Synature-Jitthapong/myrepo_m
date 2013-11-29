@@ -23,6 +23,7 @@
     </item>
     <item android:id="@+id/itemSwUser" android:showAsAction="always|withText" android:title="@string/switch_user"></item>
     <item android:id="@+id/itemLogout" android:showAsAction="always|withText" android:title="@string/logout"></item>
+    <item android:id="@+id/itemSetting" android:title="@string/setting" android:showAsAction="collapseActionView"></item>
     
     
 

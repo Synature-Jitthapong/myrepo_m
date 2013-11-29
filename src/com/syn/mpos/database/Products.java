@@ -2,6 +2,9 @@ package com.syn.mpos.database;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.syn.pos.MenuGroups;
+
 import android.content.Context;
 import android.database.Cursor;
 
@@ -36,11 +39,46 @@ public class Products extends MPOSSQLiteHelper {
 		super(c);
 	}
 	
+	public List<ProductGroup> listProductGroup(){
+		List<ProductGroup> pgLst = new ArrayList<ProductGroup>();
+		
+		open();
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT * FROM " + TB_PRODUCT_GROUP, null);
+		if(cursor.moveToFirst()){
+			do{
+				ProductGroup pg = toProductGroup(cursor);
+				pgLst.add(pg);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		mSqlite.close();
+		return pgLst;
+	}
+
+	public List<ProductDept> listProductDept(){
+		List<ProductDept> pdLst = new ArrayList<ProductDept>();
+		
+		open();
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT * FROM " + TB_PRODUCT_DEPT, null);
+		if(cursor.moveToFirst()){
+			do{
+				ProductDept pd = toProductDept(cursor);
+				pdLst.add(pd);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		mSqlite.close();
+		return pdLst;
+	}
+
 	public List<Product> listProduct(String query){
 		List<Product> pLst = new ArrayList<Product>();
 	
 		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_PRODUCT +
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT * FROM " + TB_PRODUCT +
 				" WHERE (" + COL_PRODUCT_CODE + " LIKE '%" + query + "%' " +
 				" OR " + COL_PRODUCT_NAME + " LIKE '%" + query + "%')", null);
 		if(cursor.moveToFirst()){
@@ -54,6 +92,24 @@ public class Products extends MPOSSQLiteHelper {
 		return pLst;
 	}
 	
+	public List<Product> listProduct(int deptId){
+		List<Product> pLst = new ArrayList<Product>();
+		
+		open();
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT * FROM " + TB_PRODUCT +
+				" WHERE " + COL_PRODUCT_DEPT_ID + "=" + deptId, null);
+		if(cursor.moveToFirst()){
+			do{
+				Product p = toProduct(cursor);
+				pLst.add(p);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		close();
+		return pLst;
+	}
+
 	private Product toProduct(Cursor cursor){
 		Product p = new Product();
 		p.setProductId(cursor.getInt(cursor.getColumnIndex(COL_PRODUCT_ID)));
@@ -87,7 +143,8 @@ public class Products extends MPOSSQLiteHelper {
 	public Product getProduct(int proId){
 		Product p = null;
 		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_PRODUCT +
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT * FROM " + TB_PRODUCT +
 				" WHERE " + COL_PRODUCT_ID + "=" + proId, null);
 		if(cursor.moveToFirst()){
 			p = toProduct(cursor);
@@ -95,23 +152,6 @@ public class Products extends MPOSSQLiteHelper {
 		cursor.close();
 		close();
 		return p;
-	}
-	
-	public List<Product> listProduct(int deptId){
-		List<Product> pLst = new ArrayList<Product>();
-		
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_PRODUCT +
-				" WHERE " + COL_PRODUCT_DEPT_ID + "=" + deptId, null);
-		if(cursor.moveToFirst()){
-			do{
-				Product p = toProduct(cursor);
-				pLst.add(p);
-			}while(cursor.moveToNext());
-		}
-		cursor.close();
-		close();
-		return pLst;
 	}
 	
 	private ProductDept toProductDept(Cursor cursor){
@@ -127,7 +167,8 @@ public class Products extends MPOSSQLiteHelper {
 		ProductDept pd = null;
 		
 		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_PRODUCT_DEPT +
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT * FROM " + TB_PRODUCT_DEPT +
 				" WHERE " + COL_PRODUCT_DEPT_ID + "=" + deptId, null);
 		if(cursor.moveToFirst()){
 			pd = toProductDept(cursor);
@@ -135,22 +176,6 @@ public class Products extends MPOSSQLiteHelper {
 		cursor.close();
 		close();
 		return pd;
-	}
-	
-	public List<ProductDept> listProductDept(){
-		List<ProductDept> pdLst = new ArrayList<ProductDept>();
-		
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_PRODUCT_DEPT, null);
-		if(cursor.moveToFirst()){
-			do{
-				ProductDept pd = toProductDept(cursor);
-				pdLst.add(pd);
-			}while(cursor.moveToNext());
-		}
-		cursor.close();
-		mSqlite.close();
-		return pdLst;
 	}
 	
 	public ProductGroup toProductGroup(Cursor cursor){
@@ -161,20 +186,10 @@ public class Products extends MPOSSQLiteHelper {
 		return pg;
 	}
 	
-	public List<ProductGroup> listProductGroup(){
-		List<ProductGroup> pgLst = new ArrayList<ProductGroup>();
+	public boolean addProduct(List<Product> productLst, List<MenuGroups.MenuItem> menuLst){
+		boolean isSuccess = false;
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_PRODUCT_GROUP, null);
-		if(cursor.moveToFirst()){
-			do{
-				ProductGroup pg = toProductGroup(cursor);
-				pgLst.add(pg);
-			}while(cursor.moveToNext());
-		}
-		cursor.close();
-		mSqlite.close();
-		return pgLst;
+		return isSuccess;
 	}
 	
 	public static class Product{

@@ -8,7 +8,6 @@ import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.transaction.Session;
 import com.syn.pos.ShopData;
 import android.os.Bundle;
-import android.provider.Settings.Secure;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
