@@ -15,5 +15,6 @@
     <color name="blue_green">#FF18708E</color>
     <color name="blue_dark_green">#FF24667D</color>
     <color name="orange">#FFF17810</color>
+    <color name="orange_dark">#FFB25C00</color>
     <color name="light_green">#FFb3c833</color>
 </resources>

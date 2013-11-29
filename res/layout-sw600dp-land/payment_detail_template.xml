@@ -37,11 +37,11 @@
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/btnDelete"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableLeft="@drawable/ic_action_x"
+        android:drawableLeft="@drawable/ic_navigation_cancel_light"
         android:minHeight="0dip"
         android:minWidth="0dip" />
 

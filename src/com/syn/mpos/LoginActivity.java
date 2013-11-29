@@ -12,10 +12,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends Activity {
 	private int mShopId;
@@ -42,6 +46,19 @@ public class LoginActivity extends Activity {
 		
 		mTxtUser.setText("1");
 		mTxtPass.setText("1");
+		mTxtPass.setOnEditorActionListener(new OnEditorActionListener(){
+
+			@Override
+			public boolean onEditorAction(TextView v, int actionId,
+					KeyEvent event) {
+				if(actionId == EditorInfo.IME_ACTION_DONE){
+					checkLogin();
+					return true;
+				}
+				return false;
+			}
+			
+		});
 	}
 
 	private void init(){

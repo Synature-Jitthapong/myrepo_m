@@ -266,13 +266,13 @@ public class SettingActivity extends Activity {
 				tvSyncName.setText(mSyncLst.get(position).getSyncItemName());
 				if(mSyncLst.get(position).getSyncStatus() == 1){
 					tvSyncSummary.setText(mFormat.dateTimeFormat(new Date(mSyncLst.get(position).getSyncTime())));
-					imgSyncStatus.setImageResource(R.drawable.ic_action_check);
+					imgSyncStatus.setImageResource(R.drawable.ic_navigation_accept_light);
 				}else if(mSyncLst.get(position).getSyncStatus() == -1){
 					tvSyncSummary.setText(R.string.sync_fail);
-					imgSyncStatus.setImageResource(R.drawable.ic_action_alerts_and_states_error);
+					imgSyncStatus.setImageResource(R.drawable.ic_alerts_and_states_warning);
 				}else{
 					tvSyncSummary.setText(R.string.not_sync);
-					imgSyncStatus.setImageResource(R.drawable.ic_action_alerts_and_states_error);
+					imgSyncStatus.setImageResource(R.drawable.ic_alerts_and_states_warning);
 				}
 				return convertView;
 			}

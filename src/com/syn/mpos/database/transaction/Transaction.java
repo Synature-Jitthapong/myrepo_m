@@ -162,14 +162,13 @@ public class Transaction extends MPOSSQLiteHelper {
 		float memberDiscount = 0.0f;
 		
 		open();
-		Cursor cursor = getOrderColumn(
-				transactionId,
-				computerId,
-				new String[] { COL_MEMBER_DISCOUNT },
-				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? ",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId)},
-				tempTable);
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_MEMBER_DISCOUNT + ")" +
+				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
+				" WHERE " + COL_TRANS_ID + "=? AND " +
+				Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{String.valueOf(transactionId), 
+					String.valueOf(computerId)});
 		if(cursor.moveToFirst()){
 			memberDiscount = cursor.getFloat(0);
 		}
@@ -182,14 +181,13 @@ public class Transaction extends MPOSSQLiteHelper {
 		float priceDiscount = 0.0f;
 		
 		open();
-		Cursor cursor = getOrderColumn(
-				transactionId,
-				computerId,
-				new String[] { COL_PRICE_DISCOUNT },
-				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? ",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId)},
-				tempTable);
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_PRICE_DISCOUNT + ")" +
+				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
+				" WHERE " + COL_TRANS_ID + "=? AND " +
+				Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{String.valueOf(transactionId), 
+					String.valueOf(computerId)});
 		if(cursor.moveToFirst()){
 			priceDiscount = cursor.getFloat(0);
 		}
@@ -202,15 +200,14 @@ public class Transaction extends MPOSSQLiteHelper {
 		float totalVat = 0.0f;
 		
 		open();
-		Cursor cursor = getOrderColumn(
-				transactionId,
-				computerId,
-				new String[] { COL_TOTAL_VAT },
-				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? AND "
-						+ Products.COL_VAT_TYPE + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId), String.valueOf(2) },
-				tempTable);
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_TOTAL_VAT + ")" +
+				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
+				" WHERE " + COL_TRANS_ID + "=? AND " +
+				Computer.COL_COMPUTER_ID + "=? AND " +
+				Products.COL_VAT_TYPE + "=? ", 
+				new String[]{String.valueOf(transactionId), 
+					String.valueOf(computerId), String.valueOf(Products.VAT_TYPE_EXCLUDE)});
 		if(cursor.moveToFirst()){
 			totalVat = cursor.getFloat(0);
 		}
@@ -223,15 +220,14 @@ public class Transaction extends MPOSSQLiteHelper {
 		float totalVat = 0.0f;
 		
 		open();
-		Cursor cursor = getOrderColumn(
-				transactionId,
-				computerId,
-				new String[] { COL_TOTAL_VAT },
-				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=? AND "
-						+ Products.COL_VAT_TYPE + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId), String.valueOf(1) },
-				tempTable);
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_TOTAL_VAT + ")" +
+				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
+				" WHERE " + COL_TRANS_ID + "=? AND " +
+				Computer.COL_COMPUTER_ID + "=? AND " +
+				Products.COL_VAT_TYPE + "=? ", 
+				new String[]{String.valueOf(transactionId), 
+					String.valueOf(computerId), String.valueOf(Products.VAT_TYPE_INCLUDED)});
 		if(cursor.moveToFirst()){
 			totalVat = cursor.getFloat(0);
 		}
@@ -244,9 +240,13 @@ public class Transaction extends MPOSSQLiteHelper {
 		float totalSalePrice = 0.0f;
 		
 		open();
-		Cursor cursor = getOrderColumn(transactionId, computerId, 
-				new String[]{COL_TOTAL_SALE_PRICE}, COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=?", 
-				new String[]{String.valueOf(transactionId), String.valueOf(computerId)}, tempTable);
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_TOTAL_SALE_PRICE + ")" +
+				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
+				" WHERE " + COL_TRANS_ID + "=? AND " +
+				Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{String.valueOf(transactionId), 
+					String.valueOf(computerId)});
 		if(cursor.moveToFirst()){
 			totalSalePrice = cursor.getFloat(0);
 		}
@@ -259,22 +259,19 @@ public class Transaction extends MPOSSQLiteHelper {
 		float totalRetailPrice = 0.0f;
 		
 		open();
-		Cursor cursor = getOrderColumn(transactionId, computerId, 
-				new String[]{COL_TOTAL_RETAIL_PRICE}, 
-				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=?", 
-				new String[]{String.valueOf(transactionId), String.valueOf(computerId)}, tempTable);
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_TOTAL_RETAIL_PRICE + ")" +
+				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
+				" WHERE " + COL_TRANS_ID + "=? AND " +
+				Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{String.valueOf(transactionId), 
+					String.valueOf(computerId)});
 		if(cursor.moveToFirst()){
 			totalRetailPrice = cursor.getFloat(0);
 		}
 		cursor.close();
 		close();
 		return totalRetailPrice;
-	}
-	
-	public Cursor getOrderColumn(int transactionId, int computerId, 
-			String[] colsToSelect, String selection, String[] selectArgs, boolean tempTable){
-		return mSqlite.query(tempTable == true ? TB_ORDER_TMP : TB_ORDER, colsToSelect, 
-				selection, selectArgs, null, null, null);
 	}
 
 	public OrderTransaction.OrderDetail getOrder(int transactionId,
@@ -326,8 +323,8 @@ public class Transaction extends MPOSSQLiteHelper {
 				" a." + COL_MEMBER_DISCOUNT + ", " +
 				" a." + COL_PRICE_DISCOUNT + ", " +
 				" b." + Products.COL_PRODUCT_NAME + 
-				" FROM " + TB_ORDER_TMP + " a" +
-				" LEFT JOIN " + Products.TB_PRODUCT + " b" +
+				" FROM " + TB_ORDER_TMP + " a " +
+				" LEFT JOIN " + Products.TB_PRODUCT + " b " +
 				" ON a." + Products.COL_PRODUCT_ID + "=" +
 				" b." + Products.COL_PRODUCT_ID +
 				" WHERE a." + COL_TRANS_ID + "=" + transactionId +
@@ -778,7 +775,7 @@ public class Transaction extends MPOSSQLiteHelper {
 						" SELECT * FROM " + TB_ORDER + 
 						" WHERE " + COL_TRANS_ID + "=" + transactionId + 
 						" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
-				isSuccess = false;
+				isSuccess = true;
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}

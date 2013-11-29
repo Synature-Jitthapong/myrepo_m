@@ -13,18 +13,10 @@ public class Setting extends MPOSSQLiteHelper{
 	public static final String TB_PRINTER_CONFIG = "PrinterConfig";
 	public static final String COL_PRINTER_IP = "PrinterIp";
 	
-	private String menuImageUrl;
+	public static String mMenuImageUrl;
 
 	public Setting(Context c){
 		super(c);
-	}
-	
-	public String getMenuImageUrl() {
-		return menuImageUrl;
-	}
-
-	public void setMenuImageUrl(String menuImageUrl) {
-		this.menuImageUrl = menuImageUrl;
 	}
 
 	public Printer getPrinter(){
@@ -50,8 +42,8 @@ public class Setting extends MPOSSQLiteHelper{
 			conn.setBackoffice(cursor.getString(cursor.getColumnIndex(COL_BACKOFFICE)));
 			conn.setFullUrl(conn.getProtocal() + conn.getAddress() + 
 					"/" + conn.getBackoffice() + "/" + conn.getService());
-			setMenuImageUrl(conn.getProtocal() + conn.getAddress() + "/" + 
-					conn.getBackoffice() + "/Resources/Shop/MenuImage/");
+			mMenuImageUrl = conn.getProtocal() + conn.getAddress() + "/" + 
+					conn.getBackoffice() + "/Resources/Shop/MenuImage/";
 		}
 		cursor.close();
 		close();

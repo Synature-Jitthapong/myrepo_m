@@ -30,6 +30,7 @@
         android:layout_below="@+id/txtUser"
         android:ems="10"
         android:hint="@string/pass_word"
+        android:imeOptions="actionDone"
         android:inputType="textPassword"
         android:lines="1"
         android:nextFocusDown="@+id/buttonLogin"
@@ -38,15 +39,13 @@
 
     <Button
         android:id="@+id/buttonLogin"
-        style="@style/ButtonTextWhite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/txtPass"
         android:layout_alignRight="@+id/txtPass"
         android:layout_below="@+id/txtPass"
-        android:layout_marginTop="55dp"
-        android:background="@drawable/blue_button"
-        android:drawableLeft="@drawable/ic_action_unlock_dark"
+        android:background="@drawable/gray_button"
+        android:drawableLeft="@drawable/ic_device_access_secure_light"
         android:onClick="loginClicked"
         android:text="@string/login"
         android:textAppearance="?android:attr/textAppearanceMediumInverse" />

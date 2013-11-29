@@ -233,7 +233,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:background="@drawable/red_button"
-            android:drawableLeft="@drawable/ic_action_x_dark"
+            android:drawableLeft="@drawable/ic_navigation_cancel"
             android:onClick="clearBillClicked"
             android:text="@string/cancel_bill"
             android:textAppearance="?android:attr/textAppearanceMediumInverse" />

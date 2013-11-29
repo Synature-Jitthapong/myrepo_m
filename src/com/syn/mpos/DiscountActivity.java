@@ -3,8 +3,9 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.List;
 import com.syn.mpos.R;
-import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
+import com.syn.pos.OrderTransaction.OrderDetail;
+
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -30,7 +31,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 
 public class DiscountActivity extends Activity implements OnEditorActionListener, OnCheckedChangeListener{
 	private static final String TAG = "DiscountActivity";
@@ -69,6 +69,40 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
 		
 		init();
+	}
+
+	private void init(){
+		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
+		mDisAdapter = new DiscountAdapter();
+		mLvDiscount.setAdapter(mDisAdapter);
+		mLvDiscount.setOnItemClickListener(new OnItemClickListener(){
+	
+			@Override
+			public void onItemClick(AdapterView<?> parent, View v, final int position,
+					final long id) {
+				mPosition = position;
+				mOrder = 
+						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
+	
+				mItemInput.setVisible(true);
+				mTvItemName.setText(mOrder.getProductName());
+				mTxtDiscount.setText(MainActivity.mFormat.currencyFormat(mOrder.getPriceDiscount()));
+				mTxtDiscount.selectAll();
+				mTxtDiscount.requestFocus();
+	
+	            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+	            imm.showSoftInput(mTxtDiscount,
+	                    InputMethodManager.SHOW_IMPLICIT);
+	            
+				if(mOrder.getDiscountType() == 2)
+				{
+					mTxtDiscount.setText(MainActivity.mFormat.currencyFormat(
+							mOrder.getPriceDiscount() * 100 / mOrder.getTotalRetailPrice()));
+				}
+				mRdoDiscountType.check(mOrder.getDiscountType() == 1 ? R.id.rdoPrice : R.id.rdoPercent);
+			}
+		});
+		loadOrder();
 	}
 
 	@Override
@@ -186,40 +220,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		}
 	}
 	
-	private void init(){
-		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
-		mDisAdapter = new DiscountAdapter();
-		mLvDiscount.setAdapter(mDisAdapter);
-		mLvDiscount.setOnItemClickListener(new OnItemClickListener(){
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View v, final int position,
-					final long id) {
-				mPosition = position;
-				mOrder = 
-						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
-
-				mItemInput.setVisible(true);
-				mTvItemName.setText(mOrder.getProductName());
-				mTxtDiscount.setText(MainActivity.mFormat.currencyFormat(mOrder.getPriceDiscount()));
-				mTxtDiscount.selectAll();
-				mTxtDiscount.requestFocus();
-
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(mTxtDiscount,
-                        InputMethodManager.SHOW_IMPLICIT);
-                
-				if(mOrder.getDiscountType() == 2)
-				{
-					mTxtDiscount.setText(MainActivity.mFormat.currencyFormat(
-							mOrder.getPriceDiscount() * 100 / mOrder.getTotalRetailPrice()));
-				}
-				mRdoDiscountType.check(mOrder.getDiscountType() == 1 ? R.id.rdoPrice : R.id.rdoPercent);
-			}
-		});
-		loadOrder();
-	}
-
 	private void loadOrder() {
 		if (MainActivity.mTrans.copyOrderToTmp()) {
 			mOrderLst = MainActivity.mTrans.listOrderTmp();

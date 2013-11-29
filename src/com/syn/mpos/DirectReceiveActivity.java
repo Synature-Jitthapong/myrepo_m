@@ -318,9 +318,7 @@ public class DirectReceiveActivity extends Activity implements
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			imgLoader.displayImage(
-					MainActivity.mSetting.getMenuImageUrl() + p.getPicName(),
-					holder.img);
+			imgLoader.displayImage(Setting.mMenuImageUrl + p.getImgUrl(), holder.img);
 			holder.tvCode.setText(p.getProductCode());
 			holder.tvName.setText(p.getProductName());
 

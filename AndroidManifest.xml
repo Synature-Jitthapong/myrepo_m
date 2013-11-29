@@ -27,8 +27,7 @@
         <activity
             android:name="com.syn.mpos.LoginActivity"
             android:label="@string/app_name"
-            android:screenOrientation="landscape"
-            android:windowSoftInputMode="adjustPan" >
+            android:screenOrientation="landscape" android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

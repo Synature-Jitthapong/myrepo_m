@@ -10,7 +10,7 @@ import com.syn.pos.BankName;
 
 public class Bank extends MPOSSQLiteHelper{
 	public static final String TB_BANK = "BankName";
-	public static final String COL_BANK_ID = "BankID";
+	public static final String COL_BANK_ID = "BankId";
 	public static final String COL_BANK_NAME = "BankName";
 	
 	public Bank(Context c){
@@ -22,7 +22,8 @@ public class Bank extends MPOSSQLiteHelper{
 				new ArrayList<BankName>();
 		
 		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_BANK, null);
+		Cursor cursor = mSqlite.query(TB_BANK, 
+				new String[]{COL_BANK_ID, COL_BANK_NAME}, null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
 				BankName bank = new BankName(

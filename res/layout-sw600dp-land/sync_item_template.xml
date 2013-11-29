@@ -20,7 +20,7 @@
         android:layout_alignBottom="@+id/textView2"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/ic_action_check" />
+        android:src="@drawable/ic_navigation_cancel_light" />
 
     <TextView
         android:id="@+id/textView2"

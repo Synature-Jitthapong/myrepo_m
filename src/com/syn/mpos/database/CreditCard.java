@@ -25,12 +25,14 @@ public class CreditCard extends MPOSSQLiteHelper {
 				new ArrayList<CreditCardType>();
 		
 		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_CREDIT_CARD_TYPE, null);
+		Cursor cursor = mSqlite.query(TB_CREDIT_CARD_TYPE, 
+				new String[]{COL_CREDIT_CARD_TYPE_ID, COL_CREDIT_CARD_TYPE_NAME}, 
+				null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
 				CreditCardType credit = new CreditCardType(
-						cursor.getInt(cursor.getColumnIndex("creditcard_type_id")),
-						cursor.getString(cursor.getColumnIndex("creditcard_type_name")));
+						cursor.getInt(cursor.getColumnIndex(COL_CREDIT_CARD_TYPE_ID)),
+						cursor.getString(cursor.getColumnIndex(COL_CREDIT_CARD_TYPE_NAME)));
 				creditCardLst.add(credit);
 			}while(cursor.moveToNext());
 		}

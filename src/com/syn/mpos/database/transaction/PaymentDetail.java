@@ -161,7 +161,7 @@ public class PaymentDetail extends MPOSSQLiteHelper {
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT a.*, " +
 				" b." + COL_PAY_TYPE_CODE + ", " +
-				" b." + COL_PAY_TYPE_NAME + ", " +
+				" b." + COL_PAY_TYPE_NAME +
 				" FROM " + TB_PAYMENT + " a " +
 				" LEFT JOIN " + TB_PAY_TYPE + " b " + 
 				" ON a." + COL_PAY_TYPE_ID + "=" +
