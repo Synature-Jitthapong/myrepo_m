@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.pos.MenuGroups;
+import com.syn.pos.ProductGroups;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 
 public class Products extends MPOSSQLiteHelper {
 	public static final String TB_PRODUCT = "Products";
@@ -186,10 +189,37 @@ public class Products extends MPOSSQLiteHelper {
 		return pg;
 	}
 	
-	public boolean addProduct(List<Product> productLst, List<MenuGroups.MenuItem> menuLst){
-		boolean isSuccess = false;
+	public void addProducts(List<ProductGroups.Products> productLst,
+			List<MenuGroups.MenuItem> menuItemLst) throws SQLException{
 		
-		return isSuccess;
+		open();
+		mSqlite.execSQL(
+				" DELETE FROM " + Products.TB_PRODUCT);
+		for(ProductGroups.Products p : productLst){
+			ContentValues cv = new ContentValues();
+			cv.put(COL_PRODUCT_ID, p.getProductID());
+			cv.put(COL_PRODUCT_DEPT_ID, p.getProductDeptID());
+			cv.put(COL_PRODUCT_GROUP_ID, p.getProductGroupID());
+			cv.put(COL_PRODUCT_CODE, p.getProductCode());
+			cv.put(COL_PRODUCT_BAR_CODE, p.getProductBarCode());
+			cv.put(COL_PRODUCT_TYPE_ID, p.getProductTypeID());
+			cv.put(COL_PRODUCT_PRICE, p.getProductPricePerUnit());
+			cv.put(COL_PRODUCT_UNIT_NAME, p.getProductUnitName());
+			cv.put(COL_PRODUCT_DESC, p.getProductDesc());
+			cv.put(COL_DISCOUNT_ALLOW, p.getDiscountAllow());
+			cv.put(COL_VAT_TYPE, p.getVatType());
+			cv.put(COL_VAT_RATE, p.getVatRate());
+			cv.put(COL_IS_OUTOF_STOCK, p.getIsOutOfStock());
+			
+			mSqlite.insertOrThrow(TB_PRODUCT, null, cv);
+		}
+		for(MenuGroups.MenuItem m : menuItemLst){
+			mSqlite.execSQL(
+					" UPDATE " + TB_PRODUCT + " SET " +
+					COL_PRODUCT_NAME + "='" + m.getMenuName_0() + "' " +
+					" WHERE " + COL_PRODUCT_ID + "=" + m.getProductID());
+		}
+		close();
 	}
 	
 	public static class Product{
