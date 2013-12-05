@@ -19,24 +19,26 @@
 	    <item name="android:minWidth">64dip</item>
     </style>
     <style name="ColumnDetail" parent="android:style/Widget.TextView">
-        <item name="android:padding">4dp</item>
+        <item name="android:padding">8dp</item>
         <item name="android:lines">1</item>
     </style>
     <style name="ColumnHeader" parent="android:style/Widget.TextView">
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:padding">4dp</item>
+        <item name="android:background">@color/light_gray</item>
+        <item name="android:layout_marginRight">1dp</item>
+        <item name="android:padding">8dp</item>
         <item name="android:gravity">right</item>
+        <item name="android:textSize">22sp</item>
 		<item name="android:lines">1</item>
     </style>
-    <!-- Application theme. -->
+    <!-- Application theme. 
+    	<item name="android:actionBarStyle">@style/ActionBarStyle</item>
+       	<item name="android:actionMenuTextColor">@color/smoke_white</item>-->
     <style name="AppTheme" parent="AppBaseTheme">
         <item name="android:windowBackground">@color/light_gray</item>
-    	<item name="android:actionBarStyle">@style/ActionBarStyle</item>
-       	<item name="android:actionMenuTextColor">@color/smoke_white</item>
     </style>  
      <style name="ActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@drawable/actionbar_background</item>
     </style>
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+    <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
     </style>
 </resources>

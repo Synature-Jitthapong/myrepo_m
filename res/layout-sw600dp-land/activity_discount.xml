@@ -15,7 +15,6 @@
         android:id="@+id/tableRow4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
         android:background="@color/dark_gray" >
 
         <TextView
@@ -143,12 +142,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="8dp"
                 android:ems="5"
-                android:enabled="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
+                android:imeOptions="actionDone"
+                android:inputType="numberDecimal"
+                android:lines="1"
+                android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/black"
-                android:textSize="32sp" />
+                android:textColor="@android:color/black" />
 
             <LinearLayout
                 android:id="@+id/layoutVat"
@@ -194,7 +193,6 @@
                 android:focusableInTouchMode="false"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@android:color/black"
-                android:textSize="32sp"
                 android:textStyle="bold" />
 
         </TableRow>

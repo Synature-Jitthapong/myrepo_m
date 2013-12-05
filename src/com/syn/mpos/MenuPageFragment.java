@@ -21,7 +21,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MenuPageFragment extends Fragment {
-	private static ImageLoader mImgLoader;
+	private ImageLoader mImgLoader;
+	private Formatter mFormat;
+	private Products mProduct;
 	private OnMenuItemClick mCallback;
 	private List<Products.Product> mProductLst;
 	private MenuItemAdapter mAdapter;
@@ -41,10 +43,12 @@ public class MenuPageFragment extends Fragment {
 		
 		mDeptId = getArguments().getInt("deptId");
 
+		mFormat = new Formatter(getActivity());
+		mProduct = new Products(getActivity());
 		mImgLoader = new ImageLoader(getActivity(), R.drawable.no_food,
 				"mpos_img");
 
-		mProductLst = MainActivity.mProduct.listProduct(mDeptId);
+		mProductLst = mProduct.listProduct(mDeptId);
 		mAdapter = new MenuItemAdapter();
 		
 	}
@@ -118,7 +122,7 @@ public class MenuPageFragment extends Fragment {
 			}
 			
 			holder.tvMenu.setText(p.getProductName());
-			holder.tvPrice.setText(MainActivity.mFormat.currencyFormat(p.getProductPrice()));
+			holder.tvPrice.setText(mFormat.currencyFormat(p.getProductPrice()));
 			mImgLoader.displayImage(Setting.mMenuImageUrl + p.getImgUrl(), holder.imgMenu);
 			return convertView;
 		}

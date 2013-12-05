@@ -6,6 +6,8 @@ import java.util.List;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Bank;
 import com.syn.mpos.database.CreditCard;
+import com.syn.mpos.database.transaction.PaymentDetail;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
 import android.os.Bundle;
@@ -28,6 +30,8 @@ public class CreditPayActivity extends Activity {
 	private int mBankId;
 	private int mCardTypeId;
 	
+	private PaymentDetail mPayment;
+	private Formatter mFormat;
 	private Calendar mCalendar;
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
@@ -57,6 +61,8 @@ public class CreditPayActivity extends Activity {
 	}
 
 	private void init(){
+		mFormat = new Formatter(this);
+		mPayment = new PaymentDetail(this);
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -72,14 +78,14 @@ public class CreditPayActivity extends Activity {
 			@Override
 			public void onSetDate(long date) {
 				mCalendar.setTimeInMillis(date);
-				mBtnExpire.setText(MainActivity.mFormat.dateFormat(mCalendar.getTime()));
+				mBtnExpire.setText(mFormat.dateFormat(mCalendar.getTime()));
 			}
 		});
 		dialogFragment.show(getFragmentManager(), "Condition");
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(MainActivity.mFormat.currencyFormat(PaymentActivity.mTotalSalePrice));
+		mTxtTotalPrice.setText(mFormat.currencyFormat(PaymentActivity.sTotalSalePrice));
 	}
 	
 	private void addPayment(){
@@ -94,10 +100,10 @@ public class CreditPayActivity extends Activity {
 			e.printStackTrace();
 		}
 		
-		mTxtTotalPay.setText(MainActivity.mFormat.currencyFormat(mTotalCreditPay));
+		mTxtTotalPay.setText(mFormat.currencyFormat(mTotalCreditPay));
 		if(!cardNo.isEmpty() && mTotalCreditPay > 0){
-			if(PaymentActivity.mPayment.addPaymentDetail(MPOSTransaction.mTransactionId, 
-					MPOSTransaction.mComputerId, PaymentActivity.PAY_TYPE_CREDIT, 
+			if(mPayment.addPaymentDetail(MainActivity.sTransactionId, 
+					MainActivity.sComputerId, PaymentActivity.PAY_TYPE_CREDIT, 
 						mTotalCreditPay, cardNo, expMonth, expYear, mBankId, mCardTypeId)){
 				finish();
 			}

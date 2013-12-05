@@ -55,6 +55,7 @@ public class Transaction extends MPOSSQLiteHelper {
 	public static final String COL_VOID_STAFF_ID = "VoidStaffId";
 	public static final String COL_VOID_REASON = "VoidReason";
 	public static final String COL_VOID_TIME = "VoidTime";
+	public static final String COL_OTHER_DISCOUNT = "OtherDiscount";
 	
 	public static final String TB_ORDER = "OrderDetail";
 	public static final String TB_ORDER_TMP = "OrderDetailTmp";
@@ -65,6 +66,7 @@ public class Transaction extends MPOSSQLiteHelper {
 	public static final String COL_TOTAL_VAT = "TotalVatAmount";
 	public static final String COL_MEMBER_DISCOUNT = "MemberDiscountAmount";
 	public static final String COL_PRICE_DISCOUNT = "PriceDiscountAmount";
+	public static final String COL_DISCOUNT_TYPE = "DiscountType";
 	
 	public Transaction(Context c) {
 		super(c);
@@ -175,6 +177,23 @@ public class Transaction extends MPOSSQLiteHelper {
 		cursor.close();
 		close();
 		return memberDiscount;
+	}
+	
+	public float getOtherDiscount(int transactionId, int computerId){
+		float otherDiscount = 0.0f;
+		
+		open();
+		Cursor cursor = mSqlite.query(TB_TRANS, new String[]{COL_OTHER_DISCOUNT}, 
+				COL_TRANS_ID + "=? AND " + 
+				Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{String.valueOf(transactionId), 
+				String.valueOf(computerId)}, null, null, null);
+		if(cursor.moveToFirst()){
+			otherDiscount = cursor.getFloat(0);
+		}
+		cursor.close();
+		close();
+		return otherDiscount;
 	}
 	
 	public float getPriceDiscount(int transactionId, int computerId, boolean tempTable){
@@ -289,6 +308,7 @@ public class Transaction extends MPOSSQLiteHelper {
 				" a." + Products.COL_VAT_TYPE + ", " +
 				" a." + COL_MEMBER_DISCOUNT + ", " +
 				" a." + COL_PRICE_DISCOUNT + ", " + 
+				" a." + COL_DISCOUNT_TYPE + ", " +
 				" b." + Products.COL_PRODUCT_NAME +
 				" FROM " + TB_ORDER + " a " +
 				" LEFT JOIN " + Products.TB_PRODUCT + " b " +
@@ -322,6 +342,7 @@ public class Transaction extends MPOSSQLiteHelper {
 				" a." + Products.COL_VAT_TYPE + ", " +
 				" a." + COL_MEMBER_DISCOUNT + ", " +
 				" a." + COL_PRICE_DISCOUNT + ", " +
+				" a." + COL_DISCOUNT_TYPE + ", " +
 				" b." + Products.COL_PRODUCT_NAME + 
 				" FROM " + TB_ORDER_TMP + " a " +
 				" LEFT JOIN " + Products.TB_PRODUCT + " b " +
@@ -355,6 +376,7 @@ public class Transaction extends MPOSSQLiteHelper {
 				" a." + Products.COL_VAT_TYPE + ", " +
 				" a." + COL_MEMBER_DISCOUNT + ", " +
 				" a." + COL_PRICE_DISCOUNT + ", " +
+				" a." + COL_DISCOUNT_TYPE + ", " +
 				" b." + Products.COL_PRODUCT_NAME + 
 				" FROM " + TB_ORDER + " a" +
 				" LEFT JOIN " + Products.TB_PRODUCT + " b" +
@@ -386,6 +408,7 @@ public class Transaction extends MPOSSQLiteHelper {
 		orderDetail.setVatType(cursor.getInt(cursor.getColumnIndex(Products.COL_VAT_TYPE)));
 		orderDetail.setMemberDiscount(cursor.getFloat(cursor.getColumnIndex(COL_MEMBER_DISCOUNT)));
 		orderDetail.setPriceDiscount(cursor.getFloat(cursor.getColumnIndex(COL_PRICE_DISCOUNT)));
+		orderDetail.setDiscountType(cursor.getInt(cursor.getColumnIndex(COL_DISCOUNT_TYPE)));
 		
 		return orderDetail;
 	}
@@ -701,23 +724,40 @@ public class Transaction extends MPOSSQLiteHelper {
 		return isSuccess;
 	}
 
-	public boolean discountEatchProduct(int orderDetailId, int transactionId,
-			int computerId, float vatRate, float salePrice, float discount) {
+	public boolean otherDiscount(int transactionId, int computerId, float discount){
 		boolean isSuccess = false;
-
+		
+		open();
+		ContentValues cv = new ContentValues();
+		cv.put(COL_OTHER_DISCOUNT, discount);
+		mSqlite.update(TB_TRANS, cv, 
+				COL_TRANS_ID + "=? AND " + 
+			    Computer.COL_COMPUTER_ID + "=?", 
+			    new String[]{String.valueOf(transactionId), String.valueOf(computerId)});
+		close();
+		return isSuccess;
+	}
+	
+	public boolean discountEatchProduct(int orderDetailId, int transactionId,
+			int computerId, float vatRate, float salePrice, float discount, int discountType) {
+		boolean isSuccess = false;
 		float vat = Util.calculateVat(salePrice, vatRate);
 
 		open();
 		try {
-			mSqlite.execSQL(
-					" UPDATE " + TB_ORDER_TMP + 
-					" SET " + 
-					COL_PRICE_DISCOUNT + "=" + discount + ", " + 
-					COL_TOTAL_SALE_PRICE + "=" + salePrice + ", " + 
-					COL_TOTAL_VAT + "=" + vat + ", " + 
-					" WHERE " + COL_ORDER_ID + "=" + orderDetailId + 
-					" AND " + COL_TRANS_ID + "=" + transactionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "="+ computerId);
+			ContentValues cv = new ContentValues();
+			cv.put(COL_PRICE_DISCOUNT, discount);
+			cv.put(COL_TOTAL_SALE_PRICE, salePrice);
+			cv.put(COL_TOTAL_VAT, vat);
+			cv.put(COL_DISCOUNT_TYPE, discountType);
+			
+			mSqlite.update(TB_ORDER_TMP, cv, 
+					COL_ORDER_ID + "=? " +
+					" AND " + COL_TRANS_ID + "=?" +
+					" AND " + Computer.COL_COMPUTER_ID + "=?", 
+					new String[]{String.valueOf(orderDetailId), 
+					String.valueOf(transactionId), 
+					String.valueOf(computerId)});
 			isSuccess = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -847,6 +887,7 @@ public class Transaction extends MPOSSQLiteHelper {
 		cv.put(COL_TOTAL_SALE_PRICE, totalRetailPrice);
 		cv.put(Products.COL_VAT_TYPE, vatType);
 		cv.put(COL_TOTAL_VAT, vat);
+		cv.put(COL_DISCOUNT_TYPE, 1);
 	
 		open();
 		try {

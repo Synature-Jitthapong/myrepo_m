@@ -2,9 +2,6 @@ package com.syn.mpos.database;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.kobjects.util.Strings;
-
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 

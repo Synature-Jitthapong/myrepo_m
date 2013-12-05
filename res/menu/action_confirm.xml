@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/itemClose" android:title="@string/close" 
         android:showAsAction="always"></item>
-    <item android:id="@+id/itemCancel" android:showAsAction="always" android:icon="@drawable/ic_navigation_cancel">
+    <item android:id="@+id/itemCancel" android:showAsAction="always" android:icon="@drawable/ic_navigation_cancel_light">
         
-    </item><item android:id="@+id/itemConfirm" android:showAsAction="always" android:icon="@drawable/ic_navigation_accept"></item>
+    </item><item android:id="@+id/itemConfirm" android:showAsAction="always" android:icon="@drawable/ic_navigation_accept_light"></item>
 </menu>

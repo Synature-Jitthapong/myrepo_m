@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import android.os.Bundle;
 import android.app.Activity;
@@ -27,6 +29,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
+	private Formatter mFormat;
+	private Transaction mTrans;
 	private List<OrderTransaction> mTransLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private BillAdapter mBillAdapter;
@@ -63,7 +67,7 @@ public class VoidBillActivity extends Activity {
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 	    
-	    btnBillDate.setText(MainActivity.mFormat.dateFormat(mCalendar.getTime()));
+	    btnBillDate.setText(mFormat.dateFormat(mCalendar.getTime()));
 	    btnBillDate.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -75,7 +79,7 @@ public class VoidBillActivity extends Activity {
 						mCalendar.setTimeInMillis(date);
 						mDate = mCalendar.getTimeInMillis();
 						
-						btnBillDate.setText(MainActivity.mFormat.dateFormat(mCalendar.getTime()));
+						btnBillDate.setText(mFormat.dateFormat(mCalendar.getTime()));
 					}
 				});
 				dialogFragment.show(getFragmentManager(), "Condition");
@@ -123,6 +127,8 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void init(){
+		mFormat = new Formatter(this);
+		mTrans = new Transaction(this);
 		mTransLst = new ArrayList<OrderTransaction>();
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -139,10 +145,10 @@ public class VoidBillActivity extends Activity {
 				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
 				c.setTimeInMillis(trans.getPaidTime());
 				
-				MPOSTransaction.mTransactionId = trans.getTransactionId();
-				MPOSTransaction.mComputerId = trans.getComputerId();
+				MainActivity.sTransactionId = trans.getTransactionId();
+				MainActivity.sComputerId = trans.getComputerId();
 				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = MainActivity.mFormat.dateTimeFormat(c.getTime());
+				mReceiptDate = mFormat.dateTimeFormat(c.getTime());
 				
 				mItemConfirm.setEnabled(true);
 				searchVoidItem();
@@ -211,7 +217,7 @@ public class VoidBillActivity extends Activity {
 			}
 			
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
-			holder.tvPaidTime.setText(MainActivity.mFormat.dateTimeFormat(c.getTime()));
+			holder.tvPaidTime.setText(mFormat.dateTimeFormat(c.getTime()));
 			
 			return convertView;
 		}
@@ -265,9 +271,9 @@ public class VoidBillActivity extends Activity {
 			}
 		
 			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(MainActivity.mFormat.qtyFormat(order.getQty()));
-			holder.tvPrice.setText(MainActivity.mFormat.currencyFormat(order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(MainActivity.mFormat.currencyFormat(order.getTotalRetailPrice()));
+			holder.tvQty.setText(mFormat.qtyFormat(order.getQty()));
+			holder.tvPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
+			holder.tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
 			
 			return convertView;
 		}
@@ -281,7 +287,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void searchBill(){
-		mTransLst = MainActivity.mTrans.listTransaction(mDate);
+		mTransLst = mTrans.listTransaction(mDate);
 		mBillAdapter.notifyDataSetChanged();
 	}
 	
@@ -289,7 +295,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText(mReceiptNo);
 		txtReceiptDate.setText(mReceiptDate);
 		
-		mOrderLst = MainActivity.mTrans.listOrder();
+		mOrderLst = mTrans.listAllOrder(MainActivity.sTransactionId, MainActivity.sComputerId);
 		mBillDetailAdapter.notifyDataSetChanged();
 	}
 
@@ -314,7 +320,8 @@ public class VoidBillActivity extends Activity {
 			public void onClick(DialogInterface dialog, int which) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					if(MainActivity.mTrans.voidTransaction(voidReason)){
+					if(mTrans.voidTransaction(MainActivity.sTransactionId,
+							MainActivity.sComputerId, MainActivity.sStaffId, voidReason)){
 						hideKeyboard();
 					}
 				}else{

@@ -3,22 +3,28 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.List;
 import com.syn.mpos.R;
+import com.syn.mpos.database.Products;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
-import com.syn.pos.OrderTransaction.OrderDetail;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -32,12 +38,18 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 
-public class DiscountActivity extends Activity implements OnEditorActionListener, OnCheckedChangeListener{
+public class DiscountActivity extends Activity implements OnEditorActionListener, 
+	OnCheckedChangeListener, OnClickListener{
 	private static final String TAG = "DiscountActivity";
-	private static int mPosition = -1;
-	private static int mDiscountType = 1;
-	private static float mDiscount = 0.0f;
 	
+	private int mPosition = -1;
+	private int mDiscountType = 1;
+	private float mDiscount = 0.0f;
+	private float mTotalPrice = 0.0f;
+	
+	private Formatter mFormat;
+	private Transaction mTrans;
+	private Products mProduct;
 	private DiscountAdapter mDisAdapter;
 	private boolean mIsEdited = false;
 
@@ -51,8 +63,11 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	private EditText mTxtTotalPrice;
 	private EditText mTxtDiscount;
 	private RadioGroup mRdoDiscountType;
+	private Button mBtnDone;
 	private TextView mTvItemName;
 	private MenuItem mItemInput;
+	private MenuItem mItemClose;
+	private MenuItem mItemConfirm;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
@@ -67,11 +82,16 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		mTxtSubTotal = (EditText) findViewById(R.id.txtSubTotal);
 		mTxtTotalDiscount = (EditText) findViewById(R.id.txtTotalDiscount);
 		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
+		mTxtTotalDiscount.setSelectAllOnFocus(true);
+		mTxtTotalDiscount.setOnEditorActionListener(this);
 		
 		init();
 	}
 
 	private void init(){
+		mTrans = new Transaction(this);
+		mFormat = new Formatter(this);
+		mProduct = new Products(this);
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
@@ -81,30 +101,26 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			public void onItemClick(AdapterView<?> parent, View v, final int position,
 					final long id) {
 				mPosition = position;
-				mOrder = 
-						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
+				mOrder = (OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 	
-				mItemInput.setVisible(true);
 				mTvItemName.setText(mOrder.getProductName());
-				mTxtDiscount.setText(MainActivity.mFormat.currencyFormat(mOrder.getPriceDiscount()));
-				mTxtDiscount.selectAll();
-				mTxtDiscount.requestFocus();
-	
-	            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-	            imm.showSoftInput(mTxtDiscount,
-	                    InputMethodManager.SHOW_IMPLICIT);
-	            
+				mTxtDiscount.setText(mFormat.currencyFormat(mOrder.getPriceDiscount()));
+
 				if(mOrder.getDiscountType() == 2)
 				{
-					mTxtDiscount.setText(MainActivity.mFormat.currencyFormat(
+					mTxtDiscount.setText(mFormat.currencyFormat(
 							mOrder.getPriceDiscount() * 100 / mOrder.getTotalRetailPrice()));
 				}
 				mRdoDiscountType.check(mOrder.getDiscountType() == 1 ? R.id.rdoPrice : R.id.rdoPercent);
+				
+				mItemInput.setVisible(true);
+				mItemClose.setVisible(false);
+				mItemConfirm.setVisible(false);
 			}
 		});
 		loadOrder();
 	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
@@ -115,7 +131,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			cancel();
 			return true;
 		case R.id.itemConfirm:
-			if (MainActivity.mTrans.confirmDiscount())
+			if (mTrans.confirmDiscount(MainActivity.sTransactionId, MainActivity.sComputerId))
 				finish();
 			return true;
 		default:
@@ -128,11 +144,17 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.activity_discount, menu);
 		mItemInput = menu.findItem(R.id.itemDiscountInput);
+		mItemClose = menu.findItem(R.id.itemCancel);
+		mItemConfirm = menu.findItem(R.id.itemConfirm);
+		
 		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);
 		mTxtDiscount = (EditText) mItemInput.getActionView().findViewById(R.id.txtDiscount);
 		mRdoDiscountType = (RadioGroup) mItemInput.getActionView().findViewById(R.id.rdoDisType);
+		mBtnDone = (Button) mItemInput.getActionView().findViewById(R.id.btnDone);
 		mTxtDiscount.setOnEditorActionListener(this);
+		mTxtDiscount.setSelectAllOnFocus(true);
 		mRdoDiscountType.setOnCheckedChangeListener(this);
+		mBtnDone.setOnClickListener(this);
 		return true;
 	}
 	
@@ -148,11 +170,15 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				mDiscount = mOrder.getTotalRetailPrice() * mDiscount / 100;
 			}
 				
-			float totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - mDiscount;
-			MainActivity.mTrans.discountEatchProduct(mOrder.getOrderDetailId(), 
-					MainActivity.mProduct.getVatRate(mOrder.getProductId()), 
-					totalPriceAfterDiscount, mDiscount);
-	
+			float totalPriceAfterDiscount = 
+					mOrder.getTotalRetailPrice() - mDiscount;
+			mTrans.discountEatchProduct(mOrder.getOrderDetailId(), 
+					MainActivity.sTransactionId, MainActivity.sComputerId, 
+					mProduct.getVatRate(mOrder.getProductId()), 
+					mOrder.getTotalRetailPrice(), 
+					mDiscount, mDiscountType);
+			
+			
 			OrderTransaction.OrderDetail order = 
 					mOrderLst.get(mPosition);
 			order.setPriceDiscount(mDiscount);
@@ -210,39 +236,42 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvName.setText(order.getProductName());
-			tvQty.setText(MainActivity.mFormat.qtyFormat(order.getQty()));
-			tvUnitPrice.setText(MainActivity.mFormat.currencyFormat(order.getPricePerUnit()));
-			tvTotalPrice.setText(MainActivity.mFormat.currencyFormat(order.getTotalRetailPrice()));
-			tvDiscount.setText(MainActivity.mFormat.currencyFormat(order.getPriceDiscount()));
-			tvSalePrice.setText(MainActivity.mFormat.currencyFormat(order.getTotalSalePrice()));
+			tvQty.setText(mFormat.qtyFormat(order.getQty()));
+			tvUnitPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
+			tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
+			tvDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
+			tvSalePrice.setText(mFormat.currencyFormat(order.getTotalSalePrice()));
 			
 			return rowView;
 		}
 	}
 	
 	private void loadOrder() {
-		if (MainActivity.mTrans.copyOrderToTmp()) {
-			mOrderLst = MainActivity.mTrans.listOrderTmp();
+		if (mTrans.copyOrderToTmp(MainActivity.sTransactionId, MainActivity.sComputerId)) {
+			mOrderLst = mTrans.listAllOrderTmp(MainActivity.sTransactionId, MainActivity.sComputerId);
 			mDisAdapter.notifyDataSetChanged();
 		}
 	}
 
 	private void summary() {
-		float subTotal = MainActivity.mTrans.getTotalRetailPrice(!MainActivity.TEMP_TABLE);
-		float vatExclude = MainActivity.mTrans.getTotalVatExclude(!MainActivity.TEMP_TABLE);
-		float totalSalePrice = MainActivity.mTrans.getTotalSalePrice(!MainActivity.TEMP_TABLE) + vatExclude;
-		float totalDiscount = MainActivity.mTrans.getPriceDiscount(!MainActivity.TEMP_TABLE) +
-				MainActivity.mTrans.getMemberDiscount(!MainActivity.TEMP_TABLE);
-
-		if(vatExclude > 0)
+		float subTotal = mTrans.getTotalRetailPrice(MainActivity.sTransactionId, 
+				MainActivity.sComputerId, true);
+		float totalVatExclude = mTrans.getTotalVatExclude(MainActivity.sTransactionId, 
+				MainActivity.sComputerId, true);
+		mTotalPrice = mTrans.getTotalSalePrice(MainActivity.sTransactionId, 
+				MainActivity.sComputerId, true) + totalVatExclude;
+		float totalDiscount = mTrans.getPriceDiscount(MainActivity.sTransactionId, 
+				MainActivity.sComputerId, true);
+		
+		if(totalVatExclude > 0)
 			mLayoutVat.setVisibility(View.VISIBLE);
 		else
 			mLayoutVat.setVisibility(View.GONE);
 		
-		mTxtExcVat.setText(MainActivity.mFormat.currencyFormat(vatExclude));
-		mTxtSubTotal.setText(MainActivity.mFormat.currencyFormat(subTotal));
-		mTxtTotalDiscount.setText(MainActivity.mFormat.currencyFormat(totalDiscount));
-		mTxtTotalPrice.setText(MainActivity.mFormat.currencyFormat(totalSalePrice));
+		mTxtExcVat.setText(mFormat.currencyFormat(totalVatExclude));
+		mTxtSubTotal.setText(mFormat.currencyFormat(subTotal));
+		mTxtTotalDiscount.setText(mFormat.currencyFormat(totalDiscount));
+		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalPrice));
 	}
 
 	private void cancel(){
@@ -265,7 +294,8 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									MainActivity.mTrans.cancelDiscount();
+									mTrans.cancelDiscount(MainActivity.sTransactionId, 
+											MainActivity.sComputerId);
 									finish();
 								}
 							}).show();
@@ -273,13 +303,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			finish();
 		}	
 	}
-	
-	void clearActionInput(){
-		mTvItemName.setText(null);
-		mTxtDiscount.setText(null);
-		mItemInput.setVisible(false);
-	}
-	
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -307,7 +331,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		if(EditorInfo.IME_ACTION_DONE == actionId){
+		if (EditorInfo.IME_ACTION_DONE == actionId) {
 			float discount = 0.0f;
 			try {
 				discount = Float.parseFloat(v.getText().toString());
@@ -315,15 +339,55 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			mDiscount = discount;
-			updateDiscount();
-
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 			
-            clearActionInput();
-			return true;
+			switch (v.getId()) {
+			case R.id.txtDiscount:
+				mDiscount = discount;
+				if(updateDiscount()){
+					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+	
+					mItemInput.setVisible(false);
+					mItemClose.setVisible(true);
+					mItemConfirm.setVisible(true);
+				}else{
+					popupNotAllowDiscount();
+				}
+				return true;
+			case R.id.txtTotalDiscount:
+				if(discount <= mTotalPrice){
+					mTrans.otherDiscount(MainActivity.sTransactionId, 
+							MainActivity.sComputerId, discount);
+					summary();
+				}else{
+					popupNotAllowDiscount();
+				}
+				return true;
+			}
 		}
 		return false;
+	}
+
+	private void popupNotAllowDiscount(){
+		new AlertDialog.Builder(this)
+		.setMessage(R.string.not_allow_discount)
+		.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				
+			}
+		})
+		.show();
+	}
+	
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()){
+		case R.id.btnDone:
+			mTxtDiscount.onEditorAction(EditorInfo.IME_ACTION_DONE);
+			break;
+		}
 	}
 }

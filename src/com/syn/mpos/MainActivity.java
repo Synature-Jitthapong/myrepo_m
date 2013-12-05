@@ -8,6 +8,7 @@ import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Setting;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
 import android.os.Bundle;
@@ -43,21 +44,17 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 public class MainActivity extends FragmentActivity implements MenuPageFragment.OnMenuItemClick{
-	//private static final String TAG = "MPOSMainActivity";
 	public static final int SYNC_REQUEST_CODE = 1;
-	public static final int MANAGE_PRODUCT_REQUEST_CODE = 2;
-	public static final boolean TEMP_TABLE = false;
+	public static int sTransactionId;
+	public static int sComputerId;
+	public static int sShopId;
+	public static int sStaffId;
+	public static int sSessionId;
 	
-	public static MPOSTransaction mTrans;
-	public static Products mProduct;
-	public static Formatter mFormat;
-	public static Setting mSetting;
-
-	private int mStaffId;
-	private int mSessionId;
-	private int mShopId;
-	private int mComputerId;
-	
+	public Transaction mTrans;
+	public Products mProduct;
+	public Formatter mFormat;
+	public Setting mSetting;
 	private List<Products.ProductDept> mProductDeptLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private List<OrderTransaction.OrderDetail> mOrderSelLst;
@@ -100,10 +97,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mBtnHold = (Button) findViewById(R.id.buttonHold);
 
 		Intent intent = getIntent();
-		mStaffId = intent.getIntExtra("staffId", 0);
-		mSessionId = intent.getIntExtra("sessionId", 0);
-		mShopId = intent.getIntExtra("shopId", 0);
-		mComputerId = intent.getIntExtra("computerId", 0);
+		sStaffId = intent.getIntExtra("staffId", 0);
+		sSessionId = intent.getIntExtra("sessionId", 0);
+		sShopId = intent.getIntExtra("shopId", 0);
+		sComputerId = intent.getIntExtra("computerId", 0);
 		
 		mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 		mPager = (ViewPager) findViewById(R.id.pager);
@@ -113,24 +110,16 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	public void init(){
 		mFormat = new Formatter(this);
 		mSetting = new Setting(this);
-		mTrans = new MPOSTransaction(this, mShopId, mComputerId, mSessionId);
+		mTrans = new Transaction(this);
 		
 		setupOrderListView();
 		countHoldOrder();
 		loadOrder();
 	}
 	
-	private Products.ProductDept createProductDept(){
-		Products.ProductDept pd = new Products.ProductDept();
-		pd.setProductDeptId(1);
-		pd.setProductDeptName("Add New +");
-		return pd;
-	}
-	
 	private void setupMenuItemPager(){
 		mProduct = new Products(this);
 		mProductDeptLst = mProduct.listProductDept();
-		mProductDeptLst.add(createProductDept());
 		if (mProductDeptLst.size() > 0) {
 			mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
 			mPager.setAdapter(mPageAdapter);
@@ -213,7 +202,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						for (OrderTransaction.OrderDetail order : mOrderSelLst) {
-							mTrans.deleteOrder(order.getOrderDetailId());
+							mTrans.deleteOrderDetail(sTransactionId, sComputerId, order.getOrderDetailId());
 						}
 						loadOrder();
 						mOrderSelLst = new ArrayList<OrderTransaction.OrderDetail>();
@@ -240,7 +229,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 	
 	private void loadOrder(){
-		mOrderLst = mTrans.listOrder();
+		mOrderLst = mTrans.listAllOrder(sTransactionId, sComputerId);
 		mOrderAdapter = new OrderListAdapter();
 		mOrderListView.setAdapter(mOrderAdapter);
 		mOrderAdapter.notifyDataSetChanged();
@@ -254,20 +243,22 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 
 	public void summary(){
-		float subTotal = mTrans.getTotalRetailPrice(false);
-		float vatExclude = mTrans.getTotalVatExclude(false);	// vat exclude
-		float totalSalePrice = mTrans.getTotalSalePrice(false) + vatExclude;
-		float totalDiscount = mTrans.getPriceDiscount(false);
+		float subTotal = mTrans.getTotalRetailPrice(sTransactionId, sComputerId, false);
+		float totalVatExclude = mTrans.getTotalVatExclude(sTransactionId, sComputerId, false);
+		float totalPrice = mTrans.getTotalSalePrice(sTransactionId, sComputerId, false) + 
+				totalVatExclude;
+		float totalDiscount = mTrans.getPriceDiscount(sTransactionId, sComputerId, false) + 
+				mTrans.getOtherDiscount(sTransactionId, sComputerId);
 		
-		if(vatExclude > 0)
+		if(totalVatExclude > 0)
 			mTbRowVat.setVisibility(View.VISIBLE);
 		else
 			mTbRowVat.setVisibility(View.GONE);
 		
-		mTvVatExclude.setText(mFormat.currencyFormat(vatExclude));
+		mTvVatExclude.setText(mFormat.currencyFormat(totalVatExclude));
 		mTvSubTotal.setText(mFormat.currencyFormat(subTotal));
 		mTvDiscount.setText(mFormat.currencyFormat(totalDiscount));
-		mTvTotalPrice.setText(mFormat.currencyFormat(totalSalePrice));
+		mTvTotalPrice.setText(mFormat.currencyFormat(totalPrice));
 	}
 
 	@Override
@@ -295,20 +286,20 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			return true;
 		case R.id.itemDirectReceive:
 			intent = new Intent(MainActivity.this, DirectReceiveActivity.class);
-			intent.putExtra("shopId", mShopId);
-			intent.putExtra("staffId", mStaffId);
+			intent.putExtra("shopId", sShopId);
+			intent.putExtra("staffId", sStaffId);
 			startActivity(intent);
 			return true;
 		case R.id.itemStockCount:
 			intent = new Intent(MainActivity.this, StockCountActivity.class);
-			intent.putExtra("shopId", mShopId);
-			intent.putExtra("staffId", mStaffId);
+			intent.putExtra("shopId", sShopId);
+			intent.putExtra("staffId", sStaffId);
 			startActivity(intent);
 			return true;
 		case R.id.itemStockCard:
 			intent = new Intent(MainActivity.this, StockCardActivity.class);
-			intent.putExtra("shopId", mShopId);
-			intent.putExtra("staffId", mStaffId);
+			intent.putExtra("shopId", sShopId);
+			intent.putExtra("staffId", sStaffId);
 			startActivity(intent);
 			return true;
 		case R.id.itemSaleByBill:
@@ -344,9 +335,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		case SYNC_REQUEST_CODE:
 			setupMenuItemPager();
 			break;
-		case MANAGE_PRODUCT_REQUEST_CODE:
-			setupMenuItemPager();
-			break;
 		}
 	}
 
@@ -357,7 +345,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 
 	private void countHoldOrder(){
-		int totalHold = mTrans.countHoldOrder();
+		int totalHold = mTrans.countHoldOrder(sComputerId);
 	
 		if(totalHold > 0){
 			TextView tv = new TextView(MainActivity.this);
@@ -451,8 +439,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 					if(--qty > 0){
 						orderDetail.setQty(qty);
 						
-						mTrans.updateOrder(orderDetail.getOrderDetailId(), 
-								orderDetail.getVatType(),qty, orderDetail.getPricePerUnit());
+						mTrans.updateOrderDetail(sTransactionId, sComputerId, 
+								orderDetail.getOrderDetailId(), 
+								mProduct.getVatRate(orderDetail.getProductId()), 
+								qty, orderDetail.getPricePerUnit());
 					}else{
 						new AlertDialog.Builder(MainActivity.this)
 						.setTitle(R.string.delete)
@@ -468,7 +458,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								mTrans.deleteOrder(orderDetail.getOrderDetailId());
+								mTrans.deleteOrderDetail(sTransactionId, sComputerId, 
+										orderDetail.getOrderDetailId());
 								mOrderLst.remove(position);
 								mOrderAdapter.notifyDataSetChanged();
 							}
@@ -487,8 +478,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 					float qty = orderDetail.getQty();
 					orderDetail.setQty(++qty);
 					
-					mTrans.updateOrder(orderDetail.getOrderDetailId(), orderDetail.getVatType(), 
-							orderDetail.getQty(), orderDetail.getPricePerUnit());
+					mTrans.updateOrderDetail(sTransactionId, sComputerId, 
+							orderDetail.getOrderDetailId(), 
+							mProduct.getVatRate(orderDetail.getProductId()), 
+							qty, orderDetail.getPricePerUnit());
 					
 					mOrderAdapter.notifyDataSetChanged();
 				}
@@ -600,16 +593,20 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				mTrans.clearTransaction();
+				clearTransaction();
 			}
 		})
 		.show();
 	}
 
+	public static void clearTransaction(){
+		
+	}
+	
 	private void voidBill(){
 		Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
-		intent.putExtra("shopId", mShopId);
-		intent.putExtra("staffId", mStaffId);
+		intent.putExtra("shopId", sShopId);
+		intent.putExtra("staffId", sStaffId);
 		startActivity(intent);
 	}
 
@@ -677,7 +674,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				String note = txtRemark.getText().toString();
-				mTrans.holdTransaction(note);
+				mTrans.holdTransaction(sTransactionId, sComputerId, note);
 				hideKeyboard();
 			}
 		}).show();
@@ -687,7 +684,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
 		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
 		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
-		List<OrderTransaction> billLst = mTrans.listHoldOrder();
+		List<OrderTransaction> billLst = mTrans.listHoldOrder(sComputerId);
 		HoldBillAdapter billAdapter = new HoldBillAdapter(billLst);
 		lvHoldBill.setAdapter(billAdapter);
 		lvHoldBill.setOnItemClickListener(new OnItemClickListener(){
@@ -698,7 +695,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 				
 				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
 				if (mOrderLst.size() == 0) {
-					MPOSTransaction.mTransactionId = trans.getTransactionId();
+					sTransactionId = trans.getTransactionId();
 				}
 			}
 			
@@ -734,7 +731,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 							}).show();
 				}else{
 					// reset status 9 to status 1
-					mTrans.prepareTransaction();
+					mTrans.prepareTransaction(sTransactionId, sComputerId);
 					loadOrder();
 				}
 			}
@@ -776,7 +773,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 							ShopData.Staff s = login.checkLogin();
 							
 							if(s != null){
-								mStaffId = s.getStaffID();
+								sStaffId = s.getStaffID();
 								init();
 							}else{
 								new AlertDialog.Builder(MainActivity.this)
@@ -866,9 +863,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 
 	@Override
 	public void onClick(int productId, int productTypeId, int vatType, float vatRate, float productPrice) {
-		int orderId = mTrans.addOrder(productId, productTypeId,vatType, vatRate, 1, productPrice);
+		int orderId = mTrans.addOrderDetail(sTransactionId, sComputerId, productId, 
+				productTypeId, vatType, vatRate, 1, productPrice);
 		
-		mOrderLst.add(mTrans.getOrder(orderId));
+		mOrderLst.add(mTrans.getOrder(sTransactionId, sComputerId, orderId));
 		mOrderAdapter.notifyDataSetChanged();
 		mOrderListView.smoothScrollToPosition(mOrderLst.size());
 	}

@@ -15,7 +15,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,7 +42,8 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class DirectReceiveActivity extends Activity implements
 		OnActionExpandListener, OnEditorActionListener {
-
+	private Products mProduct;
+	private Formatter mFormat;
 	private ReceiveStock mReceiveStock;
 	private List<Products.Product> mProductLst;
 	private ResultAdapter mResultAdapter;
@@ -79,8 +79,8 @@ public class DirectReceiveActivity extends Activity implements
 
 	@Override
 	protected void onResume() {
-		super.onResume();
 		init();
+		super.onResume();
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class DirectReceiveActivity extends Activity implements
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(mSearchView.getWindowToken(), 0);
                 
-				mProductLst = MainActivity.mProduct.listProduct(query);
+				mProductLst = mProduct.listProduct(query);
 				if(mProductLst.size() > 0){
 					mResultAdapter.notifyDataSetChanged();
 				}else{
@@ -210,6 +210,8 @@ public class DirectReceiveActivity extends Activity implements
 	}
 
 	private void init() {
+		mFormat = new Formatter(this);
+		mProduct = new Products(this);
 		mReceiveStock = new ReceiveStock(DirectReceiveActivity.this);
 		mStockLst = new ArrayList<StockProduct>();
 		mStockAdapter = new ReceiveStockAdapter();
@@ -228,8 +230,8 @@ public class DirectReceiveActivity extends Activity implements
 				mItemInput.setVisible(true);
 				
 				mTvItemName.setText(mStock.getName());
-				mTxtReceiveQty.setText(MainActivity.mFormat.qtyFormat(mStock.getReceive()));
-				mTxtReceivePrice.setText(MainActivity.mFormat.currencyFormat(mStock.getUnitPrice()));
+				mTxtReceiveQty.setText(mFormat.qtyFormat(mStock.getReceive()));
+				mTxtReceivePrice.setText(mFormat.currencyFormat(mStock.getUnitPrice()));
 				mTxtReceiveQty.selectAll();
 				mTxtReceiveQty.requestFocus();
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -373,8 +375,8 @@ public class DirectReceiveActivity extends Activity implements
 			tvNo.setText(Integer.toString(position + 1));
 			tvCode.setText(stock.getCode());
 			tvName.setText(stock.getName());
-			tvQty.setText(MainActivity.mFormat.qtyFormat(stock.getReceive()));
-			tvPrice.setText(MainActivity.mFormat.currencyFormat(stock.getUnitPrice()));
+			tvQty.setText(mFormat.qtyFormat(stock.getReceive()));
+			tvPrice.setText(mFormat.currencyFormat(stock.getUnitPrice()));
 
 			btnDelete.setOnClickListener(new OnClickListener(){
 
