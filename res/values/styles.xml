@@ -1,10 +1,17 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="TextViewValue" parent="android:Widget.Holo.Light.TextView">
+        <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
     <style name="SectionHead" parent="android:Widget.Holo.Light.TextView">
         <item name="android:drawableBottom">@drawable/section_head</item>
         <item name="android:drawablePadding">4dp</item>
         <item name="android:layout_marginTop">8dp</item>
         <item name="android:paddingLeft">4dp</item>
-        <item name="android:textColor">@color/blue_light</item>
+        <item name="android:textAllCaps">true</item>
     </style>
     <style name="ButtonTextWhite" parent="ButtonText">
 	    <item name="android:textColor" >#ffffff</item>

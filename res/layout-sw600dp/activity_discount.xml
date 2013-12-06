@@ -84,7 +84,7 @@
     </TableRow>
 
     <ListView
-        android:id="@+id/listView1"
+        android:id="@+id/lvOrder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -111,48 +111,44 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/sub_total"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <EditText
-                android:id="@+id/txtSubTotal"
+            <TextView
+                android:id="@+id/tvSubTotal"
+                style="@style/TextViewValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="8dp"
-                android:ems="5"
-                android:enabled="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/black"
-                android:textStyle="bold" >
-
-                <requestFocus />
-            </EditText>
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/discount"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/tvTotalDiscount"
+                style="@style/TextViewValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <EditText
-                android:id="@+id/txtTotalDiscount"
+                android:id="@+id/txtOtherDiscount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="8dp"
                 android:ems="5"
-                android:imeOptions="actionDone"
-                android:inputType="numberDecimal"
-                android:lines="1"
-                android:singleLine="true"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/black" />
+                android:inputType="numberDecimal" >
+
+                <requestFocus />
+            </EditText>
 
             <LinearLayout
                 android:id="@+id/layoutVat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center_vertical"
                 android:orientation="horizontal" >
 
                 <TextView
@@ -160,20 +156,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/exclude_vat"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <EditText
-                    android:id="@+id/txtExcVat"
+                <TextView
+                    android:id="@+id/tvVatExclude"
+                    style="@style/TextViewValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="5"
-                    android:enabled="false"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@android:color/black"
-                    android:textStyle="bold" />
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
             </LinearLayout>
 
             <TextView
@@ -181,19 +172,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/total_price"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <EditText
-                android:id="@+id/txtTotalPrice"
+            <TextView
+                android:id="@+id/tvTotalPrice"
+                style="@style/TextViewValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="5"
-                android:enabled="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/black"
-                android:textStyle="bold" />
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
         </TableRow>
     </TableLayout>

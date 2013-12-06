@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +30,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
+	private int mTransactionId;
+	private int mComputerId;
+	private int mStaffId;
 	private Formatter mFormat;
 	private Transaction mTrans;
 	private List<OrderTransaction> mTransLst;
@@ -95,6 +99,8 @@ public class VoidBillActivity extends Activity {
 	    	
 	    });
 	    
+	    Intent intent = getIntent();
+	    mStaffId = intent.getIntExtra("staffId", 0);
 	    init();
 	}
 
@@ -145,8 +151,8 @@ public class VoidBillActivity extends Activity {
 				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
 				c.setTimeInMillis(trans.getPaidTime());
 				
-				MainActivity.sTransactionId = trans.getTransactionId();
-				MainActivity.sComputerId = trans.getComputerId();
+				mTransactionId = trans.getTransactionId();
+				mComputerId = trans.getComputerId();
 				mReceiptNo = trans.getReceiptNo();
 				mReceiptDate = mFormat.dateTimeFormat(c.getTime());
 				
@@ -295,7 +301,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText(mReceiptNo);
 		txtReceiptDate.setText(mReceiptDate);
 		
-		mOrderLst = mTrans.listAllOrder(MainActivity.sTransactionId, MainActivity.sComputerId);
+		mOrderLst = mTrans.listAllOrder(mTransactionId, mComputerId);
 		mBillDetailAdapter.notifyDataSetChanged();
 	}
 
@@ -320,8 +326,8 @@ public class VoidBillActivity extends Activity {
 			public void onClick(DialogInterface dialog, int which) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					if(mTrans.voidTransaction(MainActivity.sTransactionId,
-							MainActivity.sComputerId, MainActivity.sStaffId, voidReason)){
+					if(mTrans.voidTransaction(mTransactionId,
+							mComputerId, mStaffId, voidReason)){
 						hideKeyboard();
 					}
 				}else{

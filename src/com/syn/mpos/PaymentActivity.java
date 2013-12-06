@@ -43,6 +43,9 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 
 	public static float sTotalSalePrice;
 	
+	private int mTransactionId;
+	private int mComputerId;
+	private int mStaffId;
 	private Transaction mTrans;
 	private PaymentDetail mPayment;
 	private Formatter mFormat;
@@ -72,6 +75,11 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		mTxtTotalPaid = (EditText) findViewById(R.id.editTextTotalPaid);
 		mTxtTobePaid = (EditText) findViewById(R.id.editTextTobePaid);
 		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
+		
+		Intent intent = getIntent();
+		mTransactionId = intent.getIntExtra("transactionId", 0);
+		mComputerId = intent.getIntExtra("computerId", 0);
+		mStaffId = intent.getIntExtra("staffId", 0);
 	}
 
 	@Override
@@ -117,10 +125,16 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 	
 	private void summary(){
-		float vatExclude = mTrans.getTotalVatExclude(MainActivity.sTransactionId, 
-				MainActivity.sComputerId, false);
-		sTotalSalePrice = mTrans.getTotalSalePrice(MainActivity.sTransactionId, 
-				MainActivity.sComputerId, false) + vatExclude;
+		float vatExclude = mTrans.getTotalVatExclude(
+				mTransactionId, 
+				mComputerId, false);
+		float totalDiscount = mTrans.getOtherDiscount(
+				mTransactionId, 
+				mComputerId);
+		sTotalSalePrice = mTrans.getTotalSalePrice(
+				mTransactionId, 
+				mComputerId, false) + 
+				vatExclude - totalDiscount;
 		displayTotalPrice();
 	}
 	
@@ -180,10 +194,10 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 	
 	private void loadPayDetail(){
-		mPayLst = mPayment.listPayment(MainActivity.sTransactionId, MainActivity.sComputerId);
+		mPayLst = mPayment.listPayment(mTransactionId, mComputerId);
 		mPaymentAdapter.notifyDataSetChanged();
 		
-		mTotalPaid = mPayment.getTotalPaid(MainActivity.sTransactionId, MainActivity.sComputerId);
+		mTotalPaid = mPayment.getTotalPaid(mTransactionId, mComputerId);
 		
 		mPaymentLeft = sTotalSalePrice - mTotalPaid; 
 
@@ -201,8 +215,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	
 	private void addPayment(){
 		if(mTotalPay > 0 && mPaymentLeft > 0){
-				mPayment.addPaymentDetail(MainActivity.sTransactionId, 
-						MainActivity.sComputerId, PAY_TYPE_CASH, mTotalPay, "",
+				mPayment.addPaymentDetail(mTransactionId, 
+						mComputerId, PAY_TYPE_CASH, mTotalPay, "",
 						0, 0, 0, 0);
 			loadPayDetail();
 		}
@@ -370,15 +384,15 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			builder.addText("RECEIPT/TAX INVOICE(ABB) \n");
 			builder.addText("TAX ID: " + shopProp.getCompanyTaxID() + "\n");
 			builder.addText("Date: " + mFormat.dateFormat(new Date(), "d/MM/yy") + "\n");
-			builder.addText("Receipt No: " + mTrans.getTransaction(MainActivity.sTransactionId, 
-					MainActivity.sComputerId).getReceiptNo() + "\n");
+			builder.addText("Receipt No: " + mTrans.getTransaction(mTransactionId, 
+					mComputerId).getReceiptNo() + "\n");
 			
 			builder.addTextPosition(0);
 			builder.addText("______________________________________________________\n");
 
 			int maxNameLength = 30;
 			List<OrderTransaction.OrderDetail> orderLst = 
-					mTrans.listAllOrder(MainActivity.sTransactionId, MainActivity.sComputerId);
+					mTrans.listAllOrder(mTransactionId, mComputerId);
 	    	for(int i = 0; i < orderLst.size(); i++){
 	    		OrderTransaction.OrderDetail order = 
 	    				orderLst.get(i);
@@ -409,8 +423,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	    	builder.addText(total + createSpace(total.length(), 44));
 	    	builder.addText(mTxtTotalPrice.getText() + "\n");
 	    	builder.addText(discount + createSpace(discount.length(), 44));
-	    	builder.addText(mFormat.currencyFormat(mTrans.getPriceDiscount(MainActivity.sTransactionId, 
-	    			MainActivity.sComputerId, false)) + "\n");
+	    	builder.addText(mFormat.currencyFormat(mTrans.getPriceDiscount(mTransactionId, 
+	    			mComputerId, false)) + "\n");
 	    	builder.addText(payment + createSpace(payment.length(), 44));
 	    	builder.addText(mFormat.currencyFormat(mTotalPaid) + "\n");
 	    	builder.addText(change + createSpace(change.length(), 44));
@@ -458,8 +472,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	
 	public void confirm() {
 		if(mTotalPaid >=sTotalSalePrice){
-			if(mTrans.successTransaction(MainActivity.sTransactionId, 
-					MainActivity.sComputerId, MainActivity.sStaffId)){
+			if(mTrans.successTransaction(mTransactionId, 
+					mComputerId, mStaffId)){
 				float change = mTotalPaid - sTotalSalePrice;
 				print();
 				
@@ -506,8 +520,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 
 	public void cancel() {
-		mPayment.deleteAllPaymentDetail(MainActivity.sTransactionId, 
-				MainActivity.sComputerId);
+		mPayment.deleteAllPaymentDetail(mTransactionId, 
+				mComputerId);
 		finish();
 	}
 }

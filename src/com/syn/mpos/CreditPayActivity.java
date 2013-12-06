@@ -15,6 +15,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +28,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 public class CreditPayActivity extends Activity {
+	private int mTransactionId;
+	private int mComputerId;
 	private int mBankId;
 	private int mCardTypeId;
 	
@@ -57,6 +60,9 @@ public class CreditPayActivity extends Activity {
 		mBtnExpire = (Button) findViewById(R.id.btnPopCardExp);
 		mTxtTotalPay.setSelectAllOnFocus(true);
 		
+		Intent intent = getIntent();
+		mTransactionId = intent.getIntExtra("transactionId", 0);
+		mComputerId = intent.getIntExtra("computerId", 0);
 		init();
 	}
 
@@ -102,8 +108,8 @@ public class CreditPayActivity extends Activity {
 		
 		mTxtTotalPay.setText(mFormat.currencyFormat(mTotalCreditPay));
 		if(!cardNo.isEmpty() && mTotalCreditPay > 0){
-			if(mPayment.addPaymentDetail(MainActivity.sTransactionId, 
-					MainActivity.sComputerId, PaymentActivity.PAY_TYPE_CREDIT, 
+			if(mPayment.addPaymentDetail(mTransactionId, 
+					mComputerId, PaymentActivity.PAY_TYPE_CREDIT, 
 						mTotalCreditPay, cardNo, expMonth, expYear, mBankId, mCardTypeId)){
 				finish();
 			}

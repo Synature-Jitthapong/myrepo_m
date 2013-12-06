@@ -596,7 +596,7 @@ public class Transaction extends MPOSSQLiteHelper {
 		close();
 		return isSuccess;
 	}
-
+	
 	public boolean prepareTransaction(int transactionId, 
 			int computerId) throws SQLException {
 		boolean isSuccess = false;

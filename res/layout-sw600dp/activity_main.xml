@@ -194,7 +194,8 @@
             android:layout_height="match_parent"
             android:layout_above="@+id/layoutOrderCtrl"
             android:background="@drawable/white_layer"
-            android:choiceMode="multipleChoice" >
+            android:choiceMode="multipleChoice"
+            android:listSelector="@drawable/list_selector" >
 
         </ListView>
     </RelativeLayout>
