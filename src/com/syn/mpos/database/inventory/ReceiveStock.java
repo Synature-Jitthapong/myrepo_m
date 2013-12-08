@@ -3,6 +3,9 @@ package com.syn.mpos.database.inventory;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.mpos.database.Products;
+import com.syn.mpos.database.Shop;
+
 import android.content.Context;
 import android.database.Cursor;
 
@@ -16,41 +19,37 @@ public class ReceiveStock extends StockDocument{
 		List<StockProduct> stockLst = 
 				new ArrayList<StockProduct>();
 		
-		String strSql = "SELECT b.docdetail_id, " +
-				" b.product_id, " +
-				" b.product_qty, " +
-				" b.product_unit_price, " +
-				" b.product_net_price," +
-				" b.product_tax_type, " +
-				" b.product_tax_price," +
-				" c.product_code, " +
-				" c.product_name " +
-				" FROM document a " +
-				" LEFT JOIN docdetail b " +
-				" ON a.document_id=b.document_id " +
-				" AND a.shop_id=b.shop_id " +
-				" LEFT JOIN products c " +
-				" ON b.product_id=c.product_id " +
-				" WHERE a.document_id=" + documentId +
-				" AND a.shop_id=" + shopId +
-				" AND c.activated=1 ";
+		String strSql = "SELECT b." + COL_DOC_DETAIL_ID + ", " +
+				" b." + Products.COL_PRODUCT_ID + ", " +
+				" b." + COL_PRODUCT_AMOUNT + ", " +
+				" b." + Products.COL_PRODUCT_PRICE + ", " +
+				" c." + Products.COL_PRODUCT_CODE + ", " +
+				" c." + Products.COL_PRODUCT_NAME +
+				" FROM " + TB_DOCUMENT + " a " +
+				" LEFT JOIN " + TB_DOC_DETAIL + " b " +
+				" ON a." + COL_DOC_ID + "=b." + COL_DOC_ID +
+				" AND a." + Shop.COL_SHOP_ID + "=b." + Shop.COL_SHOP_ID +
+				" LEFT JOIN " + Products.TB_PRODUCT + " c " +
+				" ON b." + Products.COL_PRODUCT_ID + "=c." + Products.COL_PRODUCT_ID +
+				" WHERE a." + COL_DOC_ID + "=" + documentId +
+				" AND a." + Shop.COL_SHOP_ID + "=" + shopId;
 		
 		open();
 		Cursor cursor = mSqlite.rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				StockProduct mat = new StockProduct();
-				mat.setId(cursor.getInt(cursor.getColumnIndex("docdetail_id")));
-				mat.setProId(cursor.getInt(cursor.getColumnIndex("product_id")));
-				mat.setCode(cursor.getString(cursor.getColumnIndex("product_code")));
-				mat.setName(cursor.getString(cursor.getColumnIndex("product_name")));
-				mat.setReceive(cursor.getFloat(cursor.getColumnIndex("product_qty")));
-				mat.setUnitPrice(cursor.getFloat(cursor.getColumnIndex("product_unit_price")));
+				mat.setId(cursor.getInt(cursor.getColumnIndex(StockDocument.COL_DOC_DETAIL_ID)));
+				mat.setProId(cursor.getInt(cursor.getColumnIndex(Products.COL_PRODUCT_ID)));
+				mat.setCode(cursor.getString(cursor.getColumnIndex(Products.COL_PRODUCT_CODE)));
+				mat.setName(cursor.getString(cursor.getColumnIndex(Products.COL_PRODUCT_NAME)));
+				mat.setReceive(cursor.getFloat(cursor.getColumnIndex(StockDocument.COL_PRODUCT_AMOUNT)));
+				mat.setUnitPrice(cursor.getFloat(cursor.getColumnIndex(Products.COL_PRODUCT_PRICE)));
 				stockLst.add(mat);
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		mSqlite.close();
+		close();
 		return stockLst;
 	}
 }

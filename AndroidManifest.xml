@@ -42,7 +42,7 @@
         <activity
             android:name="com.syn.mpos.DiscountActivity"
             android:label="@string/discount"
-            android:screenOrientation="landscape" android:windowSoftInputMode="stateHidden|adjustResize">
+            android:screenOrientation="landscape" android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.mpos.MainActivity" />

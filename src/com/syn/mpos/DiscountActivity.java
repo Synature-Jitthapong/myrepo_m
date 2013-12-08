@@ -77,9 +77,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_discount);
-
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        
 		mLayoutVat = (LinearLayout) findViewById(R.id.layoutVat);
 		mTvExcVat = (TextView) findViewById(R.id.tvVatExclude);
 		mLvDiscount = (ListView) findViewById(R.id.lvOrder);
@@ -110,17 +107,14 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 					final long id) {
 				mPosition = position;
 				mOrder = (OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
-	
+				
 				mTvItemName.setText(mOrder.getProductName());
 				mTxtDiscount.setText(mFormat.currencyFormat(mOrder.getPriceDiscount()));
-
-				if(mOrder.getDiscountType() == 2)
-				{
+				if(mOrder.getDiscountType() == 2){
 					mTxtDiscount.setText(mFormat.currencyFormat(
 							mOrder.getPriceDiscount() * 100 / mOrder.getTotalRetailPrice()));
 				}
 				mRdoDiscountType.check(mOrder.getDiscountType() == 1 ? R.id.rdoPrice : R.id.rdoPercent);
-				
 				mItemInput.setVisible(true);
 				mItemInput.expandActionView();
 				mItemClose.setVisible(false);
@@ -133,9 +127,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
-		case android.R.id.home:
-			finish();
-			return true;
 		case R.id.itemCancel:
 			cancel();
 			return true;
@@ -160,6 +151,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		mTxtDiscount = (EditText) mItemInput.getActionView().findViewById(R.id.txtDiscount);
 		mRdoDiscountType = (RadioGroup) mItemInput.getActionView().findViewById(R.id.rdoDisType);
 		mBtnDone = (Button) mItemInput.getActionView().findViewById(R.id.btnDone);
+		
 		mTxtDiscount.setOnEditorActionListener(this);
 		mTxtDiscount.setSelectAllOnFocus(true);
 		mRdoDiscountType.setOnCheckedChangeListener(this);
@@ -179,20 +171,19 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				mDiscount = mOrder.getTotalRetailPrice() * mDiscount / 100;
 			}
 				
-			float totalPriceAfterDiscount = 
-					mOrder.getTotalRetailPrice() - mDiscount;
+			float totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - mDiscount;
+			
 			mTrans.discountEatchProduct(mOrder.getOrderDetailId(), 
 					mTransactionId, mComputerId, 
 					mProduct.getVatRate(mOrder.getProductId()), 
 					mOrder.getTotalRetailPrice(), 
 					mDiscount, mDiscountType);
 			
-			
-			OrderTransaction.OrderDetail order = 
-					mOrderLst.get(mPosition);
+			OrderTransaction.OrderDetail order = mOrderLst.get(mPosition);
 			order.setPriceDiscount(mDiscount);
 			order.setTotalSalePrice(totalPriceAfterDiscount);
 			order.setDiscountType(mDiscountType);
+			
 			mOrderLst.set(mPosition, order);
 			mDisAdapter.notifyDataSetChanged();
 			mIsEdited = true;
@@ -357,9 +348,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			case R.id.txtDiscount:
 				mDiscount = discount;
 				if(updateDiscount()){
-					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-					imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-	
 					mItemInput.setVisible(false);
 					mItemClose.setVisible(true);
 					mItemConfirm.setVisible(true);
