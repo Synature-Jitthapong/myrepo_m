@@ -8,10 +8,6 @@
         </menu>
 </item>
     <item android:id="@+id/itemReport" android:showAsAction="always|withText" android:title="@string/report">
-        <menu>
-            <item android:id="@+id/itemSaleByBill" android:title="@string/sale_report_by_bill"/>
-            <item android:id="@+id/itemSaleByProduct" android:title="@string/sale_report_by_product"/>
-        </menu>
     </item>
     <item android:id="@+id/itemUtility" android:showAsAction="always|withText" android:title="@string/utility">
         <menu>

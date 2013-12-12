@@ -106,10 +106,10 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 			mStcDocId = mStockCount.createDocument(mShopId,
 					StockDocument.DAILY_DOC, mStaffId);
 
-			mStockLst = mStockCount.listStock();
+			//mStockLst = mStockCount.listStock();
 			new SaveStockCountTask().execute();
 		} else {
-			mStockLst = mStockCount.listStock(mStcDocId, mShopId);
+			//mStockLst = mStockCount.listStock(mStcDocId, mShopId);
 			mStockAdapter.notifyDataSetChanged();
 		}
 	}
@@ -154,7 +154,7 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									mStockCount.confirmStock(mStcDocId,mShopId, mStaffId, "");
+									//mStockCount.confirmStock(mStcDocId,mShopId, mStaffId, "");
 
 									new AlertDialog.Builder(StockCountActivity.this)
 											.setIcon(android.R.drawable.ic_dialog_info)
@@ -318,7 +318,7 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 				progress.dismiss();
 
 			if (isSuccess) {
-				mStockLst = mStockCount.listStock(mStcDocId, mShopId);
+				//mStockLst = mStockCount.listStock(mStcDocId, mShopId);
 				mStockAdapter.notifyDataSetChanged();
 			} else {
 				new AlertDialog.Builder(getApplicationContext())
@@ -345,8 +345,9 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 
 		@Override
 		protected Boolean doInBackground(Void... params) {
-			return mStockCount.saveStock(mStcDocId, mShopId, mStaffId, "",
-					mStockLst);
+//			return mStockCount.saveStock(mStcDocId, mShopId, mStaffId, "",
+//					mStockLst);
+			return false;
 		}
 
 	}

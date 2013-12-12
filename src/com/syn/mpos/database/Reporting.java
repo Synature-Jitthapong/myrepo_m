@@ -2,7 +2,12 @@ package com.syn.mpos.database;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.syn.mpos.database.inventory.StockDocument;
+import com.syn.mpos.database.transaction.PaymentDetail;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.Report;
+
 import android.content.Context;
 import android.database.Cursor;
 
@@ -60,28 +65,47 @@ public class Reporting extends MPOSSQLiteHelper{
 		return reportDetail;
 	}
 	
+	public float getTotalPay(int transactionId, int computerId, int payTypeId){
+		float totalPay = 0.0f;
+		
+		open();
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + PaymentDetail.COL_PAY_AMOUNT + ") " +
+				" WHERE " + Transaction.COL_TRANS_ID + "? " +
+				" AND " + Computer.COL_COMPUTER_ID + "? " +
+				" AND " + PaymentDetail.COL_PAY_TYPE_ID + "=?", 
+				new String[]{String.valueOf(transactionId),
+				String.valueOf(computerId), String.valueOf(payTypeId)});
+		if(cursor.moveToFirst()){
+			totalPay = cursor.getFloat(0);
+		}
+		close();
+		return totalPay;
+	}
+	
 	public Report getSaleReportByBill(){
 		Report report = new Report();
 		
-		String strSql = " SELECT a.receipt_year, a.receipt_month, " +
-				" a.receipt_id, c.document_type_header, " +
-				" a.service_charge AS totalServiceCharge, " +
-				" a.transaction_vatable AS transVatable, " +
-				" a.transaction_vat AS transVat, " +
-				" a.transaction_exclude_vat AS transExcludeVat, " +
-				" SUM(b.total_retail_price) AS totalPrice, " +
-				" SUM(b.total_sale_price) AS subTotal, " +
-				" SUM(b.price_discount + b.member_discount) AS totalDiscount " +
-				" FROM order_transaction a " +
-				" LEFT JOIN order_detail b " +
-				" ON a.transaction_id=b.transaction_id " +
-				" AND a.computer_id=b.computer_id " +
-				" LEFT JOIN document_type c " +
-				" ON a.document_type_id=c.document_type_id " +
-				" WHERE a.transaction_status_id=2 " +
-				" AND a.sale_date >= " + dateFrom + 
-				" AND a.sale_date <= " + dateTo + 
-				" GROUP BY a.transaction_id";
+		String strSql = " SELECT a." + Transaction.COL_RECEIPT_YEAR + ", " +
+				" a." + Transaction.COL_RECEIPT_MONTH + ", " +
+				" a." + Transaction.COL_RECEIPT_ID + ", " +
+				" a." + Transaction.COL_TRANS_EXCLUDE_VAT + ", " +
+				" a." + Transaction.COL_TRANS_VAT + ", " +
+				" SUM(b." + Transaction.COL_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
+				" SUM(b." + Transaction.COL_TOTAL_SALE_PRICE + ") AS TotalSalePrice, " +
+				" a." + Transaction.COL_OTHER_DISCOUNT + " + " + 
+				" SUM(b." + Transaction.COL_PRICE_DISCOUNT + " + " + 
+				" b." + Transaction.COL_MEMBER_DISCOUNT + ") AS TotalDiscount " +
+				" FROM " + Transaction.TB_TRANS + " a " +
+				" LEFT JOIN " + Transaction.TB_ORDER + " b " +
+				" ON a." + Transaction.COL_TRANS_ID + "=b." + Transaction.COL_TRANS_ID +
+				" AND a." + Computer.COL_COMPUTER_ID + "=b." + Computer.COL_COMPUTER_ID +
+				" LEFT JOIN " + StockDocument.TB_DOCUMENT_TYPE + " c " +
+				" ON a." + Transaction.COL_DOC_TYPE + "=c." + StockDocument.COL_DOC_TYPE +
+				" WHERE a." + Transaction.COL_STATUS_ID + "=" + Transaction.TRANS_STATUS_SUCCESS +
+				" AND a." + Transaction.COL_SALE_DATE + 
+				" BETWEEN " + dateFrom + " AND " + dateTo + 
+				" GROUP BY a." + Transaction.COL_TRANS_ID;
 		
 		open();
 		Cursor cursor = mSqlite.rawQuery(strSql, null);
@@ -89,25 +113,22 @@ public class Reporting extends MPOSSQLiteHelper{
 			do{
 				Report.ReportDetail reportDetail = 
 						new Report.ReportDetail();
-				String docTypeHeader = cursor.getString(cursor.getColumnIndex("document_type_header"));
-				String receiptYear = String.format("%04d", cursor.getInt(cursor.getColumnIndex("receipt_year")));
-				String receiptMonth = String.format("%02d", cursor.getInt(cursor.getColumnIndex("receipt_month")));
-				String receiptId = String.format("%06d", cursor.getInt(cursor.getColumnIndex("receipt_id")));
+				String docTypeHeader = 
+						cursor.getString(cursor.getColumnIndex(StockDocument.COL_DOC_TYPE_HEADER));
+				String receiptYear = 
+						String.format("%04d", cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_YEAR)));
+				String receiptMonth = 
+						String.format("%02d", cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_MONTH)));
+				String receiptId = 
+						String.format("%06d", cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_ID)));
 				
 				reportDetail.setReceiptNo(docTypeHeader + receiptMonth + receiptYear + receiptId);
-				reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("totalPrice")));
-				reportDetail.setSubTotal(cursor.getFloat(cursor.getColumnIndex("subTotal")));
-				reportDetail.setServiceCharge(cursor.getFloat(cursor.getColumnIndex("totalServiceCharge")));
-				reportDetail.setVatExclude(cursor.getFloat(cursor.getColumnIndex("transExcludeVat")));
-				reportDetail.setTotalSale(reportDetail.getSubTotal() + reportDetail.getServiceCharge() + 
-						reportDetail.getVatExclude());
-				reportDetail.setDiscount(cursor.getFloat(cursor.getColumnIndex("totalDiscount")));
-				reportDetail.setVatable(cursor.getFloat(cursor.getColumnIndex("transVatable")));
-				reportDetail.setTotalVat(cursor.getFloat(cursor.getColumnIndex("transVat")));
-				reportDetail.setCash(0);
-				reportDetail.setTotalPayment(0);
-				reportDetail.setDiff(0);
-				
+				reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice")));
+				reportDetail.setSubTotal(cursor.getFloat(cursor.getColumnIndex("TotalSalePrice")));
+				reportDetail.setVatExclude(cursor.getFloat(cursor.getColumnIndex(Transaction.COL_TRANS_EXCLUDE_VAT)));
+				reportDetail.setDiscount(cursor.getFloat(cursor.getColumnIndex("TotalDiscount")));
+				reportDetail.setVatable(cursor.getFloat(cursor.getColumnIndex(Transaction.COL_TRANS_VATABLE)));
+				reportDetail.setTotalVat(cursor.getFloat(cursor.getColumnIndex(Transaction.COL_TRANS_VAT)));
 				report.reportDetail.add(reportDetail);
 				
 			}while(cursor.moveToNext());

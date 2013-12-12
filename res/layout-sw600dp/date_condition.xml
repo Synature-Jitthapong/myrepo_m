@@ -10,8 +10,7 @@
         style="?android:attr/spinnerStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableLeft="@android:drawable/ic_menu_day"
-        android:onClick="onDateFromClick" />
+        android:drawableLeft="@android:drawable/ic_menu_day"/>
 
     <TextView
         android:id="@+id/textView9"
@@ -26,7 +25,6 @@
         style="?android:attr/spinnerStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableLeft="@android:drawable/ic_menu_month"
-        android:onClick="onDateToClick" />
+        android:drawableLeft="@android:drawable/ic_menu_month"/>
 
 </LinearLayout>

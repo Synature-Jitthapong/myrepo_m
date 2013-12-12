@@ -3,6 +3,7 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
@@ -11,6 +12,7 @@ import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
+
 import android.os.Bundle;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -48,14 +50,12 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 	private int mTransactionId;
 	private int mComputerId;
-	private int mShopId;
-	private int mStaffId;
 	private int mSessionId;
-	
-	public Transaction mTrans;
-	public Products mProduct;
-	public Formatter mFormat;
-	public Setting mSetting;
+	private int mStaffId;
+	private int mShopId;
+	private Transaction mTrans;
+	private Products mProduct;
+	private Formatter mFormat;
 	private List<Products.ProductDept> mProductDeptLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private List<OrderTransaction.OrderDetail> mOrderSelLst;
@@ -110,7 +110,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 	public void init(){
 		mFormat = new Formatter(this);
-		mSetting = new Setting(this);
 		mTrans = new Transaction(this);
 		
 		mTransactionId = mTrans.getCurrTransaction(mComputerId);
@@ -307,14 +306,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			intent.putExtra("staffId", mStaffId);
 			startActivity(intent);
 			return true;
-		case R.id.itemSaleByBill:
+		case R.id.itemReport:
 			intent = new Intent(MainActivity.this, SaleReportActivity.class);
-			intent.putExtra("mode", 1);
-			startActivity(intent);
-			return true;
-		case R.id.itemSaleByProduct:
-			intent = new Intent(MainActivity.this, SaleReportActivity.class);
-			intent.putExtra("mode", 2);
 			startActivity(intent);
 			return true;
 		case R.id.itemVoid:
