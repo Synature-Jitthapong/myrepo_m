@@ -222,5 +222,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="enter_printer_ip">Please enter printer IP.</string>
     <string name="view_stock">View Stock</string>
     <string name="other_discount">Other Discount</string>
+    <string name="bill_no">Bill</string>
 
 </resources>

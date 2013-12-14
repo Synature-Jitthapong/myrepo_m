@@ -12,12 +12,12 @@ import android.content.Context;
 import android.database.Cursor;
 
 public class Reporting extends MPOSSQLiteHelper{
-	protected long dateFrom, dateTo;
+	protected long mDateFrom, mDateTo;
 	
 	public Reporting(Context c, long dFrom, long dTo){
 		super(c);
-		dateFrom = dFrom;
-		dateTo = dTo;
+		mDateFrom = dFrom;
+		mDateTo = dTo;
 	}
 	
 	public Reporting(Context c){
@@ -40,8 +40,8 @@ public class Reporting extends MPOSSQLiteHelper{
 				" ON a.transaction_id=b.transaction_id " +
 				" AND a.computer_id=b.computer_id " +
 				" WHERE a.transaction_status_id=2 " +
-				" AND a.sale_date >= " + dateFrom + 
-				" AND a.sale_date <= " + dateTo + 
+				" AND a.sale_date >= " + mDateFrom + 
+				" AND a.sale_date <= " + mDateTo + 
 				" GROUP BY a.receipt_year, a.receipt_month";
 
 		open();
@@ -91,11 +91,13 @@ public class Reporting extends MPOSSQLiteHelper{
 				" a." + Transaction.COL_RECEIPT_ID + ", " +
 				" a." + Transaction.COL_TRANS_EXCLUDE_VAT + ", " +
 				" a." + Transaction.COL_TRANS_VAT + ", " +
+				" a." + Transaction.COL_TRANS_VATABLE + ", " +
 				" SUM(b." + Transaction.COL_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
 				" SUM(b." + Transaction.COL_TOTAL_SALE_PRICE + ") AS TotalSalePrice, " +
 				" a." + Transaction.COL_OTHER_DISCOUNT + " + " + 
 				" SUM(b." + Transaction.COL_PRICE_DISCOUNT + " + " + 
-				" b." + Transaction.COL_MEMBER_DISCOUNT + ") AS TotalDiscount " +
+				" b." + Transaction.COL_MEMBER_DISCOUNT + ") AS TotalDiscount, " +
+				" c." + StockDocument.COL_DOC_TYPE_HEADER + 
 				" FROM " + Transaction.TB_TRANS + " a " +
 				" LEFT JOIN " + Transaction.TB_ORDER + " b " +
 				" ON a." + Transaction.COL_TRANS_ID + "=b." + Transaction.COL_TRANS_ID +
@@ -104,7 +106,7 @@ public class Reporting extends MPOSSQLiteHelper{
 				" ON a." + Transaction.COL_DOC_TYPE + "=c." + StockDocument.COL_DOC_TYPE +
 				" WHERE a." + Transaction.COL_STATUS_ID + "=" + Transaction.TRANS_STATUS_SUCCESS +
 				" AND a." + Transaction.COL_SALE_DATE + 
-				" BETWEEN " + dateFrom + " AND " + dateTo + 
+				" BETWEEN " + mDateFrom + " AND " + mDateTo + 
 				" GROUP BY a." + Transaction.COL_TRANS_ID;
 		
 		open();
@@ -156,8 +158,8 @@ public class Reporting extends MPOSSQLiteHelper{
 				" AND a.computer_id=b.computer_id " +
 				" LEFT JOIN products c " +
 				" ON b.product_id=c.product_id " +
-				" WHERE a.sale_date >= " + dateFrom + 
-				" AND a.sale_date <= " + dateTo +
+				" WHERE a.sale_date >= " + mDateFrom + 
+				" AND a.sale_date <= " + mDateTo +
 				" GROUP BY c.product_group_id " +
 				" ORDER BY c.product_id ";
 		
@@ -197,8 +199,8 @@ public class Reporting extends MPOSSQLiteHelper{
 				" LEFT JOIN products c " +
 				" ON b.product_id=c.product_id " +
 				" WHERE c.product_dept_id=" + deptId +
-				" AND a.sale_date >= " + dateFrom + 
-				" AND a.sale_date <= " + dateTo +
+				" AND a.sale_date >= " + mDateFrom + 
+				" AND a.sale_date <= " + mDateTo +
 				" GROUP BY c.product_dept_id " +
 				" ORDER BY c.product_id ";
 		
@@ -255,8 +257,8 @@ public class Reporting extends MPOSSQLiteHelper{
 						" LEFT JOIN products c " +
 						" ON b.product_id=c.product_id " +
 						" WHERE c.product_dept_id=" + cursor1.getInt(cursor1.getColumnIndex("product_dept_id")) +
-						" AND a.sale_date >= " + dateFrom + 
-						" AND a.sale_date <= " + dateTo +
+						" AND a.sale_date >= " + mDateFrom + 
+						" AND a.sale_date <= " + mDateTo +
 						" GROUP BY c.product_id " +
 						" ORDER BY c.product_id ";
 				
