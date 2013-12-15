@@ -9,7 +9,7 @@ import android.database.SQLException;
 
 import com.syn.pos.ShopData;
 
-public class Computer extends MPOSSQLiteHelper{
+public class Computer extends MPOSDatabase{
 	public static final String TB_COMPUTER = "Computer";
 	public static final String COL_COMPUTER_ID = "ComputerId";
 	public static final String COL_COMPUTER_NAME = "ComputerName";

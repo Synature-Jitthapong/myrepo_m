@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class Setting extends MPOSSQLiteHelper{
+public class Setting extends MPOSDatabase{
 	public static final String TB_CONNECTION_CONFIG = "ConnectionConfig";
 	public static final String COL_ADDR = "Addr";
 	public static final String COL_BACKOFFICE = "BackOffice";

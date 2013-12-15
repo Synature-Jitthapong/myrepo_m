@@ -34,7 +34,6 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class StockCountActivity extends Activity implements OnEditorActionListener{
-	private Formatter mFormat;
 	private StockCount mStockCount;
 	private int mStcDocId;
 	private StockProduct mStockProduct;
@@ -72,7 +71,6 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 		mCalendar = Calendar.getInstance();
 		Calendar dateFrom = new GregorianCalendar(mCalendar.get(Calendar.YEAR),
 				mCalendar.get(Calendar.MONTH), 1);
-		mFormat = new Formatter(StockCountActivity.this);
 		mStockCount = new StockCount(StockCountActivity.this, dateFrom.getTimeInMillis(),
 				mCalendar.getTimeInMillis());
 		mStockLst = new ArrayList<StockProduct>();
@@ -89,7 +87,7 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 				
 				mItemInput.setVisible(true);
 				mTvItemName.setText(mStockProduct.getName());
-				mTxtCountStock.setText(mFormat.qtyFormat(mStockProduct.getCountQty()));
+				mTxtCountStock.setText(MPOSApplication.sGlobalVar.qtyFormat(mStockProduct.getCountQty()));
 				mTxtCountStock.selectAll();
 				mTxtCountStock.requestFocus();
 				
@@ -257,9 +255,9 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 			tvItemNo.setText(Integer.toString(position + 1));
 			tvItemCode.setText(stock.getCode());
 			tvItemName.setText(stock.getName());
-			tvItemCurrQty.setText(mFormat.qtyFormat(currQty));
-			tvCount.setText(mFormat.qtyFormat(countQty));
-			tvItemDiff.setText(mFormat.qtyFormat(diffQty));
+			tvItemCurrQty.setText(MPOSApplication.sGlobalVar.qtyFormat(currQty));
+			tvCount.setText(MPOSApplication.sGlobalVar.qtyFormat(countQty));
+			tvItemDiff.setText(MPOSApplication.sGlobalVar.qtyFormat(diffQty));
 			tvItemUnit.setText("unit");
 
 //			txtItemQty.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -284,7 +282,7 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 //								enterCount, stock.getUnitPrice(), "");
 //
 //						stock.setCountQty(enterCount);
-//						tvItemDiff.setText(mFormat.qtyFormat(enterCount
+//						tvItemDiff.setText(MainActivity.sGlobalVar.qtyFormat(enterCount
 //								- currQty));
 //					}
 //				}

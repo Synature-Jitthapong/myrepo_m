@@ -8,7 +8,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import com.syn.pos.ShopData;
 
-public class GlobalProperty extends MPOSSQLiteHelper{
+public class GlobalProperty extends MPOSDatabase{
 	public static final String TB_GLOBAL_PROPERTY = "GlobalProperty";
 	public static final String COL_CURRENCY_SYMBOL = "CurrencySymbol";
 	public static final String COL_CURRENCY_CODE = "CurrencyCode";

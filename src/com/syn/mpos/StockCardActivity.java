@@ -24,7 +24,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class StockCardActivity extends Activity implements OnClickListener{
-	private Formatter mFormat;
 	private StockCard mStockCard;
 	private List<StockProduct> mStockLst;
 	private StockCardAdapter mStockCardAdapter;
@@ -50,7 +49,6 @@ public class StockCardActivity extends Activity implements OnClickListener{
 
 	private void init(){
 		mStockCard = new StockCard(StockCardActivity.this);
-		mFormat = new Formatter(StockCardActivity.this);
 		mCalendarFrom = Calendar.getInstance();
 		mCalendarTo = Calendar.getInstance();
 		mCalendarFrom = new GregorianCalendar(mCalendarFrom.get(Calendar.YEAR), 
@@ -69,8 +67,8 @@ public class StockCardActivity extends Activity implements OnClickListener{
 		MenuItem menuItem = (MenuItem) menu.findItem(R.id.itemDateCondition);
 		btnDateFrom = (Button) menuItem.getActionView().findViewById(R.id.btnDateFrom);
 		btnDateTo = (Button) menuItem.getActionView().findViewById(R.id.btnDateTo);
-		btnDateFrom.setText(mFormat.dateFormat(mCalendarFrom.getTime()));
-		btnDateTo.setText(mFormat.dateFormat(mCalendarTo.getTime()));
+		btnDateFrom.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendarFrom.getTime()));
+		btnDateTo.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendarTo.getTime()));
 		btnDateFrom.setOnClickListener(this);
 		btnDateTo.setOnClickListener(this);
 		return true;
@@ -98,7 +96,7 @@ public class StockCardActivity extends Activity implements OnClickListener{
 				mCalendarFrom.setTimeInMillis(date);
 				mDateFrom = mCalendarFrom.getTimeInMillis();
 				
-				btnDateFrom.setText(mFormat.dateFormat(mCalendarFrom.getTime()));
+				btnDateFrom.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendarFrom.getTime()));
 			}
 		});
 		dialogFragment.show(getFragmentManager(), "Condition");
@@ -112,7 +110,7 @@ public class StockCardActivity extends Activity implements OnClickListener{
 				mCalendarTo.setTimeInMillis(date);
 				mDateTo = mCalendarTo.getTimeInMillis();
 				
-				btnDateTo.setText(mFormat.dateFormat(mCalendarTo.getTime()));
+				btnDateTo.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendarTo.getTime()));
 			}
 		});
 		dialogFragment.show(getFragmentManager(), "Condition");
@@ -177,12 +175,12 @@ public class StockCardActivity extends Activity implements OnClickListener{
 			holder.tvNo.setText(Integer.toString(position + 1));
 			holder.tvCode.setText(stock.getCode());
 			holder.tvName.setText(stock.getName());
-			holder.tvInitial.setText(mFormat.qtyFormat(init));
-			holder.tvReceive.setText(mFormat.qtyFormat(receive));
-			holder.tvSale.setText(mFormat.qtyFormat(sale));
-			holder.tvEndding.setText(mFormat.qtyFormat(endding));
-			holder.tvVariance.setText(mFormat.qtyFormat(variance));
-			holder.tvSummary.setText(mFormat.qtyFormat(summary));
+			holder.tvInitial.setText(MPOSApplication.sGlobalVar.qtyFormat(init));
+			holder.tvReceive.setText(MPOSApplication.sGlobalVar.qtyFormat(receive));
+			holder.tvSale.setText(MPOSApplication.sGlobalVar.qtyFormat(sale));
+			holder.tvEndding.setText(MPOSApplication.sGlobalVar.qtyFormat(endding));
+			holder.tvVariance.setText(MPOSApplication.sGlobalVar.qtyFormat(variance));
+			holder.tvSummary.setText(MPOSApplication.sGlobalVar.qtyFormat(summary));
 			
 			if(position % 2 == 0)
 				convertView.setBackgroundResource(R.color.smoke_white);

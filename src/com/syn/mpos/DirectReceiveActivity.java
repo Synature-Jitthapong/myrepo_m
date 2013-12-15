@@ -10,11 +10,14 @@ import com.syn.mpos.database.inventory.ReceiveStock;
 import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.mpos.database.inventory.StockProduct;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -42,11 +45,8 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class DirectReceiveActivity extends Activity implements
 		OnActionExpandListener, OnEditorActionListener {
-	private Products mProduct;
-	private Formatter mFormat;
 	private ReceiveStock mReceiveStock;
 	private List<Products.Product> mProductLst;
-	private ResultAdapter mResultAdapter;
 	private ReceiveStockAdapter mStockAdapter;
 	private List<StockProduct> mStockLst;
 	private StockProduct mStock;
@@ -58,7 +58,6 @@ public class DirectReceiveActivity extends Activity implements
 	private MenuItem mItemSearch;
 	private MenuItem mItemInput;
 	private SearchView mSearchView;
-	private PopupWindow mPopup;
 	private View mPopSearch;
 	private ListView mListViewStock;
 	private ListView mListViewResult;
@@ -72,17 +71,39 @@ public class DirectReceiveActivity extends Activity implements
 		setContentView(R.layout.activity_direct_receive);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-
-		mListViewStock = (ListView) findViewById(R.id.listView1);
-		setupPopSearch();
+        
+		mListViewStock = (ListView) findViewById(R.id.lvStock);
+		
+		handleIntent(getIntent());
 	}
 
 	@Override
-	protected void onResume() {
-		init();
-		super.onResume();
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		handleIntent(intent);
 	}
 
+	private void handleIntent(Intent intent) {
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+        	int productId = Integer.parseInt(intent.getDataString());
+        	Products.Product p = GlobalVar.sProduct.getProduct(productId);
+        	// add selected product
+        	addSelectedProduct(productId, 1, p.getProductPrice(), p.getProductUnitName());
+        	
+        } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+    
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            
+        }
+    }
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		init();
+	}
+
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -90,50 +111,19 @@ public class DirectReceiveActivity extends Activity implements
 		
 		mItemInput = menu.findItem(R.id.itemReceiveInput);
 		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);
-		mTxtReceiveQty = (EditText) mItemInput.getActionView().findViewById(R.id.editText1);
-		mTxtReceivePrice = (EditText) mItemInput.getActionView().findViewById(R.id.editText2);
+		mTxtReceiveQty = (EditText) mItemInput.getActionView().findViewById(R.id.txtQty);
+		mTxtReceivePrice = (EditText) mItemInput.getActionView().findViewById(R.id.txtPrice);
 		mTxtReceiveQty.setSelectAllOnFocus(true);
 		mTxtReceivePrice.setSelectAllOnFocus(true);
 		mTxtReceiveQty.setOnEditorActionListener(this);
 		mTxtReceivePrice.setOnEditorActionListener(this);
-		
+
+		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 		mItemSearch = menu.findItem(R.id.itemSearch);
 		mSearchView = (SearchView) mItemSearch.getActionView();
-		mSearchView.setOnQueryTextListener(new OnQueryTextListener() {
-
-			@Override
-			public boolean onQueryTextChange(String query) {
-				return false;
-			}
-
-			@Override
-			public boolean onQueryTextSubmit(String query) {
-
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(mSearchView.getWindowToken(), 0);
-                
-				mProductLst = mProduct.listProduct(query);
-				if(mProductLst.size() > 0){
-					mResultAdapter.notifyDataSetChanged();
-				}else{
-					new AlertDialog.Builder(DirectReceiveActivity.this)
-					.setTitle(R.string.search)
-					.setMessage(R.string.not_found_item)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// TODO Auto-generated method stub
-							
-						}
-					})
-					.show();
-				}
-				return true;
-			}
-
-		});
-
+		mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+		mSearchView.setIconifiedByDefault(false);
+		mItemSearch.expandActionView();
 		return true;
 	}
 
@@ -164,44 +154,6 @@ public class DirectReceiveActivity extends Activity implements
 		
 		mItemInput.setVisible(false);
 	}
-	
-	private void setupPopSearch() {
-		mProductLst = new ArrayList<Products.Product>();
-		mResultAdapter = new ResultAdapter();
-
-		LayoutInflater inflater = LayoutInflater.from(DirectReceiveActivity.this);
-		mPopSearch = inflater.inflate(R.layout.popup_list, null);
-		mListViewResult = (ListView) mPopSearch.findViewById(R.id.listView1);
-		mListViewResult.setAdapter(mResultAdapter);
-		mListViewResult.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View v,
-					int position, long id) {
-				Products.Product p = (Products.Product) parent
-						.getItemAtPosition(position);
-
-				addSelectedProduct(p.getProductId(), 1, p.getProductPrice(), "");
-				clearActionInput();
-				
-				mPopup.dismiss();
-				if(mItemSearch.isActionViewExpanded())
-					mItemSearch.collapseActionView();
-			}
-
-		});
-
-		mPopup = new PopupWindow(DirectReceiveActivity.this);
-		mPopup.setContentView(mPopSearch);
-		mPopup.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
-		mPopup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-		mPopup.setFocusable(true);
-	}
-
-	private void showPopup() {
-		if (!mPopup.isShowing())
-			mPopup.showAsDropDown(mSearchView);
-	}
 
 	@Override
 	protected void onDestroy() {
@@ -210,8 +162,6 @@ public class DirectReceiveActivity extends Activity implements
 	}
 
 	private void init() {
-		mFormat = new Formatter(this);
-		mProduct = new Products(this);
 		mReceiveStock = new ReceiveStock(DirectReceiveActivity.this);
 		mStockLst = new ArrayList<StockProduct>();
 		mStockAdapter = new ReceiveStockAdapter();
@@ -230,8 +180,8 @@ public class DirectReceiveActivity extends Activity implements
 				mItemInput.setVisible(true);
 				
 				mTvItemName.setText(mStock.getName());
-				mTxtReceiveQty.setText(mFormat.qtyFormat(mStock.getReceive()));
-				mTxtReceivePrice.setText(mFormat.currencyFormat(mStock.getUnitPrice()));
+				mTxtReceiveQty.setText(MPOSApplication.sGlobalVar.qtyFormat(mStock.getReceive()));
+				mTxtReceivePrice.setText(MPOSApplication.sGlobalVar.currencyFormat(mStock.getUnitPrice()));
 				mTxtReceiveQty.selectAll();
 				mTxtReceiveQty.requestFocus();
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -260,78 +210,13 @@ public class DirectReceiveActivity extends Activity implements
 				mStock.getReceive(), mStock.getUnitPrice(), "");	
 	}
 	
-	private void addSelectedProduct(int materialId, float materialQty,
-			float materialPrice, String unitName) {
-		mReceiveStock.addDocumentDetail(mDocumentId, mShopId, materialId,
-				materialQty, materialPrice, unitName);
+	private void addSelectedProduct(int productId, float productAmount,
+			float productPrice, String unitName) {
+		mReceiveStock.addDocumentDetail(mDocumentId, mShopId, productId,
+				productAmount, productPrice, unitName);
 
 		mStockLst = mReceiveStock.listStock(mDocumentId, mShopId);
 		mStockAdapter.notifyDataSetChanged();
-	}
-
-	// search result adapter
-	private class ResultAdapter extends BaseAdapter {
-
-		private LayoutInflater inflater;
-		private ImageLoader imgLoader;
-
-		public ResultAdapter() {
-			inflater = LayoutInflater.from(DirectReceiveActivity.this);
-
-			imgLoader = new ImageLoader(DirectReceiveActivity.this, R.drawable.no_food,
-					"mpos_img");
-		}
-
-		@Override
-		public int getCount() {
-			return mProductLst != null ? mProductLst.size() : 0;
-		}
-
-		@Override
-		public Products.Product getItem(int position) {
-			return mProductLst.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public void notifyDataSetChanged() {
-			showPopup();
-			super.notifyDataSetChanged();
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			Products.Product p = mProductLst.get(position);
-			ViewHolder holder;
-
-			if (convertView == null) {
-				convertView = inflater.inflate(R.layout.search_product_template, null);
-				holder = new ViewHolder();
-				holder.img = (ImageView) convertView.findViewById(R.id.imageView1);
-				holder.tvCode = (TextView) convertView.findViewById(R.id.tvCode);
-				holder.tvName = (TextView) convertView.findViewById(R.id.tvName);
-
-				convertView.setTag(holder);
-			} else {
-				holder = (ViewHolder) convertView.getTag();
-			}
-
-			imgLoader.displayImage(Setting.mMenuImageUrl + p.getImgUrl(), holder.img);
-			holder.tvCode.setText(p.getProductCode());
-			holder.tvName.setText(p.getProductName());
-
-			return convertView;
-		}
-
-		private class ViewHolder {
-			ImageView img;
-			TextView tvCode;
-			TextView tvName;
-		}
 	}
 
 	// stock adapter
@@ -370,13 +255,13 @@ public class DirectReceiveActivity extends Activity implements
 			TextView tvName = (TextView) rowView.findViewById(R.id.tvName);
 			TextView tvQty = (TextView) rowView.findViewById(R.id.tvQty);
 			TextView tvPrice = (TextView) rowView.findViewById(R.id.tvPrice);
-			Button btnDelete = (Button) rowView.findViewById(R.id.button1);
+			Button btnDelete = (Button) rowView.findViewById(R.id.btnDelete);
 			
 			tvNo.setText(Integer.toString(position + 1));
 			tvCode.setText(stock.getCode());
 			tvName.setText(stock.getName());
-			tvQty.setText(mFormat.qtyFormat(stock.getReceive()));
-			tvPrice.setText(mFormat.currencyFormat(stock.getUnitPrice()));
+			tvQty.setText(MPOSApplication.sGlobalVar.qtyFormat(stock.getReceive()));
+			tvPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(stock.getUnitPrice()));
 
 			btnDelete.setOnClickListener(new OnClickListener(){
 
@@ -412,15 +297,15 @@ public class DirectReceiveActivity extends Activity implements
 
 	@Override
 	public boolean onMenuItemActionCollapse(MenuItem item) {
-		if (mPopup.isShowing())
-			mPopup.dismiss();
+		
+
 		return true;
 	}
 
 	@Override
 	public boolean onMenuItemActionExpand(MenuItem item) {
-		if (mPopup.isShowing())
-			mPopup.dismiss();
+		
+
 		return true;
 	}
 
@@ -514,14 +399,14 @@ public class DirectReceiveActivity extends Activity implements
 			float qty = mStock.getReceive();
 			float price = mStock.getUnitPrice();
 			
-			if(v.getId() == R.id.editText1){
+			if(v.getId() == R.id.txtQty){
 				try {
 					qty = Float.parseFloat(v.getText().toString());
 				} catch (NumberFormatException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else if(v.getId() == R.id.editText2){
+			}else if(v.getId() == R.id.txtPrice){
 				try {
 					price = Float.parseFloat(v.getText().toString());
 				} catch (NumberFormatException e) {

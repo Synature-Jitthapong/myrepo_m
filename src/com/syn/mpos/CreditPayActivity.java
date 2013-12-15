@@ -3,13 +3,14 @@ package com.syn.mpos;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+
 import com.syn.mpos.R;
 import com.syn.mpos.database.Bank;
 import com.syn.mpos.database.CreditCard;
 import com.syn.mpos.database.transaction.PaymentDetail;
-import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,7 +35,6 @@ public class CreditPayActivity extends Activity {
 	private int mCardTypeId;
 	
 	private PaymentDetail mPayment;
-	private Formatter mFormat;
 	private Calendar mCalendar;
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
@@ -67,7 +67,6 @@ public class CreditPayActivity extends Activity {
 	}
 
 	private void init(){
-		mFormat = new Formatter(this);
 		mPayment = new PaymentDetail(this);
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
@@ -84,14 +83,14 @@ public class CreditPayActivity extends Activity {
 			@Override
 			public void onSetDate(long date) {
 				mCalendar.setTimeInMillis(date);
-				mBtnExpire.setText(mFormat.dateFormat(mCalendar.getTime()));
+				mBtnExpire.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendar.getTime()));
 			}
 		});
 		dialogFragment.show(getFragmentManager(), "Condition");
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(mFormat.currencyFormat(PaymentActivity.sTotalSalePrice));
+		mTxtTotalPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(PaymentActivity.sTotalSalePrice));
 	}
 	
 	private void addPayment(){
@@ -106,7 +105,7 @@ public class CreditPayActivity extends Activity {
 			e.printStackTrace();
 		}
 		
-		mTxtTotalPay.setText(mFormat.currencyFormat(mTotalCreditPay));
+		mTxtTotalPay.setText(MPOSApplication.sGlobalVar.currencyFormat(mTotalCreditPay));
 		if(!cardNo.isEmpty() && mTotalCreditPay > 0){
 			if(mPayment.addPaymentDetail(mTransactionId, 
 					mComputerId, PaymentActivity.PAY_TYPE_CREDIT, 

@@ -34,8 +34,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class SettingActivity extends Activity {
-	private static Setting mSetting;
-	private static Shop mShop;
 	private static String mDeviceCode;
 	private static Setting.Connection mConn;
 	private static int mSettingPosition;
@@ -45,11 +43,9 @@ public class SettingActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_setting);
 		
-		mSetting = new Setting(this);
-		mShop = new Shop(this);
 		mDeviceCode = Secure.getString(this.getContentResolver(),
 				Secure.ANDROID_ID);
-		mConn = mSetting.getConnection();
+		mConn = GlobalVar.sSetting.getConnection();
 		
 		Intent intent = getIntent();
 		mSettingPosition = intent.getIntExtra("settingPosition", 0);
@@ -126,12 +122,10 @@ public class SettingActivity extends Activity {
 	public static class SyncSettingFragment extends Fragment{
 		private List<Setting.SyncItem> mSyncLst;
 		private SyncAdapter mSyncAdapter;
-		private Formatter mFormat;
 		
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			mFormat = new Formatter(getActivity());
 		}
 
 		@Override
@@ -173,7 +167,7 @@ public class SettingActivity extends Activity {
 					
 					switch(syncItem.getSyncItemId()){
 					case 1:
-						mposService.loadProductData(mShop.getShopProperty().getShopID(), 
+						mposService.loadProductData(GlobalVar.sShop.getShopProperty().getShopID(), 
 								mDeviceCode, new MPOSService.OnServiceProcessListener() {
 									
 									@Override
@@ -265,7 +259,7 @@ public class SettingActivity extends Activity {
 				
 				tvSyncName.setText(mSyncLst.get(position).getSyncItemName());
 				if(mSyncLst.get(position).getSyncStatus() == 1){
-					tvSyncSummary.setText(mFormat.dateTimeFormat(new Date(mSyncLst.get(position).getSyncTime())));
+					tvSyncSummary.setText(MPOSApplication.sGlobalVar.dateTimeFormat(new Date(mSyncLst.get(position).getSyncTime())));
 					imgSyncStatus.setImageResource(R.drawable.ic_navigation_accept_light);
 				}else if(mSyncLst.get(position).getSyncStatus() == -1){
 					tvSyncSummary.setText(R.string.sync_fail);
@@ -305,8 +299,8 @@ public class SettingActivity extends Activity {
 					String backoffice = txtBackoffice.getText().toString();
 					
 					if(!addr.isEmpty() && !backoffice.isEmpty()){
-						mSetting.addConnectionConfig(addr, backoffice);
-						mConn = mSetting.getConnection();
+						GlobalVar.sSetting.addConnectionConfig(addr, backoffice);
+						mConn = GlobalVar.sSetting.getConnection();
 						btnSave.setText(R.string.save_success);
 						btnSave.setEnabled(false);
 						
@@ -391,7 +385,7 @@ public class SettingActivity extends Activity {
 			final EditText txtPrinterIp = (EditText) getActivity().findViewById(R.id.editText1);
 			final Button btnSave = (Button) getActivity().findViewById(R.id.button1);
 			
-			txtPrinterIp.setText(mSetting.getPrinter().getPrinterIp());
+			txtPrinterIp.setText(GlobalVar.sSetting.getPrinter().getPrinterIp());
 			btnSave.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -399,7 +393,7 @@ public class SettingActivity extends Activity {
 					String printerIp = txtPrinterIp.getText().toString();
 					
 					if(!printerIp.isEmpty()){
-						mSetting.addPrinterSetting(printerIp);
+						GlobalVar.sSetting.addPrinterSetting(printerIp);
 						btnSave.setEnabled(false);
 						btnSave.setText(R.string.save_success);
 					}else{

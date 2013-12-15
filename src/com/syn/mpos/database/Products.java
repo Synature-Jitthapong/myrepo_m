@@ -2,18 +2,21 @@ package com.syn.mpos.database;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 
+import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.provider.BaseColumns;
 
-public class Products extends MPOSSQLiteHelper {
+public class Products extends MPOSDatabase {
 	public static final int VAT_TYPE_INCLUDED = 1;
 	public static final int VAT_TYPE_EXCLUDE = 2;
-	
+    
 	public static final String TB_PRODUCT = "Products";
 	public static final String COL_PRODUCT_ID = "ProductId";
 	public static final String COL_PRODUCT_DEPT_ID = "ProductDeptId";
@@ -101,15 +104,15 @@ public class Products extends MPOSSQLiteHelper {
 		mSqlite.close();
 		return pdLst;
 	}
-
+	
 	public List<Product> listProduct(String query){
 		List<Product> pLst = new ArrayList<Product>();
 	
 		open();
 		Cursor cursor = mSqlite.query(TB_PRODUCT, ALL_PRODUCT_COLS, 
-				"(" + COL_PRODUCT_CODE + " LIKE '%?%' " +
-				" OR " + COL_PRODUCT_NAME + " LIKE '%?%')", 
-				new String[]{}, null, null, null);
+				"(" + COL_PRODUCT_CODE + " LIKE '%" + query + "%' " +
+				" OR " + COL_PRODUCT_NAME + " LIKE '%" + query + "%')", 
+				null, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
 				Product p = toProduct(cursor);
@@ -141,7 +144,7 @@ public class Products extends MPOSSQLiteHelper {
 	public float getVatRate(int productId){
 		float vatRate = 0.0f;
 		open();
-		Cursor cursor = getProductColumn(new String[]{COL_VAT_RATE}, COL_PRODUCT_ID + "=?", 
+		Cursor cursor = queryProduct(new String[]{COL_VAT_RATE}, COL_PRODUCT_ID + "=?", 
 				new String[]{String.valueOf(productId)});
 		if(cursor.moveToFirst()){
 			vatRate = cursor.getFloat(0);
@@ -180,10 +183,10 @@ public class Products extends MPOSSQLiteHelper {
 		return pd;
 	}
 	
-	private Cursor getProductColumn(String[] columns, String selection, String[] selectionArgs){
+	public Cursor queryProduct(String[] columns, String selection, String[] selectionArgs){
 		return mSqlite.query(TB_PRODUCT, columns, selection, selectionArgs, null, null, null);
 	}
-
+	
 	private Product toProduct(Cursor cursor){
 		Product p = new Product();
 		p.setProductId(cursor.getInt(cursor.getColumnIndex(COL_PRODUCT_ID)));
@@ -280,8 +283,10 @@ public class Products extends MPOSSQLiteHelper {
 			mSqlite.insertOrThrow(TB_PRODUCT, null, cv);
 		}
 		for(MenuGroups.MenuItem m : menuItemLst){
+			String menuName = m.getMenuName_0();
+				
 			ContentValues cv = new ContentValues();
-			cv.put(COL_PRODUCT_NAME, m.getMenuDesc_0());
+			cv.put(COL_PRODUCT_NAME, menuName);
 			cv.put(COL_IMG_URL, m.getMenuImageLink());
 			
 			mSqlite.update(TB_PRODUCT, cv, COL_PRODUCT_ID + "=?", 

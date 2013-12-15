@@ -19,18 +19,15 @@ public class ReceiveStock extends StockDocument{
 		List<StockProduct> stockLst = 
 				new ArrayList<StockProduct>();
 		
-		String strSql = "SELECT b." + COL_DOC_DETAIL_ID + ", " +
-				" b." + Products.COL_PRODUCT_ID + ", " +
-				" b." + COL_PRODUCT_AMOUNT + ", " +
-				" b." + Products.COL_PRODUCT_PRICE + ", " +
-				" c." + Products.COL_PRODUCT_CODE + ", " +
-				" c." + Products.COL_PRODUCT_NAME +
-				" FROM " + TB_DOCUMENT + " a " +
-				" LEFT JOIN " + TB_DOC_DETAIL + " b " +
-				" ON a." + COL_DOC_ID + "=b." + COL_DOC_ID +
-				" AND a." + Shop.COL_SHOP_ID + "=b." + Shop.COL_SHOP_ID +
-				" LEFT JOIN " + Products.TB_PRODUCT + " c " +
-				" ON b." + Products.COL_PRODUCT_ID + "=c." + Products.COL_PRODUCT_ID +
+		String strSql = "SELECT a." + COL_DOC_DETAIL_ID + ", " +
+				" a." + Products.COL_PRODUCT_ID + ", " +
+				" a." + COL_PRODUCT_AMOUNT + ", " +
+				" a." + Products.COL_PRODUCT_PRICE + ", " +
+				" b." + Products.COL_PRODUCT_CODE + ", " +
+				" b." + Products.COL_PRODUCT_NAME +
+				" FROM " + TB_DOC_DETAIL + " a " +
+				" LEFT JOIN " + Products.TB_PRODUCT + " b " +
+				" ON a." + Products.COL_PRODUCT_ID + "=b." + Products.COL_PRODUCT_ID +
 				" WHERE a." + COL_DOC_ID + "=" + documentId +
 				" AND a." + Shop.COL_SHOP_ID + "=" + shopId;
 		

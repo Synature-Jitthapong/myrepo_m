@@ -33,8 +33,6 @@ public class VoidBillActivity extends Activity {
 	private int mTransactionId;
 	private int mComputerId;
 	private int mStaffId;
-	private Formatter mFormat;
-	private Transaction mTrans;
 	private List<OrderTransaction> mTransLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private BillAdapter mBillAdapter;
@@ -71,7 +69,7 @@ public class VoidBillActivity extends Activity {
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 	    
-	    btnBillDate.setText(mFormat.dateFormat(mCalendar.getTime()));
+	    btnBillDate.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendar.getTime()));
 	    btnBillDate.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -83,7 +81,7 @@ public class VoidBillActivity extends Activity {
 						mCalendar.setTimeInMillis(date);
 						mDate = mCalendar.getTimeInMillis();
 						
-						btnBillDate.setText(mFormat.dateFormat(mCalendar.getTime()));
+						btnBillDate.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendar.getTime()));
 					}
 				});
 				dialogFragment.show(getFragmentManager(), "Condition");
@@ -133,8 +131,6 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void init(){
-		mFormat = new Formatter(this);
-		mTrans = new Transaction(this);
 		mTransLst = new ArrayList<OrderTransaction>();
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -154,7 +150,7 @@ public class VoidBillActivity extends Activity {
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
 				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = mFormat.dateTimeFormat(c.getTime());
+				mReceiptDate = MPOSApplication.sGlobalVar.dateTimeFormat(c.getTime());
 				
 				mItemConfirm.setEnabled(true);
 				searchVoidItem();
@@ -223,7 +219,7 @@ public class VoidBillActivity extends Activity {
 			}
 			
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
-			holder.tvPaidTime.setText(mFormat.dateTimeFormat(c.getTime()));
+			holder.tvPaidTime.setText(MPOSApplication.sGlobalVar.dateTimeFormat(c.getTime()));
 			
 			return convertView;
 		}
@@ -277,9 +273,9 @@ public class VoidBillActivity extends Activity {
 			}
 		
 			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(mFormat.qtyFormat(order.getQty()));
-			holder.tvPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
+			holder.tvQty.setText(MPOSApplication.sGlobalVar.qtyFormat(order.getQty()));
+			holder.tvPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getPricePerUnit()));
+			holder.tvTotalPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getTotalRetailPrice()));
 			
 			return convertView;
 		}
@@ -293,7 +289,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void searchBill(){
-		mTransLst = mTrans.listTransaction(mDate);
+		mTransLst = GlobalVar.sTransaction.listTransaction(mDate);
 		mBillAdapter.notifyDataSetChanged();
 	}
 	
@@ -301,7 +297,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText(mReceiptNo);
 		txtReceiptDate.setText(mReceiptDate);
 		
-		mOrderLst = mTrans.listAllOrder(mTransactionId, mComputerId);
+		mOrderLst = GlobalVar.sTransaction.listAllOrder(mTransactionId, mComputerId);
 		mBillDetailAdapter.notifyDataSetChanged();
 	}
 
@@ -326,7 +322,7 @@ public class VoidBillActivity extends Activity {
 			public void onClick(DialogInterface dialog, int which) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					if(mTrans.voidTransaction(mTransactionId,
+					if(GlobalVar.sTransaction.voidTransaction(mTransactionId,
 							mComputerId, mStaffId, voidReason)){
 						hideKeyboard();
 					}

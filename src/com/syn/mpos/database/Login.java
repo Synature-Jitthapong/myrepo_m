@@ -6,7 +6,7 @@ import com.syn.pos.ShopData;
 import android.content.Context;
 import android.database.Cursor;
 
-public class Login extends MPOSSQLiteHelper{
+public class Login extends MPOSDatabase{
 	private String user;
 	private String passEncrypt;
 	

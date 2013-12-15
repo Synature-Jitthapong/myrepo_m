@@ -7,7 +7,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import com.syn.pos.ShopData;
 
-public class Shop extends MPOSSQLiteHelper{
+public class Shop extends MPOSDatabase{
 	public static final String TB_SHOP = "Shop";
 	public static final String COL_SHOP_ID = "ShopID";
 	public static final String COL_SHOP_CODE = "ShopCode";

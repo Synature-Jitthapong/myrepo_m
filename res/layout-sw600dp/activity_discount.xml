@@ -97,7 +97,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
-        android:gravity="center_vertical" >
+        android:gravity="right|center_vertical" >
 
         <TextView
             android:id="@+id/textView1"
@@ -125,17 +125,7 @@
             style="@style/TextViewValueNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="0dp"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <EditText
-            android:id="@+id/txtOtherDiscount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="5"
-            android:gravity="center_vertical"
-            android:hint="@string/other_discount"
-            android:inputType="numberDecimal" />
 			<requestFocus />
         <LinearLayout
             android:id="@+id/layoutVat"

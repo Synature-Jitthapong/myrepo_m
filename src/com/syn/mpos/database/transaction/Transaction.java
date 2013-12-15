@@ -11,8 +11,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.util.Log;
+
 import com.j1tth4.mobile.sqlite.SQLiteHelper;
 import com.syn.mpos.database.Computer;
+import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
@@ -27,7 +29,7 @@ import com.syn.pos.OrderTransaction.OrderDetail;
  * @author j1tth4
  * 
  */
-public class Transaction extends MPOSSQLiteHelper {
+public class Transaction extends MPOSDatabase {
 
 	public static final int TRANS_STATUS_NEW = 1;
 	public static final int TRANS_STATUS_SUCCESS = 2;
@@ -39,7 +41,6 @@ public class Transaction extends MPOSSQLiteHelper {
 	public static final String COL_RECEIPT_YEAR = "ReceiptYear";
 	public static final String COL_RECEIPT_MONTH = "ReceiptMonth";
 	public static final String COL_RECEIPT_ID = "ReceiptId";
-	public static final String COL_DOC_TYPE = "DocTypeId";
 	public static final String COL_OPEN_TIME = "OpenTime";
 	public static final String COL_CLOSE_TIME = "CloseTime";
 	public static final String COL_OPEN_STAFF = "OpenStaffId";
@@ -56,6 +57,7 @@ public class Transaction extends MPOSSQLiteHelper {
 	public static final String COL_VOID_REASON = "VoidReason";
 	public static final String COL_VOID_TIME = "VoidTime";
 	public static final String COL_OTHER_DISCOUNT = "OtherDiscount";
+	public static final String COL_MEMBER_ID = "MemberId";
 	
 	public static final String TB_ORDER = "OrderDetail";
 	public static final String TB_ORDER_TMP = "OrderDetailTmp";
@@ -84,10 +86,10 @@ public class Transaction extends MPOSSQLiteHelper {
 				"a." + COL_RECEIPT_YEAR + ", " +
 				"a." + COL_RECEIPT_MONTH + ", " +
 				"a." + COL_RECEIPT_ID + ", " + 
-				"b." + COL_DOC_TYPE + 
+				"b." + StockDocument.COL_DOC_TYPE + 
 				" FROM " + TB_TRANS + " a " + 
 				" LEFT JOIN " + StockDocument.TB_DOCUMENT_TYPE + " b " + 
-				" ON a." + COL_DOC_TYPE + "=b." + StockDocument.COL_DOC_TYPE + 
+				" ON a." + StockDocument.COL_DOC_TYPE + "=b." + StockDocument.COL_DOC_TYPE + 
 				" WHERE a." + COL_TRANS_ID + "=" + transactionId + 
 				" AND a." + Computer.COL_COMPUTER_ID + "=" + computerId + 
 				" AND a." + COL_STATUS_ID + "=" + TRANS_STATUS_SUCCESS + 
@@ -128,10 +130,10 @@ public class Transaction extends MPOSSQLiteHelper {
 				"a." + COL_RECEIPT_YEAR + ", " +
 				"a." + COL_RECEIPT_MONTH + ", " +
 				"a." + COL_RECEIPT_ID + ", " + 
-				"b." + COL_DOC_TYPE + 
+				"b." + StockDocument.COL_DOC_TYPE + 
 				" FROM " + TB_TRANS + " a " + 
 				" LEFT JOIN " + StockDocument.TB_DOCUMENT_TYPE + " b " + 
-				" ON a." + COL_DOC_TYPE + "=b." + StockDocument.COL_DOC_TYPE + 
+				" ON a." + StockDocument.COL_DOC_TYPE + "=b." + StockDocument.COL_DOC_TYPE + 
 				" WHERE a." + COL_SALE_DATE + "='" + saleDate + "' " + 
 				" AND a." + COL_STATUS_ID + "=" + TRANS_STATUS_SUCCESS +
 				" ORDER BY a." + COL_SALE_DATE, null);
@@ -553,7 +555,7 @@ public class Transaction extends MPOSSQLiteHelper {
 		cv.put(Shop.COL_SHOP_ID, shopId);
 		cv.put(Session.COL_SESS_ID, sessionId);
 		cv.put(COL_OPEN_STAFF, staffId);
-		cv.put(COL_DOC_TYPE, 8);
+		cv.put(StockDocument.COL_DOC_TYPE, 8);
 		cv.put(COL_OPEN_TIME, dateTime.getTimeInMillis());
 		cv.put(COL_SALE_DATE, date.getTimeInMillis());
 		cv.put(COL_RECEIPT_YEAR, dateTime.get(Calendar.YEAR));
@@ -676,11 +678,10 @@ public class Transaction extends MPOSSQLiteHelper {
 		return isSuccess;
 	}
 
-	/***********/
 	public boolean updateTransactionVat(int transactionId, int computerId,
-			float totalSalePrice, float vatExclude) {
+			float totalSalePrice, float vatExclude, float vatRate) {
 		boolean isSuccess = false;
-		float vat = Util.calculateVat(totalSalePrice, 7.0f);
+		float vat = Util.calculateVat(totalSalePrice, vatRate);
 		
 		open();
 		try {

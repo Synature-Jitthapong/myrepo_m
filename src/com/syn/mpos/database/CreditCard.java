@@ -8,7 +8,7 @@ import android.database.Cursor;
 
 import com.syn.pos.CreditCardType;
 
-public class CreditCard extends MPOSSQLiteHelper {
+public class CreditCard extends MPOSDatabase {
 	public static final String TB_CREDIT_CARD_TYPE = "CreditCardType";
 	public static final String COL_CREDIT_CARD_TYPE_ID = "CreditCardTypeId";
 	public static final String COL_CREDIT_CARD_TYPE_NAME = "CreditCardTypeName";

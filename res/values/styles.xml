@@ -31,7 +31,7 @@
     <style name="ColumnDetail" parent="ColumnHeader">
         <item name="android:textSize">18sp</item>
         <item name="android:gravity">right</item>
-        <item name="android:background">@drawable/white_layer</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
     <style name="ColumnHeader" parent="android:style/Widget.TextView">
         <item name="android:background">@drawable/header_column</item>

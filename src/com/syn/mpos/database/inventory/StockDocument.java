@@ -1,16 +1,19 @@
 package com.syn.mpos.database.inventory;
 
 import java.util.Calendar;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+
+import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Util;
 
-public abstract class StockDocument extends MPOSSQLiteHelper {
+public abstract class StockDocument extends MPOSDatabase {
 
 	public static final int SALE_DOC = 20;
 	public static final int VOID_DOC = 21;
@@ -47,7 +50,6 @@ public abstract class StockDocument extends MPOSSQLiteHelper {
 	public static final String TB_DOC_DETAIL = "DocDetail";
 	public static final String COL_DOC_DETAIL_ID = "DocDetailId";
 	public static final String COL_PRODUCT_AMOUNT = "ProductAmount";
-	public static final String COL_UNIT_NAME = "UnitName";
 	
 	public StockDocument(Context c) {
 		super(c);
@@ -251,7 +253,7 @@ public abstract class StockDocument extends MPOSSQLiteHelper {
 		cv.put(Products.COL_PRODUCT_ID, productId);
 		cv.put(COL_PRODUCT_AMOUNT, productQty);
 		cv.put(Products.COL_PRODUCT_PRICE, productPrice);
-		cv.put(COL_UNIT_NAME, unitName);
+		cv.put(Products.COL_PRODUCT_UNIT_NAME, unitName);
 
 		open();
 		try {
@@ -276,7 +278,7 @@ public abstract class StockDocument extends MPOSSQLiteHelper {
 					" SET " + 
 					COL_PRODUCT_AMOUNT + "=" + productQty + ", " + 
 					Products.COL_PRODUCT_PRICE + "=" + productPrice + ", " + 
-					COL_UNIT_NAME + "='" + unitName + "' " +
+					Products.COL_PRODUCT_UNIT_NAME + "='" + unitName + "' " +
 					" WHERE " + COL_DOC_DETAIL_ID + "=" + docDetailId + 
 					" AND " + COL_DOC_ID + "=" + documentId + 
 					" AND " + Shop.COL_SHOP_ID + "=" + shopId);

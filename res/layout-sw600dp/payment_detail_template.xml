@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:gravity="left"
         android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -23,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
+        android:gravity="left"
         android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 

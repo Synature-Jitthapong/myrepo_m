@@ -9,9 +9,10 @@ import android.database.Cursor;
 import android.database.SQLException;
 
 import com.j1tth4.mobile.sqlite.SQLiteHelper;
+import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 
-public class StockCard extends MPOSSQLiteHelper{
+public class StockCard extends MPOSDatabase{
 
 	public StockCard(Context c){
 		super(c);

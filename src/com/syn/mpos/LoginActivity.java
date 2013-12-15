@@ -1,10 +1,8 @@
 package com.syn.mpos;
 
 import com.syn.mpos.R;
-import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Setting;
-import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.transaction.Session;
 import com.syn.pos.ShopData;
 import android.os.Bundle;
@@ -25,11 +23,8 @@ public class LoginActivity extends Activity {
 	private int mShopId;
 	private int mComputerId;
 	private int mSessionId;
-	private Shop mShop;
-	private Computer mComputer;
 	private Session mSession;
-	private Setting mSetting;
-	private Setting.Connection mConn;
+	private Setting.Connection mConnection;
 	
 	private EditText mTxtUser;
 	private EditText mTxtPass;
@@ -62,18 +57,13 @@ public class LoginActivity extends Activity {
 	}
 
 	private void init(){
-		mSetting = new Setting(this);
-		mConn = mSetting.getConnection();
-
-		mShop = new Shop(this);
-		mComputer = new Computer(this);
 		mSession = new Session(this);
-
-		mShopId = mShop.getShopProperty().getShopID();
-		mComputerId = mComputer.getComputerProperty().getComputerID();
+		mShopId = GlobalVar.sShop.getShopProperty().getShopID();
+		mComputerId = GlobalVar.sComputer.getComputerProperty().getComputerID();
+		mConnection = GlobalVar.sSetting.getConnection();
 		
-		if(mConn.getAddress() == null || 
-				mConn.getBackoffice() == null){
+		if(mConnection.getAddress() == null || 
+				mConnection.getBackoffice() == null){
 			Intent intent = new Intent(this, SettingActivity.class);
 			startActivity(intent);
 		}

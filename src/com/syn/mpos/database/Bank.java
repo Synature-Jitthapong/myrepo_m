@@ -8,7 +8,7 @@ import android.database.Cursor;
 
 import com.syn.pos.BankName;
 
-public class Bank extends MPOSSQLiteHelper{
+public class Bank extends MPOSDatabase{
 	public static final String TB_BANK = "BankName";
 	public static final String COL_BANK_ID = "BankId";
 	public static final String COL_BANK_NAME = "BankName";

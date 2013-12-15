@@ -6,7 +6,7 @@ import android.content.Context;
 import android.database.SQLException;
 import com.syn.pos.ShopData;
 
-public  class Language extends MPOSSQLiteHelper{
+public  class Language extends MPOSDatabase{
 	public static final String TB_LANGUAGE = "Language";
 	public static final String COL_LANG_ID = "LangId";
 	public static final String COL_LANG_NAME = "LangName";

@@ -7,12 +7,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class Staff extends MPOSSQLiteHelper{
+public class Staff extends MPOSDatabase{
 	public static final String TB_STAFF = "Staffs";
 	public static final String COL_STAFF_ID = "StaffID";
 	public static final String COL_STAFF_CODE = "StaffCode";
 	public static final String COL_STAFF_NAME = "StaffName";
 	public static final String COL_STAFF_PASS = "StaffPassword";
+	
+	public static final String TB_STAFF_PERMISSION = "StaffPermission";
+	public static final String COL_STAFF_ROLE_ID = "StaffRoleId";
+	public static final String COL_PERMMISSION_ITEM_ID = "PermissionItemId";
 	
 	public Staff(Context c) {
 		super(c);

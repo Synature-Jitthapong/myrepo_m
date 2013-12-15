@@ -54,7 +54,8 @@
         android:layout_weight="0.8"
         android:gravity="right"
         android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/tvVatable"

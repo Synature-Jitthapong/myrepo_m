@@ -7,13 +7,15 @@ import com.j1tth4.mobile.sqlite.SQLiteHelper;
 import com.syn.mpos.database.Bank;
 import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.CreditCard;
+import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.MPOSSQLiteHelper;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class PaymentDetail extends MPOSSQLiteHelper {
+public class PaymentDetail extends MPOSDatabase {
 
 	public static final String TB_PAYMENT = "PaymentDetail";
 	public static final String COL_PAY_ID = "PayDetailId";

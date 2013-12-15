@@ -11,7 +11,7 @@ import com.syn.pos.Report;
 import android.content.Context;
 import android.database.Cursor;
 
-public class Reporting extends MPOSSQLiteHelper{
+public class Reporting extends MPOSDatabase{
 	protected long mDateFrom, mDateTo;
 	
 	public Reporting(Context c, long dFrom, long dTo){
@@ -86,7 +86,9 @@ public class Reporting extends MPOSSQLiteHelper{
 	public Report getSaleReportByBill(){
 		Report report = new Report();
 		
-		String strSql = " SELECT a." + Transaction.COL_RECEIPT_YEAR + ", " +
+		String strSql = " SELECT a." + Transaction.COL_TRANS_ID  + ", " +
+				" a." + Computer.COL_COMPUTER_ID + ", " +
+				" a." + Transaction.COL_RECEIPT_YEAR + ", " +
 				" a." + Transaction.COL_RECEIPT_MONTH + ", " +
 				" a." + Transaction.COL_RECEIPT_ID + ", " +
 				" a." + Transaction.COL_TRANS_EXCLUDE_VAT + ", " +
@@ -103,7 +105,7 @@ public class Reporting extends MPOSSQLiteHelper{
 				" ON a." + Transaction.COL_TRANS_ID + "=b." + Transaction.COL_TRANS_ID +
 				" AND a." + Computer.COL_COMPUTER_ID + "=b." + Computer.COL_COMPUTER_ID +
 				" LEFT JOIN " + StockDocument.TB_DOCUMENT_TYPE + " c " +
-				" ON a." + Transaction.COL_DOC_TYPE + "=c." + StockDocument.COL_DOC_TYPE +
+				" ON a." + StockDocument.COL_DOC_TYPE + "=c." + StockDocument.COL_DOC_TYPE +
 				" WHERE a." + Transaction.COL_STATUS_ID + "=" + Transaction.TRANS_STATUS_SUCCESS +
 				" AND a." + Transaction.COL_SALE_DATE + 
 				" BETWEEN " + mDateFrom + " AND " + mDateTo + 
@@ -124,7 +126,9 @@ public class Reporting extends MPOSSQLiteHelper{
 				String receiptId = 
 						String.format("%06d", cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_ID)));
 				
-				reportDetail.setReceiptNo(docTypeHeader + receiptMonth + receiptYear + receiptId);
+				reportDetail.setTransactionId(cursor.getInt(cursor.getColumnIndex(Transaction.COL_TRANS_ID)));
+				reportDetail.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
+				reportDetail.setReceiptNo(docTypeHeader == null ? "" : docTypeHeader + receiptMonth + receiptYear + receiptId);
 				reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice")));
 				reportDetail.setSubTotal(cursor.getFloat(cursor.getColumnIndex("TotalSalePrice")));
 				reportDetail.setVatExclude(cursor.getFloat(cursor.getColumnIndex(Transaction.COL_TRANS_EXCLUDE_VAT)));

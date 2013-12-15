@@ -2,6 +2,7 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.syn.mpos.R;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.transaction.Transaction;
@@ -49,10 +50,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	private int mDiscountType = 1;
 	private float mDiscount = 0.0f;
 	private float mTotalPrice = 0.0f;
-	
-	private Formatter mFormat;
-	private Transaction mTrans;
-	private Products mProduct;
+
 	private DiscountAdapter mDisAdapter;
 	private boolean mIsEdited = false;
 
@@ -65,7 +63,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	private TextView mTvTotalDiscount;
 	private TextView mTvTotalPrice;
 	private EditText mTxtDiscount;
-	private EditText mTxtOtherDiscount;
 	private RadioGroup mRdoDiscountType;
 	private Button mBtnDone;
 	private TextView mTvItemName;
@@ -83,8 +80,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		mTvSubTotal = (TextView) findViewById(R.id.tvSubTotal);
 		mTvTotalDiscount = (TextView) findViewById(R.id.tvTotalDiscount);
 		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
-		mTxtOtherDiscount = (EditText) findViewById(R.id.txtOtherDiscount);
-		mTxtOtherDiscount.setOnEditorActionListener(this);
 		mTvTotalDiscount.setOnEditorActionListener(this);
 		
 		Intent intent = getIntent();
@@ -94,9 +89,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	}
 
 	private void init(){
-		mTrans = new Transaction(this);
-		mFormat = new Formatter(this);
-		mProduct = new Products(this);
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
@@ -109,9 +101,9 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				mOrder = (OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 				
 				mTvItemName.setText(mOrder.getProductName());
-				mTxtDiscount.setText(mFormat.currencyFormat(mOrder.getPriceDiscount()));
+				mTxtDiscount.setText(MPOSApplication.sGlobalVar.currencyFormat(mOrder.getPriceDiscount()));
 				if(mOrder.getDiscountType() == 2){
-					mTxtDiscount.setText(mFormat.currencyFormat(
+					mTxtDiscount.setText(MPOSApplication.sGlobalVar.currencyFormat(
 							mOrder.getPriceDiscount() * 100 / mOrder.getTotalRetailPrice()));
 				}
 				mRdoDiscountType.check(mOrder.getDiscountType() == 1 ? R.id.rdoPrice : R.id.rdoPercent);
@@ -131,7 +123,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			cancel();
 			return true;
 		case R.id.itemConfirm:
-			if (mTrans.confirmDiscount(mTransactionId, mComputerId))
+			if (GlobalVar.sTransaction.confirmDiscount(mTransactionId, mComputerId))
 				finish();
 			return true;
 		default:
@@ -173,11 +165,10 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				
 			float totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - mDiscount;
 			
-			mTrans.discountEatchProduct(mOrder.getOrderDetailId(), 
+			GlobalVar.sTransaction.discountEatchProduct(mOrder.getOrderDetailId(), 
 					mTransactionId, mComputerId, 
-					mProduct.getVatRate(mOrder.getProductId()), 
-					mOrder.getTotalRetailPrice(), 
-					mDiscount, mDiscountType);
+					GlobalVar.sProduct.getVatRate(mOrder.getProductId()), 
+					totalPriceAfterDiscount, mDiscount, mDiscountType);
 			
 			OrderTransaction.OrderDetail order = mOrderLst.get(mPosition);
 			order.setPriceDiscount(mDiscount);
@@ -236,46 +227,40 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvName.setText(order.getProductName());
-			tvQty.setText(mFormat.qtyFormat(order.getQty()));
-			tvUnitPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
-			tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
-			tvDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
-			tvSalePrice.setText(mFormat.currencyFormat(order.getTotalSalePrice()));
+			tvQty.setText(MPOSApplication.sGlobalVar.qtyFormat(order.getQty()));
+			tvUnitPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getPricePerUnit()));
+			tvTotalPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getTotalRetailPrice()));
+			tvDiscount.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getPriceDiscount()));
+			tvSalePrice.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getTotalSalePrice()));
 			
 			return rowView;
 		}
 	}
 	
 	private void loadOrder() {
-		if (mTrans.copyOrderToTmp(mTransactionId, mComputerId)) {
-			mOrderLst = mTrans.listAllOrderTmp(mTransactionId, mComputerId);
+		if (GlobalVar.sTransaction.copyOrderToTmp(mTransactionId, mComputerId)) {
+			mOrderLst = GlobalVar.sTransaction.listAllOrderTmp(mTransactionId, mComputerId);
 			mDisAdapter.notifyDataSetChanged();
 		}
 	}
 
 	private void summary() {
-		float subTotal = mTrans.getTotalRetailPrice(
-				mTransactionId, mComputerId, true);
-		float totalVatExclude = mTrans.getTotalVatExclude(
-				mTransactionId, mComputerId, true);
-		float otherDiscount = mTrans.getOtherDiscount(mTransactionId, mComputerId); 
-		float totalDiscount = mTrans.getPriceDiscount(
-				mTransactionId, mComputerId, true) + otherDiscount; 
+		float subTotal = GlobalVar.sTransaction.getTotalRetailPrice(mTransactionId, mComputerId, true);
+		float totalVatExclude = GlobalVar.sTransaction.getTotalVatExclude(mTransactionId, mComputerId, true);
+		float totalDiscount = GlobalVar.sTransaction.getPriceDiscount(mTransactionId, mComputerId, true); 
 				
-		mTotalPrice = mTrans.getTotalSalePrice(
-				mTransactionId, mComputerId, true) + 
-				totalVatExclude - totalDiscount;
+		mTotalPrice = GlobalVar.sTransaction.getTotalSalePrice(mTransactionId, mComputerId, true) + 
+				totalVatExclude;
 		
 		if(totalVatExclude > 0)
 			mLayoutVat.setVisibility(View.VISIBLE);
 		else
 			mLayoutVat.setVisibility(View.GONE);
 		
-		mTvExcVat.setText(mFormat.currencyFormat(totalVatExclude));
-		mTvSubTotal.setText(mFormat.currencyFormat(subTotal));
-		mTvTotalDiscount.setText(mFormat.currencyFormat(totalDiscount));
-		mTvTotalPrice.setText(mFormat.currencyFormat(mTotalPrice));
-		mTxtOtherDiscount.setText(mFormat.currencyFormat(otherDiscount));
+		mTvExcVat.setText(MPOSApplication.sGlobalVar.currencyFormat(totalVatExclude));
+		mTvSubTotal.setText(MPOSApplication.sGlobalVar.currencyFormat(subTotal));
+		mTvTotalDiscount.setText(MPOSApplication.sGlobalVar.currencyFormat(totalDiscount));
+		mTvTotalPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(mTotalPrice));
 	}
 
 	private void cancel(){
@@ -298,7 +283,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									mTrans.cancelDiscount(mTransactionId, 
+									GlobalVar.sTransaction.cancelDiscount(mTransactionId, 
 											mComputerId);
 									finish();
 								}
@@ -351,15 +336,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 					mItemInput.setVisible(false);
 					mItemClose.setVisible(true);
 					mItemConfirm.setVisible(true);
-				}else{
-					popupNotAllowDiscount();
-				}
-				return true;
-			case R.id.txtOtherDiscount:
-				if(discount <= mTotalPrice){
-					mTrans.otherDiscount(mTransactionId, 
-							mComputerId, discount);
-					summary();
 				}else{
 					popupNotAllowDiscount();
 				}

@@ -5,7 +5,7 @@ import java.util.List;
 import android.content.Context;
 import android.database.Cursor;
 
-public class Province extends MPOSSQLiteHelper{
+public class Province extends MPOSDatabase{
 	public static final String TB_PROVINCE = "Province";
 	public static final String COL_PROVINCE_ID = "ProvinceId";
 	public static final String COL_PROVINCE_NAME = "ProvinceName";
