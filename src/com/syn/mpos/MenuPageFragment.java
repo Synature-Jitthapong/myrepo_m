@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.Products;
+
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -42,7 +43,7 @@ public class MenuPageFragment extends Fragment {
 		mImgLoader = new ImageLoader(getActivity(), R.drawable.no_food,
 				GlobalVar.IMG_DIR);
 
-		mProductLst = MPOSApplication.sGlobalVar.getProduct().listProduct(mDeptId);
+		mProductLst = GlobalVar.sProduct.listProduct(mDeptId);
 		mAdapter = new MenuItemAdapter();
 		
 	}

@@ -88,12 +88,15 @@
         <activity
             android:name="com.syn.mpos.DirectReceiveActivity"
             android:label="@string/title_activity_inv_direct_receive"
-            android:screenOrientation="landscape" android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape" >
             <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
+                <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                   android:resource="@xml/searchable"/>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.mpos.MainActivity" />
@@ -109,7 +112,8 @@
         <activity
             android:name="com.syn.mpos.VoidBillActivity"
             android:label="@string/title_activity_void_bill"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.mpos.MainActivity" />
@@ -122,13 +126,19 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.mpos.MainActivity" />
         </activity>
-        <activity android:name=".SettingsActivity"
-            android:label="@string/setting">
+        <activity
+            android:name="com.syn.mpos.SettingsActivity"
+            android:label="@string/setting" >
         </activity>
-        
-        <provider 
-            android:authorities="com.syn.mpos.ProductProvider" 
-            android:name="com.syn.mpos.database.ProductProvider"/>
+
+        <provider
+            android:name="com.syn.mpos.database.ProductProvider"
+            android:authorities="com.syn.mpos.ProductProvider" />
+
+        <activity
+            android:name="com.syn.mpos.AboutActivity"
+            android:label="@string/title_activity_about" >
+        </activity>
     </application>
 
 </manifest>

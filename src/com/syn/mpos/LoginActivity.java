@@ -62,10 +62,10 @@ public class LoginActivity extends Activity {
 
 	private void init(){
 		mSession = new Session(this);
-		mShopId = MPOSApplication.sGlobalVar.getShop().getShopProperty().getShopID();
-		mComputerId = MPOSApplication.sGlobalVar.getComputer().getComputerProperty().getComputerID();
+		mShopId = GlobalVar.sShop.getShopProperty().getShopID();
+		mComputerId = GlobalVar.sComputer.getComputerProperty().getComputerID();
 		
-		if(MPOSApplication.sGlobalVar.getSharedPreference().getString(SettingsActivity.KEY_PREF_SERVER_URL, "").equals("")){
+		if(GlobalVar.sSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "").equals("")){
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 		}
@@ -79,9 +79,14 @@ public class LoginActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent = null;
 		switch(item.getItemId()){
 		case R.id.itemSetting:
-			Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
+			intent = new Intent(LoginActivity.this, SettingsActivity.class);
+			startActivity(intent);
+			return true;
+		case R.id.itemAbout:
+			intent = new Intent(LoginActivity.this, AboutActivity.class);
 			startActivity(intent);
 			return true;
 		default:
@@ -126,7 +131,7 @@ public class LoginActivity extends Activity {
 				
 				@Override
 				public void onSuccess() {
-					mShopId = MPOSApplication.sGlobalVar.getShop().getShopProperty().getShopID();
+					mShopId = GlobalVar.sShop.getShopProperty().getShopID();
 					mposService.loadProductData(mShopId, mDeviceCode, mServiceStateListener);
 				}
 				

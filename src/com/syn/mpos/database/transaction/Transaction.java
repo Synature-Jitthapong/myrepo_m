@@ -22,6 +22,7 @@ import com.syn.mpos.database.Staff;
 import com.syn.mpos.database.Util;
 import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.pos.OrderTransaction;
+import com.syn.pos.Report;
 import com.syn.pos.OrderTransaction.OrderDetail;
 
 /**
@@ -415,6 +416,16 @@ public class Transaction extends MPOSDatabase {
 		return orderDetail;
 	}
 
+	public static String formatReceiptNo(String header, int year, int month, int id){
+		String receiptYear = 
+				String.format(Locale.getDefault(), "%04d", year);
+		String receiptMonth = 
+				String.format(Locale.getDefault(), "%02d", month);
+		String receiptId = 
+				String.format(Locale.getDefault(), "%06d", id);
+		return header + receiptMonth + receiptYear + receiptId;
+	}
+	
 	public List<OrderTransaction> listTransaction(long saleDate) {
 		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
 	
@@ -422,25 +433,37 @@ public class Transaction extends MPOSDatabase {
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT a." + COL_TRANS_ID + ", " +
 				" a." + Computer.COL_COMPUTER_ID + ", " + 
-				" a." + COL_OPEN_TIME + ", " +
+				" a." + COL_PAID_TIME + ", " +
 				" a." + COL_TRANS_NOTE + ", " +
-				" b." + Staff.COL_STAFF_CODE + ", " +
-				" b." + Staff.COL_STAFF_NAME + 
+				" a." + COL_RECEIPT_YEAR + ", " +
+				" a." + COL_RECEIPT_MONTH + ", " +
+				" a." + COL_RECEIPT_ID + ", " +
+				" b." + StockDocument.COL_DOC_TYPE_HEADER + ", " +
+				" c." + Staff.COL_STAFF_CODE + ", " +
+				" c." + Staff.COL_STAFF_NAME + 
 				" FROM " + TB_TRANS + " a " +
-				" LEFT JOIN " + Staff.TB_STAFF + " b " + 
-				" ON a." + COL_OPEN_STAFF + "=" +
-				" b." + Staff.COL_STAFF_ID +
-				" WHERE a." + COL_SALE_DATE + "='" + saleDate + "' " + 
-				" AND a." + COL_STATUS_ID + "=" + TRANS_STATUS_SUCCESS, null);
+				" LEFT JOIN " + StockDocument.TB_DOCUMENT_TYPE + " b " +
+				" ON a." + StockDocument.COL_DOC_TYPE + "=b." + StockDocument.COL_DOC_TYPE + 
+				" LEFT JOIN " + Staff.TB_STAFF + " c " + 
+				" ON a." + COL_OPEN_STAFF + "=c." + Staff.COL_STAFF_ID +
+				" WHERE a." + COL_SALE_DATE + "=?" + 
+				" AND a." + COL_STATUS_ID + "=?", 
+				new String[]{String.valueOf(saleDate), String.valueOf(TRANS_STATUS_SUCCESS)});
 		if (cursor.moveToFirst()) {
 			do {
 				OrderTransaction trans = new OrderTransaction();
+				String receiptNo = formatReceiptNo(cursor.getString(cursor.getColumnIndex(StockDocument.COL_DOC_TYPE_HEADER)),
+						cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_YEAR)),
+						cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_MONTH)),
+						cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_ID)));
+				
 				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(COL_TRANS_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
 				trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(COL_TRANS_NOTE)));
-				trans.setOpenTime(cursor.getLong(cursor.getColumnIndex(COL_OPEN_TIME)));
+				trans.setPaidTime(cursor.getLong(cursor.getColumnIndex(COL_PAID_TIME)));
 				trans.setStaffName(cursor.getString(cursor.getColumnIndex(Staff.COL_STAFF_CODE))
 						+ ":" + cursor.getString(cursor.getColumnIndex(Staff.COL_STAFF_NAME)));
+				trans.setReceiptNo(receiptNo);
 				transLst.add(trans);
 			} while (cursor.moveToNext());
 		}

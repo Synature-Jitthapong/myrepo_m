@@ -10,6 +10,9 @@ public abstract class MPOSDatabase {
 	// base uuid column
 	public static final String COL_UUID = "UUID";
 	
+	// base send status column
+	public static final String COL_SEND_STATUS = "SendStatus";
+	
 	protected MPOSSQLiteHelper mSqliteHelper;
 	protected SQLiteDatabase mSqlite;
 	

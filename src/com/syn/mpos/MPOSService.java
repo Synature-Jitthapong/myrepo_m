@@ -1,7 +1,9 @@
 package com.syn.mpos;
 
 import java.lang.reflect.Type;
+
 import org.ksoap2.serialization.PropertyInfo;
+
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.database.Computer;
@@ -13,13 +15,13 @@ import com.syn.mpos.database.Staff;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 
 public class MPOSService {
-	
-	public Context mContext;
-	public ProgressDialog mProgress;
+	public static Context mContext;
+	public static ProgressDialog mProgress;
 	
 	public MPOSService(Context c){
 		mContext = c;
@@ -128,14 +130,33 @@ public class MPOSService {
 		// load menu
 	}
 	
+	// send stock
+	public static class SendStockTask extends MPOSMainService{
+
+		public SendStockTask(Context c, String deviceCode) {
+			super(c, deviceCode, SEND_STOCK_METHOD);
+			// TODO Auto-generated constructor stub
+		}
+		
+	}
+	
+	// send sale transaction
+	public static class SendSaleTransactionTask extends MPOSMainService{
+
+		public SendSaleTransactionTask(Context c, String deviceCode, OnServiceProcessListener listener) {
+			super(c, deviceCode, SEND_SALE_TRANS_METHOD);
+		}
+		
+	}
+	
 	// load shop data
-	public class LoadShopTask extends MPOSMainService{
+	public static class LoadShopTask extends MPOSMainService{
 
 		private OnLoadShopListener listener;
 		
 		public LoadShopTask(int shopId, String deviceCode, 
 				OnLoadShopListener listener) {
-			super(mContext, deviceCode, "WSmPOS_JSON_LoadShopData");
+			super(mContext, deviceCode, LOAD_SHOP_METHOD);
 			
 			property = new PropertyInfo();
 			property.setName("iShopID");
@@ -166,13 +187,13 @@ public class MPOSService {
 	}
 	
 	// load products
-	public class LoadProductTask extends MPOSMainService{
+	public static class LoadProductTask extends MPOSMainService{
 		
 		private OnLoadProductListener listener;
 		
 		public LoadProductTask(int shopId, String deviceCode, 
 				OnLoadProductListener listener) {
-			super(mContext, deviceCode, "WSmPOS_JSON_LoadProductDataV2");
+			super(mContext, deviceCode, LOAD_PRODUCT_METHOD);
 			
 			property = new PropertyInfo();
 			property.setName("iShopID");
@@ -206,13 +227,13 @@ public class MPOSService {
 	}
 	
 	// load menu data
-	public class LoadMenuTask extends MPOSMainService{
+	public static class LoadMenuTask extends MPOSMainService{
 		
 		private OnLoadMenuListener listener;
 		
 		public LoadMenuTask(int shopId, String deviceCode, 
 				OnLoadMenuListener listener) {
-			super(mContext, deviceCode, "WSmPOS_JSON_LoadMenuDataV2");
+			super(mContext, deviceCode, LOAD_MENU_METHOD);
 			
 			property = new PropertyInfo();
 			property.setName("iShopID");
@@ -244,13 +265,13 @@ public class MPOSService {
 	}
 
 	// check authen shop
-	public class AuthenDevice extends MPOSMainService{
+	public static class AuthenDevice extends MPOSMainService{
 		
 		private OnAuthenDeviceListener listener;
 		
 		public AuthenDevice(String deviceCode, 
 				OnAuthenDeviceListener listener) {
-			super(mContext, deviceCode, "WSmPOS_CheckAuthenShopDevice");
+			super(mContext, deviceCode, CHECK_DEVICE_METHOD);
 			this.listener = listener;
 		}
 
@@ -263,7 +284,7 @@ public class MPOSService {
 				else
 					this.listener.onError(context.getString(R.string.device_not_register));
 			} catch (NumberFormatException e) {
-				this.listener.onError(context.getString(R.string.device_not_register));
+				this.listener.onError(result);
 			}
 		}
 

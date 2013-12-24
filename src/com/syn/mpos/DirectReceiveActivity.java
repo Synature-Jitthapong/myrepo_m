@@ -76,7 +76,7 @@ public class DirectReceiveActivity extends Activity implements
 	private void handleIntent(Intent intent) {
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
         	int productId = Integer.parseInt(intent.getDataString());
-        	Products.Product p = MPOSApplication.sGlobalVar.getProduct().getProduct(productId);
+        	Products.Product p = GlobalVar.sProduct.getProduct(productId);
         	// add selected product
         	addSelectedProduct(productId, 1, p.getProductPrice(), p.getProductUnitName());
         	

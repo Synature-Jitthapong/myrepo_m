@@ -159,6 +159,7 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Transaction.COL_TRANS_VATABLE + " REAL DEFAULT 0, " +
 		Transaction.COL_TRANS_NOTE + " TEXT, " +
 		Transaction.COL_OTHER_DISCOUNT + " REAL DEFAULT 0, " +
+		MPOSDatabase.COL_SEND_STATUS + " INTEGER DEFAULT 0, " +
 		"PRIMARY KEY (" + Transaction.COL_TRANS_ID + " ASC, " + Computer.COL_COMPUTER_ID + " ASC) ); ",
 		
 		// tb paydetail
@@ -352,9 +353,14 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 	}
 
 	@Override
+	public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		
+	}
+
+	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		if(newVersion > oldVersion){
-			db.execSQL("ALTER TABLE " + Transaction.TB_TRANS + " ADD COLUMN UUID TEXT;");
+			//db.execSQL("ALTER TABLE " + Transaction.TB_TRANS + " ADD COLUMN UUID TEXT;");
 		}
 	}
 }

@@ -228,5 +228,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="printer_port">Printer Port</string>
     <string name="printer_ip_summary">ip address of printer</string>
     <string name="printer_port_summary">port of printer</string>
+    <string name="title_activity_about">About MPOS</string>
+    <string name="about">About MPOS</string>
 
 </resources>

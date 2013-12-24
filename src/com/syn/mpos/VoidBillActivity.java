@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+
 import com.syn.pos.OrderTransaction;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -16,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -157,12 +159,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private class BillAdapter extends BaseAdapter{
-		LayoutInflater inflater;
-		
-		public BillAdapter(){
-			inflater = LayoutInflater.from(VoidBillActivity.this);
-		}
-		
+
 		@Override
 		public int getCount() {
 			return mTransLst != null ? mTransLst.size() : 0;
@@ -197,6 +194,8 @@ public class VoidBillActivity extends Activity {
 			final OrderTransaction trans = mTransLst.get(position);
 			ViewHolder holder;
 			
+			LayoutInflater inflater = (LayoutInflater) 
+					VoidBillActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			if(convertView == null){
 				convertView = inflater.inflate(R.layout.receipt_template, null);
 				holder = new ViewHolder();
@@ -287,7 +286,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void searchBill(){
-		mTransLst = MPOSApplication.sGlobalVar.getTransaction().listTransaction(mDate);
+		mTransLst = GlobalVar.sTransaction.listTransaction(mDate);
 		mBillAdapter.notifyDataSetChanged();
 	}
 	
@@ -295,7 +294,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText(mReceiptNo);
 		txtReceiptDate.setText(mReceiptDate);
 		
-		mOrderLst = MPOSApplication.sGlobalVar.getTransaction().listAllOrder(mTransactionId, mComputerId);
+		mOrderLst = GlobalVar.sTransaction.listAllOrder(mTransactionId, mComputerId);
 		mBillDetailAdapter.notifyDataSetChanged();
 	}
 
@@ -312,7 +311,7 @@ public class VoidBillActivity extends Activity {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				hideKeyboard();
+				
 			}
 		}).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			
@@ -320,9 +319,13 @@ public class VoidBillActivity extends Activity {
 			public void onClick(DialogInterface dialog, int which) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					if(MPOSApplication.sGlobalVar.getTransaction().voidTransaction(mTransactionId,
+					if(GlobalVar.sTransaction.voidTransaction(mTransactionId,
 							mComputerId, mStaffId, voidReason)){
-						hideKeyboard();
+						
+						mTransLst = null;
+						mOrderLst = null;
+						mBillAdapter.notifyDataSetChanged();
+						mBillDetailAdapter.notifyDataSetChanged();
 					}
 				}else{
 					new AlertDialog.Builder(getApplicationContext())
@@ -345,10 +348,5 @@ public class VoidBillActivity extends Activity {
 
 	public void cancel() {
 		finish();
-	}
-	
-	private void hideKeyboard(){
-		getWindow().setSoftInputMode(
-			      WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 	}
 }

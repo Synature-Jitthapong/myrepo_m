@@ -117,18 +117,15 @@ public class Reporting extends MPOSDatabase{
 			do{
 				Report.ReportDetail reportDetail = 
 						new Report.ReportDetail();
-				String docTypeHeader = 
-						cursor.getString(cursor.getColumnIndex(StockDocument.COL_DOC_TYPE_HEADER));
-				String receiptYear = 
-						String.format("%04d", cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_YEAR)));
-				String receiptMonth = 
-						String.format("%02d", cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_MONTH)));
-				String receiptId = 
-						String.format("%06d", cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_ID)));
+				String receiptNo = Transaction.formatReceiptNo(
+						cursor.getString(cursor.getColumnIndex(StockDocument.COL_DOC_TYPE_HEADER)),
+						cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_YEAR)),
+						cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_MONTH)),
+						cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_ID)));
 				
 				reportDetail.setTransactionId(cursor.getInt(cursor.getColumnIndex(Transaction.COL_TRANS_ID)));
 				reportDetail.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
-				reportDetail.setReceiptNo(docTypeHeader == null ? "" : docTypeHeader + receiptMonth + receiptYear + receiptId);
+				reportDetail.setReceiptNo(receiptNo);
 				reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice")));
 				reportDetail.setSubTotal(cursor.getFloat(cursor.getColumnIndex("TotalSalePrice")));
 				reportDetail.setVatExclude(cursor.getFloat(cursor.getColumnIndex(Transaction.COL_TRANS_EXCLUDE_VAT)));

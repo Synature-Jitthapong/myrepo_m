@@ -23,7 +23,7 @@ public class GlobalVar {
 	public static final String DB_NAME = "mpos.db";
 	
 	// db version
-	public static final int DB_VERSION = 2;
+	public static final int DB_VERSION = 1;
 	
 	// service name
 	public static final String WS_NAME = "ws_mpos.asmx";
@@ -35,30 +35,30 @@ public class GlobalVar {
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
 	
 	// preference
-	private SharedPreferences mSharedPref; 
+	public static SharedPreferences sSharedPref; 
 	
 	// global property
-	private GlobalProperty mGlobalProperty;
+	public static GlobalProperty sGlobalProperty;
 	
 	// product
-	private Products mProduct;
+	public static Products sProduct;
 	
 	// shop data property
-	private Shop mShop;
+	public static Shop sShop;
 	
 	// computer data property
-	private Computer mComputer;
+	public static Computer sComputer;
 	
 	// transaction 
-	private Transaction mTransaction;
+	public static Transaction sTransaction;
 	
 	private GlobalVar(Context c){
-		mSharedPref = PreferenceManager.getDefaultSharedPreferences(c);
-		mGlobalProperty = new GlobalProperty(c);
-		mProduct = new Products(c);
-		mShop = new Shop(c);
-		mComputer = new Computer(c);
-		mTransaction = new Transaction(c);
+		sSharedPref = PreferenceManager.getDefaultSharedPreferences(c);
+		sGlobalProperty = new GlobalProperty(c);
+		sProduct = new Products(c);
+		sShop = new Shop(c);
+		sComputer = new Computer(c);
+		sTransaction = new Transaction(c);
 	}
 	
 	public static synchronized GlobalVar newInstance(Context c){
@@ -69,48 +69,24 @@ public class GlobalVar {
 	}
 	
 	public String getPrinterPort(){
-		return mSharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_PORT, "");
+		return sSharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_PORT, "");
 	}
 	
 	public String getPrinterIp(){
-		return mSharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_IP, "");
+		return sSharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_IP, "");
 	}
 	
 	public String getImageUrl(){
-		return mSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "") + "/" + SERVER_IMG_PATH;
+		return sSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "") + "/" + SERVER_IMG_PATH;
 	}
 	
 	public String getFullUrl(){
-		return mSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "") + "/" + WS_NAME;
+		return sSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "") + "/" + WS_NAME;
 	}
 	
 	public String getHost(){
-		Uri uri = Uri.parse(mSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, ""));
+		Uri uri = Uri.parse(sSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, ""));
 		return uri.getHost();
-	}
-	
-	public Transaction getTransaction(){
-		return mTransaction;
-	}
-	
-	public Computer getComputer(){
-		return mComputer;
-	}
-	
-	public Shop getShop(){
-		return mShop;
-	}
-	
-	public Products getProduct(){
-		return mProduct;
-	}
-	
-	public GlobalProperty getGlobalProperty(){
-		return mGlobalProperty;
-	}
-	
-	public SharedPreferences getSharedPreference(){
-		return mSharedPref;
 	}
 	
 	public String dateFormat(Date d, String pattern){
@@ -121,8 +97,8 @@ public class GlobalVar {
 	public String dateFormat(Date d){
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM-dd", Locale.getDefault());
 		
-		if(!mGlobalProperty.getGlobalProperty().getDateFormat().equals(""))
-			dateFormat.applyPattern(mGlobalProperty.getGlobalProperty().getDateFormat());
+		if(!sGlobalProperty.getGlobalProperty().getDateFormat().equals(""))
+			dateFormat.applyPattern(sGlobalProperty.getGlobalProperty().getDateFormat());
 			
 		return dateFormat.format(d);	
 	}
@@ -135,10 +111,10 @@ public class GlobalVar {
 	public String dateTimeFormat(Date d){
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 		
-		if(!mGlobalProperty.getGlobalProperty().getDateFormat().equals("") && 
-				!mGlobalProperty.getGlobalProperty().getTimeFormat().equals(""))
-			dateTimeFormat.applyPattern(mGlobalProperty.getGlobalProperty().getDateFormat() + " " +
-					mGlobalProperty.getGlobalProperty().getTimeFormat());
+		if(!sGlobalProperty.getGlobalProperty().getDateFormat().equals("") && 
+				!sGlobalProperty.getGlobalProperty().getTimeFormat().equals(""))
+			dateTimeFormat.applyPattern(sGlobalProperty.getGlobalProperty().getDateFormat() + " " +
+					sGlobalProperty.getGlobalProperty().getTimeFormat());
 			
 		return dateTimeFormat.format(d);
 	}
@@ -146,8 +122,8 @@ public class GlobalVar {
 	public String timeFormat(Date d){
 		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 		
-		if(!mGlobalProperty.getGlobalProperty().getTimeFormat().equals(""))
-			timeFormat.applyPattern(mGlobalProperty.getGlobalProperty().getTimeFormat());
+		if(!sGlobalProperty.getGlobalProperty().getTimeFormat().equals(""))
+			timeFormat.applyPattern(sGlobalProperty.getGlobalProperty().getTimeFormat());
 			
 		return timeFormat.format(d);
 	}
@@ -160,8 +136,8 @@ public class GlobalVar {
 	public String qtyFormat(float qty){
 		DecimalFormat qtyFormat = new DecimalFormat("#,##0.####");
 		
-		if(!mGlobalProperty.getGlobalProperty().getQtyFormat().equals(""))
-			qtyFormat.applyPattern(mGlobalProperty.getGlobalProperty().getQtyFormat());
+		if(!sGlobalProperty.getGlobalProperty().getQtyFormat().equals(""))
+			qtyFormat.applyPattern(sGlobalProperty.getGlobalProperty().getQtyFormat());
 		
 		return qtyFormat.format(qty);
 	}
@@ -174,8 +150,8 @@ public class GlobalVar {
 	public String currencyFormat(float currency){
 		DecimalFormat currencyFormat = new DecimalFormat("#,##0.####");	
 		
-		if(!mGlobalProperty.getGlobalProperty().getCurrencyFormat().equals(""))
-			currencyFormat.applyPattern(mGlobalProperty.getGlobalProperty().getCurrencyFormat());
+		if(!sGlobalProperty.getGlobalProperty().getCurrencyFormat().equals(""))
+			currencyFormat.applyPattern(sGlobalProperty.getGlobalProperty().getCurrencyFormat());
 			
 		return currencyFormat.format(currency);
 	}

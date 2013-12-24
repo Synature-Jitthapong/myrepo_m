@@ -4,24 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.R;
-import com.syn.mpos.database.Products;
-import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -123,7 +117,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			cancel();
 			return true;
 		case R.id.itemConfirm:
-			if (MPOSApplication.sGlobalVar.getTransaction().confirmDiscount(mTransactionId, mComputerId))
+			if (GlobalVar.sTransaction.confirmDiscount(mTransactionId, mComputerId))
 				finish();
 			return true;
 		default:
@@ -165,9 +159,9 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				
 			float totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - mDiscount;
 			
-			MPOSApplication.sGlobalVar.getTransaction().discountEatchProduct(mOrder.getOrderDetailId(), 
+			GlobalVar.sTransaction.discountEatchProduct(mOrder.getOrderDetailId(), 
 					mTransactionId, mComputerId, 
-					MPOSApplication.sGlobalVar.getProduct().getVatRate(mOrder.getProductId()), 
+					GlobalVar.sProduct.getVatRate(mOrder.getProductId()), 
 					totalPriceAfterDiscount, mDiscount, mDiscountType);
 			
 			OrderTransaction.OrderDetail order = mOrderLst.get(mPosition);
@@ -238,18 +232,18 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	}
 	
 	private void loadOrder() {
-		if (MPOSApplication.sGlobalVar.getTransaction().copyOrderToTmp(mTransactionId, mComputerId)) {
-			mOrderLst = MPOSApplication.sGlobalVar.getTransaction().listAllOrderTmp(mTransactionId, mComputerId);
+		if (GlobalVar.sTransaction.copyOrderToTmp(mTransactionId, mComputerId)) {
+			mOrderLst = GlobalVar.sTransaction.listAllOrderTmp(mTransactionId, mComputerId);
 			mDisAdapter.notifyDataSetChanged();
 		}
 	}
 
 	private void summary() {
-		float subTotal = MPOSApplication.sGlobalVar.getTransaction().getTotalRetailPrice(mTransactionId, mComputerId, true);
-		float totalVatExclude = MPOSApplication.sGlobalVar.getTransaction().getTotalVatExclude(mTransactionId, mComputerId, true);
-		float totalDiscount = MPOSApplication.sGlobalVar.getTransaction().getPriceDiscount(mTransactionId, mComputerId, true); 
+		float subTotal = GlobalVar.sTransaction.getTotalRetailPrice(mTransactionId, mComputerId, true);
+		float totalVatExclude = GlobalVar.sTransaction.getTotalVatExclude(mTransactionId, mComputerId, true);
+		float totalDiscount = GlobalVar.sTransaction.getPriceDiscount(mTransactionId, mComputerId, true); 
 				
-		mTotalPrice = MPOSApplication.sGlobalVar.getTransaction().getTotalSalePrice(mTransactionId, mComputerId, true) + 
+		mTotalPrice = GlobalVar.sTransaction.getTotalSalePrice(mTransactionId, mComputerId, true) + 
 				totalVatExclude;
 		
 		if(totalVatExclude > 0)
@@ -283,7 +277,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									MPOSApplication.sGlobalVar.getTransaction().cancelDiscount(mTransactionId, 
+									GlobalVar.sTransaction.cancelDiscount(mTransactionId, 
 											mComputerId);
 									finish();
 								}
