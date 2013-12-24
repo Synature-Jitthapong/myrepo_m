@@ -7,8 +7,6 @@
                 android:color="@color/blue_dark_green" />
             <stroke 
                 android:color="@color/gray"/>
-            <corners
-                android:radius="3dp"></corners>
             <padding 
                 android:left="8dp"
                 android:top="8dp"
@@ -23,8 +21,6 @@
                 android:color="@color/blue_dark_green" />
              <stroke 
                 android:color="@color/gray"/>
-            <corners
-                android:radius="3dp"></corners>
             <padding 
                 android:left="8dp"
                 android:top="8dp"
@@ -39,8 +35,6 @@
                 android:color="@color/disabled" />
             <stroke 
                 android:color="@color/gray"/>
-            <corners
-                android:radius="3dp"></corners>
             <padding 
                 android:left="8dp"
                 android:top="8dp"
@@ -54,8 +48,6 @@
            	    android:color="@color/blue_green"/>
             <stroke 
                 android:color="@color/gray"/>
-            <corners
-                android:radius="3dp"></corners>
             <padding 
                 android:left="8dp"
                 android:top="8dp"

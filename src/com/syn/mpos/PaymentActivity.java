@@ -10,7 +10,6 @@ import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.R;
-import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Transaction;
@@ -121,8 +120,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 	
 	private void summary(){
-		float vatExclude = GlobalVar.sTransaction.getTotalVatExclude(mTransactionId, mComputerId, false); 
-		sTotalSalePrice = GlobalVar.sTransaction.getTotalSalePrice(mTransactionId, mComputerId, false) + 
+		float vatExclude = MPOSApplication.sGlobalVar.getTransaction().getTotalVatExclude(mTransactionId, mComputerId, false); 
+		sTotalSalePrice = MPOSApplication.sGlobalVar.getTransaction().getTotalSalePrice(mTransactionId, mComputerId, false) + 
 				vatExclude;
 		displayTotalPrice();
 	}
@@ -342,7 +341,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 	
 	private void print(){
-		String printerIp = GlobalVar.sSetting.getPrinter().getPrinterIp();
+		String printerIp = MPOSApplication.sGlobalVar.getPrinterIp();
 		mPrinter = new Print(PaymentActivity.this);
 		mPrinter.setStatusChangeEventCallback(this);
 		mPrinter.setBatteryStatusChangeEventCallback(this);
@@ -373,7 +372,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			builder.addText("RECEIPT/TAX INVOICE(ABB) \n");
 			builder.addText("TAX ID: " + shopProp.getCompanyTaxID() + "\n");
 			builder.addText("Date: " + MPOSApplication.sGlobalVar.dateFormat(new Date(), "d/MM/yy") + "\n");
-			builder.addText("Receipt No: " + GlobalVar.sTransaction.getTransaction(mTransactionId, 
+			builder.addText("Receipt No: " + MPOSApplication.sGlobalVar.getTransaction().getTransaction(mTransactionId, 
 					mComputerId).getReceiptNo() + "\n");
 			
 			builder.addTextPosition(0);
@@ -381,7 +380,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 
 			int maxNameLength = 30;
 			List<OrderTransaction.OrderDetail> orderLst = 
-					GlobalVar.sTransaction.listAllOrder(mTransactionId, mComputerId);
+					MPOSApplication.sGlobalVar.getTransaction().listAllOrder(mTransactionId, mComputerId);
 	    	for(int i = 0; i < orderLst.size(); i++){
 	    		OrderTransaction.OrderDetail order = 
 	    				orderLst.get(i);
@@ -412,7 +411,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	    	builder.addText(total + createSpace(total.length(), 44));
 	    	builder.addText(mTxtTotalPrice.getText() + "\n");
 	    	builder.addText(discount + createSpace(discount.length(), 44));
-	    	builder.addText(MPOSApplication.sGlobalVar.currencyFormat(GlobalVar.sTransaction.getPriceDiscount(mTransactionId, 
+	    	builder.addText(MPOSApplication.sGlobalVar.currencyFormat(MPOSApplication.sGlobalVar.getTransaction().getPriceDiscount(mTransactionId, 
 	    			mComputerId, false)) + "\n");
 	    	builder.addText(payment + createSpace(payment.length(), 44));
 	    	builder.addText(MPOSApplication.sGlobalVar.currencyFormat(mTotalPaid) + "\n");
@@ -461,7 +460,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	
 	public void confirm() {
 		if(mTotalPaid >=sTotalSalePrice){
-			if(GlobalVar.sTransaction.successTransaction(mTransactionId, 
+			if(MPOSApplication.sGlobalVar.getTransaction().successTransaction(mTransactionId, 
 					mComputerId, mStaffId)){
 				float change = mTotalPaid - sTotalSalePrice;
 				print();

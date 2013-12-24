@@ -123,7 +123,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			cancel();
 			return true;
 		case R.id.itemConfirm:
-			if (GlobalVar.sTransaction.confirmDiscount(mTransactionId, mComputerId))
+			if (MPOSApplication.sGlobalVar.getTransaction().confirmDiscount(mTransactionId, mComputerId))
 				finish();
 			return true;
 		default:
@@ -165,9 +165,9 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				
 			float totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - mDiscount;
 			
-			GlobalVar.sTransaction.discountEatchProduct(mOrder.getOrderDetailId(), 
+			MPOSApplication.sGlobalVar.getTransaction().discountEatchProduct(mOrder.getOrderDetailId(), 
 					mTransactionId, mComputerId, 
-					GlobalVar.sProduct.getVatRate(mOrder.getProductId()), 
+					MPOSApplication.sGlobalVar.getProduct().getVatRate(mOrder.getProductId()), 
 					totalPriceAfterDiscount, mDiscount, mDiscountType);
 			
 			OrderTransaction.OrderDetail order = mOrderLst.get(mPosition);
@@ -238,18 +238,18 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	}
 	
 	private void loadOrder() {
-		if (GlobalVar.sTransaction.copyOrderToTmp(mTransactionId, mComputerId)) {
-			mOrderLst = GlobalVar.sTransaction.listAllOrderTmp(mTransactionId, mComputerId);
+		if (MPOSApplication.sGlobalVar.getTransaction().copyOrderToTmp(mTransactionId, mComputerId)) {
+			mOrderLst = MPOSApplication.sGlobalVar.getTransaction().listAllOrderTmp(mTransactionId, mComputerId);
 			mDisAdapter.notifyDataSetChanged();
 		}
 	}
 
 	private void summary() {
-		float subTotal = GlobalVar.sTransaction.getTotalRetailPrice(mTransactionId, mComputerId, true);
-		float totalVatExclude = GlobalVar.sTransaction.getTotalVatExclude(mTransactionId, mComputerId, true);
-		float totalDiscount = GlobalVar.sTransaction.getPriceDiscount(mTransactionId, mComputerId, true); 
+		float subTotal = MPOSApplication.sGlobalVar.getTransaction().getTotalRetailPrice(mTransactionId, mComputerId, true);
+		float totalVatExclude = MPOSApplication.sGlobalVar.getTransaction().getTotalVatExclude(mTransactionId, mComputerId, true);
+		float totalDiscount = MPOSApplication.sGlobalVar.getTransaction().getPriceDiscount(mTransactionId, mComputerId, true); 
 				
-		mTotalPrice = GlobalVar.sTransaction.getTotalSalePrice(mTransactionId, mComputerId, true) + 
+		mTotalPrice = MPOSApplication.sGlobalVar.getTransaction().getTotalSalePrice(mTransactionId, mComputerId, true) + 
 				totalVatExclude;
 		
 		if(totalVatExclude > 0)
@@ -283,7 +283,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									GlobalVar.sTransaction.cancelDiscount(mTransactionId, 
+									MPOSApplication.sGlobalVar.getTransaction().cancelDiscount(mTransactionId, 
 											mComputerId);
 									finish();
 								}

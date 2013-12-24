@@ -17,7 +17,7 @@ public class ProductProvider extends ContentProvider {
 	public static final String SUGGEST_COLUMNS[] = {
 		BaseColumns._ID,
 		SearchManager.SUGGEST_COLUMN_INTENT_DATA,
-		SearchManager.SUGGEST_COLUMN_ICON_1,
+		//SearchManager.SUGGEST_COLUMN_ICON_1,
 		SearchManager.SUGGEST_COLUMN_TEXT_1
 	};
 	
@@ -64,7 +64,7 @@ public class ProductProvider extends ContentProvider {
 				matrixCursor.addRow(new Object[]{
 						cursor.getInt(cursor.getColumnIndex(Products.COL_PRODUCT_ID)),
 						cursor.getInt(cursor.getColumnIndex(Products.COL_PRODUCT_ID)),
-						cursor.getString(cursor.getColumnIndex(Products.COL_IMG_URL)),
+						//cursor.getString(cursor.getColumnIndex(Products.COL_IMG_URL)),
 						cursor.getString(cursor.getColumnIndex(Products.COL_PRODUCT_NAME))
 				});
 			}while(cursor.moveToNext());

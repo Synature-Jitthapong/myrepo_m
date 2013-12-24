@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-
-import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import android.os.Bundle;
 import android.app.Activity;
@@ -289,7 +287,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void searchBill(){
-		mTransLst = GlobalVar.sTransaction.listTransaction(mDate);
+		mTransLst = MPOSApplication.sGlobalVar.getTransaction().listTransaction(mDate);
 		mBillAdapter.notifyDataSetChanged();
 	}
 	
@@ -297,7 +295,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText(mReceiptNo);
 		txtReceiptDate.setText(mReceiptDate);
 		
-		mOrderLst = GlobalVar.sTransaction.listAllOrder(mTransactionId, mComputerId);
+		mOrderLst = MPOSApplication.sGlobalVar.getTransaction().listAllOrder(mTransactionId, mComputerId);
 		mBillDetailAdapter.notifyDataSetChanged();
 	}
 
@@ -322,7 +320,7 @@ public class VoidBillActivity extends Activity {
 			public void onClick(DialogInterface dialog, int which) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					if(GlobalVar.sTransaction.voidTransaction(mTransactionId,
+					if(MPOSApplication.sGlobalVar.getTransaction().voidTransaction(mTransactionId,
 							mComputerId, mStaffId, voidReason)){
 						hideKeyboard();
 					}

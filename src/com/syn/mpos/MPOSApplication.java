@@ -3,7 +3,7 @@ package com.syn.mpos;
 import android.app.Application;
 
 public class MPOSApplication extends Application{
-	public static GlobalVar sGlobalVar  = null;
+	public static GlobalVar sGlobalVar;
 	
 	@Override
 	public void onCreate() {
@@ -12,5 +12,4 @@ public class MPOSApplication extends Application{
 		// initial sigleton GlobalVar
 		sGlobalVar = GlobalVar.newInstance(getApplicationContext());
 	}
-
 }

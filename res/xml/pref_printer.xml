@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/printer_setting"><EditTextPreference android:title="@string/printer_ip" android:key="printer_ip" android:defaultValue="@string/printer_ip_summary"/><EditTextPreference android:title="@string/printer_port" android:key="printer_port" android:defaultValue="@string/printer_port_summary"/></PreferenceCategory>
+    
+
+</PreferenceScreen>

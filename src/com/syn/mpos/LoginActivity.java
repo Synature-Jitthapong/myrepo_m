@@ -2,10 +2,11 @@ package com.syn.mpos;
 
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
-import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.transaction.Session;
 import com.syn.pos.ShopData;
+
 import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -20,11 +21,11 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends Activity {
+	private String mDeviceCode;
 	private int mShopId;
 	private int mComputerId;
 	private int mSessionId;
 	private Session mSession;
-	private Setting.Connection mConnection;
 	
 	private EditText mTxtUser;
 	private EditText mTxtPass;
@@ -38,6 +39,9 @@ public class LoginActivity extends Activity {
 		mTxtPass = (EditText) findViewById(R.id.txtPass);
 		mTxtUser.setSelectAllOnFocus(true);
 		mTxtPass.setSelectAllOnFocus(true);
+		
+		mDeviceCode = Secure.getString(this.getContentResolver(),
+				Secure.ANDROID_ID);
 		
 		mTxtUser.setText("1");
 		mTxtPass.setText("1");
@@ -58,13 +62,11 @@ public class LoginActivity extends Activity {
 
 	private void init(){
 		mSession = new Session(this);
-		mShopId = GlobalVar.sShop.getShopProperty().getShopID();
-		mComputerId = GlobalVar.sComputer.getComputerProperty().getComputerID();
-		mConnection = GlobalVar.sSetting.getConnection();
+		mShopId = MPOSApplication.sGlobalVar.getShop().getShopProperty().getShopID();
+		mComputerId = MPOSApplication.sGlobalVar.getComputer().getComputerProperty().getComputerID();
 		
-		if(mConnection.getAddress() == null || 
-				mConnection.getBackoffice() == null){
-			Intent intent = new Intent(this, SettingActivity.class);
+		if(MPOSApplication.sGlobalVar.getSharedPreference().getString(SettingsActivity.KEY_PREF_SERVER_URL, "").equals("")){
+			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 		}
 	}
@@ -79,7 +81,7 @@ public class LoginActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case R.id.itemSetting:
-			Intent intent = new Intent(LoginActivity.this, SettingActivity.class);
+			Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
 			startActivity(intent);
 			return true;
 		default:
@@ -92,25 +94,60 @@ public class LoginActivity extends Activity {
 		super.onResume();
 		init();
 	}
+			
+	private MPOSService.OnServiceProcessListener mServiceStateListener = 
+			new MPOSService.OnServiceProcessListener() {
+				
+				@Override
+				public void onSuccess() {
+					checkLogin();
+				}
+				
+				@Override
+				public void onError(String mesg) {
+					new AlertDialog.Builder(LoginActivity.this)
+					.setMessage(mesg)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							
+						}
+					})
+					.show();
+				}
+	};
 	
 	public void loginClicked(final View v){
-//		if(mShopId == 0){
-//			MPOSService mposService = new MPOSService(this, mConn);
-//			mposService.loadShopData(mDeviceCode, new MPOSService.OnServiceProcessListener() {
-//				
-//				@Override
-//				public void onSuccess() {
-//					checkLogin();
-//				}
-//				
-//				@Override
-//				public void onError(String mesg) {
-//					
-//				}
-//			});
-//		}else{
-			checkLogin();
-		//}
+		final MPOSService mposService = new MPOSService(this);
+		if(mShopId == 0){
+			mposService.loadShopData(mDeviceCode, new MPOSService.OnServiceProcessListener() {
+				
+				@Override
+				public void onSuccess() {
+					mShopId = MPOSApplication.sGlobalVar.getShop().getShopProperty().getShopID();
+					mposService.loadProductData(mShopId, mDeviceCode, mServiceStateListener);
+				}
+				
+				@Override
+				public void onError(String mesg) {
+					new AlertDialog.Builder(LoginActivity.this)
+					.setMessage(mesg)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							
+						}
+					})
+					.show();
+				}
+			});
+		}else{
+			mposService.loadProductData(mShopId, mDeviceCode, mServiceStateListener);
+		}
 	}
 	
 	private void gotoMainActivity(int staffId){

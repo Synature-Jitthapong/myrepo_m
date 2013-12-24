@@ -33,11 +33,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Computer.COL_REGISTER_NUMBER + " TEXT, " +
 		"PRIMARY KEY (" + Computer.COL_COMPUTER_ID + ") );",
 		
-		// tb config
-		"CREATE TABLE " + Setting.TB_CONNECTION_CONFIG + " ( " +
-		Setting.COL_ADDR + " TEXT, " +
-		Setting.COL_BACKOFFICE + " TEXT); ",
-		
 		// tb creditcard type
 		"CREATE TABLE " + CreditCard.TB_CREDIT_CARD_TYPE + " ( " +
 		CreditCard.COL_CREDIT_CARD_TYPE_ID + " INTEGER, " +
@@ -139,6 +134,7 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		
 		// tb ordertransaction
 		"CREATE TABLE " + Transaction.TB_TRANS + " ( " +
+		MPOSDatabase.COL_UUID + " TEXT, " +
 		Transaction.COL_TRANS_ID + " INTEGER, " +
 		Computer.COL_COMPUTER_ID + " INTEGER, " +
 		Shop.COL_SHOP_ID + " INTEGER, " +
@@ -187,10 +183,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		PaymentDetail.COL_PAY_TYPE_CODE + " TEXT, " +
 		PaymentDetail.COL_PAY_TYPE_NAME + " TEXT, " +
 		"PRIMARY KEY (" + PaymentDetail.COL_PAY_TYPE_ID + ") );", 
-		
-		// tb printer config
-		"CREATE TABLE " + Setting.TB_PRINTER_CONFIG + " ( " +
-		Setting.COL_PRINTER_IP + " TEXT	);",
 		
 		// tb product dept
 		"CREATE TABLE " + Products.TB_PRODUCT_DEPT + " ( " +
@@ -294,6 +286,56 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		"PRIMARY KEY (" + Staff.COL_STAFF_ID + "));"
 	};
 	
+	private static final String[] sqlAddition = {
+		"INSERT INTO BankName VALUES (1, 'กรุงเทพฯ');",
+		"INSERT INTO BankName VALUES (2, 'กสิกรไทย');",
+		"INSERT INTO BankName VALUES (3, 'ทหารไทย');",
+		"INSERT INTO BankName VALUES (4, 'กรุงไทย');",
+		"INSERT INTO BankName VALUES (5, 'ไทยพาณิชย์');",
+		"INSERT INTO BankName VALUES (6, 'UOB');",
+		"INSERT INTO BankName VALUES (7, 'ซิตี้แบงค์');",
+		"INSERT INTO BankName VALUES (8, 'กรุงศรีอยุธยา');",
+		"INSERT INTO BankName VALUES (9, 'นครหลวงไทย');",
+		"INSERT INTO BankName VALUES (10, 'Standard Charter');",
+		"INSERT INTO BankName VALUES (11, 'HSBC');",
+		"INSERT INTO BankName VALUES (12, 'ออมสิน');",
+		"INSERT INTO BankName VALUES (13, 'อิออน');",
+		"INSERT INTO BankName VALUES (14, 'AIG');",
+		"INSERT INTO BankName VALUES (15, 'GE Money');",
+		"INSERT INTO BankName VALUES (16, 'แคปปิตอล โอเค');",
+		"INSERT INTO BankName VALUES (17, 'BMB');",
+		"INSERT INTO BankName VALUES (18, 'ASA');",
+		"INSERT INTO BankName VALUES (19, 'PSCL');",
+		"INSERT INTO BankName VALUES (20, 'อื่น ๆ');",
+		"INSERT INTO BankName VALUES (21, 'TDB');",
+		// credit type
+		"INSERT INTO CreditCardType VALUES (1, 'VISA');",
+		"INSERT INTO CreditCardType VALUES (2, 'Master');",
+		"INSERT INTO CreditCardType VALUES (3, 'AMEX');",
+		"INSERT INTO CreditCardType VALUES (4, 'DINERS');",
+		"INSERT INTO CreditCardType VALUES (5, 'JCB');",
+		"INSERT INTO CreditCardType VALUES (6, 'VS-GOLD');",
+		"INSERT INTO CreditCardType VALUES (7, 'MC-GOLD');",
+		// documenttype
+		"INSERT INTO DocumentType VALUES (7, 'xxxST', 'Monthly Stock Card', 0);",
+		"INSERT INTO DocumentType VALUES (10, 'xxxR', 'Transfer Stock', 1);",
+		"INSERT INTO DocumentType VALUES (18, 'xxxDS', 'Add From Daily Stock', 1);",
+		"INSERT INTO DocumentType VALUES (19, 'xxxDS', 'Reduce From Daily Stock', -1);",
+		"INSERT INTO DocumentType VALUES (20, 'xxxSD', 'Material From Sale Document', -1);",
+		"INSERT INTO DocumentType VALUES (21, 'xxxVD', 'Material From Void Document', 1);",
+		"INSERT INTO DocumentType VALUES (22, 'xxxMS', 'Add From Monthly Stock', 1);",
+		"INSERT INTO DocumentType VALUES (23, 'xxxMS', 'Reduce From Monthly Stock', -1);",
+		"INSERT INTO DocumentType VALUES (24, 'xxxST', 'Daily Stock Card', 0);",
+		"INSERT INTO DocumentType VALUES (39, 'xxxRO', 'Direct Receive Order', 1);",
+		"INSERT INTO DocumentType VALUES (8, 'xxxRC', 'Receipt', 0);",
+		// province
+		"INSERT INTO Province VALUES (1, 'Chiang Mai');",
+		"INSERT INTO Province VALUES (2, 'Chiang Rai');",
+		"INSERT INTO Province VALUES (3, 'Kamphaeng Phet');",
+		"INSERT INTO Province VALUES (4, 'Lampang');",
+		"INSERT INTO Province VALUES (5, 'Lamphun');"
+	};
+	
 	public MPOSSQLiteHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
 	}
@@ -303,11 +345,16 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		for(String sql : sqlCreateTables){
 			db.execSQL(sql);
 		}
+		
+		for(String sql : sqlAddition){
+			db.execSQL(sql);
+		}
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO Auto-generated method stub
-		
+		if(newVersion > oldVersion){
+			db.execSQL("ALTER TABLE " + Transaction.TB_TRANS + " ADD COLUMN UUID TEXT;");
+		}
 	}
 }

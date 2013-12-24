@@ -550,6 +550,7 @@ public class Transaction extends MPOSDatabase {
 		Calendar date = Util.getDate();
 
 		ContentValues cv = new ContentValues();
+		cv.put(COL_UUID, getUUID());
 		cv.put(COL_TRANS_ID, transactionId);
 		cv.put(Computer.COL_COMPUTER_ID, computerId);
 		cv.put(Shop.COL_SHOP_ID, shopId);

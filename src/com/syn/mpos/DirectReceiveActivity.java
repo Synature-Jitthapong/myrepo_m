@@ -3,14 +3,11 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.Products;
-import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.inventory.ReceiveStock;
 import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.mpos.database.inventory.StockProduct;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -29,24 +26,19 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class DirectReceiveActivity extends Activity implements
-		OnActionExpandListener, OnEditorActionListener {
+		OnActionExpandListener, OnEditorActionListener, OnClickListener {
 	private ReceiveStock mReceiveStock;
-	private List<Products.Product> mProductLst;
 	private ReceiveStockAdapter mStockAdapter;
 	private List<StockProduct> mStockLst;
 	private StockProduct mStock;
@@ -54,16 +46,14 @@ public class DirectReceiveActivity extends Activity implements
 	private int mDocumentId;
 	private int mShopId;
 	private int mStaffId;
-
 	private MenuItem mItemSearch;
 	private MenuItem mItemInput;
 	private SearchView mSearchView;
-	private View mPopSearch;
 	private ListView mListViewStock;
-	private ListView mListViewResult;
 	private TextView mTvItemName;
 	private EditText mTxtReceiveQty;
 	private EditText mTxtReceivePrice;
+	private Button mBtnDone;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +76,7 @@ public class DirectReceiveActivity extends Activity implements
 	private void handleIntent(Intent intent) {
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
         	int productId = Integer.parseInt(intent.getDataString());
-        	Products.Product p = GlobalVar.sProduct.getProduct(productId);
+        	Products.Product p = MPOSApplication.sGlobalVar.getProduct().getProduct(productId);
         	// add selected product
         	addSelectedProduct(productId, 1, p.getProductPrice(), p.getProductUnitName());
         	
@@ -113,10 +103,13 @@ public class DirectReceiveActivity extends Activity implements
 		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);
 		mTxtReceiveQty = (EditText) mItemInput.getActionView().findViewById(R.id.txtQty);
 		mTxtReceivePrice = (EditText) mItemInput.getActionView().findViewById(R.id.txtPrice);
+		mBtnDone = (Button) mItemInput.getActionView().findViewById(R.id.btnDone);
+		
 		mTxtReceiveQty.setSelectAllOnFocus(true);
 		mTxtReceivePrice.setSelectAllOnFocus(true);
 		mTxtReceiveQty.setOnEditorActionListener(this);
 		mTxtReceivePrice.setOnEditorActionListener(this);
+		mBtnDone.setOnClickListener(this);
 
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 		mItemSearch = menu.findItem(R.id.itemSearch);
@@ -138,9 +131,6 @@ public class DirectReceiveActivity extends Activity implements
 			return true;
 		case R.id.itemCancel:
 			cancel();
-			return true;
-		case R.id.itemClose:
-			finish();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -174,9 +164,6 @@ public class DirectReceiveActivity extends Activity implements
 				mPosition = position;
 				mStock = (StockProduct) parent.getItemAtPosition(position);
 
-				if(mItemSearch.isActionViewExpanded())
-					mItemSearch.collapseActionView();
-				
 				mItemInput.setVisible(true);
 				
 				mTvItemName.setText(mStock.getName());
@@ -241,6 +228,12 @@ public class DirectReceiveActivity extends Activity implements
 		@Override
 		public long getItemId(int position) {
 			return position;
+		}
+
+		@Override
+		public void notifyDataSetChanged() {
+			super.notifyDataSetChanged();
+			
 		}
 
 		@Override
@@ -429,5 +422,19 @@ public class DirectReceiveActivity extends Activity implements
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()){
+		case R.id.btnDone:
+			View currFocus = DirectReceiveActivity.this.getCurrentFocus();
+			if(currFocus != null){
+				if(currFocus instanceof EditText){
+					((EditText) currFocus).onEditorAction(EditorInfo.IME_ACTION_DONE);
+				}
+			}
+			break;
+		}
 	}
 }

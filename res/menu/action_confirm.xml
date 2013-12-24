@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/itemClose" android:title="@string/close" 
-        android:showAsAction="always"></item>
-    <item android:id="@+id/itemCancel" android:showAsAction="always" android:icon="@drawable/ic_navigation_cancel_light">
+        android:showAsAction="always|withText"></item>
+    <item android:id="@+id/itemCancel" android:showAsAction="always|withText" android:icon="@drawable/ic_navigation_cancel_light" android:title="@android:string/cancel">
         
-    </item><item android:id="@+id/itemConfirm" android:showAsAction="always" android:icon="@drawable/ic_navigation_accept_light"></item>
+    </item><item android:id="@+id/itemConfirm" android:showAsAction="always|withText" android:icon="@drawable/ic_navigation_accept_light" android:title="@string/confirm"></item>
 </menu>

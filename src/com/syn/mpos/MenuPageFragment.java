@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.Products;
-import com.syn.mpos.database.Setting;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -42,9 +40,9 @@ public class MenuPageFragment extends Fragment {
 		mDeptId = getArguments().getInt("deptId");
 
 		mImgLoader = new ImageLoader(getActivity(), R.drawable.no_food,
-				"mpos_img");
+				GlobalVar.IMG_DIR);
 
-		mProductLst = GlobalVar.sProduct.listProduct(mDeptId);
+		mProductLst = MPOSApplication.sGlobalVar.getProduct().listProduct(mDeptId);
 		mAdapter = new MenuItemAdapter();
 		
 	}
@@ -119,7 +117,7 @@ public class MenuPageFragment extends Fragment {
 			
 			holder.tvMenu.setText(p.getProductName());
 			holder.tvPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(p.getProductPrice()));
-			mImgLoader.displayImage(Setting.mMenuImageUrl + p.getImgUrl(), holder.imgMenu);
+			mImgLoader.displayImage(MPOSApplication.sGlobalVar.getImageUrl() + p.getImgUrl(), holder.imgMenu);
 			return convertView;
 		}
 	}

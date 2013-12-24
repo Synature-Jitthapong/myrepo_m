@@ -21,6 +21,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="left"
             android:text="@string/bill_no" />
 
         <TextView
@@ -29,6 +30,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+            android:gravity="right"
             android:text="@string/total_price" />
 
         <TextView
@@ -37,6 +39,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+            android:gravity="right"
             android:text="@string/discount" />
 
         <TextView
@@ -45,6 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+            android:gravity="right"
             android:text="@string/sub_total" />
 
         <TextView
@@ -62,6 +66,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+            android:gravity="right"
             android:text="@string/vatable" />
 
         <TextView
@@ -70,6 +75,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+            android:gravity="right"
             android:text="@string/total_vat" />
 
         <TextView
@@ -78,7 +84,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+            android:gravity="right"
             android:text="@string/total_payment" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -92,6 +100,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+            android:gravity="left"
             android:text="@string/code" />
 
         <TextView
@@ -100,7 +109,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/product_name" />
+            android:gravity="left"
+            android:text="@string/item_name" />
 
         <TextView
             android:id="@+id/TextView04"
@@ -108,6 +118,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+            android:gravity="right"
             android:text="@string/unit_price" />
 
         <TextView
@@ -116,6 +127,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+            android:gravity="right"
             android:text="@string/qty" />
 
         <TextView
@@ -124,6 +136,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
+            android:gravity="right"
             android:text="@string/percent" />
 
         <TextView
@@ -132,6 +145,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+            android:gravity="right"
             android:text="@string/sub_total" />
 
         <TextView
@@ -140,6 +154,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
+            android:gravity="right"
             android:text="@string/percent" />
 
         <TextView
@@ -148,6 +163,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+            android:gravity="right"
             android:text="@string/discount" />
 
         <TextView
@@ -156,6 +172,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
+            android:gravity="right"
             android:text="@string/percent" />
 
         <TextView

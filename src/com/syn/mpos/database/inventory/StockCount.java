@@ -25,43 +25,25 @@ public class StockCount extends StockDocument {
 		super(context);
 	}
 
-	/**
-	 * calculate current stock
-	 * @param dateFrom
-	 * @param dateTo
-	 * @return
-	 */
-//	protected boolean calculateStock(int productId, long dateFrom, long dateTo){
-//		boolean isSuccess = false;
-//		if(createStockTmp()){
-//			String strSql = "INSERT INTO stock_tmp " +
-//					" SELECT p.product_id, " +
-//					" (SELECT SUM(b.product_qty * c.movement_in_stock) " +
-//					" FROM document a " +
-//					" LEFT JOIN docdetail b " +
-//					" ON a.document_id=b.document_id " +
-//					" AND a.shop_id=b.shop_id " +
-//					" LEFT JOIN document_type c " +
-//					" ON a.document_type_id=c.document_type_id " +
-//					" WHERE p.product_id=b.product_id " +
-//					" AND a.document_date >=" + dateFrom + 
-//					" AND a.document_date <=" + dateTo + 
-//					" AND a.document_status=2 " +
-//					" AND c.movement_in_stock != 0 " +
-//					" GROUP BY b.product_id ) " +
-//					" FROM products p " +
-//					" WHERE p.activated=1";
-//			
-//			open();
-//			try {
-//				mSqlite.execSQL(strSql, null);
-//				isSuccess = true;
-//			} catch (SQLException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			mSqlite.close();
-//		}
-//		return isSuccess;
-//	}
+	public float getCurrentStock(long dateFrom, long dateTo){
+		float currStock = 0.0f;
+		
+		
+		Cursor cursor = mSqlite.rawQuery(
+				"SELECT (b.ProductAmount * c.MovementInStock) " +
+				"FROM Document a " +
+				"LEFT JOIN DocDetail b " +
+				"ON a.DocumentId=b.DocumentId " +
+				"AND a.ShopID=b.ShopID " +
+				"LEFT JOIN DocumentType c " +
+				"ON a.DocumentTypeId=c.DocumentTypeId " +
+				"WHERE c.MovementInStock != 0 " +
+				"AND a.DocumentDate BETWEEN ? AND ? " +
+				"GROUP BY c.DocumentTypeId", 
+				new String[]{String.valueOf(dateFrom),  String.valueOf(dateTo)});
+		
+		
+		
+		return currStock;
+	}
 }

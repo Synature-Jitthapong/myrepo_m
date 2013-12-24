@@ -31,17 +31,6 @@
         android:gravity="left"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <Button
-        android:id="@+id/btnDelete"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableLeft="@drawable/ic_navigation_cancel_light"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:minHeight="0dip"
-        android:minWidth="0dip" />
-
     <TextView
         android:id="@+id/tvQty"
         style="@style/ColumnDetail"
@@ -57,5 +46,16 @@
         android:layout_height="wrap_content"
         android:gravity="right"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/btnDelete"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_navigation_cancel_light"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:minHeight="0dip"
+        android:minWidth="0dip" />
 
 </LinearLayout>

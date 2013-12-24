@@ -8,7 +8,6 @@ import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.Language;
 import com.syn.mpos.database.Products;
-import com.syn.mpos.database.Setting;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Staff;
 import com.syn.pos.MenuGroups;
@@ -20,12 +19,10 @@ import android.content.Context;
 public class MPOSService {
 	
 	public Context mContext;
-	public Setting.Connection mSettingConn;
 	public ProgressDialog mProgress;
 	
-	public MPOSService(Context c, Setting.Connection conn){
+	public MPOSService(Context c){
 		mContext = c;
-		mSettingConn = conn;
 		mProgress = new ProgressDialog(c);
 		mProgress.setCancelable(false);
 	}
@@ -34,7 +31,7 @@ public class MPOSService {
 			final OnServiceProcessListener listener){
 
 		mProgress.show();
-		final String url = mSettingConn.getFullUrl();
+		final String url = MPOSApplication.sGlobalVar.getFullUrl();
 		
 		new AuthenDevice(deviceCode, new OnAuthenDeviceListener(){
 
@@ -86,7 +83,7 @@ public class MPOSService {
 			final OnServiceProcessListener listener){
 		
 		mProgress.show();
-		final String url = mSettingConn.getFullUrl();
+		final String url = MPOSApplication.sGlobalVar.getFullUrl();
 		
 		// load menu
 		new LoadMenuTask(shopId, deviceCode, new OnLoadMenuListener(){

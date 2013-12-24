@@ -1,6 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/light_gray"
@@ -22,12 +21,12 @@
         android:background="@drawable/background_card"
         android:orientation="vertical" >
 
-        <TableRow
-            android:id="@+id/tableRow1"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:gravity="center_vertical" >
+            android:gravity="center_vertical"
+            android:orientation="horizontal" >
 
             <TextView
                 android:id="@+id/textView2"
@@ -46,61 +45,49 @@
             <Button
                 android:id="@+id/btnSearch"
                 style="@style/ButtonText"
-                android:background="@drawable/gray_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/gray_button"
                 android:text="@string/search"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+        </LinearLayout>
 
-        </TableRow>
-
-        <TableLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical" >
 
-            <TableRow
-                android:id="@+id/tableRow5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical" >
-
-                <TextView
-                    android:id="@+id/textView8"
-                    style="@style/ColumnHeader"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@color/light_gray"
-                    android:gravity="left"
-                    android:padding="4dp"
-                    android:text="@string/receipt_no"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/textView9"
-                    style="@style/ColumnHeader"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:background="@color/light_gray"
-                    android:gravity="left"
-                    android:text="@string/paid_time"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            </TableRow>
-
-            <ListView
-                android:id="@+id/lvBill"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/textView8"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@color/smoke_white"
-                android:choiceMode="singleChoice"
-                android:listSelector="@drawable/list_selector" >
+                android:gravity="left"
+                android:text="@string/receipt_no"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            </ListView>
+            <TextView
+                android:id="@+id/textView9"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left"
+                android:text="@string/paid_time"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        </TableLayout>
+        </LinearLayout>
 
+        <ListView
+            android:id="@+id/lvBill"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/smoke_white"
+            android:choiceMode="singleChoice"
+            android:listSelector="@drawable/list_selector" >
+        </ListView>
     </LinearLayout>
 
     <LinearLayout
@@ -141,9 +128,7 @@
                     android:ems="15"
                     android:enabled="false"
                     android:textColor="@android:color/black" >
-
                 </EditText>
-
             </TableRow>
 
             <TableRow
@@ -168,7 +153,6 @@
                     android:ems="15"
                     android:enabled="false"
                     android:textColor="@android:color/black" />
-
             </TableRow>
         </TableLayout>
 
@@ -188,9 +172,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/light_gray"
                     android:gravity="left"
-                    android:padding="4dp"
                     android:text="@string/item_name"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -199,8 +181,7 @@
                     style="@style/ColumnHeader"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:background="@color/light_gray"
-                    android:padding="4dp"
+                    android:gravity="right"
                     android:text="@string/qty"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -209,8 +190,7 @@
                     style="@style/ColumnHeader"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:background="@color/light_gray"
-                    android:padding="4dp"
+                    android:gravity="right"
                     android:text="@string/price"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -219,11 +199,9 @@
                     style="@style/ColumnHeader"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:background="@color/light_gray"
-                    android:padding="4dp"
+                    android:gravity="right"
                     android:text="@string/total_price"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
-
             </TableRow>
         </TableLayout>
 
@@ -232,7 +210,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
         </ListView>
-
     </LinearLayout>
 
 </LinearLayout>

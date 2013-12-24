@@ -33,4 +33,11 @@
         android:imeOptions="actionDone"
         android:inputType="number|numberSigned|numberDecimal" />
 
+    <Button
+        android:id="@+id/btnDone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/gray_button"
+        android:text="@string/done" />
+
 </LinearLayout>
