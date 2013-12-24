@@ -1,8 +1,11 @@
 package com.syn.mpos;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import com.syn.mpos.database.Computer;
@@ -68,10 +71,6 @@ public class GlobalVar {
 		return instance;
 	}
 	
-	public String getPrinterPort(){
-		return sSharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_PORT, "");
-	}
-	
 	public String getPrinterIp(){
 		return sSharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_IP, "");
 	}
@@ -81,12 +80,15 @@ public class GlobalVar {
 	}
 	
 	public String getFullUrl(){
-		return sSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "") + "/" + WS_NAME;
-	}
-	
-	public String getHost(){
-		Uri uri = Uri.parse(sSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, ""));
-		return uri.getHost();
+		String fullUrl = sSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "") + "/" + WS_NAME;
+		try {
+			new URL(fullUrl);
+		} catch (MalformedURLException e) {
+			// not found protocal
+			fullUrl = "http://" + fullUrl;
+			e.printStackTrace();
+		}
+		return fullUrl;
 	}
 	
 	public String dateFormat(Date d, String pattern){

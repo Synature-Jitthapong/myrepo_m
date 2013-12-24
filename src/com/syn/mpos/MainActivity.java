@@ -539,7 +539,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvOpenTime.setText(MPOSApplication.sGlobalVar.dateTimeFormat(c.getTime()));
 			tvOpenStaff.setText(trans.getStaffName());
-			tvRemark.setText(trans.getRemark());
+			tvRemark.setText(trans.getTransactionNote());
 
 			return convertView;
 		}

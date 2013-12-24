@@ -5,27 +5,26 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TableRow
-        android:id="@+id/tableRow1"
+    <LinearLayout
+        android:id="@+id/LinearLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
         <TextView
             android:id="@+id/textView1"
             style="@style/ColumnHeader"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:minWidth="30dp"
+            android:layout_weight="0.2"
             android:text="@string/num_row"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/textView2"
             style="@style/ColumnHeader"
-            android:layout_width="250dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/light_gray"
+            android:layout_weight="0.8"
             android:gravity="left"
             android:text="@string/open_time"
             android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -33,9 +32,9 @@
         <TextView
             android:id="@+id/textView3"
             style="@style/ColumnHeader"
-            android:layout_width="180dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/light_gray"
+            android:layout_weight="1"
             android:gravity="left"
             android:minWidth="100dp"
             android:text="@string/staff"
@@ -47,21 +46,18 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/light_gray"
             android:gravity="left"
             android:minWidth="200dp"
             android:text="@string/remark"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    </TableRow>
+    </LinearLayout>
 
     <ListView
         android:id="@+id/listView1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:choiceMode="singleChoice"
         android:listSelector="@drawable/list_selector" >
-
     </ListView>
 
 </LinearLayout>

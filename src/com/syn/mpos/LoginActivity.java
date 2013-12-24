@@ -151,7 +151,8 @@ public class LoginActivity extends Activity {
 				}
 			});
 		}else{
-			mposService.loadProductData(mShopId, mDeviceCode, mServiceStateListener);
+			//mposService.loadProductData(mShopId, mDeviceCode, mServiceStateListener);
+			checkLogin();
 		}
 	}
 	
