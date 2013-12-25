@@ -71,7 +71,7 @@ public class MPOSUtil {
 		@Override
 		protected void onPreExecute() {
 			mProgress.setMessage(mContext.getString(R.string.load_sale_trans_progress));
-			//mProgress.show();
+			mProgress.show();
 		}
 
 		@Override

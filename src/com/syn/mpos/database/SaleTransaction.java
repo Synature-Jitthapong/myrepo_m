@@ -118,7 +118,7 @@ public class SaleTransaction {
 					order.setiOrderDetailID(cursor.getInt(cursor.getColumnIndex(Transaction.COL_ORDER_ID)));
 					order.setiTransactionID(cursor.getInt(cursor.getColumnIndex(Transaction.COL_TRANS_ID)));
 					order.setiComputerID(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
-					order.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
+					//order.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
 					order.setiProductID(cursor.getInt(cursor.getColumnIndex(Products.COL_PRODUCT_ID)));
 					order.setiProductTypeID(cursor.getInt(cursor.getColumnIndex(Products.COL_PRODUCT_TYPE_ID)));
 					order.setfQty(cursor.getDouble(cursor.getColumnIndex(Transaction.COL_ORDER_QTY)));
@@ -142,8 +142,8 @@ public class SaleTransaction {
 		Cursor cursor = querySessionEndday(sess.mSqlite, saleDate);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
-				saleSessEnd = new SaleTable_SessionEndDay();
 				do{
+					saleSessEnd = new SaleTable_SessionEndDay();
 					saleSessEnd.setDtSessionDate(cursor.getString(cursor.getColumnIndex(Session.COL_SESS_DATE)));
 					saleSessEnd.setDtEndDayDateTime(cursor.getString(cursor.getColumnIndex(Session.COL_ENDDAY_DATE)));
 					saleSessEnd.setfTotalAmountReceipt(cursor.getDouble(cursor.getColumnIndex(Session.COL_TOTAL_AMOUNT_RECEIPT)));
@@ -163,8 +163,8 @@ public class SaleTransaction {
 		Cursor cursor = querySession(sess.mSqlite, saleDate);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
-				saleSess = new SaleTable_Session();
 				do{
+					saleSess = new SaleTable_Session();
 					saleSess.setiSessionID(cursor.getInt(cursor.getColumnIndex(Session.COL_SESS_ID)));
 					saleSess.setiComputerID(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
 					saleSess.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
@@ -183,8 +183,7 @@ public class SaleTransaction {
 	}
 	
 	public static Cursor queryPaymentDetail(SQLiteDatabase sqlite, int transId){
-		Cursor cursor = null;
-		cursor = sqlite.rawQuery("SELECT * "
+		Cursor cursor = sqlite.rawQuery("SELECT * "
 				+ " FROM " + PaymentDetail.TB_PAYMENT
 				+ " WHERE " + Transaction.COL_TRANS_ID + "=?", 
 				new String[]{String.valueOf(transId)});
@@ -192,8 +191,7 @@ public class SaleTransaction {
 	}
 	
 	public static Cursor queryOrderDetail(SQLiteDatabase sqlite, int transId){
-		Cursor cursor = null;
-		cursor = sqlite.rawQuery("SELECT * "
+		Cursor cursor = sqlite.rawQuery("SELECT * "
 				+ " FROM " + Transaction.TB_ORDER
 				+ " WHERE " + Transaction.COL_TRANS_ID + "=?", 
 				new String[]{String.valueOf(transId)});
@@ -201,8 +199,7 @@ public class SaleTransaction {
 	}
 	
 	public static Cursor queryTransaction(SQLiteDatabase sqlite, long saleDate){
-		Cursor cursor = null;
-		cursor = sqlite.rawQuery("SELECT * "
+		Cursor cursor = sqlite.rawQuery("SELECT * "
 				+ " FROM " + Transaction.TB_TRANS
 				+ " WHERE " + Transaction.COL_SALE_DATE + "=?"
 				+ " AND " + Transaction.COL_STATUS_ID + "=?"
@@ -214,8 +211,7 @@ public class SaleTransaction {
 	}
 	
 	public static Cursor querySessionEndday(SQLiteDatabase sqlite, long saleDate){
-		Cursor cursor = null;
-		sqlite.rawQuery("SELECT * "
+		Cursor cursor = sqlite.rawQuery("SELECT * "
 				+ " FROM " + Session.TB_SESSION_DETAIL
 				+ " WHERE " + Session.COL_SESS_DATE
 				+ "=?", new String[]{String.valueOf(saleDate)});
@@ -223,8 +219,7 @@ public class SaleTransaction {
 	}
 	
 	public static Cursor querySession(SQLiteDatabase sqlite, long saleDate){
-		Cursor cursor = null;
-		sqlite.rawQuery("SELECT * "
+		Cursor cursor = sqlite.rawQuery("SELECT * "
 				+ " FROM " + Session.TB_SESSION
 				+ " WHERE " + Session.COL_SESS_DATE
 				+ "=?", new String[]{String.valueOf(saleDate)});
