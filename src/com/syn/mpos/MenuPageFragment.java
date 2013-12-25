@@ -20,7 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MenuPageFragment extends Fragment {
-	private ImageLoader mImgLoader;
+	private static ImageLoader mImgLoader;
 	private OnMenuItemClick mCallback;
 	private List<Products.Product> mProductLst;
 	private MenuItemAdapter mAdapter;
@@ -31,6 +31,9 @@ public class MenuPageFragment extends Fragment {
 		Bundle b = new Bundle();
 		b.putInt("deptId", deptId);
 		f.setArguments(b);
+		
+		mImgLoader = new ImageLoader(f.getActivity(), R.drawable.no_food,
+				GlobalVar.IMG_DIR);
 		return f;
 	}
 
@@ -39,9 +42,6 @@ public class MenuPageFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		
 		mDeptId = getArguments().getInt("deptId");
-
-		mImgLoader = new ImageLoader(getActivity(), R.drawable.no_food,
-				GlobalVar.IMG_DIR);
 
 		mProductLst = GlobalVar.sProduct.listProduct(mDeptId);
 		mAdapter = new MenuItemAdapter();
@@ -117,7 +117,10 @@ public class MenuPageFragment extends Fragment {
 			}
 			
 			holder.tvMenu.setText(p.getProductName());
-			holder.tvPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(p.getProductPrice()));
+			if(p.getProductPrice() < 0)
+				holder.tvPrice.setVisibility(View.GONE);
+			else
+				holder.tvPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(p.getProductPrice()));
 			mImgLoader.displayImage(MPOSApplication.sGlobalVar.getImageUrl() + p.getImgUrl(), holder.imgMenu);
 			return convertView;
 		}

@@ -20,6 +20,7 @@ import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Staff;
 import com.syn.mpos.database.Util;
+import com.syn.mpos.database.inventory.SaleStock;
 import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.Report;
@@ -42,6 +43,7 @@ public class Transaction extends MPOSDatabase {
 	public static final String COL_RECEIPT_YEAR = "ReceiptYear";
 	public static final String COL_RECEIPT_MONTH = "ReceiptMonth";
 	public static final String COL_RECEIPT_ID = "ReceiptId";
+	public static final String COL_RECEIPT_NO = "ReceiptNo";
 	public static final String COL_OPEN_TIME = "OpenTime";
 	public static final String COL_CLOSE_TIME = "CloseTime";
 	public static final String COL_OPEN_STAFF = "OpenStaffId";
@@ -75,47 +77,39 @@ public class Transaction extends MPOSDatabase {
 		super(c);
 	}
 
-	@SuppressLint("DefaultLocale")
+	public Cursor queryTransaction(String[] columns, String selection, 
+			String[] selectionArgs, String orderBy){
+		Cursor cursor = null;
+		cursor = mSqlite.query(TB_TRANS, columns, selection, 
+				selectionArgs, null, null, orderBy);
+		return cursor;
+	}
+	
 	public OrderTransaction getTransaction(int transactionId, int computerId) {
 		OrderTransaction trans = new OrderTransaction();
 		
 		open();
-		Cursor cursor = mSqlite.rawQuery(
-				" SELECT a." + COL_TRANS_ID + ", " +
-				"a." + Computer.COL_COMPUTER_ID + ", " + 
-				"a." + COL_PAID_TIME + ", " +
-				"a." + COL_RECEIPT_YEAR + ", " +
-				"a." + COL_RECEIPT_MONTH + ", " +
-				"a." + COL_RECEIPT_ID + ", " + 
-				"b." + StockDocument.COL_DOC_TYPE + 
-				" FROM " + TB_TRANS + " a " + 
-				" LEFT JOIN " + StockDocument.TB_DOCUMENT_TYPE + " b " + 
-				" ON a." + StockDocument.COL_DOC_TYPE + "=b." + StockDocument.COL_DOC_TYPE + 
-				" WHERE a." + COL_TRANS_ID + "=" + transactionId + 
-				" AND a." + Computer.COL_COMPUTER_ID + "=" + computerId + 
-				" AND a." + COL_STATUS_ID + "=" + TRANS_STATUS_SUCCESS + 
-				" ORDER BY a." + COL_SALE_DATE, null);
-		
-		if (cursor.moveToFirst()) {
-				String docTypeHeader = cursor.getString(cursor
-						.getColumnIndex(StockDocument.COL_DOC_TYPE_HEADER));
-				String receiptYear = String.format("%04d",
-						cursor.getInt(cursor.getColumnIndex(COL_RECEIPT_YEAR)));
-				String receiptMonth = String.format("%02d",
-						cursor.getInt(cursor.getColumnIndex(COL_RECEIPT_MONTH)));
-				String receiptId = String.format("%06d",
-						cursor.getInt(cursor.getColumnIndex(COL_RECEIPT_ID)));
-	
-				trans.setTransactionId(cursor.getInt(cursor
-						.getColumnIndex(COL_TRANS_ID)));
-				trans.setComputerId(cursor.getInt(cursor
-						.getColumnIndex(Computer.COL_COMPUTER_ID)));
-				trans.setPaidTime(cursor.getLong(cursor
-						.getColumnIndex(COL_PAID_TIME)));
-				trans.setReceiptNo(docTypeHeader + receiptMonth + receiptYear
-						+ receiptId);
+		Cursor cursor = queryTransaction(
+				new String[]{
+						COL_TRANS_ID, 
+						Computer.COL_COMPUTER_ID,
+						COL_PAID_TIME, 
+						COL_RECEIPT_NO
+				},
+				COL_TRANS_ID + "=? AND "
+				+ Computer.COL_COMPUTER_ID + "=? AND "
+				+ COL_STATUS_ID + "=?",
+				new String[]{String.valueOf(transactionId), String.valueOf(computerId),
+						String.valueOf(TRANS_STATUS_SUCCESS)}, COL_SALE_DATE);
+		if(cursor != null){
+			if (cursor.moveToFirst()) {
+					trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(COL_TRANS_ID)));
+					trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
+					trans.setPaidTime(cursor.getLong(cursor.getColumnIndex(COL_PAID_TIME)));
+					trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(COL_RECEIPT_NO)));
+			}
+			cursor.close();
 		}
-		cursor.close();
 		close();
 		return trans;
 	}
@@ -123,43 +117,29 @@ public class Transaction extends MPOSDatabase {
 	public OrderTransaction getTransaction(long saleDate) {
 		OrderTransaction trans = new OrderTransaction();
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery(
-				" SELECT a." + COL_TRANS_ID + ", " +
-				"a." + Computer.COL_COMPUTER_ID + ", " + 
-				"a." + COL_PAID_TIME + ", " +
-				"a." + COL_RECEIPT_YEAR + ", " +
-				"a." + COL_RECEIPT_MONTH + ", " +
-				"a." + COL_RECEIPT_ID + ", " + 
-				"b." + StockDocument.COL_DOC_TYPE + 
-				" FROM " + TB_TRANS + " a " + 
-				" LEFT JOIN " + StockDocument.TB_DOCUMENT_TYPE + " b " + 
-				" ON a." + StockDocument.COL_DOC_TYPE + "=b." + StockDocument.COL_DOC_TYPE + 
-				" WHERE a." + COL_SALE_DATE + "='" + saleDate + "' " + 
-				" AND a." + COL_STATUS_ID + "=" + TRANS_STATUS_SUCCESS +
-				" ORDER BY a." + COL_SALE_DATE, null);
+		Cursor cursor = queryTransaction(
+				new String[]{
+						COL_TRANS_ID, 
+						Computer.COL_COMPUTER_ID,
+						COL_PAID_TIME, 
+						COL_RECEIPT_NO
+				},
+				COL_SALE_DATE + "=? AND " 
+				+ COL_STATUS_ID + "=?",
+				new String[]{
+						String.valueOf(saleDate),
+						String.valueOf(TRANS_STATUS_SUCCESS), 
+				}, COL_SALE_DATE);
 		
-		if (cursor.moveToFirst()) {
-				String docTypeHeader = cursor.getString(cursor
-						.getColumnIndex(StockDocument.COL_DOC_TYPE_HEADER));
-				String receiptYear = String.format("%04d",
-						cursor.getInt(cursor.getColumnIndex(COL_RECEIPT_YEAR)));
-				String receiptMonth = String.format("%02d",
-						cursor.getInt(cursor.getColumnIndex(COL_RECEIPT_MONTH)));
-				String receiptId = String.format("%06d",
-						cursor.getInt(cursor.getColumnIndex(COL_RECEIPT_ID)));
-	
-				trans.setTransactionId(cursor.getInt(cursor
-						.getColumnIndex(COL_TRANS_ID)));
-				trans.setComputerId(cursor.getInt(cursor
-						.getColumnIndex(Computer.COL_COMPUTER_ID)));
-				trans.setPaidTime(cursor.getLong(cursor
-						.getColumnIndex(COL_PAID_TIME)));
-				trans.setReceiptNo(docTypeHeader + receiptMonth + receiptYear
-						+ receiptId);
+		if(cursor != null){
+			if (cursor.moveToFirst()) {
+					trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(COL_TRANS_ID)));
+					trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
+					trans.setPaidTime(cursor.getLong(cursor.getColumnIndex(COL_PAID_TIME)));
+					trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(COL_RECEIPT_NO)));
+			}
+			close();
 		}
-		cursor.close();
-		close();
 		return trans;
 	}
 
@@ -385,8 +365,9 @@ public class Transaction extends MPOSDatabase {
 				" LEFT JOIN " + Products.TB_PRODUCT + " b" +
 				" ON a." + Products.COL_PRODUCT_ID + "=" +
 				" b." + Products.COL_PRODUCT_ID +
-				" WHERE a." + COL_TRANS_ID + "=" + transactionId +
-				" AND a." + Computer.COL_COMPUTER_ID + "=" + computerId, null);
+				" WHERE a." + COL_TRANS_ID + "=?" +
+				" AND a." + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{String.valueOf(transactionId), String.valueOf(computerId)});
 		if (cursor.moveToFirst()) {
 			do {
 				orderDetailLst.add(toOrderDetail(cursor));
@@ -452,18 +433,13 @@ public class Transaction extends MPOSDatabase {
 		if (cursor.moveToFirst()) {
 			do {
 				OrderTransaction trans = new OrderTransaction();
-				String receiptNo = formatReceiptNo(cursor.getString(cursor.getColumnIndex(StockDocument.COL_DOC_TYPE_HEADER)),
-						cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_YEAR)),
-						cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_MONTH)),
-						cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_ID)));
-				
 				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(COL_TRANS_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
 				trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(COL_TRANS_NOTE)));
 				trans.setPaidTime(cursor.getLong(cursor.getColumnIndex(COL_PAID_TIME)));
 				trans.setStaffName(cursor.getString(cursor.getColumnIndex(Staff.COL_STAFF_CODE))
 						+ ":" + cursor.getString(cursor.getColumnIndex(Staff.COL_STAFF_NAME)));
-				trans.setReceiptNo(receiptNo);
+				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(COL_RECEIPT_NO)));
 				transLst.add(trans);
 			} while (cursor.moveToNext());
 		}
@@ -597,28 +573,28 @@ public class Transaction extends MPOSDatabase {
 	}
 
 	public boolean successTransaction(int transactionId, int computerId,
-			int staffId) throws SQLException{
+			int staffId){
 		boolean isSuccess = false;
 		Calendar calendar = Util.getDateTime();
 		int receiptId = getMaxReceiptId(computerId,
 				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH));
-		
+		SaleStock stock = new SaleStock(mContext);
+		String receiptHeader = stock.getDocumentHeader(8); 
 		open();
-		try {
-			mSqlite.execSQL(
-					" UPDATE " + TB_TRANS + 
-					" SET " + 
-					COL_STATUS_ID + "=" + TRANS_STATUS_SUCCESS + ", " + 
-					COL_RECEIPT_ID + "=" + receiptId + ", " + 
-					COL_CLOSE_TIME + "='" + calendar.getTimeInMillis() + "', " + 
-					COL_PAID_TIME + "='" + calendar.getTimeInMillis() + "', " + 
-					COL_PAID_STAFF_ID + "=" + staffId + 
-					" WHERE " + COL_TRANS_ID + "="+ transactionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
+		ContentValues cv = new ContentValues();
+		cv.put(COL_STATUS_ID, TRANS_STATUS_SUCCESS);
+		cv.put(COL_RECEIPT_ID, receiptId);
+		cv.put(COL_CLOSE_TIME, calendar.getTimeInMillis());
+		cv.put(COL_PAID_TIME, calendar.getTimeInMillis());
+		cv.put(COL_PAID_STAFF_ID, staffId);
+		cv.put(COL_CLOSE_STAFF, staffId);
+		cv.put(COL_RECEIPT_NO, formatReceiptNo(receiptHeader, 
+				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), receiptId));
+		int affectRow = mSqlite.update(TB_TRANS, cv, COL_TRANS_ID + "=?"
+				+ " AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{String.valueOf(transactionId), String.valueOf(computerId)});
+		if(affectRow > 0) 
 			isSuccess = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		close();
 		return isSuccess;
 	}
@@ -628,14 +604,14 @@ public class Transaction extends MPOSDatabase {
 		boolean isSuccess = false;
 		
 		open();
+		ContentValues cv = new ContentValues();
+		cv.put(COL_STATUS_ID, TRANS_STATUS_NEW);
+		cv.put(COL_TRANS_NOTE, "");
 		try {
-			mSqlite.execSQL(
-					" UPDATE " + TB_TRANS + 
-					" SET " + 
-					COL_STATUS_ID + "=" + TRANS_STATUS_NEW + ", " +
-					COL_TRANS_NOTE + "='' " + 
-					" WHERE " + COL_TRANS_ID + "=" + transactionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
+			mSqlite.update(TB_TRANS, cv, COL_TRANS_ID + "=? AND " + 
+					Computer.COL_COMPUTER_ID + "=?", 
+					new String[]{String.valueOf(transactionId), 
+					String.valueOf(computerId)});
 			isSuccess = true;
 		} catch (SQLException e) {
 			e.printStackTrace();

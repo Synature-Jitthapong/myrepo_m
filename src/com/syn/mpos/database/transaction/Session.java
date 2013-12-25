@@ -37,7 +37,7 @@ public class Session extends Transaction{
 	}
 
 	public boolean closeShift(int sessionId, int computerId, int closeStaffId,
-			float closeAmount, int isEndday) {
+			float closeAmount, boolean isEndday) {
 		boolean isSuccess = false;
 		isSuccess = closeSession(sessionId, computerId, closeStaffId,
 				closeAmount, isEndday);
@@ -111,25 +111,23 @@ public class Session extends Transaction{
 	}
 
 	public boolean closeSession(int sessionId, int computerId,
-			int closeStaffId, float closeAmount, int isEnday) throws SQLException {
+			int closeStaffId, float closeAmount, boolean isEndday){
 		boolean isSuccess = false;
 		Calendar dateTime = Util.getDateTime();
-
 		open();
-		try {
-			mSqlite.execSQL(
-					" UPDATE " +TB_SESSION + 
-					" SET " + 
-					COL_CLOSE_STAFF + "=" + closeStaffId + ", " + 
-					COL_CLOSE_DATE  + "='" + dateTime.getTimeInMillis() + "', " + 
-					COL_CLOSE_AMOUNT + "=" + closeAmount + ", " + 
-					COL_IS_ENDDAY + "=" + isEnday +
-					" WHERE " + COL_SESS_ID + "=" + sessionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId, null);
+		ContentValues cv = new ContentValues();
+		cv.put(COL_CLOSE_STAFF, closeStaffId);
+		cv.put(COL_CLOSE_DATE, dateTime.getTimeInMillis());
+		cv.put(COL_CLOSE_AMOUNT, closeAmount);
+		cv.put(COL_IS_ENDDAY, isEndday == true ? 1 : 0);
+		
+		int affectRow = mSqlite.update(TB_SESSION, cv, 
+				COL_SESS_ID + "=? AND " + 
+				Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{String.valueOf(sessionId), 
+				String.valueOf(computerId)});
+		if(affectRow > 0)
 			isSuccess = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		close();
 		return isSuccess;
 	}

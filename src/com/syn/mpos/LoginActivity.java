@@ -43,8 +43,8 @@ public class LoginActivity extends Activity {
 		mDeviceCode = Secure.getString(this.getContentResolver(),
 				Secure.ANDROID_ID);
 		
-		mTxtUser.setText("1");
-		mTxtPass.setText("1");
+		mTxtUser.setText("111");
+		mTxtPass.setText("111");
 		mTxtPass.setOnEditorActionListener(new OnEditorActionListener(){
 
 			@Override
@@ -132,6 +132,7 @@ public class LoginActivity extends Activity {
 				@Override
 				public void onSuccess() {
 					mShopId = GlobalVar.sShop.getShopProperty().getShopID();
+					mComputerId = GlobalVar.sComputer.getComputerProperty().getComputerID();
 					mposService.loadProductData(mShopId, mDeviceCode, mServiceStateListener);
 				}
 				

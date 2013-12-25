@@ -143,11 +143,13 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Transaction.COL_PAID_TIME + " TEXT, " +
 		Transaction.COL_PAID_STAFF_ID + " INTEGER, " +
 		Transaction.COL_CLOSE_TIME + " TEXT, " +
+		Transaction.COL_CLOSE_STAFF + " INTEGER, " +
 		Transaction.COL_STATUS_ID + " INTEGER DEFAULT 1, " +
 		StockDocument.COL_DOC_TYPE + " INTEGER DEFAULT 8, " +
 		Transaction.COL_RECEIPT_YEAR + " INTEGER, " +
 		Transaction.COL_RECEIPT_MONTH + " INTEGER, " +
 		Transaction.COL_RECEIPT_ID + " INTEGER, " +
+		Transaction.COL_RECEIPT_NO + " TEXT, " +
 		Transaction.COL_SALE_DATE + " TEXT, " +
 		Session.COL_SESS_ID + " INTEGER, " +
 		Transaction.COL_VOID_STAFF_ID + " INTEGER, " +

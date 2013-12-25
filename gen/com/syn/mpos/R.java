@@ -584,6 +584,7 @@ containing a value of this type.
         public static final int ip_address_summary=0x7f060055;
         public static final int item_name=0x7f060017;
         public static final int item_no=0x7f06001e;
+        public static final int load_sale_trans_progress=0x7f0600e4;
         public static final int login=0x7f060002;
         public static final int login_sync=0x7f060062;
         public static final int logout=0x7f06000f;

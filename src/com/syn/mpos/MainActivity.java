@@ -642,7 +642,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				
+				MPOSUtil.doEndday(MainActivity.this, mSessionId, mComputerId, mStaffId, 0.0f, true);
 			}
 		}).show();
 	}
@@ -704,7 +704,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				init();
+				
 			}
 		}).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			

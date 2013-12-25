@@ -10,6 +10,8 @@ import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.Language;
 import com.syn.mpos.database.Products;
+import com.syn.mpos.database.SaleTransaction;
+import com.syn.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Staff;
 import com.syn.pos.MenuGroups;
@@ -18,6 +20,7 @@ import com.syn.pos.ShopData;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.AsyncTask;
 
 public class MPOSService {
 	public static Context mContext;
@@ -142,10 +145,20 @@ public class MPOSService {
 	
 	// send sale transaction
 	public static class SendSaleTransactionTask extends MPOSMainService{
-
-		public SendSaleTransactionTask(Context c, String deviceCode, OnServiceProcessListener listener) {
+		public SendSaleTransactionTask(Context c, String deviceCode, String saleJson,
+				OnServiceProcessListener listener) {
 			super(c, deviceCode, SEND_SALE_TRANS_METHOD);
 		}
+		
+		@Override
+		protected void onPostExecute(String result) {
+		}
+
+
+		@Override
+		protected void onPreExecute() {
+		}
+
 		
 	}
 	

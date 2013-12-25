@@ -11,13 +11,17 @@ public abstract class MPOSDatabase {
 	public static final String COL_UUID = "UUID";
 	
 	// base send status column
+	public static final int ALREADY_SEND = 1;
+	public static final int NOT_SEND = 0;
 	public static final String COL_SEND_STATUS = "SendStatus";
 	
+	protected Context mContext;
 	protected MPOSSQLiteHelper mSqliteHelper;
 	protected SQLiteDatabase mSqlite;
 	
 	public MPOSDatabase(Context c){
 		mSqliteHelper = new MPOSSQLiteHelper(c);
+		mContext = c;
 	}
 	
 	public String getUUID(){

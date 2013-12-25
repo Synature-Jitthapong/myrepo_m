@@ -100,6 +100,21 @@ public abstract class StockDocument extends MPOSDatabase {
 		return 0;
 	}
 
+	public String getDocumentHeader(int docType){
+		String header = "";
+		open();
+		Cursor cursor = mSqlite.rawQuery("SELECT "
+				+ COL_DOC_TYPE_HEADER
+				+ " FROM " + TB_DOCUMENT_TYPE
+				+ " WHERE " + COL_DOC_TYPE + "=?", 
+				new String[]{String.valueOf(docType)});
+		if(cursor.moveToFirst()){
+			header = cursor.getString(0);
+		}
+		close();
+		return header;
+	}
+	
 	public int getMaxDocumentDetail(int documentId, int shopId) {
 		int docDetailId = 0;
 	
