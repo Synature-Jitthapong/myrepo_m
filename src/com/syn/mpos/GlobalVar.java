@@ -76,19 +76,23 @@ public class GlobalVar {
 	}
 	
 	public String getImageUrl(){
-		return sSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "") + "/" + SERVER_IMG_PATH;
+		return getUrl() + "/" + SERVER_IMG_PATH;
 	}
 	
 	public String getFullUrl(){
-		String fullUrl = sSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "") + "/" + WS_NAME;
+		return getUrl() + "/" + WS_NAME;
+	}
+	
+	public String getUrl(){
+		String url = sSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
 		try {
-			new URL(fullUrl);
+			new URL(url);
 		} catch (MalformedURLException e) {
 			// not found protocal
-			fullUrl = "http://" + fullUrl;
+			url = "http://" + url;
 			e.printStackTrace();
 		}
-		return fullUrl;
+		return url; 
 	}
 	
 	public String dateFormat(Date d, String pattern){

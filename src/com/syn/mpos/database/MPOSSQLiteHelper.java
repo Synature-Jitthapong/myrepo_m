@@ -286,7 +286,15 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Staff.COL_STAFF_CODE + " TEXT, " +
 		Staff.COL_STAFF_NAME + " TEXT, " +
 		Staff.COL_STAFF_PASS + " TEXT, " +
-		"PRIMARY KEY (" + Staff.COL_STAFF_ID + "));"
+		"PRIMARY KEY (" + Staff.COL_STAFF_ID + "));",
+		
+		// sync transaction log
+		"CREATE TABLE " + SyncDataLog.TB_SYNC_TRANS + " ( " +
+		Transaction.COL_TRANS_ID + " INTEGER, " +
+		Computer.COL_COMPUTER_ID + " INTEGER, " +
+		SyncDataLog.COL_BEGIN_SYNC_TIME + " TEXT, " +
+		SyncDataLog.COL_FINISH_SYNC_TIME + " TEXT, " +
+		SyncDataLog.COL_SYNC_STATUS + " INTEGER );"
 	};
 	
 	private static final String[] sqlAddition = {

@@ -1,13 +1,8 @@
 package com.syn.mpos.database.inventory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.syn.pos.inventory.Document;
-
+import com.syn.mpos.database.Products;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 
 public class StockCount extends StockDocument {
 
@@ -25,25 +20,35 @@ public class StockCount extends StockDocument {
 		super(context);
 	}
 
-	public float getCurrentStock(long dateFrom, long dateTo){
+	public Cursor listStock(long dateFrom, long dateTo){
+		//float currStock = getCurrentStock(dateFrom, dateTo);
+		return mSqlite.rawQuery(
+				"SELECT SUM(", 
+				new String[]{});
+	}
+	
+	public float getCurrentStock(int productId, long dateFrom, long dateTo){
 		float currStock = 0.0f;
-		
-		
+
 		Cursor cursor = mSqlite.rawQuery(
-				"SELECT (b.ProductAmount * c.MovementInStock) " +
-				"FROM Document a " +
-				"LEFT JOIN DocDetail b " +
+				"SELECT (a." + StockDocument.COL_PRODUCT_AMOUNT + "*" + 
+				"b." + StockDocument.COL_MOVE_MENT + ") " +
+				"FROM " + StockDocument.TB_DOC_DETAIL + " a " +
+				"LEFT JOIN " + StockDocument.TB_DOCUMENT_TYPE + " b " +
 				"ON a.DocumentId=b.DocumentId " +
 				"AND a.ShopID=b.ShopID " +
 				"LEFT JOIN DocumentType c " +
 				"ON a.DocumentTypeId=c.DocumentTypeId " +
-				"WHERE c.MovementInStock != 0 " +
+				"WHERE c." + Products.COL_PRODUCT_ID + 
+				"AND c.MovementInStock != 0 " +
 				"AND a.DocumentDate BETWEEN ? AND ? " +
 				"GROUP BY c.DocumentTypeId", 
 				new String[]{String.valueOf(dateFrom),  String.valueOf(dateTo)});
 		
-		
-		
+		if(cursor.moveToFirst()){
+			currStock = cursor.getFloat(0);
+		}
+		cursor.close();
 		return currStock;
 	}
 }

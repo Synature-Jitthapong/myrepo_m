@@ -44,6 +44,24 @@ public class Session extends Transaction{
 		return isSuccess;
 	}
 
+	public String getSessionDate(int sessionId, int computerId){
+		String sessionDate = "";
+		open();
+		Cursor cursor = mSqlite.query(Session.TB_SESSION, 
+				new String[]{COL_SESS_DATE}, 
+				COL_SESS_ID + "=? AND " + 
+				Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{String.valueOf(sessionId), 
+				String.valueOf(computerId)}, null, null, null);
+		
+		if(cursor.moveToFirst()){
+			sessionDate = cursor.getString(0);
+		}
+		cursor.close();
+		close();
+		return sessionDate;
+	}
+	
 	public int getMaxSessionId(int shopId, int computerId) {
 		int sessionId = 0;
 

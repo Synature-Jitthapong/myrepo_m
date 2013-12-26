@@ -43,8 +43,8 @@ public class LoginActivity extends Activity {
 		mDeviceCode = Secure.getString(this.getContentResolver(),
 				Secure.ANDROID_ID);
 		
-		mTxtUser.setText("111");
-		mTxtPass.setText("111");
+		mTxtUser.setText("1");
+		mTxtPass.setText("1");
 		mTxtPass.setOnEditorActionListener(new OnEditorActionListener(){
 
 			@Override
@@ -116,8 +116,6 @@ public class LoginActivity extends Activity {
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							// TODO Auto-generated method stub
-							
 						}
 					})
 					.show();

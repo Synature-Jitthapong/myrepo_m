@@ -17,7 +17,7 @@ public abstract class MPOSDatabase {
 	
 	protected Context mContext;
 	protected MPOSSQLiteHelper mSqliteHelper;
-	protected SQLiteDatabase mSqlite;
+	public SQLiteDatabase mSqlite;
 	
 	public MPOSDatabase(Context c){
 		mSqliteHelper = new MPOSSQLiteHelper(c);

@@ -5,13 +5,10 @@ import java.util.List;
 
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
-
-import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.provider.BaseColumns;
 
 public class Products extends MPOSDatabase {
 	public static final int VAT_TYPE_INCLUDED = 1;
@@ -50,7 +47,6 @@ public class Products extends MPOSDatabase {
 		COL_IS_OUTOF_STOCK,
 		COL_IMG_URL
 	};
-	
 	public static final String TB_PRODUCT_DEPT = "ProductDept";
 	public static final String COL_PRODUCT_DEPT_CODE = "ProductDeptCode";
 	public static final String COL_PRODUCT_DEPT_NAME = "ProductDeptName";
@@ -60,7 +56,6 @@ public class Products extends MPOSDatabase {
 		COL_PRODUCT_DEPT_CODE,
 		COL_PRODUCT_DEPT_NAME
 	};
-	
 	public static final String TB_PRODUCT_GROUP = "ProductGroup";
 	public static final String COL_PRODUCT_GROUP_CODE = "ProductGroupCode";
 	public static final String COL_PRODUCT_GROUP_NAME = "ProductGroupName";

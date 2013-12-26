@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -96,6 +97,8 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				
 				mTvItemName.setText(mOrder.getProductName());
 				mTxtDiscount.setText(MPOSApplication.sGlobalVar.currencyFormat(mOrder.getPriceDiscount()));
+				mTxtDiscount.setSelectAllOnFocus(true);
+				mTxtDiscount.requestFocus();
 				if(mOrder.getDiscountType() == 2){
 					mTxtDiscount.setText(MPOSApplication.sGlobalVar.currencyFormat(
 							mOrder.getPriceDiscount() * 100 / mOrder.getTotalRetailPrice()));
@@ -105,6 +108,10 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				mItemInput.expandActionView();
 				mItemClose.setVisible(false);
 				mItemConfirm.setVisible(false);
+				
+				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(mTxtDiscount,
+                        InputMethodManager.SHOW_IMPLICIT);
 			}
 		});
 		loadOrder();

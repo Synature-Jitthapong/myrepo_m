@@ -7,13 +7,16 @@ import java.util.List;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-
-import com.j1tth4.mobile.sqlite.SQLiteHelper;
 import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.Products;
 
 public class StockCard extends MPOSDatabase{
-
+	public static final String TB_STOCK_CARD_TEMP = "StockCardTemp";
+	public static final String COL_INIT = "Init";
+	public static final String COL_RECEIVE = "Receive";
+	public static final String COL_SALE = "Sale";
+	public static final String COL_VARIANCE = "Variance";
+	
 	public StockCard(Context c){
 		super(c);
 	}
@@ -23,17 +26,16 @@ public class StockCard extends MPOSDatabase{
 				new ArrayList<StockProduct>();
 
 		if(calculateStockCard(dateFrom, dateTo)){
-			String strSql = " SELECT a.init, " +
-					" a.receive, " +
-					" a.sale, " +
-					" a.variance, " +
-					" b.product_id, " +
-					" b.product_code, " +
-					" b.product_name " +
-					" FROM stock_card_tmp a " +
-					" LEFT JOIN products b " +
-					" ON a.id=b.product_id " +
-					" WHERE b.activated=1 ";
+			String strSql = " SELECT a." + COL_INIT + ", " +
+					" a." + COL_RECEIVE + ", " +
+					" a." + COL_SALE + ", " +
+					" a." + COL_VARIANCE + ", " +
+					" b." + Products.COL_PRODUCT_ID + ", " +
+					" b." + Products.COL_PRODUCT_CODE + ", " +
+					" b." + Products.COL_PRODUCT_NAME + ", " +
+					" FROM " + TB_STOCK_CARD_TEMP + " a " +
+					" LEFT JOIN " + Products.TB_PRODUCT + " b " +
+					" ON a." + Products.COL_PRODUCT_ID + "=b" + Products.COL_PRODUCT_ID;
 			
 			open();
 			Cursor cursor = mSqlite.rawQuery(strSql, null);
@@ -143,17 +145,17 @@ public class StockCard extends MPOSDatabase{
 	 */
 	protected boolean createStockCardTmp(){
 		boolean isSuccess = false;
-		String strSql = " CREATE TABLE stock_card_tmp ( " +
-				" id  INTEGER, " +
-				" init REAL DEFAULT 0," +
-				" receive REAL DEFAULT 0, " +
-				" sale REAL DEFAULT 0, " +
-				" variance REAL DEFAULT 0);";
-		
 		open();
 		try {
-			mSqlite.execSQL("DROP TABLE IF EXISTS stock_card_tmp");
-			mSqlite.execSQL(strSql);
+			mSqlite.execSQL("DROP TABLE IF EXISTS " + TB_STOCK_CARD_TEMP);
+			mSqlite.execSQL(
+					"CREATE TABLE " + TB_STOCK_CARD_TEMP + " ( " +
+					Products.COL_PRODUCT_ID + " INTEGER, " +
+					COL_INIT + " REAL DEFAULT 0, " +
+					COL_RECEIVE + " REAL DEFAULT 0, " +
+					COL_SALE + " REAL DEFAULT 0, " +
+					COL_VARIANCE + " REAL DEFAULT 0);"
+					);
 			isSuccess = true;
 		} catch (SQLException e) {
 			e.printStackTrace();

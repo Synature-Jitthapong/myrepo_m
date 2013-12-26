@@ -28,7 +28,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -642,7 +641,36 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				MPOSUtil.doEndday(MainActivity.this, mSessionId, mComputerId, mStaffId, 0.0f, true);
+				MPOSUtil.doEndday(MainActivity.this, mSessionId, 
+						mComputerId, mStaffId, 0.0f, true, new MPOSUtil.OnEnddayListener() {
+							
+							@Override
+							public void enddaySuccess() {
+								new AlertDialog.Builder(MainActivity.this)
+								.setTitle(R.string.endday)
+								.setMessage(R.string.endday_success)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										finish();
+									}
+								});
+							}
+							
+							@Override
+							public void enddayFail(String mesg) {
+								new AlertDialog.Builder(MainActivity.this)
+								.setMessage(mesg)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+									}
+								})
+								.show();
+							}
+						});
 			}
 		}).show();
 	}

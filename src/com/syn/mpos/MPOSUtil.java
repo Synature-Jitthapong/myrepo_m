@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -13,13 +14,19 @@ import com.syn.mpos.database.SaleTransaction;
 import com.syn.mpos.database.Util;
 import com.syn.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.syn.mpos.database.transaction.Session;
+import com.syn.mpos.database.transaction.Transaction;
 
 public class MPOSUtil {
 	
 	public static void doEndday(Context c, int sessionId, int computerId, int closeStaffId,
-			float closeAmount, boolean isEndday){
+			float closeAmount, boolean isEndday, final OnEnddayListener listener){
 		Session sess = new Session(c);
+		Transaction trans = new Transaction(c);
 		if(sess.closeSession(sessionId, computerId, closeStaffId, closeAmount, isEndday)){
+			String sessionDate = sess.getSessionDate(sessionId, computerId);
+			sess.addSessionEnddayDetail(sessionDate, trans.getTotalReceipt(sessionDate), 
+					trans.getTotalReceiptAmount(sessionDate));
+			
 			new LoadSaleTransactionTask(c, Util.getDate().getTimeInMillis(), new LoadSaleTransactionListener(){
 
 				@Override
@@ -27,17 +34,23 @@ public class MPOSUtil {
 					JSONUtil jsonUtil = new JSONUtil();
 					Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
 					String saleJson = jsonUtil.toJson(type, saleTrans);
-					Log.d("SaleTrans", saleJson);
+					Log.v("SaleTrans", saleJson);
+					
+					listener.enddaySuccess();
 				}
 
 				@Override
 				public void loadFail(String mesg) {
-					// TODO Auto-generated method stub
-					
+					listener.enddayFail(mesg);
 				}
 				
 			}).execute();
-		}
+		};
+	}
+	
+	public static interface OnEnddayListener{
+		void enddaySuccess();
+		void enddayFail(String mesg);
 	}
 	
 	// task for load transaction data

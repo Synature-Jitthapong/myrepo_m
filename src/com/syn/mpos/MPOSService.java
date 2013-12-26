@@ -10,17 +10,13 @@ import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.Language;
 import com.syn.mpos.database.Products;
-import com.syn.mpos.database.SaleTransaction;
-import com.syn.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Staff;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
-
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.os.AsyncTask;
 
 public class MPOSService {
 	public static Context mContext;
@@ -59,17 +55,17 @@ public class MPOSService {
 						Language lang = new Language(mContext);
 						Staff staff = new Staff(mContext);
 						try {
-							shop.addShopProperty(sd.getShopProperty());
+							shop.insertShopProperty(sd.getShopProperty());
 							comp.insertComputer(sd.getComputerProperty());
 							global.insertProperty(sd.getGlobalProperty());
-							staff.addStaff(sd.getStaffs());
+							staff.insertStaff(sd.getStaffs());
 							lang.insertLanguage(sd.getLanguage());
+							mProgress.dismiss();
 							listener.onSuccess();
 						} catch (Exception e) {
+							mProgress.dismiss();
 							listener.onError(e.getMessage());
 						}
-
-						mProgress.dismiss();
 					}
 					
 				}).execute(url);
@@ -117,13 +113,13 @@ public class MPOSService {
 							p.addProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
 							p.addProductDept(pgs.getProductDept(), mgs.getMenuDept());
 							p.addProducts(pgs.getProduct(), mgs.getMenuItem());
-							
+
+							mProgress.dismiss();	
 							listener.onSuccess();
 						} catch (Exception e) {
+							mProgress.dismiss();
 							listener.onError(e.getMessage());
 						}
-
-						mProgress.dismiss();
 					}
 					
 				}).execute(url);

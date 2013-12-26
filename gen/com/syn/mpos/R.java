@@ -552,6 +552,7 @@ containing a value of this type.
         public static final int edit=0x7f0600d2;
         public static final int email=0x7f060096;
         public static final int endday=0x7f06007a;
+        public static final int endday_success=0x7f0600e5;
         public static final int endding=0x7f0600a9;
         public static final int enter=0x7f060027;
         public static final int enter_backoffice=0x7f0600cf;

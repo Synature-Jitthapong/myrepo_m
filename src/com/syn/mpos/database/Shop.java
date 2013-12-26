@@ -63,7 +63,7 @@ public class Shop extends MPOSDatabase{
 		return sp;
 	}
 
-	public void addShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
+	public void insertShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
 		open();
 		mSqlite.execSQL("DELETE FROM " + TB_SHOP);
 		for(ShopData.ShopProperty shop : shopPropLst){

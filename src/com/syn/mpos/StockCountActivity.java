@@ -105,7 +105,6 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 					StockDocument.DAILY_DOC, mStaffId);
 
 			//mStockLst = mStockCount.listStock();
-			new SaveStockCountTask().execute();
 		} else {
 			//mStockLst = mStockCount.listStock(mStcDocId, mShopId);
 			mStockAdapter.notifyDataSetChanged();
@@ -294,58 +293,6 @@ public class StockCountActivity extends Activity implements OnEditorActionListen
 //				rowView.setBackgroundResource(R.color.light_gray);
 
 			return rowView;
-		}
-
-	}
-
-	private class SaveStockCountTask extends AsyncTask<Void, Void, Boolean> {
-
-		private ProgressDialog progress;
-
-		public SaveStockCountTask() {
-			progress = new ProgressDialog(StockCountActivity.this);
-			progress.setCancelable(false);
-			TextView tvProgress = new TextView(StockCountActivity.this);
-			tvProgress.setText(R.string.progress);
-			progress.setMessage(tvProgress.getText().toString());
-		}
-
-		@Override
-		protected void onPostExecute(Boolean isSuccess) {
-			if (progress.isShowing())
-				progress.dismiss();
-
-			if (isSuccess) {
-				//mStockLst = mStockCount.listStock(mStcDocId, mShopId);
-				mStockAdapter.notifyDataSetChanged();
-			} else {
-				new AlertDialog.Builder(getApplicationContext())
-				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setTitle(R.string.error)
-				.setMessage(R.string.error_save_stock)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						
-					}
-				})
-				.show();
-			}
-			super.onPostExecute(isSuccess);
-		}
-
-		@Override
-		protected void onPreExecute() {
-			progress.show();
-			super.onPreExecute();
-		}
-
-		@Override
-		protected Boolean doInBackground(Void... params) {
-//			return mStockCount.saveStock(mStcDocId, mShopId, mStaffId, "",
-//					mStockLst);
-			return false;
 		}
 
 	}

@@ -45,31 +45,41 @@ public class SaleTransaction {
 				do{
 					SaleData_SaleTransaction saleTrans = new SaleData_SaleTransaction();
 					SaleTable_OrderTransaction orderTrans = new SaleTable_OrderTransaction();
-					orderTrans.setUuid(cursor.getString(cursor.getColumnIndex(MPOSDatabase.COL_UUID)));
+					
+					orderTrans.setSzUDID(cursor.getString(cursor.getColumnIndex(MPOSDatabase.COL_UUID)));
 					orderTrans.setiTransactionID(cursor.getInt(cursor.getColumnIndex(Transaction.COL_TRANS_ID)));
 					orderTrans.setiComputerID(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
 					orderTrans.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
 					orderTrans.setiOpenStaffID(cursor.getInt(cursor.getColumnIndex(Transaction.COL_OPEN_STAFF)));
-					orderTrans.setDtOpenTime(cursor.getString(cursor.getColumnIndex(Transaction.COL_OPEN_TIME)));
-					orderTrans.setDtCloseTime(cursor.getString(cursor.getColumnIndex(Transaction.COL_CLOSE_TIME)));
+					orderTrans.setDtOpenTime(
+							Util.dateTimeFormat(cursor.getString(
+									cursor.getColumnIndex(Transaction.COL_OPEN_TIME)), "yyyy-MM-dd HH:mm:ss"));
+					orderTrans.setDtCloseTime(
+							Util.dateTimeFormat(cursor.getString(
+									cursor.getColumnIndex(Transaction.COL_CLOSE_TIME)), "yyyy-MM-dd HH:mm:ss"));
 					orderTrans.setiDocType(cursor.getInt(cursor.getColumnIndex(StockDocument.COL_DOC_TYPE)));
 					orderTrans.setiTransactionStatusID(cursor.getInt(cursor.getColumnIndex(Transaction.COL_STATUS_ID)));
 					orderTrans.setiReceiptYear(cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_YEAR)));
 					orderTrans.setiReceiptMonth(cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_MONTH)));
 					orderTrans.setiReceiptID(cursor.getInt(cursor.getColumnIndex(Transaction.COL_RECEIPT_ID)));
 					orderTrans.setSzReceiptNo(cursor.getString(cursor.getColumnIndex(Transaction.COL_RECEIPT_NO)));
-					orderTrans.setDtSaleDate(cursor.getString(cursor.getColumnIndex(Transaction.COL_SALE_DATE)));
+					orderTrans.setDtSaleDate(
+							Util.dateTimeFormat(cursor.getString(
+									cursor.getColumnIndex(Transaction.COL_SALE_DATE)), "yyyy-MM-dd"));
 					orderTrans.setfTransVAT(cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TRANS_VAT)));
 					orderTrans.setfTransactionVatable(cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TRANS_VATABLE)));
 					orderTrans.setiSessionID(cursor.getInt(cursor.getColumnIndex(Session.COL_SESS_ID)));
 					orderTrans.setiVoidStaffID(cursor.getInt(cursor.getColumnIndex(Transaction.COL_VOID_STAFF_ID)));
 					orderTrans.setSzVoidReason(cursor.getString(cursor.getColumnIndex(Transaction.COL_VOID_REASON)));
-					orderTrans.setDtVoidTime(cursor.getString(cursor.getColumnIndex(Transaction.COL_VOID_TIME)));
+					orderTrans.setDtVoidTime(
+							Util.dateTimeFormat(cursor.getString(
+									cursor.getColumnIndex(Transaction.COL_VOID_TIME)), "yyyy-MM-dd HH:mm:ss"));
 					orderTrans.setSzTransactionNote(cursor.getString(cursor.getColumnIndex(Transaction.COL_TRANS_NOTE)));
 					
 					saleTrans.setxOrderTransaction(orderTrans);
 					saleTrans.setxAryOrderDetail(buildOrderDetailLst(trans.mSqlite, orderTrans.getiTransactionID()));
 					saleTrans.setxAryPaymentDetail(buildPaymentDetailLst(trans.mSqlite, orderTrans.getiTransactionID()));
+					saleTrans.setxAryOrderPromotion(new ArrayList<SaleTable_OrderPromotion>());
 					saleTransLst.add(saleTrans);
 				}while(cursor.moveToNext());
 			}
@@ -91,7 +101,7 @@ public class SaleTransaction {
 					payment.setiPaymentDetailID(cursor.getInt(cursor.getColumnIndex(PaymentDetail.COL_PAY_ID)));
 					payment.setiTransactionID(transId);
 					payment.setiComputerID(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
-					payment.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
+					//payment.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
 					payment.setiPayTypeID(cursor.getInt(cursor.getColumnIndex(PaymentDetail.COL_PAY_TYPE_ID)));
 					payment.setfPayAmount(cursor.getDouble(cursor.getColumnIndex(PaymentDetail.COL_PAY_AMOUNT)));
 					payment.setSzCreditCardNo(cursor.getString(cursor.getColumnIndex(CreditCard.COL_CREDIT_CARD_NO)));
@@ -144,8 +154,12 @@ public class SaleTransaction {
 			if(cursor.moveToFirst()){
 				do{
 					saleSessEnd = new SaleTable_SessionEndDay();
-					saleSessEnd.setDtSessionDate(cursor.getString(cursor.getColumnIndex(Session.COL_SESS_DATE)));
-					saleSessEnd.setDtEndDayDateTime(cursor.getString(cursor.getColumnIndex(Session.COL_ENDDAY_DATE)));
+					saleSessEnd.setDtSessionDate(
+							Util.dateTimeFormat(cursor.getString(
+									cursor.getColumnIndex(Session.COL_SESS_DATE)), "yyyy-MM-dd"));
+					saleSessEnd.setDtEndDayDateTime(
+							Util.dateTimeFormat(cursor.getString(
+									cursor.getColumnIndex(Session.COL_ENDDAY_DATE)), "yyyy-MM-dd HH:mm:ss"));
 					saleSessEnd.setfTotalAmountReceipt(cursor.getDouble(cursor.getColumnIndex(Session.COL_TOTAL_AMOUNT_RECEIPT)));
 					saleSessEnd.setiTotalQtyReceipt(cursor.getInt(cursor.getColumnIndex(Session.COL_TOTAL_QTY_RECEIPT)));
 				}while(cursor.moveToNext());
@@ -168,9 +182,18 @@ public class SaleTransaction {
 					saleSess.setiSessionID(cursor.getInt(cursor.getColumnIndex(Session.COL_SESS_ID)));
 					saleSess.setiComputerID(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
 					saleSess.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
-					saleSess.setDtCloseSessionDateTime(cursor.getString(cursor.getColumnIndex(Session.COL_SESS_DATE)));
-					saleSess.setDtOpenSessionDateTime(cursor.getString(cursor.getColumnIndex(Session.COL_OPEN_DATE)));
-					saleSess.setDtCloseSessionDateTime(cursor.getString(cursor.getColumnIndex(Session.COL_CLOSE_DATE)));
+					saleSess.setDtCloseSessionDateTime(
+							Util.dateTimeFormat(cursor.getString(
+									cursor.getColumnIndex(Session.COL_SESS_DATE)), "yyyy-MM-dd HH:mm:ss"));
+					saleSess.setDtOpenSessionDateTime(
+							Util.dateTimeFormat(cursor.getString(
+									cursor.getColumnIndex(Session.COL_OPEN_DATE)), "yyyy-MM-dd HH:mm:ss"));
+					saleSess.setDtCloseSessionDateTime(
+							Util.dateTimeFormat(cursor.getString(
+									cursor.getColumnIndex(Session.COL_CLOSE_DATE)), "yyyy-MM-dd HH:mm:ss"));
+					saleSess.setDtSessionDate(
+							Util.dateTimeFormat(cursor.getString(
+									cursor.getColumnIndex(Session.COL_SESS_DATE)), "yyyy-MM-dd"));
 					saleSess.setfOpenSessionAmount(cursor.getDouble(cursor.getColumnIndex(Session.COL_OPEN_AMOUNT)));
 					saleSess.setfCloseSessionAmount(cursor.getDouble(cursor.getColumnIndex(Session.COL_CLOSE_AMOUNT)));
 					saleSess.setiIsEndDaySession(cursor.getInt(cursor.getColumnIndex(Session.COL_IS_ENDDAY)));
@@ -402,7 +425,7 @@ public class SaleTransaction {
 
     public static class SaleTable_OrderTransaction
     {
-    	private String uuid;
+    	private String szUDID;
         private int iTransactionID;
         private int iComputerID;
         private int iShopID;
@@ -433,11 +456,11 @@ public class SaleTransaction {
         private int iMemberID;
         private String szTransactionNote;
         
-		public String getUuid() {
-			return uuid;
+		public String getSzUDID() {
+			return szUDID;
 		}
-		public void setUuid(String uuid) {
-			this.uuid = uuid;
+		public void setSzUDID(String szUDID) {
+			this.szUDID = szUDID;
 		}
 		public int getiTransactionID() {
 			return iTransactionID;

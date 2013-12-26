@@ -48,6 +48,8 @@ public class DirectReceiveActivity extends Activity implements
 	private int mStaffId;
 	private MenuItem mItemSearch;
 	private MenuItem mItemInput;
+	private MenuItem mItemCancel;
+	private MenuItem mItemConfirm;
 	private SearchView mSearchView;
 	private ListView mListViewStock;
 	private TextView mTvItemName;
@@ -100,6 +102,8 @@ public class DirectReceiveActivity extends Activity implements
 		inflater.inflate(R.menu.activity_stock_receive, menu);
 		
 		mItemInput = menu.findItem(R.id.itemReceiveInput);
+		mItemCancel = menu.findItem(R.id.itemCancel);
+		mItemConfirm = menu.findItem(R.id.itemConfirm);
 		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);
 		mTxtReceiveQty = (EditText) mItemInput.getActionView().findViewById(R.id.txtQty);
 		mTxtReceivePrice = (EditText) mItemInput.getActionView().findViewById(R.id.txtPrice);
@@ -165,13 +169,16 @@ public class DirectReceiveActivity extends Activity implements
 				mStock = (StockProduct) parent.getItemAtPosition(position);
 
 				mItemInput.setVisible(true);
+				mItemCancel.setVisible(false);
+				mItemConfirm.setVisible(false);
 				
 				mTvItemName.setText(mStock.getName());
 				mTxtReceiveQty.setText(MPOSApplication.sGlobalVar.qtyFormat(mStock.getReceive()));
 				mTxtReceivePrice.setText(MPOSApplication.sGlobalVar.currencyFormat(mStock.getUnitPrice()));
 				mTxtReceiveQty.selectAll();
 				mTxtReceiveQty.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                
+				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(mTxtReceiveQty,
                         InputMethodManager.SHOW_IMPLICIT);
 			}
@@ -407,6 +414,10 @@ public class DirectReceiveActivity extends Activity implements
 					e.printStackTrace();
 				}
 			}
+			
+			mItemInput.setVisible(false);
+			mItemCancel.setVisible(true);
+			mItemConfirm.setVisible(true);
 			
 			mStock.setReceive(qty);
 			mStock.setUnitPrice(price);

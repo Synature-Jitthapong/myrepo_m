@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" ><item android:id="@+id/itemHoldBill" android:showAsAction="always|withText" android:title="@string/hold_bill"></item>
-    <item android:id="@+id/itemInventory" android:showAsAction="always|withText" android:title="@string/inventory">
+    <item android:id="@+id/itemInventory" android:showAsAction="always|withText" android:title="@string/inventory" android:visible="false">
         <menu>
             <item android:id="@+id/itemDirectReceive" android:title="@string/direct_receive_stock"/>
             <item android:id="@+id/itemStockCount" android:title="@string/count_stock"/>

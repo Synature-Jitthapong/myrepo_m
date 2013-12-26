@@ -38,7 +38,7 @@ public class Staff extends MPOSDatabase{
 		return s;
 	}
 	
-	public void addStaff(List<ShopData.Staff> staffLst) throws SQLException{
+	public void insertStaff(List<ShopData.Staff> staffLst) throws SQLException{
 		open();
 		mSqlite.execSQL("DELETE FROM " + TB_STAFF);
 		for(ShopData.Staff staff : staffLst){

@@ -847,25 +847,26 @@ public class Transaction extends MPOSDatabase {
 		boolean isSuccess = false;
 		float totalRetailPrice = pricePerUnit * orderQty;
 		float vat = Util.calculateVat(totalRetailPrice, vatRate);
-
 		open();
-		try {
-			mSqlite.execSQL(
-					" UPDATE " + TB_ORDER + 
-					" SET " + 
-					COL_ORDER_QTY + "=" + orderQty + ", " + 
-					Products.COL_PRODUCT_PRICE + "=" + pricePerUnit + ", " + 
-					COL_TOTAL_RETAIL_PRICE + "=" + totalRetailPrice + ", " + 
-					COL_TOTAL_SALE_PRICE + "=" + totalRetailPrice + ", " + 
-					COL_TOTAL_VAT + "=" + vat + ", " + 
-					COL_PRICE_DISCOUNT + "=0 " + 
-					" WHERE " + COL_TRANS_ID + "=" + transactionId + 
-					" AND " + COL_ORDER_ID + "=" + orderDetailId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
+		ContentValues cv = new ContentValues();
+		cv.put(COL_ORDER_QTY, orderQty);
+		cv.put(Products.COL_PRODUCT_PRICE, pricePerUnit);
+		cv.put(COL_TOTAL_RETAIL_PRICE, totalRetailPrice);
+		cv.put(COL_TOTAL_SALE_PRICE, totalRetailPrice);
+		cv.put(COL_TOTAL_VAT, vat);
+		cv.put(COL_PRICE_DISCOUNT, 0);
+		
+		int affectRow = mSqlite.update(TB_ORDER, cv, 
+				COL_TRANS_ID + "=? "
+				+ " AND " + COL_ORDER_ID + "=? "
+				+ " AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(orderDetailId),
+					String.valueOf(computerId)
+				});
+		if(affectRow > 0)
 			isSuccess = true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 		close();
 		return isSuccess;
 	}
@@ -921,23 +922,61 @@ public class Transaction extends MPOSDatabase {
 	public boolean voidTransaction(int transactionId, int computerId,
 			int staffId, String reason) throws SQLException {
 		boolean isSuccess = false;
-		Calendar dateTime = Util.getDateTime();
-
 		open();
-		try {
-			mSqlite.execSQL(
-					" UPDATE " + TB_TRANS + 
-					" SET " + COL_STATUS_ID + "=" + TRANS_STATUS_VOID + ", " + 
-					COL_VOID_STAFF_ID + "=" + staffId + ", " + 
-					COL_VOID_REASON + "='" + reason + "', " + 
-					COL_VOID_TIME + "='" + dateTime.getTimeInMillis() + "' " + 
-					" WHERE " + COL_TRANS_ID + "=" + transactionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
+		ContentValues cv = new ContentValues();
+		cv.put(COL_STATUS_ID, TRANS_STATUS_VOID);
+		cv.put(COL_VOID_STAFF_ID, staffId);
+		cv.put(COL_VOID_REASON, reason);
+		cv.put(COL_VOID_TIME, Util.getDateTime().getTimeInMillis());
+		
+		int affectRow = mSqlite.update(TB_TRANS, cv, COL_TRANS_ID + "=? "
+				+ " AND " + Computer.COL_COMPUTER_ID + "=? ", 
+				new String[]{String.valueOf(transactionId), 
+				String.valueOf(computerId)});
+		if(affectRow > 0)
 			isSuccess = false;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		close();
 		return isSuccess;
+	}
+	
+	public int getTotalReceipt(String sessionDate){
+		int totalReceipt = 0;
+		open();
+		Cursor cursor = mSqlite.rawQuery(
+				"SELECT COUNT (" + Transaction.COL_TRANS_ID + ") "
+						+ " FROM " + Transaction.TB_TRANS 
+						+ " WHERE " + Transaction.COL_SALE_DATE + "=? "
+						+ " AND " + Transaction.COL_STATUS_ID + " IN ?", 
+				new String[]{
+						sessionDate,
+						String.valueOf("(" + Transaction.TRANS_STATUS_SUCCESS + ", " + 
+						Transaction.TRANS_STATUS_VOID + ")")
+				});
+		if(cursor.moveToFirst()){
+			totalReceipt = cursor.getInt(0);
+		}
+		cursor.close();
+		close();
+		return totalReceipt;
+	}
+	
+	public float getTotalReceiptAmount( String sessionDate){
+		float totalReceiptAmount = 0.0f;
+		open();
+		Cursor cursor = mSqlite.rawQuery(
+				"SELECT SUM (" + Transaction.COL_TRANS_VATABLE + ") "
+						+ " FROM " + Transaction.TB_TRANS 
+						+ " WHERE " + Transaction.COL_SALE_DATE + "=? "
+						+ " AND " + Transaction.COL_STATUS_ID + "=?", 
+				new String[]{
+						sessionDate,
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
+				});
+		if(cursor.moveToFirst()){
+			totalReceiptAmount = cursor.getFloat(0);
+		}
+		cursor.close();
+		close();
+		return totalReceiptAmount;
 	}
 }
