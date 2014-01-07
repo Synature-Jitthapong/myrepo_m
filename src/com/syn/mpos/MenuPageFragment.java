@@ -3,6 +3,7 @@ package com.syn.mpos;
 import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
+import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.Products;
 
 import android.app.Activity;
@@ -20,7 +21,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MenuPageFragment extends Fragment {
-	private static ImageLoader mImgLoader;
+	private GlobalProperty mGlobalProp;
+	private ImageLoader mImgLoader;
+	private Products mProduct;
 	private OnMenuItemClick mCallback;
 	private List<Products.Product> mProductLst;
 	private MenuItemAdapter mAdapter;
@@ -31,9 +34,6 @@ public class MenuPageFragment extends Fragment {
 		Bundle b = new Bundle();
 		b.putInt("deptId", deptId);
 		f.setArguments(b);
-		
-		mImgLoader = new ImageLoader(f.getActivity(), R.drawable.no_food,
-				GlobalVar.IMG_DIR);
 		return f;
 	}
 
@@ -42,8 +42,12 @@ public class MenuPageFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		
 		mDeptId = getArguments().getInt("deptId");
-
-		mProductLst = GlobalVar.sProduct.listProduct(mDeptId);
+		
+		mGlobalProp = new GlobalProperty(getActivity());
+		mProduct = new Products(getActivity());
+		mImgLoader = new ImageLoader(getActivity(), R.drawable.no_food,
+				GlobalVar.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+		mProductLst = mProduct.listProduct(mDeptId);
 		mAdapter = new MenuItemAdapter();
 		
 	}
@@ -120,13 +124,13 @@ public class MenuPageFragment extends Fragment {
 			if(p.getProductPrice() < 0)
 				holder.tvPrice.setVisibility(View.GONE);
 			else
-				holder.tvPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(p.getProductPrice()));
-			mImgLoader.displayImage(MPOSApplication.sGlobalVar.getImageUrl() + p.getImgUrl(), holder.imgMenu);
+				holder.tvPrice.setText(mGlobalProp.currencyFormat(p.getProductPrice()));
+			//mImgLoader.displayImage(GlobalVar.getImageUrl(getActivity()) + p.getImgUrl(), holder.imgMenu);
 			return convertView;
 		}
 	}
 	
-	static class ViewHolder{
+	private class ViewHolder{
 		ImageView imgMenu;
 		TextView tvMenu;
 		TextView tvPrice;

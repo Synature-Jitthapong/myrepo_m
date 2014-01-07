@@ -1,20 +1,18 @@
 package com.syn.mpos;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
-
+import java.util.Locale;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Bank;
 import com.syn.mpos.database.CreditCard;
+import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
-
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.Menu;
@@ -24,18 +22,20 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 public class CreditPayActivity extends Activity {
 	private int mTransactionId;
 	private int mComputerId;
 	private int mBankId;
 	private int mCardTypeId;
+	private int mExpYear;
+	private int mExpMonth;
 	
+	private GlobalProperty mGlobalProp;
 	private PaymentDetail mPayment;
-	private Calendar mCalendar;
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
 	private float mTotalCreditPay;
@@ -43,9 +43,10 @@ public class CreditPayActivity extends Activity {
 	private EditText mTxtTotalPrice;
 	private EditText mTxtTotalPay;
 	private EditText mTxtCardNo;
-	private Spinner mSpinnerBank;
-	private Spinner mSpinnerCardType;
-	private Button mBtnExpire;
+	private Spinner mSpBank;
+	private Spinner mSpCardType;
+	private Spinner mSpExpYear;
+	private Spinner mSpExpMonth;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,49 +56,92 @@ public class CreditPayActivity extends Activity {
 		mTxtTotalPrice = (EditText) findViewById(R.id.editTextCreditTotalPrice);
 		mTxtTotalPay = (EditText) findViewById(R.id.editTextCreditPayAmount);
 		mTxtCardNo = (EditText) findViewById(R.id.editTextCreditNo);
-		mSpinnerBank = (Spinner) findViewById(R.id.spinnerBank);
-		mSpinnerCardType = (Spinner) findViewById(R.id.spinnerCardType);
-		mBtnExpire = (Button) findViewById(R.id.btnPopCardExp);
+		mSpBank = (Spinner) findViewById(R.id.spinnerBank);
+		mSpCardType = (Spinner) findViewById(R.id.spinnerCardType);
+		mSpExpYear = (Spinner) findViewById(R.id.spExpYear);
+		mSpExpMonth = (Spinner) findViewById(R.id.spExpMonth);
 		mTxtTotalPay.setSelectAllOnFocus(true);
 		
+		mSpExpYear.setOnItemSelectedListener(new OnItemSelectedListener(){
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View v,
+					int position, long id) {
+				String year = (String)parent.getItemAtPosition(position);
+				mExpYear = Integer.parseInt(year);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		
+		mSpExpMonth.setOnItemSelectedListener(new OnItemSelectedListener(){
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View v,
+					int position, long id) {
+				String month = (String)parent.getItemAtPosition(position);
+				mExpMonth = Integer.parseInt(month) + 1;
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		init();
 	}
 
+	private void createSpinnerYear(){
+		String[] years = new String[10];
+		Calendar c = Calendar.getInstance(Locale.getDefault());
+		for(int i = 0; i < years.length; i++){
+			years[i] = String.valueOf(c.get(Calendar.YEAR) + i);
+		}
+		SpinnerAdapter adapter = new ArrayAdapter<String>(this, 
+				android.R.layout.simple_spinner_dropdown_item, years);
+		mSpExpYear.setAdapter(adapter);
+	}
+	
+	private void createSpinnerMonth(){
+		//String[] months = new DateFormatSymbols(Locale.getDefault()).getMonths();
+		String[] months = new String[12];
+		for(int i = 0; i < months.length; i++){
+			months[i] = String.valueOf(i + 1);
+		}
+		SpinnerAdapter adapter = new ArrayAdapter<String>(this, 
+				android.R.layout.simple_spinner_dropdown_item, months);
+		mSpExpMonth.setAdapter(adapter);
+		Calendar c = Calendar.getInstance(Locale.getDefault());
+		mSpExpMonth.setSelection(c.get(Calendar.MONTH));
+	}
+	
 	private void init(){
+		mGlobalProp = new GlobalProperty(this);
 		mPayment = new PaymentDetail(this);
-		Calendar c = Calendar.getInstance();
-		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
-				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 		
 		displayTotalPrice();
 		loadCreditCardType();
 		loadBankName();
-	}
-	
-	public void cardExpClicked(final View v){
-		DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
-			
-			@Override
-			public void onSetDate(long date) {
-				mCalendar.setTimeInMillis(date);
-				mBtnExpire.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendar.getTime()));
-			}
-		});
-		dialogFragment.show(getFragmentManager(), "Condition");
+		createSpinnerMonth();
+		createSpinnerYear();
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(PaymentActivity.sTotalSalePrice));
+		mTxtTotalPrice.setText(mGlobalProp.currencyFormat(PaymentActivity.sTotalSalePrice));
 	}
 	
 	private void addPayment(){
 		String cardNo = mTxtCardNo.getText().toString();
-		int expYear = mCalendar.get(Calendar.YEAR);
-		int expMonth = mCalendar.get(Calendar.MONTH);
-		
 		try {
 			mTotalCreditPay = Float.parseFloat(mTxtTotalPay.getText().toString());
 		} catch (NumberFormatException e) {
@@ -105,11 +149,11 @@ public class CreditPayActivity extends Activity {
 			e.printStackTrace();
 		}
 		
-		mTxtTotalPay.setText(MPOSApplication.sGlobalVar.currencyFormat(mTotalCreditPay));
+		mTxtTotalPay.setText(mGlobalProp.currencyFormat(mTotalCreditPay));
 		if(!cardNo.isEmpty() && mTotalCreditPay > 0){
 			if(mPayment.addPaymentDetail(mTransactionId, 
 					mComputerId, PaymentActivity.PAY_TYPE_CREDIT, 
-						mTotalCreditPay, cardNo, expMonth, expYear, mBankId, mCardTypeId)){
+						mTotalCreditPay, cardNo, mExpMonth, mExpYear, mBankId, mCardTypeId)){
 				finish();
 			}
 		}else{
@@ -150,8 +194,8 @@ public class CreditPayActivity extends Activity {
 		ArrayAdapter<CreditCardType> adapter = 
 				new ArrayAdapter<CreditCardType>(CreditPayActivity.this, 
 						android.R.layout.simple_dropdown_item_1line, mCreditCardLst);
-		mSpinnerCardType.setAdapter(adapter);
-		mSpinnerCardType.setOnItemSelectedListener(new OnItemSelectedListener(){
+		mSpCardType.setAdapter(adapter);
+		mSpCardType.setOnItemSelectedListener(new OnItemSelectedListener(){
 
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View v,
@@ -176,8 +220,8 @@ public class CreditPayActivity extends Activity {
 		ArrayAdapter<BankName> adapter = 
 				new ArrayAdapter<BankName>(CreditPayActivity.this, 
 						android.R.layout.simple_dropdown_item_1line, mBankLst);
-		mSpinnerBank.setAdapter(adapter);
-		mSpinnerBank.setOnItemSelectedListener(new OnItemSelectedListener(){
+		mSpBank.setAdapter(adapter);
+		mSpBank.setOnItemSelectedListener(new OnItemSelectedListener(){
 
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View v,

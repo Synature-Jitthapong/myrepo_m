@@ -232,5 +232,9 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="about">About MPOS</string>
     <string name="load_sale_trans_progress">Load sale data for send to cloud...</string>
     <string name="endday_success">Endday successfully.</string>
+    <string name="product_size">Product Size</string>
+    <string name="enter_valid_numeric">Please enter valid numeric.</string>
+    <string name="card_holder">CardHolder</string>
+    <string name="cvv2">CVV2</string>
 
 </resources>

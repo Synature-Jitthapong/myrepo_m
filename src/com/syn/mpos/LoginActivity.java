@@ -1,16 +1,20 @@
 package com.syn.mpos;
 
 import com.syn.mpos.R;
+import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.Login;
+import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.transaction.Session;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,7 +30,8 @@ public class LoginActivity extends Activity {
 	private int mComputerId;
 	private int mSessionId;
 	private Session mSession;
-	
+	private Shop mShop;
+	private Computer mComputer;
 	private EditText mTxtUser;
 	private EditText mTxtPass;
 	
@@ -61,11 +66,15 @@ public class LoginActivity extends Activity {
 	}
 
 	private void init(){
+		mShop = new Shop(this);
+		mComputer = new Computer(this);
 		mSession = new Session(this);
-		mShopId = GlobalVar.sShop.getShopProperty().getShopID();
-		mComputerId = GlobalVar.sComputer.getComputerProperty().getComputerID();
-		
-		if(GlobalVar.sSharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "").equals("")){
+		mShopId = mShop.getShopProperty().getShopID();
+		mComputerId = mComputer.getComputerProperty().getComputerID();
+
+		SharedPreferences sharedPref = 
+				PreferenceManager.getDefaultSharedPreferences(this);
+		if(sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "").equals("")){
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 		}
@@ -129,8 +138,8 @@ public class LoginActivity extends Activity {
 				
 				@Override
 				public void onSuccess() {
-					mShopId = GlobalVar.sShop.getShopProperty().getShopID();
-					mComputerId = GlobalVar.sComputer.getComputerProperty().getComputerID();
+					mShopId = mShop.getShopProperty().getShopID();
+					mComputerId = mComputer.getComputerProperty().getComputerID();
 					mposService.loadProductData(mShopId, mDeviceCode, mServiceStateListener);
 				}
 				

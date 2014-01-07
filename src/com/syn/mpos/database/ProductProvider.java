@@ -1,7 +1,5 @@
 package com.syn.mpos.database;
 
-import com.syn.mpos.MPOSApplication;
-
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;

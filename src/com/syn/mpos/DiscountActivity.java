@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.R;
+import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.Products;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
@@ -49,6 +52,9 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	private DiscountAdapter mDisAdapter;
 	private boolean mIsEdited = false;
 
+	private GlobalProperty mGlobalProp;
+	private Transaction mTransaction;
+	private Products mProduct;
 	private OrderTransaction.OrderDetail mOrder;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private LinearLayout mLayoutVat;
@@ -84,6 +90,9 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	}
 
 	private void init(){
+		mGlobalProp = new GlobalProperty(this);
+		mTransaction = new Transaction(this);
+		mProduct = new Products(this);
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
@@ -96,11 +105,11 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				mOrder = (OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 				
 				mTvItemName.setText(mOrder.getProductName());
-				mTxtDiscount.setText(MPOSApplication.sGlobalVar.currencyFormat(mOrder.getPriceDiscount()));
+				mTxtDiscount.setText(mGlobalProp.currencyFormat(mOrder.getPriceDiscount()));
 				mTxtDiscount.setSelectAllOnFocus(true);
 				mTxtDiscount.requestFocus();
 				if(mOrder.getDiscountType() == 2){
-					mTxtDiscount.setText(MPOSApplication.sGlobalVar.currencyFormat(
+					mTxtDiscount.setText(mGlobalProp.currencyFormat(
 							mOrder.getPriceDiscount() * 100 / mOrder.getTotalRetailPrice()));
 				}
 				mRdoDiscountType.check(mOrder.getDiscountType() == 1 ? R.id.rdoPrice : R.id.rdoPercent);
@@ -124,7 +133,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			cancel();
 			return true;
 		case R.id.itemConfirm:
-			if (GlobalVar.sTransaction.confirmDiscount(mTransactionId, mComputerId))
+			if (mTransaction.confirmDiscount(mTransactionId, mComputerId))
 				finish();
 			return true;
 		default:
@@ -166,9 +175,9 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				
 			float totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - mDiscount;
 			
-			GlobalVar.sTransaction.discountEatchProduct(mOrder.getOrderDetailId(), 
+			mTransaction.discountEatchProduct(mOrder.getOrderDetailId(), 
 					mTransactionId, mComputerId, 
-					GlobalVar.sProduct.getVatRate(mOrder.getProductId()), 
+					mProduct.getVatRate(mOrder.getProductId()), 
 					totalPriceAfterDiscount, mDiscount, mDiscountType);
 			
 			OrderTransaction.OrderDetail order = mOrderLst.get(mPosition);
@@ -228,29 +237,29 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvName.setText(order.getProductName());
-			tvQty.setText(MPOSApplication.sGlobalVar.qtyFormat(order.getQty()));
-			tvUnitPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getPricePerUnit()));
-			tvTotalPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getTotalRetailPrice()));
-			tvDiscount.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getPriceDiscount()));
-			tvSalePrice.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getTotalSalePrice()));
+			tvQty.setText(mGlobalProp.qtyFormat(order.getQty()));
+			tvUnitPrice.setText(mGlobalProp.currencyFormat(order.getPricePerUnit()));
+			tvTotalPrice.setText(mGlobalProp.currencyFormat(order.getTotalRetailPrice()));
+			tvDiscount.setText(mGlobalProp.currencyFormat(order.getPriceDiscount()));
+			tvSalePrice.setText(mGlobalProp.currencyFormat(order.getTotalSalePrice()));
 			
 			return rowView;
 		}
 	}
 	
 	private void loadOrder() {
-		if (GlobalVar.sTransaction.copyOrderToTmp(mTransactionId, mComputerId)) {
-			mOrderLst = GlobalVar.sTransaction.listAllOrderTmp(mTransactionId, mComputerId);
+		if (mTransaction.copyOrderToTmp(mTransactionId, mComputerId)) {
+			mOrderLst = mTransaction.listAllOrderTmp(mTransactionId, mComputerId);
 			mDisAdapter.notifyDataSetChanged();
 		}
 	}
 
 	private void summary() {
-		float subTotal = GlobalVar.sTransaction.getTotalRetailPrice(mTransactionId, mComputerId, true);
-		float totalVatExclude = GlobalVar.sTransaction.getTotalVatExclude(mTransactionId, mComputerId, true);
-		float totalDiscount = GlobalVar.sTransaction.getPriceDiscount(mTransactionId, mComputerId, true); 
+		float subTotal = mTransaction.getTotalRetailPrice(mTransactionId, mComputerId, true);
+		float totalVatExclude = mTransaction.getTotalVatExclude(mTransactionId, mComputerId, true);
+		float totalDiscount = mTransaction.getPriceDiscount(mTransactionId, mComputerId, true); 
 				
-		mTotalPrice = GlobalVar.sTransaction.getTotalSalePrice(mTransactionId, mComputerId, true) + 
+		mTotalPrice = mTransaction.getTotalSalePrice(mTransactionId, mComputerId, true) + 
 				totalVatExclude;
 		
 		if(totalVatExclude > 0)
@@ -258,10 +267,10 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		else
 			mLayoutVat.setVisibility(View.GONE);
 		
-		mTvExcVat.setText(MPOSApplication.sGlobalVar.currencyFormat(totalVatExclude));
-		mTvSubTotal.setText(MPOSApplication.sGlobalVar.currencyFormat(subTotal));
-		mTvTotalDiscount.setText(MPOSApplication.sGlobalVar.currencyFormat(totalDiscount));
-		mTvTotalPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(mTotalPrice));
+		mTvExcVat.setText(mGlobalProp.currencyFormat(totalVatExclude));
+		mTvSubTotal.setText(mGlobalProp.currencyFormat(subTotal));
+		mTvTotalDiscount.setText(mGlobalProp.currencyFormat(totalDiscount));
+		mTvTotalPrice.setText(mGlobalProp.currencyFormat(mTotalPrice));
 	}
 
 	private void cancel(){
@@ -284,7 +293,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									GlobalVar.sTransaction.cancelDiscount(mTransactionId, 
+									mTransaction.cancelDiscount(mTransactionId, 
 											mComputerId);
 									finish();
 								}

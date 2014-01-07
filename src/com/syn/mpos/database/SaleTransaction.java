@@ -13,14 +13,21 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class SaleTransaction {
+	private Context mContext;
+	private long mSessionDate;
 	
-	public static POSData_SaleTransaction listSaleTransaction(Context c, long saleDate){
+	public SaleTransaction(Context c, long sessionDate){
+		mContext = c;
+		mSessionDate = sessionDate;
+	}
+	
+	public POSData_SaleTransaction listSaleTransaction(){
 		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
 		SaleData_SessionInfo sessInfo = new SaleData_SessionInfo();
 		
-		sessInfo.setxTableSession(buildSessionObj(c, saleDate));
-		sessInfo.setxTableSessionEndDay(buildSessEnddayObj(c, saleDate));
-		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(c, saleDate));
+		sessInfo.setxTableSession(buildSessionObj());
+		sessInfo.setxTableSessionEndDay(buildSessEnddayObj());
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst());
 		posSaleTrans.setxSessionInfo(sessInfo);
 		return posSaleTrans;
 	}
@@ -34,11 +41,11 @@ public class SaleTransaction {
 	 *   }
 	 * }
 	 */
-	public static List<SaleData_SaleTransaction> buildSaleTransLst(Context c, long saleDate){
+	private List<SaleData_SaleTransaction> buildSaleTransLst(){
 		List<SaleData_SaleTransaction> saleTransLst = null;
-		Transaction trans = new Transaction(c);
+		Transaction trans = new Transaction(mContext);
 		trans.open();
-		Cursor cursor = queryTransaction(trans.mSqlite, saleDate);
+		Cursor cursor = queryTransaction(trans.mSqlite);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				saleTransLst = new ArrayList<SaleData_SaleTransaction>();
@@ -90,7 +97,7 @@ public class SaleTransaction {
 	}
 	
 	// build PaymentDetailLst
-	public static List<SaleTable_PaymentDetail> buildPaymentDetailLst(SQLiteDatabase sqlite, int transId){
+	public List<SaleTable_PaymentDetail> buildPaymentDetailLst(SQLiteDatabase sqlite, int transId){
 		List<SaleTable_PaymentDetail> paymentDetailLst = null;
 		Cursor cursor = queryPaymentDetail(sqlite, transId);
 		if(cursor != null){
@@ -117,7 +124,7 @@ public class SaleTransaction {
 	}
 	
 	// build OrderDetailLst
-	public static List<SaleTable_OrderDetail> buildOrderDetailLst(SQLiteDatabase sqlite, int transId){
+	public List<SaleTable_OrderDetail> buildOrderDetailLst(SQLiteDatabase sqlite, int transId){
 		List<SaleTable_OrderDetail> orderDetailLst = null;
 		Cursor cursor = queryOrderDetail(sqlite, transId);
 		if(cursor != null){
@@ -145,11 +152,11 @@ public class SaleTransaction {
 		return orderDetailLst;
 	}
 	
-	public static SaleTable_SessionEndDay buildSessEnddayObj(Context c, long saleDate){
+	public SaleTable_SessionEndDay buildSessEnddayObj(){
 		SaleTable_SessionEndDay saleSessEnd = null;
-		Session sess = new Session(c);
+		Session sess = new Session(mContext);
 		sess.open();
-		Cursor cursor = querySessionEndday(sess.mSqlite, saleDate);
+		Cursor cursor = querySessionEndday(sess.mSqlite);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{
@@ -170,11 +177,11 @@ public class SaleTransaction {
 		return saleSessEnd;
 	}
 	
-	public static SaleTable_Session buildSessionObj(Context c, long saleDate){
+	public SaleTable_Session buildSessionObj(){
 		SaleTable_Session saleSess = null;
-		Session sess = new Session(c);
+		Session sess = new Session(mContext);
 		sess.open();
-		Cursor cursor = querySession(sess.mSqlite, saleDate);
+		Cursor cursor = querySession(sess.mSqlite);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{
@@ -205,48 +212,51 @@ public class SaleTransaction {
 		return saleSess;
 	}
 	
-	public static Cursor queryPaymentDetail(SQLiteDatabase sqlite, int transId){
-		Cursor cursor = sqlite.rawQuery("SELECT * "
+	public Cursor queryPaymentDetail(SQLiteDatabase sqlite, int transId){
+		return sqlite.rawQuery("SELECT * "
 				+ " FROM " + PaymentDetail.TB_PAYMENT
 				+ " WHERE " + Transaction.COL_TRANS_ID + "=?", 
 				new String[]{String.valueOf(transId)});
-		return cursor;
 	}
 	
-	public static Cursor queryOrderDetail(SQLiteDatabase sqlite, int transId){
-		Cursor cursor = sqlite.rawQuery("SELECT * "
+	public Cursor queryOrderDetail(SQLiteDatabase sqlite, int transId){
+		return sqlite.rawQuery("SELECT * "
 				+ " FROM " + Transaction.TB_ORDER
 				+ " WHERE " + Transaction.COL_TRANS_ID + "=?", 
 				new String[]{String.valueOf(transId)});
-		return cursor;
 	}
 	
-	public static Cursor queryTransaction(SQLiteDatabase sqlite, long saleDate){
-		Cursor cursor = sqlite.rawQuery("SELECT * "
+	public Cursor queryTransaction(SQLiteDatabase sqlite){
+		return sqlite.rawQuery("SELECT * "
 				+ " FROM " + Transaction.TB_TRANS
 				+ " WHERE " + Transaction.COL_SALE_DATE + "=?"
 				+ " AND " + Transaction.COL_STATUS_ID + "=?"
 				+ " AND " + MPOSDatabase.COL_SEND_STATUS + "=?", 
-				new String[]{String.valueOf(saleDate), 
+				new String[]{String.valueOf(mSessionDate), 
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 						String.valueOf(MPOSDatabase.NOT_SEND)});
-		return cursor;
 	}
 	
-	public static Cursor querySessionEndday(SQLiteDatabase sqlite, long saleDate){
-		Cursor cursor = sqlite.rawQuery("SELECT * "
+	public Cursor querySessionEndday(SQLiteDatabase sqlite){
+		return sqlite.rawQuery("SELECT * "
 				+ " FROM " + Session.TB_SESSION_DETAIL
 				+ " WHERE " + Session.COL_SESS_DATE
-				+ "=?", new String[]{String.valueOf(saleDate)});
-		return cursor;
+				+ "=?", new String[]{String.valueOf(mSessionDate)});
 	}
 	
-	public static Cursor querySession(SQLiteDatabase sqlite, long saleDate){
-		Cursor cursor = sqlite.rawQuery("SELECT * "
+	public Cursor querySession(SQLiteDatabase sqlite){
+		return sqlite.rawQuery("SELECT * "
 				+ " FROM " + Session.TB_SESSION
 				+ " WHERE " + Session.COL_SESS_DATE
-				+ "=?", new String[]{String.valueOf(saleDate)});
-		return cursor;
+				+ "=?", new String[]{String.valueOf(mSessionDate)});
+	}
+	
+	public Cursor querySyncSaleLog(SQLiteDatabase sqlite){
+		return sqlite.rawQuery("SELECT * "
+				+ " FROM " + SyncSaleLog.TB_SYNC_SALE_LOG
+				+ " WHERE " + SyncSaleLog.COL_SYNC_STATUS 
+				+ "=?", 
+				new String[]{String.valueOf(SyncSaleLog.SYNC_FAIL)});
 	}
 	
     public static class POSData_SaleTransaction

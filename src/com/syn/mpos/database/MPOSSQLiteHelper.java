@@ -24,7 +24,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Bank.COL_BANK_ID + " INTEGER, " +
 		Bank.COL_BANK_NAME + " TEXT, " +
 		"PRIMARY KEY (" + Bank.COL_BANK_ID + ") );",
-		
 		// tb computer
 		"CREATE TABLE " + Computer.TB_COMPUTER + " ( " +
 		Computer.COL_COMPUTER_ID + " INTEGER, " +
@@ -32,13 +31,11 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Computer.COL_DEVICE_CODE + " TEXT, " +
 		Computer.COL_REGISTER_NUMBER + " TEXT, " +
 		"PRIMARY KEY (" + Computer.COL_COMPUTER_ID + ") );",
-		
 		// tb creditcard type
 		"CREATE TABLE " + CreditCard.TB_CREDIT_CARD_TYPE + " ( " +
 		CreditCard.COL_CREDIT_CARD_TYPE_ID + " INTEGER, " +
 		CreditCard.COL_CREDIT_CARD_TYPE_NAME + " TEXT, " +
 		" PRIMARY KEY (" + CreditCard.COL_CREDIT_CARD_TYPE_ID + ") );",
-		
 		// tb docdetail
 		"CREATE TABLE " + StockDocument.TB_DOC_DETAIL + " ( " +
 		StockDocument.COL_DOC_DETAIL_ID + " INTEGER, " +
@@ -50,7 +47,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Products.COL_PRODUCT_PRICE + " REAL DEFAULT 0, " +
 		"PRIMARY KEY (" + StockDocument.COL_DOC_DETAIL_ID + " ASC, " + 
 		StockDocument.COL_DOC_ID + " ASC, " + Shop.COL_SHOP_ID + " ASC) );",
-		
 		// tb document
 		"CREATE TABLE " + StockDocument.TB_DOCUMENT + " ( " +
 		StockDocument.COL_DOC_ID + " INTEGER, " +
@@ -69,14 +65,12 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		StockDocument.COL_IS_SEND_TO_HQ + " INTEGER DEFAULT 0, " +
 		StockDocument.COL_IS_SEND_TO_HQ_DATE + " TEXT, " +
 		"PRIMARY KEY (" + StockDocument.COL_DOC_ID + " ASC, " + Shop.COL_SHOP_ID + " ASC) );", 
-		
 		// tb documenttype
 		"CREATE TABLE " + StockDocument.TB_DOCUMENT_TYPE + " ( " +
 		StockDocument.COL_DOC_TYPE + " INTEGER, " +
 		StockDocument.COL_DOC_TYPE_HEADER + " TEXT, " +
 		StockDocument.COL_DOC_TYPE_NAME + " TEXT, " +
 		StockDocument.COL_MOVE_MENT + " INTEGER DEFAULT 0 );",
-		
 		// tb globalproperty
 		"CREATE TABLE " + GlobalProperty.TB_GLOBAL_PROPERTY + " ( " +
 		GlobalProperty.COL_CURRENCY_SYMBOL + " TEXT DEFAULT '$', " +
@@ -86,14 +80,12 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		GlobalProperty.COL_QTY_FORMAT + " TEXT DEFAULT '#,##0.##', " +
 		GlobalProperty.COL_DATE_FORMAT + " TEXT DEFAULT 'yyyy/MM/dd', " +
 		GlobalProperty.COL_TIME_FORMAT + " TEXT DEFAULT 'HH:mm:ss' );",
-		
 		// tb language
 		"CREATE TABLE " + Language.TB_LANGUAGE + " ( " +
 		Language.COL_LANG_ID + " INTEGER DEFAULT 1, " +
 		Language.COL_LANG_NAME + " TEXT, " +
 		Language.COL_LANG_CODE + " TEXT DEFAULT 'en', " +
 		"PRIMARY KEY (" + Language.COL_LANG_ID + ") );", 
-		
 		// tb orderdetail
 		"CREATE TABLE " + Transaction.TB_ORDER + " ( " +
 		Transaction.COL_ORDER_ID + " INTEGER, " +
@@ -112,7 +104,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Transaction.COL_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
 		"PRIMARY KEY (" + Transaction.COL_ORDER_ID + " ASC, " +
 		Transaction.COL_TRANS_ID + " ASC, " + Computer.COL_COMPUTER_ID + " ASC) );",
-
 		// tb orderdetailtmp
 		"CREATE TABLE " + Transaction.TB_ORDER_TMP + " ( " +
 		Transaction.COL_ORDER_ID + " INTEGER, " +
@@ -131,7 +122,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Transaction.COL_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
 		"PRIMARY KEY (" + Transaction.COL_ORDER_ID + " ASC, " +
 		Transaction.COL_TRANS_ID + " ASC, " + Computer.COL_COMPUTER_ID + " ASC) );",
-		
 		// tb ordertransaction
 		"CREATE TABLE " + Transaction.TB_TRANS + " ( " +
 		MPOSDatabase.COL_UUID + " TEXT, " +
@@ -163,7 +153,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Transaction.COL_OTHER_DISCOUNT + " REAL DEFAULT 0, " +
 		MPOSDatabase.COL_SEND_STATUS + " INTEGER DEFAULT 0, " +
 		"PRIMARY KEY (" + Transaction.COL_TRANS_ID + " ASC, " + Computer.COL_COMPUTER_ID + " ASC) ); ",
-		
 		// tb paydetail
 		"CREATE TABLE " + PaymentDetail.TB_PAYMENT + " ( " +
 		PaymentDetail.COL_PAY_ID + " INTEGER, " +
@@ -179,14 +168,12 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		PaymentDetail.COL_REMARK + " TEXT, " +
 		"PRIMARY KEY (" + PaymentDetail.COL_PAY_ID + " ASC, " + 
 		Transaction.COL_TRANS_ID + " ASC, " + Computer.COL_COMPUTER_ID + " ASC) );",
-		
 		// tb paytype
 		"CREATE TABLE " + PaymentDetail.TB_PAY_TYPE + " ( " +
 		PaymentDetail.COL_PAY_TYPE_ID + " INTEGER, " +
 		PaymentDetail.COL_PAY_TYPE_CODE + " TEXT, " +
 		PaymentDetail.COL_PAY_TYPE_NAME + " TEXT, " +
 		"PRIMARY KEY (" + PaymentDetail.COL_PAY_TYPE_ID + ") );", 
-		
 		// tb product dept
 		"CREATE TABLE " + Products.TB_PRODUCT_DEPT + " ( " +
 		Products.COL_PRODUCT_DEPT_ID + " INTEGER, " +
@@ -194,7 +181,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Products.COL_PRODUCT_DEPT_CODE + " TEXT, " +
 		Products.COL_PRODUCT_DEPT_NAME + " TEXT, " +
 		"PRIMARY KEY (" + Products.COL_PRODUCT_DEPT_ID + "));",
-		
 		// tb product group
 		"CREATE TABLE " + Products.TB_PRODUCT_GROUP + " ( " +
 		Products.COL_PRODUCT_GROUP_ID + " INTEGER, " +
@@ -203,7 +189,15 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Products.COL_PRODUCT_GROUP_TYPE + " INTEGER DEFAULT 0, " +
 		Products.COL_IS_COMMENT + " INTEGER DEFAULT 0, " +
 		"PRIMARY KEY (" + Products.COL_PRODUCT_GROUP_ID + "));",
-		
+		// tb pcomponentset
+		"CREATE TABLE " + Products.TB_PCOMP_SET + " ( " +
+		Products.COL_PGROUP_ID + " INTEGER, " +
+		Products.COL_PRODUCT_ID + " INTEGER, " +
+		Products.COL_CHILD_PRODUCT_ID + " INTEGER, " +
+		Products.COL_CHILD_PRODUCT_AMOUNT + " REAL, " +
+		Products.COL_FLEXIBLE_PRODUCT_PRICE + " REAL DEFAULT 0, " +
+		Products.COL_FLEXIBLE_INCLUDE_PRICE + " INTEGER DEFAULT 0 " +
+		");",
 		// tb products
 		"CREATE TABLE " + Products.TB_PRODUCT + " ( " +
 		Products.COL_PRODUCT_ID + " INTEGER, " +
@@ -222,13 +216,11 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Products.COL_IS_OUTOF_STOCK + " INTEGER DEFAULT 0, " +
 		Products.COL_IMG_URL + " TEXT, " +
 		"PRIMARY KEY (" + Products.COL_PRODUCT_ID + " ASC));",
-		
 		// tb province
 		"CREATE TABLE " + Province.TB_PROVINCE + " ( " +
 		Province.COL_PROVINCE_ID + " INTEGER, " +
 		Province.COL_PROVINCE_NAME + " TEXT, " +
 		"PRIMARY KEY (" + Province.COL_PROVINCE_ID + "));",
-		
 		// tb session
 		"CREATE TABLE " + Session.TB_SESSION + " ( " +
 		Session.COL_SESS_ID + " INTEGER, " +
@@ -243,7 +235,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Session.COL_CLOSE_AMOUNT + " REAL, " +
 		Session.COL_IS_ENDDAY + " INTEGER, " +
 		"PRIMARY KEY (" + Session.COL_SESS_ID + ", " + Computer.COL_COMPUTER_ID + "));",
-		
 		// tb session enddaydetail
 		"CREATE TABLE " + Session.TB_SESSION_DETAIL + " ( " +
 		Session.COL_SESS_DATE + " TEXT, " +
@@ -253,7 +244,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Session.COL_IS_SEND_TO_HQ + " INTEGER, " +
 		Session.COL_SEND_TO_HQ_DATE + " TEXT, " +
 		"PRIMARY KEY (" + Session.COL_SESS_DATE + "));",
-		
 		// tb shop
 		"CREATE TABLE " + Shop.TB_SHOP + " ( " +
 		Shop.COL_SHOP_ID + " INTEGER, " +
@@ -274,12 +264,10 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Shop.COL_TAX_ID + " TEXT, " +
 		Shop.COL_REGISTER_ID + " TEXT, " +
 		Shop.COL_VAT + " REAL );",
-		
 		// tb staff permission
 		"CREATE TABLE " + Staff.TB_STAFF_PERMISSION + " ( " +
 		Staff.COL_STAFF_ROLE_ID + " INTEGER DEFAULT 0, " +
 		Staff.COL_PERMMISSION_ITEM_ID + " INTEGER DEFAULT 0);",
-		
 		// tb staffs
 		"CREATE TABLE " + Staff.TB_STAFF + " ( " +
 		Staff.COL_STAFF_ID + " INTEGER, " +
@@ -287,14 +275,12 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Staff.COL_STAFF_NAME + " TEXT, " +
 		Staff.COL_STAFF_PASS + " TEXT, " +
 		"PRIMARY KEY (" + Staff.COL_STAFF_ID + "));",
-		
 		// sync transaction log
-		"CREATE TABLE " + SyncDataLog.TB_SYNC_TRANS + " ( " +
-		Transaction.COL_TRANS_ID + " INTEGER, " +
-		Computer.COL_COMPUTER_ID + " INTEGER, " +
-		SyncDataLog.COL_BEGIN_SYNC_TIME + " TEXT, " +
-		SyncDataLog.COL_FINISH_SYNC_TIME + " TEXT, " +
-		SyncDataLog.COL_SYNC_STATUS + " INTEGER );"
+		"CREATE TABLE " + SyncSaleLog.TB_SYNC_SALE_LOG + " ( " +
+		Session.COL_SESS_DATE + " TEXT, " + 
+		SyncSaleLog.COL_SYNC_STATUS + " INTEGER DEFAULT 0, "
+				+ " PRIMARY KEY (" + Session.COL_SESS_DATE + ")"
+				+ " );"
 	};
 	
 	private static final String[] sqlAddition = {

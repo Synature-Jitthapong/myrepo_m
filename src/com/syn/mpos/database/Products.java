@@ -11,6 +11,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 
 public class Products extends MPOSDatabase {
+	public static final int NORMAL_TYPE = 0;
+	public static final int SET_TYPE = 1;
+	public static final int SIZE_TYPE = 2;
+	public static final int OPEN_PRICE_TYPE = 5;
+	public static final int SET_TYPE_CAN_SELECT = 7;
+	
 	public static final int VAT_TYPE_INCLUDED = 1;
 	public static final int VAT_TYPE_EXCLUDE = 2;
     
@@ -61,6 +67,12 @@ public class Products extends MPOSDatabase {
 	public static final String COL_PRODUCT_GROUP_NAME = "ProductGroupName";
 	public static final String COL_PRODUCT_GROUP_TYPE = "ProductGroupType";
 	public static final String COL_IS_COMMENT = "IsComment";
+	public static final String TB_PCOMP_SET = "PComponentSet";
+	public static final String COL_PGROUP_ID = "PGroupId";
+	public static final String COL_CHILD_PRODUCT_ID = "ChildProductId";
+	public static final String COL_CHILD_PRODUCT_AMOUNT = "ChildProductAmount";
+	public static final String COL_FLEXIBLE_PRODUCT_PRICE = "FlexibleProductPrice";
+	public static final String COL_FLEXIBLE_INCLUDE_PRICE = "FlexibleIncludePrice";
 
 	public Products(Context c){
 		super(c);
@@ -98,6 +110,43 @@ public class Products extends MPOSDatabase {
 		cursor.close();
 		mSqlite.close();
 		return pdLst;
+	}
+	
+	public List<Product> listProductSize(int proId){
+		List<Product> pLst = null;
+		
+		open();
+		Cursor cursor = mSqlite.rawQuery(
+				"SELECT b." + COL_PRODUCT_ID + ", " 
+				+ " b." + COL_PRODUCT_TYPE_ID + ", "
+				+ " b." + COL_PRODUCT_CODE + ", " 
+				+ " b." + COL_PRODUCT_BAR_CODE + ", "
+				+ " b." + COL_PRODUCT_NAME + ", "
+				+ " b." + COL_PRODUCT_PRICE + ", " 
+				+ " b." + COL_VAT_TYPE + ", " 
+				+ " b." + COL_VAT_RATE
+				+ " FROM " + TB_PCOMP_SET + " a "
+				+ " INNER JOIN " + TB_PRODUCT + " b " 
+				+ " ON a." + COL_CHILD_PRODUCT_ID + "=b." + COL_PRODUCT_ID
+				+ " WHERE a." + COL_PRODUCT_ID + "=?", 
+				new String[]{String.valueOf(proId)});
+		if(cursor.moveToFirst()){
+			pLst = new ArrayList<Product>();
+			do{
+				Product p = new Product();
+				p.setProductId(cursor.getInt(cursor.getColumnIndex(COL_PRODUCT_ID)));
+				p.setProductTypeId(cursor.getInt(cursor.getColumnIndex(COL_PRODUCT_TYPE_ID)));
+				p.setProductCode(cursor.getString(cursor.getColumnIndex(COL_PRODUCT_CODE)));
+				p.setProductBarCode(cursor.getString(cursor.getColumnIndex(COL_PRODUCT_BAR_CODE)));
+				p.setProductName(cursor.getString(cursor.getColumnIndex(COL_PRODUCT_NAME)));
+				p.setProductPrice(cursor.getFloat(cursor.getColumnIndex(COL_PRODUCT_PRICE)));
+				p.setVatType(cursor.getInt(cursor.getColumnIndex(COL_VAT_TYPE)));
+				p.setVatRate(cursor.getFloat(cursor.getColumnIndex(COL_VAT_RATE)));
+				pLst.add(p);
+			}while(cursor.moveToNext());
+		}
+		close();
+		return pLst;
 	}
 	
 	public List<Product> listProduct(String query){
@@ -216,6 +265,22 @@ public class Products extends MPOSDatabase {
 		pg.setProductGroupCode(cursor.getString(cursor.getColumnIndex(COL_PRODUCT_GROUP_CODE)));
 		pg.setProductGroupName(cursor.getString(cursor.getColumnIndex(COL_PRODUCT_GROUP_NAME)));
 		return pg;
+	}
+	
+	public void addPComponentSet(List<ProductGroups.PComponentSet> pCompSetLst) throws SQLException{
+		open();
+		mSqlite.delete(TB_PCOMP_SET, null, null);
+		for(ProductGroups.PComponentSet pCompSet : pCompSetLst){
+			ContentValues cv = new ContentValues();
+			cv.put(COL_PGROUP_ID, pCompSet.getPGroupID());
+			cv.put(COL_PRODUCT_ID, pCompSet.getProductID());
+			cv.put(COL_CHILD_PRODUCT_ID, pCompSet.getChildProductID());
+			cv.put(COL_CHILD_PRODUCT_AMOUNT, pCompSet.getPGroupID());
+			cv.put(COL_FLEXIBLE_PRODUCT_PRICE, pCompSet.getFlexibleProductPrice());
+			cv.put(COL_FLEXIBLE_INCLUDE_PRICE, pCompSet.getFlexibleIncludePrice());
+			mSqlite.insertOrThrow(TB_PCOMP_SET, null, cv);
+		}
+		close();
 	}
 	
 	public void addProductGroup(List<ProductGroups.ProductGroup> pgLst,

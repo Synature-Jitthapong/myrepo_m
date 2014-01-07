@@ -19,8 +19,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 
 public class MPOSService {
-	public static Context mContext;
-	public static ProgressDialog mProgress;
+	public Context mContext;
+	public ProgressDialog mProgress;
 	
 	public MPOSService(Context c){
 		mContext = c;
@@ -32,7 +32,7 @@ public class MPOSService {
 			final OnServiceProcessListener listener){
 
 		mProgress.show();
-		final String url = MPOSApplication.sGlobalVar.getFullUrl();
+		final String url = GlobalVar.getFullUrl(mContext);
 		
 		new AuthenDevice(deviceCode, new OnAuthenDeviceListener(){
 
@@ -84,7 +84,7 @@ public class MPOSService {
 			final OnServiceProcessListener listener){
 		
 		mProgress.show();
-		final String url = MPOSApplication.sGlobalVar.getFullUrl();
+		final String url = GlobalVar.getFullUrl(mContext);
 		
 		// load menu
 		new LoadMenuTask(shopId, deviceCode, new OnLoadMenuListener(){
@@ -113,6 +113,7 @@ public class MPOSService {
 							p.addProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
 							p.addProductDept(pgs.getProductDept(), mgs.getMenuDept());
 							p.addProducts(pgs.getProduct(), mgs.getMenuItem());
+							p.addPComponentSet(pgs.getPComponentSet());
 
 							mProgress.dismiss();	
 							listener.onSuccess();
@@ -159,7 +160,7 @@ public class MPOSService {
 	}
 	
 	// load shop data
-	public static class LoadShopTask extends MPOSMainService{
+	private class LoadShopTask extends MPOSMainService{
 
 		private OnLoadShopListener listener;
 		
@@ -196,7 +197,7 @@ public class MPOSService {
 	}
 	
 	// load products
-	public static class LoadProductTask extends MPOSMainService{
+	private class LoadProductTask extends MPOSMainService{
 		
 		private OnLoadProductListener listener;
 		
@@ -236,7 +237,7 @@ public class MPOSService {
 	}
 	
 	// load menu data
-	public static class LoadMenuTask extends MPOSMainService{
+	private class LoadMenuTask extends MPOSMainService{
 		
 		private OnLoadMenuListener listener;
 		
@@ -274,7 +275,7 @@ public class MPOSService {
 	}
 
 	// check authen shop
-	public static class AuthenDevice extends MPOSMainService{
+	private class AuthenDevice extends MPOSMainService{
 		
 		private OnAuthenDeviceListener listener;
 		

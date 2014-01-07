@@ -13,7 +13,8 @@
     <LinearLayout
         android:id="@+id/billHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
 
         <TextView
             android:id="@+id/textView1"
@@ -92,7 +93,8 @@
     <LinearLayout
         android:id="@+id/productHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
 
         <TextView
             android:id="@+id/TextView02"
@@ -188,7 +190,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@drawable/white_layer" >
+        android:background="@drawable/white_layer"
+        android:visibility="gone" >
+
     </ListView>
+
+    <WebView
+        android:id="@+id/webView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>

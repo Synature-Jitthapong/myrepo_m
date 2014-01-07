@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
@@ -33,6 +35,8 @@ public class VoidBillActivity extends Activity {
 	private int mTransactionId;
 	private int mComputerId;
 	private int mStaffId;
+	private GlobalProperty mGlobalProp;
+	private Transaction mTransaction;
 	private List<OrderTransaction> mTransLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private BillAdapter mBillAdapter;
@@ -69,7 +73,7 @@ public class VoidBillActivity extends Activity {
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 	    
-	    btnBillDate.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendar.getTime()));
+	    btnBillDate.setText(mGlobalProp.dateFormat(mCalendar.getTime()));
 	    btnBillDate.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -81,7 +85,7 @@ public class VoidBillActivity extends Activity {
 						mCalendar.setTimeInMillis(date);
 						mDate = mCalendar.getTimeInMillis();
 						
-						btnBillDate.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendar.getTime()));
+						btnBillDate.setText(mGlobalProp.dateFormat(mCalendar.getTime()));
 					}
 				});
 				dialogFragment.show(getFragmentManager(), "Condition");
@@ -131,6 +135,8 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void init(){
+		mGlobalProp = new GlobalProperty(this);
+		mTransaction = new Transaction(this);
 		mTransLst = new ArrayList<OrderTransaction>();
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -150,7 +156,7 @@ public class VoidBillActivity extends Activity {
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
 				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = MPOSApplication.sGlobalVar.dateTimeFormat(c.getTime());
+				mReceiptDate = mGlobalProp.dateTimeFormat(c.getTime());
 				
 				mItemConfirm.setEnabled(true);
 				searchVoidItem();
@@ -216,7 +222,7 @@ public class VoidBillActivity extends Activity {
 			}
 			
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
-			holder.tvPaidTime.setText(MPOSApplication.sGlobalVar.dateTimeFormat(c.getTime()));
+			holder.tvPaidTime.setText(mGlobalProp.dateTimeFormat(c.getTime()));
 			
 			return convertView;
 		}
@@ -270,9 +276,9 @@ public class VoidBillActivity extends Activity {
 			}
 		
 			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(MPOSApplication.sGlobalVar.qtyFormat(order.getQty()));
-			holder.tvPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(order.getTotalRetailPrice()));
+			holder.tvQty.setText(mGlobalProp.qtyFormat(order.getQty()));
+			holder.tvPrice.setText(mGlobalProp.currencyFormat(order.getPricePerUnit()));
+			holder.tvTotalPrice.setText(mGlobalProp.currencyFormat(order.getTotalRetailPrice()));
 			
 			return convertView;
 		}
@@ -286,7 +292,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void searchBill(){
-		mTransLst = GlobalVar.sTransaction.listTransaction(mDate);
+		mTransLst = mTransaction.listTransaction(mDate);
 		mBillAdapter.notifyDataSetChanged();
 	}
 	
@@ -294,7 +300,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText(mReceiptNo);
 		txtReceiptDate.setText(mReceiptDate);
 		
-		mOrderLst = GlobalVar.sTransaction.listAllOrder(mTransactionId, mComputerId);
+		mOrderLst = mTransaction.listAllOrder(mTransactionId, mComputerId);
 		mBillDetailAdapter.notifyDataSetChanged();
 	}
 
@@ -319,7 +325,7 @@ public class VoidBillActivity extends Activity {
 			public void onClick(DialogInterface dialog, int which) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					if(GlobalVar.sTransaction.voidTransaction(mTransactionId,
+					if(mTransaction.voidTransaction(mTransactionId,
 							mComputerId, mStaffId, voidReason)){
 						
 						mTransLst = null;

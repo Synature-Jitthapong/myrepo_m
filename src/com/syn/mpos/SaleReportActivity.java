@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 
+import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.Reporting;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.pos.Report;
@@ -20,6 +21,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
@@ -30,7 +33,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 public class SaleReportActivity extends Activity implements OnClickListener{
-	//private static final String TAG = "SaleReportActivity";	 
+	//private static final String TAG = "SaleReportActivity";	
+	private GlobalProperty mGlobalProp;
 	private Reporting mReporting;
 	private Report mReport;
 	private BillReportAdapter mReportAdapter;
@@ -45,6 +49,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	private Spinner mSpReportType;
 	private LinearLayout mBillHeader;
 	private LinearLayout mProductHeader;
+	private WebView mWebView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +60,11 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mBillHeader = (LinearLayout) findViewById(R.id.billHeader);
 		mProductHeader = (LinearLayout) findViewById(R.id.productHeader);
 		mLvReport = (ListView) findViewById(R.id.lvReport); 
+		mWebView = (WebView) findViewById(R.id.webView1);
 		
+		mWebView.loadUrl("http://1.1.0.20/mpos");
+
+		mGlobalProp = new GlobalProperty(this);
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -136,8 +145,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mSpReportType = (Spinner) mReportTypeItem.getActionView().findViewById(R.id.spinner1);
 		mBtnDateFrom = (Button) mConditionItem.getActionView().findViewById(R.id.btnDateFrom);
 		mBtnDateTo = (Button) mConditionItem.getActionView().findViewById(R.id.btnDateTo);
-		mBtnDateFrom.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendar.getTime()));
-		mBtnDateTo.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendar.getTime()));
+		mBtnDateFrom.setText(mGlobalProp.dateFormat(mCalendar.getTime()));
+		mBtnDateTo.setText(mGlobalProp.dateFormat(mCalendar.getTime()));
 		mBtnDateFrom.setOnClickListener(this);
 		mBtnDateTo.setOnClickListener(this);
 		mSpReportType.setOnItemSelectedListener(new OnItemSelectedListener(){
@@ -226,12 +235,12 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			float subTotal = reportDetail.getSubTotal();
 			
 			holder.mTvReceipt.setText(reportDetail.getReceiptNo());
-			holder.mTvTotalPrice.setText(MPOSApplication.sGlobalVar.currencyFormat(totalPrice));
-			holder.mTvDiscount.setText(MPOSApplication.sGlobalVar.currencyFormat(totalDiscount));
-			holder.mTvSubTotal.setText(MPOSApplication.sGlobalVar.currencyFormat(subTotal));
-			holder.mTvVatable.setText(MPOSApplication.sGlobalVar.currencyFormat(vatable));
-			holder.mTvTotalVat.setText(MPOSApplication.sGlobalVar.currencyFormat(totalVat));
-			holder.mTvTotalPayment.setText(MPOSApplication.sGlobalVar.currencyFormat(
+			holder.mTvTotalPrice.setText(mGlobalProp.currencyFormat(totalPrice));
+			holder.mTvDiscount.setText(mGlobalProp.currencyFormat(totalDiscount));
+			holder.mTvSubTotal.setText(mGlobalProp.currencyFormat(subTotal));
+			holder.mTvVatable.setText(mGlobalProp.currencyFormat(vatable));
+			holder.mTvTotalVat.setText(mGlobalProp.currencyFormat(totalVat));
+			holder.mTvTotalPayment.setText(mGlobalProp.currencyFormat(
 					mPaymentDetail.getTotalPaid(reportDetail.getTransactionId(), 
 							reportDetail.getComputerId())));
 			
@@ -264,7 +273,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 					mCalendar.setTimeInMillis(date);
 					mDateFrom = mCalendar.getTimeInMillis();
 					
-					mBtnDateFrom.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendar.getTime()));
+					mBtnDateFrom.setText(mGlobalProp.dateFormat(mCalendar.getTime()));
 				}
 			});
 			dialogFragment.show(getFragmentManager(), "Condition");
@@ -277,7 +286,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 					mCalendar.setTimeInMillis(date);
 					mDateTo = mCalendar.getTimeInMillis();
 					
-					mBtnDateTo.setText(MPOSApplication.sGlobalVar.dateFormat(mCalendar.getTime()));
+					mBtnDateTo.setText(mGlobalProp.dateFormat(mCalendar.getTime()));
 				}
 			});
 			dialogFragment.show(getFragmentManager(), "Condition");

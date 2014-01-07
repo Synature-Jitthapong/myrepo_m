@@ -559,7 +559,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COL_OPEN_TIME, dateTime.getTimeInMillis());
 		cv.put(COL_SALE_DATE, date.getTimeInMillis());
 		cv.put(COL_RECEIPT_YEAR, dateTime.get(Calendar.YEAR));
-		cv.put(COL_RECEIPT_MONTH, dateTime.get(Calendar.MONTH));
+		cv.put(COL_RECEIPT_MONTH, dateTime.get(Calendar.MONTH) + 1);
 		
 		open();
 		try {
@@ -577,7 +577,7 @@ public class Transaction extends MPOSDatabase {
 		boolean isSuccess = false;
 		Calendar calendar = Util.getDateTime();
 		int receiptId = getMaxReceiptId(computerId,
-				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH));
+				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1);
 		SaleStock stock = new SaleStock(mContext);
 		String receiptHeader = stock.getDocumentHeader(8); 
 		open();
@@ -589,7 +589,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COL_PAID_STAFF_ID, staffId);
 		cv.put(COL_CLOSE_STAFF, staffId);
 		cv.put(COL_RECEIPT_NO, formatReceiptNo(receiptHeader, 
-				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), receiptId));
+				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, receiptId));
 		int affectRow = mSqlite.update(TB_TRANS, cv, COL_TRANS_ID + "=?"
 				+ " AND " + Computer.COL_COMPUTER_ID + "=?", 
 				new String[]{String.valueOf(transactionId), String.valueOf(computerId)});
@@ -946,11 +946,11 @@ public class Transaction extends MPOSDatabase {
 				"SELECT COUNT (" + Transaction.COL_TRANS_ID + ") "
 						+ " FROM " + Transaction.TB_TRANS 
 						+ " WHERE " + Transaction.COL_SALE_DATE + "=? "
-						+ " AND " + Transaction.COL_STATUS_ID + " IN ?", 
+						+ " AND " + Transaction.COL_STATUS_ID + " IN (?,?)", 
 				new String[]{
 						sessionDate,
-						String.valueOf("(" + Transaction.TRANS_STATUS_SUCCESS + ", " + 
-						Transaction.TRANS_STATUS_VOID + ")")
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS), 
+						String.valueOf(Transaction.TRANS_STATUS_VOID)
 				});
 		if(cursor.moveToFirst()){
 			totalReceipt = cursor.getInt(0);

@@ -1,9 +1,0 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
-    <item
-        android:id="@+id/itemDateCondition"
-        android:showAsAction="always"
-        android:actionLayout="@layout/date_condition"/>
-    <item android:id="@+id/itemViewStock" android:title="@string/view_stock" android:showAsAction="always|withText"></item>
-
-</menu>
