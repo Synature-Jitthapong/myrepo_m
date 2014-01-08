@@ -102,8 +102,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mSessionId = intent.getIntExtra("sessionId", 0);
-		mShopId = intent.getIntExtra("shopId", 0);
-		mComputerId = intent.getIntExtra("computerId", 0);
+		mShopId = GlobalVar.getShopId(this);
+		mComputerId = GlobalVar.getComputerId(this);
 		
 		mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 		mPager = (ViewPager) findViewById(R.id.pager);
@@ -650,8 +650,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				MPOSUtil.doEndday(MainActivity.this, mSessionId, 
-						mComputerId, mStaffId, 0.0f, true, new MPOSUtil.OnEnddayListener() {
+				MPOSUtil.OnEnddayListener onEnddayListener = 
+						new MPOSUtil.OnEnddayListener() {
 							
 							@Override
 							public void enddaySuccess() {
@@ -664,7 +664,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 									public void onClick(DialogInterface dialog, int which) {
 										finish();
 									}
-								});
+								}).show();
 							}
 							
 							@Override
@@ -676,10 +676,12 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
 									}
-								})
-								.show();
+								}).show();
 							}
-						});
+						};
+						
+				MPOSUtil.doEndday(MainActivity.this, mComputerId, 
+						mSessionId, mStaffId, 0.0f, true, onEnddayListener);
 			}
 		}).show();
 	}

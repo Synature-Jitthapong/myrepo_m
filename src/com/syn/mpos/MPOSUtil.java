@@ -1,8 +1,8 @@
 package com.syn.mpos;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -10,39 +10,63 @@ import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.database.SaleTransaction;
 import com.syn.mpos.database.SyncSaleLog;
-import com.syn.mpos.database.Util;
 import com.syn.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.syn.mpos.database.transaction.Session;
 import com.syn.mpos.database.transaction.Transaction;
 
 public class MPOSUtil {
 	
-	public static void doEndday(Context c, int sessionId, int computerId, int closeStaffId,
-			float closeAmount, boolean isEndday, final OnEnddayListener listener){
+	public static void doEndday(final Context c, int computerId, 
+			int sessionId, final int closeStaffId, float closeAmount, 
+			boolean isEndday, final OnEnddayListener listener){
 		
 		Session sess = new Session(c);
 		Transaction trans = new Transaction(c);
 		
-		if(sess.closeSession(sessionId, computerId, closeStaffId, closeAmount, isEndday)){
-			String sessionDate = sess.getSessionDate(sessionId, computerId);
+		if(sess.closeSession(sessionId, computerId, 
+				closeStaffId, closeAmount, isEndday)){
+			String enddayDate = sess.getSessionDate(sessionId, computerId);
 		
-			sess.addSessionEnddayDetail(sessionDate, trans.getTotalReceipt(sessionDate), 
-					trans.getTotalReceiptAmount(sessionDate));
+			sess.addSessionEnddayDetail(enddayDate, 
+					trans.getTotalReceipt(enddayDate),
+					trans.getTotalReceiptAmount(enddayDate));
 			
+			final SyncSaleLog syncLog = new SyncSaleLog(c);
 			// add sync log
-			SyncSaleLog syncLog = new SyncSaleLog(c);
-			syncLog.addSyncSaleLog(sessionDate);
+			syncLog.addSyncSaleLog(enddayDate);
 			
-			new LoadSaleTransactionTask(c, Util.getDate().getTimeInMillis(), new LoadSaleTransactionListener(){
+			LoadSaleTransactionListener loadSaleListener = 
+					new LoadSaleTransactionListener(){
 
 				@Override
-				public void loadSuccess(POSData_SaleTransaction saleTrans) {
+				public void loadSuccess(POSData_SaleTransaction saleTrans, final String sessionDate) {
 					JSONUtil jsonUtil = new JSONUtil();
-					Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
-					String saleJson = jsonUtil.toJson(type, saleTrans);
+					Type type = 
+							new TypeToken<POSData_SaleTransaction>() {}.getType();
+					String jsonSale = jsonUtil.toJson(type, saleTrans);
 					//Log.v("SaleTrans", saleJson);
 					
-					listener.enddaySuccess();
+					MPOSService.OnServiceProcessListener sendSaleServiceListener = 
+							new MPOSService.OnServiceProcessListener() {
+								
+								@Override
+								public void onSuccess() {
+									syncLog.updateSyncSaleLog(sessionDate, 
+											SyncSaleLog.SYNC_SUCCESS);
+									listener.enddaySuccess();
+								}
+								
+								@Override
+								public void onError(String mesg) {
+									syncLog.updateSyncSaleLog(sessionDate, 
+											SyncSaleLog.SYNC_FAIL);
+									listener.enddayFail(mesg);
+								}
+					};
+					
+					MPOSService service = new MPOSService(c);
+					service.sendSaleDataTransaction(c, closeStaffId, 
+							jsonSale, sendSaleServiceListener);
 				}
 
 				@Override
@@ -50,8 +74,17 @@ public class MPOSUtil {
 					listener.enddayFail(mesg);
 				}
 				
-			}).execute();
-		};
+			};
+			
+			// loop load sale by date that not successfully sync
+			List<String> dateLst = syncLog.listSessionDate();
+			if(dateLst != null){
+				for(String date : dateLst){
+					new LoadSaleTransactionTask(c, 
+							date, loadSaleListener).execute();
+				}
+			}
+		}
 	}
 	
 	public static interface OnEnddayListener{
@@ -64,35 +97,24 @@ public class MPOSUtil {
 
 		private LoadSaleTransactionListener mListener;
 		private SaleTransaction mSaleTrans;
-		private Context mContext;
-		private ProgressDialog mProgress;
+		private String mSessionDate;
 		
-		public LoadSaleTransactionTask(Context c, long sessionDate, 
+		public LoadSaleTransactionTask(Context c, String sessionDate, 
 				LoadSaleTransactionListener listener){
-			mContext = c;
 			mListener = listener;
 			mSaleTrans = new SaleTransaction(c, sessionDate);
-			mProgress = new ProgressDialog(c);
+			mSessionDate = sessionDate;
 		}
 		
 		@Override
 		protected void onPostExecute(POSData_SaleTransaction saleTrans) {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			
 			if(saleTrans != null){
-				mListener.loadSuccess(saleTrans);
+				mListener.loadSuccess(saleTrans, mSessionDate);
 			}else{
 				mListener.loadFail("");
 			}
 		}
-
-		@Override
-		protected void onPreExecute() {
-			mProgress.setMessage(mContext.getString(R.string.load_sale_trans_progress));
-			mProgress.show();
-		}
-
+		
 		@Override
 		protected POSData_SaleTransaction doInBackground(Void... params) {
 			return mSaleTrans.listSaleTransaction();
@@ -100,7 +122,7 @@ public class MPOSUtil {
 	}
 	
 	public static interface LoadSaleTransactionListener{
-		void loadSuccess(POSData_SaleTransaction saleTrans);
+		void loadSuccess(POSData_SaleTransaction saleTrans, String sessionDate);
 		void loadFail(String mesg);
 	}
 }

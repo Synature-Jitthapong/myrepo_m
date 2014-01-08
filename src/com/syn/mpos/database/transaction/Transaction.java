@@ -419,14 +419,12 @@ public class Transaction extends MPOSDatabase {
 				" a." + COL_RECEIPT_YEAR + ", " +
 				" a." + COL_RECEIPT_MONTH + ", " +
 				" a." + COL_RECEIPT_ID + ", " +
-				" b." + StockDocument.COL_DOC_TYPE_HEADER + ", " +
-				" c." + Staff.COL_STAFF_CODE + ", " +
-				" c." + Staff.COL_STAFF_NAME + 
-				" FROM " + TB_TRANS + " a " +
-				" LEFT JOIN " + StockDocument.TB_DOCUMENT_TYPE + " b " +
-				" ON a." + StockDocument.COL_DOC_TYPE + "=b." + StockDocument.COL_DOC_TYPE + 
-				" LEFT JOIN " + Staff.TB_STAFF + " c " + 
-				" ON a." + COL_OPEN_STAFF + "=c." + Staff.COL_STAFF_ID +
+				" a." + COL_RECEIPT_NO + ", " +
+				" b." + Staff.COL_STAFF_CODE + ", " +
+				" b." + Staff.COL_STAFF_NAME + 
+				" FROM " + TB_TRANS + " a " + 
+				" LEFT JOIN " + Staff.TB_STAFF + " b " + 
+				" ON a." + COL_OPEN_STAFF + "=b." + Staff.COL_STAFF_ID +
 				" WHERE a." + COL_SALE_DATE + "=?" + 
 				" AND a." + COL_STATUS_ID + "=?", 
 				new String[]{String.valueOf(saleDate), String.valueOf(TRANS_STATUS_SUCCESS)});
@@ -934,7 +932,7 @@ public class Transaction extends MPOSDatabase {
 				new String[]{String.valueOf(transactionId), 
 				String.valueOf(computerId)});
 		if(affectRow > 0)
-			isSuccess = false;
+			isSuccess = true;
 		close();
 		return isSuccess;
 	}

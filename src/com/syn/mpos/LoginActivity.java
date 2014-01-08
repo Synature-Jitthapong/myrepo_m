@@ -25,13 +25,10 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends Activity {
-	private String mDeviceCode;
 	private int mShopId;
 	private int mComputerId;
 	private int mSessionId;
 	private Session mSession;
-	private Shop mShop;
-	private Computer mComputer;
 	private EditText mTxtUser;
 	private EditText mTxtPass;
 	
@@ -44,9 +41,6 @@ public class LoginActivity extends Activity {
 		mTxtPass = (EditText) findViewById(R.id.txtPass);
 		mTxtUser.setSelectAllOnFocus(true);
 		mTxtPass.setSelectAllOnFocus(true);
-		
-		mDeviceCode = Secure.getString(this.getContentResolver(),
-				Secure.ANDROID_ID);
 		
 		mTxtUser.setText("1");
 		mTxtPass.setText("1");
@@ -66,11 +60,9 @@ public class LoginActivity extends Activity {
 	}
 
 	private void init(){
-		mShop = new Shop(this);
-		mComputer = new Computer(this);
 		mSession = new Session(this);
-		mShopId = mShop.getShopProperty().getShopID();
-		mComputerId = mComputer.getComputerProperty().getComputerID();
+		mShopId = GlobalVar.getShopId(this);
+		mComputerId = GlobalVar.getComputerId(this);
 
 		SharedPreferences sharedPref = 
 				PreferenceManager.getDefaultSharedPreferences(this);
@@ -134,13 +126,13 @@ public class LoginActivity extends Activity {
 	public void loginClicked(final View v){
 		final MPOSService mposService = new MPOSService(this);
 		if(mShopId == 0){
-			mposService.loadShopData(mDeviceCode, new MPOSService.OnServiceProcessListener() {
+			mposService.loadShopData(new MPOSService.OnServiceProcessListener() {
 				
 				@Override
 				public void onSuccess() {
-					mShopId = mShop.getShopProperty().getShopID();
-					mComputerId = mComputer.getComputerProperty().getComputerID();
-					mposService.loadProductData(mShopId, mDeviceCode, mServiceStateListener);
+					mShopId = GlobalVar.getShopId(LoginActivity.this);
+					mComputerId = GlobalVar.getComputerId(LoginActivity.this);
+					mposService.loadProductData(mServiceStateListener);
 				}
 				
 				@Override

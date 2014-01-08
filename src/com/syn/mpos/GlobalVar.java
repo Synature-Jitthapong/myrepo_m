@@ -2,9 +2,14 @@ package com.syn.mpos;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import com.syn.mpos.database.Computer;
+import com.syn.mpos.database.Shop;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.provider.Settings.Secure;
 
 public class GlobalVar {
 	// sqlite db name 
@@ -21,6 +26,21 @@ public class GlobalVar {
 	
 	// server image path
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
+	
+	public static int getComputerId(Context c){
+		Computer comp = new Computer(c);
+		return comp.getComputerProperty().getComputerID();
+	}
+	
+	public static int getShopId(Context c){
+		Shop s = new Shop(c);
+		return s.getShopProperty().getShopID();
+	}
+	
+	public static String getDeviceCode(Context c){
+		return Secure.getString(c.getContentResolver(),
+				Secure.ANDROID_ID);
+	}
 	
 	public static String getPrinterIp(Context c){
 		SharedPreferences sharedPref = 

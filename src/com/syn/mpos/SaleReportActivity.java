@@ -49,7 +49,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	private Spinner mSpReportType;
 	private LinearLayout mBillHeader;
 	private LinearLayout mProductHeader;
-	private WebView mWebView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +59,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mBillHeader = (LinearLayout) findViewById(R.id.billHeader);
 		mProductHeader = (LinearLayout) findViewById(R.id.productHeader);
 		mLvReport = (ListView) findViewById(R.id.lvReport); 
-		mWebView = (WebView) findViewById(R.id.webView1);
-		
-		mWebView.loadUrl("http://1.1.0.20/mpos");
 
 		mGlobalProp = new GlobalProperty(this);
 		Calendar c = Calendar.getInstance();

@@ -14,9 +14,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class SaleTransaction {
 	private Context mContext;
-	private long mSessionDate;
+	private String mSessionDate;
 	
-	public SaleTransaction(Context c, long sessionDate){
+	public SaleTransaction(Context c, String sessionDate){
 		mContext = c;
 		mSessionDate = sessionDate;
 	}
@@ -42,13 +42,13 @@ public class SaleTransaction {
 	 * }
 	 */
 	private List<SaleData_SaleTransaction> buildSaleTransLst(){
-		List<SaleData_SaleTransaction> saleTransLst = null;
+		List<SaleData_SaleTransaction> saleTransLst = 
+				new ArrayList<SaleData_SaleTransaction>();;
 		Transaction trans = new Transaction(mContext);
 		trans.open();
 		Cursor cursor = queryTransaction(trans.mSqlite);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
-				saleTransLst = new ArrayList<SaleData_SaleTransaction>();
 				do{
 					SaleData_SaleTransaction saleTrans = new SaleData_SaleTransaction();
 					SaleTable_OrderTransaction orderTrans = new SaleTable_OrderTransaction();
@@ -98,11 +98,10 @@ public class SaleTransaction {
 	
 	// build PaymentDetailLst
 	public List<SaleTable_PaymentDetail> buildPaymentDetailLst(SQLiteDatabase sqlite, int transId){
-		List<SaleTable_PaymentDetail> paymentDetailLst = null;
+		List<SaleTable_PaymentDetail> paymentDetailLst = new ArrayList<SaleTable_PaymentDetail>();
 		Cursor cursor = queryPaymentDetail(sqlite, transId);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
-				paymentDetailLst = new ArrayList<SaleTable_PaymentDetail>();
 				do{
 					SaleTable_PaymentDetail payment = new SaleTable_PaymentDetail();
 					payment.setiPaymentDetailID(cursor.getInt(cursor.getColumnIndex(PaymentDetail.COL_PAY_ID)));
@@ -125,11 +124,10 @@ public class SaleTransaction {
 	
 	// build OrderDetailLst
 	public List<SaleTable_OrderDetail> buildOrderDetailLst(SQLiteDatabase sqlite, int transId){
-		List<SaleTable_OrderDetail> orderDetailLst = null;
+		List<SaleTable_OrderDetail> orderDetailLst = new ArrayList<SaleTable_OrderDetail>();
 		Cursor cursor = queryOrderDetail(sqlite, transId);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
-				orderDetailLst = new ArrayList<SaleTable_OrderDetail>();
 				do{
 					SaleTable_OrderDetail order = new SaleTable_OrderDetail();
 					order.setiOrderDetailID(cursor.getInt(cursor.getColumnIndex(Transaction.COL_ORDER_ID)));
@@ -153,14 +151,13 @@ public class SaleTransaction {
 	}
 	
 	public SaleTable_SessionEndDay buildSessEnddayObj(){
-		SaleTable_SessionEndDay saleSessEnd = null;
+		SaleTable_SessionEndDay saleSessEnd = new SaleTable_SessionEndDay();
 		Session sess = new Session(mContext);
 		sess.open();
 		Cursor cursor = querySessionEndday(sess.mSqlite);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{
-					saleSessEnd = new SaleTable_SessionEndDay();
 					saleSessEnd.setDtSessionDate(
 							Util.dateTimeFormat(cursor.getString(
 									cursor.getColumnIndex(Session.COL_SESS_DATE)), "yyyy-MM-dd"));
@@ -178,14 +175,13 @@ public class SaleTransaction {
 	}
 	
 	public SaleTable_Session buildSessionObj(){
-		SaleTable_Session saleSess = null;
+		SaleTable_Session saleSess = new SaleTable_Session();
 		Session sess = new Session(mContext);
 		sess.open();
 		Cursor cursor = querySession(sess.mSqlite);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{
-					saleSess = new SaleTable_Session();
 					saleSess.setiSessionID(cursor.getInt(cursor.getColumnIndex(Session.COL_SESS_ID)));
 					saleSess.setiComputerID(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
 					saleSess.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
@@ -230,10 +226,11 @@ public class SaleTransaction {
 		return sqlite.rawQuery("SELECT * "
 				+ " FROM " + Transaction.TB_TRANS
 				+ " WHERE " + Transaction.COL_SALE_DATE + "=?"
-				+ " AND " + Transaction.COL_STATUS_ID + "=?"
+				+ " AND " + Transaction.COL_STATUS_ID + " IN(?,?) "
 				+ " AND " + MPOSDatabase.COL_SEND_STATUS + "=?", 
 				new String[]{String.valueOf(mSessionDate), 
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID),
 						String.valueOf(MPOSDatabase.NOT_SEND)});
 	}
 	

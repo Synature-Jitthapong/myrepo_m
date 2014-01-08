@@ -1,5 +1,6 @@
 package com.syn.mpos.database;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,9 +44,8 @@ public class GlobalProperty extends MPOSDatabase{
 	}
 	
 	public String dateFormat(Date d){
-		SimpleDateFormat dateFormat = 
-				new SimpleDateFormat("yyyy/MM-dd", Locale.getDefault());
-		if(getGlobalProperty().getDateFormat().equals(""))
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+		if(!getGlobalProperty().getDateFormat().equals(""))
 			dateFormat.applyPattern(getGlobalProperty().getDateFormat());
 		return dateFormat.format(d);	
 	}
@@ -57,8 +57,7 @@ public class GlobalProperty extends MPOSDatabase{
 	}
 	
 	public String dateTimeFormat(Date d){
-		SimpleDateFormat dateTimeFormat = 
-				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
 		if(!getGlobalProperty().getDateFormat().equals("") && 
 				!getGlobalProperty().getTimeFormat().equals(""))
 			dateTimeFormat.applyPattern(getGlobalProperty().getDateFormat() + " " +

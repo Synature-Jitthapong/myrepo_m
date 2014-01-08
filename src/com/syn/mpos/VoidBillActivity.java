@@ -72,7 +72,8 @@ public class VoidBillActivity extends Activity {
 		mLvBillDetail = (ListView) findViewById(R.id.lvBillDetail);
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
-	    
+
+		mGlobalProp = new GlobalProperty(this);
 	    btnBillDate.setText(mGlobalProp.dateFormat(mCalendar.getTime()));
 	    btnBillDate.setOnClickListener(new OnClickListener(){
 
@@ -101,6 +102,25 @@ public class VoidBillActivity extends Activity {
 	    	
 	    });
 	    
+		mLvBill.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View v, int position,
+					long id) {
+				Calendar c = Calendar.getInstance();
+				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
+				c.setTimeInMillis(trans.getPaidTime());
+				
+				mTransactionId = trans.getTransactionId();
+				mComputerId = trans.getComputerId();
+				mReceiptNo = trans.getReceiptNo();
+				mReceiptDate = mGlobalProp.dateTimeFormat(c.getTime());
+				
+				mItemConfirm.setEnabled(true);
+				searchVoidItem();
+			}
+		});
+		
 	    Intent intent = getIntent();
 	    mStaffId = intent.getIntExtra("staffId", 0);
 	    init();
@@ -135,7 +155,6 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void init(){
-		mGlobalProp = new GlobalProperty(this);
 		mTransaction = new Transaction(this);
 		mTransLst = new ArrayList<OrderTransaction>();
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
@@ -143,25 +162,8 @@ public class VoidBillActivity extends Activity {
 		mBillDetailAdapter = new BillDetailAdapter();
 		mLvBill.setAdapter(mBillAdapter);
 		mLvBillDetail.setAdapter(mBillDetailAdapter);
-		
-		mLvBill.setOnItemClickListener(new OnItemClickListener(){
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View v, int position,
-					long id) {
-				Calendar c = Calendar.getInstance();
-				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
-				c.setTimeInMillis(trans.getPaidTime());
-				
-				mTransactionId = trans.getTransactionId();
-				mComputerId = trans.getComputerId();
-				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = mGlobalProp.dateTimeFormat(c.getTime());
-				
-				mItemConfirm.setEnabled(true);
-				searchVoidItem();
-			}
-		});
+		txtReceiptNo.setText("");
+		txtReceiptDate.setText("");
 	}
 	
 	private class BillAdapter extends BaseAdapter{
@@ -179,20 +181,6 @@ public class VoidBillActivity extends Activity {
 		@Override
 		public long getItemId(int position) {
 			return position;
-		}
-
-		@Override
-		public void notifyDataSetChanged() {
-			mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
-			mBillDetailAdapter.notifyDataSetChanged();
-			mReceiptNo = "";
-			mReceiptDate = "";
-			txtReceiptNo.setText(mReceiptNo);
-			txtReceiptDate.setText(mReceiptDate);
-			
-			mItemConfirm.setEnabled(false);
-			
-			super.notifyDataSetChanged();
 		}
 
 		@Override
@@ -328,10 +316,8 @@ public class VoidBillActivity extends Activity {
 					if(mTransaction.voidTransaction(mTransactionId,
 							mComputerId, mStaffId, voidReason)){
 						
-						mTransLst = null;
-						mOrderLst = null;
-						mBillAdapter.notifyDataSetChanged();
-						mBillDetailAdapter.notifyDataSetChanged();
+						mItemConfirm.setEnabled(false);
+						init();
 					}
 				}else{
 					new AlertDialog.Builder(getApplicationContext())

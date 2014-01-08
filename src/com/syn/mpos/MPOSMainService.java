@@ -15,12 +15,18 @@ public class MPOSMainService extends DotNetWebServiceTask{
 	public static final String SEND_SALE_TRANS_METHOD = "WSmPOS_JSON_SendSaleTransactionData";
 	public static final String SEND_STOCK_METHOD = "WSmPOS_JSON_SendInventoryDocumentData";
 	
-	public MPOSMainService(Context c, String deviceCode, String method) {
+	public static final String SHOP_ID_PARAM = "iShopID";
+	public static final String COMPUTER_ID_PARAM = "iComputerID";
+	public static final String STAFF_ID_PARAM = "iStaffID";
+	public static final String DEVICE_CODE_PARAM = "szDeviceCode";
+	public static final String JSON_SALE_PARAM = "szJsonSaleTransData";
+	
+	public MPOSMainService(Context c, String method) {
 		super(c, method);
 		
 		property = new PropertyInfo();
-		property.setName("szDeviceCode");
-		property.setValue(deviceCode);
+		property.setName(DEVICE_CODE_PARAM);
+		property.setValue(GlobalVar.getDeviceCode(c));
 		property.setType(String.class);
 		soapRequest.addProperty(property);
 	}
