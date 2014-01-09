@@ -49,7 +49,6 @@ public class MenuPageFragment extends Fragment {
 				GlobalVar.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		mProductLst = mProduct.listProduct(mDeptId);
 		mAdapter = new MenuItemAdapter();
-		
 	}
 
 	@Override
@@ -122,10 +121,11 @@ public class MenuPageFragment extends Fragment {
 			
 			holder.tvMenu.setText(p.getProductName());
 			if(p.getProductPrice() < 0)
-				holder.tvPrice.setVisibility(View.GONE);
+				holder.tvPrice.setVisibility(View.INVISIBLE);
 			else
 				holder.tvPrice.setText(mGlobalProp.currencyFormat(p.getProductPrice()));
-			//mImgLoader.displayImage(GlobalVar.getImageUrl(getActivity()) + p.getImgUrl(), holder.imgMenu);
+			
+			mImgLoader.displayImage(GlobalVar.getImageUrl(getActivity()) + p.getImgUrl(), holder.imgMenu);
 			return convertView;
 		}
 	}

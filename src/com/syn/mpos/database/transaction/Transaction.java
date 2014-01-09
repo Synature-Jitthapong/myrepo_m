@@ -937,7 +937,7 @@ public class Transaction extends MPOSDatabase {
 		return isSuccess;
 	}
 	
-	public int getTotalReceipt(String sessionDate){
+	public int getTotalReceipt(long sessionDate){
 		int totalReceipt = 0;
 		open();
 		Cursor cursor = mSqlite.rawQuery(
@@ -946,7 +946,7 @@ public class Transaction extends MPOSDatabase {
 						+ " WHERE " + Transaction.COL_SALE_DATE + "=? "
 						+ " AND " + Transaction.COL_STATUS_ID + " IN (?,?)", 
 				new String[]{
-						sessionDate,
+						String.valueOf(sessionDate),
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS), 
 						String.valueOf(Transaction.TRANS_STATUS_VOID)
 				});
@@ -958,7 +958,7 @@ public class Transaction extends MPOSDatabase {
 		return totalReceipt;
 	}
 	
-	public float getTotalReceiptAmount( String sessionDate){
+	public float getTotalReceiptAmount(long sessionDate){
 		float totalReceiptAmount = 0.0f;
 		open();
 		Cursor cursor = mSqlite.rawQuery(
@@ -967,7 +967,7 @@ public class Transaction extends MPOSDatabase {
 						+ " WHERE " + Transaction.COL_SALE_DATE + "=? "
 						+ " AND " + Transaction.COL_STATUS_ID + "=?", 
 				new String[]{
-						sessionDate,
+						String.valueOf(sessionDate),
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
 				});
 		if(cursor.moveToFirst()){

@@ -233,6 +233,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	
 	public void creditPayClicked(final View v){
 		Intent intent = new Intent(PaymentActivity.this, CreditPayActivity.class);
+		intent.putExtra("transactionId", mTransactionId);
+		intent.putExtra("computerId", mComputerId);
 		startActivity(intent);
 	}
 
@@ -475,6 +477,10 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		if(mTotalPaid >=sTotalSalePrice){
 			if(mTransaction.successTransaction(mTransactionId, 
 					mComputerId, mStaffId)){
+				
+				// send real time sale
+				MPOSUtil.sendRealTimeSale(this, mStaffId);
+				
 				float change = mTotalPaid - sTotalSalePrice;
 				print();
 				

@@ -21,8 +21,8 @@ public class SyncSaleLog extends MPOSDatabase{
 		super(c);
 	}
 	
-	public List<String> listSessionDate(){
-		List<String> sessionDateLst = null;
+	public List<Long> listSessionDate(){
+		List<Long> sessionDateLst = null;
 		
 		open();
 		Cursor cursor = mSqlite.rawQuery("SELECT * "
@@ -31,9 +31,9 @@ public class SyncSaleLog extends MPOSDatabase{
 				+ "=?", 
 				new String[]{String.valueOf(SYNC_FAIL)});
 		if(cursor.moveToFirst()){
-			sessionDateLst = new ArrayList<String>();
+			sessionDateLst = new ArrayList<Long>();
 			do{
-				String sessionDate = cursor.getString(cursor.getColumnIndex(Session.COL_SESS_DATE));
+				long sessionDate = cursor.getLong(cursor.getColumnIndex(Session.COL_SESS_DATE));
 				sessionDateLst.add(sessionDate);
 			}while(cursor.moveToNext());
 		}
@@ -42,19 +42,19 @@ public class SyncSaleLog extends MPOSDatabase{
 		return sessionDateLst;
 	}
 	
-	public String getSyncSaleSessionDate(String sessionDate){
+	public String getSyncSaleSessionDate(long sessionDate){
 		String syncDate = "";
 		Cursor cursor = mSqlite.query(TB_SYNC_SALE_LOG, 
 				new String[]{Session.COL_SESS_DATE}, 
 				Session.COL_SESS_DATE + "=?", 
-				new String[]{sessionDate}, null, null, null);
+				new String[]{String.valueOf(sessionDate)}, null, null, null);
 		if(cursor.moveToFirst()){
 			syncDate = cursor.getString(0);
 		}
 		return syncDate;
 	}
 	
-	public void updateSyncSaleLog(String sessionDate, int status){
+	public void updateSyncSaleLog(long sessionDate, int status){
 		open();
 		ContentValues cv = new ContentValues();
 		cv.put(COL_SYNC_STATUS, status);
@@ -64,7 +64,7 @@ public class SyncSaleLog extends MPOSDatabase{
 		close();
 	}
 	
-	public void addSyncSaleLog(String sessionDate) throws SQLException{
+	public void addSyncSaleLog(long sessionDate) throws SQLException{
 		open();
 		if(!getSyncSaleSessionDate(sessionDate).equals(sessionDate)){
 			ContentValues cv = new ContentValues();

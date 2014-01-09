@@ -10,11 +10,55 @@ import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.database.SaleTransaction;
 import com.syn.mpos.database.SyncSaleLog;
+import com.syn.mpos.database.Util;
 import com.syn.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.syn.mpos.database.transaction.Session;
 import com.syn.mpos.database.transaction.Transaction;
 
 public class MPOSUtil {
+	
+	public static void sendRealTimeSale(final Context c, final int staffId){
+		final LoadSaleTransactionListener loadSaleListener = 
+				new LoadSaleTransactionListener(){
+
+					@Override
+					public void loadSuccess(POSData_SaleTransaction saleTrans,
+							long sessionDate) {
+						
+						JSONUtil jsonUtil = new JSONUtil();
+						Type type = 
+								new TypeToken<POSData_SaleTransaction>() {}.getType();
+						String jsonSale = jsonUtil.toJson(type, saleTrans);
+						
+						MPOSService.OnServiceProcessListener sendSaleListener = 
+								new MPOSService.OnServiceProcessListener() {
+									
+									@Override
+									public void onSuccess() {
+										
+									}
+									
+									@Override
+									public void onError(String mesg) {
+										
+									}
+								};
+								
+						MPOSService service = new MPOSService(c);
+						service.sendPartialSaleTransaction(staffId, jsonSale, sendSaleListener);
+					}
+
+					@Override
+					public void loadFail(String mesg) {
+						// TODO Auto-generated method stub
+						
+					}
+			
+		};
+		
+		new LoadSaleTransactionTask(c, Util.getDate().getTimeInMillis(), 
+				loadSaleListener).execute();
+	}
 	
 	public static void doEndday(final Context c, int computerId, 
 			int sessionId, final int closeStaffId, float closeAmount, 
@@ -25,7 +69,7 @@ public class MPOSUtil {
 		
 		if(sess.closeSession(sessionId, computerId, 
 				closeStaffId, closeAmount, isEndday)){
-			String enddayDate = sess.getSessionDate(sessionId, computerId);
+			long enddayDate = sess.getSessionDate(sessionId, computerId);
 		
 			sess.addSessionEnddayDetail(enddayDate, 
 					trans.getTotalReceipt(enddayDate),
@@ -35,11 +79,11 @@ public class MPOSUtil {
 			// add sync log
 			syncLog.addSyncSaleLog(enddayDate);
 			
-			LoadSaleTransactionListener loadSaleListener = 
+			final LoadSaleTransactionListener loadSaleListener = 
 					new LoadSaleTransactionListener(){
 
 				@Override
-				public void loadSuccess(POSData_SaleTransaction saleTrans, final String sessionDate) {
+				public void loadSuccess(POSData_SaleTransaction saleTrans, final long sessionDate) {
 					JSONUtil jsonUtil = new JSONUtil();
 					Type type = 
 							new TypeToken<POSData_SaleTransaction>() {}.getType();
@@ -51,6 +95,7 @@ public class MPOSUtil {
 								
 								@Override
 								public void onSuccess() {
+									// update synclog
 									syncLog.updateSyncSaleLog(sessionDate, 
 											SyncSaleLog.SYNC_SUCCESS);
 									listener.enddaySuccess();
@@ -64,8 +109,9 @@ public class MPOSUtil {
 								}
 					};
 					
+					// send sale service
 					MPOSService service = new MPOSService(c);
-					service.sendSaleDataTransaction(c, closeStaffId, 
+					service.sendSaleDataTransaction(closeStaffId, 
 							jsonSale, sendSaleServiceListener);
 				}
 
@@ -77,11 +123,10 @@ public class MPOSUtil {
 			};
 			
 			// loop load sale by date that not successfully sync
-			List<String> dateLst = syncLog.listSessionDate();
+			List<Long> dateLst = syncLog.listSessionDate();
 			if(dateLst != null){
-				for(String date : dateLst){
-					new LoadSaleTransactionTask(c, 
-							date, loadSaleListener).execute();
+				for(long date : dateLst){
+					new LoadSaleTransactionTask(c, date, loadSaleListener).execute();
 				}
 			}
 		}
@@ -97,9 +142,9 @@ public class MPOSUtil {
 
 		private LoadSaleTransactionListener mListener;
 		private SaleTransaction mSaleTrans;
-		private String mSessionDate;
+		private long mSessionDate;
 		
-		public LoadSaleTransactionTask(Context c, String sessionDate, 
+		public LoadSaleTransactionTask(Context c, long sessionDate, 
 				LoadSaleTransactionListener listener){
 			mListener = listener;
 			mSaleTrans = new SaleTransaction(c, sessionDate);
@@ -122,7 +167,7 @@ public class MPOSUtil {
 	}
 	
 	public static interface LoadSaleTransactionListener{
-		void loadSuccess(POSData_SaleTransaction saleTrans, String sessionDate);
+		void loadSuccess(POSData_SaleTransaction saleTrans, long sessionDate);
 		void loadFail(String mesg);
 	}
 }

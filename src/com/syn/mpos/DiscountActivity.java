@@ -17,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -39,7 +40,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 
 public class DiscountActivity extends Activity implements OnEditorActionListener, 
-	OnCheckedChangeListener, OnClickListener{
+	OnCheckedChangeListener, OnFocusChangeListener, OnClickListener{
 	private static final String TAG = "DiscountActivity";
 	
 	private int mTransactionId;
@@ -106,21 +107,18 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				
 				mTvItemName.setText(mOrder.getProductName());
 				mTxtDiscount.setText(mGlobalProp.currencyFormat(mOrder.getPriceDiscount()));
-				mTxtDiscount.setSelectAllOnFocus(true);
-				mTxtDiscount.requestFocus();
 				if(mOrder.getDiscountType() == 2){
 					mTxtDiscount.setText(mGlobalProp.currencyFormat(
 							mOrder.getPriceDiscount() * 100 / mOrder.getTotalRetailPrice()));
 				}
 				mRdoDiscountType.check(mOrder.getDiscountType() == 1 ? R.id.rdoPrice : R.id.rdoPercent);
+				mTxtDiscount.requestFocus();
+				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(mTxtDiscount, InputMethodManager.SHOW_IMPLICIT);
+                
 				mItemInput.setVisible(true);
-				mItemInput.expandActionView();
 				mItemClose.setVisible(false);
 				mItemConfirm.setVisible(false);
-				
-				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(mTxtDiscount,
-                        InputMethodManager.SHOW_IMPLICIT);
 			}
 		});
 		loadOrder();
@@ -156,6 +154,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		
 		mTxtDiscount.setOnEditorActionListener(this);
 		mTxtDiscount.setSelectAllOnFocus(true);
+		mTxtDiscount.setOnFocusChangeListener(this);
 		mRdoDiscountType.setOnCheckedChangeListener(this);
 		mBtnDone.setOnClickListener(this);
 		return true;
@@ -375,6 +374,16 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		case R.id.btnDone:
 			mTxtDiscount.onEditorAction(EditorInfo.IME_ACTION_DONE);
 			break;
+		}
+	}
+
+	@Override
+	public void onFocusChange(View v, boolean hasFocus) {
+		if(v.getId() == R.id.txtDiscount){
+			if(!hasFocus){
+				InputMethodManager imm =  (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+			}
 		}
 	}
 }

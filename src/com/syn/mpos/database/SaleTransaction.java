@@ -14,9 +14,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class SaleTransaction {
 	private Context mContext;
-	private String mSessionDate;
+	private long mSessionDate;
 	
-	public SaleTransaction(Context c, String sessionDate){
+	public SaleTransaction(Context c, long sessionDate){
 		mContext = c;
 		mSessionDate = sessionDate;
 	}

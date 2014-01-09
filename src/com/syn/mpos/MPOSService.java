@@ -30,10 +30,16 @@ public class MPOSService {
 		mProgress.setCancelable(false);
 	}
 	
-	public void sendSaleDataTransaction(Context c, int staffId, 
+	public void sendPartialSaleTransaction(int staffId,
 			String jsonSale, OnServiceProcessListener listener){
-		new SendSaleTransactionTask(c, staffId, jsonSale, 
-				listener).execute(GlobalVar.getFullUrl(c));
+		new SendPartialSaleTransactionTask(mContext, staffId, jsonSale, 
+				listener).execute(GlobalVar.getFullUrl(mContext));
+	}
+	
+	public void sendSaleDataTransaction(int staffId, 
+			String jsonSale, OnServiceProcessListener listener){
+		new SendSaleTransactionTask(mContext, MPOSMainService.SEND_SALE_TRANS_METHOD,
+				staffId, jsonSale,listener).execute(GlobalVar.getFullUrl(mContext));
 	}
 	
 	public void loadShopData(final OnServiceProcessListener listener){
@@ -135,13 +141,26 @@ public class MPOSService {
 		// load menu
 	}
 	
+	private class SendPartialSaleTransactionTask extends SendSaleTransactionTask{
+
+		public SendPartialSaleTransactionTask(Context c, int staffId,
+				String jsonSale, OnServiceProcessListener listener) {
+			super(c, MPOSMainService.SEND_PARTIAL_SALE_TRANS_METHOD, 
+					staffId, jsonSale, listener);
+		}
+
+		@Override
+		protected void onPreExecute() {
+		}
+		
+	}
 	// send sale transaction
 	private class SendSaleTransactionTask extends MPOSMainService{
 		private OnServiceProcessListener mListener;
 		
-		public SendSaleTransactionTask(Context c, int staffId, String jsonSale, 
-				OnServiceProcessListener listener) {
-			super(c, SEND_SALE_TRANS_METHOD);
+		public SendSaleTransactionTask(Context c, String method, 
+				int staffId, String jsonSale, OnServiceProcessListener listener) {
+			super(c, method);
 			mListener = listener;
 
 			// shopId

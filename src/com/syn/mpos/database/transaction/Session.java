@@ -44,8 +44,8 @@ public class Session extends Transaction{
 		return isSuccess;
 	}
 
-	public String getSessionDate(int sessionId, int computerId){
-		String sessionDate = "";
+	public long getSessionDate(int sessionId, int computerId){
+		long sessionDate = 0;
 		open();
 		Cursor cursor = mSqlite.query(Session.TB_SESSION, 
 				new String[]{COL_SESS_DATE}, 
@@ -55,7 +55,7 @@ public class Session extends Transaction{
 				String.valueOf(computerId)}, null, null, null);
 		
 		if(cursor.moveToFirst()){
-			sessionDate = cursor.getString(0);
+			sessionDate = cursor.getLong(0);
 		}
 		cursor.close();
 		close();
@@ -106,7 +106,7 @@ public class Session extends Transaction{
 		return sessionId;
 	}
 
-	public boolean addSessionEnddayDetail(String sessionDate,
+	public boolean addSessionEnddayDetail(long sessionDate,
 			float totalQtyReceipt, float totalAmountReceipt) throws SQLException {
 		boolean isSuccess = false;
 		Calendar dateTime = Util.getDateTime();
