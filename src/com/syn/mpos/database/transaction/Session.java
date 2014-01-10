@@ -1,12 +1,9 @@
 package com.syn.mpos.database.transaction;
 
 import java.util.Calendar;
-
 import com.syn.mpos.database.Computer;
-import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Util;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -46,8 +43,7 @@ public class Session extends Transaction{
 
 	public long getSessionDate(int sessionId, int computerId){
 		long sessionDate = 0;
-		open();
-		Cursor cursor = mSqlite.query(Session.TB_SESSION, 
+		Cursor cursor = getDatabase().query(Session.TB_SESSION, 
 				new String[]{COL_SESS_DATE}, 
 				COL_SESS_ID + "=? AND " + 
 				Computer.COL_COMPUTER_ID + "=?", 
@@ -65,8 +61,7 @@ public class Session extends Transaction{
 	public int getMaxSessionId(int shopId, int computerId) {
 		int sessionId = 0;
 
-		open();
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getDatabase().rawQuery(
 				" SELECT MAX(" + COL_SESS_ID + ") " + 
 				" FROM " + TB_SESSION + 
 				" WHERE " + Shop.COL_SHOP_ID + "=" + shopId + 
@@ -95,9 +90,8 @@ public class Session extends Transaction{
 		cv.put(COL_OPEN_AMOUNT, openAmount);
 		cv.put(COL_IS_ENDDAY, 0);
 
-		open();
 		try {
-			mSqlite.insertOrThrow(TB_SESSION, null, cv);
+			getDatabase().insertOrThrow(TB_SESSION, null, cv);
 		} catch (Exception e) {
 			sessionId = 0;
 			e.printStackTrace();
@@ -117,9 +111,8 @@ public class Session extends Transaction{
 		cv.put(COL_TOTAL_QTY_RECEIPT, totalQtyReceipt);
 		cv.put(COL_TOTAL_AMOUNT_RECEIPT, totalAmountReceipt);
 
-		open();
 		try {
-			mSqlite.insertOrThrow(TB_SESSION_DETAIL, null, cv);
+			getDatabase().insertOrThrow(TB_SESSION_DETAIL, null, cv);
 			isSuccess = true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -132,14 +125,13 @@ public class Session extends Transaction{
 			int closeStaffId, float closeAmount, boolean isEndday){
 		boolean isSuccess = false;
 		Calendar dateTime = Util.getDateTime();
-		open();
 		ContentValues cv = new ContentValues();
 		cv.put(COL_CLOSE_STAFF, closeStaffId);
 		cv.put(COL_CLOSE_DATE, dateTime.getTimeInMillis());
 		cv.put(COL_CLOSE_AMOUNT, closeAmount);
 		cv.put(COL_IS_ENDDAY, isEndday == true ? 1 : 0);
 		
-		int affectRow = mSqlite.update(TB_SESSION, cv, 
+		int affectRow = getDatabase().update(TB_SESSION, cv, 
 				COL_SESS_ID + "=? AND " + 
 				Computer.COL_COMPUTER_ID + "=?", 
 				new String[]{String.valueOf(sessionId), 
@@ -153,8 +145,7 @@ public class Session extends Transaction{
 	public int getCurrentSession(int shopId, int computerId) {
 		int sessionId = 0;
 
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT " + COL_SESS_ID + 
+		Cursor cursor = getDatabase().rawQuery("SELECT " + COL_SESS_ID + 
 				" FROM " + TB_SESSION +
 				" WHERE " + Shop.COL_SHOP_ID + "=" + shopId + 
 				" AND " + Computer.COL_COMPUTER_ID + "=" + computerId +

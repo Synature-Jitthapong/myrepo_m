@@ -37,8 +37,7 @@ public class StockCard extends MPOSDatabase{
 					" LEFT JOIN " + Products.TB_PRODUCT + " b " +
 					" ON a." + Products.COL_PRODUCT_ID + "=b" + Products.COL_PRODUCT_ID;
 			
-			open();
-			Cursor cursor = mSqlite.rawQuery(strSql, null);
+			Cursor cursor = getDatabase().rawQuery(strSql, null);
 			if(cursor.moveToFirst()){
 				do{
 					StockProduct mat = new StockProduct();
@@ -126,10 +125,9 @@ public class StockCard extends MPOSDatabase{
 					" GROUP BY b.product_id ) " +
 					" FROM products p " +
 					" WHERE p.activated=1";
-			
-			open();
+		
 			try {
-				mSqlite.execSQL(strSql);
+				getDatabase().execSQL(strSql);
 				isSuccess = true;
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -145,10 +143,9 @@ public class StockCard extends MPOSDatabase{
 	 */
 	protected boolean createStockCardTmp(){
 		boolean isSuccess = false;
-		open();
 		try {
-			mSqlite.execSQL("DROP TABLE IF EXISTS " + TB_STOCK_CARD_TEMP);
-			mSqlite.execSQL(
+			getDatabase().execSQL("DROP TABLE IF EXISTS " + TB_STOCK_CARD_TEMP);
+			getDatabase().execSQL(
 					"CREATE TABLE " + TB_STOCK_CARD_TEMP + " ( " +
 					Products.COL_PRODUCT_ID + " INTEGER, " +
 					COL_INIT + " REAL DEFAULT 0, " +

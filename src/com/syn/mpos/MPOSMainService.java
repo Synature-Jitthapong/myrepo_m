@@ -1,10 +1,7 @@
 package com.syn.mpos;
 
 import org.ksoap2.serialization.PropertyInfo;
-
 import com.j1tth4.mobile.util.DotNetWebServiceTask;
-
-import android.content.Context;
 
 public class MPOSMainService extends DotNetWebServiceTask{
 	// webservice method
@@ -22,12 +19,12 @@ public class MPOSMainService extends DotNetWebServiceTask{
 	public static final String DEVICE_CODE_PARAM = "szDeviceCode";
 	public static final String JSON_SALE_PARAM = "szJsonSaleTransData";
 	
-	public MPOSMainService(Context c, String method) {
-		super(c, method);
+	public MPOSMainService(String method) {
+		super(MPOSApplication.getContext(), method);
 		
 		property = new PropertyInfo();
 		property.setName(DEVICE_CODE_PARAM);
-		property.setValue(GlobalVar.getDeviceCode(c));
+		property.setValue(MPOSApplication.getDeviceCode());
 		property.setType(String.class);
 		soapRequest.addProperty(property);
 	}

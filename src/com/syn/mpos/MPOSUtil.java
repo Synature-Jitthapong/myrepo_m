@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
@@ -17,7 +18,8 @@ import com.syn.mpos.database.transaction.Transaction;
 
 public class MPOSUtil {
 	
-	public static void sendRealTimeSale(final Context c, final int staffId){
+	public static void sendRealTimeSale(final int staffId, 
+			final int transactionId, final int computerId){
 		final LoadSaleTransactionListener loadSaleListener = 
 				new LoadSaleTransactionListener(){
 
@@ -35,16 +37,18 @@ public class MPOSUtil {
 									
 									@Override
 									public void onSuccess() {
-										
+										// do update transaction already send
+										Transaction trans = new Transaction(MPOSApplication.getContext());
+										trans.updateTransactionSendStatus(transactionId, computerId);
 									}
 									
 									@Override
-									public void onError(String mesg) {
-										
+									public void onError(String msg) {
+										Log.e("MPOSUtil", msg);
 									}
 								};
 								
-						MPOSService service = new MPOSService(c);
+						MPOSService service = new MPOSService();
 						service.sendPartialSaleTransaction(staffId, jsonSale, sendSaleListener);
 					}
 
@@ -56,7 +60,7 @@ public class MPOSUtil {
 			
 		};
 		
-		new LoadSaleTransactionTask(c, Util.getDate().getTimeInMillis(), 
+		new LoadSaleTransactionTask(Util.getDate().getTimeInMillis(), 
 				loadSaleListener).execute();
 	}
 	
@@ -110,7 +114,7 @@ public class MPOSUtil {
 					};
 					
 					// send sale service
-					MPOSService service = new MPOSService(c);
+					MPOSService service = new MPOSService();
 					service.sendSaleDataTransaction(closeStaffId, 
 							jsonSale, sendSaleServiceListener);
 				}
@@ -126,7 +130,7 @@ public class MPOSUtil {
 			List<Long> dateLst = syncLog.listSessionDate();
 			if(dateLst != null){
 				for(long date : dateLst){
-					new LoadSaleTransactionTask(c, date, loadSaleListener).execute();
+					new LoadSaleTransactionTask(date, loadSaleListener).execute();
 				}
 			}
 		}
@@ -144,10 +148,10 @@ public class MPOSUtil {
 		private SaleTransaction mSaleTrans;
 		private long mSessionDate;
 		
-		public LoadSaleTransactionTask(Context c, long sessionDate, 
+		public LoadSaleTransactionTask(long sessionDate, 
 				LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransaction(c, sessionDate);
+			mSaleTrans = new SaleTransaction(MPOSApplication.getContext(), sessionDate);
 			mSessionDate = sessionDate;
 		}
 		

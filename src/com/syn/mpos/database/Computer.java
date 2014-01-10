@@ -15,16 +15,15 @@ public class Computer extends MPOSDatabase{
 	public static final String COL_COMPUTER_NAME = "ComputerName";
 	public static final String COL_DEVICE_CODE = "DeviceCode";
 	public static final String COL_REGISTER_NUMBER = "RegisterNumber";
-	
-	public Computer(Context c){
+		
+	public Computer(Context c) {
 		super(c);
 	}
-	
+
 	public ShopData.ComputerProperty getComputerProperty() {
 		ShopData.ComputerProperty computer = 
 				new ShopData.ComputerProperty();
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_COMPUTER, null);
+		Cursor cursor = getDatabase().rawQuery("SELECT * FROM " + TB_COMPUTER, null);
 		if (cursor.moveToFirst()) {
 			computer.setComputerID(cursor.getInt(cursor.getColumnIndex(COL_COMPUTER_ID)));
 			computer.setComputerName(cursor.getString(cursor.getColumnIndex(COL_COMPUTER_NAME)));
@@ -38,15 +37,14 @@ public class Computer extends MPOSDatabase{
 	}
 
 	public void insertComputer(List<ShopData.ComputerProperty> compLst) throws SQLException{
-		open();
-		mSqlite.execSQL("DELETE FROM " + TB_COMPUTER);
+		getDatabase().execSQL("DELETE FROM " + TB_COMPUTER);
 		for (ShopData.ComputerProperty comp : compLst) {
 			ContentValues cv = new ContentValues();
 			cv.put(COL_COMPUTER_ID, comp.getComputerID());
 			cv.put(COL_COMPUTER_NAME, comp.getComputerName());
 			cv.put(COL_DEVICE_CODE, comp.getDeviceCode());
 			cv.put(COL_REGISTER_NUMBER, comp.getRegistrationNumber());
-			mSqlite.insertOrThrow(TB_COMPUTER, null, cv);
+			getDatabase().insertOrThrow(TB_COMPUTER, null, cv);
 		}
 		close();
 	}

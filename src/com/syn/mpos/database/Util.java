@@ -28,14 +28,14 @@ public class Util {
 	public static String dateTimeFormat(String time, String pattern){
 		String format = "";
 		Calendar calendar;
-		SimpleDateFormat dateTimeFormat;
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat(pattern, Locale.getDefault());
 		try {
 			calendar = Calendar.getInstance();
 			calendar.setTimeInMillis(Long.parseLong(time));
-			dateTimeFormat = new SimpleDateFormat(pattern, Locale.getDefault());
 			format = dateTimeFormat.format(calendar.getTime());
 		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
+			calendar = Calendar.getInstance();
+			format = dateTimeFormat.format(calendar.getTime());
 			e.printStackTrace();
 		}
 		return format;

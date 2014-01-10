@@ -54,7 +54,6 @@ public class ProductProvider extends ContentProvider {
 		}
 		
 		MatrixCursor matrixCursor = new MatrixCursor(SUGGEST_COLUMNS);
-		mProduct.open();
 		Cursor cursor = mProduct.queryProduct(Products.ALL_PRODUCT_COLS, 
 				Products.COL_PRODUCT_NAME + " LIKE '" + query + "%'", null);
 		if(cursor.moveToFirst()){ 

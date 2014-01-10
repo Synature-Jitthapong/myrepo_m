@@ -81,8 +81,7 @@ public class Products extends MPOSDatabase {
 	public List<ProductGroup> listProductGroup(){
 		List<ProductGroup> pgLst = new ArrayList<ProductGroup>();
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getDatabase().rawQuery(
 				" SELECT * FROM " + TB_PRODUCT_GROUP, null);
 		if(cursor.moveToFirst()){
 			do{
@@ -98,8 +97,7 @@ public class Products extends MPOSDatabase {
 	public List<ProductDept> listProductDept(){
 		List<ProductDept> pdLst = new ArrayList<ProductDept>();
 		
-		open();
-		Cursor cursor = mSqlite.query(TB_PRODUCT_DEPT, ALL_PRODUCT_DEPT_COLS,
+		Cursor cursor = getDatabase().query(TB_PRODUCT_DEPT, ALL_PRODUCT_DEPT_COLS,
 				null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
@@ -108,15 +106,14 @@ public class Products extends MPOSDatabase {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		mSqlite.close();
+		close();
 		return pdLst;
 	}
 	
 	public List<Product> listProductSize(int proId){
 		List<Product> pLst = null;
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getDatabase().rawQuery(
 				"SELECT b." + COL_PRODUCT_ID + ", " 
 				+ " b." + COL_PRODUCT_TYPE_ID + ", "
 				+ " b." + COL_PRODUCT_CODE + ", " 
@@ -152,8 +149,7 @@ public class Products extends MPOSDatabase {
 	public List<Product> listProduct(String query){
 		List<Product> pLst = new ArrayList<Product>();
 	
-		open();
-		Cursor cursor = mSqlite.query(TB_PRODUCT, ALL_PRODUCT_COLS, 
+		Cursor cursor = getDatabase().query(TB_PRODUCT, ALL_PRODUCT_COLS, 
 				"(" + COL_PRODUCT_CODE + " LIKE '%" + query + "%' " +
 				" OR " + COL_PRODUCT_NAME + " LIKE '%" + query + "%')", 
 				null, null, null, null);
@@ -171,8 +167,7 @@ public class Products extends MPOSDatabase {
 	public List<Product> listProduct(int deptId){
 		List<Product> pLst = new ArrayList<Product>();
 		
-		open();
-		Cursor cursor = mSqlite.query(TB_PRODUCT, ALL_PRODUCT_COLS, COL_PRODUCT_DEPT_ID + "=?", 
+		Cursor cursor = getDatabase().query(TB_PRODUCT, ALL_PRODUCT_COLS, COL_PRODUCT_DEPT_ID + "=?", 
 				new String[]{String.valueOf(deptId)}, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
@@ -187,7 +182,6 @@ public class Products extends MPOSDatabase {
 
 	public float getVatRate(int productId){
 		float vatRate = 0.0f;
-		open();
 		Cursor cursor = queryProduct(new String[]{COL_VAT_RATE}, COL_PRODUCT_ID + "=?", 
 				new String[]{String.valueOf(productId)});
 		if(cursor.moveToFirst()){
@@ -200,8 +194,7 @@ public class Products extends MPOSDatabase {
 	
 	public Product getProduct(int proId){
 		Product p = null;
-		open();
-		Cursor cursor = mSqlite.query(TB_PRODUCT, ALL_PRODUCT_COLS, 
+		Cursor cursor = getDatabase().query(TB_PRODUCT, ALL_PRODUCT_COLS, 
 				COL_PRODUCT_ID + "=?", new String[]{String.valueOf(proId)}, 
 				null, null, null);
 		if(cursor.moveToFirst()){
@@ -215,8 +208,7 @@ public class Products extends MPOSDatabase {
 	public ProductDept getProductDept(int deptId){
 		ProductDept pd = null;
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getDatabase().rawQuery(
 				" SELECT * FROM " + TB_PRODUCT_DEPT +
 				" WHERE " + COL_PRODUCT_DEPT_ID + "=" + deptId, null);
 		if(cursor.moveToFirst()){
@@ -228,7 +220,7 @@ public class Products extends MPOSDatabase {
 	}
 	
 	public Cursor queryProduct(String[] columns, String selection, String[] selectionArgs){
-		return mSqlite.query(TB_PRODUCT, columns, selection, selectionArgs, null, null, null);
+		return getDatabase().query(TB_PRODUCT, columns, selection, selectionArgs, null, null, null);
 	}
 	
 	private Product toProduct(Cursor cursor){
@@ -268,8 +260,7 @@ public class Products extends MPOSDatabase {
 	}
 	
 	public void addPComponentSet(List<ProductGroups.PComponentSet> pCompSetLst) throws SQLException{
-		open();
-		mSqlite.delete(TB_PCOMP_SET, null, null);
+		getDatabase().delete(TB_PCOMP_SET, null, null);
 		for(ProductGroups.PComponentSet pCompSet : pCompSetLst){
 			ContentValues cv = new ContentValues();
 			cv.put(COL_PGROUP_ID, pCompSet.getPGroupID());
@@ -278,7 +269,7 @@ public class Products extends MPOSDatabase {
 			cv.put(COL_CHILD_PRODUCT_AMOUNT, pCompSet.getPGroupID());
 			cv.put(COL_FLEXIBLE_PRODUCT_PRICE, pCompSet.getFlexibleProductPrice());
 			cv.put(COL_FLEXIBLE_INCLUDE_PRICE, pCompSet.getFlexibleIncludePrice());
-			mSqlite.insertOrThrow(TB_PCOMP_SET, null, cv);
+			getDatabase().insertOrThrow(TB_PCOMP_SET, null, cv);
 		}
 		close();
 	}
@@ -286,8 +277,7 @@ public class Products extends MPOSDatabase {
 	public void addProductGroup(List<ProductGroups.ProductGroup> pgLst,
 			List<MenuGroups.MenuGroup> mgLst) throws SQLException{
 		
-		open();
-		mSqlite.execSQL(
+		getDatabase().execSQL(
 				" DELETE FROM " + TB_PRODUCT_GROUP);
 		for(MenuGroups.MenuGroup mg : mgLst){
 			ContentValues cv = new ContentValues();
@@ -296,7 +286,7 @@ public class Products extends MPOSDatabase {
 			cv.put(COL_PRODUCT_GROUP_NAME, mg.getMenuGroupName_0());
 			cv.put(COL_PRODUCT_GROUP_TYPE, mg.getMenuGroupType());
 			cv.put(COL_IS_COMMENT, 0);
-			mSqlite.insertOrThrow(TB_PRODUCT_GROUP, null, cv);
+			getDatabase().insertOrThrow(TB_PRODUCT_GROUP, null, cv);
 		}
 		close();
 	}
@@ -304,8 +294,7 @@ public class Products extends MPOSDatabase {
 	public void addProductDept(List<ProductGroups.ProductDept> pdLst, 
 			List<MenuGroups.MenuDept> mdLst) throws SQLException{
 		
-		open();
-		mSqlite.execSQL(
+		getDatabase().execSQL(
 				" DELETE FROM " + TB_PRODUCT_DEPT);
 		for(MenuGroups.MenuDept md : mdLst){
 			ContentValues cv = new ContentValues();
@@ -313,7 +302,7 @@ public class Products extends MPOSDatabase {
 			cv.put(COL_PRODUCT_GROUP_ID, md.getMenuGroupID());
 			cv.put(COL_PRODUCT_DEPT_CODE, "");
 			cv.put(COL_PRODUCT_DEPT_NAME, md.getMenuDeptName_0());
-			mSqlite.insertOrThrow(TB_PRODUCT_DEPT, null, cv);
+			getDatabase().insertOrThrow(TB_PRODUCT_DEPT, null, cv);
 		}
 		close();
 	}
@@ -321,8 +310,7 @@ public class Products extends MPOSDatabase {
 	public void addProducts(List<ProductGroups.Products> productLst,
 			List<MenuGroups.MenuItem> menuItemLst) throws SQLException{
 		
-		open();
-		mSqlite.execSQL(
+		getDatabase().execSQL(
 				" DELETE FROM " + Products.TB_PRODUCT);
 		for(ProductGroups.Products p : productLst){
 			ContentValues cv = new ContentValues();
@@ -340,7 +328,7 @@ public class Products extends MPOSDatabase {
 			cv.put(COL_VAT_RATE, p.getVatRate());
 			cv.put(COL_IS_OUTOF_STOCK, p.getIsOutOfStock());
 			
-			mSqlite.insertOrThrow(TB_PRODUCT, null, cv);
+			getDatabase().insertOrThrow(TB_PRODUCT, null, cv);
 		}
 		for(MenuGroups.MenuItem m : menuItemLst){
 			String menuName = m.getMenuName_0();
@@ -349,7 +337,7 @@ public class Products extends MPOSDatabase {
 			cv.put(COL_PRODUCT_NAME, menuName);
 			cv.put(COL_IMG_URL, m.getMenuImageLink());
 			
-			mSqlite.update(TB_PRODUCT, cv, COL_PRODUCT_ID + "=?", 
+			getDatabase().update(TB_PRODUCT, cv, COL_PRODUCT_ID + "=?", 
 					new String[]{String.valueOf(m.getProductID())});
 		}
 		close();

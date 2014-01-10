@@ -35,8 +35,7 @@ public class Shop extends MPOSDatabase{
 	public ShopData.ShopProperty getShopProperty(){
 		ShopData.ShopProperty sp = 
 				new ShopData.ShopProperty();
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_SHOP, null);
+		Cursor cursor = getDatabase().rawQuery("SELECT * FROM " + TB_SHOP, null);
 		if(cursor.moveToFirst()){
 			sp.setShopID(cursor.getInt(cursor.getColumnIndex(COL_SHOP_ID)));
 			sp.setShopCode(cursor.getString(cursor.getColumnIndex(COL_SHOP_CODE)));
@@ -64,8 +63,7 @@ public class Shop extends MPOSDatabase{
 	}
 
 	public void insertShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
-		open();
-		mSqlite.execSQL("DELETE FROM " + TB_SHOP);
+		getDatabase().execSQL("DELETE FROM " + TB_SHOP);
 		for(ShopData.ShopProperty shop : shopPropLst){
 			ContentValues cv = new ContentValues();
 			cv.put(COL_SHOP_ID, shop.getShopID());
@@ -86,7 +84,7 @@ public class Shop extends MPOSDatabase{
 			cv.put(COL_TAX_ID, shop.getCompanyTaxID());
 			cv.put(COL_REGISTER_ID, shop.getCompanyRegisterID());
 			cv.put(COL_VAT, shop.getCompanyVat());
-			mSqlite.insertOrThrow(TB_SHOP, null, cv);
+			getDatabase().insertOrThrow(TB_SHOP, null, cv);
 		}
 		close();
 	}

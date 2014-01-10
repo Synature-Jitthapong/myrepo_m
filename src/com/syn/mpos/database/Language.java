@@ -17,15 +17,14 @@ public  class Language extends MPOSDatabase{
 	}
 	
 	public void insertLanguage(List<ShopData.Language> langLst) throws SQLException{	
-		open();
-		mSqlite.execSQL("DELETE FROM " + TB_LANGUAGE);
+		getDatabase().execSQL("DELETE FROM " + TB_LANGUAGE);
 		for(ShopData.Language lang : langLst){
 			ContentValues cv = new ContentValues();
 			cv.put(COL_LANG_ID, lang.getLangID());
 			cv.put(COL_LANG_NAME, lang.getLangName());
 			cv.put(COL_LANG_CODE, lang.getLangCode());
-			mSqlite.insertOrThrow(TB_LANGUAGE, null, cv);
+			getDatabase().insertOrThrow(TB_LANGUAGE, null, cv);
 		}
-		mSqlite.close();
+		close();
 	}
 }

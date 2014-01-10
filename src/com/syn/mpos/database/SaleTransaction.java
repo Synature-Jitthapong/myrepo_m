@@ -1,8 +1,8 @@
 package com.syn.mpos.database;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
-
 import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Session;
@@ -45,8 +45,7 @@ public class SaleTransaction {
 		List<SaleData_SaleTransaction> saleTransLst = 
 				new ArrayList<SaleData_SaleTransaction>();;
 		Transaction trans = new Transaction(mContext);
-		trans.open();
-		Cursor cursor = queryTransaction(trans.mSqlite);
+		Cursor cursor = queryTransaction(trans.getDatabase());
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{
@@ -84,8 +83,8 @@ public class SaleTransaction {
 					orderTrans.setSzTransactionNote(cursor.getString(cursor.getColumnIndex(Transaction.COL_TRANS_NOTE)));
 					
 					saleTrans.setxOrderTransaction(orderTrans);
-					saleTrans.setxAryOrderDetail(buildOrderDetailLst(trans.mSqlite, orderTrans.getiTransactionID()));
-					saleTrans.setxAryPaymentDetail(buildPaymentDetailLst(trans.mSqlite, orderTrans.getiTransactionID()));
+					saleTrans.setxAryOrderDetail(buildOrderDetailLst(trans.getDatabase(), orderTrans.getiTransactionID()));
+					saleTrans.setxAryPaymentDetail(buildPaymentDetailLst(trans.getDatabase(), orderTrans.getiTransactionID()));
 					saleTrans.setxAryOrderPromotion(new ArrayList<SaleTable_OrderPromotion>());
 					saleTransLst.add(saleTrans);
 				}while(cursor.moveToNext());
@@ -153,8 +152,7 @@ public class SaleTransaction {
 	public SaleTable_SessionEndDay buildSessEnddayObj(){
 		SaleTable_SessionEndDay saleSessEnd = new SaleTable_SessionEndDay();
 		Session sess = new Session(mContext);
-		sess.open();
-		Cursor cursor = querySessionEndday(sess.mSqlite);
+		Cursor cursor = querySessionEndday(sess.getDatabase());
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{
@@ -167,6 +165,14 @@ public class SaleTransaction {
 					saleSessEnd.setfTotalAmountReceipt(cursor.getDouble(cursor.getColumnIndex(Session.COL_TOTAL_AMOUNT_RECEIPT)));
 					saleSessEnd.setiTotalQtyReceipt(cursor.getInt(cursor.getColumnIndex(Session.COL_TOTAL_QTY_RECEIPT)));
 				}while(cursor.moveToNext());
+			}else{
+				Calendar c = Calendar.getInstance();
+				saleSessEnd.setDtSessionDate(
+						Util.dateTimeFormat(String.valueOf(c.getTimeInMillis()), "yyyy-MM-dd"));
+				saleSessEnd.setDtEndDayDateTime(
+						Util.dateTimeFormat(String.valueOf(c.getTimeInMillis()), "yyyy-MM-dd HH:mm:ss"));
+				saleSessEnd.setfTotalAmountReceipt(0.0d);
+				saleSessEnd.setiTotalQtyReceipt(0);
 			}
 			cursor.close();
 		}
@@ -177,8 +183,7 @@ public class SaleTransaction {
 	public SaleTable_Session buildSessionObj(){
 		SaleTable_Session saleSess = new SaleTable_Session();
 		Session sess = new Session(mContext);
-		sess.open();
-		Cursor cursor = querySession(sess.mSqlite);
+		Cursor cursor = querySession(sess.getDatabase());
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{

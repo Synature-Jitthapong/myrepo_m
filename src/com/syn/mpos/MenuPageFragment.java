@@ -1,13 +1,16 @@
 package com.syn.mpos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.Products;
+import com.syn.mpos.database.Products.Product;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -21,7 +24,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MenuPageFragment extends Fragment {
-	private GlobalProperty mGlobalProp;
 	private ImageLoader mImgLoader;
 	private Products mProduct;
 	private OnMenuItemClick mCallback;
@@ -43,12 +45,13 @@ public class MenuPageFragment extends Fragment {
 		
 		mDeptId = getArguments().getInt("deptId");
 		
-		mGlobalProp = new GlobalProperty(getActivity());
 		mProduct = new Products(getActivity());
 		mImgLoader = new ImageLoader(getActivity(), R.drawable.no_food,
-				GlobalVar.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
-		mProductLst = mProduct.listProduct(mDeptId);
+				MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+		
+		mProductLst = new ArrayList<Product>();
 		mAdapter = new MenuItemAdapter();
+		new ListProductTask().execute();
 	}
 
 	@Override
@@ -59,6 +62,27 @@ public class MenuPageFragment extends Fragment {
 		}
 	}
 
+	private class ListProductTask extends AsyncTask<Void, Void, List<Product>>{
+
+		@Override
+		protected void onPostExecute(List<Product> result) {
+			mProductLst = result;
+			mAdapter.notifyDataSetChanged();
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+		}
+
+		@Override
+		protected List<Product> doInBackground(Void... params) {
+			return mProduct.listProduct(mDeptId);
+		}
+		
+	}
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -106,9 +130,9 @@ public class MenuPageFragment extends Fragment {
 			Products.Product p = mProductLst.get(position);
 			ViewHolder holder;
 			
+			LayoutInflater inflater = 
+					(LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			if(convertView == null){
-				LayoutInflater inflater = 
-						(LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				convertView = inflater.inflate(R.layout.menu_template, null);
 				holder = new ViewHolder();
 				holder.tvMenu = (TextView) convertView.findViewById(R.id.textViewMenuName);
@@ -123,16 +147,18 @@ public class MenuPageFragment extends Fragment {
 			if(p.getProductPrice() < 0)
 				holder.tvPrice.setVisibility(View.INVISIBLE);
 			else
-				holder.tvPrice.setText(mGlobalProp.currencyFormat(p.getProductPrice()));
+				holder.tvPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(p.getProductPrice()));
 			
-			mImgLoader.displayImage(GlobalVar.getImageUrl(getActivity()) + p.getImgUrl(), holder.imgMenu);
+			mImgLoader.displayImage(MPOSApplication.getImageUrl() + p.getImgUrl(), holder.imgMenu);
 			return convertView;
+		}
+		
+		private class ViewHolder{
+			ImageView imgMenu;
+			TextView tvMenu;
+			TextView tvPrice;
 		}
 	}
 	
-	private class ViewHolder{
-		ImageView imgMenu;
-		TextView tvMenu;
-		TextView tvPrice;
-	}
+	
 }

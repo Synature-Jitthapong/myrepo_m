@@ -18,8 +18,7 @@ public class Province extends MPOSDatabase{
 		List<com.syn.pos.Province> pLst =
 				new ArrayList<com.syn.pos.Province>();
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_PROVINCE, null);
+		Cursor cursor = getDatabase().rawQuery("SELECT * FROM " + TB_PROVINCE, null);
 		if(cursor.moveToFirst()){
 			do{
 				com.syn.pos.Province province =

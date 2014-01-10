@@ -31,8 +31,7 @@ public class ReceiveStock extends StockDocument{
 				" WHERE a." + COL_DOC_ID + "=" + documentId +
 				" AND a." + Shop.COL_SHOP_ID + "=" + shopId;
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery(strSql, null);
+		Cursor cursor = getDatabase().rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				StockProduct mat = new StockProduct();

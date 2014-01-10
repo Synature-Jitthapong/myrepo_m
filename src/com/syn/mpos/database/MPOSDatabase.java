@@ -16,8 +16,7 @@ public abstract class MPOSDatabase {
 	public static final String COL_SEND_STATUS = "SendStatus";
 	
 	protected Context mContext;
-	protected MPOSSQLiteHelper mSqliteHelper;
-	public SQLiteDatabase mSqlite;
+	private MPOSSQLiteHelper mSqliteHelper;
 	
 	public MPOSDatabase(Context c){
 		mSqliteHelper = new MPOSSQLiteHelper(c);
@@ -29,8 +28,8 @@ public abstract class MPOSDatabase {
 		return uuid.toString();
 	}
 	
-	public SQLiteDatabase open(){
-		return mSqlite = mSqliteHelper.getWritableDatabase();
+	public SQLiteDatabase getDatabase(){
+		return mSqliteHelper.getWritableDatabase();
 	}
 	
 	public void close() throws SQLException{

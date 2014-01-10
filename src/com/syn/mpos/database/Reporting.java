@@ -44,8 +44,7 @@ public class Reporting extends MPOSDatabase{
 				" AND a.sale_date <= " + mDateTo + 
 				" GROUP BY a.receipt_year, a.receipt_month";
 
-		open();
-		Cursor cursor = mSqlite.rawQuery(strSql, null);
+		Cursor cursor = getDatabase().rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("totalPrice")));
@@ -68,8 +67,7 @@ public class Reporting extends MPOSDatabase{
 	public float getTotalPay(int transactionId, int computerId, int payTypeId){
 		float totalPay = 0.0f;
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetail.COL_PAY_AMOUNT + ") " +
 				" WHERE " + Transaction.COL_TRANS_ID + "? " +
 				" AND " + Computer.COL_COMPUTER_ID + "? " +
@@ -109,8 +107,7 @@ public class Reporting extends MPOSDatabase{
 				" BETWEEN " + mDateFrom + " AND " + mDateTo + 
 				" GROUP BY a." + Transaction.COL_TRANS_ID;
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery(strSql, null);
+		Cursor cursor = getDatabase().rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				Report.ReportDetail reportDetail = 
@@ -156,8 +153,7 @@ public class Reporting extends MPOSDatabase{
 				" GROUP BY c.product_group_id " +
 				" ORDER BY c.product_id ";
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery(strSql, null);
+		Cursor cursor = getDatabase().rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			reportDetail.setProductCode(cursor.getString(cursor.getColumnIndex("product_code")));
 			reportDetail.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
@@ -197,8 +193,7 @@ public class Reporting extends MPOSDatabase{
 				" GROUP BY c.product_dept_id " +
 				" ORDER BY c.product_id ";
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery(strSql, null);
+		Cursor cursor = getDatabase().rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			reportDetail.setProductCode(cursor.getString(cursor.getColumnIndex("product_code")));
 			reportDetail.setProductName(cursor.getString(cursor.getColumnIndex("product_name")));
@@ -225,8 +220,7 @@ public class Reporting extends MPOSDatabase{
 				" LEFT JOIN product_dept b " +
 				" ON a.product_group_id=b.product_group_id";
 		
-		open();
-		Cursor cursor1 = mSqlite.rawQuery(strSql, null);
+		Cursor cursor1 = getDatabase().rawQuery(strSql, null);
 		if(cursor1.moveToFirst()){
 			do{
 				Report report = new Report();
@@ -255,7 +249,7 @@ public class Reporting extends MPOSDatabase{
 						" GROUP BY c.product_id " +
 						" ORDER BY c.product_id ";
 				
-				Cursor cursor2 = mSqlite.rawQuery(strSql, null);
+				Cursor cursor2 = getDatabase().rawQuery(strSql, null);
 				if(cursor2.moveToFirst()){
 					do{
 						Report.ReportDetail reportDetail = 

@@ -12,10 +12,13 @@ import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
+import com.syn.pos.OrderTransaction.OrderDetail;
 import com.syn.pos.ShopData;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -56,7 +59,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private int mStaffId;
 	private int mShopId;
 	private Shop mShop;
-	private GlobalProperty mGlobalProp;
 	private Transaction mTransaction;
 	private List<Products.ProductDept> mProductDeptLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
@@ -79,6 +81,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private ImageButton mBtnDelSelOrder;
 	private ImageButton mBtnClearSelOrder;
 	private TextView mTvOrderSelected;
+	private ProgressDialog mProgress;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,12 +101,12 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mBtnDiscount = (Button) findViewById(R.id.buttonDiscount);
 		mBtnCash = (Button) findViewById(R.id.buttonCash);
 		mBtnHold = (Button) findViewById(R.id.buttonHold);
-
+		
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mSessionId = intent.getIntExtra("sessionId", 0);
-		mShopId = GlobalVar.getShopId(this);
-		mComputerId = GlobalVar.getComputerId(this);
+		mShopId = MPOSApplication.getShopId();
+		mComputerId = MPOSApplication.getComputerId();
 		
 		mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 		mPager = (ViewPager) findViewById(R.id.pager);
@@ -112,8 +115,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 	public void init(){
 		mShop = new Shop(this);
-		mGlobalProp = new GlobalProperty(this);
 		mTransaction = new Transaction(this);
+		mProgress = new ProgressDialog(this);
 		mTransactionId = mTransaction.getCurrTransaction(mComputerId);
 		if(mTransactionId == 0)
 			mTransactionId = mTransaction.openTransaction(mComputerId, mShopId, mSessionId, mStaffId);
@@ -262,10 +265,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		else
 			mTbRowVat.setVisibility(View.GONE);
 		
-		mTvVatExclude.setText(mGlobalProp.currencyFormat(totalVatExclude));
-		mTvSubTotal.setText(mGlobalProp.currencyFormat(subTotal));
-		mTvDiscount.setText(mGlobalProp.currencyFormat(totalDiscount));
-		mTvTotalPrice.setText(mGlobalProp.currencyFormat(totalPrice + totalVatExclude));
+		mTvVatExclude.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVatExclude));
+		mTvSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(subTotal));
+		mTvDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
+		mTvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice + totalVatExclude));
 	}
 
 	@Override
@@ -409,8 +412,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			holder.chk.setChecked(orderDetail.isChecked());
 			holder.tvOrderNo.setText(Integer.toString(position + 1) + ".");
 			holder.tvOrderName.setText(orderDetail.getProductName());
-			holder.txtOrderAmount.setText(mGlobalProp.qtyFormat(orderDetail.getQty()));
-			holder.tvOrderPrice.setText(mGlobalProp.currencyFormat(orderDetail.getPricePerUnit()));
+			holder.txtOrderAmount.setText(MPOSApplication.getGlobalProperty().qtyFormat(orderDetail.getQty()));
+			holder.tvOrderPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(orderDetail.getPricePerUnit()));
 			
 			if(orderDetail.isChecked())
 				holder.chk.setVisibility(View.VISIBLE);
@@ -545,7 +548,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 
 			c.setTimeInMillis(trans.getOpenTime());
 			tvNo.setText(Integer.toString(position + 1) + ".");
-			tvOpenTime.setText(mGlobalProp.dateTimeFormat(c.getTime()));
+			tvOpenTime.setText(MPOSApplication.getGlobalProperty().dateTimeFormat(c.getTime()));
 			tvOpenStaff.setText(trans.getStaffName());
 			tvRemark.setText(trans.getTransactionNote());
 
@@ -650,11 +653,17 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				mProgress.setTitle(MPOSApplication.getContext().getString(R.string.endday));
+				mProgress.setMessage(MPOSApplication.getContext().getString(R.string.endday_progress));
+				mProgress.show();
+				
 				MPOSUtil.OnEnddayListener onEnddayListener = 
 						new MPOSUtil.OnEnddayListener() {
 							
 							@Override
 							public void enddaySuccess() {
+								mProgress.dismiss();
+								
 								new AlertDialog.Builder(MainActivity.this)
 								.setTitle(R.string.endday)
 								.setMessage(R.string.endday_success)
@@ -669,6 +678,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 							
 							@Override
 							public void enddayFail(String mesg) {
+								mProgress.dismiss();
+								
 								new AlertDialog.Builder(MainActivity.this)
 								.setMessage(mesg)
 								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -988,10 +999,32 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mOrderListView.smoothScrollToPosition(mOrderLst.size());
 	}
 	
+	private class GetOrderTask extends AsyncTask<Void, Void, OrderDetail>{
+		
+		private int mOrderId;
+		
+		public GetOrderTask(int orderId){
+			mOrderId = orderId;
+		}
+		
+		@Override
+		protected void onPostExecute(OrderDetail result) {
+			mOrderLst.add(result);
+			refreshOrderListView();
+		}
+
+		@Override
+		protected OrderDetail doInBackground(Void... arg0) {	
+			return mTransaction.getOrder(mTransactionId, mComputerId, mOrderId);
+		}
+		
+	}
+	
 	private void appendOrderList(int orderId){
 		if(orderId > 0){
-			mOrderLst.add(mTransaction.getOrder(mTransactionId, mComputerId, orderId));
-			refreshOrderListView();
+//			mOrderLst.add(mTransaction.getOrder(mTransactionId, mComputerId, orderId));
+//			refreshOrderListView();
+			new GetOrderTask(orderId).execute();
 		}
 	}
 	

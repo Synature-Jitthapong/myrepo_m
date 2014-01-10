@@ -1,6 +1,6 @@
 package com.syn.mpos.database;
 
-import com.syn.mpos.GlobalVar;
+import com.syn.mpos.MPOSApplication;
 import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Session;
@@ -15,8 +15,8 @@ import android.database.sqlite.SQLiteOpenHelper;
  *
  */
 public class MPOSSQLiteHelper extends SQLiteOpenHelper{
-	public static final String DB_NAME = GlobalVar.DB_NAME;
-	public static final int DB_VERSION = GlobalVar.DB_VERSION;
+	public static final String DB_NAME = MPOSApplication.DB_NAME;
+	public static final int DB_VERSION = MPOSApplication.DB_VERSION;
 
 	private static final String[] sqlCreateTables = {
 		// tb bankname

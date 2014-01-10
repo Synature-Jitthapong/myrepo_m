@@ -16,35 +16,24 @@ import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
 import com.syn.pos.WebServiceResult;
-
-import android.app.ProgressDialog;
 import android.content.Context;
 
 public class MPOSService {
-	public Context mContext;
-	public ProgressDialog mProgress;
-	
-	public MPOSService(Context c){
-		mContext = c;
-		mProgress = new ProgressDialog(c);
-		mProgress.setCancelable(false);
-	}
 	
 	public void sendPartialSaleTransaction(int staffId,
 			String jsonSale, OnServiceProcessListener listener){
-		new SendPartialSaleTransactionTask(mContext, staffId, jsonSale, 
-				listener).execute(GlobalVar.getFullUrl(mContext));
+		new SendPartialSaleTransactionTask(MPOSApplication.getContext(), staffId, jsonSale, 
+				listener).execute(MPOSApplication.getFullUrl());
 	}
 	
 	public void sendSaleDataTransaction(int staffId, 
 			String jsonSale, OnServiceProcessListener listener){
-		new SendSaleTransactionTask(mContext, MPOSMainService.SEND_SALE_TRANS_METHOD,
-				staffId, jsonSale,listener).execute(GlobalVar.getFullUrl(mContext));
+		new SendSaleTransactionTask(MPOSMainService.SEND_SALE_TRANS_METHOD,
+				staffId, jsonSale,listener).execute(MPOSApplication.getFullUrl());
 	}
 	
 	public void loadShopData(final OnServiceProcessListener listener){
-		mProgress.show();
-		final String url = GlobalVar.getFullUrl(mContext);
+		final String url = MPOSApplication.getFullUrl();
 		
 		new AuthenDevice(new OnAuthenDeviceListener(){
 
@@ -55,27 +44,24 @@ public class MPOSService {
 
 					@Override
 					public void onError(String err) {
-						mProgress.dismiss();
 						listener.onError(err);
 					}
 
 					@Override
 					public void onLoadShopSuccess(ShopData sd) {
-						Shop shop = new Shop(mContext);
-						Computer comp = new Computer(mContext);
-						GlobalProperty global = new GlobalProperty(mContext);
-						Language lang = new Language(mContext);
-						Staff staff = new Staff(mContext);
+						Shop shop = new Shop(MPOSApplication.getContext());
+						Computer comp = new Computer(MPOSApplication.getContext());
+						GlobalProperty global = new GlobalProperty(MPOSApplication.getContext());
+						Language lang = new Language(MPOSApplication.getContext());
+						Staff staff = new Staff(MPOSApplication.getContext());
 						try {
 							shop.insertShopProperty(sd.getShopProperty());
 							comp.insertComputer(sd.getComputerProperty());
 							global.insertProperty(sd.getGlobalProperty());
 							staff.insertStaff(sd.getStaffs());
 							lang.insertLanguage(sd.getLanguage());
-							mProgress.dismiss();
 							listener.onSuccess();
 						} catch (Exception e) {
-							mProgress.dismiss();
 							listener.onError(e.getMessage());
 						}
 					}
@@ -85,7 +71,6 @@ public class MPOSService {
 
 			@Override
 			public void onError(String err) {
-				mProgress.dismiss();
 				listener.onError(err);
 			}
 			
@@ -94,15 +79,13 @@ public class MPOSService {
 
 	public void loadProductData(final OnServiceProcessListener listener){
 		
-		mProgress.show();
-		final String url = GlobalVar.getFullUrl(mContext);
+		final String url = MPOSApplication.getFullUrl();
 		
 		// load menu
 		new LoadMenuTask(new OnLoadMenuListener(){
 
 			@Override
 			public void onError(String err) {
-				mProgress.dismiss();
 				listener.onError(err);
 			}
 
@@ -113,23 +96,19 @@ public class MPOSService {
 
 					@Override
 					public void onError(String err) {
-						mProgress.dismiss();
 						listener.onError(err);
 					}
 
 					@Override
 					public void onLoadProductSuccess(ProductGroups pgs) {
-						Products p = new Products(mContext);
+						Products p = new Products(MPOSApplication.getContext());
 						try {
 							p.addProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
 							p.addProductDept(pgs.getProductDept(), mgs.getMenuDept());
 							p.addProducts(pgs.getProduct(), mgs.getMenuItem());
 							p.addPComponentSet(pgs.getPComponentSet());
-
-							mProgress.dismiss();	
 							listener.onSuccess();
 						} catch (Exception e) {
-							mProgress.dismiss();
 							listener.onError(e.getMessage());
 						}
 					}
@@ -145,7 +124,7 @@ public class MPOSService {
 
 		public SendPartialSaleTransactionTask(Context c, int staffId,
 				String jsonSale, OnServiceProcessListener listener) {
-			super(c, MPOSMainService.SEND_PARTIAL_SALE_TRANS_METHOD, 
+			super(MPOSMainService.SEND_PARTIAL_SALE_TRANS_METHOD, 
 					staffId, jsonSale, listener);
 		}
 
@@ -154,25 +133,26 @@ public class MPOSService {
 		}
 		
 	}
+	
 	// send sale transaction
 	private class SendSaleTransactionTask extends MPOSMainService{
 		private OnServiceProcessListener mListener;
 		
-		public SendSaleTransactionTask(Context c, String method, 
+		public SendSaleTransactionTask(String method, 
 				int staffId, String jsonSale, OnServiceProcessListener listener) {
-			super(c, method);
+			super(method);
 			mListener = listener;
 
 			// shopId
 			property = new PropertyInfo();
 			property.setName(SHOP_ID_PARAM);
-			property.setValue(GlobalVar.getShopId(c));
+			property.setValue(MPOSApplication.getShopId());
 			property.setType(int.class);
 			soapRequest.addProperty(property);
 			// computerId
 			property = new PropertyInfo();
 			property.setName(COMPUTER_ID_PARAM);
-			property.setValue(GlobalVar.getComputerId(c));
+			property.setValue(MPOSApplication.getComputerId());
 			property.setType(int.class);
 			soapRequest.addProperty(property);
 			// staffId
@@ -191,9 +171,6 @@ public class MPOSService {
 		
 		@Override
 		protected void onPostExecute(String result) {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			
 			JSONUtil jsonUtil = new JSONUtil();
 			Type type = new TypeToken<WebServiceResult>(){}.getType();
 			
@@ -212,8 +189,8 @@ public class MPOSService {
 
 		@Override
 		protected void onPreExecute() {
-			mProgress.setMessage(mContext.getString(R.string.endday_progress));
-			mProgress.show();
+//			mProgress.setMessage(mContext.getString(R.string.endday_progress));
+//			mProgress.show();
 		}
 	}
 	
@@ -222,7 +199,7 @@ public class MPOSService {
 		private OnLoadShopListener mListener;
 		
 		public LoadShopTask(int shopId, OnLoadShopListener listener) {
-			super(mContext, LOAD_SHOP_METHOD);
+			super(LOAD_SHOP_METHOD);
 			
 			property = new PropertyInfo();
 			property.setName(SHOP_ID_PARAM);
@@ -248,7 +225,7 @@ public class MPOSService {
 
 		@Override
 		protected void onPreExecute() {
-			mProgress.setMessage(context.getString(R.string.sync_shop_progress));
+			//mProgress.setMessage(context.getString(R.string.sync_shop_progress));
 		}
 	}
 	
@@ -257,11 +234,11 @@ public class MPOSService {
 		private OnLoadProductListener mListener;
 		
 		public LoadProductTask(OnLoadProductListener listener) {
-			super(mContext, LOAD_PRODUCT_METHOD);
+			super(LOAD_PRODUCT_METHOD);
 			
 			property = new PropertyInfo();
 			property.setName(SHOP_ID_PARAM);
-			property.setValue(GlobalVar.getShopId(mContext));
+			property.setValue(MPOSApplication.getShopId());
 			property.setType(int.class);
 			soapRequest.addProperty(property);
 			
@@ -286,7 +263,7 @@ public class MPOSService {
 
 		@Override
 		protected void onPreExecute() {
-			mProgress.setMessage(context.getString(R.string.sync_product_progress));
+			//mProgress.setMessage(context.getString(R.string.sync_product_progress));
 		}
 	}
 	
@@ -295,11 +272,11 @@ public class MPOSService {
 		private OnLoadMenuListener mListener;
 		
 		public LoadMenuTask(OnLoadMenuListener listener) {
-			super(mContext, LOAD_MENU_METHOD);
+			super(LOAD_MENU_METHOD);
 			
 			property = new PropertyInfo();
 			property.setName(SHOP_ID_PARAM);
-			property.setValue(GlobalVar.getShopId(mContext));
+			property.setValue(MPOSApplication.getShopId());
 			property.setType(int.class);
 			soapRequest.addProperty(property);
 			
@@ -322,7 +299,7 @@ public class MPOSService {
 
 		@Override
 		protected void onPreExecute() {
-			mProgress.setMessage(context.getString(R.string.sync_menu_progress));
+			//mProgress.setMessage(context.getString(R.string.sync_menu_progress));
 		}
 	}
 
@@ -331,7 +308,7 @@ public class MPOSService {
 		private OnAuthenDeviceListener mListener;
 		
 		public AuthenDevice(OnAuthenDeviceListener listener) {
-			super(mContext, CHECK_DEVICE_METHOD);
+			super(CHECK_DEVICE_METHOD);
 			this.mListener = listener;
 		}
 
@@ -350,7 +327,7 @@ public class MPOSService {
 
 		@Override
 		protected void onPreExecute() {
-			mProgress.setMessage(context.getString(R.string.check_device));
+			//mProgress.setMessage(context.getString(R.string.check_device));
 		}
 	}	
 	
@@ -376,6 +353,6 @@ public class MPOSService {
 	
 	public static interface OnServiceProcessListener{
 		void onSuccess();
-		void onError(String mesg);
+		void onError(String msg);
 	}
 }

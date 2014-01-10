@@ -6,9 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-
 import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Util;
@@ -69,8 +67,8 @@ public abstract class StockDocument extends MPOSDatabase {
 				" WHERE " + Shop.COL_SHOP_ID + "=" + shopId + 
 				" AND " + COL_DOC_TYPE + "=" + documentTypeId + 
 				" AND " + COL_DOC_STATUS + "=1";
-		open();
-		Cursor cursor = mSqlite.rawQuery(strSql, null);
+
+		Cursor cursor = getDatabase().rawQuery(strSql, null);
 		if (cursor.moveToFirst()) {
 			documentId = cursor.getInt(0);
 		}
@@ -82,8 +80,7 @@ public abstract class StockDocument extends MPOSDatabase {
 	public int getMaxDocument(int shopId) {
 		int maxDocId = 0;
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT MAX(" + COL_DOC_ID + ") " + 
+		Cursor cursor = getDatabase().rawQuery("SELECT MAX(" + COL_DOC_ID + ") " + 
 				" FROM " + TB_DOCUMENT + 
 				" WHERE " + Shop.COL_SHOP_ID + "=" + shopId, null);
 		if (cursor.moveToFirst()) {
@@ -102,8 +99,7 @@ public abstract class StockDocument extends MPOSDatabase {
 
 	public String getDocumentHeader(int docType){
 		String header = "";
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT "
+		Cursor cursor = getDatabase().rawQuery("SELECT "
 				+ COL_DOC_TYPE_HEADER
 				+ " FROM " + TB_DOCUMENT_TYPE
 				+ " WHERE " + COL_DOC_TYPE + "=?", 
@@ -118,8 +114,7 @@ public abstract class StockDocument extends MPOSDatabase {
 	public int getMaxDocumentDetail(int documentId, int shopId) {
 		int docDetailId = 0;
 	
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT MAX(" + COL_DOC_DETAIL_ID + ") " + 
+		Cursor cursor = getDatabase().rawQuery("SELECT MAX(" + COL_DOC_DETAIL_ID + ") " + 
 				" FROM " + TB_DOC_DETAIL + 
 				" WHERE " + COL_DOC_ID + "=" + documentId + 
 				" AND " + Shop.COL_SHOP_ID + "=" + shopId, null);
@@ -132,8 +127,7 @@ public abstract class StockDocument extends MPOSDatabase {
 	}
 
 	public void clearDocument() throws SQLException{
-		open();
-		mSqlite.execSQL("DELETE FROM " + TB_DOCUMENT + " WHERE " + COL_DOC_STATUS + "=0");
+		getDatabase().execSQL("DELETE FROM " + TB_DOCUMENT + " WHERE " + COL_DOC_STATUS + "=0");
 		close();
 	}
 
@@ -151,9 +145,8 @@ public abstract class StockDocument extends MPOSDatabase {
 		cv.put(COL_UPDATE_BY, staffId);
 		cv.put(COL_UPDATE_DATE, dateTime.getTimeInMillis());
 
-		open();
 		try {
-			mSqlite.insertOrThrow(TB_DOCUMENT, null, cv);
+			getDatabase().insertOrThrow(TB_DOCUMENT, null, cv);
 		} catch (Exception e) {
 			documentId = 0;
 			e.printStackTrace();
@@ -179,9 +172,8 @@ public abstract class StockDocument extends MPOSDatabase {
 		cv.put(COL_UPDATE_BY, staffId);
 		cv.put(COL_UPDATE_DATE, dateTime.getTimeInMillis());
 
-		open();
 		try {
-			mSqlite.insertOrThrow(TB_DOCUMENT, null, cv);
+			getDatabase().insertOrThrow(TB_DOCUMENT, null, cv);
 		} catch (Exception e) {
 			documentId = 0;
 			e.printStackTrace();
@@ -203,9 +195,8 @@ public abstract class StockDocument extends MPOSDatabase {
 				" WHERE " + COL_DOC_ID + "=" + documentId + 
 				" AND " + Shop.COL_SHOP_ID + "=" + shopId;
 
-		open();
 		try {
-			mSqlite.execSQL(strSql);
+			getDatabase().execSQL(strSql);
 			isSuccess = true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -246,9 +237,8 @@ public abstract class StockDocument extends MPOSDatabase {
 		cv.put(Products.COL_PRODUCT_PRICE, productPrice);
 		cv.put(COL_REMARK, remark);
 
-		open();
 		try {
-			mSqlite.insertOrThrow(TB_DOC_DETAIL, null, cv);
+			getDatabase().insertOrThrow(TB_DOC_DETAIL, null, cv);
 		} catch (Exception e) {
 			docDetailId = 0;
 			e.printStackTrace();
@@ -270,9 +260,8 @@ public abstract class StockDocument extends MPOSDatabase {
 		cv.put(Products.COL_PRODUCT_PRICE, productPrice);
 		cv.put(Products.COL_PRODUCT_UNIT_NAME, unitName);
 
-		open();
 		try {
-			mSqlite.insertOrThrow(TB_DOC_DETAIL, null, cv);
+			getDatabase().insertOrThrow(TB_DOC_DETAIL, null, cv);
 		} catch (Exception e) {
 			docDetailId = 0;
 			e.printStackTrace();
@@ -286,9 +275,8 @@ public abstract class StockDocument extends MPOSDatabase {
 			String unitName) throws SQLException {
 		boolean isSuccess = false;
 
-		open();
 		try {
-			mSqlite.execSQL(
+			getDatabase().execSQL(
 					" UPDATE " + TB_DOC_DETAIL + 
 					" SET " + 
 					COL_PRODUCT_AMOUNT + "=" + productQty + ", " + 
@@ -309,9 +297,8 @@ public abstract class StockDocument extends MPOSDatabase {
 			int shopId) {
 		boolean isSuccess = false;
 
-		open();
 		try {
-			mSqlite.execSQL(
+			getDatabase().execSQL(
 					" DELETE FROM " + TB_DOC_DETAIL + 
 					" WHERE " + COL_DOC_DETAIL_ID + "=" + docDetailId + 
 					" AND " + COL_DOC_ID + "=" + documentId + 
@@ -327,9 +314,8 @@ public abstract class StockDocument extends MPOSDatabase {
 	public boolean deleteDocumentDetail(int documentId, int shopId) {
 		boolean isSuccess = false;
 
-		open();
 		try {
-			mSqlite.execSQL(
+			getDatabase().execSQL(
 					" DELETE FROM " + TB_DOC_DETAIL + 
 					" WHERE " + COL_DOC_ID + "=" + documentId + 
 					" AND " + Shop.COL_SHOP_ID + "=" + shopId);

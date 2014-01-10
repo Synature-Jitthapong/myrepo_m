@@ -22,7 +22,7 @@ public class StockCount extends StockDocument {
 
 	public Cursor listStock(long dateFrom, long dateTo){
 		//float currStock = getCurrentStock(dateFrom, dateTo);
-		return mSqlite.rawQuery(
+		return getDatabase().rawQuery(
 				"SELECT SUM(", 
 				new String[]{});
 	}
@@ -30,7 +30,7 @@ public class StockCount extends StockDocument {
 	public float getCurrentStock(int productId, long dateFrom, long dateTo){
 		float currStock = 0.0f;
 
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getDatabase().rawQuery(
 				"SELECT (a." + StockDocument.COL_PRODUCT_AMOUNT + "*" + 
 				"b." + StockDocument.COL_MOVE_MENT + ") " +
 				"FROM " + StockDocument.TB_DOC_DETAIL + " a " +

@@ -13,7 +13,7 @@ public class Bank extends MPOSDatabase{
 	public static final String COL_BANK_ID = "BankId";
 	public static final String COL_BANK_NAME = "BankName";
 	
-	public Bank(Context c){
+	public Bank(Context c) {
 		super(c);
 	}
 	
@@ -21,8 +21,7 @@ public class Bank extends MPOSDatabase{
 		List<BankName> bankLst = 
 				new ArrayList<BankName>();
 		
-		open();
-		Cursor cursor = mSqlite.query(TB_BANK, 
+		Cursor cursor = getDatabase().query(TB_BANK, 
 				new String[]{COL_BANK_ID, COL_BANK_NAME}, null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			do{

@@ -2,14 +2,10 @@ package com.syn.mpos.database.transaction;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.j1tth4.mobile.sqlite.SQLiteHelper;
 import com.syn.mpos.database.Bank;
 import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.CreditCard;
 import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.MPOSSQLiteHelper;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -34,9 +30,8 @@ public class PaymentDetail extends MPOSDatabase {
 	public boolean deleteAllPaymentDetail(int transactionId, int computerId) throws SQLException{
 		boolean isSuccess = false;
 		
-		open();
 		try {
-			mSqlite.execSQL(
+			getDatabase().execSQL(
 					" DELETE FROM " + TB_PAYMENT +
 					" WHERE " + Transaction.COL_TRANS_ID + "=" + transactionId + 
 					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
@@ -51,8 +46,7 @@ public class PaymentDetail extends MPOSDatabase {
 	public int getMaxPaymentDetailId(int transactionId, int computerId) {
 		int maxPaymentId = 0;
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getDatabase().rawQuery(
 				" SELECT MAX(" + COL_PAY_ID + ") " +
 				" FROM " + TB_PAYMENT + 
 				" WHERE " + Transaction.COL_TRANS_ID + "=" + transactionId +
@@ -84,9 +78,8 @@ public class PaymentDetail extends MPOSDatabase {
 		cv.put(CreditCard.COL_CREDIT_CARD_TYPE_ID, creditCardTypeId);
 		cv.put(Bank.COL_BANK_ID, bankId);
 		
-		open();
 		try {
-			mSqlite.insertOrThrow(TB_PAYMENT, null, cv);
+			getDatabase().insertOrThrow(TB_PAYMENT, null, cv);
 			isSuccess = true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -100,9 +93,8 @@ public class PaymentDetail extends MPOSDatabase {
 			int expireYear, int bankId, int creditCardTypeId) throws SQLException {
 		boolean isSuccess = false;
 		
-		open();
 		try {
-			mSqlite.execSQL(
+			getDatabase().execSQL(
 					" UPDATE " + TB_PAYMENT + 
 					" SET " +
 					COL_PAY_TYPE_ID + "=" + payTypeId + ", " +
@@ -125,9 +117,8 @@ public class PaymentDetail extends MPOSDatabase {
 	public boolean deletePaymentDetail(int paymentId) throws SQLException {
 		boolean isSuccess = false;
 		
-		open();
 		try {
-			mSqlite.execSQL(
+			getDatabase().execSQL(
 					" DELETE FROM " + TB_PAYMENT +
 					" WHERE " + COL_PAY_ID + "=" + paymentId);
 			isSuccess = true;
@@ -141,8 +132,7 @@ public class PaymentDetail extends MPOSDatabase {
 	public float getTotalPaid(int transactionId, int computerId){
 		float totalPaid = 0.0f;
 
-		open();
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getDatabase().rawQuery(
 				" SELECT SUM(" + COL_PAY_AMOUNT + ") " +
 				" FROM " + TB_PAYMENT +
 				" WHERE " + Transaction.COL_TRANS_ID + "=" + transactionId +
@@ -159,8 +149,7 @@ public class PaymentDetail extends MPOSDatabase {
 		List<com.syn.pos.Payment.PaymentDetail> paymentLst = 
 				new ArrayList<com.syn.pos.Payment.PaymentDetail>();
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getDatabase().rawQuery(
 				" SELECT a.*, " +
 				" b." + COL_PAY_TYPE_CODE + ", " +
 				" b." + COL_PAY_TYPE_NAME +

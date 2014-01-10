@@ -348,7 +348,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 	
 	private void print(){
-		String printerIp = GlobalVar.getPrinterIp(this);
+		String printerIp = MPOSApplication.getPrinterIp();
 		mPrinter = new Print(PaymentActivity.this);
 		mPrinter.setStatusChangeEventCallback(this);
 		mPrinter.setBatteryStatusChangeEventCallback(this);
@@ -479,7 +479,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 					mComputerId, mStaffId)){
 				
 				// send real time sale
-				MPOSUtil.sendRealTimeSale(this, mStaffId);
+				MPOSUtil.sendRealTimeSale(mStaffId, mTransactionId, mComputerId);
 				
 				float change = mTotalPaid - sTotalSalePrice;
 				print();

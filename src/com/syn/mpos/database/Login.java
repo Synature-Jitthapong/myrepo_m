@@ -19,24 +19,25 @@ public class Login extends MPOSDatabase{
 	
 	public boolean checkUser(){
 		boolean isFound = false;
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT " + Staff.COL_STAFF_CODE +
-				" FROM " + Staff.TB_STAFF +
-				" WHERE " + Staff.COL_STAFF_CODE + "='" + user + "'", null);
+		Cursor cursor = getDatabase().query(Staff.TB_STAFF, 
+				new String[]{Staff.COL_STAFF_CODE}, 
+				Staff.COL_STAFF_CODE + "=?", 
+				new String[]{user}, null, null, null);
 		if(cursor.moveToFirst()){
 			isFound = true;
 		}
 		cursor.close();
-		mSqlite.close();
+		close();
 		return isFound;
 	}
 	
 	public ShopData.Staff checkLogin() {
 		ShopData.Staff s = null;
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + Staff.TB_STAFF +
-				" WHERE " + Staff.COL_STAFF_CODE + "='" + user + "' " + 
-				" AND " + Staff.COL_STAFF_PASS + "='" + passEncrypt + "'", null);
+		Cursor cursor = getDatabase().rawQuery("SELECT * FROM " 
+				+ Staff.TB_STAFF
+				+ " WHERE " + Staff.COL_STAFF_CODE + "=?" 
+				+ " AND " + Staff.COL_STAFF_PASS + "=?", 
+				new String[]{user, passEncrypt});
 		if(cursor.moveToFirst()){
 			s = new ShopData.Staff();
 			s.setStaffID(cursor.getInt(cursor.getColumnIndex(Staff.COL_STAFF_ID)));
@@ -45,7 +46,7 @@ public class Login extends MPOSDatabase{
 			cursor.moveToNext();
 		}
 		cursor.close();
-		mSqlite.close();
+		close();
 		return s;
 	}
 }

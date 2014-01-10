@@ -25,8 +25,7 @@ public class Staff extends MPOSDatabase{
 	public ShopData.Staff getStaff(int staffId){
 		ShopData.Staff s = null;
 		
-		open();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_STAFF +
+		Cursor cursor = getDatabase().rawQuery("SELECT * FROM " + TB_STAFF +
 				" WHERE " + COL_STAFF_ID + "=" + staffId, null);
 		if(cursor.moveToFirst()){
 			s = new ShopData.Staff();
@@ -39,15 +38,14 @@ public class Staff extends MPOSDatabase{
 	}
 	
 	public void insertStaff(List<ShopData.Staff> staffLst) throws SQLException{
-		open();
-		mSqlite.execSQL("DELETE FROM " + TB_STAFF);
+		getDatabase().execSQL("DELETE FROM " + TB_STAFF);
 		for(ShopData.Staff staff : staffLst){
 			ContentValues cv = new ContentValues();
 			cv.put(COL_STAFF_ID, staff.getStaffID());
 			cv.put(COL_STAFF_CODE, staff.getStaffCode());
 			cv.put(COL_STAFF_NAME, staff.getStaffName());
 			cv.put(COL_STAFF_PASS, staff.getStaffPassword());
-			mSqlite.insertOrThrow(TB_STAFF, null, cv);
+			getDatabase().insertOrThrow(TB_STAFF, null, cv);
 		}
 		close();
 	}
