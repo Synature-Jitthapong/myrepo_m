@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.syn.mpos.R;
-import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
@@ -110,12 +109,21 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		
 		mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 		mPager = (ViewPager) findViewById(R.id.pager);
-		setupMenuItemPager();
+		mProductDeptLst = MPOSApplication.getProduct().listProductDept();
+		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
+		mPager.setAdapter(mPageAdapter);
+		
+		final int pageMargin = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
+						.getDisplayMetrics());
+		mPager.setPageMargin(pageMargin);
+		mTabs.setViewPager(mPager);
+		mTabs.setIndicatorColor(0xFF1D78B2);
 	}
 	
 	public void init(){
-		mShop = new Shop(this);
-		mTransaction = new Transaction(this);
+		mShop = new Shop(MPOSApplication.getWriteDatabase());
+		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
 		mProgress = new ProgressDialog(this);
 		mTransactionId = mTransaction.getCurrTransaction(mComputerId);
 		if(mTransactionId == 0)
@@ -124,24 +132,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		setupOrderListView();
 		countHoldOrder();
 		loadOrder();
-	}
-	
-	private void setupMenuItemPager(){
-		Products p = new Products(this);
-		mProductDeptLst = p.listProductDept();
-		if (mProductDeptLst.size() > 0) {
-			mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
-			mPager.setAdapter(mPageAdapter);
-			
-			final int pageMargin = (int) TypedValue.applyDimension(
-					TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
-							.getDisplayMetrics());
-			mPager.setPageMargin(pageMargin);
-			mTabs.setViewPager(mPager);
-			mTabs.setIndicatorColor(0xFF1D78B2);
-		}else{
-	
-		}
 	}
 	
 	private void setupOrderListView(){
@@ -316,21 +306,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		switch(requestCode){
-		case SYNC_REQUEST_CODE:
-			setupMenuItemPager();
-			break;
-		}
-	}
-
-	void sync(){
-		Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-		intent.putExtra("settingPosition", 1);
-		this.startActivityForResult(intent, SYNC_REQUEST_CODE);
-	}
-
 	private void countHoldOrder(){
 		if(mItemHoldBill != null){
 			int totalHold = mTransaction.countHoldOrder(mComputerId);
@@ -370,6 +345,13 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 
 	private class OrderListAdapter extends BaseAdapter{
 		
+		private LayoutInflater mInflater;
+		
+		public OrderListAdapter(){
+			mInflater = (LayoutInflater) 
+					MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
+		
 		@Override
 		public int getCount() {
 			return mOrderLst != null ? mOrderLst.size() : 0;
@@ -390,13 +372,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			final OrderTransaction.OrderDetail orderDetail = 
 					mOrderLst.get(position);
 	
-			LayoutInflater inflater = (LayoutInflater) 
-				MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			ViewHolder holder;
-			
+			ViewHolder holder;		
 			if(convertView == null){
 				holder = new ViewHolder();
-				convertView = inflater.inflate(R.layout.order_list_template, null);
+				convertView = mInflater.inflate(R.layout.order_list_template, null);
 				holder.chk = (CheckBox) convertView.findViewById(R.id.checkBox1);
 				holder.tvOrderNo = (TextView) convertView.findViewById(R.id.textViewOrderNo);
 				holder.tvOrderName = (TextView) convertView.findViewById(R.id.textViewOrderName);
@@ -429,7 +408,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 					if(--qty > 0){
 						orderDetail.setQty(qty);
 
-						Products p = new Products(MainActivity.this);
+						Products p = new Products(MPOSApplication.getWriteDatabase());
 						mTransaction.updateOrderDetail(mTransactionId, mComputerId, 
 								orderDetail.getOrderDetailId(), 
 								p.getVatRate(orderDetail.getProductId()), 
@@ -469,7 +448,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 					float qty = orderDetail.getQty();
 					orderDetail.setQty(++qty);
 
-					Products p = new Products(MainActivity.this);
+					Products p = new Products(MPOSApplication.getWriteDatabase());
 					mTransaction.updateOrderDetail(mTransactionId, mComputerId, 
 							orderDetail.getOrderDetailId(), 
 							p.getVatRate(orderDetail.getProductId()), 
@@ -691,8 +670,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 							}
 						};
 						
-				MPOSUtil.doEndday(MainActivity.this, mComputerId, 
-						mSessionId, mStaffId, 0.0f, true, onEnddayListener);
+				MPOSUtil.doEndday(mComputerId, mSessionId, mStaffId, 0.0f, true, onEnddayListener);
 			}
 		}).show();
 	}
@@ -817,7 +795,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 					
 					if(!txtPassword.getText().toString().isEmpty()){
 						pass = txtPassword.getText().toString();
-						Login login = new Login(MainActivity.this, user, pass);
+						Login login = new Login(MPOSApplication.getWriteDatabase(), user, pass);
 						
 						if(login.checkUser()){
 							ShopData.Staff s = login.checkLogin();
@@ -967,8 +945,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 	// create popup product size
 	private void popupProductSize(int proId){
-		Products p = new Products(this);
-		List<Products.Product> pSizeLst = p.listProductSize(proId);
+		List<Products.Product> pSizeLst = MPOSApplication.getProduct().listProductSize(proId);
 		LayoutInflater inflater = (LayoutInflater)
 				this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);

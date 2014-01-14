@@ -5,9 +5,11 @@ import java.lang.reflect.Type;
 import org.ksoap2.serialization.PropertyInfo;
 
 import com.google.gson.reflect.TypeToken;
+import com.j1tth4.mobile.util.FileManager;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.HeaderFooterReceipt;
 import com.syn.mpos.database.Language;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
@@ -49,17 +51,19 @@ public class MPOSService {
 
 					@Override
 					public void onLoadShopSuccess(ShopData sd) {
-						Shop shop = new Shop(MPOSApplication.getContext());
-						Computer comp = new Computer(MPOSApplication.getContext());
-						GlobalProperty global = new GlobalProperty(MPOSApplication.getContext());
-						Language lang = new Language(MPOSApplication.getContext());
-						Staff staff = new Staff(MPOSApplication.getContext());
+						Shop shop = new Shop(MPOSApplication.getWriteDatabase());
+						Computer comp = new Computer(MPOSApplication.getWriteDatabase());
+						GlobalProperty global = new GlobalProperty(MPOSApplication.getWriteDatabase());
+						Language lang = new Language(MPOSApplication.getWriteDatabase());
+						Staff staff = new Staff(MPOSApplication.getWriteDatabase());
+						HeaderFooterReceipt hf = new HeaderFooterReceipt(MPOSApplication.getWriteDatabase());
 						try {
 							shop.insertShopProperty(sd.getShopProperty());
 							comp.insertComputer(sd.getComputerProperty());
 							global.insertProperty(sd.getGlobalProperty());
 							staff.insertStaff(sd.getStaffs());
 							lang.insertLanguage(sd.getLanguage());
+							hf.addHeaderFooterReceipt(sd.getHeaderFooterReceipt());
 							listener.onSuccess();
 						} catch (Exception e) {
 							listener.onError(e.getMessage());
@@ -101,12 +105,18 @@ public class MPOSService {
 
 					@Override
 					public void onLoadProductSuccess(ProductGroups pgs) {
-						Products p = new Products(MPOSApplication.getContext());
+						Products p = new Products(MPOSApplication.getWriteDatabase());
 						try {
 							p.addProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
 							p.addProductDept(pgs.getProductDept(), mgs.getMenuDept());
 							p.addProducts(pgs.getProduct(), mgs.getMenuItem());
 							p.addPComponentSet(pgs.getPComponentSet());
+							
+							// clear all menu picture
+							FileManager fm = new FileManager(MPOSApplication.getContext(), 
+									MPOSApplication.IMG_DIR);
+							fm.clear();
+							
 							listener.onSuccess();
 						} catch (Exception e) {
 							listener.onError(e.getMessage());

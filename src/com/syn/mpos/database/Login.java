@@ -3,15 +3,15 @@ package com.syn.mpos.database;
 import com.j1tth4.mobile.util.EncryptSHA1;
 import com.j1tth4.mobile.util.Encryption;
 import com.syn.pos.ShopData;
-import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class Login extends MPOSDatabase{
 	private String user;
 	private String passEncrypt;
 	
-	public Login(Context c, String user, String pass) {
-		super(c);
+	public Login(SQLiteDatabase db, String user, String pass) {
+		super(db);
 		this.user = user;
 		Encryption encrypt = new EncryptSHA1();
 		passEncrypt = encrypt.sha1(pass);
@@ -19,7 +19,7 @@ public class Login extends MPOSDatabase{
 	
 	public boolean checkUser(){
 		boolean isFound = false;
-		Cursor cursor = getDatabase().query(Staff.TB_STAFF, 
+		Cursor cursor = mSqlite.query(Staff.TB_STAFF, 
 				new String[]{Staff.COL_STAFF_CODE}, 
 				Staff.COL_STAFF_CODE + "=?", 
 				new String[]{user}, null, null, null);
@@ -27,13 +27,12 @@ public class Login extends MPOSDatabase{
 			isFound = true;
 		}
 		cursor.close();
-		close();
 		return isFound;
 	}
 	
 	public ShopData.Staff checkLogin() {
 		ShopData.Staff s = null;
-		Cursor cursor = getDatabase().rawQuery("SELECT * FROM " 
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " 
 				+ Staff.TB_STAFF
 				+ " WHERE " + Staff.COL_STAFF_CODE + "=?" 
 				+ " AND " + Staff.COL_STAFF_PASS + "=?", 
@@ -46,7 +45,6 @@ public class Login extends MPOSDatabase{
 			cursor.moveToNext();
 		}
 		cursor.close();
-		close();
 		return s;
 	}
 }

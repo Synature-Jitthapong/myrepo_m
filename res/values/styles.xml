@@ -43,13 +43,12 @@
     </style>
     <!-- Application theme. 
     	<item name="android:actionBarStyle">@style/ActionBarStyle</item>
-       	<item name="android:actionMenuTextColor">@color/smoke_white</item>-->
-    <style name="AppTheme" parent="AppBaseTheme">
+       	<item name="android:actionMenuTextColor">@color/smoke_white</item>
         <item name="android:windowBackground">@color/light_gray</item>
-    </style>  
-     <style name="ActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@drawable/actionbar_background</item>
-    </style>
+       	-->
+    <style name="AppTheme" parent="AppBaseTheme">
+    </style> 
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
     </style>
 </resources>

@@ -126,8 +126,8 @@ public class CreditPayActivity extends Activity {
 	}
 	
 	private void init(){
-		mGlobalProp = new GlobalProperty(this);
-		mPayment = new PaymentDetail(this);
+		mGlobalProp = new GlobalProperty(MPOSApplication.getWriteDatabase());
+		mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
 		
 		displayTotalPrice();
 		loadCreditCardType();
@@ -188,7 +188,7 @@ public class CreditPayActivity extends Activity {
 	}
 	
 	private void loadCreditCardType(){
-		CreditCard credit = new CreditCard(CreditPayActivity.this);
+		CreditCard credit = new CreditCard(MPOSApplication.getWriteDatabase());
 		mCreditCardLst = credit.listAllCreditCardType();
 		
 		ArrayAdapter<CreditCardType> adapter = 
@@ -214,7 +214,7 @@ public class CreditPayActivity extends Activity {
 	}
 	
 	private void loadBankName(){
-		Bank bank = new Bank(CreditPayActivity.this);
+		Bank bank = new Bank(MPOSApplication.getWriteDatabase());
 		mBankLst = bank.listAllBank();
 		
 		ArrayAdapter<BankName> adapter = 

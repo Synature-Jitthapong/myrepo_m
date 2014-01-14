@@ -2,23 +2,22 @@ package com.syn.mpos.database;
 
 import java.util.ArrayList;
 import java.util.List;
-import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class Province extends MPOSDatabase{
 	public static final String TB_PROVINCE = "Province";
 	public static final String COL_PROVINCE_ID = "ProvinceId";
 	public static final String COL_PROVINCE_NAME = "ProvinceName";
 	
-	public Province(Context c){
-		super(c);
+	public Province(SQLiteDatabase db){
+		super(db);
 	}
 	
 	public List<com.syn.pos.Province> listProvince(){
 		List<com.syn.pos.Province> pLst =
 				new ArrayList<com.syn.pos.Province>();
-		
-		Cursor cursor = getDatabase().rawQuery("SELECT * FROM " + TB_PROVINCE, null);
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_PROVINCE, null);
 		if(cursor.moveToFirst()){
 			do{
 				com.syn.pos.Province province =
@@ -29,7 +28,6 @@ public class Province extends MPOSDatabase{
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		close();
 		return pLst;
 	}
 }

@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -59,7 +60,7 @@ public class LoginActivity extends Activity {
 	}
 
 	private void init(){
-		mSession = new Session(this);
+		mSession = new Session(MPOSApplication.getWriteDatabase());
 		mShopId = MPOSApplication.getShopId();
 		mComputerId = MPOSApplication.getComputerId();
 
@@ -112,6 +113,7 @@ public class LoginActivity extends Activity {
 				
 				@Override
 				public void onError(String mesg) {
+					((Button) findViewById(R.id.buttonLogin)).setEnabled(true);
 					mProgress.dismiss();
 					new AlertDialog.Builder(LoginActivity.this)
 					.setMessage(mesg)
@@ -126,6 +128,7 @@ public class LoginActivity extends Activity {
 	};
 	
 	public void loginClicked(final View v){
+		v.setEnabled(false);
 		final MPOSService mposService = new MPOSService();
 		if(mShopId == 0){
 			mProgress.setTitle(MPOSApplication.getContext().getString(R.string.sync));
@@ -146,6 +149,7 @@ public class LoginActivity extends Activity {
 				
 				@Override
 				public void onError(String mesg) {
+					v.setEnabled(true);
 					mProgress.dismiss();
 					new AlertDialog.Builder(LoginActivity.this)
 					.setMessage(mesg)
@@ -161,11 +165,14 @@ public class LoginActivity extends Activity {
 				}
 			});
 		}else{
-//			mProgress.setTitle(MPOSApplication.getContext().getString(R.string.sync));
-//			mProgress.setMessage(MPOSApplication.getContext().getString(R.string.sync_product_progress));
-//			mProgress.show();
-//			mposService.loadProductData(mLoadProductListener);
-			checkLogin();
+			if(mSession.getCurrentSession(mShopId, mComputerId) > 0){
+				checkLogin();
+			}else{
+				mProgress.setTitle(MPOSApplication.getContext().getString(R.string.sync));
+				mProgress.setMessage(MPOSApplication.getContext().getString(R.string.sync_product_progress));
+				mProgress.show();
+				mposService.loadProductData(mLoadProductListener);
+			}
 		}
 	}
 	
@@ -187,7 +194,7 @@ public class LoginActivity extends Activity {
 			
 			if(!mTxtPass.getText().toString().isEmpty()){
 				pass = mTxtPass.getText().toString();
-				Login login = new Login(LoginActivity.this, user, pass);
+				Login login = new Login(MPOSApplication.getWriteDatabase(), user, pass);
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();

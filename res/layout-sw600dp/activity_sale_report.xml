@@ -185,6 +185,83 @@
             android:layout_weight="0.2" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/billSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/TextView10"
+            style="@style/ColumnHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left" />
+
+        <TextView
+            android:id="@+id/tvSummTotalPrice"
+            style="@style/ColumnHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:gravity="right" />
+
+        <TextView
+            android:id="@+id/tvSummDiscount"
+            style="@style/ColumnHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:gravity="right"
+            android:text="@string/discount" />
+
+        <TextView
+            android:id="@+id/tvSummSubTotal"
+            style="@style/ColumnHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:gravity="right"
+            android:text="@string/sub_total" />
+
+        <TextView
+            android:id="@+id/tvSummTotalSale"
+            style="@style/ColumnHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:text="@string/total_sale"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvSummVatable"
+            style="@style/ColumnHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:gravity="right"
+            android:text="@string/vatable" />
+
+        <TextView
+            android:id="@+id/tvSummTotalVat"
+            style="@style/ColumnHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:gravity="right"
+            android:text="@string/total_vat" />
+
+        <TextView
+            android:id="@+id/tvSummTotalPay"
+            style="@style/ColumnHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:gravity="right"
+            android:text="@string/total_payment" />
+    </LinearLayout>
+
     <ListView
         android:id="@+id/lvReport"
         android:layout_width="match_parent"

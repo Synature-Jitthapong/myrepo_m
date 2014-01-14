@@ -6,9 +6,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+
 import com.syn.pos.ShopData;
 
 public class GlobalProperty extends MPOSDatabase{
@@ -30,8 +31,8 @@ public class GlobalProperty extends MPOSDatabase{
 		COL_TIME_FORMAT
 	};
 	
-	public GlobalProperty(Context c) {
-		super(c);
+	public GlobalProperty(SQLiteDatabase db) {
+		super(db);
 	}
 
 	public String dateFormat(Date d, String pattern){
@@ -97,8 +98,7 @@ public class GlobalProperty extends MPOSDatabase{
 	public ShopData.GlobalProperty getGlobalProperty() {
 		ShopData.GlobalProperty gb = 
 				new ShopData.GlobalProperty();
-		
-		Cursor cursor = getDatabase().query(TB_GLOBAL_PROPERTY, COLUMNS, 
+		Cursor cursor = mSqlite.query(TB_GLOBAL_PROPERTY, COLUMNS, 
 				null, null, null, null, null);
 		if (cursor.moveToFirst()) {
 			gb.setCurrencyCode(cursor.getString(cursor
@@ -117,12 +117,11 @@ public class GlobalProperty extends MPOSDatabase{
 					.getColumnIndex(COL_QTY_FORMAT)));
 			cursor.moveToNext();
 		}
-		close();
 		return gb;
 	}
 
 	public void insertProperty(List<ShopData.GlobalProperty> globalLst) throws SQLException{
-		getDatabase().delete(TB_GLOBAL_PROPERTY, null, null);
+		mSqlite.delete(TB_GLOBAL_PROPERTY, null, null);
 		for (ShopData.GlobalProperty global : globalLst) {
 			ContentValues cv = new ContentValues();
 			cv.put(COL_CURRENCY_SYMBOL, global.getCurrencySymbol());
@@ -132,8 +131,7 @@ public class GlobalProperty extends MPOSDatabase{
 			cv.put(COL_DATE_FORMAT, global.getDateFormat());
 			cv.put(COL_TIME_FORMAT, global.getTimeFormat());
 			cv.put(COL_QTY_FORMAT, global.getQtyFormat());
-			getDatabase().insertOrThrow(TB_GLOBAL_PROPERTY, null, cv);
+			mSqlite.insertOrThrow(TB_GLOBAL_PROPERTY, null, cv);
 		}
-		close();
 	}
 }

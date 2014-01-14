@@ -7,7 +7,9 @@
         	    android:title="@string/printer_ip" 
         	    android:key="printer_ip" 
         	    android:selectAllOnFocus="true"
-        	    android:defaultValue="@string/printer_ip_summary"/>
+        	    android:defaultValue="1.1.0.161"/>
+        	<EditTextPreference android:key="printer_name" android:title="@string/printer_name" android:defaultValue="TM-T88V"/>
+        	<ListPreference android:key="printer_list" android:title="@string/printer_name"/>
     </PreferenceCategory>
     
 

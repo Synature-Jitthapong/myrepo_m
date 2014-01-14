@@ -1,10 +1,14 @@
 package com.syn.mpos.database;
 
+import com.syn.mpos.MPOSApplication;
+
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -20,7 +24,7 @@ public class ProductProvider extends ContentProvider {
 	};
 	
 	private Products mProduct;
-	
+
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		throw new UnsupportedOperationException();
@@ -38,7 +42,8 @@ public class ProductProvider extends ContentProvider {
 
 	@Override
 	public boolean onCreate() {
-		mProduct = new Products(getContext());
+		MPOSSQLiteHelper dbHelper = new MPOSSQLiteHelper(getContext());
+		mProduct = new Products(dbHelper.getWritableDatabase());
 		return true;
 	}
 
@@ -67,7 +72,6 @@ public class ProductProvider extends ContentProvider {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		mProduct.close();
 		return matrixCursor;
 	}
 

@@ -7,9 +7,9 @@ import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.CreditCard;
 import com.syn.mpos.database.MPOSDatabase;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
 public class PaymentDetail extends MPOSDatabase {
 
@@ -23,15 +23,14 @@ public class PaymentDetail extends MPOSDatabase {
 	public static final String COL_PAY_TYPE_CODE = "PayTypeCode";
 	public static final String COL_PAY_TYPE_NAME = "PayTypeName";
 	
-	public PaymentDetail(Context c) {
-		super(c);
+	public PaymentDetail(SQLiteDatabase db) {
+		super(db);
 	}
 	
 	public boolean deleteAllPaymentDetail(int transactionId, int computerId) throws SQLException{
 		boolean isSuccess = false;
-		
 		try {
-			getDatabase().execSQL(
+			mSqlite.execSQL(
 					" DELETE FROM " + TB_PAYMENT +
 					" WHERE " + Transaction.COL_TRANS_ID + "=" + transactionId + 
 					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
@@ -39,14 +38,12 @@ public class PaymentDetail extends MPOSDatabase {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		close();
 		return isSuccess;
 	}
 	
 	public int getMaxPaymentDetailId(int transactionId, int computerId) {
 		int maxPaymentId = 0;
-		
-		Cursor cursor = getDatabase().rawQuery(
+		Cursor cursor = mSqlite.rawQuery(
 				" SELECT MAX(" + COL_PAY_ID + ") " +
 				" FROM " + TB_PAYMENT + 
 				" WHERE " + Transaction.COL_TRANS_ID + "=" + transactionId +
@@ -55,7 +52,6 @@ public class PaymentDetail extends MPOSDatabase {
 			maxPaymentId = cursor.getInt(0);
 		}
 		cursor.close();
-		close();
 		return maxPaymentId + 1;
 	}
 
@@ -65,7 +61,6 @@ public class PaymentDetail extends MPOSDatabase {
 			int expireYear, int bankId,int creditCardTypeId) throws SQLException {
 		boolean isSuccess = false;
 		int paymentId = getMaxPaymentDetailId(transactionId, computerId);
-		
 		ContentValues cv = new ContentValues();
 		cv.put(COL_PAY_ID, paymentId);
 		cv.put(Transaction.COL_TRANS_ID, transactionId);
@@ -79,12 +74,11 @@ public class PaymentDetail extends MPOSDatabase {
 		cv.put(Bank.COL_BANK_ID, bankId);
 		
 		try {
-			getDatabase().insertOrThrow(TB_PAYMENT, null, cv);
+			mSqlite.insertOrThrow(TB_PAYMENT, null, cv);
 			isSuccess = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		close();
 		return isSuccess;
 	}
 
@@ -92,9 +86,8 @@ public class PaymentDetail extends MPOSDatabase {
 			float paymentAmount, String creditCardNo, int expireMonth,
 			int expireYear, int bankId, int creditCardTypeId) throws SQLException {
 		boolean isSuccess = false;
-		
 		try {
-			getDatabase().execSQL(
+			mSqlite.execSQL(
 					" UPDATE " + TB_PAYMENT + 
 					" SET " +
 					COL_PAY_TYPE_ID + "=" + payTypeId + ", " +
@@ -110,29 +103,25 @@ public class PaymentDetail extends MPOSDatabase {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		close();
 		return isSuccess;
 	}
 
 	public boolean deletePaymentDetail(int paymentId) throws SQLException {
 		boolean isSuccess = false;
-		
 		try {
-			getDatabase().execSQL(
+			mSqlite.execSQL(
 					" DELETE FROM " + TB_PAYMENT +
 					" WHERE " + COL_PAY_ID + "=" + paymentId);
 			isSuccess = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		close();
 		return isSuccess;
 	}
 	
 	public float getTotalPaid(int transactionId, int computerId){
 		float totalPaid = 0.0f;
-
-		Cursor cursor = getDatabase().rawQuery(
+		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + COL_PAY_AMOUNT + ") " +
 				" FROM " + TB_PAYMENT +
 				" WHERE " + Transaction.COL_TRANS_ID + "=" + transactionId +
@@ -141,15 +130,13 @@ public class PaymentDetail extends MPOSDatabase {
 			totalPaid = cursor.getFloat(0);
 		}
 		cursor.close();
-		close();
 		return totalPaid;
 	}
 	
 	public List<com.syn.pos.Payment.PaymentDetail> listPayment(int transactionId, int computerId){
 		List<com.syn.pos.Payment.PaymentDetail> paymentLst = 
 				new ArrayList<com.syn.pos.Payment.PaymentDetail>();
-		
-		Cursor cursor = getDatabase().rawQuery(
+		Cursor cursor = mSqlite.rawQuery(
 				" SELECT a.*, " +
 				" b." + COL_PAY_TYPE_CODE + ", " +
 				" b." + COL_PAY_TYPE_NAME +
@@ -173,7 +160,6 @@ public class PaymentDetail extends MPOSDatabase {
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		close();
 		return paymentLst;
 	}
 	

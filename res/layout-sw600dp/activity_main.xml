@@ -202,7 +202,7 @@
                 android:minWidth="100dp"
                 android:onClick="paymentClicked"
                 android:padding="4dp"
-                android:text="@string/cash"
+                android:text="@string/tender"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
         </LinearLayout>
     </RelativeLayout>
@@ -217,7 +217,7 @@
         <com.astuetz.viewpager.extensions.PagerSlidingTabStrip
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="60dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"

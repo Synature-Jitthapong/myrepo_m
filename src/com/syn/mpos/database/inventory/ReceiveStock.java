@@ -2,17 +2,15 @@ package com.syn.mpos.database.inventory;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
-
-import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class ReceiveStock extends StockDocument{
 
-	public ReceiveStock(Context context) {
-		super(context);
+	public ReceiveStock(SQLiteDatabase db) {
+		super(db);
 	}
 
 	public List<StockProduct> listStock(int documentId, int shopId){
@@ -30,8 +28,7 @@ public class ReceiveStock extends StockDocument{
 				" ON a." + Products.COL_PRODUCT_ID + "=b." + Products.COL_PRODUCT_ID +
 				" WHERE a." + COL_DOC_ID + "=" + documentId +
 				" AND a." + Shop.COL_SHOP_ID + "=" + shopId;
-		
-		Cursor cursor = getDatabase().rawQuery(strSql, null);
+		Cursor cursor = mSqlite.rawQuery(strSql, null);
 		if(cursor.moveToFirst()){
 			do{
 				StockProduct mat = new StockProduct();
@@ -45,7 +42,6 @@ public class ReceiveStock extends StockDocument{
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		close();
 		return stockLst;
 	}
 }

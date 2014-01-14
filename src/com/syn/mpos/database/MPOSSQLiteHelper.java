@@ -180,6 +180,8 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Products.COL_PRODUCT_GROUP_ID + " INTEGER, " +
 		Products.COL_PRODUCT_DEPT_CODE + " TEXT, " +
 		Products.COL_PRODUCT_DEPT_NAME + " TEXT, " +
+		Products.COL_ACTIVATE + " INTEGER DEFAULT 0, " +
+		Products.COL_ORDERING + " INTEGER DEFAULT 0, " +
 		"PRIMARY KEY (" + Products.COL_PRODUCT_DEPT_ID + "));",
 		// tb product group
 		"CREATE TABLE " + Products.TB_PRODUCT_GROUP + " ( " +
@@ -188,6 +190,8 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Products.COL_PRODUCT_GROUP_NAME + " TEXT, " +
 		Products.COL_PRODUCT_GROUP_TYPE + " INTEGER DEFAULT 0, " +
 		Products.COL_IS_COMMENT + " INTEGER DEFAULT 0, " +
+		Products.COL_ACTIVATE + " INTEGER DEFAULT 0, " +
+		Products.COL_ORDERING + " INTEGER DEFAULT 0, " +
 		"PRIMARY KEY (" + Products.COL_PRODUCT_GROUP_ID + "));",
 		// tb pcomponentset
 		"CREATE TABLE " + Products.TB_PCOMP_SET + " ( " +
@@ -215,6 +219,8 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Products.COL_VAT_RATE + " REAL DEFAULT 0, " +
 		Products.COL_IS_OUTOF_STOCK + " INTEGER DEFAULT 0, " +
 		Products.COL_IMG_URL + " TEXT, " +
+		Products.COL_ACTIVATE + " INTEGER DEFAULT 0, " +
+		Products.COL_ORDERING + " INTEGER DEFAULT 0, " +
 		"PRIMARY KEY (" + Products.COL_PRODUCT_ID + " ASC));",
 		// tb province
 		"CREATE TABLE " + Province.TB_PROVINCE + " ( " +
@@ -280,7 +286,12 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Session.COL_SESS_DATE + " TEXT, " + 
 		SyncSaleLog.COL_SYNC_STATUS + " INTEGER DEFAULT 0, "
 				+ " PRIMARY KEY (" + Session.COL_SESS_DATE + ")"
-				+ " );"
+				+ " );",
+		// header footer for print
+		"CREATE TABLE " + HeaderFooterReceipt.TB_HEADER_FOOTER_RECEIPT + " ( " +
+				HeaderFooterReceipt.COL_TEXT_IN_LINE + " TEXT, " +
+				HeaderFooterReceipt.COL_LINE_TYPE + " INTEGER, " +
+				HeaderFooterReceipt.COL_LINE_ORDER + " INTEGER );"
 	};
 	
 	private static final String[] sqlAddition = {
@@ -314,17 +325,17 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		"INSERT INTO CreditCardType VALUES (6, 'VS-GOLD');",
 		"INSERT INTO CreditCardType VALUES (7, 'MC-GOLD');",
 		// documenttype
-		"INSERT INTO DocumentType VALUES (7, 'xxxST', 'Monthly Stock Card', 0);",
-		"INSERT INTO DocumentType VALUES (10, 'xxxR', 'Transfer Stock', 1);",
-		"INSERT INTO DocumentType VALUES (18, 'xxxDS', 'Add From Daily Stock', 1);",
-		"INSERT INTO DocumentType VALUES (19, 'xxxDS', 'Reduce From Daily Stock', -1);",
-		"INSERT INTO DocumentType VALUES (20, 'xxxSD', 'Material From Sale Document', -1);",
-		"INSERT INTO DocumentType VALUES (21, 'xxxVD', 'Material From Void Document', 1);",
-		"INSERT INTO DocumentType VALUES (22, 'xxxMS', 'Add From Monthly Stock', 1);",
-		"INSERT INTO DocumentType VALUES (23, 'xxxMS', 'Reduce From Monthly Stock', -1);",
-		"INSERT INTO DocumentType VALUES (24, 'xxxST', 'Daily Stock Card', 0);",
-		"INSERT INTO DocumentType VALUES (39, 'xxxRO', 'Direct Receive Order', 1);",
-		"INSERT INTO DocumentType VALUES (8, 'xxxRC', 'Receipt', 0);",
+		"INSERT INTO DocumentType VALUES (7, '', 'Monthly Stock Card', 0);",
+		"INSERT INTO DocumentType VALUES (10, '', 'Transfer Stock', 1);",
+		"INSERT INTO DocumentType VALUES (18, '', 'Add From Daily Stock', 1);",
+		"INSERT INTO DocumentType VALUES (19, '', 'Reduce From Daily Stock', -1);",
+		"INSERT INTO DocumentType VALUES (20, '', 'Material From Sale Document', -1);",
+		"INSERT INTO DocumentType VALUES (21, '', 'Material From Void Document', 1);",
+		"INSERT INTO DocumentType VALUES (22, '', 'Add From Monthly Stock', 1);",
+		"INSERT INTO DocumentType VALUES (23, '', 'Reduce From Monthly Stock', -1);",
+		"INSERT INTO DocumentType VALUES (24, '', 'Daily Stock Card', 0);",
+		"INSERT INTO DocumentType VALUES (39, '', 'Direct Receive Order', 1);",
+		"INSERT INTO DocumentType VALUES (8, '', 'Receipt', 0);",
 		// province
 		"INSERT INTO Province VALUES (1, 'Chiang Mai');",
 		"INSERT INTO Province VALUES (2, 'Chiang Rai');",

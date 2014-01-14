@@ -7,6 +7,8 @@ import java.util.List;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.Products;
 
@@ -17,8 +19,8 @@ public class StockCard extends MPOSDatabase{
 	public static final String COL_SALE = "Sale";
 	public static final String COL_VARIANCE = "Variance";
 	
-	public StockCard(Context c){
-		super(c);
+	public StockCard(SQLiteDatabase db){
+		super(db);
 	}
 	
 	public List<StockProduct> listStock(long dateFrom, long dateTo){
@@ -36,8 +38,7 @@ public class StockCard extends MPOSDatabase{
 					" FROM " + TB_STOCK_CARD_TEMP + " a " +
 					" LEFT JOIN " + Products.TB_PRODUCT + " b " +
 					" ON a." + Products.COL_PRODUCT_ID + "=b" + Products.COL_PRODUCT_ID;
-			
-			Cursor cursor = getDatabase().rawQuery(strSql, null);
+			Cursor cursor = mSqlite.rawQuery(strSql, null);
 			if(cursor.moveToFirst()){
 				do{
 					StockProduct mat = new StockProduct();
@@ -52,7 +53,6 @@ public class StockCard extends MPOSDatabase{
 				}while(cursor.moveToNext());
 			}
 			cursor.close();
-			close();
 		}
 		return stockLst;
 	}
@@ -68,7 +68,6 @@ public class StockCard extends MPOSDatabase{
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(dateFrom);
 		int month = c.get(Calendar.MONTH);
-		
 		if(createStockCardTmp()){
 			String strSql = "INSERT INTO stock_card_tmp " +
 					" SELECT p.product_id, " +
@@ -127,12 +126,11 @@ public class StockCard extends MPOSDatabase{
 					" WHERE p.activated=1";
 		
 			try {
-				getDatabase().execSQL(strSql);
+				mSqlite.execSQL(strSql);
 				isSuccess = true;
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			close();
 		}
 		return isSuccess;
 	}
@@ -144,8 +142,8 @@ public class StockCard extends MPOSDatabase{
 	protected boolean createStockCardTmp(){
 		boolean isSuccess = false;
 		try {
-			getDatabase().execSQL("DROP TABLE IF EXISTS " + TB_STOCK_CARD_TEMP);
-			getDatabase().execSQL(
+			mSqlite.execSQL("DROP TABLE IF EXISTS " + TB_STOCK_CARD_TEMP);
+			mSqlite.execSQL(
 					"CREATE TABLE " + TB_STOCK_CARD_TEMP + " ( " +
 					Products.COL_PRODUCT_ID + " INTEGER, " +
 					COL_INIT + " REAL DEFAULT 0, " +
@@ -157,7 +155,6 @@ public class StockCard extends MPOSDatabase{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		close();
 		return isSuccess;
 	}
 }

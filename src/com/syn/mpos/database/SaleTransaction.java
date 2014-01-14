@@ -7,17 +7,15 @@ import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Session;
 import com.syn.mpos.database.transaction.Transaction;
-
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class SaleTransaction {
-	private Context mContext;
+	private SQLiteDatabase mSqlite;
 	private long mSessionDate;
 	
-	public SaleTransaction(Context c, long sessionDate){
-		mContext = c;
+	public SaleTransaction(SQLiteDatabase db, long sessionDate){
+		mSqlite = db;
 		mSessionDate = sessionDate;
 	}
 	
@@ -43,9 +41,8 @@ public class SaleTransaction {
 	 */
 	private List<SaleData_SaleTransaction> buildSaleTransLst(){
 		List<SaleData_SaleTransaction> saleTransLst = 
-				new ArrayList<SaleData_SaleTransaction>();;
-		Transaction trans = new Transaction(mContext);
-		Cursor cursor = queryTransaction(trans.getDatabase());
+				new ArrayList<SaleData_SaleTransaction>();
+		Cursor cursor = queryTransaction();
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{
@@ -83,22 +80,21 @@ public class SaleTransaction {
 					orderTrans.setSzTransactionNote(cursor.getString(cursor.getColumnIndex(Transaction.COL_TRANS_NOTE)));
 					
 					saleTrans.setxOrderTransaction(orderTrans);
-					saleTrans.setxAryOrderDetail(buildOrderDetailLst(trans.getDatabase(), orderTrans.getiTransactionID()));
-					saleTrans.setxAryPaymentDetail(buildPaymentDetailLst(trans.getDatabase(), orderTrans.getiTransactionID()));
+					saleTrans.setxAryOrderDetail(buildOrderDetailLst(orderTrans.getiTransactionID()));
+					saleTrans.setxAryPaymentDetail(buildPaymentDetailLst(orderTrans.getiTransactionID()));
 					saleTrans.setxAryOrderPromotion(new ArrayList<SaleTable_OrderPromotion>());
 					saleTransLst.add(saleTrans);
 				}while(cursor.moveToNext());
 			}
 			cursor.close();
 		}
-		trans.close();
 		return saleTransLst;
 	}
 	
 	// build PaymentDetailLst
-	public List<SaleTable_PaymentDetail> buildPaymentDetailLst(SQLiteDatabase sqlite, int transId){
+	public List<SaleTable_PaymentDetail> buildPaymentDetailLst(int transId){
 		List<SaleTable_PaymentDetail> paymentDetailLst = new ArrayList<SaleTable_PaymentDetail>();
-		Cursor cursor = queryPaymentDetail(sqlite, transId);
+		Cursor cursor = queryPaymentDetail(transId);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{
@@ -122,9 +118,9 @@ public class SaleTransaction {
 	}
 	
 	// build OrderDetailLst
-	public List<SaleTable_OrderDetail> buildOrderDetailLst(SQLiteDatabase sqlite, int transId){
+	public List<SaleTable_OrderDetail> buildOrderDetailLst(int transId){
 		List<SaleTable_OrderDetail> orderDetailLst = new ArrayList<SaleTable_OrderDetail>();
-		Cursor cursor = queryOrderDetail(sqlite, transId);
+		Cursor cursor = queryOrderDetail(transId);
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{
@@ -151,8 +147,7 @@ public class SaleTransaction {
 	
 	public SaleTable_SessionEndDay buildSessEnddayObj(){
 		SaleTable_SessionEndDay saleSessEnd = new SaleTable_SessionEndDay();
-		Session sess = new Session(mContext);
-		Cursor cursor = querySessionEndday(sess.getDatabase());
+		Cursor cursor = querySessionEndday();
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{
@@ -176,14 +171,12 @@ public class SaleTransaction {
 			}
 			cursor.close();
 		}
-		sess.close();
 		return saleSessEnd;
 	}
 	
 	public SaleTable_Session buildSessionObj(){
 		SaleTable_Session saleSess = new SaleTable_Session();
-		Session sess = new Session(mContext);
-		Cursor cursor = querySession(sess.getDatabase());
+		Cursor cursor = querySession();
 		if(cursor != null){
 			if(cursor.moveToFirst()){
 				do{
@@ -209,26 +202,25 @@ public class SaleTransaction {
 			}
 			cursor.close();
 		}
-		sess.close();
 		return saleSess;
 	}
 	
-	public Cursor queryPaymentDetail(SQLiteDatabase sqlite, int transId){
-		return sqlite.rawQuery("SELECT * "
+	public Cursor queryPaymentDetail(int transId){
+		return mSqlite.rawQuery("SELECT * "
 				+ " FROM " + PaymentDetail.TB_PAYMENT
 				+ " WHERE " + Transaction.COL_TRANS_ID + "=?", 
 				new String[]{String.valueOf(transId)});
 	}
 	
-	public Cursor queryOrderDetail(SQLiteDatabase sqlite, int transId){
-		return sqlite.rawQuery("SELECT * "
+	public Cursor queryOrderDetail(int transId){
+		return mSqlite.rawQuery("SELECT * "
 				+ " FROM " + Transaction.TB_ORDER
 				+ " WHERE " + Transaction.COL_TRANS_ID + "=?", 
 				new String[]{String.valueOf(transId)});
 	}
 	
-	public Cursor queryTransaction(SQLiteDatabase sqlite){
-		return sqlite.rawQuery("SELECT * "
+	public Cursor queryTransaction(){
+		return mSqlite.rawQuery("SELECT * "
 				+ " FROM " + Transaction.TB_TRANS
 				+ " WHERE " + Transaction.COL_SALE_DATE + "=?"
 				+ " AND " + Transaction.COL_STATUS_ID + " IN(?,?) "
@@ -239,22 +231,22 @@ public class SaleTransaction {
 						String.valueOf(MPOSDatabase.NOT_SEND)});
 	}
 	
-	public Cursor querySessionEndday(SQLiteDatabase sqlite){
-		return sqlite.rawQuery("SELECT * "
+	public Cursor querySessionEndday(){
+		return mSqlite.rawQuery("SELECT * "
 				+ " FROM " + Session.TB_SESSION_DETAIL
 				+ " WHERE " + Session.COL_SESS_DATE
 				+ "=?", new String[]{String.valueOf(mSessionDate)});
 	}
 	
-	public Cursor querySession(SQLiteDatabase sqlite){
-		return sqlite.rawQuery("SELECT * "
+	public Cursor querySession(){
+		return mSqlite.rawQuery("SELECT * "
 				+ " FROM " + Session.TB_SESSION
 				+ " WHERE " + Session.COL_SESS_DATE
 				+ "=?", new String[]{String.valueOf(mSessionDate)});
 	}
 	
-	public Cursor querySyncSaleLog(SQLiteDatabase sqlite){
-		return sqlite.rawQuery("SELECT * "
+	public Cursor querySyncSaleLog(){
+		return mSqlite.rawQuery("SELECT * "
 				+ " FROM " + SyncSaleLog.TB_SYNC_SALE_LOG
 				+ " WHERE " + SyncSaleLog.COL_SYNC_STATUS 
 				+ "=?", 

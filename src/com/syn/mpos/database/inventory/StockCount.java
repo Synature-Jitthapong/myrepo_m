@@ -1,13 +1,13 @@
 package com.syn.mpos.database.inventory;
 
 import com.syn.mpos.database.Products;
-import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class StockCount extends StockDocument {
 
-	public StockCount(Context c) {
-		super(c);
+	public StockCount(SQLiteDatabase db) {
+		super(db);
 	}
 	
 	/**
@@ -16,21 +16,20 @@ public class StockCount extends StockDocument {
 	 * @param dateFrom
 	 * @param dateTo
 	 */
-	public StockCount(Context context, long dateFrom, long dateTo){
-		super(context);
+	public StockCount(SQLiteDatabase db, long dateFrom, long dateTo){
+		super(db);
 	}
 
 	public Cursor listStock(long dateFrom, long dateTo){
 		//float currStock = getCurrentStock(dateFrom, dateTo);
-		return getDatabase().rawQuery(
+		return mSqlite.rawQuery(
 				"SELECT SUM(", 
 				new String[]{});
 	}
 	
 	public float getCurrentStock(int productId, long dateFrom, long dateTo){
 		float currStock = 0.0f;
-
-		Cursor cursor = getDatabase().rawQuery(
+		Cursor cursor = mSqlite.rawQuery(
 				"SELECT (a." + StockDocument.COL_PRODUCT_AMOUNT + "*" + 
 				"b." + StockDocument.COL_MOVE_MENT + ") " +
 				"FROM " + StockDocument.TB_DOC_DETAIL + " a " +

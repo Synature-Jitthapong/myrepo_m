@@ -2,9 +2,9 @@ package com.syn.mpos.database;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
 import com.syn.pos.CreditCardType;
 
 public class CreditCard extends MPOSDatabase{
@@ -15,15 +15,14 @@ public class CreditCard extends MPOSDatabase{
 	public static final String COL_EXP_MONTH = "ExpMonth";
 	public static final String COL_EXP_YEAR = "ExpYear";
 
-	public CreditCard(Context c) {
-		super(c);
+	public CreditCard(SQLiteDatabase db) {
+		super(db);
 	}
 
 	public List<CreditCardType> listAllCreditCardType(){
 		List<CreditCardType> creditCardLst = 
 				new ArrayList<CreditCardType>();
-		
-		Cursor cursor = getDatabase().query(TB_CREDIT_CARD_TYPE, 
+		Cursor cursor = mSqlite.query(TB_CREDIT_CARD_TYPE, 
 				new String[]{COL_CREDIT_CARD_TYPE_ID, COL_CREDIT_CARD_TYPE_NAME}, 
 				null, null, null, null, null);
 		if(cursor.moveToFirst()){
@@ -35,7 +34,6 @@ public class CreditCard extends MPOSDatabase{
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		close();
 		return creditCardLst;
 	}
 }

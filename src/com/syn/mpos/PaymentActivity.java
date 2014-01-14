@@ -11,11 +11,14 @@ import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.R;
 import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.HeaderFooterReceipt;
 import com.syn.mpos.database.Shop;
+import com.syn.mpos.database.Util;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
+import com.syn.pos.ShopData;
 import com.syn.pos.ShopData.ShopProperty;
 
 import android.os.Bundle;
@@ -59,6 +62,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	private float mTotalPay;
 	private float mTotalPaid;
 	private float mPaymentLeft;
+	private float mChange;
 	
 	private ListView mLvPayment;
 	private EditText mTxtTotalPay;
@@ -112,16 +116,23 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 
 	private void init(){
-		mGlobalProp = new GlobalProperty(this);
-		mTransaction = new Transaction(this);
-		mPayment = new PaymentDetail(this);
+		mGlobalProp = new GlobalProperty(MPOSApplication.getWriteDatabase());
+		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
+		mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<Payment.PaymentDetail>();
 		mLvPayment.setAdapter(mPaymentAdapter);
 		mStrTotalPay = new StringBuilder();
 		
-		summary();
-		loadPayDetail();
+//		if(mTransaction.getTransaction(
+//				mTransactionId, mComputerId).getTransactionStatusId() == 
+//				Transaction.TRANS_STATUS_SUCCESS)
+//		{
+//			finish();
+//		}else{
+			summary();
+			loadPayDetail();
+//		}
 	}
 	
 	private void summary(){
@@ -338,10 +349,22 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			break;
 		}
 	}
-
-	private String createSpace(int minLength, int maxLength){
+	
+	private String createLine(String sign){
+		StringBuilder line = new StringBuilder();
+		for(int i = 0; i <= 45; i++){
+			line.append(sign);
+		}
+		return line.toString();
+	}
+	
+	private String createLineSpace(int usedSpace){
+		int maxSpace = 45;
 		StringBuilder space = new StringBuilder();
-		for(int sp = minLength; sp < maxLength; sp++){
+		if(usedSpace > maxSpace){
+			usedSpace = usedSpace - 2;
+		}
+		for(int i = usedSpace; i <= maxSpace; i++){
 			space.append(" ");
 		}
 		return space.toString();
@@ -349,89 +372,93 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	
 	private void print(){
 		String printerIp = MPOSApplication.getPrinterIp();
+		String printerName = MPOSApplication.getPrinterName();
 		mPrinter = new Print(PaymentActivity.this);
 		mPrinter.setStatusChangeEventCallback(this);
 		mPrinter.setBatteryStatusChangeEventCallback(this);
 		
 		try {
 			mPrinter.openPrinter(Print.DEVTYPE_TCP, printerIp, 0, 1000);	
-			Builder builder = new Builder("TM-T88V", Builder.MODEL_ANK, PaymentActivity.this);
+			Builder builder = new Builder(printerName, Builder.MODEL_ANK, PaymentActivity.this);
+			
 			builder.addTextLang(Builder.LANG_TH);
-			builder.addTextFont(Builder.FONT_B);
-			builder.addTextAlign(Builder.ALIGN_LEFT);
-			builder.addTextLineSpace(30);
+			builder.addTextFont(Builder.FONT_B); //b
+			builder.addTextAlign(Builder.ALIGN_CENTER);
 			builder.addTextSize(1, 1);
 			builder.addTextStyle(Builder.FALSE, Builder.FALSE, Builder.FALSE, Builder.COLOR_1);
 
-	    	Shop s = new Shop(PaymentActivity.this);
-	    	ShopProperty shopProp = s.getShopProperty();
-
-			//builder.addTextPosition(100);
-			if(!shopProp.getCompanyName().isEmpty()) 
-				builder.addText(shopProp.getCompanyName() + "\n");
-			if(!shopProp.getShopName().isEmpty())
-				builder.addText(shopProp.getShopName() + "\n");
-			if(!shopProp.getCompanyAddress1().isEmpty())
-				builder.addText(shopProp.getCompanyAddress1() + "\n");
-			if(!shopProp.getCompanyAddress2().isEmpty())
-				builder.addText(shopProp.getCompanyAddress2() + "\n");
+			// add header
+			HeaderFooterReceipt headerFooter = new HeaderFooterReceipt(MPOSApplication.getWriteDatabase());
+			for(ShopData.HeaderFooterReceipt hf : 
+				headerFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
+				builder.addText(hf.getTextInLine());
+				builder.addText("\n");
+			}
+			OrderTransaction orderTrans = mTransaction.getTransaction(mTransactionId, mComputerId);
+			builder.addText(this.getString(R.string.date) + " ");
+			builder.addText(mGlobalProp.dateFormat(Util.getDate().getTime()) + "\n");
+			builder.addText(this.getString(R.string.receipt_no) + " ");
+			builder.addText(orderTrans.getReceiptNo());
+			builder.addText("\n" + createLine("=") + "\n");
 			
-			builder.addText("RECEIPT/TAX INVOICE(ABB) \n");
-			builder.addText("TAX ID: " + shopProp.getCompanyTaxID() + "\n");
-			builder.addText("Date: " + mGlobalProp.dateFormat(new Date(), "d/MM/yy") + "\n");
-			builder.addText("Receipt No: " + mTransaction.getTransaction(mTransactionId, 
-					mComputerId).getReceiptNo() + "\n");
-			
-			builder.addTextPosition(0);
-			builder.addText("______________________________________________________\n");
-
-			int maxNameLength = 30;
 			List<OrderTransaction.OrderDetail> orderLst = 
 					mTransaction.listAllOrder(mTransactionId, mComputerId);
+			builder.addTextAlign(Builder.ALIGN_CENTER);
 	    	for(int i = 0; i < orderLst.size(); i++){
 	    		OrderTransaction.OrderDetail order = 
 	    				orderLst.get(i);
-
-	    		String no = Integer.toString(i + 1);
-	    		int noLength = no.length();
-	    		builder.addText(no + createSpace(noLength, 3));
-	    		int nameLength = order.getProductName().length();
-	    		if(nameLength > maxNameLength){
-	    			builder.addText(order.getProductName().substring(31, nameLength));
-	    			nameLength = maxNameLength;
-	    		}else{
-	    			builder.addText(order.getProductName());
-	    		}
-	    		builder.addText(createSpace(nameLength, maxNameLength));
-	    		builder.addText(mGlobalProp.qtyFormat(order.getQty()));
-	    		builder.addText("          ");
-	    		builder.addText(mGlobalProp.currencyFormat(order.getTotalSalePrice()));
+	    		
+	    		String productName = order.getProductName();
+	    		String productQty = mGlobalProp.qtyFormat(order.getQty());
+	    		String productPrice = mGlobalProp.currencyFormat(order.getTotalSalePrice());
+	    		
+	    		builder.addText(productQty + " ");
+	    		builder.addText(productName);
+	    		builder.addText(createLineSpace(productQty.length() + 
+	    				productName.length() + productPrice.length()));
+	    		builder.addText(productPrice);
 	    		builder.addText("\n");
 	    	}
+	    	builder.addText(createLine("-") + "\n");
 	    	
-	    	builder.addText("______________________________________________________\n");
-	    	String total = getApplicationContext().getString(R.string.total);
-	    	String payment = getApplicationContext().getString(R.string.payment);
-	    	String change = getApplicationContext().getString(R.string.change);
-	    	String discount = getApplicationContext().getString(R.string.discount);
+	    	String totalText = getApplicationContext().getString(R.string.total);
+	    	String paymentText = getApplicationContext().getString(R.string.payment);
+	    	String changeText = getApplicationContext().getString(R.string.change);
+	    	String discountText = getApplicationContext().getString(R.string.discount);
+	    	String totalPrice = mTxtTotalPrice.getText().toString();
+	    	String totalDiscount = mGlobalProp.currencyFormat(mTransaction.getPriceDiscount(mTransactionId, 
+	    			mComputerId, false));
+	    	String totalPayment = mGlobalProp.currencyFormat(mTotalPaid);
+	    	String totalChange = mGlobalProp.currencyFormat(mChange);
 	    	
-	    	builder.addText(total);
-	    	builder.addTextLineSpace(44);
-	    	builder.addTextAlign(Builder.ALIGN_RIGHT);
-	    	builder.addText(mTxtTotalPrice.getText() + "\n");
-	    	builder.addText(discount);
-	    	builder.addTextLineSpace(44);
-	    	builder.addTextAlign(Builder.ALIGN_RIGHT);
-	    	builder.addText(mGlobalProp.currencyFormat(mTransaction.getPriceDiscount(mTransactionId, 
-	    			mComputerId, false)) + "\n");
-	    	builder.addText(payment);
-	    	builder.addTextLineSpace(44);
-	    	builder.addTextAlign(Builder.ALIGN_RIGHT);
-	    	builder.addText(mGlobalProp.currencyFormat(mTotalPaid) + "\n");
-	    	builder.addText(change);
-	    	builder.addTextLineSpace(44);
-	    	builder.addTextAlign(Builder.ALIGN_RIGHT);
-	    	builder.addText(mGlobalProp.currencyFormat(mTotalPaid - sTotalSalePrice) + "\n");
+	    	// total price
+	    	builder.addText(totalText);
+	    	builder.addText(createLineSpace(totalText.length() + totalPrice.length()));
+	    	builder.addText(totalPrice + "\n");
+	    	
+	    	// total discount
+	    	builder.addText(discountText);
+	    	builder.addText(createLineSpace(discountText.length() + totalDiscount.length()));
+	    	builder.addText(totalDiscount + "\n");
+	    	
+	    	// total payment
+	    	builder.addText(paymentText);
+	    	builder.addText(createLineSpace(paymentText.length() + totalPayment.length()));
+	    	builder.addText(totalPayment + "\n");
+	    	
+	    	// change
+	    	builder.addText(changeText);
+	    	builder.addText(createLineSpace(changeText.length() + totalChange.length()));
+	    	builder.addText(totalChange);
+	    	builder.addText("\n" + createLine("-") + "\n");
+	    	
+	    	// add footer
+	    	for(ShopData.HeaderFooterReceipt hf : 
+				headerFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
+				builder.addText(hf.getTextInLine());
+				builder.addText("\n");
+			}
+	    	
 			builder.addFeedUnit(30);
 			builder.addCut(Builder.CUT_FEED);
 
@@ -461,6 +488,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			e.printStackTrace();
 		}
 	}
+	
 	@Override
 	public void onBatteryStatusChangeEvent(String arg0, int arg1) {
 		// TODO Auto-generated method stub
@@ -481,14 +509,14 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 				// send real time sale
 				MPOSUtil.sendRealTimeSale(mStaffId, mTransactionId, mComputerId);
 				
-				float change = mTotalPaid - sTotalSalePrice;
+				mChange = mTotalPaid - sTotalSalePrice;
 				print();
 				
-				if(change > 0){
+				if(mChange > 0){
 					LayoutInflater inflater = (LayoutInflater) 
 							PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 					TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
-					tvChange.setText(mGlobalProp.currencyFormat(change));
+					tvChange.setText(mGlobalProp.currencyFormat(mChange));
 					
 					new AlertDialog.Builder(PaymentActivity.this)
 					.setTitle(R.string.change)

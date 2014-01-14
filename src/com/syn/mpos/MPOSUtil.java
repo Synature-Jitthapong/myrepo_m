@@ -2,11 +2,8 @@ package com.syn.mpos;
 
 import java.lang.reflect.Type;
 import java.util.List;
-
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.database.SaleTransaction;
@@ -38,7 +35,7 @@ public class MPOSUtil {
 									@Override
 									public void onSuccess() {
 										// do update transaction already send
-										Transaction trans = new Transaction(MPOSApplication.getContext());
+										Transaction trans = new Transaction(MPOSApplication.getWriteDatabase());
 										trans.updateTransactionSendStatus(transactionId, computerId);
 									}
 									
@@ -64,12 +61,12 @@ public class MPOSUtil {
 				loadSaleListener).execute();
 	}
 	
-	public static void doEndday(final Context c, int computerId, 
+	public static void doEndday(int computerId, 
 			int sessionId, final int closeStaffId, float closeAmount, 
 			boolean isEndday, final OnEnddayListener listener){
 		
-		Session sess = new Session(c);
-		Transaction trans = new Transaction(c);
+		Session sess = new Session(MPOSApplication.getWriteDatabase());
+		Transaction trans = new Transaction(MPOSApplication.getWriteDatabase());
 		
 		if(sess.closeSession(sessionId, computerId, 
 				closeStaffId, closeAmount, isEndday)){
@@ -79,7 +76,7 @@ public class MPOSUtil {
 					trans.getTotalReceipt(enddayDate),
 					trans.getTotalReceiptAmount(enddayDate));
 			
-			final SyncSaleLog syncLog = new SyncSaleLog(c);
+			final SyncSaleLog syncLog = new SyncSaleLog(MPOSApplication.getWriteDatabase());
 			// add sync log
 			syncLog.addSyncSaleLog(enddayDate);
 			
@@ -151,7 +148,7 @@ public class MPOSUtil {
 		public LoadSaleTransactionTask(long sessionDate, 
 				LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransaction(MPOSApplication.getContext(), sessionDate);
+			mSaleTrans = new SaleTransaction(MPOSApplication.getWriteDatabase(), sessionDate);
 			mSessionDate = sessionDate;
 		}
 		

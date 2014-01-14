@@ -2,11 +2,9 @@ package com.syn.mpos.database;
 
 import java.util.UUID;
 
-import android.content.Context;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public abstract class MPOSDatabase {
+public class MPOSDatabase {
 	// base uuid column
 	public static final String COL_UUID = "UUID";
 	
@@ -15,24 +13,14 @@ public abstract class MPOSDatabase {
 	public static final int NOT_SEND = 0;
 	public static final String COL_SEND_STATUS = "SendStatus";
 	
-	protected Context mContext;
-	private MPOSSQLiteHelper mSqliteHelper;
+	protected SQLiteDatabase mSqlite;
 	
-	public MPOSDatabase(Context c){
-		mSqliteHelper = new MPOSSQLiteHelper(c);
-		mContext = c;
+	public MPOSDatabase(SQLiteDatabase db){
+		mSqlite = db;
 	}
 	
 	public String getUUID(){
 		UUID uuid = UUID.randomUUID();
 		return uuid.toString();
-	}
-	
-	public SQLiteDatabase getDatabase(){
-		return mSqliteHelper.getWritableDatabase();
-	}
-	
-	public void close() throws SQLException{
-		mSqliteHelper.close();
 	}
 }

@@ -1,15 +1,13 @@
 package com.syn.mpos.database.inventory;
 
 import java.util.List;
-
 import com.syn.pos.OrderTransaction;
-
-import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 public class SaleStock extends StockDocument {
 
-	public SaleStock(Context context) {
-		super(context);
+	public SaleStock(SQLiteDatabase db) {
+		super(db);
 	}
 
 	public boolean createVoidDocument(int shopId, int staffId,

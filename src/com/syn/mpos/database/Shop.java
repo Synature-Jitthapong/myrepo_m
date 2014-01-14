@@ -2,9 +2,10 @@ package com.syn.mpos.database;
 
 import java.util.List;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+
 import com.syn.pos.ShopData;
 
 public class Shop extends MPOSDatabase{
@@ -28,14 +29,14 @@ public class Shop extends MPOSDatabase{
 	public static final String COL_REGISTER_ID = "RegisterId";
 	public static final String COL_VAT = "Vat";
 	
-	public Shop(Context c){
-		super(c);
+	public Shop(SQLiteDatabase db){
+		super(db);
 	}
 	
 	public ShopData.ShopProperty getShopProperty(){
 		ShopData.ShopProperty sp = 
 				new ShopData.ShopProperty();
-		Cursor cursor = getDatabase().rawQuery("SELECT * FROM " + TB_SHOP, null);
+		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + TB_SHOP, null);
 		if(cursor.moveToFirst()){
 			sp.setShopID(cursor.getInt(cursor.getColumnIndex(COL_SHOP_ID)));
 			sp.setShopCode(cursor.getString(cursor.getColumnIndex(COL_SHOP_CODE)));
@@ -57,13 +58,12 @@ public class Shop extends MPOSDatabase{
 			sp.setCompanyVat(cursor.getFloat(cursor.getColumnIndex(COL_VAT)));
 			cursor.moveToNext();
 		}
-		cursor.close();
-		close();		
+		cursor.close();		
 		return sp;
 	}
 
 	public void insertShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
-		getDatabase().execSQL("DELETE FROM " + TB_SHOP);
+		mSqlite.execSQL("DELETE FROM " + TB_SHOP);
 		for(ShopData.ShopProperty shop : shopPropLst){
 			ContentValues cv = new ContentValues();
 			cv.put(COL_SHOP_ID, shop.getShopID());
@@ -84,8 +84,7 @@ public class Shop extends MPOSDatabase{
 			cv.put(COL_TAX_ID, shop.getCompanyTaxID());
 			cv.put(COL_REGISTER_ID, shop.getCompanyRegisterID());
 			cv.put(COL_VAT, shop.getCompanyVat());
-			getDatabase().insertOrThrow(TB_SHOP, null, cv);
+			mSqlite.insertOrThrow(TB_SHOP, null, cv);
 		}
-		close();
 	}
 }

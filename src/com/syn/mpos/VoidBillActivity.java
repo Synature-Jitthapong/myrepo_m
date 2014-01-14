@@ -35,7 +35,6 @@ public class VoidBillActivity extends Activity {
 	private int mTransactionId;
 	private int mComputerId;
 	private int mStaffId;
-	private GlobalProperty mGlobalProp;
 	private Transaction mTransaction;
 	private List<OrderTransaction> mTransLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
@@ -73,8 +72,7 @@ public class VoidBillActivity extends Activity {
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 
-		mGlobalProp = new GlobalProperty(this);
-	    btnBillDate.setText(mGlobalProp.dateFormat(mCalendar.getTime()));
+	    btnBillDate.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
 	    btnBillDate.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -86,7 +84,7 @@ public class VoidBillActivity extends Activity {
 						mCalendar.setTimeInMillis(date);
 						mDate = mCalendar.getTimeInMillis();
 						
-						btnBillDate.setText(mGlobalProp.dateFormat(mCalendar.getTime()));
+						btnBillDate.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
 					}
 				});
 				dialogFragment.show(getFragmentManager(), "Condition");
@@ -114,7 +112,7 @@ public class VoidBillActivity extends Activity {
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
 				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = mGlobalProp.dateTimeFormat(c.getTime());
+				mReceiptDate = MPOSApplication.getGlobalProperty().dateTimeFormat(c.getTime());
 				
 				mItemConfirm.setEnabled(true);
 				searchVoidItem();
@@ -155,7 +153,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void init(){
-		mTransaction = new Transaction(this);
+		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
 		mTransLst = new ArrayList<OrderTransaction>();
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -210,7 +208,7 @@ public class VoidBillActivity extends Activity {
 			}
 			
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
-			holder.tvPaidTime.setText(mGlobalProp.dateTimeFormat(c.getTime()));
+			holder.tvPaidTime.setText(MPOSApplication.getGlobalProperty().dateTimeFormat(c.getTime()));
 			
 			return convertView;
 		}
@@ -264,9 +262,9 @@ public class VoidBillActivity extends Activity {
 			}
 		
 			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(mGlobalProp.qtyFormat(order.getQty()));
-			holder.tvPrice.setText(mGlobalProp.currencyFormat(order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(mGlobalProp.currencyFormat(order.getTotalRetailPrice()));
+			holder.tvQty.setText(MPOSApplication.getGlobalProperty().qtyFormat(order.getQty()));
+			holder.tvPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(order.getPricePerUnit()));
+			holder.tvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(order.getTotalRetailPrice()));
 			
 			return convertView;
 		}

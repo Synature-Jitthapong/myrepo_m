@@ -3,13 +3,17 @@ package com.syn.mpos;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 
@@ -17,7 +21,11 @@ public class MPOSApplication extends Application {
 
 	private static Context sContext;
 	
+	private static MPOSSQLiteHelper sSqliteHelper;
+	
 	private static GlobalProperty sGlobalProp;
+	
+	private static Products sProduct;
 	
 	// sqlite db name
 	public static final String DB_NAME = "mpos.db";
@@ -35,12 +43,12 @@ public class MPOSApplication extends Application {
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
 
 	public static int getComputerId() {
-		Computer comp = new Computer(sContext);
+		Computer comp = new Computer(getWriteDatabase());
 		return comp.getComputerProperty().getComputerID();
 	}
 
 	public static int getShopId() {
-		Shop s = new Shop(sContext);
+		Shop s = new Shop(getWriteDatabase());
 		return s.getShopProperty().getShopID();
 	}
 
@@ -48,6 +56,12 @@ public class MPOSApplication extends Application {
 		return Secure.getString(sContext.getContentResolver(), Secure.ANDROID_ID);
 	}
 
+	public static String getPrinterName() {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(sContext);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_NAME, "");
+	}
+	
 	public static String getPrinterIp() {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(sContext);
@@ -81,9 +95,23 @@ public class MPOSApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		sContext = getApplicationContext();
-		sGlobalProp = new GlobalProperty(sContext);
+		sSqliteHelper = new MPOSSQLiteHelper(sContext);
+		sGlobalProp = new GlobalProperty(getWriteDatabase());
+		sProduct = new Products(getWriteDatabase());
 	}
 
+	public static SQLiteDatabase getReadDatabase(){
+		return sSqliteHelper.getReadableDatabase();
+	}
+	
+	public static SQLiteDatabase getWriteDatabase(){
+		return sSqliteHelper.getWritableDatabase();
+	}
+	
+	public static Products getProduct(){
+		return sProduct;
+	}
+	
 	public static GlobalProperty getGlobalProperty(){
 		return sGlobalProp;
 	}

@@ -2,9 +2,8 @@ package com.syn.mpos.database;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.BankName;
 
@@ -13,15 +12,14 @@ public class Bank extends MPOSDatabase{
 	public static final String COL_BANK_ID = "BankId";
 	public static final String COL_BANK_NAME = "BankName";
 	
-	public Bank(Context c) {
-		super(c);
+	public Bank(SQLiteDatabase db) {
+		super(db);
 	}
 	
 	public List<BankName> listAllBank(){
 		List<BankName> bankLst = 
 				new ArrayList<BankName>();
-		
-		Cursor cursor = getDatabase().query(TB_BANK, 
+		Cursor cursor = mSqlite.query(TB_BANK, 
 				new String[]{COL_BANK_ID, COL_BANK_NAME}, null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
@@ -32,7 +30,6 @@ public class Bank extends MPOSDatabase{
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
-		close();
 		return bankLst;
 	}
 }

@@ -91,9 +91,9 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	}
 
 	private void init(){
-		mGlobalProp = new GlobalProperty(this);
-		mTransaction = new Transaction(this);
-		mProduct = new Products(this);
+		mGlobalProp = new GlobalProperty(MPOSApplication.getWriteDatabase());
+		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
+		mProduct = new Products(MPOSApplication.getWriteDatabase());
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
@@ -112,13 +112,14 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 							mOrder.getPriceDiscount() * 100 / mOrder.getTotalRetailPrice()));
 				}
 				mRdoDiscountType.check(mOrder.getDiscountType() == 1 ? R.id.rdoPrice : R.id.rdoPercent);
-				mTxtDiscount.requestFocus();
-				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(mTxtDiscount, InputMethodManager.SHOW_IMPLICIT);
                 
 				mItemInput.setVisible(true);
 				mItemClose.setVisible(false);
 				mItemConfirm.setVisible(false);
+				mTxtDiscount.setSelectAllOnFocus(true);
+				mTxtDiscount.requestFocus();
+				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(mTxtDiscount, InputMethodManager.SHOW_IMPLICIT);
 			}
 		});
 		loadOrder();

@@ -14,12 +14,10 @@ import android.widget.TextView;
 
 public class ProductSizeAdapter extends BaseAdapter{
 	private Context mContext;
-	private GlobalProperty mGlobalProp;
 	private List<Products.Product> mProLst;
 	
 	public ProductSizeAdapter(Context c, List<Products.Product> proLst){
 		mContext = c;
-		mGlobalProp = new GlobalProperty(c);
 		mProLst = proLst;
 	}
 	
@@ -54,7 +52,7 @@ public class ProductSizeAdapter extends BaseAdapter{
 			holder = (ViewHolder) convertView.getTag();
 		}
 		holder.tvProductName.setText(p.getProductName());
-		holder.tvProductPrice.setText(mGlobalProp.currencyFormat(p.getProductPrice()));
+		holder.tvProductPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(p.getProductPrice()));
 		return convertView;
 	}
 

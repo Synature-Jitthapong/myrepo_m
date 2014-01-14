@@ -11,6 +11,7 @@
         android:layout_weight="1"
         android:ellipsize="marquee"
         android:fadingEdge="horizontal"
+        android:gravity="left"
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
         android:singleLine="true"
