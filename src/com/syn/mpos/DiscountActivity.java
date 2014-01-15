@@ -76,6 +76,9 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_discount);
+		
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
 		mLayoutVat = (LinearLayout) findViewById(R.id.layoutVat);
 		mTvExcVat = (TextView) findViewById(R.id.tvVatExclude);
 		mLvDiscount = (ListView) findViewById(R.id.lvOrder);
@@ -128,6 +131,9 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
+		case android.R.id.home:
+			cancel();
+			return true;
 		case R.id.itemCancel:
 			cancel();
 			return true;
@@ -146,6 +152,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		inflater.inflate(R.menu.activity_discount, menu);
 		mItemInput = menu.findItem(R.id.itemDiscountInput);
 		mItemClose = menu.findItem(R.id.itemCancel);
+		mItemClose.setVisible(false);
 		mItemConfirm = menu.findItem(R.id.itemConfirm);
 		
 		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);

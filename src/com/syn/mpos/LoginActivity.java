@@ -16,31 +16,41 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity implements OnClickListener {
 	private int mShopId;
 	private int mComputerId;
 	private int mSessionId;
+	private int mStaffId;
 	private Session mSession;
+	private Button mBtnLogin;
 	private EditText mTxtUser;
 	private EditText mTxtPass;
-	private ProgressDialog mProgress;
+	private TextView mTvProgress;
+	private LinearLayout mProgressLayout;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 		
+		mBtnLogin = (Button) findViewById(R.id.buttonLogin);
 		mTxtUser = (EditText) findViewById(R.id.txtUser);
 		mTxtPass = (EditText) findViewById(R.id.txtPass);
+		mTvProgress = (TextView) findViewById(R.id.textView1);
+		mProgressLayout = (LinearLayout) findViewById(R.id.progressLayout);
+		
 		mTxtUser.setSelectAllOnFocus(true);
 		mTxtPass.setSelectAllOnFocus(true);
-		mProgress = new ProgressDialog(this);
+		mBtnLogin.setOnClickListener(this);
 		
 		mTxtUser.setText("1");
 		mTxtPass.setText("1");
@@ -98,87 +108,42 @@ public class LoginActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if(!mBtnLogin.isEnabled())
+			mBtnLogin.setEnabled(true);
 		init();
 	}
 			
-	private MPOSService.OnServiceProcessListener mLoadProductListener = 
-	
-			new MPOSService.OnServiceProcessListener() {
-				
-				@Override
-				public void onSuccess() {
-					mProgress.dismiss();
-					checkLogin();
-				}
-				
-				@Override
-				public void onError(String mesg) {
-					((Button) findViewById(R.id.buttonLogin)).setEnabled(true);
-					mProgress.dismiss();
-					new AlertDialog.Builder(LoginActivity.this)
+	private MPOSService.OnServiceProcessListener mLoadProductListener =
+
+	new MPOSService.OnServiceProcessListener() {
+
+		@Override
+		public void onSuccess() {
+			mProgressLayout.setVisibility(View.GONE);
+			gotoMainActivity();
+			//mBtnLogin.setEnabled(true);
+		}
+
+		@Override
+		public void onError(String mesg) {
+			mBtnLogin.setEnabled(true);
+			mProgressLayout.setVisibility(View.GONE);
+			new AlertDialog.Builder(LoginActivity.this)
 					.setMessage(mesg)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-						}
-					})
-					.show();
-				}
+					.setNeutralButton(R.string.close,
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+								}
+							}).show();
+		}
 	};
 	
-	public void loginClicked(final View v){
-		v.setEnabled(false);
-		final MPOSService mposService = new MPOSService();
-		if(mShopId == 0){
-			mProgress.setTitle(MPOSApplication.getContext().getString(R.string.sync));
-			mProgress.setMessage(MPOSApplication.getContext().getString(R.string.sync_shop_progress));
-			mProgress.show();
-			mposService.loadShopData(new MPOSService.OnServiceProcessListener() {
-				
-				@Override
-				public void onSuccess() {
-					mProgress.dismiss();
-					mShopId = MPOSApplication.getShopId();
-					mComputerId = MPOSApplication.getComputerId();
-
-					mProgress.setMessage(MPOSApplication.getContext().getString(R.string.sync_product_progress));
-					mProgress.show();
-					mposService.loadProductData(mLoadProductListener);
-				}
-				
-				@Override
-				public void onError(String mesg) {
-					v.setEnabled(true);
-					mProgress.dismiss();
-					new AlertDialog.Builder(LoginActivity.this)
-					.setMessage(mesg)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// TODO Auto-generated method stub
-							
-						}
-					})
-					.show();
-				}
-			});
-		}else{
-			if(mSession.getCurrentSession(mShopId, mComputerId) > 0){
-				checkLogin();
-			}else{
-				mProgress.setTitle(MPOSApplication.getContext().getString(R.string.sync));
-				mProgress.setMessage(MPOSApplication.getContext().getString(R.string.sync_product_progress));
-				mProgress.show();
-				mposService.loadProductData(mLoadProductListener);
-			}
-		}
-	}
-	
-	private void gotoMainActivity(int staffId){
+	private void gotoMainActivity(){
 		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-		intent.putExtra("staffId", staffId);
+		intent.putExtra("staffId", mStaffId);
 		intent.putExtra("sessionId", mSessionId);
 		intent.putExtra("shopId", mShopId);
 		intent.putExtra("computerId", mComputerId);
@@ -198,14 +163,34 @@ public class LoginActivity extends Activity {
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();
-					
+					MPOSService mposService = new MPOSService();
 					if(s != null){
-						mSessionId = mSession.getCurrentSession(mShopId, mComputerId);
-						if(mSessionId == 0){
-							mSessionId = mSession.addSession(mShopId, mComputerId, s.getStaffID(), 0);
+						mStaffId = s.getStaffID();			
+						mSessionId = mSession.getCurrentSession(mComputerId, mStaffId);
+						if(mSessionId == 0)
+							mSessionId = mSession.addSession(mShopId, mComputerId, mStaffId, 0);
+
+						// check endday
+						String sessionDate = mSession.getSessionDate(mComputerId);
+						// count check session endday detail
+						if(mSession.getSessionEnddayDetail(sessionDate) == 0){
+							mTvProgress.setText(MPOSApplication.getContext().getString(R.string.sync_product_progress));
+							mProgressLayout.setVisibility(View.VISIBLE);
+							mposService.loadProductData(mLoadProductListener);
+						}else{
+							mSession.deleteSession(mSessionId);
+							// alert endday
+							new AlertDialog.Builder(LoginActivity.this)
+							.setTitle(R.string.endday)
+							.setMessage(R.string.alredy_endday)
+							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+								}
+							})
+							.show();
 						}
-						
-						gotoMainActivity(s.getStaffID());
 					}else{
 						new AlertDialog.Builder(LoginActivity.this)
 						.setIcon(android.R.drawable.ic_dialog_alert)
@@ -261,6 +246,51 @@ public class LoginActivity extends Activity {
 				}
 			})
 			.show();
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()){
+		case R.id.buttonLogin:
+			mBtnLogin.setEnabled(false);
+			if(mShopId == 0){
+				// sync shop
+				final MPOSService mposService = new MPOSService();
+				mTvProgress.setText(MPOSApplication.getContext().getString(R.string.sync_shop_progress));
+				mProgressLayout.setVisibility(View.VISIBLE);
+				mposService.loadShopData(new MPOSService.OnServiceProcessListener() {
+					
+					@Override
+					public void onSuccess() {
+						mProgressLayout.setVisibility(View.GONE);
+						mShopId = MPOSApplication.getShopId();
+						mComputerId = MPOSApplication.getComputerId();
+						
+						checkLogin();
+					}
+					
+					@Override
+					public void onError(String mesg) {
+						mBtnLogin.setEnabled(true);
+						mProgressLayout.setVisibility(View.GONE);
+						new AlertDialog.Builder(LoginActivity.this)
+						.setMessage(mesg)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								// TODO Auto-generated method stub
+								
+							}
+						})
+						.show();
+					}
+				});
+			}else{
+				checkLogin();
+			}
+			break;
 		}
 	}
 }

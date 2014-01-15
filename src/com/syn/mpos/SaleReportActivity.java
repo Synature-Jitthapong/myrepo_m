@@ -7,11 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import com.syn.mpos.database.Reporting;
 import com.syn.mpos.database.transaction.PaymentDetail;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.Report;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +41,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	private MenuItem mConditionItem;
 	private Button mBtnDateFrom;
 	private Button mBtnDateTo;
+	private Button mBtnCreateReport;
 	private ListView mLvReport;
 	private MenuItem mReportTypeItem;
 	private Spinner mSpReportType;
@@ -59,8 +63,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 		mDateFrom = mCalendar.getTimeInMillis();
 		mDateTo = mCalendar.getTimeInMillis();
-		
-		getReportData();
 	}
 	
 	private void getReportData(){
@@ -68,6 +70,40 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mReport = mReporting.getSaleReportByBill();
 		mBillReportAdapter = new BillReportAdapter();
 		mLvReport.setAdapter(mBillReportAdapter);
+		getBillReportSummary();
+	}
+	
+	private void getBillReportSummary(){
+		TextView tvSummTotalPrice = (TextView) findViewById(R.id.tvSummTotalPrice);
+		TextView tvSummDiscount = (TextView) findViewById(R.id.tvSummDiscount);
+		TextView tvSummSubTotal = (TextView) findViewById(R.id.tvSummSubTotal);
+		TextView tvSummVatable = (TextView) findViewById(R.id.tvSummVatable);
+		TextView tvSummTotalVat = (TextView) findViewById(R.id.tvSummTotalVat);
+		TextView tvSummTotalPay = (TextView) findViewById(R.id.tvSummTotalPay);
+		
+		float totalPrice = 0.0f;
+		float totalDiscount = 0.0f;
+		float totalSub = 0.0f;
+		float totalVatable = 0.0f;
+		float totalVat = 0.0f;
+		float totalPay = 0.0f;
+		PaymentDetail payment = new PaymentDetail(MPOSApplication.getReadDatabase());
+		for(Report.ReportDetail reportDetail : mReport.reportDetail){
+			if(reportDetail.getTransStatus() != Transaction.TRANS_STATUS_VOID){
+				totalPrice += reportDetail.getTotalPrice();
+				totalDiscount += reportDetail.getDiscount();
+				totalSub += reportDetail.getSubTotal();
+				totalVatable += reportDetail.getVatable();
+				totalVat += reportDetail.getTotalVat();
+				totalPay += payment.getTotalPaid(reportDetail.getTransactionId(), reportDetail.getComputerId());
+			}
+		}
+		tvSummTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
+		tvSummDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
+		tvSummSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalSub));
+		tvSummVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVatable));
+		tvSummTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
+		tvSummTotalPay.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
 	}
 	
 	private class ReportTypeAdapter extends BaseAdapter{
@@ -132,8 +168,11 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mReportTypeItem = (MenuItem) menu.findItem(R.id.itemReportType);
 		mConditionItem = (MenuItem) menu.findItem(R.id.itemDateCondition);
 		mSpReportType = (Spinner) mReportTypeItem.getActionView().findViewById(R.id.spinner1);
+		mSpReportType.setVisibility(View.GONE);
 		mBtnDateFrom = (Button) mConditionItem.getActionView().findViewById(R.id.btnDateFrom);
 		mBtnDateTo = (Button) mConditionItem.getActionView().findViewById(R.id.btnDateTo);
+		mBtnCreateReport = (Button) ((MenuItem) menu.findItem(R.id.itemCreateReport)).getActionView().findViewById(R.id.button1);
+		mBtnCreateReport.setText(R.string.create_report);
 		mBtnDateFrom.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
 		mBtnDateTo.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
 		mBtnDateFrom.setOnClickListener(this);
@@ -150,6 +189,14 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			public void onNothingSelected(AdapterView<?> arg0) {
 				// TODO Auto-generated method stub
 				
+			}
+			
+		});
+		mBtnCreateReport.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				getReportData();
 			}
 			
 		});
@@ -234,6 +281,23 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			holder.mTvTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
 			holder.mTvTotalPayment.setText(MPOSApplication.getGlobalProperty().currencyFormat(
 					mPaymentDetail.getTotalPaid(transId, compId)));
+			
+			if(report.getTransStatus() == Transaction.TRANS_STATUS_VOID){
+				holder.mTvReceipt.setTextColor(Color.RED);
+				holder.mTvTotalPrice.setTextColor(Color.RED);
+				holder.mTvDiscount.setTextColor(Color.RED);
+				holder.mTvSubTotal.setTextColor(Color.RED);
+				holder.mTvVatable.setTextColor(Color.RED);
+				holder.mTvTotalVat.setTextColor(Color.RED);
+				holder.mTvTotalPayment.setTextColor(Color.RED);
+				holder.mTvReceipt.setPaintFlags(holder.mTvReceipt.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvTotalPrice.setPaintFlags(holder.mTvTotalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvDiscount.setPaintFlags(holder.mTvDiscount.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvSubTotal.setPaintFlags(holder.mTvSubTotal.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvVatable.setPaintFlags(holder.mTvVatable.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvTotalVat.setPaintFlags(holder.mTvTotalVat.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvTotalPayment.setPaintFlags(holder.mTvTotalPayment.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+			}
 			return convertView;
 		}
 	}

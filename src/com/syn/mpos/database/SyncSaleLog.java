@@ -37,7 +37,7 @@ public class SyncSaleLog extends MPOSDatabase{
 		return sessionDateLst;
 	}
 	
-	public String getSyncSaleSessionDate(long sessionDate){
+	public String getSyncSaleSessionDate(String sessionDate){
 		String syncDate = "";
 		Cursor cursor = mSqlite.query(TB_SYNC_SALE_LOG, 
 				new String[]{Session.COL_SESS_DATE}, 
@@ -57,7 +57,7 @@ public class SyncSaleLog extends MPOSDatabase{
 				new String[]{String.valueOf(sessionDate)});
 	}
 	
-	public void addSyncSaleLog(long sessionDate) throws SQLException{
+	public void addSyncSaleLog(String sessionDate) throws SQLException{
 		if(!getSyncSaleSessionDate(sessionDate).equals(sessionDate)){
 			ContentValues cv = new ContentValues();
 			cv.put(Session.COL_SESS_DATE, sessionDate);

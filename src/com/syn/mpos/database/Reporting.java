@@ -41,6 +41,7 @@ public class Reporting extends MPOSDatabase{
 		Report report = new Report();
 		String strSql = " SELECT a." + Transaction.COL_TRANS_ID  + ", " +
 				" a." + Computer.COL_COMPUTER_ID + ", " +
+				" a." + Transaction.COL_STATUS_ID + ", " +
 				" a." + Transaction.COL_RECEIPT_NO + "," +
 				" a." + Transaction.COL_TRANS_EXCLUDE_VAT + ", " +
 				" a." + Transaction.COL_TRANS_VAT + ", " +
@@ -57,12 +58,16 @@ public class Reporting extends MPOSDatabase{
 				" AND a." + Computer.COL_COMPUTER_ID + "=b." + Computer.COL_COMPUTER_ID +
 				" LEFT JOIN " + StockDocument.TB_DOCUMENT_TYPE + " c " +
 				" ON a." + StockDocument.COL_DOC_TYPE + "=c." + StockDocument.COL_DOC_TYPE +
-				" WHERE a." + Transaction.COL_STATUS_ID + "=" + Transaction.TRANS_STATUS_SUCCESS +
-				" AND a." + Transaction.COL_SALE_DATE + 
-				" BETWEEN " + mDateFrom + " AND " + mDateTo + 
+				" WHERE a." + Transaction.COL_STATUS_ID + " IN(?, ?) " +
+				" AND a." + Transaction.COL_SALE_DATE + " BETWEEN ? AND ? " +  
 				" GROUP BY a." + Transaction.COL_TRANS_ID;
 
-		Cursor cursor = mSqlite.rawQuery(strSql, null);
+		Cursor cursor = mSqlite.rawQuery(strSql, 
+				new String[]{
+				String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+				String.valueOf(Transaction.TRANS_STATUS_VOID),
+				String.valueOf(mDateFrom), 
+				String.valueOf(mDateTo)});
 		
 		if(cursor.moveToFirst()){
 			do{
@@ -70,6 +75,7 @@ public class Reporting extends MPOSDatabase{
 						new Report.ReportDetail();
 				reportDetail.setTransactionId(cursor.getInt(cursor.getColumnIndex(Transaction.COL_TRANS_ID)));
 				reportDetail.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
+				reportDetail.setTransStatus(cursor.getInt(cursor.getColumnIndex(Transaction.COL_STATUS_ID)));
 				reportDetail.setReceiptNo(cursor.getString(cursor.getColumnIndex(Transaction.COL_RECEIPT_NO)));
 				reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice")));
 				reportDetail.setSubTotal(cursor.getFloat(cursor.getColumnIndex("TotalSalePrice")));

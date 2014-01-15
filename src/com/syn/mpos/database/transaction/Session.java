@@ -4,6 +4,8 @@ import java.util.Calendar;
 import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Util;
+
+import android.R.integer;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -41,8 +43,27 @@ public class Session extends Transaction{
 		return isSuccess;
 	}
 
-	public long getSessionDate(int sessionId, int computerId){
-		long sessionDate = 0;
+	public String getSessionDate(int computerId){
+		String sessionDate = "";
+		Cursor cursor = mSqlite.query(Session.TB_SESSION, 
+				new String[]{COL_SESS_DATE}, 
+				Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{String.valueOf(computerId)}, null, null, null);
+		
+		if(cursor.moveToFirst()){
+			sessionDate = cursor.getString(0);
+		}
+		cursor.close();
+		return sessionDate;
+	}
+	
+	public int deleteSession(int sessionId){
+		return mSqlite.delete(TB_SESSION, COL_SESS_ID + "=?", 
+				new String[]{String.valueOf(sessionId)});
+	}
+	
+	public String getSessionDate(int sessionId, int computerId){
+		String sessionDate = "";
 		Cursor cursor = mSqlite.query(Session.TB_SESSION, 
 				new String[]{COL_SESS_DATE}, 
 				COL_SESS_ID + "=? AND " + 
@@ -51,7 +72,7 @@ public class Session extends Transaction{
 				String.valueOf(computerId)}, null, null, null);
 		
 		if(cursor.moveToFirst()){
-			sessionDate = cursor.getLong(0);
+			sessionDate = cursor.getString(0);
 		}
 		cursor.close();
 		return sessionDate;
@@ -95,7 +116,7 @@ public class Session extends Transaction{
 		return sessionId;
 	}
 
-	public boolean addSessionEnddayDetail(long sessionDate,
+	public boolean addSessionEnddayDetail(String sessionDate,
 			float totalQtyReceipt, float totalAmountReceipt) throws SQLException {
 		boolean isSuccess = false;
 		Calendar dateTime = Util.getDateTime();
@@ -133,17 +154,32 @@ public class Session extends Transaction{
 		return isSuccess;
 	}
 
-	public int getCurrentSession(int shopId, int computerId) {
+	public int getSessionEnddayDetail(String sessionDate){
+		int session = 0;
+		Cursor cursor = mSqlite.rawQuery(
+				"SELECT COUNT(*) " +
+				" FROM " + TB_SESSION_DETAIL +
+				" WHERE " + COL_SESS_DATE + "=?", 
+				new String[]{
+				sessionDate});
+		if(cursor.moveToFirst()){
+			session = cursor.getInt(0);
+		}
+		cursor.close();
+		return session;
+	}
+	
+	public int getCurrentSession(int computerId, int staffId) {
 		int sessionId = 0;
 		Cursor cursor = mSqlite.query(TB_SESSION, 
-				new String[]{COL_SESS_ID}, 
-				Shop.COL_SHOP_ID + " =? " + 
-				" AND " + COL_SESS_DATE + " =? " +
-				" AND " + Computer.COL_COMPUTER_ID + " =? " +
-				" AND " + COL_IS_ENDDAY + " =? ", 
-				new String[]{String.valueOf(shopId),
-				String.valueOf(Util.getDate().getTimeInMillis()),
-				String.valueOf(computerId), String.valueOf(NOT_ENDDAY_STATUS)}, null, null, null);
+				new String[]{COL_SESS_ID},  
+				Computer.COL_COMPUTER_ID + " =? " +
+				" AND " + COL_OPEN_STAFF + " =? " +
+				" AND " + COL_SESS_DATE + " =? ",
+				new String[]{
+				String.valueOf(computerId),
+				String.valueOf(staffId),
+				String.valueOf(Util.getDate().getTimeInMillis())}, null, null, null);
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}

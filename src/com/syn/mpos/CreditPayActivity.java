@@ -52,7 +52,8 @@ public class CreditPayActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_credit_pay);
-	
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
 		mTxtTotalPrice = (EditText) findViewById(R.id.editTextCreditTotalPrice);
 		mTxtTotalPay = (EditText) findViewById(R.id.editTextCreditPayAmount);
 		mTxtCardNo = (EditText) findViewById(R.id.editTextCreditNo);
@@ -244,6 +245,7 @@ public class CreditPayActivity extends Activity {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.action_confirm, menu);
 		menu.findItem(R.id.itemClose).setVisible(false);
+		menu.findItem(R.id.itemCancel).setVisible(false);
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -251,6 +253,9 @@ public class CreditPayActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
+		case android.R.id.home:
+			finish();
+			return true;
 		case R.id.itemCancel:
 			finish();
 			return true;

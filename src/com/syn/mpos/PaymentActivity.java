@@ -74,7 +74,9 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_payment);
-
+		
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
 		mLvPayment = (ListView) findViewById(R.id.lvPayDetail);
 		mTxtTotalPay = (EditText) findViewById(R.id.editTextTotalPay);
 		mTxtTotalPaid = (EditText) findViewById(R.id.editTextTotalPaid);
@@ -92,12 +94,16 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.action_confirm, menu);
 		menu.findItem(R.id.itemClose).setVisible(false);
+		menu.findItem(R.id.itemCancel).setVisible(false);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
+		case android.R.id.home:
+			cancel();
+			return true;
 		case R.id.itemCancel:
 			cancel();
 			return true;

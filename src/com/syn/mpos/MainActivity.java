@@ -9,6 +9,7 @@ import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
+import com.syn.mpos.database.Staff;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.OrderTransaction.OrderDetail;
@@ -867,10 +868,12 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 
 	public void logout() {
+		Staff s = new Staff(MPOSApplication.getReadDatabase());
+		
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.logout)
 		.setIcon(android.R.drawable.ic_dialog_info)
-		.setMessage(R.string.confirm_logout)
+		.setMessage(s.getStaff(mStaffId).getStaffName() + "\n" + this.getString(R.string.confirm_logout))
 		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
 			@Override

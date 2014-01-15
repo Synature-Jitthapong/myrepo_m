@@ -70,7 +70,7 @@ public class MPOSUtil {
 		
 		if(sess.closeSession(sessionId, computerId, 
 				closeStaffId, closeAmount, isEndday)){
-			long enddayDate = sess.getSessionDate(sessionId, computerId);
+			String enddayDate = sess.getSessionDate(sessionId, computerId);
 		
 			sess.addSessionEnddayDetail(enddayDate, 
 					trans.getTotalReceipt(enddayDate),

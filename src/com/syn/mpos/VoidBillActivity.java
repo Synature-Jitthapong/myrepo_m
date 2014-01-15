@@ -128,6 +128,7 @@ public class VoidBillActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.action_confirm, menu);
+		menu.findItem(R.id.itemCancel).setVisible(false);
 		menu.findItem(R.id.itemClose).setVisible(false);
 		mItemConfirm = menu.findItem(R.id.itemConfirm);
 		mItemConfirm.setEnabled(false);
@@ -141,7 +142,7 @@ public class VoidBillActivity extends Activity {
 		case android.R.id.home:
 			finish();
 			return true;
-		case R.id.itemCancel:
+		case R.id.itemClose:
 			cancel();
 			return true;
 		case R.id.itemConfirm:
