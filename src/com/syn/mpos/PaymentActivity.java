@@ -1,26 +1,20 @@
 package com.syn.mpos;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
 import com.epson.eposprint.BatteryStatusChangeEventListener;
 import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.R;
-import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.HeaderFooterReceipt;
-import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Util;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
 import com.syn.pos.ShopData;
-import com.syn.pos.ShopData.ShopProperty;
-
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -46,12 +40,10 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 
-	public static float sTotalSalePrice;
-	
+	private float mTotalSalePrice;
 	private int mTransactionId;
 	private int mComputerId;
 	private int mStaffId;
-	private GlobalProperty mGlobalProp;
 	private Transaction mTransaction;
 	private PaymentDetail mPayment;
 	private List<Payment.PaymentDetail> mPayLst;
@@ -65,9 +57,9 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	private float mChange;
 	
 	private ListView mLvPayment;
-	private EditText mTxtTotalPay;
+	private EditText mTxtEnterPrice;
 	private EditText mTxtTotalPaid;
-	private EditText mTxtTobePaid;
+	private EditText mTxtPaymentLeft;
 	private EditText mTxtTotalPrice;
 	
 	@Override
@@ -78,9 +70,9 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		mLvPayment = (ListView) findViewById(R.id.lvPayDetail);
-		mTxtTotalPay = (EditText) findViewById(R.id.editTextTotalPay);
-		mTxtTotalPaid = (EditText) findViewById(R.id.editTextTotalPaid);
-		mTxtTobePaid = (EditText) findViewById(R.id.editTextTobePaid);
+		mTxtEnterPrice = (EditText) findViewById(R.id.txtEnterPrice);
+		mTxtTotalPaid = (EditText) findViewById(R.id.txtTotalPaid);
+		mTxtPaymentLeft = (EditText) findViewById(R.id.txtPaymentLeft);
 		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
 		
 		Intent intent = getIntent();
@@ -92,9 +84,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.action_confirm, menu);
-		menu.findItem(R.id.itemClose).setVisible(false);
-		menu.findItem(R.id.itemCancel).setVisible(false);
+		inflater.inflate(R.menu.activity_payment, menu);
 		return true;
 	}
 
@@ -102,9 +92,6 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
-			cancel();
-			return true;
-		case R.id.itemCancel:
 			cancel();
 			return true;
 		case R.id.itemConfirm:
@@ -122,7 +109,6 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 
 	private void init(){
-		mGlobalProp = new GlobalProperty(MPOSApplication.getWriteDatabase());
 		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
 		mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
 		mPaymentAdapter = new PaymentAdapter();
@@ -130,20 +116,20 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		mLvPayment.setAdapter(mPaymentAdapter);
 		mStrTotalPay = new StringBuilder();
 		
-//		if(mTransaction.getTransaction(
-//				mTransactionId, mComputerId).getTransactionStatusId() == 
-//				Transaction.TRANS_STATUS_SUCCESS)
-//		{
-//			finish();
-//		}else{
+		if(mTransaction.getTransaction(
+				mTransactionId, mComputerId).getTransactionStatusId() == 
+				Transaction.TRANS_STATUS_SUCCESS)
+		{
+			finish();
+		}else{
 			summary();
 			loadPayDetail();
-//		}
+		}
 	}
 	
 	private void summary(){
 		float vatExclude = mTransaction.getTotalVatExclude(mTransactionId, mComputerId, false); 
-		sTotalSalePrice = mTransaction.getTotalSalePrice(mTransactionId, mComputerId, false) + 
+		mTotalSalePrice = mTransaction.getTotalSalePrice(mTransactionId, mComputerId, false) + 
 				vatExclude;
 		displayTotalPrice();
 	}
@@ -189,12 +175,12 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			
 			tvPayType.setText(payTypeName);
 			tvPayDetail.setText(payment.getRemark());
-			tvPayAmount.setText(mGlobalProp.currencyFormat(payment.getPayAmount()));
+			tvPayAmount.setText(MPOSApplication.getGlobalProperty().currencyFormat(payment.getPayAmount()));
 			imgDel.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
-					deletePayment(payment.getPaymentDetailID());
+					deletePayment(payment.getPayTypeID());
 				}
 				
 			});
@@ -209,13 +195,13 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		
 		mTotalPaid = mPayment.getTotalPaid(mTransactionId, mComputerId);
 		
-		mPaymentLeft = sTotalSalePrice - mTotalPaid; 
+		mPaymentLeft = mTotalSalePrice - mTotalPaid; 
 
-		mTxtTotalPaid.setText(mGlobalProp.currencyFormat(mTotalPaid));
+		mTxtTotalPaid.setText(MPOSApplication.getGlobalProperty().currencyFormat(mTotalPaid));
 		if(mPaymentLeft < 0)
 			mPaymentLeft = 0.0f;
 		
-		mTxtTobePaid.setText(mGlobalProp.currencyFormat(mPaymentLeft));
+		mTxtPaymentLeft.setText(MPOSApplication.getGlobalProperty().currencyFormat(mPaymentLeft));
 	}
 	
 	private void deletePayment(int paymentId){
@@ -231,28 +217,35 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			loadPayDetail();
 		}
 		mStrTotalPay = new StringBuilder();
-		mTxtTotalPay.setText("");
+		displayEnterPrice();
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(mGlobalProp.currencyFormat(sTotalSalePrice));
-		displayTotalPaid();
+		mTxtTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(mTotalSalePrice));
+		displayEnterPrice();
 	}
 	
-	private void displayTotalPaid(){
+	private void calculateInputPrice(){
 		try {
 			mTotalPay = Float.parseFloat(mStrTotalPay.toString());
 		} catch (NumberFormatException e) {
 			mTotalPay = 0.0f;
 		}
-		mTxtTotalPay.setText(mGlobalProp.currencyFormat(mTotalPay));
+	}
+	
+	private void displayEnterPrice(){
+		calculateInputPrice();
+		mTxtEnterPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(mTotalPay));
 	}
 	
 	public void creditPayClicked(final View v){
-		Intent intent = new Intent(PaymentActivity.this, CreditPayActivity.class);
-		intent.putExtra("transactionId", mTransactionId);
-		intent.putExtra("computerId", mComputerId);
-		startActivity(intent);
+		if(mTotalSalePrice > 0 && mPaymentLeft > 0){
+			Intent intent = new Intent(PaymentActivity.this, CreditPayActivity.class);
+			intent.putExtra("transactionId", mTransactionId);
+			intent.putExtra("computerId", mComputerId);
+			intent.putExtra("paymentLeft", mPaymentLeft);
+			startActivity(intent);
+		}
 	}
 
 	/*
@@ -262,77 +255,77 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		switch(v.getId()){
 		case R.id.btnPay0:
 			mStrTotalPay.append("0");
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPay1:
 			mStrTotalPay.append("1");
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPay2:
 			mStrTotalPay.append("2");
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPay3:
 			mStrTotalPay.append("3");
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPay4:
 			mStrTotalPay.append("4");
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPay5:
 			mStrTotalPay.append("5");
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPay6:
 			mStrTotalPay.append("6");
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPay7:
 			mStrTotalPay.append("7");
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPay8:
 			mStrTotalPay.append("8");
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPay9:
 			mStrTotalPay.append("9");
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPay20:
 			mStrTotalPay = new StringBuilder();
 			mStrTotalPay.append("20");
-			displayTotalPaid();
+			calculateInputPrice();
 			addPayment();
 			break;
 		case R.id.btnPay50:
 			mStrTotalPay = new StringBuilder();
 			mStrTotalPay.append("50");
-			displayTotalPaid();
+			calculateInputPrice();
 			addPayment();
 			break;
 		case R.id.btnPay100:
 			mStrTotalPay = new StringBuilder();
 			mStrTotalPay.append("100");
-			displayTotalPaid();
+			calculateInputPrice();
 			addPayment();
 			break;
 		case R.id.btnPay500:
 			mStrTotalPay = new StringBuilder();
 			mStrTotalPay.append("500");
-			displayTotalPaid();
+			calculateInputPrice();
 			addPayment();
 			break;
 		case R.id.btnPay1000:
 			mStrTotalPay = new StringBuilder();
 			mStrTotalPay.append("1000");
-			displayTotalPaid();
+			calculateInputPrice();
 			addPayment();
 			break;
 		case R.id.btnPayC:
 			mStrTotalPay = new StringBuilder();
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPayDel:
 			try {
@@ -341,16 +334,15 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPayDot:
 			mStrTotalPay.append(".");
-			displayTotalPaid();
+			displayEnterPrice();
 			break;
 		case R.id.btnPayEnter:
 			if(!mStrTotalPay.toString().isEmpty()){
 				addPayment();
-				mStrTotalPay = new StringBuilder();
 			}
 			break;
 		}
@@ -402,7 +394,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			}
 			OrderTransaction orderTrans = mTransaction.getTransaction(mTransactionId, mComputerId);
 			builder.addText(this.getString(R.string.date) + " ");
-			builder.addText(mGlobalProp.dateFormat(Util.getDate().getTime()) + "\n");
+			builder.addText(MPOSApplication.getGlobalProperty().dateFormat(Util.getDate().getTime()) + "\n");
 			builder.addText(this.getString(R.string.receipt_no) + " ");
 			builder.addText(orderTrans.getReceiptNo());
 			builder.addText("\n" + createLine("=") + "\n");
@@ -415,8 +407,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	    				orderLst.get(i);
 	    		
 	    		String productName = order.getProductName();
-	    		String productQty = mGlobalProp.qtyFormat(order.getQty());
-	    		String productPrice = mGlobalProp.currencyFormat(order.getTotalSalePrice());
+	    		String productQty = MPOSApplication.getGlobalProperty().qtyFormat(order.getQty());
+	    		String productPrice = MPOSApplication.getGlobalProperty().currencyFormat(order.getTotalSalePrice());
 	    		
 	    		builder.addText(productQty + " ");
 	    		builder.addText(productName);
@@ -427,15 +419,15 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	    	}
 	    	builder.addText(createLine("-") + "\n");
 	    	
-	    	String totalText = getApplicationContext().getString(R.string.total);
-	    	String paymentText = getApplicationContext().getString(R.string.payment);
-	    	String changeText = getApplicationContext().getString(R.string.change);
-	    	String discountText = getApplicationContext().getString(R.string.discount);
+	    	String totalText = MPOSApplication.getContext().getString(R.string.total);
+	    	String paymentText = MPOSApplication.getContext().getString(R.string.payment);
+	    	String changeText = MPOSApplication.getContext().getString(R.string.change);
+	    	String discountText = MPOSApplication.getContext().getString(R.string.discount);
 	    	String totalPrice = mTxtTotalPrice.getText().toString();
-	    	String totalDiscount = mGlobalProp.currencyFormat(mTransaction.getPriceDiscount(mTransactionId, 
+	    	String totalDiscount = MPOSApplication.getGlobalProperty().currencyFormat(mTransaction.getPriceDiscount(mTransactionId, 
 	    			mComputerId, false));
-	    	String totalPayment = mGlobalProp.currencyFormat(mTotalPaid);
-	    	String totalChange = mGlobalProp.currencyFormat(mChange);
+	    	String totalPayment = MPOSApplication.getGlobalProperty().currencyFormat(mTotalPaid);
+	    	String totalChange = MPOSApplication.getGlobalProperty().currencyFormat(mChange);
 	    	
 	    	// total price
 	    	builder.addText(totalText);
@@ -443,9 +435,12 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	    	builder.addText(totalPrice + "\n");
 	    	
 	    	// total discount
-	    	builder.addText(discountText);
-	    	builder.addText(createLineSpace(discountText.length() + totalDiscount.length()));
-	    	builder.addText(totalDiscount + "\n");
+	    	if(mTransaction.getPriceDiscount(mTransactionId, 
+	    			mComputerId, false) > 0){
+		    	builder.addText(discountText);
+		    	builder.addText(createLineSpace(discountText.length() + totalDiscount.length()));
+		    	builder.addText(totalDiscount + "\n");
+	    	}
 	    	
 	    	// total payment
 	    	builder.addText(paymentText);
@@ -453,10 +448,12 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	    	builder.addText(totalPayment + "\n");
 	    	
 	    	// change
-	    	builder.addText(changeText);
-	    	builder.addText(createLineSpace(changeText.length() + totalChange.length()));
-	    	builder.addText(totalChange);
-	    	builder.addText("\n" + createLine("-") + "\n");
+	    	if(mChange > 0){
+		    	builder.addText(changeText);
+		    	builder.addText(createLineSpace(changeText.length() + totalChange.length()));
+		    	builder.addText(totalChange);
+		    	builder.addText("\n" + createLine("-") + "\n");
+	    	}
 	    	
 	    	// add footer
 	    	for(ShopData.HeaderFooterReceipt hf : 
@@ -508,21 +505,21 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	}
 	
 	public void confirm() {
-		if(mTotalPaid >=sTotalSalePrice){
+		if(mTotalPaid >=mTotalSalePrice){
 			if(mTransaction.successTransaction(mTransactionId, 
 					mComputerId, mStaffId)){
 				
 				// send real time sale
 				MPOSUtil.sendRealTimeSale(mStaffId, mTransactionId, mComputerId);
 				
-				mChange = mTotalPaid - sTotalSalePrice;
+				mChange = mTotalPaid - mTotalSalePrice;
 				print();
 				
 				if(mChange > 0){
 					LayoutInflater inflater = (LayoutInflater) 
 							PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 					TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
-					tvChange.setText(mGlobalProp.currencyFormat(mChange));
+					tvChange.setText(MPOSApplication.getGlobalProperty().currencyFormat(mChange));
 					
 					new AlertDialog.Builder(PaymentActivity.this)
 					.setTitle(R.string.change)

@@ -60,9 +60,9 @@
     <string name="sale_report_by_bill">Sale report by bill</string>
     <string name="sale_report_by_product">Sale report by product</string>
     <string name="remark">Remark</string>
-    <string name="sync_product_progress">Sync product</string>
+    <string name="sync_product_progress">Sync product&#8230;</string>
     <string name="check_device">Check device</string>
-    <string name="sync_shop_progress">Sync shop data</string>
+    <string name="sync_shop_progress">Sync shop data&#8230;</string>
     <string name="sync_menu_progress">Sync menu</string>
     <string name="error">Error</string>
     <string name="hold">Hold</string>
@@ -204,7 +204,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="sync_sale_summary">Sync sale data</string>
     <string name="sync_stock">Stock</string>
     <string name="sync_stock_summary">Sync stock data</string>
-    <string name="sync_shop">Shop</string>
+    <string name="sync_shop">Sync Shop</string>
     <string name="sync_shop_summary">Sync shop data</string>
     <string name="update_data_success">Update data successfully.</string>
     <string name="update_data">Update data</string>
@@ -240,5 +240,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="date">Date</string>
     <string name="tender">Tender</string>
     <string name="alredy_endday">Already endday.</string>
+    <string name="promp_cvv2">Please enter confirm code.</string>
 
 </resources>

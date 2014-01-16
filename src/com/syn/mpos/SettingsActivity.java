@@ -18,7 +18,6 @@ public class SettingsActivity extends PreferenceActivity {
 
 	public static final String KEY_PREF_SERVER_URL = "server_url";
 	public static final String KEY_PREF_PRINTER_IP = "printer_ip";
-	public static final String KEY_PREF_PRINTER_NAME = "printer_name";
 	public static final String KEY_PREF_PRINTER_LIST = "printer_list";
 	
 	private static final boolean ALWAYS_SIMPLE_PREFS = false;
@@ -41,7 +40,7 @@ public class SettingsActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.pref_printer);
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_NAME));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
 	}
 
 	@Override
@@ -114,7 +113,7 @@ public class SettingsActivity extends PreferenceActivity {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_printer);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
-			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_NAME));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
 		}
 	}
 	

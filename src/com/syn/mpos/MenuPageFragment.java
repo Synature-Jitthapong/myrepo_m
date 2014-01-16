@@ -29,7 +29,12 @@ public class MenuPageFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mDeptId = getArguments().getInt("deptId");
+		if((savedInstanceState != null) && savedInstanceState.containsKey("deptId")){
+			mDeptId = savedInstanceState.getInt("deptId");
+		}
+		else{
+			mDeptId = getArguments().getInt("deptId");
+		}
 	}
 
 	@Override
@@ -40,6 +45,12 @@ public class MenuPageFragment extends Fragment {
 		}
 	}
 	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt("deptId", mDeptId);
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {

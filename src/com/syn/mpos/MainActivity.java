@@ -10,11 +10,11 @@ import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Staff;
+import com.syn.mpos.database.transaction.Session;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.OrderTransaction.OrderDetail;
 import com.syn.pos.ShopData;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.AlertDialog;
@@ -25,7 +25,7 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -51,8 +51,6 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends FragmentActivity implements MenuPageFragment.OnMenuItemClick{
-	public static final int SYNC_REQUEST_CODE = 1;
-	
 	private int mTransactionId;
 	private int mComputerId;
 	private int mSessionId;
@@ -536,8 +534,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 	}
 	
-	public class MenuItemPagerAdapter extends FragmentStatePagerAdapter{
-	
+	class MenuItemPagerAdapter extends FragmentPagerAdapter{
+		
 		public MenuItemPagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
@@ -558,6 +556,29 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			return mProductDeptLst.size();
 		}		
 	}
+	
+//	public class MenuItemPagerAdapter extends FragmentStatePagerAdapter{
+//	
+//		public MenuItemPagerAdapter(FragmentManager fm) {
+//			super(fm);
+//		}
+//		
+//		@Override
+//		public CharSequence getPageTitle(int position) {
+//			return mProductDeptLst.get(position).getProductDeptName();
+//		}
+//	
+//		@Override
+//		public Fragment getItem(int position) {
+//			int deptId = mProductDeptLst.get(position).getProductDeptId();
+//			return MenuPageFragment.newInstance(deptId);
+//		}
+//	
+//		@Override
+//		public int getCount() {
+//			return mProductDeptLst.size();
+//		}		
+//	}
 
 	public void clearBillClicked(final View v){
 		new AlertDialog.Builder(MainActivity.this)
@@ -777,17 +798,16 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 		builder.setTitle(R.string.switch_user);
 		builder.setView(swUserView);
-		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
+		builder.setCancelable(false);
+		builder.setNeutralButton(android.R.string.ok, null);
+		
+		final AlertDialog d = builder.create();	
+		d.show();
+		Button btnOk = d.getButton(AlertDialog.BUTTON_NEUTRAL);
+		btnOk.setOnClickListener(new OnClickListener(){
+
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-			}
-		});
-		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(View v) {
 				String user = "";
 				String pass = "";
 			
@@ -803,6 +823,12 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 							
 							if(s != null){
 								mStaffId = s.getStaffID();
+								Session sess = new Session(MPOSApplication.getWriteDatabase());
+								mSessionId = sess.getCurrentSession(mComputerId, mStaffId);
+								if(mSessionId == 0)
+									mSessionId = sess.addSession(mShopId, mComputerId, mStaffId, 0);
+								
+								d.dismiss();
 								init();
 							}else{
 								new AlertDialog.Builder(MainActivity.this)
@@ -861,10 +887,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 					.show();
 				}
 			}
+			
 		});
-		
-		final AlertDialog d = builder.create();	
-		d.show();
 	}
 
 	public void logout() {
@@ -1002,9 +1026,9 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 	private void appendOrderList(int orderId){
 		if(orderId > 0){
-//			mOrderLst.add(mTransaction.getOrder(mTransactionId, mComputerId, orderId));
-//			refreshOrderListView();
-			new GetOrderTask(orderId).execute();
+			mOrderLst.add(mTransaction.getOrder(mTransactionId, mComputerId, orderId));
+			refreshOrderListView();
+			//new GetOrderTask(orderId).execute();
 		}
 	}
 	

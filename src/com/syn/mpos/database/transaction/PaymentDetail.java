@@ -106,16 +106,14 @@ public class PaymentDetail extends MPOSDatabase {
 		return isSuccess;
 	}
 
-	public boolean deletePaymentDetail(int paymentId) throws SQLException {
+	public boolean deletePaymentDetail(int payTypeId) throws SQLException {
 		boolean isSuccess = false;
-		try {
-			mSqlite.execSQL(
-					" DELETE FROM " + TB_PAYMENT +
-					" WHERE " + COL_PAY_ID + "=" + paymentId);
+		int affectRow = mSqlite.delete(TB_PAYMENT, 
+				COL_PAY_TYPE_ID + "=?", 
+				new String[]{String.valueOf(payTypeId)});
+		
+		if(affectRow > 0)
 			isSuccess = true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 		return isSuccess;
 	}
 	
@@ -137,15 +135,22 @@ public class PaymentDetail extends MPOSDatabase {
 		List<com.syn.pos.Payment.PaymentDetail> paymentLst = 
 				new ArrayList<com.syn.pos.Payment.PaymentDetail>();
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT a.*, " +
+				" SELECT a." + COL_PAY_ID + ", " +
+				" a." + COL_PAY_TYPE_ID + ", " +
+				" SUM(a." + COL_PAY_AMOUNT + ") AS " + COL_PAY_AMOUNT + ", " +
+				" a." + COL_REMARK + ", " +
 				" b." + COL_PAY_TYPE_CODE + ", " +
 				" b." + COL_PAY_TYPE_NAME +
 				" FROM " + TB_PAYMENT + " a " +
 				" LEFT JOIN " + TB_PAY_TYPE + " b " + 
 				" ON a." + COL_PAY_TYPE_ID + "=" +
 				" b." + COL_PAY_TYPE_ID +
-				" WHERE a." + Transaction.COL_TRANS_ID + "=" + transactionId +
-				" AND a." + Computer.COL_COMPUTER_ID + "=" + computerId, null);
+				" WHERE a." + Transaction.COL_TRANS_ID + "=?" +
+				" AND a." + Computer.COL_COMPUTER_ID + "=?" + 
+				" GROUP BY a." + COL_PAY_TYPE_ID,
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)});
 		if(cursor.moveToFirst()){
 			do{
 				com.syn.pos.Payment.PaymentDetail payDetail

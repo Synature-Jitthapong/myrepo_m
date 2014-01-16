@@ -59,7 +59,7 @@ public class MPOSApplication extends Application {
 	public static String getPrinterName() {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(sContext);
-		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_NAME, "");
+		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_LIST, "");
 	}
 	
 	public static String getPrinterIp() {

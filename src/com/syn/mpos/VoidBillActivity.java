@@ -4,11 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-
-import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
-
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -127,9 +124,7 @@ public class VoidBillActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.action_confirm, menu);
-		menu.findItem(R.id.itemCancel).setVisible(false);
-		menu.findItem(R.id.itemClose).setVisible(false);
+		inflater.inflate(R.menu.activity_void_bill, menu);
 		mItemConfirm = menu.findItem(R.id.itemConfirm);
 		mItemConfirm.setEnabled(false);
 		
@@ -140,9 +135,6 @@ public class VoidBillActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
-			finish();
-			return true;
-		case R.id.itemClose:
 			cancel();
 			return true;
 		case R.id.itemConfirm:
@@ -295,31 +287,34 @@ public class VoidBillActivity extends Activity {
 		final EditText txtVoidReason = new EditText(VoidBillActivity.this);
 		txtVoidReason.setHint(R.string.reason);
 		
-		new AlertDialog.Builder(VoidBillActivity.this)
-		.setTitle(R.string.void_bill)
-		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setView(txtVoidReason)
-		.setMessage(R.string.confirm_void_bill)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
+		AlertDialog.Builder builder = new AlertDialog.Builder(VoidBillActivity.this);
+		builder.setTitle(R.string.void_bill);
+		builder.setIcon(android.R.drawable.ic_dialog_alert);
+		builder.setView(txtVoidReason);
+		builder.setMessage(R.string.confirm_void_bill);
+		builder.setNegativeButton(android.R.string.cancel, null);
+		builder.setPositiveButton(android.R.string.ok, null);
+		
+		final AlertDialog d = builder.create();
+		d.show();
+		Button btnOk = d.getButton(AlertDialog.BUTTON_POSITIVE);
+		Button btnCancel = d.getButton(AlertDialog.BUTTON_NEGATIVE);
+		
+		btnOk.setOnClickListener(new OnClickListener(){
+
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-			}
-		}).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(View v) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
 					if(mTransaction.voidTransaction(mTransactionId,
 							mComputerId, mStaffId, voidReason)){
 						
 						mItemConfirm.setEnabled(false);
+						d.dismiss();
 						init();
 					}
 				}else{
-					new AlertDialog.Builder(getApplicationContext())
+					new AlertDialog.Builder(VoidBillActivity.this)
 					.setIcon(android.R.drawable.ic_dialog_alert)
 					.setTitle(R.string.void_bill)
 					.setMessage(R.string.enter_reason)
@@ -333,8 +328,17 @@ public class VoidBillActivity extends Activity {
 					.show();
 				}
 			}
-		})
-		.show();
+			
+		});
+		
+		btnCancel.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				d.dismiss();
+			}
+			
+		});
 	}
 
 	public void cancel() {

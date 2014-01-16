@@ -69,7 +69,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	private Button mBtnDone;
 	private TextView mTvItemName;
 	private MenuItem mItemInput;
-	private MenuItem mItemClose;
 	private MenuItem mItemConfirm;
 
 	@Override
@@ -117,7 +116,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				mRdoDiscountType.check(mOrder.getDiscountType() == 1 ? R.id.rdoPrice : R.id.rdoPercent);
                 
 				mItemInput.setVisible(true);
-				mItemClose.setVisible(false);
 				mItemConfirm.setVisible(false);
 				mTxtDiscount.setSelectAllOnFocus(true);
 				mTxtDiscount.requestFocus();
@@ -134,9 +132,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		case android.R.id.home:
 			cancel();
 			return true;
-		case R.id.itemCancel:
-			cancel();
-			return true;
 		case R.id.itemConfirm:
 			if (mTransaction.confirmDiscount(mTransactionId, mComputerId))
 				finish();
@@ -151,14 +146,13 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.activity_discount, menu);
 		mItemInput = menu.findItem(R.id.itemDiscountInput);
-		mItemClose = menu.findItem(R.id.itemCancel);
-		mItemClose.setVisible(false);
 		mItemConfirm = menu.findItem(R.id.itemConfirm);
 		
 		mTvItemName = (TextView) mItemInput.getActionView().findViewById(R.id.textView1);
 		mTxtDiscount = (EditText) mItemInput.getActionView().findViewById(R.id.txtDiscount);
 		mRdoDiscountType = (RadioGroup) mItemInput.getActionView().findViewById(R.id.rdoDisType);
-		mBtnDone = (Button) mItemInput.getActionView().findViewById(R.id.btnDone);
+		mBtnDone = (Button) mItemInput.getActionView().findViewById(R.id.btnAction);
+		mBtnDone.setText(R.string.done);
 		
 		mTxtDiscount.setOnEditorActionListener(this);
 		mTxtDiscount.setSelectAllOnFocus(true);
@@ -351,7 +345,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				mDiscount = discount;
 				if(updateDiscount()){
 					mItemInput.setVisible(false);
-					mItemClose.setVisible(true);
 					mItemConfirm.setVisible(true);
 				}else{
 					popupNotAllowDiscount();
@@ -379,7 +372,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()){
-		case R.id.btnDone:
+		case R.id.btnAction:
 			mTxtDiscount.onEditorAction(EditorInfo.IME_ACTION_DONE);
 			break;
 		}
