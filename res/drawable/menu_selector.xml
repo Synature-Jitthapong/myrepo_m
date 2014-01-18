@@ -7,5 +7,5 @@
         android:state_selected="true"
         android:drawable="@android:color/holo_blue_light"></item>
     <item
-        android:drawable="@drawable/background_card"></item>
+        android:drawable="@drawable/white_layer"></item>
 </selector>

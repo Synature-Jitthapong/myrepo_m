@@ -1,332 +1,349 @@
 package com.syn.mpos;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import com.syn.mpos.database.Reporting;
+import com.syn.mpos.database.transaction.PaymentDetail;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.Report;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.content.Intent;
-import android.view.Gravity;
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.TableLayout;
-import android.widget.TableRow;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
-public class SaleReportActivity extends Activity implements OnDateConditionListener {
-	//private static final String TAG = "SaleReportActivity"; 
-	private int mode = 1;
-	private Calendar calendar;
-	private Formatter format;
-	private Reporting report;
-	private long dateFrom, dateTo;
-	
-	private Button btnDateFrom;
-	private Button btnDateTo;
-	private TableLayout tbReport;
-	private TableRow trProductReportHeader;
-	private TableRow trBillReportHeader;
+public class SaleReportActivity extends Activity implements OnClickListener{
+	//private static final String TAG = "SaleReportActivity";
+	private Report mReport;
+	private Reporting mReporting;
+	private BillReportAdapter mBillReportAdapter;
+	private Calendar mCalendar;
+	private long mDateFrom;
+	private long mDateTo;
+	private MenuItem mConditionItem;
+	private Button mBtnDateFrom;
+	private Button mBtnDateTo;
+	private Button mBtnCreateReport;
+	private ListView mLvReport;
+	private MenuItem mReportTypeItem;
+	private Spinner mSpReportType;
+	private LinearLayout mBillHeader;
+	private LinearLayout mProductHeader;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sale_report);
-		
-		tbReport = (TableLayout) findViewById(R.id.tbReport);
-		trProductReportHeader = (TableRow) findViewById(R.id.tableRowByProduct);
-		trBillReportHeader = (TableRow) findViewById(R.id.tableRowByBill);
-		
-		Intent intent = getIntent();
-		mode = intent.getIntExtra("mode", 1);
-		
-		if(mode == 1){
-			setTitle(R.string.sale_report_by_bill);
-			trBillReportHeader.setVisibility(View.VISIBLE);
-			trProductReportHeader.setVisibility(View.GONE);
-		}else if (mode == 2){
-			setTitle(R.string.sale_report_by_product);
-			trBillReportHeader.setVisibility(View.GONE);
-			trProductReportHeader.setVisibility(View.VISIBLE);
-		}
-		
-		format = new Formatter(SaleReportActivity.this);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+
+		mBillHeader = (LinearLayout) findViewById(R.id.billHeader);
+		mProductHeader = (LinearLayout) findViewById(R.id.productHeader);
+		mLvReport = (ListView) findViewById(R.id.lvReport); 
+
 		Calendar c = Calendar.getInstance();
-		calendar = new GregorianCalendar(c.get(Calendar.YEAR), 
+		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-		
-		dateFrom = calendar.getTimeInMillis();
-		dateTo = calendar.getTimeInMillis();
+		mDateFrom = mCalendar.getTimeInMillis();
+		mDateTo = mCalendar.getTimeInMillis();
 	}
-		
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.action_sale_report, menu);
-		MenuItem menuItem = (MenuItem) menu.findItem(R.id.itemDateCondition);
-		btnDateFrom = (Button) menuItem.getActionView().findViewById(R.id.btnDateFrom);
-		btnDateTo = (Button) menuItem.getActionView().findViewById(R.id.btnDateTo);
-		btnDateFrom.setText(format.dateFormat(calendar.getTime()));
-		btnDateTo.setText(format.dateFormat(calendar.getTime()));
-		return super.onCreateOptionsMenu(menu);
+	
+	private void getReportData(){
+		mReporting = new Reporting(MPOSApplication.getWriteDatabase(), mDateFrom, mDateTo);
+		mReport = mReporting.getSaleReportByBill();
+		mBillReportAdapter = new BillReportAdapter();
+		mLvReport.setAdapter(mBillReportAdapter);
+		getBillReportSummary();
 	}
-
-	private void createReportByBill(){
-		report = new Reporting(SaleReportActivity.this, dateFrom, dateTo);
-		Report reportData = report.getSaleReportByBill();
-
-		tbReport.removeAllViews();
-		LayoutInflater inflater = LayoutInflater.from(SaleReportActivity.this);
+	
+	private void getBillReportSummary(){
+		TextView tvSummTotalPrice = (TextView) findViewById(R.id.tvSummTotalPrice);
+		TextView tvSummDiscount = (TextView) findViewById(R.id.tvSummDiscount);
+		TextView tvSummSubTotal = (TextView) findViewById(R.id.tvSummSubTotal);
+		TextView tvSummVatable = (TextView) findViewById(R.id.tvSummVatable);
+		TextView tvSummTotalVat = (TextView) findViewById(R.id.tvSummTotalVat);
+		TextView tvSummTotalPay = (TextView) findViewById(R.id.tvSummTotalPay);
 		
 		float totalPrice = 0.0f;
-		float totalDisc = 0.0f;
+		float totalDiscount = 0.0f;
 		float totalSub = 0.0f;
-		float totalSc = 0.0f;
-		float totalSale = 0.0f;
 		float totalVatable = 0.0f;
 		float totalVat = 0.0f;
-		
-		for(Report.ReportDetail reportDetail : reportData.reportDetail){
-			View tbRowDetail = inflater.inflate(R.layout.sale_report_by_bill_template, null);
-			TextView tvReceiptNo = (TextView) tbRowDetail.findViewById(R.id.tvReceipt);
-			TextView tvTotalPrice = (TextView) tbRowDetail.findViewById(R.id.tvTotalPrice);
-			TextView tvTotalDisc = (TextView) tbRowDetail.findViewById(R.id.tvTotalDisc);
-			TextView tvSubTotal = (TextView) tbRowDetail.findViewById(R.id.tvSubTotal);
-			TextView tvSc = (TextView) tbRowDetail.findViewById(R.id.tvSc);
-			TextView tvTotalSale = (TextView) tbRowDetail.findViewById(R.id.tvTotalSale);
-			TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVatable);
-			TextView tvTotalVat = (TextView) tbRowDetail.findViewById(R.id.tvTotalVat);
-
-			tvReceiptNo.setText(reportDetail.getReceiptNo());
-			tvReceiptNo.setSelected(true);
-			
-			tvTotalPrice.setText(format.currencyFormat(reportDetail.getTotalPrice()));
-			tvTotalDisc.setText(format.currencyFormat(reportDetail.getDiscount()));
-			tvSubTotal.setText(format.currencyFormat(reportDetail.getSubTotal()));
-			tvSc.setText(format.currencyFormat(reportDetail.getServiceCharge()));
-			tvTotalSale.setText(format.currencyFormat(reportDetail.getTotalSale()));
-			tvVatable.setText(format.currencyFormat(reportDetail.getVatable()));
-			tvTotalVat.setText(format.currencyFormat(reportDetail.getTotalVat()));
-			
-			tbReport.addView(tbRowDetail);
-			
-			totalPrice += reportDetail.getTotalPrice();
-			totalDisc += reportDetail.getDiscount();
-			totalSub += reportDetail.getSubTotal();
-			totalSc += reportDetail.getServiceCharge();
-			totalSale += reportDetail.getTotalSale();
-			totalVatable += reportDetail.getVatable();
-			totalVat += reportDetail.getTotalVat();
-		}
-		
-		// summary
-		View tbRowSumm = inflater.inflate(R.layout.sale_report_by_bill_template, null);
-		TextView tvReceiptNo = (TextView) tbRowSumm.findViewById(R.id.tvReceipt);
-		TextView tvTotalPrice = (TextView) tbRowSumm.findViewById(R.id.tvTotalPrice);
-		TextView tvTotalDisc = (TextView) tbRowSumm.findViewById(R.id.tvTotalDisc);
-		TextView tvSubTotal = (TextView) tbRowSumm.findViewById(R.id.tvSubTotal);
-		TextView tvSc = (TextView) tbRowSumm.findViewById(R.id.tvSc);
-		TextView tvTotalSale = (TextView) tbRowSumm.findViewById(R.id.tvTotalSale);
-		TextView tvTotalVat = (TextView) tbRowSumm.findViewById(R.id.tvTotalVat);
-		TextView tvVatable = (TextView) tbRowSumm.findViewById(R.id.tvVatable);
-
-		tvReceiptNo.setBackgroundResource(R.color.gray_light_blue);
-		tvTotalPrice.setBackgroundResource(R.color.gray_light_blue);
-		tvTotalDisc.setBackgroundResource(R.color.gray_light_blue);
-		tvSubTotal.setBackgroundResource(R.color.gray_light_blue);
-		tvSc.setBackgroundResource(R.color.gray_light_blue);
-		tvTotalSale.setBackgroundResource(R.color.gray_light_blue);
-		tvTotalVat.setBackgroundResource(R.color.gray_light_blue);
-		tvVatable.setBackgroundResource(R.color.gray_light_blue);
-		
-		tvReceiptNo.setText(R.string.summary);
-		tvReceiptNo.setGravity(Gravity.RIGHT);
-		tvTotalPrice.setText(format.currencyFormat(totalPrice));
-		tvTotalDisc.setText(format.currencyFormat(totalDisc));
-		tvSubTotal.setText(format.currencyFormat(totalSub));
-		tvSc.setText(format.currencyFormat(totalSc));
-		tvTotalSale.setText(format.currencyFormat(totalSale));
-		tvTotalVat.setText(format.currencyFormat(totalVat));
-		tvVatable.setText(format.currencyFormat(totalVatable));
-		
-		tbReport.addView(tbRowSumm);
-	}
-	
-	private void createReportByProduct(){
-		report = new Reporting(SaleReportActivity.this, dateFrom, dateTo);
-		List<Report> reportLst = report.getSaleReportByProduct();
-		
-		tbReport.removeAllViews();
-		LayoutInflater inflater = LayoutInflater.from(SaleReportActivity.this);
-
-		float totalQty = 0.0f;
-		float totalSub = 0.0f;
-		float totalDisc = 0.0f;
-		float totalPrice = 0.0f;
-		
-		for(Report reportData : reportLst){
-			View tbRowHead = inflater.inflate(R.layout.sale_report_template, null);
-			TextView tvGroupCode = (TextView) tbRowHead.findViewById(R.id.tvProCode);
-			TextView tvGroupName = (TextView) tbRowHead.findViewById(R.id.tvProName);
-			TextView tvGroupUnitPrice = (TextView) tbRowHead.findViewById(R.id.tvUnitPrice);
-			TextView tvGroupQty = (TextView) tbRowHead.findViewById(R.id.tvQty);
-			TextView tvGroupSubTotal = (TextView) tbRowHead.findViewById(R.id.tvSubTotal);
-			TextView tvGroupDiscount = (TextView) tbRowHead.findViewById(R.id.tvDiscount);
-			TextView tvGroupTotalPrice = (TextView) tbRowHead.findViewById(R.id.tvTotalPrice);
-			TextView tvGroupVatable = (TextView) tbRowHead.findViewById(R.id.tvVat);
-			
-			tvGroupCode.setBackgroundResource(R.color.light_gray);
-			tvGroupName.setBackgroundResource(R.color.light_gray);
-			tvGroupQty.setBackgroundResource(R.color.light_gray);
-			tvGroupUnitPrice.setBackgroundResource(R.color.light_gray);
-			tvGroupSubTotal.setBackgroundResource(R.color.light_gray);
-			tvGroupDiscount.setBackgroundResource(R.color.light_gray);
-			tvGroupTotalPrice.setBackgroundResource(R.color.light_gray);
-			tvGroupVatable.setBackgroundResource(R.color.light_gray);
-			
-			tvGroupCode.setText(R.string.product_group);
-			tvGroupName.setText(reportData.getProductGroupName() + ":" + reportData.getProductDeptName());
-			
-			tbReport.addView(tbRowHead);
-	
-			for(Report.ReportDetail reportDetail : reportData.reportDetail){
-				View tbRowDetail = inflater.inflate(R.layout.sale_report_template, null); 
-				TextView tvCode = (TextView) tbRowDetail.findViewById(R.id.tvProCode);
-				TextView tvName = (TextView) tbRowDetail.findViewById(R.id.tvProName);
-				TextView tvUnitPrice = (TextView) tbRowDetail.findViewById(R.id.tvUnitPrice);
-				TextView tvQty = (TextView) tbRowDetail.findViewById(R.id.tvQty);
-				TextView tvSubTotal = (TextView) tbRowDetail.findViewById(R.id.tvSubTotal);
-				TextView tvDiscount = (TextView) tbRowDetail.findViewById(R.id.tvDiscount);
-				TextView tvTotalPrice = (TextView) tbRowDetail.findViewById(R.id.tvTotalPrice);
-				TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVat);
-				
-				tvCode.setText(reportDetail.getProductCode());
-				tvName.setText(reportDetail.getProductName());
-				tvUnitPrice.setText(format.currencyFormat(reportDetail.getPricePerUnit()));
-				tvQty.setText(format.qtyFormat(reportDetail.getQty()));
-				tvSubTotal.setText(format.currencyFormat(reportDetail.getSubTotal()));
-				tvDiscount.setText(format.currencyFormat(reportDetail.getDiscount()));
-				tvTotalPrice.setText(format.currencyFormat(reportDetail.getTotalPrice()));
-				tvVatable.setText(reportDetail.getVat().equals("1") ? "V" : "");
-				
-				tbReport.addView(tbRowDetail);
-				tbReport.setOnClickListener(new OnClickListener(){
-
-					@Override
-					public void onClick(View v) {
-						// TODO Auto-generated method stub
-						
-					}
-				});
-				
-				totalQty += reportDetail.getQty();
-				totalSub += reportDetail.getSubTotal();
-				totalDisc += reportDetail.getDiscount();
+		float totalPay = 0.0f;
+		PaymentDetail payment = new PaymentDetail(MPOSApplication.getReadDatabase());
+		for(Report.ReportDetail reportDetail : mReport.reportDetail){
+			if(reportDetail.getTransStatus() != Transaction.TRANS_STATUS_VOID){
 				totalPrice += reportDetail.getTotalPrice();
+				totalDiscount += reportDetail.getDiscount();
+				totalSub += reportDetail.getSubTotal();
+				totalVatable += reportDetail.getVatable();
+				totalVat += reportDetail.getTotalVat();
+				totalPay += payment.getTotalPaid(reportDetail.getTransactionId(), reportDetail.getComputerId());
 			}
-			
-			// summary dept
-			Report.ReportDetail deptSumm = report.getSummaryByDept(reportData.getProductDeptId());
-			View tbRowDetail = inflater.inflate(R.layout.sale_report_template, null); 
-			TextView tvCode = (TextView) tbRowDetail.findViewById(R.id.tvProCode);
-			TextView tvName = (TextView) tbRowDetail.findViewById(R.id.tvProName);
-			TextView tvQty = (TextView) tbRowDetail.findViewById(R.id.tvQty);
-			TextView tvUnitPrice = (TextView) tbRowDetail.findViewById(R.id.tvUnitPrice);
-			TextView tvSubTotal = (TextView) tbRowDetail.findViewById(R.id.tvSubTotal);
-			TextView tvDiscount = (TextView) tbRowDetail.findViewById(R.id.tvDiscount);
-			TextView tvTotalPrice = (TextView) tbRowDetail.findViewById(R.id.tvTotalPrice);
-			TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVat);
-			
-			tvCode.setBackgroundResource(R.color.gray_light_blue);
-			tvName.setBackgroundResource(R.color.gray_light_blue);
-			tvQty.setBackgroundResource(R.color.gray_light_blue);
-			tvUnitPrice.setBackgroundResource(R.color.gray_light_blue);
-			tvSubTotal.setBackgroundResource(R.color.gray_light_blue);
-			tvDiscount.setBackgroundResource(R.color.gray_light_blue);
-			tvTotalPrice.setBackgroundResource(R.color.gray_light_blue);
-			tvVatable.setBackgroundResource(R.color.gray_light_blue);
-			
-			tvCode.setText(R.string.summary);
-			tvCode.setGravity(Gravity.RIGHT);
-			tvName.setText(reportData.getProductDeptName());
-			tvQty.setText(format.qtyFormat(deptSumm.getQty()));
-			tvSubTotal.setText(format.currencyFormat(deptSumm.getSubTotal()));
-			tvDiscount.setText(format.currencyFormat(deptSumm.getDiscount()));
-			tvTotalPrice.setText(format.currencyFormat(deptSumm.getTotalPrice()));
-			
-			tbReport.addView(tbRowDetail);
+		}
+		tvSummTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
+		tvSummDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
+		tvSummSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalSub));
+		tvSummVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVatable));
+		tvSummTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
+		tvSummTotalPay.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
+	}
+	
+	private class ReportTypeAdapter extends BaseAdapter{
+		private List<HashMap<Integer, String>> reportType;
+		
+		public ReportTypeAdapter(){
+			reportType = new ArrayList<HashMap<Integer, String>>();
+
+			HashMap<Integer, String> type = new HashMap<Integer, String>();
+			type.put(1, SaleReportActivity.this.getString(R.string.sale_report_by_bill));
+			reportType.add(type);
+			type = new HashMap<Integer, String>();
+			type.put(2, SaleReportActivity.this.getString(R.string.sale_report_by_product));
+			reportType.add(type);
 		}
 		
-		// sum all
-		View tbRowDetail = inflater.inflate(R.layout.sale_report_template, null); 
-		TextView tvCode = (TextView) tbRowDetail.findViewById(R.id.tvProCode);
-		TextView tvName = (TextView) tbRowDetail.findViewById(R.id.tvProName);
-		TextView tvQty = (TextView) tbRowDetail.findViewById(R.id.tvQty);
-		TextView tvUnitPrice = (TextView) tbRowDetail.findViewById(R.id.tvUnitPrice);
-		TextView tvSubTotal = (TextView) tbRowDetail.findViewById(R.id.tvSubTotal);
-		TextView tvDiscount = (TextView) tbRowDetail.findViewById(R.id.tvDiscount);
-		TextView tvTotalPrice = (TextView) tbRowDetail.findViewById(R.id.tvTotalPrice);
-		TextView tvVatable = (TextView) tbRowDetail.findViewById(R.id.tvVat);
+		@Override
+		public int getCount() {
+			return reportType.size();
+		}
+
+		@Override
+		public HashMap<Integer, String> getItem(int position) {
+			return reportType.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			HashMap<Integer, String> type = reportType.get(position);
+			LayoutInflater inflater = (LayoutInflater)
+					SaleReportActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			
+			convertView = inflater.inflate(R.layout.text_view, null);
+			TextView textView = (TextView)convertView;
+			textView.setText(type.get(position + 1));
+			return convertView;
+		}
 		
-		tvCode.setBackgroundResource(R.color.gray_light_blue);
-		tvName.setBackgroundResource(R.color.gray_light_blue);
-		tvQty.setBackgroundResource(R.color.gray_light_blue);
-		tvUnitPrice.setBackgroundResource(R.color.gray_light_blue);
-		tvSubTotal.setBackgroundResource(R.color.gray_light_blue);
-		tvDiscount.setBackgroundResource(R.color.gray_light_blue);
-		tvTotalPrice.setBackgroundResource(R.color.gray_light_blue);
-		tvVatable.setBackgroundResource(R.color.gray_light_blue);
+	}
+	
+	private void switchReportType(int type){
+		switch(type){
+		case 1:	
+			mBillHeader.setVisibility(View.VISIBLE);
+			mProductHeader.setVisibility(View.GONE);
+			break;
+		case 2:
+			mBillHeader.setVisibility(View.GONE);
+			mProductHeader.setVisibility(View.VISIBLE);
+			break;
+		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.activity_sale_report, menu);
+		mReportTypeItem = (MenuItem) menu.findItem(R.id.itemReportType);
+		mConditionItem = (MenuItem) menu.findItem(R.id.itemDateCondition);
+		mSpReportType = (Spinner) mReportTypeItem.getActionView().findViewById(R.id.spinner1);
+		mSpReportType.setVisibility(View.GONE);
+		mBtnDateFrom = (Button) mConditionItem.getActionView().findViewById(R.id.btnDateFrom);
+		mBtnDateTo = (Button) mConditionItem.getActionView().findViewById(R.id.btnDateTo);
+		mBtnCreateReport = (Button) ((MenuItem) menu.findItem(R.id.itemCreateReport)).getActionView().findViewById(R.id.btnAction);
+		mBtnCreateReport.setText(R.string.create_report);
+		mBtnDateFrom.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
+		mBtnDateTo.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
+		mBtnDateFrom.setOnClickListener(this);
+		mBtnDateTo.setOnClickListener(this);
+		mSpReportType.setOnItemSelectedListener(new OnItemSelectedListener(){
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View v,
+					int position, long id) {
+				switchReportType(position + 1);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		mBtnCreateReport.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				getReportData();
+			}
+			
+		});
+		mSpReportType.setAdapter(new ReportTypeAdapter());
+		mSpReportType.setSelection(0);
 		
-		tvName.setText(R.string.total);
-		tvName.setGravity(Gravity.RIGHT);
-		tvQty.setText(format.qtyFormat(totalQty));
-		tvSubTotal.setText(format.currencyFormat(totalSub));
-		tvDiscount.setText(format.currencyFormat(totalDisc));
-		tvTotalPrice.setText(format.currencyFormat(totalPrice));
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
+		case R.id.itemCreateReport:
+			getReportData();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	public class BillReportAdapter extends BaseAdapter{
+		private PaymentDetail mPaymentDetail;
+		private LayoutInflater mInflater;
 		
-		tbReport.addView(tbRowDetail);
+		public BillReportAdapter(){
+			mInflater = (LayoutInflater)
+					SaleReportActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			mPaymentDetail = new PaymentDetail(MPOSApplication.getWriteDatabase());
+		}
+		
+		@Override
+		public int getCount() {
+			return mReport.reportDetail.size();
+		}
+
+		@Override
+		public Report.ReportDetail getItem(int position) {
+			return mReport.reportDetail.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			ViewHolder holder;
+			if(convertView == null){
+				convertView = mInflater.inflate(R.layout.sale_report_by_bill_template, null);
+				holder = new ViewHolder();
+				holder.mTvReceipt = (TextView) convertView.findViewById(R.id.tvReceipt);
+				holder.mTvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
+				holder.mTvDiscount = (TextView) convertView.findViewById(R.id.tvTotalDisc);
+				holder.mTvSubTotal = (TextView) convertView.findViewById(R.id.tvSubTotal);
+				holder.mTvTotalSale = (TextView) convertView.findViewById(R.id.tvTotalSale);
+				holder.mTvVatable = (TextView) convertView.findViewById(R.id.tvVatable);
+				holder.mTvTotalVat = (TextView) convertView.findViewById(R.id.tvTotalVat);
+				holder.mTvTotalPayment = (TextView) convertView.findViewById(R.id.tvTotalPayment);
+				convertView.setTag(holder);
+			}else{
+				holder = (ViewHolder) convertView.getTag();
+			}
+			
+			Report.ReportDetail report = mReport.reportDetail.get(position);
+			int transId = report.getTransactionId();
+			int compId = report.getComputerId();
+			float vatable = report.getVatable();
+			float totalVat = report.getTotalVat();
+			float totalPrice = report.getTotalPrice();
+			float totalDiscount = report.getDiscount();
+			float subTotal = report.getSubTotal();
+			
+			holder.mTvReceipt.setText(report.getReceiptNo());
+			holder.mTvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
+			holder.mTvDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
+			holder.mTvSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(subTotal));
+			holder.mTvVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(vatable));
+			holder.mTvTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
+			holder.mTvTotalPayment.setText(MPOSApplication.getGlobalProperty().currencyFormat(
+					mPaymentDetail.getTotalPaid(transId, compId)));
+			
+			if(report.getTransStatus() == Transaction.TRANS_STATUS_VOID){
+				holder.mTvReceipt.setTextColor(Color.RED);
+				holder.mTvTotalPrice.setTextColor(Color.RED);
+				holder.mTvDiscount.setTextColor(Color.RED);
+				holder.mTvSubTotal.setTextColor(Color.RED);
+				holder.mTvVatable.setTextColor(Color.RED);
+				holder.mTvTotalVat.setTextColor(Color.RED);
+				holder.mTvTotalPayment.setTextColor(Color.RED);
+				holder.mTvReceipt.setPaintFlags(holder.mTvReceipt.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvTotalPrice.setPaintFlags(holder.mTvTotalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvDiscount.setPaintFlags(holder.mTvDiscount.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvSubTotal.setPaintFlags(holder.mTvSubTotal.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvVatable.setPaintFlags(holder.mTvVatable.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvTotalVat.setPaintFlags(holder.mTvTotalVat.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.mTvTotalPayment.setPaintFlags(holder.mTvTotalPayment.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+			}
+			return convertView;
+		}
 	}
 
-	@Override
-	public void onDateFromClick(View v) {
-		DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
-			
-			@Override
-			public void onSetDate(long date) {
-				calendar.setTimeInMillis(date);
-				dateFrom = calendar.getTimeInMillis();
-				
-				btnDateFrom.setText(format.dateFormat(calendar.getTime()));
-			}
-		});
-		dialogFragment.show(getFragmentManager(), "Condition");
-	}
-
-	@Override
-	public void onDateToClick(View v) {
-		DialogFragment dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
-			
-			@Override
-			public void onSetDate(long date) {
-				calendar.setTimeInMillis(date);
-				dateTo = calendar.getTimeInMillis();
-				
-				btnDateTo.setText(format.dateFormat(calendar.getTime()));
-			}
-		});
-		dialogFragment.show(getFragmentManager(), "Condition");
+	public static class ViewHolder{
+		public TextView mTvReceipt;
+		public TextView mTvTotalPrice;
+		public TextView mTvDiscount;
+		public TextView mTvSubTotal;
+		public TextView mTvTotalSale;
+		public TextView mTvVatable;
+		public TextView mTvTotalVat;
+		public TextView mTvTotalPayment;
 	}
 
 	@Override
 	public void onClick(View v) {
-		if (mode == 1)
-			createReportByBill();
-		else if (mode == 2)
-			createReportByProduct();
+		DialogFragment dialogFragment;
+		
+		switch(v.getId()){
+		case R.id.btnDateFrom:
+			dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
+				
+				@Override
+				public void onSetDate(long date) {
+					mCalendar.setTimeInMillis(date);
+					mDateFrom = mCalendar.getTimeInMillis();
+					
+					mBtnDateFrom.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
+				}
+			});
+			dialogFragment.show(getFragmentManager(), "Condition");
+			break;
+		case R.id.btnDateTo:
+			dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
+				
+				@Override
+				public void onSetDate(long date) {
+					mCalendar.setTimeInMillis(date);
+					mDateTo = mCalendar.getTimeInMillis();
+					
+					mBtnDateTo.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
+				}
+			});
+			dialogFragment.show(getFragmentManager(), "Condition");
+			break;
+		}
 	}
 }

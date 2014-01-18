@@ -4,15 +4,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-
-import com.syn.mpos.inventory.MPOSSaleStock;
-import com.syn.mpos.transaction.MPOSTransaction;
+import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
-
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -20,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -31,20 +28,17 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class VoidBillActivity extends Activity implements OnConfirmClickListener {
-	private MPOSTransaction mTrans;
-	private MPOSSaleStock mSaleStock;
+public class VoidBillActivity extends Activity {
+	private int mTransactionId;
+	private int mComputerId;
+	private int mStaffId;
+	private Transaction mTransaction;
 	private List<OrderTransaction> mTransLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private BillAdapter mBillAdapter;
 	private BillDetailAdapter mBillDetailAdapter;
 	private Calendar mCalendar;
-	private Formatter mFormat;
 	private long mDate;
-	private int mTransactionId;
-	private int mComputerId;
-	private int mShopId;
-	private int mStaffId;
 	private String mReceiptNo;
 	private String mReceiptDate;
 	
@@ -61,7 +55,8 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_void_bill);
 
-		mFormat = new Formatter(VoidBillActivity.this);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -73,8 +68,8 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 		mLvBillDetail = (ListView) findViewById(R.id.lvBillDetail);
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
-	    
-	    btnBillDate.setText(mFormat.dateFormat(mCalendar.getTime()));
+
+	    btnBillDate.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
 	    btnBillDate.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -86,7 +81,7 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 						mCalendar.setTimeInMillis(date);
 						mDate = mCalendar.getTimeInMillis();
 						
-						btnBillDate.setText(mFormat.dateFormat(mCalendar.getTime()));
+						btnBillDate.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
 					}
 				});
 				dialogFragment.show(getFragmentManager(), "Condition");
@@ -102,51 +97,6 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 	    	
 	    });
 	    
-	    Intent intent = getIntent();
-	    mShopId = intent.getIntExtra("shopId", 0);
-	    mStaffId = intent.getIntExtra("staffId", 0);
-	    
-	    if(mShopId == 0 || mStaffId == 0)
-	    	finish();
-	    
-	    init();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.action_confirm, menu);
-		menu.findItem(R.id.itemClose).setVisible(false);
-		mItemConfirm = menu.findItem(R.id.itemConfirm);
-		mItemConfirm.setEnabled(false);
-		
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()){
-		case R.id.itemCancel:
-			onCancelClick(item.getActionView());
-			return true;
-		case R.id.itemConfirm:
-			onConfirmClick(item.getActionView());
-			return true;
-		default:
-		return super.onOptionsItemSelected(item);
-		}
-	}
-	
-	private void init(){
-		mTrans = new MPOSTransaction(VoidBillActivity.this);
-		mSaleStock = new MPOSSaleStock(VoidBillActivity.this);
-		mTransLst = new ArrayList<OrderTransaction>();
-		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
-		mBillAdapter = new BillAdapter();
-		mBillDetailAdapter = new BillDetailAdapter();
-		mLvBill.setAdapter(mBillAdapter);
-		mLvBillDetail.setAdapter(mBillDetailAdapter);
-		
 		mLvBill.setOnItemClickListener(new OnItemClickListener(){
 
 			@Override
@@ -159,21 +109,56 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
 				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = mFormat.dateTimeFormat(c.getTime());
+				mReceiptDate = MPOSApplication.getGlobalProperty().dateTimeFormat(c.getTime());
 				
 				mItemConfirm.setEnabled(true);
 				searchVoidItem();
 			}
 		});
+		
+	    Intent intent = getIntent();
+	    mStaffId = intent.getIntExtra("staffId", 0);
+	    init();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.activity_void_bill, menu);
+		mItemConfirm = menu.findItem(R.id.itemConfirm);
+		mItemConfirm.setEnabled(false);
+		
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		case android.R.id.home:
+			cancel();
+			return true;
+		case R.id.itemConfirm:
+			confirm();
+			return true;
+		default:
+		return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	private void init(){
+		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
+		mTransLst = new ArrayList<OrderTransaction>();
+		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
+		mBillAdapter = new BillAdapter();
+		mBillDetailAdapter = new BillDetailAdapter();
+		mLvBill.setAdapter(mBillAdapter);
+		mLvBillDetail.setAdapter(mBillDetailAdapter);
+		txtReceiptNo.setText("");
+		txtReceiptDate.setText("");
 	}
 	
 	private class BillAdapter extends BaseAdapter{
-		LayoutInflater inflater;
-		
-		public BillAdapter(){
-			inflater = LayoutInflater.from(VoidBillActivity.this);
-		}
-		
+
 		@Override
 		public int getCount() {
 			return mTransLst != null ? mTransLst.size() : 0;
@@ -190,24 +175,12 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 		}
 
 		@Override
-		public void notifyDataSetChanged() {
-			mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
-			mBillDetailAdapter.notifyDataSetChanged();
-			mReceiptNo = "";
-			mReceiptDate = "";
-			txtReceiptNo.setText(mReceiptNo);
-			txtReceiptDate.setText(mReceiptDate);
-			
-			mItemConfirm.setEnabled(false);
-			
-			super.notifyDataSetChanged();
-		}
-
-		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			final OrderTransaction trans = mTransLst.get(position);
 			ViewHolder holder;
 			
+			LayoutInflater inflater = (LayoutInflater) 
+					VoidBillActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			if(convertView == null){
 				convertView = inflater.inflate(R.layout.receipt_template, null);
 				holder = new ViewHolder();
@@ -228,7 +201,7 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 			}
 			
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
-			holder.tvPaidTime.setText(mFormat.dateTimeFormat(c.getTime()));
+			holder.tvPaidTime.setText(MPOSApplication.getGlobalProperty().dateTimeFormat(c.getTime()));
 			
 			return convertView;
 		}
@@ -282,9 +255,9 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 			}
 		
 			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(mFormat.qtyFormat(order.getQty()));
-			holder.tvPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
+			holder.tvQty.setText(MPOSApplication.getGlobalProperty().qtyFormat(order.getQty()));
+			holder.tvPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(order.getPricePerUnit()));
+			holder.tvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(order.getTotalRetailPrice()));
 			
 			return convertView;
 		}
@@ -298,7 +271,7 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 	}
 	
 	private void searchBill(){
-		mTransLst = mTrans.listTransaction(mDate);
+		mTransLst = mTransaction.listTransaction(mDate);
 		mBillAdapter.notifyDataSetChanged();
 	}
 	
@@ -306,62 +279,69 @@ public class VoidBillActivity extends Activity implements OnConfirmClickListener
 		txtReceiptNo.setText(mReceiptNo);
 		txtReceiptDate.setText(mReceiptDate);
 		
-		mOrderLst = mTrans.listAllOrders(mTransactionId, mComputerId);
+		mOrderLst = mTransaction.listAllOrder(mTransactionId, mComputerId);
 		mBillDetailAdapter.notifyDataSetChanged();
 	}
-	
-	@Override 
-	public void onSaveClick(View v){
-		
-	}
-	
-	@Override
-	public void onConfirmClick(View v) {
+
+	public void confirm() {
 		final EditText txtVoidReason = new EditText(VoidBillActivity.this);
 		txtVoidReason.setHint(R.string.reason);
 		
-		new AlertDialog.Builder(VoidBillActivity.this)
-		.setTitle(R.string.void_bill)
-		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setView(txtVoidReason)
-		.setMessage(R.string.confirm_void_bill)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
+		AlertDialog.Builder builder = new AlertDialog.Builder(VoidBillActivity.this);
+		builder.setTitle(R.string.void_bill);
+		builder.setIcon(android.R.drawable.ic_dialog_alert);
+		builder.setView(txtVoidReason);
+		builder.setMessage(R.string.confirm_void_bill);
+		builder.setNegativeButton(android.R.string.cancel, null);
+		builder.setPositiveButton(android.R.string.ok, null);
+		
+		final AlertDialog d = builder.create();
+		d.show();
+		Button btnOk = d.getButton(AlertDialog.BUTTON_POSITIVE);
+		Button btnCancel = d.getButton(AlertDialog.BUTTON_NEGATIVE);
+		
+		btnOk.setOnClickListener(new OnClickListener(){
+
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				hideKeyboard();
-			}
-		}).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(View v) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					if(mTrans.voidTransaction(mTransactionId, mComputerId, mStaffId, voidReason)){
-				    	List<OrderTransaction.OrderDetail> orderLst = 
-				    			mTrans.listAllOrders(mTransactionId, mComputerId);
+					if(mTransaction.voidTransaction(mTransactionId,
+							mComputerId, mStaffId, voidReason)){
 						
-				    	if(mSaleStock.createVoidDocument(mShopId, mStaffId, orderLst, voidReason)){
-							searchBill();
-							hideKeyboard();
-				    	}
+						mItemConfirm.setEnabled(false);
+						d.dismiss();
+						init();
 					}
 				}else{
-					Util.alert(VoidBillActivity.this, android.R.drawable.ic_dialog_alert, 
-							R.string.void_bill, R.string.enter_reason);
+					new AlertDialog.Builder(VoidBillActivity.this)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle(R.string.void_bill)
+					.setMessage(R.string.enter_reason)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							
+						}
+					})
+					.show();
 				}
 			}
-		})
-		.show();
+			
+		});
+		
+		btnCancel.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				d.dismiss();
+			}
+			
+		});
 	}
 
-	@Override
-	public void onCancelClick(View v) {
+	public void cancel() {
 		finish();
-	}
-	
-	private void hideKeyboard(){
-		getWindow().setSoftInputMode(
-			      WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 	}
 }

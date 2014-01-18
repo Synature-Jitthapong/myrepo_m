@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" ><item android:id="@+id/itemHoldBill" android:showAsAction="always|withText" android:title="@string/hold_bill"></item>
+    <item android:id="@+id/itemInventory" android:showAsAction="always|withText" android:title="@string/inventory" android:visible="false">
+        <menu>
+            <item android:id="@+id/itemDirectReceive" android:title="@string/direct_receive_stock"/>
+            <item android:id="@+id/itemStockCount" android:title="@string/count_stock"/>
+            <item android:id="@+id/itemStockCard" android:title="@string/stock_card"/>
+        </menu>
+</item>
+    <item android:id="@+id/itemReport" android:showAsAction="always|withText" android:title="@string/report">
+    </item>
+    <item android:id="@+id/itemUtility" android:showAsAction="always|withText" android:title="@string/utility">
+        <menu>
+            <item android:id="@+id/itemVoid" android:title="@string/void_bill"/>
+            <item android:id="@+id/itemCloseShift" android:title="@string/close_shift" android:visible="false"/>
+            <item android:id="@+id/itemEndday" android:title="@string/endday"/>
+            
+        </menu>
+    </item>
+    <item android:id="@+id/itemSwUser" android:showAsAction="always|withText" android:title="@string/switch_user"></item>
+    <item android:id="@+id/itemLogout" android:showAsAction="always|withText" android:title="@string/logout"></item>
+    <item android:id="@+id/itemSetting" android:title="@string/setting" android:showAsAction="collapseActionView"></item>
+    
+    
+
+</menu>

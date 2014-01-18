@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/inputDiscountLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="4dp" >
+
+    <Button
+        android:id="@+id/buttonOrderPlus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:minWidth="48dp"
+        android:text="+"
+        android:textAppearance="?android:attr/textAppearanceLargeInverse" />
+
+    <EditText
+        android:id="@+id/editTextOrderAmount"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/buttonOrderPlus"
+        android:layout_alignTop="@+id/buttonOrderPlus"
+        android:layout_toLeftOf="@+id/buttonOrderPlus"
+        android:ems="10"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:gravity="center"
+        android:imeOptions="actionDone"
+        android:inputType="number"
+        android:singleLine="true"
+        android:text="1"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@android:color/black" >
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/buttonOrderMinus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/editTextOrderAmount"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:minWidth="48dp"
+        android:text="-"
+        android:textAppearance="?android:attr/textAppearanceLargeInverse" />
+
+    <CheckBox
+        android:id="@+id/checkBox1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/editTextOrderAmount"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/textViewOrderNo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/checkBox1"
+        android:text="1"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textViewOrderName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/buttonOrderMinus"
+        android:layout_toRightOf="@+id/textViewOrderNo"
+        android:lines="1"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:text="s" />
+
+    <TextView
+        android:id="@+id/textViewOrderPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textViewOrderName"
+        android:layout_alignRight="@+id/textViewOrderName"
+        android:layout_below="@+id/textViewOrderName"
+        android:text="1"
+        android:textStyle="bold" />
+
+</RelativeLayout>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen 
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory 
+        android:title="@string/printer_setting">
+        	<EditTextPreference 
+        	    android:title="@string/printer_ip" 
+        	    android:key="printer_ip" 
+        	    android:selectAllOnFocus="true"
+        	    android:defaultValue="1.1.0.161"/>
+        	<ListPreference android:key="printer_list" android:title="@string/printer_name" android:entryValues="@array/pref_printer_value" android:entries="@array/pref_printer_name" android:defaultValue="TM-T88V"/>
+    </PreferenceCategory>
+    
+
+</PreferenceScreen>

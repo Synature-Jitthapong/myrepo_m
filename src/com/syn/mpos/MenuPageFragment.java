@@ -1,0 +1,80 @@
+package com.syn.mpos;
+
+import java.util.List;
+import com.syn.mpos.database.Products;
+import android.app.Activity;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.GridView;
+
+public class MenuPageFragment extends Fragment {
+	private OnMenuItemClick mCallback;
+	private List<Products.Product> mProductLst;
+	private MenuItemAdapter mAdapter;
+	private int mDeptId;
+	
+	public static MenuPageFragment newInstance(int deptId){
+		MenuPageFragment f = new MenuPageFragment();
+		Bundle b = new Bundle();
+		b.putInt("deptId", deptId);
+		f.setArguments(b);
+		return f;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		if((savedInstanceState != null) && savedInstanceState.containsKey("deptId")){
+			mDeptId = savedInstanceState.getInt("deptId");
+		}
+		else{
+			mDeptId = getArguments().getInt("deptId");
+		}
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		if(activity instanceof OnMenuItemClick){
+			mCallback = (OnMenuItemClick) activity;
+		}
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt("deptId", mDeptId);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+
+		GridView gvItem = (GridView) inflater.inflate(R.layout.menu_grid_view, container, false);
+		mProductLst =  MPOSApplication.getProduct().listProduct(mDeptId);
+		mAdapter = new MenuItemAdapter(getActivity(), mProductLst);
+		gvItem.setAdapter(mAdapter);
+		gvItem.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View v, int position,
+					long id) {
+				Products.Product p = 
+						(Products.Product) parent.getItemAtPosition(position);
+				
+				mCallback.onClick(p.getProductId(), p.getProductTypeId(), 
+						p.getVatType(), p.getVatRate(), p.getProductPrice());
+			}
+		});
+		return gvItem;
+	}
+
+	public interface OnMenuItemClick{
+		void onClick(int productId, int productTypeId, int vatType, float vatRate, float productPrice);
+	}
+}

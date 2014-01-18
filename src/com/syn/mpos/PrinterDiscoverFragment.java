@@ -7,9 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,7 +15,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleAdapter;
-
 import com.epson.eposprint.BatteryStatusChangeEventListener;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.epson.epsonio.DevType;

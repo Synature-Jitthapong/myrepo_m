@@ -10,20 +10,38 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-sdk
-        android:minSdkVersion="15"
+        android:minSdkVersion="14"
         android:targetSdkVersion="17" />
 
+    <supports-screens
+        android:largeScreens="true"
+        android:normalScreens="false"
+        android:smallScreens="false" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+
     <application
+        android:name="com.syn.mpos.MPOSApplication"
         android:allowBackup="true"
-        android:icon="@drawable/logo"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:logo="@drawable/logo"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name="com.syn.mpos.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden|adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,21 +51,24 @@
         <activity
             android:name="com.syn.mpos.MainActivity"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden|stateAlwaysHidden" >
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden">
         </activity>
         <activity
             android:name="com.syn.mpos.DiscountActivity"
             android:label="@string/discount"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="adjustResize" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.syn.pos.mobile.mpos.MainActivity" />
+                android:value="com.syn.mpos.MainActivity" />
         </activity>
         <activity
             android:name="com.syn.mpos.PaymentActivity"
             android:label="@string/title_activity_payment"
             android:screenOrientation="landscape" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.syn.mpos.MainActivity" />
         </activity>
         <activity
             android:name="com.syn.mpos.CreditPayActivity"
@@ -59,39 +80,31 @@
             android:name="com.syn.mpos.SaleReportActivity"
             android:label="@string/title_activity_sale_report"
             android:screenOrientation="landscape" >
-        </activity>
-        <activity
-            android:name="com.syn.mpos.DirectReceiveActivity"
-            android:label="@string/title_activity_inv_direct_receive"
-            android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden" >
-        </activity>
-        <activity
-            android:name="com.syn.mpos.StockCountActivity"
-            android:label="@string/title_activity_stock_count"
-            android:windowSoftInputMode="stateHidden" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.syn.mpos.MainActivity" />
         </activity>
         <activity
             android:name="com.syn.mpos.VoidBillActivity"
             android:label="@string/title_activity_void_bill"
+            android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.syn.mpos.MainActivity" />
         </activity>
         <activity
-            android:name="com.syn.mpos.AddMemberActivity"
-            android:label="@string/title_activity_add_member"
-            android:windowSoftInputMode="stateHidden" >
+            android:name="com.syn.mpos.SettingsActivity"
+            android:label="@string/setting" >
         </activity>
+
+       <provider
+            android:name="com.syn.mpos.database.ProductProvider"
+            android:authorities="com.syn.mpos.ProductProvider" />
+
         <activity
-            android:name="com.syn.mpos.StockCardActivity"
-            android:label="@string/title_activity_stock_card" >
-        </activity>
-        <activity
-            android:name="com.syn.mpos.ManageProductActivity"
-            android:label="@string/title_activity_manage_product" >
-        </activity>
-        <activity
-            android:name="com.syn.mpos.SettingActivity"
-            android:label="@string/title_activity_setting" >
+            android:name="com.syn.mpos.AboutActivity"
+            android:label="@string/title_activity_about" >
         </activity>
     </application>
 
