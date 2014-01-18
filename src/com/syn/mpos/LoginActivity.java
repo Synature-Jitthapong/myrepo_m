@@ -2,6 +2,7 @@ package com.syn.mpos;
 
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
+import com.syn.mpos.database.Util;
 import com.syn.mpos.database.transaction.Session;
 import com.syn.pos.ShopData;
 import android.os.Bundle;
@@ -180,7 +181,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 							// alert endday
 							new AlertDialog.Builder(LoginActivity.this)
 							.setTitle(R.string.endday)
-							.setMessage(R.string.alredy_endday)
+							.setMessage(LoginActivity.this.getString(R.string.sale_date) + " " +
+									MPOSApplication.getGlobalProperty().dateFormat(Util.getDate().getTime()) + "\n" +
+									LoginActivity.this.getString(R.string.alredy_endday))
 							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 								
 								@Override

@@ -2,6 +2,8 @@ package com.syn.mpos;
 
 import java.lang.reflect.Type;
 import java.util.List;
+
+import android.database.SQLException;
 import android.os.AsyncTask;
 import android.util.Log;
 import com.google.gson.reflect.TypeToken;
@@ -72,63 +74,74 @@ public class MPOSUtil {
 				closeStaffId, closeAmount, isEndday)){
 			String enddayDate = sess.getSessionDate(sessionId, computerId);
 		
-			sess.addSessionEnddayDetail(enddayDate, 
-					trans.getTotalReceipt(enddayDate),
-					trans.getTotalReceiptAmount(enddayDate));
+			boolean canEndday = false;
+			String enddayErr = "";
+			try {
+				canEndday = sess.addSessionEnddayDetail(enddayDate, 
+						trans.getTotalReceipt(enddayDate),
+						trans.getTotalReceiptAmount(enddayDate));
+			} catch (SQLException e) {
+				enddayErr = e.getMessage();
+			}
 			
-			final SyncSaleLog syncLog = new SyncSaleLog(MPOSApplication.getWriteDatabase());
-			// add sync log
-			syncLog.addSyncSaleLog(enddayDate);
-			
-			final LoadSaleTransactionListener loadSaleListener = 
-					new LoadSaleTransactionListener(){
-
-				@Override
-				public void loadSuccess(POSData_SaleTransaction saleTrans, final long sessionDate) {
-					JSONUtil jsonUtil = new JSONUtil();
-					Type type = 
-							new TypeToken<POSData_SaleTransaction>() {}.getType();
-					String jsonSale = jsonUtil.toJson(type, saleTrans);
-					//Log.v("SaleTrans", saleJson);
-					
-					MPOSService.OnServiceProcessListener sendSaleServiceListener = 
-							new MPOSService.OnServiceProcessListener() {
-								
-								@Override
-								public void onSuccess() {
-									// update synclog
-									syncLog.updateSyncSaleLog(sessionDate, 
-											SyncSaleLog.SYNC_SUCCESS);
-									listener.enddaySuccess();
-								}
-								
-								@Override
-								public void onError(String mesg) {
-									syncLog.updateSyncSaleLog(sessionDate, 
-											SyncSaleLog.SYNC_FAIL);
-									listener.enddayFail(mesg);
-								}
-					};
-					
-					// send sale service
-					MPOSService service = new MPOSService();
-					service.sendSaleDataTransaction(closeStaffId, 
-							jsonSale, sendSaleServiceListener);
-				}
-
-				@Override
-				public void loadFail(String mesg) {
-					listener.enddayFail(mesg);
-				}
+			if(canEndday){
+				// send sale process
+				final SyncSaleLog syncLog = new SyncSaleLog(MPOSApplication.getWriteDatabase());
+				// add sync log
+				syncLog.addSyncSaleLog(enddayDate);
 				
-			};
-			
-			// loop load sale by date that not successfully sync
-			List<Long> dateLst = syncLog.listSessionDate();
-			if(dateLst != null){
-				for(long date : dateLst){
-					new LoadSaleTransactionTask(date, loadSaleListener).execute();
+				final LoadSaleTransactionListener loadSaleListener = 
+						new LoadSaleTransactionListener(){
+
+					@Override
+					public void loadSuccess(POSData_SaleTransaction saleTrans, final long sessionDate) {
+						JSONUtil jsonUtil = new JSONUtil();
+						Type type = 
+								new TypeToken<POSData_SaleTransaction>() {}.getType();
+						String jsonSale = jsonUtil.toJson(type, saleTrans);
+						//Log.v("SaleTrans", saleJson);
+						
+						MPOSService.OnServiceProcessListener sendSaleServiceListener = 
+								new MPOSService.OnServiceProcessListener() {
+									
+									@Override
+									public void onSuccess() {
+										// update synclog
+										syncLog.updateSyncSaleLog(sessionDate, 
+												SyncSaleLog.SYNC_SUCCESS);
+										listener.enddaySuccess();
+									}
+									
+									@Override
+									public void onError(String mesg) {
+										syncLog.updateSyncSaleLog(sessionDate, 
+												SyncSaleLog.SYNC_FAIL);
+										listener.enddayFail(mesg);
+									}
+						};
+						
+						// send sale service
+						MPOSService service = new MPOSService();
+						service.sendSaleDataTransaction(closeStaffId, 
+								jsonSale, sendSaleServiceListener);
+					}
+
+					@Override
+					public void loadFail(String mesg) {
+						listener.enddayFail(mesg);
+					}
+					
+				};
+				
+				// loop load sale by date that not successfully sync
+				List<Long> dateLst = syncLog.listSessionDate();
+				if(dateLst != null){
+					for(long date : dateLst){
+						new LoadSaleTransactionTask(date, loadSaleListener).execute();
+					}
 				}
+			}else{
+				listener.enddayFail(enddayErr);
 			}
 		}
 	}

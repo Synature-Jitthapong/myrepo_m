@@ -48,7 +48,8 @@ public class Session extends Transaction{
 		Cursor cursor = mSqlite.query(Session.TB_SESSION, 
 				new String[]{COL_SESS_DATE}, 
 				Computer.COL_COMPUTER_ID + "=?", 
-				new String[]{String.valueOf(computerId)}, null, null, null);
+				new String[]{String.valueOf(computerId)}, 
+				null, null, COL_SESS_DATE + " DESC ", "1");
 		
 		if(cursor.moveToFirst()){
 			sessionDate = cursor.getString(0);
@@ -126,12 +127,10 @@ public class Session extends Transaction{
 		cv.put(COL_ENDDAY_DATE, dateTime.getTimeInMillis());
 		cv.put(COL_TOTAL_QTY_RECEIPT, totalQtyReceipt);
 		cv.put(COL_TOTAL_AMOUNT_RECEIPT, totalAmountReceipt);
-		try {
-			mSqlite.insertOrThrow(TB_SESSION_DETAIL, null, cv);
+		
+		long affecRow = mSqlite.insertOrThrow(TB_SESSION_DETAIL, null, cv);
+		if(affecRow > -1)
 			isSuccess = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		return isSuccess;
 	}
 

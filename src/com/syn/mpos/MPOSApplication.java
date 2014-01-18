@@ -1,5 +1,6 @@
 package com.syn.mpos;
 
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -100,6 +101,11 @@ public class MPOSApplication extends Application {
 		sProduct = new Products(getWriteDatabase());
 	}
 
+	public static String fixesDigitLength(int length, double value){
+		BigDecimal b = new BigDecimal(value);
+		return b.setScale(length, BigDecimal.ROUND_HALF_UP).toString();
+	}
+	
 	public static SQLiteDatabase getReadDatabase(){
 		return sSqliteHelper.getReadableDatabase();
 	}

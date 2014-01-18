@@ -14,8 +14,10 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -131,7 +133,7 @@ public class CreditPayActivity extends Activity {
 		//String[] months = new DateFormatSymbols(Locale.getDefault()).getMonths();
 		String[] months = new String[12];
 		for(int i = 0; i < months.length; i++){
-			months[i] = String.valueOf(i + 1);
+			months[i] = String.format("%02d", i + 1);
 		}
 		SpinnerAdapter adapter = new ArrayAdapter<String>(this, 
 				android.R.layout.simple_spinner_dropdown_item, months);
@@ -184,31 +186,54 @@ public class CreditPayActivity extends Activity {
 	}
 	
 	private void addPayment(){
-		AlertDialog.Builder builder = new AlertDialog.Builder(CreditPayActivity.this);
-		builder.setTitle(R.string.credit_pay);
-		builder.setMessage("Are you sure?");
-		builder.setNeutralButton(android.R.string.ok, null);
-		AlertDialog d = builder.create();
-		d.show();
-		
-		Button btnConfirm = d.getButton(AlertDialog.BUTTON_NEUTRAL);
-		btnConfirm.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-
-				if (checkCardNoSeq()) {
-					if (!mTxtCVV2.getText().toString().isEmpty()) {
-						try {
-							mTotalCreditPay = Float.parseFloat(mTxtTotalPay.getText()
-									.toString());
-						} catch (NumberFormatException e) {
-							mTotalCreditPay = 0.0f;
-							e.printStackTrace();
+		if (checkCardNoSeq()) {
+			if (!mTxtCVV2.getText().toString().isEmpty()) {
+				try {
+					mTotalCreditPay = Float.parseFloat(mTxtTotalPay.getText()
+							.toString());
+				} catch (NumberFormatException e) {
+					mTotalCreditPay = 0.0f;
+					e.printStackTrace();
+				}
+				mTxtTotalPay.setText(MPOSApplication.getGlobalProperty()
+						.currencyFormat(mTotalCreditPay));
+				if (mTotalCreditPay > 0) {
+					LayoutInflater inflater = (LayoutInflater) 
+							this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					View cardConfirmView = inflater.inflate(R.layout.confirm_credit_pay_layout, null);
+					((EditText) cardConfirmView.findViewById(R.id.txtTotalPay))
+						.setText(mTxtTotalPay.getText().toString());
+					((EditText) cardConfirmView.findViewById(R.id.txtCardNo))
+						.setText(mTxtCardNoSeq1.getText().toString() + "-" +
+								mTxtCardNoSeq2.getText().toString() + "-" +
+								mTxtCardNoSeq3.getText().toString() + "-" +
+								mTxtCardNoSeq4.getText().toString());
+					((EditText) cardConfirmView.findViewById(R.id.txtCardType))
+						.setText(mSpCardType.getItemAtPosition(mSpCardType.getSelectedItemPosition()).toString());
+					((EditText) cardConfirmView.findViewById(R.id.txtBank))
+						.setText(mSpBank.getItemAtPosition(mSpBank.getSelectedItemPosition()).toString());
+					((EditText) cardConfirmView.findViewById(R.id.txtExpDate))
+						.setText(mSpExpMonth.getItemAtPosition(mSpExpMonth.getSelectedItemPosition()).toString() + "/" +
+								mSpExpYear.getItemAtPosition(mSpExpYear.getSelectedItemPosition()).toString());
+					AlertDialog.Builder builder = new AlertDialog.Builder(CreditPayActivity.this);
+					builder.setTitle(R.string.credit_pay);
+					builder.setView(cardConfirmView);
+					builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
 						}
-						mTxtTotalPay.setText(MPOSApplication.getGlobalProperty()
-								.currencyFormat(mTotalCreditPay));
-						if (mTotalCreditPay > 0) {
+					});
+					builder.setNeutralButton(android.R.string.ok, null);
+					
+					final AlertDialog d = builder.create();
+					d.show();
+					
+					Button btnConfirm = d.getButton(AlertDialog.BUTTON_NEUTRAL);
+					btnConfirm.setOnClickListener(new OnClickListener(){
+
+						@Override
+						public void onClick(View v) {
 							String cardNo = mTxtCardNoSeq1.getText().toString()
 									+ mTxtCardNoSeq2.getText().toString()
 									+ mTxtCardNoSeq3.getText().toString()
@@ -216,59 +241,60 @@ public class CreditPayActivity extends Activity {
 							if (mPayment.addPaymentDetail(mTransactionId, mComputerId,
 									PaymentActivity.PAY_TYPE_CREDIT, mTotalCreditPay,
 									cardNo, mExpMonth, mExpYear, mBankId, mCardTypeId)) {
+								d.dismiss();
 								finish();
 							}
-						} else {
-							mTxtTotalPay.requestFocus();
-							new AlertDialog.Builder(CreditPayActivity.this)
-									.setIcon(android.R.drawable.ic_dialog_alert)
-									.setTitle(R.string.payment)
-									.setMessage(R.string.enter_enough_money)
-									.setNeutralButton(R.string.close,
-											new DialogInterface.OnClickListener() {
-
-												@Override
-												public void onClick(
-														DialogInterface dialog,
-														int which) {
-
-												}
-											}).show();
 						}
-					} else {
-						mTxtCVV2.requestFocus();
-						new AlertDialog.Builder(CreditPayActivity.this)
-						.setIcon(android.R.drawable.ic_dialog_alert)
-						.setTitle(R.string.payment)
-						.setMessage(R.string.promp_cvv2)
-						.setNeutralButton(R.string.close,
-								new DialogInterface.OnClickListener() {
-
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-
-									}
-								}).show();
-					}
+						
+					});
 				} else {
+					mTxtTotalPay.requestFocus();
 					new AlertDialog.Builder(CreditPayActivity.this)
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setTitle(R.string.payment)
-					.setMessage(R.string.promp_card_no)
-					.setNeutralButton(R.string.close,
-							new DialogInterface.OnClickListener() {
+							.setIcon(android.R.drawable.ic_dialog_alert)
+							.setTitle(R.string.payment)
+							.setMessage(R.string.enter_enough_money)
+							.setNeutralButton(R.string.close,
+									new DialogInterface.OnClickListener() {
 
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
+										@Override
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
 
-								}
-							}).show();
-				}	
+										}
+									}).show();
+				}
+			} else {
+				mTxtCVV2.requestFocus();
+				new AlertDialog.Builder(CreditPayActivity.this)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.payment)
+				.setMessage(R.string.promp_cvv2)
+				.setNeutralButton(R.string.close,
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+
+							}
+						}).show();
 			}
-			
-		});
+		} else {
+			new AlertDialog.Builder(CreditPayActivity.this)
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setTitle(R.string.payment)
+			.setMessage(R.string.promp_card_no)
+			.setNeutralButton(R.string.close,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog,
+								int which) {
+
+						}
+					}).show();
+		}	
 	}
 	
 	private void loadCreditCardType(){

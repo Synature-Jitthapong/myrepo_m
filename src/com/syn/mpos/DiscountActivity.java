@@ -117,10 +117,10 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
                 
 				mItemInput.setVisible(true);
 				mItemConfirm.setVisible(false);
-				mTxtDiscount.setSelectAllOnFocus(true);
 				mTxtDiscount.requestFocus();
 				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(mTxtDiscount, InputMethodManager.SHOW_IMPLICIT);
+                mTxtDiscount.setSelectAllOnFocus(true);
 			}
 		});
 		loadOrder();

@@ -162,8 +162,10 @@
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@+id/txtCardTotalPrice"
                 android:layout_below="@+id/layoutCardNo"
-                android:ems="4"
+                android:ems="3"
+                android:maxLength="3"
                 android:inputType="numberPassword"
+                android:lines="1"
                 android:textSize="32sp" />
 
             <TextView
@@ -232,9 +234,8 @@
 
                 <Spinner
                     android:id="@+id/spExpMonth"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.3" />
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content" />
 
                 <TextView
                     android:id="@+id/textView1"
@@ -245,9 +246,9 @@
 
                 <Spinner
                     android:id="@+id/spExpYear"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content" />
+
             </LinearLayout>
         </RelativeLayout>
 

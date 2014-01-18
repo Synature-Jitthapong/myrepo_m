@@ -1,82 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/RelativeLayout1"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/TableLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical" >
+    android:gravity="center" >
 
-    <EditText
-        android:id="@+id/txtCardNo"
+    <TableRow
+        android:id="@+id/tableRow5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:ems="10" >
+        android:gravity="center" >
 
-        <requestFocus />
-    </EditText>
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@string/total_payment"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <EditText
-        android:id="@+id/txtCardType"
+        <EditText
+            android:id="@+id/txtTotalPay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:enabled="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:textColor="@android:color/black"
+            android:textSize="32sp" />
+
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/txtCardNo"
-        android:layout_below="@+id/txtCardNo"
-        android:ems="10" />
+        android:gravity="center" >
 
-    <EditText
-        android:id="@+id/txtBank"
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@string/credit_card_no"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <EditText
+            android:id="@+id/txtCardNo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:enabled="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:textColor="@android:color/black"
+            android:textSize="32sp" />
+
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/TableRow2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/txtCardType"
-        android:layout_below="@+id/txtCardType"
-        android:ems="10" />
+        android:gravity="center" >
 
-    <EditText
-        android:id="@+id/txtExpDate"
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@string/card_type"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <EditText
+            android:id="@+id/txtCardType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:enabled="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:textColor="@android:color/black"
+            android:textSize="32sp" >
+
+            <requestFocus />
+        </EditText>
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/TableRow3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/txtBank"
-        android:layout_below="@+id/txtBank"
-        android:ems="10" />
+        android:gravity="center" >
 
-    <TextView
-        android:id="@+id/textView1"
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@string/bank"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <EditText
+            android:id="@+id/txtBank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:enabled="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:textColor="@android:color/black"
+            android:textSize="32sp" />
+
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/TableRow4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtCardNo"
-        android:layout_alignBottom="@+id/txtCardNo"
-        android:layout_toLeftOf="@+id/txtCardNo"
-        android:text="@string/credit_card_no"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:gravity="center" >
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtCardType"
-        android:layout_toLeftOf="@+id/txtCardType"
-        android:text="@string/card_type"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@string/expire_date"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtBank"
-        android:layout_toLeftOf="@+id/txtBank"
-        android:text="@string/bank"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        <EditText
+            android:id="@+id/txtExpDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:enabled="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:textColor="@android:color/black"
+            android:textSize="32sp" />
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtExpDate"
-        android:layout_toLeftOf="@+id/txtExpDate"
-        android:text="@string/expire_date"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+    </TableRow>
 
-</RelativeLayout>
+</TableLayout>

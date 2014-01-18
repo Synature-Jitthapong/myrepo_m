@@ -3,6 +3,8 @@ package com.syn.mpos.database;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import com.syn.mpos.MPOSApplication;
 import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Session;
@@ -69,8 +71,10 @@ public class SaleTransaction {
 					orderTrans.setDtSaleDate(
 							Util.dateTimeFormat(cursor.getString(
 									cursor.getColumnIndex(Transaction.COL_SALE_DATE)), "yyyy-MM-dd"));
-					orderTrans.setfTransVAT(cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TRANS_VAT)));
-					orderTrans.setfTransactionVatable(cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TRANS_VATABLE)));
+					orderTrans.setfTransVAT(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TRANS_VAT))));
+					orderTrans.setfTransactionVatable(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TRANS_VATABLE))));
 					orderTrans.setiSessionID(cursor.getInt(cursor.getColumnIndex(Session.COL_SESS_ID)));
 					orderTrans.setiVoidStaffID(cursor.getInt(cursor.getColumnIndex(Transaction.COL_VOID_STAFF_ID)));
 					orderTrans.setSzVoidReason(cursor.getString(cursor.getColumnIndex(Transaction.COL_VOID_REASON)));
@@ -104,7 +108,8 @@ public class SaleTransaction {
 					payment.setiComputerID(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
 					//payment.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
 					payment.setiPayTypeID(cursor.getInt(cursor.getColumnIndex(PaymentDetail.COL_PAY_TYPE_ID)));
-					payment.setfPayAmount(cursor.getDouble(cursor.getColumnIndex(PaymentDetail.COL_PAY_AMOUNT)));
+					payment.setfPayAmount(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(PaymentDetail.COL_PAY_AMOUNT))));
 					payment.setSzCreditCardNo(cursor.getString(cursor.getColumnIndex(CreditCard.COL_CREDIT_CARD_NO)));
 					payment.setiExpireMonth(cursor.getInt(cursor.getColumnIndex(CreditCard.COL_EXP_MONTH)));
 					payment.setiExpireYear(cursor.getInt(cursor.getColumnIndex(CreditCard.COL_EXP_YEAR)));
@@ -131,12 +136,18 @@ public class SaleTransaction {
 					//order.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
 					order.setiProductID(cursor.getInt(cursor.getColumnIndex(Products.COL_PRODUCT_ID)));
 					order.setiProductTypeID(cursor.getInt(cursor.getColumnIndex(Products.COL_PRODUCT_TYPE_ID)));
-					order.setfQty(cursor.getDouble(cursor.getColumnIndex(Transaction.COL_ORDER_QTY)));
-					order.setfPricePerUnit(cursor.getDouble(cursor.getColumnIndex(Products.COL_PRODUCT_PRICE)));
-					order.setfRetailPrice(cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TOTAL_RETAIL_PRICE)));
-					order.setfSalePrice(cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TOTAL_SALE_PRICE)));
-					order.setfTotalVatAmount(cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TOTAL_VAT)));
-					order.setfPriceDiscountAmount(cursor.getDouble(cursor.getColumnIndex(Transaction.COL_PRICE_DISCOUNT)));
+					order.setfQty(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(Transaction.COL_ORDER_QTY))));
+					order.setfPricePerUnit(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(Products.COL_PRODUCT_PRICE))));
+					order.setfRetailPrice(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TOTAL_RETAIL_PRICE))));
+					order.setfSalePrice(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TOTAL_SALE_PRICE))));
+					order.setfTotalVatAmount(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(Transaction.COL_TOTAL_VAT))));
+					order.setfPriceDiscountAmount(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(Transaction.COL_PRICE_DISCOUNT))));
 					orderDetailLst.add(order);
 				}while(cursor.moveToNext());
 			}
@@ -157,7 +168,8 @@ public class SaleTransaction {
 					saleSessEnd.setDtEndDayDateTime(
 							Util.dateTimeFormat(cursor.getString(
 									cursor.getColumnIndex(Session.COL_ENDDAY_DATE)), "yyyy-MM-dd HH:mm:ss"));
-					saleSessEnd.setfTotalAmountReceipt(cursor.getDouble(cursor.getColumnIndex(Session.COL_TOTAL_AMOUNT_RECEIPT)));
+					saleSessEnd.setfTotalAmountReceipt(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(Session.COL_TOTAL_AMOUNT_RECEIPT))));
 					saleSessEnd.setiTotalQtyReceipt(cursor.getInt(cursor.getColumnIndex(Session.COL_TOTAL_QTY_RECEIPT)));
 				}while(cursor.moveToNext());
 			}else{
@@ -166,7 +178,7 @@ public class SaleTransaction {
 						Util.dateTimeFormat(String.valueOf(c.getTimeInMillis()), "yyyy-MM-dd"));
 				saleSessEnd.setDtEndDayDateTime(
 						Util.dateTimeFormat(String.valueOf(c.getTimeInMillis()), "yyyy-MM-dd HH:mm:ss"));
-				saleSessEnd.setfTotalAmountReceipt(0.0d);
+				saleSessEnd.setfTotalAmountReceipt(MPOSApplication.fixesDigitLength(4, 0.0d));
 				saleSessEnd.setiTotalQtyReceipt(0);
 			}
 			cursor.close();
@@ -195,8 +207,10 @@ public class SaleTransaction {
 					saleSess.setDtSessionDate(
 							Util.dateTimeFormat(cursor.getString(
 									cursor.getColumnIndex(Session.COL_SESS_DATE)), "yyyy-MM-dd"));
-					saleSess.setfOpenSessionAmount(cursor.getDouble(cursor.getColumnIndex(Session.COL_OPEN_AMOUNT)));
-					saleSess.setfCloseSessionAmount(cursor.getDouble(cursor.getColumnIndex(Session.COL_CLOSE_AMOUNT)));
+					saleSess.setfOpenSessionAmount(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(Session.COL_OPEN_AMOUNT))));
+					saleSess.setfCloseSessionAmount(MPOSApplication.fixesDigitLength(4, 
+							cursor.getDouble(cursor.getColumnIndex(Session.COL_CLOSE_AMOUNT))));
 					saleSess.setiIsEndDaySession(cursor.getInt(cursor.getColumnIndex(Session.COL_IS_ENDDAY)));
 				}while(cursor.moveToNext());
 			}
@@ -300,8 +314,8 @@ public class SaleTransaction {
         private String dtSessionDate;
         private String dtOpenSessionDateTime;
         private String dtCloseSessionDateTime;
-        private Double fOpenSessionAmount;
-        private Double fCloseSessionAmount;
+        private String fOpenSessionAmount;
+        private String fCloseSessionAmount;
         private int iIsEndDaySession;
 		
         public int getiSessionID() {
@@ -340,16 +354,16 @@ public class SaleTransaction {
 		public void setDtCloseSessionDateTime(String dtCloseSessionDateTime) {
 			this.dtCloseSessionDateTime = dtCloseSessionDateTime;
 		}
-		public Double getfOpenSessionAmount() {
+		public String getfOpenSessionAmount() {
 			return fOpenSessionAmount;
 		}
-		public void setfOpenSessionAmount(Double fOpenSessionAmount) {
+		public void setfOpenSessionAmount(String fOpenSessionAmount) {
 			this.fOpenSessionAmount = fOpenSessionAmount;
 		}
-		public Double getfCloseSessionAmount() {
+		public String getfCloseSessionAmount() {
 			return fCloseSessionAmount;
 		}
-		public void setfCloseSessionAmount(Double fCloseSessionAmount) {
+		public void setfCloseSessionAmount(String fCloseSessionAmount) {
 			this.fCloseSessionAmount = fCloseSessionAmount;
 		}
 		public int getiIsEndDaySession() {
@@ -365,7 +379,7 @@ public class SaleTransaction {
         private String dtSessionDate;
         private String dtEndDayDateTime;
         private int iTotalQtyReceipt;
-        private Double fTotalAmountReceipt;
+        private String fTotalAmountReceipt;
 		
         public String getDtSessionDate() {
 			return dtSessionDate;
@@ -385,10 +399,10 @@ public class SaleTransaction {
 		public void setiTotalQtyReceipt(int iTotalQtyReceipt) {
 			this.iTotalQtyReceipt = iTotalQtyReceipt;
 		}
-		public Double getfTotalAmountReceipt() {
+		public String getfTotalAmountReceipt() {
 			return fTotalAmountReceipt;
 		}
-		public void setfTotalAmountReceipt(Double fTotalAmountReceipt) {
+		public void setfTotalAmountReceipt(String fTotalAmountReceipt) {
 			this.fTotalAmountReceipt = fTotalAmountReceipt;
 		}
     }
@@ -446,12 +460,12 @@ public class SaleTransaction {
         private int iReceiptID;
         private String szReceiptNo;
         private String dtSaleDate;
-        private Double fTransVAT;
-        private Double fServiceCharge;
-        private Double fServiceChargeVAT;
-        private Double fTransactionVatable;
-        private Double fVatPercent;
-        private Double fServiceChargePercent;
+        private String fTransVAT;
+        private String fServiceCharge;
+        private String fServiceChargeVAT;
+        private String fTransactionVatable;
+        private String fVatPercent;
+        private String fServiceChargePercent;
         private int iIsCalcServiceCharge;
         private int iSessionID;
         private int iVoidStaffID;
@@ -562,40 +576,40 @@ public class SaleTransaction {
 		public void setDtSaleDate(String dtSaleDate) {
 			this.dtSaleDate = dtSaleDate;
 		}
-		public Double getfTransVAT() {
+		public String getfTransVAT() {
 			return fTransVAT;
 		}
-		public void setfTransVAT(Double fTransVAT) {
+		public void setfTransVAT(String fTransVAT) {
 			this.fTransVAT = fTransVAT;
 		}
-		public Double getfServiceCharge() {
+		public String getfServiceCharge() {
 			return fServiceCharge;
 		}
-		public void setfServiceCharge(Double fServiceCharge) {
+		public void setfServiceCharge(String fServiceCharge) {
 			this.fServiceCharge = fServiceCharge;
 		}
-		public Double getfServiceChargeVAT() {
+		public String getfServiceChargeVAT() {
 			return fServiceChargeVAT;
 		}
-		public void setfServiceChargeVAT(Double fServiceChargeVAT) {
+		public void setfServiceChargeVAT(String fServiceChargeVAT) {
 			this.fServiceChargeVAT = fServiceChargeVAT;
 		}
-		public Double getfTransactionVatable() {
+		public String getfTransactionVatable() {
 			return fTransactionVatable;
 		}
-		public void setfTransactionVatable(Double fTransactionVatable) {
+		public void setfTransactionVatable(String fTransactionVatable) {
 			this.fTransactionVatable = fTransactionVatable;
 		}
-		public Double getfVatPercent() {
+		public String getfVatPercent() {
 			return fVatPercent;
 		}
-		public void setfVatPercent(Double fVatPercent) {
+		public void setfVatPercent(String fVatPercent) {
 			this.fVatPercent = fVatPercent;
 		}
-		public Double getfServiceChargePercent() {
+		public String getfServiceChargePercent() {
 			return fServiceChargePercent;
 		}
-		public void setfServiceChargePercent(Double fServiceChargePercent) {
+		public void setfServiceChargePercent(String fServiceChargePercent) {
 			this.fServiceChargePercent = fServiceChargePercent;
 		}
 		public int getiIsCalcServiceCharge() {
@@ -651,13 +665,13 @@ public class SaleTransaction {
         private int iProductID;
         private int iProductTypeID;
         private int iSaleMode;
-        private Double fQty;
-        private Double fPricePerUnit;
-        private Double fRetailPrice;
-        private Double fSalePrice;
-        private Double fTotalVatAmount;
-        private Double fMemberDiscountAmount;
-        private Double fPriceDiscountAmount;
+        private String fQty;
+        private String fPricePerUnit;
+        private String fRetailPrice;
+        private String fSalePrice;
+        private String fTotalVatAmount;
+        private String fMemberDiscountAmount;
+        private String fPriceDiscountAmount;
         private int iParentOrderDetailID;
         
 		public int getiOrderDetailID() {
@@ -702,46 +716,46 @@ public class SaleTransaction {
 		public void setiSaleMode(int iSaleMode) {
 			this.iSaleMode = iSaleMode;
 		}
-		public Double getfQty() {
+		public String getfQty() {
 			return fQty;
 		}
-		public void setfQty(Double fQty) {
+		public void setfQty(String fQty) {
 			this.fQty = fQty;
 		}
-		public Double getfPricePerUnit() {
+		public String getfPricePerUnit() {
 			return fPricePerUnit;
 		}
-		public void setfPricePerUnit(Double fPricePerUnit) {
+		public void setfPricePerUnit(String fPricePerUnit) {
 			this.fPricePerUnit = fPricePerUnit;
 		}
-		public Double getfRetailPrice() {
+		public String getfRetailPrice() {
 			return fRetailPrice;
 		}
-		public void setfRetailPrice(Double fRetailPrice) {
+		public void setfRetailPrice(String fRetailPrice) {
 			this.fRetailPrice = fRetailPrice;
 		}
-		public Double getfSalePrice() {
+		public String getfSalePrice() {
 			return fSalePrice;
 		}
-		public void setfSalePrice(Double fSalePrice) {
+		public void setfSalePrice(String fSalePrice) {
 			this.fSalePrice = fSalePrice;
 		}
-		public Double getfTotalVatAmount() {
+		public String getfTotalVatAmount() {
 			return fTotalVatAmount;
 		}
-		public void setfTotalVatAmount(Double fTotalVatAmount) {
+		public void setfTotalVatAmount(String fTotalVatAmount) {
 			this.fTotalVatAmount = fTotalVatAmount;
 		}
-		public Double getfMemberDiscountAmount() {
+		public String getfMemberDiscountAmount() {
 			return fMemberDiscountAmount;
 		}
-		public void setfMemberDiscountAmount(Double fMemberDiscountAmount) {
+		public void setfMemberDiscountAmount(String fMemberDiscountAmount) {
 			this.fMemberDiscountAmount = fMemberDiscountAmount;
 		}
-		public Double getfPriceDiscountAmount() {
+		public String getfPriceDiscountAmount() {
 			return fPriceDiscountAmount;
 		}
-		public void setfPriceDiscountAmount(Double fPriceDiscountAmount) {
+		public void setfPriceDiscountAmount(String fPriceDiscountAmount) {
 			this.fPriceDiscountAmount = fPriceDiscountAmount;
 		}
 		public int getiParentOrderDetailID() {
@@ -760,8 +774,8 @@ public class SaleTransaction {
         private int iShopID;
         private int iDiscountTypeID;
         private int iPromotionID;
-        private Double fDiscountPrice;
-        private Double fPriceAfterDiscount;
+        private String fDiscountPrice;
+        private String fPriceAfterDiscount;
         
 		public int getiOrderDetailID() {
 			return iOrderDetailID;
@@ -799,16 +813,16 @@ public class SaleTransaction {
 		public void setiPromotionID(int iPromotionID) {
 			this.iPromotionID = iPromotionID;
 		}
-		public Double getfDiscountPrice() {
+		public String getfDiscountPrice() {
 			return fDiscountPrice;
 		}
-		public void setfDiscountPrice(Double fDiscountPrice) {
+		public void setfDiscountPrice(String fDiscountPrice) {
 			this.fDiscountPrice = fDiscountPrice;
 		}
-		public Double getfPriceAfterDiscount() {
+		public String getfPriceAfterDiscount() {
 			return fPriceAfterDiscount;
 		}
-		public void setfPriceAfterDiscount(Double fPriceAfterDiscount) {
+		public void setfPriceAfterDiscount(String fPriceAfterDiscount) {
 			this.fPriceAfterDiscount = fPriceAfterDiscount;
 		}
     }
@@ -820,13 +834,13 @@ public class SaleTransaction {
         private int iComputerID;
         private int iShopID;
         private int iPayTypeID;
-        private Double fPayAmount;
+        private String fPayAmount;
         private String szCreditCardNo;
         private int iExpireMonth;
         private int iExpireYear;
         private int iBankNameID;
         private int iCreditCardType;
-        private Double fPaymentVat;
+        private String fPaymentVat;
         private String szRemark;
         
 		public int getiPaymentDetailID() {
@@ -859,11 +873,14 @@ public class SaleTransaction {
 		public void setiPayTypeID(int iPayTypeID) {
 			this.iPayTypeID = iPayTypeID;
 		}
-		public Double getfPayAmount() {
+		public String getfPayAmount() {
 			return fPayAmount;
 		}
-		public void setfPayAmount(Double fPayAmount) {
+		public void setfPayAmount(String fPayAmount) {
 			this.fPayAmount = fPayAmount;
+		}
+		public void setfPaymentVat(String fPaymentVat) {
+			this.fPaymentVat = fPaymentVat;
 		}
 		public String getSzCreditCardNo() {
 			return szCreditCardNo;
@@ -895,11 +912,8 @@ public class SaleTransaction {
 		public void setiCreditCardType(int iCreditCardType) {
 			this.iCreditCardType = iCreditCardType;
 		}
-		public Double getfPaymentVat() {
+		public String getfPaymentVat() {
 			return fPaymentVat;
-		}
-		public void setfPaymentVat(Double fPaymentVat) {
-			this.fPaymentVat = fPaymentVat;
 		}
 		public String getSzRemark() {
 			return szRemark;

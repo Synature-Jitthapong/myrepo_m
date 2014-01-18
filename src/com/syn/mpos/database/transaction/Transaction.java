@@ -198,16 +198,15 @@ public class Transaction extends MPOSDatabase {
 		return totalVat;
 	}
 	
-	public float getTotalVatIncluded(int transactionId, int computerId, boolean tempTable){
+	public float getTotalVat(int transactionId, int computerId, boolean tempTable){
 		float totalVat = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + COL_TOTAL_VAT + ")" +
 				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
 				" WHERE " + COL_TRANS_ID + "=? AND " +
-				Computer.COL_COMPUTER_ID + "=? AND " +
-				Products.COL_VAT_TYPE + "=? ", 
+				Computer.COL_COMPUTER_ID + "=? ",
 				new String[]{String.valueOf(transactionId), 
-					String.valueOf(computerId), String.valueOf(Products.VAT_TYPE_INCLUDED)});
+					String.valueOf(computerId)});
 		if(cursor.moveToFirst()){
 			totalVat = cursor.getFloat(0);
 		}
@@ -616,23 +615,21 @@ public class Transaction extends MPOSDatabase {
 						new String[]{String.valueOf(transactionId), String.valueOf(computerId)});
 	}
 	
-	public boolean updateTransactionVat(int transactionId, int computerId,
-			float totalSalePrice, float vatExclude, float vatRate) {
+	public boolean updateTransactionVat(int transactionId, int computerId, float totalSalePrice) {
 		boolean isSuccess = false;
-		float vat = Util.calculateVat(totalSalePrice, vatRate);
-		try {
-			mSqlite.execSQL(
-					" UPDATE " + TB_TRANS + 
-					" SET " + 
-					COL_TRANS_VAT + "=" + vat + ", " + 
-					COL_TRANS_VATABLE + "=" + (totalSalePrice + vatExclude) + ", " + 
-					COL_TRANS_EXCLUDE_VAT + "=" + vatExclude + 
-					" WHERE " + COL_TRANS_ID + "=" + transactionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
-			isSuccess = true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		float totalVat = getTotalVat(transactionId, computerId, false);
+		float totalVatExclude = getTotalVatExclude(transactionId, computerId, false);
+		ContentValues cv = new ContentValues();
+		cv.put(COL_TRANS_VAT, totalVat);
+		cv.put(COL_TRANS_VATABLE, totalSalePrice + totalVatExclude);
+		cv.put(COL_TRANS_EXCLUDE_VAT, totalVatExclude);
+		
+		int affectRow = mSqlite.update(TB_TRANS, cv, 
+				COL_TRANS_ID + "=? AND " + 
+						Computer.COL_COMPUTER_ID + "=?", 
+						new String[]{String.valueOf(transactionId), String.valueOf(computerId)});
+		if(affectRow > 0)
+			isSuccess = true;		
 		return isSuccess;
 	}
 
@@ -786,7 +783,7 @@ public class Transaction extends MPOSDatabase {
 
 	public int addOrderDetail(int transactionId, int computerId, int productId,
 			int productType, int vatType, float vatRate, float orderQty,
-			float pricePerUnit) {
+			float pricePerUnit) throws SQLException {
 		int orderDetailId = getMaxOrderDetail(transactionId, computerId);
 		float totalRetailPrice = pricePerUnit * orderQty;
 		float vat = Util.calculateVat(totalRetailPrice, vatRate);
@@ -803,12 +800,9 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COL_TOTAL_VAT, vat);
 		cv.put(COL_DISCOUNT_TYPE, 1);
 
-		try {
-			mSqlite.insertOrThrow(TB_ORDER, null, cv);
-		} catch (SQLException e) {
-			e.printStackTrace();
+		long rowId = mSqlite.insertOrThrow(TB_ORDER, null, cv);
+		if(rowId == -1)
 			orderDetailId = 0;
-		}
 		return orderDetailId;
 	}
 

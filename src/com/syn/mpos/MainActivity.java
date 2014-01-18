@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.syn.mpos.R;
+import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Shop;
@@ -19,6 +20,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -124,6 +126,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mShop = new Shop(MPOSApplication.getWriteDatabase());
 		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
 		mProgress = new ProgressDialog(this);
+		mProgress.setCancelable(false);
 		mTransactionId = mTransaction.getCurrTransaction(mComputerId);
 		if(mTransactionId == 0)
 			mTransactionId = mTransaction.openTransaction(mComputerId, mShopId, mSessionId, mStaffId);
@@ -246,8 +249,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		float totalDiscount = mTransaction.getPriceDiscount(mTransactionId, mComputerId, false);
 		float totalPrice = mTransaction.getTotalSalePrice(mTransactionId, mComputerId, false);
 		
-		mTransaction.updateTransactionVat(mTransactionId, mComputerId, totalPrice, 
-				totalVatExclude, mShop.getShopProperty().getCompanyVat());
+		mTransaction.updateTransactionVat(mTransactionId, mComputerId, totalPrice);
 		
 		if(totalVatExclude > 0)
 			mTbRowVat.setVisibility(View.VISIBLE);
@@ -828,6 +830,15 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 								if(mSessionId == 0)
 									mSessionId = sess.addSession(mShopId, mComputerId, mStaffId, 0);
 								
+								ContentValues cv = new ContentValues();
+								cv.put(Transaction.COL_OPEN_STAFF, mStaffId);
+								MPOSApplication.getWriteDatabase().update(Transaction.TB_TRANS, 
+										cv, Transaction.COL_TRANS_ID + "=? AND " + 
+										Computer.COL_COMPUTER_ID + "=?", 
+										new String[]{
+										String.valueOf(mTransactionId), 
+										String.valueOf(mComputerId)
+										});
 								d.dismiss();
 								init();
 							}else{

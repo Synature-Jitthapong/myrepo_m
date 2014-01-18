@@ -1,6 +1,9 @@
 package com.syn.mpos.database;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -73,11 +76,13 @@ public class GlobalProperty extends MPOSDatabase{
 	
 	public String qtyFormat(float qty, String pattern){
 		DecimalFormat qtyFormat = new DecimalFormat(pattern);
+		qtyFormat.setRoundingMode(RoundingMode.HALF_UP);
 		return qtyFormat.format(qty);
 	}
 	
 	public String qtyFormat(float qty){
-		DecimalFormat qtyFormat = new DecimalFormat("#,##0.####");
+		DecimalFormat qtyFormat = new DecimalFormat("#,##0.00");
+		qtyFormat.setRoundingMode(RoundingMode.HALF_UP);
 		if(!getGlobalProperty().getQtyFormat().equals(""))
 			qtyFormat.applyPattern(getGlobalProperty().getQtyFormat());
 		return qtyFormat.format(qty);
@@ -85,11 +90,13 @@ public class GlobalProperty extends MPOSDatabase{
 	
 	public String currencyFormat(float currency, String pattern){
 		DecimalFormat currencyFormat = new DecimalFormat(pattern);
+		currencyFormat.setRoundingMode(RoundingMode.HALF_UP);
 		return currencyFormat.format(currency);
 	}
 	
 	public String currencyFormat(float currency){
-		DecimalFormat currencyFormat = new DecimalFormat("#,##0.####");
+		DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
+		currencyFormat.setRoundingMode(RoundingMode.HALF_UP);
 		if(!getGlobalProperty().getCurrencyFormat().equals(""))
 			currencyFormat.applyPattern(getGlobalProperty().getCurrencyFormat());
 		return currencyFormat.format(currency);
