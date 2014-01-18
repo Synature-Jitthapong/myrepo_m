@@ -22,7 +22,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dividerColor=0x7f010002;
+        public static final int pstsDividerColor=0x7f010002;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -32,7 +32,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dividerPadding=0x7f010005;
+        public static final int pstsDividerPadding=0x7f010005;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -41,7 +41,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int indicatorColor=0x7f010000;
+        public static final int pstsIndicatorColor=0x7f010000;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -51,7 +51,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int indicatorHeight=0x7f010003;
+        public static final int pstsIndicatorHeight=0x7f010003;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -61,7 +61,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int scrollOffset=0x7f010007;
+        public static final int pstsScrollOffset=0x7f010007;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -69,11 +69,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int shouldExpand=0x7f010009;
+        public static final int pstsShouldExpand=0x7f010009;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static final int tabBackground=0x7f010008;
+        public static final int pstsTabBackground=0x7f010008;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -83,7 +83,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int tabPaddingLeftRight=0x7f010006;
+        public static final int pstsTabPaddingLeftRight=0x7f010006;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -91,7 +91,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int textAllCaps=0x7f01000a;
+        public static final int pstsTextAllCaps=0x7f01000a;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -100,7 +100,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int underlineColor=0x7f010001;
+        public static final int pstsUnderlineColor=0x7f010001;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -110,7 +110,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int underlineHeight=0x7f010004;
+        public static final int pstsUnderlineHeight=0x7f010004;
     }
     public static final class color {
         public static final int background_tab_pressed=0x7f050000;
@@ -742,29 +742,29 @@ containing a value of this type.
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #PagerSlidingTabStrip_dividerColor com.syn.mpos:dividerColor}</code></td><td></td></tr>
-           <tr><td><code>{@link #PagerSlidingTabStrip_dividerPadding com.syn.mpos:dividerPadding}</code></td><td></td></tr>
-           <tr><td><code>{@link #PagerSlidingTabStrip_indicatorColor com.syn.mpos:indicatorColor}</code></td><td></td></tr>
-           <tr><td><code>{@link #PagerSlidingTabStrip_indicatorHeight com.syn.mpos:indicatorHeight}</code></td><td></td></tr>
-           <tr><td><code>{@link #PagerSlidingTabStrip_scrollOffset com.syn.mpos:scrollOffset}</code></td><td></td></tr>
-           <tr><td><code>{@link #PagerSlidingTabStrip_shouldExpand com.syn.mpos:shouldExpand}</code></td><td></td></tr>
-           <tr><td><code>{@link #PagerSlidingTabStrip_tabBackground com.syn.mpos:tabBackground}</code></td><td></td></tr>
-           <tr><td><code>{@link #PagerSlidingTabStrip_tabPaddingLeftRight com.syn.mpos:tabPaddingLeftRight}</code></td><td></td></tr>
-           <tr><td><code>{@link #PagerSlidingTabStrip_textAllCaps com.syn.mpos:textAllCaps}</code></td><td></td></tr>
-           <tr><td><code>{@link #PagerSlidingTabStrip_underlineColor com.syn.mpos:underlineColor}</code></td><td></td></tr>
-           <tr><td><code>{@link #PagerSlidingTabStrip_underlineHeight com.syn.mpos:underlineHeight}</code></td><td></td></tr>
+           <tr><td><code>{@link #PagerSlidingTabStrip_pstsDividerColor com.syn.mpos:pstsDividerColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #PagerSlidingTabStrip_pstsDividerPadding com.syn.mpos:pstsDividerPadding}</code></td><td></td></tr>
+           <tr><td><code>{@link #PagerSlidingTabStrip_pstsIndicatorColor com.syn.mpos:pstsIndicatorColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #PagerSlidingTabStrip_pstsIndicatorHeight com.syn.mpos:pstsIndicatorHeight}</code></td><td></td></tr>
+           <tr><td><code>{@link #PagerSlidingTabStrip_pstsScrollOffset com.syn.mpos:pstsScrollOffset}</code></td><td></td></tr>
+           <tr><td><code>{@link #PagerSlidingTabStrip_pstsShouldExpand com.syn.mpos:pstsShouldExpand}</code></td><td></td></tr>
+           <tr><td><code>{@link #PagerSlidingTabStrip_pstsTabBackground com.syn.mpos:pstsTabBackground}</code></td><td></td></tr>
+           <tr><td><code>{@link #PagerSlidingTabStrip_pstsTabPaddingLeftRight com.syn.mpos:pstsTabPaddingLeftRight}</code></td><td></td></tr>
+           <tr><td><code>{@link #PagerSlidingTabStrip_pstsTextAllCaps com.syn.mpos:pstsTextAllCaps}</code></td><td></td></tr>
+           <tr><td><code>{@link #PagerSlidingTabStrip_pstsUnderlineColor com.syn.mpos:pstsUnderlineColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #PagerSlidingTabStrip_pstsUnderlineHeight com.syn.mpos:pstsUnderlineHeight}</code></td><td></td></tr>
            </table>
-           @see #PagerSlidingTabStrip_dividerColor
-           @see #PagerSlidingTabStrip_dividerPadding
-           @see #PagerSlidingTabStrip_indicatorColor
-           @see #PagerSlidingTabStrip_indicatorHeight
-           @see #PagerSlidingTabStrip_scrollOffset
-           @see #PagerSlidingTabStrip_shouldExpand
-           @see #PagerSlidingTabStrip_tabBackground
-           @see #PagerSlidingTabStrip_tabPaddingLeftRight
-           @see #PagerSlidingTabStrip_textAllCaps
-           @see #PagerSlidingTabStrip_underlineColor
-           @see #PagerSlidingTabStrip_underlineHeight
+           @see #PagerSlidingTabStrip_pstsDividerColor
+           @see #PagerSlidingTabStrip_pstsDividerPadding
+           @see #PagerSlidingTabStrip_pstsIndicatorColor
+           @see #PagerSlidingTabStrip_pstsIndicatorHeight
+           @see #PagerSlidingTabStrip_pstsScrollOffset
+           @see #PagerSlidingTabStrip_pstsShouldExpand
+           @see #PagerSlidingTabStrip_pstsTabBackground
+           @see #PagerSlidingTabStrip_pstsTabPaddingLeftRight
+           @see #PagerSlidingTabStrip_pstsTextAllCaps
+           @see #PagerSlidingTabStrip_pstsUnderlineColor
+           @see #PagerSlidingTabStrip_pstsUnderlineHeight
          */
         public static final int[] PagerSlidingTabStrip = {
             0x7f010000, 0x7f010001, 0x7f010002, 0x7f010003,
@@ -772,7 +772,7 @@ containing a value of this type.
             0x7f010008, 0x7f010009, 0x7f01000a
         };
         /**
-          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#dividerColor}
+          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#pstsDividerColor}
           attribute's value can be found in the {@link #PagerSlidingTabStrip} array.
 
 
@@ -783,11 +783,11 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.syn.mpos:dividerColor
+          @attr name com.syn.mpos:pstsDividerColor
         */
-        public static final int PagerSlidingTabStrip_dividerColor = 2;
+        public static final int PagerSlidingTabStrip_pstsDividerColor = 2;
         /**
-          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#dividerPadding}
+          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#pstsDividerPadding}
           attribute's value can be found in the {@link #PagerSlidingTabStrip} array.
 
 
@@ -799,11 +799,11 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.syn.mpos:dividerPadding
+          @attr name com.syn.mpos:pstsDividerPadding
         */
-        public static final int PagerSlidingTabStrip_dividerPadding = 5;
+        public static final int PagerSlidingTabStrip_pstsDividerPadding = 5;
         /**
-          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#indicatorColor}
+          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#pstsIndicatorColor}
           attribute's value can be found in the {@link #PagerSlidingTabStrip} array.
 
 
@@ -814,11 +814,11 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.syn.mpos:indicatorColor
+          @attr name com.syn.mpos:pstsIndicatorColor
         */
-        public static final int PagerSlidingTabStrip_indicatorColor = 0;
+        public static final int PagerSlidingTabStrip_pstsIndicatorColor = 0;
         /**
-          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#indicatorHeight}
+          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#pstsIndicatorHeight}
           attribute's value can be found in the {@link #PagerSlidingTabStrip} array.
 
 
@@ -830,11 +830,11 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.syn.mpos:indicatorHeight
+          @attr name com.syn.mpos:pstsIndicatorHeight
         */
-        public static final int PagerSlidingTabStrip_indicatorHeight = 3;
+        public static final int PagerSlidingTabStrip_pstsIndicatorHeight = 3;
         /**
-          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#scrollOffset}
+          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#pstsScrollOffset}
           attribute's value can be found in the {@link #PagerSlidingTabStrip} array.
 
 
@@ -846,11 +846,11 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.syn.mpos:scrollOffset
+          @attr name com.syn.mpos:pstsScrollOffset
         */
-        public static final int PagerSlidingTabStrip_scrollOffset = 7;
+        public static final int PagerSlidingTabStrip_pstsScrollOffset = 7;
         /**
-          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#shouldExpand}
+          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#pstsShouldExpand}
           attribute's value can be found in the {@link #PagerSlidingTabStrip} array.
 
 
@@ -860,21 +860,21 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.syn.mpos:shouldExpand
+          @attr name com.syn.mpos:pstsShouldExpand
         */
-        public static final int PagerSlidingTabStrip_shouldExpand = 9;
+        public static final int PagerSlidingTabStrip_pstsShouldExpand = 9;
         /**
-          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#tabBackground}
+          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#pstsTabBackground}
           attribute's value can be found in the {@link #PagerSlidingTabStrip} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.syn.mpos:tabBackground
+          @attr name com.syn.mpos:pstsTabBackground
         */
-        public static final int PagerSlidingTabStrip_tabBackground = 8;
+        public static final int PagerSlidingTabStrip_pstsTabBackground = 8;
         /**
-          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#tabPaddingLeftRight}
+          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#pstsTabPaddingLeftRight}
           attribute's value can be found in the {@link #PagerSlidingTabStrip} array.
 
 
@@ -886,11 +886,11 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.syn.mpos:tabPaddingLeftRight
+          @attr name com.syn.mpos:pstsTabPaddingLeftRight
         */
-        public static final int PagerSlidingTabStrip_tabPaddingLeftRight = 6;
+        public static final int PagerSlidingTabStrip_pstsTabPaddingLeftRight = 6;
         /**
-          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#textAllCaps}
+          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#pstsTextAllCaps}
           attribute's value can be found in the {@link #PagerSlidingTabStrip} array.
 
 
@@ -900,11 +900,11 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.syn.mpos:textAllCaps
+          @attr name com.syn.mpos:pstsTextAllCaps
         */
-        public static final int PagerSlidingTabStrip_textAllCaps = 10;
+        public static final int PagerSlidingTabStrip_pstsTextAllCaps = 10;
         /**
-          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#underlineColor}
+          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#pstsUnderlineColor}
           attribute's value can be found in the {@link #PagerSlidingTabStrip} array.
 
 
@@ -915,11 +915,11 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.syn.mpos:underlineColor
+          @attr name com.syn.mpos:pstsUnderlineColor
         */
-        public static final int PagerSlidingTabStrip_underlineColor = 1;
+        public static final int PagerSlidingTabStrip_pstsUnderlineColor = 1;
         /**
-          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#underlineHeight}
+          <p>This symbol is the offset where the {@link com.syn.mpos.R.attr#pstsUnderlineHeight}
           attribute's value can be found in the {@link #PagerSlidingTabStrip} array.
 
 
@@ -931,8 +931,8 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.syn.mpos:underlineHeight
+          @attr name com.syn.mpos:pstsUnderlineHeight
         */
-        public static final int PagerSlidingTabStrip_underlineHeight = 4;
+        public static final int PagerSlidingTabStrip_pstsUnderlineHeight = 4;
     };
 }

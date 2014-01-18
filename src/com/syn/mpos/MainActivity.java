@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
+import com.astuetz.PagerSlidingTabStrip;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.Products;
-import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Staff;
 import com.syn.mpos.database.transaction.Session;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.OrderTransaction.OrderDetail;
 import com.syn.pos.ShopData;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.AlertDialog;
@@ -58,7 +58,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private int mSessionId;
 	private int mStaffId;
 	private int mShopId;
-	private Shop mShop;
 	private Transaction mTransaction;
 	private List<Products.ProductDept> mProductDeptLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
@@ -123,7 +122,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 	
 	public void init(){
-		mShop = new Shop(MPOSApplication.getWriteDatabase());
 		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
 		mProgress = new ProgressDialog(this);
 		mProgress.setCancelable(false);
@@ -1037,9 +1035,9 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 	private void appendOrderList(int orderId){
 		if(orderId > 0){
-			mOrderLst.add(mTransaction.getOrder(mTransactionId, mComputerId, orderId));
-			refreshOrderListView();
-			//new GetOrderTask(orderId).execute();
+//			mOrderLst.add(mTransaction.getOrder(mTransactionId, mComputerId, orderId));
+//			refreshOrderListView();
+			new GetOrderTask(orderId).execute();
 		}
 	}
 	

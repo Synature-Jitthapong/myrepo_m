@@ -120,7 +120,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 		public void onSuccess() {
 			mProgressLayout.setVisibility(View.GONE);
 			gotoMainActivity();
-			//mBtnLogin.setEnabled(true);
 		}
 
 		@Override
@@ -135,6 +134,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
+									gotoMainActivity();
 								}
 							}).show();
 		}
