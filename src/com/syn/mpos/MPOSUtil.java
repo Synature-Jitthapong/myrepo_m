@@ -16,9 +16,24 @@ import com.syn.mpos.database.transaction.Session;
 import com.syn.mpos.database.transaction.Transaction;
 
 public class MPOSUtil {
+	public static void sendRealTimeSale(final int staffId){
+		doSendSale(staffId, new MPOSService.OnServiceProcessListener() {
+			
+			@Override
+			public void onSuccess() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onError(String msg) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
 	
-	public static void sendRealTimeSale(final int staffId, 
-			final int transactionId, final int computerId){
+	public static void doSendSale(final int staffId, final MPOSService.OnServiceProcessListener listener){
 		final LoadSaleTransactionListener loadSaleListener = 
 				new LoadSaleTransactionListener(){
 
@@ -38,12 +53,15 @@ public class MPOSUtil {
 									public void onSuccess() {
 										// do update transaction already send
 										Transaction trans = new Transaction(MPOSApplication.getWriteDatabase());
-										trans.updateTransactionSendStatus(transactionId, computerId);
+										trans.updateTransactionSendStatus(String.valueOf(Util.getDate().getTimeInMillis()));
+										
+										listener.onSuccess();
 									}
 									
 									@Override
 									public void onError(String msg) {
 										Log.e("MPOSUtil", msg);
+										listener.onError(msg);
 									}
 								};
 								
@@ -52,9 +70,8 @@ public class MPOSUtil {
 					}
 
 					@Override
-					public void loadFail(String mesg) {
-						// TODO Auto-generated method stub
-						
+					public void loadFail(String msg) {
+						listener.onError(msg);
 					}
 			
 		};

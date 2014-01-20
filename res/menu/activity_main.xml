@@ -14,6 +14,7 @@
             <item android:id="@+id/itemVoid" android:title="@string/void_bill"/>
             <item android:id="@+id/itemCloseShift" android:title="@string/close_shift" android:visible="false"/>
             <item android:id="@+id/itemEndday" android:title="@string/endday"/>
+            <item android:id="@+id/itemSync" android:title="@string/sync"/>
             
         </menu>
     </item>

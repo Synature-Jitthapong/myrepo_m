@@ -198,7 +198,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="backoffice">Back Office</string>
     <string name="percent">%</string>
     <string name="not_found_item">Not found item.</string>
-    <string name="sync_product">Products</string>
+    <string name="sync_product">Sync Products</string>
     <string name="sync_product_summary">Sync product data</string>
     <string name="sync_sale">Sale</string>
     <string name="sync_sale_summary">Sync sale data</string>
@@ -235,11 +235,12 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="product_size">Product Size</string>
     <string name="enter_valid_numeric">Please enter valid numeric.</string>
     <string name="card_holder">CardHolder</string>
-    <string name="cvv2">CVV2</string>
+    <string name="cvv2">Card Verification Number</string>
     <string name="endday_progress">Endding day please wait...</string>
     <string name="date">Date</string>
     <string name="tender">Tender</string>
     <string name="alredy_endday">Already endday.</string>
     <string name="promp_cvv2">Please enter confirm code.</string>
+    <string name="sync_summary">Sync Products data, Sale data etc.</string>
 
 </resources>

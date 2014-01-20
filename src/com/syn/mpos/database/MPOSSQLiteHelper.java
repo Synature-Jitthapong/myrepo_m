@@ -97,7 +97,8 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Products.COL_PRODUCT_PRICE + " REAL DEFAULT 0, " +
 		Transaction.COL_DISCOUNT_TYPE + " INTEGER DEFAULT 1, " +
 		Products.COL_VAT_TYPE + " INTEGER DEFAULT 1, " +
-		Transaction.COL_TOTAL_VAT + " REAL DEFAULT 1, " +
+		Transaction.COL_TOTAL_VAT + " REAL DEFAULT 0, " +
+		Transaction.COL_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, " +
 		Transaction.COL_MEMBER_DISCOUNT + " REAL DEFAULT 0, " +
 		Transaction.COL_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
 		Transaction.COL_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
@@ -115,7 +116,8 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		Products.COL_PRODUCT_PRICE + " REAL DEFAULT 0, " +
 		Transaction.COL_DISCOUNT_TYPE + " INTEGER DEFAULT 1, " +
 		Products.COL_VAT_TYPE + " INTEGER DEFAULT 1, " +
-		Transaction.COL_TOTAL_VAT + " REAL DEFAULT 1, " +
+		Transaction.COL_TOTAL_VAT + " REAL DEFAULT 0, " +
+		Transaction.COL_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, " +
 		Transaction.COL_MEMBER_DISCOUNT + " REAL DEFAULT 0, " +
 		Transaction.COL_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
 		Transaction.COL_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +

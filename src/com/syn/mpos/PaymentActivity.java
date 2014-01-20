@@ -16,6 +16,7 @@ import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
 import com.syn.pos.ShopData;
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -510,7 +511,14 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 					mComputerId, mStaffId)){
 				
 				// send real time sale
-				MPOSUtil.sendRealTimeSale(mStaffId, mTransactionId, mComputerId);
+//				new Handler().post(new Runnable(){
+//
+//					@Override
+//					public void run() {
+//						MPOSUtil.sendRealTimeSale(mStaffId);
+//					}
+//					
+//				});
 				
 				mChange = mTotalPaid - mTotalSalePrice;
 				print();

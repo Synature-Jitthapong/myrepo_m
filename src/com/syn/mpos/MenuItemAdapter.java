@@ -2,6 +2,7 @@ package com.syn.mpos;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,8 +46,8 @@ public class MenuItemAdapter extends BaseAdapter{
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Products.Product p = mProductLst.get(position);
-		ViewHolder holder;
+		final Products.Product p = mProductLst.get(position);
+		final ViewHolder holder;
 		if(convertView == null){
 			convertView = mInflater.inflate(R.layout.menu_template, null);
 			holder = new ViewHolder();
@@ -63,8 +64,20 @@ public class MenuItemAdapter extends BaseAdapter{
 			holder.tvPrice.setVisibility(View.INVISIBLE);
 		else
 			holder.tvPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(p.getProductPrice()));
-		
-		mImgLoader.displayImage(MPOSApplication.getImageUrl() + p.getImgUrl(), holder.imgMenu);
+		Activity act = (Activity) mContext;
+		act.runOnUiThread(new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					mImgLoader.displayImage(MPOSApplication.getImageUrl() + p.getImgUrl(), holder.imgMenu);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		});
 		return convertView;
 	}
 	

@@ -63,6 +63,7 @@ public class Transaction extends MPOSDatabase {
 	public static final String COL_TOTAL_RETAIL_PRICE = "TotalRetailPrice";
 	public static final String COL_TOTAL_SALE_PRICE = "TotalSalePrice";
 	public static final String COL_TOTAL_VAT = "TotalVatAmount";
+	public static final String COL_TOTAL_VAT_EXCLUDE = "TotalVatAmountExclude";
 	public static final String COL_MEMBER_DISCOUNT = "MemberDiscountAmount";
 	public static final String COL_PRICE_DISCOUNT = "PriceDiscountAmount";
 	public static final String COL_DISCOUNT_TYPE = "DiscountType";
@@ -184,13 +185,12 @@ public class Transaction extends MPOSDatabase {
 	public float getTotalVatExclude(int transactionId, int computerId, boolean tempTable){
 		float totalVat = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT SUM(" + COL_TOTAL_VAT + ")" +
+				" SELECT SUM(" + COL_TOTAL_VAT_EXCLUDE + ")" +
 				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
 				" WHERE " + COL_TRANS_ID + "=? AND " +
-				Computer.COL_COMPUTER_ID + "=? AND " +
-				Products.COL_VAT_TYPE + "=? ", 
+				Computer.COL_COMPUTER_ID + "=? ", 
 				new String[]{String.valueOf(transactionId), 
-					String.valueOf(computerId), String.valueOf(Products.VAT_TYPE_EXCLUDE)});
+					String.valueOf(computerId)});
 		if(cursor.moveToFirst()){
 			totalVat = cursor.getFloat(0);
 		}
@@ -606,13 +606,16 @@ public class Transaction extends MPOSDatabase {
 		return isSuccess;
 	}
 	
-	public void updateTransactionSendStatus(int transactionId, int computerId){
+	public void updateTransactionSendStatus(String saleDate){
 		ContentValues cv = new ContentValues();
 		cv.put(COL_SEND_STATUS, SyncSaleLog.SYNC_SUCCESS);
 		mSqlite.update(TB_TRANS, cv, 
-				COL_TRANS_ID + "=?" +
-						Computer.COL_COMPUTER_ID + "=?", 
-						new String[]{String.valueOf(transactionId), String.valueOf(computerId)});
+				COL_SALE_DATE + "=?" +
+						" AND " + COL_STATUS_ID + " IN(?,?) ", 
+				new String[]{
+				saleDate,
+				String.valueOf(TRANS_STATUS_SUCCESS),
+				String.valueOf(TRANS_STATUS_VOID)});
 	}
 	
 	public boolean updateTransactionVat(int transactionId, int computerId, float totalSalePrice) {
@@ -667,14 +670,19 @@ public class Transaction extends MPOSDatabase {
 	}
 	
 	public boolean discountEatchProduct(int orderDetailId, int transactionId,
-			int computerId, float vatRate, float salePrice, float discount, int discountType) {
+			int computerId, int vatType, float vatRate, 
+			float salePrice, float discount, int discountType) {
 		boolean isSuccess = false;
 		float vat = Util.calculateVat(salePrice, vatRate);
 		try {
 			ContentValues cv = new ContentValues();
 			cv.put(COL_PRICE_DISCOUNT, discount);
 			cv.put(COL_TOTAL_SALE_PRICE, salePrice);
-			cv.put(COL_TOTAL_VAT, vat);
+			if(vatType == Products.VAT_TYPE_INCLUDED)
+				cv.put(COL_TOTAL_VAT, vat);
+			else if(vatType == Products.VAT_TYPE_EXCLUDE)
+				cv.put(COL_TOTAL_VAT_EXCLUDE, vat);
+			else
 			cv.put(COL_DISCOUNT_TYPE, discountType);
 	
 			mSqlite.update(TB_ORDER_TMP, cv, 
@@ -755,7 +763,8 @@ public class Transaction extends MPOSDatabase {
 	}
 
 	public boolean updateOrderDetail(int transactionId, int computerId,
-			int orderDetailId, float vatRate, float orderQty, float pricePerUnit) {
+			int orderDetailId, int vatType, float vatRate, float orderQty, 
+			float pricePerUnit) {
 		boolean isSuccess = false;
 		float totalRetailPrice = pricePerUnit * orderQty;
 		float vat = Util.calculateVat(totalRetailPrice, vatRate);
@@ -764,7 +773,10 @@ public class Transaction extends MPOSDatabase {
 		cv.put(Products.COL_PRODUCT_PRICE, pricePerUnit);
 		cv.put(COL_TOTAL_RETAIL_PRICE, totalRetailPrice);
 		cv.put(COL_TOTAL_SALE_PRICE, totalRetailPrice);
-		cv.put(COL_TOTAL_VAT, vat);
+		if(vatType == Products.VAT_TYPE_INCLUDED)
+			cv.put(COL_TOTAL_VAT, vat);
+		else if(vatType == Products.VAT_TYPE_EXCLUDE)
+			cv.put(COL_TOTAL_VAT_EXCLUDE, vat);
 		cv.put(COL_PRICE_DISCOUNT, 0);
 
 		int affectRow = mSqlite.update(TB_ORDER, cv, 
@@ -797,8 +809,10 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COL_TOTAL_RETAIL_PRICE, totalRetailPrice);
 		cv.put(COL_TOTAL_SALE_PRICE, totalRetailPrice);
 		cv.put(Products.COL_VAT_TYPE, vatType);
-		cv.put(COL_TOTAL_VAT, vat);
-		cv.put(COL_DISCOUNT_TYPE, 1);
+		if(vatType == Products.VAT_TYPE_INCLUDED)
+			cv.put(COL_TOTAL_VAT, vat);
+		else if(vatType == Products.VAT_TYPE_EXCLUDE)
+			cv.put(COL_TOTAL_VAT_EXCLUDE, vat);
 
 		long rowId = mSqlite.insertOrThrow(TB_ORDER, null, cv);
 		if(rowId == -1)

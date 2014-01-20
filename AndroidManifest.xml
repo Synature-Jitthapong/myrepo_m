@@ -36,7 +36,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <activity
             android:name="com.syn.mpos.LoginActivity"
             android:label="@string/app_name"
@@ -51,7 +51,7 @@
         <activity
             android:name="com.syn.mpos.MainActivity"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden|stateAlwaysHidden">
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden" >
         </activity>
         <activity
             android:name="com.syn.mpos.DiscountActivity"
@@ -98,13 +98,23 @@
             android:label="@string/setting" >
         </activity>
 
-       <provider
+        <provider
             android:name="com.syn.mpos.database.ProductProvider"
             android:authorities="com.syn.mpos.ProductProvider" />
 
         <activity
             android:name="com.syn.mpos.AboutActivity"
             android:label="@string/title_activity_about" >
+        </activity>
+        <activity
+            android:name="com.syn.mpos.SyncActivity"
+            android:label="@string/sync" android:theme="@style/BaseDialog">
+            <intent-filter>
+                <action 
+                    android:name="SYNC_ACTIVITY"/>
+                 <category 
+                     android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
     </application>
 

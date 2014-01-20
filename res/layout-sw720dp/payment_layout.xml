@@ -10,6 +10,7 @@
         android:id="@+id/linearLayout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:baselineAligned="true" >
 
         <RelativeLayout
@@ -114,12 +115,10 @@
 
             <Button
                 android:id="@+id/btnCreditPay"
-                style="@style/ButtonText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:background="@drawable/gray_button"
                 android:minHeight="100dp"
                 android:minWidth="120dp"
                 android:onClick="creditPayClicked"
@@ -171,12 +170,10 @@
 
                 <Button
                     android:id="@+id/btnPay7"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="7"
@@ -184,12 +181,10 @@
 
                 <Button
                     android:id="@+id/btnPay8"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="8"
@@ -197,12 +192,10 @@
 
                 <Button
                     android:id="@+id/btnPay9"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="9"
@@ -210,12 +203,10 @@
 
                 <Button
                     android:id="@+id/btnPayDel"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="&lt;&lt;"
@@ -229,12 +220,10 @@
 
                 <Button
                     android:id="@+id/btnPay4"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="4"
@@ -242,12 +231,10 @@
 
                 <Button
                     android:id="@+id/btnPay5"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="5"
@@ -255,12 +242,10 @@
 
                 <Button
                     android:id="@+id/btnPay6"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="6"
@@ -268,12 +253,10 @@
 
                 <Button
                     android:id="@+id/btnPayC"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="C"
@@ -287,12 +270,10 @@
 
                 <Button
                     android:id="@+id/btnPay1"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="1"
@@ -300,12 +281,10 @@
 
                 <Button
                     android:id="@+id/btnPay2"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="2"
@@ -313,12 +292,10 @@
 
                 <Button
                     android:id="@+id/btnPay3"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="3"
@@ -326,12 +303,10 @@
 
                 <Button
                     android:id="@+id/btnPayDot"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="."
@@ -345,12 +320,10 @@
 
                 <Button
                     android:id="@+id/btnPay0"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="0"
@@ -358,16 +331,13 @@
 
                 <Button
                     android:id="@+id/btnPayEnter"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
-                    android:background="@drawable/blue_button"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="@string/enter"
-                    android:textColor="@android:color/white"
                     android:textSize="48sp" />
             </TableRow>
         </TableLayout>
@@ -385,11 +355,9 @@
 
                 <Button
                     android:id="@+id/btnPay1000"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minHeight="100dp"
                     android:minWidth="120dip"
                     android:onClick="onBtnPriceClick"
@@ -398,11 +366,9 @@
 
                 <Button
                     android:id="@+id/btnPay50"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minHeight="100dp"
                     android:minWidth="120dip"
                     android:onClick="onBtnPriceClick"
@@ -417,11 +383,9 @@
 
                 <Button
                     android:id="@+id/btnPay500"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minHeight="100dp"
                     android:minWidth="120dip"
                     android:onClick="onBtnPriceClick"
@@ -430,11 +394,9 @@
 
                 <Button
                     android:id="@+id/btnPay20"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minHeight="100dp"
                     android:minWidth="120dip"
                     android:onClick="onBtnPriceClick"
@@ -449,11 +411,10 @@
 
                 <Button
                     android:id="@+id/btnPay100"
-                    style="@style/ButtonText"
+                    style="@style/AppBaseTheme"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:minHeight="100dp"
                     android:minWidth="120dip"
                     android:onClick="onBtnPriceClick"
@@ -462,11 +423,9 @@
 
                 <Button
                     android:id="@+id/Button01"
-                    style="@style/ButtonText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/gray_button"
                     android:editable="false"
                     android:minHeight="100dp"
                     android:minWidth="120dip"

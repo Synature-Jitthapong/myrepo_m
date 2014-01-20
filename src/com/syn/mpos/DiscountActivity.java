@@ -2,13 +2,10 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.syn.mpos.R;
 import com.syn.mpos.database.GlobalProperty;
-import com.syn.mpos.database.Products;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
-
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -55,7 +52,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 
 	private GlobalProperty mGlobalProp;
 	private Transaction mTransaction;
-	private Products mProduct;
 	private OrderTransaction.OrderDetail mOrder;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private LinearLayout mLayoutVat;
@@ -95,7 +91,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	private void init(){
 		mGlobalProp = new GlobalProperty(MPOSApplication.getWriteDatabase());
 		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
-		mProduct = new Products(MPOSApplication.getWriteDatabase());
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
@@ -108,6 +103,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				mOrder = (OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 				
 				mTvItemName.setText(mOrder.getProductName());
+				mTxtDiscount.clearFocus();
 				mTxtDiscount.setText(mGlobalProp.currencyFormat(mOrder.getPriceDiscount()));
 				if(mOrder.getDiscountType() == 2){
 					mTxtDiscount.setText(mGlobalProp.currencyFormat(
@@ -120,7 +116,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				mTxtDiscount.requestFocus();
 				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(mTxtDiscount, InputMethodManager.SHOW_IMPLICIT);
-                mTxtDiscount.setSelectAllOnFocus(true);
 			}
 		});
 		loadOrder();
@@ -155,7 +150,6 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		mBtnDone.setText(R.string.done);
 		
 		mTxtDiscount.setOnEditorActionListener(this);
-		mTxtDiscount.setSelectAllOnFocus(true);
 		mTxtDiscount.setOnFocusChangeListener(this);
 		mRdoDiscountType.setOnCheckedChangeListener(this);
 		mBtnDone.setOnClickListener(this);
@@ -177,8 +171,9 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			float totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - mDiscount;
 			
 			mTransaction.discountEatchProduct(mOrder.getOrderDetailId(), 
-					mTransactionId, mComputerId, 
-					mProduct.getVatRate(mOrder.getProductId()), 
+					mTransactionId, mComputerId,
+					mOrder.getVatType(),
+					MPOSApplication.getProduct().getVatRate(mOrder.getProductId()), 
 					totalPriceAfterDiscount, mDiscount, mDiscountType);
 			
 			OrderTransaction.OrderDetail order = mOrderLst.get(mPosition);
@@ -384,6 +379,8 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			if(!hasFocus){
 				InputMethodManager imm =  (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+			}else if(hasFocus){
+				((EditText)v).selectAll();
 			}
 		}
 	}

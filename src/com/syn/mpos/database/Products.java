@@ -2,12 +2,15 @@ package com.syn.mpos.database;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.syn.mpos.MPOSApplication;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.widget.Toast;
 
 public class Products extends MPOSDatabase {
 	public static final int NORMAL_TYPE = 0;
@@ -320,16 +323,19 @@ public class Products extends MPOSDatabase {
 			mSqlite.insertOrThrow(TB_PRODUCT, null, cv);
 		}
 		for(MenuGroups.MenuItem m : menuItemLst){
-			String menuName = m.getMenuName_0();
+			try {
+				ContentValues cv = new ContentValues();
+				cv.put(COL_PRODUCT_NAME, m.getMenuName_0());
+				cv.put(COL_IMG_URL, m.getMenuImageLink());
+				cv.put(COL_ORDERING, m.getMenuItemOrdering());
+				cv.put(COL_ACTIVATE, m.getMenuActivate());
 				
-			ContentValues cv = new ContentValues();
-			cv.put(COL_PRODUCT_NAME, menuName);
-			cv.put(COL_IMG_URL, m.getMenuImageLink());
-			cv.put(COL_ORDERING, m.getMenuItemOrdering());
-			cv.put(COL_ACTIVATE, m.getMenuActivate());
-			
-			mSqlite.update(TB_PRODUCT, cv, COL_PRODUCT_ID + "=?", 
-					new String[]{String.valueOf(m.getProductID())});
+				mSqlite.update(TB_PRODUCT, cv, COL_PRODUCT_ID + "=?", 
+						new String[]{String.valueOf(m.getProductID())});
+			} catch (Exception e) {
+				Toast toast = Toast.makeText(MPOSApplication.getContext(), e.getMessage(), Toast.LENGTH_SHORT);
+				toast.show();
+			}
 		}
 	}
 	

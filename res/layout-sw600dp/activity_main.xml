@@ -208,7 +208,7 @@
         android:layout_weight="1"
         android:orientation="vertical" >
 
-        <com.astuetz.viewpager.extensions.PagerSlidingTabStrip
+        <com.astuetz.PagerSlidingTabStrip
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="60dp"
@@ -236,7 +236,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:drawableLeft="@drawable/ic_navigation_cancel"
+            android:drawableLeft="@drawable/ic_navigation_cancel_light"
             android:onClick="clearBillClicked"
             android:text="@string/cancel_bill"
             android:textAppearance="?android:attr/textAppearanceMediumInverse" />

@@ -296,6 +296,11 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		case R.id.itemEndday:
 			endday();
 			return true;
+		case R.id.itemSync:
+			intent = new Intent(MainActivity.this, SyncActivity.class);
+			intent.putExtra("staffId", mStaffId);
+			startActivity(intent);
+			return true;
 		case R.id.itemSetting:
 			intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
@@ -406,11 +411,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 					
 					if(--qty > 0){
 						orderDetail.setQty(qty);
-
-						Products p = new Products(MPOSApplication.getWriteDatabase());
 						mTransaction.updateOrderDetail(mTransactionId, mComputerId, 
 								orderDetail.getOrderDetailId(), 
-								p.getVatRate(orderDetail.getProductId()), 
+								orderDetail.getVatType(),
+								MPOSApplication.getProduct().getVatRate(orderDetail.getProductId()), 
 								qty, orderDetail.getPricePerUnit());
 					}else{
 						new AlertDialog.Builder(MainActivity.this)
@@ -446,11 +450,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 				public void onClick(View v) {
 					float qty = orderDetail.getQty();
 					orderDetail.setQty(++qty);
-
-					Products p = new Products(MPOSApplication.getWriteDatabase());
 					mTransaction.updateOrderDetail(mTransactionId, mComputerId, 
-							orderDetail.getOrderDetailId(), 
-							p.getVatRate(orderDetail.getProductId()), 
+							orderDetail.getOrderDetailId(),
+							orderDetail.getVatType(),
+							MPOSApplication.getProduct().getVatRate(orderDetail.getProductId()), 
 							qty, orderDetail.getPricePerUnit());
 					
 					mOrderAdapter.notifyDataSetChanged();
