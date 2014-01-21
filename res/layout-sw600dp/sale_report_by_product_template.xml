@@ -1,69 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 
     <TextView
         android:id="@+id/tvProCode"
         style="@style/ColumnDetail"
-        android:layout_width="140dp"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/tvProName"
-        style="@style/ColumnDetail"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_weight="0.8"
+        android:gravity="left" />
 
-    <TextView
-        android:id="@+id/tvUnitPrice"
-        style="@style/ColumnDetail"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView
+                android:id="@+id/tvProName"
+                style="@style/ColumnDetail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left" />
 
-    <TextView
-        android:id="@+id/tvQty"
-        style="@style/ColumnDetail"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView
+                android:id="@+id/tvProPrice"
+                style="@style/ColumnDetail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:gravity="right" />
 
-    <TextView
-        android:id="@+id/tvSubTotal"
-        style="@style/ColumnDetail"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView
+                android:id="@+id/tvQty"
+                style="@style/ColumnDetail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:gravity="right" />
 
-    <TextView
-        android:id="@+id/tvDiscount"
-        style="@style/ColumnDetail"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView
+                android:id="@+id/tvQtyPercent"
+                style="@style/ColumnDetail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:gravity="right" />
 
-    <TextView
-        android:id="@+id/tvTotalPrice"
-        style="@style/ColumnDetail"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView
+                android:id="@+id/tvSubTotal"
+                style="@style/ColumnDetail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:gravity="right" />
 
-    <TextView
-        android:id="@+id/tvVat"
-        style="@style/ColumnDetail"
-        android:layout_width="40dp"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView
+                android:id="@+id/tvSubTotalPercent"
+                style="@style/ColumnDetail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:gravity="right" />
 
-</TableRow>
+            <TextView
+                android:id="@+id/tvDiscount"
+                style="@style/ColumnDetail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:gravity="right" />
+
+            <TextView
+                android:id="@+id/tvDiscountPercent"
+                style="@style/ColumnDetail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:gravity="right" />
+
+            <TextView
+                android:id="@+id/tvVatType"
+                style="@style/ColumnDetail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2" />
+
+</LinearLayout>

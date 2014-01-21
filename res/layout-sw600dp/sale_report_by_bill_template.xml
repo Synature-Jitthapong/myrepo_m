@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 
@@ -14,8 +15,7 @@
         android:gravity="left"
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:singleLine="true" />
 
     <TextView
         android:id="@+id/tvTotalPrice"
@@ -23,9 +23,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.8"
-        android:gravity="right"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:gravity="right" />
 
     <TextView
         android:id="@+id/tvTotalDisc"
@@ -33,9 +31,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.8"
-        android:gravity="right"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:gravity="right" />
 
     <TextView
         android:id="@+id/tvSubTotal"
@@ -43,9 +39,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.8"
-        android:gravity="right"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:gravity="right" />
 
     <TextView
         android:id="@+id/tvTotalSale"
@@ -54,8 +48,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.8"
         android:gravity="right"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:visibility="gone" />
 
     <TextView
@@ -64,9 +56,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.8"
-        android:gravity="right"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:gravity="right" />
 
     <TextView
         android:id="@+id/tvTotalVat"
@@ -74,16 +64,31 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.8"
-        android:gravity="right"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:gravity="right" />
+
+    <TextView
+        android:id="@+id/tvPayTypeCash"
+        style="@style/ColumnDetail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:background="@android:color/holo_blue_dark"
+        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+
+    <TextView
+        android:id="@+id/tvPayTypeCredit"
+        style="@style/ColumnDetail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:background="@android:color/holo_green_dark"
+        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
     <TextView
         android:id="@+id/tvTotalPayment"
         style="@style/ColumnDetail"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.8"
-        android:text="0" />
+        android:layout_weight="0.8" />
 
-</TableRow>
+</LinearLayout>

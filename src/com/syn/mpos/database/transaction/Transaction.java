@@ -265,9 +265,14 @@ public class Transaction extends MPOSDatabase {
 				" LEFT JOIN " + Products.TB_PRODUCT + " b " +
 				" ON a." + Products.COL_PRODUCT_ID + "=" +
 				" b." + Products.COL_PRODUCT_ID + 
-				" WHERE a." + COL_TRANS_ID + "=" + transactionId + 
-				" AND a." + Computer.COL_COMPUTER_ID + "=" + computerId + 
-				" AND a." + COL_ORDER_ID + "=" + orderDetailId, null);
+				" WHERE a." + COL_TRANS_ID + "=?" + 
+				" AND a." + Computer.COL_COMPUTER_ID + "=?" + 
+				" AND a." + COL_ORDER_ID + "=?", 
+				new String[]{
+						String.valueOf(transactionId),
+						String.valueOf(computerId),
+						String.valueOf(orderDetailId)
+				});
 		
 		if (cursor.moveToFirst()) {
 			orderDetail = toOrderDetail(cursor);
@@ -296,8 +301,12 @@ public class Transaction extends MPOSDatabase {
 				" LEFT JOIN " + Products.TB_PRODUCT + " b " +
 				" ON a." + Products.COL_PRODUCT_ID + "=" +
 				" b." + Products.COL_PRODUCT_ID +
-				" WHERE a." + COL_TRANS_ID + "=" + transactionId +
-				" AND a." + Computer.COL_COMPUTER_ID + "=" + computerId, null);
+				" WHERE a." + COL_TRANS_ID + "=?" +
+				" AND a." + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+						String.valueOf(transactionId),
+						String.valueOf(computerId)
+				});
 		if (cursor.moveToFirst()) {
 			do {
 				orderDetailLst.add(toOrderDetail(cursor));
@@ -329,7 +338,10 @@ public class Transaction extends MPOSDatabase {
 				" b." + Products.COL_PRODUCT_ID +
 				" WHERE a." + COL_TRANS_ID + "=?" +
 				" AND a." + Computer.COL_COMPUTER_ID + "=?", 
-				new String[]{String.valueOf(transactionId), String.valueOf(computerId)});
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
 		if (cursor.moveToFirst()) {
 			do {
 				orderDetailLst.add(toOrderDetail(cursor));
@@ -386,7 +398,10 @@ public class Transaction extends MPOSDatabase {
 				" ON a." + COL_OPEN_STAFF + "=b." + Staff.COL_STAFF_ID +
 				" WHERE a." + COL_SALE_DATE + "=?" + 
 				" AND a." + COL_STATUS_ID + "=?", 
-				new String[]{String.valueOf(saleDate), String.valueOf(TRANS_STATUS_SUCCESS)});
+				new String[]{
+						String.valueOf(saleDate), 
+						String.valueOf(TRANS_STATUS_SUCCESS)
+				});
 		if (cursor.moveToFirst()) {
 			do {
 				OrderTransaction trans = new OrderTransaction();
@@ -406,7 +421,6 @@ public class Transaction extends MPOSDatabase {
 	
 	public List<OrderTransaction> listHoldOrder(int computerId) {
 		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
-		Calendar c = Util.getDate();
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT a." + COL_TRANS_ID + ", " +
 				" a." + Computer.COL_COMPUTER_ID + ", " + 
@@ -418,9 +432,14 @@ public class Transaction extends MPOSDatabase {
 				" LEFT JOIN " + Staff.TB_STAFF + " b " + 
 				" ON a." + COL_OPEN_STAFF + "=" +
 				" b." + Staff.COL_STAFF_ID +
-				" WHERE a." + Computer.COL_COMPUTER_ID + "=" + computerId + 
-				" AND a." + COL_SALE_DATE + "='" + c.getTimeInMillis() + "' " + 
-				" AND a." + COL_STATUS_ID + "=" + TRANS_STATUS_HOLD, null);
+				" WHERE a." + Computer.COL_COMPUTER_ID + "=?" + 
+				" AND a." + COL_SALE_DATE + "=?" + 
+				" AND a." + COL_STATUS_ID + "=?", 
+				new String[]{
+					String.valueOf(computerId),
+					String.valueOf(Util.getDate().getTimeInMillis()),
+					String.valueOf(TRANS_STATUS_HOLD)
+				});
 		if (cursor.moveToFirst()) {
 			do {
 				OrderTransaction trans = new OrderTransaction();
@@ -442,7 +461,10 @@ public class Transaction extends MPOSDatabase {
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT MAX(" + COL_TRANS_ID + ") " +
 				" FROM " + TB_TRANS +
-				" WHERE " + Computer.COL_COMPUTER_ID + "=" + computerId, null);
+				" WHERE " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+						String.valueOf(computerId)
+				});
 		if (cursor.moveToFirst()) {
 			transactionId = cursor.getInt(0);
 			cursor.moveToNext();
@@ -456,10 +478,14 @@ public class Transaction extends MPOSDatabase {
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT MAX(" + COL_RECEIPT_ID + ") " +
 				" FROM " + TB_TRANS + 
-				" WHERE " + Computer.COL_COMPUTER_ID + "=" + computerId + 
-				" AND " + COL_RECEIPT_YEAR + "=" + year + 
-				" AND " + COL_RECEIPT_MONTH + "=" + month +
-				" AND " + COL_STATUS_ID + "=" + TRANS_STATUS_SUCCESS, null);
+				" WHERE " + Computer.COL_COMPUTER_ID + "=?" +	 
+				" AND " + COL_RECEIPT_YEAR + "=?" + 
+				" AND " + COL_RECEIPT_MONTH + "=?",
+				new String[]{
+						String.valueOf(computerId),
+						String.valueOf(year),
+						String.valueOf(month)
+				});
 		if (cursor.moveToFirst()) {
 			maxReceiptId = cursor.getInt(0);
 			cursor.moveToNext();
@@ -470,13 +496,17 @@ public class Transaction extends MPOSDatabase {
 
 	public int getCurrTransaction(int computerId) {
 		int transactionId = 0;
-		Calendar c = Util.getDate();
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT " + COL_TRANS_ID + 
 				" FROM " + TB_TRANS + 
-				" WHERE " + Computer.COL_COMPUTER_ID + "= " + computerId + 
-				" AND " + COL_STATUS_ID + "=" + TRANS_STATUS_NEW + 
-				" AND " + COL_SALE_DATE + "='" + c.getTimeInMillis() + "' ", null);
+				" WHERE " + Computer.COL_COMPUTER_ID + "=?" + 
+				" AND " + COL_STATUS_ID + "=?" + 
+				" AND " + COL_SALE_DATE + "=?", 
+				new String[]{
+						String.valueOf(computerId),
+						String.valueOf(TRANS_STATUS_NEW),
+						String.valueOf(Util.getDate().getTimeInMillis())						
+				});
 		if (cursor.moveToFirst()) {
 			if (cursor.getLong(0) != 0)
 				transactionId = cursor.getInt(0);
@@ -503,12 +533,11 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COL_SALE_DATE, date.getTimeInMillis());
 		cv.put(COL_RECEIPT_YEAR, dateTime.get(Calendar.YEAR));
 		cv.put(COL_RECEIPT_MONTH, dateTime.get(Calendar.MONTH) + 1);
-		try {
-			mSqlite.insertOrThrow(TB_TRANS, null, cv);
-		} catch (Exception e) {
-			e.printStackTrace();
+		
+		long rowId = mSqlite.insertOrThrow(TB_TRANS, null, cv);
+		if(rowId == -1)
 			transactionId = 0;
-		}
+		
 		return transactionId;
 	}
 
@@ -530,10 +559,14 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COL_RECEIPT_NO, formatReceiptNo(receiptHeader, 
 				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, receiptId));
 		
-		int affectRow = mSqlite.update(TB_TRANS, cv, COL_TRANS_ID + "=?"
+		int affectedRow = mSqlite.update(TB_TRANS, cv, COL_TRANS_ID + "=?"
 				+ " AND " + Computer.COL_COMPUTER_ID + "=?", 
-				new String[]{String.valueOf(transactionId), String.valueOf(computerId)});
-		if(affectRow > 0) 
+				new String[]{
+					String.valueOf(transactionId), 
+					String.valueOf(computerId)
+				});
+		
+		if(affectedRow > 0) 
 			isSuccess = true;
 		return isSuccess;
 	}
@@ -545,42 +578,49 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COL_STATUS_ID, TRANS_STATUS_NEW);
 		cv.put(COL_TRANS_NOTE, "");
 
-		try {
-			mSqlite.update(TB_TRANS, cv, COL_TRANS_ID + "=? AND " + 
-					Computer.COL_COMPUTER_ID + "=?", 
-					new String[]{String.valueOf(transactionId), 
-					String.valueOf(computerId)});
+		int affectedRow = mSqlite.update(TB_TRANS, cv, COL_TRANS_ID + "=? AND " + 
+				Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId), 
+					String.valueOf(computerId)
+				});
+		
+		if(affectedRow > 0)
 			isSuccess = true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+
 		return isSuccess;
 	}
 
 	public boolean deleteTransaction(int transactionId, 
 			int computerId) throws SQLException {
 		boolean isSuccess = false;
-		try {
-			mSqlite.execSQL(
-					" DELETE FROM " + TB_TRANS + 
-					" WHERE " + COL_TRANS_ID + "=" + transactionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
+		
+		int affectedRow = mSqlite.delete(TB_TRANS, COL_TRANS_ID + "=?" +
+				" AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(computerId)
+				});
+		
+		if(affectedRow >= 0)
 			isSuccess = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
 		return isSuccess;
 	}
 
 	public int countHoldOrder(int computerId) {
 		int total = 0;
-		Calendar c = Util.getDate();
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT COUNT(" + COL_TRANS_ID + ") " + 
 				" FROM " + TB_TRANS + 
-				" WHERE " + COL_STATUS_ID + "=" + TRANS_STATUS_HOLD + 
-				" AND " + Computer.COL_COMPUTER_ID + "=" + computerId + 
-				" AND " + COL_SALE_DATE + "='" + c.getTimeInMillis() + "'", null);
+				" WHERE " + COL_STATUS_ID + "=?" + 
+				" AND " + Computer.COL_COMPUTER_ID + "=?" + 
+				" AND " + COL_SALE_DATE + "=?", 
+				new String[]{
+					String.valueOf(TRANS_STATUS_HOLD),
+					String.valueOf(computerId),
+					String.valueOf(Util.getDate().getTimeInMillis())
+				});
 		if (cursor.moveToFirst()) {
 			total = cursor.getInt(0);
 		}
@@ -591,18 +631,20 @@ public class Transaction extends MPOSDatabase {
 	public boolean holdTransaction(int transactionId, int computerId,
 			String note) throws SQLException {
 		boolean isSuccess = false;
-		try {
-			mSqlite.execSQL(
-					" UPDATE " + TB_TRANS + 
-					" SET " +
-					COL_STATUS_ID + "=" + TRANS_STATUS_HOLD + ", " + 
-					COL_TRANS_NOTE + "='" + note + "' " + 
-					" WHERE " + COL_TRANS_ID + "=" + transactionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
+		ContentValues cv = new ContentValues();
+		cv.put(COL_STATUS_ID, TRANS_STATUS_HOLD);
+		cv.put(COL_TRANS_NOTE, note);
+		
+		int affectedRow = mSqlite.update(TB_TRANS, cv, COL_TRANS_ID + "=?" +
+				" AND " + Computer.COL_COMPUTER_ID + "=?",
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(computerId)
+				});
+		
+		if(affectedRow > 0)
 			isSuccess = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
 		return isSuccess;
 	}
 	
@@ -613,26 +655,33 @@ public class Transaction extends MPOSDatabase {
 				COL_SALE_DATE + "=?" +
 						" AND " + COL_STATUS_ID + " IN(?,?) ", 
 				new String[]{
-				saleDate,
-				String.valueOf(TRANS_STATUS_SUCCESS),
-				String.valueOf(TRANS_STATUS_VOID)});
+					saleDate,
+					String.valueOf(TRANS_STATUS_SUCCESS),
+					String.valueOf(TRANS_STATUS_VOID)
+				});
 	}
 	
 	public boolean updateTransactionVat(int transactionId, int computerId, float totalSalePrice) {
 		boolean isSuccess = false;
 		float totalVat = getTotalVat(transactionId, computerId, false);
 		float totalVatExclude = getTotalVatExclude(transactionId, computerId, false);
+		
 		ContentValues cv = new ContentValues();
-		cv.put(COL_TRANS_VAT, totalVat);
+		cv.put(COL_TRANS_VAT, totalVat + totalVatExclude);
 		cv.put(COL_TRANS_VATABLE, totalSalePrice + totalVatExclude);
 		cv.put(COL_TRANS_EXCLUDE_VAT, totalVatExclude);
 		
-		int affectRow = mSqlite.update(TB_TRANS, cv, 
+		int affectedRow = mSqlite.update(TB_TRANS, cv, 
 				COL_TRANS_ID + "=? AND " + 
-						Computer.COL_COMPUTER_ID + "=?", 
-						new String[]{String.valueOf(transactionId), String.valueOf(computerId)});
-		if(affectRow > 0)
-			isSuccess = true;		
+				Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId), 
+					String.valueOf(computerId)
+				});
+		
+		if(affectedRow > 0)
+			isSuccess = true;	
+		
 		return isSuccess;
 	}
 
@@ -662,10 +711,18 @@ public class Transaction extends MPOSDatabase {
 		boolean isSuccess = false;
 		ContentValues cv = new ContentValues();
 		cv.put(COL_OTHER_DISCOUNT, discount);
-		mSqlite.update(TB_TRANS, cv, 
-				COL_TRANS_ID + "=? AND " + 
-			    Computer.COL_COMPUTER_ID + "=?", 
-			    new String[]{String.valueOf(transactionId), String.valueOf(computerId)});
+		
+		int affectedRow = mSqlite.update(TB_TRANS, cv, 
+				COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=?", 
+			    new String[]{
+					String.valueOf(transactionId), 
+					String.valueOf(computerId)
+				});
+		
+		if(affectedRow > 0)
+			isSuccess = true;
+		
 		return isSuccess;
 	}
 	
@@ -689,9 +746,11 @@ public class Transaction extends MPOSDatabase {
 					COL_ORDER_ID + "=? " +
 					" AND " + COL_TRANS_ID + "=?" +
 					" AND " + Computer.COL_COMPUTER_ID + "=?", 
-					new String[]{String.valueOf(orderDetailId), 
-					String.valueOf(transactionId), 
-					String.valueOf(computerId)});
+					new String[]{
+						String.valueOf(orderDetailId), 
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+					});
 			isSuccess = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -701,33 +760,36 @@ public class Transaction extends MPOSDatabase {
 
 	public boolean deleteOrderDetail(int transactionId, int computerId) throws SQLException{
 		boolean isSuccess = false;
-		try {
-			mSqlite.execSQL(
-					" DELETE FROM " + TB_ORDER + 
-					" WHERE " + COL_TRANS_ID + "=" + transactionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
+		int affectedRow = mSqlite.delete(TB_ORDER, 
+				COL_TRANS_ID + "=?" +
+				" AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(computerId)
+				});
+		
+		if(affectedRow >= 0)
 			isSuccess = true;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 		return isSuccess;
 	}
 
 	public boolean deleteOrderDetail(int transactionId, int computerId,
 			int orderDetailId) throws SQLException{
 		boolean isSuccess = false;
-		try {
-			mSqlite.execSQL(
-					" DELETE FROM " + TB_ORDER + 
-					" WHERE " + COL_ORDER_ID + "=" + orderDetailId + 
-					" AND " + COL_TRANS_ID + "=" + transactionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
+		int affectedRow = mSqlite.delete(TB_ORDER, 
+				COL_TRANS_ID + "=?" +
+				" AND " + Computer.COL_COMPUTER_ID + "=?" +
+				" AND " + COL_ORDER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(computerId),
+					String.valueOf(orderDetailId)
+				});
+		
+		if(affectedRow > 0)
 			isSuccess = true;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 		return isSuccess;
 	}
 
@@ -750,15 +812,17 @@ public class Transaction extends MPOSDatabase {
 
 	private boolean deleteOrderDetailTmp(int transactionId, int computerId) throws SQLException{
 		boolean isSuccess = false;
-		try {
-			mSqlite.execSQL(
-					" DELETE FROM " + TB_ORDER_TMP + 
-					" WHERE " + COL_TRANS_ID + "=" + transactionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
+		int affectedRow = mSqlite.delete(TB_ORDER_TMP, 
+				COL_TRANS_ID + "=?" +
+				" AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(computerId)
+				});
+		
+		if(affectedRow >= 0)
 			isSuccess = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
 		return isSuccess;
 	}
 
@@ -768,6 +832,7 @@ public class Transaction extends MPOSDatabase {
 		boolean isSuccess = false;
 		float totalRetailPrice = pricePerUnit * orderQty;
 		float vat = Util.calculateVat(totalRetailPrice, vatRate);
+		
 		ContentValues cv = new ContentValues();
 		cv.put(COL_ORDER_QTY, orderQty);
 		cv.put(Products.COL_PRODUCT_PRICE, pricePerUnit);
@@ -788,17 +853,21 @@ public class Transaction extends MPOSDatabase {
 					String.valueOf(orderDetailId),
 					String.valueOf(computerId)
 				});
+		
 		if(affectRow > 0)
 			isSuccess = true;
+		
 		return isSuccess;
 	}
 
 	public int addOrderDetail(int transactionId, int computerId, int productId,
 			int productType, int vatType, float vatRate, float orderQty,
 			float pricePerUnit) throws SQLException {
+		
 		int orderDetailId = getMaxOrderDetail(transactionId, computerId);
 		float totalRetailPrice = pricePerUnit * orderQty;
 		float vat = Util.calculateVat(totalRetailPrice, vatRate);
+		
 		ContentValues cv = new ContentValues();
 		cv.put(COL_ORDER_ID, orderDetailId);
 		cv.put(COL_TRANS_ID, transactionId);
@@ -817,6 +886,7 @@ public class Transaction extends MPOSDatabase {
 		long rowId = mSqlite.insertOrThrow(TB_ORDER, null, cv);
 		if(rowId == -1)
 			orderDetailId = 0;
+		
 		return orderDetailId;
 	}
 
@@ -825,12 +895,18 @@ public class Transaction extends MPOSDatabase {
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT MAX(" + COL_ORDER_ID + ") " + 
 				" FROM " + TB_ORDER +  
-				" WHERE " + COL_TRANS_ID + "=" + transactionId + 
-				" AND " + Computer.COL_COMPUTER_ID + "=" + computerId, null);
+				" WHERE " + COL_TRANS_ID + "=?" + 
+				" AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+						String.valueOf(transactionId),
+						String.valueOf(computerId)
+				});
+		
 		if (cursor.moveToFirst()) {
 			orderDetailId = cursor.getInt(0);
 		}
 		cursor.close();
+		
 		return orderDetailId + 1;
 	}
 	
@@ -843,12 +919,15 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COL_VOID_REASON, reason);
 		cv.put(COL_VOID_TIME, Util.getDateTime().getTimeInMillis());
 		
-		int affectRow = mSqlite.update(TB_TRANS, cv, COL_TRANS_ID + "=? "
+		int affectedRow = mSqlite.update(TB_TRANS, cv, COL_TRANS_ID + "=? "
 				+ " AND " + Computer.COL_COMPUTER_ID + "=? ", 
-				new String[]{String.valueOf(transactionId), 
-				String.valueOf(computerId)});
-		if(affectRow > 0)
+				new String[]{
+					String.valueOf(transactionId), 
+					String.valueOf(computerId)
+				});
+		if(affectedRow > 0)
 			isSuccess = true;
+		
 		return isSuccess;
 	}
 	

@@ -106,12 +106,15 @@
             android:text="@string/sub_total"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
-            android:id="@+id/tvSubTotal"
-            style="@style/TextViewValueNumber"
+        <EditText
+            android:id="@+id/txtSubTotal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:ems="5"
+            android:enabled="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:lines="1" />
 
         <TextView
             android:id="@+id/textView2"
@@ -120,12 +123,16 @@
             android:text="@string/discount"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
-            android:id="@+id/tvTotalDiscount"
-            style="@style/TextViewValueNumber"
+        <EditText
+            android:id="@+id/txtTotalDiscount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:ems="5"
+            android:enabled="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:lines="1" />
+
 			<requestFocus />
         <LinearLayout
             android:id="@+id/layoutVat"
@@ -141,12 +148,16 @@
                 android:text="@string/exclude_vat"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <TextView
-                android:id="@+id/tvVatExclude"
-                style="@style/TextViewValueNumber"
+            <EditText
+                android:id="@+id/txtTotalVatExclude"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+	            android:ems="5"
+	            android:enabled="true"
+	            android:focusable="false"
+	            android:focusableInTouchMode="false"
+	            android:lines="1" />
+
         </LinearLayout>
 
         <TextView
@@ -156,12 +167,15 @@
             android:text="@string/total_price"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
-            android:id="@+id/tvTotalPrice"
-            style="@style/TextViewValueNumber"
+        <EditText
+            android:id="@+id/txtTotalPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:ems="5"
+            android:enabled="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:lines="1" />
     </LinearLayout>
 
 </LinearLayout>

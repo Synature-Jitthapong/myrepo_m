@@ -1,9 +1,8 @@
 package com.syn.mpos;
 
 import java.util.List;
-
-import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,8 +63,8 @@ public class MenuItemAdapter extends BaseAdapter{
 			holder.tvPrice.setVisibility(View.INVISIBLE);
 		else
 			holder.tvPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(p.getProductPrice()));
-		Activity act = (Activity) mContext;
-		act.runOnUiThread(new Runnable(){
+
+		new Handler().post(new Runnable(){
 
 			@Override
 			public void run() {

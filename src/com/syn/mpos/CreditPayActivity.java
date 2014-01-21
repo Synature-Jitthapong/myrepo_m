@@ -7,13 +7,11 @@ import com.syn.mpos.R;
 import com.syn.mpos.database.Bank;
 import com.syn.mpos.database.CreditCard;
 import com.syn.mpos.database.transaction.PaymentDetail;
-import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -239,7 +237,7 @@ public class CreditPayActivity extends Activity {
 									+ mTxtCardNoSeq3.getText().toString()
 									+ mTxtCardNoSeq4.getText().toString();
 							if (mPayment.addPaymentDetail(mTransactionId, mComputerId,
-									PaymentActivity.PAY_TYPE_CREDIT, mTotalCreditPay,
+									PaymentDetail.PAY_TYPE_CREDIT, mTotalCreditPay,
 									cardNo, mExpMonth, mExpYear, mBankId, mCardTypeId)) {
 								d.dismiss();
 								finish();

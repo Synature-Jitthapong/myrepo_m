@@ -79,6 +79,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		TextView tvSummSubTotal = (TextView) findViewById(R.id.tvSummSubTotal);
 		TextView tvSummVatable = (TextView) findViewById(R.id.tvSummVatable);
 		TextView tvSummTotalVat = (TextView) findViewById(R.id.tvSummTotalVat);
+		TextView tvSummTotalCash = (TextView) findViewById(R.id.tvSummTotalCash);
+		TextView tvSummTotalCredit = (TextView) findViewById(R.id.tvSummTotalCredit);
 		TextView tvSummTotalPay = (TextView) findViewById(R.id.tvSummTotalPay);
 		
 		float totalPrice = 0.0f;
@@ -87,6 +89,9 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		float totalVatable = 0.0f;
 		float totalVat = 0.0f;
 		float totalPay = 0.0f;
+		float totalCash = 0.0f;
+		float totalCredit = 0.0f;
+		
 		PaymentDetail payment = new PaymentDetail(MPOSApplication.getReadDatabase());
 		for(Report.ReportDetail reportDetail : mReport.reportDetail){
 			if(reportDetail.getTransStatus() != Transaction.TRANS_STATUS_VOID){
@@ -95,7 +100,12 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				totalSub += reportDetail.getSubTotal();
 				totalVatable += reportDetail.getVatable();
 				totalVat += reportDetail.getTotalVat();
-				totalPay += payment.getTotalPaid(reportDetail.getTransactionId(), reportDetail.getComputerId());
+				totalCash += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
+						reportDetail.getComputerId(), PaymentDetail.PAY_TYPE_CASH);
+				totalCredit += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
+						reportDetail.getComputerId(), PaymentDetail.PAY_TYPE_CREDIT);
+				totalPay += payment.getTotalPaid(reportDetail.getTransactionId(), 
+						reportDetail.getComputerId());
 			}
 		}
 		tvSummTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
@@ -104,6 +114,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		tvSummVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVatable));
 		tvSummTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
 		tvSummTotalPay.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
+		tvSummTotalCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalCash));
+		tvSummTotalCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalCredit));
 	}
 	
 	private class ReportTypeAdapter extends BaseAdapter{
@@ -258,6 +270,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				holder.mTvTotalSale = (TextView) convertView.findViewById(R.id.tvTotalSale);
 				holder.mTvVatable = (TextView) convertView.findViewById(R.id.tvVatable);
 				holder.mTvTotalVat = (TextView) convertView.findViewById(R.id.tvTotalVat);
+				holder.mTvPayTypeCash = (TextView) convertView.findViewById(R.id.tvPayTypeCash);
+				holder.mTvPayTypeCredit = (TextView) convertView.findViewById(R.id.tvPayTypeCredit);
 				holder.mTvTotalPayment = (TextView) convertView.findViewById(R.id.tvTotalPayment);
 				convertView.setTag(holder);
 			}else{
@@ -272,6 +286,9 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			float totalPrice = report.getTotalPrice();
 			float totalDiscount = report.getDiscount();
 			float subTotal = report.getSubTotal();
+			float cash = mReporting.getTotalPayByPayType(transId, compId, PaymentDetail.PAY_TYPE_CASH);
+			float credit = mReporting.getTotalPayByPayType(transId, compId, PaymentDetail.PAY_TYPE_CREDIT);
+			float totalPay = cash + credit;
 			
 			holder.mTvReceipt.setText(report.getReceiptNo());
 			holder.mTvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
@@ -279,24 +296,25 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			holder.mTvSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(subTotal));
 			holder.mTvVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(vatable));
 			holder.mTvTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
-			holder.mTvTotalPayment.setText(MPOSApplication.getGlobalProperty().currencyFormat(
-					mPaymentDetail.getTotalPaid(transId, compId)));
+			holder.mTvTotalPayment.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
+			holder.mTvPayTypeCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(cash));
+			holder.mTvPayTypeCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(credit));
 			
 			if(report.getTransStatus() == Transaction.TRANS_STATUS_VOID){
 				holder.mTvReceipt.setTextColor(Color.RED);
-				holder.mTvTotalPrice.setTextColor(Color.RED);
-				holder.mTvDiscount.setTextColor(Color.RED);
-				holder.mTvSubTotal.setTextColor(Color.RED);
-				holder.mTvVatable.setTextColor(Color.RED);
-				holder.mTvTotalVat.setTextColor(Color.RED);
-				holder.mTvTotalPayment.setTextColor(Color.RED);
+//				holder.mTvTotalPrice.setTextColor(Color.RED);
+//				holder.mTvDiscount.setTextColor(Color.RED);
+//				holder.mTvSubTotal.setTextColor(Color.RED);
+//				holder.mTvVatable.setTextColor(Color.RED);
+//				holder.mTvTotalVat.setTextColor(Color.RED);
+//				holder.mTvTotalPayment.setTextColor(Color.RED);
 				holder.mTvReceipt.setPaintFlags(holder.mTvReceipt.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-				holder.mTvTotalPrice.setPaintFlags(holder.mTvTotalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-				holder.mTvDiscount.setPaintFlags(holder.mTvDiscount.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-				holder.mTvSubTotal.setPaintFlags(holder.mTvSubTotal.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-				holder.mTvVatable.setPaintFlags(holder.mTvVatable.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-				holder.mTvTotalVat.setPaintFlags(holder.mTvTotalVat.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-				holder.mTvTotalPayment.setPaintFlags(holder.mTvTotalPayment.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+//				holder.mTvTotalPrice.setPaintFlags(holder.mTvTotalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+//				holder.mTvDiscount.setPaintFlags(holder.mTvDiscount.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+//				holder.mTvSubTotal.setPaintFlags(holder.mTvSubTotal.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+//				holder.mTvVatable.setPaintFlags(holder.mTvVatable.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+//				holder.mTvTotalVat.setPaintFlags(holder.mTvTotalVat.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+//				holder.mTvTotalPayment.setPaintFlags(holder.mTvTotalPayment.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			}
 			return convertView;
 		}
@@ -310,6 +328,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		public TextView mTvTotalSale;
 		public TextView mTvVatable;
 		public TextView mTvTotalVat;
+		public TextView mTvPayTypeCash;
+		public TextView mTvPayTypeCredit;
 		public TextView mTvTotalPayment;
 	}
 

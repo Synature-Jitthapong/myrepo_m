@@ -72,10 +72,12 @@ public class LoginActivity extends Activity implements OnClickListener {
 		mSession = new Session(MPOSApplication.getWriteDatabase());
 		mShopId = MPOSApplication.getShopId();
 		mComputerId = MPOSApplication.getComputerId();
-
-		SharedPreferences sharedPref = 
-				PreferenceManager.getDefaultSharedPreferences(this);
-		if(sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "").equals("")){
+		
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL,
+				"");
+		if(url.equals("")){
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 		}

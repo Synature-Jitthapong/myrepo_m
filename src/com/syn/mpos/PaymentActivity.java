@@ -38,9 +38,6 @@ import android.widget.TextView;
 public class PaymentActivity extends Activity  implements StatusChangeEventListener, 
 	BatteryStatusChangeEventListener {
 	//private final String TAG = "PaymentActivity";
-	public static final int PAY_TYPE_CASH = 1;
-	public static final int PAY_TYPE_CREDIT = 2;
-
 	private float mTotalSalePrice;
 	private int mTransactionId;
 	private int mComputerId;
@@ -169,7 +166,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 			TextView tvPayAmount = (TextView) rowView.findViewById(R.id.tvPayAmount);
 			Button imgDel = (Button) rowView.findViewById(R.id.btnDelete);
 			
-			String payTypeName = payment.getPayTypeID() == PAY_TYPE_CASH ? "Cash" : "Credit";
+			String payTypeName = payment.getPayTypeID() == PaymentDetail.PAY_TYPE_CASH ? "Cash" : "Credit";
 			if(payment.getPayTypeName() != null){
 				payTypeName = payment.getPayTypeName();
 			}
@@ -213,7 +210,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	private void addPayment(){
 		if(mTotalPay > 0 && mPaymentLeft > 0){
 				mPayment.addPaymentDetail(mTransactionId, 
-						mComputerId, PAY_TYPE_CASH, mTotalPay, "",
+						mComputerId, PaymentDetail.PAY_TYPE_CASH, mTotalPay, "",
 						0, 0, 0, 0);
 			loadPayDetail();
 		}
@@ -511,14 +508,14 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 					mComputerId, mStaffId)){
 				
 				// send real time sale
-//				new Handler().post(new Runnable(){
-//
-//					@Override
-//					public void run() {
-//						MPOSUtil.sendRealTimeSale(mStaffId);
-//					}
-//					
-//				});
+				new Handler().post(new Runnable(){
+
+					@Override
+					public void run() {
+						MPOSUtil.sendRealTimeSale(mStaffId);
+					}
+					
+				});
 				
 				mChange = mTotalPaid - mTotalSalePrice;
 				print();

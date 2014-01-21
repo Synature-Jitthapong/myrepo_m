@@ -4,9 +4,7 @@ import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.Report;
-
 import android.database.Cursor;
-import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class Reporting extends MPOSDatabase{
@@ -22,12 +20,13 @@ public class Reporting extends MPOSDatabase{
 		super(db);
 	}
 	
-	public float getTotalPay(int transactionId, int computerId, int payTypeId){
+	public float getTotalPayByPayType(int transactionId, int computerId, int payTypeId){
 		float totalPay = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + PaymentDetail.COL_PAY_AMOUNT + ") " +
-				" WHERE " + Transaction.COL_TRANS_ID + "? " +
-				" AND " + Computer.COL_COMPUTER_ID + "? " +
+				" FROM " + PaymentDetail.TB_PAYMENT +
+				" WHERE " + Transaction.COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=? " +
 				" AND " + PaymentDetail.COL_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(transactionId),
 				String.valueOf(computerId), String.valueOf(payTypeId)});

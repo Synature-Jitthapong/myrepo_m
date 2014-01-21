@@ -12,7 +12,9 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 public class PaymentDetail extends MPOSDatabase {
-
+	public static final int PAY_TYPE_CASH = 1;
+	public static final int PAY_TYPE_CREDIT = 2;
+	
 	public static final String TB_PAYMENT = "PaymentDetail";
 	public static final String COL_PAY_ID = "PayDetailId";
 	public static final String COL_PAY_AMOUNT = "PayAmount";

@@ -56,10 +56,10 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private LinearLayout mLayoutVat;
 	private ListView mLvDiscount;
-	private TextView mTvExcVat;
-	private TextView mTvSubTotal;
-	private TextView mTvTotalDiscount;
-	private TextView mTvTotalPrice;
+	private EditText mTxtTotalVatExc;
+	private EditText mTxtSubTotal;
+	private EditText mTxtTotalDiscount;
+	private EditText mTxtTotalPrice;
 	private EditText mTxtDiscount;
 	private RadioGroup mRdoDiscountType;
 	private Button mBtnDone;
@@ -75,12 +75,12 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		mLayoutVat = (LinearLayout) findViewById(R.id.layoutVat);
-		mTvExcVat = (TextView) findViewById(R.id.tvVatExclude);
+		mTxtTotalVatExc = (EditText) findViewById(R.id.txtTotalVatExclude);
 		mLvDiscount = (ListView) findViewById(R.id.lvOrder);
-		mTvSubTotal = (TextView) findViewById(R.id.tvSubTotal);
-		mTvTotalDiscount = (TextView) findViewById(R.id.tvTotalDiscount);
-		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
-		mTvTotalDiscount.setOnEditorActionListener(this);
+		mTxtSubTotal = (EditText) findViewById(R.id.txtSubTotal);
+		mTxtTotalDiscount = (EditText) findViewById(R.id.txtTotalDiscount);
+		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
+		mTxtTotalDiscount.setOnEditorActionListener(this);
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -263,10 +263,10 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		else
 			mLayoutVat.setVisibility(View.GONE);
 		
-		mTvExcVat.setText(mGlobalProp.currencyFormat(totalVatExclude));
-		mTvSubTotal.setText(mGlobalProp.currencyFormat(subTotal));
-		mTvTotalDiscount.setText(mGlobalProp.currencyFormat(totalDiscount));
-		mTvTotalPrice.setText(mGlobalProp.currencyFormat(mTotalPrice));
+		mTxtTotalVatExc.setText(mGlobalProp.currencyFormat(totalVatExclude));
+		mTxtSubTotal.setText(mGlobalProp.currencyFormat(subTotal));
+		mTxtTotalDiscount.setText(mGlobalProp.currencyFormat(totalDiscount));
+		mTxtTotalPrice.setText(mGlobalProp.currencyFormat(mTotalPrice));
 	}
 
 	private void cancel(){

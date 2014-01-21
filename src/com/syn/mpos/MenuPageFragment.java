@@ -7,9 +7,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 
 public class MenuPageFragment extends Fragment {
@@ -55,7 +57,7 @@ public class MenuPageFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		GridView gvItem = (GridView) inflater.inflate(R.layout.menu_grid_view, container, false);
+		final GridView gvItem = (GridView) inflater.inflate(R.layout.menu_grid_view, container, false);
 		mProductLst =  MPOSApplication.getProduct().listProduct(mDeptId);
 		mAdapter = new MenuItemAdapter(getActivity(), mProductLst);
 		gvItem.setAdapter(mAdapter);
@@ -70,6 +72,19 @@ public class MenuPageFragment extends Fragment {
 				mCallback.onClick(p.getProductId(), p.getProductTypeId(), 
 						p.getVatType(), p.getVatRate(), p.getProductPrice());
 			}
+		});
+		
+		gvItem.setOnItemLongClickListener(new OnItemLongClickListener(){
+			
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View v,
+					int position, long id) {
+				Products.Product p = (Products.Product) parent.getItemAtPosition(position);
+				ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgUrl());
+				imgZoom.show(getFragmentManager(), "MenuImage");
+				return true;
+			}
+			
 		});
 		return gvItem;
 	}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/TableRow1"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/list_selector"
@@ -12,8 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
-        android:text="1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="1" />
 
     <TextView
         android:id="@+id/tvName"
@@ -24,8 +23,7 @@
         android:layout_weight="1"
         android:gravity="left"
         android:padding="4dp"
-        android:text="Name"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="Name" />
 
     <TextView
         android:id="@+id/tvQty"
@@ -35,8 +33,7 @@
         android:layout_marginRight="1dp"
         android:gravity="right"
         android:padding="4dp"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="0" />
 
     <TextView
         android:id="@+id/tvPrice"
@@ -46,8 +43,7 @@
         android:layout_marginRight="1dp"
         android:gravity="right"
         android:padding="4dp"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="0" />
 
     <TextView
         android:id="@+id/tvTotalPrice"
@@ -57,17 +53,17 @@
         android:layout_marginRight="1dp"
         android:gravity="right"
         android:padding="4dp"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="0" />
 
     <TextView
         android:id="@+id/tvDiscount"
         style="@style/ColumnDetail"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:background="@android:color/holo_blue_dark"
         android:gravity="right"
         android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
     <TextView
         android:id="@+id/tvSalePrice"
@@ -77,7 +73,6 @@
         android:layout_marginRight="0dp"
         android:gravity="right"
         android:padding="4dp"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="0" />
 
-</TableRow>
+</LinearLayout>
