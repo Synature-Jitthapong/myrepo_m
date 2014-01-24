@@ -13,13 +13,21 @@
         android:id="@+id/productLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:visibility="gone" >
+        android:orientation="vertical" >
 
         <LinearLayout
             android:id="@+id/productHeader"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:background="@color/dark_gray" >
+
+            <TextView
+                android:id="@+id/textView14"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/TextView02"
@@ -53,7 +61,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.5"
                 android:gravity="right"
                 android:text="@string/qty" />
 
@@ -94,6 +102,15 @@
                 android:text="@string/discount" />
 
             <TextView
+                android:id="@+id/textView13"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:text="@string/total_price"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
                 android:id="@+id/textView9"
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
@@ -110,13 +127,93 @@
                 android:layout_weight="0.2" />
         </LinearLayout>
 
-        <ListView
-            android:id="@+id/lvSaleByProduct"
+        <ExpandableListView
+            android:id="@+id/lvReportProduct"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" >
+            android:layout_weight="1"
+            android:background="@drawable/white_layer" >
+        </ExpandableListView>
 
-        </ListView>
+        <LinearLayout
+            android:id="@+id/layoutSummProduct"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/dark_gray" >
+
+            <TextView
+                android:id="@+id/TextView15"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2.8"
+                android:gravity="right"
+                android:text="@string/summary"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/tvSummProQty"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:gravity="right" />
+
+            <TextView
+                android:id="@+id/tvSummProQtyPercent"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:gravity="right" />
+
+            <TextView
+                android:id="@+id/tvSummProSubTotal"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:gravity="right" />
+
+            <TextView
+                android:id="@+id/tvSummProSubTotalPercent"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:gravity="right" />
+
+            <TextView
+                android:id="@+id/tvSummProDiscount"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:gravity="right" />
+
+            <TextView
+                android:id="@+id/tvSummProTotalPrice"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/tvSummProTotalPricePercent"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:gravity="right" />
+
+            <TextView
+                android:id="@+id/TextView21"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2" />
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -124,7 +221,8 @@
         android:id="@+id/billLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:visibility="gone" >
 
         <LinearLayout
             android:id="@+id/billHeader"
@@ -322,7 +420,6 @@
                 android:layout_weight="0.8"
                 android:gravity="right" />
         </LinearLayout>
-
     </LinearLayout>
 
 </FrameLayout>

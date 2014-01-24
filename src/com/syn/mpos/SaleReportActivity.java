@@ -20,11 +20,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
+import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -32,9 +36,13 @@ import android.widget.TextView;
 
 public class SaleReportActivity extends Activity implements OnClickListener{
 	//private static final String TAG = "SaleReportActivity";
+	public static final int BILL_REPORT = 1;
+	public static final int PRODUCT_REPORT = 2;
+	
 	private Report mReport;
 	private Reporting mReporting;
 	private BillReportAdapter mBillReportAdapter;
+	private ProductReportAdapter mProductReportAdapter;
 	private Calendar mCalendar;
 	private long mDateFrom;
 	private long mDateTo;
@@ -43,10 +51,11 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	private Button mBtnDateTo;
 	private Button mBtnCreateReport;
 	private ListView mLvReport;
+	private ExpandableListView mLvReportProduct;
 	private MenuItem mReportTypeItem;
 	private Spinner mSpReportType;
-	private LinearLayout mBillHeader;
-	private LinearLayout mProductHeader;
+	private LinearLayout layoutBillReport;
+	private LinearLayout layoutProductReport;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,68 +63,83 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		setContentView(R.layout.activity_sale_report);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
-		mBillHeader = (LinearLayout) findViewById(R.id.billHeader);
-		mProductHeader = (LinearLayout) findViewById(R.id.productHeader);
-		mLvReport = (ListView) findViewById(R.id.lvReport); 
+		layoutBillReport = (LinearLayout) findViewById(R.id.billLayout);
+		layoutProductReport = (LinearLayout) findViewById(R.id.productLayout);
+		
+		mLvReport = (ListView) findViewById(R.id.lvReport);
+		mLvReportProduct = (ExpandableListView) findViewById(R.id.lvReportProduct);
 
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 		mDateFrom = mCalendar.getTimeInMillis();
 		mDateTo = mCalendar.getTimeInMillis();
+		
+		mReport = new Report();
+		mBillReportAdapter = new BillReportAdapter();
+		mProductReportAdapter = new ProductReportAdapter();
+		mLvReport.setAdapter(mBillReportAdapter);
+		mLvReportProduct.setAdapter(mProductReportAdapter);
+		mLvReportProduct.setGroupIndicator(null);
 	}
 	
-	private void getReportData(){
+	private void genBillReport(){
 		mReporting = new Reporting(MPOSApplication.getWriteDatabase(), mDateFrom, mDateTo);
 		mReport = mReporting.getSaleReportByBill();
-		mBillReportAdapter = new BillReportAdapter();
-		mLvReport.setAdapter(mBillReportAdapter);
-		getBillReportSummary();
+		mBillReportAdapter.notifyDataSetChanged();
+	}
+	
+	private void genProductReport(){
+		mReporting = new Reporting(MPOSApplication.getWriteDatabase(), mDateFrom, mDateTo);
+		mReport = mReporting.getProductDataReport();
+		mProductReportAdapter.notifyDataSetChanged();
 	}
 	
 	private void getBillReportSummary(){
-		TextView tvSummTotalPrice = (TextView) findViewById(R.id.tvSummTotalPrice);
-		TextView tvSummDiscount = (TextView) findViewById(R.id.tvSummDiscount);
-		TextView tvSummSubTotal = (TextView) findViewById(R.id.tvSummSubTotal);
-		TextView tvSummVatable = (TextView) findViewById(R.id.tvSummVatable);
-		TextView tvSummTotalVat = (TextView) findViewById(R.id.tvSummTotalVat);
-		TextView tvSummTotalCash = (TextView) findViewById(R.id.tvSummTotalCash);
-		TextView tvSummTotalCredit = (TextView) findViewById(R.id.tvSummTotalCredit);
-		TextView tvSummTotalPay = (TextView) findViewById(R.id.tvSummTotalPay);
-		
-		float totalPrice = 0.0f;
-		float totalDiscount = 0.0f;
-		float totalSub = 0.0f;
-		float totalVatable = 0.0f;
-		float totalVat = 0.0f;
-		float totalPay = 0.0f;
-		float totalCash = 0.0f;
-		float totalCredit = 0.0f;
-		
-		PaymentDetail payment = new PaymentDetail(MPOSApplication.getReadDatabase());
-		for(Report.ReportDetail reportDetail : mReport.reportDetail){
-			if(reportDetail.getTransStatus() != Transaction.TRANS_STATUS_VOID){
-				totalPrice += reportDetail.getTotalPrice();
-				totalDiscount += reportDetail.getDiscount();
-				totalSub += reportDetail.getSubTotal();
-				totalVatable += reportDetail.getVatable();
-				totalVat += reportDetail.getTotalVat();
-				totalCash += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
-						reportDetail.getComputerId(), PaymentDetail.PAY_TYPE_CASH);
-				totalCredit += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
-						reportDetail.getComputerId(), PaymentDetail.PAY_TYPE_CREDIT);
-				totalPay += payment.getTotalPaid(reportDetail.getTransactionId(), 
-						reportDetail.getComputerId());
+		if(mReport != null){
+			TextView tvSummTotalPrice = (TextView) findViewById(R.id.tvSummTotalPrice);
+			TextView tvSummDiscount = (TextView) findViewById(R.id.tvSummDiscount);
+			TextView tvSummSubTotal = (TextView) findViewById(R.id.tvSummSubTotal);
+			TextView tvSummVatable = (TextView) findViewById(R.id.tvSummVatable);
+			TextView tvSummTotalVat = (TextView) findViewById(R.id.tvSummTotalVat);
+			TextView tvSummTotalCash = (TextView) findViewById(R.id.tvSummTotalCash);
+			TextView tvSummTotalCredit = (TextView) findViewById(R.id.tvSummTotalCredit);
+			TextView tvSummTotalPay = (TextView) findViewById(R.id.tvSummTotalPay);
+			
+			float totalPrice = 0.0f;
+			float totalDiscount = 0.0f;
+			float totalSub = 0.0f;
+			float totalVatable = 0.0f;
+			float totalVat = 0.0f;
+			float totalPay = 0.0f;
+			float totalCash = 0.0f;
+			float totalCredit = 0.0f;
+			
+			PaymentDetail payment = new PaymentDetail(MPOSApplication.getReadDatabase());
+			for(Report.ReportDetail reportDetail : mReport.reportDetail){
+				if(reportDetail.getTransStatus() != Transaction.TRANS_STATUS_VOID){
+					totalPrice += reportDetail.getTotalPrice();
+					totalDiscount += reportDetail.getDiscount();
+					totalSub += reportDetail.getSubTotal();
+					totalVatable += reportDetail.getVatable();
+					totalVat += reportDetail.getTotalVat();
+					totalCash += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
+							reportDetail.getComputerId(), PaymentDetail.PAY_TYPE_CASH);
+					totalCredit += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
+							reportDetail.getComputerId(), PaymentDetail.PAY_TYPE_CREDIT);
+					totalPay += payment.getTotalPaid(reportDetail.getTransactionId(), 
+							reportDetail.getComputerId());
+				}
 			}
+			tvSummTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
+			tvSummDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
+			tvSummSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalSub));
+			tvSummVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVatable));
+			tvSummTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
+			tvSummTotalPay.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
+			tvSummTotalCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalCash));
+			tvSummTotalCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalCredit));
 		}
-		tvSummTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
-		tvSummDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
-		tvSummSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalSub));
-		tvSummVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVatable));
-		tvSummTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
-		tvSummTotalPay.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
-		tvSummTotalCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalCash));
-		tvSummTotalCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalCredit));
 	}
 	
 	private class ReportTypeAdapter extends BaseAdapter{
@@ -163,13 +187,29 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	
 	private void switchReportType(int type){
 		switch(type){
-		case 1:	
-			mBillHeader.setVisibility(View.VISIBLE);
-			mProductHeader.setVisibility(View.GONE);
+		case 1:
+			layoutBillReport.setVisibility(View.VISIBLE);
+			layoutProductReport.setVisibility(View.GONE);
+			mBtnCreateReport.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View arg0) {
+					genBillReport();
+				}
+				
+			});
 			break;
 		case 2:
-			mBillHeader.setVisibility(View.GONE);
-			mProductHeader.setVisibility(View.VISIBLE);
+			layoutBillReport.setVisibility(View.GONE);
+			layoutProductReport.setVisibility(View.VISIBLE);
+			mBtnCreateReport.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View arg0) {
+					genProductReport();
+				}
+				
+			});			
 			break;
 		}
 	}
@@ -180,7 +220,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mReportTypeItem = (MenuItem) menu.findItem(R.id.itemReportType);
 		mConditionItem = (MenuItem) menu.findItem(R.id.itemDateCondition);
 		mSpReportType = (Spinner) mReportTypeItem.getActionView().findViewById(R.id.spinner1);
-		mSpReportType.setVisibility(View.GONE);
 		mBtnDateFrom = (Button) mConditionItem.getActionView().findViewById(R.id.btnDateFrom);
 		mBtnDateTo = (Button) mConditionItem.getActionView().findViewById(R.id.btnDateTo);
 		mBtnCreateReport = (Button) ((MenuItem) menu.findItem(R.id.itemCreateReport)).getActionView().findViewById(R.id.btnAction);
@@ -204,14 +243,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			}
 			
 		});
-		mBtnCreateReport.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View arg0) {
-				getReportData();
-			}
-			
-		});
 		mSpReportType.setAdapter(new ReportTypeAdapter());
 		mSpReportType.setSelection(0);
 		
@@ -224,27 +255,203 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		case android.R.id.home:
 			finish();
 			return true;
-		case R.id.itemCreateReport:
-			getReportData();
-			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 	
+	private void summaryProduct(){
+		Report.ReportDetail summProduct = mReporting.getProductSummaryAll();
+		if(summProduct != null){
+			TextView tvSummProQty = (TextView) findViewById(R.id.tvSummProQty);
+			TextView tvSummProQtyPercent = (TextView) findViewById(R.id.tvSummProQtyPercent);
+			TextView tvSummProSubTotal = (TextView) findViewById(R.id.tvSummProSubTotal);
+			TextView tvSummProSubTotalPercent = (TextView) findViewById(R.id.tvSummProSubTotalPercent);
+			TextView tvSummProDiscount = (TextView) findViewById(R.id.tvSummProDiscount);
+			TextView tvSummProTotalPrice = (TextView) findViewById(R.id.tvSummProTotalPrice);
+			TextView tvSummProTotalPricePercent = (TextView) findViewById(R.id.tvSummProTotalPricePercent);
+			
+			tvSummProQty.setText(MPOSApplication.getGlobalProperty().qtyFormat(summProduct.getQty()));
+			tvSummProQtyPercent.setText(MPOSApplication.getGlobalProperty().qtyFormat(summProduct.getQty() / summProduct.getQty() * 100) + "%");
+			tvSummProSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(summProduct.getSubTotal()));
+			tvSummProSubTotalPercent.setText(MPOSApplication.getGlobalProperty().qtyFormat(summProduct.getSubTotal() / summProduct.getSubTotal() * 100) + "%");
+			tvSummProDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(summProduct.getDiscount()));
+			tvSummProTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(summProduct.getTotalPrice()));
+			tvSummProTotalPricePercent.setText(MPOSApplication.getGlobalProperty().qtyFormat(summProduct.getTotalPrice() / summProduct.getTotalPrice() * 100) + "%");
+		}
+	}
+	
+	public class ProductReportAdapter extends BaseExpandableListAdapter{
+		
+		private LayoutInflater mInflater;
+		
+		public ProductReportAdapter(){
+			mInflater = (LayoutInflater)
+					SaleReportActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
+		
+		@Override
+		public Report.ReportDetail getChild(int groupPosition, int childPosition) {
+			return mReport.groupOfProductLst.get(groupPosition).reportDetail.get(childPosition);
+		}
+
+		@Override
+		public long getChildId(int groupPosition, int childPosition) {
+			return childPosition;
+		}
+
+		@Override
+		public void notifyDataSetChanged() {
+			super.notifyDataSetChanged();
+			
+			summaryProduct();
+		}
+
+		@Override
+		public View getChildView(int groupPosition, int childPosition,
+				boolean isLastChild, View convertView, ViewGroup parent) {
+			
+			ProductReportViewHolder holder;
+			if(convertView == null){
+				convertView = mInflater.inflate(R.layout.sale_report_by_product_template, null);
+				holder = new ProductReportViewHolder();
+				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
+				holder.tvProductCode = (TextView) convertView.findViewById(R.id.tvProCode);
+				holder.tvProductName = (TextView) convertView.findViewById(R.id.tvProName);
+				holder.tvProductPrice = (TextView) convertView.findViewById(R.id.tvProPrice);
+				holder.tvQty = (TextView) convertView.findViewById(R.id.tvQty);
+				holder.tvQtyPercent = (TextView) convertView.findViewById(R.id.tvQtyPercent);
+				holder.tvSubTotal = (TextView) convertView.findViewById(R.id.tvSubTotal);
+				holder.tvSubTotalPercent = (TextView) convertView.findViewById(R.id.tvSubTotalPercent);
+				holder.tvDiscount = (TextView) convertView.findViewById(R.id.tvDiscount);
+				holder.tvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
+				holder.tvTotalPricePercent = (TextView) convertView.findViewById(R.id.tvTotalPricePercent);
+				holder.tvVatType = (TextView) convertView.findViewById(R.id.tvVatType);
+				convertView.setTag(holder);
+			}else{
+				holder = (ProductReportViewHolder) convertView.getTag();
+			}
+			
+			Report.ReportDetail reportDetail = 
+					mReport.groupOfProductLst.get(groupPosition).reportDetail.get(childPosition);
+			holder.tvNo.setText(String.valueOf(childPosition + 1) + ".");
+			holder.tvProductCode.setText(reportDetail.getProductCode());
+			holder.tvProductName.setText(reportDetail.getProductName());
+			holder.tvProductPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(
+					reportDetail.getPricePerUnit()));
+			holder.tvQty.setText(MPOSApplication.getGlobalProperty().qtyFormat(
+					reportDetail.getQty()));
+			holder.tvQtyPercent.setText(MPOSApplication.getGlobalProperty().currencyFormat(
+					reportDetail.getQtyPercent()) + "%");
+			holder.tvSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(
+					reportDetail.getSubTotal()));
+			holder.tvSubTotalPercent.setText(MPOSApplication.getGlobalProperty().currencyFormat(
+					reportDetail.getSubTotalPercent()) + "%");
+			holder.tvDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(
+					reportDetail.getDiscount()));
+			holder.tvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(
+					reportDetail.getTotalPrice()));
+			holder.tvTotalPricePercent.setText(MPOSApplication.getGlobalProperty().currencyFormat(
+					reportDetail.getTotalPricePercent()) + "%");
+			holder.tvVatType.setText(reportDetail.getVat());
+			return convertView;
+		}
+
+		@Override
+		public int getChildrenCount(int groupPosition) {
+			int count = 0;
+			if(mReport != null)
+			{
+				if(mReport.groupOfProductLst != null){
+					if(mReport.groupOfProductLst.get(groupPosition).reportDetail != null){
+						count = mReport.groupOfProductLst.get(groupPosition).reportDetail.size();
+					}
+				}
+			}
+			return count;
+		}
+
+		@Override
+		public Report.GroupOfProduct getGroup(int groupPosition) {
+			return mReport.groupOfProductLst.get(groupPosition);
+		}
+
+		@Override
+		public int getGroupCount() {
+			int count = 0;
+			if(mReport != null){
+				if(mReport.groupOfProductLst != null){
+					count = mReport.groupOfProductLst.size();
+				}
+			}
+			return count;
+		}
+
+		@Override
+		public long getGroupId(int groupPosition) {
+			return groupPosition;
+		}
+
+		@Override
+		public View getGroupView(int groupPosition, boolean isExpanded,
+				View convertView, ViewGroup parent) {
+			
+			try {
+				if(!isExpanded)
+					((ExpandableListView) parent).expandGroup(groupPosition);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			TextView tvGroupHeader = new TextView(SaleReportActivity.this);
+			tvGroupHeader.setTextAppearance(SaleReportActivity.this, R.style.ColumnHeader);
+			tvGroupHeader.setPadding(8, 4, 4, 4);
+			tvGroupHeader.setTextSize(32);
+			tvGroupHeader.setText(mReport.groupOfProductLst.get(groupPosition).getProductGroupName());
+			return tvGroupHeader;
+		}
+
+		@Override
+		public boolean hasStableIds() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean isChildSelectable(int groupPosition, int childPosition) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+	}
+	
+	static class ProductReportViewHolder{
+		TextView tvNo;
+		TextView tvProductCode;
+		TextView tvProductName;
+		TextView tvProductPrice;
+		TextView tvQty;
+		TextView tvQtyPercent;
+		TextView tvSubTotal;
+		TextView tvSubTotalPercent;
+		TextView tvDiscount;
+		TextView tvTotalPrice;
+		TextView tvTotalPricePercent;
+		TextView tvVatType;
+	}
+	
 	public class BillReportAdapter extends BaseAdapter{
-		private PaymentDetail mPaymentDetail;
 		private LayoutInflater mInflater;
 		
 		public BillReportAdapter(){
 			mInflater = (LayoutInflater)
 					SaleReportActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			mPaymentDetail = new PaymentDetail(MPOSApplication.getWriteDatabase());
 		}
 		
 		@Override
 		public int getCount() {
-			return mReport.reportDetail.size();
+			return mReport != null ? mReport.reportDetail.size() : 0;
 		}
 
 		@Override
@@ -255,6 +462,13 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		@Override
 		public long getItemId(int position) {
 			return position;
+		}
+
+		@Override
+		public void notifyDataSetChanged() {
+			super.notifyDataSetChanged();
+
+			getBillReportSummary();
 		}
 
 		@Override

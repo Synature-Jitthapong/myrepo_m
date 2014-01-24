@@ -35,8 +35,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PaymentActivity extends Activity  implements StatusChangeEventListener, 
-	BatteryStatusChangeEventListener {
+public class PaymentActivity extends Activity  implements OnClickListener, 
+	StatusChangeEventListener, BatteryStatusChangeEventListener {
 	//private final String TAG = "PaymentActivity";
 	private float mTotalSalePrice;
 	private int mTransactionId;
@@ -55,6 +55,8 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	private float mChange;
 	
 	private ListView mLvPayment;
+	private Button mBtnCash;
+	private Button mBtnCredit;
 	private EditText mTxtEnterPrice;
 	private EditText mTxtTotalPaid;
 	private EditText mTxtPaymentLeft;
@@ -72,6 +74,9 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		mTxtTotalPaid = (EditText) findViewById(R.id.txtTotalPaid);
 		mTxtPaymentLeft = (EditText) findViewById(R.id.txtPaymentLeft);
 		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
+		mBtnCash = (Button) findViewById(R.id.btnCash);
+		mBtnCredit = (Button) findViewById(R.id.btnCredit);
+		mBtnCredit.setOnClickListener(this);
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -104,6 +109,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 	protected void onResume() {
 		super.onResume();
 		init();
+		mBtnCash.setPressed(true);
 	}
 
 	private void init(){
@@ -236,7 +242,7 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		mTxtEnterPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(mTotalPay));
 	}
 	
-	public void creditPayClicked(final View v){
+	public void creditPay(){
 		if(mTotalSalePrice > 0 && mPaymentLeft > 0){
 			Intent intent = new Intent(PaymentActivity.this, CreditPayActivity.class);
 			intent.putExtra("transactionId", mTransactionId);
@@ -566,5 +572,17 @@ public class PaymentActivity extends Activity  implements StatusChangeEventListe
 		mPayment.deleteAllPaymentDetail(mTransactionId, 
 				mComputerId);
 		finish();
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()){
+		case R.id.btnCash:
+			
+			break;
+		case R.id.btnCredit:
+			creditPay();
+			break;
+		}
 	}
 }

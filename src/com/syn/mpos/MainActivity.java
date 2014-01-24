@@ -435,6 +435,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 										orderDetail.getOrderDetailId());
 								mOrderLst.remove(position);
 								mOrderAdapter.notifyDataSetChanged();
+								mLayoutOrderCtrl.setVisibility(View.GONE);
 							}
 						}).show();
 					}
