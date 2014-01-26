@@ -14,8 +14,7 @@
         android:id="@+id/txtUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:ems="10"
         android:hint="@string/user_name"
         android:lines="1"
@@ -27,6 +26,8 @@
         android:id="@+id/txtPass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/txtUser"
+        android:layout_alignRight="@+id/txtUser"
         android:layout_below="@+id/txtUser"
         android:ems="10"
         android:hint="@string/pass_word"
@@ -52,13 +53,16 @@
         android:id="@+id/progressLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/buttonLogin"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="false"
         android:layout_below="@+id/buttonLogin"
-        android:gravity="center_vertical"
+        android:gravity="center_vertical|center"
         android:visibility="gone" >
 
         <ProgressBar
             android:id="@+id/progressBar1"
+            style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

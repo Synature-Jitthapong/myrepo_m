@@ -8,6 +8,7 @@ import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.Report;
 import com.syn.pos.Report.GroupOfProduct;
+import com.syn.pos.Report.ReportDetail;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -15,6 +16,9 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 public class Reporting extends MPOSDatabase{
+	public static final String SUMM_DEPT = "summ_dept";
+	public static final String SUMM_GROUP = "summ_group";
+	
 	public static final String TMP_PRODUCT_REPORT = "tmp_product_report";
 	public static final String COL_PRODUCT_QTY = "product_qty";
 	public static final String COL_PRODUCT_SUMM_QTY = "product_summ_qty";
@@ -121,8 +125,10 @@ public class Reporting extends MPOSDatabase{
 			if (groupLst != null) {
 				report = new Report();
 				
+				int lastGroupId = -1;
 				for (Report.GroupOfProduct group : groupLst) {
 					Report.GroupOfProduct groupSection = new Report.GroupOfProduct();
+					groupSection.setProductDeptName(group.getProductDeptName());
 					groupSection.setProductGroupName(group
 							.getProductGroupName()
 							+ ":"
@@ -145,7 +151,8 @@ public class Reporting extends MPOSDatabase{
 							+ Products.TB_PRODUCT + " b " + " ON a."
 							+ Products.COL_PRODUCT_ID + "=b."
 							+ Products.COL_PRODUCT_ID + " WHERE b."
-							+ Products.COL_PRODUCT_DEPT_ID + "=?",
+							+ Products.COL_PRODUCT_DEPT_ID + "=?"
+							+ " ORDER BY b." + Products.COL_ORDERING,
 							new String[] { String.valueOf(group
 									.getProductDeptId()) });
 
@@ -194,6 +201,13 @@ public class Reporting extends MPOSDatabase{
 							groupSection.reportDetail.add(reportDetail);
 						} while (cursor.moveToNext());
 					}
+					
+					// dept summary
+					groupSection.reportDetail.add(getSummaryByDept(group.getProductDeptId()));
+					if(lastGroupId != -1 && lastGroupId != group.getProductGroupId()){
+						groupSection.reportDetail.add(getSummaryByGroup(group.getProductGroupId()));
+					}
+					lastGroupId = group.getProductGroupId();
 					report.groupOfProductLst.add(groupSection);
 				}
 			}
@@ -201,6 +215,88 @@ public class Reporting extends MPOSDatabase{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return report;
+	}
+	
+	public Report.ReportDetail getSummaryByGroup(int groupId){
+		Report.ReportDetail report = null;
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(o." + Transaction.COL_ORDER_QTY + ") AS TotalQty, " +
+				" SUM(o." + Transaction.COL_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
+				" SUM(o." + Transaction.COL_PRICE_DISCOUNT + ") AS TotalDiscount, " +
+				" SUM(o." + Transaction.COL_TOTAL_SALE_PRICE + ") AS TotalSalePrice " +
+				" FROM " + Transaction.TB_TRANS + " t " + 
+				" INNER JOIN " + Transaction.TB_ORDER + " o " +
+				" ON t." + Transaction.COL_TRANS_ID + "=o." + Transaction.COL_TRANS_ID +
+				" AND t." + Computer.COL_COMPUTER_ID + "=o." + Computer.COL_COMPUTER_ID +
+				" INNER JOIN " + Products.TB_PRODUCT + " p " +
+				" ON o." + Products.COL_PRODUCT_ID + "=p." + Products.COL_PRODUCT_ID +
+				" INNER JOIN " + Products.TB_PRODUCT_DEPT + " pd " +
+				" ON p." + Products.COL_PRODUCT_DEPT_ID + "=pd." + Products.COL_PRODUCT_DEPT_ID +
+				" WHERE t." + Transaction.COL_SALE_DATE + " BETWEEN ? AND ?" +
+				" AND t." + Transaction.COL_STATUS_ID + "=?" +
+				" AND pd." + Products.COL_PRODUCT_GROUP_ID + "=?" +
+				" GROUP BY pd." + Products.COL_PRODUCT_GROUP_ID,
+				new String[]{
+						String.valueOf(mDateFrom),
+						String.valueOf(mDateTo),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(groupId)
+				});
+		
+		if(cursor.moveToFirst()){
+			Report.ReportDetail summReport = getProductSummaryAll();
+			report = new Report.ReportDetail();
+			report.setProductName(SUMM_GROUP);
+			report.setQty(cursor.getFloat(cursor.getColumnIndex("TotalQty")));
+			report.setQtyPercent(report.getQty() / summReport.getQty() * 100);
+			report.setSubTotal(cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice")));
+			report.setSubTotalPercent(report.getSubTotal() / summReport.getSubTotal() * 100);
+			report.setDiscount(cursor.getFloat(cursor.getColumnIndex("TotalDiscount")));
+			report.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("TotalSalePrice")));
+			report.setTotalPricePercent(report.getTotalPrice() / summReport.getTotalPrice() * 100);
+		}
+		cursor.close();
+		return report;
+	}
+	
+	public Report.ReportDetail getSummaryByDept(int deptId){
+		Report.ReportDetail report = null;
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(o." + Transaction.COL_ORDER_QTY + ") AS TotalQty, " +
+				" SUM(o." + Transaction.COL_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
+				" SUM(o." + Transaction.COL_PRICE_DISCOUNT + ") AS TotalDiscount, " +
+				" SUM(o." + Transaction.COL_TOTAL_SALE_PRICE + ") AS TotalSalePrice " +
+				" FROM " + Transaction.TB_TRANS + " t " + 
+				" INNER JOIN " + Transaction.TB_ORDER + " o " +
+				" ON t." + Transaction.COL_TRANS_ID + "=o." + Transaction.COL_TRANS_ID +
+				" AND t." + Computer.COL_COMPUTER_ID + "=o." + Computer.COL_COMPUTER_ID +
+				" INNER JOIN " + Products.TB_PRODUCT + " p " +
+				" ON o." + Products.COL_PRODUCT_ID + "=p." + Products.COL_PRODUCT_ID +
+				" WHERE t." + Transaction.COL_SALE_DATE + " BETWEEN ? AND ?" +
+				" AND t." + Transaction.COL_STATUS_ID + "=?" +
+				" AND p." + Products.COL_PRODUCT_DEPT_ID + "=?" +
+				" GROUP BY p." + Products.COL_PRODUCT_DEPT_ID,
+				new String[]{
+						String.valueOf(mDateFrom),
+						String.valueOf(mDateTo),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(deptId)
+				});
+		
+		if(cursor.moveToFirst()){
+			Report.ReportDetail summReport = getProductSummaryAll();
+			report = new Report.ReportDetail();
+			report.setProductName(SUMM_DEPT);
+			report.setQty(cursor.getFloat(cursor.getColumnIndex("TotalQty")));
+			report.setQtyPercent(report.getQty() / summReport.getQty() * 100);
+			report.setSubTotal(cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice")));
+			report.setSubTotalPercent(report.getSubTotal() / summReport.getSubTotal() * 100);
+			report.setDiscount(cursor.getFloat(cursor.getColumnIndex("TotalDiscount")));
+			report.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("TotalSalePrice")));
+			report.setTotalPricePercent(report.getTotalPrice() / summReport.getTotalPrice() * 100);
+		}
+		cursor.close();
 		return report;
 	}
 	
@@ -235,7 +331,7 @@ public class Reporting extends MPOSDatabase{
 				// total qty
 				" (SELECT SUM(o." + Transaction.COL_ORDER_QTY + ") " +
 				" FROM " + Transaction.TB_TRANS + " t " + 
-				" LEFT JOIN " + Transaction.TB_ORDER + " o " +
+				" INNER JOIN " + Transaction.TB_ORDER + " o " +
 				" ON t." + Transaction.COL_TRANS_ID + "=o." + Transaction.COL_TRANS_ID +
 				" AND t." + Computer.COL_COMPUTER_ID + "=o." + Computer.COL_COMPUTER_ID +
 				" WHERE t." + Transaction.COL_SALE_DATE + " BETWEEN ? AND ?" +
@@ -243,7 +339,7 @@ public class Reporting extends MPOSDatabase{
 				// total retail price
 				" (SELECT SUM(o." + Transaction.COL_TOTAL_RETAIL_PRICE + ") " +
 				" FROM " + Transaction.TB_TRANS + " t " + 
-				" LEFT JOIN " + Transaction.TB_ORDER + " o " +
+				" INNER JOIN " + Transaction.TB_ORDER + " o " +
 				" ON t." + Transaction.COL_TRANS_ID + "=o." + Transaction.COL_TRANS_ID +
 				" AND t." + Computer.COL_COMPUTER_ID + "=o." + Computer.COL_COMPUTER_ID +
 				" WHERE t." + Transaction.COL_SALE_DATE + " BETWEEN ? AND ?" +
@@ -251,7 +347,7 @@ public class Reporting extends MPOSDatabase{
 				// total discount
 				" (SELECT SUM(o." + Transaction.COL_PRICE_DISCOUNT + ") " +
 				" FROM " + Transaction.TB_TRANS + " t " + 
-				" LEFT JOIN " + Transaction.TB_ORDER + " o " +
+				" INNER JOIN " + Transaction.TB_ORDER + " o " +
 				" ON t." + Transaction.COL_TRANS_ID + "=o." + Transaction.COL_TRANS_ID +
 				" AND t." + Computer.COL_COMPUTER_ID + "=o." + Computer.COL_COMPUTER_ID +
 				" WHERE t." + Transaction.COL_SALE_DATE + " BETWEEN ? AND ?" +
@@ -259,19 +355,18 @@ public class Reporting extends MPOSDatabase{
 				// total sale price
 				" (SELECT SUM(o." + Transaction.COL_TOTAL_SALE_PRICE + ") " +
 				" FROM " + Transaction.TB_TRANS + " t " + 
-				" LEFT JOIN " + Transaction.TB_ORDER + " o " +
+				" INNER JOIN " + Transaction.TB_ORDER + " o " +
 				" ON t." + Transaction.COL_TRANS_ID + "=o." + Transaction.COL_TRANS_ID +
 				" AND t." + Computer.COL_COMPUTER_ID + "=o." + Computer.COL_COMPUTER_ID +
 				" WHERE t." + Transaction.COL_SALE_DATE + " BETWEEN ? AND ?" +
 				" AND t." + Transaction.COL_STATUS_ID + "=?) AS TotalSalePrice " +
 				" FROM " + Transaction.TB_TRANS + " a " +
-				" LEFT JOIN " + Transaction.TB_ORDER + " b " +
+				" INNER JOIN " + Transaction.TB_ORDER + " b " +
 				" ON a." + Transaction.COL_TRANS_ID + "=b." + Transaction.COL_TRANS_ID +
 				" AND a." + Computer.COL_COMPUTER_ID + "=b." + Computer.COL_COMPUTER_ID + 
 				" WHERE a." + Transaction.COL_SALE_DATE + " BETWEEN ? AND ?" +
 				" AND a." + Transaction.COL_STATUS_ID + "=?" +
-				" GROUP BY b." + Products.COL_PRODUCT_ID + 
-				" ORDER BY b." + Products.COL_ORDERING, 
+				" GROUP BY b." + Products.COL_PRODUCT_ID, 
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
@@ -345,9 +440,11 @@ public class Reporting extends MPOSDatabase{
 					" ON b." + Products.COL_PRODUCT_DEPT_ID + "=c." + Products.COL_PRODUCT_DEPT_ID +
 					" INNER JOIN " + Products.TB_PRODUCT_GROUP + " d " +
 					" ON c." + Products.COL_PRODUCT_GROUP_ID + "=d." + Products.COL_PRODUCT_GROUP_ID + 
-					" GROUP BY d." + Products.COL_PRODUCT_GROUP_ID + ", " +
-					" c." + Products.COL_PRODUCT_DEPT_ID +
-					" ORDER BY b." + Products.COL_ORDERING, null);
+					" GROUP BY d." + Products.COL_PRODUCT_GROUP_ID + 
+					" ORDER BY c." + Products.COL_PRODUCT_DEPT_ID + ", " + 
+					" d." + Products.COL_ORDERING + ", " +
+					" c." + Products.COL_ORDERING + ", " +
+					" b." + Products.COL_ORDERING, null);
 		
 		if(cursor.moveToFirst()){
 			reportLst = new ArrayList<Report.GroupOfProduct>();

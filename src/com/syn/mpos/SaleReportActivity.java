@@ -15,6 +15,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +33,7 @@ import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 public class SaleReportActivity extends Activity implements OnClickListener{
@@ -334,7 +336,47 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			
 			Report.ReportDetail reportDetail = 
 					mReport.groupOfProductLst.get(groupPosition).reportDetail.get(childPosition);
-			holder.tvNo.setText(String.valueOf(childPosition + 1) + ".");
+			setText(holder, childPosition, reportDetail);
+			
+			if(reportDetail.getProductName().equals(Reporting.SUMM_DEPT)){
+				setSummary(holder, mReport.groupOfProductLst.get(groupPosition).getProductDeptName());
+			}
+			if(reportDetail.getProductName().equals(Reporting.SUMM_GROUP)){
+				setSummary(holder, mReport.groupOfProductLst.get(groupPosition).getProductGroupName());
+			}
+			return convertView;
+		}
+
+		private void setSummary(ProductReportViewHolder holder, String text){
+//			holder.tvNo.setVisibility(View.GONE);
+//			holder.tvProductName.setVisibility(View.GONE);
+//			holder.tvProductCode.setVisibility(View.GONE);
+			holder.tvProductPrice.setText(SaleReportActivity.this.getString(R.string.summary) + 
+					" " + text);
+			holder.tvProductPrice.setGravity(Gravity.RIGHT);
+//			holder.tvProductPrice.setLayoutParams(
+//					new LinearLayout.LayoutParams(0, 
+//							LayoutParams.WRAP_CONTENT, 2.8f));
+		}
+		
+		private void setText(ProductReportViewHolder holder, int position, 
+				Report.ReportDetail reportDetail){
+//			holder.tvNo.setVisibility(View.VISIBLE);
+//			holder.tvProductCode.setVisibility(View.VISIBLE);
+//			holder.tvProductPrice.setVisibility(View.VISIBLE);
+//			holder.tvNo.setLayoutParams(
+//					new LinearLayout.LayoutParams(0, 
+//							LayoutParams.WRAP_CONTENT, 0.2f));
+//			holder.tvProductCode.setLayoutParams(
+//					new LinearLayout.LayoutParams(0, 
+//							LayoutParams.WRAP_CONTENT, 0.8f));
+//			holder.tvProductName.setLayoutParams(
+//					new LinearLayout.LayoutParams(0, 
+//							LayoutParams.WRAP_CONTENT, 1f));
+//			holder.tvProductPrice.setLayoutParams(
+//					new LinearLayout.LayoutParams(0, 
+//							LayoutParams.WRAP_CONTENT, 0.8f));
+			holder.tvNo.setText(String.valueOf(position + 1) + ".");
 			holder.tvProductCode.setText(reportDetail.getProductCode());
 			holder.tvProductName.setText(reportDetail.getProductName());
 			holder.tvProductPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(
@@ -354,9 +396,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			holder.tvTotalPricePercent.setText(MPOSApplication.getGlobalProperty().currencyFormat(
 					reportDetail.getTotalPricePercent()) + "%");
 			holder.tvVatType.setText(reportDetail.getVat());
-			return convertView;
 		}
-
+		
 		@Override
 		public int getChildrenCount(int groupPosition) {
 			int count = 0;
