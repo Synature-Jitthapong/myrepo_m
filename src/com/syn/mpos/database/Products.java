@@ -271,16 +271,28 @@ public class Products extends MPOSDatabase {
 			List<MenuGroups.MenuGroup> mgLst) throws SQLException{
 		mSqlite.execSQL(
 				" DELETE FROM " + TB_PRODUCT_GROUP);
+		for(ProductGroups.ProductGroup pg : pgLst){
+			ContentValues cv = new ContentValues();
+			cv.put(COL_PRODUCT_GROUP_ID, pg.getProductGroupId());
+			cv.put(COL_PRODUCT_GROUP_CODE, pg.getProductGroupCode());
+			cv.put(COL_PRODUCT_GROUP_NAME, pg.getProductGroupName());
+			cv.put(COL_PRODUCT_GROUP_TYPE, pg.getProductGroupType());
+			cv.put(COL_IS_COMMENT, pg.getIsComment());
+			cv.put(COL_ORDERING, pg.getProductGroupOrdering());
+			cv.put(COL_ACTIVATE, 0);
+			mSqlite.insertOrThrow(TB_PRODUCT_GROUP, null, cv);
+		}
+		
 		for(MenuGroups.MenuGroup mg : mgLst){
 			ContentValues cv = new ContentValues();
-			cv.put(COL_PRODUCT_GROUP_ID, mg.getMenuGroupID());
-			cv.put(COL_PRODUCT_GROUP_CODE, "x");
 			cv.put(COL_PRODUCT_GROUP_NAME, mg.getMenuGroupName_0());
-			cv.put(COL_PRODUCT_GROUP_TYPE, mg.getMenuGroupType());
-			cv.put(COL_IS_COMMENT, 0);
 			cv.put(COL_ORDERING, mg.getMenuGroupOrdering());
 			cv.put(COL_ACTIVATE, mg.getActivate());
-			mSqlite.insertOrThrow(TB_PRODUCT_GROUP, null, cv);
+			mSqlite.update(TB_PRODUCT_GROUP, cv, 
+					COL_PRODUCT_GROUP_ID + "=?", 
+					new String[]{
+						String.valueOf(mg.getMenuGroupID())
+					});
 		}
 	}
 	

@@ -5,16 +5,19 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+
 import com.syn.mpos.database.Reporting;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.Report;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,11 +32,9 @@ import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TableLayout;
 import android.widget.TextView;
 
 public class SaleReportActivity extends Activity implements OnClickListener{
@@ -311,8 +312,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 
 		@Override
 		public View getChildView(int groupPosition, int childPosition,
-				boolean isLastChild, View convertView, ViewGroup parent) {
-			
+				boolean isLastChild, View convertView, ViewGroup parent) {	
 			ProductReportViewHolder holder;
 			if(convertView == null){
 				convertView = mInflater.inflate(R.layout.sale_report_by_product_template, null);
@@ -333,49 +333,49 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			}else{
 				holder = (ProductReportViewHolder) convertView.getTag();
 			}
-			
+
 			Report.ReportDetail reportDetail = 
 					mReport.groupOfProductLst.get(groupPosition).reportDetail.get(childPosition);
 			setText(holder, childPosition, reportDetail);
 			
 			if(reportDetail.getProductName().equals(Reporting.SUMM_DEPT)){
 				setSummary(holder, mReport.groupOfProductLst.get(groupPosition).getProductDeptName());
-			}
-			if(reportDetail.getProductName().equals(Reporting.SUMM_GROUP)){
+			}else if(reportDetail.getProductName().equals(Reporting.SUMM_GROUP)){
 				setSummary(holder, mReport.groupOfProductLst.get(groupPosition).getProductGroupName());
 			}
 			return convertView;
 		}
-
+	
 		private void setSummary(ProductReportViewHolder holder, String text){
-//			holder.tvNo.setVisibility(View.GONE);
-//			holder.tvProductName.setVisibility(View.GONE);
-//			holder.tvProductCode.setVisibility(View.GONE);
+			holder.tvNo.setVisibility(View.GONE);
+			holder.tvProductName.setVisibility(View.GONE);
+			holder.tvProductCode.setVisibility(View.GONE);
 			holder.tvProductPrice.setText(SaleReportActivity.this.getString(R.string.summary) + 
 					" " + text);
 			holder.tvProductPrice.setGravity(Gravity.RIGHT);
-//			holder.tvProductPrice.setLayoutParams(
-//					new LinearLayout.LayoutParams(0, 
-//							LayoutParams.WRAP_CONTENT, 2.8f));
+			holder.tvProductPrice.setLayoutParams(
+					new LinearLayout.LayoutParams(0, 
+							LayoutParams.WRAP_CONTENT, 2.8f));
 		}
 		
 		private void setText(ProductReportViewHolder holder, int position, 
 				Report.ReportDetail reportDetail){
-//			holder.tvNo.setVisibility(View.VISIBLE);
-//			holder.tvProductCode.setVisibility(View.VISIBLE);
-//			holder.tvProductPrice.setVisibility(View.VISIBLE);
-//			holder.tvNo.setLayoutParams(
-//					new LinearLayout.LayoutParams(0, 
-//							LayoutParams.WRAP_CONTENT, 0.2f));
-//			holder.tvProductCode.setLayoutParams(
-//					new LinearLayout.LayoutParams(0, 
-//							LayoutParams.WRAP_CONTENT, 0.8f));
-//			holder.tvProductName.setLayoutParams(
-//					new LinearLayout.LayoutParams(0, 
-//							LayoutParams.WRAP_CONTENT, 1f));
-//			holder.tvProductPrice.setLayoutParams(
-//					new LinearLayout.LayoutParams(0, 
-//							LayoutParams.WRAP_CONTENT, 0.8f));
+			holder.tvNo.setVisibility(View.VISIBLE);
+			holder.tvProductCode.setVisibility(View.VISIBLE);
+			holder.tvProductPrice.setVisibility(View.VISIBLE);
+			holder.tvProductName.setVisibility(View.VISIBLE);
+			holder.tvNo.setLayoutParams(
+					new LinearLayout.LayoutParams(0, 
+							LayoutParams.WRAP_CONTENT, 0.2f));
+			holder.tvProductCode.setLayoutParams(
+					new LinearLayout.LayoutParams(0, 
+							LayoutParams.WRAP_CONTENT, 0.8f));
+			holder.tvProductName.setLayoutParams(
+					new LinearLayout.LayoutParams(0, 
+							LayoutParams.WRAP_CONTENT, 1f));
+			holder.tvProductPrice.setLayoutParams(
+					new LinearLayout.LayoutParams(0, 
+							LayoutParams.WRAP_CONTENT, 0.8f));
 			holder.tvNo.setText(String.valueOf(position + 1) + ".");
 			holder.tvProductCode.setText(reportDetail.getProductCode());
 			holder.tvProductName.setText(reportDetail.getProductName());
@@ -449,7 +449,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			tvGroupHeader.setTextAppearance(SaleReportActivity.this, R.style.ColumnHeader);
 			tvGroupHeader.setPadding(8, 4, 4, 4);
 			tvGroupHeader.setTextSize(32);
-			tvGroupHeader.setText(mReport.groupOfProductLst.get(groupPosition).getProductGroupName());
+			tvGroupHeader.setText(mReport.groupOfProductLst.get(groupPosition).getProductGroupName() + ":" +
+					mReport.groupOfProductLst.get(groupPosition).getProductDeptName());
 			return tvGroupHeader;
 		}
 

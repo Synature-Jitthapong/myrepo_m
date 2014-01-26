@@ -7,9 +7,6 @@ import com.syn.mpos.database.inventory.StockDocument;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.Report;
-import com.syn.pos.Report.GroupOfProduct;
-import com.syn.pos.Report.ReportDetail;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -124,15 +121,11 @@ public class Reporting extends MPOSDatabase{
 			List<Report.GroupOfProduct> groupLst = listProductGroup();
 			if (groupLst != null) {
 				report = new Report();
-				
-				int lastGroupId = -1;
-				for (Report.GroupOfProduct group : groupLst) {
+				for (int i = 0; i < groupLst.size(); i++) {
+					Report.GroupOfProduct group = groupLst.get(i);
 					Report.GroupOfProduct groupSection = new Report.GroupOfProduct();
 					groupSection.setProductDeptName(group.getProductDeptName());
-					groupSection.setProductGroupName(group
-							.getProductGroupName()
-							+ ":"
-							+ group.getProductDeptName());
+					groupSection.setProductGroupName(group.getProductGroupName());
 
 					// product
 					Cursor cursor = mSqlite.rawQuery("SELECT a."
@@ -153,8 +146,9 @@ public class Reporting extends MPOSDatabase{
 							+ Products.COL_PRODUCT_ID + " WHERE b."
 							+ Products.COL_PRODUCT_DEPT_ID + "=?"
 							+ " ORDER BY b." + Products.COL_ORDERING,
-							new String[] { String.valueOf(group
-									.getProductDeptId()) });
+							new String[] { 
+									String.valueOf(group.getProductDeptId()) 
+							});
 
 					if (cursor.moveToFirst()) {
 						do {
@@ -204,10 +198,13 @@ public class Reporting extends MPOSDatabase{
 					
 					// dept summary
 					groupSection.reportDetail.add(getSummaryByDept(group.getProductDeptId()));
-					if(lastGroupId != -1 && lastGroupId != group.getProductGroupId()){
+					if(i < groupLst.size() - 1){
+						if(group.getProductGroupId() != groupLst.get(i + 1).getProductGroupId()){
+							groupSection.reportDetail.add(getSummaryByGroup(group.getProductGroupId()));
+						}
+					}else if(i == groupLst.size() - 1){
 						groupSection.reportDetail.add(getSummaryByGroup(group.getProductGroupId()));
 					}
-					lastGroupId = group.getProductGroupId();
 					report.groupOfProductLst.add(groupSection);
 				}
 			}
@@ -440,11 +437,10 @@ public class Reporting extends MPOSDatabase{
 					" ON b." + Products.COL_PRODUCT_DEPT_ID + "=c." + Products.COL_PRODUCT_DEPT_ID +
 					" INNER JOIN " + Products.TB_PRODUCT_GROUP + " d " +
 					" ON c." + Products.COL_PRODUCT_GROUP_ID + "=d." + Products.COL_PRODUCT_GROUP_ID + 
-					" GROUP BY d." + Products.COL_PRODUCT_GROUP_ID + 
-					" ORDER BY c." + Products.COL_PRODUCT_DEPT_ID + ", " + 
-					" d." + Products.COL_ORDERING + ", " +
-					" c." + Products.COL_ORDERING + ", " +
-					" b." + Products.COL_ORDERING, null);
+					" GROUP BY d." + Products.COL_PRODUCT_GROUP_ID + ", " +
+					" c." + Products.COL_PRODUCT_DEPT_ID +
+					" ORDER BY d." + Products.COL_ORDERING + "," +
+					" c." + Products.COL_ORDERING, null);
 		
 		if(cursor.moveToFirst()){
 			reportLst = new ArrayList<Report.GroupOfProduct>();

@@ -57,8 +57,8 @@
     <string name="stock_movement">Stock Movement</string>
     <string name="stock_card">Stock card</string>
     <string name="sale_report">Sale report</string>
-    <string name="sale_report_by_bill">Sale report by bill</string>
-    <string name="sale_report_by_product">Sale report by product</string>
+    <string name="sale_report_by_bill">Sale By Bill</string>
+    <string name="sale_report_by_product">Sale By Product</string>
     <string name="remark">Remark</string>
     <string name="sync_product_progress">Update product data&#8230;</string>
     <string name="check_device">Check device</string>
