@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+
 import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -19,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -284,21 +287,29 @@ public class VoidBillActivity extends Activity {
 	}
 
 	public void confirm() {
-		final EditText txtVoidReason = new EditText(VoidBillActivity.this);
+		LayoutInflater inflater = (LayoutInflater)
+				VoidBillActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View inputLayout = inflater.inflate(R.layout.input_text_layout, null);
+		final EditText txtVoidReason = (EditText) inputLayout.findViewById(R.id.editText1);
 		txtVoidReason.setHint(R.string.reason);
-		
 		AlertDialog.Builder builder = new AlertDialog.Builder(VoidBillActivity.this);
 		builder.setTitle(R.string.void_bill);
 		builder.setIcon(android.R.drawable.ic_dialog_alert);
-		builder.setView(txtVoidReason);
+		builder.setView(inputLayout);
 		builder.setMessage(R.string.confirm_void_bill);
-		builder.setNegativeButton(android.R.string.cancel, null);
+		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				InputMethodManager imm =  (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+	            imm.hideSoftInputFromWindow(txtVoidReason.getWindowToken(), 0);
+			}
+		});
 		builder.setPositiveButton(android.R.string.ok, null);
 		
 		final AlertDialog d = builder.create();
 		d.show();
 		Button btnOk = d.getButton(AlertDialog.BUTTON_POSITIVE);
-		Button btnCancel = d.getButton(AlertDialog.BUTTON_NEGATIVE);
 		
 		btnOk.setOnClickListener(new OnClickListener(){
 
@@ -310,6 +321,8 @@ public class VoidBillActivity extends Activity {
 							mComputerId, mStaffId, voidReason)){
 						
 						mItemConfirm.setEnabled(false);
+						InputMethodManager imm =  (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 						d.dismiss();
 						init();
 					}
@@ -327,15 +340,6 @@ public class VoidBillActivity extends Activity {
 					})
 					.show();
 				}
-			}
-			
-		});
-		
-		btnCancel.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				d.dismiss();
 			}
 			
 		});

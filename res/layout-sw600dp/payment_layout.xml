@@ -2,55 +2,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="8dp" >
+    android:gravity="bottom"
+    android:orientation="vertical" >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:baselineAligned="false"
-        android:gravity="bottom" >
+        android:layout_height="0dp"
+        android:layout_margin="4dp"
+        android:layout_weight="1"
+        android:baselineAligned="false" >
 
         <TableLayout
             android:id="@+id/TableLayout2"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="4dp"
-            android:layout_weight="1" >
-
-            <LinearLayout
-                android:id="@+id/LinearLayout1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="right" >
-
-                <TextView
-                    android:id="@+id/textView5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="right"
-                    android:text="@string/total_price"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <EditText
-                    android:id="@+id/txtTotalPrice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ems="5"
-                    android:enabled="false"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:gravity="center_vertical"
-                    android:inputType="numberSigned"
-                    android:textAppearance="?android:attr/textAppearanceLargeInverse"
-                    android:textColor="@android:color/black"
-                    android:textSize="32sp"
-                    android:textStyle="bold" >
-
-                    <requestFocus />
-                </EditText>
-            </LinearLayout>
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="bottom" >
 
             <LinearLayout
                 android:id="@+id/LinearLayout1"
@@ -60,7 +27,7 @@
 
                 <EditText
                     android:id="@+id/txtEnterPrice"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="5"
                     android:enabled="false"
@@ -85,6 +52,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="7"
@@ -96,6 +64,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="8"
@@ -107,6 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="9"
@@ -118,10 +88,12 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="&lt;&lt;"
                     android:textSize="32sp" />
+
             </TableRow>
 
             <TableRow
@@ -135,6 +107,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="4"
@@ -146,6 +119,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="5"
@@ -157,6 +131,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="6"
@@ -168,10 +143,12 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="C"
                     android:textSize="32sp" />
+
             </TableRow>
 
             <TableRow
@@ -185,6 +162,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="1"
@@ -196,6 +174,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="2"
@@ -207,6 +186,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="3"
@@ -218,10 +198,12 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="."
                     android:textSize="32sp" />
+
             </TableRow>
 
             <TableRow
@@ -235,6 +217,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="0"
@@ -246,18 +229,21 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:layout_weight="1"
+                    android:minHeight="72dp"
                     android:minWidth="64dp"
                     android:onClick="onBtnPriceClick"
                     android:text="@string/enter"
                     android:textSize="32sp" />
+
             </TableRow>
         </TableLayout>
 
         <TableLayout
             android:id="@+id/TableLayout3"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" >
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="bottom" >
 
             <TableRow
                 android:id="@+id/tableRow7"
@@ -269,7 +255,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:minHeight="100dp"
+                    android:minHeight="96dp"
                     android:minWidth="100dp"
                     android:onClick="onBtnPriceClick"
                     android:text="1000"
@@ -280,7 +266,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:minHeight="100dp"
+                    android:minHeight="96dp"
                     android:minWidth="100dp"
                     android:onClick="onBtnPriceClick"
                     android:text="50"
@@ -297,7 +283,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:minHeight="100dp"
+                    android:minHeight="96dp"
                     android:minWidth="100dp"
                     android:onClick="onBtnPriceClick"
                     android:text="500"
@@ -308,7 +294,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:minHeight="100dp"
+                    android:minHeight="96dp"
                     android:minWidth="100dp"
                     android:onClick="onBtnPriceClick"
                     android:text="20"
@@ -326,7 +312,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:minHeight="100dp"
+                    android:minHeight="96dp"
                     android:minWidth="100dp"
                     android:onClick="onBtnPriceClick"
                     android:text="100"
@@ -338,7 +324,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:editable="false"
-                    android:minHeight="100dp"
+                    android:minHeight="96dp"
                     android:minWidth="100dp"
                     android:onClick="onBtnPriceClick"
                     android:textSize="32sp" />

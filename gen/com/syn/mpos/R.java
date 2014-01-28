@@ -470,7 +470,7 @@ containing a value of this type.
         public static final int discount_template=0x7f03000e;
         public static final int hold_bill_layout=0x7f03000f;
         public static final int hold_bill_template=0x7f030010;
-        public static final int input_text_dialog=0x7f030011;
+        public static final int input_text_layout=0x7f030011;
         public static final int label_price=0x7f030012;
         public static final int menu_grid_view=0x7f030013;
         public static final int menu_image_layout=0x7f030014;
@@ -628,6 +628,7 @@ containing a value of this type.
         public static final int paid_time=0x7f060082;
         public static final int pass_word=0x7f060004;
         public static final int pay_amount=0x7f06001b;
+        public static final int pay_by_cash=0x7f0600f3;
         public static final int pay_detail=0x7f06001a;
         public static final int pay_type=0x7f060019;
         public static final int payment=0x7f060031;

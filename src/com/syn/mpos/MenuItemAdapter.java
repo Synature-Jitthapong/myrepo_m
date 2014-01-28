@@ -64,7 +64,7 @@ public class MenuItemAdapter extends BaseAdapter{
 		else
 			holder.tvPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(p.getProductPrice()));
 
-		new Handler().post(new Runnable(){
+		new Handler().postDelayed(new Runnable(){
 
 			@Override
 			public void run() {
@@ -76,7 +76,7 @@ public class MenuItemAdapter extends BaseAdapter{
 				}
 			}
 			
-		});
+		}, 1000);
 		return convertView;
 	}
 	

@@ -705,12 +705,12 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		LayoutInflater inflater = (LayoutInflater)
 				MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		
-		View inputDialog = inflater.inflate(R.layout.input_text_dialog, null);
-		final EditText txtRemark = (EditText) inputDialog.findViewById(R.id.editText1);
+		View inputLayout = inflater.inflate(R.layout.input_text_layout, null);
+		final EditText txtRemark = (EditText) inputLayout.findViewById(R.id.editText1);
 		txtRemark.setHint(R.string.remark);
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.hold)
-		.setView(inputDialog)
+		.setView(inputLayout)
 		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
 			@Override

@@ -44,10 +44,8 @@
 
             <Button
                 android:id="@+id/btnSearch"
-                style="@style/ButtonText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/gray_button"
                 android:text="@string/search"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
         </LinearLayout>

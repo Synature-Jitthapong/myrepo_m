@@ -72,8 +72,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.8"
-        android:background="@android:color/holo_blue_dark"
-        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvPayTypeCredit"
@@ -81,8 +80,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.8"
-        android:background="@android:color/holo_green_dark"
-        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvTotalPayment"

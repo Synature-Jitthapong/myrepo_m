@@ -5,35 +5,70 @@
     android:layout_height="match_parent"
     android:baselineAligned="false"
     android:orientation="vertical"
+    android:padding="8dp"
     tools:context=".PaymentActivity" >
 
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView1"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <HorizontalScrollView
+            android:id="@+id/horizontalScrollView1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/btnCash"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="64dp"
+                    android:minWidth="120dp"
+                    android:text="@string/cash" />
+
+                <Button
+                    android:id="@+id/btnCredit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="64dp"
+                    android:minWidth="120dp"
+                    android:text="@string/credit" />
+            </LinearLayout>
+        </HorizontalScrollView>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal" >
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right" >
 
-            <Button
-                android:id="@+id/btnCash"
+            <EditText
+                android:id="@+id/txtTotalPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="64dp"
-                android:minWidth="120dp"
-                android:text="@string/cash" />
+                android:layout_weight="1"
+                android:background="@color/smoke_white"
+                android:ems="5"
+                android:enabled="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="right|center_vertical"
+                android:inputType="numberSigned"
+                android:padding="4dp"
+                android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                android:textColor="@android:color/black"
+                android:textSize="48sp"
+                android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/btnCredit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minHeight="64dp"
-                android:minWidth="120dp"
-                android:text="@string/credit" />
         </LinearLayout>
-    </HorizontalScrollView>
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -43,7 +78,6 @@
             android:id="@+id/LinearLayout2"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginRight="8dp"
             android:layout_weight="0.5"
             android:orientation="vertical" >
 
@@ -59,6 +93,7 @@
                     style="@style/ColumnHeader"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="1dp"
                     android:layout_weight="0.8"
                     android:gravity="left"
                     android:text="@string/pay_type"
@@ -88,7 +123,6 @@
                     style="@style/ColumnHeader"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="0dp"
                     android:layout_weight="0.3"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -175,8 +209,10 @@
         <include
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_marginTop="1dp"
             android:layout_weight="1"
             layout="@layout/payment_layout" />
+
     </LinearLayout>
 
 </LinearLayout>

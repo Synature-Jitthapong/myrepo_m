@@ -60,10 +60,9 @@
         style="@style/ColumnDetail"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:background="@android:color/holo_blue_dark"
         android:gravity="right"
         android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/tvSalePrice"

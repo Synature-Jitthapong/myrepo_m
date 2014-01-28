@@ -345,7 +345,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			}
 			return convertView;
 		}
-	
+		
 		private void setSummary(ProductReportViewHolder holder, String text){
 			holder.tvNo.setVisibility(View.GONE);
 			holder.tvProductName.setVisibility(View.GONE);
@@ -515,24 +515,17 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
-			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.sale_report_by_bill_template, null);
-				holder = new ViewHolder();
-				holder.mTvReceipt = (TextView) convertView.findViewById(R.id.tvReceipt);
-				holder.mTvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
-				holder.mTvDiscount = (TextView) convertView.findViewById(R.id.tvTotalDisc);
-				holder.mTvSubTotal = (TextView) convertView.findViewById(R.id.tvSubTotal);
-				holder.mTvTotalSale = (TextView) convertView.findViewById(R.id.tvTotalSale);
-				holder.mTvVatable = (TextView) convertView.findViewById(R.id.tvVatable);
-				holder.mTvTotalVat = (TextView) convertView.findViewById(R.id.tvTotalVat);
-				holder.mTvPayTypeCash = (TextView) convertView.findViewById(R.id.tvPayTypeCash);
-				holder.mTvPayTypeCredit = (TextView) convertView.findViewById(R.id.tvPayTypeCredit);
-				holder.mTvTotalPayment = (TextView) convertView.findViewById(R.id.tvTotalPayment);
-				convertView.setTag(holder);
-			}else{
-				holder = (ViewHolder) convertView.getTag();
-			}
+			convertView = mInflater.inflate(R.layout.sale_report_by_bill_template, null);
+			TextView mTvReceipt = (TextView) convertView.findViewById(R.id.tvReceipt);
+			TextView mTvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
+			TextView mTvDiscount = (TextView) convertView.findViewById(R.id.tvTotalDisc);
+			TextView mTvSubTotal = (TextView) convertView.findViewById(R.id.tvSubTotal);
+			TextView mTvTotalSale = (TextView) convertView.findViewById(R.id.tvTotalSale);
+			TextView mTvVatable = (TextView) convertView.findViewById(R.id.tvVatable);
+			TextView mTvTotalVat = (TextView) convertView.findViewById(R.id.tvTotalVat);
+			TextView mTvPayTypeCash = (TextView) convertView.findViewById(R.id.tvPayTypeCash);
+			TextView mTvPayTypeCredit = (TextView) convertView.findViewById(R.id.tvPayTypeCredit);
+			TextView mTvTotalPayment = (TextView) convertView.findViewById(R.id.tvTotalPayment);
 			
 			Report.ReportDetail report = mReport.reportDetail.get(position);
 			int transId = report.getTransactionId();
@@ -546,47 +539,22 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			float credit = mReporting.getTotalPayByPayType(transId, compId, PaymentDetail.PAY_TYPE_CREDIT);
 			float totalPay = cash + credit;
 			
-			holder.mTvReceipt.setText(report.getReceiptNo());
-			holder.mTvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
-			holder.mTvDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
-			holder.mTvSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(subTotal));
-			holder.mTvVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(vatable));
-			holder.mTvTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
-			holder.mTvTotalPayment.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
-			holder.mTvPayTypeCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(cash));
-			holder.mTvPayTypeCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(credit));
+			mTvReceipt.setText(report.getReceiptNo());
+			mTvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
+			mTvDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
+			mTvSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(subTotal));
+			mTvVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(vatable));
+			mTvTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
+			mTvTotalPayment.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
+			mTvPayTypeCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(cash));
+			mTvPayTypeCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(credit));
 			
 			if(report.getTransStatus() == Transaction.TRANS_STATUS_VOID){
-				holder.mTvReceipt.setTextColor(Color.RED);
-//				holder.mTvTotalPrice.setTextColor(Color.RED);
-//				holder.mTvDiscount.setTextColor(Color.RED);
-//				holder.mTvSubTotal.setTextColor(Color.RED);
-//				holder.mTvVatable.setTextColor(Color.RED);
-//				holder.mTvTotalVat.setTextColor(Color.RED);
-//				holder.mTvTotalPayment.setTextColor(Color.RED);
-				holder.mTvReceipt.setPaintFlags(holder.mTvReceipt.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-//				holder.mTvTotalPrice.setPaintFlags(holder.mTvTotalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-//				holder.mTvDiscount.setPaintFlags(holder.mTvDiscount.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-//				holder.mTvSubTotal.setPaintFlags(holder.mTvSubTotal.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-//				holder.mTvVatable.setPaintFlags(holder.mTvVatable.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-//				holder.mTvTotalVat.setPaintFlags(holder.mTvTotalVat.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-//				holder.mTvTotalPayment.setPaintFlags(holder.mTvTotalPayment.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				mTvReceipt.setTextColor(Color.RED);
+				mTvReceipt.setPaintFlags(mTvReceipt.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			}
 			return convertView;
 		}
-	}
-
-	public static class ViewHolder{
-		public TextView mTvReceipt;
-		public TextView mTvTotalPrice;
-		public TextView mTvDiscount;
-		public TextView mTvSubTotal;
-		public TextView mTvTotalSale;
-		public TextView mTvVatable;
-		public TextView mTvTotalVat;
-		public TextView mTvPayTypeCash;
-		public TextView mTvPayTypeCredit;
-		public TextView mTvTotalPayment;
 	}
 
 	@Override

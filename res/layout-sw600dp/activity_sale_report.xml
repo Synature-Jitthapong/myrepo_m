@@ -132,7 +132,10 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/white_layer" >
+            android:background="@drawable/white_layer"
+            android:choiceMode="singleChoice"
+            android:listSelector="@drawable/list_selector" >
+
         </ExpandableListView>
 
         <LinearLayout
@@ -328,7 +331,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/white_layer" >
+            android:background="@drawable/white_layer"
+            android:choiceMode="singleChoice" >
+
         </ListView>
 
         <LinearLayout
