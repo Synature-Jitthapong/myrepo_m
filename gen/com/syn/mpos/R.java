@@ -517,6 +517,7 @@ containing a value of this type.
         public static final int backoffice=0x7f0600c1;
         public static final int balance=0x7f06009f;
         public static final int bank=0x7f060023;
+        public static final int before_vat=0x7f0600f6;
         public static final int bill_no=0x7f0600dc;
         public static final int bill_utility=0x7f060076;
         public static final int birth_day=0x7f060094;
@@ -604,6 +605,7 @@ containing a value of this type.
         public static final int ip_address_summary=0x7f060055;
         public static final int item_name=0x7f060017;
         public static final int item_no=0x7f06001e;
+        public static final int items=0x7f0600f4;
         public static final int load_sale_trans_progress=0x7f0600e4;
         public static final int login=0x7f060002;
         public static final int login_sync=0x7f060062;
@@ -627,6 +629,7 @@ containing a value of this type.
         public static final int other_discount=0x7f0600db;
         public static final int paid_time=0x7f060082;
         public static final int pass_word=0x7f060004;
+        public static final int pay=0x7f0600f5;
         public static final int pay_amount=0x7f06001b;
         public static final int pay_by_cash=0x7f0600f3;
         public static final int pay_detail=0x7f06001a;
@@ -748,25 +751,18 @@ containing a value of this type.
         public static final int zipcode=0x7f060093;
     }
     public static final class style {
-        /**  API 11 theme customizations can go here. 
- API 11 theme customizations can go here. 
-         */
-        public static final int AppBaseTheme=0x7f09000a;
-        public static final int AppTheme=0x7f090008;
         /** 
         Base application theme for API 11+. This theme completely replaces
         AppBaseTheme from res/values/styles.xml on API 11+ devices.
     
+ API 11 theme customizations can go here. 
 
         Base application theme for API 11+. This theme completely replaces
         AppBaseTheme from res/values/styles.xml on API 11+ devices.
     
+ API 11 theme customizations can go here. 
          */
-        public static final int BaseDialog=0x7f090009;
-        public static final int ButtonText=0x7f090004;
-        public static final int ButtonTextWhite=0x7f090003;
-        public static final int ColumnDetail=0x7f090005;
-        public static final int ColumnHeader=0x7f090006;
+        public static final int AppBaseTheme=0x7f090008;
         /**  Application theme. 
     	<item name="android:actionBarStyle">@style/ActionBarStyle</item>
        	<item name="android:actionMenuTextColor">@color/smoke_white</item>
@@ -774,7 +770,11 @@ containing a value of this type.
         <item name="android:background">@drawable/actionbar_background</item>
        	
          */
-        public static final int DialogTheme=0x7f090007;
+        public static final int AppTheme=0x7f090007;
+        public static final int ButtonText=0x7f090004;
+        public static final int ButtonTextWhite=0x7f090003;
+        public static final int ColumnDetail=0x7f090005;
+        public static final int ColumnHeader=0x7f090006;
         public static final int SectionHead=0x7f090002;
         public static final int TextViewValue=0x7f090001;
         public static final int TextViewValueNumber=0x7f090000;

@@ -660,15 +660,17 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			public void onClick(DialogInterface dialog, int which) {
 				mProgress.setTitle(MPOSApplication.getContext().getString(R.string.endday));
 				mProgress.setMessage(MPOSApplication.getContext().getString(R.string.endday_progress));
-				mProgress.show();
-				
-				MPOSUtil.OnEnddayListener onEnddayListener = 
-						new MPOSUtil.OnEnddayListener() {
-							
+				ProgressListener progressListener = 
+						new ProgressListener() {
+					
 							@Override
-							public void enddaySuccess() {
+							public void onPre() {
+								mProgress.show();
+							}
+
+							@Override
+							public void onPost() {
 								mProgress.dismiss();
-								
 								new AlertDialog.Builder(MainActivity.this)
 								.setTitle(R.string.endday)
 								.setMessage(R.string.endday_success)
@@ -680,13 +682,13 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 									}
 								}).show();
 							}
-							
+
 							@Override
-							public void enddayFail(String mesg) {
+							public void onError(String msg) {
 								mProgress.dismiss();
 								
 								new AlertDialog.Builder(MainActivity.this)
-								.setMessage(mesg)
+								.setMessage(msg)
 								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 									
 									@Override
@@ -695,8 +697,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 								}).show();
 							}
 						};
-						
-				MPOSUtil.doEndday(mComputerId, mSessionId, mStaffId, 0.0f, true, onEnddayListener);
+				MPOSUtil.doEndday(mComputerId, mSessionId, mStaffId, 0.0f, true, progressListener);
 			}
 		}).show();
 	}

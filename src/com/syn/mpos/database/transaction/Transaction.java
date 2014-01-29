@@ -166,6 +166,42 @@ public class Transaction extends MPOSDatabase {
 		return otherDiscount;
 	}
 	
+	public float getTransactionVatable(int transactionId, int computerId){
+		float transVatable = 0.0f;
+		Cursor cursor = mSqlite.query(TB_TRANS, 
+				new String[]{
+					COL_TRANS_VATABLE
+				},
+				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(computerId)
+				}, null, null, null);
+		if(cursor.moveToFirst()){
+			transVatable = cursor.getFloat(0);
+		}
+		cursor.close();
+		return transVatable;
+	}
+	
+	public float getTransactionVat(int transactionId, int computerId){
+		float transVat = 0.0f;
+		Cursor cursor = mSqlite.query(TB_TRANS, 
+				new String[]{
+					COL_TRANS_VAT
+				},
+				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(computerId)
+				}, null, null, null);
+		if(cursor.moveToFirst()){
+			transVat = cursor.getFloat(0);
+		}
+		cursor.close();
+		return transVat;
+	}
+	
 	public float getPriceDiscount(int transactionId, int computerId, boolean tempTable){
 		float priceDiscount = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(

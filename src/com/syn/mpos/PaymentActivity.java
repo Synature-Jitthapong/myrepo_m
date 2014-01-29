@@ -2,6 +2,7 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.epson.eposprint.BatteryStatusChangeEventListener;
 import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
@@ -15,6 +16,7 @@ import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
 import com.syn.pos.ShopData;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
@@ -35,8 +37,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PaymentActivity extends Activity  implements OnClickListener, 
-	StatusChangeEventListener, BatteryStatusChangeEventListener {
+public class PaymentActivity extends Activity  implements OnClickListener {
 	//private final String TAG = "PaymentActivity";
 	private float mTotalSalePrice;
 	private int mTransactionId;
@@ -46,7 +47,6 @@ public class PaymentActivity extends Activity  implements OnClickListener,
 	private PaymentDetail mPayment;
 	private List<Payment.PaymentDetail> mPayLst;
 	private PaymentAdapter mPaymentAdapter;
-	private Print mPrinter;
 	
 	private StringBuilder mStrTotalPay;
 	private float mTotalPay;
@@ -352,179 +352,38 @@ public class PaymentActivity extends Activity  implements OnClickListener,
 		}
 	}
 	
-	private String createLine(String sign){
-		StringBuilder line = new StringBuilder();
-		for(int i = 0; i <= 45; i++){
-			line.append(sign);
-		}
-		return line.toString();
-	}
-	
-	private String createLineSpace(int usedSpace){
-		int maxSpace = 45;
-		StringBuilder space = new StringBuilder();
-		if(usedSpace > maxSpace){
-			usedSpace = usedSpace - 2;
-		}
-		for(int i = usedSpace; i <= maxSpace; i++){
-			space.append(" ");
-		}
-		return space.toString();
-	}
-	
-	private void print(){
-		String printerIp = MPOSApplication.getPrinterIp();
-		String printerName = MPOSApplication.getPrinterName();
-		mPrinter = new Print(PaymentActivity.this);
-		mPrinter.setStatusChangeEventCallback(this);
-		mPrinter.setBatteryStatusChangeEventCallback(this);
-		
-		try {
-			mPrinter.openPrinter(Print.DEVTYPE_TCP, printerIp, 0, 1000);	
-			Builder builder = new Builder(printerName, Builder.MODEL_ANK, PaymentActivity.this);
-			
-			builder.addTextLang(Builder.LANG_TH);
-			builder.addTextFont(Builder.FONT_B); //b
-			builder.addTextAlign(Builder.ALIGN_CENTER);
-			builder.addTextSize(1, 1);
-			builder.addTextStyle(Builder.FALSE, Builder.FALSE, Builder.FALSE, Builder.COLOR_1);
-
-			// add header
-			HeaderFooterReceipt headerFooter = new HeaderFooterReceipt(MPOSApplication.getWriteDatabase());
-			for(ShopData.HeaderFooterReceipt hf : 
-				headerFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
-				builder.addText(hf.getTextInLine());
-				builder.addText("\n");
-			}
-			OrderTransaction orderTrans = mTransaction.getTransaction(mTransactionId, mComputerId);
-			builder.addText(this.getString(R.string.date) + " ");
-			builder.addText(MPOSApplication.getGlobalProperty().dateFormat(Util.getDate().getTime()) + "\n");
-			builder.addText(this.getString(R.string.receipt_no) + " ");
-			builder.addText(orderTrans.getReceiptNo());
-			builder.addText("\n" + createLine("=") + "\n");
-			
-			List<OrderTransaction.OrderDetail> orderLst = 
-					mTransaction.listAllOrder(mTransactionId, mComputerId);
-			builder.addTextAlign(Builder.ALIGN_CENTER);
-	    	for(int i = 0; i < orderLst.size(); i++){
-	    		OrderTransaction.OrderDetail order = 
-	    				orderLst.get(i);
-	    		
-	    		String productName = order.getProductName();
-	    		String productQty = MPOSApplication.getGlobalProperty().qtyFormat(order.getQty());
-	    		String productPrice = MPOSApplication.getGlobalProperty().currencyFormat(order.getTotalSalePrice());
-	    		
-	    		builder.addText(productQty + " ");
-	    		builder.addText(productName);
-	    		builder.addText(createLineSpace(productQty.length() + 
-	    				productName.length() + productPrice.length()));
-	    		builder.addText(productPrice);
-	    		builder.addText("\n");
-	    	}
-	    	builder.addText(createLine("-") + "\n");
-	    	
-	    	String totalText = MPOSApplication.getContext().getString(R.string.total);
-	    	String paymentText = MPOSApplication.getContext().getString(R.string.payment);
-	    	String changeText = MPOSApplication.getContext().getString(R.string.change);
-	    	String discountText = MPOSApplication.getContext().getString(R.string.discount);
-	    	String totalPrice = mTxtTotalPrice.getText().toString();
-	    	String totalDiscount = MPOSApplication.getGlobalProperty().currencyFormat(mTransaction.getPriceDiscount(mTransactionId, 
-	    			mComputerId, false));
-	    	String totalPayment = MPOSApplication.getGlobalProperty().currencyFormat(mTotalPaid);
-	    	String totalChange = MPOSApplication.getGlobalProperty().currencyFormat(mChange);
-	    	
-	    	// total price
-	    	builder.addText(totalText);
-	    	builder.addText(createLineSpace(totalText.length() + totalPrice.length()));
-	    	builder.addText(totalPrice + "\n");
-	    	
-	    	// total discount
-	    	if(mTransaction.getPriceDiscount(mTransactionId, 
-	    			mComputerId, false) > 0){
-		    	builder.addText(discountText);
-		    	builder.addText(createLineSpace(discountText.length() + totalDiscount.length()));
-		    	builder.addText(totalDiscount + "\n");
-	    	}
-	    	
-	    	// total payment
-	    	builder.addText(paymentText);
-	    	builder.addText(createLineSpace(paymentText.length() + totalPayment.length()));
-	    	builder.addText(totalPayment + "\n");
-	    	
-	    	// change
-	    	if(mChange > 0){
-		    	builder.addText(changeText);
-		    	builder.addText(createLineSpace(changeText.length() + totalChange.length()));
-		    	builder.addText(totalChange);
-		    	builder.addText("\n" + createLine("-") + "\n");
-	    	}
-	    	
-	    	// add footer
-	    	for(ShopData.HeaderFooterReceipt hf : 
-				headerFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
-				builder.addText(hf.getTextInLine());
-				builder.addText("\n");
-			}
-	    	
-			builder.addFeedUnit(30);
-			builder.addCut(Builder.CUT_FEED);
-
-			// send builder data
-			int[] status = new int[1];
-			int[] battery = new int[1];
-			try {
-				mPrinter.sendData(builder, 10000, status, battery);
-			} catch (EposException e) {
-//				Util.alert(context, android.R.drawable.ic_dialog_alert,
-//						R.string.title_activity_payment, e.getErrorStatus());
-			}
-
-			if (builder != null) {
-				builder.clearCommandBuffer();
-			}
-		} catch (EposException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		try {
-			mPrinter.closePrinter();
-			mPrinter = null;
-		} catch (EposException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void onBatteryStatusChangeEvent(String arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onStatusChangeEvent(String arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 	public void confirm() {
 		if(mTotalPaid >=mTotalSalePrice){
 			if(mTransaction.successTransaction(mTransactionId, 
 					mComputerId, mStaffId)){
+				
+				mChange = mTotalPaid - mTotalSalePrice;
+				PrintReceipt printReceipt = new PrintReceipt();
+				printReceipt.printReceipt(mTransactionId, mComputerId);
 				
 				// send real time sale
 				new Handler().post(new Runnable(){
 
 					@Override
 					public void run() {
-						MPOSUtil.sendRealTimeSale(mStaffId);
+						MPOSUtil.doSendSale(mStaffId, new ProgressListener(){
+
+							@Override
+							public void onPre() {
+							}
+
+							@Override
+							public void onPost() {
+							}
+
+							@Override
+							public void onError(String msg) {
+							}
+							
+						});
 					}
 					
 				});
-				
-				mChange = mTotalPaid - mTotalSalePrice;
-				print();
 				
 				if(mChange > 0){
 					LayoutInflater inflater = (LayoutInflater) 

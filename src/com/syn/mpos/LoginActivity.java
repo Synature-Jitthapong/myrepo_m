@@ -114,16 +114,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 		init();
 	}
 			
-	private MPOSService.OnServiceProcessListener mLoadProductListener =
+	private ProgressListener mLoadProductListener =
 
-	new MPOSService.OnServiceProcessListener() {
-
-		@Override
-		public void onSuccess() {
-			mProgressLayout.setVisibility(View.GONE);
-			gotoMainActivity();
-		}
-
+	new ProgressListener() {
 		@Override
 		public void onError(String mesg) {
 			mBtnLogin.setEnabled(true);
@@ -139,6 +132,17 @@ public class LoginActivity extends Activity implements OnClickListener {
 									gotoMainActivity();
 								}
 							}).show();
+		}
+
+		@Override
+		public void onPre() {
+			mProgressLayout.setVisibility(View.VISIBLE);
+		}
+
+		@Override
+		public void onPost() {
+			mProgressLayout.setVisibility(View.GONE);
+			gotoMainActivity();
 		}
 	};
 	
@@ -176,7 +180,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 						// count check session endday detail
 						if(mSession.getSessionEnddayDetail(sessionDate) == 0){
 							mTvProgress.setText(MPOSApplication.getContext().getString(R.string.sync_product_progress));
-							mProgressLayout.setVisibility(View.VISIBLE);
 							mposService.loadProductData(mLoadProductListener);
 						}else{
 							mSession.deleteSession(mSessionId);
@@ -261,18 +264,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 				// sync shop
 				final MPOSService mposService = new MPOSService();
 				mTvProgress.setText(MPOSApplication.getContext().getString(R.string.sync_shop_progress));
-				mProgressLayout.setVisibility(View.VISIBLE);
-				mposService.loadShopData(new MPOSService.OnServiceProcessListener() {
-					
-					@Override
-					public void onSuccess() {
-						mProgressLayout.setVisibility(View.GONE);
-						mShopId = MPOSApplication.getShopId();
-						mComputerId = MPOSApplication.getComputerId();
-						
-						checkLogin();
-					}
-					
+				mposService.loadShopData(new ProgressListener() {
+	
 					@Override
 					public void onError(String mesg) {
 						mBtnLogin.setEnabled(true);
@@ -288,6 +281,20 @@ public class LoginActivity extends Activity implements OnClickListener {
 							}
 						})
 						.show();
+					}
+
+					@Override
+					public void onPre() {
+						mProgressLayout.setVisibility(View.VISIBLE);
+					}
+
+					@Override
+					public void onPost() {
+						mProgressLayout.setVisibility(View.GONE);
+						mShopId = MPOSApplication.getShopId();
+						mComputerId = MPOSApplication.getComputerId();
+						
+						checkLogin();
 					}
 				});
 			}else{

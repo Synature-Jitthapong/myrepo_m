@@ -77,41 +77,57 @@ public class SyncActivity extends Activity implements OnItemClickListener{
 		//final TextView tvSyncName = (TextView) v.findViewById(R.id.tvSyncName);
 		final ProgressBar progress = (ProgressBar) v.findViewById(R.id.syncProgress);
 		final ImageView imgSyncStatus = (ImageView) v.findViewById(R.id.imgSyncStatus);
-		imgSyncStatus.setVisibility(View.GONE);
-		progress.setVisibility(View.VISIBLE);
+		
 		if(id==SYNC_PRODUCT){
 			MPOSService mposService = new MPOSService();
-			mposService.loadProductData(new MPOSService.OnServiceProcessListener() {
-				
+			ProgressListener loadProductListener = new ProgressListener() {
+
 				@Override
-				public void onSuccess() {
+				public void onPre() {
+					imgSyncStatus.setVisibility(View.GONE);
+					progress.setVisibility(View.VISIBLE);
+				}
+
+				@Override
+				public void onPost() {
 					progress.setVisibility(View.INVISIBLE);
 					imgSyncStatus.setVisibility(View.VISIBLE);
 				}
-				
+
 				@Override
 				public void onError(String msg) {
 					progress.setVisibility(View.INVISIBLE);
 					imgSyncStatus.setVisibility(View.VISIBLE);
-					imgSyncStatus.setImageResource(R.drawable.ic_navigation_cancel_light);
+					imgSyncStatus
+							.setImageResource(R.drawable.ic_navigation_cancel_light);
 				}
-			});
+			};
+			mposService.loadProductData(loadProductListener);
+			
 		}else if(id==SYNC_SALE){
-			MPOSUtil.doSendSale(mStaffId, new MPOSService.OnServiceProcessListener() {
-				
-				@Override
-				public void onSuccess() {
-					progress.setVisibility(View.INVISIBLE);
-					imgSyncStatus.setVisibility(View.VISIBLE);
-				}
-				
-				@Override
-				public void onError(String msg) {
-					progress.setVisibility(View.INVISIBLE);
-					imgSyncStatus.setVisibility(View.VISIBLE);
-					imgSyncStatus.setImageResource(R.drawable.ic_navigation_cancel_light);
-				}
-			});
+			ProgressListener sendSaleListener =
+					new ProgressListener(){
+
+						@Override
+						public void onPre() {
+							imgSyncStatus.setVisibility(View.GONE);
+							progress.setVisibility(View.VISIBLE);
+						}
+
+						@Override
+						public void onPost() {
+							progress.setVisibility(View.INVISIBLE);
+							imgSyncStatus.setVisibility(View.VISIBLE);
+						}
+
+						@Override
+						public void onError(String msg) {
+							progress.setVisibility(View.INVISIBLE);
+							imgSyncStatus.setVisibility(View.VISIBLE);
+							imgSyncStatus.setImageResource(R.drawable.ic_navigation_cancel_light);
+						}};
+					
+			MPOSUtil.doSendSale(mStaffId, sendSaleListener);
 		}
 	}
 }

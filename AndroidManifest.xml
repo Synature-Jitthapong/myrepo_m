@@ -108,8 +108,7 @@
         </activity>
         <activity
             android:name="com.syn.mpos.SyncActivity"
-            android:label="@string/sync"
-            android:theme="@style/BaseDialog" >
+            android:label="@string/sync">
         </activity>
     </application>
 
