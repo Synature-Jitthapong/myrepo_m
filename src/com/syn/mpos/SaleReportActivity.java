@@ -109,14 +109,14 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			TextView tvSummTotalCredit = (TextView) findViewById(R.id.tvSummTotalCredit);
 			TextView tvSummTotalPay = (TextView) findViewById(R.id.tvSummTotalPay);
 			
-			float totalPrice = 0.0f;
-			float totalDiscount = 0.0f;
-			float totalSub = 0.0f;
-			float totalVatable = 0.0f;
-			float totalVat = 0.0f;
-			float totalPay = 0.0f;
-			float totalCash = 0.0f;
-			float totalCredit = 0.0f;
+			double totalPrice = 0.0f;
+			double totalDiscount = 0.0f;
+			double totalSub = 0.0f;
+			double totalVatable = 0.0f;
+			double totalVat = 0.0f;
+			double totalPay = 0.0f;
+			double totalCash = 0.0f;
+			double totalCredit = 0.0f;
 			
 			PaymentDetail payment = new PaymentDetail(MPOSApplication.getReadDatabase());
 			for(Report.ReportDetail reportDetail : mReport.reportDetail){
@@ -530,14 +530,14 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			Report.ReportDetail report = mReport.reportDetail.get(position);
 			int transId = report.getTransactionId();
 			int compId = report.getComputerId();
-			float vatable = report.getVatable();
-			float totalVat = report.getTotalVat();
-			float totalPrice = report.getTotalPrice();
-			float totalDiscount = report.getDiscount();
-			float subTotal = report.getSubTotal();
-			float cash = mReporting.getTotalPayByPayType(transId, compId, PaymentDetail.PAY_TYPE_CASH);
-			float credit = mReporting.getTotalPayByPayType(transId, compId, PaymentDetail.PAY_TYPE_CREDIT);
-			float totalPay = cash + credit;
+			double vatable = report.getVatable();
+			double totalVat = report.getTotalVat();
+			double totalPrice = report.getTotalPrice();
+			double totalDiscount = report.getDiscount();
+			double subTotal = report.getSubTotal();
+			double cash = mReporting.getTotalPayByPayType(transId, compId, PaymentDetail.PAY_TYPE_CASH);
+			double credit = mReporting.getTotalPayByPayType(transId, compId, PaymentDetail.PAY_TYPE_CREDIT);
+			double totalPay = cash + credit;
 			
 			mTvReceipt.setText(report.getReceiptNo());
 			mTvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));

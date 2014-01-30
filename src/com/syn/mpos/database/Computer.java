@@ -14,11 +14,29 @@ public class Computer extends MPOSDatabase{
 	public static final String COL_COMPUTER_NAME = "ComputerName";
 	public static final String COL_DEVICE_CODE = "DeviceCode";
 	public static final String COL_REGISTER_NUMBER = "RegisterNumber";
+	public static final String COL_IS_MAIN_COMPUTER = "IsMainComputer";
 		
 	public Computer(SQLiteDatabase db) {
 		super(db);
 	}
 
+	public boolean checkIsMainComputer(int computerId){
+		boolean isMainComputer = false;
+		Cursor cursor = mSqlite.query(TB_COMPUTER, 
+				new String[]{
+					COL_IS_MAIN_COMPUTER
+				}, COL_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(computerId)
+				}, null, null, null);
+		if(cursor.moveToFirst()){
+			if(cursor.getInt(cursor.getColumnIndex(COL_IS_MAIN_COMPUTER)) != 0)
+				isMainComputer = true;
+		}
+		cursor.close();
+		return isMainComputer;
+	}
+	
 	public ShopData.ComputerProperty getComputerProperty() {
 		ShopData.ComputerProperty computer = 
 				new ShopData.ComputerProperty();

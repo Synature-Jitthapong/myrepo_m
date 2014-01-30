@@ -1,6 +1,5 @@
 package com.syn.mpos.database;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -8,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -34,72 +34,77 @@ public class GlobalProperty extends MPOSDatabase{
 		COL_TIME_FORMAT
 	};
 	
+	private NumberFormat mNumFormat;
+	private DecimalFormat mDecFormat;
+	private SimpleDateFormat mDateFormat;
+	
 	public GlobalProperty(SQLiteDatabase db) {
 		super(db);
+		mNumFormat = NumberFormat.getInstance(Locale.getDefault());
+		mNumFormat.setRoundingMode(RoundingMode.HALF_UP);
+		mDecFormat = new DecimalFormat();
+		mDecFormat.setRoundingMode(RoundingMode.HALF_UP);
+		mDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 	}
 
 	public String dateFormat(Date d, String pattern){
-		SimpleDateFormat dateFormat = 
-				new SimpleDateFormat(pattern, Locale.getDefault());
-		return dateFormat.format(d);	
+		mDateFormat.applyPattern(pattern);
+		return mDateFormat.format(d);	
 	}
 	
 	public String dateFormat(Date d){
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 		if(!getGlobalProperty().getDateFormat().equals(""))
-			dateFormat.applyPattern(getGlobalProperty().getDateFormat());
-		return dateFormat.format(d);	
+			mDateFormat.applyPattern(getGlobalProperty().getDateFormat());
+		return mDateFormat.format(d);	
 	}
 	
 	public String dateTimeFormat(Date d, String pattern){
-		SimpleDateFormat dateTimeFormat = 
-				new SimpleDateFormat(pattern, Locale.getDefault());
-		return dateTimeFormat.format(d);
+		mDateFormat.applyPattern(pattern);
+		return mDateFormat.format(d);
 	}
 	
 	public String dateTimeFormat(Date d){
-		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+		mDateFormat.applyPattern("dd/MM/yyyy HH:mm:ss");
 		if(!getGlobalProperty().getDateFormat().equals("") && 
 				!getGlobalProperty().getTimeFormat().equals(""))
-			dateTimeFormat.applyPattern(getGlobalProperty().getDateFormat() + " " +
+			mDateFormat.applyPattern(getGlobalProperty().getDateFormat() + " " +
 					getGlobalProperty().getTimeFormat());
-		return dateTimeFormat.format(d);
+		return mDateFormat.format(d);
 	}
 	
 	public String timeFormat(Date d){
-		SimpleDateFormat timeFormat = 
-				new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+		mDateFormat.applyPattern("HH:mm:ss");
 		if(!getGlobalProperty().getTimeFormat().equals(""))
-			timeFormat.applyPattern(getGlobalProperty().getTimeFormat());
-		return timeFormat.format(d);
+			mDateFormat.applyPattern(getGlobalProperty().getTimeFormat());
+		return mDateFormat.format(d);
 	}
 	
-	public String qtyFormat(float qty, String pattern){
-		DecimalFormat qtyFormat = new DecimalFormat(pattern);
-		qtyFormat.setRoundingMode(RoundingMode.HALF_UP);
-		return qtyFormat.format(qty);
+	public String qtyFormat(double qty, String pattern){
+		mDecFormat.applyPattern(pattern);
+		return mDecFormat.format(qty);
 	}
 	
-	public String qtyFormat(float qty){
-		DecimalFormat qtyFormat = new DecimalFormat("#,##0.00");
-		qtyFormat.setRoundingMode(RoundingMode.HALF_UP);
-		if(!getGlobalProperty().getQtyFormat().equals(""))
-			qtyFormat.applyPattern(getGlobalProperty().getQtyFormat());
-		return qtyFormat.format(qty);
+	public String qtyFormat(double qty){
+		if(!getGlobalProperty().getQtyFormat().equals("")){
+			mDecFormat.applyPattern(getGlobalProperty().getQtyFormat());
+			return mDecFormat.format(qty);
+		}else{
+			return mNumFormat.format(qty);
+		}
 	}
 	
-	public String currencyFormat(float currency, String pattern){
-		DecimalFormat currencyFormat = new DecimalFormat(pattern);
-		currencyFormat.setRoundingMode(RoundingMode.HALF_UP);
-		return currencyFormat.format(currency);
+	public String currencyFormat(double currency, String pattern){
+		mDecFormat.applyPattern(pattern);
+		return mDecFormat.format(currency);
 	}
 	
-	public String currencyFormat(float currency){
-		DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
-		currencyFormat.setRoundingMode(RoundingMode.HALF_UP);
-		if(!getGlobalProperty().getCurrencyFormat().equals(""))
-			currencyFormat.applyPattern(getGlobalProperty().getCurrencyFormat());
-		return currencyFormat.format(currency);
+	public String currencyFormat(double currency){
+		if(!getGlobalProperty().getCurrencyFormat().equals("")){
+			mDecFormat.applyPattern(getGlobalProperty().getCurrencyFormat());
+			return mDecFormat.format(currency);
+		}else{
+			return mNumFormat.format(currency);
+		}
 	}
 	
 	public ShopData.GlobalProperty getGlobalProperty() {

@@ -94,7 +94,7 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/tableRow2"
+                android:id="@+id/tbRowDiscount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
 

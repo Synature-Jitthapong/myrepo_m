@@ -5,14 +5,14 @@ public class StockProduct {
 	private int proId;
 	private String code;
 	private String name;
-	private float init;
-	private float receive;
-	private float sale;
-	private float variance;
-	private float diff;
-	private float currQty;
-	private float countQty;
-	private float unitPrice;
+	private double init;
+	private double receive;
+	private double sale;
+	private double variance;
+	private double diff;
+	private double currQty;
+	private double countQty;
+	private double unitPrice;
 	private String unitName;
 
 	public StockProduct() {
@@ -35,51 +35,51 @@ public class StockProduct {
 		this.proId = proId;
 	}
 
-	public float getUnitPrice() {
+	public double getUnitPrice() {
 		return unitPrice;
 	}
 
-	public void setUnitPrice(float unitPrice) {
+	public void setUnitPrice(double unitPrice) {
 		this.unitPrice = unitPrice;
 	}
 
-	public float getInit() {
+	public double getInit() {
 		return init;
 	}
 
-	public void setInit(float init) {
+	public void setInit(double init) {
 		this.init = init;
 	}
 
-	public float getReceive() {
+	public double getReceive() {
 		return receive;
 	}
 
-	public void setReceive(float receive) {
+	public void setReceive(double receive) {
 		this.receive = receive;
 	}
 
-	public float getSale() {
+	public double getSale() {
 		return sale;
 	}
 
-	public void setSale(float sale) {
+	public void setSale(double sale) {
 		this.sale = sale;
 	}
 
-	public float getVariance() {
+	public double getVariance() {
 		return variance;
 	}
 
-	public void setVariance(float variance) {
+	public void setVariance(double variance) {
 		this.variance = variance;
 	}
 
-	public float getDiff() {
+	public double getDiff() {
 		return diff;
 	}
 
-	public void setDiff(float diff) {
+	public void setDiff(double diff) {
 		this.diff = diff;
 	}
 
@@ -107,19 +107,19 @@ public class StockProduct {
 		this.name = name;
 	}
 
-	public float getCurrQty() {
+	public double getCurrQty() {
 		return currQty;
 	}
 
-	public void setCurrQty(float currQty) {
+	public void setCurrQty(double currQty) {
 		this.currQty = currQty;
 	}
 
-	public float getCountQty() {
+	public double getCountQty() {
 		return countQty;
 	}
 
-	public void setCountQty(float countQty) {
+	public void setCountQty(double countQty) {
 		this.countQty = countQty;
 	}
 }

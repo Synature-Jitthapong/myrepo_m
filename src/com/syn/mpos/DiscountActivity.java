@@ -38,18 +38,16 @@ import android.content.Intent;
 
 public class DiscountActivity extends Activity implements OnEditorActionListener, 
 	OnCheckedChangeListener, OnFocusChangeListener, OnClickListener{
-	private static final String TAG = "DiscountActivity";
-	
+
 	private int mTransactionId;
 	private int mComputerId;
 	private int mPosition = -1;
 	private int mDiscountType = 1;
-	private float mDiscount = 0.0f;
-	private float mTotalPrice = 0.0f;
+	private double mDiscount = 0.0f;
+	private double mTotalPrice = 0.0f;
 
 	private DiscountAdapter mDisAdapter;
 	private boolean mIsEdited = false;
-
 	private GlobalProperty mGlobalProp;
 	private Transaction mTransaction;
 	private OrderTransaction.OrderDetail mOrder;
@@ -168,7 +166,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 				mDiscount = mOrder.getTotalRetailPrice() * mDiscount / 100;
 			}
 				
-			float totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - mDiscount;
+			double totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - mDiscount;
 			
 			mTransaction.discountEatchProduct(mOrder.getOrderDetailId(), 
 					mTransactionId, mComputerId,
@@ -251,11 +249,11 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	}
 
 	private void summary() {
-		float subTotal = mTransaction.getTotalRetailPrice(mTransactionId, mComputerId, true);
-		float totalVatExclude = mTransaction.getTotalVatExclude(mTransactionId, mComputerId, true);
-		float totalDiscount = mTransaction.getPriceDiscount(mTransactionId, mComputerId, true); 
+		double subTotal = mTransaction.getDisocuntTotalRetailPrice(mTransactionId, mComputerId);
+		double totalVatExclude = mTransaction.getDiscountTotalVatExclude(mTransactionId, mComputerId);
+		double totalDiscount = mTransaction.getDiscountPriceDiscount(mTransactionId, mComputerId); 
 				
-		mTotalPrice = mTransaction.getTotalSalePrice(mTransactionId, mComputerId, true) + 
+		mTotalPrice = mTransaction.getDiscountTotalSalePrice(mTransactionId, mComputerId) + 
 				totalVatExclude;
 		
 		if(totalVatExclude > 0)
@@ -327,7 +325,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 		if (EditorInfo.IME_ACTION_DONE == actionId) {
-			float discount = 0.0f;
+			double discount = 0.0f;
 			try {
 				discount = Float.parseFloat(v.getText().toString());
 			} catch (NumberFormatException e) {

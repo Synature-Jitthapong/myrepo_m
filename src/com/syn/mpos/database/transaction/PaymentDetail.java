@@ -58,7 +58,7 @@ public class PaymentDetail extends MPOSDatabase {
 	}
 
 	public boolean addPaymentDetail(int transactionId,
-			int computerId, int payTypeId, float payAmount,
+			int computerId, int payTypeId, double payAmount,
 			String creditCardNo, int expireMonth, 
 			int expireYear, int bankId,int creditCardTypeId) throws SQLException {
 		boolean isSuccess = false;
@@ -85,7 +85,7 @@ public class PaymentDetail extends MPOSDatabase {
 	}
 
 	public boolean updatePaymentDetail(int transactionId, int computerId, int payTypeId,
-			float paymentAmount, String creditCardNo, int expireMonth,
+			double paymentAmount, String creditCardNo, int expireMonth,
 			int expireYear, int bankId, int creditCardTypeId) throws SQLException {
 		boolean isSuccess = false;
 		try {
@@ -119,8 +119,8 @@ public class PaymentDetail extends MPOSDatabase {
 		return isSuccess;
 	}
 	
-	public float getTotalPaid(int transactionId, int computerId){
-		float totalPaid = 0.0f;
+	public double getTotalPaid(int transactionId, int computerId){
+		double totalPaid = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + COL_PAY_AMOUNT + ") " +
 				" FROM " + TB_PAYMENT +

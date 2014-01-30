@@ -178,8 +178,8 @@ public class Products extends MPOSDatabase {
 		return pLst;
 	}
 
-	public float getVatRate(int productId){
-		float vatRate = 0.0f;
+	public double getVatRate(int productId){
+		double vatRate = 0.0f;
 		Cursor cursor = queryProduct(new String[]{COL_VAT_RATE}, COL_PRODUCT_ID + "=?", 
 				new String[]{String.valueOf(productId)});
 		if(cursor.moveToFirst()){
@@ -359,12 +359,12 @@ public class Products extends MPOSDatabase {
 		private String productBarCode;
 		private String productName;
 		private int productTypeId;
-		private float productPrice;
+		private double productPrice;
 		private String productUnitName;
 		private String productDesc;
 		private int discountAllow;
 		private int vatType;
-		private float vatRate;
+		private double vatRate;
 		private int hasServiceCharge;
 		private String imgUrl;
 		
@@ -410,10 +410,10 @@ public class Products extends MPOSDatabase {
 		public void setProductTypeId(int productTypeId) {
 			this.productTypeId = productTypeId;
 		}
-		public float getProductPrice() {
+		public double getProductPrice() {
 			return productPrice;
 		}
-		public void setProductPrice(float productPrice) {
+		public void setProductPrice(double productPrice) {
 			this.productPrice = productPrice;
 		}
 		public String getProductUnitName() {
@@ -440,10 +440,10 @@ public class Products extends MPOSDatabase {
 		public void setVatType(int vatType) {
 			this.vatType = vatType;
 		}
-		public float getVatRate() {
+		public double getVatRate() {
 			return vatRate;
 		}
-		public void setVatRate(float vatRate) {
+		public void setVatRate(double vatRate) {
 			this.vatRate = vatRate;
 		}
 		public int getHasServiceCharge() {

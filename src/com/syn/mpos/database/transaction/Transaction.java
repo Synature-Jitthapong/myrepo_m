@@ -1,9 +1,11 @@
 package com.syn.mpos.database.transaction;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -136,8 +138,8 @@ public class Transaction extends MPOSDatabase {
 		return trans;
 	}
 
-	public float getMemberDiscount(int transactionId, int computerId, boolean tempTable){
-		float memberDiscount = 0.0f;
+	public double getMemberDiscount(int transactionId, int computerId, boolean tempTable){
+		double memberDiscount = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + COL_MEMBER_DISCOUNT + ")" +
 				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
@@ -152,8 +154,8 @@ public class Transaction extends MPOSDatabase {
 		return memberDiscount;
 	}
 	
-	public float getOtherDiscount(int transactionId, int computerId){
-		float otherDiscount = 0.0f;
+	public double getOtherDiscount(int transactionId, int computerId){
+		double otherDiscount = 0.0f;
 		Cursor cursor = mSqlite.query(TB_TRANS, new String[]{COL_OTHER_DISCOUNT}, 
 				COL_TRANS_ID + "=? AND " + 
 				Computer.COL_COMPUTER_ID + "=?", 
@@ -166,8 +168,44 @@ public class Transaction extends MPOSDatabase {
 		return otherDiscount;
 	}
 	
-	public float getTransactionVatable(int transactionId, int computerId){
-		float transVatable = 0.0f;
+	public String getReceiptNo(int transactionId, int computerId){
+		String receiptNo = "";
+		Cursor cursor = mSqlite.query(TB_TRANS, 
+				new String[]{
+					COL_RECEIPT_NO
+				},
+				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(computerId)
+				}, null, null, null);
+		if(cursor.moveToFirst()){
+			receiptNo = cursor.getString(0);
+		}
+		cursor.close();
+		return receiptNo;
+	}
+	
+	public double getTransactionVatExclude(int transactionId, int computerId){
+		double transVatExclude = 0.0f;
+		Cursor cursor = mSqlite.query(TB_TRANS, 
+				new String[]{
+					COL_TRANS_EXCLUDE_VAT
+				},
+				COL_TRANS_ID + "=? AND " + Computer.COL_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(computerId)
+				}, null, null, null);
+		if(cursor.moveToFirst()){
+			transVatExclude = cursor.getFloat(0);
+		}
+		cursor.close();
+		return transVatExclude;
+	}
+	
+	public double getTransactionVatable(int transactionId, int computerId){
+		double transVatable = 0.0f;
 		Cursor cursor = mSqlite.query(TB_TRANS, 
 				new String[]{
 					COL_TRANS_VATABLE
@@ -184,8 +222,8 @@ public class Transaction extends MPOSDatabase {
 		return transVatable;
 	}
 	
-	public float getTransactionVat(int transactionId, int computerId){
-		float transVat = 0.0f;
+	public double getTransactionVat(int transactionId, int computerId){
+		double transVat = 0.0f;
 		Cursor cursor = mSqlite.query(TB_TRANS, 
 				new String[]{
 					COL_TRANS_VAT
@@ -202,15 +240,17 @@ public class Transaction extends MPOSDatabase {
 		return transVat;
 	}
 	
-	public float getPriceDiscount(int transactionId, int computerId, boolean tempTable){
-		float priceDiscount = 0.0f;
+	public double getDiscountPriceDiscount(int transactionId, int computerId){
+		double priceDiscount = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + COL_PRICE_DISCOUNT + ")" +
-				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
-				" WHERE " + COL_TRANS_ID + "=? AND " +
-				Computer.COL_COMPUTER_ID + "=? ",
-				new String[]{String.valueOf(transactionId), 
-					String.valueOf(computerId)});
+				" FROM " + TB_ORDER_TMP +
+				" WHERE " + COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
 		if(cursor.moveToFirst()){
 			priceDiscount = cursor.getFloat(0);
 		}
@@ -218,15 +258,35 @@ public class Transaction extends MPOSDatabase {
 		return priceDiscount;
 	}
 	
-	public float getTotalVatExclude(int transactionId, int computerId, boolean tempTable){
-		float totalVat = 0.0f;
+	public double getPriceDiscount(int transactionId, int computerId){
+		double priceDiscount = 0.0f;
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_PRICE_DISCOUNT + ")" +
+				" FROM " + TB_ORDER +
+				" WHERE " + COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
+		if(cursor.moveToFirst()){
+			priceDiscount = cursor.getFloat(0);
+		}
+		cursor.close();
+		return priceDiscount;
+	}
+	
+	public double getDiscountTotalVatExclude(int transactionId, int computerId){
+		double totalVat = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + COL_TOTAL_VAT_EXCLUDE + ")" +
-				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
-				" WHERE " + COL_TRANS_ID + "=? AND " +
-				Computer.COL_COMPUTER_ID + "=? ", 
-				new String[]{String.valueOf(transactionId), 
-					String.valueOf(computerId)});
+				" FROM " + TB_ORDER_TMP +
+				" WHERE " + COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=? ", 
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
 		if(cursor.moveToFirst()){
 			totalVat = cursor.getFloat(0);
 		}
@@ -234,15 +294,35 @@ public class Transaction extends MPOSDatabase {
 		return totalVat;
 	}
 	
-	public float getTotalVat(int transactionId, int computerId, boolean tempTable){
-		float totalVat = 0.0f;
+	public double getTotalVatExclude(int transactionId, int computerId){
+		double totalVat = 0.0f;
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_TOTAL_VAT_EXCLUDE + ")" +
+				" FROM " + TB_ORDER +
+				" WHERE " + COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=? ", 
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
+		if(cursor.moveToFirst()){
+			totalVat = cursor.getFloat(0);
+		}
+		cursor.close();
+		return totalVat;
+	}
+	
+	public double getDiscountTotalVat(int transactionId, int computerId){
+		double totalVat = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + COL_TOTAL_VAT + ")" +
-				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
-				" WHERE " + COL_TRANS_ID + "=? AND " +
-				Computer.COL_COMPUTER_ID + "=? ",
-				new String[]{String.valueOf(transactionId), 
-					String.valueOf(computerId)});
+				" FROM " + TB_ORDER_TMP +
+				" WHERE " + COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
 		if(cursor.moveToFirst()){
 			totalVat = cursor.getFloat(0);
 		}
@@ -250,15 +330,35 @@ public class Transaction extends MPOSDatabase {
 		return totalVat;
 	}
 	
-	public float getTotalSalePrice(int transactionId, int computerId, boolean tempTable){
-		float totalSalePrice = 0.0f;
+	public double getTotalVat(int transactionId, int computerId){
+		double totalVat = 0.0f;
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_TOTAL_VAT + ")" +
+				" FROM " + TB_ORDER +
+				" WHERE " + COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
+		if(cursor.moveToFirst()){
+			totalVat = cursor.getFloat(0);
+		}
+		cursor.close();
+		return totalVat;
+	}
+	
+	public double getDiscountTotalSalePrice(int transactionId, int computerId){
+		double totalSalePrice = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + COL_TOTAL_SALE_PRICE + ")" +
-				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
-				" WHERE " + COL_TRANS_ID + "=? AND " +
-				Computer.COL_COMPUTER_ID + "=? ",
-				new String[]{String.valueOf(transactionId), 
-					String.valueOf(computerId)});
+				" FROM " + TB_ORDER_TMP +
+				" WHERE " + COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
 		if(cursor.moveToFirst()){
 			totalSalePrice = cursor.getFloat(0);
 		}
@@ -266,15 +366,53 @@ public class Transaction extends MPOSDatabase {
 		return totalSalePrice;
 	}
 	
-	public float getTotalRetailPrice(int transactionId, int computerId, boolean tempTable){
-		float totalRetailPrice = 0.0f;
+	public double getTotalSalePrice(int transactionId, int computerId){
+		double totalSalePrice = 0.0f;
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_TOTAL_SALE_PRICE + ")" +
+				" FROM " + TB_ORDER +
+				" WHERE " + COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
+		if(cursor.moveToFirst()){
+			totalSalePrice = cursor.getFloat(0);
+		}
+		cursor.close();
+		return totalSalePrice;
+	}
+	
+	public double getDisocuntTotalRetailPrice(int transactionId, int computerId){
+		double totalRetailPrice = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + COL_TOTAL_RETAIL_PRICE + ")" +
-				" FROM " + (tempTable == true ? TB_ORDER_TMP : TB_ORDER) +
-				" WHERE " + COL_TRANS_ID + "=? AND " +
-				Computer.COL_COMPUTER_ID + "=? ",
-				new String[]{String.valueOf(transactionId), 
-					String.valueOf(computerId)});
+				" FROM " + TB_ORDER_TMP +
+				" WHERE " + COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
+		if(cursor.moveToFirst()){
+			totalRetailPrice = cursor.getFloat(0);
+		}
+		cursor.close();
+		return totalRetailPrice;
+	}
+	
+	public double getTotalRetailPrice(int transactionId, int computerId){
+		double totalRetailPrice = 0.0f;
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_TOTAL_RETAIL_PRICE + ")" +
+				" FROM " + TB_ORDER +
+				" WHERE " + COL_TRANS_ID + "=? " +
+				" AND " + Computer.COL_COMPUTER_ID + "=? ",
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
 		if(cursor.moveToFirst()){
 			totalRetailPrice = cursor.getFloat(0);
 		}
@@ -282,6 +420,24 @@ public class Transaction extends MPOSDatabase {
 		return totalRetailPrice;
 	}
 
+	public int getTotalQty(int transactionId, int computerId){
+		int totalQty = 0;
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT SUM(" + COL_ORDER_QTY + ") " +
+				" FROM " + TB_ORDER + 
+				" WHERE " + COL_TRANS_ID + "=?" +
+				" AND " + Computer.COL_COMPUTER_ID + "=?",
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(computerId)
+				});
+		if(cursor.moveToFirst()){
+			totalQty = cursor.getInt(0);
+		}
+		cursor.close();
+		return totalQty;
+	}
+	
 	public OrderTransaction.OrderDetail getOrder(int transactionId,
 			int computerId, int orderDetailId) {
 		OrderTransaction.OrderDetail orderDetail = new OrderTransaction.OrderDetail();
@@ -697,14 +853,15 @@ public class Transaction extends MPOSDatabase {
 				});
 	}
 	
-	public boolean updateTransactionVat(int transactionId, int computerId, float totalSalePrice) {
+	public boolean updateTransactionVat(int transactionId, int computerId, double totalSalePrice) {
 		boolean isSuccess = false;
-		float totalVat = getTotalVat(transactionId, computerId, false);
-		float totalVatExclude = getTotalVatExclude(transactionId, computerId, false);
+		double totalVat = getTotalVat(transactionId, computerId);
+		double totalVatExclude = getTotalVatExclude(transactionId, computerId);
+		double totalVatable = totalSalePrice + totalVatExclude;
 		
 		ContentValues cv = new ContentValues();
 		cv.put(COL_TRANS_VAT, totalVat + totalVatExclude);
-		cv.put(COL_TRANS_VATABLE, totalSalePrice + totalVatExclude);
+		cv.put(COL_TRANS_VATABLE, totalVatable);
 		cv.put(COL_TRANS_EXCLUDE_VAT, totalVatExclude);
 		
 		int affectedRow = mSqlite.update(TB_TRANS, cv, 
@@ -743,7 +900,7 @@ public class Transaction extends MPOSDatabase {
 		return isSuccess;
 	}
 
-	public boolean otherDiscount(int transactionId, int computerId, float discount){
+	public boolean otherDiscount(int transactionId, int computerId, double discount){
 		boolean isSuccess = false;
 		ContentValues cv = new ContentValues();
 		cv.put(COL_OTHER_DISCOUNT, discount);
@@ -763,10 +920,10 @@ public class Transaction extends MPOSDatabase {
 	}
 	
 	public boolean discountEatchProduct(int orderDetailId, int transactionId,
-			int computerId, int vatType, float vatRate, 
-			float salePrice, float discount, int discountType) {
+			int computerId, int vatType, double vatRate, 
+			double salePrice, double discount, int discountType) {
 		boolean isSuccess = false;
-		float vat = Util.calculateVat(salePrice, vatRate);
+		double vat = Util.calculateVat(salePrice, vatRate);
 		try {
 			ContentValues cv = new ContentValues();
 			cv.put(COL_PRICE_DISCOUNT, discount);
@@ -863,11 +1020,11 @@ public class Transaction extends MPOSDatabase {
 	}
 
 	public boolean updateOrderDetail(int transactionId, int computerId,
-			int orderDetailId, int vatType, float vatRate, float orderQty, 
-			float pricePerUnit) {
+			int orderDetailId, int vatType, double vatRate, double orderQty, 
+			double pricePerUnit) {
 		boolean isSuccess = false;
-		float totalRetailPrice = pricePerUnit * orderQty;
-		float vat = Util.calculateVat(totalRetailPrice, vatRate);
+		double totalRetailPrice = pricePerUnit * orderQty;
+		double vat = Util.calculateVat(totalRetailPrice, vatRate);
 		
 		ContentValues cv = new ContentValues();
 		cv.put(COL_ORDER_QTY, orderQty);
@@ -897,12 +1054,12 @@ public class Transaction extends MPOSDatabase {
 	}
 
 	public int addOrderDetail(int transactionId, int computerId, int productId,
-			int productType, int vatType, float vatRate, float orderQty,
-			float pricePerUnit) throws SQLException {
+			int productType, int vatType, double vatRate, double orderQty,
+			double pricePerUnit) throws SQLException {
 		
 		int orderDetailId = getMaxOrderDetail(transactionId, computerId);
-		float totalRetailPrice = pricePerUnit * orderQty;
-		float vat = Util.calculateVat(totalRetailPrice, vatRate);
+		double totalRetailPrice = pricePerUnit * orderQty;
+		double vat = Util.calculateVat(totalRetailPrice, vatRate);
 		
 		ContentValues cv = new ContentValues();
 		cv.put(COL_ORDER_ID, orderDetailId);
@@ -986,8 +1143,8 @@ public class Transaction extends MPOSDatabase {
 		return totalReceipt;
 	}
 	
-	public float getTotalReceiptAmount(String sessionDate){
-		float totalReceiptAmount = 0.0f;
+	public double getTotalReceiptAmount(String sessionDate){
+		double totalReceiptAmount = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				"SELECT SUM (" + Transaction.COL_TRANS_VATABLE + ") "
 						+ " FROM " + Transaction.TB_TRANS 

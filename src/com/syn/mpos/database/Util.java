@@ -41,12 +41,12 @@ public class Util {
 		return format;
 	}
 	
-	public static float calculateVat(float totalPrice, float vatRate){
-		float vatAmount = totalPrice * toVatPercent(vatRate);
+	public static double calculateVat(double totalPrice, double vatRate){
+		double vatAmount = totalPrice * toVatPercent(vatRate);
 		return vatAmount;
 	}
 	
-	public static float toVatPercent(float vatRate){
+	public static double toVatPercent(double vatRate){
 		return vatRate / 100;
 	}
 }

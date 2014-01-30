@@ -39,7 +39,7 @@ import android.widget.TextView;
 
 public class PaymentActivity extends Activity  implements OnClickListener {
 	//private final String TAG = "PaymentActivity";
-	private float mTotalSalePrice;
+	private double mTotalSalePrice;
 	private int mTransactionId;
 	private int mComputerId;
 	private int mStaffId;
@@ -49,10 +49,10 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	private PaymentAdapter mPaymentAdapter;
 	
 	private StringBuilder mStrTotalPay;
-	private float mTotalPay;
-	private float mTotalPaid;
-	private float mPaymentLeft;
-	private float mChange;
+	private double mTotalPay;
+	private double mTotalPaid;
+	private double mPaymentLeft;
+	private double mChange;
 	
 	private ListView mLvPayment;
 	private Button mBtnCash;
@@ -131,10 +131,8 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 		}
 	}
 	
-	private void summary(){
-		float vatExclude = mTransaction.getTotalVatExclude(mTransactionId, mComputerId, false); 
-		mTotalSalePrice = mTransaction.getTotalSalePrice(mTransactionId, mComputerId, false) + 
-				vatExclude;
+	private void summary(){ 
+		mTotalSalePrice = mTransaction.getTransactionVatable(mTransactionId, mComputerId);
 		displayTotalPrice();
 	}
 	
@@ -358,8 +356,16 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 					mComputerId, mStaffId)){
 				
 				mChange = mTotalPaid - mTotalSalePrice;
-				PrintReceipt printReceipt = new PrintReceipt();
-				printReceipt.printReceipt(mTransactionId, mComputerId);
+				
+				new Handler().post(new Runnable(){
+
+					@Override
+					public void run() {
+						PrintReceipt printReceipt = new PrintReceipt();
+						printReceipt.printReceipt(mTransactionId, mComputerId);
+					}
+					
+				});
 				
 				// send real time sale
 				new Handler().post(new Runnable(){

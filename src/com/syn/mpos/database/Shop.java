@@ -33,6 +33,19 @@ public class Shop extends MPOSDatabase{
 		super(db);
 	}
 	
+	public double getCompanyVatRate(){
+		double vatRate = 7;
+		Cursor cursor = mSqlite.query(TB_SHOP, 
+				new String[]{
+					COL_VAT
+				}, null, null, null, null, null);
+		if(cursor.moveToFirst()){
+			vatRate = cursor.getFloat(0);
+		}
+		cursor.close();
+		return vatRate;
+	}
+	
 	public ShopData.ShopProperty getShopProperty(){
 		ShopData.ShopProperty sp = 
 				new ShopData.ShopProperty();

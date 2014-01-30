@@ -90,6 +90,6 @@ public class MenuPageFragment extends Fragment {
 	}
 
 	public interface OnMenuItemClick{
-		void onClick(int productId, int productTypeId, int vatType, float vatRate, float productPrice);
+		void onClick(int productId, int productTypeId, int vatType, double vatRate, double productPrice);
 	}
 }

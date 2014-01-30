@@ -92,7 +92,7 @@ public class ImageViewPinchZoom extends DialogFragment{
         mAttacher.setOnMatrixChangeListener(mMaListener);
         PhotoTapListener mPhotoTap = new PhotoTapListener();
         mAttacher.setOnPhotoTapListener(mPhotoTap);
-	        
+        
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setView(menuImgView);
 		return builder.create();

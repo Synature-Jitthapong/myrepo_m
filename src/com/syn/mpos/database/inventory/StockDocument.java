@@ -209,7 +209,7 @@ public abstract class StockDocument extends MPOSDatabase {
 	}
 
 	public int addDocumentDetail(int documentId, int shopId, int productId,
-			float productQty, float productPrice, 
+			double productQty, double productPrice, 
 			String unitName, String remark) throws SQLException {
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
 		ContentValues cv = new ContentValues();
@@ -231,7 +231,7 @@ public abstract class StockDocument extends MPOSDatabase {
 	}
 	
 	public int addDocumentDetail(int documentId, int shopId, int productId,
-			float productQty, float productPrice, String unitName) throws SQLException {
+			double productQty, double productPrice, String unitName) throws SQLException {
 		int docDetailId = getMaxDocumentDetail(documentId, shopId);
 		ContentValues cv = new ContentValues();
 		cv.put(COL_DOC_DETAIL_ID, docDetailId);
@@ -252,7 +252,7 @@ public abstract class StockDocument extends MPOSDatabase {
 	}
 
 	public boolean updateDocumentDetail(int docDetailId, int documentId,
-			int shopId, int productId, float productQty, float productPrice,
+			int shopId, int productId, double productQty, double productPrice,
 			String unitName) throws SQLException {
 		boolean isSuccess = false;
 		try {

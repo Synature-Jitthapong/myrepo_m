@@ -36,7 +36,7 @@ public class Session extends Transaction{
 	}
 
 	public boolean closeShift(int sessionId, int computerId, int closeStaffId,
-			float closeAmount, boolean isEndday) {
+			double closeAmount, boolean isEndday) {
 		boolean isSuccess = false;
 		isSuccess = closeSession(sessionId, computerId, closeStaffId,
 				closeAmount, isEndday);
@@ -94,7 +94,7 @@ public class Session extends Transaction{
 	}
 
 	public int addSession(int shopId, int computerId, int openStaffId,
-			float openAmount) throws SQLException{
+			double openAmount) throws SQLException{
 		int sessionId = getMaxSessionId(shopId, computerId);
 		Calendar date = Util.getDate();
 		Calendar dateTime = Util.getDateTime();
@@ -118,7 +118,7 @@ public class Session extends Transaction{
 	}
 
 	public boolean addSessionEnddayDetail(String sessionDate,
-			float totalQtyReceipt, float totalAmountReceipt) throws SQLException {
+			double totalQtyReceipt, double totalAmountReceipt) throws SQLException {
 		boolean isSuccess = false;
 		Calendar dateTime = Util.getDateTime();
 
@@ -135,7 +135,7 @@ public class Session extends Transaction{
 	}
 
 	public boolean closeSession(int sessionId, int computerId,
-			int closeStaffId, float closeAmount, boolean isEndday){
+			int closeStaffId, double closeAmount, boolean isEndday){
 		boolean isSuccess = false;
 		Calendar dateTime = Util.getDateTime();
 		ContentValues cv = new ContentValues();

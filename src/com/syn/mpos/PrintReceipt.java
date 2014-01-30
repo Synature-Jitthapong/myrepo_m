@@ -8,6 +8,7 @@ import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.database.HeaderFooterReceipt;
+import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Util;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Transaction;
@@ -17,9 +18,11 @@ import com.syn.pos.ShopData;
 public class PrintReceipt implements BatteryStatusChangeEventListener, StatusChangeEventListener{
 	private Print mPrinter;
 	private Transaction mTrans;
+	private Shop mShop;
 	private PaymentDetail mPayment;
 	
 	public PrintReceipt(){
+		mShop = new Shop(MPOSApplication.getReadDatabase());
 		mTrans = new Transaction(MPOSApplication.getWriteDatabase());
 		mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
 		mPrinter = new Print(MPOSApplication.getContext());
@@ -48,27 +51,28 @@ public class PrintReceipt implements BatteryStatusChangeEventListener, StatusCha
 	}
 	
 	public void printReceipt(int transactionId, int computerId){
-		OrderTransaction orderTrans = mTrans.getTransaction(transactionId, computerId);
-		float totalRetailPrice = mTrans.getTotalRetailPrice(transactionId, computerId, false);
-		float discount = mTrans.getPriceDiscount(transactionId, computerId, false);
-		float totalPay = mPayment.getTotalPaid(transactionId, computerId);
-		float totalSalePrice = mTrans.getTotalSalePrice(transactionId, computerId, false);
-		float change = totalSalePrice - totalPay;
-		float transactionVat = mTrans.getTransactionVat(transactionId, computerId);
-		float transactionVatable = mTrans.getTransactionVatable(transactionId, computerId);
-		float beforVat = transactionVatable - transactionVat;
+		double vatRate = mShop.getCompanyVatRate();
+		double transactionVat = mTrans.getTransactionVat(transactionId, computerId);
+		double transactionVatExclude = mTrans.getTransactionVatExclude(transactionId, computerId);
+		double transactionVatable = mTrans.getTransactionVatable(transactionId, computerId);
+		double totalRetailPrice = mTrans.getTotalRetailPrice(transactionId, computerId);
+		double totalDiscount = mTrans.getPriceDiscount(transactionId, computerId);
+		double totalSalePrice = mTrans.getTotalSalePrice(transactionId, computerId) + transactionVatExclude;
+		double totalPaid = mPayment.getTotalPaid(transactionId, computerId);
+		double change = totalPaid - totalSalePrice;
+		double beforVat = transactionVatable - transactionVat - transactionVatExclude;
 		
 		try {
 			mPrinter.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(), 0, 1000);	
 			Builder builder = new Builder(MPOSApplication.getPrinterName(), Builder.MODEL_ANK, 
 					MPOSApplication.getContext());
 			
-			builder.addTextLang(Builder.LANG_TH);
+			//builder.addTextLang(Builder.LANG_TH);
 			builder.addTextFont(Builder.FONT_B); //b
 			builder.addTextAlign(Builder.ALIGN_CENTER);
 			builder.addTextSize(1, 1);
-			builder.addTextStyle(Builder.FALSE, Builder.FALSE, Builder.FALSE, Builder.COLOR_1);
-
+			//builder.addTextStyle(Builder.FALSE, Builder.FALSE, Builder.FALSE, Builder.COLOR_1);
+			//builder.addText("\nไก่จิกเด็กตายบนปากโอ่ง\n");
 			// add header
 			HeaderFooterReceipt headerFooter = new HeaderFooterReceipt(MPOSApplication.getWriteDatabase());
 			for(ShopData.HeaderFooterReceipt hf : 
@@ -76,10 +80,13 @@ public class PrintReceipt implements BatteryStatusChangeEventListener, StatusCha
 				builder.addText(hf.getTextInLine());
 				builder.addText("\n");
 			}
-			builder.addText(MPOSApplication.getContext().getString(R.string.date) + " ");
-			builder.addText(MPOSApplication.getGlobalProperty().dateFormat(Util.getDate().getTime()) + "\n");
-			builder.addText(MPOSApplication.getContext().getString(R.string.receipt_no) + " ");
-			builder.addText(orderTrans.getReceiptNo());
+			
+			String saleDate = MPOSApplication.getContext().getString(R.string.date) + " " +
+					MPOSApplication.getGlobalProperty().dateFormat(Util.getDate().getTime());
+			String receiptNo = MPOSApplication.getContext().getString(R.string.receipt_no) + " " +
+					mTrans.getReceiptNo(transactionId, computerId);
+			builder.addText(saleDate + createLineSpace(saleDate.length()) + "\n");
+			builder.addText(receiptNo + createLineSpace(receiptNo.length()));
 			builder.addText("\n" + createLine("=") + "\n");
 			
 			List<OrderTransaction.OrderDetail> orderLst = 
@@ -105,60 +112,72 @@ public class PrintReceipt implements BatteryStatusChangeEventListener, StatusCha
 	    	String itemText = MPOSApplication.getContext().getString(R.string.items) + ": ";
 	    	String totalText = MPOSApplication.getContext().getString(R.string.total);
 	    	String paymentText = MPOSApplication.getContext().getString(R.string.pay);
-	    	String changeText = MPOSApplication.getContext().getString(R.string.change);
+	    	String changeText = MPOSApplication.getContext().getString(R.string.change) + " ";
 	    	String beforeVatText = MPOSApplication.getContext().getString(R.string.before_vat);
 	    	String discountText = MPOSApplication.getContext().getString(R.string.discount);
-	    	String vatPercentText = MPOSApplication.getContext().getString(R.string.vat) + " 7%";
+	    	String vatRateText = MPOSApplication.getContext().getString(R.string.vat) + String.valueOf(vatRate) + "%";
 	    	
-	    	String totalRetail = MPOSApplication.getGlobalProperty().currencyFormat(totalRetailPrice);
-	    	String totalPrice = MPOSApplication.getGlobalProperty().currencyFormat(totalSalePrice);
-	    	String totalDiscount = MPOSApplication.getGlobalProperty().currencyFormat(
-	    			mTrans.getPriceDiscount(transactionId, computerId, false));
-	    	String totalPayment = MPOSApplication.getGlobalProperty().currencyFormat(
+	    	String strTotalRetailPrice = MPOSApplication.getGlobalProperty().currencyFormat(totalRetailPrice);
+	    	String strTotalSalePrice = MPOSApplication.getGlobalProperty().currencyFormat(totalSalePrice);
+	    	String strTotalDiscount = "-" + MPOSApplication.getGlobalProperty().currencyFormat(
+	    			mTrans.getPriceDiscount(transactionId, computerId));
+	    	String strTotalPaid = MPOSApplication.getGlobalProperty().currencyFormat(
 	    			mPayment.getTotalPaid(transactionId, computerId));
-	    	String totalChange = MPOSApplication.getGlobalProperty().currencyFormat(change);
-	    	String priceBeforeVat = MPOSApplication.getGlobalProperty().currencyFormat(beforVat);
-	    	String transVat = MPOSApplication.getGlobalProperty().currencyFormat(transactionVat);
+	    	String strTotalChange = MPOSApplication.getGlobalProperty().currencyFormat(change);
+	    	String strBeforeVat = MPOSApplication.getGlobalProperty().currencyFormat(beforVat);
+	    	String strTransactionVat = MPOSApplication.getGlobalProperty().currencyFormat(transactionVat);
 	    	
 	    	// total item
-	    	String itemCount = String.valueOf(orderLst.size());
+	    	String strTotalQty = String.valueOf(mTrans.getTotalQty(transactionId, computerId));
 	    	builder.addText(itemText);
-	    	builder.addText(itemCount);
-	    	builder.addText(createLineSpace(itemText.length() + itemCount.length() + totalRetail.length()));
-	    	builder.addText(totalRetail + "\n");
+	    	builder.addText(strTotalQty);
+	    	builder.addText(createLineSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
+	    	builder.addText(strTotalRetailPrice + "\n");
 	    	
 	    	// total discount
-	    	if(discount > 0){
+	    	if(totalDiscount > 0){
 		    	builder.addText(discountText);
-		    	builder.addText(createLineSpace(discountText.length() + totalDiscount.length()));
-		    	builder.addText(totalDiscount + "\n");
+		    	builder.addText(createLineSpace(discountText.length() + strTotalDiscount.length()));
+		    	builder.addText(strTotalDiscount + "\n");
 	    	}
 	    	
 	    	// total price
 	    	builder.addText(totalText);
-	    	builder.addText(createLineSpace(totalText.length() + totalPrice.length()));
-	    	builder.addText(totalPrice + "\n");
+	    	builder.addText(createLineSpace(totalText.length() + strTotalSalePrice.length()));
+	    	builder.addText(strTotalSalePrice + "\n");
 
 	    	// total payment
 	    	builder.addText(paymentText);
 	    	if(change > 0){
-		    	builder.addText(totalPayment);
+		    	builder.addText(strTotalPaid);
+	    		builder.addText(createLineSpace(paymentText.length() + strTotalPaid.length() + changeText.length() + strTotalChange.length()));
 		    	builder.addText(changeText);
-	    		builder.addText(createLineSpace(paymentText.length() + totalPayment.length() + changeText.length() + totalChange.length()));
-	    		builder.addText(totalChange);
+		    	builder.addText(strTotalChange);
 	    	}else{
-	    		builder.addText(createLineSpace(paymentText.length() + totalPayment.length()));
-		    	builder.addText(totalPayment);
+	    		builder.addText(createLineSpace(paymentText.length() + strTotalPaid.length()));
+		    	builder.addText(strTotalPaid);
 	    	}
 		    builder.addText("\n" + createLine("=") + "\n");
 		    
+		    // before vat
 		    builder.addText(beforeVatText);
-		    builder.addText(createLineSpace(beforeVatText.length() + priceBeforeVat.length()));
-		    builder.addText(priceBeforeVat + "\n");
+		    builder.addText(createLineSpace(beforeVatText.length() + strBeforeVat.length()));
+		    builder.addText(strBeforeVat + "\n");
 		    
-	    	builder.addText(vatPercentText);
-	    	builder.addText(createLineSpace(vatPercentText.length() + transVat.length()));
-	    	builder.addText(transVat + "\n");
+		    // transaction vat
+	    	builder.addText(vatRateText);
+	    	builder.addText(createLineSpace(vatRateText.length() + strTransactionVat.length()));
+	    	builder.addText(strTransactionVat + "\n");
+	    	
+	    	// transaction exclude vat
+	    	if(transactionVatExclude > 0){
+	    		String vatExcludeText = MPOSApplication.getContext().getString(R.string.vat_exclude);
+	    		String strVatExclude = MPOSApplication.getGlobalProperty().currencyFormat(transactionVatExclude);
+	    		builder.addText(vatExcludeText);
+	    		builder.addText(createLineSpace(vatExcludeText.length() + strVatExclude.length()));
+	    		builder.addText(strVatExclude + "\n");
+	    	}
+	    	
 	    	
 	    	// add footer
 	    	for(ShopData.HeaderFooterReceipt hf : 
@@ -176,19 +195,26 @@ public class PrintReceipt implements BatteryStatusChangeEventListener, StatusCha
 			try {
 				mPrinter.sendData(builder, 10000, status, battery);
 			} catch (EposException e) {
-//				new AlertDialog.Builder(MPOSApplication.getContext())
-//				.setMessage(e.getMessage())
-//				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-//					
-//					@Override
-//					public void onClick(DialogInterface dialog, int which) {
-//					}
-//				}).show();
+				e.printStackTrace();
 			}
 			if (builder != null) {
 				builder.clearCommandBuffer();
 			}
 		} catch (EposException e) {
+			switch(e.getErrorStatus()){
+			case EposException.ERR_PARAM:
+				
+				break;
+			case EposException.ERR_MEMORY:
+				
+				break;
+			case EposException.ERR_UNSUPPORTED:
+				
+				break;
+			case EposException.ERR_FAILURE:
+				
+				break;
+			}
 			e.printStackTrace();
 		}
 		

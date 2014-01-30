@@ -41,8 +41,8 @@ public class Reporting extends MPOSDatabase{
 		super(db);
 	}
 	
-	public float getTotalPayByPayType(int transactionId, int computerId, int payTypeId){
-		float totalPay = 0.0f;
+	public double getTotalPayByPayType(int transactionId, int computerId, int payTypeId){
+		double totalPay = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + PaymentDetail.COL_PAY_AMOUNT + ") " +
 				" FROM " + PaymentDetail.TB_PAYMENT +
@@ -384,17 +384,17 @@ public class Reporting extends MPOSDatabase{
 		
 		if(cursor.moveToFirst()){
 			do{
-				float qty = cursor.getFloat(cursor.getColumnIndex("Qty"));
-				float summQty = cursor.getFloat(cursor.getColumnIndex("TotalQty"));
-				float qtyPercent = (qty / summQty) * 100;
-				float retailPrice = cursor.getFloat(cursor.getColumnIndex("RetailPrice"));
-				float summRetailPrice = cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice"));
-				float retailPricePercent = (retailPrice / summRetailPrice) * 100;
-				float discount = cursor.getFloat(cursor.getColumnIndex("Discount"));
-				float summDiscount = cursor.getFloat(cursor.getColumnIndex("TotalDiscount"));
-				float salePrice = cursor.getFloat(cursor.getColumnIndex("SalePrice"));
-				float summSalePrice = cursor.getFloat(cursor.getColumnIndex("TotalSalePrice"));
-				float salePricePercent = (salePrice / summSalePrice) * 100;
+				double qty = cursor.getFloat(cursor.getColumnIndex("Qty"));
+				double summQty = cursor.getFloat(cursor.getColumnIndex("TotalQty"));
+				double qtyPercent = (qty / summQty) * 100;
+				double retailPrice = cursor.getFloat(cursor.getColumnIndex("RetailPrice"));
+				double summRetailPrice = cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice"));
+				double retailPricePercent = (retailPrice / summRetailPrice) * 100;
+				double discount = cursor.getFloat(cursor.getColumnIndex("Discount"));
+				double summDiscount = cursor.getFloat(cursor.getColumnIndex("TotalDiscount"));
+				double salePrice = cursor.getFloat(cursor.getColumnIndex("SalePrice"));
+				double summSalePrice = cursor.getFloat(cursor.getColumnIndex("TotalSalePrice"));
+				double salePricePercent = (salePrice / summSalePrice) * 100;
 				
 				ContentValues cv = new ContentValues();
 				cv.put(Products.COL_PRODUCT_ID, cursor.getInt(cursor.getColumnIndex(Products.COL_PRODUCT_ID)));

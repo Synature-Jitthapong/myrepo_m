@@ -3,6 +3,7 @@ package com.syn.mpos;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import android.content.Context;
 import android.database.SQLException;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.util.Log;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.MPOSService.SendSaleTransaction;
+import com.syn.mpos.database.Computer;
 import com.syn.mpos.database.SaleTransaction;
 import com.syn.mpos.database.SyncSaleLog;
 import com.syn.mpos.database.Util;
@@ -80,99 +82,108 @@ public class MPOSUtil {
 			final int closeStaffId, float closeAmount, boolean isEndday,
 			final ProgressListener listener) {
 
-		Session sess = new Session(MPOSApplication.getWriteDatabase());
-		Transaction trans = new Transaction(MPOSApplication.getWriteDatabase());
+		// check is main computer
+		Computer comp = new Computer(MPOSApplication.getReadDatabase());
+		if(comp.checkIsMainComputer(computerId)){
+			Session sess = new Session(MPOSApplication.getWriteDatabase());
+			Transaction trans = new Transaction(MPOSApplication.getWriteDatabase());
 
-		if (sess.closeSession(sessionId, computerId, closeStaffId, closeAmount,
-				isEndday)) {
-			String enddayDate = sess.getSessionDate(sessionId, computerId);
+			if (sess.closeSession(sessionId, computerId, closeStaffId, closeAmount,
+					isEndday)) {
+				String enddayDate = sess.getSessionDate(sessionId, computerId);
 
-			boolean canEndday = false;
-			String enddayErr = "";
-			try {
-				canEndday = sess.addSessionEnddayDetail(enddayDate,
-						trans.getTotalReceipt(enddayDate),
-						trans.getTotalReceiptAmount(enddayDate));
-			} catch (SQLException e) {
-				enddayErr = e.getMessage();
-			}
-
-			if (canEndday) {
-				// send sale process
-				final SyncSaleLog syncLog = new SyncSaleLog(
-						MPOSApplication.getWriteDatabase());
-				// add sync log
-				syncLog.addSyncSaleLog(enddayDate);
-
-				final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
-
-					@Override
-					public void onPost(POSData_SaleTransaction saleTrans,
-							final long sessionDate) {
-						JSONUtil jsonUtil = new JSONUtil();
-						Type type = new TypeToken<POSData_SaleTransaction>() {
-						}.getType();
-						String jsonSale = jsonUtil.toJson(type, saleTrans);
-						// Log.v("SaleTrans", saleJson);
-
-						ProgressListener sendSaleListener = new ProgressListener() {
-
-							@Override
-							public void onError(String mesg) {
-								syncLog.updateSyncSaleLog(sessionDate,
-										SyncSaleLog.SYNC_FAIL);
-								listener.onError(mesg);
-							}
-
-							@Override
-							public void onPre() {
-								// TODO Auto-generated method stub
-
-							}
-
-							@Override
-							public void onPost() {
-								syncLog.updateSyncSaleLog(sessionDate,
-										SyncSaleLog.SYNC_SUCCESS);
-								listener.onPost();
-							}
-						};
-
-						new MPOSService.SendSaleTransaction(
-								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-								closeStaffId, jsonSale, sendSaleListener);
-					}
-
-					@Override
-					public void onError(String mesg) {
-						listener.onError(mesg);
-					}
-
-					@Override
-					public void onPre() {
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void onPost() {
-						// TODO Auto-generated method stub
-
-					}
-
-				};
-
-				// loop load sale by date that not successfully sync
-				List<Long> dateLst = syncLog.listSessionDate();
-				if (dateLst != null) {
-					for (long date : dateLst) {
-						new LoadSaleTransactionTask(date, loadSaleListener)
-								.execute();
-					}
+				boolean canEndday = false;
+				String enddayErr = "";
+				try {
+					canEndday = sess.addSessionEnddayDetail(enddayDate,
+							trans.getTotalReceipt(enddayDate),
+							trans.getTotalReceiptAmount(enddayDate));
+				} catch (SQLException e) {
+					enddayErr = e.getMessage();
 				}
-			} else {
-				listener.onError(enddayErr);
+
+				if (canEndday) {
+					// send sale process
+					final SyncSaleLog syncLog = new SyncSaleLog(
+							MPOSApplication.getWriteDatabase());
+					// add sync log
+					syncLog.addSyncSaleLog(enddayDate);
+
+					final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
+
+						@Override
+						public void onPost(POSData_SaleTransaction saleTrans,
+								final long sessionDate) {
+							JSONUtil jsonUtil = new JSONUtil();
+							Type type = new TypeToken<POSData_SaleTransaction>() {
+							}.getType();
+							String jsonSale = jsonUtil.toJson(type, saleTrans);
+							// Log.v("SaleTrans", saleJson);
+
+							ProgressListener sendSaleListener = new ProgressListener() {
+
+								@Override
+								public void onError(String mesg) {
+									syncLog.updateSyncSaleLog(sessionDate,
+											SyncSaleLog.SYNC_FAIL);
+									listener.onError(mesg);
+								}
+
+								@Override
+								public void onPre() {
+									// TODO Auto-generated method stub
+
+								}
+
+								@Override
+								public void onPost() {
+									syncLog.updateSyncSaleLog(sessionDate,
+											SyncSaleLog.SYNC_SUCCESS);
+									listener.onPost();
+								}
+							};
+
+							new MPOSService.SendSaleTransaction(
+									SendSaleTransaction.SEND_SALE_TRANS_METHOD,
+									closeStaffId, jsonSale, sendSaleListener);
+						}
+
+						@Override
+						public void onError(String mesg) {
+							listener.onError(mesg);
+						}
+
+						@Override
+						public void onPre() {
+							// TODO Auto-generated method stub
+
+						}
+
+						@Override
+						public void onPost() {
+							// TODO Auto-generated method stub
+
+						}
+
+					};
+
+					// loop load sale by date that not successfully sync
+					List<Long> dateLst = syncLog.listSessionDate();
+					if (dateLst != null) {
+						for (long date : dateLst) {
+							new LoadSaleTransactionTask(date, loadSaleListener)
+									.execute();
+						}
+					}
+				} else {
+					listener.onError(enddayErr);
+				}
 			}
+		}else{
+			Context context = MPOSApplication.getContext();
+			listener.onError(context.getString(R.string.cannot_endday) + " " +
+					context.getString(R.string.because) + " " +
+					context.getString(R.string.not_main_computer));
 		}
 	}
 

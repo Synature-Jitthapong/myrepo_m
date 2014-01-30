@@ -1,8 +1,10 @@
 package com.syn.mpos;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.syn.mpos.R;
@@ -67,6 +69,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private ViewPager mPager;
 	private MenuItemPagerAdapter mPageAdapter;
 	private TableRow mTbRowVat;
+	private TableRow mTbRowDiscount;
 	private ListView mOrderListView;
 	private TextView mTvSubTotal;
 	private TextView mTvVatExclude;
@@ -97,6 +100,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mTvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
 		mTvDiscount = (TextView) findViewById(R.id.textViewDiscount);
 		mTbRowVat = (TableRow) findViewById(R.id.tbRowVat);
+		mTbRowDiscount = (TableRow) findViewById(R.id.tbRowDiscount);
 		mBtnDiscount = (Button) findViewById(R.id.buttonDiscount);
 		mBtnCash = (Button) findViewById(R.id.buttonCash);
 		mBtnHold = (Button) findViewById(R.id.buttonHold);
@@ -242,12 +246,18 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 
 	public void summary(){
-		float subTotal = mTransaction.getTotalRetailPrice(mTransactionId, mComputerId, false);
-		float totalVatExclude = mTransaction.getTotalVatExclude(mTransactionId, mComputerId, false);
-		float totalDiscount = mTransaction.getPriceDiscount(mTransactionId, mComputerId, false);
-		float totalPrice = mTransaction.getTotalSalePrice(mTransactionId, mComputerId, false);
+		double subTotal = mTransaction.getTotalRetailPrice(mTransactionId, mComputerId);
+		double totalVatExclude = mTransaction.getTotalVatExclude(mTransactionId, mComputerId);
+		double totalDiscount = mTransaction.getPriceDiscount(mTransactionId, mComputerId);
+		double totalSale = mTransaction.getTotalSalePrice(mTransactionId, mComputerId);
 		
-		mTransaction.updateTransactionVat(mTransactionId, mComputerId, totalPrice);
+		mTransaction.updateTransactionVat(mTransactionId, mComputerId, totalSale);
+		double vatable = mTransaction.getTransactionVatable(mTransactionId, mComputerId);
+		
+		if(totalDiscount > 0)
+			mTbRowDiscount.setVisibility(View.VISIBLE);
+		else
+			mTbRowDiscount.setVisibility(View.GONE);
 		
 		if(totalVatExclude > 0)
 			mTbRowVat.setVisibility(View.VISIBLE);
@@ -256,8 +266,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		
 		mTvVatExclude.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVatExclude));
 		mTvSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(subTotal));
-		mTvDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
-		mTvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice + totalVatExclude));
+		mTvDiscount.setText("-" + MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
+		mTvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(vatable));
 	}
 
 	@Override
@@ -407,7 +417,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 				@Override
 				public void onClick(View v) {
-					float qty = orderDetail.getQty();
+					double qty = orderDetail.getQty();
 					
 					if(--qty > 0){
 						orderDetail.setQty(qty);
@@ -449,7 +459,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 				@Override
 				public void onClick(View v) {
-					float qty = orderDetail.getQty();
+					double qty = orderDetail.getQty();
 					orderDetail.setQty(++qty);
 					mTransaction.updateOrderDetail(mTransactionId, mComputerId, 
 							orderDetail.getOrderDetailId(),
@@ -932,7 +942,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 
 	// create popup openprice
 	private void popupOpenPrice(final int productId, final int productTypeId, 
-			final int vatType, final float vatRate){
+			final int vatType, final double vatRate){
 		final EditText txtProductPrice = new EditText(this);
 		txtProductPrice.setOnEditorActionListener(new OnEditorActionListener(){
 
@@ -960,7 +970,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				float productPrice = 0.0f;
+				double productPrice = 0.0f;
 				try {
 					productPrice = Float.parseFloat(txtProductPrice.getText().toString());
 					int orderId = mTransaction.addOrderDetail(mTransactionId, mComputerId, productId, 
@@ -1047,7 +1057,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 	
 	@Override
-	public void onClick(int productId, int productTypeId, int vatType, float vatRate, float productPrice) {
+	public void onClick(int productId, int productTypeId, int vatType, double vatRate, double productPrice) {
 		if(productTypeId == Products.NORMAL_TYPE || 
 				productTypeId == Products.SET_TYPE){
 			// fixes for open price
