@@ -107,7 +107,7 @@ public class VoidBillActivity extends Activity {
 					long id) {
 				Calendar c = Calendar.getInstance();
 				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
-				c.setTimeInMillis(trans.getPaidTime());
+				c.setTimeInMillis(Long.parseLong(trans.getPaidTime()));
 				
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
@@ -197,7 +197,7 @@ public class VoidBillActivity extends Activity {
 			
 			Calendar c = Calendar.getInstance();
 			try {
-				c.setTimeInMillis(trans.getPaidTime());
+				c.setTimeInMillis(Long.parseLong(trans.getPaidTime()));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

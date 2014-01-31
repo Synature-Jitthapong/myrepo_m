@@ -538,7 +538,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			TextView tvOpenStaff = (TextView) convertView.findViewById(R.id.tvOpenStaff);
 			TextView tvRemark = (TextView) convertView.findViewById(R.id.tvRemark);
 
-			c.setTimeInMillis(trans.getOpenTime());
+			c.setTimeInMillis(Long.parseLong(trans.getOpenTime()));
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvOpenTime.setText(MPOSApplication.getGlobalProperty().dateTimeFormat(c.getTime()));
 			tvOpenStaff.setText(trans.getStaffName());

@@ -102,7 +102,7 @@ public class Transaction extends MPOSDatabase {
 					trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(COL_TRANS_ID)));
 					trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
 					trans.setTransactionStatusId(cursor.getInt(cursor.getColumnIndex(COL_STATUS_ID)));
-					trans.setPaidTime(cursor.getLong(cursor.getColumnIndex(COL_PAID_TIME)));
+					trans.setPaidTime(cursor.getString(cursor.getColumnIndex(COL_PAID_TIME)));
 					trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(COL_RECEIPT_NO)));
 			}
 			cursor.close();
@@ -130,7 +130,7 @@ public class Transaction extends MPOSDatabase {
 			if (cursor.moveToFirst()) {
 					trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(COL_TRANS_ID)));
 					trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
-					trans.setPaidTime(cursor.getLong(cursor.getColumnIndex(COL_PAID_TIME)));
+					trans.setPaidTime(cursor.getString(cursor.getColumnIndex(COL_PAID_TIME)));
 					trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(COL_RECEIPT_NO)));
 			}
 			cursor.close();
@@ -600,7 +600,7 @@ public class Transaction extends MPOSDatabase {
 				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(COL_TRANS_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
 				trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(COL_TRANS_NOTE)));
-				trans.setPaidTime(cursor.getLong(cursor.getColumnIndex(COL_PAID_TIME)));
+				trans.setPaidTime(cursor.getString(cursor.getColumnIndex(COL_PAID_TIME)));
 				trans.setStaffName(cursor.getString(cursor.getColumnIndex(Staff.COL_STAFF_CODE))
 						+ ":" + cursor.getString(cursor.getColumnIndex(Staff.COL_STAFF_NAME)));
 				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(COL_RECEIPT_NO)));
@@ -638,7 +638,7 @@ public class Transaction extends MPOSDatabase {
 				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(COL_TRANS_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COL_COMPUTER_ID)));
 				trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(COL_TRANS_NOTE)));
-				trans.setOpenTime(cursor.getLong(cursor.getColumnIndex(COL_OPEN_TIME)));
+				trans.setOpenTime(cursor.getString(cursor.getColumnIndex(COL_OPEN_TIME)));
 				trans.setStaffName(cursor.getString(cursor.getColumnIndex(Staff.COL_STAFF_CODE))
 						+ ":" + cursor.getString(cursor.getColumnIndex(Staff.COL_STAFF_NAME)));
 				transLst.add(trans);
