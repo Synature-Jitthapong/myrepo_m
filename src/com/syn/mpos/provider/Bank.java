@@ -1,4 +1,4 @@
-package com.syn.mpos.database;
+package com.syn.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 import com.syn.pos.BankName;
 
 public class Bank extends MPOSDatabase{
-	public static final String TB_BANK = "BankName";
-	public static final String COL_BANK_ID = "BankId";
-	public static final String COL_BANK_NAME = "BankName";
+	public static final String TABLE_BANK = "BankName";
+	public static final String COLUMN_BANK_ID = "bank_id";
+	public static final String COLUMN_BANK_NAME = "bank_name";
 	
 	public Bank(SQLiteDatabase db) {
 		super(db);
@@ -19,13 +19,13 @@ public class Bank extends MPOSDatabase{
 	public List<BankName> listAllBank(){
 		List<BankName> bankLst = 
 				new ArrayList<BankName>();
-		Cursor cursor = mSqlite.query(TB_BANK, 
-				new String[]{COL_BANK_ID, COL_BANK_NAME}, null, null, null, null, null);
+		Cursor cursor = mSqlite.query(TABLE_BANK, 
+				new String[]{COLUMN_BANK_ID, COLUMN_BANK_NAME}, null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
 				BankName bank = new BankName(
-						cursor.getInt(cursor.getColumnIndex(COL_BANK_ID)),
-						cursor.getString(cursor.getColumnIndex(COL_BANK_NAME)));
+						cursor.getInt(cursor.getColumnIndex(COLUMN_BANK_ID)),
+						cursor.getString(cursor.getColumnIndex(COLUMN_BANK_NAME)));
 				bankLst.add(bank);
 			}while(cursor.moveToNext());
 		}

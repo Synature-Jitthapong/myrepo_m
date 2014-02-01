@@ -99,7 +99,7 @@
         </activity>
 
         <provider
-            android:name="com.syn.mpos.database.ProductProvider"
+            android:name="com.syn.mpos.provider.ProductProvider"
             android:authorities="com.syn.mpos.ProductProvider" />
 
         <activity

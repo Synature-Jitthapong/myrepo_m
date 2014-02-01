@@ -11,13 +11,13 @@ import android.util.Log;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.MPOSService.SendSaleTransaction;
-import com.syn.mpos.database.Computer;
-import com.syn.mpos.database.SaleTransaction;
-import com.syn.mpos.database.SyncSaleLog;
-import com.syn.mpos.database.Util;
-import com.syn.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.syn.mpos.database.transaction.Session;
 import com.syn.mpos.database.transaction.Transaction;
+import com.syn.mpos.provider.Computer;
+import com.syn.mpos.provider.SaleTransaction;
+import com.syn.mpos.provider.SyncSaleLog;
+import com.syn.mpos.provider.Util;
+import com.syn.mpos.provider.SaleTransaction.POSData_SaleTransaction;
 
 public class MPOSUtil {
 	public static void doSendSale(final int staffId,

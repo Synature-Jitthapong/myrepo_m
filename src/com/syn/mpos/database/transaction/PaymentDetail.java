@@ -2,10 +2,12 @@ package com.syn.mpos.database.transaction;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.syn.mpos.database.Bank;
-import com.syn.mpos.database.Computer;
-import com.syn.mpos.database.CreditCard;
-import com.syn.mpos.database.MPOSDatabase;
+
+import com.syn.mpos.provider.Bank;
+import com.syn.mpos.provider.Computer;
+import com.syn.mpos.provider.CreditCard;
+import com.syn.mpos.provider.MPOSDatabase;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -15,15 +17,15 @@ public class PaymentDetail extends MPOSDatabase {
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 	
-	public static final String TB_PAYMENT = "PaymentDetail";
-	public static final String COL_PAY_ID = "PayDetailId";
-	public static final String COL_PAY_AMOUNT = "PayAmount";
-	public static final String COL_REMARK = "Remark";
+	public static final String TABLE_PAYMENT = "PaymentDetail";
+	public static final String COLUMN_PAY_ID = "pay_detail_id";
+	public static final String COLUMN_PAY_AMOUNT = "pay_amount";
+	public static final String COLUMN_REMARK = "remark";
 	
-	public static final String TB_PAY_TYPE = "PayType";
-	public static final String COL_PAY_TYPE_ID = "PayTypeId";
-	public static final String COL_PAY_TYPE_CODE = "PayTypeCode";
-	public static final String COL_PAY_TYPE_NAME = "PayTypeName";
+	public static final String TABLE_PAY_TYPE = "PayType";
+	public static final String COLUMN_PAY_TYPE_ID = "pay_type_id";
+	public static final String COLUMN_PAY_TYPE_CODE = "pay_type_code";
+	public static final String COLUMN_PAY_TYPE_NAME = "pay_type_name";
 	
 	public PaymentDetail(SQLiteDatabase db) {
 		super(db);
@@ -33,9 +35,9 @@ public class PaymentDetail extends MPOSDatabase {
 		boolean isSuccess = false;
 		try {
 			mSqlite.execSQL(
-					" DELETE FROM " + TB_PAYMENT +
-					" WHERE " + Transaction.COL_TRANS_ID + "=" + transactionId + 
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId);
+					" DELETE FROM " + TABLE_PAYMENT +
+					" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=" + transactionId + 
+					" AND " + Computer.COLUMN_COMPUTER_ID + "=" + computerId);
 			isSuccess = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -46,10 +48,10 @@ public class PaymentDetail extends MPOSDatabase {
 	public int getMaxPaymentDetailId(int transactionId, int computerId) {
 		int maxPaymentId = 0;
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT MAX(" + COL_PAY_ID + ") " +
-				" FROM " + TB_PAYMENT + 
-				" WHERE " + Transaction.COL_TRANS_ID + "=" + transactionId +
-				" AND " + Computer.COL_COMPUTER_ID + "=" + computerId, null);
+				" SELECT MAX(" + COLUMN_PAY_ID + ") " +
+				" FROM " + TABLE_PAYMENT + 
+				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=" + transactionId +
+				" AND " + Computer.COLUMN_COMPUTER_ID + "=" + computerId, null);
 		if(cursor.moveToFirst()){
 			maxPaymentId = cursor.getInt(0);
 		}
@@ -64,19 +66,19 @@ public class PaymentDetail extends MPOSDatabase {
 		boolean isSuccess = false;
 		int paymentId = getMaxPaymentDetailId(transactionId, computerId);
 		ContentValues cv = new ContentValues();
-		cv.put(COL_PAY_ID, paymentId);
-		cv.put(Transaction.COL_TRANS_ID, transactionId);
-		cv.put(Computer.COL_COMPUTER_ID, computerId);
-		cv.put(COL_PAY_TYPE_ID, payTypeId);
-		cv.put(COL_PAY_AMOUNT, payAmount);
-		cv.put(CreditCard.COL_CREDIT_CARD_NO, creditCardNo);
-		cv.put(CreditCard.COL_EXP_MONTH, expireMonth);
-		cv.put(CreditCard.COL_EXP_YEAR, expireYear);
-		cv.put(CreditCard.COL_CREDIT_CARD_TYPE_ID, creditCardTypeId);
-		cv.put(Bank.COL_BANK_ID, bankId);
+		cv.put(COLUMN_PAY_ID, paymentId);
+		cv.put(Transaction.COLUMN_TRANSACTION_ID, transactionId);
+		cv.put(Computer.COLUMN_COMPUTER_ID, computerId);
+		cv.put(COLUMN_PAY_TYPE_ID, payTypeId);
+		cv.put(COLUMN_PAY_AMOUNT, payAmount);
+		cv.put(CreditCard.COLUMN_CREDITCARD_NO, creditCardNo);
+		cv.put(CreditCard.COLUMN_EXP_MONTH, expireMonth);
+		cv.put(CreditCard.COLUMN_EXP_YEAR, expireYear);
+		cv.put(CreditCard.COLUMN_CREDITCARD_TYPE_ID, creditCardTypeId);
+		cv.put(Bank.COLUMN_BANK_ID, bankId);
 		
 		try {
-			mSqlite.insertOrThrow(TB_PAYMENT, null, cv);
+			mSqlite.insertOrThrow(TABLE_PAYMENT, null, cv);
 			isSuccess = true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -90,17 +92,17 @@ public class PaymentDetail extends MPOSDatabase {
 		boolean isSuccess = false;
 		try {
 			mSqlite.execSQL(
-					" UPDATE " + TB_PAYMENT + 
+					" UPDATE " + TABLE_PAYMENT + 
 					" SET " +
-					COL_PAY_TYPE_ID + "=" + payTypeId + ", " +
-					COL_PAY_AMOUNT + "=" + paymentAmount + ", " +
-					CreditCard.COL_CREDIT_CARD_NO + "='" + creditCardNo + "', " +
-					CreditCard.COL_EXP_MONTH + "=" + expireMonth + ", " +
-					CreditCard.COL_EXP_YEAR + "=" + expireYear + ", " + 
-					CreditCard.COL_CREDIT_CARD_TYPE_ID + "=" + creditCardTypeId + ", " +
-					Bank.COL_BANK_ID + "=" + bankId +
-					" WHERE " + Transaction.COL_TRANS_ID + "=" + transactionId +
-					" AND " + Computer.COL_COMPUTER_ID + "=" + computerId, null);
+					COLUMN_PAY_TYPE_ID + "=" + payTypeId + ", " +
+					COLUMN_PAY_AMOUNT + "=" + paymentAmount + ", " +
+					CreditCard.COLUMN_CREDITCARD_NO + "='" + creditCardNo + "', " +
+					CreditCard.COLUMN_EXP_MONTH + "=" + expireMonth + ", " +
+					CreditCard.COLUMN_EXP_YEAR + "=" + expireYear + ", " + 
+					CreditCard.COLUMN_CREDITCARD_TYPE_ID + "=" + creditCardTypeId + ", " +
+					Bank.COLUMN_BANK_ID + "=" + bankId +
+					" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=" + transactionId +
+					" AND " + Computer.COLUMN_COMPUTER_ID + "=" + computerId, null);
 			isSuccess = true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -110,8 +112,8 @@ public class PaymentDetail extends MPOSDatabase {
 
 	public boolean deletePaymentDetail(int payTypeId) throws SQLException {
 		boolean isSuccess = false;
-		int affectRow = mSqlite.delete(TB_PAYMENT, 
-				COL_PAY_TYPE_ID + "=?", 
+		int affectRow = mSqlite.delete(TABLE_PAYMENT, 
+				COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(payTypeId)});
 		
 		if(affectRow > 0)
@@ -122,10 +124,10 @@ public class PaymentDetail extends MPOSDatabase {
 	public double getTotalPaid(int transactionId, int computerId){
 		double totalPaid = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT SUM(" + COL_PAY_AMOUNT + ") " +
-				" FROM " + TB_PAYMENT +
-				" WHERE " + Transaction.COL_TRANS_ID + "=" + transactionId +
-				" AND " + Computer.COL_COMPUTER_ID + "=" + computerId, null);
+				" SELECT SUM(" + COLUMN_PAY_AMOUNT + ") " +
+				" FROM " + TABLE_PAYMENT +
+				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=" + transactionId +
+				" AND " + Computer.COLUMN_COMPUTER_ID + "=" + computerId, null);
 		if(cursor.moveToFirst()){
 			totalPaid = cursor.getFloat(0);
 		}
@@ -137,19 +139,19 @@ public class PaymentDetail extends MPOSDatabase {
 		List<com.syn.pos.Payment.PaymentDetail> paymentLst = 
 				new ArrayList<com.syn.pos.Payment.PaymentDetail>();
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT a." + COL_PAY_ID + ", " +
-				" a." + COL_PAY_TYPE_ID + ", " +
-				" SUM(a." + COL_PAY_AMOUNT + ") AS " + COL_PAY_AMOUNT + ", " +
-				" a." + COL_REMARK + ", " +
-				" b." + COL_PAY_TYPE_CODE + ", " +
-				" b." + COL_PAY_TYPE_NAME +
-				" FROM " + TB_PAYMENT + " a " +
-				" LEFT JOIN " + TB_PAY_TYPE + " b " + 
-				" ON a." + COL_PAY_TYPE_ID + "=" +
-				" b." + COL_PAY_TYPE_ID +
-				" WHERE a." + Transaction.COL_TRANS_ID + "=?" +
-				" AND a." + Computer.COL_COMPUTER_ID + "=?" + 
-				" GROUP BY a." + COL_PAY_TYPE_ID,
+				" SELECT a." + COLUMN_PAY_ID + ", " +
+				" a." + COLUMN_PAY_TYPE_ID + ", " +
+				" SUM(a." + COLUMN_PAY_AMOUNT + ") AS " + COLUMN_PAY_AMOUNT + ", " +
+				" a." + COLUMN_REMARK + ", " +
+				" b." + COLUMN_PAY_TYPE_CODE + ", " +
+				" b." + COLUMN_PAY_TYPE_NAME +
+				" FROM " + TABLE_PAYMENT + " a " +
+				" LEFT JOIN " + TABLE_PAY_TYPE + " b " + 
+				" ON a." + COLUMN_PAY_TYPE_ID + "=" +
+				" b." + COLUMN_PAY_TYPE_ID +
+				" WHERE a." + Transaction.COLUMN_TRANSACTION_ID + "=?" +
+				" AND a." + Computer.COLUMN_COMPUTER_ID + "=?" + 
+				" GROUP BY a." + COLUMN_PAY_TYPE_ID,
 				new String[]{
 						String.valueOf(transactionId), 
 						String.valueOf(computerId)});
@@ -157,12 +159,12 @@ public class PaymentDetail extends MPOSDatabase {
 			do{
 				com.syn.pos.Payment.PaymentDetail payDetail
 					= new com.syn.pos.Payment.PaymentDetail();
-				payDetail.setPaymentDetailID(cursor.getInt(cursor.getColumnIndex(COL_PAY_ID)));
-				payDetail.setPayTypeID(cursor.getInt(cursor.getColumnIndex(COL_PAY_TYPE_ID)));
-				payDetail.setPayTypeCode(cursor.getString(cursor.getColumnIndex(COL_PAY_TYPE_CODE)));
-				payDetail.setPayTypeName(cursor.getString(cursor.getColumnIndex(COL_PAY_TYPE_NAME)));
-				payDetail.setPayAmount(cursor.getFloat(cursor.getColumnIndex(COL_PAY_AMOUNT)));
-				payDetail.setRemark(cursor.getString(cursor.getColumnIndex(COL_REMARK)));
+				payDetail.setPaymentDetailID(cursor.getInt(cursor.getColumnIndex(COLUMN_PAY_ID)));
+				payDetail.setPayTypeID(cursor.getInt(cursor.getColumnIndex(COLUMN_PAY_TYPE_ID)));
+				payDetail.setPayTypeCode(cursor.getString(cursor.getColumnIndex(COLUMN_PAY_TYPE_CODE)));
+				payDetail.setPayTypeName(cursor.getString(cursor.getColumnIndex(COLUMN_PAY_TYPE_NAME)));
+				payDetail.setPayAmount(cursor.getFloat(cursor.getColumnIndex(COLUMN_PAY_AMOUNT)));
+				payDetail.setRemark(cursor.getString(cursor.getColumnIndex(COLUMN_REMARK)));
 				paymentLst.add(payDetail);
 			}while(cursor.moveToNext());
 		}

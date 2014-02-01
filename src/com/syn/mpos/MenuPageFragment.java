@@ -1,7 +1,9 @@
 package com.syn.mpos;
 
 import java.util.List;
-import com.syn.mpos.database.Products;
+
+import com.syn.mpos.provider.Products;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

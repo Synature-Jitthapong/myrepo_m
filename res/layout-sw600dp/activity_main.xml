@@ -20,7 +20,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:background="@drawable/white_layer"
+            android:background="@drawable/card_bg_r4_flat_top"
             android:choiceMode="multipleChoice"
             android:listSelector="@drawable/list_selector" >
 

@@ -1,11 +1,10 @@
 package com.syn.mpos.database.transaction;
 
 import java.util.Calendar;
-import com.syn.mpos.database.Computer;
-import com.syn.mpos.database.Shop;
-import com.syn.mpos.database.Util;
 
-import android.R.integer;
+import com.syn.mpos.provider.Computer;
+import com.syn.mpos.provider.Shop;
+import com.syn.mpos.provider.Util;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -16,20 +15,20 @@ public class Session extends Transaction{
 	public static final int NOT_ENDDAY_STATUS = 0;
 	public static final int ALREADY_ENDDAY_STATUS = 1;
 	
-	public static final String TB_SESSION = "Session";
-	public static final String TB_SESSION_DETAIL = "SessionEnddayDetail";
-	public static final String COL_SESS_ID = "SessionId";
-	public static final String COL_SESS_DATE = "SessionDate";
-	public static final String COL_OPEN_DATE = "OpenDateTime";
-	public static final String COL_CLOSE_DATE = "CloseDateTime";
-	public static final String COL_OPEN_AMOUNT = "OpenAmount";
-	public static final String COL_CLOSE_AMOUNT = "CloseAmount";
-	public static final String COL_IS_ENDDAY = "IsEndday";
-	public static final String COL_ENDDAY_DATE = "EnddayDateTime";
-	public static final String COL_TOTAL_QTY_RECEIPT = "TotalQtyReceipt";
-	public static final String COL_TOTAL_AMOUNT_RECEIPT = "TotalAmountReceipt";
-	public static final String COL_IS_SEND_TO_HQ = "IsSendToHq";
-	public static final String COL_SEND_TO_HQ_DATE = "SendToHqDateTime";
+	public static final String TABLE_SESSION = "Session";
+	public static final String TABLE_SESSION_DETAIL = "SessionEnddayDetail";
+	public static final String COLUMN_SESS_ID = "session_id";
+	public static final String COLUMN_SESS_DATE = "session_date";
+	public static final String COLUMN_OPEN_DATE = "open_date_time";
+	public static final String COLUMN_CLOSE_DATE = "close_date_time";
+	public static final String COLUMN_OPEN_AMOUNT = "open_amount";
+	public static final String COLUMN_CLOSE_AMOUNT = "close_amount";
+	public static final String COLUMN_IS_ENDDAY = "is_endday";
+	public static final String COLUMN_ENDDAY_DATE = "endday_date_time";
+	public static final String COLUMN_TOTAL_QTY_RECEIPT = "total_qty_receipt";
+	public static final String COLUMN_TOTAL_AMOUNT_RECEIPT = "total_amount_receipt";
+	public static final String COLUMN_IS_SEND_TO_HQ = "is_send_to_hq";
+	public static final String COLUMN_SEND_TO_HQ_DATE = "send_to_hq_date_time";
 	
 	public Session(SQLiteDatabase db) {
 		super(db);
@@ -45,11 +44,11 @@ public class Session extends Transaction{
 
 	public String getSessionDate(int computerId){
 		String sessionDate = "";
-		Cursor cursor = mSqlite.query(Session.TB_SESSION, 
-				new String[]{COL_SESS_DATE}, 
-				Computer.COL_COMPUTER_ID + "=?", 
+		Cursor cursor = mSqlite.query(Session.TABLE_SESSION, 
+				new String[]{COLUMN_SESS_DATE}, 
+				Computer.COLUMN_COMPUTER_ID + "=?", 
 				new String[]{String.valueOf(computerId)}, 
-				null, null, COL_SESS_DATE + " DESC ", "1");
+				null, null, COLUMN_SESS_DATE + " DESC ", "1");
 		
 		if(cursor.moveToFirst()){
 			sessionDate = cursor.getString(0);
@@ -59,16 +58,16 @@ public class Session extends Transaction{
 	}
 	
 	public int deleteSession(int sessionId){
-		return mSqlite.delete(TB_SESSION, COL_SESS_ID + "=?", 
+		return mSqlite.delete(TABLE_SESSION, COLUMN_SESS_ID + "=?", 
 				new String[]{String.valueOf(sessionId)});
 	}
 	
 	public String getSessionDate(int sessionId, int computerId){
 		String sessionDate = "";
-		Cursor cursor = mSqlite.query(Session.TB_SESSION, 
-				new String[]{COL_SESS_DATE}, 
-				COL_SESS_ID + "=? AND " + 
-				Computer.COL_COMPUTER_ID + "=?", 
+		Cursor cursor = mSqlite.query(Session.TABLE_SESSION, 
+				new String[]{COLUMN_SESS_DATE}, 
+				COLUMN_SESS_ID + "=? AND " + 
+				Computer.COLUMN_COMPUTER_ID + "=?", 
 				new String[]{String.valueOf(sessionId), 
 				String.valueOf(computerId)}, null, null, null);
 		
@@ -82,10 +81,10 @@ public class Session extends Transaction{
 	public int getMaxSessionId(int shopId, int computerId) {
 		int sessionId = 0;
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT MAX(" + COL_SESS_ID + ") " + 
-				" FROM " + TB_SESSION + 
-				" WHERE " + Shop.COL_SHOP_ID + "=" + shopId + 
-				" AND " + Computer.COL_COMPUTER_ID + "=" + computerId, null);
+				" SELECT MAX(" + COLUMN_SESS_ID + ") " + 
+				" FROM " + TABLE_SESSION + 
+				" WHERE " + Shop.COLUMN_SHOP_ID + "=" + shopId + 
+				" AND " + Computer.COLUMN_COMPUTER_ID + "=" + computerId, null);
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}
@@ -100,16 +99,16 @@ public class Session extends Transaction{
 		Calendar dateTime = Util.getDateTime();
 
 		ContentValues cv = new ContentValues();
-		cv.put(COL_SESS_ID, sessionId);
-		cv.put(Computer.COL_COMPUTER_ID, computerId);
-		cv.put(Shop.COL_SHOP_ID, shopId);
-		cv.put(COL_SESS_DATE, date.getTimeInMillis());
-		cv.put(COL_OPEN_DATE, dateTime.getTimeInMillis());
-		cv.put(COL_OPEN_STAFF, openStaffId);
-		cv.put(COL_OPEN_AMOUNT, openAmount);
-		cv.put(COL_IS_ENDDAY, 0);
+		cv.put(COLUMN_SESS_ID, sessionId);
+		cv.put(Computer.COLUMN_COMPUTER_ID, computerId);
+		cv.put(Shop.COLUMN_SHOP_ID, shopId);
+		cv.put(COLUMN_SESS_DATE, date.getTimeInMillis());
+		cv.put(COLUMN_OPEN_DATE, dateTime.getTimeInMillis());
+		cv.put(COLUMN_OPEN_STAFF, openStaffId);
+		cv.put(COLUMN_OPEN_AMOUNT, openAmount);
+		cv.put(COLUMN_IS_ENDDAY, 0);
 		try {
-			mSqlite.insertOrThrow(TB_SESSION, null, cv);
+			mSqlite.insertOrThrow(TABLE_SESSION, null, cv);
 		} catch (Exception e) {
 			sessionId = 0;
 			e.printStackTrace();
@@ -123,12 +122,12 @@ public class Session extends Transaction{
 		Calendar dateTime = Util.getDateTime();
 
 		ContentValues cv = new ContentValues();
-		cv.put(COL_SESS_DATE, sessionDate);
-		cv.put(COL_ENDDAY_DATE, dateTime.getTimeInMillis());
-		cv.put(COL_TOTAL_QTY_RECEIPT, totalQtyReceipt);
-		cv.put(COL_TOTAL_AMOUNT_RECEIPT, totalAmountReceipt);
+		cv.put(COLUMN_SESS_DATE, sessionDate);
+		cv.put(COLUMN_ENDDAY_DATE, dateTime.getTimeInMillis());
+		cv.put(COLUMN_TOTAL_QTY_RECEIPT, totalQtyReceipt);
+		cv.put(COLUMN_TOTAL_AMOUNT_RECEIPT, totalAmountReceipt);
 		
-		long affecRow = mSqlite.insertOrThrow(TB_SESSION_DETAIL, null, cv);
+		long affecRow = mSqlite.insertOrThrow(TABLE_SESSION_DETAIL, null, cv);
 		if(affecRow > -1)
 			isSuccess = true;
 		return isSuccess;
@@ -139,13 +138,13 @@ public class Session extends Transaction{
 		boolean isSuccess = false;
 		Calendar dateTime = Util.getDateTime();
 		ContentValues cv = new ContentValues();
-		cv.put(COL_CLOSE_STAFF, closeStaffId);
-		cv.put(COL_CLOSE_DATE, dateTime.getTimeInMillis());
-		cv.put(COL_CLOSE_AMOUNT, closeAmount);
-		cv.put(COL_IS_ENDDAY, isEndday == true ? 1 : 0);
-		int affectRow = mSqlite.update(TB_SESSION, cv, 
-				COL_SESS_ID + "=? AND " + 
-				Computer.COL_COMPUTER_ID + "=?", 
+		cv.put(COLUMN_CLOSE_STAFF, closeStaffId);
+		cv.put(COLUMN_CLOSE_DATE, dateTime.getTimeInMillis());
+		cv.put(COLUMN_CLOSE_AMOUNT, closeAmount);
+		cv.put(COLUMN_IS_ENDDAY, isEndday == true ? 1 : 0);
+		int affectRow = mSqlite.update(TABLE_SESSION, cv, 
+				COLUMN_SESS_ID + "=? AND " + 
+				Computer.COLUMN_COMPUTER_ID + "=?", 
 				new String[]{String.valueOf(sessionId), 
 				String.valueOf(computerId)});
 		if(affectRow > 0)
@@ -157,8 +156,8 @@ public class Session extends Transaction{
 		int session = 0;
 		Cursor cursor = mSqlite.rawQuery(
 				"SELECT COUNT(*) " +
-				" FROM " + TB_SESSION_DETAIL +
-				" WHERE " + COL_SESS_DATE + "=?", 
+				" FROM " + TABLE_SESSION_DETAIL +
+				" WHERE " + COLUMN_SESS_DATE + "=?", 
 				new String[]{
 				sessionDate});
 		if(cursor.moveToFirst()){
@@ -170,11 +169,11 @@ public class Session extends Transaction{
 	
 	public int getCurrentSession(int computerId, int staffId) {
 		int sessionId = 0;
-		Cursor cursor = mSqlite.query(TB_SESSION, 
-				new String[]{COL_SESS_ID},  
-				Computer.COL_COMPUTER_ID + " =? " +
-				" AND " + COL_OPEN_STAFF + " =? " +
-				" AND " + COL_SESS_DATE + " =? ",
+		Cursor cursor = mSqlite.query(TABLE_SESSION, 
+				new String[]{COLUMN_SESS_ID},  
+				Computer.COLUMN_COMPUTER_ID + " =? " +
+				" AND " + COLUMN_OPEN_STAFF + " =? " +
+				" AND " + COLUMN_SESS_DATE + " =? ",
 				new String[]{
 				String.valueOf(computerId),
 				String.valueOf(staffId),

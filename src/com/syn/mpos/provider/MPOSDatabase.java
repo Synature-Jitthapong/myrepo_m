@@ -1,4 +1,4 @@
-package com.syn.mpos.database;
+package com.syn.mpos.provider;
 
 import java.util.UUID;
 
@@ -6,12 +6,12 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class MPOSDatabase {
 	// base uuid column
-	public static final String COL_UUID = "UUID";
+	public static final String COLUMN_UUID = "uuid";
+	public static final String COLUMN_SEND_STATUS = "send_status";
 	
-	// base send status column
+	// send status
 	public static final int ALREADY_SEND = 1;
 	public static final int NOT_SEND = 0;
-	public static final String COL_SEND_STATUS = "SendStatus";
 	
 	protected SQLiteDatabase mSqlite;
 	

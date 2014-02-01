@@ -9,8 +9,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.Products;
+import com.syn.mpos.provider.MPOSDatabase;
+import com.syn.mpos.provider.Products;
 
 public class StockCard extends MPOSDatabase{
 	public static final String TB_STOCK_CARD_TEMP = "StockCardTemp";
@@ -32,12 +32,12 @@ public class StockCard extends MPOSDatabase{
 					" a." + COL_RECEIVE + ", " +
 					" a." + COL_SALE + ", " +
 					" a." + COL_VARIANCE + ", " +
-					" b." + Products.COL_PRODUCT_ID + ", " +
-					" b." + Products.COL_PRODUCT_CODE + ", " +
-					" b." + Products.COL_PRODUCT_NAME + ", " +
+					" b." + Products.COLUMN_PRODUCT_ID + ", " +
+					" b." + Products.COLUMN_PRODUCT_CODE + ", " +
+					" b." + Products.COLUMN_PRODUCT_NAME + ", " +
 					" FROM " + TB_STOCK_CARD_TEMP + " a " +
-					" LEFT JOIN " + Products.TB_PRODUCT + " b " +
-					" ON a." + Products.COL_PRODUCT_ID + "=b" + Products.COL_PRODUCT_ID;
+					" LEFT JOIN " + Products.TABLE_PRODUCT + " b " +
+					" ON a." + Products.COLUMN_PRODUCT_ID + "=b" + Products.COLUMN_PRODUCT_ID;
 			Cursor cursor = mSqlite.rawQuery(strSql, null);
 			if(cursor.moveToFirst()){
 				do{
@@ -145,7 +145,7 @@ public class StockCard extends MPOSDatabase{
 			mSqlite.execSQL("DROP TABLE IF EXISTS " + TB_STOCK_CARD_TEMP);
 			mSqlite.execSQL(
 					"CREATE TABLE " + TB_STOCK_CARD_TEMP + " ( " +
-					Products.COL_PRODUCT_ID + " INTEGER, " +
+					Products.COLUMN_PRODUCT_ID + " INTEGER, " +
 					COL_INIT + " REAL DEFAULT 0, " +
 					COL_RECEIVE + " REAL DEFAULT 0, " +
 					COL_SALE + " REAL DEFAULT 0, " +

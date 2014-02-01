@@ -1,4 +1,4 @@
-package com.syn.mpos.database;
+package com.syn.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +12,10 @@ public class HeaderFooterReceipt extends MPOSDatabase{
 	public static final int HEADER_LINE_TYPE = 0;
 	public static final int FOOTER_LINE_TYPE = 1;
 	
-	public static final String TB_HEADER_FOOTER_RECEIPT = "HeaderFooterReceipt";
-	public static final String COL_TEXT_IN_LINE = "TextInLine";
-	public static final String COL_LINE_TYPE = "LineType";
-	public static final String COL_LINE_ORDER = "LineOrder";
-	
+	public static final String TABLE_HEADER_FOOTER_RECEIPT = "HeaderFooterReceipt";
+	public static final String COLUMN_TEXT_IN_LINE = "text_inline";
+	public static final String COLUMN_LINE_TYPE = "line_type";
+	public static final String COLUMN_LINE_ORDER = "line_order";
 	
 	public HeaderFooterReceipt(SQLiteDatabase db) {
 		super(db);
@@ -26,16 +25,16 @@ public class HeaderFooterReceipt extends MPOSDatabase{
 		List<ShopData.HeaderFooterReceipt> hfLst = 
 				new ArrayList<ShopData.HeaderFooterReceipt>();
 
-		Cursor cursor = mSqlite.query(TB_HEADER_FOOTER_RECEIPT, 
-				new String[]{COL_TEXT_IN_LINE, COL_LINE_TYPE, COL_LINE_ORDER}, 
-				COL_LINE_TYPE + "=?", 
-				new String[]{String.valueOf(lineType)}, null, null, COL_LINE_ORDER);
+		Cursor cursor = mSqlite.query(TABLE_HEADER_FOOTER_RECEIPT, 
+				new String[]{COLUMN_TEXT_IN_LINE, COLUMN_LINE_TYPE, COLUMN_LINE_ORDER}, 
+				COLUMN_LINE_TYPE + "=?", 
+				new String[]{String.valueOf(lineType)}, null, null, COLUMN_LINE_ORDER);
 		if(cursor.moveToFirst()){
 			do{
 				ShopData.HeaderFooterReceipt hf = new ShopData.HeaderFooterReceipt();
-				hf.setTextInLine(cursor.getString(cursor.getColumnIndex(COL_TEXT_IN_LINE)));
-				hf.setLineType(cursor.getInt(cursor.getColumnIndex(COL_LINE_TYPE)));
-				hf.setLineOrder(cursor.getInt(cursor.getColumnIndex(COL_LINE_ORDER)));
+				hf.setTextInLine(cursor.getString(cursor.getColumnIndex(COLUMN_TEXT_IN_LINE)));
+				hf.setLineType(cursor.getInt(cursor.getColumnIndex(COLUMN_LINE_TYPE)));
+				hf.setLineOrder(cursor.getInt(cursor.getColumnIndex(COLUMN_LINE_ORDER)));
 				hfLst.add(hf);
 			}while(cursor.moveToNext());
 		}
@@ -47,13 +46,13 @@ public class HeaderFooterReceipt extends MPOSDatabase{
 	public void addHeaderFooterReceipt(
 			List<ShopData.HeaderFooterReceipt> headerFooterLst) throws SQLException{
 
-		mSqlite.delete(TB_HEADER_FOOTER_RECEIPT, null, null);
+		mSqlite.delete(TABLE_HEADER_FOOTER_RECEIPT, null, null);
 		for(ShopData.HeaderFooterReceipt hf : headerFooterLst){
 			ContentValues cv = new ContentValues();
-			cv.put(COL_TEXT_IN_LINE, hf.getTextInLine());
-			cv.put(COL_LINE_TYPE, hf.getLineType());
-			cv.put(COL_LINE_ORDER, hf.getLineOrder());
-			mSqlite.insertOrThrow(TB_HEADER_FOOTER_RECEIPT, null, cv);
+			cv.put(COLUMN_TEXT_IN_LINE, hf.getTextInLine());
+			cv.put(COLUMN_LINE_TYPE, hf.getLineType());
+			cv.put(COLUMN_LINE_ORDER, hf.getLineOrder());
+			mSqlite.insertOrThrow(TABLE_HEADER_FOOTER_RECEIPT, null, cv);
 		}
 	}
 }

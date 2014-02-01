@@ -8,12 +8,12 @@ import java.util.Locale;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.syn.mpos.R;
-import com.syn.mpos.database.Computer;
-import com.syn.mpos.database.Login;
-import com.syn.mpos.database.Products;
-import com.syn.mpos.database.Staff;
 import com.syn.mpos.database.transaction.Session;
 import com.syn.mpos.database.transaction.Transaction;
+import com.syn.mpos.provider.Computer;
+import com.syn.mpos.provider.Login;
+import com.syn.mpos.provider.Products;
+import com.syn.mpos.provider.Staff;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.OrderTransaction.OrderDetail;
 import com.syn.pos.ShopData;
@@ -844,10 +844,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 									mSessionId = sess.addSession(mShopId, mComputerId, mStaffId, 0);
 								
 								ContentValues cv = new ContentValues();
-								cv.put(Transaction.COL_OPEN_STAFF, mStaffId);
-								MPOSApplication.getWriteDatabase().update(Transaction.TB_TRANS, 
-										cv, Transaction.COL_TRANS_ID + "=? AND " + 
-										Computer.COL_COMPUTER_ID + "=?", 
+								cv.put(Transaction.COLUMN_OPEN_STAFF, mStaffId);
+								MPOSApplication.getWriteDatabase().update(Transaction.TABLE_TRANSACTION, 
+										cv, Transaction.COLUMN_TRANSACTION_ID + "=? AND " + 
+										Computer.COLUMN_COMPUTER_ID + "=?", 
 										new String[]{
 										String.valueOf(mTransactionId), 
 										String.valueOf(mComputerId)

@@ -1,6 +1,7 @@
 package com.syn.mpos;
 
 import java.util.List;
+
 import android.content.Context;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -11,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.j1tth4.mobile.util.ImageLoader;
-import com.syn.mpos.database.Products;
+import com.syn.mpos.provider.Products;
 
 public class MenuItemAdapter extends BaseAdapter{
 	private ImageLoader mImgLoader;

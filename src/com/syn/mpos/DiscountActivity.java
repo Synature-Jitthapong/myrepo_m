@@ -2,10 +2,12 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.syn.mpos.R;
-import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.transaction.Transaction;
+import com.syn.mpos.provider.GlobalProperty;
 import com.syn.pos.OrderTransaction;
+
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;

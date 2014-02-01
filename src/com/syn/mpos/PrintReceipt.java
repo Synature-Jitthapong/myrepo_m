@@ -7,11 +7,11 @@ import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
-import com.syn.mpos.database.HeaderFooterReceipt;
-import com.syn.mpos.database.Shop;
-import com.syn.mpos.database.Util;
 import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.database.transaction.Transaction;
+import com.syn.mpos.provider.HeaderFooterReceipt;
+import com.syn.mpos.provider.Shop;
+import com.syn.mpos.provider.Util;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
 

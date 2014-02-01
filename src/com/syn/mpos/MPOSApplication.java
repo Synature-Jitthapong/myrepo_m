@@ -3,11 +3,13 @@ package com.syn.mpos;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
-import com.syn.mpos.database.Computer;
-import com.syn.mpos.database.GlobalProperty;
-import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.mpos.database.Products;
-import com.syn.mpos.database.Shop;
+
+import com.syn.mpos.provider.Computer;
+import com.syn.mpos.provider.GlobalProperty;
+import com.syn.mpos.provider.MPOSSQLiteHelper;
+import com.syn.mpos.provider.Products;
+import com.syn.mpos.provider.Shop;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;

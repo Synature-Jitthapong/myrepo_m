@@ -1,4 +1,4 @@
-package com.syn.mpos.database;
+package com.syn.mpos.provider;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -16,22 +16,22 @@ import android.database.sqlite.SQLiteDatabase;
 import com.syn.pos.ShopData;
 
 public class GlobalProperty extends MPOSDatabase{
-	public static final String TB_GLOBAL_PROPERTY = "GlobalProperty";
-	public static final String COL_CURRENCY_SYMBOL = "CurrencySymbol";
-	public static final String COL_CURRENCY_CODE = "CurrencyCode";
-	public static final String COL_CURRENCY_NAME = "CurrencyName";
-	public static final String COL_CURRENCY_FORMAT = "CurrencyFormat";
-	public static final String COL_QTY_FORMAT = "QtyFormat";
-	public static final String COL_DATE_FORMAT = "DateFormat";
-	public static final String COL_TIME_FORMAT = "TimeFormat";
+	public static final String TABLE_GLOBAL_PROPERTY = "GlobalProperty";
+	public static final String COLUMN_CURRENCY_SYMBOL = "currency_symbol";
+	public static final String COLUMN_CURRENCY_CODE = "currency_code";
+	public static final String COLUMN_CURRENCY_NAME = "currency_name";
+	public static final String COLUMN_CURRENCY_FORMAT = "currency_format";
+	public static final String COLUMN_QTY_FORMAT = "qty_format";
+	public static final String COLUMN_DATE_FORMAT = "date_format";
+	public static final String COLUMN_TIME_FORMAT = "time_format";
 	public static final String[] COLUMNS = {
-		COL_CURRENCY_SYMBOL,
-		COL_CURRENCY_CODE,
-		COL_CURRENCY_NAME,
-		COL_CURRENCY_FORMAT,
-		COL_QTY_FORMAT,
-		COL_DATE_FORMAT,
-		COL_TIME_FORMAT
+		COLUMN_CURRENCY_SYMBOL,
+		COLUMN_CURRENCY_CODE,
+		COLUMN_CURRENCY_NAME,
+		COLUMN_CURRENCY_FORMAT,
+		COLUMN_QTY_FORMAT,
+		COLUMN_DATE_FORMAT,
+		COLUMN_TIME_FORMAT
 	};
 	
 	private NumberFormat mNumFormat;
@@ -110,40 +110,40 @@ public class GlobalProperty extends MPOSDatabase{
 	public ShopData.GlobalProperty getGlobalProperty() {
 		ShopData.GlobalProperty gb = 
 				new ShopData.GlobalProperty();
-		Cursor cursor = mSqlite.query(TB_GLOBAL_PROPERTY, COLUMNS, 
+		Cursor cursor = mSqlite.query(TABLE_GLOBAL_PROPERTY, COLUMNS, 
 				null, null, null, null, null);
 		if (cursor.moveToFirst()) {
 			gb.setCurrencyCode(cursor.getString(cursor
-					.getColumnIndex(COL_CURRENCY_CODE)));
+					.getColumnIndex(COLUMN_CURRENCY_CODE)));
 			gb.setCurrencySymbol(cursor.getString(cursor
-					.getColumnIndex(COL_CURRENCY_SYMBOL)));
+					.getColumnIndex(COLUMN_CURRENCY_SYMBOL)));
 			gb.setCurrencyName(cursor.getString(cursor
-					.getColumnIndex(COL_CURRENCY_NAME)));
+					.getColumnIndex(COLUMN_CURRENCY_NAME)));
 			gb.setCurrencyFormat(cursor.getString(cursor
-					.getColumnIndex(COL_CURRENCY_FORMAT)));
+					.getColumnIndex(COLUMN_CURRENCY_FORMAT)));
 			gb.setDateFormat(cursor.getString(cursor
-					.getColumnIndex(COL_DATE_FORMAT)));
+					.getColumnIndex(COLUMN_DATE_FORMAT)));
 			gb.setTimeFormat(cursor.getString(cursor
-					.getColumnIndex(COL_TIME_FORMAT)));
+					.getColumnIndex(COLUMN_TIME_FORMAT)));
 			gb.setQtyFormat(cursor.getString(cursor
-					.getColumnIndex(COL_QTY_FORMAT)));
+					.getColumnIndex(COLUMN_QTY_FORMAT)));
 			cursor.moveToNext();
 		}
 		return gb;
 	}
 
 	public void insertProperty(List<ShopData.GlobalProperty> globalLst) throws SQLException{
-		mSqlite.delete(TB_GLOBAL_PROPERTY, null, null);
+		mSqlite.delete(TABLE_GLOBAL_PROPERTY, null, null);
 		for (ShopData.GlobalProperty global : globalLst) {
 			ContentValues cv = new ContentValues();
-			cv.put(COL_CURRENCY_SYMBOL, global.getCurrencySymbol());
-			cv.put(COL_CURRENCY_CODE, global.getCurrencyCode());
-			cv.put(COL_CURRENCY_NAME, global.getCurrencyName());
-			cv.put(COL_CURRENCY_FORMAT, global.getCurrencyFormat());
-			cv.put(COL_DATE_FORMAT, global.getDateFormat());
-			cv.put(COL_TIME_FORMAT, global.getTimeFormat());
-			cv.put(COL_QTY_FORMAT, global.getQtyFormat());
-			mSqlite.insertOrThrow(TB_GLOBAL_PROPERTY, null, cv);
+			cv.put(COLUMN_CURRENCY_SYMBOL, global.getCurrencySymbol());
+			cv.put(COLUMN_CURRENCY_CODE, global.getCurrencyCode());
+			cv.put(COLUMN_CURRENCY_NAME, global.getCurrencyName());
+			cv.put(COLUMN_CURRENCY_FORMAT, global.getCurrencyFormat());
+			cv.put(COLUMN_DATE_FORMAT, global.getDateFormat());
+			cv.put(COLUMN_TIME_FORMAT, global.getTimeFormat());
+			cv.put(COLUMN_QTY_FORMAT, global.getQtyFormat());
+			mSqlite.insertOrThrow(TABLE_GLOBAL_PROPERTY, null, cv);
 		}
 	}
 }

@@ -1,10 +1,6 @@
-package com.syn.mpos.database;
+package com.syn.mpos.provider;
 
 import com.syn.mpos.MPOSApplication;
-import com.syn.mpos.database.inventory.StockDocument;
-import com.syn.mpos.database.transaction.PaymentDetail;
-import com.syn.mpos.database.transaction.Session;
-import com.syn.mpos.database.transaction.Transaction;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
