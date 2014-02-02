@@ -1,12 +1,7 @@
-package com.syn.mpos.database.transaction;
+package com.syn.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.syn.mpos.provider.Bank;
-import com.syn.mpos.provider.Computer;
-import com.syn.mpos.provider.CreditCard;
-import com.syn.mpos.provider.MPOSDatabase;
 
 import android.content.ContentValues;
 import android.database.Cursor;

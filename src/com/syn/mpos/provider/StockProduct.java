@@ -1,4 +1,4 @@
-package com.syn.mpos.database.inventory;
+package com.syn.mpos.provider;
 
 public class StockProduct {
 	private int id;

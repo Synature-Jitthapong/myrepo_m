@@ -1,9 +1,5 @@
 package com.syn.mpos.provider;
 
-import com.syn.mpos.database.inventory.StockDocument;
-import com.syn.mpos.database.transaction.PaymentDetail;
-import com.syn.mpos.database.transaction.Session;
-import com.syn.mpos.database.transaction.Transaction;
 
 public class MPOSSQL {
 	public static final String BANK_SQL =

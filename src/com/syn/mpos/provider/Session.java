@@ -1,10 +1,7 @@
-package com.syn.mpos.database.transaction;
+package com.syn.mpos.provider;
 
 import java.util.Calendar;
 
-import com.syn.mpos.provider.Computer;
-import com.syn.mpos.provider.Shop;
-import com.syn.mpos.provider.Util;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;

@@ -1,6 +1,4 @@
-package com.syn.mpos.database.inventory;
-
-import com.syn.mpos.provider.Products;
+package com.syn.mpos.provider;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;

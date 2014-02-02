@@ -6,9 +6,9 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 
-import com.syn.mpos.database.transaction.PaymentDetail;
-import com.syn.mpos.database.transaction.Transaction;
+import com.syn.mpos.provider.PaymentDetail;
 import com.syn.mpos.provider.Reporting;
+import com.syn.mpos.provider.Transaction;
 import com.syn.pos.Report;
 
 import android.os.Bundle;

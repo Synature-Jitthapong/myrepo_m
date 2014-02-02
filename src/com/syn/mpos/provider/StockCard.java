@@ -1,4 +1,4 @@
-package com.syn.mpos.database.inventory;
+package com.syn.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,9 +8,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-
-import com.syn.mpos.provider.MPOSDatabase;
-import com.syn.mpos.provider.Products;
 
 public class StockCard extends MPOSDatabase{
 	public static final String TB_STOCK_CARD_TEMP = "StockCardTemp";

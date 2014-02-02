@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Locale;
 
 import com.syn.mpos.R;
-import com.syn.mpos.database.transaction.PaymentDetail;
 import com.syn.mpos.provider.Bank;
 import com.syn.mpos.provider.CreditCard;
+import com.syn.mpos.provider.PaymentDetail;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
 

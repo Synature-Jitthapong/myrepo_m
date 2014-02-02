@@ -3,10 +3,8 @@ package com.syn.mpos.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.database.inventory.StockDocument;
-import com.syn.mpos.database.transaction.PaymentDetail;
-import com.syn.mpos.database.transaction.Transaction;
 import com.syn.pos.Report;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;

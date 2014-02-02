@@ -11,11 +11,11 @@ import android.util.Log;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.MPOSService.SendSaleTransaction;
-import com.syn.mpos.database.transaction.Session;
-import com.syn.mpos.database.transaction.Transaction;
 import com.syn.mpos.provider.Computer;
 import com.syn.mpos.provider.SaleTransaction;
+import com.syn.mpos.provider.Session;
 import com.syn.mpos.provider.SyncSaleLog;
+import com.syn.mpos.provider.Transaction;
 import com.syn.mpos.provider.Util;
 import com.syn.mpos.provider.SaleTransaction.POSData_SaleTransaction;
 

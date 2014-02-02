@@ -2,7 +2,7 @@ package com.syn.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.syn.mpos.database.transaction.Session;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;

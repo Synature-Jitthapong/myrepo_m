@@ -1,4 +1,4 @@
-package com.syn.mpos.database.inventory;
+package com.syn.mpos.provider;
 
 import java.util.List;
 import com.syn.pos.OrderTransaction;

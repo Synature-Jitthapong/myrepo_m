@@ -8,12 +8,12 @@ import java.util.Locale;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.syn.mpos.R;
-import com.syn.mpos.database.transaction.Session;
-import com.syn.mpos.database.transaction.Transaction;
 import com.syn.mpos.provider.Computer;
 import com.syn.mpos.provider.Login;
 import com.syn.mpos.provider.Products;
+import com.syn.mpos.provider.Session;
 import com.syn.mpos.provider.Staff;
+import com.syn.mpos.provider.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.OrderTransaction.OrderDetail;
 import com.syn.pos.ShopData;

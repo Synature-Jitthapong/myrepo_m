@@ -1,22 +1,15 @@
-package com.syn.mpos.database.transaction;
+package com.syn.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import com.syn.mpos.database.inventory.SaleStock;
-import com.syn.mpos.database.inventory.StockDocument;
-import com.syn.mpos.provider.Computer;
-import com.syn.mpos.provider.MPOSDatabase;
-import com.syn.mpos.provider.Products;
-import com.syn.mpos.provider.Shop;
-import com.syn.mpos.provider.Staff;
-import com.syn.mpos.provider.SyncSaleLog;
-import com.syn.mpos.provider.Util;
+
 import com.syn.pos.OrderTransaction;
 
 /**
@@ -58,7 +51,7 @@ public class Transaction extends MPOSDatabase {
 	public static final String TABLE_ORDER = "OrderDetail";
 	public static final String TABLE_ORDER_TMP = "OrderDetailTmp";
 	public static final String COLUMN_ORDER_ID = "order_detail_id";
-	public static final String COLUMN_ORDER_QTY = "oty";
+	public static final String COLUMN_ORDER_QTY = "qty";
 	public static final String COLUMN_TOTAL_RETAIL_PRICE = "total_retail_price";
 	public static final String COLUMN_TOTAL_SALE_PRICE = "total_sale_price";
 	public static final String COLUMN_TOTAL_VAT = "total_vat_amount";
