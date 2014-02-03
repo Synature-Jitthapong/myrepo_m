@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_selector" >
 
     <TextView
         android:id="@+id/tvReceipt"
@@ -71,16 +72,14 @@
         style="@style/ColumnDetail"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.8"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_weight="0.8" />
 
     <TextView
         android:id="@+id/tvPayTypeCredit"
         style="@style/ColumnDetail"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.8"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_weight="0.8" />
 
     <TextView
         android:id="@+id/tvTotalPayment"

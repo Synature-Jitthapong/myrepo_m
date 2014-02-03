@@ -11,20 +11,31 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class SaleTransaction {
 	private SQLiteDatabase mSqlite;
-	private long mSessionDate;
+	private String mSessionDate;
 
-	public SaleTransaction(SQLiteDatabase db, long sessionDate) {
+	public SaleTransaction(SQLiteDatabase db, String sessionDate) {
 		mSqlite = db;
 		mSessionDate = sessionDate;
 	}
 
+	public POSData_SaleTransaction listAllSaleTransactionInSaleDate() {
+		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
+		SaleData_SessionInfo sessInfo = new SaleData_SessionInfo();
+
+		sessInfo.setxTableSession(buildSessionObj());
+		sessInfo.setxTableSessionEndDay(buildSessEnddayObj());
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(true));
+		posSaleTrans.setxSessionInfo(sessInfo);
+		return posSaleTrans;
+	}
+	
 	public POSData_SaleTransaction listSaleTransaction() {
 		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
 		SaleData_SessionInfo sessInfo = new SaleData_SessionInfo();
 
 		sessInfo.setxTableSession(buildSessionObj());
 		sessInfo.setxTableSessionEndDay(buildSessEnddayObj());
-		posSaleTrans.setxArySaleTransaction(buildSaleTransLst());
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(false));
 		posSaleTrans.setxSessionInfo(sessInfo);
 		return posSaleTrans;
 	}
@@ -34,9 +45,15 @@ public class SaleTransaction {
 	 * [SaleTable_OrderDetail] [SaleTable_OrderPromotion]
 	 * [SaleTable_PaymentDetail] } }
 	 */
-	private List<SaleData_SaleTransaction> buildSaleTransLst() {
+	private List<SaleData_SaleTransaction> buildSaleTransLst(boolean listAll) {
 		List<SaleData_SaleTransaction> saleTransLst = new ArrayList<SaleData_SaleTransaction>();
 		Cursor cursor = queryTransaction();
+		
+		if(listAll)
+			cursor = queryAllTransactionInSaleDate();
+		else
+			cursor = queryTransaction();
+		
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -293,48 +310,68 @@ public class SaleTransaction {
 	}
 
 	public Cursor queryPaymentDetail(int transId) {
-		return mSqlite.rawQuery("SELECT * " + " FROM "
-				+ PaymentDetail.TABLE_PAYMENT + " WHERE "
-				+ Transaction.COLUMN_TRANSACTION_ID + "=?",
+		return mSqlite.rawQuery(
+				"SELECT * " + 
+				" FROM " + PaymentDetail.TABLE_PAYMENT + 
+				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transId) });
 	}
 
 	public Cursor queryOrderDetail(int transId) {
-		return mSqlite.rawQuery("SELECT * " + " FROM "
-				+ Transaction.TABLE_ORDER + " WHERE "
-				+ Transaction.COLUMN_TRANSACTION_ID + "=?",
+		return mSqlite.rawQuery(
+				"SELECT * " + 
+				" FROM " + Transaction.TABLE_ORDER + 
+				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transId) });
 	}
 
+	public Cursor queryAllTransactionInSaleDate() {
+		return mSqlite.rawQuery(
+				"SELECT * " + 
+				" FROM " + Transaction.TABLE_TRANSACTION + 
+				" WHERE " + Transaction.COLUMN_SALE_DATE + "=?" + 
+				" AND " + Transaction.COLUMN_STATUS_ID + " IN(?,?) ",
+				new String[] {
+						mSessionDate,
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID)});
+	}
+	
 	public Cursor queryTransaction() {
 		return mSqlite.rawQuery(
-				"SELECT * " + " FROM " + Transaction.TABLE_TRANSACTION
-						+ " WHERE " + Transaction.COLUMN_SALE_DATE + "=?"
-						+ " AND " + Transaction.COLUMN_STATUS_ID + " IN(?,?) "
-						+ " AND " + MPOSDatabase.COLUMN_SEND_STATUS + "=?",
-				new String[] { String.valueOf(mSessionDate),
+				"SELECT * " + 
+				" FROM " + Transaction.TABLE_TRANSACTION + 
+				" WHERE " + Transaction.COLUMN_SALE_DATE + "=?" + 
+				" AND " + Transaction.COLUMN_STATUS_ID + " IN(?,?) " + 
+				" AND " + MPOSDatabase.COLUMN_SEND_STATUS + "=?",
+				new String[] {
+						mSessionDate,
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 						String.valueOf(Transaction.TRANS_STATUS_VOID),
 						String.valueOf(MPOSDatabase.NOT_SEND) });
 	}
 
 	public Cursor querySessionEndday() {
-		return mSqlite.rawQuery("SELECT * " + " FROM "
-				+ Session.TABLE_SESSION_DETAIL + " WHERE "
-				+ Session.COLUMN_SESS_DATE + "=?",
-				new String[] { String.valueOf(mSessionDate) });
+		return mSqlite.rawQuery(
+				"SELECT * " + 
+				" FROM " + Session.TABLE_SESSION_DETAIL + 
+				" WHERE " + Session.COLUMN_SESS_DATE + "=?",
+				new String[] {mSessionDate});
 	}
 
 	public Cursor querySession() {
-		return mSqlite.rawQuery("SELECT * " + " FROM " + Session.TABLE_SESSION
-				+ " WHERE " + Session.COLUMN_SESS_DATE + "=?",
-				new String[] { String.valueOf(mSessionDate) });
+		return mSqlite.rawQuery(
+				"SELECT * " + 
+				" FROM " + Session.TABLE_SESSION + 
+				" WHERE " + Session.COLUMN_SESS_DATE + "=?",
+				new String[] {mSessionDate});
 	}
 
 	public Cursor querySyncSaleLog() {
-		return mSqlite.rawQuery("SELECT * " + " FROM "
-				+ SyncSaleLog.TABLE_SYNC_SALE_LOG + " WHERE "
-				+ SyncSaleLog.COLUMN_SYNC_STATUS + "=?",
+		return mSqlite.rawQuery(
+				"SELECT * " + 
+				" FROM " + SyncSaleLog.TABLE_SYNC_SALE_LOG + 
+				" WHERE " + SyncSaleLog.COLUMN_SYNC_STATUS + "=?",
 				new String[] { String.valueOf(SyncSaleLog.SYNC_FAIL) });
 	}
 

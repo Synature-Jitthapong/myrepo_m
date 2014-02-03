@@ -681,7 +681,9 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 
 								@Override
 								public void onPost() {
-									mProgress.dismiss();
+									if(mProgress.isShowing())
+										mProgress.dismiss();
+									
 									new AlertDialog.Builder(MainActivity.this)
 									.setTitle(R.string.endday)
 									.setMessage(R.string.endday_success)
@@ -696,7 +698,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 
 								@Override
 								public void onError(String msg) {
-									mProgress.dismiss();
+									if(mProgress.isShowing())
+										mProgress.dismiss();
 									
 									new AlertDialog.Builder(MainActivity.this)
 									.setMessage(msg)

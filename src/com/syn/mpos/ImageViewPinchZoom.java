@@ -52,7 +52,7 @@ public class ImageViewPinchZoom extends DialogFragment{
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		mImgLoader = new ImageLoader(getActivity(), R.drawable.no_food,
+		mImgLoader = new ImageLoader(getActivity(), 0,
 				MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.LARGE);
 		
 		mImgName = getArguments().getString("imgName");

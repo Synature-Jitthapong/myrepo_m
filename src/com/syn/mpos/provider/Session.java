@@ -185,11 +185,13 @@ public class Session extends Transaction{
 				new String[]{COLUMN_SESS_ID},  
 				Computer.COLUMN_COMPUTER_ID + " =? " +
 				" AND " + COLUMN_OPEN_STAFF + " =? " +
-				" AND " + COLUMN_SESS_DATE + " =? ",
+				" AND " + COLUMN_SESS_DATE + " =? " +
+				" AND " + COLUMN_IS_ENDDAY + " =? ",
 				new String[]{
 				String.valueOf(computerId),
 				String.valueOf(staffId),
-				String.valueOf(Util.getDate().getTimeInMillis())}, null, null, null);
+				String.valueOf(Util.getDate().getTimeInMillis()),
+				String.valueOf(NOT_ENDDAY_STATUS)}, null, null, null);
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}

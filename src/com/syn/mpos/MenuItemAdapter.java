@@ -23,7 +23,7 @@ public class MenuItemAdapter extends BaseAdapter{
 	public MenuItemAdapter(Context c, List<Products.Product> productLst){
 		mProductLst = productLst;
 		mContext = c;
-		mImgLoader = new ImageLoader(c, R.drawable.no_food,
+		mImgLoader = new ImageLoader(c, 0,
 				MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		mInflater =
 				(LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

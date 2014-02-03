@@ -6,7 +6,6 @@ import java.util.List;
 import android.content.Context;
 import android.database.SQLException;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
@@ -31,11 +30,10 @@ public class MPOSUtil {
 
 			@Override
 			public void onPost(POSData_SaleTransaction saleTrans,
-					long sessionDate) {
+					final String sessionDate) {
 
 				JSONUtil jsonUtil = new JSONUtil();
-				Type type = new TypeToken<POSData_SaleTransaction>() {
-				}.getType();
+				Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
 				String jsonSale = jsonUtil.toJson(type, saleTrans);
 
 				ProgressListener sendSaleListener = new ProgressListener() {
@@ -46,22 +44,22 @@ public class MPOSUtil {
 					@Override
 					public void onPost() {
 						// do update transaction already send
-						Transaction trans = new Transaction(
-								MPOSApplication.getWriteDatabase());
-						trans.updateTransactionSendStatus(String.valueOf(Util
-								.getDate().getTimeInMillis()));
+						Transaction trans = 
+								new Transaction(MPOSApplication.getWriteDatabase());
+						trans.updateTransactionSendStatus(sessionDate);
+						
+						SyncSaleLog syncLog = new SyncSaleLog(MPOSApplication.getWriteDatabase());
+						syncLog.addSyncSaleLog(sessionDate);
 						listener.onPost();
 					}
 
 					@Override
 					public void onError(String msg) {
-						Log.e("MPOSUtil", msg);
 						listener.onError(msg);
 					}
 				};
-				new MPOSService.SendPartialSaleTransaction(
-						MPOSApplication.getContext(), staffId, jsonSale,
-						sendSaleListener).execute(MPOSApplication.getFullUrl());
+				new MPOSService.SendPartialSaleTransaction(MPOSApplication.getContext(), 
+						staffId, jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl());
 			}
 
 			@Override
@@ -74,53 +72,33 @@ public class MPOSUtil {
 			}
 
 		};
-		new LoadSaleTransactionTask(Util.getDate().getTimeInMillis(),
+		new LoadSaleTransaction(String.valueOf(Util.getDate().getTimeInMillis()),
 				loadSaleListener).execute();
 	}
 	
-	public static void doEndday(int computerId, int sessionId,
-			final int closeStaffId, float closeAmount, boolean isEndday,
-			final ProgressListener listener) {
-
+	public static void doEndday(final int computerId, final int sessionId,
+			final int closeStaffId, final float closeAmount,
+			final boolean isEndday, final ProgressListener listener) {
+		
 		// check is main computer
 		Computer comp = new Computer(MPOSApplication.getReadDatabase());
-		if(comp.checkIsMainComputer(computerId)){
-			Session sess = new Session(MPOSApplication.getWriteDatabase());
-			Transaction trans = new Transaction(MPOSApplication.getWriteDatabase());
+		if (comp.checkIsMainComputer(computerId)) {
+			final SyncSaleLog syncLog = 
+					new SyncSaleLog(MPOSApplication.getWriteDatabase());
+			LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
 
-			if (sess.closeSession(sessionId, computerId, closeStaffId, closeAmount,
-					isEndday)) {
-				String enddayDate = sess.getSessionDate(sessionId, computerId);
+				@Override
+				public void onPost(POSData_SaleTransaction saleTrans,
+						final String sessionDate) {
 
-				boolean canEndday = false;
-				String enddayErr = "";
-				try {
-					canEndday = sess.addSessionEnddayDetail(enddayDate,
-							trans.getTotalReceipt(enddayDate),
-							trans.getTotalReceiptAmount(enddayDate));
-				} catch (SQLException e) {
-					enddayErr = e.getMessage();
-				}
+					JSONUtil jsonUtil = new JSONUtil();
+					Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
+					String jsonSale = jsonUtil.toJson(type, saleTrans);
+					// Log.v("SaleTrans", saleJson);
 
-				if (canEndday) {
-					// send sale process
-					final SyncSaleLog syncLog = new SyncSaleLog(
-							MPOSApplication.getWriteDatabase());
-					// add sync log
-					syncLog.addSyncSaleLog(enddayDate);
-
-					final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
-
-						@Override
-						public void onPost(POSData_SaleTransaction saleTrans,
-								final long sessionDate) {
-							JSONUtil jsonUtil = new JSONUtil();
-							Type type = new TypeToken<POSData_SaleTransaction>() {
-							}.getType();
-							String jsonSale = jsonUtil.toJson(type, saleTrans);
-							// Log.v("SaleTrans", saleJson);
-
-							ProgressListener sendSaleListener = new ProgressListener() {
+					new MPOSService.SendSaleTransaction(
+							SendSaleTransaction.SEND_SALE_TRANS_METHOD,
+							closeStaffId, jsonSale, new ProgressListener() {
 
 								@Override
 								public void onError(String mesg) {
@@ -131,70 +109,85 @@ public class MPOSUtil {
 
 								@Override
 								public void onPre() {
-									// TODO Auto-generated method stub
-
 								}
 
 								@Override
 								public void onPost() {
 									syncLog.updateSyncSaleLog(sessionDate,
 											SyncSaleLog.SYNC_SUCCESS);
-									listener.onPost();
+
+									try {
+										Transaction trans = 
+												new Transaction(MPOSApplication.getWriteDatabase());
+
+										final Session sess = new Session(MPOSApplication.getWriteDatabase());
+										sess.addSessionEnddayDetail(sessionDate,
+												trans.getTotalReceipt(sessionDate),
+												trans.getTotalReceiptAmount(sessionDate));
+										sess.closeSession(sessionId, computerId,
+											closeStaffId, closeAmount, isEndday);
+										listener.onPost();
+									} catch (SQLException e) {
+										listener.onError(e.getMessage());
+									}
 								}
-							};
+							}).execute(MPOSApplication.getFullUrl());
+				}
 
-							new MPOSService.SendSaleTransaction(
-									SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-									closeStaffId, jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl());
-						}
+				@Override
+				public void onError(String mesg) {
+					listener.onError(mesg);
+				}
 
-						@Override
-						public void onError(String mesg) {
-							listener.onError(mesg);
-						}
+				@Override
+				public void onPre() {
+					listener.onPre();
+				}
 
-						@Override
-						public void onPre() {
-							// TODO Auto-generated method stub
+				@Override
+				public void onPost() {
+				}
 
-						}
+			};
 
-						@Override
-						public void onPost() {
-							// TODO Auto-generated method stub
-
-						}
-
-					};
-
-					// loop load sale by date that not successfully sync
-					List<Long> dateLst = syncLog.listSessionDate();
-					if (dateLst != null) {
-						for (long date : dateLst) {
-							new LoadSaleTransactionTask(date, loadSaleListener)
-									.execute();
-						}
-					}
-				} else {
-					listener.onError(enddayErr);
+			// loop load sale by date that not successfully sync
+			List<String> dateLst = syncLog.listSessionDate();
+			if (dateLst != null) {
+				for (String date : dateLst) {
+					new LoadSaleTransactionForEndday(date, loadSaleListener)
+							.execute();
 				}
 			}
-		}else{
+		} else {
 			Context context = MPOSApplication.getContext();
-			listener.onError(context.getString(R.string.cannot_endday) + " " +
-					context.getString(R.string.because) + " " +
-					context.getString(R.string.not_main_computer));
+			listener.onError(context.getString(R.string.cannot_endday) + " "
+					+ context.getString(R.string.because) + " "
+					+ context.getString(R.string.not_main_computer));
 		}
 	}
 
-	// task for load transaction data
-	public static class LoadSaleTransactionTask extends AsyncTask<Void, Void, POSData_SaleTransaction>{
+	// load sale transaction for endday
+	public static class LoadSaleTransactionForEndday extends LoadSaleTransaction{
 
-		private LoadSaleTransactionListener mListener;
-		private SaleTransaction mSaleTrans;
-		private long mSessionDate;
+		public LoadSaleTransactionForEndday(String sessionDate,
+				LoadSaleTransactionListener listener) {
+			super(sessionDate, listener);
+		}
 		
-		public LoadSaleTransactionTask(long sessionDate, 
+		@Override
+		protected POSData_SaleTransaction doInBackground(Void... params) {
+			return mSaleTrans.listAllSaleTransactionInSaleDate();
+		}
+	}
+	
+	// load sale transaction for send realtime
+	public static class LoadSaleTransaction extends AsyncTask<Void, Void, POSData_SaleTransaction>{
+
+		protected LoadSaleTransactionListener mListener;
+		protected SaleTransaction mSaleTrans;
+		protected String mSessionDate;
+		
+		public LoadSaleTransaction(String sessionDate, 
 				LoadSaleTransactionListener listener){
 			mListener = listener;
 			mSaleTrans = new SaleTransaction(MPOSApplication.getWriteDatabase(), sessionDate);
@@ -208,9 +201,7 @@ public class MPOSUtil {
 
 		@Override
 		protected void onPostExecute(POSData_SaleTransaction saleTrans) {
-			if(saleTrans != null){
-				mListener.onPost(saleTrans, mSessionDate);
-			}
+			mListener.onPost(saleTrans, mSessionDate);
 		}
 		
 		@Override
@@ -220,6 +211,6 @@ public class MPOSUtil {
 	}
 	
 	public static interface LoadSaleTransactionListener extends ProgressListener{
-		void onPost(POSData_SaleTransaction saleTrans, long sessionDate);
+		void onPost(POSData_SaleTransaction saleTrans, String sessionDate);
 	}
 }

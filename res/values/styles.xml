@@ -1,21 +1,4 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <style name="TextViewValueNumber" parent="TextViewValue">
-        <item name="android:gravity">right</item>
-    </style>
-    <style name="TextViewValue" parent="android:Widget.Holo.Light.TextView">
-        <item name="android:layout_marginLeft">4dp</item>
-        <item name="android:layout_marginRight">8dp</item>
-        <item name="android:minWidth">70dp</item>
-        <item name="android:background">@drawable/white_layer</item>
-        <item name="android:padding">4dp</item>
-    </style>
-    <style name="SectionHead" parent="android:Widget.Holo.Light.TextView">
-        <item name="android:drawableBottom">@drawable/section_head</item>
-        <item name="android:drawablePadding">4dp</item>
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:paddingLeft">4dp</item>
-        <item name="android:textAllCaps">true</item>
-    </style>
     <style name="ButtonTextWhite" parent="ButtonText">
 	    <item name="android:textColor" >#ffffff</item>
     </style>
@@ -30,15 +13,15 @@
     </style>
     <style name="ColumnDetail" parent="ColumnHeader">
         <item name="android:gravity">right</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textAllCaps">false</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
     <style name="ColumnHeader" parent="android:style/Widget.TextView">
-        <item name="android:background">@drawable/table_header</item>
+        <item name="android:background">@color/light_gray</item>
         <item name="android:layout_marginRight">1dp</item>
-        <item name="android:padding">8dp</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:padding">4dp</item>
         <item name="android:gravity">center</item>
-        <item name="android:textSize">18sp</item>
 		<item name="android:lines">1</item>
         <item name="android:textAllCaps">true</item>
     </style>
