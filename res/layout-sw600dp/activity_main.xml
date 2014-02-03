@@ -192,7 +192,7 @@
                 android:enabled="false"
                 android:minWidth="100dp"
                 android:onClick="paymentClicked"
-                android:text="@string/tender"
+                android:text="@string/payment"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
         </LinearLayout>
     </RelativeLayout>

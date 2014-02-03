@@ -653,63 +653,75 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 
 	private void endday(){
-		new AlertDialog.Builder(MainActivity.this)
-		.setTitle(R.string.endday)
-		.setMessage(R.string.confirm_endday)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
+		if(mOrderLst.size() == 0){
+			new AlertDialog.Builder(MainActivity.this)
+			.setTitle(R.string.endday)
+			.setMessage(R.string.confirm_endday)
+			.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 				
-			}
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				mProgress.setTitle(MPOSApplication.getContext().getString(R.string.endday));
-				mProgress.setMessage(MPOSApplication.getContext().getString(R.string.endday_progress));
-				ProgressListener progressListener = 
-						new ProgressListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
 					
-							@Override
-							public void onPre() {
-								mProgress.show();
-							}
+				}
+			})
+			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					mProgress.setTitle(MPOSApplication.getContext().getString(R.string.endday));
+					mProgress.setMessage(MPOSApplication.getContext().getString(R.string.endday_progress));
+					ProgressListener progressListener = 
+							new ProgressListener() {
+						
+								@Override
+								public void onPre() {
+									mProgress.show();
+								}
 
-							@Override
-							public void onPost() {
-								mProgress.dismiss();
-								new AlertDialog.Builder(MainActivity.this)
-								.setTitle(R.string.endday)
-								.setMessage(R.string.endday_success)
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										finish();
-									}
-								}).show();
-							}
+								@Override
+								public void onPost() {
+									mProgress.dismiss();
+									new AlertDialog.Builder(MainActivity.this)
+									.setTitle(R.string.endday)
+									.setMessage(R.string.endday_success)
+									.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											finish();
+										}
+									}).show();
+								}
 
-							@Override
-							public void onError(String msg) {
-								mProgress.dismiss();
-								
-								new AlertDialog.Builder(MainActivity.this)
-								.setMessage(msg)
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+								@Override
+								public void onError(String msg) {
+									mProgress.dismiss();
 									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-									}
-								}).show();
-							}
-						};
-				MPOSUtil.doEndday(mComputerId, mSessionId, mStaffId, 0.0f, true, progressListener);
-			}
-		}).show();
+									new AlertDialog.Builder(MainActivity.this)
+									.setMessage(msg)
+									.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+										}
+									}).show();
+								}
+							};
+					MPOSUtil.doEndday(mComputerId, mSessionId, mStaffId, 0.0f, true, progressListener);
+				}
+			}).show();
+		}else{
+			new AlertDialog.Builder(MainActivity.this)
+			.setMessage(R.string.cannot_endday_have_order)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			})
+			.show();
+		}
 	}
 
 	public void holdOrderClicked(final View v){

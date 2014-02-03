@@ -187,7 +187,8 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="confirm_close_shift">Are you sure you want to close shift?</string>
     <string name="confirm_logout">Are you sure you want to logout?</string>
     <string name="device_not_register">Device not register</string>
-    <string name="not_allow_discount">Not allow discount more than total price!</string>
+    <string name="not_allow_discount_price">Not allow discount more than product price!</string>
+    <string name="not_allow_discount">This product is not allow discount!</string>
     <string name="total">Total</string>
     <string name="confirm_cancel_stock_count">Are you sure you want to cancel stock count?</string>
     <string name="title_activity_manage_product">ManageProductActivity</string>
@@ -229,13 +230,13 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="printer_port_summary">port of printer</string>
     <string name="title_activity_about">About MPOS</string>
     <string name="about">About MPOS</string>
-    <string name="load_sale_trans_progress">Load sale data for send to cloud...</string>
+    <string name="load_sale_trans_progress">Load sale data for send to cloud&#8230;</string>
     <string name="endday_success">Endday successfully.</string>
     <string name="product_size">Product Size</string>
     <string name="enter_valid_numeric">Please enter valid numeric.</string>
     <string name="card_holder">CardHolder</string>
     <string name="cvv2">Card Verification Number</string>
-    <string name="endday_progress">Endding day please wait...</string>
+    <string name="endday_progress">Endding day please wait&#8230;</string>
     <string name="date">Date</string>
     <string name="tender">Tender</string>
     <string name="alredy_endday">Already endday.</string>
@@ -248,8 +249,9 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="items">ITEMS</string>
     <string name="pay">Pay</string>
     <string name="before_vat">Before VAT</string>
-    <string name="not_main_computer">This device is not main device.</string>
+    <string name="not_main_computer">This device is not main computer.</string>
     <string name="cannot_endday">Cannot endday </string>
     <string name="because">because</string>
+    <string name="cannot_endday_have_order">Clear current order first!</string>
 
 </resources>

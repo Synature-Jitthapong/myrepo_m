@@ -61,7 +61,7 @@ public class MPOSUtil {
 				};
 				new MPOSService.SendPartialSaleTransaction(
 						MPOSApplication.getContext(), staffId, jsonSale,
-						sendSaleListener);
+						sendSaleListener).execute(MPOSApplication.getFullUrl());
 			}
 
 			@Override
@@ -145,7 +145,7 @@ public class MPOSUtil {
 
 							new MPOSService.SendSaleTransaction(
 									SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-									closeStaffId, jsonSale, sendSaleListener);
+									closeStaffId, jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl());
 						}
 
 						@Override

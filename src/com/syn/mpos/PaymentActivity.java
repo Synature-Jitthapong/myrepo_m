@@ -2,21 +2,10 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.epson.eposprint.BatteryStatusChangeEventListener;
-import com.epson.eposprint.Builder;
-import com.epson.eposprint.EposException;
-import com.epson.eposprint.Print;
-import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.R;
-import com.syn.mpos.provider.HeaderFooterReceipt;
 import com.syn.mpos.provider.PaymentDetail;
 import com.syn.mpos.provider.Transaction;
-import com.syn.mpos.provider.Util;
-import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
-import com.syn.pos.ShopData;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
@@ -384,6 +373,9 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 
 							@Override
 							public void onError(String msg) {
+								new AlertDialog.Builder(PaymentActivity.this)
+								.setMessage(msg)
+								.show();
 							}
 							
 						});

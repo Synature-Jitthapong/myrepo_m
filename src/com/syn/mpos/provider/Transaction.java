@@ -559,7 +559,7 @@ public class Transaction extends MPOSDatabase {
 				String.format(Locale.getDefault(), "%02d", month);
 		String receiptId = 
 				String.format(Locale.getDefault(), "%06d", id);
-		return header + receiptMonth + receiptYear + receiptId;
+		return header + receiptMonth + receiptYear + "/" + receiptId;
 	}
 	
 	public List<OrderTransaction> listTransaction(long saleDate) {

@@ -99,23 +99,39 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 			@Override
 			public void onItemClick(AdapterView<?> parent, View v, final int position,
 					final long id) {
-				mPosition = position;
-				mOrder = (OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
+				OrderTransaction.OrderDetail order = 
+						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 				
-				mTvItemName.setText(mOrder.getProductName());
-				mTxtDiscount.clearFocus();
-				mTxtDiscount.setText(mGlobalProp.currencyFormat(mOrder.getPriceDiscount()));
-				if(mOrder.getDiscountType() == 2){
-					mTxtDiscount.setText(mGlobalProp.currencyFormat(
-							mOrder.getPriceDiscount() * 100 / mOrder.getTotalRetailPrice()));
+				if(MPOSApplication.getProduct().
+						getProduct(order.getProductId()).getDiscountAllow() == 1){
+					mPosition = position;
+					mOrder = order;
+					mTvItemName.setText(mOrder.getProductName());
+					mTxtDiscount.clearFocus();
+					mTxtDiscount.setText(mGlobalProp.currencyFormat(mOrder.getPriceDiscount()));
+					if(mOrder.getDiscountType() == 2){
+						mTxtDiscount.setText(mGlobalProp.currencyFormat(
+								mOrder.getPriceDiscount() * 100 / mOrder.getTotalRetailPrice()));
+					}
+					mRdoDiscountType.check(mOrder.getDiscountType() == 1 ? R.id.rdoPrice : R.id.rdoPercent);
+	                
+					mItemInput.setVisible(true);
+					mItemConfirm.setVisible(false);
+					mTxtDiscount.requestFocus();
+					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+	                imm.showSoftInput(mTxtDiscount, InputMethodManager.SHOW_IMPLICIT);
+				}else{
+					new AlertDialog.Builder(DiscountActivity.this)
+					.setMessage(R.string.not_allow_discount)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							mLvDiscount.setItemChecked(mPosition, true);
+						}
+					})
+					.show();
 				}
-				mRdoDiscountType.check(mOrder.getDiscountType() == 1 ? R.id.rdoPrice : R.id.rdoPercent);
-                
-				mItemInput.setVisible(true);
-				mItemConfirm.setVisible(false);
-				mTxtDiscount.requestFocus();
-				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(mTxtDiscount, InputMethodManager.SHOW_IMPLICIT);
 			}
 		});
 		loadOrder();
@@ -352,13 +368,11 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 
 	private void popupNotAllowDiscount(){
 		new AlertDialog.Builder(this)
-		.setMessage(R.string.not_allow_discount)
+		.setMessage(R.string.not_allow_discount_price)
 		.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				
 			}
 		})
 		.show();

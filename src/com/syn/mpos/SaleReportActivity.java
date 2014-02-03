@@ -275,12 +275,12 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			TextView tvSummProTotalPricePercent = (TextView) findViewById(R.id.tvSummProTotalPricePercent);
 			
 			tvSummProQty.setText(MPOSApplication.getGlobalProperty().qtyFormat(summProduct.getQty()));
-			tvSummProQtyPercent.setText(MPOSApplication.getGlobalProperty().qtyFormat(summProduct.getQty() / summProduct.getQty() * 100) + "%");
+			tvSummProQtyPercent.setText(MPOSApplication.getGlobalProperty().qtyFormat(summProduct.getQty() / summProduct.getQty() * 100));
 			tvSummProSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(summProduct.getSubTotal()));
-			tvSummProSubTotalPercent.setText(MPOSApplication.getGlobalProperty().qtyFormat(summProduct.getSubTotal() / summProduct.getSubTotal() * 100) + "%");
+			tvSummProSubTotalPercent.setText(MPOSApplication.getGlobalProperty().qtyFormat(summProduct.getSubTotal() / summProduct.getSubTotal() * 100));
 			tvSummProDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(summProduct.getDiscount()));
 			tvSummProTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(summProduct.getTotalPrice()));
-			tvSummProTotalPricePercent.setText(MPOSApplication.getGlobalProperty().qtyFormat(summProduct.getTotalPrice() / summProduct.getTotalPrice() * 100) + "%");
+			tvSummProTotalPricePercent.setText(MPOSApplication.getGlobalProperty().qtyFormat(summProduct.getTotalPrice() / summProduct.getTotalPrice() * 100));
 		}
 	}
 	
@@ -384,17 +384,17 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			holder.tvQty.setText(MPOSApplication.getGlobalProperty().qtyFormat(
 					reportDetail.getQty()));
 			holder.tvQtyPercent.setText(MPOSApplication.getGlobalProperty().currencyFormat(
-					reportDetail.getQtyPercent()) + "%");
+					reportDetail.getQtyPercent()));
 			holder.tvSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(
 					reportDetail.getSubTotal()));
 			holder.tvSubTotalPercent.setText(MPOSApplication.getGlobalProperty().currencyFormat(
-					reportDetail.getSubTotalPercent()) + "%");
+					reportDetail.getSubTotalPercent()));
 			holder.tvDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(
 					reportDetail.getDiscount()));
 			holder.tvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(
 					reportDetail.getTotalPrice()));
 			holder.tvTotalPricePercent.setText(MPOSApplication.getGlobalProperty().currencyFormat(
-					reportDetail.getTotalPricePercent()) + "%");
+					reportDetail.getTotalPricePercent()));
 			holder.tvVatType.setText(reportDetail.getVat());
 		}
 		

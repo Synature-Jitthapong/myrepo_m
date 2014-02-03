@@ -53,13 +53,14 @@ public class Computer extends MPOSDatabase{
 	}
 
 	public void insertComputer(List<ShopData.ComputerProperty> compLst) throws SQLException{
-		mSqlite.execSQL("DELETE FROM " + TABLE_COMPUTER);
+		mSqlite.delete(TABLE_COMPUTER, null, null);
 		for (ShopData.ComputerProperty comp : compLst) {
 			ContentValues cv = new ContentValues();
 			cv.put(COLUMN_COMPUTER_ID, comp.getComputerID());
 			cv.put(COLUMN_COMPUTER_NAME, comp.getComputerName());
 			cv.put(COLUMN_DEVICE_CODE, comp.getDeviceCode());
 			cv.put(COLUMN_REGISTER_NUMBER, comp.getRegistrationNumber());
+			cv.put(COLUMN_IS_MAIN_COMPUTER, comp.getIsMainComputer());
 			mSqlite.insertOrThrow(TABLE_COMPUTER, null, cv);
 		}
 	}

@@ -31,6 +31,21 @@ public class Session extends Transaction{
 		super(db);
 	}
 
+	public void autoEnddaySession(String currentSaleDate, int closeStaffId){
+		ContentValues cv = new ContentValues();
+		cv.put(COLUMN_IS_ENDDAY, ALREADY_ENDDAY_STATUS);
+		cv.put(COLUMN_CLOSE_STAFF, closeStaffId);
+		cv.put(COLUMN_CLOSE_DATE, Util.getDateTime().getTimeInMillis());
+		
+		mSqlite.update(TABLE_SESSION, cv, 
+				COLUMN_IS_ENDDAY + "=? " +
+				" AND " + COLUMN_SESS_DATE + "<?", 
+				new String[]{
+				String.valueOf(NOT_ENDDAY_STATUS),
+				currentSaleDate
+		});
+	}
+	
 	public boolean closeShift(int sessionId, int computerId, int closeStaffId,
 			double closeAmount, boolean isEndday) {
 		boolean isSuccess = false;

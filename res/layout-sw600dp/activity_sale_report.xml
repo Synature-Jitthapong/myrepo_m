@@ -132,7 +132,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/white_layer"
+            android:background="@drawable/card_bg_r4_flat_top"
             android:choiceMode="singleChoice"
             android:listSelector="@drawable/list_selector" >
 
@@ -331,7 +331,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/white_layer"
+            android:background="@drawable/card_bg_r4_flat_top"
             android:choiceMode="singleChoice" >
 
         </ListView>
