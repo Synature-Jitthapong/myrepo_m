@@ -135,11 +135,11 @@ public class MPOSService {
 						Products p = new Products(
 								MPOSApplication.getWriteDatabase());
 						try {
-							p.addProductGroup(pgs.getProductGroup(),
+							p.insertProductGroup(pgs.getProductGroup(),
 									mgs.getMenuGroup());
-							p.addProductDept(pgs.getProductDept(),
+							p.insertProductDept(pgs.getProductDept(),
 									mgs.getMenuDept());
-							p.addProducts(pgs.getProduct(), mgs.getMenuItem());
+							p.insertProducts(pgs.getProduct(), mgs.getMenuItem());
 							p.addPComponentSet(pgs.getPComponentSet());
 
 							// clear all menu picture

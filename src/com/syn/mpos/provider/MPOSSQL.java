@@ -208,7 +208,6 @@ public class MPOSSQL {
 			"CREATE TABLE " + Products.TABLE_PRODUCT + " ( " +
 			Products.COLUMN_PRODUCT_ID + " INTEGER, " +
 			Products.COLUMN_PRODUCT_DEPT_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_GROUP_ID + " INTEGER, " +
 			Products.COLUMN_PRODUCT_CODE + " TEXT, " +
 			Products.COLUMN_PRODUCT_BAR_CODE + " TEXT, " +
 			Products.COLUMN_PRODUCT_NAME + " TEXT, " +

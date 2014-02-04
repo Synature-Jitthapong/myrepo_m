@@ -268,10 +268,9 @@ public class Products extends MPOSDatabase {
 		}
 	}
 	
-	public void addProductGroup(List<ProductGroups.ProductGroup> pgLst,
+	public void insertProductGroup(List<ProductGroups.ProductGroup> pgLst,
 			List<MenuGroups.MenuGroup> mgLst) throws SQLException{
-		mSqlite.execSQL(
-				" DELETE FROM " + TABLE_PRODUCT_GROUP);
+		mSqlite.delete(TABLE_PRODUCT_GROUP, null, null);
 		for(ProductGroups.ProductGroup pg : pgLst){
 			ContentValues cv = new ContentValues();
 			cv.put(COLUMN_PRODUCT_GROUP_ID, pg.getProductGroupId());
@@ -286,8 +285,6 @@ public class Products extends MPOSDatabase {
 		
 		for(MenuGroups.MenuGroup mg : mgLst){
 			ContentValues cv = new ContentValues();
-			cv.put(COLUMN_PRODUCT_GROUP_NAME, mg.getMenuGroupName_0());
-			cv.put(COLUMN_ORDERING, mg.getMenuGroupOrdering());
 			cv.put(COLUMN_ACTIVATE, mg.getActivate());
 			mSqlite.update(TABLE_PRODUCT_GROUP, cv, 
 					COLUMN_PRODUCT_GROUP_ID + "=?", 
@@ -297,31 +294,39 @@ public class Products extends MPOSDatabase {
 		}
 	}
 	
-	public void addProductDept(List<ProductGroups.ProductDept> pdLst, 
+	public void insertProductDept(List<ProductGroups.ProductDept> pdLst,
 			List<MenuGroups.MenuDept> mdLst) throws SQLException{
-		mSqlite.execSQL(
-				" DELETE FROM " + TABLE_PRODUCT_DEPT);
+		mSqlite.delete(TABLE_PRODUCT_DEPT, null, null);
+		for(ProductGroups.ProductDept pd : pdLst){
+			ContentValues cv = new ContentValues();
+			cv.put(COLUMN_PRODUCT_DEPT_ID, pd.getProductDeptID());
+			cv.put(COLUMN_PRODUCT_GROUP_ID, pd.getProductGroupID());
+			cv.put(COLUMN_PRODUCT_DEPT_CODE, pd.getProductDeptCode());
+			cv.put(COLUMN_PRODUCT_DEPT_NAME, pd.getProductDeptName());
+			cv.put(COLUMN_ORDERING, pd.getProductDeptOrdering());
+			cv.put(COLUMN_ACTIVATE, 0);
+			mSqlite.insertOrThrow(TABLE_PRODUCT_DEPT, null, cv);
+		}
+		
 		for(MenuGroups.MenuDept md : mdLst){
 			ContentValues cv = new ContentValues();
-			cv.put(COLUMN_PRODUCT_DEPT_ID, md.getMenuDeptID());
-			cv.put(COLUMN_PRODUCT_GROUP_ID, md.getMenuGroupID());
-			cv.put(COLUMN_PRODUCT_DEPT_CODE, "");
-			cv.put(COLUMN_PRODUCT_DEPT_NAME, md.getMenuDeptName_0());
-			cv.put(COLUMN_ORDERING, md.getMenuDeptOrdering());
 			cv.put(COLUMN_ACTIVATE, md.getActivate());
-			mSqlite.insertOrThrow(TABLE_PRODUCT_DEPT, null, cv);
+			mSqlite.update(TABLE_PRODUCT_DEPT, cv, 
+					COLUMN_PRODUCT_DEPT_ID + "=?",
+					new String[]{
+						String.valueOf(md.getMenuDeptID())
+					}
+			);
 		}
 	}
 	
-	public void addProducts(List<ProductGroups.Products> productLst,
+	public void insertProducts(List<ProductGroups.Products> productLst,
 			List<MenuGroups.MenuItem> menuItemLst) throws SQLException{
-		mSqlite.execSQL(
-				" DELETE FROM " + Products.TABLE_PRODUCT);
+		mSqlite.delete(TABLE_PRODUCT, null, null);
 		for(ProductGroups.Products p : productLst){
 			ContentValues cv = new ContentValues();
 			cv.put(COLUMN_PRODUCT_ID, p.getProductID());
 			cv.put(COLUMN_PRODUCT_DEPT_ID, p.getProductDeptID());
-			cv.put(COLUMN_PRODUCT_GROUP_ID, p.getProductGroupID());
 			cv.put(COLUMN_PRODUCT_CODE, p.getProductCode());
 			cv.put(COLUMN_PRODUCT_BAR_CODE, p.getProductBarCode());
 			cv.put(COLUMN_PRODUCT_TYPE_ID, p.getProductTypeID());
@@ -335,6 +340,7 @@ public class Products extends MPOSDatabase {
 			
 			mSqlite.insertOrThrow(TABLE_PRODUCT, null, cv);
 		}
+		
 		for(MenuGroups.MenuItem m : menuItemLst){
 			try {
 				ContentValues cv = new ContentValues();

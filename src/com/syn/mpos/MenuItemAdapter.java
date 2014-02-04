@@ -65,19 +65,19 @@ public class MenuItemAdapter extends BaseAdapter{
 		else
 			holder.tvPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(p.getProductPrice()));
 
-		new Handler().postDelayed(new Runnable(){
-
-			@Override
-			public void run() {
-				try {
-					mImgLoader.displayImage(MPOSApplication.getImageUrl() + p.getImgUrl(), holder.imgMenu);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			
-		}, 1000);
+//		new Handler().postDelayed(new Runnable(){
+//
+//			@Override
+//			public void run() {
+//				try {
+//					mImgLoader.displayImage(MPOSApplication.getImageUrl() + p.getImgUrl(), holder.imgMenu);
+//				} catch (Exception e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//			
+//		}, 1000);
 		return convertView;
 	}
 	

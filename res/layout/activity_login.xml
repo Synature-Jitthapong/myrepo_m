@@ -16,7 +16,6 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/card_bg_r4"
         android:gravity="center"
         android:padding="16dp" >
 
@@ -25,6 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
+            android:layout_marginBottom="8dp"
             android:text="@string/login"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="32sp" />

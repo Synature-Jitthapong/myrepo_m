@@ -238,7 +238,7 @@ containing a value of this type.
         public static final int editTextOrderAmount=0x7f0b009a;
         public static final int editTextPassWord=0x7f0b0024;
         public static final int horizontalScrollView1=0x7f0b0040;
-        public static final int imageView1=0x7f0b0001;
+        public static final int imageView1=0x7f0b0000;
         public static final int imageViewMenu=0x7f0b0096;
         public static final int imgBtnClose=0x7f0b0095;
         public static final int imgMenu=0x7f0b0094;
@@ -321,7 +321,7 @@ containing a value of this type.
         public static final int tabs=0x7f0b003c;
         public static final int tbRowDiscount=0x7f0b0032;
         public static final int tbRowVat=0x7f0b0035;
-        public static final int textView1=0x7f0b0000;
+        public static final int textView1=0x7f0b0001;
         public static final int textView10=0x7f0b001b;
         public static final int textView11=0x7f0b0061;
         public static final int textView12=0x7f0b0020;

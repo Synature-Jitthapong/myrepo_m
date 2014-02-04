@@ -145,6 +145,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
+								mShopId = MPOSApplication.getShopId();
+								mComputerId = MPOSApplication.getComputerId();
 							}
 						})
 						.show();
