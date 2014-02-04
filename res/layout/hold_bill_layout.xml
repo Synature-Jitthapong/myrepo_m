@@ -17,8 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.2"
             android:gravity="right"
-            android:text="@string/num_row"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:text="@string/num_row" />
 
         <TextView
             android:id="@+id/textView2"
@@ -27,8 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
             android:gravity="left"
-            android:text="@string/open_time"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:text="@string/open_time" />
 
         <TextView
             android:id="@+id/textView3"
@@ -38,8 +36,7 @@
             android:layout_weight="1"
             android:gravity="left"
             android:minWidth="100dp"
-            android:text="@string/staff"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:text="@string/staff" />
 
         <TextView
             android:id="@+id/textView4"
@@ -49,16 +46,18 @@
             android:layout_weight="1"
             android:gravity="left"
             android:minWidth="200dp"
-            android:text="@string/remark"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:text="@string/remark" />
+
     </LinearLayout>
 
     <ListView
         android:id="@+id/listView1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/background_card"
         android:choiceMode="singleChoice"
         android:listSelector="@drawable/list_selector" >
+
     </ListView>
 
 </LinearLayout>

@@ -1,11 +1,8 @@
 package com.syn.mpos;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
-
 import com.astuetz.PagerSlidingTabStrip;
 import com.syn.mpos.R;
 import com.syn.mpos.provider.Computer;
@@ -17,7 +14,6 @@ import com.syn.mpos.provider.Transaction;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.OrderTransaction.OrderDetail;
 import com.syn.pos.ShopData;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.AlertDialog;
@@ -45,7 +41,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -241,8 +237,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 	@Override
 	protected void onResume() {
-		super.onResume();
 		init();
+		super.onResume();
 	}
 
 	public void summary(){
@@ -390,11 +386,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			if(convertView == null){
 				holder = new ViewHolder();
 				convertView = mInflater.inflate(R.layout.order_list_template, null);
-				holder.chk = (CheckBox) convertView.findViewById(R.id.checkBox1);
-				holder.tvOrderNo = (TextView) convertView.findViewById(R.id.textViewOrderNo);
-				holder.tvOrderName = (TextView) convertView.findViewById(R.id.textViewOrderName);
+				holder.chkTvOrderName = (CheckedTextView) convertView.findViewById(R.id.checkedTextView1);
 				holder.txtOrderAmount = (EditText) convertView.findViewById(R.id.editTextOrderAmount);
-				holder.tvOrderPrice = (TextView) convertView.findViewById(R.id.textViewOrderPrice);
 				holder.btnMinus = (Button) convertView.findViewById(R.id.buttonOrderMinus);
 				holder.btnPlus = (Button) convertView.findViewById(R.id.buttonOrderPlus);
 				convertView.setTag(holder);
@@ -402,17 +395,11 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 				holder = (ViewHolder) convertView.getTag();
 			}
 			
-			holder.chk.setChecked(orderDetail.isChecked());
-			holder.tvOrderNo.setText(Integer.toString(position + 1) + ".");
-			holder.tvOrderName.setText(orderDetail.getProductName());
+			holder.chkTvOrderName.setChecked(orderDetail.isChecked());
+			holder.chkTvOrderName.setText(Integer.toString(position + 1) + ". " + orderDetail.getProductName() + " " +
+					MPOSApplication.getGlobalProperty().currencyFormat(orderDetail.getPricePerUnit()));
 			holder.txtOrderAmount.setText(MPOSApplication.getGlobalProperty().qtyFormat(orderDetail.getQty()));
-			holder.tvOrderPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(orderDetail.getPricePerUnit()));
-			
-			if(orderDetail.isChecked())
-				holder.chk.setVisibility(View.VISIBLE);
-			else
-				holder.chk.setVisibility(View.GONE);
-			
+	
 			holder.btnMinus.setOnClickListener(new OnClickListener(){
 	
 				@Override
@@ -491,11 +478,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 		
 		private class ViewHolder{
-			CheckBox chk;
-			TextView tvOrderNo;
-			TextView tvOrderName;
+			CheckedTextView chkTvOrderName;
 			EditText txtOrderAmount;
-			TextView tvOrderPrice;
 			Button btnMinus;
 			Button btnPlus;
 		}

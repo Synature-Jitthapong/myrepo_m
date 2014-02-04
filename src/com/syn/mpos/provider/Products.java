@@ -43,7 +43,6 @@ public class Products extends MPOSDatabase {
 	public static final String[] ALL_PRODUCT_COLS = {
 		COLUMN_PRODUCT_ID, 
 		COLUMN_PRODUCT_DEPT_ID,
-		COLUMN_PRODUCT_GROUP_ID,
 		COLUMN_PRODUCT_CODE,
 		COLUMN_PRODUCT_BAR_CODE,
 		COLUMN_PRODUCT_NAME,
@@ -221,7 +220,6 @@ public class Products extends MPOSDatabase {
 	private Product toProduct(Cursor cursor){
 		Product p = new Product();
 		p.setProductId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_ID)));
-		p.setProductGroupId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_GROUP_ID)));
 		p.setProductDeptId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_DEPT_ID)));
 		p.setProductTypeId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_TYPE_ID)));
 		p.setProductCode(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_CODE)));

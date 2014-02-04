@@ -66,6 +66,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 		mBtnCash = (Button) findViewById(R.id.btnCash);
 		mBtnCredit = (Button) findViewById(R.id.btnCredit);
 		mBtnCredit.setOnClickListener(this);
+		mBtnCash.setOnClickListener(this);
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -96,9 +97,9 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 
 	@Override
 	protected void onResume() {
-		super.onResume();
 		init();
 		mBtnCash.setPressed(true);
+		super.onResume();
 	}
 
 	private void init(){
@@ -231,11 +232,43 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	
 	public void creditPay(){
 		if(mTotalSalePrice > 0 && mPaymentLeft > 0){
-			Intent intent = new Intent(PaymentActivity.this, CreditPayActivity.class);
-			intent.putExtra("transactionId", mTransactionId);
-			intent.putExtra("computerId", mComputerId);
-			intent.putExtra("paymentLeft", mPaymentLeft);
-			startActivity(intent);
+			final CreditPayDialogBuilder builder = 
+					new CreditPayDialogBuilder(PaymentActivity.this, mTransactionId, mComputerId, mPaymentLeft);
+			builder.setTitle(R.string.credit_pay);
+			builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			});
+			builder.setPositiveButton(android.R.string.ok, null);
+			
+			final AlertDialog d = builder.create();
+			d.show();
+			d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					builder.addPayment(new CreditPayDialogBuilder.OnCreditPayListener() {
+						
+						@Override
+						public void onRequiredSomeParam() {
+						}
+						
+						@Override
+						public void onOk() {
+							d.dismiss();
+							onResume();
+						}
+						
+						@Override
+						public void onCancel() {
+							d.dismiss();
+						}
+					});
+				}
+				
+			});
 		}
 	}
 
@@ -435,7 +468,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	public void onClick(View v) {
 		switch(v.getId()){
 		case R.id.btnCash:
-			
+			mBtnCash.setPressed(true);
 			break;
 		case R.id.btnCredit:
 			creditPay();

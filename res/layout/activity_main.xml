@@ -33,7 +33,7 @@
             android:layout_above="@+id/TableLayout1"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
-            android:gravity="center_vertical" >
+            android:paddingLeft="8dp" >
 
             <TextView
                 android:id="@+id/tvOrderSelected"
@@ -46,9 +46,7 @@
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:minHeight="0dip"
-                android:minWidth="0dip"
+                android:minWidth="48dip"
                 android:src="@android:drawable/ic_menu_revert" />
 
             <ImageButton
@@ -56,10 +54,9 @@
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:minHeight="0dip"
-                android:minWidth="0dip"
+                android:minWidth="48dip"
                 android:src="@android:drawable/ic_menu_delete" />
+
         </LinearLayout>
 
         <TableLayout

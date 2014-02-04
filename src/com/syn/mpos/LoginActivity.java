@@ -48,8 +48,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 		mTxtPass.setSelectAllOnFocus(true);
 		mBtnLogin.setOnClickListener(this);
 		
-		mTxtUser.setText("1");
-		mTxtPass.setText("1");
+		mTxtUser.setText("11");
+		mTxtPass.setText("11");
 		mTxtPass.setOnEditorActionListener(new OnEditorActionListener(){
 
 			@Override

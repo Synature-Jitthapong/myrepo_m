@@ -71,7 +71,7 @@
                 android:value="com.syn.mpos.MainActivity" />
         </activity>
         <activity
-            android:name="com.syn.mpos.CreditPayActivity"
+            android:name="com.syn.mpos.CreditPayDialogBuilder"
             android:label="@string/title_activity_credit_pay"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden" >

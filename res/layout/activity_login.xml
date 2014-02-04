@@ -1,6 +1,6 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/LinearLayout1"
+    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
@@ -13,84 +13,77 @@
 
     <requestFocus />
 
-    <RelativeLayout
+    <EditText
+        android:id="@+id/txtUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="16dp" >
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentRight="false"
+        android:layout_alignParentTop="false"
+        android:layout_below="@+id/textView1"
+        android:layout_toRightOf="@+id/textView2"
+        android:ems="10"
+        android:hint="@string/user_name"
+        android:lines="1"
+        android:nextFocusDown="@+id/editTextPassWord"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
-            android:id="@+id/textView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginBottom="8dp"
-            android:text="@string/login"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="32sp" />
+    <EditText
+        android:id="@+id/txtPass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/txtUser"
+        android:layout_alignRight="@+id/txtUser"
+        android:layout_below="@+id/txtUser"
+        android:ems="10"
+        android:hint="@string/pass_word"
+        android:imeOptions="actionDone"
+        android:inputType="textPassword"
+        android:lines="1"
+        android:nextFocusDown="@+id/buttonLogin"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <EditText
-            android:id="@+id/txtUser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentRight="false"
-            android:layout_alignParentTop="false"
-            android:layout_below="@+id/textView1"
-            android:layout_toRightOf="@+id/textView2"
-            android:ems="10"
-            android:hint="@string/user_name"
-            android:lines="1"
-            android:nextFocusDown="@+id/editTextPassWord"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+    <Button
+        android:id="@+id/buttonLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/txtPass"
+        android:layout_alignRight="@+id/txtPass"
+        android:layout_below="@+id/txtPass"
+        android:onClick="loginClicked"
+        android:text="@string/login"
+        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
-        <EditText
-            android:id="@+id/txtPass"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/txtUser"
-            android:layout_alignRight="@+id/txtUser"
-            android:layout_below="@+id/txtUser"
-            android:ems="10"
-            android:hint="@string/pass_word"
-            android:imeOptions="actionDone"
-            android:inputType="textPassword"
-            android:lines="1"
-            android:nextFocusDown="@+id/buttonLogin"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txtUser"
+        android:layout_alignBottom="@+id/txtUser"
+        android:layout_alignLeft="@+id/textView1"
+        android:text="@string/user_name"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <Button
-            android:id="@+id/buttonLogin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/txtPass"
-            android:layout_alignRight="@+id/txtPass"
-            android:layout_below="@+id/txtPass"
-            android:onClick="loginClicked"
-            android:text="@string/login"
-            android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txtPass"
+        android:layout_alignBottom="@+id/txtPass"
+        android:layout_alignLeft="@+id/textView1"
+        android:text="@string/pass_word"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/txtUser"
-            android:layout_alignBottom="@+id/txtUser"
-            android:layout_alignParentLeft="true"
-            android:text="@string/user_name"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/login"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="32sp" />
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/txtPass"
-            android:layout_alignBottom="@+id/txtPass"
-            android:layout_alignParentLeft="true"
-            android:text="@string/pass_word"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-    </RelativeLayout>
-
-</LinearLayout>
+</RelativeLayout>

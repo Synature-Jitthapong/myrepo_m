@@ -345,7 +345,7 @@ public class DiscountActivity extends Activity implements OnEditorActionListener
 		if (EditorInfo.IME_ACTION_DONE == actionId) {
 			double discount = 0.0f;
 			try {
-				discount = Float.parseFloat(v.getText().toString());
+				discount = Double.parseDouble(v.getText().toString());
 			} catch (NumberFormatException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
