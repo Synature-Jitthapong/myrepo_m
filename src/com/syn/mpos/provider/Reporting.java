@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.pos.Report;
+import com.syn.pos.Report.ReportDetail;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -290,6 +291,99 @@ public class Reporting extends MPOSDatabase{
 			report.setDiscount(cursor.getFloat(cursor.getColumnIndex("TotalDiscount")));
 			report.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("TotalSalePrice")));
 			report.setTotalPricePercent(report.getTotalPrice() / summReport.getTotalPrice() * 100);
+		}
+		cursor.close();
+		return report;
+	}
+	
+	public Report.ReportDetail getBillSummaryAll(){
+		Report.ReportDetail report = null;
+		Cursor cursor = mSqlite.rawQuery(
+				"SELECT SUM(a." + Transaction.COLUMN_TRANS_VATABLE + ") AS " + 
+				Transaction.COLUMN_TRANS_VATABLE + ", " +
+			    " SUM(a." + Transaction.COLUMN_TRANS_VAT + ") AS " + 
+				Transaction.COLUMN_TRANS_VAT + ", " +
+				"(SELECT SUM(" + Transaction.COLUMN_PRICE_DISCOUNT + ") " + 
+				" FROM " + Transaction.TABLE_TRANSACTION + " t " +
+				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
+				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
+				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID + 
+				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ? " + 
+				" AND t." + Transaction.COLUMN_STATUS_ID + "=?) AS " +
+				Transaction.COLUMN_PRICE_DISCOUNT + ", " +
+				"(SELECT SUM(" + Transaction.COLUMN_TOTAL_RETAIL_PRICE + ") " + 
+				" FROM " + Transaction.TABLE_TRANSACTION + " t " +
+				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
+				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
+				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID + 
+				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ? " + 
+				" AND t." + Transaction.COLUMN_STATUS_ID + "=?) AS " +
+				Transaction.COLUMN_TOTAL_RETAIL_PRICE + ", " +
+				"(SELECT SUM(" + Transaction.COLUMN_TOTAL_SALE_PRICE + ") " + 
+				" FROM " + Transaction.TABLE_TRANSACTION + " t " +
+				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
+				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
+				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID + 
+				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ? " + 
+				" AND t." + Transaction.COLUMN_STATUS_ID + "=?) AS " +
+				Transaction.COLUMN_TOTAL_SALE_PRICE + ", " +
+				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " + 
+				" FROM " + PaymentDetail.TABLE_PAYMENT + 
+				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + 
+				"=a." + Transaction.COLUMN_TRANSACTION_ID + 
+				" AND " + Computer.COLUMN_COMPUTER_ID + 
+				"=a." + Computer.COLUMN_COMPUTER_ID + ") AS " +
+				PaymentDetail.COLUMN_PAY_AMOUNT + ", " +
+				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " + 
+				" FROM " + PaymentDetail.TABLE_PAYMENT + 
+				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + 
+				"=a." + Transaction.COLUMN_TRANSACTION_ID + 
+				" AND " + Computer.COLUMN_COMPUTER_ID + 
+				"=a." + Computer.COLUMN_COMPUTER_ID + 
+				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CASH + ") AS " +
+				" TotalCashPay, " +
+				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " + 
+				" FROM " + PaymentDetail.TABLE_PAYMENT + 
+				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + 
+				"=a." + Transaction.COLUMN_TRANSACTION_ID + 
+				" AND " + Computer.COLUMN_COMPUTER_ID + 
+				"=a." + Computer.COLUMN_COMPUTER_ID + 
+				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CREDIT + ") AS " +
+				" TotalCreditPay " +
+				" FROM " + Transaction.TABLE_TRANSACTION + " a " +
+				" WHERE a." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ? " +
+				" AND a." + Transaction.COLUMN_STATUS_ID + "=?", 
+				new String[]{
+						String.valueOf(mDateFrom),
+						String.valueOf(mDateTo),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(mDateFrom),
+						String.valueOf(mDateTo),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(mDateFrom),
+						String.valueOf(mDateTo),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(mDateFrom),
+						String.valueOf(mDateTo),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
+				}
+		);
+		
+		if(cursor.moveToFirst()){
+			report = new Report.ReportDetail();
+			report.setTotalPrice(
+					cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TOTAL_RETAIL_PRICE)));
+			report.setDiscount(
+					cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_PRICE_DISCOUNT)));
+			report.setSubTotal(
+					cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TOTAL_SALE_PRICE)));
+			report.setVatable(
+					cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VATABLE)));
+			report.setTotalVat(
+					cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VAT)));
+			report.setCash(cursor.getDouble(cursor.getColumnIndex("TotalCashPay")));
+			report.setCredit(cursor.getDouble(cursor.getColumnIndex("TotalCreditPay")));
+			report.setTotalPayment(cursor.getDouble(cursor.getColumnIndex(PaymentDetail.COLUMN_PAY_AMOUNT)));
 		}
 		cursor.close();
 		return report;

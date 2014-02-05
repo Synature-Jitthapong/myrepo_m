@@ -5,19 +5,16 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
-
 import com.syn.mpos.provider.PaymentDetail;
 import com.syn.mpos.provider.Reporting;
 import com.syn.mpos.provider.Transaction;
 import com.syn.pos.Report;
-
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -99,7 +96,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	}
 	
 	private void getBillReportSummary(){
-		if(mReport != null){
+		//if(mReport != null){
 			TextView tvSummTotalPrice = (TextView) findViewById(R.id.tvSummTotalPrice);
 			TextView tvSummDiscount = (TextView) findViewById(R.id.tvSummDiscount);
 			TextView tvSummSubTotal = (TextView) findViewById(R.id.tvSummSubTotal);
@@ -109,40 +106,58 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			TextView tvSummTotalCredit = (TextView) findViewById(R.id.tvSummTotalCredit);
 			TextView tvSummTotalPay = (TextView) findViewById(R.id.tvSummTotalPay);
 			
-			double totalPrice = 0.0f;
-			double totalDiscount = 0.0f;
-			double totalSub = 0.0f;
-			double totalVatable = 0.0f;
-			double totalVat = 0.0f;
-			double totalPay = 0.0f;
-			double totalCash = 0.0f;
-			double totalCredit = 0.0f;
+//			double totalPrice = 0.0f;
+//			double totalDiscount = 0.0f;
+//			double totalSub = 0.0f;
+//			double totalVatable = 0.0f;
+//			double totalVat = 0.0f;
+//			double totalPay = 0.0f;
+//			double totalCash = 0.0f;
+//			double totalCredit = 0.0f;
+//			
+//			PaymentDetail payment = new PaymentDetail(MPOSApplication.getReadDatabase());
+//			for(Report.ReportDetail reportDetail : mReport.reportDetail){
+//				if(reportDetail.getTransStatus() != Transaction.TRANS_STATUS_VOID){
+//					totalPrice += reportDetail.getTotalPrice();
+//					totalDiscount += reportDetail.getDiscount();
+//					totalSub += reportDetail.getSubTotal();
+//					totalVatable += reportDetail.getVatable();
+//					totalVat += reportDetail.getTotalVat();
+//					totalCash += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
+//							reportDetail.getComputerId(), PaymentDetail.PAY_TYPE_CASH);
+//					totalCredit += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
+//							reportDetail.getComputerId(), PaymentDetail.PAY_TYPE_CREDIT);
+//					totalPay += payment.getTotalPaid(reportDetail.getTransactionId(), 
+//							reportDetail.getComputerId());
+//				}
+//			}
+//			tvSummTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
+//			tvSummDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
+//			tvSummSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalSub));
+//			tvSummVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVatable));
+//			tvSummTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
+//			tvSummTotalPay.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
+//			tvSummTotalCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalCash));
+//			tvSummTotalCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalCredit));
 			
-			PaymentDetail payment = new PaymentDetail(MPOSApplication.getReadDatabase());
-			for(Report.ReportDetail reportDetail : mReport.reportDetail){
-				if(reportDetail.getTransStatus() != Transaction.TRANS_STATUS_VOID){
-					totalPrice += reportDetail.getTotalPrice();
-					totalDiscount += reportDetail.getDiscount();
-					totalSub += reportDetail.getSubTotal();
-					totalVatable += reportDetail.getVatable();
-					totalVat += reportDetail.getTotalVat();
-					totalCash += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
-							reportDetail.getComputerId(), PaymentDetail.PAY_TYPE_CASH);
-					totalCredit += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
-							reportDetail.getComputerId(), PaymentDetail.PAY_TYPE_CREDIT);
-					totalPay += payment.getTotalPaid(reportDetail.getTransactionId(), 
-							reportDetail.getComputerId());
-				}
-			}
-			tvSummTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
-			tvSummDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
-			tvSummSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalSub));
-			tvSummVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVatable));
-			tvSummTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
-			tvSummTotalPay.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
-			tvSummTotalCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalCash));
-			tvSummTotalCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalCredit));
-		}
+		Report.ReportDetail report = mReporting.getBillSummaryAll();
+		tvSummTotalPrice.setText(MPOSApplication.getGlobalProperty()
+				.currencyFormat(report.getTotalPrice()));
+		tvSummDiscount.setText(MPOSApplication.getGlobalProperty()
+				.currencyFormat(report.getDiscount()));
+		tvSummSubTotal.setText(MPOSApplication.getGlobalProperty()
+				.currencyFormat(report.getSubTotal()));
+		tvSummVatable.setText(MPOSApplication.getGlobalProperty()
+				.currencyFormat(report.getVatable()));
+		tvSummTotalVat.setText(MPOSApplication.getGlobalProperty()
+				.currencyFormat(report.getTotalVat()));
+		tvSummTotalPay.setText(MPOSApplication.getGlobalProperty()
+				.currencyFormat(report.getTotalPayment()));
+		tvSummTotalCash.setText(MPOSApplication.getGlobalProperty()
+				.currencyFormat(report.getCash()));
+		tvSummTotalCredit.setText(MPOSApplication.getGlobalProperty()
+				.currencyFormat(report.getCredit()));
+		//}
 	}
 	
 	private class ReportTypeAdapter extends BaseAdapter{

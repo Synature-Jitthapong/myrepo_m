@@ -59,7 +59,7 @@ public class SaleTransaction {
 				do {
 					SaleData_SaleTransaction saleTrans = new SaleData_SaleTransaction();
 					SaleTable_OrderTransaction orderTrans = new SaleTable_OrderTransaction();
-
+					
 					orderTrans.setSzUDID(cursor.getString(cursor
 							.getColumnIndex(MPOSDatabase.COLUMN_UUID)));
 					orderTrans
