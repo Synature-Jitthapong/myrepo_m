@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string-array name="sync_array">
-        <item >Sync Products</item>
-        <item >Sync Sale</item>
-    </string-array>
-    
-</resources>

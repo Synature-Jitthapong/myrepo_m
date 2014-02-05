@@ -108,7 +108,8 @@
         </activity>
         <activity
             android:name="com.syn.mpos.SyncActivity"
-            android:label="@string/sync" android:theme="@android:style/Theme.Holo.Light.Dialog">
+            android:label="@string/update_data" 
+            android:theme="@android:style/Theme.Holo.Light.Dialog">
         </activity>
     </application>
 

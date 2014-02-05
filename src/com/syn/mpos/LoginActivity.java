@@ -121,7 +121,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 
 			@Override
 			public void onPre() {
-				progress.setMessage(LoginActivity.this.getString(R.string.sync_shop_progress));
+				progress.setMessage(LoginActivity.this.getString(R.string.update_shop_progress));
 				progress.show();
 			}
 
@@ -131,7 +131,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 
 					@Override
 					public void onPre() {
-						progress.setMessage(LoginActivity.this.getString(R.string.sync_product_progress));
+						progress.setMessage(LoginActivity.this.getString(R.string.update_product_progress));
 					}
 
 					@Override
@@ -227,7 +227,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 						// count check session endday detail
 						if(mSession.getSessionEnddayDetail(sessionDate) == 0){
 							final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
-							progress.setMessage(LoginActivity.this.getString(R.string.sync_product_progress));
+							progress.setMessage(LoginActivity.this.getString(R.string.update_product_progress));
 							mposService.loadProductData(new ProgressListener() {
 								@Override
 								public void onError(String mesg) {
@@ -341,7 +341,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 			if(mShopId == 0){
 				// sync shop
 				final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
-				progress.setMessage(LoginActivity.this.getString(R.string.sync_shop_progress));
+				progress.setMessage(LoginActivity.this.getString(R.string.update_shop_progress));
 				final MPOSService mposService = new MPOSService();
 				mposService.loadShopData(new ProgressListener() {
 	

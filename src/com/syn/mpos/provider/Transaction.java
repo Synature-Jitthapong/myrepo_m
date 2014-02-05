@@ -1100,6 +1100,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COLUMN_STATUS_ID, TRANS_STATUS_VOID);
 		cv.put(COLUMN_VOID_STAFF_ID, staffId);
 		cv.put(COLUMN_VOID_REASON, reason);
+		cv.put(MPOSDatabase.COLUMN_SEND_STATUS, MPOSDatabase.NOT_SEND);
 		cv.put(COLUMN_VOID_TIME, Util.getDateTime().getTimeInMillis());
 		
 		int affectedRow = mSqlite.update(TABLE_TRANSACTION, cv, COLUMN_TRANSACTION_ID + "=? "

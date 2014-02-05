@@ -31,7 +31,7 @@ public class SyncActivity extends Activity implements OnItemClickListener{
 		
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
-		String syncArr[] = getResources().getStringArray(R.array.sync_array);
+		String syncArr[] = getResources().getStringArray(R.array.update_array);
 		mLvSync.setAdapter(new SyncListAdapter(syncArr));
 		mLvSync.setOnItemClickListener(this);
 	}

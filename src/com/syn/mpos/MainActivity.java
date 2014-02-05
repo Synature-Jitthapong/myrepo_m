@@ -302,7 +302,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		case R.id.itemEndday:
 			endday();
 			return true;
-		case R.id.itemSync:
+		case R.id.itemUpdateData:
 			intent = new Intent(MainActivity.this, SyncActivity.class);
 			intent.putExtra("staffId", mStaffId);
 			startActivity(intent);

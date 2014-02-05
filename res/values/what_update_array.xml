@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="update_array">
+        <item >@string/update_product_data</item>
+        <item >@string/send_sale_data</item>
+    </string-array>
+    
+</resources>

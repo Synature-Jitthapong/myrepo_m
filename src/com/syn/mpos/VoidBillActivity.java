@@ -9,6 +9,7 @@ import com.syn.mpos.provider.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -325,6 +326,33 @@ public class VoidBillActivity extends Activity {
 			            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 						d.dismiss();
 						init();
+						
+						// send real time sale
+						new Handler().post(new Runnable(){
+
+							@Override
+							public void run() {
+								MPOSUtil.doSendSale(mStaffId, new ProgressListener(){
+
+									@Override
+									public void onPre() {
+									}
+
+									@Override
+									public void onPost() {
+									}
+
+									@Override
+									public void onError(String msg) {
+										new AlertDialog.Builder(VoidBillActivity.this)
+										.setMessage(msg)
+										.show();
+									}
+									
+								});
+							}
+							
+						});
 					}
 				}else{
 					new AlertDialog.Builder(VoidBillActivity.this)
