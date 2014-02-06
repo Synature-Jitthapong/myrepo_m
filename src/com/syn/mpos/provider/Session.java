@@ -46,12 +46,10 @@ public class Session extends Transaction{
 		});
 	}
 	
-	public boolean closeShift(int sessionId, int computerId, int closeStaffId,
+	public int closeShift(int sessionId, int computerId, int closeStaffId,
 			double closeAmount, boolean isEndday) {
-		boolean isSuccess = false;
-		isSuccess = closeSession(sessionId, computerId, closeStaffId,
+		return closeSession(sessionId, computerId, closeStaffId,
 				closeAmount, isEndday);
-		return isSuccess;
 	}
 
 	public String getSessionDate(int computerId){
@@ -128,9 +126,9 @@ public class Session extends Transaction{
 		return sessionId;
 	}
 
-	public boolean addSessionEnddayDetail(String sessionDate,
+	public long addSessionEnddayDetail(String sessionDate,
 			double totalQtyReceipt, double totalAmountReceipt) throws SQLException {
-		boolean isSuccess = false;
+		
 		Calendar dateTime = Util.getDateTime();
 
 		ContentValues cv = new ContentValues();
@@ -139,29 +137,26 @@ public class Session extends Transaction{
 		cv.put(COLUMN_TOTAL_QTY_RECEIPT, totalQtyReceipt);
 		cv.put(COLUMN_TOTAL_AMOUNT_RECEIPT, totalAmountReceipt);
 		
-		long affecRow = mSqlite.insertOrThrow(TABLE_SESSION_DETAIL, null, cv);
-		if(affecRow > -1)
-			isSuccess = true;
-		return isSuccess;
+		long affectedRow = mSqlite.insertOrThrow(TABLE_SESSION_DETAIL, null, cv);
+		return affectedRow;
 	}
 
-	public boolean closeSession(int sessionId, int computerId,
+	public int closeSession(int sessionId, int computerId,
 			int closeStaffId, double closeAmount, boolean isEndday){
-		boolean isSuccess = false;
+		
 		Calendar dateTime = Util.getDateTime();
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_CLOSE_STAFF, closeStaffId);
 		cv.put(COLUMN_CLOSE_DATE, dateTime.getTimeInMillis());
 		cv.put(COLUMN_CLOSE_AMOUNT, closeAmount);
 		cv.put(COLUMN_IS_ENDDAY, isEndday == true ? 1 : 0);
-		int affectRow = mSqlite.update(TABLE_SESSION, cv, 
+		return mSqlite.update(TABLE_SESSION, cv, 
 				COLUMN_SESS_ID + "=? AND " + 
 				Computer.COLUMN_COMPUTER_ID + "=?", 
-				new String[]{String.valueOf(sessionId), 
-				String.valueOf(computerId)});
-		if(affectRow > 0)
-			isSuccess = true;
-		return isSuccess;
+				new String[]{
+					String.valueOf(sessionId), 
+					String.valueOf(computerId)
+				});
 	}
 
 	public int getSessionEnddayDetail(String sessionDate){

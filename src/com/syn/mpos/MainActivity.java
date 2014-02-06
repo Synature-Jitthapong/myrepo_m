@@ -3,6 +3,7 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 import com.astuetz.PagerSlidingTabStrip;
 import com.syn.mpos.R;
 import com.syn.mpos.provider.Computer;
@@ -10,10 +11,13 @@ import com.syn.mpos.provider.Login;
 import com.syn.mpos.provider.Products;
 import com.syn.mpos.provider.Session;
 import com.syn.mpos.provider.Staff;
+import com.syn.mpos.provider.SyncSaleLog;
 import com.syn.mpos.provider.Transaction;
+import com.syn.mpos.provider.Util;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.OrderTransaction.OrderDetail;
 import com.syn.pos.ShopData;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.AlertDialog;
@@ -126,9 +130,13 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mProgress = new ProgressDialog(this);
 		mProgress.setCancelable(false);
 		mTransactionId = mTransaction.getCurrTransaction(mComputerId);
-		if(mTransactionId == 0)
+		if(mTransactionId == 0){
 			mTransactionId = mTransaction.openTransaction(mComputerId, mShopId, mSessionId, mStaffId);
-		
+
+			// add current date for LoadSaleTransaction read Sale Data and send to server
+			SyncSaleLog syncLog = new SyncSaleLog(MPOSApplication.getWriteDatabase());
+			syncLog.addSyncSaleLog(String.valueOf(Util.getDate().getTimeInMillis()));
+		}
 		setupOrderListView();
 		countHoldOrder();
 		loadOrder();

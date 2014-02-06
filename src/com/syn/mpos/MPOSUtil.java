@@ -48,8 +48,6 @@ public class MPOSUtil {
 								new Transaction(MPOSApplication.getWriteDatabase());
 						trans.updateTransactionSendStatus(sessionDate);
 						
-						SyncSaleLog syncLog = new SyncSaleLog(MPOSApplication.getWriteDatabase());
-						syncLog.addSyncSaleLog(sessionDate);
 						listener.onPost();
 					}
 
@@ -119,8 +117,8 @@ public class MPOSUtil {
 									try {
 										Transaction trans = 
 												new Transaction(MPOSApplication.getWriteDatabase());
-
-										final Session sess = new Session(MPOSApplication.getWriteDatabase());
+										Session sess = 
+												new Session(MPOSApplication.getWriteDatabase());
 										sess.addSessionEnddayDetail(sessionDate,
 												trans.getTotalReceipt(sessionDate),
 												trans.getTotalReceiptAmount(sessionDate));

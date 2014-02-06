@@ -3,6 +3,7 @@ package com.syn.mpos;
 import com.syn.mpos.R;
 import com.syn.mpos.provider.Login;
 import com.syn.mpos.provider.Session;
+import com.syn.mpos.provider.SyncSaleLog;
 import com.syn.mpos.provider.Util;
 import com.syn.pos.ShopData;
 
