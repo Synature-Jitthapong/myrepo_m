@@ -217,8 +217,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 						mStaffId = s.getStaffID();			
 						mSessionId = mSession.getCurrentSession(mComputerId, mStaffId);
 						if(mSessionId == 0){
-							// auto endday if have session less than now
-							mSession.autoEnddaySession(String.valueOf(Util.getDate().getTimeInMillis()), mStaffId);
 							mSessionId = mSession.addSession(mShopId, mComputerId, mStaffId, 0);
 						}
 

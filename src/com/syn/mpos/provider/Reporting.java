@@ -51,7 +51,7 @@ public class Reporting extends MPOSDatabase{
 				new String[]{String.valueOf(transactionId),
 				String.valueOf(computerId), String.valueOf(payTypeId)});
 		if(cursor.moveToFirst()){
-			totalPay = cursor.getFloat(0);
+			totalPay = cursor.getDouble(0);
 		}
 		return totalPay;
 	}
@@ -70,13 +70,22 @@ public class Reporting extends MPOSDatabase{
 				" a." + Transaction.COLUMN_OTHER_DISCOUNT + " + " + 
 				" SUM(b." + Transaction.COLUMN_PRICE_DISCOUNT + " + " + 
 				" b." + Transaction.COLUMN_MEMBER_DISCOUNT + ") AS TotalDiscount, " +
-				" c." + StockDocument.COLUMN_DOC_TYPE_HEADER + 
+				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " +
+				" FROM " + PaymentDetail.TABLE_PAYMENT +
+				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=a." + Transaction.COLUMN_TRANSACTION_ID +
+				" AND " + Computer.COLUMN_COMPUTER_ID + "=a." + Computer.COLUMN_COMPUTER_ID +
+				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CASH +
+				") AS TotalCash, " +
+				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " +
+				" FROM " + PaymentDetail.TABLE_PAYMENT +
+				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=a." + Transaction.COLUMN_TRANSACTION_ID +
+				" AND " + Computer.COLUMN_COMPUTER_ID + "=a." + Computer.COLUMN_COMPUTER_ID +
+				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CREDIT +
+				") AS TotalCredit " +
 				" FROM " + Transaction.TABLE_TRANSACTION + " a " +
-				" LEFT JOIN " + Transaction.TABLE_ORDER + " b " +
+				" INNER JOIN " + Transaction.TABLE_ORDER + " b " +
 				" ON a." + Transaction.COLUMN_TRANSACTION_ID + "=b." + Transaction.COLUMN_TRANSACTION_ID +
 				" AND a." + Computer.COLUMN_COMPUTER_ID + "=b." + Computer.COLUMN_COMPUTER_ID +
-				" LEFT JOIN " + StockDocument.TABLE_DOCUMENT_TYPE + " c " +
-				" ON a." + StockDocument.COLUMN_DOC_TYPE + "=c." + StockDocument.COLUMN_DOC_TYPE +
 				" WHERE a." + Transaction.COLUMN_STATUS_ID + " IN(?, ?) " +
 				" AND a." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ? " +  
 				" GROUP BY a." + Transaction.COLUMN_TRANSACTION_ID;
@@ -97,12 +106,14 @@ public class Reporting extends MPOSDatabase{
 				reportDetail.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
 				reportDetail.setTransStatus(cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_STATUS_ID)));
 				reportDetail.setReceiptNo(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_NO)));
-				reportDetail.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice")));
-				reportDetail.setSubTotal(cursor.getFloat(cursor.getColumnIndex("TotalSalePrice")));
-				reportDetail.setVatExclude(cursor.getFloat(cursor.getColumnIndex(Transaction.COLUMN_TRANS_EXCLUDE_VAT)));
-				reportDetail.setDiscount(cursor.getFloat(cursor.getColumnIndex("TotalDiscount")));
-				reportDetail.setVatable(cursor.getFloat(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VATABLE)));
-				reportDetail.setTotalVat(cursor.getFloat(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VAT)));
+				reportDetail.setTotalPrice(cursor.getDouble(cursor.getColumnIndex("TotalRetailPrice")));
+				reportDetail.setSubTotal(cursor.getDouble(cursor.getColumnIndex("TotalSalePrice")));
+				reportDetail.setVatExclude(cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_EXCLUDE_VAT)));
+				reportDetail.setDiscount(cursor.getDouble(cursor.getColumnIndex("TotalDiscount")));
+				reportDetail.setVatable(cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VATABLE)));
+				reportDetail.setTotalVat(cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VAT)));
+				reportDetail.setCash(cursor.getDouble(cursor.getColumnIndex("TotalCash")));
+				reportDetail.setCredit(cursor.getDouble(cursor.getColumnIndex("TotalCredit")));
 				report.reportDetail.add(reportDetail);
 				
 			}while(cursor.moveToNext());
@@ -159,23 +170,23 @@ public class Reporting extends MPOSDatabase{
 									.setProductName(cursor.getString(cursor
 											.getColumnIndex(Products.COLUMN_PRODUCT_NAME)));
 							reportDetail
-									.setPricePerUnit(cursor.getFloat(cursor
+									.setPricePerUnit(cursor.getDouble(cursor
 											.getColumnIndex(Products.COLUMN_PRODUCT_PRICE)));
-							reportDetail.setQty(cursor.getFloat(cursor
+							reportDetail.setQty(cursor.getDouble(cursor
 									.getColumnIndex(COLUMN_PRODUCT_QTY)));
-							reportDetail.setQtyPercent(cursor.getFloat(cursor
+							reportDetail.setQtyPercent(cursor.getDouble(cursor
 									.getColumnIndex(COLUMN_PRODUCT_QTY_PERCENT)));
-							reportDetail.setSubTotal(cursor.getFloat(cursor
+							reportDetail.setSubTotal(cursor.getDouble(cursor
 									.getColumnIndex(COLUMN_PRODUCT_SUB_TOTAL)));
 							reportDetail
-									.setSubTotalPercent(cursor.getFloat(cursor
+									.setSubTotalPercent(cursor.getDouble(cursor
 											.getColumnIndex(COLUMN_PRODUCT_SUB_TOTAL_PERCENT)));
-							reportDetail.setDiscount(cursor.getFloat(cursor
+							reportDetail.setDiscount(cursor.getDouble(cursor
 									.getColumnIndex(COLUMN_PRODUCT_DISCOUNT)));
-							reportDetail.setTotalPrice(cursor.getFloat(cursor
+							reportDetail.setTotalPrice(cursor.getDouble(cursor
 									.getColumnIndex(COLUMN_PRODUCT_TOTAL_PRICE)));
 							reportDetail
-									.setTotalPricePercent(cursor.getFloat(cursor
+									.setTotalPricePercent(cursor.getDouble(cursor
 											.getColumnIndex(COLUMN_PRODUCT_TOTAL_PRICE_PERCENT)));
 							int vatType = cursor.getInt(cursor.getColumnIndex(Products.COLUMN_VAT_TYPE));
 							String vatTypeText = "N";
@@ -244,12 +255,12 @@ public class Reporting extends MPOSDatabase{
 			Report.ReportDetail summReport = getProductSummaryAll();
 			report = new Report.ReportDetail();
 			report.setProductName(SUMM_GROUP);
-			report.setQty(cursor.getFloat(cursor.getColumnIndex("TotalQty")));
+			report.setQty(cursor.getDouble(cursor.getColumnIndex("TotalQty")));
 			report.setQtyPercent(report.getQty() / summReport.getQty() * 100);
-			report.setSubTotal(cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice")));
+			report.setSubTotal(cursor.getDouble(cursor.getColumnIndex("TotalRetailPrice")));
 			report.setSubTotalPercent(report.getSubTotal() / summReport.getSubTotal() * 100);
-			report.setDiscount(cursor.getFloat(cursor.getColumnIndex("TotalDiscount")));
-			report.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("TotalSalePrice")));
+			report.setDiscount(cursor.getDouble(cursor.getColumnIndex("TotalDiscount")));
+			report.setTotalPrice(cursor.getDouble(cursor.getColumnIndex("TotalSalePrice")));
 			report.setTotalPricePercent(report.getTotalPrice() / summReport.getTotalPrice() * 100);
 		}
 		cursor.close();
@@ -284,106 +295,13 @@ public class Reporting extends MPOSDatabase{
 			Report.ReportDetail summReport = getProductSummaryAll();
 			report = new Report.ReportDetail();
 			report.setProductName(SUMM_DEPT);
-			report.setQty(cursor.getFloat(cursor.getColumnIndex("TotalQty")));
+			report.setQty(cursor.getDouble(cursor.getColumnIndex("TotalQty")));
 			report.setQtyPercent(report.getQty() / summReport.getQty() * 100);
-			report.setSubTotal(cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice")));
+			report.setSubTotal(cursor.getDouble(cursor.getColumnIndex("TotalRetailPrice")));
 			report.setSubTotalPercent(report.getSubTotal() / summReport.getSubTotal() * 100);
-			report.setDiscount(cursor.getFloat(cursor.getColumnIndex("TotalDiscount")));
-			report.setTotalPrice(cursor.getFloat(cursor.getColumnIndex("TotalSalePrice")));
+			report.setDiscount(cursor.getDouble(cursor.getColumnIndex("TotalDiscount")));
+			report.setTotalPrice(cursor.getDouble(cursor.getColumnIndex("TotalSalePrice")));
 			report.setTotalPricePercent(report.getTotalPrice() / summReport.getTotalPrice() * 100);
-		}
-		cursor.close();
-		return report;
-	}
-	
-	public Report.ReportDetail getBillSummaryAll(){
-		Report.ReportDetail report = null;
-		Cursor cursor = mSqlite.rawQuery(
-				"SELECT SUM(a." + Transaction.COLUMN_TRANS_VATABLE + ") AS " + 
-				Transaction.COLUMN_TRANS_VATABLE + ", " +
-			    " SUM(a." + Transaction.COLUMN_TRANS_VAT + ") AS " + 
-				Transaction.COLUMN_TRANS_VAT + ", " +
-				"(SELECT SUM(" + Transaction.COLUMN_PRICE_DISCOUNT + ") " + 
-				" FROM " + Transaction.TABLE_TRANSACTION + " t " +
-				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
-				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID + 
-				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ? " + 
-				" AND t." + Transaction.COLUMN_STATUS_ID + "=?) AS " +
-				Transaction.COLUMN_PRICE_DISCOUNT + ", " +
-				"(SELECT SUM(" + Transaction.COLUMN_TOTAL_RETAIL_PRICE + ") " + 
-				" FROM " + Transaction.TABLE_TRANSACTION + " t " +
-				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
-				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID + 
-				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ? " + 
-				" AND t." + Transaction.COLUMN_STATUS_ID + "=?) AS " +
-				Transaction.COLUMN_TOTAL_RETAIL_PRICE + ", " +
-				"(SELECT SUM(" + Transaction.COLUMN_TOTAL_SALE_PRICE + ") " + 
-				" FROM " + Transaction.TABLE_TRANSACTION + " t " +
-				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
-				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID + 
-				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ? " + 
-				" AND t." + Transaction.COLUMN_STATUS_ID + "=?) AS " +
-				Transaction.COLUMN_TOTAL_SALE_PRICE + ", " +
-				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " + 
-				" FROM " + PaymentDetail.TABLE_PAYMENT + 
-				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + 
-				"=a." + Transaction.COLUMN_TRANSACTION_ID + 
-				" AND " + Computer.COLUMN_COMPUTER_ID + 
-				"=a." + Computer.COLUMN_COMPUTER_ID + ") AS " +
-				PaymentDetail.COLUMN_PAY_AMOUNT + ", " +
-				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " + 
-				" FROM " + PaymentDetail.TABLE_PAYMENT + 
-				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + 
-				"=a." + Transaction.COLUMN_TRANSACTION_ID + 
-				" AND " + Computer.COLUMN_COMPUTER_ID + 
-				"=a." + Computer.COLUMN_COMPUTER_ID + 
-				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CASH + ") AS " +
-				" TotalCashPay, " +
-				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " + 
-				" FROM " + PaymentDetail.TABLE_PAYMENT + 
-				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + 
-				"=a." + Transaction.COLUMN_TRANSACTION_ID + 
-				" AND " + Computer.COLUMN_COMPUTER_ID + 
-				"=a." + Computer.COLUMN_COMPUTER_ID + 
-				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CREDIT + ") AS " +
-				" TotalCreditPay " +
-				" FROM " + Transaction.TABLE_TRANSACTION + " a " +
-				" WHERE a." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ? " +
-				" AND a." + Transaction.COLUMN_STATUS_ID + "=?", 
-				new String[]{
-						String.valueOf(mDateFrom),
-						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(mDateFrom),
-						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(mDateFrom),
-						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(mDateFrom),
-						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
-				}
-		);
-		
-		if(cursor.moveToFirst()){
-			report = new Report.ReportDetail();
-			report.setTotalPrice(
-					cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TOTAL_RETAIL_PRICE)));
-			report.setDiscount(
-					cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_PRICE_DISCOUNT)));
-			report.setSubTotal(
-					cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TOTAL_SALE_PRICE)));
-			report.setVatable(
-					cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VATABLE)));
-			report.setTotalVat(
-					cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VAT)));
-			report.setCash(cursor.getDouble(cursor.getColumnIndex("TotalCashPay")));
-			report.setCredit(cursor.getDouble(cursor.getColumnIndex("TotalCreditPay")));
-			report.setTotalPayment(cursor.getDouble(cursor.getColumnIndex(PaymentDetail.COLUMN_PAY_AMOUNT)));
 		}
 		cursor.close();
 		return report;
@@ -401,10 +319,10 @@ public class Reporting extends MPOSDatabase{
 		
 		if(cursor.moveToFirst()){
 			report = new Report.ReportDetail();
-			report.setQty(cursor.getFloat(cursor.getColumnIndex(COLUMN_PRODUCT_SUMM_QTY)));
-			report.setSubTotal(cursor.getFloat(cursor.getColumnIndex(COLUMN_PRODUCT_SUMM_SUB_TOTAL)));
-			report.setDiscount(cursor.getFloat(cursor.getColumnIndex(COLUMN_PRODUCT_SUMM_DISCOUNT)));
-			report.setTotalPrice(cursor.getFloat(cursor.getColumnIndex(COLUMN_PRODUCT_SUMM_TOTAL_PRICE)));
+			report.setQty(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_SUMM_QTY)));
+			report.setSubTotal(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_SUMM_SUB_TOTAL)));
+			report.setDiscount(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_SUMM_DISCOUNT)));
+			report.setTotalPrice(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_SUMM_TOTAL_PRICE)));
 		}
 		cursor.close();
 		return report;
@@ -476,16 +394,16 @@ public class Reporting extends MPOSDatabase{
 		
 		if(cursor.moveToFirst()){
 			do{
-				double qty = cursor.getFloat(cursor.getColumnIndex("Qty"));
-				double summQty = cursor.getFloat(cursor.getColumnIndex("TotalQty"));
+				double qty = cursor.getDouble(cursor.getColumnIndex("Qty"));
+				double summQty = cursor.getDouble(cursor.getColumnIndex("TotalQty"));
 				double qtyPercent = (qty / summQty) * 100;
-				double retailPrice = cursor.getFloat(cursor.getColumnIndex("RetailPrice"));
-				double summRetailPrice = cursor.getFloat(cursor.getColumnIndex("TotalRetailPrice"));
+				double retailPrice = cursor.getDouble(cursor.getColumnIndex("RetailPrice"));
+				double summRetailPrice = cursor.getDouble(cursor.getColumnIndex("TotalRetailPrice"));
 				double retailPricePercent = (retailPrice / summRetailPrice) * 100;
-				double discount = cursor.getFloat(cursor.getColumnIndex("Discount"));
-				double summDiscount = cursor.getFloat(cursor.getColumnIndex("TotalDiscount"));
-				double salePrice = cursor.getFloat(cursor.getColumnIndex("SalePrice"));
-				double summSalePrice = cursor.getFloat(cursor.getColumnIndex("TotalSalePrice"));
+				double discount = cursor.getDouble(cursor.getColumnIndex("Discount"));
+				double summDiscount = cursor.getDouble(cursor.getColumnIndex("TotalDiscount"));
+				double salePrice = cursor.getDouble(cursor.getColumnIndex("SalePrice"));
+				double summSalePrice = cursor.getDouble(cursor.getColumnIndex("TotalSalePrice"));
 				double salePricePercent = (salePrice / summSalePrice) * 100;
 				
 				ContentValues cv = new ContentValues();
