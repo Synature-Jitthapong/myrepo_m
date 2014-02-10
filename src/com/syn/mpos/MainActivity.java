@@ -60,7 +60,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private int mStaffId;
 	private int mShopId;
 	private Transaction mTransaction;
-	private List<Products.ProductDept> mProductDeptLst;
 	private static List<OrderTransaction.OrderDetail> mOrderLst;
 	private static List<OrderTransaction.OrderDetail> mOrderSelLst;
 	private static OrderListAdapter mOrderAdapter;
@@ -499,28 +498,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 	}
 	
-	class MenuItemPagerAdapter extends FragmentPagerAdapter{
-		
-		public MenuItemPagerAdapter(FragmentManager fm) {
-			super(fm);
-		}
-		
-		@Override
-		public CharSequence getPageTitle(int position) {
-			return mProductDeptLst.get(position).getProductDeptName();
-		}
 	
-		@Override
-		public Fragment getItem(int position) {
-			int deptId = mProductDeptLst.get(position).getProductDeptId();
-			return MenuPageFragment.newInstance(deptId);
-		}
-	
-		@Override
-		public int getCount() {
-			return mProductDeptLst.size();
-		}		
-	}
 	
 	public void clearBillClicked(final View v){
 		new AlertDialog.Builder(MainActivity.this)
