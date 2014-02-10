@@ -850,7 +850,7 @@ public class Transaction extends MPOSDatabase {
 		double totalVatable = totalSalePrice + totalVatExclude;
 		
 		ContentValues cv = new ContentValues();
-		cv.put(COLUMN_TRANS_VAT, totalVat + totalVatExclude);
+		cv.put(COLUMN_TRANS_VAT, totalVat);
 		cv.put(COLUMN_TRANS_VATABLE, totalVatable);
 		cv.put(COLUMN_TRANS_EXCLUDE_VAT, totalVatExclude);
 		
@@ -913,14 +913,13 @@ public class Transaction extends MPOSDatabase {
 			int computerId, int vatType, double vatRate, 
 			double salePrice, double discount, int discountType) {
 		boolean isSuccess = false;
-		double vat = Util.calculateVat(salePrice, vatRate);
+		double vat = Util.calculateVatAmount(salePrice, vatRate, vatType);
 		try {
 			ContentValues cv = new ContentValues();
 			cv.put(COLUMN_PRICE_DISCOUNT, discount);
 			cv.put(COLUMN_TOTAL_SALE_PRICE, salePrice);
-			if(vatType == Products.VAT_TYPE_INCLUDED)
-				cv.put(COLUMN_TOTAL_VAT, vat);
-			else if(vatType == Products.VAT_TYPE_EXCLUDE)
+			cv.put(COLUMN_TOTAL_VAT, vat);
+			if(vatType == Products.VAT_TYPE_EXCLUDE)
 				cv.put(COLUMN_TOTAL_VAT_EXCLUDE, vat);
 			else
 			cv.put(COLUMN_DISCOUNT_TYPE, discountType);
@@ -1014,16 +1013,15 @@ public class Transaction extends MPOSDatabase {
 			double pricePerUnit) {
 		boolean isSuccess = false;
 		double totalRetailPrice = pricePerUnit * orderQty;
-		double vat = Util.calculateVat(totalRetailPrice, vatRate);
+		double vat = Util.calculateVatAmount(totalRetailPrice, vatRate, vatType);
 		
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_ORDER_QTY, orderQty);
 		cv.put(Products.COLUMN_PRODUCT_PRICE, pricePerUnit);
 		cv.put(COLUMN_TOTAL_RETAIL_PRICE, totalRetailPrice);
 		cv.put(COLUMN_TOTAL_SALE_PRICE, totalRetailPrice);
-		if(vatType == Products.VAT_TYPE_INCLUDED)
-			cv.put(COLUMN_TOTAL_VAT, vat);
-		else if(vatType == Products.VAT_TYPE_EXCLUDE)
+		cv.put(COLUMN_TOTAL_VAT, vat);
+		if(vatType == Products.VAT_TYPE_EXCLUDE)
 			cv.put(COLUMN_TOTAL_VAT_EXCLUDE, vat);
 		cv.put(COLUMN_PRICE_DISCOUNT, 0);
 
@@ -1049,7 +1047,7 @@ public class Transaction extends MPOSDatabase {
 		
 		int orderDetailId = getMaxOrderDetail(transactionId, computerId);
 		double totalRetailPrice = pricePerUnit * orderQty;
-		double vat = Util.calculateVat(totalRetailPrice, vatRate);
+		double vat = Util.calculateVatAmount(totalRetailPrice, vatRate, vatType);
 		
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_ORDER_ID, orderDetailId);
@@ -1061,9 +1059,8 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COLUMN_TOTAL_RETAIL_PRICE, totalRetailPrice);
 		cv.put(COLUMN_TOTAL_SALE_PRICE, totalRetailPrice);
 		cv.put(Products.COLUMN_VAT_TYPE, vatType);
-		if(vatType == Products.VAT_TYPE_INCLUDED)
-			cv.put(COLUMN_TOTAL_VAT, vat);
-		else if(vatType == Products.VAT_TYPE_EXCLUDE)
+		cv.put(COLUMN_TOTAL_VAT, vat);
+		if(vatType == Products.VAT_TYPE_EXCLUDE)
 			cv.put(COLUMN_TOTAL_VAT_EXCLUDE, vat);
 
 		long rowId = mSqlite.insertOrThrow(TABLE_ORDER, null, cv);

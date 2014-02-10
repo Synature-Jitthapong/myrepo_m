@@ -41,12 +41,10 @@ public class Util {
 		return format;
 	}
 	
-	public static double calculateVat(double totalPrice, double vatRate){
-		double vatAmount = totalPrice * toVatPercent(vatRate);
-		return vatAmount;
-	}
-	
-	public static double toVatPercent(double vatRate){
-		return vatRate / 100;
+	public static double calculateVatAmount(double totalPrice, double vatRate, int vatType){
+		if(vatType == Products.VAT_TYPE_INCLUDED)
+			return totalPrice * vatRate / (100 + vatRate);
+		else
+			return totalPrice * vatRate / 100;
 	}
 }
