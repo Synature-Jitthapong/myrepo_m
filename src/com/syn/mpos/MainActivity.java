@@ -15,10 +15,8 @@ import com.syn.mpos.provider.SyncSaleLog;
 import com.syn.mpos.provider.Transaction;
 import com.syn.mpos.provider.Util;
 import com.syn.pos.OrderTransaction;
-import com.syn.pos.OrderTransaction.OrderDetail;
 import com.syn.pos.ShopData;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -30,6 +28,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -62,15 +61,14 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private int mShopId;
 	private Transaction mTransaction;
 	private List<Products.ProductDept> mProductDeptLst;
-	private List<OrderTransaction.OrderDetail> mOrderLst;
-	private List<OrderTransaction.OrderDetail> mOrderSelLst;
-	private OrderListAdapter mOrderAdapter;
+	private static List<OrderTransaction.OrderDetail> mOrderLst;
+	private static List<OrderTransaction.OrderDetail> mOrderSelLst;
+	private static OrderListAdapter mOrderAdapter;
 	private PagerSlidingTabStrip mTabs;
 	private ViewPager mPager;
 	private MenuItemPagerAdapter mPageAdapter;
 	private TableRow mTbRowVat;
 	private TableRow mTbRowDiscount;
-	private ListView mOrderListView;
 	private TextView mTvSubTotal;
 	private TextView mTvVatExclude;
 	private TextView mTvDiscount;
@@ -79,10 +77,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private Button mBtnCash;
 	private Button mBtnHold;
 	private MenuItem mItemHoldBill;
-	private LinearLayout mLayoutOrderCtrl;
+	private static LinearLayout mLayoutOrderCtrl;
 	private ImageButton mBtnDelSelOrder;
 	private ImageButton mBtnClearSelOrder;
-	private TextView mTvOrderSelected;
+	private static TextView mTvOrderSelected;
 	private ProgressDialog mProgress;
 	
 	@Override
@@ -95,7 +93,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mBtnClearSelOrder = (ImageButton) findViewById(R.id.btnClearSelOrder);
 		mTvOrderSelected = (TextView) findViewById(R.id.tvOrderSelected);
 		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
-		mOrderListView = (ListView) findViewById(R.id.listViewOrder);
 		mTvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
 		mTvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
 		mTvDiscount = (TextView) findViewById(R.id.textViewDiscount);
@@ -148,41 +145,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		if(mOrderSelLst.size() == 0){
 			mLayoutOrderCtrl.setVisibility(View.GONE);
 		}
-		
-		mOrderListView.setOnItemClickListener(new OnItemClickListener(){
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View v, int position,
-					long id) {
-				OrderTransaction.OrderDetail order = 
-						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
-
-				if(mOrderSelLst.size() > 0){
-					if (mOrderSelLst.contains(order)){ 
-						mOrderSelLst.remove(order);
-						mOrderLst.get(position).setChecked(false);
-					}
-					else{ 
-						mOrderSelLst.add(order);
-						mOrderLst.get(position).setChecked(true);
-					}
-				}else{
-					mOrderSelLst.add(order);
-					mOrderLst.get(position).setChecked(true);
-				}
-				
-				if(mOrderSelLst.size() > 0){
-					if(mLayoutOrderCtrl.getVisibility() == View.GONE) 
-						mLayoutOrderCtrl.setVisibility(View.VISIBLE);
-				}
-				else if(mOrderSelLst.size() == 0){
-					mLayoutOrderCtrl.setVisibility(View.GONE);
-				}
-				
-				mTvOrderSelected.setText("selected(" + mOrderSelLst.size() + ")");
-				mOrderAdapter.notifyDataSetChanged();
-			}
-		});
 		
 		mBtnDelSelOrder.setOnClickListener(new OnClickListener(){
 
@@ -238,15 +200,12 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private void loadOrder(){
 		mOrderLst = mTransaction.listAllOrder(mTransactionId, mComputerId);
 		mOrderAdapter = new OrderListAdapter();
-		mOrderListView.setAdapter(mOrderAdapter);
-		mOrderAdapter.notifyDataSetChanged();
-		mOrderListView.setSelection(mOrderAdapter.getCount());
 	}
 	
 	@Override
 	protected void onResume() {
-		init();
 		super.onResume();
+		init();
 	}
 
 	public void summary(){
@@ -563,29 +522,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}		
 	}
 	
-//	public class MenuItemPagerAdapter extends FragmentStatePagerAdapter{
-//	
-//		public MenuItemPagerAdapter(FragmentManager fm) {
-//			super(fm);
-//		}
-//		
-//		@Override
-//		public CharSequence getPageTitle(int position) {
-//			return mProductDeptLst.get(position).getProductDeptName();
-//		}
-//	
-//		@Override
-//		public Fragment getItem(int position) {
-//			int deptId = mProductDeptLst.get(position).getProductDeptId();
-//			return MenuPageFragment.newInstance(deptId);
-//		}
-//	
-//		@Override
-//		public int getCount() {
-//			return mProductDeptLst.size();
-//		}		
-//	}
-
 	public void clearBillClicked(final View v){
 		new AlertDialog.Builder(MainActivity.this)
 		.setIcon(android.R.drawable.ic_dialog_alert)
@@ -1029,37 +965,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		dialog.show();
 	}
 	
-	private void refreshOrderListView(){
-		mOrderAdapter.notifyDataSetChanged();
-		mOrderListView.smoothScrollToPosition(mOrderLst.size());
-	}
-	
-	private class GetOrderTask extends AsyncTask<Void, Void, OrderDetail>{
-		
-		private int mOrderId;
-		
-		public GetOrderTask(int orderId){
-			mOrderId = orderId;
-		}
-		
-		@Override
-		protected void onPostExecute(OrderDetail result) {
-			mOrderLst.add(result);
-			refreshOrderListView();
-		}
-
-		@Override
-		protected OrderDetail doInBackground(Void... arg0) {	
-			return mTransaction.getOrder(mTransactionId, mComputerId, mOrderId);
-		}
-		
-	}
-	
 	private void appendOrderList(int orderId){
 		if(orderId > 0){
-//			mOrderLst.add(mTransaction.getOrder(mTransactionId, mComputerId, orderId));
-//			refreshOrderListView();
-			new GetOrderTask(orderId).execute();
+			mOrderLst.add(mTransaction.getOrder(mTransactionId, mComputerId, orderId));
+			mOrderAdapter.notifyDataSetChanged();
 		}
 	}
 	
@@ -1078,5 +987,46 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}else if(productTypeId == Products.SIZE_TYPE){
 			popupProductSize(productId);
 		}
+	}
+	
+	public static class OrderListFragment extends ListFragment{
+
+		@Override
+		public void onResume() {
+			super.onResume();	
+			setListAdapter(mOrderAdapter);
+		}
+
+		@Override
+		public void onListItemClick(ListView l, View v, int position, long id) {
+			OrderTransaction.OrderDetail order = 
+					(OrderTransaction.OrderDetail) l.getItemAtPosition(position);
+
+			if(mOrderSelLst.size() > 0){
+				if (mOrderSelLst.contains(order)){ 
+					mOrderSelLst.remove(order);
+					mOrderLst.get(position).setChecked(false);
+				}
+				else{ 
+					mOrderSelLst.add(order);
+					mOrderLst.get(position).setChecked(true);
+				}
+			}else{
+				mOrderSelLst.add(order);
+				mOrderLst.get(position).setChecked(true);
+			}
+			
+			if(mOrderSelLst.size() > 0){
+				if(mLayoutOrderCtrl.getVisibility() == View.GONE) 
+					mLayoutOrderCtrl.setVisibility(View.VISIBLE);
+			}
+			else if(mOrderSelLst.size() == 0){
+				mLayoutOrderCtrl.setVisibility(View.GONE);
+			}
+			
+			mTvOrderSelected.setText("selected(" + mOrderSelLst.size() + ")");
+			mOrderAdapter.notifyDataSetChanged();
+		}
+		
 	}
 }

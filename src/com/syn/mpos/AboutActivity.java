@@ -15,7 +15,8 @@ public class AboutActivity extends Activity {
 		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
-		 ((TextView) findViewById(R.id.textView1)).setText(Secure.getString(this.getContentResolver(),
+		 ((TextView) findViewById(R.id.textView2)).setText(this.getString(R.string.device_code) +
+				 Secure.getString(this.getContentResolver(),
 					Secure.ANDROID_ID));
 	}
 

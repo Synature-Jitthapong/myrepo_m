@@ -102,11 +102,11 @@
     <string name="summary">Summary</string>
     <string name="receipt_no">Receipt No.</string>
     <string name="printer_ip">Printer IP</string>
-    <string name="printer_name">Printer name</string>
+    <string name="printer_name">Printer Name</string>
     <string name="printer_setting">Printer Settings</string>
-    <string name="print_text">© 2013 All Rights Reserved. Synature Technology Co., Ltd. 
-55/165 M.Banklangmuang, Soi Ladprao 88, Ladprao Rd. Wangthonglang, Bangkok, Thailand. 10310
-Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\npRoMiSe Restaurant เป็นโปรแกรมร้านอาหาร สำหรับร้านอาหารที่มีขนาดเล็กถึงขนาดกลาง มีระบบการจัดการที่ครบถ้วน\n***November.23,*2007***PM*4:24\napples******************$20.00\ngrapes******************$30.00\nbananas*****************$40.00\nlemons******************$50.00\noranges*****************$60.00\nTax*excluded.**********$200.00\nTax*****5.0%************$10.00\n______________________________\nTotal******************$210.00\n</string>
+    <string name="software_info">© 2013 All Rights Reserved. Synature Technology Co., Ltd.\n 
+55/165 M.Banklangmuang, Soi Ladprao 88, Ladprao Rd.\n Wangthonglang, Bangkok, Thailand. 10310\n
+Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com</string>
     <string name="promp_card_no">Please enter credit card No.</string>
     <string name="progress">Please wait&#8230;</string>
     <string name="title_activity_inv_direct_receive">Direct Receive</string>
@@ -241,5 +241,8 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092 E-mail: info@synaturegroup.com\n
     <string name="cannot_endday">Cannot endday </string>
     <string name="because">because</string>
     <string name="cannot_endday_have_order">Clear current order first!</string>
-
+    <string name="barcode">Bar Code</string>
+    <string name="font">Font</string>
+	<string name="device_code">Device Code:</string>
+	<string name="reprint_receipt">Reprint Receipt</string>
 </resources>

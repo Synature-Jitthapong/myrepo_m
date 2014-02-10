@@ -9,6 +9,7 @@
         	    android:selectAllOnFocus="true"
         	    android:defaultValue="1.1.0.161"/>
         	<ListPreference android:key="printer_list" android:title="@string/printer_name" android:entryValues="@array/pref_printer_value" android:entries="@array/pref_printer_name" android:defaultValue="TM-T88V"/>
+        	<ListPreference android:title="@string/font" android:key="printer_font_list" android:entryValues="@array/pref_printer_font_value" android:entries="@array/pref_printer_font_name" android:defaultValue="a"/>
     </PreferenceCategory>
     
 

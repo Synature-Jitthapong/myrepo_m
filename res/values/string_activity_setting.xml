@@ -2,15 +2,21 @@
 <resources>
     <string-array name="pref_printer_name">
         <item >TM-T88V</item>
-        <item >TM-U220</item>
         <item >TM-T81</item>
-        <item >TM-T82</item>
     </string-array>
     <string-array name="pref_printer_value">
         <item >TM-T88V</item>
-        <item >TM-U220</item>
-        <item >TM-T81II</item>
-        <item >TM-T82II</item>
+        <item >TM-T88V</item>
     </string-array>
+    <string-array name="pref_printer_font_name">
+        <item >@string/font_medium</item>
+        <item >@string/font_small</item>
+    </string-array>
+    <string-array name="pref_printer_font_value">
+        <item >a</item>
+        <item >b</item>
+    </string-array>
+    <string name="font_medium">Medium</string>
+    <string name="font_small">Small</string>
     
 </resources>

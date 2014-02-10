@@ -3,7 +3,6 @@ package com.syn.mpos;
 import com.syn.mpos.R;
 import com.syn.mpos.provider.Login;
 import com.syn.mpos.provider.Session;
-import com.syn.mpos.provider.SyncSaleLog;
 import com.syn.mpos.provider.Util;
 import com.syn.pos.ShopData;
 
@@ -49,8 +48,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 		mTxtPass.setSelectAllOnFocus(true);
 		mBtnLogin.setOnClickListener(this);
 		
-		mTxtUser.setText("11");
-		mTxtPass.setText("11");
+		//mTxtUser.setText("11");
+		//mTxtPass.setText("11");
 		mTxtPass.setOnEditorActionListener(new OnEditorActionListener(){
 
 			@Override
@@ -275,6 +274,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 							.show();
 						}
 					}else{
+						mBtnLogin.setEnabled(true);
 						new AlertDialog.Builder(LoginActivity.this)
 						.setIcon(android.R.drawable.ic_dialog_alert)
 						.setTitle(R.string.login)

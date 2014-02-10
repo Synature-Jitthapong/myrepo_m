@@ -13,7 +13,6 @@
     </style>
     <style name="ColumnDetail" parent="ColumnHeader">
         <item name="android:gravity">right</item>
-        <item name="android:textAllCaps">false</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
     <style name="ColumnHeader" parent="android:style/Widget.TextView">
@@ -23,16 +22,15 @@
         <item name="android:padding">4dp</item>
         <item name="android:gravity">center</item>
 		<item name="android:lines">1</item>
-        <item name="android:textAllCaps">true</item>
     </style>
     <!-- Application theme. 
     	<item name="android:actionBarStyle">@style/ActionBarStyle</item>
        	<item name="android:actionMenuTextColor">@color/smoke_white</item>
         <item name="android:windowBackground">@color/light_gray</item>
         <item name="android:background">@drawable/actionbar_background</item>
-       	-->
-    <style name="AppTheme" parent="AppBaseTheme">
     	<item name="android:actionBarStyle">@android:style/Widget.Holo.Light.ActionBar.Solid</item>
         <item name="android:windowBackground">@color/light_gray</item>
+       	-->
+    <style name="AppTheme" parent="AppBaseTheme">
     </style>
 </resources>

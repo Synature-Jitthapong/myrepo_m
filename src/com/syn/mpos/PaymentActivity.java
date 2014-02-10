@@ -372,50 +372,48 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 		}
 	}
 	
+	private void sendSale(){
+		new Handler().postDelayed(new Runnable(){
+
+			@Override
+			public void run() {
+				MPOSUtil.doSendSale(mStaffId, new ProgressListener(){
+
+					@Override
+					public void onPre() {
+					}
+
+					@Override
+					public void onPost() {
+					}
+
+					@Override
+					public void onError(String msg) {
+					}
+					
+				});
+			}
+			
+		}, 1000);
+	}
+	
+	private void print(){
+		new Handler().post(new Runnable(){
+
+			@Override
+			public void run() {
+				PrintReceipt printReceipt = new PrintReceipt();
+				printReceipt.printReceipt(mTransactionId, mComputerId);
+			}
+			
+		});
+	}
+	
 	public void confirm() {
 		if(mTotalPaid >=mTotalSalePrice){
 			if(mTransaction.successTransaction(mTransactionId, 
 					mComputerId, mStaffId)){
-				
 				mChange = mTotalPaid - mTotalSalePrice;
-				
-				new Handler().post(new Runnable(){
-
-					@Override
-					public void run() {
-						PrintReceipt printReceipt = new PrintReceipt();
-						printReceipt.printReceipt(mTransactionId, mComputerId);
-					}
-					
-				});
-				
-				// send real time sale
-				new Handler().post(new Runnable(){
-
-					@Override
-					public void run() {
-						MPOSUtil.doSendSale(mStaffId, new ProgressListener(){
-
-							@Override
-							public void onPre() {
-							}
-
-							@Override
-							public void onPost() {
-							}
-
-							@Override
-							public void onError(String msg) {
-								new AlertDialog.Builder(PaymentActivity.this)
-								.setMessage(msg)
-								.show();
-							}
-							
-						});
-					}
-					
-				});
-				
 				if(mChange > 0){
 					LayoutInflater inflater = (LayoutInflater) 
 							PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -430,11 +428,15 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
+							print();
+							sendSale();
 							finish();
 						}
 					})
 					.show();
 				}else{
+					print();
+					sendSale();
 					finish();
 				}
 				

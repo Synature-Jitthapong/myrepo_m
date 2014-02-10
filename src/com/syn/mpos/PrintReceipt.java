@@ -68,11 +68,13 @@ public class PrintReceipt implements BatteryStatusChangeEventListener, StatusCha
 					MPOSApplication.getContext());
 			
 			//builder.addTextLang(Builder.LANG_TH);
-			builder.addTextFont(Builder.FONT_B); //b
+			if(MPOSApplication.getPrinterFont().equals("a")){
+				builder.addTextFont(Builder.FONT_A);
+			}else if(MPOSApplication.getPrinterFont().equals("b")){
+				builder.addTextFont(Builder.FONT_B);
+			}
 			builder.addTextAlign(Builder.ALIGN_CENTER);
 			builder.addTextSize(1, 1);
-			//builder.addTextStyle(Builder.FALSE, Builder.FALSE, Builder.FALSE, Builder.COLOR_1);
-			//builder.addText("\nไก่จิกเด็กตายบนปากโอ่ง\n");
 			// add header
 			HeaderFooterReceipt headerFooter = new HeaderFooterReceipt(MPOSApplication.getWriteDatabase());
 			for(ShopData.HeaderFooterReceipt hf : 

@@ -11,10 +11,11 @@
     </item>
     <item android:id="@+id/itemUtility" android:showAsAction="always|withText" android:title="@string/utility">
         <menu>
-            <item android:id="@+id/itemVoid" android:title="@string/void_bill"/>
+            <item android:id="@+id/itemReprint" android:title="@string/reprint_receipt" android:titleCondensed="Reprint receipt if print fail at first time."/><item android:id="@+id/itemVoid" android:title="@string/void_bill" android:titleCondensed="Void receipt if incorrect."/>
             <item android:id="@+id/itemCloseShift" android:title="@string/close_shift" android:visible="false"/>
             <item android:id="@+id/itemEndday" android:title="@string/endday"/>
             <item android:id="@+id/itemUpdateData" android:title="@string/update_data"/>
+            
             
         </menu>
     </item>
