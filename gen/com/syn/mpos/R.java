@@ -702,18 +702,6 @@ containing a value of this type.
         public static final int zipcode=0x7f060092;
     }
     public static final class style {
-        /** 
-        Base application theme for API 11+. This theme completely replaces
-        AppBaseTheme from res/values/styles.xml on API 11+ devices.
-    
- API 11 theme customizations can go here. 
-
-        Base application theme for API 11+. This theme completely replaces
-        AppBaseTheme from res/values/styles.xml on API 11+ devices.
-    
- API 11 theme customizations can go here. 
-         */
-        public static final int AppBaseTheme=0x7f090005;
         /**  Application theme. 
     	<item name="android:actionBarStyle">@style/ActionBarStyle</item>
        	<item name="android:actionMenuTextColor">@color/smoke_white</item>
@@ -723,7 +711,22 @@ containing a value of this type.
         <item name="android:windowBackground">@color/light_gray</item>
        	
          */
-        public static final int AppTheme=0x7f090004;
+        public static final int ActivityDialogTheme=0x7f090004;
+        /** 
+        Base application theme for API 11+. This theme completely replaces
+        AppBaseTheme from res/values/styles.xml on API 11+ devices.
+    
+ API 11 theme customizations can go here. 
+ API 11 theme customizations can go here. 
+         */
+        public static final int AppBaseTheme=0x7f090006;
+        public static final int AppTheme=0x7f090005;
+        /** 
+        Base application theme for API 11+. This theme completely replaces
+        AppBaseTheme from res/values/styles.xml on API 11+ devices.
+    
+         */
+        public static final int BaseActivityDialogTheme=0x7f090007;
         public static final int ButtonText=0x7f090001;
         public static final int ButtonTextWhite=0x7f090000;
         public static final int ColumnDetail=0x7f090002;

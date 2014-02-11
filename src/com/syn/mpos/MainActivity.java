@@ -261,8 +261,11 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 
 	public void paymentClicked(final View v){
-		PaymentDialog d = PaymentDialog.newInstance(mTransactionId, mComputerId, mStaffId);
-		d.show(getSupportFragmentManager(), "PaymentDialog");
+		Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
+		intent.putExtra("transactionId", mTransactionId);
+		intent.putExtra("computerId", mComputerId);
+		intent.putExtra("staffId", mStaffId);
+		startActivity(intent);
 	}
 
 	public void discountClicked(final View v){

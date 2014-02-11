@@ -36,6 +36,13 @@
     	<item name="android:actionBarStyle">@android:style/Widget.Holo.Light.ActionBar.Solid</item>
         <item name="android:windowBackground">@color/light_gray</item>
        	-->
+    <style name="ActivityDialogTheme" parent="BaseActivityDialogTheme">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowSoftInputMode">stateAlwaysHidden</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
     <style name="AppTheme" parent="AppBaseTheme">
     </style>
 </resources>
