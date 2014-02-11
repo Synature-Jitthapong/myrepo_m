@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".PaymentActivity" >
+    tools:context=".PaymentDialog" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,7 +32,6 @@
                     android:id="@+id/btnCash"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minHeight="64dp"
                     android:minWidth="120dp"
                     android:text="@string/cash" />
 
@@ -40,7 +39,6 @@
                     android:id="@+id/btnCredit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minHeight="64dp"
                     android:minWidth="120dp"
                     android:text="@string/credit" />
             </LinearLayout>
@@ -65,7 +63,7 @@
                 android:inputType="numberSigned"
                 android:textAppearance="?android:attr/textAppearanceLargeInverse"
                 android:textColor="@android:color/black"
-                android:textSize="48sp"
+                android:textSize="32sp"
                 android:textStyle="bold" />
 
         </LinearLayout>

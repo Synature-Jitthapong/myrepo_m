@@ -63,15 +63,6 @@
                 android:value="com.syn.mpos.MainActivity" />
         </activity>
         <activity
-            android:name="com.syn.mpos.PaymentActivity"
-            android:label="@string/title_activity_payment"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" 
-            android:screenOrientation="landscape">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.syn.mpos.MainActivity" />
-        </activity>
-        <activity
             android:name="com.syn.mpos.SaleReportActivity"
             android:label="@string/title_activity_sale_report"
             android:windowSoftInputMode="stateAlwaysHidden" 
@@ -103,13 +94,6 @@
             android:name="com.syn.mpos.AboutActivity"
             android:label="@string/title_activity_about"  
             android:screenOrientation="landscape">
-        </activity>
-        <activity
-            android:name="com.syn.mpos.SyncActivity"
-            android:label="@string/update_data" 
-            android:theme="@android:style/Theme.Holo.Light.Dialog"  
-            android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateAlwaysHidden">
         </activity>
     </application>
 

@@ -1,6 +1,4 @@
 package com.syn.mpos;
-
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,29 +9,28 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 
-public class SyncActivity extends Activity implements OnItemClickListener{
+public class SyncActivity extends AlertDialog.Builder implements OnItemClickListener{
 	public static final int SYNC_PRODUCT = 0;
 	public static final int SYNC_SALE = 1;
 	
+	private Context mContext;
 	private int mStaffId;
 	private ListView mLvSync;
 	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_sync);
-		
-		mLvSync = (ListView) findViewById(R.id.lvSync);
-		
-		Intent intent = getIntent();
-		mStaffId = intent.getIntExtra("staffId", 0);
-		String syncArr[] = getResources().getStringArray(R.array.update_array);
+	public SyncActivity(Context context, int staffId) {
+		super(context);
+		mContext = context;
+		LayoutInflater inflater= (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View syncView = inflater.inflate(R.layout.activity_sync, null);
+		mLvSync = (ListView) syncView.findViewById(R.id.lvSync);
+	
+		String syncArr[] = context.getResources().getStringArray(R.array.update_array);
 		mLvSync.setAdapter(new SyncListAdapter(syncArr));
 		mLvSync.setOnItemClickListener(this);
+		setView(syncView);
 	}
 
 	private class SyncListAdapter extends BaseAdapter{
@@ -44,7 +41,7 @@ public class SyncActivity extends Activity implements OnItemClickListener{
 		public SyncListAdapter(String[] whatSyncArr){
 			mWhatSyncArr = whatSyncArr;
 			mInflater = (LayoutInflater) 
-					SyncActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 		
 		@Override

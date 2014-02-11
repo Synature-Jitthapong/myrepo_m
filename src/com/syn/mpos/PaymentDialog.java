@@ -2,21 +2,19 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.syn.mpos.R;
 import com.syn.mpos.provider.PaymentDetail;
 import com.syn.mpos.provider.Transaction;
 import com.syn.pos.Payment;
 import android.os.Bundle;
 import android.os.Handler;
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -26,12 +24,12 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PaymentActivity extends Activity  implements OnClickListener {
+public class PaymentDialog extends DialogFragment  implements OnClickListener {
 	//private final String TAG = "PaymentActivity";
 	private double mTotalSalePrice;
-	private int mTransactionId;
-	private int mComputerId;
-	private int mStaffId;
+	private static int sTransactionId;
+	private static int sComputerId;
+	private static int sStaffId;
 	private Transaction mTransaction;
 	private PaymentDetail mPayment;
 	private List<Payment.PaymentDetail> mPayLst;
@@ -51,78 +49,81 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	private EditText mTxtPaymentLeft;
 	private EditText mTxtTotalPrice;
 	
+
+	public static PaymentDialog newInstance(int transactionId, int computerId, int staffId){
+		Bundle b = new Bundle();
+		b.putInt("transactionId", transactionId);
+		b.putInt("computerId", computerId);
+		b.putInt("staffId", staffId);
+		PaymentDialog f = new PaymentDialog();
+		f.setArguments(b);
+		return f;
+	}
+	
 	@Override
-	protected void onCreate(Bundle savedInstanceState){
+	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_payment);
+		sTransactionId = getArguments().getInt("transactionId");
+		sComputerId = getArguments().getInt("computerId");
+		sStaffId = getArguments().getInt("staffId");
 		
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		
-		mLvPayment = (ListView) findViewById(R.id.lvPayDetail);
-		mTxtEnterPrice = (EditText) findViewById(R.id.txtEnterPrice);
-		mTxtTotalPaid = (EditText) findViewById(R.id.txtTotalPaid);
-		mTxtPaymentLeft = (EditText) findViewById(R.id.txtPaymentLeft);
-		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
-		mBtnCash = (Button) findViewById(R.id.btnCash);
-		mBtnCredit = (Button) findViewById(R.id.btnCredit);
-		mBtnCredit.setOnClickListener(this);
-		mBtnCash.setOnClickListener(this);
-		
-		Intent intent = getIntent();
-		mTransactionId = intent.getIntExtra("transactionId", 0);
-		mComputerId = intent.getIntExtra("computerId", 0);
-		mStaffId = intent.getIntExtra("staffId", 0);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.activity_payment, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()){
-		case android.R.id.home:
-			cancel();
-			return true;
-		case R.id.itemConfirm:
-			confirm();
-			return true;
-		default:
-		return super.onOptionsItemSelected(item);
-		}
-	}
-
-	@Override
-	protected void onResume() {
-		init();
-		mBtnCash.setPressed(true);
-		super.onResume();
-	}
-
-	private void init(){
 		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
 		mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<Payment.PaymentDetail>();
-		mLvPayment.setAdapter(mPaymentAdapter);
 		mStrTotalPay = new StringBuilder();
+	}
+
+	@Override
+	public void onDismiss(DialogInterface dialog) {
+		// TODO Auto-generated method stub
+		super.onDismiss(dialog);
+	}
+
+	@Override
+	public Dialog getDialog() {
+		return super.getDialog();
+	}
+
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		LayoutInflater inflater = 
+				(LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View v = inflater.inflate(R.layout.activity_payment, null);
+		mLvPayment = (ListView) v.findViewById(R.id.lvPayDetail);
+		mTxtEnterPrice = (EditText) v.findViewById(R.id.txtEnterPrice);
+		mTxtTotalPaid = (EditText) v.findViewById(R.id.txtTotalPaid);
+		mTxtPaymentLeft = (EditText) v.findViewById(R.id.txtPaymentLeft);
+		mTxtTotalPrice = (EditText) v.findViewById(R.id.txtTotalPrice);
+		mBtnCash = (Button) v.findViewById(R.id.btnCash);
+		mBtnCredit = (Button) v.findViewById(R.id.btnCredit);
+		mBtnCredit.setOnClickListener(this);
+		mBtnCash.setOnClickListener(this);
+		mLvPayment.setAdapter(mPaymentAdapter);
 		
-		if(mTransaction.getTransaction(
-				mTransactionId, mComputerId).getTransactionStatusId() == 
-				Transaction.TRANS_STATUS_SUCCESS)
-		{
-			finish();
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setTitle(R.string.payment);
+		builder.setView(v);
+		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		});
+		builder.setPositiveButton(android.R.string.ok, null);
+		
+		if(mTransaction.getTransaction(sTransactionId, 
+				sComputerId).getTransactionStatusId() == Transaction.TRANS_STATUS_SUCCESS){
+			getDialog().dismiss();
 		}else{
 			summary();
 			loadPayDetail();
 		}
+		return builder.create();
 	}
-	
+
 	private void summary(){ 
-		mTotalSalePrice = mTransaction.getTransactionVatable(mTransactionId, mComputerId);
+		mTotalSalePrice = mTransaction.getTransactionVatable(sTransactionId, sComputerId);
 		displayTotalPrice();
 	}
 	
@@ -131,7 +132,8 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 		private LayoutInflater inflater;
 		
 		public PaymentAdapter(){
-			inflater = LayoutInflater.from(PaymentActivity.this);
+			inflater = (LayoutInflater)
+					getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
 		@Override
@@ -160,7 +162,9 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 			TextView tvPayAmount = (TextView) rowView.findViewById(R.id.tvPayAmount);
 			Button imgDel = (Button) rowView.findViewById(R.id.btnDelete);
 			
-			String payTypeName = payment.getPayTypeID() == PaymentDetail.PAY_TYPE_CASH ? "Cash" : "Credit";
+			String payTypeCash = getActivity().getString(R.string.cash);
+			String payTypeCredit = getActivity().getString(R.string.credit);
+			String payTypeName = payment.getPayTypeID() == PaymentDetail.PAY_TYPE_CASH ? payTypeCash : payTypeCredit;
 			if(payment.getPayTypeName() != null){
 				payTypeName = payment.getPayTypeName();
 			}
@@ -182,10 +186,10 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	}
 	
 	private void loadPayDetail(){
-		mPayLst = mPayment.listPayment(mTransactionId, mComputerId);
+		mPayLst = mPayment.listPayment(sTransactionId, sComputerId);
 		mPaymentAdapter.notifyDataSetChanged();
 		
-		mTotalPaid = mPayment.getTotalPaid(mTransactionId, mComputerId);
+		mTotalPaid = mPayment.getTotalPaid(sTransactionId, sComputerId);
 		
 		mPaymentLeft = mTotalSalePrice - mTotalPaid; 
 
@@ -203,8 +207,8 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	
 	private void addPayment(){
 		if(mTotalPay > 0 && mPaymentLeft > 0){
-				mPayment.addPaymentDetail(mTransactionId, 
-						mComputerId, PaymentDetail.PAY_TYPE_CASH, mTotalPay, "",
+				mPayment.addPaymentDetail(sTransactionId, 
+						sComputerId, PaymentDetail.PAY_TYPE_CASH, mTotalPay, "",
 						0, 0, 0, 0);
 			loadPayDetail();
 		}
@@ -233,7 +237,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	public void creditPay(){
 		if(mTotalSalePrice > 0 && mPaymentLeft > 0){
 			final CreditPayDialogBuilder builder = 
-					new CreditPayDialogBuilder(PaymentActivity.this, mTransactionId, mComputerId, mPaymentLeft);
+					new CreditPayDialogBuilder(getActivity(), sTransactionId, sComputerId, mPaymentLeft);
 			builder.setTitle(R.string.credit_pay);
 			builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 				
@@ -271,11 +275,103 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 			});
 		}
 	}
+	
+	private void sendSale(){
+		new Handler().postDelayed(new Runnable(){
 
-	/*
-	 * pay key pad
-	 */
-	public void onBtnPriceClick(final View v){
+			@Override
+			public void run() {
+				MPOSUtil.doSendSale(sStaffId, new ProgressListener(){
+
+					@Override
+					public void onPre() {
+					}
+
+					@Override
+					public void onPost() {
+					}
+
+					@Override
+					public void onError(String msg) {
+					}
+					
+				});
+			}
+			
+		}, 1000);
+	}
+	
+	private void print(){
+		new Handler().post(new Runnable(){
+
+			@Override
+			public void run() {
+				PrintReceipt printReceipt = new PrintReceipt();
+				printReceipt.printReceipt(sTransactionId, sComputerId);
+			}
+			
+		});
+	}
+	
+	public void confirm() {
+		if(mTotalPaid >=mTotalSalePrice){
+			if(mTransaction.successTransaction(sTransactionId, 
+					sComputerId, sStaffId)){
+				mChange = mTotalPaid - mTotalSalePrice;
+				if(mChange > 0){
+					LayoutInflater inflater = (LayoutInflater) 
+							getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
+					tvChange.setText(MPOSApplication.getGlobalProperty().currencyFormat(mChange));
+					
+					new AlertDialog.Builder(getActivity())
+					.setTitle(R.string.change)
+					.setCancelable(false)
+					.setView(tvChange)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							print();
+							sendSale();
+							getDialog().dismiss();
+						}
+					})
+					.show();
+				}else{
+					print();
+					sendSale();
+					getDialog().dismiss();
+				}
+				
+			}else{
+				
+			}
+		}else{
+			new AlertDialog.Builder(getActivity())
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setTitle(R.string.payment)
+			.setMessage(R.string.enter_enough_money)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					
+				}
+			})
+			.show();
+			
+		}
+	}
+
+	public void cancel() {
+		mPayment.deleteAllPaymentDetail(sTransactionId, 
+				sComputerId);
+		getDialog().dismiss();
+	}
+
+	@Override
+	public void onClick(View v) {
 		switch(v.getId()){
 		case R.id.btnPay0:
 			mStrTotalPay.append("0");
@@ -369,106 +465,6 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 				addPayment();
 			}
 			break;
-		}
-	}
-	
-	private void sendSale(){
-		new Handler().postDelayed(new Runnable(){
-
-			@Override
-			public void run() {
-				MPOSUtil.doSendSale(mStaffId, new ProgressListener(){
-
-					@Override
-					public void onPre() {
-					}
-
-					@Override
-					public void onPost() {
-					}
-
-					@Override
-					public void onError(String msg) {
-					}
-					
-				});
-			}
-			
-		}, 1000);
-	}
-	
-	private void print(){
-		new Handler().post(new Runnable(){
-
-			@Override
-			public void run() {
-				PrintReceipt printReceipt = new PrintReceipt();
-				printReceipt.printReceipt(mTransactionId, mComputerId);
-			}
-			
-		});
-	}
-	
-	public void confirm() {
-		if(mTotalPaid >=mTotalSalePrice){
-			if(mTransaction.successTransaction(mTransactionId, 
-					mComputerId, mStaffId)){
-				mChange = mTotalPaid - mTotalSalePrice;
-				if(mChange > 0){
-					LayoutInflater inflater = (LayoutInflater) 
-							PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
-					tvChange.setText(MPOSApplication.getGlobalProperty().currencyFormat(mChange));
-					
-					new AlertDialog.Builder(PaymentActivity.this)
-					.setTitle(R.string.change)
-					.setCancelable(false)
-					.setView(tvChange)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							print();
-							sendSale();
-							finish();
-						}
-					})
-					.show();
-				}else{
-					print();
-					sendSale();
-					finish();
-				}
-				
-			}else{
-				
-			}
-		}else{
-			new AlertDialog.Builder(PaymentActivity.this)
-			.setIcon(android.R.drawable.ic_dialog_alert)
-			.setTitle(R.string.payment)
-			.setMessage(R.string.enter_enough_money)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					
-				}
-			})
-			.show();
-			
-		}
-	}
-
-	public void cancel() {
-		mPayment.deleteAllPaymentDetail(mTransactionId, 
-				mComputerId);
-		finish();
-	}
-
-	@Override
-	public void onClick(View v) {
-		switch(v.getId()){
 		case R.id.btnCash:
 			mBtnCash.setPressed(true);
 			break;

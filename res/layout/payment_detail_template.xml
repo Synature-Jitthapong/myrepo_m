@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/TableRow1"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:orientation="vertical" >
+    android:orientation="horizontal" >
 
     <TextView
         android:id="@+id/tvPayType"
@@ -15,8 +15,7 @@
         android:layout_marginLeft="1dp"
         android:layout_marginRight="1dp"
         android:layout_weight="0.8"
-        android:gravity="left"
-        android:padding="4dp" />
+        android:gravity="left" />
 
     <TextView
         android:id="@+id/tvPayDetail"
@@ -26,8 +25,7 @@
         android:layout_marginBottom="1dp"
         android:layout_marginRight="1dp"
         android:layout_weight="1"
-        android:gravity="left"
-        android:padding="4dp" />
+        android:gravity="left" />
 
     <TextView
         android:id="@+id/tvPayAmount"
@@ -36,18 +34,17 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
         android:layout_weight="0.8"
-        android:gravity="right"
-        android:padding="4dp" />
+        android:gravity="right" />
 
     <Button
         android:id="@+id/btnDelete"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginRight="1dp"
         android:layout_weight="0.3"
         android:drawableLeft="@drawable/ic_navigation_cancel_light"
         android:minHeight="0dip"
         android:minWidth="0dip" />
 
-</TableRow>
+</LinearLayout>

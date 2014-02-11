@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -71,7 +70,7 @@ public class MenuPageFragment extends Fragment {
 				Products.Product p = 
 						(Products.Product) parent.getItemAtPosition(position);
 				
-				mCallback.onClick(p.getProductId(), p.getProductTypeId(), 
+				mCallback.onMenuClick(p.getProductId(), p.getProductTypeId(), 
 						p.getVatType(), p.getVatRate(), p.getProductPrice());
 			}
 		});
@@ -92,6 +91,6 @@ public class MenuPageFragment extends Fragment {
 	}
 
 	public interface OnMenuItemClick{
-		void onClick(int productId, int productTypeId, int vatType, double vatRate, double productPrice);
+		void onMenuClick(int productId, int productTypeId, int vatType, double vatRate, double productPrice);
 	}
 }
