@@ -6,6 +6,7 @@ import java.net.URL;
 
 import com.syn.mpos.provider.Computer;
 import com.syn.mpos.provider.GlobalProperty;
+import com.syn.mpos.provider.MPOSLog;
 import com.syn.mpos.provider.MPOSSQLiteHelper;
 import com.syn.mpos.provider.Products;
 import com.syn.mpos.provider.Shop;
@@ -25,6 +26,8 @@ public class MPOSApplication extends Application {
 	
 	private static GlobalProperty sGlobalProp;
 	
+	private static MPOSLog sLog;
+	
 	private static Products sProduct;
 	
 	// sqlite db name
@@ -37,7 +40,10 @@ public class MPOSApplication extends Application {
 	public static final String WS_NAME = "ws_mpos.asmx";
 
 	// image dir
-	public static final String IMG_DIR = "mposimg";
+	public static final String IMG_DIR = "mPOSImg";
+	
+	// log dir
+	public static final String LOG_DIR = "mPOSLog";
 
 	// server image path
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
@@ -104,6 +110,7 @@ public class MPOSApplication extends Application {
 		sSqliteHelper = new MPOSSQLiteHelper(sContext);
 		sGlobalProp = new GlobalProperty(getWriteDatabase());
 		sProduct = new Products(getWriteDatabase());
+		sLog = new MPOSLog(sContext);
 	}
 
 	public static String fixesDigitLength(int length, double value){
@@ -117,6 +124,10 @@ public class MPOSApplication extends Application {
 	
 	public static SQLiteDatabase getWriteDatabase(){
 		return sSqliteHelper.getWritableDatabase();
+	}
+	
+	public static void writeLog(String mesg){
+		sLog.appendLog(mesg);
 	}
 	
 	public static Products getProduct(){

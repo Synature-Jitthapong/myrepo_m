@@ -29,8 +29,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class PaymentActivity extends Activity  implements OnClickListener {
+	public static final int REQUEST_CREDIT_PAY = 1;
+	public static final int RESULT_ENOUGH = 1;
+	public static final int RESULT_NOT_ENOUGH = -1;
+	private int resultCreditCode = RESULT_NOT_ENOUGH;
+	
 	private double mTotalSalePrice;
 	private int mTransactionId;
 	private int mComputerId;
@@ -61,7 +67,8 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 	    LayoutParams params = getWindow().getAttributes();
-	    params.width = 1000;
+	    params.width = 960;
+	    params.height= 500;
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
@@ -88,12 +95,27 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if(requestCode == REQUEST_CREDIT_PAY){
+			resultCreditCode = resultCode;
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
 		if(mTransaction.getTransaction(mTransactionId, 
 				mComputerId).getTransactionStatusId() == Transaction.TRANS_STATUS_SUCCESS){
 			finish();
 		}else{
 			summary();
 			loadPayDetail();
+			if(resultCreditCode == RESULT_ENOUGH)
+				confirm();
 		}
 	}
 
@@ -198,10 +220,11 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	}
 	
 	private void addPayment(){
-		if(mTotalPay > 0 && mPaymentLeft > 0){
-				mPayment.addPaymentDetail(mTransactionId, 
-						mComputerId, PaymentDetail.PAY_TYPE_CASH, mTotalPay, "",
-						0, 0, 0, 0);
+		if(mTotalPay > 0 && mPaymentLeft > 0){ 
+			mPayment.addPaymentDetail(mTransactionId, 
+					mComputerId, PaymentDetail.PAY_TYPE_CASH, mTotalPay, 
+					mTotalPay >= mPaymentLeft ? mPaymentLeft : mTotalPay, "",
+					0, 0, 0, 0);
 			loadPayDetail();
 		}
 		mStrTotalPay = new StringBuilder();
@@ -228,43 +251,11 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	
 	public void creditPay(){
 		if(mTotalSalePrice > 0 && mPaymentLeft > 0){
-			final CreditPayDialogBuilder builder = 
-					new CreditPayDialogBuilder(PaymentActivity.this, mTransactionId, mComputerId, mPaymentLeft);
-			builder.setTitle(R.string.credit_pay);
-			builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-				}
-			});
-			builder.setPositiveButton(android.R.string.ok, null);
-			
-			final AlertDialog d = builder.create();
-			d.show();
-			d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					builder.addPayment(new CreditPayDialogBuilder.OnCreditPayListener() {
-						
-						@Override
-						public void onRequiredSomeParam() {
-						}
-						
-						@Override
-						public void onOk() {
-							d.dismiss();
-							onResume();
-						}
-						
-						@Override
-						public void onCancel() {
-							d.dismiss();
-						}
-					});
-				}
-				
-			});
+			Intent intent = new Intent(PaymentActivity.this, CreditPayActivity.class);
+			intent.putExtra("transactionId", mTransactionId);
+			intent.putExtra("computerId", mComputerId);
+			intent.putExtra("paymentLeft", mPaymentLeft);
+			startActivityForResult(intent, 1);
 		}
 	}
 	
@@ -281,10 +272,13 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 
 					@Override
 					public void onPost() {
+						MPOSUtil.makeToask(PaymentActivity.this, 
+								PaymentActivity.this.getString(R.string.send_sale_data_success));
 					}
 
 					@Override
 					public void onError(String msg) {
+						MPOSUtil.makeToask(PaymentActivity.this, msg);
 					}
 					
 				});

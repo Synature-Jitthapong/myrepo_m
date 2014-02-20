@@ -3,63 +3,12 @@
     android:id="@+id/ScrollView1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".CreditPayDialogBuilder" >
+    android:padding="16dp"
+    tools:context=".CreditPayActivity" >
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center" >
-
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/txtCardTotalPrice"
-                android:layout_alignParentTop="true"
-                android:layout_alignRight="@+id/textView9"
-                android:gravity="right"
-                android:text="@string/total_price"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <EditText
-                android:id="@+id/txtCardTotalPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:layout_toRightOf="@+id/textView9"
-                android:ems="5"
-                android:enabled="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/black"
-                android:textSize="32sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/txtCardPayAmount"
-                android:layout_toLeftOf="@+id/txtCardPayAmount"
-                android:gravity="right"
-                android:text="@string/pay_amount"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/layoutCardNo"
-                android:layout_alignTop="@+id/layoutCardNo"
-                android:layout_toLeftOf="@+id/layoutCardNo"
-                android:gravity="right|center_vertical"
-                android:text="@string/credit_card_no"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:layout_height="wrap_content" >
 
             <TextView
                 android:id="@+id/textView9"
@@ -75,6 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/spCardType"
+                android:layout_alignParentLeft="true"
                 android:layout_alignTop="@+id/spCardType"
                 android:layout_toLeftOf="@+id/spCardType"
                 android:gravity="right|center_vertical"
@@ -86,6 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/spBank"
+                android:layout_alignParentLeft="true"
                 android:layout_alignTop="@+id/spBank"
                 android:layout_toLeftOf="@+id/spBank"
                 android:gravity="right|center_vertical"
@@ -97,26 +48,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/layoutExpDate"
+                android:layout_alignParentLeft="true"
                 android:layout_alignTop="@+id/layoutExpDate"
                 android:layout_toLeftOf="@+id/layoutExpDate"
                 android:gravity="right|center_vertical"
                 android:text="@string/expire_date"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <EditText
-                android:id="@+id/txtCardPayAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/txtCardTotalPrice"
-                android:layout_toRightOf="@+id/textView9"
-                android:ems="5"
-                android:gravity="center_vertical"
-                android:inputType="numberSigned|numberDecimal"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/black"
-                android:textSize="32sp"
-                android:textStyle="bold" >
-            </EditText>
 
             <LinearLayout
                 android:id="@+id/layoutCardNo"
@@ -184,14 +121,14 @@
 
             <Spinner
                 android:id="@+id/spCardType"
-                android:layout_width="200dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/txtCvv2"
                 android:layout_toRightOf="@+id/textView9" />
 
             <Spinner
                 android:id="@+id/spBank"
-                android:layout_width="200dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/spCardType"
                 android:layout_toRightOf="@+id/textView9" />
@@ -206,7 +143,7 @@
 
                 <Spinner
                     android:id="@+id/spExpMonth"
-                    android:layout_width="70dp"
+                    android:layout_width="96dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
@@ -220,10 +157,75 @@
 
                 <Spinner
                     android:id="@+id/spExpYear"
-                    android:layout_width="120dp"
+                    android:layout_width="128dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/txtCardPayAmount"
+                android:layout_alignBottom="@+id/txtCardPayAmount"
+                android:layout_alignParentLeft="true"
+                android:layout_alignRight="@+id/textView4"
+                android:gravity="right"
+                android:text="@string/pay_amount"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/txtCvv2"
+                android:layout_alignParentLeft="true"
+                android:layout_alignRight="@+id/textView9"
+                android:layout_alignTop="@+id/layoutCardNo"
+                android:gravity="right|center_vertical"
+                android:text="@string/credit_card_no"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <EditText
+                android:id="@+id/txtCardPayAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/layoutCardNo"
+                android:layout_below="@+id/txtCardTotalPrice"
+                android:ems="5"
+                android:gravity="center_vertical"
+                android:inputType="numberSigned|numberDecimal"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@android:color/black"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/txtCardTotalPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/txtCardPayAmount"
+                android:layout_alignParentTop="true"
+                android:ems="5"
+                android:enabled="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@android:color/black"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/txtCardTotalPrice"
+                android:layout_alignBottom="@+id/txtCardTotalPrice"
+                android:layout_alignParentLeft="true"
+                android:layout_alignRight="@+id/textView3"
+                android:gravity="right"
+                android:text="@string/total_price"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
         </RelativeLayout>
 </ScrollView>

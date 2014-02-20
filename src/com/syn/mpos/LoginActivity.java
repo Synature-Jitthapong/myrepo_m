@@ -3,10 +3,12 @@ package com.syn.mpos;
 import com.syn.mpos.R;
 import com.syn.mpos.provider.Login;
 import com.syn.pos.ShopData;
+
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -94,16 +96,73 @@ public class LoginActivity extends Activity implements OnClickListener {
 	}
 
 	private void updateData(){
-		SyncActivity builder = new SyncActivity(this, mStaffId);
-		builder.setTitle(R.string.update_data);
-		builder.setNeutralButton(R.string.close, null);
-		final AlertDialog d = builder.create();
-		d.show();
-		d.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new OnClickListener(){
+//		SyncActivity builder = new SyncActivity(this, mStaffId);
+//		builder.setTitle(R.string.update_data);
+//		builder.setNeutralButton(R.string.close, null);
+//		final AlertDialog d = builder.create();
+//		d.show();
+//		d.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new OnClickListener(){
+//
+//			@Override
+//			public void onClick(View v) {
+//				d.dismiss();
+//			}
+//			
+//		});
+		final ProgressDialog progress = new ProgressDialog(this);
+		final MPOSService mPOSService = new MPOSService();
+		mPOSService.loadShopData(new ProgressListener(){
 
 			@Override
-			public void onClick(View v) {
-				d.dismiss();
+			public void onPre() {
+				progress.setMessage(LoginActivity.this.getString(R.string.update_shop_progress));
+				progress.show();
+			}
+
+			@Override
+			public void onPost() {
+				mPOSService.loadProductData(new ProgressListener(){
+
+					@Override
+					public void onPre() {
+						progress.setMessage(LoginActivity.this.getString(R.string.update_product_progress));
+					}
+
+					@Override
+					public void onPost() {
+						if(progress.isShowing())
+							progress.dismiss();
+						
+						new AlertDialog.Builder(LoginActivity.this)
+						.setMessage(R.string.update_data_success)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						})
+						.show();
+					}
+
+					@Override
+					public void onError(String msg) {
+						if(progress.isShowing())
+							progress.dismiss();
+						new AlertDialog.Builder(LoginActivity.this)
+						.setMessage(msg)
+						.show();
+					}
+					
+				});
+			}
+
+			@Override
+			public void onError(String msg) {
+				if(progress.isShowing())
+					progress.dismiss();
+				new AlertDialog.Builder(LoginActivity.this)
+				.setMessage(msg)
+				.show();
 			}
 			
 		});
@@ -112,8 +171,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if(!mBtnLogin.isEnabled())
-			mBtnLogin.setEnabled(true);
 		init();
 	}
 			
@@ -140,7 +197,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 						mStaffId = s.getStaffID();
 						gotoMainActivity();
 					}else{
-						mBtnLogin.setEnabled(true);
 						new AlertDialog.Builder(LoginActivity.this)
 						.setIcon(android.R.drawable.ic_dialog_alert)
 						.setTitle(R.string.login)
@@ -202,7 +258,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		switch(v.getId()){
 		case R.id.buttonLogin:
-			mBtnLogin.setEnabled(false);
 			checkLogin();
 			break;
 		}

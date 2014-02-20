@@ -1,11 +1,15 @@
 package com.syn.mpos;
 
 import java.lang.reflect.Type;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.Context;
 import android.database.SQLException;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
@@ -34,7 +38,7 @@ public class MPOSUtil {
 
 				JSONUtil jsonUtil = new JSONUtil();
 				Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
-				String jsonSale = jsonUtil.toJson(type, saleTrans);
+				final String jsonSale = jsonUtil.toJson(type, saleTrans);
 
 				ProgressListener sendSaleListener = new ProgressListener() {
 					@Override
@@ -47,7 +51,7 @@ public class MPOSUtil {
 						Transaction trans = 
 								new Transaction(MPOSApplication.getWriteDatabase());
 						trans.updateTransactionSendStatus(sessionDate);
-						
+						MPOSApplication.writeLog("Send parial sale => " + jsonSale);
 						listener.onPost();
 					}
 
@@ -91,7 +95,7 @@ public class MPOSUtil {
 
 					JSONUtil jsonUtil = new JSONUtil();
 					Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
-					String jsonSale = jsonUtil.toJson(type, saleTrans);
+					final String jsonSale = jsonUtil.toJson(type, saleTrans);
 					// Log.v("SaleTrans", saleJson);
 
 					new MPOSService.SendSaleTransaction(
@@ -113,7 +117,6 @@ public class MPOSUtil {
 								public void onPost() {
 									syncLog.updateSyncSaleLog(sessionDate,
 											SyncSaleLog.SYNC_SUCCESS);
-
 									try {
 										Transaction trans = 
 												new Transaction(MPOSApplication.getWriteDatabase());
@@ -124,6 +127,7 @@ public class MPOSUtil {
 												trans.getTotalReceiptAmount(sessionDate));
 										sess.closeSession(sessionId, computerId,
 											closeStaffId, closeAmount, isEndday);
+										MPOSApplication.writeLog("Send endday sale => " + jsonSale);
 										listener.onPost();
 									} catch (SQLException e) {
 										listener.onError(e.getMessage());
@@ -210,5 +214,19 @@ public class MPOSUtil {
 	
 	public static interface LoadSaleTransactionListener extends ProgressListener{
 		void onPost(POSData_SaleTransaction saleTrans, String sessionDate);
+	}
+	
+	public static void makeToask(Context c, String msg){
+		Toast toast = Toast.makeText(c, 
+				msg, Toast.LENGTH_LONG);
+		toast.show();
+	}
+	
+	public static double stringToDouble(String text) throws ParseException{
+		double value = 0.0d;
+		NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+		Number num = format.parse(text);
+		value = num.doubleValue();
+		return value;
 	}
 }

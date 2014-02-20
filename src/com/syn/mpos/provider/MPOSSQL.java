@@ -87,7 +87,7 @@ public class MPOSSQL {
 			Products.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 1, " +
 			Transaction.COLUMN_ORDER_QTY + " REAL DEFAULT 1, " +
 			Products.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 1, " +
+			Transaction.COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 2, " +
 			Products.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, " +
 			Transaction.COLUMN_TOTAL_VAT + " REAL DEFAULT 0, " +
 			Transaction.COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, " +
@@ -95,6 +95,7 @@ public class MPOSSQL {
 			Transaction.COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
 			Transaction.COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
 			Transaction.COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
+			Transaction.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
 			"PRIMARY KEY (" + Transaction.COLUMN_ORDER_ID + " ASC, " +
 			Transaction.COLUMN_TRANSACTION_ID + " ASC, " + Computer.COLUMN_COMPUTER_ID + " ASC) );";
 	
@@ -115,6 +116,7 @@ public class MPOSSQL {
 			Transaction.COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
 			Transaction.COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
 			Transaction.COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
+			Transaction.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
 			"PRIMARY KEY (" + Transaction.COLUMN_ORDER_ID + " ASC, " +
 			Transaction.COLUMN_TRANSACTION_ID + " ASC, " + Computer.COLUMN_COMPUTER_ID + " ASC) );";
 	
@@ -148,6 +150,7 @@ public class MPOSSQL {
 			Transaction.COLUMN_TRANS_NOTE + " TEXT, " +
 			Transaction.COLUMN_OTHER_DISCOUNT + " REAL DEFAULT 0, " +
 			MPOSDatabase.COLUMN_SEND_STATUS + " INTEGER DEFAULT 0, " +
+			Transaction.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
 			"PRIMARY KEY (" + Transaction.COLUMN_TRANSACTION_ID + " ASC, " + Computer.COLUMN_COMPUTER_ID + " ASC) ); ";
 	
 	public static final String PAYMENT_SQL =
@@ -157,6 +160,7 @@ public class MPOSSQL {
 			Computer.COLUMN_COMPUTER_ID + " INTEGER, " +
 			PaymentDetail.COLUMN_PAY_TYPE_ID + " INTEGER DEFAULT 1, " +
 			PaymentDetail.COLUMN_PAY_AMOUNT + " REAL DEFAULT 0, " +
+			PaymentDetail.COLUMN_PAID + " REAL DEFAULT 0, " +
 			CreditCard.COLUMN_CREDITCARD_NO + " TEXT, " +
 			CreditCard.COLUMN_EXP_MONTH + " INTEGER, " +
 			CreditCard.COLUMN_EXP_YEAR + " INTEGER, " +

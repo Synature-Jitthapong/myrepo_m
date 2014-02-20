@@ -45,7 +45,7 @@ public class SaleTransaction {
 	 * [SaleTable_OrderDetail] [SaleTable_OrderPromotion]
 	 * [SaleTable_PaymentDetail] } }
 	 */
-	private List<SaleData_SaleTransaction> buildSaleTransLst(boolean listAll) {
+	public List<SaleData_SaleTransaction> buildSaleTransLst(boolean listAll) {
 		List<SaleData_SaleTransaction> saleTransLst = new ArrayList<SaleData_SaleTransaction>();
 		Cursor cursor = queryTransaction();
 		
@@ -60,68 +60,51 @@ public class SaleTransaction {
 					SaleData_SaleTransaction saleTrans = new SaleData_SaleTransaction();
 					SaleTable_OrderTransaction orderTrans = new SaleTable_OrderTransaction();
 					
-					orderTrans.setSzUDID(cursor.getString(cursor
-							.getColumnIndex(MPOSDatabase.COLUMN_UUID)));
-					orderTrans
-							.setiTransactionID(cursor.getInt(cursor
-									.getColumnIndex(Transaction.COLUMN_TRANSACTION_ID)));
-					orderTrans.setiComputerID(cursor.getInt(cursor
-							.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
-					orderTrans.setiShopID(cursor.getInt(cursor
-							.getColumnIndex(Shop.COLUMN_SHOP_ID)));
-					orderTrans.setiOpenStaffID(cursor.getInt(cursor
-							.getColumnIndex(Transaction.COLUMN_OPEN_STAFF)));
-					orderTrans
-							.setDtOpenTime(Util.dateTimeFormat(
-									cursor.getString(cursor
-											.getColumnIndex(Transaction.COLUMN_OPEN_TIME)),
-									"yyyy-MM-dd HH:mm:ss"));
-					orderTrans
-							.setDtCloseTime(Util.dateTimeFormat(
-									cursor.getString(cursor
-											.getColumnIndex(Transaction.COLUMN_CLOSE_TIME)),
-									"yyyy-MM-dd HH:mm:ss"));
-					orderTrans.setiDocType(cursor.getInt(cursor
-							.getColumnIndex(StockDocument.COLUMN_DOC_TYPE)));
-					orderTrans.setiTransactionStatusID(cursor.getInt(cursor
-							.getColumnIndex(Transaction.COLUMN_STATUS_ID)));
-					orderTrans.setiReceiptYear(cursor.getInt(cursor
-							.getColumnIndex(Transaction.COLUMN_RECEIPT_YEAR)));
-					orderTrans.setiReceiptMonth(cursor.getInt(cursor
-							.getColumnIndex(Transaction.COLUMN_RECEIPT_MONTH)));
-					orderTrans.setiReceiptID(cursor.getInt(cursor
-							.getColumnIndex(Transaction.COLUMN_RECEIPT_ID)));
-					orderTrans.setSzReceiptNo(cursor.getString(cursor
-							.getColumnIndex(Transaction.COLUMN_RECEIPT_NO)));
-					orderTrans
-							.setDtSaleDate(Util.dateTimeFormat(
-									cursor.getString(cursor
-											.getColumnIndex(Transaction.COLUMN_SALE_DATE)),
-									"yyyy-MM-dd"));
-					orderTrans
-							.setfTransVAT(MPOSApplication.fixesDigitLength(
-									4,
-									cursor.getDouble(cursor
-											.getColumnIndex(Transaction.COLUMN_TRANS_VAT))));
-					orderTrans
-							.setfTransactionVatable(MPOSApplication.fixesDigitLength(
-									4,
-									cursor.getDouble(cursor
-											.getColumnIndex(Transaction.COLUMN_TRANS_VATABLE))));
-					orderTrans.setiSessionID(cursor.getInt(cursor
-							.getColumnIndex(Session.COLUMN_SESS_ID)));
+					orderTrans.setSzUDID(
+							cursor.getString(cursor.getColumnIndex(MPOSDatabase.COLUMN_UUID)));
+					orderTrans.setiTransactionID(
+							cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_TRANSACTION_ID)));
+					orderTrans.setiComputerID(cursor.getInt(
+							cursor.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
+					orderTrans.setiShopID(cursor.getInt(
+							cursor.getColumnIndex(Shop.COLUMN_SHOP_ID)));
+					orderTrans.setiOpenStaffID(cursor.getInt(
+							cursor.getColumnIndex(Transaction.COLUMN_OPEN_STAFF)));
+					orderTrans.setDtOpenTime(Util.dateTimeFormat(
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_OPEN_TIME)),"yyyy-MM-dd HH:mm:ss"));
+					orderTrans.setDtCloseTime(Util.dateTimeFormat(
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_CLOSE_TIME)),"yyyy-MM-dd HH:mm:ss"));
+					orderTrans.setiDocType(
+							cursor.getInt(cursor.getColumnIndex(StockDocument.COLUMN_DOC_TYPE)));
+					orderTrans.setiTransactionStatusID(
+							cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_STATUS_ID)));
+					orderTrans.setiReceiptYear(
+							cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_YEAR)));
+					orderTrans.setiReceiptMonth(
+							cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_MONTH)));
+					orderTrans.setiReceiptID(
+							cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_ID)));
+					orderTrans.setSzReceiptNo(
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_NO)));
+					orderTrans.setDtSaleDate(Util.dateTimeFormat(
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_SALE_DATE)),"yyyy-MM-dd"));
+					orderTrans.setfTransVAT(
+							MPOSApplication.fixesDigitLength(4, cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VAT))));
+					orderTrans.setfTransactionVatable(
+							MPOSApplication.fixesDigitLength(4, cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VATABLE))));
+					orderTrans.setiSessionID(
+							cursor.getInt(cursor.getColumnIndex(Session.COLUMN_SESS_ID)));
 					orderTrans.setiVoidStaffID(cursor.getInt(cursor
 							.getColumnIndex(Transaction.COLUMN_VOID_STAFF_ID)));
-					orderTrans.setSzVoidReason(cursor.getString(cursor
-							.getColumnIndex(Transaction.COLUMN_VOID_REASON)));
-					orderTrans
-							.setDtVoidTime(Util.dateTimeFormat(
-									cursor.getString(cursor
-											.getColumnIndex(Transaction.COLUMN_VOID_TIME)),
-									"yyyy-MM-dd HH:mm:ss"));
-					orderTrans.setSzTransactionNote(cursor.getString(cursor
-							.getColumnIndex(Transaction.COLUMN_TRANS_NOTE)));
-
+					orderTrans.setSzVoidReason(
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_VOID_REASON)));
+					orderTrans.setDtVoidTime(Util.dateTimeFormat(
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_VOID_TIME)), "yyyy-MM-dd HH:mm:ss"));
+					orderTrans.setSzTransactionNote(
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_TRANS_NOTE)));
+					orderTrans.setiSaleMode(cursor.getInt(
+							cursor.getColumnIndex(Transaction.COLUMN_SALE_MODE)));
+					
 					saleTrans.setxOrderTransaction(orderTrans);
 					saleTrans.setxAryOrderDetail(buildOrderDetailLst(orderTrans
 							.getiTransactionID()));
@@ -217,6 +200,8 @@ public class SaleTransaction {
 							4,
 							cursor.getDouble(cursor
 									.getColumnIndex(Transaction.COLUMN_PRICE_DISCOUNT))));
+					order.setiSaleMode(cursor.getInt(
+							cursor.getColumnIndex(Transaction.COLUMN_SALE_MODE)));
 					orderDetailLst.add(order);
 				} while (cursor.moveToNext());
 			}
@@ -311,9 +296,18 @@ public class SaleTransaction {
 
 	public Cursor queryPaymentDetail(int transId) {
 		return mSqlite.rawQuery(
-				"SELECT * " + 
+				"SELECT " + PaymentDetail.COLUMN_PAY_ID + ", " +
+				Computer.COLUMN_COMPUTER_ID + ", " +
+				PaymentDetail.COLUMN_PAY_TYPE_ID + ", " +
+				CreditCard.COLUMN_CREDITCARD_NO + ", " +
+				CreditCard.COLUMN_EXP_MONTH + ", " +
+				CreditCard.COLUMN_EXP_YEAR + ", " +
+				PaymentDetail.COLUMN_REMARK + ", " +
+				" SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") AS " + 
+				PaymentDetail.COLUMN_PAY_AMOUNT +
 				" FROM " + PaymentDetail.TABLE_PAYMENT + 
-				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=?",
+				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=?" +
+				" GROUP BY " + PaymentDetail.COLUMN_PAY_TYPE_ID,
 				new String[] { String.valueOf(transId) });
 	}
 

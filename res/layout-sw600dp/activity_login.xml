@@ -1,14 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="horizontal"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".LoginActivity" >
 
     <requestFocus />
@@ -21,6 +16,7 @@
         android:layout_alignParentRight="false"
         android:layout_alignParentTop="false"
         android:layout_below="@+id/textView1"
+        android:layout_marginBottom="8dp"
         android:layout_toRightOf="@+id/textView2"
         android:ems="10"
         android:hint="@string/user_name"
@@ -36,6 +32,7 @@
         android:layout_alignLeft="@+id/txtUser"
         android:layout_alignRight="@+id/txtUser"
         android:layout_below="@+id/txtUser"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:hint="@string/pass_word"
         android:imeOptions="actionDone"
@@ -80,8 +77,6 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:text="@string/login"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="32sp" />

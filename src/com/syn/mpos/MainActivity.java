@@ -3,6 +3,7 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 import com.astuetz.PagerSlidingTabStrip;
 import com.syn.mpos.R;
 import com.syn.mpos.provider.Computer;
@@ -15,6 +16,7 @@ import com.syn.mpos.provider.Transaction;
 import com.syn.mpos.provider.Util;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
+
 import android.os.Bundle;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -234,10 +236,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		case R.id.itemEndday:
 			endday();
 			return true;
-		case R.id.itemUpdateData:
-			intent = new Intent(MainActivity.this, SyncActivity.class);
-			intent.putExtra("staffId", mStaffId);
-			startActivity(intent);
+		case R.id.itemSendSale:
+			updateData();
 			return true;
 		case R.id.itemSetting:
 			intent = new Intent(this, SettingsActivity.class);
@@ -248,6 +248,47 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 	}
 
+	private void updateData(){
+//		SyncActivity builder = new SyncActivity(this, mStaffId);
+//		builder.setTitle(R.string.update_data);
+//		builder.setNeutralButton(R.string.close, null);
+//		final AlertDialog d = builder.create();
+//		d.show();
+//		d.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new OnClickListener(){
+//
+//			@Override
+//			public void onClick(View v) {
+//				d.dismiss();
+//			}
+//			
+//		});
+		final ProgressDialog progress = new ProgressDialog(MainActivity.this);
+		progress.setMessage(MainActivity.this.getString(R.string.send_sale_data_progress));
+		ProgressListener sendSaleListener =
+				new ProgressListener(){
+
+					@Override
+					public void onPre() {
+						progress.show();
+					}
+
+					@Override
+					public void onPost() {
+						if(progress.isShowing())
+							progress.dismiss();
+						MPOSUtil.makeToask(MainActivity.this, 
+								MainActivity.this.getString(R.string.send_sale_data_success));
+					}
+
+					@Override
+					public void onError(String msg) {
+						if(progress.isShowing())
+							progress.dismiss();
+						MPOSUtil.makeToask(MainActivity.this, msg);
+					}};
+				
+		MPOSUtil.doSendSale(mStaffId, sendSaleListener);
+	}
 	private void countHoldOrder(){
 		if(mItemHoldBill != null){
 			int totalHold = mTransaction.countHoldOrder(mComputerId);

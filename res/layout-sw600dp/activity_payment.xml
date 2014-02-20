@@ -29,6 +29,7 @@
                     android:id="@+id/btnCash"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="64dip"
                     android:minWidth="120dp"
                     android:text="@string/cash" />
 
@@ -36,8 +37,10 @@
                     android:id="@+id/btnCredit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="64dip"
                     android:minWidth="120dp"
                     android:text="@string/credit" />
+
             </LinearLayout>
 
         </HorizontalScrollView>

@@ -56,7 +56,6 @@
         <activity
             android:name="com.syn.mpos.DiscountActivity"
             android:label="@string/discount"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" 
             android:screenOrientation="landscape" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -95,7 +94,8 @@
             android:label="@string/title_activity_about"  
             android:screenOrientation="landscape">
         </activity>
-        <activity android:name="PaymentActivity" android:label="@string/payment" android:theme="@style/ActivityDialogTheme"></activity>
+        <activity android:name="PaymentActivity" android:label="@string/payment" android:theme="@style/ActivityDialogTheme" android:screenOrientation="landscape"></activity>
+        <activity android:theme="@style/ActivityDialogTheme" android:screenOrientation="landscape" android:label="@string/credit_pay" android:name="CreditPayActivity"></activity>
     </application>
 
 </manifest>
