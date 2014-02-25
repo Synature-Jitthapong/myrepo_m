@@ -1,6 +1,7 @@
 package com.syn.mpos;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -11,8 +12,13 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
+import android.view.View;
 
 import java.util.List;
+
+import com.epson.eposprint.Builder;
+import com.epson.eposprint.EposException;
+import com.epson.eposprint.Print;
 
 public class SettingsActivity extends PreferenceActivity {
 
@@ -128,5 +134,45 @@ public class SettingsActivity extends PreferenceActivity {
 
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
 		}
+	}
+	
+	public void printTestClick(final View v){
+		Print printer = new Print();
+		try {
+			printer.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(), 0, 1000);
+			Builder builder = new Builder(MPOSApplication.getPrinterName(), Builder.MODEL_ANK, 
+				MPOSApplication.getContext());
+			if(MPOSApplication.getPrinterFont().equals("a")){
+				builder.addTextFont(Builder.FONT_A);
+			}else if(MPOSApplication.getPrinterFont().equals("b")){
+				builder.addTextFont(Builder.FONT_B);
+			}
+			String printText = MPOSApplication.getContext().getString(R.string.print_test_text).replaceAll("\\*", " ");
+			builder.addTextAlign(Builder.ALIGN_CENTER);
+			builder.addTextSize(1, 1);
+			builder.addText(printText);
+			builder.addFeedUnit(30);
+			builder.addCut(Builder.CUT_FEED);
+
+			// send builder data
+			int[] status = new int[1];
+			int[] battery = new int[1];
+			try {
+				printer.sendData(builder, 10000, status, battery);
+			} catch (EposException e) {
+				e.printStackTrace();
+			}
+			if (builder != null) {
+				builder.clearCommandBuffer();
+			}
+		} catch (EposException e) {
+			switch(e.getErrorStatus()){
+			case EposException.ERR_CONNECT:
+				MPOSUtil.makeToask(SettingsActivity.this, e.getMessage());
+				break;
+			default :
+				MPOSUtil.makeToask(SettingsActivity.this, SettingsActivity.this.getString(R.string.not_found_printer));
+			}
+		}	
 	}
 }

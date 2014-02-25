@@ -98,7 +98,7 @@
     <string name="enter_password">Please enter password</string>
     <string name="update_data">Update Data</string>
     <string name="modify">modify</string>
-    <string name="delete">delete</string>
+    <string name="delete">Delete</string>
     <string name="summary">Summary</string>
     <string name="receipt_no">Receipt No.</string>
     <string name="printer_ip">Printer IP</string>
@@ -200,7 +200,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="send_sale_data_progress">Sending sale data please wait&#8230;</string>
     <string name="send_sale_data_success">Send sale data successfully.</string>
     <string name="update_data_success">Update data successfully.</string>
-    <string name="update_data">Update data</string>
     <string name="enter_ipaddress">Please enter IP Address.</string>
     <string name="enter_backoffice">Please enter backoffice name.</string>
     <string name="product_dept">Product Dept.</string>
@@ -243,10 +242,14 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="cannot_endday">Cannot endday </string>
     <string name="because">because</string>
     <string name="cannot_endday_have_order">Clear current order first!</string>
-    <string name="barcode">Bar Code</string>
+    <string name="barcode">Barcode</string>
     <string name="font">Font</string>
 	<string name="device_code">Device Code:</string>
 	<string name="reprint_receipt">Reprint Receipt</string>
 	<string name="plus">+</string>
 	<string name="minus">-</string>
+	<string name="print_test">Print test</string>
+	<string name="print">Print</string>
+	<string name="print_test_text">123xxstreet,xxxcity,xxxxstate\n******TEL**9999-99-9999****C#2\n***November.23,*2007***PM*4:24\napples******************$20.00\ngrapes******************$30.00\nbananas*****************$40.00\nlemons******************$50.00\noranges*****************$60.00\nTax*excluded.**********$200.00\nTax*****5.0%************$10.00\n______________________________\nTotal******************$210.00\n</string>
+	<string name="not_found_printer">Not found printer!</string>
 </resources>

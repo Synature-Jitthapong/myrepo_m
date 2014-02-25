@@ -189,6 +189,18 @@ public class Products extends MPOSDatabase {
 		return vatRate;
 	}
 	
+	public Product getProduct(String barCode){
+		Product p = null;
+		Cursor cursor = mSqlite.query(TABLE_PRODUCT, ALL_PRODUCT_COLS, 
+				COLUMN_PRODUCT_BAR_CODE + "=?", new String[]{barCode}, 
+				null, null, "1");
+		if(cursor.moveToFirst()){
+			p = toProduct(cursor);
+		}
+		cursor.close();
+		return p;
+	}
+	
 	public Product getProduct(int proId){
 		Product p = null;
 		Cursor cursor = mSqlite.query(TABLE_PRODUCT, ALL_PRODUCT_COLS, 

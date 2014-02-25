@@ -43,7 +43,7 @@
         android:layout_height="match_parent"
         android:layout_marginRight="1dp"
         android:layout_weight="0.3"
-        android:drawableLeft="@drawable/ic_navigation_cancel_light"
+        android:drawableLeft="@android:drawable/ic_menu_close_clear_cancel"
         android:minHeight="0dip"
         android:minWidth="0dip" />
 

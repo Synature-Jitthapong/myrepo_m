@@ -95,8 +95,8 @@ public class SyncActivity extends AlertDialog.Builder implements OnItemClickList
 				public void onError(String msg) {
 					progress.setVisibility(View.INVISIBLE);
 					imgSyncStatus.setVisibility(View.VISIBLE);
-					imgSyncStatus
-							.setImageResource(R.drawable.ic_navigation_cancel_light);
+//					imgSyncStatus
+//							.setImageResource(R.drawable.ic_navigation_cancel_light);
 				}
 			};
 			mposService.loadProductData(loadProductListener);

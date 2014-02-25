@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/itemSetting" android:title="@string/setting" android:icon="@drawable/ic_action_settings_light" android:showAsAction="ifRoom|collapseActionView"></item>
+    <item android:id="@+id/itemSetting" android:title="@string/setting" android:icon="@android:drawable/ic_sysbar_quicksettings" android:showAsAction="ifRoom|collapseActionView"></item>
     <item android:id="@+id/itemAbout" android:title="@string/about" android:showAsAction="collapseActionView"></item>
-    <item android:id="@+id/itemUpdate" android:icon="@drawable/ic_action_refresh" android:title="@string/update_data" android:showAsAction="ifRoom"></item>
+    <item android:id="@+id/itemUpdate" android:icon="@android:drawable/ic_menu_refresh" android:title="@string/update_data" android:showAsAction="ifRoom"></item>
     
 
 </menu>

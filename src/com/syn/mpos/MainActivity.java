@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.syn.mpos.R;
 import com.syn.mpos.provider.Computer;
 import com.syn.mpos.provider.Login;
 import com.syn.mpos.provider.Products;
@@ -36,6 +35,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -53,7 +53,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends FragmentActivity implements MenuPageFragment.OnMenuItemClick,
-	OnItemClickListener, OnClickListener{
+	OnItemClickListener, OnClickListener, OnKeyListener{
 	public static final int TAB_UNDERLINE_COLOR = 0xFF1D78B2;
 	
 	private int mTransactionId;
@@ -71,6 +71,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private ListView mLvOrderDetail;
 	private TableRow mTbRowVat;
 	private TableRow mTbRowDiscount;
+	private EditText mTxtBarCode;
 	private TextView mTvSubTotal;
 	private TextView mTvVatExclude;
 	private TextView mTvDiscount;
@@ -90,6 +91,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
 		mLvOrderDetail = (ListView) findViewById(R.id.lvOrder);
 		mLayoutOrderCtrl = (LinearLayout) findViewById(R.id.layoutOrderCtrl);
 		mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
@@ -130,13 +132,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mOrderDetailAdapter = new OrderDetailAdapter();
 		mLvOrderDetail.setAdapter(mOrderDetailAdapter);
 		
-		registerEvent();
-	}
-	
-	private void registerEvent(){
 		mBtnDelSelOrder.setOnClickListener(this);
 		mBtnClearSelOrder.setOnClickListener(this);
 		mLvOrderDetail.setOnItemClickListener(this);
+		mTxtBarCode.setOnKeyListener(this);
 	}
 	
 	private int getCurrentSession(){
@@ -1078,5 +1077,35 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			
 		});
 		dialog.show();
+	}
+
+	@Override
+	public boolean onKey(View v, int keyCode, KeyEvent event) {
+		if(event.getAction() != KeyEvent.ACTION_DOWN)
+			return true;
+		
+		if(keyCode == KeyEvent.KEYCODE_ENTER){
+			String barCode = mTxtBarCode.getText().toString();
+			if(!barCode.equals("")){
+				Products.Product p = MPOSApplication.getProduct().getProduct(barCode);
+				if(p != null){
+					int orderId = mTransaction.addOrderDetail(mTransactionId, mComputerId, p.getProductId(), 
+							p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
+					appendOrderList(orderId);
+				}else{
+					new AlertDialog.Builder(MainActivity.this)
+					.setTitle(R.string.search)
+					.setMessage(R.string.not_found_item)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					}).show();
+				}
+			}
+			mTxtBarCode.setText(null);
+		}
+		return false;
 	}
 }

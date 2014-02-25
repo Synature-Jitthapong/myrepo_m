@@ -47,7 +47,6 @@
         android:layout_alignLeft="@+id/txtPass"
         android:layout_alignRight="@+id/txtPass"
         android:layout_below="@+id/txtPass"
-        android:onClick="loginClicked"
         android:text="@string/login"
         android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 

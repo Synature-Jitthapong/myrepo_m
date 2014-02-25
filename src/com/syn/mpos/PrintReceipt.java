@@ -57,10 +57,10 @@ public class PrintReceipt implements BatteryStatusChangeEventListener, StatusCha
 		double transactionVatable = mTrans.getTransactionVatable(transactionId, computerId);
 		double totalRetailPrice = mTrans.getTotalRetailPrice(transactionId, computerId);
 		double totalDiscount = mTrans.getPriceDiscount(transactionId, computerId);
-		double totalSalePrice = mTrans.getTotalSalePrice(transactionId, computerId) + transactionVatExclude;
+		double totalSalePrice = transactionVatable;//mTrans.getTotalSalePrice(transactionId, computerId) + transactionVatExclude;
 		double totalPaid = mPayment.getTotalPaid(transactionId, computerId);
 		double change = totalPaid - totalSalePrice;
-		double beforVat = transactionVatable - transactionVat - transactionVatExclude;
+		double beforVat = transactionVatable - transactionVat;
 		
 		try {
 			mPrinter.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(), 0, 1000);	
@@ -117,7 +117,8 @@ public class PrintReceipt implements BatteryStatusChangeEventListener, StatusCha
 	    	String changeText = MPOSApplication.getContext().getString(R.string.change) + " ";
 	    	String beforeVatText = MPOSApplication.getContext().getString(R.string.before_vat);
 	    	String discountText = MPOSApplication.getContext().getString(R.string.discount);
-	    	String vatRateText = MPOSApplication.getContext().getString(R.string.vat) + String.valueOf(vatRate) + "%";
+	    	String vatRateText = MPOSApplication.getContext().getString(R.string.vat) + 
+	    			MPOSApplication.getGlobalProperty().currencyFormat(vatRate, "#,###.##") + "%";
 	    	
 	    	String strTotalRetailPrice = MPOSApplication.getGlobalProperty().currencyFormat(totalRetailPrice);
 	    	String strTotalSalePrice = MPOSApplication.getGlobalProperty().currencyFormat(totalSalePrice);
