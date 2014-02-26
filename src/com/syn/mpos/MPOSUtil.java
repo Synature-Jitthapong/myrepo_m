@@ -6,8 +6,12 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Locale;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -15,6 +19,7 @@ import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.MPOSService.SendSaleTransaction;
 import com.syn.mpos.provider.Computer;
+import com.syn.mpos.provider.PaymentDetail;
 import com.syn.mpos.provider.SaleTransaction;
 import com.syn.mpos.provider.Session;
 import com.syn.mpos.provider.SyncSaleLog;
@@ -214,6 +219,137 @@ public class MPOSUtil {
 	
 	public static interface LoadSaleTransactionListener extends ProgressListener{
 		void onPost(POSData_SaleTransaction saleTrans, String sessionDate);
+	}
+	
+	public static void sendSaleData(final Context c, int staffId){
+		final ProgressDialog progress = new ProgressDialog(c);
+		progress.setTitle(R.string.send_sale_data);
+		progress.setMessage(c.getString(R.string.send_sale_data_progress));
+		MPOSUtil.doSendSale(staffId, new ProgressListener(){
+
+			@Override
+			public void onPre() {
+				progress.show();
+			}
+
+			@Override
+			public void onPost() {
+				if(progress.isShowing())
+					progress.dismiss();
+				new AlertDialog.Builder(c)
+					.setTitle(R.string.send_sale_data)
+					.setMessage(R.string.send_sale_data_success)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					})
+					.show();
+				
+			}
+
+			@Override
+			public void onError(String msg) {
+				if(progress.isShowing())
+					progress.dismiss();
+				new AlertDialog.Builder(c)
+				.setTitle(R.string.send_sale_data)
+				.setMessage(msg)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				})
+				.show();
+			}
+			
+		});	
+	}
+	
+	public static void updateData(final Context c){
+		final ProgressDialog progress = new ProgressDialog(c);
+		final MPOSService mPOSService = new MPOSService();
+		mPOSService.loadShopData(new ProgressListener(){
+
+			@Override
+			public void onPre() {
+				progress.setTitle(R.string.update_data);
+				progress.setMessage(c.getString(R.string.update_shop_progress));
+				progress.show();
+			}
+
+			@Override
+			public void onPost() {
+				mPOSService.loadProductData(new ProgressListener(){
+
+					@Override
+					public void onPre() {
+						progress.setMessage(c.getString(R.string.update_product_progress));
+					}
+
+					@Override
+					public void onPost() {
+						if(progress.isShowing())
+							progress.dismiss();
+						
+//						SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
+//						sqlite.delete(Transaction.TABLE_ORDER, null, null);
+//						sqlite.delete(Transaction.TABLE_ORDER, null, null);
+//						sqlite.delete(Transaction.TABLE_ORDER, null, null);
+//						sqlite.delete(PaymentDetail.TABLE_PAYMENT, null, null);
+//						sqlite.delete(Session.TABLE_SESSION, null, null);
+//						sqlite.delete(Session.TABLE_SESSION_DETAIL, null, null);
+						
+						new AlertDialog.Builder(c)
+						.setTitle(R.string.update_data)
+						.setMessage(R.string.update_data_success)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						})
+						.show();
+					}
+
+					@Override
+					public void onError(String msg) {
+						if(progress.isShowing())
+							progress.dismiss();
+						new AlertDialog.Builder(c)
+						.setTitle(R.string.update_data)
+						.setMessage(msg)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						})
+						.show();
+					}
+					
+				});
+			}
+
+			@Override
+			public void onError(String msg) {
+				if(progress.isShowing())
+					progress.dismiss();
+				new AlertDialog.Builder(c)
+				.setTitle(R.string.update_data)
+				.setMessage(msg)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				})
+				.show();
+			}
+			
+		});
 	}
 	
 	public static void makeToask(Context c, String msg){

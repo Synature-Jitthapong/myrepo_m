@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">MPOS</string>
+    <string name="app_name">mPOS</string>
     <string name="login">Login</string>
     <string name="user_name">Username</string>
     <string name="pass_word">Password</string>
@@ -252,4 +252,8 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="print">Print</string>
 	<string name="print_test_text">123xxstreet,xxxcity,xxxxstate\n******TEL**9999-99-9999****C#2\n***November.23,*2007***PM*4:24\napples******************$20.00\ngrapes******************$30.00\nbananas*****************$40.00\nlemons******************$50.00\noranges*****************$60.00\nTax*excluded.**********$200.00\nTax*****5.0%************$10.00\n______________________________\nTotal******************$210.00\n</string>
 	<string name="not_found_printer">Not found printer!</string>
+	<string name="cashier">Cashier</string>
+	<string name="computer_setting_not_valid">Computer settings not valid!</string>
+	<string name="tax">Tax</string>
+	<string name="tax_exclude">Tax exclude</string>
 </resources>

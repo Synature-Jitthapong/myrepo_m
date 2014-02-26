@@ -1,9 +1,11 @@
 package com.syn.mpos;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.R;
+import com.syn.mpos.provider.PaymentAmountButton;
 import com.syn.mpos.provider.PaymentDetail;
 import com.syn.mpos.provider.Transaction;
 import com.syn.pos.Payment;
@@ -27,9 +29,10 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class PaymentActivity extends Activity  implements OnClickListener {
 	public static final int REQUEST_CREDIT_PAY = 1;
@@ -45,6 +48,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	private PaymentDetail mPayment;
 	private List<Payment.PaymentDetail> mPayLst;
 	private PaymentAdapter mPaymentAdapter;
+	private PaymentButtonAdapter mPaymentButtonAdapter;
 	
 	private StringBuilder mStrTotalPay;
 	private double mTotalPay;
@@ -53,12 +57,12 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	private double mChange;
 	
 	private ListView mLvPayment;
-	private Button mBtnCash;
-	private Button mBtnCredit;
 	private EditText mTxtEnterPrice;
 	private EditText mTxtTotalPaid;
 	private EditText mTxtPaymentLeft;
 	private EditText mTxtTotalPrice;
+	private EditText mTxtChange;
+	private GridView mGvPaymentButton;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -79,17 +83,18 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 		mTxtTotalPaid = (EditText) findViewById(R.id.txtTotalPaid);
 		mTxtPaymentLeft = (EditText) findViewById(R.id.txtPaymentLeft);
 		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
-		mBtnCash = (Button) findViewById(R.id.btnCash);
-		mBtnCredit = (Button) findViewById(R.id.btnCredit);
+		mTxtChange = (EditText) findViewById(R.id.txtChange);
+		mGvPaymentButton = (GridView) findViewById(R.id.gridView1);
 		
 		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
 		mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<Payment.PaymentDetail>();
+		mPaymentButtonAdapter = new PaymentButtonAdapter();
 		mStrTotalPay = new StringBuilder();
-		mBtnCredit.setOnClickListener(this);
-		mBtnCash.setOnClickListener(this);
 		mLvPayment.setAdapter(mPaymentAdapter);
+		mGvPaymentButton.setAdapter(mPaymentButtonAdapter);
+		loadPayType();
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -207,11 +212,14 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 		mPaymentAdapter.notifyDataSetChanged();
 		mTotalPaid = mPayment.getTotalPaid(mTransactionId, mComputerId);
 		mPaymentLeft = mTotalSalePrice - mTotalPaid;
+		mChange = mTotalPaid - mTotalSalePrice;
 		mTxtTotalPaid.setText(MPOSApplication.getGlobalProperty().currencyFormat(mTotalPaid));
 		if(mPaymentLeft < 0)
-			mPaymentLeft = 0.0f;
-		
+			mPaymentLeft = 0.0d;
+		if(mChange < 0)
+			mChange = 0.0d;
 		mTxtPaymentLeft.setText(MPOSApplication.getGlobalProperty().currencyFormat(mPaymentLeft));
+		mTxtChange.setText(MPOSApplication.getGlobalProperty().currencyFormat(mChange));
 	}
 	
 	private void deletePayment(int paymentId){
@@ -238,9 +246,9 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	
 	private void calculateInputPrice(){
 		try {
-			mTotalPay = Float.parseFloat(mStrTotalPay.toString());
-		} catch (NumberFormatException e) {
-			mTotalPay = 0.0f;
+			mTotalPay = MPOSUtil.stringToDouble(mStrTotalPay.toString());
+		} catch (ParseException e) {
+			mTotalPay = 0.0d;
 		}
 	}
 	
@@ -288,15 +296,16 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	}
 	
 	private void print(){
-		new Handler().post(new Runnable(){
-
-			@Override
-			public void run() {
-				PrintReceipt printReceipt = new PrintReceipt();
-				printReceipt.printReceipt(mTransactionId, mComputerId);
-			}
-			
-		});
+		setResult(0, getIntent());
+//		new Handler().post(new Runnable(){
+//
+//			@Override
+//			public void run() {
+//				PrintReceipt printReceipt = new PrintReceipt();
+//				printReceipt.printReceipt(mTransactionId, mComputerId, mStaffId);
+//			}
+//			
+//		});
 	}
 	
 	public void confirm() {
@@ -399,36 +408,6 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 			mStrTotalPay.append("9");
 			displayEnterPrice();
 			break;
-		case R.id.btnPay20:
-			mStrTotalPay = new StringBuilder();
-			mStrTotalPay.append("20");
-			calculateInputPrice();
-			addPayment();
-			break;
-		case R.id.btnPay50:
-			mStrTotalPay = new StringBuilder();
-			mStrTotalPay.append("50");
-			calculateInputPrice();
-			addPayment();
-			break;
-		case R.id.btnPay100:
-			mStrTotalPay = new StringBuilder();
-			mStrTotalPay.append("100");
-			calculateInputPrice();
-			addPayment();
-			break;
-		case R.id.btnPay500:
-			mStrTotalPay = new StringBuilder();
-			mStrTotalPay.append("500");
-			calculateInputPrice();
-			addPayment();
-			break;
-		case R.id.btnPay1000:
-			mStrTotalPay = new StringBuilder();
-			mStrTotalPay.append("1000");
-			calculateInputPrice();
-			addPayment();
-			break;
 		case R.id.btnPayC:
 			mStrTotalPay = new StringBuilder();
 			displayEnterPrice();
@@ -437,8 +416,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 			try {
 				mStrTotalPay.deleteCharAt(mStrTotalPay.length() - 1);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				mStrTotalPay = new StringBuilder();
 			}
 			displayEnterPrice();
 			break;
@@ -451,12 +429,97 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 				addPayment();
 			}
 			break;
-		case R.id.btnCash:
-			mBtnCash.setPressed(true);
-			break;
-		case R.id.btnCredit:
-			creditPay();
-			break;
+//		case R.id.btnCash:
+//			mBtnCash.setPressed(true);
+//			break;
+//		case R.id.btnCredit:
+//			creditPay();
+//			break;
+		}
+	}
+	
+	private void loadPayType(){
+		List<Payment.PayType> payTypeLst = mPayment.listPayType();
+		LinearLayout payTypeContent = (LinearLayout) findViewById(R.id.payTypeContent);
+		payTypeContent.removeAllViews();
+		for(final Payment.PayType payType : payTypeLst){
+			final Button btnPayType = new Button(PaymentActivity.this);
+			btnPayType.setMinWidth(128);
+			btnPayType.setMinHeight(64);
+			btnPayType.setText(payType.getPayTypeName());
+			btnPayType.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					if(payType.getPayTypeID() == PaymentDetail.PAY_TYPE_CASH){
+						
+					}else if(payType.getPayTypeID() == PaymentDetail.PAY_TYPE_CREDIT){
+						creditPay();
+					}
+				}
+				
+			});
+			payTypeContent.addView(btnPayType);
+		}
+	}
+	
+	public class PaymentButtonAdapter extends BaseAdapter{
+		private List<Payment.PaymentAmountButton> mPaymentButtonLst;
+		private LayoutInflater mInflater;
+		
+		public PaymentButtonAdapter(){
+			mInflater = (LayoutInflater)
+					PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			PaymentAmountButton payButton = 
+				 new PaymentAmountButton(MPOSApplication.getWriteDatabase());
+			mPaymentButtonLst = payButton.listPaymentButton();
+		}
+		
+		@Override
+		public int getCount() {
+			return mPaymentButtonLst != null ? mPaymentButtonLst.size() : 0;
+		}
+
+		@Override
+		public Payment.PaymentAmountButton getItem(int position) {
+			return mPaymentButtonLst.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			final Payment.PaymentAmountButton paymentButton = 
+					mPaymentButtonLst.get(position);
+			ViewHolder holder;
+			if(convertView == null){
+				holder = new ViewHolder();
+				convertView = mInflater.inflate(R.layout.payment_button_template, null);
+				holder.btnPayment = (Button) convertView.findViewById(R.id.button1);
+				convertView.setTag(holder);
+			}else{
+				holder = (ViewHolder) convertView.getTag();
+			}	
+			holder.btnPayment.setText(MPOSApplication.getGlobalProperty().currencyFormat(paymentButton.getPaymentAmount()));
+			holder.btnPayment.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					mStrTotalPay = new StringBuilder();
+					mStrTotalPay.append(MPOSApplication.getGlobalProperty().currencyFormat(paymentButton.getPaymentAmount()));
+					calculateInputPrice();
+					addPayment();
+				}
+				
+			});
+			return convertView;
+		}
+		
+		class ViewHolder{
+			Button btnPayment;
 		}
 	}
 }

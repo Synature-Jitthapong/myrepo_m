@@ -65,6 +65,7 @@ public class Reporting extends MPOSDatabase{
 				" a." + Transaction.COLUMN_TRANS_EXCLUDE_VAT + ", " +
 				" a." + Transaction.COLUMN_TRANS_VAT + ", " +
 				" a." + Transaction.COLUMN_TRANS_VATABLE + ", " +
+				" a." + MPOSDatabase.COLUMN_SEND_STATUS + ", " +
 				" SUM(b." + Transaction.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
 				" SUM(b." + Transaction.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice, " +
 				" a." + Transaction.COLUMN_OTHER_DISCOUNT + " + " + 
@@ -114,6 +115,7 @@ public class Reporting extends MPOSDatabase{
 				reportDetail.setTotalVat(cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VAT)));
 				reportDetail.setCash(cursor.getDouble(cursor.getColumnIndex("TotalCash")));
 				reportDetail.setCredit(cursor.getDouble(cursor.getColumnIndex("TotalCredit")));
+				reportDetail.setSendStatus(cursor.getInt(cursor.getColumnIndex(MPOSDatabase.COLUMN_SEND_STATUS)));
 				report.reportDetail.add(reportDetail);
 				
 			}while(cursor.moveToNext());

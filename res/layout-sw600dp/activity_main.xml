@@ -47,14 +47,9 @@
             android:layout_above="@+id/tbLayoutSummary"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
+            android:gravity="right"
             android:paddingLeft="8dp"
             android:visibility="gone" >
-
-            <TextView
-                android:id="@+id/tvOrderSelected"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
 
             <ImageButton
                 android:id="@+id/btnClearSelOrder"
@@ -137,7 +132,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/vat_exclude"
+                    android:text="@string/tax"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView

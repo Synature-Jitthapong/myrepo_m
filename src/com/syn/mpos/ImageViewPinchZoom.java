@@ -7,30 +7,31 @@ import com.j1tth4.mobile.util.ImageLoader;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.graphics.RectF;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 public class ImageViewPinchZoom extends DialogFragment{
 	private String mImgName;
+	private String mMenuName;
+	private String mMenuPrice;
 	private ImageLoader mImgLoader;
 	
-	public static ImageViewPinchZoom newInstance(String imgName){
+	public static ImageViewPinchZoom newInstance(String imgName, String menuName, String menuPrice){
 		ImageViewPinchZoom frag = new ImageViewPinchZoom();
 		Bundle b = new Bundle();
 		b.putString("imgName", imgName);
+		b.putString("menuName", menuName);
+		b.putString("menuPrice", menuPrice);
 		frag.setArguments(b);
 		return frag;
 	}
@@ -56,11 +57,14 @@ public class ImageViewPinchZoom extends DialogFragment{
 				MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.LARGE);
 		
 		mImgName = getArguments().getString("imgName");
+		mMenuName = getArguments().getString("menuName");
+		mMenuPrice = getArguments().getString("menuPrice");
 		
 		LayoutInflater inflater = (LayoutInflater)
 				getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View menuImgView = inflater.inflate(R.layout.menu_image_layout, null);
 		final ImageView imgMenu = (ImageView) menuImgView.findViewById(R.id.imgMenu);
+		final TextView tvMenuName = (TextView) menuImgView.findViewById(R.id.textView1);
 		final ProgressBar progress = (ProgressBar) menuImgView.findViewById(R.id.loadImgProgress);
 		final ImageButton btnClose = (ImageButton) menuImgView.findViewById(R.id.imgBtnClose);
 		btnClose.setOnClickListener(new OnClickListener(){
@@ -80,6 +84,7 @@ public class ImageViewPinchZoom extends DialogFragment{
 			public void run() {
 				mImgLoader.displayImage(MPOSApplication.getImageUrl() + mImgName, imgMenu);
 				imgMenu.setVisibility(View.VISIBLE);
+				tvMenuName.setText(mMenuName + "\n" + mMenuPrice);
 				progress.setVisibility(View.GONE);
 			}
 			

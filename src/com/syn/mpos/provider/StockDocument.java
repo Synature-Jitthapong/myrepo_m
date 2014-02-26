@@ -122,7 +122,7 @@ public abstract class StockDocument extends MPOSDatabase {
 	public int createDocument(int shopId, int documentTypeId, int staffId) throws SQLException{
 		int documentId = getMaxDocument(shopId);
 		Calendar date = Util.getDate();
-		Calendar dateTime = Util.getDateTime();
+		Calendar dateTime = Util.getDate();
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_DOC_ID, documentId);
 		cv.put(Shop.COLUMN_SHOP_ID, shopId);
@@ -145,7 +145,7 @@ public abstract class StockDocument extends MPOSDatabase {
 			int documentTypeId, int staffId) throws SQLException{
 		int documentId = getMaxDocument(shopId);
 		Calendar date = Util.getDate();
-		Calendar dateTime = Util.getDateTime();
+		Calendar dateTime = Util.getDate();
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_DOC_ID, documentId);
 		cv.put(Shop.COLUMN_SHOP_ID, shopId);
@@ -169,7 +169,7 @@ public abstract class StockDocument extends MPOSDatabase {
 	private boolean updateDocument(int documentId, int shopId,
 			int documentStatus, int staffId, String remark) throws SQLException{
 		boolean isSuccess = false;
-		Calendar dateTime = Util.getDateTime();
+		Calendar dateTime = Util.getDate();
 		String strSql = "UPDATE " + TABLE_DOCUMENT +  
 				" SET " + COLUMN_DOC_STATUS + "=" + documentStatus + ", " + 
 				COLUMN_UPDATE_BY + "=" + staffId + ", " + 

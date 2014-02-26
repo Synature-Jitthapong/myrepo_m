@@ -17,6 +17,7 @@ import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
@@ -83,7 +84,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private LinearLayout mLayoutOrderCtrl;
 	private ImageButton mBtnDelSelOrder;
 	private ImageButton mBtnClearSelOrder;
-	private TextView mTvOrderSelected;
 	private ProgressDialog mProgress;
 	
 	@Override
@@ -96,7 +96,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		mLayoutOrderCtrl = (LinearLayout) findViewById(R.id.layoutOrderCtrl);
 		mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
 		mBtnClearSelOrder = (ImageButton) findViewById(R.id.btnClearSelOrder);
-		mTvOrderSelected = (TextView) findViewById(R.id.tvOrderSelected);
 		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 		mTvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
 		mTvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
@@ -236,7 +235,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			endday();
 			return true;
 		case R.id.itemSendSale:
-			updateData();
+			MPOSUtil.sendSaleData(MainActivity.this, mStaffId);
 			return true;
 		case R.id.itemSetting:
 			intent = new Intent(this, SettingsActivity.class);
@@ -247,47 +246,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 	}
 
-	private void updateData(){
-//		SyncActivity builder = new SyncActivity(this, mStaffId);
-//		builder.setTitle(R.string.update_data);
-//		builder.setNeutralButton(R.string.close, null);
-//		final AlertDialog d = builder.create();
-//		d.show();
-//		d.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new OnClickListener(){
-//
-//			@Override
-//			public void onClick(View v) {
-//				d.dismiss();
-//			}
-//			
-//		});
-		final ProgressDialog progress = new ProgressDialog(MainActivity.this);
-		progress.setMessage(MainActivity.this.getString(R.string.send_sale_data_progress));
-		ProgressListener sendSaleListener =
-				new ProgressListener(){
-
-					@Override
-					public void onPre() {
-						progress.show();
-					}
-
-					@Override
-					public void onPost() {
-						if(progress.isShowing())
-							progress.dismiss();
-						MPOSUtil.makeToask(MainActivity.this, 
-								MainActivity.this.getString(R.string.send_sale_data_success));
-					}
-
-					@Override
-					public void onError(String msg) {
-						if(progress.isShowing())
-							progress.dismiss();
-						MPOSUtil.makeToask(MainActivity.this, msg);
-					}};
-				
-		MPOSUtil.doSendSale(mStaffId, sendSaleListener);
-	}
 	private void countHoldOrder(){
 		if(mItemHoldBill != null){
 			int totalHold = mTransaction.countHoldOrder(mComputerId);
@@ -300,12 +258,27 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		super.onActivityResult(requestCode, resultCode, intent);
+		new Handler().postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				PrintReceipt printReceipt = new PrintReceipt();
+				printReceipt
+						.printReceipt(mTransactionId, mComputerId, mStaffId);
+			}
+
+		}, 1000);
+	}
+
 	public void paymentClicked(final View v){
 		Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
 		intent.putExtra("transactionId", mTransactionId);
 		intent.putExtra("computerId", mComputerId);
 		intent.putExtra("staffId", mStaffId);
-		startActivity(intent);
+		startActivityForResult(intent, 0);
 	}
 
 	public void discountClicked(final View v){
@@ -944,11 +917,12 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			}
 			mOrderDetailAdapter.notifyDataSetChanged();
 			
-			if(listSelectedOrder().size() > 0)
+			if(listSelectedOrder().size() > 0){
 				mLayoutOrderCtrl.setVisibility(View.VISIBLE);
-			else
+			}
+			else{
 				mLayoutOrderCtrl.setVisibility(View.GONE);
-			
+			}
 			break;
 		}
 	}

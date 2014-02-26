@@ -2,6 +2,8 @@ package com.syn.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -31,5 +33,15 @@ public class Bank extends MPOSDatabase{
 		}
 		cursor.close();
 		return bankLst;
+	}
+	
+	public void insertBank(List<BankName> bankLst){
+		mSqlite.delete(TABLE_BANK, null, null);
+		for(BankName bank : bankLst){
+			ContentValues cv = new ContentValues();
+			cv.put(COLUMN_BANK_ID, bank.getBankNameId());
+			cv.put(COLUMN_BANK_NAME, bank.getBankName());
+			mSqlite.insert(TABLE_BANK, null, cv);
+		}
 	}
 }

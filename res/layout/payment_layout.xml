@@ -226,95 +226,25 @@
             </TableRow>
         </TableLayout>
 
-        <TableLayout
-            android:id="@+id/TableLayout3"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.9"
-            android:gravity="bottom" >
+            android:layout_weight="1"
+            android:orientation="vertical" >
 
-            <TableRow
-                android:id="@+id/tableRow7"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" >
+            <GridView
+                android:id="@+id/gridView1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:gravity="bottom"
+                android:horizontalSpacing="4dp"
+                android:numColumns="2" >
 
-                <Button
-                    android:id="@+id/btnPay1000"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:minHeight="72dip"
-                    android:onClick="onClick"
-                    android:text="1000"
-                    android:textSize="32sp" />
+            </GridView>
 
-                <Button
-                    android:id="@+id/btnPay50"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:minHeight="72dip"
-                    android:onClick="onClick"
-                    android:text="50"
-                    android:textSize="32sp" />
+        </LinearLayout>
 
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" >
-
-                <Button
-                    android:id="@+id/btnPay500"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:minHeight="72dip"
-                    android:onClick="onClick"
-                    android:text="500"
-                    android:textSize="32sp" />
-
-                <Button
-                    android:id="@+id/btnPay20"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:minHeight="72dip"
-                    android:onClick="onClick"
-                    android:text="20"
-                    android:textSize="32sp" />
-
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow9"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" >
-
-                <Button
-                    android:id="@+id/btnPay100"
-                    style="@style/AppBaseTheme"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:minHeight="72dip"
-                    android:onClick="onClick"
-                    android:text="100"
-                    android:textSize="32sp" />
-
-                <Button
-                    android:id="@+id/Button01"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:editable="false"
-                    android:minHeight="72dip"
-                    android:onClick="onClick"
-                    android:textSize="32sp" />
-
-            </TableRow>
-        </TableLayout>
     </LinearLayout>
 
 </LinearLayout>

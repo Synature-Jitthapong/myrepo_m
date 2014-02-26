@@ -7,10 +7,14 @@ import org.ksoap2.serialization.PropertyInfo;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.FileManager;
 import com.j1tth4.mobile.util.JSONUtil;
+import com.syn.mpos.provider.Bank;
 import com.syn.mpos.provider.Computer;
+import com.syn.mpos.provider.CreditCard;
 import com.syn.mpos.provider.GlobalProperty;
 import com.syn.mpos.provider.HeaderFooterReceipt;
 import com.syn.mpos.provider.Language;
+import com.syn.mpos.provider.PaymentAmountButton;
+import com.syn.mpos.provider.PaymentDetail;
 import com.syn.mpos.provider.Products;
 import com.syn.mpos.provider.Shop;
 import com.syn.mpos.provider.Staff;
@@ -20,6 +24,7 @@ import com.syn.pos.ShopData;
 import com.syn.pos.WebServiceResult;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 public class MPOSService {
 
@@ -61,17 +66,17 @@ public class MPOSService {
 
 					@Override
 					public void onPost(ShopData sd) {
-						Shop shop = new Shop(MPOSApplication.getWriteDatabase());
-						Computer comp = new Computer(
-								MPOSApplication.getWriteDatabase());
-						GlobalProperty global = new GlobalProperty(
-								MPOSApplication.getWriteDatabase());
-						Language lang = new Language(
-								MPOSApplication.getWriteDatabase());
-						Staff staff = new Staff(
-								MPOSApplication.getWriteDatabase());
-						HeaderFooterReceipt hf = new HeaderFooterReceipt(
-								MPOSApplication.getWriteDatabase());
+						SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
+						Shop shop = new Shop(sqlite);
+						Computer comp = new Computer(sqlite);
+						GlobalProperty global = new GlobalProperty(sqlite);
+						Language lang = new Language(sqlite);
+						Staff staff = new Staff(sqlite);
+						HeaderFooterReceipt hf = new HeaderFooterReceipt(sqlite);
+						Bank bank = new Bank(sqlite);
+						CreditCard credit = new CreditCard(sqlite);
+						PaymentDetail payment = new PaymentDetail(sqlite);
+						PaymentAmountButton payButton = new PaymentAmountButton(sqlite);
 						try {
 							shop.insertShopProperty(sd.getShopProperty());
 							comp.insertComputer(sd.getComputerProperty());
@@ -80,6 +85,10 @@ public class MPOSService {
 							lang.insertLanguage(sd.getLanguage());
 							hf.addHeaderFooterReceipt(sd
 									.getHeaderFooterReceipt());
+							bank.insertBank(sd.getBankName());
+							credit.insertCreditCardType(sd.getCreditCardType());
+							payment.insertPaytype(sd.getPayType());
+							payButton.insertPaymentAmountButton(sd.getPaymentAmountButton());
 							progressListener.onPost();
 						} catch (Exception e) {
 							progressListener.onError(e.getMessage());
@@ -354,7 +363,7 @@ public class MPOSService {
 				if(shopId > 0)
 					mListener.onPost(shopId);
 				else
-					mListener.onError(context.getString(R.string.device_not_register));
+					mListener.onError(context.getString(R.string.computer_setting_not_valid));
 			} catch (NumberFormatException e) {
 				this.mListener.onError(result);
 			}

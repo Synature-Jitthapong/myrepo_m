@@ -35,7 +35,7 @@ public class Session extends Transaction{
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_IS_ENDDAY, ALREADY_ENDDAY_STATUS);
 		cv.put(COLUMN_CLOSE_STAFF, closeStaffId);
-		cv.put(COLUMN_CLOSE_DATE, Util.getDateTime().getTimeInMillis());
+		cv.put(COLUMN_CLOSE_DATE, Util.getDate().getTimeInMillis());
 		
 		mSqlite.update(TABLE_SESSION, cv, 
 				COLUMN_IS_ENDDAY + "=? " +
@@ -129,11 +129,11 @@ public class Session extends Transaction{
 	public long addSessionEnddayDetail(String sessionDate,
 			double totalQtyReceipt, double totalAmountReceipt) throws SQLException {
 		
-		Calendar dateTime = Util.getDateTime();
+		Calendar date = Util.getDate();
 
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_SESS_DATE, sessionDate);
-		cv.put(COLUMN_ENDDAY_DATE, dateTime.getTimeInMillis());
+		cv.put(COLUMN_ENDDAY_DATE, date.getTimeInMillis());
 		cv.put(COLUMN_TOTAL_QTY_RECEIPT, totalQtyReceipt);
 		cv.put(COLUMN_TOTAL_AMOUNT_RECEIPT, totalAmountReceipt);
 		

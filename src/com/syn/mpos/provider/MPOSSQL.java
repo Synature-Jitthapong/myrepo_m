@@ -153,6 +153,12 @@ public class MPOSSQL {
 			Transaction.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
 			"PRIMARY KEY (" + Transaction.COLUMN_TRANSACTION_ID + " ASC, " + Computer.COLUMN_COMPUTER_ID + " ASC) ); ";
 	
+	public static final String PAYMENT_BUTTON_SQL = 
+			"CREATE TABLE " + PaymentAmountButton.TABLE_PAYMENT_AMOUNT + "( " +
+			PaymentAmountButton.COLUMN_PAYMENT_AMOUNT_ID + " INTEGER, " +
+			PaymentAmountButton.COLUMN_PAYMENT_AMOUNT + " REAL DEFAULT 0, " +
+			PaymentAmountButton.COLUMN_ORDERING + " INTEGER DEFAULT 0 );";
+	
 	public static final String PAYMENT_SQL =
 			"CREATE TABLE " + PaymentDetail.TABLE_PAYMENT + " ( " +
 			PaymentDetail.COLUMN_PAY_ID + " INTEGER, " +
@@ -175,6 +181,7 @@ public class MPOSSQL {
 			PaymentDetail.COLUMN_PAY_TYPE_ID + " INTEGER, " +
 			PaymentDetail.COLUMN_PAY_TYPE_CODE + " TEXT, " +
 			PaymentDetail.COLUMN_PAY_TYPE_NAME + " TEXT, " +
+			PaymentDetail.COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
 			"PRIMARY KEY (" + PaymentDetail.COLUMN_PAY_TYPE_ID + ") );";
 	
 	public static final String PRODUCT_DEPT_SQL =

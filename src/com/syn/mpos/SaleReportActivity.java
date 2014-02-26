@@ -5,10 +5,14 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+
+import com.syn.mpos.provider.MPOSDatabase;
 import com.syn.mpos.provider.PaymentDetail;
 import com.syn.mpos.provider.Reporting;
 import com.syn.mpos.provider.Transaction;
+import com.syn.pos.Payment;
 import com.syn.pos.Report;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -29,6 +33,7 @@ import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -482,8 +487,10 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	
 	public class BillReportAdapter extends BaseAdapter{
 		private LayoutInflater mInflater;
+		private PaymentDetail mPayment;
 		
 		public BillReportAdapter(){
+			mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
 			mInflater = (LayoutInflater)
 					SaleReportActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
@@ -513,16 +520,17 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			convertView = mInflater.inflate(R.layout.sale_report_by_bill_template, null);
-			TextView mTvReceipt = (TextView) convertView.findViewById(R.id.tvReceipt);
-			TextView mTvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
-			TextView mTvDiscount = (TextView) convertView.findViewById(R.id.tvTotalDisc);
-			TextView mTvSubTotal = (TextView) convertView.findViewById(R.id.tvSubTotal);
-			TextView mTvTotalSale = (TextView) convertView.findViewById(R.id.tvTotalSale);
-			TextView mTvVatable = (TextView) convertView.findViewById(R.id.tvVatable);
-			TextView mTvTotalVat = (TextView) convertView.findViewById(R.id.tvTotalVat);
-			TextView mTvPayTypeCash = (TextView) convertView.findViewById(R.id.tvPayTypeCash);
-			TextView mTvPayTypeCredit = (TextView) convertView.findViewById(R.id.tvPayTypeCredit);
-			TextView mTvTotalPayment = (TextView) convertView.findViewById(R.id.tvTotalPayment);
+			ImageView imgSendStatus = (ImageView) convertView.findViewById(R.id.imgSendStatus);
+			TextView tvReceipt = (TextView) convertView.findViewById(R.id.tvReceipt);
+			TextView tvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
+			TextView tvDiscount = (TextView) convertView.findViewById(R.id.tvTotalDisc);
+			TextView tvSubTotal = (TextView) convertView.findViewById(R.id.tvSubTotal);
+			TextView tvTotalSale = (TextView) convertView.findViewById(R.id.tvTotalSale);
+			TextView tvVatable = (TextView) convertView.findViewById(R.id.tvVatable);
+			TextView tvTotalVat = (TextView) convertView.findViewById(R.id.tvTotalVat);
+			TextView tvCash = (TextView) convertView.findViewById(R.id.tvCash);
+			TextView tvCredit = (TextView) convertView.findViewById(R.id.tvCredit);
+			TextView tvTotalPayment = (TextView) convertView.findViewById(R.id.tvTotalPayment);
 			
 			Report.ReportDetail report = mReport.reportDetail.get(position);
 			double vatable = report.getVatable();
@@ -534,19 +542,39 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			double credit = report.getCredit();
 			double totalPay = cash + credit;
 			
-			mTvReceipt.setText(report.getReceiptNo());
-			mTvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
-			mTvDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
-			mTvSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(subTotal));
-			mTvVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(vatable));
-			mTvTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
-			mTvTotalPayment.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
-			mTvPayTypeCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(cash));
-			mTvPayTypeCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(credit));
+			tvReceipt.setText(report.getReceiptNo());
+			tvReceipt.setSelected(true);
+			tvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPrice));
+			tvDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalDiscount));
+			tvSubTotal.setText(MPOSApplication.getGlobalProperty().currencyFormat(subTotal));
+			tvVatable.setText(MPOSApplication.getGlobalProperty().currencyFormat(vatable));
+			tvTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
+			tvTotalPayment.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
+			
+			List<Payment.PaymentDetail> payTypeLst = 
+					mPayment.listPaymentGroupByType(report.getTransactionId(), report.getComputerId());
+	
+			for(Payment.PaymentDetail payType : payTypeLst){
+				if(payType.getPayTypeID() == PaymentDetail.PAY_TYPE_CASH){
+					tvCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(payType.getPayAmount()));
+				}
+				if(payType.getPayTypeID() == PaymentDetail.PAY_TYPE_CREDIT){
+					tvCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(payType.getPayAmount()));
+				}
+			}
+			
+			//tvPayTypeCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(cash));
+			//tvPayTypeCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(credit));
+			
+			if(report.getSendStatus() == MPOSDatabase.ALREADY_SEND){
+				imgSendStatus.setVisibility(View.VISIBLE);
+			}else{
+				imgSendStatus.setVisibility(View.INVISIBLE);
+			}
 			
 			if(report.getTransStatus() == Transaction.TRANS_STATUS_VOID){
-				mTvReceipt.setTextColor(Color.RED);
-				mTvReceipt.setPaintFlags(mTvReceipt.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				tvReceipt.setTextColor(Color.RED);
+				tvReceipt.setPaintFlags(tvReceipt.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			}
 			return convertView;
 		}

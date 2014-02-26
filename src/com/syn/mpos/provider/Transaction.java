@@ -499,6 +499,42 @@ public class Transaction extends MPOSDatabase {
 		return orderDetailLst;
 	}
 
+	public List<OrderTransaction.OrderDetail> listAllOrderGroupByProduct(int transactionId,
+			int computerId) {
+		List<OrderTransaction.OrderDetail> orderDetailLst = 
+				new ArrayList<OrderTransaction.OrderDetail>();
+		Cursor cursor = mSqlite.rawQuery(
+				" SELECT a." + COLUMN_ORDER_ID + ", " +
+				" a." + Products.COLUMN_PRODUCT_ID + ", " +
+				" SUM(a." + COLUMN_ORDER_QTY + ") AS " + COLUMN_ORDER_QTY + ", " +
+				" SUM(a." + Products.COLUMN_PRODUCT_PRICE + ") AS " + Products.COLUMN_PRODUCT_PRICE + ", " +
+				" SUM(a." + COLUMN_TOTAL_RETAIL_PRICE + ") AS " + COLUMN_TOTAL_RETAIL_PRICE + ", " +
+				" SUM(a." + COLUMN_TOTAL_SALE_PRICE + ") AS " + COLUMN_TOTAL_SALE_PRICE + ", " +
+				" a." + Products.COLUMN_VAT_TYPE + ", " +
+				" SUM(a." + COLUMN_MEMBER_DISCOUNT + ") AS " + COLUMN_MEMBER_DISCOUNT + ", " +
+				" SUM(a." + COLUMN_PRICE_DISCOUNT + ") AS " + COLUMN_PRICE_DISCOUNT + ", " +
+				" a." + COLUMN_DISCOUNT_TYPE + ", " +
+				" b." + Products.COLUMN_PRODUCT_NAME + 
+				" FROM " + TABLE_ORDER + " a" +
+				" LEFT JOIN " + Products.TABLE_PRODUCT + " b" +
+				" ON a." + Products.COLUMN_PRODUCT_ID + "=" +
+				" b." + Products.COLUMN_PRODUCT_ID +
+				" WHERE a." + COLUMN_TRANSACTION_ID + "=?" +
+				" AND a." + Computer.COLUMN_COMPUTER_ID + "=?" +
+				" GROUP BY a." + Products.COLUMN_PRODUCT_ID + ", a." + COLUMN_TOTAL_RETAIL_PRICE, 
+				new String[]{
+						String.valueOf(transactionId), 
+						String.valueOf(computerId)
+				});
+		if (cursor.moveToFirst()) {
+			do {
+				orderDetailLst.add(toOrderDetail(cursor));
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return orderDetailLst;
+	}
+	
 	public List<OrderTransaction.OrderDetail> listAllOrder(int transactionId,
 			int computerId) {
 		List<OrderTransaction.OrderDetail> orderDetailLst = 
@@ -702,8 +738,8 @@ public class Transaction extends MPOSDatabase {
 	public int openTransaction(int computerId, int shopId, int sessionId,
 			int staffId) throws SQLException {
 		int transactionId = getMaxTransaction(computerId);
-		Calendar dateTime = Util.getDateTime();
 		Calendar date = Util.getDate();
+		Calendar dateTime = Util.getDateTime();
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_UUID, getUUID());
 		cv.put(COLUMN_TRANSACTION_ID, transactionId);
@@ -714,8 +750,8 @@ public class Transaction extends MPOSDatabase {
 		cv.put(StockDocument.COLUMN_DOC_TYPE, 8);
 		cv.put(COLUMN_OPEN_TIME, dateTime.getTimeInMillis());
 		cv.put(COLUMN_SALE_DATE, date.getTimeInMillis());
-		cv.put(COLUMN_RECEIPT_YEAR, dateTime.get(Calendar.YEAR));
-		cv.put(COLUMN_RECEIPT_MONTH, dateTime.get(Calendar.MONTH) + 1);
+		cv.put(COLUMN_RECEIPT_YEAR, date.get(Calendar.YEAR));
+		cv.put(COLUMN_RECEIPT_MONTH, date.get(Calendar.MONTH) + 1);
 		
 		long rowId = mSqlite.insertOrThrow(TABLE_TRANSACTION, null, cv);
 		if(rowId == -1)
@@ -727,20 +763,21 @@ public class Transaction extends MPOSDatabase {
 	public boolean successTransaction(int transactionId, int computerId,
 			int staffId){
 		boolean isSuccess = false;
-		Calendar calendar = Util.getDateTime();
+		Calendar date = Util.getDate();
+		Calendar dateTime = Util.getDateTime();
 		int receiptId = getMaxReceiptId(computerId,
-				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1);
+				date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1);
 		SaleStock stock = new SaleStock(mSqlite);
 		String receiptHeader = stock.getDocumentHeader(8); 
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_STATUS_ID, TRANS_STATUS_SUCCESS);
 		cv.put(COLUMN_RECEIPT_ID, receiptId);
-		cv.put(COLUMN_CLOSE_TIME, calendar.getTimeInMillis());
-		cv.put(COLUMN_PAID_TIME, calendar.getTimeInMillis());
+		cv.put(COLUMN_CLOSE_TIME, dateTime.getTimeInMillis());
+		cv.put(COLUMN_PAID_TIME, dateTime.getTimeInMillis());
 		cv.put(COLUMN_PAID_STAFF_ID, staffId);
 		cv.put(COLUMN_CLOSE_STAFF, staffId);
 		cv.put(COLUMN_RECEIPT_NO, formatReceiptNo(receiptHeader, 
-				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, receiptId));
+				date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1, receiptId));
 		
 		int affectedRow = mSqlite.update(TABLE_TRANSACTION, cv, COLUMN_TRANSACTION_ID + "=?"
 				+ " AND " + Computer.COLUMN_COMPUTER_ID + "=?", 
@@ -1099,7 +1136,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COLUMN_VOID_STAFF_ID, staffId);
 		cv.put(COLUMN_VOID_REASON, reason);
 		cv.put(MPOSDatabase.COLUMN_SEND_STATUS, MPOSDatabase.NOT_SEND);
-		cv.put(COLUMN_VOID_TIME, Util.getDateTime().getTimeInMillis());
+		cv.put(COLUMN_VOID_TIME, Util.getDate().getTimeInMillis());
 		
 		int affectedRow = mSqlite.update(TABLE_TRANSACTION, cv, COLUMN_TRANSACTION_ID + "=? "
 				+ " AND " + Computer.COLUMN_COMPUTER_ID + "=? ", 

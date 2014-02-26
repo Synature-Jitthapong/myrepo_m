@@ -226,6 +226,14 @@
             android:background="@color/dark_gray" >
 
             <TextView
+                android:id="@+id/TextView13"
+                style="@style/ColumnHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2"
+                android:gravity="left" />
+
+            <TextView
                 android:id="@+id/textView1"
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
@@ -289,7 +297,7 @@
                 android:text="@string/total_vat" />
 
             <TextView
-                android:id="@+id/textView11"
+                android:id="@+id/tvHeaderCash"
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -298,7 +306,7 @@
                 android:text="@string/cash" />
 
             <TextView
-                android:id="@+id/textView12"
+                android:id="@+id/tvHeaderCredit"
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

@@ -2,6 +2,8 @@ package com.syn.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -35,5 +37,15 @@ public class CreditCard extends MPOSDatabase{
 		}
 		cursor.close();
 		return creditCardLst;
+	}
+	
+	public void insertCreditCardType(List<CreditCardType> creditCardLst){
+		mSqlite.delete(TABLE_CREDITCARD_TYPE, null, null);
+		for(CreditCardType credit : creditCardLst){
+			ContentValues cv = new ContentValues();
+			cv.put(COLUMN_CREDITCARD_TYPE_ID, credit.getCreditCardTypeId());
+			cv.put(COLUMN_CREDITCARD_TYPE_NAME, credit.getCreditCardTypeName());
+			mSqlite.insert(TABLE_CREDITCARD_TYPE, null, cv);
+		}
 	}
 }

@@ -81,7 +81,8 @@ public class MenuPageFragment extends Fragment {
 			public boolean onItemLongClick(AdapterView<?> parent, View v,
 					int position, long id) {
 				Products.Product p = (Products.Product) parent.getItemAtPosition(position);
-				ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgUrl());
+				ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgUrl(), p.getProductName(), 
+						MPOSApplication.getGlobalProperty().currencyFormat(p.getProductPrice()));
 				imgZoom.show(getFragmentManager(), "MenuImage");
 				return true;
 			}

@@ -84,7 +84,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 			startActivity(intent);
 			return true;
 		case R.id.itemUpdate:
-			updateData();
+			MPOSUtil.updateData(LoginActivity.this);
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
@@ -95,79 +95,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	private void updateData(){
-//		SyncActivity builder = new SyncActivity(this, mStaffId);
-//		builder.setTitle(R.string.update_data);
-//		builder.setNeutralButton(R.string.close, null);
-//		final AlertDialog d = builder.create();
-//		d.show();
-//		d.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new OnClickListener(){
-//
-//			@Override
-//			public void onClick(View v) {
-//				d.dismiss();
-//			}
-//			
-//		});
-		final ProgressDialog progress = new ProgressDialog(this);
-		final MPOSService mPOSService = new MPOSService();
-		mPOSService.loadShopData(new ProgressListener(){
-
-			@Override
-			public void onPre() {
-				progress.setMessage(LoginActivity.this.getString(R.string.update_shop_progress));
-				progress.show();
-			}
-
-			@Override
-			public void onPost() {
-				mPOSService.loadProductData(new ProgressListener(){
-
-					@Override
-					public void onPre() {
-						progress.setMessage(LoginActivity.this.getString(R.string.update_product_progress));
-					}
-
-					@Override
-					public void onPost() {
-						if(progress.isShowing())
-							progress.dismiss();
-						
-						new AlertDialog.Builder(LoginActivity.this)
-						.setMessage(R.string.update_data_success)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-							}
-						})
-						.show();
-					}
-
-					@Override
-					public void onError(String msg) {
-						if(progress.isShowing())
-							progress.dismiss();
-						new AlertDialog.Builder(LoginActivity.this)
-						.setMessage(msg)
-						.show();
-					}
-					
-				});
-			}
-
-			@Override
-			public void onError(String msg) {
-				if(progress.isShowing())
-					progress.dismiss();
-				new AlertDialog.Builder(LoginActivity.this)
-				.setMessage(msg)
-				.show();
-			}
-			
-		});
-	}
-	
 	@Override
 	protected void onResume() {
 		super.onResume();

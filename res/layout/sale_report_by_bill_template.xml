@@ -5,6 +5,14 @@
     android:layout_height="wrap_content"
     android:background="@drawable/list_selector" >
 
+    <ImageView
+        android:id="@+id/imgSendStatus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.2"
+        android:src="@drawable/ic_action_accept"
+        android:visibility="invisible" />
+
     <TextView
         android:id="@+id/tvReceipt"
         style="@style/ColumnDetail"
@@ -68,18 +76,20 @@
         android:gravity="right" />
 
     <TextView
-        android:id="@+id/tvPayTypeCash"
+        android:id="@+id/tvCash"
         style="@style/ColumnDetail"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.8" />
+        android:layout_weight="0.8"
+        android:gravity="right" />
 
     <TextView
-        android:id="@+id/tvPayTypeCredit"
+        android:id="@+id/tvCredit"
         style="@style/ColumnDetail"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.8" />
+        android:layout_weight="0.8"
+        android:gravity="right" />
 
     <TextView
         android:id="@+id/tvTotalPayment"

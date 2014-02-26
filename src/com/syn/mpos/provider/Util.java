@@ -11,18 +11,25 @@ import java.util.Locale;
  */
 public class Util {
 	
+	public static Calendar getCalendar(){
+		return Calendar.getInstance(Locale.getDefault());
+	}
+	
 	public static Calendar getDate(){
-		Calendar calendar = Calendar.getInstance();
-		return calendar = new GregorianCalendar(calendar.get(Calendar.YEAR), 
-				calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+		Calendar c = getCalendar();
+		return new GregorianCalendar(c.get(Calendar.YEAR), 
+				c.get(Calendar.MONTH), 
+				c.get(Calendar.DAY_OF_MONTH));
 	}
 	
 	public static Calendar getDateTime(){
-		Calendar calendar = Calendar.getInstance();
-		return calendar = new GregorianCalendar(calendar.get(Calendar.YEAR), 
-				calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
-				calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE), 
-				calendar.get(Calendar.SECOND));
+		Calendar c = getCalendar();
+		return new GregorianCalendar(c.get(Calendar.YEAR), 
+				c.get(Calendar.MONTH), 
+				c.get(Calendar.DAY_OF_MONTH), 
+				c.get(Calendar.HOUR_OF_DAY), 
+				c.get(Calendar.MINUTE), 
+				c.get(Calendar.SECOND));
 	}
 	
 	public static String dateTimeFormat(String time, String pattern){

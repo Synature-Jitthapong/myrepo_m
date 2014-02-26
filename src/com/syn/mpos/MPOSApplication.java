@@ -10,6 +10,7 @@ import com.syn.mpos.provider.MPOSLog;
 import com.syn.mpos.provider.MPOSSQLiteHelper;
 import com.syn.mpos.provider.Products;
 import com.syn.mpos.provider.Shop;
+import com.syn.mpos.provider.Staff;
 
 import android.app.Application;
 import android.content.Context;
@@ -25,6 +26,8 @@ public class MPOSApplication extends Application {
 	private static MPOSSQLiteHelper sSqliteHelper;
 	
 	private static GlobalProperty sGlobalProp;
+	
+	private static Shop sShop;
 	
 	private static MPOSLog sLog;
 	
@@ -110,6 +113,7 @@ public class MPOSApplication extends Application {
 		sSqliteHelper = new MPOSSQLiteHelper(sContext);
 		sGlobalProp = new GlobalProperty(getWriteDatabase());
 		sProduct = new Products(getWriteDatabase());
+		sShop = new Shop(getWriteDatabase());
 		sLog = new MPOSLog(sContext);
 	}
 
@@ -130,8 +134,17 @@ public class MPOSApplication extends Application {
 		sLog.appendLog(mesg);
 	}
 	
+	public static String getStaff(int staffId){
+		Staff s = new Staff(getWriteDatabase());
+		return s.getStaff(staffId).getStaffName();
+	}
+	
 	public static Products getProduct(){
 		return sProduct;
+	}
+	
+	public static Shop getShop(){
+		return sShop;
 	}
 	
 	public static GlobalProperty getGlobalProperty(){

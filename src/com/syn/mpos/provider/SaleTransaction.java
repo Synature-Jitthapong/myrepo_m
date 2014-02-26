@@ -71,9 +71,9 @@ public class SaleTransaction {
 					orderTrans.setiOpenStaffID(cursor.getInt(
 							cursor.getColumnIndex(Transaction.COLUMN_OPEN_STAFF)));
 					orderTrans.setDtOpenTime(Util.dateTimeFormat(
-							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_OPEN_TIME)),"yyyy-MM-dd HH:mm:ss"));
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_OPEN_TIME)), "yyyy-MM-dd kk:mm:ss"));
 					orderTrans.setDtCloseTime(Util.dateTimeFormat(
-							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_CLOSE_TIME)),"yyyy-MM-dd HH:mm:ss"));
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_CLOSE_TIME)), "yyyy-MM-dd kk:mm:ss"));
 					orderTrans.setiDocType(
 							cursor.getInt(cursor.getColumnIndex(StockDocument.COLUMN_DOC_TYPE)));
 					orderTrans.setiTransactionStatusID(
@@ -99,11 +99,15 @@ public class SaleTransaction {
 					orderTrans.setSzVoidReason(
 							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_VOID_REASON)));
 					orderTrans.setDtVoidTime(Util.dateTimeFormat(
-							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_VOID_TIME)), "yyyy-MM-dd HH:mm:ss"));
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_VOID_TIME)), "yyyy-MM-dd kk:mm:ss"));
 					orderTrans.setSzTransactionNote(
 							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_TRANS_NOTE)));
 					orderTrans.setiSaleMode(cursor.getInt(
 							cursor.getColumnIndex(Transaction.COLUMN_SALE_MODE)));
+					orderTrans.setfVatPercent(MPOSApplication.fixesDigitLength(4,
+							MPOSApplication.getShop().getCompanyVatRate()));
+					orderTrans.setfTransactionExcludeVAT(MPOSApplication.fixesDigitLength(4,cursor.getDouble(
+							cursor.getColumnIndex(Transaction.COLUMN_TRANS_EXCLUDE_VAT))));
 					
 					saleTrans.setxOrderTransaction(orderTrans);
 					saleTrans.setxAryOrderDetail(buildOrderDetailLst(orderTrans
@@ -172,6 +176,8 @@ public class SaleTransaction {
 					order.setiComputerID(cursor.getInt(cursor
 							.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
 					// order.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
+					order.setiVatType(cursor.getInt(
+							cursor.getColumnIndex(Products.COLUMN_VAT_TYPE)));
 					order.setiProductID(cursor.getInt(cursor
 							.getColumnIndex(Products.COLUMN_PRODUCT_ID)));
 					order.setiProductTypeID(cursor.getInt(cursor
@@ -224,7 +230,7 @@ public class SaleTransaction {
 							.setDtEndDayDateTime(Util.dateTimeFormat(
 									cursor.getString(cursor
 											.getColumnIndex(Session.COLUMN_ENDDAY_DATE)),
-									"yyyy-MM-dd HH:mm:ss"));
+									"yyyy-MM-dd kk:mm:ss"));
 					saleSessEnd
 							.setfTotalAmountReceipt(MPOSApplication.fixesDigitLength(
 									4,
@@ -239,7 +245,7 @@ public class SaleTransaction {
 						String.valueOf(c.getTimeInMillis()), "yyyy-MM-dd"));
 				saleSessEnd.setDtEndDayDateTime(Util.dateTimeFormat(
 						String.valueOf(c.getTimeInMillis()),
-						"yyyy-MM-dd HH:mm:ss"));
+						"yyyy-MM-dd kk:mm:ss"));
 				saleSessEnd.setfTotalAmountReceipt(MPOSApplication
 						.fixesDigitLength(4, 0.0d));
 				saleSessEnd.setiTotalQtyReceipt(0);
@@ -264,15 +270,15 @@ public class SaleTransaction {
 					saleSess.setDtCloseSessionDateTime(Util.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(Session.COLUMN_SESS_DATE)),
-							"yyyy-MM-dd HH:mm:ss"));
+							"yyyy-MM-dd kk:mm:ss"));
 					saleSess.setDtOpenSessionDateTime(Util.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(Session.COLUMN_OPEN_DATE)),
-							"yyyy-MM-dd HH:mm:ss"));
+							"yyyy-MM-dd kk:mm:ss"));
 					saleSess.setDtCloseSessionDateTime(Util.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(Session.COLUMN_CLOSE_DATE)),
-							"yyyy-MM-dd HH:mm:ss"));
+							"yyyy-MM-dd kk:mm:ss"));
 					saleSess.setDtSessionDate(Util.dateTimeFormat(cursor
 							.getString(cursor
 									.getColumnIndex(Session.COLUMN_SESS_DATE)),
@@ -610,6 +616,7 @@ public class SaleTransaction {
 		private String dtVoidTime;
 		private int iMemberID;
 		private String szTransactionNote;
+        private String fTransactionExcludeVAT;
 
 		public String getSzUDID() {
 			return szUDID;
@@ -850,6 +857,15 @@ public class SaleTransaction {
 		public void setSzTransactionNote(String szTransactionNote) {
 			this.szTransactionNote = szTransactionNote;
 		}
+
+		public String getfTransactionExcludeVAT() {
+			return fTransactionExcludeVAT;
+		}
+
+		public void setfTransactionExcludeVAT(String fTransactionExcludeVAT) {
+			this.fTransactionExcludeVAT = fTransactionExcludeVAT;
+		}
+		
 	}
 
 	public static class SaleTable_OrderDetail {
@@ -868,6 +884,7 @@ public class SaleTransaction {
 		private String fMemberDiscountAmount;
 		private String fPriceDiscountAmount;
 		private int iParentOrderDetailID;
+        private int iVatType;
 
 		public int getiOrderDetailID() {
 			return iOrderDetailID;
@@ -988,6 +1005,15 @@ public class SaleTransaction {
 		public void setiParentOrderDetailID(int iParentOrderDetailID) {
 			this.iParentOrderDetailID = iParentOrderDetailID;
 		}
+
+		public int getiVatType() {
+			return iVatType;
+		}
+
+		public void setiVatType(int iVatType) {
+			this.iVatType = iVatType;
+		}
+		
 	}
 
 	public static class SaleTable_OrderPromotion {

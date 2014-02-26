@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/itemConfirm" android:showAsAction="always|withText" android:icon="@android:drawable/ic_checkmark_holo_light" android:title="@string/confirm"></item>
+    <item android:id="@+id/itemConfirm" android:showAsAction="always|withText" android:title="@string/confirm" android:icon="@drawable/ic_action_accept"></item>
     
     
 

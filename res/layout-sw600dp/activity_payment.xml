@@ -21,25 +21,10 @@
             android:layout_weight="1" >
 
             <LinearLayout
+                android:id="@+id/payTypeContent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal" >
-
-                <Button
-                    android:id="@+id/btnCash"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minHeight="64dip"
-                    android:minWidth="120dp"
-                    android:text="@string/cash" />
-
-                <Button
-                    android:id="@+id/btnCredit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minHeight="64dip"
-                    android:minWidth="120dp"
-                    android:text="@string/credit" />
 
             </LinearLayout>
 
@@ -203,6 +188,32 @@
                     android:textAppearance="?android:attr/textAppearanceLargeInverse"
                     android:textColor="@color/red_dark"
                     android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/txtChange"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/txtPaymentLeft"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/txtPaymentLeft"
+                    android:ems="5"
+                    android:enabled="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textView5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/txtChange"
+                    android:layout_alignBottom="@+id/txtChange"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignRight="@+id/textView8"
+                    android:text="@string/change"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
             </RelativeLayout>
 

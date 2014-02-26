@@ -174,5 +174,11 @@ public class SettingsActivity extends PreferenceActivity {
 				MPOSUtil.makeToask(SettingsActivity.this, SettingsActivity.this.getString(R.string.not_found_printer));
 			}
 		}	
+		try {
+			printer.closePrinter();
+			printer = null;
+		} catch (EposException e) {
+			e.printStackTrace();
+		}
 	}
 }

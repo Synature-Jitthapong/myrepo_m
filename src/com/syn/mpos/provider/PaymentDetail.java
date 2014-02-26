@@ -3,6 +3,8 @@ package com.syn.mpos.provider;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.pos.Payment;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -22,9 +24,69 @@ public class PaymentDetail extends MPOSDatabase {
 	public static final String COLUMN_PAY_TYPE_ID = "pay_type_id";
 	public static final String COLUMN_PAY_TYPE_CODE = "pay_type_code";
 	public static final String COLUMN_PAY_TYPE_NAME = "pay_type_name";
+	public static final String COLUMN_ORDERING = "ordering";
 	
 	public PaymentDetail(SQLiteDatabase db) {
 		super(db);
+	}
+	
+	public List<Payment.PayType> listPayType(){
+		List<Payment.PayType> payTypeLst = 
+				new ArrayList<Payment.PayType>();
+		Cursor cursor = mSqlite.query(TABLE_PAY_TYPE,
+				new String[]{
+				COLUMN_PAY_TYPE_ID,
+				COLUMN_PAY_TYPE_CODE,
+				COLUMN_PAY_TYPE_NAME
+				}, null, null, null, null, COLUMN_ORDERING);
+		if(cursor.moveToFirst()){
+			do{
+				Payment.PayType payType = 
+						new Payment.PayType();
+				payType.setPayTypeID(cursor.getInt(cursor.getColumnIndex(COLUMN_PAY_TYPE_ID)));
+				payType.setPayTypeCode(cursor.getString(cursor.getColumnIndex(COLUMN_PAY_TYPE_CODE)));
+				payType.setPayTypeName(cursor.getString(cursor.getColumnIndex(COLUMN_PAY_TYPE_NAME)));
+				payTypeLst.add(payType);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return payTypeLst;
+	}
+	
+	public List<Payment.PaymentDetail> listPaymentGroupByType(int transactionId, int computerId){
+		List<Payment.PaymentDetail> paymentLst = 
+				new ArrayList<Payment.PaymentDetail>();
+		Cursor cursor = mSqlite.rawQuery(
+				"SELECT a." + COLUMN_PAY_TYPE_ID + ", " +
+				" a." + COLUMN_PAID+ ", " +
+				" a." + COLUMN_PAY_AMOUNT + ", " +
+				" b." + COLUMN_PAY_TYPE_CODE + ", " +
+				" b." + COLUMN_PAY_TYPE_NAME + 
+				" FROM " + TABLE_PAYMENT + " a " +
+				" LEFT JOIN " + TABLE_PAY_TYPE + " b " +
+				" ON a." + COLUMN_PAY_TYPE_ID + "=b." + COLUMN_PAY_TYPE_ID +
+				" WHERE a." + Transaction.COLUMN_TRANSACTION_ID + "=?" +
+				" AND a." + Computer.COLUMN_COMPUTER_ID + "=?" +
+				" GROUP BY a." + COLUMN_PAY_TYPE_ID,
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(computerId)
+				}
+		);
+		if(cursor.moveToFirst()){
+			do{
+				Payment.PaymentDetail payment = 
+						new Payment.PaymentDetail();
+				payment.setPayTypeID(cursor.getInt(cursor.getColumnIndex(COLUMN_PAY_TYPE_ID)));
+				payment.setPaid(cursor.getDouble(cursor.getColumnIndex(COLUMN_PAID)));
+				payment.setPayAmount(cursor.getDouble(cursor.getColumnIndex(COLUMN_PAY_AMOUNT)));
+				payment.setPayTypeCode(cursor.getString(cursor.getColumnIndex(COLUMN_PAY_TYPE_CODE)));
+				payment.setPayTypeName(cursor.getString(cursor.getColumnIndex(COLUMN_PAY_TYPE_NAME)));
+				paymentLst.add(payment);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return paymentLst;
 	}
 	
 	public boolean deleteAllPaymentDetail(int transactionId, int computerId) throws SQLException{
@@ -158,4 +220,14 @@ public class PaymentDetail extends MPOSDatabase {
 		return paymentLst;
 	}
 	
+	public void insertPaytype(List<Payment.PayType> payTypeLst){
+		mSqlite.delete(TABLE_PAY_TYPE, null, null);
+		for(Payment.PayType payType : payTypeLst){
+			ContentValues cv = new ContentValues();
+			cv.put(COLUMN_PAY_TYPE_ID, payType.getPayTypeID());
+			cv.put(COLUMN_PAY_TYPE_CODE, payType.getPayTypeCode());
+			cv.put(COLUMN_PAY_TYPE_NAME, payType.getPayTypeName());
+			mSqlite.insert(TABLE_PAY_TYPE, null, cv);
+		}
+	}
 }
