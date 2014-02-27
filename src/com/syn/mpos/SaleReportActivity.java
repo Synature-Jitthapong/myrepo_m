@@ -551,20 +551,20 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			tvTotalVat.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalVat));
 			tvTotalPayment.setText(MPOSApplication.getGlobalProperty().currencyFormat(totalPay));
 			
-			List<Payment.PaymentDetail> payTypeLst = 
-					mPayment.listPaymentGroupByType(report.getTransactionId(), report.getComputerId());
-	
-			for(Payment.PaymentDetail payType : payTypeLst){
-				if(payType.getPayTypeID() == PaymentDetail.PAY_TYPE_CASH){
-					tvCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(payType.getPayAmount()));
-				}
-				if(payType.getPayTypeID() == PaymentDetail.PAY_TYPE_CREDIT){
-					tvCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(payType.getPayAmount()));
-				}
-			}
+//			List<Payment.PaymentDetail> payTypeLst = 
+//					mPayment.listPaymentGroupByType(report.getTransactionId(), report.getComputerId());
+//	
+//			for(Payment.PaymentDetail payType : payTypeLst){
+//				if(payType.getPayTypeID() == PaymentDetail.PAY_TYPE_CASH){
+//					tvCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(payType.getPayAmount()));
+//				}
+//				if(payType.getPayTypeID() == PaymentDetail.PAY_TYPE_CREDIT){
+//					tvCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(payType.getPayAmount()));
+//				}
+//			}
 			
-			//tvPayTypeCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(cash));
-			//tvPayTypeCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(credit));
+			tvCash.setText(MPOSApplication.getGlobalProperty().currencyFormat(cash));
+			tvCredit.setText(MPOSApplication.getGlobalProperty().currencyFormat(credit));
 			
 			if(report.getSendStatus() == MPOSDatabase.ALREADY_SEND){
 				imgSendStatus.setVisibility(View.VISIBLE);

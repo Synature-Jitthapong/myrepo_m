@@ -3,6 +3,7 @@
     <item android:id="@+id/itemSetting" android:title="@string/setting" android:showAsAction="ifRoom|collapseActionView"></item>
     <item android:id="@+id/itemAbout" android:title="@string/about" android:showAsAction="collapseActionView"></item>
     <item android:id="@+id/itemUpdate" android:title="@string/update_data" android:showAsAction="ifRoom"></item>
+    <item android:id="@+id/itemClearSale" android:title="@string/clear_sale"></item>
     
 
 </menu>

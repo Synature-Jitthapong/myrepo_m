@@ -868,12 +868,25 @@ public class Transaction extends MPOSDatabase {
 		return isSuccess;
 	}
 	
+	public void updateTransactionSendStatus(int transactionId){
+		ContentValues cv = new ContentValues();
+		cv.put(COLUMN_SEND_STATUS, SyncSaleLog.SYNC_SUCCESS);
+		mSqlite.update(TABLE_TRANSACTION, cv, 
+				COLUMN_TRANSACTION_ID + "=?" +
+				" AND " + COLUMN_STATUS_ID + " IN(?,?) ", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(TRANS_STATUS_SUCCESS),
+					String.valueOf(TRANS_STATUS_VOID)
+				});
+	}
+	
 	public void updateTransactionSendStatus(String saleDate){
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_SEND_STATUS, SyncSaleLog.SYNC_SUCCESS);
 		mSqlite.update(TABLE_TRANSACTION, cv, 
 				COLUMN_SALE_DATE + "=?" +
-						" AND " + COLUMN_STATUS_ID + " IN(?,?) ", 
+				" AND " + COLUMN_STATUS_ID + " IN(?,?) ", 
 				new String[]{
 					saleDate,
 					String.valueOf(TRANS_STATUS_SUCCESS),
@@ -1098,6 +1111,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COLUMN_TOTAL_SALE_PRICE, totalRetailPrice);
 		cv.put(Products.COLUMN_VAT_TYPE, vatType);
 		cv.put(COLUMN_TOTAL_VAT, vat);
+		cv.put(Products.COLUMN_PRODUCT_TYPE_ID, productType);
 		if(vatType == Products.VAT_TYPE_EXCLUDE)
 			cv.put(COLUMN_TOTAL_VAT_EXCLUDE, vat);
 

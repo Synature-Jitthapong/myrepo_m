@@ -94,8 +94,25 @@
             android:label="@string/title_activity_about"  
             android:screenOrientation="landscape">
         </activity>
-        <activity android:name="PaymentActivity" android:label="@string/payment" android:theme="@style/ActivityDialogTheme" android:screenOrientation="landscape"></activity>
-        <activity android:theme="@style/ActivityDialogTheme" android:screenOrientation="landscape" android:label="@string/credit_pay" android:name="CreditPayActivity"></activity>
+        <activity
+            android:name="com.syn.mpos.PaymentActivity"
+            android:label="@string/payment"
+            android:screenOrientation="landscape"
+            android:theme="@style/ActivityDialogTheme" >
+        </activity>
+        <activity
+            android:name="com.syn.mpos.CreditPayActivity"
+            android:label="@string/credit_pay"
+            android:screenOrientation="landscape"
+            android:theme="@style/ActivityDialogTheme" >
+        </activity>
+        <activity
+            android:name="com.syn.mpos.SyncSaleActivity"
+            android:label="@string/send_sale_data"
+            android:screenOrientation="landscape"
+            android:theme="@style/ActivityDialogTheme" >
+        </activity>
+
     </application>
 
 </manifest>

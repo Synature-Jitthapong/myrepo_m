@@ -86,7 +86,7 @@ public class PrintReceipt implements BatteryStatusChangeEventListener, StatusCha
 			}
 			
 			String saleDate = MPOSApplication.getContext().getString(R.string.date) + " " +
-					MPOSApplication.getGlobalProperty().dateTimeFormat(Util.getDate().getTime());
+					MPOSApplication.getGlobalProperty().dateTimeFormat(Util.getDateTime().getTime());
 			String receiptNo = MPOSApplication.getContext().getString(R.string.receipt_no) + " " +
 					mTrans.getReceiptNo(transactionId, computerId);
 			String cashCheer = MPOSApplication.getContext().getString(R.string.cashier) + " " +

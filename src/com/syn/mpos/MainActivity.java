@@ -7,6 +7,7 @@ import java.util.List;
 import com.astuetz.PagerSlidingTabStrip;
 import com.syn.mpos.provider.Computer;
 import com.syn.mpos.provider.Login;
+import com.syn.mpos.provider.MPOSDatabase;
 import com.syn.mpos.provider.Products;
 import com.syn.mpos.provider.Session;
 import com.syn.mpos.provider.Staff;
@@ -24,6 +25,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -81,6 +84,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private Button mBtnCash;
 	private Button mBtnHold;
 	private MenuItem mItemHoldBill;
+	private MenuItem mItemSendSale;
 	private LinearLayout mLayoutOrderCtrl;
 	private ImageButton mBtnDelSelOrder;
 	private ImageButton mBtnClearSelOrder;
@@ -157,6 +161,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			syncLog.addSyncSaleLog(String.valueOf(Util.getDate().getTimeInMillis()));
 		}
 		countHoldOrder();
+		countTransNotSend();
 		loadOrder();
 	}
 
@@ -203,8 +208,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.activity_main, menu);
 		mItemHoldBill = menu.findItem(R.id.itemHoldBill);
+		mItemSendSale = menu.findItem(R.id.itemSendSale);
 		
 		countHoldOrder();
+		countTransNotSend();
 		return true;
 	}
 
@@ -235,7 +242,9 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			endday();
 			return true;
 		case R.id.itemSendSale:
-			MPOSUtil.sendSaleData(MainActivity.this, mStaffId);
+			intent = new Intent(MainActivity.this, SyncSaleActivity.class);
+			intent.putExtra("staffId", mStaffId);
+			startActivity(intent);
 			return true;
 		case R.id.itemSetting:
 			intent = new Intent(this, SettingsActivity.class);
@@ -246,6 +255,30 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 	}
 
+	private void countTransNotSend(){
+		if(mItemSendSale != null){
+			SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
+			Cursor cursor = sqlite.rawQuery(
+					"SELECT COUNT(" + Transaction.COLUMN_TRANSACTION_ID + ") " +
+					" FROM " + Transaction.TABLE_TRANSACTION + 
+					" WHERE " + Transaction.COLUMN_STATUS_ID + "=? AND " + 
+					MPOSDatabase.COLUMN_SEND_STATUS + "=?", 
+					new String[]{
+							String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+							String.valueOf(MPOSDatabase.NOT_SEND)
+					});
+			if(cursor.moveToFirst()){
+				int totalTrans = cursor.getInt(0);
+				if(totalTrans > 0){
+					mItemSendSale.setTitle(this.getString(R.string.send_sale_data) + "(" + totalTrans + ")");
+				}else{
+					mItemSendSale.setTitle(this.getString(R.string.send_sale_data));
+				}
+			}
+			cursor.close();
+		}
+	}
+	
 	private void countHoldOrder(){
 		if(mItemHoldBill != null){
 			int totalHold = mTransaction.countHoldOrder(mComputerId);
@@ -261,18 +294,24 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
-		new Handler().postDelayed(new Runnable() {
-
-			@Override
-			public void run() {
-				PrintReceipt printReceipt = new PrintReceipt();
-				printReceipt
-						.printReceipt(mTransactionId, mComputerId, mStaffId);
-			}
-
-		}, 1000);
+		if(intent != null){
+			final int transId = intent.getIntExtra("transactionId", 0);
+			final int compId = intent.getIntExtra("computerId", 0);
+			final int staffId = intent.getIntExtra("staffId", 0);
+			new Handler().postDelayed(new Runnable() {
+	
+				@Override
+				public void run() {
+					PrintReceipt printReceipt = new PrintReceipt();
+					printReceipt
+							.printReceipt(transId, compId, staffId);
+				}
+	
+			}, 1000);
+		}
 	}
 
+	
 	public void paymentClicked(final View v){
 		Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
 		intent.putExtra("transactionId", mTransactionId);
@@ -291,7 +330,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if(keyCode == KeyEvent.KEYCODE_BACK){
-			
 			return true;
 		}else{
 			return super.onKeyDown(keyCode, event);

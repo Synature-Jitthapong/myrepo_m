@@ -273,7 +273,7 @@ public class CreditPayActivity extends Activity {
 										PaymentDetail.PAY_TYPE_CREDIT,
 										mTotalCreditPay, mTotalCreditPay >= mPaymentLeft ?
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
-										mExpYear, mBankId, mCardTypeId);
+										mExpYear, mBankId, mCardTypeId, "");
 								d.dismiss();
 								Intent intent = new Intent();
 								if(mTotalCreditPay >= mPaymentLeft)

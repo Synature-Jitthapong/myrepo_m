@@ -168,7 +168,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="init">Initial</string>
     <string name="sale">Sale</string>
     <string name="variance">Variance</string>
-    <string name="endding">Endding</string>
+    <string name="endding">Ending</string>
     <string name="title_activity_search_product">Search Product</string>
     <string name="save_success">Save successfully.</string>
     <string name="confirm_success">Confirm successfully.</string>
@@ -226,7 +226,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="enter_valid_numeric">Please enter valid numeric.</string>
     <string name="card_holder">CardHolder</string>
     <string name="cvv2">Card Verification Number</string>
-    <string name="endday_progress">Endding day please wait&#8230;</string>
+    <string name="endday_progress">Ending day please wait&#8230;</string>
     <string name="date">Date</string>
     <string name="tender">Tender</string>
     <string name="alredy_endday">Already endday.</string>
@@ -256,4 +256,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="computer_setting_not_valid">Computer settings not valid!</string>
 	<string name="tax">Tax</string>
 	<string name="tax_exclude">Tax exclude</string>
+	<string name="clear_sale">Clear sale</string>
+	<string name="send_all">Send All</string>
 </resources>

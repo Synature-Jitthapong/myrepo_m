@@ -58,8 +58,8 @@ public class PaymentDetail extends MPOSDatabase {
 				new ArrayList<Payment.PaymentDetail>();
 		Cursor cursor = mSqlite.rawQuery(
 				"SELECT a." + COLUMN_PAY_TYPE_ID + ", " +
-				" a." + COLUMN_PAID+ ", " +
-				" a." + COLUMN_PAY_AMOUNT + ", " +
+				" SUM(a." + COLUMN_PAID + ") AS " + COLUMN_PAID + ", " +
+				" SUM(a." + COLUMN_PAY_AMOUNT + ") AS " + COLUMN_PAY_AMOUNT + ", " +
 				" b." + COLUMN_PAY_TYPE_CODE + ", " +
 				" b." + COLUMN_PAY_TYPE_NAME + 
 				" FROM " + TABLE_PAYMENT + " a " +
@@ -119,7 +119,7 @@ public class PaymentDetail extends MPOSDatabase {
 
 	public long addPaymentDetail(int transactionId, int computerId, 
 			int payTypeId, double paid, double amount , String creditCardNo, int expireMonth, 
-			int expireYear, int bankId,int creditCardTypeId) throws SQLException {
+			int expireYear, int bankId,int creditCardTypeId, String remark) throws SQLException {
 		int paymentId = getMaxPaymentDetailId(transactionId, computerId);
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_PAY_ID, paymentId);
@@ -133,6 +133,7 @@ public class PaymentDetail extends MPOSDatabase {
 		cv.put(CreditCard.COLUMN_EXP_YEAR, expireYear);
 		cv.put(CreditCard.COLUMN_CREDITCARD_TYPE_ID, creditCardTypeId);
 		cv.put(Bank.COLUMN_BANK_ID, bankId);
+		cv.put(COLUMN_REMARK, remark);
 		return mSqlite.insertOrThrow(TABLE_PAYMENT, null, cv);
 	}
 

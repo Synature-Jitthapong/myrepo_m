@@ -12,19 +12,37 @@ import android.database.sqlite.SQLiteDatabase;
 public class SaleTransaction {
 	private SQLiteDatabase mSqlite;
 	private String mSessionDate;
+	private int mTransactionId;
+	
+	public SaleTransaction(SQLiteDatabase db, String sessionDate, int transactionId){
+		mSqlite = db;
+		mTransactionId = transactionId;
+		mSessionDate = sessionDate;
+	}
 
 	public SaleTransaction(SQLiteDatabase db, String sessionDate) {
 		mSqlite = db;
 		mSessionDate = sessionDate;
 	}
 
+	public POSData_SaleTransaction listSaleSaleTransactionByTransactionId() {
+		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
+		SaleData_SessionInfo sessInfo = new SaleData_SessionInfo();
+
+		sessInfo.setxTableSession(buildSessionObj());
+		sessInfo.setxTableSessionEndDay(buildSessEnddayObj());
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(false, true));
+		posSaleTrans.setxSessionInfo(sessInfo);
+		return posSaleTrans;
+	}
+	
 	public POSData_SaleTransaction listAllSaleTransactionInSaleDate() {
 		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
 		SaleData_SessionInfo sessInfo = new SaleData_SessionInfo();
 
 		sessInfo.setxTableSession(buildSessionObj());
 		sessInfo.setxTableSessionEndDay(buildSessEnddayObj());
-		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(true));
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(true, false));
 		posSaleTrans.setxSessionInfo(sessInfo);
 		return posSaleTrans;
 	}
@@ -35,7 +53,7 @@ public class SaleTransaction {
 
 		sessInfo.setxTableSession(buildSessionObj());
 		sessInfo.setxTableSessionEndDay(buildSessEnddayObj());
-		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(false));
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(false, false));
 		posSaleTrans.setxSessionInfo(sessInfo);
 		return posSaleTrans;
 	}
@@ -45,13 +63,15 @@ public class SaleTransaction {
 	 * [SaleTable_OrderDetail] [SaleTable_OrderPromotion]
 	 * [SaleTable_PaymentDetail] } }
 	 */
-	public List<SaleData_SaleTransaction> buildSaleTransLst(boolean listAll) {
+	public List<SaleData_SaleTransaction> buildSaleTransLst(boolean listAll, boolean listByTransId) {
 		List<SaleData_SaleTransaction> saleTransLst = new ArrayList<SaleData_SaleTransaction>();
 		Cursor cursor = queryTransaction();
 		
 		if(listAll)
 			cursor = queryAllTransactionInSaleDate();
-		else
+		else if(listByTransId)
+			cursor = queryTransactionByTransactionId();
+		else 
 			cursor = queryTransaction();
 		
 		if (cursor != null) {
@@ -71,9 +91,9 @@ public class SaleTransaction {
 					orderTrans.setiOpenStaffID(cursor.getInt(
 							cursor.getColumnIndex(Transaction.COLUMN_OPEN_STAFF)));
 					orderTrans.setDtOpenTime(Util.dateTimeFormat(
-							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_OPEN_TIME)), "yyyy-MM-dd kk:mm:ss"));
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_OPEN_TIME)), "yyyy-MM-dd HH:mm:ss"));
 					orderTrans.setDtCloseTime(Util.dateTimeFormat(
-							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_CLOSE_TIME)), "yyyy-MM-dd kk:mm:ss"));
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_CLOSE_TIME)), "yyyy-MM-dd HH:mm:ss"));
 					orderTrans.setiDocType(
 							cursor.getInt(cursor.getColumnIndex(StockDocument.COLUMN_DOC_TYPE)));
 					orderTrans.setiTransactionStatusID(
@@ -99,7 +119,7 @@ public class SaleTransaction {
 					orderTrans.setSzVoidReason(
 							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_VOID_REASON)));
 					orderTrans.setDtVoidTime(Util.dateTimeFormat(
-							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_VOID_TIME)), "yyyy-MM-dd kk:mm:ss"));
+							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_VOID_TIME)), "yyyy-MM-dd HH:mm:ss"));
 					orderTrans.setSzTransactionNote(
 							cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_TRANS_NOTE)));
 					orderTrans.setiSaleMode(cursor.getInt(
@@ -108,15 +128,14 @@ public class SaleTransaction {
 							MPOSApplication.getShop().getCompanyVatRate()));
 					orderTrans.setfTransactionExcludeVAT(MPOSApplication.fixesDigitLength(4,cursor.getDouble(
 							cursor.getColumnIndex(Transaction.COLUMN_TRANS_EXCLUDE_VAT))));
+					orderTrans.setiNoCust(1);
 					
 					saleTrans.setxOrderTransaction(orderTrans);
-					saleTrans.setxAryOrderDetail(buildOrderDetailLst(orderTrans
-							.getiTransactionID()));
-					saleTrans
-							.setxAryPaymentDetail(buildPaymentDetailLst(orderTrans
-									.getiTransactionID()));
-					saleTrans
-							.setxAryOrderPromotion(new ArrayList<SaleTable_OrderPromotion>());
+					Cursor orderDetailCursor = queryOrderDetail(orderTrans.getiTransactionID());
+					saleTrans.setxAryOrderDetail(buildOrderDetailLst(orderDetailCursor));
+					saleTrans.setxAryOrderPromotion(builderOrderPromotionLst(orderDetailCursor));
+					orderDetailCursor.close();
+					saleTrans.setxAryPaymentDetail(buildPaymentDetailLst(orderTrans.getiTransactionID()));
 					saleTransLst.add(saleTrans);
 				} while (cursor.moveToNext());
 			}
@@ -141,9 +160,8 @@ public class SaleTransaction {
 					// payment.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
 					payment.setiPayTypeID(cursor.getInt(cursor
 							.getColumnIndex(PaymentDetail.COLUMN_PAY_TYPE_ID)));
-					payment.setfPayAmount(MPOSApplication.fixesDigitLength(
-							4,
-							cursor.getDouble(cursor
+					payment.setfPayAmount(
+							MPOSApplication.fixesDigitLength(4, cursor.getDouble(cursor
 									.getColumnIndex(PaymentDetail.COLUMN_PAY_AMOUNT))));
 					payment.setSzCreditCardNo(cursor.getString(cursor
 							.getColumnIndex(CreditCard.COLUMN_CREDITCARD_NO)));
@@ -161,10 +179,42 @@ public class SaleTransaction {
 		return paymentDetailLst;
 	}
 
+	// builder OrderPromotionLst
+	public List<SaleTable_OrderPromotion> builderOrderPromotionLst(Cursor cursor){
+		List<SaleTable_OrderPromotion> orderPromotionLst = new ArrayList<SaleTable_OrderPromotion>();
+		if(cursor != null){
+			if(cursor.moveToFirst()){
+				do{
+					// order promotion
+					if(cursor.getDouble(cursor
+							.getColumnIndex(Transaction.COLUMN_PRICE_DISCOUNT)) > 0){
+
+						SaleTable_OrderPromotion promotion = new SaleTable_OrderPromotion();
+						promotion.setiTransactionID(cursor.getInt(cursor
+							.getColumnIndex(Transaction.COLUMN_TRANSACTION_ID)));
+						promotion.setiComputerID(cursor.getInt(cursor
+							.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
+						promotion.setiOrderDetailID(cursor.getInt(cursor
+							.getColumnIndex(Transaction.COLUMN_ORDER_ID)));
+						promotion.setfDiscountPrice(
+								MPOSApplication.fixesDigitLength(4, cursor.getDouble(cursor
+									.getColumnIndex(Transaction.COLUMN_PRICE_DISCOUNT))));
+						promotion.setfPriceAfterDiscount(
+								MPOSApplication.fixesDigitLength(4, cursor.getDouble(cursor
+									.getColumnIndex(Transaction.COLUMN_TOTAL_SALE_PRICE))));
+						promotion.setiDiscountTypeID(6);
+						promotion.setiPromotionID(0);
+						orderPromotionLst.add(promotion);
+					}
+				}while(cursor.moveToNext());
+			}
+		}
+		return orderPromotionLst;
+	}
+	
 	// build OrderDetailLst
-	public List<SaleTable_OrderDetail> buildOrderDetailLst(int transId) {
+	public List<SaleTable_OrderDetail> buildOrderDetailLst(Cursor cursor) {
 		List<SaleTable_OrderDetail> orderDetailLst = new ArrayList<SaleTable_OrderDetail>();
-		Cursor cursor = queryOrderDetail(transId);
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -182,36 +232,32 @@ public class SaleTransaction {
 							.getColumnIndex(Products.COLUMN_PRODUCT_ID)));
 					order.setiProductTypeID(cursor.getInt(cursor
 							.getColumnIndex(Products.COLUMN_PRODUCT_TYPE_ID)));
-					order.setfQty(MPOSApplication.fixesDigitLength(
-							4,
-							cursor.getDouble(cursor
+					order.setfQty(
+							MPOSApplication.fixesDigitLength(4,cursor.getDouble(cursor
 									.getColumnIndex(Transaction.COLUMN_ORDER_QTY))));
-					order.setfPricePerUnit(MPOSApplication.fixesDigitLength(
-							4,
-							cursor.getDouble(cursor
-									.getColumnIndex(Products.COLUMN_PRODUCT_PRICE))));
-					order.setfRetailPrice(MPOSApplication.fixesDigitLength(
-							4,
-							cursor.getDouble(cursor
-									.getColumnIndex(Transaction.COLUMN_TOTAL_RETAIL_PRICE))));
-					order.setfSalePrice(MPOSApplication.fixesDigitLength(
-							4,
-							cursor.getDouble(cursor
-									.getColumnIndex(Transaction.COLUMN_TOTAL_SALE_PRICE))));
-					order.setfTotalVatAmount(MPOSApplication.fixesDigitLength(
-							4,
-							cursor.getDouble(cursor
-									.getColumnIndex(Transaction.COLUMN_TOTAL_VAT))));
-					order.setfPriceDiscountAmount(MPOSApplication.fixesDigitLength(
-							4,
-							cursor.getDouble(cursor
-									.getColumnIndex(Transaction.COLUMN_PRICE_DISCOUNT))));
+					order.setfPricePerUnit(
+							MPOSApplication.fixesDigitLength(4, cursor.getDouble(
+									cursor.getColumnIndex(Products.COLUMN_PRODUCT_PRICE))));
+					order.setfRetailPrice(
+							MPOSApplication.fixesDigitLength(4, cursor.getDouble(
+									cursor.getColumnIndex(Transaction.COLUMN_TOTAL_RETAIL_PRICE))));
+					order.setfSalePrice(
+							MPOSApplication.fixesDigitLength(4, cursor.getDouble(
+									cursor.getColumnIndex(Transaction.COLUMN_TOTAL_SALE_PRICE))));
+					order.setfTotalVatAmount(
+							MPOSApplication.fixesDigitLength(4, cursor.getDouble(
+									cursor.getColumnIndex(Transaction.COLUMN_TOTAL_VAT))));
+					order.setfPriceDiscountAmount(
+							MPOSApplication.fixesDigitLength(4, cursor.getDouble(
+									cursor.getColumnIndex(Transaction.COLUMN_PRICE_DISCOUNT))));
 					order.setiSaleMode(cursor.getInt(
 							cursor.getColumnIndex(Transaction.COLUMN_SALE_MODE)));
+					order.setiProductTypeID(cursor.getInt(
+							cursor.getColumnIndex(Products.COLUMN_PRODUCT_TYPE_ID)));
+					
 					orderDetailLst.add(order);
 				} while (cursor.moveToNext());
 			}
-			cursor.close();
 		}
 		return orderDetailLst;
 	}
@@ -230,7 +276,7 @@ public class SaleTransaction {
 							.setDtEndDayDateTime(Util.dateTimeFormat(
 									cursor.getString(cursor
 											.getColumnIndex(Session.COLUMN_ENDDAY_DATE)),
-									"yyyy-MM-dd kk:mm:ss"));
+									"yyyy-MM-dd HH:mm:ss"));
 					saleSessEnd
 							.setfTotalAmountReceipt(MPOSApplication.fixesDigitLength(
 									4,
@@ -245,7 +291,7 @@ public class SaleTransaction {
 						String.valueOf(c.getTimeInMillis()), "yyyy-MM-dd"));
 				saleSessEnd.setDtEndDayDateTime(Util.dateTimeFormat(
 						String.valueOf(c.getTimeInMillis()),
-						"yyyy-MM-dd kk:mm:ss"));
+						"yyyy-MM-dd HH:mm:ss"));
 				saleSessEnd.setfTotalAmountReceipt(MPOSApplication
 						.fixesDigitLength(4, 0.0d));
 				saleSessEnd.setiTotalQtyReceipt(0);
@@ -270,15 +316,15 @@ public class SaleTransaction {
 					saleSess.setDtCloseSessionDateTime(Util.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(Session.COLUMN_SESS_DATE)),
-							"yyyy-MM-dd kk:mm:ss"));
+							"yyyy-MM-dd HH:mm:ss"));
 					saleSess.setDtOpenSessionDateTime(Util.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(Session.COLUMN_OPEN_DATE)),
-							"yyyy-MM-dd kk:mm:ss"));
+							"yyyy-MM-dd HH:mm:ss"));
 					saleSess.setDtCloseSessionDateTime(Util.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(Session.COLUMN_CLOSE_DATE)),
-							"yyyy-MM-dd kk:mm:ss"));
+							"yyyy-MM-dd HH:mm:ss"));
 					saleSess.setDtSessionDate(Util.dateTimeFormat(cursor
 							.getString(cursor
 									.getColumnIndex(Session.COLUMN_SESS_DATE)),
@@ -325,6 +371,18 @@ public class SaleTransaction {
 				new String[] { String.valueOf(transId) });
 	}
 
+	public Cursor queryTransactionByTransactionId() {
+		return mSqlite.rawQuery(
+				"SELECT * " + 
+				" FROM " + Transaction.TABLE_TRANSACTION + 
+				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=?" + 
+				" AND " + Transaction.COLUMN_STATUS_ID + " IN(?,?) ",
+				new String[] {
+						String.valueOf(mTransactionId),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID)});
+	}
+	
 	public Cursor queryAllTransactionInSaleDate() {
 		return mSqlite.rawQuery(
 				"SELECT * " + 

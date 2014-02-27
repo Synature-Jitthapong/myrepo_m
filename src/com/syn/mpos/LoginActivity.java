@@ -2,6 +2,8 @@ package com.syn.mpos;
 
 import com.syn.mpos.R;
 import com.syn.mpos.provider.Login;
+import com.syn.mpos.provider.Session;
+import com.syn.mpos.provider.Util;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;
@@ -90,6 +92,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
 			startActivity(intent);
 			return true;
+		case R.id.itemClearSale:
+			MPOSUtil.clearSale();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
 		}
@@ -99,12 +104,29 @@ public class LoginActivity extends Activity implements OnClickListener {
 	protected void onResume() {
 		super.onResume();
 		init();
+		mTxtUser.requestFocus();
 	}
 			
 	private void gotoMainActivity(){
-		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-		intent.putExtra("staffId", mStaffId);
-		startActivity(intent);
+		mTxtUser.setText(null);
+		mTxtPass.setText(null);
+		Session sess = new Session(MPOSApplication.getWriteDatabase());
+		if(sess.getSessionEnddayDetail(String.valueOf(Util.getDate().getTimeInMillis())) > 0){
+			new AlertDialog.Builder(this)
+			.setTitle(R.string.endday)
+			.setMessage(R.string.alredy_endday)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					
+				}
+			}).show();
+		}else{
+			Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+			intent.putExtra("staffId", mStaffId);
+			startActivity(intent);
+		}
 	}
 	
 	private void checkLogin(){

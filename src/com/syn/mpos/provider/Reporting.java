@@ -66,8 +66,8 @@ public class Reporting extends MPOSDatabase{
 				" a." + Transaction.COLUMN_TRANS_VAT + ", " +
 				" a." + Transaction.COLUMN_TRANS_VATABLE + ", " +
 				" a." + MPOSDatabase.COLUMN_SEND_STATUS + ", " +
-				" SUM(b." + Transaction.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
-				" SUM(b." + Transaction.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice, " +
+				" SUM(b." + Transaction.COLUMN_TOTAL_RETAIL_PRICE + " * b." + Transaction.COLUMN_ORDER_QTY + ") AS TotalRetailPrice, " +
+				" SUM(b." + Transaction.COLUMN_TOTAL_SALE_PRICE + " * b." + Transaction.COLUMN_ORDER_QTY + ") AS TotalSalePrice, " +
 				" a." + Transaction.COLUMN_OTHER_DISCOUNT + " + " + 
 				" SUM(b." + Transaction.COLUMN_PRICE_DISCOUNT + " + " + 
 				" b." + Transaction.COLUMN_MEMBER_DISCOUNT + ") AS TotalDiscount, " +
