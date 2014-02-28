@@ -7,6 +7,7 @@ import java.util.List;
 import com.syn.mpos.R;
 import com.syn.mpos.provider.PaymentAmountButton;
 import com.syn.mpos.provider.PaymentDetail;
+import com.syn.mpos.provider.PrintReceiptLog;
 import com.syn.mpos.provider.Transaction;
 import com.syn.pos.Payment;
 
@@ -296,8 +297,8 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	}
 	
 	private void print(){
-		Intent intent = getIntent();
-		setResult(0, intent);
+//		Intent intent = getIntent();
+//		setResult(0, intent);
 //		new Handler().post(new Runnable(){
 //
 //			@Override
@@ -307,6 +308,29 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 //			}
 //			
 //		});
+		PrintReceiptLog printLog = new PrintReceiptLog(MPOSApplication.getWriteDatabase());
+		printLog.insertLog(mTransactionId, mComputerId, mStaffId);
+		
+		new PrintReceipt(mStaffId, new PrintReceipt.PrintStatusListener() {
+			
+			@Override
+			public void onPrintSuccess() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onPrintFail(String msg) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onPrepare() {
+				// TODO Auto-generated method stub
+				
+			}
+		}).execute();
 	}
 	
 	public void confirm() {

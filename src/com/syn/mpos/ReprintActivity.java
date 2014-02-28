@@ -2,19 +2,17 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.syn.mpos.provider.Computer;
-import com.syn.mpos.provider.MPOSDatabase;
 import com.syn.mpos.provider.Transaction;
-import com.syn.mpos.provider.SaleTransaction.POSData_SaleTransaction;
+import com.syn.mpos.provider.Util;
 import com.syn.pos.OrderTransaction;
-
+import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -22,18 +20,15 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class SyncSaleActivity extends Activity{
+public class ReprintActivity extends Activity {
+	private ReprintTransAdapter mTransAdapter;
 	private int mStaffId;
-	private SyncItemAdapter mSyncAdapter;
-	private ListView mLvSyncItem;
+	private ListView mLvTrans;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,52 +42,38 @@ public class SyncSaleActivity extends Activity{
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+		setContentView(R.layout.activity_reprint);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
-		setContentView(R.layout.sync_sale_layout);
 		
-		mLvSyncItem = (ListView) findViewById(R.id.listView1);
+		mLvTrans = (ListView) findViewById(R.id.listView1);
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
-		
-		mSyncAdapter = new SyncItemAdapter(this, listNotSendTransaction());
-		mLvSyncItem.setAdapter(mSyncAdapter);
+		mTransAdapter = new ReprintTransAdapter(this, 
+				listTransaction(String.valueOf(Util.getDate().getTimeInMillis())));
+		mLvTrans.setAdapter(mTransAdapter);
 	}
-	
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		getMenuInflater().inflate(R.menu.action_sync_sale, menu);
-//		return true;
-//	}
-	
+
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()){
-		case android.R.id.home:
-			finish();
-			return true;
-		case R.id.itemSendAll:
-			
-			return true;
-		default :
-			return super.onOptionsItemSelected(item);
-		}
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.reprint, menu);
+		return true;
 	}
 
-
-	private List<OrderTransaction> listNotSendTransaction(){
+	private List<OrderTransaction> listTransaction(String saleDate){
 		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
 		SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
 		Cursor cursor = sqlite.query(Transaction.TABLE_TRANSACTION, 
 				new String[]{
 					Transaction.COLUMN_TRANSACTION_ID,
 					Computer.COLUMN_COMPUTER_ID,
-					Transaction.COLUMN_RECEIPT_NO,
-					MPOSDatabase.COLUMN_SEND_STATUS
-				}, Transaction.COLUMN_STATUS_ID + "=? AND " +
-					MPOSDatabase.COLUMN_SEND_STATUS + "=?", 
+					Transaction.COLUMN_RECEIPT_NO
+				}, 
+				Transaction.COLUMN_SALE_DATE + "=? AND " +
+				Transaction.COLUMN_STATUS_ID + "=?", 
 				new String[]{
-					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-				 	String.valueOf(MPOSDatabase.NOT_SEND)
+					saleDate,
+				 	String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
 				}, null, null, Transaction.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){
 			do{
@@ -100,7 +81,6 @@ public class SyncSaleActivity extends Activity{
 				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_TRANSACTION_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
 				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_NO)));
-				trans.setSendStatus(cursor.getInt(cursor.getColumnIndex(MPOSDatabase.COLUMN_SEND_STATUS)));
 				transLst.add(trans);
 			}while(cursor.moveToNext());
 		}
@@ -108,10 +88,22 @@ public class SyncSaleActivity extends Activity{
 		return transLst;
 	}
 	
-	public class SyncItemAdapter extends OrderTransactionAdapter{
-		
-		public SyncItemAdapter(Context c, List<OrderTransaction> transLst) {
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		case android.R.id.home:
+			finish();
+			return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	public class ReprintTransAdapter extends OrderTransactionAdapter{
+
+		public ReprintTransAdapter(Context c, List<OrderTransaction> transLst) {
 			super(c, transLst);
+			// TODO Auto-generated constructor stub
 		}
 
 		@Override
@@ -119,60 +111,68 @@ public class SyncSaleActivity extends Activity{
 			final OrderTransaction trans = mTransLst.get(position);
 			final ViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.send_trans_template, null);
+				convertView = mInflater.inflate(R.layout.reprint_trans_template, null);
 				holder = new ViewHolder();
-				holder.imgSyncStatus = (ImageView) convertView.findViewById(R.id.imageView1);
 				holder.tvItem = (TextView) convertView.findViewById(R.id.textView1);
 				holder.progress = (ProgressBar) convertView.findViewById(R.id.progressBar1);
-				holder.btnSend = (Button) convertView.findViewById(R.id.button1);
+				holder.btnPrint = (Button) convertView.findViewById(R.id.button1);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
 			holder.tvItem.setText(trans.getReceiptNo());
-			holder.btnSend.setOnClickListener(new OnClickListener(){
+			holder.btnPrint.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
-					MPOSUtil.doSendSaleBySelectedTransaction(trans.getTransactionId(), mStaffId, new MPOSUtil.LoadSaleTransactionListener() {
+					new Reprint(trans.getTransactionId(), trans.getComputerId(), new Reprint.PrintStatusListener() {
 						
 						@Override
-						public void onPre() {
+						public void onPrintSuccess() {
+							holder.progress.setVisibility(View.GONE);
+							holder.btnPrint.setVisibility(View.VISIBLE);
+						}
+						
+						@Override
+						public void onPrintFail(String msg) {
+							holder.progress.setVisibility(View.GONE);
+							holder.btnPrint.setVisibility(View.VISIBLE);
+						}
+						
+						@Override
+						public void onPrepare() {
 							holder.progress.setVisibility(View.VISIBLE);
-							holder.btnSend.setVisibility(View.GONE);
+							holder.btnPrint.setVisibility(View.GONE);
 						}
-						
-						@Override
-						public void onPost() {
-							holder.progress.setVisibility(View.GONE);
-							holder.btnSend.setVisibility(View.VISIBLE);
-							holder.imgSyncStatus.setVisibility(View.VISIBLE);
-						}
-						
-						@Override
-						public void onError(String msg) {
-							holder.progress.setVisibility(View.GONE);
-							holder.btnSend.setVisibility(View.VISIBLE);
-						}
-						
-						@Override
-						public void onPost(POSData_SaleTransaction saleTrans, String sessionDate) {
-							holder.progress.setVisibility(View.GONE);
-							holder.btnSend.setVisibility(View.VISIBLE);
-							holder.imgSyncStatus.setVisibility(View.VISIBLE);
-						}
-					});
+					}).execute();
 				}
 				
 			});
 			return convertView;
-		}		
-
+		}
+		
 		public class ViewHolder {
-			ImageView imgSyncStatus;
 			TextView tvItem;
 			ProgressBar progress;
-			Button btnSend;
+			Button btnPrint;
+		}
+	}
+
+	
+	public class Reprint extends PrintReceipt{
+		private int mTransactionId;
+		private int mComputerId;
+		
+		public Reprint(int transactionId, int computerId, PrintStatusListener listener) {
+			super(mStaffId, listener);
+			mTransactionId = transactionId;
+			mComputerId = computerId;
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			printReceipt(mTransactionId, mComputerId);
+			return null;
 		}
 	}
 }

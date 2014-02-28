@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.syn.mpos"
     android:versionCode="1"
-    android:versionName="0.1" >
+    android:versionName="0.1" android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -40,8 +40,8 @@
         <activity
             android:name="com.syn.mpos.LoginActivity"
             android:label="@string/app_name"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" 
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -50,8 +50,8 @@
         </activity>
         <activity
             android:name="com.syn.mpos.MainActivity"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan"  
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" >
         </activity>
         <activity
             android:name="com.syn.mpos.DiscountActivity"
@@ -64,8 +64,8 @@
         <activity
             android:name="com.syn.mpos.SaleReportActivity"
             android:label="@string/title_activity_sale_report"
-            android:windowSoftInputMode="stateAlwaysHidden" 
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateAlwaysHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.mpos.MainActivity" />
@@ -73,16 +73,17 @@
         <activity
             android:name="com.syn.mpos.VoidBillActivity"
             android:label="@string/title_activity_void_bill"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan"  
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.mpos.MainActivity" />
         </activity>
         <activity
             android:name="com.syn.mpos.SettingsActivity"
-            android:label="@string/setting" android:windowSoftInputMode="stateAlwaysHidden" 
-            android:screenOrientation="landscape">
+            android:label="@string/setting"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>
 
         <provider
@@ -91,8 +92,8 @@
 
         <activity
             android:name="com.syn.mpos.AboutActivity"
-            android:label="@string/title_activity_about"  
-            android:screenOrientation="landscape">
+            android:label="@string/title_activity_about"
+            android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="com.syn.mpos.PaymentActivity"
@@ -112,7 +113,10 @@
             android:screenOrientation="landscape"
             android:theme="@style/ActivityDialogTheme" >
         </activity>
-
+        <activity
+            android:name="com.syn.mpos.ReprintActivity"
+            android:label="@string/title_activity_reprint" android:theme="@style/ActivityDialogTheme">
+        </activity>
     </application>
 
 </manifest>

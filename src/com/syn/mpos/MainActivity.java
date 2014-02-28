@@ -241,6 +241,11 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		case R.id.itemEndday:
 			endday();
 			return true;
+		case R.id.itemReprint:
+			intent = new Intent(MainActivity.this, ReprintActivity.class);
+			intent.putExtra("staffId", mStaffId);
+			startActivity(intent);
+			return true;
 		case R.id.itemSendSale:
 			intent = new Intent(MainActivity.this, SyncSaleActivity.class);
 			intent.putExtra("staffId", mStaffId);
@@ -291,25 +296,25 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		}
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		super.onActivityResult(requestCode, resultCode, intent);
-		if(intent != null){
-			final int transId = intent.getIntExtra("transactionId", 0);
-			final int compId = intent.getIntExtra("computerId", 0);
-			final int staffId = intent.getIntExtra("staffId", 0);
-			new Handler().postDelayed(new Runnable() {
-	
-				@Override
-				public void run() {
-					PrintReceipt printReceipt = new PrintReceipt();
-					printReceipt
-							.printReceipt(transId, compId, staffId);
-				}
-	
-			}, 1000);
-		}
-	}
+//	@Override
+//	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+//		super.onActivityResult(requestCode, resultCode, intent);
+//		if(intent != null){
+//			final int transId = intent.getIntExtra("transactionId", 0);
+//			final int compId = intent.getIntExtra("computerId", 0);
+//			final int staffId = intent.getIntExtra("staffId", 0);
+//			new Handler().postDelayed(new Runnable() {
+//	
+//				@Override
+//				public void run() {
+//					PrintReceipt printReceipt = new PrintReceipt();
+//					printReceipt
+//							.printReceipt(transId, compId, staffId);
+//				}
+//	
+//			}, 1000);
+//		}
+//	}
 
 	
 	public void paymentClicked(final View v){

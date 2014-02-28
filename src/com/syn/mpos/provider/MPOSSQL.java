@@ -153,6 +153,16 @@ public class MPOSSQL {
 			Transaction.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
 			"PRIMARY KEY (" + Transaction.COLUMN_TRANSACTION_ID + " ASC, " + Computer.COLUMN_COMPUTER_ID + " ASC) ); ";
 	
+	public static final String PRINT_RECEIPT_LOG_SQL = 
+			"CREATE TABLE " + PrintReceiptLog.TABLE_PRINT_RECEIPT_LOG + "( " +
+			PrintReceiptLog.COLUMN_PRINT_RECEIPT_LOG_ID + " INTEGER, " + 
+			Transaction.COLUMN_TRANSACTION_ID + " INTEGER, " +
+			Computer.COLUMN_COMPUTER_ID + " INTEGER, " +
+			Staff.COLUMN_STAFF_ID + " INTEGER, " +
+			PrintReceiptLog.COLUMN_PRINT_RECEIPT_LOG_TIME + " TEXT, " +
+			PrintReceiptLog.COLUMN_PRINT_RECEIPT_LOG_STATUS + " INTEGER DEFAULT 0, " +
+			"PRIMARY KEY (" + PrintReceiptLog.COLUMN_PRINT_RECEIPT_LOG_ID + " AUTOINCREMENT ) );";
+	
 	public static final String PAYMENT_BUTTON_SQL = 
 			"CREATE TABLE " + PaymentAmountButton.TABLE_PAYMENT_AMOUNT + "( " +
 			PaymentAmountButton.COLUMN_PAYMENT_AMOUNT_ID + " INTEGER, " +

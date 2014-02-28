@@ -2,6 +2,8 @@ package com.syn.mpos;
 
 import java.util.List;
 
+import android.os.AsyncTask;
+
 import com.epson.eposprint.BatteryStatusChangeEventListener;
 import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
@@ -9,6 +11,7 @@ import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.provider.HeaderFooterReceipt;
 import com.syn.mpos.provider.PaymentDetail;
+import com.syn.mpos.provider.PrintReceiptLog;
 import com.syn.mpos.provider.Products;
 import com.syn.mpos.provider.Shop;
 import com.syn.mpos.provider.Transaction;
@@ -17,13 +20,18 @@ import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
 import com.syn.pos.ShopData;
 
-public class PrintReceipt implements BatteryStatusChangeEventListener, StatusChangeEventListener{
+public class PrintReceipt extends AsyncTask<Void, Void, Void> implements BatteryStatusChangeEventListener, StatusChangeEventListener{
+	public static final String TAG = "PrintReceipt";
+	private PrintStatusListener mPrintListener;
 	private Print mPrinter;
 	private Transaction mTrans;
 	private Shop mShop;
 	private PaymentDetail mPayment;
+	private int mStaffId;
 	
-	public PrintReceipt(){
+	public PrintReceipt(int staffId, PrintStatusListener listener){
+		mPrintListener = listener;
+		mStaffId = staffId;
 		mShop = new Shop(MPOSApplication.getReadDatabase());
 		mTrans = new Transaction(MPOSApplication.getWriteDatabase());
 		mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
@@ -52,7 +60,7 @@ public class PrintReceipt implements BatteryStatusChangeEventListener, StatusCha
 		return space.toString();
 	}
 	
-	public void printReceipt(int transactionId, int computerId, int staffId){
+	protected void printReceipt(int transactionId, int computerId){
 		double vatRate = mShop.getCompanyVatRate();
 		double transactionVat = mTrans.getTransactionVat(transactionId, computerId);
 		double transactionVatExclude = mTrans.getTransactionVatExclude(transactionId, computerId);
@@ -90,7 +98,7 @@ public class PrintReceipt implements BatteryStatusChangeEventListener, StatusCha
 			String receiptNo = MPOSApplication.getContext().getString(R.string.receipt_no) + " " +
 					mTrans.getReceiptNo(transactionId, computerId);
 			String cashCheer = MPOSApplication.getContext().getString(R.string.cashier) + " " +
-					MPOSApplication.getStaff(staffId);
+					MPOSApplication.getStaff(mStaffId);
 			builder.addText(saleDate + createLineSpace(saleDate.length()) + "\n");
 			builder.addText(receiptNo + createLineSpace(receiptNo.length()) + "\n");
 			builder.addText(cashCheer + createLineSpace(cashCheer.length()));
@@ -253,5 +261,37 @@ public class PrintReceipt implements BatteryStatusChangeEventListener, StatusCha
 	public void onStatusChangeEvent(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	protected void onPostExecute(Void result) {
+		mPrintListener.onPrintSuccess();
+	}
+
+	@Override
+	protected void onPreExecute() {
+		mPrintListener.onPrepare();
+	}
+
+	@Override
+	protected Void doInBackground(Void... params) {
+		PrintReceiptLog printLog = new PrintReceiptLog(MPOSApplication.getWriteDatabase());
+		for(PrintReceiptLog.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
+			try {
+				printReceipt(printReceipt.getTransactionId(), printReceipt.getComputerId());
+				printLog.deletePrintStatus(printReceipt.getPriceReceiptLogId());
+				
+			} catch (Exception e) {
+				printLog.updatePrintStatus(printReceipt.getPriceReceiptLogId(), PrintReceiptLog.PRINT_NOT_SUCCESS);
+				MPOSApplication.writeLog(TAG + "=>" + e.getMessage());
+			}
+		}
+		return null;
+	}
+	
+	public static interface PrintStatusListener{
+		void onPrepare();
+		void onPrintSuccess();
+		void onPrintFail(String msg);
 	}
 }
