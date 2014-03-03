@@ -16,9 +16,7 @@ import com.syn.mpos.provider.Transaction;
 import com.syn.mpos.provider.Util;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
-
 import android.os.Bundle;
-import android.os.Handler;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;

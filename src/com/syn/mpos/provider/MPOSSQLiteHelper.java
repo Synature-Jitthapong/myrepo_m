@@ -63,7 +63,7 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		if(newVersion > oldVersion){
-			//db.execSQL("ALTER TABLE " + Transaction.TB_TRANS + " ADD COLUMN UUID TEXT;");
+			db.execSQL(MPOSSQL.PRINT_RECEIPT_LOG_SQL);
 		}
 	}
 }

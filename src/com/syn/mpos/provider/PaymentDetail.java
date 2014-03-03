@@ -67,7 +67,8 @@ public class PaymentDetail extends MPOSDatabase {
 				" ON a." + COLUMN_PAY_TYPE_ID + "=b." + COLUMN_PAY_TYPE_ID +
 				" WHERE a." + Transaction.COLUMN_TRANSACTION_ID + "=?" +
 				" AND a." + Computer.COLUMN_COMPUTER_ID + "=?" +
-				" GROUP BY a." + COLUMN_PAY_TYPE_ID,
+				" GROUP BY a." + COLUMN_PAY_TYPE_ID +
+				" ORDER BY a." + COLUMN_PAY_ID,
 				new String[]{
 					String.valueOf(transactionId),
 					String.valueOf(computerId)

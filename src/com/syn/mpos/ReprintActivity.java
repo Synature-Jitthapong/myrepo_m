@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -26,6 +25,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class ReprintActivity extends Activity {
+	private boolean mIsOnPrint;
 	private ReprintTransAdapter mTransAdapter;
 	private int mStaffId;
 	private ListView mLvTrans;
@@ -51,13 +51,6 @@ public class ReprintActivity extends Activity {
 		mTransAdapter = new ReprintTransAdapter(this, 
 				listTransaction(String.valueOf(Util.getDate().getTimeInMillis())));
 		mLvTrans.setAdapter(mTransAdapter);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.reprint, menu);
-		return true;
 	}
 
 	private List<OrderTransaction> listTransaction(String saleDate){
@@ -92,7 +85,8 @@ public class ReprintActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
-			finish();
+			if(!mIsOnPrint)
+				finish();
 			return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -113,6 +107,7 @@ public class ReprintActivity extends Activity {
 			if(convertView == null){
 				convertView = mInflater.inflate(R.layout.reprint_trans_template, null);
 				holder = new ViewHolder();
+				holder.tvNo = (TextView) convertView.findViewById(R.id.textView2);
 				holder.tvItem = (TextView) convertView.findViewById(R.id.textView1);
 				holder.progress = (ProgressBar) convertView.findViewById(R.id.progressBar1);
 				holder.btnPrint = (Button) convertView.findViewById(R.id.button1);
@@ -120,6 +115,7 @@ public class ReprintActivity extends Activity {
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
+			holder.tvNo.setText(String.valueOf(position + 1));
 			holder.tvItem.setText(trans.getReceiptNo());
 			holder.btnPrint.setOnClickListener(new OnClickListener(){
 
@@ -129,18 +125,21 @@ public class ReprintActivity extends Activity {
 						
 						@Override
 						public void onPrintSuccess() {
+							mIsOnPrint = false;
 							holder.progress.setVisibility(View.GONE);
 							holder.btnPrint.setVisibility(View.VISIBLE);
 						}
 						
 						@Override
 						public void onPrintFail(String msg) {
+							mIsOnPrint = false;
 							holder.progress.setVisibility(View.GONE);
 							holder.btnPrint.setVisibility(View.VISIBLE);
 						}
 						
 						@Override
 						public void onPrepare() {
+							mIsOnPrint = true;
 							holder.progress.setVisibility(View.VISIBLE);
 							holder.btnPrint.setVisibility(View.GONE);
 						}
@@ -152,6 +151,7 @@ public class ReprintActivity extends Activity {
 		}
 		
 		public class ViewHolder {
+			TextView tvNo;
 			TextView tvItem;
 			ProgressBar progress;
 			Button btnPrint;

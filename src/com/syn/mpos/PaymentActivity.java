@@ -113,7 +113,6 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 
 	@Override
 	protected void onResume() {
-		super.onResume();
 		if(mTransaction.getTransaction(mTransactionId, 
 				mComputerId).getTransactionStatusId() == Transaction.TRANS_STATUS_SUCCESS){
 			finish();
@@ -123,6 +122,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 			if(resultCreditCode == RESULT_ENOUGH)
 				confirm();
 		}
+		super.onResume();
 	}
 
 	@Override

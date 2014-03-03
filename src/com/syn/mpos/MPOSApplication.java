@@ -36,8 +36,10 @@ public class MPOSApplication extends Application {
 	// sqlite db name
 	public static final String DB_NAME = "mpos.db";
 
-	// db version
-	public static final int DB_VERSION = 1;
+	/* db version
+	 * version 2 update printreceiptlog
+	 */
+	public static final int DB_VERSION = 2;
 
 	// service name
 	public static final String WS_NAME = "ws_mpos.asmx";

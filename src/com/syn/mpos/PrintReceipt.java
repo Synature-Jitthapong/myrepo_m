@@ -125,7 +125,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	builder.addText(createLine("-") + "\n");
 	    	
 	    	String itemText = MPOSApplication.getContext().getString(R.string.items) + ": ";
-	    	String totalText = MPOSApplication.getContext().getString(R.string.total);
+	    	String totalText = MPOSApplication.getContext().getString(R.string.total) + "...............";
 	    	String changeText = MPOSApplication.getContext().getString(R.string.change) + " ";
 	    	String beforeVatText = MPOSApplication.getContext().getString(R.string.before_vat);
 	    	String discountText = MPOSApplication.getContext().getString(R.string.discount);
@@ -178,15 +178,21 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    		Payment.PaymentDetail payment = paymentLst.get(i);
 		    	String paymentText = payment.getPayTypeName() + " ";
 		    	String strTotalPaid = MPOSApplication.getGlobalProperty().currencyFormat(payment.getPaid());
-		    	builder.addText(paymentText);
-	    		builder.addText(createLineSpace(paymentText.length() + strTotalPaid.length()));
-		    	builder.addText(strTotalPaid);
-		    	if(i == paymentLst.size() - 1){
+		    	if(i < paymentLst.size() - 1){
+			    	builder.addText(paymentText);
+		    		builder.addText(createLineSpace(paymentText.length() + strTotalPaid.length()));
+			    	builder.addText(strTotalPaid);
+		    	}else if(i == paymentLst.size() - 1){
 			    	if(change > 0){
-			    		builder.addText("\n");
+				    	builder.addText(paymentText);
+				    	builder.addText(strTotalPaid);
+			    		builder.addText(createLineSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
 				    	builder.addText(changeText);
-			    		builder.addText(createLineSpace(changeText.length() + strTotalChange.length()));
 				    	builder.addText(strTotalChange);
+				    }else{
+				    	builder.addText(paymentText);
+			    		builder.addText(createLineSpace(paymentText.length() + strTotalPaid.length()));
+				    	builder.addText(strTotalPaid);
 				    }
 		    	}
 	    		builder.addText("\n");

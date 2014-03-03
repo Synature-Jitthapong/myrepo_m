@@ -7,6 +7,13 @@
     android:padding="@dimen/activity_horizontal_margin" >
 
     <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
         android:id="@+id/textView1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

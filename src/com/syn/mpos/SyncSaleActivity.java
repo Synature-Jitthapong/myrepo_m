@@ -6,32 +6,31 @@ import java.util.List;
 import com.syn.mpos.provider.Computer;
 import com.syn.mpos.provider.MPOSDatabase;
 import com.syn.mpos.provider.Transaction;
-import com.syn.mpos.provider.SaleTransaction.POSData_SaleTransaction;
 import com.syn.pos.OrderTransaction;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class SyncSaleActivity extends Activity{
+	private boolean mIsOnSync;
 	private int mStaffId;
+	private List<SendTransaction> mTransLst;
 	private SyncItemAdapter mSyncAdapter;
 	private ListView mLvSyncItem;
 	
@@ -53,34 +52,66 @@ public class SyncSaleActivity extends Activity{
 		mLvSyncItem = (ListView) findViewById(R.id.listView1);
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
-		
-		mSyncAdapter = new SyncItemAdapter(this, listNotSendTransaction());
+		mTransLst = listNotSendTransaction();
+		mSyncAdapter = new SyncItemAdapter(this, mTransLst);
 		mLvSyncItem.setAdapter(mSyncAdapter);
 	}
 	
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		getMenuInflater().inflate(R.menu.action_sync_sale, menu);
-//		return true;
-//	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.action_sync_sale, menu);
+		return true;
+	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
-			finish();
+			if(!mIsOnSync)
+				finish();
 			return true;
 		case R.id.itemSendAll:
-			
+			sendSale();
 			return true;
 		default :
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
+	private void sendSale(){
+		for(final SendTransaction trans : mTransLst){
+			MPOSUtil.doSendSaleBySelectedTransaction(trans.getTransactionId(), mStaffId, new ProgressListener(){
 
-	private List<OrderTransaction> listNotSendTransaction(){
-		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
+				@Override
+				public void onPre() {
+					mIsOnSync = true;
+					trans.setOnSend(true);
+					mSyncAdapter.notifyDataSetChanged();
+				}
+
+				@Override
+				public void onPost() {
+					mIsOnSync = false;
+					trans.setOnSend(false);
+					trans.setSendStatus(MPOSDatabase.ALREADY_SEND);
+					mSyncAdapter.notifyDataSetChanged();
+				}
+
+				@Override
+				public void onError(String msg) {
+					mIsOnSync = false;
+					trans.setOnSend(false);
+					trans.setSendStatus(MPOSDatabase.NOT_SEND);
+					mSyncAdapter.notifyDataSetChanged();
+					MPOSUtil.makeToask(SyncSaleActivity.this, msg);
+				}
+				
+			});
+		}
+	}
+	
+	private List<SendTransaction> listNotSendTransaction(){
+		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
 		SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
 		Cursor cursor = sqlite.query(Transaction.TABLE_TRANSACTION, 
 				new String[]{
@@ -96,7 +127,7 @@ public class SyncSaleActivity extends Activity{
 				}, null, null, Transaction.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){
 			do{
-				OrderTransaction trans = new OrderTransaction();
+				SendTransaction trans = new SendTransaction();
 				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_TRANSACTION_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
 				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_NO)));
@@ -108,71 +139,78 @@ public class SyncSaleActivity extends Activity{
 		return transLst;
 	}
 	
-	public class SyncItemAdapter extends OrderTransactionAdapter{
+	public class SyncItemAdapter extends BaseAdapter{
+		private List<SendTransaction> mSendTransLst;
+		private LayoutInflater mInflater;
 		
-		public SyncItemAdapter(Context c, List<OrderTransaction> transLst) {
-			super(c, transLst);
+		public SyncItemAdapter(Context c, List<SendTransaction> sendTransLst){
+			mInflater = (LayoutInflater) 
+					c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			mSendTransLst = sendTransLst;
+		}
+		
+		public class ViewHolder {
+			ImageView imgSyncStatus;
+			TextView tvNo;
+			TextView tvItem;
+			ProgressBar progress;
 		}
 
 		@Override
+		public int getCount() {
+			return mSendTransLst != null ? mSendTransLst.size() : 0;
+		}
+
+		@Override
+		public SendTransaction getItem(int position) {
+			return mSendTransLst.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+		
+		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			final OrderTransaction trans = mTransLst.get(position);
+			final SendTransaction trans = mSendTransLst.get(position);
 			final ViewHolder holder;
 			if(convertView == null){
 				convertView = mInflater.inflate(R.layout.send_trans_template, null);
 				holder = new ViewHolder();
+				holder.tvNo = (TextView) convertView.findViewById(R.id.textView2);
 				holder.imgSyncStatus = (ImageView) convertView.findViewById(R.id.imageView1);
 				holder.tvItem = (TextView) convertView.findViewById(R.id.textView1);
 				holder.progress = (ProgressBar) convertView.findViewById(R.id.progressBar1);
-				holder.btnSend = (Button) convertView.findViewById(R.id.button1);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
+			holder.tvNo.setText(String.valueOf(position + 1));
 			holder.tvItem.setText(trans.getReceiptNo());
-			holder.btnSend.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					MPOSUtil.doSendSaleBySelectedTransaction(trans.getTransactionId(), mStaffId, new MPOSUtil.LoadSaleTransactionListener() {
-						
-						@Override
-						public void onPre() {
-							holder.progress.setVisibility(View.VISIBLE);
-							holder.btnSend.setVisibility(View.GONE);
-						}
-						
-						@Override
-						public void onPost() {
-							holder.progress.setVisibility(View.GONE);
-							holder.btnSend.setVisibility(View.VISIBLE);
-							holder.imgSyncStatus.setVisibility(View.VISIBLE);
-						}
-						
-						@Override
-						public void onError(String msg) {
-							holder.progress.setVisibility(View.GONE);
-							holder.btnSend.setVisibility(View.VISIBLE);
-						}
-						
-						@Override
-						public void onPost(POSData_SaleTransaction saleTrans, String sessionDate) {
-							holder.progress.setVisibility(View.GONE);
-							holder.btnSend.setVisibility(View.VISIBLE);
-							holder.imgSyncStatus.setVisibility(View.VISIBLE);
-						}
-					});
-				}
-				
-			});
+			if(trans.isOnSend){
+				holder.progress.setVisibility(View.VISIBLE);
+			}else{
+				holder.progress.setVisibility(View.INVISIBLE);
+			}
+			if(trans.getSendStatus() == MPOSDatabase.ALREADY_SEND){
+				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_accept);
+			}else{
+				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_remove);
+			}
 			return convertView;
-		}		
+		}
+	}
+	
+	private class SendTransaction extends OrderTransaction{
+		private boolean isOnSend = false;
 
-		public class ViewHolder {
-			ImageView imgSyncStatus;
-			TextView tvItem;
-			ProgressBar progress;
-			Button btnSend;
+		public boolean isOnSend() {
+			return isOnSend;
+		}
+
+		public void setOnSend(boolean isOnSend) {
+			this.isOnSend = isOnSend;
 		}
 	}
 }
