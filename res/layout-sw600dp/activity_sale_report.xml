@@ -247,7 +247,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.7"
                 android:gravity="right"
                 android:text="@string/total" />
 
@@ -256,7 +256,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.7"
                 android:gravity="right"
                 android:text="@string/discount_short" />
 
@@ -265,7 +265,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.7"
                 android:gravity="right"
                 android:text="@string/sub_total" />
 
@@ -283,7 +283,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.7"
                 android:gravity="right"
                 android:text="@string/vatable" />
 
@@ -292,7 +292,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.7"
                 android:gravity="right"
                 android:text="@string/total_vat" />
 
@@ -328,7 +328,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.7"
                 android:gravity="right"
                 android:text="@string/total_payment" />
         </LinearLayout>
@@ -354,7 +354,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="1.2"
                 android:gravity="right"
                 android:text="@string/summary" />
 
@@ -371,7 +371,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.7"
                 android:gravity="right" />
 
             <TextView
@@ -379,7 +379,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.7"
                 android:gravity="right" />
 
             <TextView
@@ -395,7 +395,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.7"
                 android:gravity="right" />
 
             <TextView
@@ -403,7 +403,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.7"
                 android:gravity="right" />
 
             <TextView
@@ -438,7 +438,7 @@
                 style="@style/ColumnHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.7"
                 android:gravity="right" />
         </LinearLayout>
     </LinearLayout>
