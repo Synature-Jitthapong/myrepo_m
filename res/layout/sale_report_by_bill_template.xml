@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/list_selector" >
@@ -10,8 +9,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.2"
-        android:src="@drawable/ic_action_accept"
-        android:visibility="invisible" />
+        android:src="@drawable/ic_action_accept" />
 
     <TextView
         android:id="@+id/tvReceipt"
@@ -85,6 +83,14 @@
 
     <TextView
         android:id="@+id/tvCredit"
+        style="@style/ColumnDetail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.7"
+        android:gravity="right" />
+
+    <TextView
+        android:id="@+id/tvVoucher"
         style="@style/ColumnDetail"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

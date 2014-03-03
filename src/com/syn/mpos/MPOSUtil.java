@@ -13,6 +13,9 @@ import android.content.DialogInterface;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.view.LayoutInflater;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
@@ -28,6 +31,33 @@ import com.syn.mpos.provider.Util;
 import com.syn.mpos.provider.SaleTransaction.POSData_SaleTransaction;
 
 public class MPOSUtil {
+	public static LinearLayout createDetailColumn(Context c, String[] detailText){
+		if(detailText.length < 1)
+			return null;
+		
+		LayoutInflater inflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LinearLayout detailColumn = new LinearLayout(c);
+		for(int i = 0; i < detailText.length; i++){
+			TextView tvHeader = (TextView) inflater.inflate(R.layout.tv_column_detail, null);
+			tvHeader.setText(detailText[i]);
+			detailColumn.addView(tvHeader);
+		}
+		return detailColumn;
+	}
+	
+	public static LinearLayout createHeaderColumn(Context c, String[] headerText){
+		if(headerText.length < 1)
+			return null;
+		
+		LayoutInflater inflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LinearLayout headerColumn = new LinearLayout(c);
+		for(int i = 0; i < headerText.length; i++){
+			TextView tvHeader = (TextView) inflater.inflate(R.layout.tv_column_header, null);
+			tvHeader.setText(headerText[i]);
+			headerColumn.addView(tvHeader);
+		}
+		return headerColumn;
+	}
 	
 	public static void doSendSaleBySelectedTransaction(final int transactionId, final int staffId,
 			final ProgressListener listener) {

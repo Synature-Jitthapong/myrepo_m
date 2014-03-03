@@ -200,7 +200,7 @@ public class Reporting extends MPOSDatabase{
 								vatTypeText = "V";
 								break;
 							case 2:
-								vatTypeText = "Exc";
+								vatTypeText = "E";
 								break;
 							}
 							reportDetail.setVat(vatTypeText);
