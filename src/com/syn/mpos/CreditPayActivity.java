@@ -18,10 +18,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
@@ -33,8 +37,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
-public class CreditPayActivity extends Activity {
+public class CreditPayActivity extends Activity implements TextWatcher{
 	public static final String TAG = "CreditPayActivity";
 	
 	private int mTransactionId;
@@ -54,7 +60,6 @@ public class CreditPayActivity extends Activity {
 	private EditText mTxtCardNoSeq2;
 	private EditText mTxtCardNoSeq3;
 	private EditText mTxtCardNoSeq4;
-	private EditText mTxtCVV2;
 	private Spinner mSpBank;
 	private Spinner mSpCardType;
 	private Spinner mSpExpYear;
@@ -81,12 +86,15 @@ public class CreditPayActivity extends Activity {
 		mTxtCardNoSeq2 = (EditText) findViewById(R.id.txtCardNoSeq2);
 		mTxtCardNoSeq3 = (EditText) findViewById(R.id.txtCardNoSeq3);
 		mTxtCardNoSeq4 = (EditText) findViewById(R.id.txtCardNoSeq4);
-		mTxtCVV2 = (EditText) findViewById(R.id.txtCvv2);
 		mSpBank = (Spinner) findViewById(R.id.spBank);
 		mSpCardType = (Spinner) findViewById(R.id.spCardType);
 		mSpExpYear = (Spinner) findViewById(R.id.spExpYear);
 		mSpExpMonth = (Spinner) findViewById(R.id.spExpMonth);
 		mTxtTotalPay.setSelectAllOnFocus(true);
+		mTxtCardNoSeq1.addTextChangedListener(this);
+		mTxtCardNoSeq2.addTextChangedListener(this);
+		mTxtCardNoSeq3.addTextChangedListener(this);
+		mTxtCardNoSeq4.addTextChangedListener(this);
 		
 		mSpExpYear.setOnItemSelectedListener(new OnItemSelectedListener(){
 
@@ -398,5 +406,35 @@ public class CreditPayActivity extends Activity {
 			}
 			
 		});
+	}
+
+	@Override
+	public void afterTextChanged(Editable txt) {
+		View v = getCurrentFocus();
+		if(v instanceof EditText){
+			switch(v.getId()){
+			case R.id.txtCardNoSeq1:
+				if(mTxtCardNoSeq1.getText().toString().length() == 4)
+					mTxtCardNoSeq2.requestFocus();
+			case R.id.txtCardNoSeq2:
+				if(mTxtCardNoSeq2.getText().toString().length() == 4)
+					mTxtCardNoSeq3.requestFocus();
+			case R.id.txtCardNoSeq3:
+				if(mTxtCardNoSeq3.getText().toString().length() == 4)
+					mTxtCardNoSeq4.requestFocus();
+			case R.id.txtCardNoSeq4:
+				if(mTxtCardNoSeq4.getText().toString().length() == 4)
+					mSpCardType.requestFocus();
+			}
+		}
+	}
+
+	@Override
+	public void beforeTextChanged(CharSequence s, int start, int count,
+			int after) {
+	}
+
+	@Override
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
 	}
 }

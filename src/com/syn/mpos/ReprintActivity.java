@@ -115,7 +115,7 @@ public class ReprintActivity extends Activity {
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
-			holder.tvNo.setText(String.valueOf(position + 1));
+			holder.tvNo.setText(String.valueOf(position + 1) + ".");
 			holder.tvItem.setText(trans.getReceiptNo());
 			holder.btnPrint.setOnClickListener(new OnClickListener(){
 

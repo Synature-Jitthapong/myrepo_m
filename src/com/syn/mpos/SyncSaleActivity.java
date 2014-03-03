@@ -1,6 +1,7 @@
 package com.syn.mpos;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import com.syn.mpos.provider.Computer;
@@ -118,6 +119,7 @@ public class SyncSaleActivity extends Activity{
 					Transaction.COLUMN_TRANSACTION_ID,
 					Computer.COLUMN_COMPUTER_ID,
 					Transaction.COLUMN_RECEIPT_NO,
+					Transaction.COLUMN_CLOSE_TIME,
 					MPOSDatabase.COLUMN_SEND_STATUS
 				}, Transaction.COLUMN_STATUS_ID + "=? AND " +
 					MPOSDatabase.COLUMN_SEND_STATUS + "=?", 
@@ -132,6 +134,7 @@ public class SyncSaleActivity extends Activity{
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
 				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_NO)));
 				trans.setSendStatus(cursor.getInt(cursor.getColumnIndex(MPOSDatabase.COLUMN_SEND_STATUS)));
+				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_CLOSE_TIME)));
 				transLst.add(trans);
 			}while(cursor.moveToNext());
 		}
@@ -186,8 +189,9 @@ public class SyncSaleActivity extends Activity{
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
-			holder.tvNo.setText(String.valueOf(position + 1));
+			holder.tvNo.setText(String.valueOf(position + 1) + ".");
 			holder.tvItem.setText(trans.getReceiptNo());
+
 			if(trans.isOnSend){
 				holder.progress.setVisibility(View.VISIBLE);
 			}else{
