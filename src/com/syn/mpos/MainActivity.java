@@ -227,7 +227,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			logout();
 			return true;
 		case R.id.itemReport:
-			intent = new Intent(MainActivity.this, SaleReportHtmlActivity.class);
+			intent = new Intent(MainActivity.this, SaleReportActivity.class);
 			startActivity(intent);
 			return true;
 		case R.id.itemVoid:
