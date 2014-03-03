@@ -1,9 +1,7 @@
 package com.syn.mpos;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-
 import com.syn.mpos.provider.Computer;
 import com.syn.mpos.provider.MPOSDatabase;
 import com.syn.mpos.provider.Transaction;
@@ -194,13 +192,15 @@ public class SyncSaleActivity extends Activity{
 
 			if(trans.isOnSend){
 				holder.progress.setVisibility(View.VISIBLE);
+				holder.imgSyncStatus.setVisibility(View.GONE);
 			}else{
-				holder.progress.setVisibility(View.INVISIBLE);
+				holder.progress.setVisibility(View.GONE);
+				holder.imgSyncStatus.setVisibility(View.VISIBLE);
 			}
 			if(trans.getSendStatus() == MPOSDatabase.ALREADY_SEND){
 				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_accept);
 			}else{
-				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_remove);
+				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_warning);
 			}
 			return convertView;
 		}
