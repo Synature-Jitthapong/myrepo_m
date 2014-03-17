@@ -318,55 +318,41 @@ public class VoidBillActivity extends Activity {
 			public void onClick(View v) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					if(mTransaction.voidTransaction(mTransactionId,
-							mComputerId, mStaffId, voidReason)){
+					mTransaction.voidTransaction(mTransactionId,
+							mComputerId, mStaffId, voidReason);
 						
-						mItemConfirm.setEnabled(false);
-						InputMethodManager imm =  (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-			            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-						d.dismiss();
-						init();
-						
-						// send real time sale
-						new Handler().post(new Runnable(){
+					mItemConfirm.setEnabled(false);
+					InputMethodManager imm =  (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+					d.dismiss();
+					init();
+					
+					// send real time sale
+					new Handler().post(new Runnable(){
 
-							@Override
-							public void run() {
-								MPOSUtil.doSendSale(mStaffId, new ProgressListener(){
-
-									@Override
-									public void onPre() {
-									}
-
-									@Override
-									public void onPost() {
-									}
-
-									@Override
-									public void onError(String msg) {
-										new AlertDialog.Builder(VoidBillActivity.this)
-										.setMessage(msg)
-										.show();
-									}
-									
-								});
-							}
-							
-						});
-					}
-				}else{
-					new AlertDialog.Builder(VoidBillActivity.this)
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setTitle(R.string.void_bill)
-					.setMessage(R.string.enter_reason)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
 						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							
+						public void run() {
+							MPOSUtil.doSendSale(mStaffId, new ProgressListener(){
+
+								@Override
+								public void onPre() {
+								}
+
+								@Override
+								public void onPost() {
+								}
+
+								@Override
+								public void onError(String msg) {
+									new AlertDialog.Builder(VoidBillActivity.this)
+									.setMessage(msg)
+									.show();
+								}
+								
+							});
 						}
-					})
-					.show();
+						
+					});
 				}
 			}
 			

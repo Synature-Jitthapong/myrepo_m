@@ -18,28 +18,8 @@ public class Products extends MPOSDatabase {
 	public static final int SIZE_TYPE = 2;
 	public static final int OPEN_PRICE_TYPE = 5;
 	public static final int SET_TYPE_CAN_SELECT = 7;
-	
 	public static final int VAT_TYPE_INCLUDED = 1;
 	public static final int VAT_TYPE_EXCLUDE = 2;
-    
-	public static final String TABLE_PRODUCT = "Products";
-	public static final String COLUMN_PRODUCT_ID = "product_id";
-	public static final String COLUMN_PRODUCT_DEPT_ID = "product_dept_id";
-	public static final String COLUMN_PRODUCT_GROUP_ID = "product_group_id";
-	public static final String COLUMN_PRODUCT_CODE = "product_code";
-	public static final String COLUMN_PRODUCT_BAR_CODE = "product_barcode";
-	public static final String COLUMN_PRODUCT_NAME = "product_name";
-	public static final String COLUMN_PRODUCT_DESC = "product_desc";
-	public static final String COLUMN_PRODUCT_TYPE_ID = "product_type_id";
-	public static final String COLUMN_PRODUCT_PRICE = "product_price";
-	public static final String COLUMN_PRODUCT_UNIT_NAME = "product_unitname";
-	public static final String COLUMN_DISCOUNT_ALLOW = "discount_allow";
-	public static final String COLUMN_VAT_TYPE = "vat_type";
-	public static final String COLUMN_VAT_RATE = "vat_rate";
-	public static final String COLUMN_ISOUTOF_STOCK = "isoutof_stock";
-	public static final String COLUMN_IMG_URL = "image_url";
-	public static final String COLUMN_ACTIVATE = "activate";
-	public static final String COLUMN_ORDERING = "ordering";
 	public static final String[] ALL_PRODUCT_COLS = {
 		COLUMN_PRODUCT_ID, 
 		COLUMN_PRODUCT_DEPT_ID,
@@ -56,27 +36,12 @@ public class Products extends MPOSDatabase {
 		COLUMN_ISOUTOF_STOCK,
 		COLUMN_IMG_URL
 	};
-	public static final String TABLE_PRODUCT_DEPT = "ProductDept";
-	public static final String COLUMN_PRODUCT_DEPT_CODE = "product_dept_code";
-	public static final String COLUMN_PRODUCT_DEPT_NAME = "product_dept_name";
 	public static final String[] ALL_PRODUCT_DEPT_COLS = {
 		COLUMN_PRODUCT_GROUP_ID,
 		COLUMN_PRODUCT_DEPT_ID,
 		COLUMN_PRODUCT_DEPT_CODE,
 		COLUMN_PRODUCT_DEPT_NAME
 	};
-	public static final String TABLE_PRODUCT_GROUP = "ProductGroup";
-	public static final String COLUMN_PRODUCT_GROUP_CODE = "product_group_code";
-	public static final String COLUMN_PRODUCT_GROUP_NAME = "product_group_name";
-	public static final String COLUMN_PRODUCT_GROUP_TYPE = "product_group_type";
-	public static final String COLUMN_IS_COMMENT = "is_comment";
-	
-	public static final String TABLE_PCOMP_SET = "PComponentSet";
-	public static final String COLUMN_PGROUP_ID = "pgroup_id";
-	public static final String COLUMN_CHILD_PRODUCT_ID = "child_product_id";
-	public static final String COLUMN_CHILD_PRODUCT_AMOUNT = "child_product_amount";
-	public static final String COLUMN_FLEXIBLE_PRODUCT_PRICE = "flexible_product_price";
-	public static final String COLUMN_FLEXIBLE_INCLUDE_PRICE = "flexible_include_price";
 
 	public Products(SQLiteDatabase db){
 		super(db);
@@ -366,6 +331,57 @@ public class Products extends MPOSDatabase {
 				toast.show();
 			}
 		}
+	}
+	
+	public static abstract class ComponentSetEntry{
+		public static final String TABLE_PCOMP_SET = "PComponentSet";
+		public static final String COLUMN_PGROUP_ID = "pgroup_id";
+		public static final String COLUMN_CHILD_PRODUCT_ID = "child_product_id";
+		public static final String COLUMN_CHILD_PRODUCT_AMOUNT = "child_product_amount";
+		public static final String COLUMN_FLEXIBLE_PRODUCT_PRICE = "flexible_product_price";
+		public static final String COLUMN_FLEXIBLE_INCLUDE_PRICE = "flexible_include_price";
+	}
+	
+	public static abstract class ComponentGroupEntry{
+		public static final String TABLE_PCOMP_GROUP = "PComponentGroup";
+		public static final String COL_SET_GROUP_NO = "set_group_no";
+		public static final String COL_SET_GROUP_NAME = "set_group_name";
+		public static final String COL_REQ_AMOUNT = "req_amount";
+	}
+	
+	public static abstract class ProductGroupEntry{
+		public static final String TABLE_PRODUCT_GROUP = "ProductGroup";
+		public static final String COLUMN_PRODUCT_GROUP_CODE = "product_group_code";
+		public static final String COLUMN_PRODUCT_GROUP_NAME = "product_group_name";
+		public static final String COLUMN_PRODUCT_GROUP_TYPE = "product_group_type";
+		public static final String COLUMN_IS_COMMENT = "is_comment";	
+	}
+	
+	public static abstract class ProductDeptEntry{
+		public static final String TABLE_PRODUCT_DEPT = "ProductDept";
+		public static final String COLUMN_PRODUCT_DEPT_CODE = "product_dept_code";
+		public static final String COLUMN_PRODUCT_DEPT_NAME = "product_dept_name";	
+	}
+	
+	public static abstract class ProductEntry{
+		public static final String TABLE_PRODUCT = "Products";
+		public static final String COLUMN_PRODUCT_ID = "product_id";
+		public static final String COLUMN_PRODUCT_DEPT_ID = "product_dept_id";
+		public static final String COLUMN_PRODUCT_GROUP_ID = "product_group_id";
+		public static final String COLUMN_PRODUCT_CODE = "product_code";
+		public static final String COLUMN_PRODUCT_BAR_CODE = "product_barcode";
+		public static final String COLUMN_PRODUCT_NAME = "product_name";
+		public static final String COLUMN_PRODUCT_DESC = "product_desc";
+		public static final String COLUMN_PRODUCT_TYPE_ID = "product_type_id";
+		public static final String COLUMN_PRODUCT_PRICE = "product_price";
+		public static final String COLUMN_PRODUCT_UNIT_NAME = "product_unitname";
+		public static final String COLUMN_DISCOUNT_ALLOW = "discount_allow";
+		public static final String COLUMN_VAT_TYPE = "vat_type";
+		public static final String COLUMN_VAT_RATE = "vat_rate";
+		public static final String COLUMN_ISOUTOF_STOCK = "isoutof_stock";
+		public static final String COLUMN_IMG_URL = "image_url";
+		public static final String COLUMN_ACTIVATE = "activate";
+		public static final String COLUMN_ORDERING = "ordering";	
 	}
 	
 	public static class Product{

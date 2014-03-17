@@ -1,5 +1,7 @@
 package com.syn.mpos.provider;
 
+import com.syn.mpos.MPOSApplication;
+
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -38,8 +40,7 @@ public class ProductProvider extends ContentProvider {
 
 	@Override
 	public boolean onCreate() {
-		MPOSSQLiteHelper dbHelper = new MPOSSQLiteHelper(getContext());
-		mProduct = new Products(dbHelper.getWritableDatabase());
+		mProduct = new Products(MPOSApplication.getWriteDatabase());
 		return true;
 	}
 

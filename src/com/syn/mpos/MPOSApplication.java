@@ -112,7 +112,7 @@ public class MPOSApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		sContext = getApplicationContext();
-		sSqliteHelper = new MPOSSQLiteHelper(sContext);
+		sSqliteHelper = new MPOSSQLiteHelper(sContext, DB_NAME, DB_VERSION);
 		sGlobalProp = new GlobalProperty(getWriteDatabase());
 		sProduct = new Products(getWriteDatabase());
 		sShop = new Shop(getWriteDatabase());

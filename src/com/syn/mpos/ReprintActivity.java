@@ -2,10 +2,12 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.syn.mpos.provider.Computer;
+import com.syn.mpos.provider.Computer.ComputerEntry;
 import com.syn.mpos.provider.Transaction;
+import com.syn.mpos.provider.Transaction.TransactionEntry;
 import com.syn.mpos.provider.Util;
 import com.syn.pos.OrderTransaction;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
@@ -56,24 +58,24 @@ public class ReprintActivity extends Activity {
 	private List<OrderTransaction> listTransaction(String saleDate){
 		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
 		SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
-		Cursor cursor = sqlite.query(Transaction.TABLE_TRANSACTION, 
+		Cursor cursor = sqlite.query(TransactionEntry.TABLE_TRANSACTION, 
 				new String[]{
-					Transaction.COLUMN_TRANSACTION_ID,
-					Computer.COLUMN_COMPUTER_ID,
-					Transaction.COLUMN_RECEIPT_NO
+					TransactionEntry.COLUMN_TRANSACTION_ID,
+					ComputerEntry.COLUMN_COMPUTER_ID,
+					TransactionEntry.COLUMN_RECEIPT_NO
 				}, 
-				Transaction.COLUMN_SALE_DATE + "=? AND " +
-				Transaction.COLUMN_STATUS_ID + "=?", 
+				TransactionEntry.COLUMN_SALE_DATE + "=? AND " +
+				TransactionEntry.COLUMN_STATUS_ID + "=?", 
 				new String[]{
 					saleDate,
 				 	String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
-				}, null, null, Transaction.COLUMN_TRANSACTION_ID);
+				}, null, null, TransactionEntry.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){
 			do{
 				OrderTransaction trans = new OrderTransaction();
-				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_TRANSACTION_ID)));
-				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
-				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_NO)));
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(TransactionEntry.COLUMN_TRANSACTION_ID)));
+				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerEntry.COLUMN_COMPUTER_ID)));
+				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_RECEIPT_NO)));
 				transLst.add(trans);
 			}while(cursor.moveToNext());
 		}

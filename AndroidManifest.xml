@@ -123,6 +123,10 @@
             android:name="com.syn.mpos.SaleReportHtmlActivity"
             android:label="@string/title_activity_sale_report_html" >
         </activity>
+        <activity
+            android:name="com.syn.mpos.ProductSetActivity"
+            android:label="@string/title_activity_product_set" >
+        </activity>
     </application>
 
 </manifest>

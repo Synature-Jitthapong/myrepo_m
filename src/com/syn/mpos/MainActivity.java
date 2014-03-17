@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.syn.mpos.provider.Computer;
+import com.syn.mpos.provider.Computer.ComputerEntry;
 import com.syn.mpos.provider.Login;
 import com.syn.mpos.provider.MPOSDatabase;
 import com.syn.mpos.provider.Products;
@@ -13,9 +14,11 @@ import com.syn.mpos.provider.Session;
 import com.syn.mpos.provider.Staff;
 import com.syn.mpos.provider.SyncSaleLog;
 import com.syn.mpos.provider.Transaction;
+import com.syn.mpos.provider.Transaction.TransactionEntry;
 import com.syn.mpos.provider.Util;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
+
 import android.os.Bundle;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -262,9 +265,9 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		if(mItemSendSale != null){
 			SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
 			Cursor cursor = sqlite.rawQuery(
-					"SELECT COUNT(" + Transaction.COLUMN_TRANSACTION_ID + ") " +
-					" FROM " + Transaction.TABLE_TRANSACTION + 
-					" WHERE " + Transaction.COLUMN_STATUS_ID + "=? AND " + 
+					"SELECT COUNT(" + TransactionEntry.COLUMN_TRANSACTION_ID + ") " +
+					" FROM " + TransactionEntry.TABLE_TRANSACTION + 
+					" WHERE " + TransactionEntry.COLUMN_STATUS_ID + "=? AND " + 
 					MPOSDatabase.COLUMN_SEND_STATUS + "=?", 
 					new String[]{
 							String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
@@ -570,11 +573,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 
 	public void clearTransaction(){
-		if(mTransaction.deleteOrderDetail(mTransactionId, mComputerId)){
-			mTransaction.deleteTransaction(mTransactionId, mComputerId);
-			mTransaction.cancelDiscount(mTransactionId, mComputerId);
-			init();
-		}
+		mTransaction.deleteOrderDetail(mTransactionId, mComputerId);
+		mTransaction.deleteTransaction(mTransactionId, mComputerId);
+		mTransaction.cancelDiscount(mTransactionId, mComputerId);
+		init();
 	}
 	
 	private void voidBill(){
@@ -811,10 +813,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 									mSessionId = sess.addSession(mShopId, mComputerId, mStaffId, 0);
 								
 								ContentValues cv = new ContentValues();
-								cv.put(Transaction.COLUMN_OPEN_STAFF, mStaffId);
-								MPOSApplication.getWriteDatabase().update(Transaction.TABLE_TRANSACTION, 
-										cv, Transaction.COLUMN_TRANSACTION_ID + "=? AND " + 
-										Computer.COLUMN_COMPUTER_ID + "=?", 
+								cv.put(TransactionEntry.COLUMN_OPEN_STAFF, mStaffId);
+								MPOSApplication.getWriteDatabase().update(TransactionEntry.TABLE_TRANSACTION, 
+										cv, TransactionEntry.COLUMN_TRANSACTION_ID + "=? AND " + 
+										ComputerEntry.COLUMN_COMPUTER_ID + "=?", 
 										new String[]{
 										String.valueOf(mTransactionId), 
 										String.valueOf(mComputerId)

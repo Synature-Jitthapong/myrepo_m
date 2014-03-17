@@ -335,37 +335,33 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	
 	public void confirm() {
 		if(mTotalPaid >=mTotalSalePrice){
-			if(mTransaction.successTransaction(mTransactionId, 
-					mComputerId, mStaffId)){
-				mChange = mTotalPaid - mTotalSalePrice;
-				if(mChange > 0){
-					LayoutInflater inflater = (LayoutInflater) 
-							PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
-					tvChange.setText(MPOSApplication.getGlobalProperty().currencyFormat(mChange));
+			mTransaction.successTransaction(mTransactionId, 
+					mComputerId, mStaffId);
+			mChange = mTotalPaid - mTotalSalePrice;
+			if(mChange > 0){
+				LayoutInflater inflater = (LayoutInflater) 
+						PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
+				tvChange.setText(MPOSApplication.getGlobalProperty().currencyFormat(mChange));
+				
+				new AlertDialog.Builder(PaymentActivity.this)
+				.setTitle(R.string.change)
+				.setCancelable(false)
+				.setView(tvChange)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 					
-					new AlertDialog.Builder(PaymentActivity.this)
-					.setTitle(R.string.change)
-					.setCancelable(false)
-					.setView(tvChange)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							print();
-							sendSale();
-							finish();
-						}
-					})
-					.show();
-				}else{
-					print();
-					sendSale();
-					finish();
-				}
-				
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						print();
+						sendSale();
+						finish();
+					}
+				})
+				.show();
 			}else{
-				
+				print();
+				sendSale();
+				finish();
 			}
 		}else{
 			new AlertDialog.Builder(PaymentActivity.this)

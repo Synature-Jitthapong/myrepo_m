@@ -1,6 +1,5 @@
 package com.syn.mpos.provider;
 
-import com.syn.mpos.MPOSApplication;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -11,9 +10,6 @@ import android.database.sqlite.SQLiteOpenHelper;
  *
  */
 public class MPOSSQLiteHelper extends SQLiteOpenHelper{
-	public static final String DB_NAME = MPOSApplication.DB_NAME;
-	public static final int DB_VERSION = MPOSApplication.DB_VERSION;
-
 	private static final String[] sqlCreateTables = {
 		MPOSSQL.BANK_SQL,
 		MPOSSQL.COMPUTER_SQL,
@@ -33,6 +29,7 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		MPOSSQL.PRODUCT_DEPT_SQL,
 		MPOSSQL.PRODUCT_GROUP_SQL,
 		MPOSSQL.PCOMP_SET_SQL,
+		MPOSSQL.PCOMP_GROUP_SQL,
 		MPOSSQL.PRODUCT_SQL,
 		MPOSSQL.PROVINCE_SQL,
 		MPOSSQL.SESSION_SQL,
@@ -44,8 +41,8 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		MPOSSQL.HEAD_FOOD_RECEIPT_SQL
 	};
 	
-	public MPOSSQLiteHelper(Context context) {
-		super(context, DB_NAME, null, DB_VERSION);
+	public MPOSSQLiteHelper(Context context, String dbName, int dbVersion) {
+		super(context, dbName, null, dbVersion);
 	}
 
 	@Override

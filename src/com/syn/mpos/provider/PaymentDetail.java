@@ -3,6 +3,8 @@ package com.syn.mpos.provider;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.mpos.provider.Computer.ComputerEntry;
+import com.syn.mpos.provider.Transaction.TransactionEntry;
 import com.syn.pos.Payment;
 
 import android.content.ContentValues;
@@ -65,8 +67,8 @@ public class PaymentDetail extends MPOSDatabase {
 				" FROM " + TABLE_PAYMENT + " a " +
 				" LEFT JOIN " + TABLE_PAY_TYPE + " b " +
 				" ON a." + COLUMN_PAY_TYPE_ID + "=b." + COLUMN_PAY_TYPE_ID +
-				" WHERE a." + Transaction.COLUMN_TRANSACTION_ID + "=?" +
-				" AND a." + Computer.COLUMN_COMPUTER_ID + "=?" +
+				" WHERE a." + TransactionEntry.COLUMN_TRANSACTION_ID + "=?" +
+				" AND a." + ComputerEntry.COLUMN_COMPUTER_ID + "=?" +
 				" GROUP BY a." + COLUMN_PAY_TYPE_ID +
 				" ORDER BY a." + COLUMN_PAY_ID,
 				new String[]{
@@ -95,8 +97,8 @@ public class PaymentDetail extends MPOSDatabase {
 		try {
 			mSqlite.execSQL(
 					" DELETE FROM " + TABLE_PAYMENT +
-					" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=" + transactionId + 
-					" AND " + Computer.COLUMN_COMPUTER_ID + "=" + computerId);
+					" WHERE " + TransactionEntry.COLUMN_TRANSACTION_ID + "=" + transactionId + 
+					" AND " + ComputerEntry.COLUMN_COMPUTER_ID + "=" + computerId);
 			isSuccess = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -109,8 +111,8 @@ public class PaymentDetail extends MPOSDatabase {
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT MAX(" + COLUMN_PAY_ID + ") " +
 				" FROM " + TABLE_PAYMENT + 
-				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=" + transactionId +
-				" AND " + Computer.COLUMN_COMPUTER_ID + "=" + computerId, null);
+				" WHERE " + TransactionEntry.COLUMN_TRANSACTION_ID + "=" + transactionId +
+				" AND " + ComputerEntry.COLUMN_COMPUTER_ID + "=" + computerId, null);
 		if(cursor.moveToFirst()){
 			maxPaymentId = cursor.getInt(0);
 		}
@@ -124,8 +126,8 @@ public class PaymentDetail extends MPOSDatabase {
 		int paymentId = getMaxPaymentDetailId(transactionId, computerId);
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_PAY_ID, paymentId);
-		cv.put(Transaction.COLUMN_TRANSACTION_ID, transactionId);
-		cv.put(Computer.COLUMN_COMPUTER_ID, computerId);
+		cv.put(TransactionEntry.COLUMN_TRANSACTION_ID, transactionId);
+		cv.put(ComputerEntry.COLUMN_COMPUTER_ID, computerId);
 		cv.put(COLUMN_PAY_TYPE_ID, payTypeId);
 		cv.put(COLUMN_PAID, paid);
 		cv.put(COLUMN_PAY_AMOUNT, amount);
@@ -144,8 +146,8 @@ public class PaymentDetail extends MPOSDatabase {
 		cv.put(COLUMN_PAID, paid);
 		cv.put(COLUMN_PAY_AMOUNT, amount);
 		return mSqlite.update(TABLE_PAYMENT, cv, 
-				Transaction.COLUMN_TRANSACTION_ID + "=? "
-						+ " AND " + Computer.COLUMN_COMPUTER_ID + "=? "
+				TransactionEntry.COLUMN_TRANSACTION_ID + "=? "
+						+ " AND " + ComputerEntry.COLUMN_COMPUTER_ID + "=? "
 								+ " AND " + COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{
 					String.valueOf(transactionId),
@@ -155,15 +157,10 @@ public class PaymentDetail extends MPOSDatabase {
 		);
 	}
 
-	public boolean deletePaymentDetail(int payTypeId) throws SQLException {
-		boolean isSuccess = false;
-		int affectRow = mSqlite.delete(TABLE_PAYMENT, 
+	public int deletePaymentDetail(int payTypeId){
+		return mSqlite.delete(TABLE_PAYMENT, 
 				COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(payTypeId)});
-		
-		if(affectRow > 0)
-			isSuccess = true;
-		return isSuccess;
 	}
 	
 	public double getTotalPaid(int transactionId, int computerId){
@@ -171,8 +168,8 @@ public class PaymentDetail extends MPOSDatabase {
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + COLUMN_PAID + ") " +
 				" FROM " + TABLE_PAYMENT +
-				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=?" +
-				" AND " + Computer.COLUMN_COMPUTER_ID + "=?", 
+				" WHERE " + TransactionEntry.COLUMN_TRANSACTION_ID + "=?" +
+				" AND " + ComputerEntry.COLUMN_COMPUTER_ID + "=?", 
 				new String[]{
 						String.valueOf(transactionId),
 						String.valueOf(computerId)
@@ -199,8 +196,8 @@ public class PaymentDetail extends MPOSDatabase {
 				" LEFT JOIN " + TABLE_PAY_TYPE + " b " + 
 				" ON a." + COLUMN_PAY_TYPE_ID + "=" +
 				" b." + COLUMN_PAY_TYPE_ID +
-				" WHERE a." + Transaction.COLUMN_TRANSACTION_ID + "=?" +
-				" AND a." + Computer.COLUMN_COMPUTER_ID + "=?" + 
+				" WHERE a." + TransactionEntry.COLUMN_TRANSACTION_ID + "=?" +
+				" AND a." + ComputerEntry.COLUMN_COMPUTER_ID + "=?" + 
 				" GROUP BY a." + COLUMN_PAY_TYPE_ID,
 				new String[]{
 						String.valueOf(transactionId), 

@@ -2,10 +2,14 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.syn.mpos.provider.Computer;
+import com.syn.mpos.provider.Computer.ComputerEntry;
 import com.syn.mpos.provider.MPOSDatabase;
 import com.syn.mpos.provider.Transaction;
+import com.syn.mpos.provider.Transaction.TransactionEntry;
 import com.syn.pos.OrderTransaction;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -112,27 +116,27 @@ public class SyncSaleActivity extends Activity{
 	private List<SendTransaction> listNotSendTransaction(){
 		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
 		SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
-		Cursor cursor = sqlite.query(Transaction.TABLE_TRANSACTION, 
+		Cursor cursor = sqlite.query(TransactionEntry.TABLE_TRANSACTION, 
 				new String[]{
-					Transaction.COLUMN_TRANSACTION_ID,
-					Computer.COLUMN_COMPUTER_ID,
-					Transaction.COLUMN_RECEIPT_NO,
-					Transaction.COLUMN_CLOSE_TIME,
+					TransactionEntry.COLUMN_TRANSACTION_ID,
+					ComputerEntry.COLUMN_COMPUTER_ID,
+					TransactionEntry.COLUMN_RECEIPT_NO,
+					TransactionEntry.COLUMN_CLOSE_TIME,
 					MPOSDatabase.COLUMN_SEND_STATUS
-				}, Transaction.COLUMN_STATUS_ID + "=? AND " +
+				}, TransactionEntry.COLUMN_STATUS_ID + "=? AND " +
 					MPOSDatabase.COLUMN_SEND_STATUS + "=?", 
 				new String[]{
 					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
-				}, null, null, Transaction.COLUMN_TRANSACTION_ID);
+				}, null, null, TransactionEntry.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){
 			do{
 				SendTransaction trans = new SendTransaction();
-				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_TRANSACTION_ID)));
-				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
-				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_NO)));
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(TransactionEntry.COLUMN_TRANSACTION_ID)));
+				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerEntry.COLUMN_COMPUTER_ID)));
+				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_RECEIPT_NO)));
 				trans.setSendStatus(cursor.getInt(cursor.getColumnIndex(MPOSDatabase.COLUMN_SEND_STATUS)));
-				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_CLOSE_TIME)));
+				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_CLOSE_TIME)));
 				transLst.add(trans);
 			}while(cursor.moveToNext());
 		}

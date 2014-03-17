@@ -3,6 +3,9 @@ package com.syn.mpos.provider;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.mpos.provider.Computer.ComputerEntry;
+import com.syn.mpos.provider.Transaction.OrderDetailEntry;
+import com.syn.mpos.provider.Transaction.TransactionEntry;
 import com.syn.pos.Report;
 import com.syn.pos.Report.ReportDetail;
 
@@ -45,8 +48,8 @@ public class Reporting extends MPOSDatabase{
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " +
 				" FROM " + PaymentDetail.TABLE_PAYMENT +
-				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=? " +
-				" AND " + Computer.COLUMN_COMPUTER_ID + "=? " +
+				" WHERE " + TransactionEntry.COLUMN_TRANSACTION_ID + "=? " +
+				" AND " + ComputerEntry.COLUMN_COMPUTER_ID + "=? " +
 				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(transactionId),
 				String.valueOf(computerId), String.valueOf(payTypeId)});
@@ -58,38 +61,38 @@ public class Reporting extends MPOSDatabase{
 	
 	public Report getSaleReportByBill(){
 		Report report = null;
-		String strSql = " SELECT a." + Transaction.COLUMN_TRANSACTION_ID  + ", " +
-				" a." + Computer.COLUMN_COMPUTER_ID + ", " +
-				" a." + Transaction.COLUMN_STATUS_ID + ", " +
-				" a." + Transaction.COLUMN_RECEIPT_NO + "," +
-				" a." + Transaction.COLUMN_TRANS_EXCLUDE_VAT + ", " +
-				" a." + Transaction.COLUMN_TRANS_VAT + ", " +
-				" a." + Transaction.COLUMN_TRANS_VATABLE + ", " +
+		String strSql = " SELECT a." + TransactionEntry.COLUMN_TRANSACTION_ID  + ", " +
+				" a." + ComputerEntry.COLUMN_COMPUTER_ID + ", " +
+				" a." + TransactionEntry.COLUMN_STATUS_ID + ", " +
+				" a." + TransactionEntry.COLUMN_RECEIPT_NO + "," +
+				" a." + TransactionEntry.COLUMN_TRANS_EXCLUDE_VAT + ", " +
+				" a." + TransactionEntry.COLUMN_TRANS_VAT + ", " +
+				" a." + TransactionEntry.COLUMN_TRANS_VATABLE + ", " +
 				" a." + MPOSDatabase.COLUMN_SEND_STATUS + ", " +
-				" SUM(b." + Transaction.COLUMN_TOTAL_RETAIL_PRICE + " * b." + Transaction.COLUMN_ORDER_QTY + ") AS TotalRetailPrice, " +
-				" SUM(b." + Transaction.COLUMN_TOTAL_SALE_PRICE + " * b." + Transaction.COLUMN_ORDER_QTY + ") AS TotalSalePrice, " +
-				" a." + Transaction.COLUMN_OTHER_DISCOUNT + " + " + 
-				" SUM(b." + Transaction.COLUMN_PRICE_DISCOUNT + " + " + 
-				" b." + Transaction.COLUMN_MEMBER_DISCOUNT + ") AS TotalDiscount, " +
+				" SUM(b." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + " * b." + OrderDetailEntry.COLUMN_ORDER_QTY + ") AS TotalRetailPrice, " +
+				" SUM(b." + OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + " * b." + OrderDetailEntry.COLUMN_ORDER_QTY + ") AS TotalSalePrice, " +
+				" a." + TransactionEntry.COLUMN_OTHER_DISCOUNT + " + " + 
+				" SUM(b." + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + " + " + 
+				" b." + OrderDetailEntry.COLUMN_MEMBER_DISCOUNT + ") AS TotalDiscount, " +
 				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " +
 				" FROM " + PaymentDetail.TABLE_PAYMENT +
-				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=a." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND " + Computer.COLUMN_COMPUTER_ID + "=a." + Computer.COLUMN_COMPUTER_ID +
+				" WHERE " + TransactionEntry.COLUMN_TRANSACTION_ID + "=a." + TransactionEntry.COLUMN_TRANSACTION_ID +
+				" AND " + ComputerEntry.COLUMN_COMPUTER_ID + "=a." + ComputerEntry.COLUMN_COMPUTER_ID +
 				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CASH +
 				") AS TotalCash, " +
 				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " +
 				" FROM " + PaymentDetail.TABLE_PAYMENT +
-				" WHERE " + Transaction.COLUMN_TRANSACTION_ID + "=a." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND " + Computer.COLUMN_COMPUTER_ID + "=a." + Computer.COLUMN_COMPUTER_ID +
+				" WHERE " + TransactionEntry.COLUMN_TRANSACTION_ID + "=a." + TransactionEntry.COLUMN_TRANSACTION_ID +
+				" AND " + ComputerEntry.COLUMN_COMPUTER_ID + "=a." + ComputerEntry.COLUMN_COMPUTER_ID +
 				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CREDIT +
 				") AS TotalCredit " +
-				" FROM " + Transaction.TABLE_TRANSACTION + " a " +
-				" INNER JOIN " + Transaction.TABLE_ORDER + " b " +
-				" ON a." + Transaction.COLUMN_TRANSACTION_ID + "=b." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND a." + Computer.COLUMN_COMPUTER_ID + "=b." + Computer.COLUMN_COMPUTER_ID +
-				" WHERE a." + Transaction.COLUMN_STATUS_ID + " IN(?, ?) " +
-				" AND a." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ? " +  
-				" GROUP BY a." + Transaction.COLUMN_TRANSACTION_ID;
+				" FROM " + TransactionEntry.TABLE_TRANSACTION + " a " +
+				" INNER JOIN " + OrderDetailEntry.TABLE_ORDER + " b " +
+				" ON a." + TransactionEntry.COLUMN_TRANSACTION_ID + "=b." + TransactionEntry.COLUMN_TRANSACTION_ID +
+				" AND a." + ComputerEntry.COLUMN_COMPUTER_ID + "=b." + ComputerEntry.COLUMN_COMPUTER_ID +
+				" WHERE a." + TransactionEntry.COLUMN_STATUS_ID + " IN(?, ?) " +
+				" AND a." + TransactionEntry.COLUMN_SALE_DATE + " BETWEEN ? AND ? " +  
+				" GROUP BY a." + TransactionEntry.COLUMN_TRANSACTION_ID;
 
 		Cursor cursor = mSqlite.rawQuery(strSql, 
 				new String[]{
@@ -103,16 +106,16 @@ public class Reporting extends MPOSDatabase{
 			do{
 				Report.ReportDetail reportDetail = 
 						new Report.ReportDetail();
-				reportDetail.setTransactionId(cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_TRANSACTION_ID)));
-				reportDetail.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
-				reportDetail.setTransStatus(cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_STATUS_ID)));
-				reportDetail.setReceiptNo(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_NO)));
+				reportDetail.setTransactionId(cursor.getInt(cursor.getColumnIndex(TransactionEntry.COLUMN_TRANSACTION_ID)));
+				reportDetail.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerEntry.COLUMN_COMPUTER_ID)));
+				reportDetail.setTransStatus(cursor.getInt(cursor.getColumnIndex(TransactionEntry.COLUMN_STATUS_ID)));
+				reportDetail.setReceiptNo(cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_RECEIPT_NO)));
 				reportDetail.setTotalPrice(cursor.getDouble(cursor.getColumnIndex("TotalRetailPrice")));
 				reportDetail.setSubTotal(cursor.getDouble(cursor.getColumnIndex("TotalSalePrice")));
-				reportDetail.setVatExclude(cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_EXCLUDE_VAT)));
+				reportDetail.setVatExclude(cursor.getDouble(cursor.getColumnIndex(TransactionEntry.COLUMN_TRANS_EXCLUDE_VAT)));
 				reportDetail.setDiscount(cursor.getDouble(cursor.getColumnIndex("TotalDiscount")));
-				reportDetail.setVatable(cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VATABLE)));
-				reportDetail.setTotalVat(cursor.getDouble(cursor.getColumnIndex(Transaction.COLUMN_TRANS_VAT)));
+				reportDetail.setVatable(cursor.getDouble(cursor.getColumnIndex(TransactionEntry.COLUMN_TRANS_VATABLE)));
+				reportDetail.setTotalVat(cursor.getDouble(cursor.getColumnIndex(TransactionEntry.COLUMN_TRANS_VAT)));
 				reportDetail.setCash(cursor.getDouble(cursor.getColumnIndex("TotalCash")));
 				reportDetail.setCredit(cursor.getDouble(cursor.getColumnIndex("TotalCredit")));
 				reportDetail.setSendStatus(cursor.getInt(cursor.getColumnIndex(MPOSDatabase.COLUMN_SEND_STATUS)));
@@ -230,20 +233,20 @@ public class Reporting extends MPOSDatabase{
 	public Report.ReportDetail getSummaryByGroup(int groupId){
 		Report.ReportDetail report = null;
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT SUM(o." + Transaction.COLUMN_ORDER_QTY + ") AS TotalQty, " +
-				" SUM(o." + Transaction.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
-				" SUM(o." + Transaction.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, " +
-				" SUM(o." + Transaction.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice " +
-				" FROM " + Transaction.TABLE_TRANSACTION + " t " + 
-				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
-				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID +
+				" SELECT SUM(o." + OrderDetailEntry.COLUMN_ORDER_QTY + ") AS TotalQty, " +
+				" SUM(o." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
+				" SUM(o." + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, " +
+				" SUM(o." + OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice " +
+				" FROM " + TransactionEntry.TABLE_TRANSACTION + " t " + 
+				" INNER JOIN " + OrderDetailEntry.TABLE_ORDER + " o " +
+				" ON t." + TransactionEntry.COLUMN_TRANSACTION_ID + "=o." + TransactionEntry.COLUMN_TRANSACTION_ID +
+				" AND t." + ComputerEntry.COLUMN_COMPUTER_ID + "=o." + ComputerEntry.COLUMN_COMPUTER_ID +
 				" INNER JOIN " + Products.TABLE_PRODUCT + " p " +
 				" ON o." + Products.COLUMN_PRODUCT_ID + "=p." + Products.COLUMN_PRODUCT_ID +
 				" INNER JOIN " + Products.TABLE_PRODUCT_DEPT + " pd " +
 				" ON p." + Products.COLUMN_PRODUCT_DEPT_ID + "=pd." + Products.COLUMN_PRODUCT_DEPT_ID +
-				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
-				" AND t." + Transaction.COLUMN_STATUS_ID + "=?" +
+				" WHERE t." + TransactionEntry.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
+				" AND t." + TransactionEntry.COLUMN_STATUS_ID + "=?" +
 				" AND pd." + Products.COLUMN_PRODUCT_GROUP_ID + "=?" +
 				" GROUP BY pd." + Products.COLUMN_PRODUCT_GROUP_ID,
 				new String[]{
@@ -272,18 +275,18 @@ public class Reporting extends MPOSDatabase{
 	public Report.ReportDetail getSummaryByDept(int deptId){
 		Report.ReportDetail report = null;
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT SUM(o." + Transaction.COLUMN_ORDER_QTY + ") AS TotalQty, " +
-				" SUM(o." + Transaction.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
-				" SUM(o." + Transaction.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, " +
-				" SUM(o." + Transaction.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice " +
-				" FROM " + Transaction.TABLE_TRANSACTION + " t " + 
-				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
-				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID +
+				" SELECT SUM(o." + OrderDetailEntry.COLUMN_ORDER_QTY + ") AS TotalQty, " +
+				" SUM(o." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
+				" SUM(o." + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, " +
+				" SUM(o." + OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice " +
+				" FROM " + TransactionEntry.TABLE_TRANSACTION + " t " + 
+				" INNER JOIN " + OrderDetailEntry.TABLE_ORDER + " o " +
+				" ON t." + TransactionEntry.COLUMN_TRANSACTION_ID + "=o." + TransactionEntry.COLUMN_TRANSACTION_ID +
+				" AND t." + ComputerEntry.COLUMN_COMPUTER_ID + "=o." + ComputerEntry.COLUMN_COMPUTER_ID +
 				" INNER JOIN " + Products.TABLE_PRODUCT + " p " +
 				" ON o." + Products.COLUMN_PRODUCT_ID + "=p." + Products.COLUMN_PRODUCT_ID +
-				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
-				" AND t." + Transaction.COLUMN_STATUS_ID + "=?" +
+				" WHERE t." + TransactionEntry.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
+				" AND t." + TransactionEntry.COLUMN_STATUS_ID + "=?" +
 				" AND p." + Products.COLUMN_PRODUCT_DEPT_ID + "=?" +
 				" GROUP BY p." + Products.COLUMN_PRODUCT_DEPT_ID,
 				new String[]{
@@ -333,48 +336,48 @@ public class Reporting extends MPOSDatabase{
 	private void createProductDataTmp() throws SQLException{
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT b." + Products.COLUMN_PRODUCT_ID + ", " +
-				" SUM(b." + Transaction.COLUMN_ORDER_QTY + ") AS Qty, " +
-			    " SUM(b." + Transaction.COLUMN_TOTAL_RETAIL_PRICE + ") AS RetailPrice, " +
-				" SUM(b." + Transaction.COLUMN_PRICE_DISCOUNT + ") AS Discount, " +
-			    " SUM(b." + Transaction.COLUMN_TOTAL_SALE_PRICE + ") AS SalePrice, " +
+				" SUM(b." + OrderDetailEntry.COLUMN_ORDER_QTY + ") AS Qty, " +
+			    " SUM(b." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + ") AS RetailPrice, " +
+				" SUM(b." + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + ") AS Discount, " +
+			    " SUM(b." + OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + ") AS SalePrice, " +
 				// total qty
-				" (SELECT SUM(o." + Transaction.COLUMN_ORDER_QTY + ") " +
-				" FROM " + Transaction.TABLE_TRANSACTION + " t " + 
-				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
-				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID +
-				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
-				" AND t." + Transaction.COLUMN_STATUS_ID + "=?) AS TotalQty, " +
+				" (SELECT SUM(o." + OrderDetailEntry.COLUMN_ORDER_QTY + ") " +
+				" FROM " + TransactionEntry.TABLE_TRANSACTION + " t " + 
+				" INNER JOIN " + OrderDetailEntry.TABLE_ORDER + " o " +
+				" ON t." + TransactionEntry.COLUMN_TRANSACTION_ID + "=o." + TransactionEntry.COLUMN_TRANSACTION_ID +
+				" AND t." + ComputerEntry.COLUMN_COMPUTER_ID + "=o." + ComputerEntry.COLUMN_COMPUTER_ID +
+				" WHERE t." + TransactionEntry.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
+				" AND t." + TransactionEntry.COLUMN_STATUS_ID + "=?) AS TotalQty, " +
 				// total retail price
-				" (SELECT SUM(o." + Transaction.COLUMN_TOTAL_RETAIL_PRICE + ") " +
-				" FROM " + Transaction.TABLE_TRANSACTION + " t " + 
-				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
-				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID +
-				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
-				" AND t." + Transaction.COLUMN_STATUS_ID + "=?) AS TotalRetailPrice, " +
+				" (SELECT SUM(o." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + ") " +
+				" FROM " + TransactionEntry.TABLE_TRANSACTION + " t " + 
+				" INNER JOIN " + OrderDetailEntry.TABLE_ORDER + " o " +
+				" ON t." + TransactionEntry.COLUMN_TRANSACTION_ID + "=o." + TransactionEntry.COLUMN_TRANSACTION_ID +
+				" AND t." + ComputerEntry.COLUMN_COMPUTER_ID + "=o." + ComputerEntry.COLUMN_COMPUTER_ID +
+				" WHERE t." + TransactionEntry.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
+				" AND t." + TransactionEntry.COLUMN_STATUS_ID + "=?) AS TotalRetailPrice, " +
 				// total discount
-				" (SELECT SUM(o." + Transaction.COLUMN_PRICE_DISCOUNT + ") " +
-				" FROM " + Transaction.TABLE_TRANSACTION + " t " + 
-				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
-				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID +
-				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
-				" AND t." + Transaction.COLUMN_STATUS_ID + "=?) AS TotalDiscount, " +
+				" (SELECT SUM(o." + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + ") " +
+				" FROM " + TransactionEntry.TABLE_TRANSACTION + " t " + 
+				" INNER JOIN " + OrderDetailEntry.TABLE_ORDER + " o " +
+				" ON t." + TransactionEntry.COLUMN_TRANSACTION_ID + "=o." + TransactionEntry.COLUMN_TRANSACTION_ID +
+				" AND t." + ComputerEntry.COLUMN_COMPUTER_ID + "=o." + ComputerEntry.COLUMN_COMPUTER_ID +
+				" WHERE t." + TransactionEntry.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
+				" AND t." + TransactionEntry.COLUMN_STATUS_ID + "=?) AS TotalDiscount, " +
 				// total sale price
-				" (SELECT SUM(o." + Transaction.COLUMN_TOTAL_SALE_PRICE + ") " +
-				" FROM " + Transaction.TABLE_TRANSACTION + " t " + 
-				" INNER JOIN " + Transaction.TABLE_ORDER + " o " +
-				" ON t." + Transaction.COLUMN_TRANSACTION_ID + "=o." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND t." + Computer.COLUMN_COMPUTER_ID + "=o." + Computer.COLUMN_COMPUTER_ID +
-				" WHERE t." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
-				" AND t." + Transaction.COLUMN_STATUS_ID + "=?) AS TotalSalePrice " +
-				" FROM " + Transaction.TABLE_TRANSACTION + " a " +
-				" INNER JOIN " + Transaction.TABLE_ORDER + " b " +
-				" ON a." + Transaction.COLUMN_TRANSACTION_ID + "=b." + Transaction.COLUMN_TRANSACTION_ID +
-				" AND a." + Computer.COLUMN_COMPUTER_ID + "=b." + Computer.COLUMN_COMPUTER_ID + 
-				" WHERE a." + Transaction.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
-				" AND a." + Transaction.COLUMN_STATUS_ID + "=?" +
+				" (SELECT SUM(o." + OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + ") " +
+				" FROM " + TransactionEntry.TABLE_TRANSACTION + " t " + 
+				" INNER JOIN " + OrderDetailEntry.TABLE_ORDER + " o " +
+				" ON t." + TransactionEntry.COLUMN_TRANSACTION_ID + "=o." + TransactionEntry.COLUMN_TRANSACTION_ID +
+				" AND t." + ComputerEntry.COLUMN_COMPUTER_ID + "=o." + ComputerEntry.COLUMN_COMPUTER_ID +
+				" WHERE t." + TransactionEntry.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
+				" AND t." + TransactionEntry.COLUMN_STATUS_ID + "=?) AS TotalSalePrice " +
+				" FROM " + TransactionEntry.TABLE_TRANSACTION + " a " +
+				" INNER JOIN " + OrderDetailEntry.TABLE_ORDER + " b " +
+				" ON a." + TransactionEntry.COLUMN_TRANSACTION_ID + "=b." + TransactionEntry.COLUMN_TRANSACTION_ID +
+				" AND a." + ComputerEntry.COLUMN_COMPUTER_ID + "=b." + ComputerEntry.COLUMN_COMPUTER_ID + 
+				" WHERE a." + TransactionEntry.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
+				" AND a." + TransactionEntry.COLUMN_STATUS_ID + "=?" +
 				" GROUP BY b." + Products.COLUMN_PRODUCT_ID, 
 				new String[]{
 						String.valueOf(mDateFrom),

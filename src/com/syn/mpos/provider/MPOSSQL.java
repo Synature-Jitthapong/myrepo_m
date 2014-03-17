@@ -1,5 +1,15 @@
 package com.syn.mpos.provider;
 
+import com.syn.mpos.provider.Computer.ComputerEntry;
+import com.syn.mpos.provider.PrintReceiptLog.PrintLogEntry;
+import com.syn.mpos.provider.Products.ComponentGroupEntry;
+import com.syn.mpos.provider.Products.ComponentSetEntry;
+import com.syn.mpos.provider.Products.ProductDeptEntry;
+import com.syn.mpos.provider.Products.ProductEntry;
+import com.syn.mpos.provider.Products.ProductGroupEntry;
+import com.syn.mpos.provider.Session.SessionEntry;
+import com.syn.mpos.provider.Transaction.OrderDetailEntry;
+import com.syn.mpos.provider.Transaction.TransactionEntry;
 
 public class MPOSSQL {
 	public static final String BANK_SQL =
@@ -9,13 +19,13 @@ public class MPOSSQL {
 			"PRIMARY KEY (" + Bank.COLUMN_BANK_ID + ") );";
 	
 	public static final String COMPUTER_SQL =
-			"CREATE TABLE " + Computer.TABLE_COMPUTER + " ( " +
-			Computer.COLUMN_COMPUTER_ID + " INTEGER, " +
-			Computer.COLUMN_COMPUTER_NAME + " TEXT, " +
-			Computer.COLUMN_DEVICE_CODE + " TEXT, " +
-			Computer.COLUMN_REGISTER_NUMBER + " TEXT, " +
-			Computer.COLUMN_IS_MAIN_COMPUTER + " INTEGER DEFAULT 0, " +
-			"PRIMARY KEY (" + Computer.COLUMN_COMPUTER_ID + ") );";
+			"CREATE TABLE " + ComputerEntry.TABLE_COMPUTER + " ( " +
+			ComputerEntry.COLUMN_COMPUTER_ID + " INTEGER, " +
+			ComputerEntry.COLUMN_COMPUTER_NAME + " TEXT, " +
+			ComputerEntry.COLUMN_DEVICE_CODE + " TEXT, " +
+			ComputerEntry.COLUMN_REGISTER_NUMBER + " TEXT, " +
+			ComputerEntry.COLUMN_IS_MAIN_COMPUTER + " INTEGER DEFAULT 0, " +
+			"PRIMARY KEY (" + ComputerEntry.COLUMN_COMPUTER_ID + ") );";
 	
 	public static final String CREDIT_CARD_TYPE_SQL =
 			"CREATE TABLE " + CreditCard.TABLE_CREDITCARD_TYPE + " ( " +
@@ -28,10 +38,10 @@ public class MPOSSQL {
 			StockDocument.COLUMN_DOC_DETAIL_ID + " INTEGER, " +
 			StockDocument.COLUMN_DOC_ID + " INTEGER, " +
 			Shop.COLUMN_SHOP_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_ID + " INTEGER, " +
+			ProductEntry.COLUMN_PRODUCT_ID + " INTEGER, " +
 			StockDocument.COLUMN_PRODUCT_AMOUNT + " REAL DEFAULT 0, " +
-			Products.COLUMN_PRODUCT_UNIT_NAME + " TEXT, " + 
-			Products.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
+			ProductEntry.COLUMN_PRODUCT_UNIT_NAME + " TEXT, " + 
+			ProductEntry.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
 			"PRIMARY KEY (" + StockDocument.COLUMN_DOC_DETAIL_ID + " ASC, " + 
 			StockDocument.COLUMN_DOC_ID + " ASC, " + Shop.COLUMN_SHOP_ID + " ASC) );";
 	
@@ -79,89 +89,89 @@ public class MPOSSQL {
 			"PRIMARY KEY (" + Language.COLUMN_LANG_ID + ") );";
 	
 	public static final String ORDER_SQL =
-			"CREATE TABLE " + Transaction.TABLE_ORDER + " ( " +
-			Transaction.COLUMN_ORDER_ID + " INTEGER, " +
-			Transaction.COLUMN_TRANSACTION_ID + " INTEGER, " +
-			Computer.COLUMN_COMPUTER_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 1, " +
-			Transaction.COLUMN_ORDER_QTY + " REAL DEFAULT 1, " +
-			Products.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 2, " +
-			Products.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, " +
-			Transaction.COLUMN_TOTAL_VAT + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_MEMBER_DISCOUNT + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
-			"PRIMARY KEY (" + Transaction.COLUMN_ORDER_ID + " ASC, " +
-			Transaction.COLUMN_TRANSACTION_ID + " ASC, " + Computer.COLUMN_COMPUTER_ID + " ASC) );";
+			"CREATE TABLE " + OrderDetailEntry.TABLE_ORDER + " ( " +
+			OrderDetailEntry.COLUMN_ORDER_ID + " INTEGER, " +
+			TransactionEntry.COLUMN_TRANSACTION_ID + " INTEGER, " +
+			ComputerEntry.COLUMN_COMPUTER_ID + " INTEGER, " +
+			ProductEntry.COLUMN_PRODUCT_ID + " INTEGER, " +
+			ProductEntry.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 1, " +
+			OrderDetailEntry.COLUMN_ORDER_QTY + " REAL DEFAULT 1, " +
+			ProductEntry.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 2, " +
+			ProductEntry.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, " +
+			OrderDetailEntry.COLUMN_TOTAL_VAT + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_MEMBER_DISCOUNT + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
+			"PRIMARY KEY (" + OrderDetailEntry.COLUMN_ORDER_ID + " ASC, " +
+			TransactionEntry.COLUMN_TRANSACTION_ID + " ASC, " + ComputerEntry.COLUMN_COMPUTER_ID + " ASC) );";
 	
 	public static final String ORDER_TMP_SQL =
-			"CREATE TABLE " + Transaction.TABLE_ORDER_TMP + " ( " +
-			Transaction.COLUMN_ORDER_ID + " INTEGER, " +
-			Transaction.COLUMN_TRANSACTION_ID + " INTEGER, " +
-			Computer.COLUMN_COMPUTER_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 1, " +
-			Transaction.COLUMN_ORDER_QTY + " REAL DEFAULT 1, " +
-			Products.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 1, " +
-			Products.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, " +
-			Transaction.COLUMN_TOTAL_VAT + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_MEMBER_DISCOUNT + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
-			"PRIMARY KEY (" + Transaction.COLUMN_ORDER_ID + " ASC, " +
-			Transaction.COLUMN_TRANSACTION_ID + " ASC, " + Computer.COLUMN_COMPUTER_ID + " ASC) );";
+			"CREATE TABLE " + OrderDetailEntry.TABLE_ORDER_TMP + " ( " +
+			OrderDetailEntry.COLUMN_ORDER_ID + " INTEGER, " +
+			TransactionEntry.COLUMN_TRANSACTION_ID + " INTEGER, " +
+			ComputerEntry.COLUMN_COMPUTER_ID + " INTEGER, " +
+			ProductEntry.COLUMN_PRODUCT_ID + " INTEGER, " +
+			ProductEntry.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 1, " +
+			OrderDetailEntry.COLUMN_ORDER_QTY + " REAL DEFAULT 1, " +
+			ProductEntry.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 2, " +
+			ProductEntry.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, " +
+			OrderDetailEntry.COLUMN_TOTAL_VAT + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_MEMBER_DISCOUNT + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
+			OrderDetailEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
+			"PRIMARY KEY (" + OrderDetailEntry.COLUMN_ORDER_ID + " ASC, " +
+			TransactionEntry.COLUMN_TRANSACTION_ID + " ASC, " + ComputerEntry.COLUMN_COMPUTER_ID + " ASC) );";
 	
 	public static final String TRANSACTION_SQL =
-			"CREATE TABLE " + Transaction.TABLE_TRANSACTION + " ( " +
+			"CREATE TABLE " + TransactionEntry.TABLE_TRANSACTION + " ( " +
 			MPOSDatabase.COLUMN_UUID + " TEXT, " +
-			Transaction.COLUMN_TRANSACTION_ID + " INTEGER, " +
-			Computer.COLUMN_COMPUTER_ID + " INTEGER, " +
+			TransactionEntry.COLUMN_TRANSACTION_ID + " INTEGER, " +
+			ComputerEntry.COLUMN_COMPUTER_ID + " INTEGER, " +
 			Shop.COLUMN_SHOP_ID + " INTEGER, " +
-			Transaction.COLUMN_OPEN_TIME + " TEXT, " +
-			Transaction.COLUMN_OPEN_STAFF + " INTEGER, " +
-			Transaction.COLUMN_PAID_TIME + " TEXT, " +
-			Transaction.COLUMN_PAID_STAFF_ID + " INTEGER, " +
-			Transaction.COLUMN_CLOSE_TIME + " TEXT, " +
-			Transaction.COLUMN_CLOSE_STAFF + " INTEGER, " +
-			Transaction.COLUMN_STATUS_ID + " INTEGER DEFAULT 1, " +
+			TransactionEntry.COLUMN_OPEN_TIME + " TEXT, " +
+			TransactionEntry.COLUMN_OPEN_STAFF + " INTEGER, " +
+			TransactionEntry.COLUMN_PAID_TIME + " TEXT, " +
+			TransactionEntry.COLUMN_PAID_STAFF_ID + " INTEGER, " +
+			TransactionEntry.COLUMN_CLOSE_TIME + " TEXT, " +
+			TransactionEntry.COLUMN_CLOSE_STAFF + " INTEGER, " +
+			TransactionEntry.COLUMN_STATUS_ID + " INTEGER DEFAULT 1, " +
 			StockDocument.COLUMN_DOC_TYPE + " INTEGER DEFAULT 8, " +
-			Transaction.COLUMN_RECEIPT_YEAR + " INTEGER, " +
-			Transaction.COLUMN_RECEIPT_MONTH + " INTEGER, " +
-			Transaction.COLUMN_RECEIPT_ID + " INTEGER, " +
-			Transaction.COLUMN_RECEIPT_NO + " TEXT, " +
-			Transaction.COLUMN_SALE_DATE + " TEXT, " +
-			Session.COLUMN_SESS_ID + " INTEGER, " +
-			Transaction.COLUMN_VOID_STAFF_ID + " INTEGER, " +
-			Transaction.COLUMN_VOID_REASON + " TEXT, " +
-			Transaction.COLUMN_VOID_TIME + " TEXT, " +
-			Transaction.COLUMN_MEMBER_ID + " INTEGER, " +
-			Transaction.COLUMN_TRANS_VAT + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_TRANS_EXCLUDE_VAT + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_TRANS_VATABLE + " REAL DEFAULT 0, " +
-			Transaction.COLUMN_TRANS_NOTE + " TEXT, " +
-			Transaction.COLUMN_OTHER_DISCOUNT + " REAL DEFAULT 0, " +
+			TransactionEntry.COLUMN_RECEIPT_YEAR + " INTEGER, " +
+			TransactionEntry.COLUMN_RECEIPT_MONTH + " INTEGER, " +
+			TransactionEntry.COLUMN_RECEIPT_ID + " INTEGER, " +
+			TransactionEntry.COLUMN_RECEIPT_NO + " TEXT, " +
+			TransactionEntry.COLUMN_SALE_DATE + " TEXT, " +
+			SessionEntry.COLUMN_SESS_ID + " INTEGER, " +
+			TransactionEntry.COLUMN_VOID_STAFF_ID + " INTEGER, " +
+			TransactionEntry.COLUMN_VOID_REASON + " TEXT, " +
+			TransactionEntry.COLUMN_VOID_TIME + " TEXT, " +
+			TransactionEntry.COLUMN_MEMBER_ID + " INTEGER, " +
+			TransactionEntry.COLUMN_TRANS_VAT + " REAL DEFAULT 0, " +
+			TransactionEntry.COLUMN_TRANS_EXCLUDE_VAT + " REAL DEFAULT 0, " +
+			TransactionEntry.COLUMN_TRANS_VATABLE + " REAL DEFAULT 0, " +
+			TransactionEntry.COLUMN_TRANS_NOTE + " TEXT, " +
+			TransactionEntry.COLUMN_OTHER_DISCOUNT + " REAL DEFAULT 0, " +
 			MPOSDatabase.COLUMN_SEND_STATUS + " INTEGER DEFAULT 0, " +
-			Transaction.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
-			"PRIMARY KEY (" + Transaction.COLUMN_TRANSACTION_ID + " ASC, " + Computer.COLUMN_COMPUTER_ID + " ASC) ); ";
+			OrderDetailEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
+			"PRIMARY KEY (" + TransactionEntry.COLUMN_TRANSACTION_ID + " ASC, " + ComputerEntry.COLUMN_COMPUTER_ID + " ASC) ); ";
 	
 	public static final String PRINT_RECEIPT_LOG_SQL = 
-			"CREATE TABLE " + PrintReceiptLog.TABLE_PRINT_RECEIPT_LOG + "( " +
-			PrintReceiptLog.COLUMN_PRINT_RECEIPT_LOG_ID + " INTEGER, " + 
-			Transaction.COLUMN_TRANSACTION_ID + " INTEGER, " +
-			Computer.COLUMN_COMPUTER_ID + " INTEGER, " +
+			"CREATE TABLE " + PrintLogEntry.TABLE_PRINT_RECEIPT_LOG + "( " +
+			PrintLogEntry.COLUMN_PRINT_RECEIPT_LOG_ID + " INTEGER, " + 
+			TransactionEntry.COLUMN_TRANSACTION_ID + " INTEGER, " +
+			ComputerEntry.COLUMN_COMPUTER_ID + " INTEGER, " +
 			Staff.COLUMN_STAFF_ID + " INTEGER, " +
-			PrintReceiptLog.COLUMN_PRINT_RECEIPT_LOG_TIME + " TEXT, " +
-			PrintReceiptLog.COLUMN_PRINT_RECEIPT_LOG_STATUS + " INTEGER DEFAULT 0, " +
-			"PRIMARY KEY (" + PrintReceiptLog.COLUMN_PRINT_RECEIPT_LOG_ID + " AUTOINCREMENT ) );";
+			PrintLogEntry.COLUMN_PRINT_RECEIPT_LOG_TIME + " TEXT, " +
+			PrintLogEntry.COLUMN_PRINT_RECEIPT_LOG_STATUS + " INTEGER DEFAULT 0, " +
+			"PRIMARY KEY (" + PrintLogEntry.COLUMN_PRINT_RECEIPT_LOG_ID + " AUTOINCREMENT ) );";
 	
 	public static final String PAYMENT_BUTTON_SQL = 
 			"CREATE TABLE " + PaymentAmountButton.TABLE_PAYMENT_AMOUNT + "( " +
@@ -172,8 +182,8 @@ public class MPOSSQL {
 	public static final String PAYMENT_SQL =
 			"CREATE TABLE " + PaymentDetail.TABLE_PAYMENT + " ( " +
 			PaymentDetail.COLUMN_PAY_ID + " INTEGER, " +
-			Transaction.COLUMN_TRANSACTION_ID + " INTEGER, " +
-			Computer.COLUMN_COMPUTER_ID + " INTEGER, " +
+			TransactionEntry.COLUMN_TRANSACTION_ID + " INTEGER, " +
+			ComputerEntry.COLUMN_COMPUTER_ID + " INTEGER, " +
 			PaymentDetail.COLUMN_PAY_TYPE_ID + " INTEGER DEFAULT 1, " +
 			PaymentDetail.COLUMN_PAY_AMOUNT + " REAL DEFAULT 0, " +
 			PaymentDetail.COLUMN_PAID + " REAL DEFAULT 0, " +
@@ -184,7 +194,7 @@ public class MPOSSQL {
 			CreditCard.COLUMN_CREDITCARD_TYPE_ID + " INTEGER, " +
 			PaymentDetail.COLUMN_REMARK + " TEXT, " +
 			"PRIMARY KEY (" + PaymentDetail.COLUMN_PAY_ID + " ASC, " + 
-			Transaction.COLUMN_TRANSACTION_ID + " ASC, " + Computer.COLUMN_COMPUTER_ID + " ASC) );";
+			TransactionEntry.COLUMN_TRANSACTION_ID + " ASC, " + ComputerEntry.COLUMN_COMPUTER_ID + " ASC) );";
 	
 	public static final String PAY_TYPE_SQL =
 			"CREATE TABLE " + PaymentDetail.TABLE_PAY_TYPE + " ( " +
@@ -195,55 +205,64 @@ public class MPOSSQL {
 			"PRIMARY KEY (" + PaymentDetail.COLUMN_PAY_TYPE_ID + ") );";
 	
 	public static final String PRODUCT_DEPT_SQL =
-			"CREATE TABLE " + Products.TABLE_PRODUCT_DEPT + " ( " +
-			Products.COLUMN_PRODUCT_DEPT_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_GROUP_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_DEPT_CODE + " TEXT, " +
-			Products.COLUMN_PRODUCT_DEPT_NAME + " TEXT, " +
-			Products.COLUMN_ACTIVATE + " INTEGER DEFAULT 0, " +
-			Products.COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
-			"PRIMARY KEY (" + Products.COLUMN_PRODUCT_DEPT_ID + "));";
+			"CREATE TABLE " + ProductDeptEntry.TABLE_PRODUCT_DEPT + " ( " +
+			ProductEntry.COLUMN_PRODUCT_DEPT_ID + " INTEGER, " +
+			ProductEntry.COLUMN_PRODUCT_GROUP_ID + " INTEGER, " +
+			ProductDeptEntry.COLUMN_PRODUCT_DEPT_CODE + " TEXT, " +
+			ProductDeptEntry.COLUMN_PRODUCT_DEPT_NAME + " TEXT, " +
+			ProductEntry.COLUMN_ACTIVATE + " INTEGER DEFAULT 0, " +
+			ProductEntry.COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
+			"PRIMARY KEY (" + ProductEntry.COLUMN_PRODUCT_DEPT_ID + "));";
 	
 	public static final String PRODUCT_GROUP_SQL =
-			"CREATE TABLE " + Products.TABLE_PRODUCT_GROUP + " ( " +
-			Products.COLUMN_PRODUCT_GROUP_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_GROUP_CODE + " TEXT, " +
-			Products.COLUMN_PRODUCT_GROUP_NAME + " TEXT, " +
-			Products.COLUMN_PRODUCT_GROUP_TYPE + " INTEGER DEFAULT 0, " +
-			Products.COLUMN_IS_COMMENT + " INTEGER DEFAULT 0, " +
-			Products.COLUMN_ACTIVATE + " INTEGER DEFAULT 0, " +
-			Products.COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
-			"PRIMARY KEY (" + Products.COLUMN_PRODUCT_GROUP_ID + "));";
+			"CREATE TABLE " + ProductGroupEntry.TABLE_PRODUCT_GROUP + " ( " +
+			ProductEntry.COLUMN_PRODUCT_GROUP_ID + " INTEGER, " +
+			ProductGroupEntry.COLUMN_PRODUCT_GROUP_CODE + " TEXT, " +
+			ProductGroupEntry.COLUMN_PRODUCT_GROUP_NAME + " TEXT, " +
+			ProductGroupEntry.COLUMN_PRODUCT_GROUP_TYPE + " INTEGER DEFAULT 0, " +
+			ProductGroupEntry.COLUMN_IS_COMMENT + " INTEGER DEFAULT 0, " +
+			ProductEntry.COLUMN_ACTIVATE + " INTEGER DEFAULT 0, " +
+			ProductEntry.COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
+			"PRIMARY KEY (" + ProductEntry.COLUMN_PRODUCT_GROUP_ID + "));";
 	
 	public static final String PCOMP_SET_SQL =
-			"CREATE TABLE " + Products.TABLE_PCOMP_SET + " ( " +
-			Products.COLUMN_PGROUP_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_ID + " INTEGER, " +
-			Products.COLUMN_CHILD_PRODUCT_ID + " INTEGER, " +
-			Products.COLUMN_CHILD_PRODUCT_AMOUNT + " REAL, " +
-			Products.COLUMN_FLEXIBLE_PRODUCT_PRICE + " REAL DEFAULT 0, " +
-			Products.COLUMN_FLEXIBLE_INCLUDE_PRICE + " INTEGER DEFAULT 0 " +
+			"CREATE TABLE " + ComponentSetEntry.TABLE_PCOMP_SET + " ( " +
+					ComponentSetEntry.COLUMN_PGROUP_ID + " INTEGER, " +
+			ProductEntry.COLUMN_PRODUCT_ID + " INTEGER, " +
+			ComponentSetEntry.COLUMN_CHILD_PRODUCT_ID + " INTEGER, " +
+			ComponentSetEntry.COLUMN_CHILD_PRODUCT_AMOUNT + " REAL, " +
+			ComponentSetEntry.COLUMN_FLEXIBLE_PRODUCT_PRICE + " REAL DEFAULT 0, " +
+			ComponentSetEntry.COLUMN_FLEXIBLE_INCLUDE_PRICE + " INTEGER DEFAULT 0 " +
+			");";
+	
+	public static final String PCOMP_GROUP_SQL =
+			"CREATE TABLE " + ComponentGroupEntry.TABLE_PCOMP_GROUP + " ( " +
+			ComponentSetEntry.COLUMN_PGROUP_ID + " INTEGER, " +
+			ProductEntry.COLUMN_PRODUCT_ID + " INTEGER, " +
+			ComponentGroupEntry.COL_SET_GROUP_NO + " TEXT, " +
+			ComponentGroupEntry.COL_SET_GROUP_NAME + " TEXT, " +
+			ComponentGroupEntry.COL_REQ_AMOUNT + " REAL DEFAULT 0 " +
 			");";
 	
 	public static final String PRODUCT_SQL =
-			"CREATE TABLE " + Products.TABLE_PRODUCT + " ( " +
-			Products.COLUMN_PRODUCT_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_DEPT_ID + " INTEGER, " +
-			Products.COLUMN_PRODUCT_CODE + " TEXT, " +
-			Products.COLUMN_PRODUCT_BAR_CODE + " TEXT, " +
-			Products.COLUMN_PRODUCT_NAME + " TEXT, " +
-			Products.COLUMN_PRODUCT_DESC + " TEXT, " +
-			Products.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 0, " +
-			Products.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
-			Products.COLUMN_PRODUCT_UNIT_NAME + " TEXT, " +
-			Products.COLUMN_DISCOUNT_ALLOW + " INTEGER DEFAULT 1, " +
-			Products.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, " +
-			Products.COLUMN_VAT_RATE + " REAL DEFAULT 0, " +
-			Products.COLUMN_ISOUTOF_STOCK + " INTEGER DEFAULT 0, " +
-			Products.COLUMN_IMG_URL + " TEXT, " +
-			Products.COLUMN_ACTIVATE + " INTEGER DEFAULT 0, " +
-			Products.COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
-			"PRIMARY KEY (" + Products.COLUMN_PRODUCT_ID + " ASC));";
+			"CREATE TABLE " + ProductEntry.TABLE_PRODUCT + " ( " +
+			ProductEntry.COLUMN_PRODUCT_ID + " INTEGER, " +
+			ProductEntry.COLUMN_PRODUCT_DEPT_ID + " INTEGER, " +
+			ProductEntry.COLUMN_PRODUCT_CODE + " TEXT, " +
+			ProductEntry.COLUMN_PRODUCT_BAR_CODE + " TEXT, " +
+			ProductEntry.COLUMN_PRODUCT_NAME + " TEXT, " +
+			ProductEntry.COLUMN_PRODUCT_DESC + " TEXT, " +
+			ProductEntry.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 0, " +
+			ProductEntry.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
+			ProductEntry.COLUMN_PRODUCT_UNIT_NAME + " TEXT, " +
+			ProductEntry.COLUMN_DISCOUNT_ALLOW + " INTEGER DEFAULT 1, " +
+			ProductEntry.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, " +
+			ProductEntry.COLUMN_VAT_RATE + " REAL DEFAULT 0, " +
+			ProductEntry.COLUMN_ISOUTOF_STOCK + " INTEGER DEFAULT 0, " +
+			ProductEntry.COLUMN_IMG_URL + " TEXT, " +
+			ProductEntry.COLUMN_ACTIVATE + " INTEGER DEFAULT 0, " +
+			ProductEntry.COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
+			"PRIMARY KEY (" + ProductEntry.COLUMN_PRODUCT_ID + " ASC));";
 	
 	public static final String PROVINCE_SQL =
 			"CREATE TABLE " + Province.TABLE_PROVINCE + " ( " +
@@ -252,29 +271,29 @@ public class MPOSSQL {
 			"PRIMARY KEY (" + Province.COLUMN_PROVINCE_ID + "));";
 	
 	public static final String SESSION_SQL =
-			"CREATE TABLE " + Session.TABLE_SESSION + " ( " +
-			Session.COLUMN_SESS_ID + " INTEGER, " +
-			Computer.COLUMN_COMPUTER_ID + " INTEGER, " +
+			"CREATE TABLE " + SessionEntry.TABLE_SESSION + " ( " +
+			SessionEntry.COLUMN_SESS_ID + " INTEGER, " +
+			ComputerEntry.COLUMN_COMPUTER_ID + " INTEGER, " +
 			Shop.COLUMN_SHOP_ID + " INTEGER, " +
-			Session.COLUMN_OPEN_STAFF + " INTEGER, " +
-			Session.COLUMN_CLOSE_STAFF + " INTEGER, " +
-			Session.COLUMN_SESS_DATE + " TEXT, " +
-			Session.COLUMN_OPEN_DATE + " TEXT, " +
-			Session.COLUMN_CLOSE_DATE + " TEXT, " +
-			Session.COLUMN_OPEN_AMOUNT + " REAL, " +
-			Session.COLUMN_CLOSE_AMOUNT + " REAL, " +
-			Session.COLUMN_IS_ENDDAY + " INTEGER, " +
-			"PRIMARY KEY (" + Session.COLUMN_SESS_ID + ", " + Computer.COLUMN_COMPUTER_ID + "));";
+			TransactionEntry.COLUMN_OPEN_STAFF + " INTEGER, " +
+			TransactionEntry.COLUMN_CLOSE_STAFF + " INTEGER, " +
+			SessionEntry.COLUMN_SESS_DATE + " TEXT, " +
+			SessionEntry.COLUMN_OPEN_DATE + " TEXT, " +
+			SessionEntry.COLUMN_CLOSE_DATE + " TEXT, " +
+			SessionEntry.COLUMN_OPEN_AMOUNT + " REAL, " +
+			SessionEntry.COLUMN_CLOSE_AMOUNT + " REAL, " +
+			SessionEntry.COLUMN_IS_ENDDAY + " INTEGER, " +
+			"PRIMARY KEY (" + SessionEntry.COLUMN_SESS_ID + ", " + ComputerEntry.COLUMN_COMPUTER_ID + "));";
 	
 	public static final String SESSION_DETAIL_SQL =
-			"CREATE TABLE " + Session.TABLE_SESSION_DETAIL + " ( " +
-			Session.COLUMN_SESS_DATE + " TEXT, " +
-			Session.COLUMN_ENDDAY_DATE + " TEXT, " +
-			Session.COLUMN_TOTAL_QTY_RECEIPT + " INTEGER, " +
-			Session.COLUMN_TOTAL_AMOUNT_RECEIPT + " REAL, " +
-			Session.COLUMN_IS_SEND_TO_HQ + " INTEGER, " +
-			Session.COLUMN_SEND_TO_HQ_DATE + " TEXT, " +
-			"PRIMARY KEY (" + Session.COLUMN_SESS_DATE + "));";
+			"CREATE TABLE " + SessionEntry.TABLE_SESSION_DETAIL + " ( " +
+			SessionEntry.COLUMN_SESS_DATE + " TEXT, " +
+			SessionEntry.COLUMN_ENDDAY_DATE + " TEXT, " +
+			SessionEntry.COLUMN_TOTAL_QTY_RECEIPT + " INTEGER, " +
+			SessionEntry.COLUMN_TOTAL_AMOUNT_RECEIPT + " REAL, " +
+			SessionEntry.COLUMN_IS_SEND_TO_HQ + " INTEGER, " +
+			SessionEntry.COLUMN_SEND_TO_HQ_DATE + " TEXT, " +
+			"PRIMARY KEY (" + SessionEntry.COLUMN_SESS_DATE + "));";
 	
 	public static final String SHOP_SQL =
 			"CREATE TABLE " + Shop.TABLE_SHOP + " ( " +
@@ -312,9 +331,9 @@ public class MPOSSQL {
 	
 	public static final String SYNC_TRANSACTION_LOG_SQL =
 			"CREATE TABLE " + SyncSaleLog.TABLE_SYNC_SALE_LOG + " ( " +
-			Session.COLUMN_SESS_DATE + " TEXT, " + 
+			SessionEntry.COLUMN_SESS_DATE + " TEXT, " + 
 			SyncSaleLog.COLUMN_SYNC_STATUS + " INTEGER DEFAULT 0, " + 
-			" PRIMARY KEY (" + Session.COLUMN_SESS_DATE + ")" + " );";
+			" PRIMARY KEY (" + SessionEntry.COLUMN_SESS_DATE + ")" + " );";
 	
 	public static final String HEAD_FOOD_RECEIPT_SQL =
 			"CREATE TABLE " + HeaderFooterReceipt.TABLE_HEADER_FOOTER_RECEIPT + " ( " +
