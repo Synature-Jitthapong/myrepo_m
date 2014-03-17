@@ -22,11 +22,11 @@ public class MPOSMainService extends DotNetWebServiceTask{
 	public MPOSMainService(String method) {
 		super(MPOSApplication.getContext(), method);
 		
-		property = new PropertyInfo();
-		property.setName(DEVICE_CODE_PARAM);
-		property.setValue(MPOSApplication.getDeviceCode());
-		property.setType(String.class);
-		soapRequest.addProperty(property);
+		mProperty = new PropertyInfo();
+		mProperty.setName(DEVICE_CODE_PARAM);
+		mProperty.setValue(MPOSApplication.getDeviceCode());
+		mProperty.setType(String.class);
+		mSoapRequest.addProperty(mProperty);
 	}
 
 }

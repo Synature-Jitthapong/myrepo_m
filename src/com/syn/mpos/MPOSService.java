@@ -188,29 +188,29 @@ public class MPOSService {
 			mListener = listener;
 
 			// shopId
-			property = new PropertyInfo();
-			property.setName(SHOP_ID_PARAM);
-			property.setValue(MPOSApplication.getShopId());
-			property.setType(int.class);
-			soapRequest.addProperty(property);
+			mProperty = new PropertyInfo();
+			mProperty.setName(SHOP_ID_PARAM);
+			mProperty.setValue(MPOSApplication.getShopId());
+			mProperty.setType(int.class);
+			mSoapRequest.addProperty(mProperty);
 			// computerId
-			property = new PropertyInfo();
-			property.setName(COMPUTER_ID_PARAM);
-			property.setValue(MPOSApplication.getComputerId());
-			property.setType(int.class);
-			soapRequest.addProperty(property);
+			mProperty = new PropertyInfo();
+			mProperty.setName(COMPUTER_ID_PARAM);
+			mProperty.setValue(MPOSApplication.getComputerId());
+			mProperty.setType(int.class);
+			mSoapRequest.addProperty(mProperty);
 			// staffId
-			property = new PropertyInfo();
-			property.setName(STAFF_ID_PARAM);
-			property.setValue(staffId);
-			property.setType(int.class);
-			soapRequest.addProperty(property);
+			mProperty = new PropertyInfo();
+			mProperty.setName(STAFF_ID_PARAM);
+			mProperty.setValue(staffId);
+			mProperty.setType(int.class);
+			mSoapRequest.addProperty(mProperty);
 			// json sale
-			property = new PropertyInfo();
-			property.setName(JSON_SALE_PARAM);
-			property.setValue(jsonSale);
-			property.setType(String.class);
-			soapRequest.addProperty(property);
+			mProperty = new PropertyInfo();
+			mProperty.setName(JSON_SALE_PARAM);
+			mProperty.setValue(jsonSale);
+			mProperty.setType(String.class);
+			mSoapRequest.addProperty(mProperty);
 		}
 		
 		@Override
@@ -245,11 +245,11 @@ public class MPOSService {
 		public LoadShop(int shopId, LoadShopListener listener) {
 			super(LOAD_SHOP_METHOD);
 			
-			property = new PropertyInfo();
-			property.setName(SHOP_ID_PARAM);
-			property.setValue(shopId);
-			property.setType(int.class);
-			soapRequest.addProperty(property);
+			mProperty = new PropertyInfo();
+			mProperty.setName(SHOP_ID_PARAM);
+			mProperty.setValue(shopId);
+			mProperty.setType(int.class);
+			mSoapRequest.addProperty(mProperty);
 			
 			mListener = listener;
 		}
@@ -280,11 +280,11 @@ public class MPOSService {
 		public LoadProduct(LoadProductListener listener) {
 			super(LOAD_PRODUCT_METHOD);
 			
-			property = new PropertyInfo();
-			property.setName(SHOP_ID_PARAM);
-			property.setValue(MPOSApplication.getShopId());
-			property.setType(int.class);
-			soapRequest.addProperty(property);
+			mProperty = new PropertyInfo();
+			mProperty.setName(SHOP_ID_PARAM);
+			mProperty.setValue(MPOSApplication.getShopId());
+			mProperty.setType(int.class);
+			mSoapRequest.addProperty(mProperty);
 			
 			mListener = listener;
 		}
@@ -318,11 +318,11 @@ public class MPOSService {
 		public LoadMenu(LoadMenuListener listener) {
 			super(LOAD_MENU_METHOD);
 			
-			property = new PropertyInfo();
-			property.setName(SHOP_ID_PARAM);
-			property.setValue(MPOSApplication.getShopId());
-			property.setType(int.class);
-			soapRequest.addProperty(property);
+			mProperty = new PropertyInfo();
+			mProperty.setName(SHOP_ID_PARAM);
+			mProperty.setValue(MPOSApplication.getShopId());
+			mProperty.setType(int.class);
+			mSoapRequest.addProperty(mProperty);
 			
 			mListener = listener;
 		}
@@ -363,7 +363,7 @@ public class MPOSService {
 				if(shopId > 0)
 					mListener.onPost(shopId);
 				else
-					mListener.onError(context.getString(R.string.computer_setting_not_valid));
+					mListener.onError(mContext.getString(R.string.computer_setting_not_valid));
 			} catch (NumberFormatException e) {
 				this.mListener.onError(result);
 			}
