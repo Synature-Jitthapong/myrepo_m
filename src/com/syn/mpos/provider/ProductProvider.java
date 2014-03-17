@@ -1,6 +1,7 @@
 package com.syn.mpos.provider;
 
 import com.syn.mpos.MPOSApplication;
+import com.syn.mpos.provider.Products.ProductEntry;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;
@@ -12,7 +13,7 @@ import android.provider.BaseColumns;
 
 public class ProductProvider extends ContentProvider {
 	public static final String AUTHORITY = "com.syn.mpos.ProductProvider";
-	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + Products.TABLE_PRODUCT);
+	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + ProductEntry.TABLE_PRODUCT);
 	
 	public static final String SUGGEST_COLUMNS[] = {
 		BaseColumns._ID,
@@ -57,14 +58,14 @@ public class ProductProvider extends ContentProvider {
 		
 		MatrixCursor matrixCursor = new MatrixCursor(SUGGEST_COLUMNS);
 		Cursor cursor = mProduct.queryProduct(Products.ALL_PRODUCT_COLS, 
-				Products.COLUMN_PRODUCT_NAME + " LIKE '" + query + "%'", null);
+				ProductEntry.COLUMN_PRODUCT_NAME + " LIKE '" + query + "%'", null);
 		if(cursor.moveToFirst()){ 
 			do{
 				matrixCursor.addRow(new Object[]{
-						cursor.getInt(cursor.getColumnIndex(Products.COLUMN_PRODUCT_ID)),
-						cursor.getInt(cursor.getColumnIndex(Products.COLUMN_PRODUCT_ID)),
+						cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_ID)),
+						cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_ID)),
 						//cursor.getString(cursor.getColumnIndex(Products.COL_IMG_URL)),
-						cursor.getString(cursor.getColumnIndex(Products.COLUMN_PRODUCT_NAME))
+						cursor.getString(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_NAME))
 				});
 			}while(cursor.moveToNext());
 		}

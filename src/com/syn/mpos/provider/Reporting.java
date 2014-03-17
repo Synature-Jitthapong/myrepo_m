@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.provider.Computer.ComputerEntry;
+import com.syn.mpos.provider.Products.ProductDeptEntry;
+import com.syn.mpos.provider.Products.ProductEntry;
+import com.syn.mpos.provider.Products.ProductGroupEntry;
 import com.syn.mpos.provider.Transaction.OrderDetailEntry;
 import com.syn.mpos.provider.Transaction.TransactionEntry;
 import com.syn.pos.Report;
@@ -151,16 +154,16 @@ public class Reporting extends MPOSDatabase{
 							+ COLUMN_PRODUCT_DISCOUNT + ", " + " a."
 							+ COLUMN_PRODUCT_TOTAL_PRICE + ", " + " a."
 							+ COLUMN_PRODUCT_TOTAL_PRICE_PERCENT + ", " + " b."
-							+ Products.COLUMN_PRODUCT_CODE + ", " + " b."
-							+ Products.COLUMN_PRODUCT_NAME + ", " + " b."
-							+ Products.COLUMN_PRODUCT_PRICE + ", " + " b."
-							+ Products.COLUMN_VAT_TYPE + " FROM "
+							+ ProductEntry.COLUMN_PRODUCT_CODE + ", " + " b."
+							+ ProductEntry.COLUMN_PRODUCT_NAME + ", " + " b."
+							+ ProductEntry.COLUMN_PRODUCT_PRICE + ", " + " b."
+							+ ProductEntry.COLUMN_VAT_TYPE + " FROM "
 							+ TEMP_PRODUCT_REPORT + " a " + " INNER JOIN "
-							+ Products.TABLE_PRODUCT + " b " + " ON a."
-							+ Products.COLUMN_PRODUCT_ID + "=b."
-							+ Products.COLUMN_PRODUCT_ID + " WHERE b."
-							+ Products.COLUMN_PRODUCT_DEPT_ID + "=?"
-							+ " ORDER BY b." + Products.COLUMN_ORDERING,
+							+ ProductEntry.TABLE_PRODUCT + " b " + " ON a."
+							+ ProductEntry.COLUMN_PRODUCT_ID + "=b."
+							+ ProductEntry.COLUMN_PRODUCT_ID + " WHERE b."
+							+ ProductEntry.COLUMN_PRODUCT_DEPT_ID + "=?"
+							+ " ORDER BY b." + ProductEntry.COLUMN_ORDERING,
 							new String[] { 
 									String.valueOf(group.getProductDeptId()) 
 							});
@@ -170,13 +173,13 @@ public class Reporting extends MPOSDatabase{
 							Report.ReportDetail reportDetail = new Report.ReportDetail();
 							reportDetail
 									.setProductCode(cursor.getString(cursor
-											.getColumnIndex(Products.COLUMN_PRODUCT_CODE)));
+											.getColumnIndex(ProductEntry.COLUMN_PRODUCT_CODE)));
 							reportDetail
 									.setProductName(cursor.getString(cursor
-											.getColumnIndex(Products.COLUMN_PRODUCT_NAME)));
+											.getColumnIndex(ProductEntry.COLUMN_PRODUCT_NAME)));
 							reportDetail
 									.setPricePerUnit(cursor.getDouble(cursor
-											.getColumnIndex(Products.COLUMN_PRODUCT_PRICE)));
+											.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE)));
 							reportDetail.setQty(cursor.getDouble(cursor
 									.getColumnIndex(COLUMN_PRODUCT_QTY)));
 							reportDetail.setQtyPercent(cursor.getDouble(cursor
@@ -193,7 +196,7 @@ public class Reporting extends MPOSDatabase{
 							reportDetail
 									.setTotalPricePercent(cursor.getDouble(cursor
 											.getColumnIndex(COLUMN_PRODUCT_TOTAL_PRICE_PERCENT)));
-							int vatType = cursor.getInt(cursor.getColumnIndex(Products.COLUMN_VAT_TYPE));
+							int vatType = cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_VAT_TYPE));
 							String vatTypeText = "N";
 							switch(vatType){
 							case 0:
@@ -241,14 +244,14 @@ public class Reporting extends MPOSDatabase{
 				" INNER JOIN " + OrderDetailEntry.TABLE_ORDER + " o " +
 				" ON t." + TransactionEntry.COLUMN_TRANSACTION_ID + "=o." + TransactionEntry.COLUMN_TRANSACTION_ID +
 				" AND t." + ComputerEntry.COLUMN_COMPUTER_ID + "=o." + ComputerEntry.COLUMN_COMPUTER_ID +
-				" INNER JOIN " + Products.TABLE_PRODUCT + " p " +
-				" ON o." + Products.COLUMN_PRODUCT_ID + "=p." + Products.COLUMN_PRODUCT_ID +
-				" INNER JOIN " + Products.TABLE_PRODUCT_DEPT + " pd " +
-				" ON p." + Products.COLUMN_PRODUCT_DEPT_ID + "=pd." + Products.COLUMN_PRODUCT_DEPT_ID +
+				" INNER JOIN " + ProductEntry.TABLE_PRODUCT + " p " +
+				" ON o." + ProductEntry.COLUMN_PRODUCT_ID + "=p." + ProductEntry.COLUMN_PRODUCT_ID +
+				" INNER JOIN " + ProductDeptEntry.TABLE_PRODUCT_DEPT + " pd " +
+				" ON p." + ProductEntry.COLUMN_PRODUCT_DEPT_ID + "=pd." + ProductEntry.COLUMN_PRODUCT_DEPT_ID +
 				" WHERE t." + TransactionEntry.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
 				" AND t." + TransactionEntry.COLUMN_STATUS_ID + "=?" +
-				" AND pd." + Products.COLUMN_PRODUCT_GROUP_ID + "=?" +
-				" GROUP BY pd." + Products.COLUMN_PRODUCT_GROUP_ID,
+				" AND pd." + ProductEntry.COLUMN_PRODUCT_GROUP_ID + "=?" +
+				" GROUP BY pd." + ProductEntry.COLUMN_PRODUCT_GROUP_ID,
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
@@ -283,12 +286,12 @@ public class Reporting extends MPOSDatabase{
 				" INNER JOIN " + OrderDetailEntry.TABLE_ORDER + " o " +
 				" ON t." + TransactionEntry.COLUMN_TRANSACTION_ID + "=o." + TransactionEntry.COLUMN_TRANSACTION_ID +
 				" AND t." + ComputerEntry.COLUMN_COMPUTER_ID + "=o." + ComputerEntry.COLUMN_COMPUTER_ID +
-				" INNER JOIN " + Products.TABLE_PRODUCT + " p " +
-				" ON o." + Products.COLUMN_PRODUCT_ID + "=p." + Products.COLUMN_PRODUCT_ID +
+				" INNER JOIN " + ProductEntry.TABLE_PRODUCT + " p " +
+				" ON o." + ProductEntry.COLUMN_PRODUCT_ID + "=p." + ProductEntry.COLUMN_PRODUCT_ID +
 				" WHERE t." + TransactionEntry.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
 				" AND t." + TransactionEntry.COLUMN_STATUS_ID + "=?" +
-				" AND p." + Products.COLUMN_PRODUCT_DEPT_ID + "=?" +
-				" GROUP BY p." + Products.COLUMN_PRODUCT_DEPT_ID,
+				" AND p." + ProductEntry.COLUMN_PRODUCT_DEPT_ID + "=?" +
+				" GROUP BY p." + ProductEntry.COLUMN_PRODUCT_DEPT_ID,
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
@@ -335,7 +338,7 @@ public class Reporting extends MPOSDatabase{
 	
 	private void createProductDataTmp() throws SQLException{
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT b." + Products.COLUMN_PRODUCT_ID + ", " +
+				" SELECT b." + ProductEntry.COLUMN_PRODUCT_ID + ", " +
 				" SUM(b." + OrderDetailEntry.COLUMN_ORDER_QTY + ") AS Qty, " +
 			    " SUM(b." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + ") AS RetailPrice, " +
 				" SUM(b." + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + ") AS Discount, " +
@@ -378,7 +381,7 @@ public class Reporting extends MPOSDatabase{
 				" AND a." + ComputerEntry.COLUMN_COMPUTER_ID + "=b." + ComputerEntry.COLUMN_COMPUTER_ID + 
 				" WHERE a." + TransactionEntry.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
 				" AND a." + TransactionEntry.COLUMN_STATUS_ID + "=?" +
-				" GROUP BY b." + Products.COLUMN_PRODUCT_ID, 
+				" GROUP BY b." + ProductEntry.COLUMN_PRODUCT_ID, 
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
@@ -412,7 +415,7 @@ public class Reporting extends MPOSDatabase{
 				double salePricePercent = (salePrice / summSalePrice) * 100;
 				
 				ContentValues cv = new ContentValues();
-				cv.put(Products.COLUMN_PRODUCT_ID, cursor.getInt(cursor.getColumnIndex(Products.COLUMN_PRODUCT_ID)));
+				cv.put(ProductEntry.COLUMN_PRODUCT_ID, cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_ID)));
 				cv.put(COLUMN_PRODUCT_QTY, qty);
 				cv.put(COLUMN_PRODUCT_SUMM_QTY, summQty);
 				cv.put(COLUMN_PRODUCT_QTY_PERCENT, qtyPercent);
@@ -441,30 +444,30 @@ public class Reporting extends MPOSDatabase{
 		List<Report.GroupOfProduct> reportLst = null;
 		
 		Cursor cursor = mSqlite.rawQuery(
-					" SELECT c." + Products.COLUMN_PRODUCT_DEPT_ID + ", " + 
-					" c." + Products.COLUMN_PRODUCT_DEPT_NAME + ", " + 
-					" d." + Products.COLUMN_PRODUCT_GROUP_ID + ", " +
-					" d." + Products.COLUMN_PRODUCT_GROUP_NAME + 
+					" SELECT c." + ProductEntry.COLUMN_PRODUCT_DEPT_ID + ", " + 
+					" c." + ProductDeptEntry.COLUMN_PRODUCT_DEPT_NAME + ", " + 
+					" d." + ProductEntry.COLUMN_PRODUCT_GROUP_ID + ", " +
+					" d." + ProductGroupEntry.COLUMN_PRODUCT_GROUP_NAME + 
 					" FROM " + TEMP_PRODUCT_REPORT + " a " +
-					" INNER JOIN " + Products.TABLE_PRODUCT + " b " +
-					" ON a." + Products.COLUMN_PRODUCT_ID + "=b." + Products.COLUMN_PRODUCT_ID +
-					" INNER JOIN " + Products.TABLE_PRODUCT_DEPT + " c " +
-					" ON b." + Products.COLUMN_PRODUCT_DEPT_ID + "=c." + Products.COLUMN_PRODUCT_DEPT_ID +
-					" INNER JOIN " + Products.TABLE_PRODUCT_GROUP + " d " +
-					" ON c." + Products.COLUMN_PRODUCT_GROUP_ID + "=d." + Products.COLUMN_PRODUCT_GROUP_ID + 
-					" GROUP BY d." + Products.COLUMN_PRODUCT_GROUP_ID + ", " +
-					" c." + Products.COLUMN_PRODUCT_DEPT_ID +
-					" ORDER BY d." + Products.COLUMN_ORDERING + "," +
-					" c." + Products.COLUMN_ORDERING, null);
+					" INNER JOIN " + ProductEntry.TABLE_PRODUCT + " b " +
+					" ON a." + ProductEntry.COLUMN_PRODUCT_ID + "=b." + ProductEntry.COLUMN_PRODUCT_ID +
+					" INNER JOIN " + ProductDeptEntry.TABLE_PRODUCT_DEPT + " c " +
+					" ON b." + ProductEntry.COLUMN_PRODUCT_DEPT_ID + "=c." + ProductEntry.COLUMN_PRODUCT_DEPT_ID +
+					" INNER JOIN " + ProductGroupEntry.TABLE_PRODUCT_GROUP + " d " +
+					" ON c." + ProductEntry.COLUMN_PRODUCT_GROUP_ID + "=d." + ProductEntry.COLUMN_PRODUCT_GROUP_ID + 
+					" GROUP BY d." + ProductEntry.COLUMN_PRODUCT_GROUP_ID + ", " +
+					" c." + ProductEntry.COLUMN_PRODUCT_DEPT_ID +
+					" ORDER BY d." + ProductEntry.COLUMN_ORDERING + "," +
+					" c." + ProductEntry.COLUMN_ORDERING, null);
 		
 		if(cursor.moveToFirst()){
 			reportLst = new ArrayList<Report.GroupOfProduct>();
 			do{
 				Report.GroupOfProduct report = new Report.GroupOfProduct();
-				report.setProductDeptId(cursor.getInt(cursor.getColumnIndex(Products.COLUMN_PRODUCT_DEPT_ID)));
-				report.setProductGroupId(cursor.getInt(cursor.getColumnIndex(Products.COLUMN_PRODUCT_GROUP_ID)));
-				report.setProductGroupName(cursor.getString(cursor.getColumnIndex(Products.COLUMN_PRODUCT_GROUP_NAME)));
-				report.setProductDeptName(cursor.getString(cursor.getColumnIndex(Products.COLUMN_PRODUCT_DEPT_NAME)));
+				report.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_DEPT_ID)));
+				report.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_GROUP_ID)));
+				report.setProductGroupName(cursor.getString(cursor.getColumnIndex(ProductGroupEntry.COLUMN_PRODUCT_GROUP_NAME)));
+				report.setProductDeptName(cursor.getString(cursor.getColumnIndex(ProductDeptEntry.COLUMN_PRODUCT_DEPT_NAME)));
 				reportLst.add(report);
 			}while(cursor.moveToNext());
 		}
@@ -476,7 +479,7 @@ public class Reporting extends MPOSDatabase{
 	private void createReportProductTmp() throws SQLException{
 		mSqlite.execSQL("DROP TABLE IF EXISTS " + TEMP_PRODUCT_REPORT);
 		mSqlite.execSQL("CREATE TABLE " + TEMP_PRODUCT_REPORT + " ( " +
-				Products.COLUMN_PRODUCT_ID + " INTEGER, " +
+				ProductEntry.COLUMN_PRODUCT_ID + " INTEGER, " +
 				COLUMN_PRODUCT_QTY + " REAL, " +
 				COLUMN_PRODUCT_QTY_PERCENT + " REAL, " +
 				COLUMN_PRODUCT_SUB_TOTAL + " REAL, " +

@@ -21,26 +21,26 @@ public class Products extends MPOSDatabase {
 	public static final int VAT_TYPE_INCLUDED = 1;
 	public static final int VAT_TYPE_EXCLUDE = 2;
 	public static final String[] ALL_PRODUCT_COLS = {
-		COLUMN_PRODUCT_ID, 
-		COLUMN_PRODUCT_DEPT_ID,
-		COLUMN_PRODUCT_CODE,
-		COLUMN_PRODUCT_BAR_CODE,
-		COLUMN_PRODUCT_NAME,
-		COLUMN_PRODUCT_DESC,
-		COLUMN_PRODUCT_TYPE_ID,
-		COLUMN_PRODUCT_PRICE,
-		COLUMN_PRODUCT_UNIT_NAME,
-		COLUMN_DISCOUNT_ALLOW,
-		COLUMN_VAT_TYPE,
-		COLUMN_VAT_RATE,
-		COLUMN_ISOUTOF_STOCK,
-		COLUMN_IMG_URL
+		ProductEntry.COLUMN_PRODUCT_ID, 
+		ProductEntry.COLUMN_PRODUCT_DEPT_ID,
+		ProductEntry.COLUMN_PRODUCT_CODE,
+		ProductEntry.COLUMN_PRODUCT_BAR_CODE,
+		ProductEntry.COLUMN_PRODUCT_NAME,
+		ProductEntry.COLUMN_PRODUCT_DESC,
+		ProductEntry.COLUMN_PRODUCT_TYPE_ID,
+		ProductEntry.COLUMN_PRODUCT_PRICE,
+		ProductEntry.COLUMN_PRODUCT_UNIT_NAME,
+		ProductEntry.COLUMN_DISCOUNT_ALLOW,
+		ProductEntry.COLUMN_VAT_TYPE,
+		ProductEntry.COLUMN_VAT_RATE,
+		ProductEntry.COLUMN_ISOUTOF_STOCK,
+		ProductEntry.COLUMN_IMG_URL
 	};
 	public static final String[] ALL_PRODUCT_DEPT_COLS = {
-		COLUMN_PRODUCT_GROUP_ID,
-		COLUMN_PRODUCT_DEPT_ID,
-		COLUMN_PRODUCT_DEPT_CODE,
-		COLUMN_PRODUCT_DEPT_NAME
+		ProductEntry.COLUMN_PRODUCT_GROUP_ID,
+		ProductEntry.COLUMN_PRODUCT_DEPT_ID,
+		ProductDeptEntry.COLUMN_PRODUCT_DEPT_CODE,
+		ProductDeptEntry.COLUMN_PRODUCT_DEPT_NAME
 	};
 
 	public Products(SQLiteDatabase db){
@@ -50,7 +50,7 @@ public class Products extends MPOSDatabase {
 	public List<ProductGroup> listProductGroup(){
 		List<ProductGroup> pgLst = new ArrayList<ProductGroup>();
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT * FROM " + TABLE_PRODUCT_GROUP, null);
+				" SELECT * FROM " + ProductGroupEntry.TABLE_PRODUCT_GROUP, null);
 		if(cursor.moveToFirst()){
 			do{
 				ProductGroup pg = toProductGroup(cursor);
@@ -63,9 +63,9 @@ public class Products extends MPOSDatabase {
 
 	public List<ProductDept> listProductDept(){
 		List<ProductDept> pdLst = new ArrayList<ProductDept>();
-		Cursor cursor = mSqlite.query(TABLE_PRODUCT_DEPT, 
+		Cursor cursor = mSqlite.query(ProductDeptEntry.TABLE_PRODUCT_DEPT, 
 				ALL_PRODUCT_DEPT_COLS,
-				COLUMN_ACTIVATE + "=?", new String[]{"1"}, null, null, COLUMN_ORDERING);
+				ProductEntry.COLUMN_ACTIVATE + "=?", new String[]{"1"}, null, null, ProductEntry.COLUMN_ORDERING);
 		if(cursor.moveToFirst()){
 			do{
 				ProductDept pd = toProductDept(cursor);
@@ -79,31 +79,31 @@ public class Products extends MPOSDatabase {
 	public List<Product> listProductSize(int proId){
 		List<Product> pLst = null;
 		Cursor cursor = mSqlite.rawQuery(
-				"SELECT b." + COLUMN_PRODUCT_ID + ", " 
-				+ " b." + COLUMN_PRODUCT_TYPE_ID + ", "
-				+ " b." + COLUMN_PRODUCT_CODE + ", " 
-				+ " b." + COLUMN_PRODUCT_BAR_CODE + ", "
-				+ " b." + COLUMN_PRODUCT_NAME + ", "
-				+ " b." + COLUMN_PRODUCT_PRICE + ", " 
-				+ " b." + COLUMN_VAT_TYPE + ", " 
-				+ " b." + COLUMN_VAT_RATE
-				+ " FROM " + TABLE_PCOMP_SET + " a "
-				+ " INNER JOIN " + TABLE_PRODUCT + " b " 
-				+ " ON a." + COLUMN_CHILD_PRODUCT_ID + "=b." + COLUMN_PRODUCT_ID
-				+ " WHERE a." + COLUMN_PRODUCT_ID + "=?", 
+				"SELECT b." + ProductEntry.COLUMN_PRODUCT_ID + ", " 
+				+ " b." + ProductEntry.COLUMN_PRODUCT_TYPE_ID + ", "
+				+ " b." + ProductEntry.COLUMN_PRODUCT_CODE + ", " 
+				+ " b." + ProductEntry.COLUMN_PRODUCT_BAR_CODE + ", "
+				+ " b." + ProductEntry.COLUMN_PRODUCT_NAME + ", "
+				+ " b." + ProductEntry.COLUMN_PRODUCT_PRICE + ", " 
+				+ " b." + ProductEntry.COLUMN_VAT_TYPE + ", " 
+				+ " b." + ProductEntry.COLUMN_VAT_RATE
+				+ " FROM " + ComponentSetEntry.TABLE_PCOMP_SET + " a "
+				+ " INNER JOIN " + ProductEntry.TABLE_PRODUCT + " b " 
+				+ " ON a." + ComponentSetEntry.COLUMN_CHILD_PRODUCT_ID + "=b." + ProductEntry.COLUMN_PRODUCT_ID
+				+ " WHERE a." + ProductEntry.COLUMN_PRODUCT_ID + "=?", 
 				new String[]{String.valueOf(proId)});
 		if(cursor.moveToFirst()){
 			pLst = new ArrayList<Product>();
 			do{
 				Product p = new Product();
-				p.setProductId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_ID)));
-				p.setProductTypeId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_TYPE_ID)));
-				p.setProductCode(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_CODE)));
-				p.setProductBarCode(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_BAR_CODE)));
-				p.setProductName(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_NAME)));
-				p.setProductPrice(cursor.getFloat(cursor.getColumnIndex(COLUMN_PRODUCT_PRICE)));
-				p.setVatType(cursor.getInt(cursor.getColumnIndex(COLUMN_VAT_TYPE)));
-				p.setVatRate(cursor.getFloat(cursor.getColumnIndex(COLUMN_VAT_RATE)));
+				p.setProductId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_ID)));
+				p.setProductTypeId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_TYPE_ID)));
+				p.setProductCode(cursor.getString(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_CODE)));
+				p.setProductBarCode(cursor.getString(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_BAR_CODE)));
+				p.setProductName(cursor.getString(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_NAME)));
+				p.setProductPrice(cursor.getFloat(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE)));
+				p.setVatType(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_VAT_TYPE)));
+				p.setVatRate(cursor.getFloat(cursor.getColumnIndex(ProductEntry.COLUMN_VAT_RATE)));
 				pLst.add(p);
 			}while(cursor.moveToNext());
 		}
@@ -113,10 +113,10 @@ public class Products extends MPOSDatabase {
 	
 	public List<Product> listProduct(String query){
 		List<Product> pLst = new ArrayList<Product>();
-		Cursor cursor = mSqlite.query(TABLE_PRODUCT, ALL_PRODUCT_COLS, 
-				"(" + COLUMN_PRODUCT_CODE + " LIKE '%" + query + "%' " +
-				" OR " + COLUMN_PRODUCT_NAME + " LIKE '%" + query + "%')", 
-				null, null, null, COLUMN_ORDERING);
+		Cursor cursor = mSqlite.query(ProductEntry.TABLE_PRODUCT, ALL_PRODUCT_COLS, 
+				"(" + ProductEntry.COLUMN_PRODUCT_CODE + " LIKE '%" + query + "%' " +
+				" OR " + ProductEntry.COLUMN_PRODUCT_NAME + " LIKE '%" + query + "%')", 
+				null, null, null, ProductEntry.COLUMN_ORDERING);
 		if(cursor.moveToFirst()){
 			do{
 				Product p = toProduct(cursor);
@@ -129,10 +129,10 @@ public class Products extends MPOSDatabase {
 	
 	public List<Product> listProduct(int deptId){
 		List<Product> pLst = new ArrayList<Product>();
-		Cursor cursor = mSqlite.query(TABLE_PRODUCT, ALL_PRODUCT_COLS, 
-				COLUMN_PRODUCT_DEPT_ID + "=? " +
-						" AND " + COLUMN_ACTIVATE + "=?", 
-				new String[]{String.valueOf(deptId), "1"}, null, null, COLUMN_ORDERING);
+		Cursor cursor = mSqlite.query(ProductEntry.TABLE_PRODUCT, ALL_PRODUCT_COLS, 
+				ProductEntry.COLUMN_PRODUCT_DEPT_ID + "=? " +
+						" AND " + ProductEntry.COLUMN_ACTIVATE + "=?", 
+				new String[]{String.valueOf(deptId), "1"}, null, null, ProductEntry.COLUMN_ORDERING);
 		if(cursor.moveToFirst()){
 			do{
 				Product p = toProduct(cursor);
@@ -145,7 +145,7 @@ public class Products extends MPOSDatabase {
 
 	public double getVatRate(int productId){
 		double vatRate = 0.0f;
-		Cursor cursor = queryProduct(new String[]{COLUMN_VAT_RATE}, COLUMN_PRODUCT_ID + "=?", 
+		Cursor cursor = queryProduct(new String[]{ProductEntry.COLUMN_VAT_RATE}, ProductEntry.COLUMN_PRODUCT_ID + "=?", 
 				new String[]{String.valueOf(productId)});
 		if(cursor.moveToFirst()){
 			vatRate = cursor.getFloat(0);
@@ -156,8 +156,8 @@ public class Products extends MPOSDatabase {
 	
 	public Product getProduct(String barCode){
 		Product p = null;
-		Cursor cursor = mSqlite.query(TABLE_PRODUCT, ALL_PRODUCT_COLS, 
-				COLUMN_PRODUCT_BAR_CODE + "=?", new String[]{barCode}, 
+		Cursor cursor = mSqlite.query(ProductEntry.TABLE_PRODUCT, ALL_PRODUCT_COLS, 
+				ProductEntry.COLUMN_PRODUCT_BAR_CODE + "=?", new String[]{barCode}, 
 				null, null, "1");
 		if(cursor.moveToFirst()){
 			p = toProduct(cursor);
@@ -168,8 +168,8 @@ public class Products extends MPOSDatabase {
 	
 	public Product getProduct(int proId){
 		Product p = null;
-		Cursor cursor = mSqlite.query(TABLE_PRODUCT, ALL_PRODUCT_COLS, 
-				COLUMN_PRODUCT_ID + "=?", new String[]{String.valueOf(proId)}, 
+		Cursor cursor = mSqlite.query(ProductEntry.TABLE_PRODUCT, ALL_PRODUCT_COLS, 
+				ProductEntry.COLUMN_PRODUCT_ID + "=?", new String[]{String.valueOf(proId)}, 
 				null, null, null);
 		if(cursor.moveToFirst()){
 			p = toProduct(cursor);
@@ -181,8 +181,8 @@ public class Products extends MPOSDatabase {
 	public ProductDept getProductDept(int deptId){
 		ProductDept pd = null;
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT * FROM " + TABLE_PRODUCT_DEPT +
-				" WHERE " + COLUMN_PRODUCT_DEPT_ID + "=" + deptId, null);
+				" SELECT * FROM " + ProductDeptEntry.TABLE_PRODUCT_DEPT +
+				" WHERE " + ProductEntry.COLUMN_PRODUCT_DEPT_ID + "=" + deptId, null);
 		if(cursor.moveToFirst()){
 			pd = toProductDept(cursor);
 		}
@@ -191,78 +191,78 @@ public class Products extends MPOSDatabase {
 	}
 	
 	public Cursor queryProduct(String[] columns, String selection, String[] selectionArgs){
-		return mSqlite.query(TABLE_PRODUCT, columns, selection, selectionArgs, null, null, null);
+		return mSqlite.query(ProductEntry.TABLE_PRODUCT, columns, selection, selectionArgs, null, null, null);
 	}
 	
 	private Product toProduct(Cursor cursor){
 		Product p = new Product();
-		p.setProductId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_ID)));
-		p.setProductDeptId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_DEPT_ID)));
-		p.setProductTypeId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_TYPE_ID)));
-		p.setProductCode(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_CODE)));
-		p.setProductBarCode(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_BAR_CODE)));
-		p.setProductName(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_NAME)));
-		p.setProductDesc(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_DESC)));
-		p.setProductUnitName(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_UNIT_NAME)));
-		p.setProductPrice(cursor.getFloat(cursor.getColumnIndex(COLUMN_PRODUCT_PRICE)));
-		p.setVatType(cursor.getInt(cursor.getColumnIndex(COLUMN_VAT_TYPE)));
-		p.setVatRate(cursor.getFloat(cursor.getColumnIndex(COLUMN_VAT_RATE)));
-		p.setDiscountAllow(cursor.getInt(cursor.getColumnIndex(COLUMN_DISCOUNT_ALLOW)));
-		p.setImgUrl(cursor.getString(cursor.getColumnIndex(COLUMN_IMG_URL)));
+		p.setProductId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_ID)));
+		p.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_DEPT_ID)));
+		p.setProductTypeId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_TYPE_ID)));
+		p.setProductCode(cursor.getString(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_CODE)));
+		p.setProductBarCode(cursor.getString(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_BAR_CODE)));
+		p.setProductName(cursor.getString(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_NAME)));
+		p.setProductDesc(cursor.getString(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_DESC)));
+		p.setProductUnitName(cursor.getString(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_UNIT_NAME)));
+		p.setProductPrice(cursor.getFloat(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE)));
+		p.setVatType(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_VAT_TYPE)));
+		p.setVatRate(cursor.getFloat(cursor.getColumnIndex(ProductEntry.COLUMN_VAT_RATE)));
+		p.setDiscountAllow(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_DISCOUNT_ALLOW)));
+		p.setImgUrl(cursor.getString(cursor.getColumnIndex(ProductEntry.COLUMN_IMG_URL)));
 		return p;
 	}
 
 	private ProductDept toProductDept(Cursor cursor){
 		ProductDept pd = new ProductDept();
-		pd.setProductDeptId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_DEPT_ID)));
-		pd.setProductGroupId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_GROUP_ID)));
-		pd.setProductDeptCode(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_DEPT_CODE)));
-		pd.setProductDeptName(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_DEPT_NAME)));
+		pd.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_DEPT_ID)));
+		pd.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_GROUP_ID)));
+		pd.setProductDeptCode(cursor.getString(cursor.getColumnIndex(ProductDeptEntry.COLUMN_PRODUCT_DEPT_CODE)));
+		pd.setProductDeptName(cursor.getString(cursor.getColumnIndex(ProductDeptEntry.COLUMN_PRODUCT_DEPT_NAME)));
 		return pd;
 	}
 
 	public ProductGroup toProductGroup(Cursor cursor){
 		ProductGroup pg = new ProductGroup();
-		pg.setProductGroupId(cursor.getInt(cursor.getColumnIndex(COLUMN_PRODUCT_GROUP_ID)));
-		pg.setProductGroupCode(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_GROUP_CODE)));
-		pg.setProductGroupName(cursor.getString(cursor.getColumnIndex(COLUMN_PRODUCT_GROUP_NAME)));
+		pg.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_GROUP_ID)));
+		pg.setProductGroupCode(cursor.getString(cursor.getColumnIndex(ProductGroupEntry.COLUMN_PRODUCT_GROUP_CODE)));
+		pg.setProductGroupName(cursor.getString(cursor.getColumnIndex(ProductGroupEntry.COLUMN_PRODUCT_GROUP_NAME)));
 		return pg;
 	}
 	
 	public void addPComponentSet(List<ProductGroups.PComponentSet> pCompSetLst) throws SQLException{
-		mSqlite.delete(TABLE_PCOMP_SET, null, null);
+		mSqlite.delete(ComponentSetEntry.TABLE_PCOMP_SET, null, null);
 		for(ProductGroups.PComponentSet pCompSet : pCompSetLst){
 			ContentValues cv = new ContentValues();
-			cv.put(COLUMN_PGROUP_ID, pCompSet.getPGroupID());
-			cv.put(COLUMN_PRODUCT_ID, pCompSet.getProductID());
-			cv.put(COLUMN_CHILD_PRODUCT_ID, pCompSet.getChildProductID());
-			cv.put(COLUMN_CHILD_PRODUCT_AMOUNT, pCompSet.getPGroupID());
-			cv.put(COLUMN_FLEXIBLE_PRODUCT_PRICE, pCompSet.getFlexibleProductPrice());
-			cv.put(COLUMN_FLEXIBLE_INCLUDE_PRICE, pCompSet.getFlexibleIncludePrice());
-			mSqlite.insertOrThrow(TABLE_PCOMP_SET, null, cv);
+			cv.put(ComponentSetEntry.COLUMN_PGROUP_ID, pCompSet.getPGroupID());
+			cv.put(ProductEntry.COLUMN_PRODUCT_ID, pCompSet.getProductID());
+			cv.put(ComponentSetEntry.COLUMN_CHILD_PRODUCT_ID, pCompSet.getChildProductID());
+			cv.put(ComponentSetEntry.COLUMN_CHILD_PRODUCT_AMOUNT, pCompSet.getPGroupID());
+			cv.put(ComponentSetEntry.COLUMN_FLEXIBLE_PRODUCT_PRICE, pCompSet.getFlexibleProductPrice());
+			cv.put(ComponentSetEntry.COLUMN_FLEXIBLE_INCLUDE_PRICE, pCompSet.getFlexibleIncludePrice());
+			mSqlite.insertOrThrow(ComponentSetEntry.TABLE_PCOMP_SET, null, cv);
 		}
 	}
 	
 	public void insertProductGroup(List<ProductGroups.ProductGroup> pgLst,
 			List<MenuGroups.MenuGroup> mgLst) throws SQLException{
-		mSqlite.delete(TABLE_PRODUCT_GROUP, null, null);
+		mSqlite.delete(ProductGroupEntry.TABLE_PRODUCT_GROUP, null, null);
 		for(ProductGroups.ProductGroup pg : pgLst){
 			ContentValues cv = new ContentValues();
-			cv.put(COLUMN_PRODUCT_GROUP_ID, pg.getProductGroupId());
-			cv.put(COLUMN_PRODUCT_GROUP_CODE, pg.getProductGroupCode());
-			cv.put(COLUMN_PRODUCT_GROUP_NAME, pg.getProductGroupName());
-			cv.put(COLUMN_PRODUCT_GROUP_TYPE, pg.getProductGroupType());
-			cv.put(COLUMN_IS_COMMENT, pg.getIsComment());
-			cv.put(COLUMN_ORDERING, pg.getProductGroupOrdering());
-			cv.put(COLUMN_ACTIVATE, 0);
-			mSqlite.insertOrThrow(TABLE_PRODUCT_GROUP, null, cv);
+			cv.put(ProductEntry.COLUMN_PRODUCT_GROUP_ID, pg.getProductGroupId());
+			cv.put(ProductGroupEntry.COLUMN_PRODUCT_GROUP_CODE, pg.getProductGroupCode());
+			cv.put(ProductGroupEntry.COLUMN_PRODUCT_GROUP_NAME, pg.getProductGroupName());
+			cv.put(ProductGroupEntry.COLUMN_PRODUCT_GROUP_TYPE, pg.getProductGroupType());
+			cv.put(ProductGroupEntry.COLUMN_IS_COMMENT, pg.getIsComment());
+			cv.put(ProductEntry.COLUMN_ORDERING, pg.getProductGroupOrdering());
+			cv.put(ProductEntry.COLUMN_ACTIVATE, 0);
+			mSqlite.insertOrThrow(ProductGroupEntry.TABLE_PRODUCT_GROUP, null, cv);
 		}
 		
 		for(MenuGroups.MenuGroup mg : mgLst){
 			ContentValues cv = new ContentValues();
-			cv.put(COLUMN_ACTIVATE, mg.getActivate());
-			mSqlite.update(TABLE_PRODUCT_GROUP, cv, 
-					COLUMN_PRODUCT_GROUP_ID + "=?", 
+			cv.put(ProductEntry.COLUMN_ACTIVATE, mg.getActivate());
+			mSqlite.update(ProductGroupEntry.TABLE_PRODUCT_GROUP, cv, 
+					ProductEntry.COLUMN_PRODUCT_GROUP_ID + "=?", 
 					new String[]{
 						String.valueOf(mg.getMenuGroupID())
 					});
@@ -271,23 +271,23 @@ public class Products extends MPOSDatabase {
 	
 	public void insertProductDept(List<ProductGroups.ProductDept> pdLst,
 			List<MenuGroups.MenuDept> mdLst) throws SQLException{
-		mSqlite.delete(TABLE_PRODUCT_DEPT, null, null);
+		mSqlite.delete(ProductDeptEntry.TABLE_PRODUCT_DEPT, null, null);
 		for(ProductGroups.ProductDept pd : pdLst){
 			ContentValues cv = new ContentValues();
-			cv.put(COLUMN_PRODUCT_DEPT_ID, pd.getProductDeptID());
-			cv.put(COLUMN_PRODUCT_GROUP_ID, pd.getProductGroupID());
-			cv.put(COLUMN_PRODUCT_DEPT_CODE, pd.getProductDeptCode());
-			cv.put(COLUMN_PRODUCT_DEPT_NAME, pd.getProductDeptName());
-			cv.put(COLUMN_ORDERING, pd.getProductDeptOrdering());
-			cv.put(COLUMN_ACTIVATE, 0);
-			mSqlite.insertOrThrow(TABLE_PRODUCT_DEPT, null, cv);
+			cv.put(ProductEntry.COLUMN_PRODUCT_DEPT_ID, pd.getProductDeptID());
+			cv.put(ProductEntry.COLUMN_PRODUCT_GROUP_ID, pd.getProductGroupID());
+			cv.put(ProductDeptEntry.COLUMN_PRODUCT_DEPT_CODE, pd.getProductDeptCode());
+			cv.put(ProductDeptEntry.COLUMN_PRODUCT_DEPT_NAME, pd.getProductDeptName());
+			cv.put(ProductEntry.COLUMN_ORDERING, pd.getProductDeptOrdering());
+			cv.put(ProductEntry.COLUMN_ACTIVATE, 0);
+			mSqlite.insertOrThrow(ProductDeptEntry.TABLE_PRODUCT_DEPT, null, cv);
 		}
 		
 		for(MenuGroups.MenuDept md : mdLst){
 			ContentValues cv = new ContentValues();
-			cv.put(COLUMN_ACTIVATE, md.getActivate());
-			mSqlite.update(TABLE_PRODUCT_DEPT, cv, 
-					COLUMN_PRODUCT_DEPT_ID + "=?",
+			cv.put(ProductEntry.COLUMN_ACTIVATE, md.getActivate());
+			mSqlite.update(ProductDeptEntry.TABLE_PRODUCT_DEPT, cv, 
+					ProductEntry.COLUMN_PRODUCT_DEPT_ID + "=?",
 					new String[]{
 						String.valueOf(md.getMenuDeptID())
 					}
@@ -297,39 +297,32 @@ public class Products extends MPOSDatabase {
 	
 	public void insertProducts(List<ProductGroups.Products> productLst,
 			List<MenuGroups.MenuItem> menuItemLst) throws SQLException{
-		mSqlite.delete(TABLE_PRODUCT, null, null);
+		mSqlite.delete(ProductEntry.TABLE_PRODUCT, null, null);
 		for(ProductGroups.Products p : productLst){
 			ContentValues cv = new ContentValues();
-			cv.put(COLUMN_PRODUCT_ID, p.getProductID());
-			cv.put(COLUMN_PRODUCT_DEPT_ID, p.getProductDeptID());
-			cv.put(COLUMN_PRODUCT_CODE, p.getProductCode());
-			cv.put(COLUMN_PRODUCT_BAR_CODE, p.getProductBarCode());
-			cv.put(COLUMN_PRODUCT_TYPE_ID, p.getProductTypeID());
-			cv.put(COLUMN_PRODUCT_PRICE, p.getProductPricePerUnit());
-			cv.put(COLUMN_PRODUCT_UNIT_NAME, p.getProductUnitName());
-			cv.put(COLUMN_PRODUCT_DESC, p.getProductDesc());
-			cv.put(COLUMN_DISCOUNT_ALLOW, p.getDiscountAllow());
-			cv.put(COLUMN_VAT_TYPE, p.getVatType());
-			cv.put(COLUMN_VAT_RATE, p.getVatRate());
-			cv.put(COLUMN_ISOUTOF_STOCK, p.getIsOutOfStock());
-			
-			mSqlite.insertOrThrow(TABLE_PRODUCT, null, cv);
+			cv.put(ProductEntry.COLUMN_PRODUCT_ID, p.getProductID());
+			cv.put(ProductEntry.COLUMN_PRODUCT_DEPT_ID, p.getProductDeptID());
+			cv.put(ProductEntry.COLUMN_PRODUCT_CODE, p.getProductCode());
+			cv.put(ProductEntry.COLUMN_PRODUCT_BAR_CODE, p.getProductBarCode());
+			cv.put(ProductEntry.COLUMN_PRODUCT_TYPE_ID, p.getProductTypeID());
+			cv.put(ProductEntry.COLUMN_PRODUCT_PRICE, p.getProductPricePerUnit());
+			cv.put(ProductEntry.COLUMN_PRODUCT_UNIT_NAME, p.getProductUnitName());
+			cv.put(ProductEntry.COLUMN_PRODUCT_DESC, p.getProductDesc());
+			cv.put(ProductEntry.COLUMN_DISCOUNT_ALLOW, p.getDiscountAllow());
+			cv.put(ProductEntry.COLUMN_VAT_TYPE, p.getVatType());
+			cv.put(ProductEntry.COLUMN_VAT_RATE, p.getVatRate());
+			cv.put(ProductEntry.COLUMN_ISOUTOF_STOCK, p.getIsOutOfStock());
+			mSqlite.insertOrThrow(ProductEntry.TABLE_PRODUCT, null, cv);
 		}
 		
 		for(MenuGroups.MenuItem m : menuItemLst){
-			try {
-				ContentValues cv = new ContentValues();
-				cv.put(COLUMN_PRODUCT_NAME, m.getMenuName_0());
-				cv.put(COLUMN_IMG_URL, m.getMenuImageLink());
-				cv.put(COLUMN_ORDERING, m.getMenuItemOrdering());
-				cv.put(COLUMN_ACTIVATE, m.getMenuActivate());
-				
-				mSqlite.update(TABLE_PRODUCT, cv, COLUMN_PRODUCT_ID + "=?", 
-						new String[]{String.valueOf(m.getProductID())});
-			} catch (Exception e) {
-				Toast toast = Toast.makeText(MPOSApplication.getContext(), e.getMessage(), Toast.LENGTH_SHORT);
-				toast.show();
-			}
+			ContentValues cv = new ContentValues();
+			cv.put(ProductEntry.COLUMN_PRODUCT_NAME, m.getMenuName_0());
+			cv.put(ProductEntry.COLUMN_IMG_URL, m.getMenuImageLink());
+			cv.put(ProductEntry.COLUMN_ORDERING, m.getMenuItemOrdering());
+			cv.put(ProductEntry.COLUMN_ACTIVATE, m.getMenuActivate());
+			mSqlite.update(ProductEntry.TABLE_PRODUCT, cv, ProductEntry.COLUMN_PRODUCT_ID + "=?", 
+					new String[]{String.valueOf(m.getProductID())});
 		}
 	}
 	
