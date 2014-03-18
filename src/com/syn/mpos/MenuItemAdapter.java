@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.j1tth4.mobile.util.ImageLoader;
-import com.syn.mpos.provider.Products;
+import com.syn.mpos.datasource.Products;
 
 public class MenuItemAdapter extends BaseAdapter{
 	private ImageLoader mImgLoader;

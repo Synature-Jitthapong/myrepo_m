@@ -1,4 +1,4 @@
-package com.syn.mpos.provider;
+package com.syn.mpos.datasource;
 
 public class StockProduct {
 	private int id;

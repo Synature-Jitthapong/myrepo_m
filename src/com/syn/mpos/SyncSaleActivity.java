@@ -3,11 +3,11 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.provider.Computer;
-import com.syn.mpos.provider.Computer.ComputerEntry;
-import com.syn.mpos.provider.MPOSDatabase;
-import com.syn.mpos.provider.Transaction;
-import com.syn.mpos.provider.Transaction.TransactionEntry;
+import com.syn.mpos.datasource.Computer;
+import com.syn.mpos.datasource.MPOSDatabase;
+import com.syn.mpos.datasource.Transaction;
+import com.syn.mpos.datasource.Computer.ComputerEntry;
+import com.syn.mpos.datasource.Transaction.TransactionEntry;
 import com.syn.pos.OrderTransaction;
 
 import android.app.Activity;

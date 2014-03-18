@@ -87,10 +87,6 @@
             android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>
 
-        <provider
-            android:name="com.syn.mpos.provider.ProductProvider"
-            android:authorities="com.syn.mpos.ProductProvider" />
-
         <activity
             android:name="com.syn.mpos.AboutActivity"
             android:label="@string/title_activity_about"
@@ -125,7 +121,7 @@
         </activity>
         <activity
             android:name="com.syn.mpos.ProductSetActivity"
-            android:label="@string/title_activity_product_set" >
+            android:label="@string/title_activity_product_set" android:theme="@style/ActivityDialogTheme">
         </activity>
     </application>
 

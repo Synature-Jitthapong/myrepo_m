@@ -1,4 +1,4 @@
-package com.syn.mpos.provider;
+package com.syn.mpos.datasource;
 
 import android.content.Context;
 

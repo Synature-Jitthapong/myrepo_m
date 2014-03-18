@@ -1,4 +1,4 @@
-package com.syn.mpos.provider;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,8 +10,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.mpos.provider.Computer.ComputerEntry;
-import com.syn.mpos.provider.Session.SessionEntry;
+import com.syn.mpos.datasource.Computer.ComputerEntry;
+import com.syn.mpos.datasource.Products.ProductEntry;
+import com.syn.mpos.datasource.Session.SessionEntry;
+import com.syn.mpos.datasource.Shop.ShopEntry;
+import com.syn.mpos.datasource.Staff.StaffEntry;
+import com.syn.mpos.datasource.StockDocument.DocumentTypeEntry;
 import com.syn.pos.OrderTransaction;
 
 /**
@@ -404,20 +408,20 @@ public class Transaction extends MPOSDatabase {
 		OrderTransaction.OrderDetail orderDetail = new OrderTransaction.OrderDetail();
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT a." + OrderDetailEntry.COLUMN_ORDER_ID + ", " + 
-				" a." + Products.COLUMN_PRODUCT_ID + ", " +
+				" a." + ProductEntry.COLUMN_PRODUCT_ID + ", " +
 				" a." + OrderDetailEntry.COLUMN_ORDER_QTY + ", " +
-				" a." + Products.COLUMN_PRODUCT_PRICE + ", " + 
+				" a." + ProductEntry.COLUMN_PRODUCT_PRICE + ", " + 
 				" a." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + ", " +
 				" a." + OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + ", " +
-				" a." + Products.COLUMN_VAT_TYPE + ", " +
+				" a." + ProductEntry.COLUMN_VAT_TYPE + ", " +
 				" a." + OrderDetailEntry.COLUMN_MEMBER_DISCOUNT + ", " +
 				" a." + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + ", " + 
 				" a." + OrderDetailEntry.COLUMN_DISCOUNT_TYPE + ", " +
-				" b." + Products.COLUMN_PRODUCT_NAME +
+				" b." + ProductEntry.COLUMN_PRODUCT_NAME +
 				" FROM " + OrderDetailEntry.TABLE_ORDER + " a " +
-				" LEFT JOIN " + Products.TABLE_PRODUCT + " b " +
-				" ON a." + Products.COLUMN_PRODUCT_ID + "=" +
-				" b." + Products.COLUMN_PRODUCT_ID + 
+				" LEFT JOIN " + ProductEntry.TABLE_PRODUCT + " b " +
+				" ON a." + ProductEntry.COLUMN_PRODUCT_ID + "=" +
+				" b." + ProductEntry.COLUMN_PRODUCT_ID + 
 				" WHERE a." + TransactionEntry.COLUMN_TRANSACTION_ID + "=?" + 
 				" AND a." + ComputerEntry.COLUMN_COMPUTER_ID + "=?" + 
 				" AND a." + OrderDetailEntry.COLUMN_ORDER_ID + "=?", 
@@ -440,20 +444,20 @@ public class Transaction extends MPOSDatabase {
 				new ArrayList<OrderTransaction.OrderDetail>();
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT a." + OrderDetailEntry.COLUMN_ORDER_ID + ", " +
-				" a." + Products.COLUMN_PRODUCT_ID + ", " +
+				" a." + ProductEntry.COLUMN_PRODUCT_ID + ", " +
 				" a." + OrderDetailEntry.COLUMN_ORDER_QTY + ", " +
-				" a." + Products.COLUMN_PRODUCT_PRICE + ", " +
+				" a." + ProductEntry.COLUMN_PRODUCT_PRICE + ", " +
 				" a." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + ", " +
 				" a." + OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + ", " +
-				" a." + Products.COLUMN_VAT_TYPE + ", " +
+				" a." + ProductEntry.COLUMN_VAT_TYPE + ", " +
 				" a." + OrderDetailEntry.COLUMN_MEMBER_DISCOUNT + ", " +
 				" a." + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + ", " +
 				" a." + OrderDetailEntry.COLUMN_DISCOUNT_TYPE + ", " +
-				" b." + Products.COLUMN_PRODUCT_NAME + 
+				" b." + ProductEntry.COLUMN_PRODUCT_NAME + 
 				" FROM " + OrderDetailEntry.TABLE_ORDER_TMP + " a " +
-				" LEFT JOIN " + Products.TABLE_PRODUCT + " b " +
-				" ON a." + Products.COLUMN_PRODUCT_ID + "=" +
-				" b." + Products.COLUMN_PRODUCT_ID +
+				" LEFT JOIN " + ProductEntry.TABLE_PRODUCT + " b " +
+				" ON a." + ProductEntry.COLUMN_PRODUCT_ID + "=" +
+				" b." + ProductEntry.COLUMN_PRODUCT_ID +
 				" WHERE a." + TransactionEntry.COLUMN_TRANSACTION_ID + "=?" +
 				" AND a." + ComputerEntry.COLUMN_COMPUTER_ID + "=?", 
 				new String[]{
@@ -475,23 +479,23 @@ public class Transaction extends MPOSDatabase {
 				new ArrayList<OrderTransaction.OrderDetail>();
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT a." + OrderDetailEntry.COLUMN_ORDER_ID + ", " +
-				" a." + Products.COLUMN_PRODUCT_ID + ", " +
+				" a." + ProductEntry.COLUMN_PRODUCT_ID + ", " +
 				" SUM(a." + OrderDetailEntry.COLUMN_ORDER_QTY + ") AS " + OrderDetailEntry.COLUMN_ORDER_QTY + ", " +
-				" SUM(a." + Products.COLUMN_PRODUCT_PRICE + ") AS " + Products.COLUMN_PRODUCT_PRICE + ", " +
+				" SUM(a." + ProductEntry.COLUMN_PRODUCT_PRICE + ") AS " + ProductEntry.COLUMN_PRODUCT_PRICE + ", " +
 				" SUM(a." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + ", " +
 				" SUM(a." + OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + ") AS " + OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + ", " +
-				" a." + Products.COLUMN_VAT_TYPE + ", " +
+				" a." + ProductEntry.COLUMN_VAT_TYPE + ", " +
 				" SUM(a." + OrderDetailEntry.COLUMN_MEMBER_DISCOUNT + ") AS " + OrderDetailEntry.COLUMN_MEMBER_DISCOUNT + ", " +
 				" SUM(a." + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + ") AS " + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + ", " +
 				" a." + OrderDetailEntry.COLUMN_DISCOUNT_TYPE + ", " +
-				" b." + Products.COLUMN_PRODUCT_NAME + 
+				" b." + ProductEntry.COLUMN_PRODUCT_NAME + 
 				" FROM " + OrderDetailEntry.TABLE_ORDER + " a" +
-				" LEFT JOIN " + Products.TABLE_PRODUCT + " b" +
-				" ON a." + Products.COLUMN_PRODUCT_ID + "=" +
-				" b." + Products.COLUMN_PRODUCT_ID +
+				" LEFT JOIN " + ProductEntry.TABLE_PRODUCT + " b" +
+				" ON a." + ProductEntry.COLUMN_PRODUCT_ID + "=" +
+				" b." + ProductEntry.COLUMN_PRODUCT_ID +
 				" WHERE a." + TransactionEntry.COLUMN_TRANSACTION_ID + "=?" +
 				" AND a." + ComputerEntry.COLUMN_COMPUTER_ID + "=?" +
-				" GROUP BY a." + Products.COLUMN_PRODUCT_ID + ", a." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE, 
+				" GROUP BY a." + ProductEntry.COLUMN_PRODUCT_ID + ", a." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE, 
 				new String[]{
 						String.valueOf(transactionId), 
 						String.valueOf(computerId)
@@ -511,20 +515,20 @@ public class Transaction extends MPOSDatabase {
 				new ArrayList<OrderTransaction.OrderDetail>();
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT a." + OrderDetailEntry.COLUMN_ORDER_ID + ", " +
-				" a." + Products.COLUMN_PRODUCT_ID + ", " +
+				" a." + ProductEntry.COLUMN_PRODUCT_ID + ", " +
 				" a." + OrderDetailEntry.COLUMN_ORDER_QTY + ", " +
-				" a." + Products.COLUMN_PRODUCT_PRICE + ", " +
+				" a." + ProductEntry.COLUMN_PRODUCT_PRICE + ", " +
 				" a." + OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + ", " +
 				" a." + OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + ", " +
-				" a." + Products.COLUMN_VAT_TYPE + ", " +
+				" a." + ProductEntry.COLUMN_VAT_TYPE + ", " +
 				" a." + OrderDetailEntry.COLUMN_MEMBER_DISCOUNT + ", " +
 				" a." + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + ", " +
 				" a." + OrderDetailEntry.COLUMN_DISCOUNT_TYPE + ", " +
-				" b." + Products.COLUMN_PRODUCT_NAME + 
+				" b." + ProductEntry.COLUMN_PRODUCT_NAME + 
 				" FROM " + OrderDetailEntry.TABLE_ORDER + " a" +
-				" LEFT JOIN " + Products.TABLE_PRODUCT + " b" +
-				" ON a." + Products.COLUMN_PRODUCT_ID + "=" +
-				" b." + Products.COLUMN_PRODUCT_ID +
+				" LEFT JOIN " + ProductEntry.TABLE_PRODUCT + " b" +
+				" ON a." + ProductEntry.COLUMN_PRODUCT_ID + "=" +
+				" b." + ProductEntry.COLUMN_PRODUCT_ID +
 				" WHERE a." + TransactionEntry.COLUMN_TRANSACTION_ID + "=?" +
 				" AND a." + ComputerEntry.COLUMN_COMPUTER_ID + "=?", 
 				new String[]{
@@ -544,13 +548,13 @@ public class Transaction extends MPOSDatabase {
 		OrderTransaction.OrderDetail orderDetail = 
 				new OrderTransaction.OrderDetail();
 		orderDetail.setOrderDetailId(cursor.getInt(cursor.getColumnIndex(OrderDetailEntry.COLUMN_ORDER_ID)));
-		orderDetail.setProductId(cursor.getInt(cursor.getColumnIndex(Products.COLUMN_PRODUCT_ID)));
-		orderDetail.setProductName(cursor.getString(cursor.getColumnIndex(Products.COLUMN_PRODUCT_NAME)));
+		orderDetail.setProductId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_ID)));
+		orderDetail.setProductName(cursor.getString(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_NAME)));
 		orderDetail.setQty(cursor.getFloat(cursor.getColumnIndex(OrderDetailEntry.COLUMN_ORDER_QTY)));
-		orderDetail.setPricePerUnit(cursor.getFloat(cursor.getColumnIndex(Products.COLUMN_PRODUCT_PRICE)));
+		orderDetail.setPricePerUnit(cursor.getFloat(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE)));
 		orderDetail.setTotalRetailPrice(cursor.getFloat(cursor.getColumnIndex(OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE)));
 		orderDetail.setTotalSalePrice(cursor.getFloat(cursor.getColumnIndex(OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE)));
-		orderDetail.setVatType(cursor.getInt(cursor.getColumnIndex(Products.COLUMN_VAT_TYPE)));
+		orderDetail.setVatType(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_VAT_TYPE)));
 		orderDetail.setMemberDiscount(cursor.getFloat(cursor.getColumnIndex(OrderDetailEntry.COLUMN_MEMBER_DISCOUNT)));
 		orderDetail.setPriceDiscount(cursor.getFloat(cursor.getColumnIndex(OrderDetailEntry.COLUMN_PRICE_DISCOUNT)));
 		orderDetail.setDiscountType(cursor.getInt(cursor.getColumnIndex(OrderDetailEntry.COLUMN_DISCOUNT_TYPE)));
@@ -578,11 +582,11 @@ public class Transaction extends MPOSDatabase {
 				" a." + TransactionEntry.COLUMN_RECEIPT_MONTH + ", " +
 				" a." + TransactionEntry.COLUMN_RECEIPT_ID + ", " +
 				" a." + TransactionEntry.COLUMN_RECEIPT_NO + ", " +
-				" b." + Staff.COLUMN_STAFF_CODE + ", " +
-				" b." + Staff.COLUMN_STAFF_NAME + 
+				" b." + StaffEntry.COLUMN_STAFF_CODE + ", " +
+				" b." + StaffEntry.COLUMN_STAFF_NAME + 
 				" FROM " + TransactionEntry.TABLE_TRANSACTION + " a " + 
-				" LEFT JOIN " + Staff.TABLE_STAFF + " b " + 
-				" ON a." + TransactionEntry.COLUMN_OPEN_STAFF + "=b." + Staff.COLUMN_STAFF_ID +
+				" LEFT JOIN " + StaffEntry.TABLE_STAFF + " b " + 
+				" ON a." + TransactionEntry.COLUMN_OPEN_STAFF + "=b." + StaffEntry.COLUMN_STAFF_ID +
 				" WHERE a." + TransactionEntry.COLUMN_SALE_DATE + "=?" + 
 				" AND a." + TransactionEntry.COLUMN_STATUS_ID + "=?", 
 				new String[]{
@@ -596,8 +600,8 @@ public class Transaction extends MPOSDatabase {
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerEntry.COLUMN_COMPUTER_ID)));
 				trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_TRANS_NOTE)));
 				trans.setPaidTime(cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_PAID_TIME)));
-				trans.setStaffName(cursor.getString(cursor.getColumnIndex(Staff.COLUMN_STAFF_CODE))
-						+ ":" + cursor.getString(cursor.getColumnIndex(Staff.COLUMN_STAFF_NAME)));
+				trans.setStaffName(cursor.getString(cursor.getColumnIndex(StaffEntry.COLUMN_STAFF_CODE))
+						+ ":" + cursor.getString(cursor.getColumnIndex(StaffEntry.COLUMN_STAFF_NAME)));
 				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_RECEIPT_NO)));
 				transLst.add(trans);
 			} while (cursor.moveToNext());
@@ -613,12 +617,12 @@ public class Transaction extends MPOSDatabase {
 				" a." + ComputerEntry.COLUMN_COMPUTER_ID + ", " + 
 				" a." + TransactionEntry.COLUMN_OPEN_TIME + ", " +
 				" a." + TransactionEntry.COLUMN_TRANS_NOTE + ", " +
-				" b." + Staff.COLUMN_STAFF_CODE + ", " +
-				" b." + Staff.COLUMN_STAFF_NAME + 
+				" b." + StaffEntry.COLUMN_STAFF_CODE + ", " +
+				" b." + StaffEntry.COLUMN_STAFF_NAME + 
 				" FROM " + TransactionEntry.TABLE_TRANSACTION + " a " +
-				" LEFT JOIN " + Staff.TABLE_STAFF + " b " + 
+				" LEFT JOIN " + StaffEntry.TABLE_STAFF + " b " + 
 				" ON a." + TransactionEntry.COLUMN_OPEN_STAFF + "=" +
-				" b." + Staff.COLUMN_STAFF_ID +
+				" b." + StaffEntry.COLUMN_STAFF_ID +
 				" WHERE a." + ComputerEntry.COLUMN_COMPUTER_ID + "=?" + 
 				" AND a." + TransactionEntry.COLUMN_SALE_DATE + "=?" + 
 				" AND a." + TransactionEntry.COLUMN_STATUS_ID + "=?", 
@@ -634,8 +638,8 @@ public class Transaction extends MPOSDatabase {
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerEntry.COLUMN_COMPUTER_ID)));
 				trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_TRANS_NOTE)));
 				trans.setOpenTime(cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_OPEN_TIME)));
-				trans.setStaffName(cursor.getString(cursor.getColumnIndex(Staff.COLUMN_STAFF_CODE))
-						+ ":" + cursor.getString(cursor.getColumnIndex(Staff.COLUMN_STAFF_NAME)));
+				trans.setStaffName(cursor.getString(cursor.getColumnIndex(StaffEntry.COLUMN_STAFF_CODE))
+						+ ":" + cursor.getString(cursor.getColumnIndex(StaffEntry.COLUMN_STAFF_NAME)));
 				transLst.add(trans);
 			} while (cursor.moveToNext());
 		}
@@ -712,10 +716,10 @@ public class Transaction extends MPOSDatabase {
 		cv.put(COLUMN_UUID, getUUID());
 		cv.put(TransactionEntry.COLUMN_TRANSACTION_ID, transactionId);
 		cv.put(ComputerEntry.COLUMN_COMPUTER_ID, computerId);
-		cv.put(Shop.COLUMN_SHOP_ID, shopId);
+		cv.put(ShopEntry.COLUMN_SHOP_ID, shopId);
 		cv.put(SessionEntry.COLUMN_SESS_ID, sessionId);
 		cv.put(TransactionEntry.COLUMN_OPEN_STAFF, staffId);
-		cv.put(StockDocument.COLUMN_DOC_TYPE, 8);
+		cv.put(DocumentTypeEntry.COLUMN_DOC_TYPE, 8);
 		cv.put(TransactionEntry.COLUMN_OPEN_TIME, dateTime.getTimeInMillis());
 		cv.put(TransactionEntry.COLUMN_SALE_DATE, date.getTimeInMillis());
 		cv.put(TransactionEntry.COLUMN_RECEIPT_YEAR, date.get(Calendar.YEAR));
@@ -732,8 +736,6 @@ public class Transaction extends MPOSDatabase {
 		Calendar dateTime = Util.getDateTime();
 		int receiptId = getMaxReceiptId(computerId,
 				date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1);
-		SaleStock stock = new SaleStock(mSqlite);
-		String receiptHeader = stock.getDocumentHeader(8); 
 		ContentValues cv = new ContentValues();
 		cv.put(TransactionEntry.COLUMN_STATUS_ID, TRANS_STATUS_SUCCESS);
 		cv.put(TransactionEntry.COLUMN_RECEIPT_ID, receiptId);
@@ -741,7 +743,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(TransactionEntry.COLUMN_PAID_TIME, dateTime.getTimeInMillis());
 		cv.put(TransactionEntry.COLUMN_PAID_STAFF_ID, staffId);
 		cv.put(TransactionEntry.COLUMN_CLOSE_STAFF, staffId);
-		cv.put(TransactionEntry.COLUMN_RECEIPT_NO, formatReceiptNo(receiptHeader, 
+		cv.put(TransactionEntry.COLUMN_RECEIPT_NO, formatReceiptNo("", 
 				date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1, receiptId));
 		return mSqlite.update(TransactionEntry.TABLE_TRANSACTION, cv, 
 				TransactionEntry.COLUMN_TRANSACTION_ID + "=?"
@@ -951,7 +953,7 @@ public class Transaction extends MPOSDatabase {
 		double vat = Util.calculateVatAmount(totalRetailPrice, vatRate, vatType);
 		ContentValues cv = new ContentValues();
 		cv.put(OrderDetailEntry.COLUMN_ORDER_QTY, orderQty);
-		cv.put(Products.COLUMN_PRODUCT_PRICE, pricePerUnit);
+		cv.put(ProductEntry.COLUMN_PRODUCT_PRICE, pricePerUnit);
 		cv.put(OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE, totalRetailPrice);
 		cv.put(OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE, totalRetailPrice);
 		cv.put(OrderDetailEntry.COLUMN_TOTAL_VAT, vat);
@@ -979,14 +981,14 @@ public class Transaction extends MPOSDatabase {
 		cv.put(OrderDetailEntry.COLUMN_ORDER_ID, orderDetailId);
 		cv.put(TransactionEntry.COLUMN_TRANSACTION_ID, transactionId);
 		cv.put(ComputerEntry.COLUMN_COMPUTER_ID, computerId);
-		cv.put(Products.COLUMN_PRODUCT_ID, productId);
+		cv.put(ProductEntry.COLUMN_PRODUCT_ID, productId);
 		cv.put(OrderDetailEntry.COLUMN_ORDER_QTY, orderQty);
-		cv.put(Products.COLUMN_PRODUCT_PRICE, pricePerUnit);
+		cv.put(ProductEntry.COLUMN_PRODUCT_PRICE, pricePerUnit);
 		cv.put(OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE, totalRetailPrice);
 		cv.put(OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE, totalRetailPrice);
-		cv.put(Products.COLUMN_VAT_TYPE, vatType);
+		cv.put(ProductEntry.COLUMN_VAT_TYPE, vatType);
 		cv.put(OrderDetailEntry.COLUMN_TOTAL_VAT, vat);
-		cv.put(Products.COLUMN_PRODUCT_TYPE_ID, productType);
+		cv.put(ProductEntry.COLUMN_PRODUCT_TYPE_ID, productType);
 		if(vatType == Products.VAT_TYPE_EXCLUDE)
 			cv.put(OrderDetailEntry.COLUMN_TOTAL_VAT_EXCLUDE, vat);
 		long rowId = mSqlite.insertOrThrow(OrderDetailEntry.TABLE_ORDER, null, cv);

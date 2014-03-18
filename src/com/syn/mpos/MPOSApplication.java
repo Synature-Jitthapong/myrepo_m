@@ -4,13 +4,13 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.syn.mpos.provider.Computer;
-import com.syn.mpos.provider.GlobalProperty;
-import com.syn.mpos.provider.MPOSLog;
-import com.syn.mpos.provider.MPOSSQLiteHelper;
-import com.syn.mpos.provider.Products;
-import com.syn.mpos.provider.Shop;
-import com.syn.mpos.provider.Staff;
+import com.syn.mpos.datasource.Computer;
+import com.syn.mpos.datasource.GlobalProperty;
+import com.syn.mpos.datasource.MPOSLog;
+import com.syn.mpos.datasource.MPOSSQLiteHelper;
+import com.syn.mpos.datasource.Products;
+import com.syn.mpos.datasource.Shop;
+import com.syn.mpos.datasource.Staff;
 
 import android.app.Application;
 import android.content.Context;

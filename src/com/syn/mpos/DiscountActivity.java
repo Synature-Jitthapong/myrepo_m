@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.R;
-import com.syn.mpos.provider.GlobalProperty;
-import com.syn.mpos.provider.Transaction;
+import com.syn.mpos.datasource.GlobalProperty;
+import com.syn.mpos.datasource.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;

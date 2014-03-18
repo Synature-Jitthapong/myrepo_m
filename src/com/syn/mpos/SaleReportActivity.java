@@ -5,10 +5,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
-import com.syn.mpos.provider.MPOSDatabase;
-import com.syn.mpos.provider.PaymentDetail;
-import com.syn.mpos.provider.Reporting;
-import com.syn.mpos.provider.Transaction;
+
+import com.syn.mpos.datasource.MPOSDatabase;
+import com.syn.mpos.datasource.PaymentDetail;
+import com.syn.mpos.datasource.Reporting;
+import com.syn.mpos.datasource.Transaction;
 import com.syn.pos.Payment;
 import com.syn.pos.Report;
 import android.os.Bundle;

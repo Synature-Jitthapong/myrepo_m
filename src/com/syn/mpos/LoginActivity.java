@@ -1,9 +1,9 @@
 package com.syn.mpos;
 
 import com.syn.mpos.R;
-import com.syn.mpos.provider.Login;
-import com.syn.mpos.provider.Session;
-import com.syn.mpos.provider.Util;
+import com.syn.mpos.datasource.Login;
+import com.syn.mpos.datasource.Session;
+import com.syn.mpos.datasource.Util;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;

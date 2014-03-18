@@ -5,17 +5,17 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.syn.mpos.provider.Computer;
-import com.syn.mpos.provider.Computer.ComputerEntry;
-import com.syn.mpos.provider.Login;
-import com.syn.mpos.provider.MPOSDatabase;
-import com.syn.mpos.provider.Products;
-import com.syn.mpos.provider.Session;
-import com.syn.mpos.provider.Staff;
-import com.syn.mpos.provider.SyncSaleLog;
-import com.syn.mpos.provider.Transaction;
-import com.syn.mpos.provider.Transaction.TransactionEntry;
-import com.syn.mpos.provider.Util;
+import com.syn.mpos.datasource.Computer;
+import com.syn.mpos.datasource.Login;
+import com.syn.mpos.datasource.MPOSDatabase;
+import com.syn.mpos.datasource.Products;
+import com.syn.mpos.datasource.Session;
+import com.syn.mpos.datasource.Staff;
+import com.syn.mpos.datasource.SyncSaleLog;
+import com.syn.mpos.datasource.Transaction;
+import com.syn.mpos.datasource.Util;
+import com.syn.mpos.datasource.Computer.ComputerEntry;
+import com.syn.mpos.datasource.Transaction.TransactionEntry;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
 

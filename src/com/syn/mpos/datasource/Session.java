@@ -1,9 +1,10 @@
-package com.syn.mpos.provider;
+package com.syn.mpos.datasource;
 
 import java.util.Calendar;
 
-import com.syn.mpos.provider.Computer.ComputerEntry;
-import com.syn.mpos.provider.Transaction.TransactionEntry;
+import com.syn.mpos.datasource.Computer.ComputerEntry;
+import com.syn.mpos.datasource.Shop.ShopEntry;
+import com.syn.mpos.datasource.Transaction.TransactionEntry;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -81,7 +82,7 @@ public class Session extends MPOSDatabase{
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT MAX(" + SessionEntry.COLUMN_SESS_ID + ") " + 
 				" FROM " + SessionEntry.TABLE_SESSION + 
-				" WHERE " + Shop.COLUMN_SHOP_ID + "=" + shopId + 
+				" WHERE " + ShopEntry.COLUMN_SHOP_ID + "=" + shopId + 
 				" AND " + ComputerEntry.COLUMN_COMPUTER_ID + "=" + computerId, null);
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
@@ -98,7 +99,7 @@ public class Session extends MPOSDatabase{
 		ContentValues cv = new ContentValues();
 		cv.put(SessionEntry.COLUMN_SESS_ID, sessionId);
 		cv.put(ComputerEntry.COLUMN_COMPUTER_ID, computerId);
-		cv.put(Shop.COLUMN_SHOP_ID, shopId);
+		cv.put(ShopEntry.COLUMN_SHOP_ID, shopId);
 		cv.put(SessionEntry.COLUMN_SESS_DATE, date.getTimeInMillis());
 		cv.put(SessionEntry.COLUMN_OPEN_DATE, dateTime.getTimeInMillis());
 		cv.put(TransactionEntry.COLUMN_OPEN_STAFF, openStaffId);

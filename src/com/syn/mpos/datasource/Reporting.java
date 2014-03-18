@@ -1,17 +1,17 @@
-package com.syn.mpos.provider;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.provider.Computer.ComputerEntry;
-import com.syn.mpos.provider.Products.ProductDeptEntry;
-import com.syn.mpos.provider.Products.ProductEntry;
-import com.syn.mpos.provider.Products.ProductGroupEntry;
-import com.syn.mpos.provider.Transaction.OrderDetailEntry;
-import com.syn.mpos.provider.Transaction.TransactionEntry;
+import com.syn.mpos.datasource.Computer.ComputerEntry;
+import com.syn.mpos.datasource.PaymentDetail.PayTypeEntry;
+import com.syn.mpos.datasource.PaymentDetail.PaymentDetailEntry;
+import com.syn.mpos.datasource.Products.ProductDeptEntry;
+import com.syn.mpos.datasource.Products.ProductEntry;
+import com.syn.mpos.datasource.Products.ProductGroupEntry;
+import com.syn.mpos.datasource.Transaction.OrderDetailEntry;
+import com.syn.mpos.datasource.Transaction.TransactionEntry;
 import com.syn.pos.Report;
-import com.syn.pos.Report.ReportDetail;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -49,11 +49,11 @@ public class Reporting extends MPOSDatabase{
 	public double getTotalPayByPayType(int transactionId, int computerId, int payTypeId){
 		double totalPay = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
-				" SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " +
-				" FROM " + PaymentDetail.TABLE_PAYMENT +
+				" SELECT SUM(" + PaymentDetailEntry.COLUMN_PAY_AMOUNT + ") " +
+				" FROM " + PaymentDetailEntry.TABLE_PAYMENT +
 				" WHERE " + TransactionEntry.COLUMN_TRANSACTION_ID + "=? " +
 				" AND " + ComputerEntry.COLUMN_COMPUTER_ID + "=? " +
-				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=?", 
+				" AND " + PayTypeEntry.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(transactionId),
 				String.valueOf(computerId), String.valueOf(payTypeId)});
 		if(cursor.moveToFirst()){
@@ -77,17 +77,17 @@ public class Reporting extends MPOSDatabase{
 				" a." + TransactionEntry.COLUMN_OTHER_DISCOUNT + " + " + 
 				" SUM(b." + OrderDetailEntry.COLUMN_PRICE_DISCOUNT + " + " + 
 				" b." + OrderDetailEntry.COLUMN_MEMBER_DISCOUNT + ") AS TotalDiscount, " +
-				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " +
-				" FROM " + PaymentDetail.TABLE_PAYMENT +
+				"(SELECT SUM(" + PaymentDetailEntry.COLUMN_PAY_AMOUNT + ") " +
+				" FROM " + PaymentDetailEntry.TABLE_PAYMENT +
 				" WHERE " + TransactionEntry.COLUMN_TRANSACTION_ID + "=a." + TransactionEntry.COLUMN_TRANSACTION_ID +
 				" AND " + ComputerEntry.COLUMN_COMPUTER_ID + "=a." + ComputerEntry.COLUMN_COMPUTER_ID +
-				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CASH +
+				" AND " + PayTypeEntry.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CASH +
 				") AS TotalCash, " +
-				"(SELECT SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") " +
-				" FROM " + PaymentDetail.TABLE_PAYMENT +
+				"(SELECT SUM(" + PaymentDetailEntry.COLUMN_PAY_AMOUNT + ") " +
+				" FROM " + PaymentDetailEntry.TABLE_PAYMENT +
 				" WHERE " + TransactionEntry.COLUMN_TRANSACTION_ID + "=a." + TransactionEntry.COLUMN_TRANSACTION_ID +
 				" AND " + ComputerEntry.COLUMN_COMPUTER_ID + "=a." + ComputerEntry.COLUMN_COMPUTER_ID +
-				" AND " + PaymentDetail.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CREDIT +
+				" AND " + PayTypeEntry.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CREDIT +
 				") AS TotalCredit " +
 				" FROM " + TransactionEntry.TABLE_TRANSACTION + " a " +
 				" INNER JOIN " + OrderDetailEntry.TABLE_ORDER + " b " +

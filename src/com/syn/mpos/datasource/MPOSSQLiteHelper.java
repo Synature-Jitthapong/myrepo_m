@@ -1,4 +1,4 @@
-package com.syn.mpos.provider;
+package com.syn.mpos.datasource;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,9 +14,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		MPOSSQL.BANK_SQL,
 		MPOSSQL.COMPUTER_SQL,
 		MPOSSQL.CREDIT_CARD_TYPE_SQL,
-		MPOSSQL.DOC_DETAIL_SQL,
-		MPOSSQL.DOCUMENT_SQL,
-		MPOSSQL.DOCUMENT_TYPE_SQL,
 		MPOSSQL.GLOBAL_PROPERTY_SQL,
 		MPOSSQL.LANGUAGE_SQL,
 		MPOSSQL.ORDER_SQL,
@@ -31,7 +28,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		MPOSSQL.PCOMP_SET_SQL,
 		MPOSSQL.PCOMP_GROUP_SQL,
 		MPOSSQL.PRODUCT_SQL,
-		MPOSSQL.PROVINCE_SQL,
 		MPOSSQL.SESSION_SQL,
 		MPOSSQL.SESSION_DETAIL_SQL,
 		MPOSSQL.SHOP_SQL,

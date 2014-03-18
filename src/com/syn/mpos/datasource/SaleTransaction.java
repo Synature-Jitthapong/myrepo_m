@@ -1,14 +1,21 @@
-package com.syn.mpos.provider;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import com.syn.mpos.MPOSApplication;
-import com.syn.mpos.provider.Computer.ComputerEntry;
-import com.syn.mpos.provider.Session.SessionEntry;
-import com.syn.mpos.provider.Transaction.OrderDetailEntry;
-import com.syn.mpos.provider.Transaction.TransactionEntry;
+import com.syn.mpos.datasource.Computer.ComputerEntry;
+import com.syn.mpos.datasource.CreditCard.CreditCardEntry;
+import com.syn.mpos.datasource.PaymentDetail.PayTypeEntry;
+import com.syn.mpos.datasource.PaymentDetail.PaymentDetailEntry;
+import com.syn.mpos.datasource.Products.ProductEntry;
+import com.syn.mpos.datasource.Session.SessionEntry;
+import com.syn.mpos.datasource.Shop.ShopEntry;
+import com.syn.mpos.datasource.StockDocument.DocumentTypeEntry;
+import com.syn.mpos.datasource.SyncSaleLog.SyncSaleLogEntry;
+import com.syn.mpos.datasource.Transaction.OrderDetailEntry;
+import com.syn.mpos.datasource.Transaction.TransactionEntry;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -91,7 +98,7 @@ public class SaleTransaction {
 					orderTrans.setiComputerID(cursor.getInt(
 							cursor.getColumnIndex(ComputerEntry.COLUMN_COMPUTER_ID)));
 					orderTrans.setiShopID(cursor.getInt(
-							cursor.getColumnIndex(Shop.COLUMN_SHOP_ID)));
+							cursor.getColumnIndex(ShopEntry.COLUMN_SHOP_ID)));
 					orderTrans.setiOpenStaffID(cursor.getInt(
 							cursor.getColumnIndex(TransactionEntry.COLUMN_OPEN_STAFF)));
 					orderTrans.setDtOpenTime(Util.dateTimeFormat(
@@ -99,7 +106,7 @@ public class SaleTransaction {
 					orderTrans.setDtCloseTime(Util.dateTimeFormat(
 							cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_CLOSE_TIME)), "yyyy-MM-dd HH:mm:ss"));
 					orderTrans.setiDocType(
-							cursor.getInt(cursor.getColumnIndex(StockDocument.COLUMN_DOC_TYPE)));
+							cursor.getInt(cursor.getColumnIndex(DocumentTypeEntry.COLUMN_DOC_TYPE)));
 					orderTrans.setiTransactionStatusID(
 							cursor.getInt(cursor.getColumnIndex(TransactionEntry.COLUMN_STATUS_ID)));
 					orderTrans.setiReceiptYear(
@@ -157,24 +164,24 @@ public class SaleTransaction {
 				do {
 					SaleTable_PaymentDetail payment = new SaleTable_PaymentDetail();
 					payment.setiPaymentDetailID(cursor.getInt(cursor
-							.getColumnIndex(PaymentDetail.COLUMN_PAY_ID)));
+							.getColumnIndex(PaymentDetailEntry.COLUMN_PAY_ID)));
 					payment.setiTransactionID(transId);
 					payment.setiComputerID(cursor.getInt(cursor
 							.getColumnIndex(ComputerEntry.COLUMN_COMPUTER_ID)));
 					// payment.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
 					payment.setiPayTypeID(cursor.getInt(cursor
-							.getColumnIndex(PaymentDetail.COLUMN_PAY_TYPE_ID)));
+							.getColumnIndex(PayTypeEntry.COLUMN_PAY_TYPE_ID)));
 					payment.setfPayAmount(
 							MPOSApplication.fixesDigitLength(4, cursor.getDouble(cursor
-									.getColumnIndex(PaymentDetail.COLUMN_PAY_AMOUNT))));
+									.getColumnIndex(PaymentDetailEntry.COLUMN_PAY_AMOUNT))));
 					payment.setSzCreditCardNo(cursor.getString(cursor
-							.getColumnIndex(CreditCard.COLUMN_CREDITCARD_NO)));
+							.getColumnIndex(CreditCardEntry.COLUMN_CREDITCARD_NO)));
 					payment.setiExpireMonth(cursor.getInt(cursor
-							.getColumnIndex(CreditCard.COLUMN_EXP_MONTH)));
+							.getColumnIndex(CreditCardEntry.COLUMN_EXP_MONTH)));
 					payment.setiExpireYear(cursor.getInt(cursor
-							.getColumnIndex(CreditCard.COLUMN_EXP_YEAR)));
+							.getColumnIndex(CreditCardEntry.COLUMN_EXP_YEAR)));
 					payment.setSzRemark(cursor.getString(cursor
-							.getColumnIndex(PaymentDetail.COLUMN_REMARK)));
+							.getColumnIndex(PaymentDetailEntry.COLUMN_REMARK)));
 					paymentDetailLst.add(payment);
 				} while (cursor.moveToNext());
 			}
@@ -231,17 +238,17 @@ public class SaleTransaction {
 							.getColumnIndex(ComputerEntry.COLUMN_COMPUTER_ID)));
 					// order.setiShopID(cursor.getInt(cursor.getColumnIndex(Shop.COL_SHOP_ID)));
 					order.setiVatType(cursor.getInt(
-							cursor.getColumnIndex(Products.COLUMN_VAT_TYPE)));
+							cursor.getColumnIndex(ProductEntry.COLUMN_VAT_TYPE)));
 					order.setiProductID(cursor.getInt(cursor
-							.getColumnIndex(Products.COLUMN_PRODUCT_ID)));
+							.getColumnIndex(ProductEntry.COLUMN_PRODUCT_ID)));
 					order.setiProductTypeID(cursor.getInt(cursor
-							.getColumnIndex(Products.COLUMN_PRODUCT_TYPE_ID)));
+							.getColumnIndex(ProductEntry.COLUMN_PRODUCT_TYPE_ID)));
 					order.setfQty(
 							MPOSApplication.fixesDigitLength(4,cursor.getDouble(cursor
 									.getColumnIndex(OrderDetailEntry.COLUMN_ORDER_QTY))));
 					order.setfPricePerUnit(
 							MPOSApplication.fixesDigitLength(4, cursor.getDouble(
-									cursor.getColumnIndex(Products.COLUMN_PRODUCT_PRICE))));
+									cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE))));
 					order.setfRetailPrice(
 							MPOSApplication.fixesDigitLength(4, cursor.getDouble(
 									cursor.getColumnIndex(OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE))));
@@ -257,7 +264,7 @@ public class SaleTransaction {
 					order.setiSaleMode(cursor.getInt(
 							cursor.getColumnIndex(OrderDetailEntry.COLUMN_SALE_MODE)));
 					order.setiProductTypeID(cursor.getInt(
-							cursor.getColumnIndex(Products.COLUMN_PRODUCT_TYPE_ID)));
+							cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_TYPE_ID)));
 					
 					orderDetailLst.add(order);
 				} while (cursor.moveToNext());
@@ -316,7 +323,7 @@ public class SaleTransaction {
 					saleSess.setiComputerID(cursor.getInt(cursor
 							.getColumnIndex(ComputerEntry.COLUMN_COMPUTER_ID)));
 					saleSess.setiShopID(cursor.getInt(cursor
-							.getColumnIndex(Shop.COLUMN_SHOP_ID)));
+							.getColumnIndex(ShopEntry.COLUMN_SHOP_ID)));
 					saleSess.setDtCloseSessionDateTime(Util.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(SessionEntry.COLUMN_SESS_DATE)),
@@ -352,18 +359,18 @@ public class SaleTransaction {
 
 	public Cursor queryPaymentDetail(int transId) {
 		return mSqlite.rawQuery(
-				"SELECT " + PaymentDetail.COLUMN_PAY_ID + ", " +
+				"SELECT " + PaymentDetailEntry.COLUMN_PAY_ID + ", " +
 				ComputerEntry.COLUMN_COMPUTER_ID + ", " +
-				PaymentDetail.COLUMN_PAY_TYPE_ID + ", " +
-				CreditCard.COLUMN_CREDITCARD_NO + ", " +
-				CreditCard.COLUMN_EXP_MONTH + ", " +
-				CreditCard.COLUMN_EXP_YEAR + ", " +
-				PaymentDetail.COLUMN_REMARK + ", " +
-				" SUM(" + PaymentDetail.COLUMN_PAY_AMOUNT + ") AS " + 
-				PaymentDetail.COLUMN_PAY_AMOUNT +
-				" FROM " + PaymentDetail.TABLE_PAYMENT + 
+				PayTypeEntry.COLUMN_PAY_TYPE_ID + ", " +
+				CreditCardEntry.COLUMN_CREDITCARD_NO + ", " +
+				CreditCardEntry.COLUMN_EXP_MONTH + ", " +
+				CreditCardEntry.COLUMN_EXP_YEAR + ", " +
+				PaymentDetailEntry.COLUMN_REMARK + ", " +
+				" SUM(" + PaymentDetailEntry.COLUMN_PAY_AMOUNT + ") AS " + 
+				PaymentDetailEntry.COLUMN_PAY_AMOUNT +
+				" FROM " + PaymentDetailEntry.TABLE_PAYMENT + 
 				" WHERE " + TransactionEntry.COLUMN_TRANSACTION_ID + "=?" +
-				" GROUP BY " + PaymentDetail.COLUMN_PAY_TYPE_ID,
+				" GROUP BY " + PayTypeEntry.COLUMN_PAY_TYPE_ID,
 				new String[] { String.valueOf(transId) });
 	}
 
@@ -432,8 +439,8 @@ public class SaleTransaction {
 	public Cursor querySyncSaleLog() {
 		return mSqlite.rawQuery(
 				"SELECT * " + 
-				" FROM " + SyncSaleLog.TABLE_SYNC_SALE_LOG + 
-				" WHERE " + SyncSaleLog.COLUMN_SYNC_STATUS + "=?",
+				" FROM " + SyncSaleLogEntry.TABLE_SYNC_SALE_LOG + 
+				" WHERE " + SyncSaleLogEntry.COLUMN_SYNC_STATUS + "=?",
 				new String[] { String.valueOf(SyncSaleLog.SYNC_FAIL) });
 	}
 

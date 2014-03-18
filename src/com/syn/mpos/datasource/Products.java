@@ -1,16 +1,13 @@
-package com.syn.mpos.provider;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.syn.mpos.MPOSApplication;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.widget.Toast;
 
 public class Products extends MPOSDatabase {
 	public static final int NORMAL_TYPE = 0;
