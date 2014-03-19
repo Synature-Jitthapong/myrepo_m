@@ -10,8 +10,8 @@ import com.syn.mpos.datasource.PaymentAmountButton.PaymentButtonEntry;
 import com.syn.mpos.datasource.PaymentDetail.PayTypeEntry;
 import com.syn.mpos.datasource.PaymentDetail.PaymentDetailEntry;
 import com.syn.mpos.datasource.PrintReceiptLog.PrintLogEntry;
-import com.syn.mpos.datasource.Products.ComponentGroupEntry;
-import com.syn.mpos.datasource.Products.ComponentSetEntry;
+import com.syn.mpos.datasource.Products.ProductComponentGroupEntry;
+import com.syn.mpos.datasource.Products.ProductComponentEntry;
 import com.syn.mpos.datasource.Products.ProductDeptEntry;
 import com.syn.mpos.datasource.Products.ProductEntry;
 import com.syn.mpos.datasource.Products.ProductGroupEntry;
@@ -80,7 +80,7 @@ public class MPOSSQL {
 			OrderDetailEntry.COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
 			OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
 			OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
-			OrderDetailEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
+			ProductEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
 			"PRIMARY KEY (" + OrderDetailEntry.COLUMN_ORDER_ID + " ASC, " +
 			TransactionEntry.COLUMN_TRANSACTION_ID + " ASC, " + ComputerEntry.COLUMN_COMPUTER_ID + " ASC) );";
 	
@@ -101,7 +101,7 @@ public class MPOSSQL {
 			OrderDetailEntry.COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
 			OrderDetailEntry.COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
 			OrderDetailEntry.COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
-			OrderDetailEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
+			ProductEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
 			"PRIMARY KEY (" + OrderDetailEntry.COLUMN_ORDER_ID + " ASC, " +
 			TransactionEntry.COLUMN_TRANSACTION_ID + " ASC, " + ComputerEntry.COLUMN_COMPUTER_ID + " ASC) );";
 	
@@ -135,7 +135,7 @@ public class MPOSSQL {
 			TransactionEntry.COLUMN_TRANS_NOTE + " TEXT, " +
 			TransactionEntry.COLUMN_OTHER_DISCOUNT + " REAL DEFAULT 0, " +
 			MPOSDatabase.COLUMN_SEND_STATUS + " INTEGER DEFAULT 0, " +
-			OrderDetailEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
+			ProductEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
 			"PRIMARY KEY (" + TransactionEntry.COLUMN_TRANSACTION_ID + " ASC, " + ComputerEntry.COLUMN_COMPUTER_ID + " ASC) ); ";
 	
 	public static final String PRINT_RECEIPT_LOG_SQL = 
@@ -200,23 +200,25 @@ public class MPOSSQL {
 			ProductEntry.COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
 			"PRIMARY KEY (" + ProductEntry.COLUMN_PRODUCT_GROUP_ID + "));";
 	
-	public static final String PCOMP_SET_SQL =
-			"CREATE TABLE " + ComponentSetEntry.TABLE_PCOMP_SET + " ( " +
-					ComponentSetEntry.COLUMN_PGROUP_ID + " INTEGER, " +
+	public static final String PCOMP_SQL =
+			"CREATE TABLE " + ProductComponentEntry.TABLE_PCOMP_SET + " ( " +
+					ProductComponentEntry.COLUMN_PGROUP_ID + " INTEGER, " +
 			ProductEntry.COLUMN_PRODUCT_ID + " INTEGER, " +
-			ComponentSetEntry.COLUMN_CHILD_PRODUCT_ID + " INTEGER, " +
-			ComponentSetEntry.COLUMN_CHILD_PRODUCT_AMOUNT + " REAL, " +
-			ComponentSetEntry.COLUMN_FLEXIBLE_PRODUCT_PRICE + " REAL DEFAULT 0, " +
-			ComponentSetEntry.COLUMN_FLEXIBLE_INCLUDE_PRICE + " INTEGER DEFAULT 0 " +
+			ProductEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 0, " +
+			ProductComponentEntry.COLUMN_CHILD_PRODUCT_ID + " INTEGER, " +
+			ProductComponentEntry.COLUMN_CHILD_PRODUCT_AMOUNT + " REAL, " +
+			ProductComponentEntry.COLUMN_FLEXIBLE_PRODUCT_PRICE + " REAL DEFAULT 0, " +
+			ProductComponentEntry.COLUMN_FLEXIBLE_INCLUDE_PRICE + " INTEGER DEFAULT 0 " +
 			");";
 	
 	public static final String PCOMP_GROUP_SQL =
-			"CREATE TABLE " + ComponentGroupEntry.TABLE_PCOMP_GROUP + " ( " +
-			ComponentSetEntry.COLUMN_PGROUP_ID + " INTEGER, " +
+			"CREATE TABLE " + ProductComponentGroupEntry.TABLE_PCOMP_GROUP + " ( " +
+			ProductComponentEntry.COLUMN_PGROUP_ID + " INTEGER, " +
 			ProductEntry.COLUMN_PRODUCT_ID + " INTEGER, " +
-			ComponentGroupEntry.COL_SET_GROUP_NO + " TEXT, " +
-			ComponentGroupEntry.COL_SET_GROUP_NAME + " TEXT, " +
-			ComponentGroupEntry.COL_REQ_AMOUNT + " REAL DEFAULT 0 " +
+			ProductEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 0, " +
+			ProductComponentGroupEntry.COL_SET_GROUP_NO + " TEXT, " +
+			ProductComponentGroupEntry.COL_SET_GROUP_NAME + " TEXT, " +
+			ProductComponentGroupEntry.COL_REQ_AMOUNT + " REAL DEFAULT 0 " +
 			");";
 	
 	public static final String PRODUCT_SQL =

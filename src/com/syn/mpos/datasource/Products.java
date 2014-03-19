@@ -44,6 +44,21 @@ public class Products extends MPOSDatabase {
 		super(db);
 	}
 	
+	public List<ProductGroups.ProductComponent> listProductComponent(int groupId){
+		List<ProductGroups.ProductComponent> pCompLst = null;
+		Cursor cursor = mSqlite.rawQuery("", new String[]{String.valueOf(groupId)});
+		if(cursor.moveToFirst()){
+			pCompLst = new ArrayList<ProductGroups.ProductComponent>();
+			do{
+				ProductGroups.ProductComponent pComp = new ProductGroups.ProductComponent();
+				pComp.setPGroupID(cursor.getInt(cursor.getColumnIndex(ProductComponentEntry.COLUMN_PGROUP_ID)));
+				pComp.setProductID(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_ID)));
+				pComp.setSaleMode(cursor.getInt(cursor.getColumnIndex(ProductEntry)));
+			}while(cursor.moveToNext());
+		}
+		return pCompLst;
+	}
+	
 	public List<ProductGroup> listProductGroup(){
 		List<ProductGroup> pgLst = new ArrayList<ProductGroup>();
 		Cursor cursor = mSqlite.rawQuery(
@@ -84,9 +99,9 @@ public class Products extends MPOSDatabase {
 				+ " b." + ProductEntry.COLUMN_PRODUCT_PRICE + ", " 
 				+ " b." + ProductEntry.COLUMN_VAT_TYPE + ", " 
 				+ " b." + ProductEntry.COLUMN_VAT_RATE
-				+ " FROM " + ComponentSetEntry.TABLE_PCOMP_SET + " a "
+				+ " FROM " + ProductComponentEntry.TABLE_PCOMP_SET + " a "
 				+ " INNER JOIN " + ProductEntry.TABLE_PRODUCT + " b " 
-				+ " ON a." + ComponentSetEntry.COLUMN_CHILD_PRODUCT_ID + "=b." + ProductEntry.COLUMN_PRODUCT_ID
+				+ " ON a." + ProductComponentEntry.COLUMN_CHILD_PRODUCT_ID + "=b." + ProductEntry.COLUMN_PRODUCT_ID
 				+ " WHERE a." + ProductEntry.COLUMN_PRODUCT_ID + "=?", 
 				new String[]{String.valueOf(proId)});
 		if(cursor.moveToFirst()){
@@ -226,17 +241,29 @@ public class Products extends MPOSDatabase {
 		return pg;
 	}
 	
-	public void addPComponentSet(List<ProductGroups.PComponentSet> pCompSetLst) throws SQLException{
-		mSqlite.delete(ComponentSetEntry.TABLE_PCOMP_SET, null, null);
-		for(ProductGroups.PComponentSet pCompSet : pCompSetLst){
+	public void insertPComponentGroup(List<ProductGroups.PComponentGroup> pCompGroupLst){
+		mSqlite.delete(ProductComponentGroupEntry.TABLE_PCOMP_GROUP, null, null);
+		for(ProductGroups.PComponentGroup pCompGroup : pCompGroupLst){
 			ContentValues cv = new ContentValues();
-			cv.put(ComponentSetEntry.COLUMN_PGROUP_ID, pCompSet.getPGroupID());
+			cv.put(ProductComponentEntry.COLUMN_PGROUP_ID, pCompGroup.getPGroupID());
+			cv.put(ProductEntry.COLUMN_PRODUCT_ID, pCompGroup.getProductID());
+			cv.put(ProductComponentGroupEntry.COL_SET_GROUP_NO, pCompGroup.getSetGroupNo());
+			cv.put(ProductComponentGroupEntry.COL_SET_GROUP_NAME, pCompGroup.getSetGroupName());
+			cv.put(ProductComponentGroupEntry.COL_REQ_AMOUNT, pCompGroup.getRequireAmount());
+		}
+	}
+	
+	public void insertProductComponent(List<ProductGroups.ProductComponent> pCompLst) throws SQLException{
+		mSqlite.delete(ProductComponentEntry.TABLE_PCOMP_SET, null, null);
+		for(ProductGroups.ProductComponent pCompSet : pCompLst){
+			ContentValues cv = new ContentValues();
+			cv.put(ProductComponentEntry.COLUMN_PGROUP_ID, pCompSet.getPGroupID());
 			cv.put(ProductEntry.COLUMN_PRODUCT_ID, pCompSet.getProductID());
-			cv.put(ComponentSetEntry.COLUMN_CHILD_PRODUCT_ID, pCompSet.getChildProductID());
-			cv.put(ComponentSetEntry.COLUMN_CHILD_PRODUCT_AMOUNT, pCompSet.getPGroupID());
-			cv.put(ComponentSetEntry.COLUMN_FLEXIBLE_PRODUCT_PRICE, pCompSet.getFlexibleProductPrice());
-			cv.put(ComponentSetEntry.COLUMN_FLEXIBLE_INCLUDE_PRICE, pCompSet.getFlexibleIncludePrice());
-			mSqlite.insertOrThrow(ComponentSetEntry.TABLE_PCOMP_SET, null, cv);
+			cv.put(ProductComponentEntry.COLUMN_CHILD_PRODUCT_ID, pCompSet.getChildProductID());
+			cv.put(ProductComponentEntry.COLUMN_CHILD_PRODUCT_AMOUNT, pCompSet.getPGroupID());
+			cv.put(ProductComponentEntry.COLUMN_FLEXIBLE_PRODUCT_PRICE, pCompSet.getFlexibleProductPrice());
+			cv.put(ProductComponentEntry.COLUMN_FLEXIBLE_INCLUDE_PRICE, pCompSet.getFlexibleIncludePrice());
+			mSqlite.insertOrThrow(ProductComponentEntry.TABLE_PCOMP_SET, null, cv);
 		}
 	}
 	
@@ -323,8 +350,8 @@ public class Products extends MPOSDatabase {
 		}
 	}
 	
-	public static abstract class ComponentSetEntry{
-		public static final String TABLE_PCOMP_SET = "PComponentSet";
+	public static abstract class ProductComponentEntry{
+		public static final String TABLE_PCOMP_SET = "ProductComponent";
 		public static final String COLUMN_PGROUP_ID = "pgroup_id";
 		public static final String COLUMN_CHILD_PRODUCT_ID = "child_product_id";
 		public static final String COLUMN_CHILD_PRODUCT_AMOUNT = "child_product_amount";
@@ -332,7 +359,7 @@ public class Products extends MPOSDatabase {
 		public static final String COLUMN_FLEXIBLE_INCLUDE_PRICE = "flexible_include_price";
 	}
 	
-	public static abstract class ComponentGroupEntry{
+	public static abstract class ProductComponentGroupEntry{
 		public static final String TABLE_PCOMP_GROUP = "PComponentGroup";
 		public static final String COL_SET_GROUP_NO = "set_group_no";
 		public static final String COL_SET_GROUP_NAME = "set_group_name";
@@ -371,6 +398,7 @@ public class Products extends MPOSDatabase {
 		public static final String COLUMN_ISOUTOF_STOCK = "isoutof_stock";
 		public static final String COLUMN_IMG_URL = "image_url";
 		public static final String COLUMN_ACTIVATE = "activate";
+		public static final String COLUMN_SALE_MODE = "sale_mode";
 		public static final String COLUMN_ORDERING = "ordering";	
 	}
 	

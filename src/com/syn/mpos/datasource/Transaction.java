@@ -1081,7 +1081,6 @@ public class Transaction extends MPOSDatabase {
 		public static final String COLUMN_MEMBER_DISCOUNT = "member_discount_amount";
 		public static final String COLUMN_PRICE_DISCOUNT = "price_discount_amount";
 		public static final String COLUMN_DISCOUNT_TYPE = "discount_type";
-		public static final String COLUMN_SALE_MODE = "sale_mode";	
 	}
 	
 	public static abstract class TransactionEntry{
