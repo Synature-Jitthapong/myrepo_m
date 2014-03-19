@@ -931,6 +931,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			}
 		}else if(productTypeId == Products.SIZE_TYPE){
 			popupProductSize(productId);
+		}else if(productTypeId == Products.SET_TYPE_CAN_SELECT){
+			Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
+			intent.putExtra("productId", productId);
+			startActivity(intent);
 		}
 	}
 

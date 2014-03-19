@@ -228,7 +228,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mSpReportType = (Spinner) mReportTypeItem.getActionView().findViewById(R.id.spinner1);
 		mBtnDateFrom = (Button) mConditionItem.getActionView().findViewById(R.id.btnDateFrom);
 		mBtnDateTo = (Button) mConditionItem.getActionView().findViewById(R.id.btnDateTo);
-		mBtnCreateReport = (Button) ((MenuItem) menu.findItem(R.id.itemCreateReport)).getActionView().findViewById(R.id.btnAction);
+		mBtnCreateReport = (Button) ((MenuItem) menu.findItem(R.id.itemCreateReport)).getActionView();
 		mBtnCreateReport.setText(R.string.create_report);
 		mBtnDateFrom.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
 		mBtnDateTo.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));

@@ -134,7 +134,7 @@ public class SaleTransaction {
 					orderTrans.setSzTransactionNote(
 							cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_TRANS_NOTE)));
 					orderTrans.setiSaleMode(cursor.getInt(
-							cursor.getColumnIndex(OrderDetailEntry.COLUMN_SALE_MODE)));
+							cursor.getColumnIndex(ProductEntry.COLUMN_SALE_MODE)));
 					orderTrans.setfVatPercent(MPOSApplication.fixesDigitLength(4,
 							MPOSApplication.getShop().getCompanyVatRate()));
 					orderTrans.setfTransactionExcludeVAT(MPOSApplication.fixesDigitLength(4,cursor.getDouble(
@@ -262,7 +262,7 @@ public class SaleTransaction {
 							MPOSApplication.fixesDigitLength(4, cursor.getDouble(
 									cursor.getColumnIndex(OrderDetailEntry.COLUMN_PRICE_DISCOUNT))));
 					order.setiSaleMode(cursor.getInt(
-							cursor.getColumnIndex(OrderDetailEntry.COLUMN_SALE_MODE)));
+							cursor.getColumnIndex(ProductEntry.COLUMN_SALE_MODE)));
 					order.setiProductTypeID(cursor.getInt(
 							cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_TYPE_ID)));
 					

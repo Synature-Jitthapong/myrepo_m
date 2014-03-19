@@ -81,7 +81,7 @@ public class MenuItemAdapter extends BaseAdapter{
 		return convertView;
 	}
 	
-	private class ViewHolder{
+	public static class ViewHolder{
 		ImageView imgMenu;
 		TextView tvMenu;
 		TextView tvPrice;

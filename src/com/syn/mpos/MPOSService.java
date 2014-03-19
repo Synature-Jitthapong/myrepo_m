@@ -149,6 +149,7 @@ public class MPOSService {
 							p.insertProductDept(pgs.getProductDept(),
 									mgs.getMenuDept());
 							p.insertProducts(pgs.getProduct(), mgs.getMenuItem());
+							p.insertPComponentGroup(pgs.getPComponentGroup());
 							p.insertProductComponent(pgs.getPComponentSet());
 
 							// clear all menu picture

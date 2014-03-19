@@ -201,7 +201,7 @@ public class MPOSSQL {
 			"PRIMARY KEY (" + ProductEntry.COLUMN_PRODUCT_GROUP_ID + "));";
 	
 	public static final String PCOMP_SQL =
-			"CREATE TABLE " + ProductComponentEntry.TABLE_PCOMP_SET + " ( " +
+			"CREATE TABLE " + ProductComponentEntry.TABLE_PCOMP + " ( " +
 					ProductComponentEntry.COLUMN_PGROUP_ID + " INTEGER, " +
 			ProductEntry.COLUMN_PRODUCT_ID + " INTEGER, " +
 			ProductEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 0, " +
@@ -216,9 +216,9 @@ public class MPOSSQL {
 			ProductComponentEntry.COLUMN_PGROUP_ID + " INTEGER, " +
 			ProductEntry.COLUMN_PRODUCT_ID + " INTEGER, " +
 			ProductEntry.COLUMN_SALE_MODE + " INTEGER DEFAULT 0, " +
-			ProductComponentGroupEntry.COL_SET_GROUP_NO + " TEXT, " +
-			ProductComponentGroupEntry.COL_SET_GROUP_NAME + " TEXT, " +
-			ProductComponentGroupEntry.COL_REQ_AMOUNT + " REAL DEFAULT 0 " +
+			ProductComponentGroupEntry.COLUMN_SET_GROUP_NO + " TEXT, " +
+			ProductComponentGroupEntry.COLUMN_SET_GROUP_NAME + " TEXT, " +
+			ProductComponentGroupEntry.COLUMN_REQ_AMOUNT + " REAL DEFAULT 0 " +
 			");";
 	
 	public static final String PRODUCT_SQL =
