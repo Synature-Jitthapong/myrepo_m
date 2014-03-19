@@ -264,9 +264,9 @@ public class Products extends MPOSDatabase {
 		return pg;
 	}
 	
-	public void addPComponentSet(List<ProductGroups.PComponentSet> pCompSetLst) throws SQLException{
+	public void addPComponentSet(List<ProductGroups.ProductComponent> pCompSetLst) throws SQLException{
 		mSqlite.delete(TABLE_PCOMP_SET, null, null);
-		for(ProductGroups.PComponentSet pCompSet : pCompSetLst){
+		for(ProductGroups.ProductComponent pCompSet : pCompSetLst){
 			ContentValues cv = new ContentValues();
 			cv.put(COLUMN_PGROUP_ID, pCompSet.getPGroupID());
 			cv.put(COLUMN_PRODUCT_ID, pCompSet.getProductID());
