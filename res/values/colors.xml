@@ -17,4 +17,5 @@
     <color name="orange">#FFF17810</color>
     <color name="orange_dark">#FFB25C00</color>
     <color name="light_green">#FFb3c833</color>
+    <color name="red_alert">#FFC70B09</color>
 </resources>

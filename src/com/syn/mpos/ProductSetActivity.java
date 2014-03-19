@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -42,6 +43,7 @@ public class ProductSetActivity extends Activity {
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
 		
 		if (savedInstanceState == null) {
@@ -117,11 +119,14 @@ public class ProductSetActivity extends Activity {
 			List<Products.ProductComponentGroup> productCompGroupLst;
 			productCompGroupLst = mProduct.listProductComponentGroup(mProductId);
 			if(productCompGroupLst != null){
-				mScroll.removeAllViews();
+				LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
 				for(final Products.ProductComponentGroup pCompGroup : productCompGroupLst){
-					Button btn = (Button) mInflater.inflate(R.layout.button_action, null);
-					btn.setText(pCompGroup.getProductName() + " " + pCompGroup.getRequireAmount());
-					btn.setOnClickListener(new OnClickListener(){
+					View setGroupView = mInflater.inflate(R.layout.set_group_button_layout, null);
+					TextView tvGroupName = (TextView) setGroupView.findViewById(R.id.textView2);
+					TextView tvBadge = (TextView) setGroupView.findViewById(R.id.textView1);
+					tvGroupName.setText(pCompGroup.getProductName());
+					tvBadge.setText(String.valueOf(pCompGroup.getRequireAmount()));
+					setGroupView.setOnClickListener(new OnClickListener(){
 
 						@Override
 						public void onClick(View v) {
@@ -130,6 +135,7 @@ public class ProductSetActivity extends Activity {
 						}
 						
 					});
+					scrollContent.addView(setGroupView);
 				}
 			}
 		}

@@ -563,7 +563,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 			ViewHolder holder;
 			if(convertView == null){
 				holder = new ViewHolder();
-				convertView = mInflater.inflate(R.layout.payment_button_template, null);
+				convertView = mInflater.inflate(R.layout.button_template, null);
 				holder.btnPayment = (Button) convertView.findViewById(R.id.button1);
 				convertView.setTag(holder);
 			}else{
