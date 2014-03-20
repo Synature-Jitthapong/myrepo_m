@@ -84,7 +84,7 @@ public class Products extends MPOSDatabase {
 	public List<ProductComponent> listProductComponent(int groupId){
 		List<ProductComponent> pCompLst = null;
 		Cursor cursor = mSqlite.rawQuery(
-				"SELECT a." + ProductComponentEntry.COLUMN_CHILD_PRODUCT_ID
+				"SELECT a." + ProductEntry.COLUMN_PRODUCT_ID
 				+ ",a." + ProductComponentEntry.COLUMN_PGROUP_ID
 				+ ",a." + ProductComponentEntry.COLUMN_CHILD_PRODUCT_AMOUNT
 				+ ",a." + ProductComponentEntry.COLUMN_FLEXIBLE_INCLUDE_PRICE
@@ -105,7 +105,6 @@ public class Products extends MPOSDatabase {
 				pComp.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductComponentEntry.COLUMN_PGROUP_ID)));
 				pComp.setProductId(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_ID)));
 				pComp.setSaleMode(cursor.getInt(cursor.getColumnIndex(ProductEntry.COLUMN_SALE_MODE)));
-				pComp.setChildProductId(cursor.getInt(cursor.getColumnIndex(ProductComponentEntry.COLUMN_CHILD_PRODUCT_ID)));
 				pComp.setChildProductAmount(cursor.getInt(cursor.getColumnIndex(ProductComponentEntry.COLUMN_CHILD_PRODUCT_AMOUNT)));
 				pComp.setFlexibleIncludePrice(cursor.getInt(cursor.getColumnIndex(ProductComponentEntry.COLUMN_FLEXIBLE_INCLUDE_PRICE)));
 				pComp.setFlexibleProductPrice(cursor.getInt(cursor.getColumnIndex(ProductComponentEntry.COLUMN_FLEXIBLE_PRODUCT_PRICE)));

@@ -7,9 +7,9 @@
     tools:context=".MainActivity" >
 
     <RelativeLayout
-        android:layout_width="0dp"
+        android:layout_width="350dp"
         android:layout_height="match_parent"
-        android:layout_weight="0.5" >
+        android:background="@drawable/background_card" >
 
         <EditText
             android:id="@+id/txtBarCode"
@@ -35,8 +35,7 @@
             android:layout_above="@+id/layoutOrderCtrl"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/txtBarCode"
-            android:background="@drawable/background_card" >
+            android:layout_below="@+id/txtBarCode" >
 
         </ListView>
 
@@ -173,9 +172,8 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1" >
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" >
 
         <com.astuetz.PagerSlidingTabStrip
             android:id="@+id/tabs"
@@ -184,6 +182,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
+            android:background="@drawable/background_card"
             android:padding="4dp" >
 
         </com.astuetz.PagerSlidingTabStrip>

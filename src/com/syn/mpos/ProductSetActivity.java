@@ -2,10 +2,8 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.datasource.Products;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -21,7 +19,6 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -34,15 +31,15 @@ public class ProductSetActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_ACTION_BAR);
-	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
-	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-	    LayoutParams params = getWindow().getAttributes();
-	    params.width = 960;
-	    params.height= 500;
-	    params.alpha = 1.0f;
-	    params.dimAmount = 0.5f;
-	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
+//		requestWindowFeature(Window.FEATURE_ACTION_BAR);
+//	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
+//	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+//	    LayoutParams params = getWindow().getAttributes();
+//	    params.width = 960;
+//	    params.height= 500;
+//	    params.alpha = 1.0f;
+//	    params.dimAmount = 0.5f;
+//	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
 		
@@ -124,7 +121,7 @@ public class ProductSetActivity extends Activity {
 					View setGroupView = mInflater.inflate(R.layout.set_group_button_layout, null);
 					TextView tvGroupName = (TextView) setGroupView.findViewById(R.id.textView2);
 					TextView tvBadge = (TextView) setGroupView.findViewById(R.id.textView1);
-					tvGroupName.setText(pCompGroup.getProductName());
+					tvGroupName.setText(pCompGroup.getGroupName());
 					tvBadge.setText(String.valueOf(pCompGroup.getRequireAmount()));
 					setGroupView.setOnClickListener(new OnClickListener(){
 

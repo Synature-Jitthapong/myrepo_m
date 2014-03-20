@@ -121,7 +121,7 @@
         </activity>
         <activity
             android:name="com.syn.mpos.ProductSetActivity"
-            android:label="@string/title_activity_product_set" android:theme="@style/ActivityDialogTheme" android:screenOrientation="landscape">
+            android:label="@string/title_activity_product_set" android:screenOrientation="landscape">
         </activity>
     </application>
 

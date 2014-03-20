@@ -121,6 +121,7 @@ containing a value of this type.
         public static final int blue_light=0x7f050008;
         public static final int dark=0x7f05000c;
         public static final int dark_gray=0x7f050004;
+        public static final int dark_orange=0x7f050013;
         public static final int disabled=0x7f050003;
         public static final int gray=0x7f050005;
         public static final int gray_light_blue=0x7f050006;
