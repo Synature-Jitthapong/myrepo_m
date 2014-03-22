@@ -31,15 +31,15 @@ public class ProductSetActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		requestWindowFeature(Window.FEATURE_ACTION_BAR);
-//	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
-//	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-//	    LayoutParams params = getWindow().getAttributes();
-//	    params.width = 960;
-//	    params.height= 500;
-//	    params.alpha = 1.0f;
-//	    params.dimAmount = 0.5f;
-//	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
+		requestWindowFeature(Window.FEATURE_ACTION_BAR);
+	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
+	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+	    LayoutParams params = getWindow().getAttributes();
+	    params.width = 960;
+	    params.height= 500;
+	    params.alpha = 1.0f;
+	    params.dimAmount = 0.5f;
+	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
 		
@@ -60,14 +60,13 @@ public class ProductSetActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
+		switch(item.getItemId()){
+		case android.R.id.home:
+			finish();
 			return true;
+		default:
+			return super.onOptionsItemSelected(item);
 		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	/**

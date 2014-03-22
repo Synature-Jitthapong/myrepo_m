@@ -28,7 +28,7 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/horizontalScrollView1"
         android:layout_toRightOf="@+id/lvOrderSet"
-        android:numColumns="4" >
+        android:numColumns="5" >
 
     </GridView>
 
