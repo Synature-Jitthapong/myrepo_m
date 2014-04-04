@@ -3,11 +3,9 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.datasource.Computer;
-import com.syn.mpos.datasource.MPOSDatabase;
-import com.syn.mpos.datasource.Transaction;
-import com.syn.mpos.datasource.Computer.ComputerEntry;
-import com.syn.mpos.datasource.Transaction.TransactionEntry;
+import com.syn.mpos.database.Computer;
+import com.syn.mpos.database.MPOSDatabase;
+import com.syn.mpos.database.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.app.Activity;
@@ -116,27 +114,27 @@ public class SyncSaleActivity extends Activity{
 	private List<SendTransaction> listNotSendTransaction(){
 		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
 		SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
-		Cursor cursor = sqlite.query(TransactionEntry.TABLE_TRANSACTION, 
+		Cursor cursor = sqlite.query(Transaction.TABLE_TRANSACTION, 
 				new String[]{
-					TransactionEntry.COLUMN_TRANSACTION_ID,
-					ComputerEntry.COLUMN_COMPUTER_ID,
-					TransactionEntry.COLUMN_RECEIPT_NO,
-					TransactionEntry.COLUMN_CLOSE_TIME,
+					Transaction.COLUMN_TRANSACTION_ID,
+					Computer.COLUMN_COMPUTER_ID,
+					Transaction.COLUMN_RECEIPT_NO,
+					Transaction.COLUMN_CLOSE_TIME,
 					MPOSDatabase.COLUMN_SEND_STATUS
-				}, TransactionEntry.COLUMN_STATUS_ID + "=? AND " +
+				}, Transaction.COLUMN_STATUS_ID + "=? AND " +
 					MPOSDatabase.COLUMN_SEND_STATUS + "=?", 
 				new String[]{
 					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
-				}, null, null, TransactionEntry.COLUMN_TRANSACTION_ID);
+				}, null, null, Transaction.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){
 			do{
 				SendTransaction trans = new SendTransaction();
-				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(TransactionEntry.COLUMN_TRANSACTION_ID)));
-				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerEntry.COLUMN_COMPUTER_ID)));
-				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_RECEIPT_NO)));
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_TRANSACTION_ID)));
+				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
+				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_NO)));
 				trans.setSendStatus(cursor.getInt(cursor.getColumnIndex(MPOSDatabase.COLUMN_SEND_STATUS)));
-				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(TransactionEntry.COLUMN_CLOSE_TIME)));
+				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_CLOSE_TIME)));
 				transLst.add(trans);
 			}while(cursor.moveToNext());
 		}
@@ -194,7 +192,7 @@ public class SyncSaleActivity extends Activity{
 			holder.tvNo.setText(String.valueOf(position + 1) + ".");
 			holder.tvItem.setText(trans.getReceiptNo());
 
-			if(trans.isOnSend){
+			if(trans.onSend){
 				holder.progress.setVisibility(View.VISIBLE);
 				holder.imgSyncStatus.setVisibility(View.GONE);
 			}else{
@@ -211,14 +209,10 @@ public class SyncSaleActivity extends Activity{
 	}
 	
 	private class SendTransaction extends OrderTransaction{
-		private boolean isOnSend = false;
+		private boolean onSend = false;
 
-		public boolean isOnSend() {
-			return isOnSend;
-		}
-
-		public void setOnSend(boolean isOnSend) {
-			this.isOnSend = isOnSend;
+		public void setOnSend(boolean onSend) {
+			this.onSend = onSend;
 		}
 	}
 }

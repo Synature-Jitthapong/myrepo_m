@@ -4,13 +4,14 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.syn.mpos.datasource.Computer;
-import com.syn.mpos.datasource.GlobalProperty;
-import com.syn.mpos.datasource.MPOSLog;
-import com.syn.mpos.datasource.MPOSSQLiteHelper;
-import com.syn.mpos.datasource.Products;
-import com.syn.mpos.datasource.Shop;
-import com.syn.mpos.datasource.Staff;
+import com.syn.mpos.database.Computer;
+import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.MPOSLog;
+import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.Products;
+import com.syn.mpos.database.Shop;
+import com.syn.mpos.database.Staff;
+import com.syn.mpos.database.Transaction;
 
 import android.app.Application;
 import android.content.Context;
@@ -20,18 +21,6 @@ import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 
 public class MPOSApplication extends Application {
-
-	private static Context sContext;
-	
-	private static MPOSSQLiteHelper sSqliteHelper;
-	
-	private static GlobalProperty sGlobalProp;
-	
-	private static Shop sShop;
-	
-	private static MPOSLog sLog;
-	
-	private static Products sProduct;
 	
 	// sqlite db name
 	public static final String DB_NAME = "mpos.db";
@@ -52,6 +41,21 @@ public class MPOSApplication extends Application {
 
 	// server image path
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
+
+	private static Context sContext;
+	
+	private static MPOSSQLiteHelper sSqliteHelper;
+	
+	private static Transaction sTransaction;
+	
+	private static GlobalProperty sGlobalProp;
+	
+	private static Shop sShop;
+	
+	private static MPOSLog sLog;
+	
+	private static Products sProduct;
+	
 
 	public static int getComputerId() {
 		Computer comp = new Computer(getWriteDatabase());
@@ -113,6 +117,7 @@ public class MPOSApplication extends Application {
 		super.onCreate();
 		sContext = getApplicationContext();
 		sSqliteHelper = new MPOSSQLiteHelper(sContext, DB_NAME, DB_VERSION);
+		sTransaction = new Transaction(getWriteDatabase());
 		sGlobalProp = new GlobalProperty(getWriteDatabase());
 		sProduct = new Products(getWriteDatabase());
 		sShop = new Shop(getWriteDatabase());
@@ -151,6 +156,10 @@ public class MPOSApplication extends Application {
 	
 	public static GlobalProperty getGlobalProperty(){
 		return sGlobalProp;
+	}
+
+	public static Transaction getTransaction(){
+		return sTransaction;
 	}
 	
 	public static Context getContext() {

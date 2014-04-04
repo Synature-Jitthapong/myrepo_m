@@ -70,8 +70,7 @@
             <LinearLayout
                 android:id="@+id/LinearLayout3"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/dark_gray" >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:id="@+id/textView1"
@@ -119,7 +118,7 @@
                 android:layout_height="0dp"
                 android:layout_margin="1dp"
                 android:layout_weight="1"
-                android:background="@drawable/background_card" >
+                android:background="@drawable/order_background" >
 
             </ListView>
 
@@ -166,7 +165,6 @@
                     android:gravity="center_vertical"
                     android:inputType="number"
                     android:textAppearance="?android:attr/textAppearanceLargeInverse"
-                    android:textColor="@color/green_light"
                     android:textStyle="bold" >
 
                     <requestFocus />
@@ -186,7 +184,6 @@
                     android:gravity="center_vertical"
                     android:inputType="number"
                     android:textAppearance="?android:attr/textAppearanceLargeInverse"
-                    android:textColor="@color/red_dark"
                     android:textStyle="bold" />
 
                 <EditText
@@ -229,8 +226,7 @@
             <LinearLayout
                 android:id="@+id/LinearLayout01"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/dark_gray" >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:id="@+id/TextView01"

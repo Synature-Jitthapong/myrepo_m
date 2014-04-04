@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.R;
-import com.syn.mpos.datasource.PaymentAmountButton;
-import com.syn.mpos.datasource.PaymentDetail;
-import com.syn.mpos.datasource.PrintReceiptLog;
-import com.syn.mpos.datasource.Transaction;
+import com.syn.mpos.database.PaymentAmountButton;
+import com.syn.mpos.database.PaymentDetail;
+import com.syn.mpos.database.PrintReceiptLog;
+import com.syn.mpos.database.Transaction;
 import com.syn.pos.Payment;
 
 import android.os.Bundle;

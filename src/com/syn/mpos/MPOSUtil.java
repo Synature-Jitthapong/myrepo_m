@@ -21,18 +21,14 @@ import android.widget.Toast;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.MPOSService.SendSaleTransaction;
-import com.syn.mpos.datasource.Computer;
-import com.syn.mpos.datasource.SaleTransaction;
-import com.syn.mpos.datasource.Session;
-import com.syn.mpos.datasource.SyncSaleLog;
-import com.syn.mpos.datasource.Transaction;
-import com.syn.mpos.datasource.Util;
-import com.syn.mpos.datasource.PaymentDetail.PaymentDetailEntry;
-import com.syn.mpos.datasource.SaleTransaction.POSData_SaleTransaction;
-import com.syn.mpos.datasource.Session.SessionEntry;
-import com.syn.mpos.datasource.SyncSaleLog.SyncSaleLogEntry;
-import com.syn.mpos.datasource.Transaction.OrderDetailEntry;
-import com.syn.mpos.datasource.Transaction.TransactionEntry;
+import com.syn.mpos.database.Computer;
+import com.syn.mpos.database.PaymentDetail;
+import com.syn.mpos.database.SaleTransaction;
+import com.syn.mpos.database.Session;
+import com.syn.mpos.database.SyncSaleLog;
+import com.syn.mpos.database.Transaction;
+import com.syn.mpos.database.Util;
+import com.syn.mpos.database.SaleTransaction.POSData_SaleTransaction;
 
 public class MPOSUtil {
 	public static LinearLayout createDetailColumn(Context c, String[] detailText){
@@ -385,13 +381,13 @@ public class MPOSUtil {
 	
 	public static void clearSale(){
 		SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
-		sqlite.delete(OrderDetailEntry.TABLE_ORDER, null, null);
-		sqlite.delete(OrderDetailEntry.TABLE_ORDER_TMP, null, null);
-		sqlite.delete(TransactionEntry.TABLE_TRANSACTION, null, null);
-		sqlite.delete(PaymentDetailEntry.TABLE_PAYMENT, null, null);
-		sqlite.delete(SessionEntry.TABLE_SESSION, null, null);
-		sqlite.delete(SessionEntry.TABLE_SESSION_DETAIL, null, null);	
-		sqlite.delete(SyncSaleLogEntry.TABLE_SYNC_SALE_LOG, null, null);	
+		sqlite.delete(Transaction.TABLE_ORDER, null, null);
+		sqlite.delete(Transaction.TABLE_ORDER_TMP, null, null);
+		sqlite.delete(Transaction.TABLE_TRANSACTION, null, null);
+		sqlite.delete(PaymentDetail.TABLE_PAYMENT, null, null);
+		sqlite.delete(Session.TABLE_SESSION, null, null);
+		sqlite.delete(Session.TABLE_SESSION_DETAIL, null, null);	
+		sqlite.delete(SyncSaleLog.TABLE_SYNC_SALE_LOG, null, null);	
 	}
 	
 	public static void updateData(final Context c){

@@ -2,7 +2,7 @@ package com.syn.mpos;
 
 import java.util.List;
 
-import com.syn.mpos.datasource.Products;
+import com.syn.mpos.database.Products;
 
 import android.app.Activity;
 import android.os.Bundle;

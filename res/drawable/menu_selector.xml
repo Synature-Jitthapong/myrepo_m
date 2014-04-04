@@ -2,10 +2,10 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
  <item 
      android:state_pressed="true"
-     android:drawable="@android:color/holo_blue_light"></item>
+     android:drawable="@drawable/menu_pressed"></item>
     <item 
         android:state_selected="true"
-        android:drawable="@android:color/holo_blue_light"></item>
+        android:drawable="@drawable/menu_pressed"></item>
     <item
-        android:drawable="@drawable/card_bg_r4"></item>
+        android:drawable="@drawable/menu_default"></item>
 </selector>

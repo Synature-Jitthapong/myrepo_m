@@ -15,8 +15,7 @@
         <LinearLayout
             android:id="@+id/productHeader"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/dark_gray" >
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/textView14"
@@ -127,7 +126,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/background_card"
+            android:background="@drawable/order_background"
             android:choiceMode="singleChoice"
             android:listSelector="@drawable/list_selector" >
 
@@ -136,8 +135,7 @@
         <LinearLayout
             android:id="@+id/layoutSummProduct"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/dark_gray" >
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/TextView15"
@@ -222,8 +220,7 @@
         <LinearLayout
             android:id="@+id/billHeader"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/dark_gray" >
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/TextView13"
@@ -338,7 +335,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/background_card"
+            android:background="@drawable/order_background"
             android:choiceMode="singleChoice" >
 
         </ListView>
@@ -346,8 +343,7 @@
         <LinearLayout
             android:id="@+id/billSummary"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/dark_gray" >
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/TextView10"

@@ -2,8 +2,10 @@ package com.syn.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.j1tth4.mobile.util.ImageLoader;
-import com.syn.mpos.datasource.Products;
+import com.syn.mpos.database.Products;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;

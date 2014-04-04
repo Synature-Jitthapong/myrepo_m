@@ -4,38 +4,21 @@
     android:layout_height="match_parent"
     android:baselineAligned="false"
     android:orientation="horizontal"
+    android:padding="@dimen/activity_horizontal_margin"
     tools:context=".MainActivity" >
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/LinearLayout1"
         android:layout_width="350dp"
         android:layout_height="match_parent"
-        android:background="@drawable/background_card" >
-
-        <EditText
-            android:id="@+id/txtBarCode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:ems="10"
-            android:hint="@string/barcode"
-            android:imeOptions="actionSearch"
-            android:lines="1"
-            android:maxLines="1"
-            android:singleLine="true"
-            android:textSize="22sp" >
-
-        </EditText>
+        android:orientation="vertical" >
 
         <ListView
             android:id="@+id/lvOrder"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/layoutOrderCtrl"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/txtBarCode" >
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/order_background" >
 
         </ListView>
 
@@ -43,9 +26,6 @@
             android:id="@+id/layoutOrderCtrl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/tbLayoutSummary"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
             android:gravity="right"
             android:paddingLeft="8dp"
             android:visibility="gone" >
@@ -71,9 +51,6 @@
             android:id="@+id/tbLayoutSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
             android:padding="4dp" >
 
             <TableRow
@@ -169,7 +146,7 @@
                     android:textStyle="bold" />
             </TableRow>
         </TableLayout>
-    </RelativeLayout>
+    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -178,39 +155,42 @@
         <com.astuetz.PagerSlidingTabStrip
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:background="@drawable/background_card"
-            android:padding="4dp" >
-
+            android:layout_margin="@dimen/medium_space"
+            android:minHeight="48dp"
+            android:padding="@dimen/medium_space" >
         </com.astuetz.PagerSlidingTabStrip>
 
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="wrap_content"
             android:layout_above="@+id/buttonDiscount"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/tabs"
+            android:layout_margin="@dimen/medium_space"
             tools:context=".MainActivity" >
-
         </android.support.v4.view.ViewPager>
 
         <Button
             android:id="@+id/buttonClearBill"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
+            android:drawableLeft="@drawable/ic_action_remove"
             android:onClick="clearBillClicked"
             android:text="@string/cancel_bill"
             android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
         <Button
             android:id="@+id/buttonCash"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -224,6 +204,7 @@
 
         <Button
             android:id="@+id/buttonDiscount"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -237,6 +218,7 @@
 
         <Button
             android:id="@+id/buttonHold"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -246,7 +228,6 @@
             android:onClick="holdOrderClicked"
             android:text="@string/hold"
             android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-
     </RelativeLayout>
 
 </LinearLayout>
