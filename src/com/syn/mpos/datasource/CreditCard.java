@@ -1,12 +1,11 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-
 import com.syn.pos.CreditCardType;
 
 public class CreditCard extends MPOSDatabase{
@@ -18,8 +17,8 @@ public class CreditCard extends MPOSDatabase{
 	public static final String COLUMN_EXP_MONTH = "exp_month";
 	public static final String COLUMN_EXP_YEAR = "exp_year";
 	
-	public CreditCard(SQLiteDatabase db) {
-		super(db);
+	public CreditCard(Context c) {
+		super(c);
 	}
 
 	public List<CreditCardType> listAllCreditCardType(){

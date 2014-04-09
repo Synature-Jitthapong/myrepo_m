@@ -1,4 +1,4 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.List;
 import com.syn.pos.Report;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class Reporting extends MPOSDatabase{
 	public static final String SUMM_DEPT = "summ_dept";
@@ -29,14 +29,14 @@ public class Reporting extends MPOSDatabase{
 	
 	protected long mDateFrom, mDateTo;
 	
-	public Reporting(SQLiteDatabase db, long dFrom, long dTo){
-		super(db);
+	public Reporting(Context c, long dFrom, long dTo){
+		super(c);
 		mDateFrom = dFrom;
 		mDateTo = dTo;
 	}
 	
-	public Reporting(SQLiteDatabase db){
-		super(db);
+	public Reporting(Context c){
+		super(c);
 	}
 	
 	public double getTotalPayByPayType(int transactionId, int computerId, int payTypeId){

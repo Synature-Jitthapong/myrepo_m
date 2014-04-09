@@ -1,11 +1,11 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.BankName;
 
@@ -15,8 +15,8 @@ public class Bank extends MPOSDatabase{
 	public static final String COLUMN_BANK_ID = "bank_id";
 	public static final String COLUMN_BANK_NAME = "bank_name";
 	
-	public Bank(SQLiteDatabase db) {
-		super(db);
+	public Bank(Context c) {
+		super(c);
 	}
 	
 	public List<BankName> listAllBank(){

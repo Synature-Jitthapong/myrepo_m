@@ -5,15 +5,15 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.syn.mpos.database.Computer;
-import com.syn.mpos.database.Login;
-import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.Products;
-import com.syn.mpos.database.Session;
-import com.syn.mpos.database.Staff;
-import com.syn.mpos.database.SyncSaleLog;
-import com.syn.mpos.database.Transaction;
-import com.syn.mpos.database.Util;
+import com.syn.mpos.datasource.Computer;
+import com.syn.mpos.datasource.Login;
+import com.syn.mpos.datasource.MPOSDatabase;
+import com.syn.mpos.datasource.Products;
+import com.syn.mpos.datasource.Session;
+import com.syn.mpos.datasource.Staff;
+import com.syn.mpos.datasource.SyncSaleLog;
+import com.syn.mpos.datasource.Transaction;
+import com.syn.mpos.datasource.Util;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
 

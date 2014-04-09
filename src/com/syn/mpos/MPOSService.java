@@ -7,24 +7,22 @@ import org.ksoap2.serialization.PropertyInfo;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.FileManager;
 import com.j1tth4.mobile.util.JSONUtil;
-import com.syn.mpos.database.Bank;
-import com.syn.mpos.database.Computer;
-import com.syn.mpos.database.CreditCard;
-import com.syn.mpos.database.GlobalProperty;
-import com.syn.mpos.database.HeaderFooterReceipt;
-import com.syn.mpos.database.Language;
-import com.syn.mpos.database.PaymentAmountButton;
-import com.syn.mpos.database.PaymentDetail;
-import com.syn.mpos.database.Products;
-import com.syn.mpos.database.Shop;
-import com.syn.mpos.database.Staff;
+import com.syn.mpos.datasource.Bank;
+import com.syn.mpos.datasource.Computer;
+import com.syn.mpos.datasource.CreditCard;
+import com.syn.mpos.datasource.GlobalProperty;
+import com.syn.mpos.datasource.HeaderFooterReceipt;
+import com.syn.mpos.datasource.Language;
+import com.syn.mpos.datasource.PaymentAmountButton;
+import com.syn.mpos.datasource.PaymentDetail;
+import com.syn.mpos.datasource.Products;
+import com.syn.mpos.datasource.Shop;
+import com.syn.mpos.datasource.Staff;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
 import com.syn.pos.WebServiceResult;
-
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
 public class MPOSService {
 
@@ -66,29 +64,54 @@ public class MPOSService {
 
 					@Override
 					public void onPost(ShopData sd) {
-						SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
-						Shop shop = new Shop(sqlite);
-						Computer comp = new Computer(sqlite);
-						GlobalProperty global = new GlobalProperty(sqlite);
-						Language lang = new Language(sqlite);
-						Staff staff = new Staff(sqlite);
-						HeaderFooterReceipt hf = new HeaderFooterReceipt(sqlite);
-						Bank bank = new Bank(sqlite);
-						CreditCard credit = new CreditCard(sqlite);
-						PaymentDetail payment = new PaymentDetail(sqlite);
-						PaymentAmountButton payButton = new PaymentAmountButton(sqlite);
+						Shop shop = new Shop(MPOSApplication.sContext);
+						Computer comp = new Computer(MPOSApplication.sContext);
+						Language lang = new Language(MPOSApplication.sContext);
+						Staff staff = new Staff(MPOSApplication.sContext);
+						HeaderFooterReceipt hf = new HeaderFooterReceipt(MPOSApplication.sContext);
+						Bank bank = new Bank(MPOSApplication.sContext);
+						CreditCard credit = new CreditCard(MPOSApplication.sContext);
+						PaymentDetail payment = new PaymentDetail(MPOSApplication.sContext);
+						PaymentAmountButton payButton = new PaymentAmountButton(MPOSApplication.sContext);
 						try {
+							shop.open();
 							shop.insertShopProperty(sd.getShopProperty());
+							shop.close();
+							
+							comp.open();
 							comp.insertComputer(sd.getComputerProperty());
-							global.insertProperty(sd.getGlobalProperty());
+							comp.close();
+							
+							GlobalProperty.insertProperty(MPOSApplication.sContext, sd.getGlobalProperty());
+							
+							staff.open();
 							staff.insertStaff(sd.getStaffs());
+							staff.close();
+							
+							lang.open();
 							lang.insertLanguage(sd.getLanguage());
-							hf.addHeaderFooterReceipt(sd
-									.getHeaderFooterReceipt());
+							lang.close();
+							
+							hf.open();
+							hf.addHeaderFooterReceipt(sd.getHeaderFooterReceipt());
+							hf.close();
+							
+							bank.open();
 							bank.insertBank(sd.getBankName());
+							bank.close();
+							
+							credit.open();
 							credit.insertCreditCardType(sd.getCreditCardType());
+							credit.close();
+							
+							payment.open();
 							payment.insertPaytype(sd.getPayType());
+							payment.close();
+							
+							payButton.open();
 							payButton.insertPaymentAmountButton(sd.getPaymentAmountButton());
+							payButton.close();
+							
 							progressListener.onPost();
 						} catch (Exception e) {
 							progressListener.onError(e.getMessage());
@@ -102,7 +125,7 @@ public class MPOSService {
 	}
 
 	// load product
-	public void loadProductData(final ProgressListener progressListener){
+	public void loadProductData(final int shopId, final ProgressListener progressListener){
 		
 		final String url = MPOSApplication.getFullUrl();
 
@@ -141,9 +164,9 @@ public class MPOSService {
 
 					@Override
 					public void onPost(ProductGroups pgs) {
-						Products p = new Products(
-								MPOSApplication.getWriteDatabase());
+						Products p = new Products(MPOSApplication.sContext);
 						try {
+							p.open();
 							p.insertProductGroup(pgs.getProductGroup(),
 									mgs.getMenuGroup());
 							p.insertProductDept(pgs.getProductDept(),
@@ -151,11 +174,11 @@ public class MPOSService {
 							p.insertProducts(pgs.getProduct(), mgs.getMenuItem());
 							p.insertPComponentGroup(pgs.getPComponentGroup());
 							p.insertProductComponent(pgs.getPComponentSet());
-
+							p.close();
+							
 							// clear all menu picture
 							FileManager fm = new FileManager(
-									MPOSApplication.getContext(),
-									MPOSApplication.IMG_DIR);
+									MPOSApplication.sContext, MPOSApplication.IMG_DIR);
 							fm.clear();
 
 							progressListener.onPost();
@@ -164,18 +187,18 @@ public class MPOSService {
 						}
 					}
 				};
-				new LoadProduct(loadProductListener).execute(url);
+				new LoadProduct(shopId, loadProductListener).execute(url);
 			}
 		};
-		new LoadMenu(loadMenuListener).execute(url);
+		new LoadMenu(shopId, loadMenuListener).execute(url);
 	}
 	
 	public static class SendPartialSaleTransaction extends SendSaleTransaction{
 
-		public SendPartialSaleTransaction(Context c, int staffId,
+		public SendPartialSaleTransaction(Context c, int staffId, int shopId, int computerId,
 				String jsonSale, ProgressListener listener) {
 			super(MPOSMainService.SEND_PARTIAL_SALE_TRANS_METHOD, 
-					staffId, jsonSale, listener);
+					staffId, shopId, computerId, jsonSale, listener);
 		}
 	}
 	
@@ -183,7 +206,7 @@ public class MPOSService {
 	public static class SendSaleTransaction extends MPOSMainService{
 		private ProgressListener mListener;
 		
-		public SendSaleTransaction(String method, 
+		public SendSaleTransaction(String method, int shopId, int computerId,
 				int staffId, String jsonSale, ProgressListener listener) {
 			super(method);
 			mListener = listener;
@@ -191,13 +214,13 @@ public class MPOSService {
 			// shopId
 			mProperty = new PropertyInfo();
 			mProperty.setName(SHOP_ID_PARAM);
-			mProperty.setValue(MPOSApplication.getShopId());
+			mProperty.setValue(shopId);
 			mProperty.setType(int.class);
 			mSoapRequest.addProperty(mProperty);
 			// computerId
 			mProperty = new PropertyInfo();
 			mProperty.setName(COMPUTER_ID_PARAM);
-			mProperty.setValue(MPOSApplication.getComputerId());
+			mProperty.setValue(computerId);
 			mProperty.setType(int.class);
 			mSoapRequest.addProperty(mProperty);
 			// staffId
@@ -278,12 +301,12 @@ public class MPOSService {
 	private class LoadProduct extends MPOSMainService{
 		private LoadProductListener mListener;
 		
-		public LoadProduct(LoadProductListener listener) {
+		public LoadProduct(int shopId, LoadProductListener listener) {
 			super(LOAD_PRODUCT_METHOD);
 			
 			mProperty = new PropertyInfo();
 			mProperty.setName(SHOP_ID_PARAM);
-			mProperty.setValue(MPOSApplication.getShopId());
+			mProperty.setValue(shopId);
 			mProperty.setType(int.class);
 			mSoapRequest.addProperty(mProperty);
 			
@@ -316,12 +339,12 @@ public class MPOSService {
 	private class LoadMenu extends MPOSMainService{
 		private LoadMenuListener mListener;
 		
-		public LoadMenu(LoadMenuListener listener) {
+		public LoadMenu(int shopId, LoadMenuListener listener) {
 			super(LOAD_MENU_METHOD);
 			
 			mProperty = new PropertyInfo();
 			mProperty.setName(SHOP_ID_PARAM);
-			mProperty.setValue(MPOSApplication.getShopId());
+			mProperty.setValue(shopId);
 			mProperty.setType(int.class);
 			mSoapRequest.addProperty(mProperty);
 			

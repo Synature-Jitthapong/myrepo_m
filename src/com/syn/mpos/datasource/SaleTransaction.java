@@ -1,12 +1,12 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import com.syn.mpos.MPOSApplication;
-import com.syn.mpos.database.Shop.ShopEntry;
-import com.syn.mpos.database.StockDocument.DocumentTypeEntry;
+import com.syn.mpos.datasource.Shop.ShopEntry;
+import com.syn.mpos.datasource.StockDocument.DocumentTypeEntry;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;

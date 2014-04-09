@@ -1,11 +1,11 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.List;
+
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-
 import com.syn.pos.ShopData;
 
 public class Computer extends MPOSDatabase{
@@ -17,8 +17,8 @@ public class Computer extends MPOSDatabase{
 	public static final String COLUMN_REGISTER_NUMBER = "register_number";
 	public static final String COLUMN_IS_MAIN_COMPUTER = "ismain_computer";
 	
-	public Computer(SQLiteDatabase db) {
-		super(db);
+	public Computer(Context c) {
+		super(c);
 	}
 
 	public boolean checkIsMainComputer(int computerId){

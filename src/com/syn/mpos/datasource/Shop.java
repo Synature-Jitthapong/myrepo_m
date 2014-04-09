@@ -1,17 +1,18 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.List;
+
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.ShopData;
 
 public class Shop extends MPOSDatabase{
 	
-	public Shop(SQLiteDatabase db){
-		super(db);
+	public Shop(Context c){
+		super(c);
 	}
 	
 	public double getCompanyVatRate(){

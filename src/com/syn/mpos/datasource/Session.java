@@ -1,13 +1,13 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.Calendar;
 
-import com.syn.mpos.database.Shop.ShopEntry;
+import com.syn.mpos.datasource.Shop.ShopEntry;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class Session extends MPOSDatabase{
 	
@@ -29,8 +29,8 @@ public class Session extends MPOSDatabase{
 	public static final String COLUMN_IS_SEND_TO_HQ = "is_send_to_hq";
 	public static final String COLUMN_SEND_TO_HQ_DATE = "send_to_hq_date_time";
 	
-	public Session(SQLiteDatabase db) {
-		super(db);
+	public Session(Context c) {
+		super(c);
 	}
 
 	public void autoEnddaySession(String currentSaleDate, int closeStaffId){

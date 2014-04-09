@@ -1,4 +1,4 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.List;
 import com.syn.pos.Payment;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 public class PaymentAmountButton extends MPOSDatabase {
 
@@ -16,8 +16,8 @@ public class PaymentAmountButton extends MPOSDatabase {
 	public static final String COLUMN_PAYMENT_AMOUNT = "payment_amount";
 	public static final String COLUMN_ORDERING = "ordering";
 	
-	public PaymentAmountButton(SQLiteDatabase db) {
-		super(db);
+	public PaymentAmountButton(Context c) {
+		super(c);
 	}
 	
 	public List<Payment.PaymentAmountButton> listPaymentButton(){

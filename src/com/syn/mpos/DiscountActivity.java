@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.R;
-import com.syn.mpos.database.GlobalProperty;
-import com.syn.mpos.database.Transaction;
+import com.syn.mpos.datasource.GlobalProperty;
+import com.syn.mpos.datasource.Products;
+import com.syn.mpos.datasource.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
@@ -44,16 +45,17 @@ public class DiscountActivity extends Activity{
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final String DISCOUNT_FRAGMENT_TAG = "DiscountDialog";
 	
+	private Transaction mTransaction;
+	private OrderTransaction.OrderDetail mOrder;
+	private Products mProducts;
+	
 	private int mTransactionId;
 	private int mComputerId;
 	private int mPosition = -1;
 	private double mTotalPrice = 0.0f;
-
-	private DiscountAdapter mDisAdapter;
 	private boolean mIsEdited = false;
-	private GlobalProperty mGlobalProp;
-	private Transaction mTransaction;
-	private OrderTransaction.OrderDetail mOrder;
+	
+	private DiscountAdapter mDisAdapter;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private LinearLayout mLayoutVat;
 	private ListView mLvDiscount;
@@ -80,12 +82,18 @@ public class DiscountActivity extends Activity{
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
-		init();
 	}
 
+	@Override
+	protected void onResume() {
+		init();
+		super.onResume();
+	}
+
+
 	private void init(){
-		mGlobalProp = new GlobalProperty(MPOSApplication.getWriteDatabase());
-		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
+		mTransaction = new Transaction(this);
+		mProducts = new Products(this);
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
@@ -97,8 +105,7 @@ public class DiscountActivity extends Activity{
 				OrderTransaction.OrderDetail order = 
 						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 				
-				if(MPOSApplication.getProduct().
-						getProduct(order.getProductId()).getDiscountAllow() == 1){
+				if(mProducts.getProduct(order.getProductId()).getDiscountAllow() == 1){
 					mPosition = position;
 					mOrder = order;
 					DiscountDialogFragment discount = 
@@ -161,7 +168,7 @@ public class DiscountActivity extends Activity{
 			mTransaction.discountEatchProduct(mOrder.getOrderDetailId(), 
 					mTransactionId, mComputerId,
 					mOrder.getVatType(),
-					MPOSApplication.getProduct().getVatRate(mOrder.getProductId()), 
+					mProducts.getVatRate(mOrder.getProductId()), 
 					totalPriceAfterDiscount, discount, discountType);
 			
 			OrderTransaction.OrderDetail order = mOrderLst.get(mPosition);
@@ -221,11 +228,11 @@ public class DiscountActivity extends Activity{
 			
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvName.setText(order.getProductName());
-			tvQty.setText(mGlobalProp.qtyFormat(order.getQty()));
-			tvUnitPrice.setText(mGlobalProp.currencyFormat(order.getPricePerUnit()));
-			tvTotalPrice.setText(mGlobalProp.currencyFormat(order.getTotalRetailPrice()));
-			tvDiscount.setText(mGlobalProp.currencyFormat(order.getPriceDiscount()));
-			tvSalePrice.setText(mGlobalProp.currencyFormat(order.getTotalSalePrice()));
+			tvQty.setText(GlobalProperty.qtyFormat(DiscountActivity.this, order.getQty()));
+			tvUnitPrice.setText(GlobalProperty.currencyFormat(DiscountActivity.this, order.getPricePerUnit()));
+			tvTotalPrice.setText(GlobalProperty.currencyFormat(DiscountActivity.this, order.getTotalRetailPrice()));
+			tvDiscount.setText(GlobalProperty.currencyFormat(DiscountActivity.this, order.getPriceDiscount()));
+			tvSalePrice.setText(GlobalProperty.currencyFormat(DiscountActivity.this, order.getTotalSalePrice()));
 			
 			return rowView;
 		}
@@ -251,10 +258,10 @@ public class DiscountActivity extends Activity{
 		else
 			mLayoutVat.setVisibility(View.GONE);
 		
-		mTxtTotalVatExc.setText(mGlobalProp.currencyFormat(totalVatExclude));
-		mTxtSubTotal.setText(mGlobalProp.currencyFormat(subTotal));
-		mTxtTotalDiscount.setText(mGlobalProp.currencyFormat(totalDiscount));
-		mTxtTotalPrice.setText(mGlobalProp.currencyFormat(mTotalPrice));
+		mTxtTotalVatExc.setText(GlobalProperty.currencyFormat(DiscountActivity.this, totalVatExclude));
+		mTxtSubTotal.setText(GlobalProperty.currencyFormat(DiscountActivity.this, subTotal));
+		mTxtTotalDiscount.setText(GlobalProperty.currencyFormat(DiscountActivity.this, totalDiscount));
+		mTxtTotalPrice.setText(GlobalProperty.currencyFormat(DiscountActivity.this, mTotalPrice));
 	}
 
 	private void cancel(){
@@ -348,11 +355,10 @@ public class DiscountActivity extends Activity{
 			else if(mDiscountType == PRICE_DISCOUNT_TYPE)
 				((RadioButton)rdoDiscountType.findViewById(R.id.rdoPrice)).setChecked(true);
 			if(mDiscountType == PERCENT_DISCOUNT_TYPE)
-				txtDiscount.setText(
-						MPOSApplication.getGlobalProperty().currencyFormat(
+				txtDiscount.setText(GlobalProperty.currencyFormat(getActivity(),
 								mDiscount * 100 / mTotalRetailPrice));
 			else
-				txtDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(mDiscount));
+				txtDiscount.setText(GlobalProperty.currencyFormat(getActivity(), mDiscount));
 			txtDiscount.setSelectAllOnFocus(true);
 			txtDiscount.requestFocus();
 			txtDiscount.setOnEditorActionListener(new OnEditorActionListener(){

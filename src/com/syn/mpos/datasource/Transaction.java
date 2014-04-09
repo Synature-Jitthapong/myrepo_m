@@ -1,4 +1,4 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.mpos.database.Shop.ShopEntry;
-import com.syn.mpos.database.Staff.StaffEntry;
-import com.syn.mpos.database.StockDocument.DocumentTypeEntry;
+import com.syn.mpos.datasource.Shop.ShopEntry;
+import com.syn.mpos.datasource.Staff.StaffEntry;
+import com.syn.mpos.datasource.StockDocument.DocumentTypeEntry;
 import com.syn.pos.OrderTransaction;
 
 /**
@@ -63,8 +63,8 @@ public class Transaction extends MPOSDatabase {
 	public static final String COLUMN_PRICE_DISCOUNT = "price_discount_amount";
 	public static final String COLUMN_DISCOUNT_TYPE = "discount_type";
 
-	public Transaction(SQLiteDatabase db) {
-		super(db);
+	public Transaction(Context c) {
+		super(c);
 	}
 
 	public OrderTransaction getTransaction(int transactionId, int computerId) {

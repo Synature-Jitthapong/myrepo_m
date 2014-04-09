@@ -1,9 +1,9 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
-import com.syn.mpos.database.Shop.ShopEntry;
-import com.syn.mpos.database.Staff.StaffEntry;
-import com.syn.mpos.database.Staff.StaffPermissionEntry;
-import com.syn.mpos.database.StockDocument.DocumentTypeEntry;
+import com.syn.mpos.datasource.Shop.ShopEntry;
+import com.syn.mpos.datasource.Staff.StaffEntry;
+import com.syn.mpos.datasource.Staff.StaffPermissionEntry;
+import com.syn.mpos.datasource.StockDocument.DocumentTypeEntry;
 
 public class MPOSSQL {
 	public static final String BANK_SQL =

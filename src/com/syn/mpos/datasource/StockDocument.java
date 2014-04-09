@@ -1,6 +1,6 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
-import android.database.sqlite.SQLiteDatabase;
+import android.content.Context;
 
 public class StockDocument extends MPOSDatabase {
 
@@ -15,8 +15,8 @@ public class StockDocument extends MPOSDatabase {
 	public static final int DOC_STATUS_APPROVE = 2;
 	public static final int DOC_STATUS_CANCLE = 99;
 	
-	public StockDocument(SQLiteDatabase db) {
-		super(db);
+	public StockDocument(Context c) {
+		super(c);
 	}
 	
 	public static abstract class DocumentEntry{

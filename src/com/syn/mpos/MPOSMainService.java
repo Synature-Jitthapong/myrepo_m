@@ -20,7 +20,7 @@ public class MPOSMainService extends DotNetWebServiceTask{
 	public static final String JSON_SALE_PARAM = "szJsonSaleTransData";
 	
 	public MPOSMainService(String method) {
-		super(MPOSApplication.getContext(), method);
+		super(MPOSApplication.sContext, method);
 		
 		mProperty = new PropertyInfo();
 		mProperty.setName(DEVICE_CODE_PARAM);

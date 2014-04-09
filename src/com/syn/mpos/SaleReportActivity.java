@@ -6,10 +6,10 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 
-import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.PaymentDetail;
-import com.syn.mpos.database.Reporting;
-import com.syn.mpos.database.Transaction;
+import com.syn.mpos.datasource.MPOSDatabase;
+import com.syn.mpos.datasource.PaymentDetail;
+import com.syn.mpos.datasource.Reporting;
+import com.syn.mpos.datasource.Transaction;
 import com.syn.pos.Payment;
 import com.syn.pos.Report;
 

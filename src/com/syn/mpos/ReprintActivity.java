@@ -3,9 +3,9 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.database.Computer;
-import com.syn.mpos.database.Transaction;
-import com.syn.mpos.database.Util;
+import com.syn.mpos.datasource.Computer;
+import com.syn.mpos.datasource.Transaction;
+import com.syn.mpos.datasource.Util;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;

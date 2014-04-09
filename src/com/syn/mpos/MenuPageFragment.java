@@ -2,7 +2,8 @@ package com.syn.mpos;
 
 import java.util.List;
 
-import com.syn.mpos.database.Products;
+import com.syn.mpos.datasource.GlobalProperty;
+import com.syn.mpos.datasource.Products;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 
 public class MenuPageFragment extends Fragment {
+	private Products mProducts;
 	private OnMenuItemClick mCallback;
 	private List<Products.Product> mProductLst;
 	private MenuItemAdapter mAdapter;
@@ -32,6 +34,7 @@ public class MenuPageFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mProducts = new Products(getActivity());
 		if((savedInstanceState != null) && savedInstanceState.containsKey("deptId")){
 			mDeptId = savedInstanceState.getInt("deptId");
 		}
@@ -59,7 +62,7 @@ public class MenuPageFragment extends Fragment {
 			Bundle savedInstanceState) {
 
 		final GridView gvItem = (GridView) inflater.inflate(R.layout.menu_grid_view, container, false);
-		mProductLst =  MPOSApplication.getProduct().listProduct(mDeptId);
+		mProductLst = mProducts.listProduct(mDeptId);
 		mAdapter = new MenuItemAdapter(getActivity(), mProductLst);
 		gvItem.setAdapter(mAdapter);
 		gvItem.setOnItemClickListener(new OnItemClickListener(){
@@ -82,7 +85,7 @@ public class MenuPageFragment extends Fragment {
 					int position, long id) {
 				Products.Product p = (Products.Product) parent.getItemAtPosition(position);
 				ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgUrl(), p.getProductName(), 
-						MPOSApplication.getGlobalProperty().currencyFormat(p.getProductPrice()));
+						GlobalProperty.currencyFormat(getActivity(), p.getProductPrice()));
 				imgZoom.show(getFragmentManager(), "MenuImage");
 				return true;
 			}

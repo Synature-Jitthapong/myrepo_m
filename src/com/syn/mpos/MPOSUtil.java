@@ -21,14 +21,14 @@ import android.widget.Toast;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.MPOSService.SendSaleTransaction;
-import com.syn.mpos.database.Computer;
-import com.syn.mpos.database.PaymentDetail;
-import com.syn.mpos.database.SaleTransaction;
-import com.syn.mpos.database.Session;
-import com.syn.mpos.database.SyncSaleLog;
-import com.syn.mpos.database.Transaction;
-import com.syn.mpos.database.Util;
-import com.syn.mpos.database.SaleTransaction.POSData_SaleTransaction;
+import com.syn.mpos.datasource.Computer;
+import com.syn.mpos.datasource.PaymentDetail;
+import com.syn.mpos.datasource.SaleTransaction;
+import com.syn.mpos.datasource.Session;
+import com.syn.mpos.datasource.SyncSaleLog;
+import com.syn.mpos.datasource.Transaction;
+import com.syn.mpos.datasource.Util;
+import com.syn.mpos.datasource.SaleTransaction.POSData_SaleTransaction;
 
 public class MPOSUtil {
 	public static LinearLayout createDetailColumn(Context c, String[] detailText){

@@ -12,7 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.j1tth4.mobile.util.ImageLoader;
-import com.syn.mpos.database.Products;
+import com.syn.mpos.datasource.GlobalProperty;
+import com.syn.mpos.datasource.Products;
 
 public class MenuItemAdapter extends BaseAdapter{
 	private ImageLoader mImgLoader;
@@ -63,7 +64,7 @@ public class MenuItemAdapter extends BaseAdapter{
 		if(p.getProductPrice() < 0)
 			holder.tvPrice.setVisibility(View.INVISIBLE);
 		else
-			holder.tvPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(p.getProductPrice()));
+			holder.tvPrice.setText(GlobalProperty.currencyFormat(mContext, p.getProductPrice()));
 
 		new Handler().postDelayed(new Runnable(){
 

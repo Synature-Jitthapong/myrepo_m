@@ -4,13 +4,13 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-
-import com.syn.mpos.database.Bank;
-import com.syn.mpos.database.CreditCard;
-import com.syn.mpos.database.PaymentDetail;
+import com.j1tth4.mobile.util.Logger;
+import com.syn.mpos.datasource.Bank;
+import com.syn.mpos.datasource.CreditCard;
+import com.syn.mpos.datasource.GlobalProperty;
+import com.syn.mpos.datasource.PaymentDetail;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -20,12 +20,10 @@ import android.database.SQLException;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnKeyListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
@@ -37,12 +35,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 public class CreditPayActivity extends Activity implements TextWatcher{
 	public static final String TAG = "CreditPayActivity";
-	
+	private PaymentDetail mPayment;
 	private int mTransactionId;
 	private int mComputerId;
 	private int mBankId;
@@ -50,7 +46,6 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	private int mExpYear;
 	private int mExpMonth;
 	private double mPaymentLeft;
-	private PaymentDetail mPayment;
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
 	private double mTotalCreditPay;
@@ -134,7 +129,12 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mPaymentLeft = intent.getDoubleExtra("paymentLeft", 0.0d);
+	}
+
+	@Override
+	protected void onResume() {
 		init();
+		super.onResume();
 	}
 
 	@Override
@@ -181,7 +181,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void init(){
-		mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
+		mPayment = new PaymentDetail(this);
 		displayTotalPrice();
 		loadCreditCardType();
 		loadBankName();
@@ -190,7 +190,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(mPaymentLeft));
+		mTxtTotalPrice.setText(GlobalProperty.currencyFormat(this, mPaymentLeft));
 		mTxtTotalPay.setText(mTxtTotalPrice.getText());
 	}
 	
@@ -231,7 +231,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 					mTotalCreditPay = MPOSUtil.stringToDouble(
 							mTxtTotalPay.getText().toString());
 				} catch (ParseException e) {
-					MPOSApplication.writeLog(TAG + "=>" + e.getMessage());
+					Logger.appendLog(this, MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, e.getMessage());
 				}
 				
 				if (mTotalCreditPay > 0) {
@@ -357,7 +357,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadCreditCardType(){
-		CreditCard credit = new CreditCard(MPOSApplication.getWriteDatabase());
+		CreditCard credit = new CreditCard(this);
 		mCreditCardLst = credit.listAllCreditCardType();
 		
 		ArrayAdapter<CreditCardType> adapter = 
@@ -383,7 +383,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadBankName(){
-		Bank bank = new Bank(MPOSApplication.getWriteDatabase());
+		Bank bank = new Bank(this);
 		mBankLst = bank.listAllBank();
 		
 		ArrayAdapter<BankName> adapter = 

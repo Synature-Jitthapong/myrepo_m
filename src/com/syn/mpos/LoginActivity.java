@@ -1,16 +1,15 @@
 package com.syn.mpos;
 
 import com.syn.mpos.R;
-import com.syn.mpos.database.Login;
-import com.syn.mpos.database.Session;
-import com.syn.mpos.database.Util;
+import com.syn.mpos.datasource.Login;
+import com.syn.mpos.datasource.Session;
+import com.syn.mpos.datasource.Util;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -110,7 +109,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private void gotoMainActivity(){
 		mTxtUser.setText(null);
 		mTxtPass.setText(null);
-		Session sess = new Session(MPOSApplication.getWriteDatabase());
+		Session sess = new Session(this);
 		if(sess.getSessionEnddayDetail(String.valueOf(Util.getDate().getTimeInMillis())) > 0){
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.endday)
@@ -138,7 +137,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 			
 			if(!mTxtPass.getText().toString().isEmpty()){
 				pass = mTxtPass.getText().toString();
-				Login login = new Login(MPOSApplication.getWriteDatabase(), user, pass);
+				Login login = new Login(this, user, pass);
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();

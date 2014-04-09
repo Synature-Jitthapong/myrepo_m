@@ -1,14 +1,14 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.database.Staff.StaffEntry;
+import com.syn.mpos.datasource.Staff.StaffEntry;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class PrintReceiptLog extends MPOSDatabase{
 	public static final int PRINT_NOT_SUCCESS = 0;
@@ -19,8 +19,8 @@ public class PrintReceiptLog extends MPOSDatabase{
 	public static final String COLUMN_PRINT_RECEIPT_LOG_TIME = "print_receipt_log_time";
 	public static final String COLUMN_PRINT_RECEIPT_LOG_STATUS = "print_receipt_log_status";
 	
-	public PrintReceiptLog(SQLiteDatabase db) {
-		super(db);
+	public PrintReceiptLog(Context c) {
+		super(c);
 	}
 	
 	public List<PrintReceipt> listPrintReceiptLog(){

@@ -1,10 +1,10 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.List;
-import android.content.ContentValues;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.SQLException;
 import com.syn.pos.ShopData;
 
 public  class Language extends MPOSDatabase{
@@ -14,8 +14,8 @@ public  class Language extends MPOSDatabase{
 	public static final String COLUMN_LANG_NAME = "lang_name";
 	public static final String COLUMN_LANG_CODE = "lang_code";
 	
-	public Language(SQLiteDatabase db){
-		super(db);
+	public Language(Context c){
+		super(c);
 	}
 	
 	public void insertLanguage(List<ShopData.Language> langLst) throws SQLException{	

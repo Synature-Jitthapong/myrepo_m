@@ -2,8 +2,8 @@ package com.syn.mpos;
 
 import java.util.List;
 
-import com.syn.mpos.database.GlobalProperty;
-import com.syn.mpos.database.Products;
+import com.syn.mpos.datasource.GlobalProperty;
+import com.syn.mpos.datasource.Products;
 
 import android.content.Context;
 import android.view.LayoutInflater;

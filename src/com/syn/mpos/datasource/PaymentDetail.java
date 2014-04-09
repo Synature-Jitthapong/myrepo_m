@@ -1,4 +1,4 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.List;
 import com.syn.pos.Payment;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class PaymentDetail extends MPOSDatabase {
 	
@@ -27,8 +27,8 @@ public class PaymentDetail extends MPOSDatabase {
 	public static final String COLUMN_PAID = "pad";
 	public static final String COLUMN_REMARK = "remark";
 	
-	public PaymentDetail(SQLiteDatabase db) {
-		super(db);
+	public PaymentDetail(Context c) {
+		super(c);
 	}
 	
 	public List<Payment.PayType> listPayType(){

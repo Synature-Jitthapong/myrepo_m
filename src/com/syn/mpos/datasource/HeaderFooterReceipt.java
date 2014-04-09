@@ -1,12 +1,14 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.syn.pos.ShopData;
+
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class HeaderFooterReceipt extends MPOSDatabase{
 	public static final int HEADER_LINE_TYPE = 0;
@@ -17,8 +19,8 @@ public class HeaderFooterReceipt extends MPOSDatabase{
 	public static final String COLUMN_LINE_TYPE = "line_type";
 	public static final String COLUMN_LINE_ORDER = "line_order";
 	
-	public HeaderFooterReceipt(SQLiteDatabase db) {
-		super(db);
+	public HeaderFooterReceipt(Context c) {
+		super(c);
 	}
 	
 	public List<ShopData.HeaderFooterReceipt> listHeaderFooter(int lineType){

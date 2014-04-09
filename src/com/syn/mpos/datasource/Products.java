@@ -1,4 +1,4 @@
-package com.syn.mpos.database;
+package com.syn.mpos.datasource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,9 +7,9 @@ import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class Products extends MPOSDatabase {
 	public static final int NORMAL_TYPE = 0;
@@ -85,8 +85,8 @@ public class Products extends MPOSDatabase {
 		COLUMN_PRODUCT_DEPT_NAME
 	};
 
-	public Products(SQLiteDatabase db){
-		super(db);
+	public Products(Context c){
+		super(c);
 	}
 	
 	public List<ProductComponentGroup> listProductComponentGroup(int productId){
