@@ -13,43 +13,36 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 	
 	private static final String DB_NAME = "mpos.db";
 	private static final int DB_VERSION = 1;
-	
-	private static final String[] sqlCreateTables = {
-		MPOSSQL.BANK_SQL,
-		MPOSSQL.COMPUTER_SQL,
-		MPOSSQL.CREDIT_CARD_TYPE_SQL,
-		MPOSSQL.GLOBAL_PROPERTY_SQL,
-		MPOSSQL.LANGUAGE_SQL,
-		MPOSSQL.ORDER_SQL,
-		MPOSSQL.ORDER_TMP_SQL,
-		MPOSSQL.TRANSACTION_SQL,
-		MPOSSQL.PRINT_RECEIPT_LOG_SQL,
-		MPOSSQL.PAYMENT_SQL,
-		MPOSSQL.PAYMENT_BUTTON_SQL,
-		MPOSSQL.PAY_TYPE_SQL,
-		MPOSSQL.PRODUCT_DEPT_SQL,
-		MPOSSQL.PRODUCT_GROUP_SQL,
-		MPOSSQL.PCOMP_SQL,
-		MPOSSQL.PCOMP_GROUP_SQL,
-		MPOSSQL.PRODUCT_SQL,
-		MPOSSQL.SESSION_SQL,
-		MPOSSQL.SESSION_DETAIL_SQL,
-		MPOSSQL.SHOP_SQL,
-		MPOSSQL.STAFF_PERMISSION_SQL,
-		MPOSSQL.STAFF_SQL,
-		MPOSSQL.SYNC_TRANSACTION_LOG_SQL,
-		MPOSSQL.HEAD_FOOD_RECEIPT_SQL
-	};
-	
+
 	public MPOSSQLiteHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		for(String sql : sqlCreateTables){
-			db.execSQL(sql);
-		}
+		BankTable.onCreate(db);
+		ComputerTable.onCreate(db);
+		CreditCardTable.onCreate(db);
+		GlobalPropertyTable.onCreate(db);
+		LanguageTable.onCreate(db);
+		HeaderFooterReceiptTable.onCreate(db);
+		OrderDetailTable.onCreate(db);
+		OrderTransactionTable.onCreate(db);
+		PrintReceiptLogTable.onCreate(db);
+		PaymentDetailTable.onCreate(db);
+		PaymentButtonTable.onCreate(db);
+		PayTypeTable.onCreate(db);
+		ProductDeptTable.onCreate(db);
+		ProductGroupTable.onCreate(db);
+		ProductComponentGroupTable.onCreate(db);
+		ProductComponentTable.onCreate(db);
+		ProductsTable.onCreate(db);
+		SessionTable.onCreate(db);
+		SessionDetailTable.onCreate(db);
+		ShopTable.onCreate(db);
+		StaffPermissionTable.onCreate(db);
+		StaffTable.onCreate(db);
+		SyncSaleLogTable.onCreate(db);
 	}
 
 	@Override
@@ -59,8 +52,6 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		if(newVersion > oldVersion){
-			db.execSQL(MPOSSQL.PRINT_RECEIPT_LOG_SQL);
-		}
+		
 	}
 }

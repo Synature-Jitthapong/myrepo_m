@@ -22,11 +22,13 @@ import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
 import com.syn.pos.WebServiceResult;
+
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 public class MPOSService {
 
-	public void loadShopData(final ProgressListener progressListener){
+	public void loadShopData(final SQLiteDatabase sqlite, final ProgressListener progressListener){
 		final String url = MPOSApplication.getFullUrl();
 
 		final AuthenDeviceListener authenDeviceListener = new AuthenDeviceListener() {
@@ -64,53 +66,26 @@ public class MPOSService {
 
 					@Override
 					public void onPost(ShopData sd) {
-						Shop shop = new Shop(MPOSApplication.sContext);
-						Computer comp = new Computer(MPOSApplication.sContext);
-						Language lang = new Language(MPOSApplication.sContext);
-						Staff staff = new Staff(MPOSApplication.sContext);
-						HeaderFooterReceipt hf = new HeaderFooterReceipt(MPOSApplication.sContext);
-						Bank bank = new Bank(MPOSApplication.sContext);
-						CreditCard credit = new CreditCard(MPOSApplication.sContext);
-						PaymentDetail payment = new PaymentDetail(MPOSApplication.sContext);
-						PaymentAmountButton payButton = new PaymentAmountButton(MPOSApplication.sContext);
+						Shop shop = new Shop(sqlite);
+						Computer comp = new Computer(sqlite);
+						Language lang = new Language(sqlite);
+						Staff staff = new Staff(sqlite);
+						HeaderFooterReceipt hf = new HeaderFooterReceipt(sqlite);
+						Bank bank = new Bank(sqlite);
+						CreditCard credit = new CreditCard(sqlite);
+						PaymentDetail payment = new PaymentDetail(sqlite);
+						PaymentAmountButton payButton = new PaymentAmountButton(sqlite);
 						try {
-							shop.open();
 							shop.insertShopProperty(sd.getShopProperty());
-							shop.close();
-							
-							comp.open();
 							comp.insertComputer(sd.getComputerProperty());
-							comp.close();
-							
 							GlobalProperty.insertProperty(MPOSApplication.sContext, sd.getGlobalProperty());
-							
-							staff.open();
 							staff.insertStaff(sd.getStaffs());
-							staff.close();
-							
-							lang.open();
 							lang.insertLanguage(sd.getLanguage());
-							lang.close();
-							
-							hf.open();
 							hf.addHeaderFooterReceipt(sd.getHeaderFooterReceipt());
-							hf.close();
-							
-							bank.open();
 							bank.insertBank(sd.getBankName());
-							bank.close();
-							
-							credit.open();
 							credit.insertCreditCardType(sd.getCreditCardType());
-							credit.close();
-							
-							payment.open();
 							payment.insertPaytype(sd.getPayType());
-							payment.close();
-							
-							payButton.open();
 							payButton.insertPaymentAmountButton(sd.getPaymentAmountButton());
-							payButton.close();
 							
 							progressListener.onPost();
 						} catch (Exception e) {
@@ -125,7 +100,8 @@ public class MPOSService {
 	}
 
 	// load product
-	public void loadProductData(final int shopId, final ProgressListener progressListener){
+	public void loadProductData(final SQLiteDatabase sqlite, 
+			final int shopId, final ProgressListener progressListener){
 		
 		final String url = MPOSApplication.getFullUrl();
 
@@ -164,9 +140,8 @@ public class MPOSService {
 
 					@Override
 					public void onPost(ProductGroups pgs) {
-						Products p = new Products(MPOSApplication.sContext);
+						Products p = new Products(sqlite);
 						try {
-							p.open();
 							p.insertProductGroup(pgs.getProductGroup(),
 									mgs.getMenuGroup());
 							p.insertProductDept(pgs.getProductDept(),
@@ -174,7 +149,6 @@ public class MPOSService {
 							p.insertProducts(pgs.getProduct(), mgs.getMenuItem());
 							p.insertPComponentGroup(pgs.getPComponentGroup());
 							p.insertProductComponent(pgs.getPComponentSet());
-							p.close();
 							
 							// clear all menu picture
 							FileManager fm = new FileManager(

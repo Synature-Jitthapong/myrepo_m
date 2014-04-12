@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.R;
+import com.syn.mpos.datasource.GlobalProperty;
+import com.syn.mpos.datasource.MPOSSQLiteHelper;
 import com.syn.mpos.datasource.PaymentAmountButton;
 import com.syn.mpos.datasource.PaymentDetail;
 import com.syn.mpos.datasource.PrintReceiptLog;
@@ -18,6 +20,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,20 +39,24 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class PaymentActivity extends Activity  implements OnClickListener {
+	
 	public static final int REQUEST_CREDIT_PAY = 1;
 	public static final int RESULT_ENOUGH = 1;
 	public static final int RESULT_NOT_ENOUGH = -1;
 	private int resultCreditCode = RESULT_NOT_ENOUGH;
 	
-	private double mTotalSalePrice;
-	private int mTransactionId;
-	private int mComputerId;
-	private int mStaffId;
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private Transaction mTransaction;
 	private PaymentDetail mPayment;
 	private List<Payment.PaymentDetail> mPayLst;
 	private PaymentAdapter mPaymentAdapter;
 	private PaymentButtonAdapter mPaymentButtonAdapter;
+	
+	private double mTotalSalePrice;
+	private int mTransactionId;
+	private int mComputerId;
+	private int mStaffId;
 	
 	private StringBuilder mStrTotalPay;
 	private double mTotalPay;
@@ -87,8 +94,10 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 		mTxtChange = (EditText) findViewById(R.id.txtChange);
 		mGvPaymentButton = (GridView) findViewById(R.id.gridView1);
 		
-		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
-		mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getReadableDatabase();
+		mTransaction = new Transaction(mSqlite);
+		mPayment = new PaymentDetail(mSqlite);
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<Payment.PaymentDetail>();
 		mPaymentButtonAdapter = new PaymentButtonAdapter();
@@ -112,7 +121,16 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	}
 
 	@Override
+	protected void onPause() {
+		mSqlite.close();
+		super.onPause();
+	}
+
+	@Override
 	protected void onResume() {
+		if(!mSqlite.isOpen())
+			mSqlite = mSqliteHelper.getReadableDatabase();
+		
 		if(mTransaction.getTransaction(mTransactionId, 
 				mComputerId).getTransactionStatusId() == Transaction.TRANS_STATUS_SUCCESS){
 			finish();
@@ -194,7 +212,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 			
 			tvPayType.setText(payTypeName);
 			tvPayDetail.setText(payment.getRemark());
-			tvPayAmount.setText(MPOSApplication.getGlobalProperty().currencyFormat(payment.getPayAmount()));
+			tvPayAmount.setText(GlobalProperty.currencyFormat(payment.getPayAmount()));
 			imgDel.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -214,13 +232,13 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 		mTotalPaid = mPayment.getTotalPaid(mTransactionId, mComputerId);
 		mPaymentLeft = mTotalSalePrice - mTotalPaid;
 		mChange = mTotalPaid - mTotalSalePrice;
-		mTxtTotalPaid.setText(MPOSApplication.getGlobalProperty().currencyFormat(mTotalPaid));
+		mTxtTotalPaid.setText(GlobalProperty.currencyFormat(mTotalPaid));
 		if(mPaymentLeft < 0)
 			mPaymentLeft = 0.0d;
 		if(mChange < 0)
 			mChange = 0.0d;
-		mTxtPaymentLeft.setText(MPOSApplication.getGlobalProperty().currencyFormat(mPaymentLeft));
-		mTxtChange.setText(MPOSApplication.getGlobalProperty().currencyFormat(mChange));
+		mTxtPaymentLeft.setText(GlobalProperty.currencyFormat(mPaymentLeft));
+		mTxtChange.setText(GlobalProperty.currencyFormat(mChange));
 	}
 	
 	private void deletePayment(int paymentId){
@@ -241,7 +259,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(mTotalSalePrice));
+		mTxtTotalPrice.setText(GlobalProperty.currencyFormat(mTotalSalePrice));
 		displayEnterPrice();
 	}
 	
@@ -255,7 +273,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	
 	private void displayEnterPrice(){
 		calculateInputPrice();
-		mTxtEnterPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(mTotalPay));
+		mTxtEnterPrice.setText(GlobalProperty.currencyFormat(mTotalPay));
 	}
 	
 	public void creditPay(){
@@ -342,7 +360,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 				LayoutInflater inflater = (LayoutInflater) 
 						PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
-				tvChange.setText(MPOSApplication.getGlobalProperty().currencyFormat(mChange));
+				tvChange.setText(GlobalProperty.currencyFormat(mChange));
 				
 				new AlertDialog.Builder(PaymentActivity.this)
 				.setTitle(R.string.change)
@@ -465,7 +483,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 		View v = inflater.inflate(R.layout.other_payment_layout, null);
 		final EditText txtAmount = (EditText) v.findViewById(R.id.txtAmount);
 		final EditText txtRemark = (EditText) v.findViewById(R.id.txtRemark);
-		txtAmount.setText(MPOSApplication.getGlobalProperty().currencyFormat(mTotalSalePrice));
+		txtAmount.setText(GlobalProperty.currencyFormat(mTotalSalePrice));
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(payTypeName);
 		builder.setView(v);
@@ -488,7 +506,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 					paid = MPOSUtil.stringToDouble(txtAmount.getText().toString());
 					if(paid > 0){
 						mStrTotalPay = new StringBuilder();
-						mStrTotalPay.append(MPOSApplication.getGlobalProperty().currencyFormat(paid));
+						mStrTotalPay.append(GlobalProperty.currencyFormat(paid));
 						calculateInputPrice();
 						addPayment(payTypeId, txtRemark.getText().toString());
 						d.dismiss();
@@ -569,13 +587,13 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}	
-			holder.btnPayment.setText(MPOSApplication.getGlobalProperty().currencyFormat(paymentButton.getPaymentAmount()));
+			holder.btnPayment.setText(GlobalProperty.currencyFormat(PaymentActivity.this, paymentButton.getPaymentAmount()));
 			holder.btnPayment.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
 					mStrTotalPay = new StringBuilder();
-					mStrTotalPay.append(MPOSApplication.getGlobalProperty().currencyFormat(paymentButton.getPaymentAmount()));
+					mStrTotalPay.append(GlobalProperty.currencyFormat(PaymentActivity.this, paymentButton.getPaymentAmount()));
 					calculateInputPrice();
 					addPayment(PaymentDetail.PAY_TYPE_CASH, "");
 				}

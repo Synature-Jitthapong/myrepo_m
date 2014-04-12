@@ -22,10 +22,17 @@ import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.MPOSService.SendSaleTransaction;
 import com.syn.mpos.datasource.Computer;
+import com.syn.mpos.datasource.MPOSDatabase;
+import com.syn.mpos.datasource.OrderDetailTable;
+import com.syn.mpos.datasource.OrderTransactionTable;
 import com.syn.mpos.datasource.PaymentDetail;
+import com.syn.mpos.datasource.PaymentDetailTable;
 import com.syn.mpos.datasource.SaleTransaction;
 import com.syn.mpos.datasource.Session;
+import com.syn.mpos.datasource.SessionDetailTable;
+import com.syn.mpos.datasource.SessionTable;
 import com.syn.mpos.datasource.SyncSaleLog;
+import com.syn.mpos.datasource.SyncSaleLogTable;
 import com.syn.mpos.datasource.Transaction;
 import com.syn.mpos.datasource.Util;
 import com.syn.mpos.datasource.SaleTransaction.POSData_SaleTransaction;
@@ -59,8 +66,9 @@ public class MPOSUtil {
 		return headerColumn;
 	}
 	
-	public static void doSendSaleBySelectedTransaction(final int transactionId, final int staffId,
-			final ProgressListener listener) {
+	public static void doSendSaleBySelectedTransaction(final SQLiteDatabase sqlite, 
+			final int shopId, final int computerId, final int transactionId, 
+			final int staffId, final ProgressListener listener) {
 		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
 
 			@Override
@@ -84,10 +92,8 @@ public class MPOSUtil {
 					@Override
 					public void onPost() {
 						// do update transaction already send
-						Transaction trans = 
-								new Transaction(MPOSApplication.getWriteDatabase());
+						Transaction trans = new Transaction(sqlite);
 						trans.updateTransactionSendStatus(transactionId);
-						MPOSApplication.writeLog("Send parial sale => " + jsonSale);
 						listener.onPost();
 					}
 
@@ -96,8 +102,8 @@ public class MPOSUtil {
 						listener.onError(msg);
 					}
 				};
-				new MPOSService.SendPartialSaleTransaction(MPOSApplication.getContext(), 
-						staffId, jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl());
+				new MPOSService.SendPartialSaleTransaction(MPOSApplication.sContext, 
+						staffId, shopId, computerId, jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl());
 			}
 
 			@Override
@@ -110,11 +116,12 @@ public class MPOSUtil {
 			}
 
 		};
-		new LoadSaleTransactionByTransactionId(String.valueOf(Util.getDate().getTimeInMillis()),
+		new LoadSaleTransactionByTransactionId(sqlite, String.valueOf(Util.getDate().getTimeInMillis()),
 				transactionId, loadSaleListener).execute();
 	}
 	
-	public static void doSendSale(final int staffId,
+	public static void doSendSale(final SQLiteDatabase sqlite, 
+			final int shopId, final int computerId, final int staffId,
 			final ProgressListener listener) {
 		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
 
@@ -139,10 +146,8 @@ public class MPOSUtil {
 					@Override
 					public void onPost() {
 						// do update transaction already send
-						Transaction trans = 
-								new Transaction(MPOSApplication.getWriteDatabase());
+						Transaction trans = new Transaction(sqlite);
 						trans.updateTransactionSendStatus(sessionDate);
-						MPOSApplication.writeLog("Send parial sale => " + jsonSale);
 						listener.onPost();
 					}
 
@@ -151,8 +156,8 @@ public class MPOSUtil {
 						listener.onError(msg);
 					}
 				};
-				new MPOSService.SendPartialSaleTransaction(MPOSApplication.getContext(), 
-						staffId, jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl());
+				new MPOSService.SendPartialSaleTransaction(MPOSApplication.sContext, 
+						staffId, shopId, computerId, jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl());
 			}
 
 			@Override
@@ -165,19 +170,19 @@ public class MPOSUtil {
 			}
 
 		};
-		new LoadSaleTransaction(String.valueOf(Util.getDate().getTimeInMillis()),
+		new LoadSaleTransaction(sqlite, String.valueOf(Util.getDate().getTimeInMillis()),
 				loadSaleListener).execute();
 	}
 	
-	public static void doEndday(final int computerId, final int sessionId,
+	public static void doEndday(final SQLiteDatabase sqlite, 
+			final int shopId, final int computerId, final int sessionId,
 			final int closeStaffId, final float closeAmount,
 			final boolean isEndday, final ProgressListener listener) {
 		
 		// check is main computer
-		Computer comp = new Computer(MPOSApplication.getReadDatabase());
+		Computer comp = new Computer(sqlite);
 		if (comp.checkIsMainComputer(computerId)) {
-			final SyncSaleLog syncLog = 
-					new SyncSaleLog(MPOSApplication.getWriteDatabase());
+			final SyncSaleLog syncLog = new SyncSaleLog(sqlite);
 			LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
 
 				@Override
@@ -191,7 +196,7 @@ public class MPOSUtil {
 
 					new MPOSService.SendSaleTransaction(
 							SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-							closeStaffId, jsonSale, new ProgressListener() {
+							closeStaffId, shopId, computerId, jsonSale, new ProgressListener() {
 
 								@Override
 								public void onError(String mesg) {
@@ -210,15 +215,14 @@ public class MPOSUtil {
 											SyncSaleLog.SYNC_SUCCESS);
 									try {
 										Transaction trans = 
-												new Transaction(MPOSApplication.getWriteDatabase());
+												new Transaction(sqlite);
 										Session sess = 
-												new Session(MPOSApplication.getWriteDatabase());
+												new Session(sqlite);
 										sess.addSessionEnddayDetail(sessionDate,
 												trans.getTotalReceipt(sessionDate),
 												trans.getTotalReceiptAmount(sessionDate));
 										sess.closeSession(sessionId, computerId,
 											closeStaffId, closeAmount, isEndday);
-										MPOSApplication.writeLog("Send endday sale => " + jsonSale);
 										listener.onPost();
 									} catch (SQLException e) {
 										listener.onError(e.getMessage());
@@ -247,15 +251,15 @@ public class MPOSUtil {
 			List<String> dateLst = syncLog.listSessionDate();
 			if (dateLst != null) {
 				for (String date : dateLst) {
-					new LoadSaleTransactionForEndday(date, loadSaleListener)
+					new LoadSaleTransactionForEndday(sqlite, date, loadSaleListener)
 							.execute();
 				}
 			}else{
-				new LoadSaleTransactionForEndday(String.valueOf(Util.getDate().getTimeInMillis()), loadSaleListener)
+				new LoadSaleTransactionForEndday(sqlite, String.valueOf(Util.getDate().getTimeInMillis()), loadSaleListener)
 				.execute();
 			}
 		} else {
-			Context context = MPOSApplication.getContext();
+			Context context = MPOSApplication.sContext;
 			listener.onError(context.getString(R.string.cannot_endday) + " "
 					+ context.getString(R.string.because) + " "
 					+ context.getString(R.string.not_main_computer));
@@ -264,9 +268,9 @@ public class MPOSUtil {
 
 	public static class LoadSaleTransactionByTransactionId extends LoadSaleTransaction{
 
-		public LoadSaleTransactionByTransactionId(String sessionDate,
+		public LoadSaleTransactionByTransactionId(SQLiteDatabase sqlite, String sessionDate,
 				int transactionId, LoadSaleTransactionListener listener) {
-			super(sessionDate, transactionId, listener);
+			super(sqlite, sessionDate, transactionId, listener);
 			// TODO Auto-generated constructor stub
 		}
 
@@ -280,9 +284,9 @@ public class MPOSUtil {
 	// load sale transaction for endday
 	public static class LoadSaleTransactionForEndday extends LoadSaleTransaction{
 
-		public LoadSaleTransactionForEndday(String sessionDate,
+		public LoadSaleTransactionForEndday(SQLiteDatabase sqlite, String sessionDate,
 				LoadSaleTransactionListener listener) {
-			super(sessionDate, listener);
+			super(sqlite, sessionDate, listener);
 		}
 		
 		@Override
@@ -298,17 +302,17 @@ public class MPOSUtil {
 		protected SaleTransaction mSaleTrans;
 		protected String mSessionDate;
 			
-		public LoadSaleTransaction(String sessionDate, int transactionId,
+		public LoadSaleTransaction(final SQLiteDatabase sqlite, String sessionDate, int transactionId,
 				LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransaction(MPOSApplication.getWriteDatabase(), sessionDate, transactionId);
+			mSaleTrans = new SaleTransaction(sqlite, sessionDate, transactionId);
 			mSessionDate = sessionDate;
 		}
 		
-		public LoadSaleTransaction(String sessionDate, 
+		public LoadSaleTransaction(final SQLiteDatabase sqlite, String sessionDate, 
 				LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransaction(MPOSApplication.getWriteDatabase(), sessionDate);
+			mSaleTrans = new SaleTransaction(sqlite, sessionDate);
 			mSessionDate = sessionDate;
 		}
 		
@@ -332,11 +336,12 @@ public class MPOSUtil {
 		void onPost(POSData_SaleTransaction saleTrans, String sessionDate);
 	}
 	
-	public static void sendSaleData(final Context c, int staffId){
+	public static void sendSaleData(final SQLiteDatabase sqlite, final Context c, 
+			int shopId, int computerId, int staffId){
 		final ProgressDialog progress = new ProgressDialog(c);
 		progress.setTitle(R.string.send_sale_data);
 		progress.setMessage(c.getString(R.string.send_sale_data_progress));
-		MPOSUtil.doSendSale(staffId, new ProgressListener(){
+		MPOSUtil.doSendSale(sqlite, shopId, computerId, staffId, new ProgressListener(){
 
 			@Override
 			public void onPre() {
@@ -379,21 +384,20 @@ public class MPOSUtil {
 		});	
 	}
 	
-	public static void clearSale(){
-		SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
-		sqlite.delete(Transaction.TABLE_ORDER, null, null);
-		sqlite.delete(Transaction.TABLE_ORDER_TMP, null, null);
-		sqlite.delete(Transaction.TABLE_TRANSACTION, null, null);
-		sqlite.delete(PaymentDetail.TABLE_PAYMENT, null, null);
-		sqlite.delete(Session.TABLE_SESSION, null, null);
-		sqlite.delete(Session.TABLE_SESSION_DETAIL, null, null);	
-		sqlite.delete(SyncSaleLog.TABLE_SYNC_SALE_LOG, null, null);	
+	public static void clearSale(SQLiteDatabase sqlite){
+		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
+		sqlite.delete(OrderDetailTable.TABLE_ORDER_TMP, null, null);
+		sqlite.delete(OrderTransactionTable.TABLE_NAME, null, null);
+		sqlite.delete(PaymentDetailTable.TABLE_NAME, null, null);
+		sqlite.delete(SessionTable.TABLE_NAME, null, null);
+		sqlite.delete(SessionDetailTable.TABLE_NAME, null, null);	
+		sqlite.delete(SyncSaleLogTable.TABLE_NAME, null, null);	
 	}
 	
-	public static void updateData(final Context c){
+	public static void updateData(final SQLiteDatabase sqlite, final int shopId, final Context c){
 		final ProgressDialog progress = new ProgressDialog(c);
 		final MPOSService mPOSService = new MPOSService();
-		mPOSService.loadShopData(new ProgressListener(){
+		mPOSService.loadShopData(sqlite, new ProgressListener(){
 
 			@Override
 			public void onPre() {
@@ -404,7 +408,7 @@ public class MPOSUtil {
 
 			@Override
 			public void onPost() {
-				mPOSService.loadProductData(new ProgressListener(){
+				mPOSService.loadProductData(sqlite, shopId, new ProgressListener(){
 
 					@Override
 					public void onPre() {

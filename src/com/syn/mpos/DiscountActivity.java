@@ -6,19 +6,18 @@ import java.util.List;
 
 import com.syn.mpos.R;
 import com.syn.mpos.datasource.GlobalProperty;
+import com.syn.mpos.datasource.MPOSSQLiteHelper;
 import com.syn.mpos.datasource.Products;
 import com.syn.mpos.datasource.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
-import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -39,12 +38,16 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 
 public class DiscountActivity extends Activity{
+	
 	public static final int PRICE_DISCOUNT_TYPE = 1;
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final String DISCOUNT_FRAGMENT_TAG = "DiscountDialog";
 	
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private Transaction mTransaction;
 	private OrderTransaction.OrderDetail mOrder;
 	private Products mProducts;
@@ -85,6 +88,12 @@ public class DiscountActivity extends Activity{
 	}
 
 	@Override
+	protected void onPause() {
+		mSqlite.close();
+		super.onPause();
+	}
+
+	@Override
 	protected void onResume() {
 		init();
 		super.onResume();
@@ -92,8 +101,10 @@ public class DiscountActivity extends Activity{
 
 
 	private void init(){
-		mTransaction = new Transaction(this);
-		mProducts = new Products(this);
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getReadableDatabase();
+		mTransaction = new Transaction(mSqlite);
+		mProducts = new Products(mSqlite);
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);

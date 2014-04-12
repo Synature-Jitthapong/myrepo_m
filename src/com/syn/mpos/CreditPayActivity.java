@@ -4,19 +4,24 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
 import com.j1tth4.mobile.util.Logger;
 import com.syn.mpos.datasource.Bank;
 import com.syn.mpos.datasource.CreditCard;
 import com.syn.mpos.datasource.GlobalProperty;
+import com.syn.mpos.datasource.MPOSDatabase;
+import com.syn.mpos.datasource.MPOSSQLiteHelper;
 import com.syn.mpos.datasource.PaymentDetail;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -37,8 +42,15 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
 public class CreditPayActivity extends Activity implements TextWatcher{
+	
 	public static final String TAG = "CreditPayActivity";
+	
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private PaymentDetail mPayment;
+	private List<BankName> mBankLst;
+	private List<CreditCardType> mCreditCardLst;
+	
 	private int mTransactionId;
 	private int mComputerId;
 	private int mBankId;
@@ -46,9 +58,8 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	private int mExpYear;
 	private int mExpMonth;
 	private double mPaymentLeft;
-	private List<BankName> mBankLst;
-	private List<CreditCardType> mCreditCardLst;
 	private double mTotalCreditPay;
+	
 	private EditText mTxtTotalPrice;
 	private EditText mTxtTotalPay;
 	private EditText mTxtCardNoSeq1;
@@ -63,6 +74,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -131,6 +143,14 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 		mPaymentLeft = intent.getDoubleExtra("paymentLeft", 0.0d);
 	}
 
+	
+	@Override
+	protected void onPause() {
+		mSqlite.close();
+		super.onPause();
+	}
+
+
 	@Override
 	protected void onResume() {
 		init();
@@ -181,7 +201,9 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void init(){
-		mPayment = new PaymentDetail(this);
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getReadableDatabase();
+		mPayment = new PaymentDetail(mSqlite);
 		displayTotalPrice();
 		loadCreditCardType();
 		loadBankName();
@@ -357,7 +379,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadCreditCardType(){
-		CreditCard credit = new CreditCard(this);
+		CreditCard credit = new CreditCard(mSqlite);
 		mCreditCardLst = credit.listAllCreditCardType();
 		
 		ArrayAdapter<CreditCardType> adapter = 
@@ -383,7 +405,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadBankName(){
-		Bank bank = new Bank(this);
+		Bank bank = new Bank(mSqlite);
 		mBankLst = bank.listAllBank();
 		
 		ArrayAdapter<BankName> adapter = 

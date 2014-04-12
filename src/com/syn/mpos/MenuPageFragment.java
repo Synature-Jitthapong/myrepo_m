@@ -17,7 +17,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 
 public class MenuPageFragment extends Fragment {
-	private Products mProducts;
+	
 	private OnMenuItemClick mCallback;
 	private List<Products.Product> mProductLst;
 	private MenuItemAdapter mAdapter;
@@ -34,7 +34,6 @@ public class MenuPageFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mProducts = new Products(getActivity());
 		if((savedInstanceState != null) && savedInstanceState.containsKey("deptId")){
 			mDeptId = savedInstanceState.getInt("deptId");
 		}
@@ -62,7 +61,7 @@ public class MenuPageFragment extends Fragment {
 			Bundle savedInstanceState) {
 
 		final GridView gvItem = (GridView) inflater.inflate(R.layout.menu_grid_view, container, false);
-		mProductLst = mProducts.listProduct(mDeptId);
+		mProductLst = ((MainActivity) getActivity()).getProduct().listProduct(mDeptId);
 		mAdapter = new MenuItemAdapter(getActivity(), mProductLst);
 		gvItem.setAdapter(mAdapter);
 		gvItem.setOnItemClickListener(new OnItemClickListener(){
