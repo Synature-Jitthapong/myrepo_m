@@ -2,8 +2,8 @@ package com.syn.mpos;
 
 import java.util.List;
 
-import com.syn.mpos.datasource.GlobalProperty;
-import com.syn.mpos.datasource.Products;
+import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.Products;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,11 +13,14 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 public class ProductSizeAdapter extends BaseAdapter{
+	
 	private Context mContext;
+	private LayoutInflater mInflater;
 	private List<Products.Product> mProLst;
 	
 	public ProductSizeAdapter(Context c, List<Products.Product> proLst){
 		mContext = c;
+		mInflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mProLst = proLst;
 	}
 	
@@ -38,12 +41,9 @@ public class ProductSizeAdapter extends BaseAdapter{
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Products.Product p = mProLst.get(position);
-		LayoutInflater inflater = (LayoutInflater)
-				mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		ViewHolder holder;
 		if(convertView == null){
-			convertView = inflater.inflate(R.layout.product_size_template, null);
+			convertView = mInflater.inflate(R.layout.product_size_template, null);
 			holder = new ViewHolder();
 			holder.tvProductName = (TextView) convertView.findViewById(R.id.tvProductName);
 			holder.tvProductPrice = (TextView) convertView.findViewById(R.id.tvProductPrice);
@@ -51,8 +51,10 @@ public class ProductSizeAdapter extends BaseAdapter{
 		}else{
 			holder = (ViewHolder) convertView.getTag();
 		}
+		Products.Product p = mProLst.get(position);
 		holder.tvProductName.setText(p.getProductName());
-		holder.tvProductPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(p.getProductPrice()));
+		holder.tvProductPrice.setText(GlobalProperty.currencyFormat(mContext, 
+				p.getProductPrice()));
 		return convertView;
 	}
 

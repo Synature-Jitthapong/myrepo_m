@@ -15,11 +15,16 @@
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/order_background" >
+        android:layout_alignParentTop="true" >
 
     </ListView>
 
+    <View
+        android:layout_width="1dip"
+        android:layout_height="fill_parent"
+        android:layout_toRightOf="@+id/lvOrderSet"
+        android:background="@color/light_grey" />
+    
     <GridView
         android:id="@+id/gvSetItem"
         android:layout_width="wrap_content"
@@ -28,18 +33,20 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/horizontalScrollView1"
         android:layout_toRightOf="@+id/lvOrderSet"
-        android:numColumns="5" >
+        android:horizontalSpacing="@dimen/medium_space"
+        android:numColumns="5"
+        android:padding="@dimen/medium_space"
+        android:verticalSpacing="@dimen/medium_space" >
 
     </GridView>
 
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView1"
         android:layout_width="match_parent"
-        android:layout_height="96dp"
+        android:layout_height="72dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/lvOrderSet"
-        android:background="@drawable/order_background" >
+        android:layout_toRightOf="@+id/lvOrderSet" >
 
         <LinearLayout
             android:id="@+id/LinearLayout1"

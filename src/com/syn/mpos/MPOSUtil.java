@@ -21,21 +21,21 @@ import android.widget.Toast;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.MPOSService.SendSaleTransaction;
-import com.syn.mpos.datasource.Computer;
-import com.syn.mpos.datasource.MPOSDatabase;
-import com.syn.mpos.datasource.OrderDetailTable;
-import com.syn.mpos.datasource.OrderTransactionTable;
-import com.syn.mpos.datasource.PaymentDetail;
-import com.syn.mpos.datasource.PaymentDetailTable;
-import com.syn.mpos.datasource.SaleTransaction;
-import com.syn.mpos.datasource.Session;
-import com.syn.mpos.datasource.SessionDetailTable;
-import com.syn.mpos.datasource.SessionTable;
-import com.syn.mpos.datasource.SyncSaleLog;
-import com.syn.mpos.datasource.SyncSaleLogTable;
-import com.syn.mpos.datasource.Transaction;
-import com.syn.mpos.datasource.Util;
-import com.syn.mpos.datasource.SaleTransaction.POSData_SaleTransaction;
+import com.syn.mpos.database.Computer;
+import com.syn.mpos.database.MPOSDatabase;
+import com.syn.mpos.database.OrderDetailTable;
+import com.syn.mpos.database.OrderTransactionTable;
+import com.syn.mpos.database.PaymentDetail;
+import com.syn.mpos.database.PaymentDetailTable;
+import com.syn.mpos.database.SaleTransaction;
+import com.syn.mpos.database.Session;
+import com.syn.mpos.database.SessionDetailTable;
+import com.syn.mpos.database.SessionTable;
+import com.syn.mpos.database.SyncSaleLog;
+import com.syn.mpos.database.SyncSaleLogTable;
+import com.syn.mpos.database.Transaction;
+import com.syn.mpos.database.Util;
+import com.syn.mpos.database.SaleTransaction.POSData_SaleTransaction;
 
 public class MPOSUtil {
 	public static LinearLayout createDetailColumn(Context c, String[] detailText){

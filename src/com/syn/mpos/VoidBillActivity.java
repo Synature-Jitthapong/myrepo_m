@@ -5,7 +5,9 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import com.syn.mpos.datasource.Transaction;
+import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,14 +36,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
-	private int mTransactionId;
-	private int mComputerId;
-	private int mStaffId;
+	
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private Transaction mTransaction;
 	private List<OrderTransaction> mTransLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
 	private BillAdapter mBillAdapter;
 	private BillDetailAdapter mBillDetailAdapter;
+	
+	private int mTransactionId;
+	private int mComputerId;
+	private int mShopId;
+	private int mStaffId;
+	
 	private Calendar mCalendar;
 	private long mDate;
 	private String mReceiptNo;
@@ -73,7 +82,7 @@ public class VoidBillActivity extends Activity {
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 
-	    btnBillDate.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
+	    btnBillDate.setText(GlobalProperty.dateFormat(this, mCalendar.getTime()));
 	    btnBillDate.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -85,7 +94,7 @@ public class VoidBillActivity extends Activity {
 						mCalendar.setTimeInMillis(date);
 						mDate = mCalendar.getTimeInMillis();
 						
-						btnBillDate.setText(MPOSApplication.getGlobalProperty().dateFormat(mCalendar.getTime()));
+						btnBillDate.setText(GlobalProperty.dateFormat(VoidBillActivity.this, mCalendar.getTime()));
 					}
 				});
 				dialogFragment.show(getFragmentManager(), "Condition");
@@ -113,15 +122,19 @@ public class VoidBillActivity extends Activity {
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
 				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = MPOSApplication.getGlobalProperty().dateTimeFormat(c.getTime());
+				mReceiptDate = GlobalProperty.dateTimeFormat(VoidBillActivity.this, c.getTime());
 				
 				mItemConfirm.setEnabled(true);
 				searchVoidItem();
 			}
 		});
 		
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getReadableDatabase();
+		
 	    Intent intent = getIntent();
 	    mStaffId = intent.getIntExtra("staffId", 0);
+	    mShopId = intent.getIntExtra("shopId", 0);
 	    init();
 	}
 
@@ -150,7 +163,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void init(){
-		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
+		mTransaction = new Transaction(mSqlite);
 		mTransLst = new ArrayList<OrderTransaction>();
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -205,7 +218,7 @@ public class VoidBillActivity extends Activity {
 			}
 			
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
-			holder.tvPaidTime.setText(MPOSApplication.getGlobalProperty().dateTimeFormat(c.getTime()));
+			holder.tvPaidTime.setText(GlobalProperty.dateTimeFormat(VoidBillActivity.this, c.getTime()));
 			
 			return convertView;
 		}
@@ -259,9 +272,9 @@ public class VoidBillActivity extends Activity {
 			}
 		
 			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(MPOSApplication.getGlobalProperty().qtyFormat(order.getQty()));
-			holder.tvPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(order.getTotalRetailPrice()));
+			holder.tvQty.setText(GlobalProperty.qtyFormat(VoidBillActivity.this, order.getQty()));
+			holder.tvPrice.setText(GlobalProperty.currencyFormat(VoidBillActivity.this, order.getPricePerUnit()));
+			holder.tvTotalPrice.setText(GlobalProperty.currencyFormat(VoidBillActivity.this, order.getTotalRetailPrice()));
 			
 			return convertView;
 		}
@@ -332,7 +345,7 @@ public class VoidBillActivity extends Activity {
 
 						@Override
 						public void run() {
-							MPOSUtil.doSendSale(mStaffId, new ProgressListener(){
+							MPOSUtil.doSendSale(mSqlite, mShopId, mComputerId, mStaffId, new ProgressListener(){
 
 								@Override
 								public void onPre() {

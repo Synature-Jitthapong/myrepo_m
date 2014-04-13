@@ -3,9 +3,11 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.datasource.Computer;
-import com.syn.mpos.datasource.MPOSDatabase;
-import com.syn.mpos.datasource.Transaction;
+import com.syn.mpos.database.ComputerTable;
+import com.syn.mpos.database.MPOSDatabase;
+import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.OrderTransactionTable;
+import com.syn.mpos.database.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.app.Activity;
@@ -29,7 +31,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class SyncSaleActivity extends Activity{
+	
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private boolean mIsOnSync;
+	private int mShopId;
+	private int mComputerId;
 	private int mStaffId;
 	private List<SendTransaction> mTransLst;
 	private SyncItemAdapter mSyncAdapter;
@@ -53,6 +60,12 @@ public class SyncSaleActivity extends Activity{
 		mLvSyncItem = (ListView) findViewById(R.id.listView1);
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
+		mShopId = intent.getIntExtra("shopId", 0);
+		mComputerId = intent.getIntExtra("computerId", 0);
+		
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getReadableDatabase();
+		
 		mTransLst = listNotSendTransaction();
 		mSyncAdapter = new SyncItemAdapter(this, mTransLst);
 		mLvSyncItem.setAdapter(mSyncAdapter);
@@ -81,7 +94,8 @@ public class SyncSaleActivity extends Activity{
 
 	private void sendSale(){
 		for(final SendTransaction trans : mTransLst){
-			MPOSUtil.doSendSaleBySelectedTransaction(trans.getTransactionId(), mStaffId, new ProgressListener(){
+			MPOSUtil.doSendSaleBySelectedTransaction(mSqlite, 
+					mShopId, mComputerId, trans.getTransactionId(), mStaffId, new ProgressListener(){
 
 				@Override
 				public void onPre() {
@@ -113,28 +127,27 @@ public class SyncSaleActivity extends Activity{
 	
 	private List<SendTransaction> listNotSendTransaction(){
 		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
-		SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
-		Cursor cursor = sqlite.query(Transaction.TABLE_TRANSACTION, 
+		Cursor cursor = mSqlite.query(OrderTransactionTable.TABLE_NAME, 
 				new String[]{
-					Transaction.COLUMN_TRANSACTION_ID,
-					Computer.COLUMN_COMPUTER_ID,
-					Transaction.COLUMN_RECEIPT_NO,
-					Transaction.COLUMN_CLOSE_TIME,
+					OrderTransactionTable.COLUMN_TRANSACTION_ID,
+					ComputerTable.COLUMN_COMPUTER_ID,
+					OrderTransactionTable.COLUMN_RECEIPT_NO,
+					OrderTransactionTable.COLUMN_CLOSE_TIME,
 					MPOSDatabase.COLUMN_SEND_STATUS
-				}, Transaction.COLUMN_STATUS_ID + "=? AND " +
+				}, OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " +
 					MPOSDatabase.COLUMN_SEND_STATUS + "=?", 
 				new String[]{
 					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
-				}, null, null, Transaction.COLUMN_TRANSACTION_ID);
+				}, null, null, OrderTransactionTable.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){
 			do{
 				SendTransaction trans = new SendTransaction();
-				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(Transaction.COLUMN_TRANSACTION_ID)));
-				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(Computer.COLUMN_COMPUTER_ID)));
-				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_RECEIPT_NO)));
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
+				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
 				trans.setSendStatus(cursor.getInt(cursor.getColumnIndex(MPOSDatabase.COLUMN_SEND_STATUS)));
-				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(Transaction.COLUMN_CLOSE_TIME)));
+				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_CLOSE_TIME)));
 				transLst.add(trans);
 			}while(cursor.moveToNext());
 		}

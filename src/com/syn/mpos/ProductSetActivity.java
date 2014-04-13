@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
-import com.syn.mpos.datasource.Products;
+import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.Products;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -30,6 +33,10 @@ import android.widget.TextView;
 
 public class ProductSetActivity extends Activity {
 
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
+	private Products mProduct;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,11 +52,36 @@ public class ProductSetActivity extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
 		
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getWritableDatabase();
+		mProduct = new Products(mSqlite);
+		
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, 
 							PlaceholderFragment.newInsance(getIntent().getIntExtra("productId", 0))).commit();
 		}
+	}
+
+	public Products getProduct(){
+		return mProduct;
+	}
+	
+	public SQLiteDatabase getDatabase(){
+		return mSqlite;
+	}
+	
+	@Override
+	protected void onResume() {
+		if(!mSqlite.isOpen())
+			mSqlite = mSqliteHelper.getReadableDatabase();
+		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		mSqlite.close();
+		super.onPause();
 	}
 
 	@Override
@@ -76,7 +108,6 @@ public class ProductSetActivity extends Activity {
 	 */
 	public static class PlaceholderFragment extends Fragment {
 		
-		private Products mProduct;
 		private int mProductId;
 		private List<Products.ProductComponent> mProductCompLst;
 		private OrderSetAdapter mOrderSetAdapter;
@@ -98,7 +129,6 @@ public class ProductSetActivity extends Activity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			mProductId = getArguments().getInt("productId");
-			mProduct = new Products(MPOSApplication.getWriteDatabase());
 			mInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			mProductCompLst = new ArrayList<Products.ProductComponent>();
 			mOrderSetAdapter = new OrderSetAdapter();
@@ -115,7 +145,8 @@ public class ProductSetActivity extends Activity {
 
 		private void createSetGroupButton(){
 			List<Products.ProductComponentGroup> productCompGroupLst;
-			productCompGroupLst = mProduct.listProductComponentGroup(mProductId);
+			productCompGroupLst = 
+					((ProductSetActivity) getActivity()).getProduct().listProductComponentGroup(mProductId);
 			if(productCompGroupLst != null){
 				LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
 				for(final Products.ProductComponentGroup pCompGroup : productCompGroupLst){
@@ -128,7 +159,8 @@ public class ProductSetActivity extends Activity {
 
 						@Override
 						public void onClick(View v) {
-							mProductCompLst = mProduct.listProductComponent(pCompGroup.getProductGroupId());
+							mProductCompLst = 
+									((ProductSetActivity) getActivity()).getProduct().listProductComponent(pCompGroup.getProductGroupId());
 							mSetItemAdapter.notifyDataSetChanged();
 						}
 						
@@ -220,7 +252,7 @@ public class ProductSetActivity extends Activity {
 				
 				final Products.ProductComponent pComp = mProductCompLst.get(position);
 				holder.tvMenu.setText(pComp.getProductName());
-				holder.tvPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(pComp.getFlexibleProductPrice()));
+				holder.tvPrice.setText(GlobalProperty.currencyFormat(getActivity(), pComp.getFlexibleProductPrice()));
 
 				new Handler().postDelayed(new Runnable(){
 

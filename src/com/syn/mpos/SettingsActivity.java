@@ -1,7 +1,6 @@
 package com.syn.mpos;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -141,13 +140,13 @@ public class SettingsActivity extends PreferenceActivity {
 		try {
 			printer.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(), 0, 1000);
 			Builder builder = new Builder(MPOSApplication.getPrinterName(), Builder.MODEL_ANK, 
-				MPOSApplication.getContext());
+				MPOSApplication.sContext);
 			if(MPOSApplication.getPrinterFont().equals("a")){
 				builder.addTextFont(Builder.FONT_A);
 			}else if(MPOSApplication.getPrinterFont().equals("b")){
 				builder.addTextFont(Builder.FONT_B);
 			}
-			String printText = MPOSApplication.getContext().getString(R.string.print_test_text).replaceAll("\\*", " ");
+			String printText = MPOSApplication.sContext.getString(R.string.print_test_text).replaceAll("\\*", " ");
 			builder.addTextAlign(Builder.ALIGN_CENTER);
 			builder.addTextSize(1, 1);
 			builder.addText(printText);

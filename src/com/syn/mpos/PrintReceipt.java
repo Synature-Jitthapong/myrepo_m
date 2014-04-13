@@ -2,6 +2,7 @@ package com.syn.mpos;
 
 import java.util.List;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 
 import com.epson.eposprint.BatteryStatusChangeEventListener;
@@ -9,33 +10,41 @@ import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
-import com.syn.mpos.datasource.HeaderFooterReceipt;
-import com.syn.mpos.datasource.PaymentDetail;
-import com.syn.mpos.datasource.PrintReceiptLog;
-import com.syn.mpos.datasource.Products;
-import com.syn.mpos.datasource.Shop;
-import com.syn.mpos.datasource.Transaction;
-import com.syn.mpos.datasource.Util;
+import com.j1tth4.mobile.util.Logger;
+import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.HeaderFooterReceipt;
+import com.syn.mpos.database.PaymentDetail;
+import com.syn.mpos.database.PrintReceiptLog;
+import com.syn.mpos.database.Products;
+import com.syn.mpos.database.Shop;
+import com.syn.mpos.database.Staff;
+import com.syn.mpos.database.Transaction;
+import com.syn.mpos.database.Util;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
 import com.syn.pos.ShopData;
 
 public class PrintReceipt extends AsyncTask<Void, Void, Void> implements BatteryStatusChangeEventListener, StatusChangeEventListener{
+	
 	public static final String TAG = "PrintReceipt";
 	private PrintStatusListener mPrintListener;
+	private SQLiteDatabase mSqlite;
 	private Print mPrinter;
 	private Transaction mTrans;
+	private Staff mStaff;
 	private Shop mShop;
 	private PaymentDetail mPayment;
 	private int mStaffId;
 	
-	public PrintReceipt(int staffId, PrintStatusListener listener){
+	public PrintReceipt(SQLiteDatabase sqlite, int staffId, PrintStatusListener listener){
 		mPrintListener = listener;
 		mStaffId = staffId;
-		mShop = new Shop(MPOSApplication.getReadDatabase());
-		mTrans = new Transaction(MPOSApplication.getWriteDatabase());
-		mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
-		mPrinter = new Print(MPOSApplication.getContext());
+		mSqlite = sqlite;
+		mShop = new Shop(sqlite);
+		mTrans = new Transaction(sqlite);
+		mPayment = new PaymentDetail(sqlite);
+		mStaff = new Staff(sqlite);
+		mPrinter = new Print(MPOSApplication.sContext);
 		mPrinter.setStatusChangeEventCallback(this);
 		mPrinter.setBatteryStatusChangeEventCallback(this);
 	}
@@ -75,7 +84,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		try {
 			mPrinter.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(), 0, 1000);	
 			Builder builder = new Builder(MPOSApplication.getPrinterName(), Builder.MODEL_ANK, 
-					MPOSApplication.getContext());
+					MPOSApplication.sContext);
 			
 			//builder.addTextLang(Builder.LANG_TH);
 			if(MPOSApplication.getPrinterFont().equals("a")){
@@ -86,19 +95,19 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 			builder.addTextAlign(Builder.ALIGN_CENTER);
 			builder.addTextSize(1, 1);
 			// add header
-			HeaderFooterReceipt headerFooter = new HeaderFooterReceipt(MPOSApplication.getWriteDatabase());
+			HeaderFooterReceipt headerFooter = new HeaderFooterReceipt(mSqlite);
 			for(ShopData.HeaderFooterReceipt hf : 
 				headerFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
 				builder.addText(hf.getTextInLine());
 				builder.addText("\n");
 			}
 			
-			String saleDate = MPOSApplication.getContext().getString(R.string.date) + " " +
-					MPOSApplication.getGlobalProperty().dateTimeFormat(Util.getDateTime().getTime());
-			String receiptNo = MPOSApplication.getContext().getString(R.string.receipt_no) + " " +
+			String saleDate = MPOSApplication.sContext.getString(R.string.date) + " " +
+					GlobalProperty.dateTimeFormat(MPOSApplication.sContext, Util.getDateTime().getTime());
+			String receiptNo = MPOSApplication.sContext.getString(R.string.receipt_no) + " " +
 					mTrans.getReceiptNo(transactionId, computerId);
-			String cashCheer = MPOSApplication.getContext().getString(R.string.cashier) + " " +
-					MPOSApplication.getStaff(mStaffId);
+			String cashCheer = MPOSApplication.sContext.getString(R.string.cashier) + " " +
+					mStaff.getStaff(mStaffId);
 			builder.addText(saleDate + createLineSpace(saleDate.length()) + "\n");
 			builder.addText(receiptNo + createLineSpace(receiptNo.length()) + "\n");
 			builder.addText(cashCheer + createLineSpace(cashCheer.length()));
@@ -112,8 +121,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    				orderLst.get(i);
 	    		
 	    		String productName = order.getProductName();
-	    		String productQty = MPOSApplication.getGlobalProperty().qtyFormat(order.getQty()) + "x ";
-	    		String productPrice = MPOSApplication.getGlobalProperty().currencyFormat(order.getTotalRetailPrice());
+	    		String productQty = GlobalProperty.qtyFormat(MPOSApplication.sContext, order.getQty()) + "x ";
+	    		String productPrice = GlobalProperty.currencyFormat(MPOSApplication.sContext, order.getTotalRetailPrice());
 	    		
 	    		builder.addText(productQty);
 	    		builder.addText(productName);
@@ -124,23 +133,23 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	}
 	    	builder.addText(createLine("-") + "\n");
 	    	
-	    	String itemText = MPOSApplication.getContext().getString(R.string.items) + ": ";
-	    	String totalText = MPOSApplication.getContext().getString(R.string.total) + "...............";
-	    	String changeText = MPOSApplication.getContext().getString(R.string.change) + " ";
-	    	String beforeVatText = MPOSApplication.getContext().getString(R.string.before_vat);
-	    	String discountText = MPOSApplication.getContext().getString(R.string.discount);
-	    	String vatRateText = MPOSApplication.getContext().getString(R.string.tax) + " " +
-	    			MPOSApplication.getGlobalProperty().currencyFormat(vatRate, "#,###.##") + "%";
+	    	String itemText = MPOSApplication.sContext.getString(R.string.items) + ": ";
+	    	String totalText = MPOSApplication.sContext.getString(R.string.total) + "...............";
+	    	String changeText = MPOSApplication.sContext.getString(R.string.change) + " ";
+	    	String beforeVatText = MPOSApplication.sContext.getString(R.string.before_vat);
+	    	String discountText = MPOSApplication.sContext.getString(R.string.discount);
+	    	String vatRateText = MPOSApplication.sContext.getString(R.string.tax) + " " +
+	    			GlobalProperty.currencyFormat(vatRate, "#,###.##") + "%";
 	    	
-	    	String strTotalRetailPrice = MPOSApplication.getGlobalProperty().currencyFormat(totalRetailPrice);
-	    	String strTotalSalePrice = MPOSApplication.getGlobalProperty().currencyFormat(totalSalePrice);
-	    	String strTotalDiscount = "-" + MPOSApplication.getGlobalProperty().currencyFormat(
+	    	String strTotalRetailPrice = GlobalProperty.currencyFormat(MPOSApplication.sContext, totalRetailPrice);
+	    	String strTotalSalePrice = GlobalProperty.currencyFormat(MPOSApplication.sContext, totalSalePrice);
+	    	String strTotalDiscount = "-" + GlobalProperty.currencyFormat(MPOSApplication.sContext,
 	    			mTrans.getPriceDiscount(transactionId, computerId));
-	    	//String strTotalPaid = MPOSApplication.getGlobalProperty().currencyFormat(
+	    	//String strTotalPaid = GlobalProperty.currencyFormat(
 	    	//		mPayment.getTotalPaid(transactionId, computerId));
-	    	String strTotalChange = MPOSApplication.getGlobalProperty().currencyFormat(change);
-	    	String strBeforeVat = MPOSApplication.getGlobalProperty().currencyFormat(beforVat);
-	    	String strTransactionVat = MPOSApplication.getGlobalProperty().currencyFormat(transactionVat);
+	    	String strTotalChange = GlobalProperty.currencyFormat(MPOSApplication.sContext, change);
+	    	String strBeforeVat = GlobalProperty.currencyFormat(MPOSApplication.sContext, beforVat);
+	    	String strTransactionVat = GlobalProperty.currencyFormat(MPOSApplication.sContext, transactionVat);
 	    	
 	    	// total item
 	    	String strTotalQty = String.valueOf(mTrans.getTotalQty(transactionId, computerId));
@@ -158,9 +167,9 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	
 	    	// transaction exclude vat
 	    	if(transactionVatExclude > 0){
-	    		String vatExcludeText = MPOSApplication.getContext().getString(R.string.tax) + " " +
-		    			MPOSApplication.getGlobalProperty().currencyFormat(vatRate, "#,###.##") + "%";
-	    		String strVatExclude = MPOSApplication.getGlobalProperty().currencyFormat(transactionVatExclude);
+	    		String vatExcludeText = MPOSApplication.sContext.getString(R.string.tax) + " " +
+	    				GlobalProperty.currencyFormat(vatRate, "#,###.##") + "%";
+	    		String strVatExclude = GlobalProperty.currencyFormat(MPOSApplication.sContext, transactionVatExclude);
 	    		builder.addText(vatExcludeText);
 	    		builder.addText(createLineSpace(vatExcludeText.length() + strVatExclude.length()));
 	    		builder.addText(strVatExclude + "\n");
@@ -172,12 +181,12 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	builder.addText(strTotalSalePrice + "\n");
 
 	    	// total payment
-	    	PaymentDetail paymentDetail = new PaymentDetail(MPOSApplication.getWriteDatabase());
+	    	PaymentDetail paymentDetail = new PaymentDetail(mSqlite);
 	    	List<Payment.PaymentDetail> paymentLst = paymentDetail.listPaymentGroupByType(transactionId, computerId);
 	    	for(int i = 0; i < paymentLst.size(); i++){
 	    		Payment.PaymentDetail payment = paymentLst.get(i);
 		    	String paymentText = payment.getPayTypeName() + " ";
-		    	String strTotalPaid = MPOSApplication.getGlobalProperty().currencyFormat(payment.getPaid());
+		    	String strTotalPaid = GlobalProperty.currencyFormat(MPOSApplication.sContext, payment.getPaid());
 		    	if(i < paymentLst.size() - 1){
 			    	builder.addText(paymentText);
 		    		builder.addText(createLineSpace(paymentText.length() + strTotalPaid.length()));
@@ -199,7 +208,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	}
 		    builder.addText(createLine("=") + "\n");
 		    
-		    if(MPOSApplication.getShop().getShopProperty().getVatType() == Products.VAT_TYPE_INCLUDED){
+		    if(mShop.getShopProperty().getVatType() == Products.VAT_TYPE_INCLUDED){
 			    // before vat
 			    builder.addText(beforeVatText);
 			    builder.addText(createLineSpace(beforeVatText.length() + strBeforeVat.length()));
@@ -281,7 +290,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		PrintReceiptLog printLog = new PrintReceiptLog(MPOSApplication.getWriteDatabase());
+		PrintReceiptLog printLog = new PrintReceiptLog(mSqlite);
 		for(PrintReceiptLog.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
 			try {
 				printReceipt(printReceipt.getTransactionId(), printReceipt.getComputerId());
@@ -289,7 +298,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 				
 			} catch (Exception e) {
 				printLog.updatePrintStatus(printReceipt.getPriceReceiptLogId(), PrintReceiptLog.PRINT_NOT_SUCCESS);
-				MPOSApplication.writeLog(TAG + "=>" + e.getMessage());
+				Logger.appendLog(MPOSApplication.sContext, 
+						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, e.getMessage());
 			}
 		}
 		return null;

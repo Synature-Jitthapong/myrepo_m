@@ -126,7 +126,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/order_background"
+            android:background="@drawable/white_corner_background"
             android:choiceMode="singleChoice"
             android:listSelector="@drawable/list_selector" >
 
@@ -335,7 +335,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/order_background"
+            android:background="@drawable/white_corner_background"
             android:choiceMode="singleChoice" >
 
         </ListView>

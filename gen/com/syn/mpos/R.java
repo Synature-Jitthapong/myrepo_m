@@ -116,9 +116,10 @@ containing a value of this type.
     }
     public static final class color {
         public static final int background_tab_pressed=0x7f060000;
-        public static final int dark_grey=0x7f060002;
+        public static final int dark_grey=0x7f060003;
         public static final int light_grey=0x7f060001;
-        public static final int smoke_white=0x7f060003;
+        public static final int smoke_white=0x7f060004;
+        public static final int white_grey=0x7f060002;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -141,16 +142,18 @@ containing a value of this type.
         public static final int actionbar_bottom=0x7f020000;
         public static final int background_tab=0x7f020001;
         public static final int badge_text=0x7f020002;
-        public static final int company_logo=0x7f020003;
-        public static final int ic_action_accept=0x7f020004;
-        public static final int ic_action_remove=0x7f020005;
-        public static final int ic_action_warning=0x7f020006;
-        public static final int ic_launcher=0x7f020007;
-        public static final int list_selector=0x7f020008;
-        public static final int menu_default=0x7f020009;
-        public static final int menu_pressed=0x7f02000a;
-        public static final int menu_selector=0x7f02000b;
-        public static final int order_background=0x7f02000c;
+        public static final int button_selector=0x7f020003;
+        public static final int company_logo=0x7f020004;
+        public static final int default_image=0x7f020005;
+        public static final int ic_action_accept=0x7f020006;
+        public static final int ic_action_remove=0x7f020007;
+        public static final int ic_action_warning=0x7f020008;
+        public static final int ic_launcher=0x7f020009;
+        public static final int list_selector=0x7f02000a;
+        public static final int menu_default=0x7f02000b;
+        public static final int menu_pressed=0x7f02000c;
+        public static final int order_background=0x7f02000d;
+        public static final int white_corner_background=0x7f02000e;
     }
     public static final class id {
         public static final int FrameLayout1=0x7f0b004a;

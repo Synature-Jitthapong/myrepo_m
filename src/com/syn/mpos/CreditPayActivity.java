@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Locale;
 
 import com.j1tth4.mobile.util.Logger;
-import com.syn.mpos.datasource.Bank;
-import com.syn.mpos.datasource.CreditCard;
-import com.syn.mpos.datasource.GlobalProperty;
-import com.syn.mpos.datasource.MPOSDatabase;
-import com.syn.mpos.datasource.MPOSSQLiteHelper;
-import com.syn.mpos.datasource.PaymentDetail;
+import com.syn.mpos.database.Bank;
+import com.syn.mpos.database.CreditCard;
+import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.MPOSDatabase;
+import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.PaymentDetail;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
 

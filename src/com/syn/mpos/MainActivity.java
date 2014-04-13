@@ -5,20 +5,20 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.syn.mpos.datasource.Computer;
-import com.syn.mpos.datasource.ComputerTable;
-import com.syn.mpos.datasource.GlobalProperty;
-import com.syn.mpos.datasource.Login;
-import com.syn.mpos.datasource.MPOSDatabase;
-import com.syn.mpos.datasource.MPOSSQLiteHelper;
-import com.syn.mpos.datasource.OrderTransactionTable;
-import com.syn.mpos.datasource.Products;
-import com.syn.mpos.datasource.Session;
-import com.syn.mpos.datasource.Shop;
-import com.syn.mpos.datasource.Staff;
-import com.syn.mpos.datasource.SyncSaleLog;
-import com.syn.mpos.datasource.Transaction;
-import com.syn.mpos.datasource.Util;
+import com.syn.mpos.database.Computer;
+import com.syn.mpos.database.ComputerTable;
+import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.Login;
+import com.syn.mpos.database.MPOSDatabase;
+import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.OrderTransactionTable;
+import com.syn.mpos.database.Products;
+import com.syn.mpos.database.Session;
+import com.syn.mpos.database.Shop;
+import com.syn.mpos.database.Staff;
+import com.syn.mpos.database.SyncSaleLog;
+import com.syn.mpos.database.Transaction;
+import com.syn.mpos.database.Util;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.ShopData;
 
@@ -269,8 +269,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			logout();
 			return true;
 		case R.id.itemReport:
-			intent = new Intent(MainActivity.this, SaleReportActivity.class);
-			startActivity(intent);
+			
 			return true;
 		case R.id.itemVoid:
 			voidBill();
@@ -289,6 +288,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		case R.id.itemSendSale:
 			intent = new Intent(MainActivity.this, SyncSaleActivity.class);
 			intent.putExtra("staffId", mStaffId);
+			intent.putExtra("shopId", mShopId);
+			intent.putExtra("computerId", mComputerId);
 			startActivity(intent);
 			return true;
 		case R.id.itemSetting:
@@ -361,6 +362,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		intent.putExtra("transactionId", mTransactionId);
 		intent.putExtra("computerId", mComputerId);
 		intent.putExtra("staffId", mStaffId);
+		intent.putExtra("shopId", mShopId);
 		startActivityForResult(intent, 0);
 	}
 
@@ -620,6 +622,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private void voidBill(){
 		Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
 		intent.putExtra("staffId", mStaffId);
+		intent.putExtra("shopId", mShopId);
 		startActivity(intent);
 	}
 
@@ -703,7 +706,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 									}).show();
 								}
 							};
-					MPOSUtil.doEndday(mShopId, mComputerId, mSessionId, mStaffId, 0.0f, true, progressListener);
+					MPOSUtil.doEndday(mSqlite, mShopId, mComputerId, mSessionId, mStaffId, 0.0f, true, progressListener);
 				}
 			}).show();
 		}else{

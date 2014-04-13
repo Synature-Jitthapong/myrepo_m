@@ -17,7 +17,7 @@
         android:layout_marginRight="4dp"
         android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:background="@drawable/order_background"
+        android:background="@drawable/white_corner_background"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -95,7 +95,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:background="@drawable/order_background"
+        android:background="@drawable/white_corner_background"
         android:orientation="vertical" >
 
         <TableLayout

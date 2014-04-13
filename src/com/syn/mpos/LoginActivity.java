@@ -1,11 +1,11 @@
 package com.syn.mpos;
 
 import com.syn.mpos.R;
-import com.syn.mpos.datasource.Login;
-import com.syn.mpos.datasource.MPOSSQLiteHelper;
-import com.syn.mpos.datasource.Session;
-import com.syn.mpos.datasource.Shop;
-import com.syn.mpos.datasource.Util;
+import com.syn.mpos.database.Login;
+import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.Session;
+import com.syn.mpos.database.Shop;
+import com.syn.mpos.database.Util;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;
@@ -71,6 +71,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private void init(){
 		mSqliteHelper = new MPOSSQLiteHelper(this);
 		mSqlite = mSqliteHelper.getReadableDatabase();
+		mShop = new Shop(mSqlite);
 		mShopId = mShop.getShopProperty().getShopID();
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -102,14 +103,14 @@ public class LoginActivity extends Activity implements OnClickListener {
 			startActivity(intent);
 			return true;
 		case R.id.itemUpdate:
-			MPOSUtil.updateData(mShopId, LoginActivity.this);
+			MPOSUtil.updateData(mSqlite, mShopId, LoginActivity.this);
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
 			startActivity(intent);
 			return true;
 		case R.id.itemClearSale:
-			MPOSUtil.clearSale();
+			MPOSUtil.clearSale(mSqlite);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);	

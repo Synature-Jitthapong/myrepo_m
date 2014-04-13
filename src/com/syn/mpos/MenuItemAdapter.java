@@ -12,8 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.j1tth4.mobile.util.ImageLoader;
-import com.syn.mpos.datasource.GlobalProperty;
-import com.syn.mpos.datasource.Products;
+import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.Products;
 
 public class MenuItemAdapter extends BaseAdapter{
 	private ImageLoader mImgLoader;
@@ -24,7 +24,7 @@ public class MenuItemAdapter extends BaseAdapter{
 	public MenuItemAdapter(Context c, List<Products.Product> productLst){
 		mProductLst = productLst;
 		mContext = c;
-		mImgLoader = new ImageLoader(c, 0,
+		mImgLoader = new ImageLoader(c, R.drawable.default_image,
 				MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		mInflater =
 				(LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
