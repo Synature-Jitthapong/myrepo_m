@@ -29,14 +29,20 @@ public class Staff extends MPOSDatabase{
 	}
 	
 	public void insertStaff(List<ShopData.Staff> staffLst) throws SQLException{
-		mSqlite.delete(StaffTable.TABLE_NAME, null, null);
-		for(ShopData.Staff staff : staffLst){
-			ContentValues cv = new ContentValues();
-			cv.put(StaffTable.COLUMN_STAFF_ID, staff.getStaffID());
-			cv.put(StaffTable.COLUMN_STAFF_CODE, staff.getStaffCode());
-			cv.put(StaffTable.COLUMN_STAFF_NAME, staff.getStaffName());
-			cv.put(StaffTable.COLUMN_STAFF_PASS, staff.getStaffPassword());
-			mSqlite.insertOrThrow(StaffTable.TABLE_NAME, null, cv);
+		mSqlite.beginTransaction();
+		try {
+			mSqlite.delete(StaffTable.TABLE_NAME, null, null);
+			for(ShopData.Staff staff : staffLst){
+				ContentValues cv = new ContentValues();
+				cv.put(StaffTable.COLUMN_STAFF_ID, staff.getStaffID());
+				cv.put(StaffTable.COLUMN_STAFF_CODE, staff.getStaffCode());
+				cv.put(StaffTable.COLUMN_STAFF_NAME, staff.getStaffName());
+				cv.put(StaffTable.COLUMN_STAFF_PASS, staff.getStaffPassword());
+				mSqlite.insertOrThrow(StaffTable.TABLE_NAME, null, cv);
+			}
+			mSqlite.setTransactionSuccessful();
+		} finally{
+			mSqlite.endTransaction();
 		}
 	}
 }

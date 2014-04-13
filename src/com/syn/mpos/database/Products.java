@@ -318,7 +318,7 @@ public class Products extends MPOSDatabase {
 				mSqlite.insertOrThrow(ProductComponentGroupTable.TABLE_NAME, null, cv);
 			}
 			mSqlite.setTransactionSuccessful();
-		} catch (Exception e) {
+		} finally{
 			mSqlite.endTransaction();
 		}
 	}
@@ -339,7 +339,7 @@ public class Products extends MPOSDatabase {
 				mSqlite.insertOrThrow(ProductComponentTable.TABLE_NAME, null, cv);
 			}
 			mSqlite.setTransactionSuccessful();
-		} catch (Exception e) {
+		} finally{
 			mSqlite.endTransaction();
 		}
 	}
@@ -371,7 +371,7 @@ public class Products extends MPOSDatabase {
 						});
 			}
 			mSqlite.setTransactionSuccessful();
-		} catch (Exception e) {
+		} finally{
 			mSqlite.endTransaction();
 		}
 	}
@@ -403,7 +403,7 @@ public class Products extends MPOSDatabase {
 				);
 			}
 			mSqlite.setTransactionSuccessful();
-		} catch (Exception e) {
+		} finally{
 			mSqlite.endTransaction();
 		}
 	}
@@ -440,7 +440,7 @@ public class Products extends MPOSDatabase {
 						new String[]{String.valueOf(m.getProductID())});
 			}
 			mSqlite.setTransactionSuccessful();
-		} catch (Exception e) {
+		} finally{
 			mSqlite.endTransaction();
 		}
 	}

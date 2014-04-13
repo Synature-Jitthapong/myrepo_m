@@ -51,7 +51,7 @@ public class PaymentDetail extends MPOSDatabase {
 				" SUM(a." + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") AS " + PaymentDetailTable.COLUMN_PAY_AMOUNT + ", " +
 				" b." + PayTypeTable.COLUMN_PAY_TYPE_CODE + ", " +
 				" b." + PayTypeTable.COLUMN_PAY_TYPE_NAME + 
-				" FROM " + PayTypeTable.TABLE_NAME + " a " +
+				" FROM " + PaymentDetailTable.TABLE_NAME + " a " +
 				" LEFT JOIN " + PayTypeTable.TABLE_NAME + " b " +
 				" ON a." + PayTypeTable.COLUMN_PAY_TYPE_ID + "=b." + PayTypeTable.COLUMN_PAY_TYPE_ID +
 				" WHERE a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" +
@@ -83,7 +83,7 @@ public class PaymentDetail extends MPOSDatabase {
 		boolean isSuccess = false;
 		try {
 			mSqlite.execSQL(
-					" DELETE FROM " + PayTypeTable.TABLE_NAME +
+					" DELETE FROM " + PaymentDetailTable.TABLE_NAME +
 					" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=" + transactionId + 
 					" AND " + ComputerTable.COLUMN_COMPUTER_ID + "=" + computerId);
 			isSuccess = true;
@@ -97,7 +97,7 @@ public class PaymentDetail extends MPOSDatabase {
 		int maxPaymentId = 0;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT MAX(" + PaymentDetailTable.COLUMN_PAY_ID + ") " +
-				" FROM " + PayTypeTable.TABLE_NAME + 
+				" FROM " + PaymentDetailTable.TABLE_NAME + 
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=" + transactionId +
 				" AND " + ComputerTable.COLUMN_COMPUTER_ID + "=" + computerId, null);
 		if(cursor.moveToFirst()){
@@ -124,7 +124,7 @@ public class PaymentDetail extends MPOSDatabase {
 		cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, creditCardTypeId);
 		cv.put(BankTable.COLUMN_BANK_ID, bankId);
 		cv.put(PaymentDetailTable.COLUMN_REMARK, remark);
-		return mSqlite.insertOrThrow(PayTypeTable.TABLE_NAME, null, cv);
+		return mSqlite.insertOrThrow(PaymentDetailTable.TABLE_NAME, null, cv);
 	}
 
 	public int updatePaymentDetail(int transactionId, int computerId, int payTypeId,
@@ -132,7 +132,7 @@ public class PaymentDetail extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(PaymentDetailTable.COLUMN_PAID, paid);
 		cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, amount);
-		return mSqlite.update(PayTypeTable.TABLE_NAME, cv, 
+		return mSqlite.update(PaymentDetailTable.TABLE_NAME, cv, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
 						+ " AND " + ComputerTable.COLUMN_COMPUTER_ID + "=? "
 								+ " AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
@@ -145,7 +145,7 @@ public class PaymentDetail extends MPOSDatabase {
 	}
 
 	public int deletePaymentDetail(int payTypeId){
-		return mSqlite.delete(PayTypeTable.TABLE_NAME, 
+		return mSqlite.delete(PaymentDetailTable.TABLE_NAME, 
 				PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(payTypeId)});
 	}
@@ -154,7 +154,7 @@ public class PaymentDetail extends MPOSDatabase {
 		double totalPaid = 0.0f;
 		Cursor cursor = mSqlite.rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAID + ") " +
-				" FROM " + PayTypeTable.TABLE_NAME +
+				" FROM " + PaymentDetailTable.TABLE_NAME +
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" +
 				" AND " + ComputerTable.COLUMN_COMPUTER_ID + "=?", 
 				new String[]{
@@ -179,7 +179,7 @@ public class PaymentDetail extends MPOSDatabase {
 				" a." + PaymentDetailTable.COLUMN_REMARK + ", " +
 				" b." + PayTypeTable.COLUMN_PAY_TYPE_CODE + ", " +
 				" b." + PayTypeTable.COLUMN_PAY_TYPE_NAME +
-				" FROM " + PayTypeTable.TABLE_NAME + " a " +
+				" FROM " + PaymentDetailTable.TABLE_NAME + " a " +
 				" LEFT JOIN " + PayTypeTable.TABLE_NAME + " b " + 
 				" ON a." + PayTypeTable.COLUMN_PAY_TYPE_ID + "=" +
 				" b." + PayTypeTable.COLUMN_PAY_TYPE_ID +
@@ -207,13 +207,19 @@ public class PaymentDetail extends MPOSDatabase {
 	}
 	
 	public void insertPaytype(List<Payment.PayType> payTypeLst){
-		mSqlite.delete(PayTypeTable.TABLE_NAME, null, null);
-		for(Payment.PayType payType : payTypeLst){
-			ContentValues cv = new ContentValues();
-			cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payType.getPayTypeID());
-			cv.put(PayTypeTable.COLUMN_PAY_TYPE_CODE, payType.getPayTypeCode());
-			cv.put(PayTypeTable.COLUMN_PAY_TYPE_NAME, payType.getPayTypeName());
-			mSqlite.insert(PayTypeTable.TABLE_NAME, null, cv);
+		mSqlite.beginTransaction();
+		try {
+			mSqlite.delete(PayTypeTable.TABLE_NAME, null, null);
+			for(Payment.PayType payType : payTypeLst){
+				ContentValues cv = new ContentValues();
+				cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payType.getPayTypeID());
+				cv.put(PayTypeTable.COLUMN_PAY_TYPE_CODE, payType.getPayTypeCode());
+				cv.put(PayTypeTable.COLUMN_PAY_TYPE_NAME, payType.getPayTypeName());
+				mSqlite.insert(PayTypeTable.TABLE_NAME, null, cv);
+			}
+			mSqlite.setTransactionSuccessful();
+		} finally{
+			mSqlite.endTransaction();
 		}
 	}
 }

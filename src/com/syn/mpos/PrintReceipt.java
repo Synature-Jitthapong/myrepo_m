@@ -103,7 +103,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 			}
 			
 			String saleDate = MPOSApplication.sContext.getString(R.string.date) + " " +
-					GlobalProperty.dateTimeFormat(MPOSApplication.sContext, Util.getDateTime().getTime());
+					GlobalProperty.dateTimeFormat(mSqlite, Util.getDateTime().getTime());
 			String receiptNo = MPOSApplication.sContext.getString(R.string.receipt_no) + " " +
 					mTrans.getReceiptNo(transactionId, computerId);
 			String cashCheer = MPOSApplication.sContext.getString(R.string.cashier) + " " +
@@ -121,8 +121,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    				orderLst.get(i);
 	    		
 	    		String productName = order.getProductName();
-	    		String productQty = GlobalProperty.qtyFormat(MPOSApplication.sContext, order.getQty()) + "x ";
-	    		String productPrice = GlobalProperty.currencyFormat(MPOSApplication.sContext, order.getTotalRetailPrice());
+	    		String productQty = GlobalProperty.qtyFormat(mSqlite, order.getQty()) + "x ";
+	    		String productPrice = GlobalProperty.currencyFormat(mSqlite, order.getTotalRetailPrice());
 	    		
 	    		builder.addText(productQty);
 	    		builder.addText(productName);
@@ -141,15 +141,15 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	String vatRateText = MPOSApplication.sContext.getString(R.string.tax) + " " +
 	    			GlobalProperty.currencyFormat(vatRate, "#,###.##") + "%";
 	    	
-	    	String strTotalRetailPrice = GlobalProperty.currencyFormat(MPOSApplication.sContext, totalRetailPrice);
-	    	String strTotalSalePrice = GlobalProperty.currencyFormat(MPOSApplication.sContext, totalSalePrice);
-	    	String strTotalDiscount = "-" + GlobalProperty.currencyFormat(MPOSApplication.sContext,
+	    	String strTotalRetailPrice = GlobalProperty.currencyFormat(mSqlite, totalRetailPrice);
+	    	String strTotalSalePrice = GlobalProperty.currencyFormat(mSqlite, totalSalePrice);
+	    	String strTotalDiscount = "-" + GlobalProperty.currencyFormat(mSqlite,
 	    			mTrans.getPriceDiscount(transactionId, computerId));
 	    	//String strTotalPaid = GlobalProperty.currencyFormat(
 	    	//		mPayment.getTotalPaid(transactionId, computerId));
-	    	String strTotalChange = GlobalProperty.currencyFormat(MPOSApplication.sContext, change);
-	    	String strBeforeVat = GlobalProperty.currencyFormat(MPOSApplication.sContext, beforVat);
-	    	String strTransactionVat = GlobalProperty.currencyFormat(MPOSApplication.sContext, transactionVat);
+	    	String strTotalChange = GlobalProperty.currencyFormat(mSqlite, change);
+	    	String strBeforeVat = GlobalProperty.currencyFormat(mSqlite, beforVat);
+	    	String strTransactionVat = GlobalProperty.currencyFormat(mSqlite, transactionVat);
 	    	
 	    	// total item
 	    	String strTotalQty = String.valueOf(mTrans.getTotalQty(transactionId, computerId));
@@ -169,7 +169,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	if(transactionVatExclude > 0){
 	    		String vatExcludeText = MPOSApplication.sContext.getString(R.string.tax) + " " +
 	    				GlobalProperty.currencyFormat(vatRate, "#,###.##") + "%";
-	    		String strVatExclude = GlobalProperty.currencyFormat(MPOSApplication.sContext, transactionVatExclude);
+	    		String strVatExclude = GlobalProperty.currencyFormat(mSqlite, transactionVatExclude);
 	    		builder.addText(vatExcludeText);
 	    		builder.addText(createLineSpace(vatExcludeText.length() + strVatExclude.length()));
 	    		builder.addText(strVatExclude + "\n");
@@ -186,7 +186,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	for(int i = 0; i < paymentLst.size(); i++){
 	    		Payment.PaymentDetail payment = paymentLst.get(i);
 		    	String paymentText = payment.getPayTypeName() + " ";
-		    	String strTotalPaid = GlobalProperty.currencyFormat(MPOSApplication.sContext, payment.getPaid());
+		    	String strTotalPaid = GlobalProperty.currencyFormat(mSqlite, payment.getPaid());
 		    	if(i < paymentLst.size() - 1){
 			    	builder.addText(paymentText);
 		    		builder.addText(createLineSpace(paymentText.length() + strTotalPaid.length()));

@@ -3,6 +3,7 @@ package com.syn.mpos;
 import java.util.List;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,18 +17,19 @@ import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.Products;
 
 public class MenuItemAdapter extends BaseAdapter{
+	
+	private SQLiteDatabase mSqlite;
 	private ImageLoader mImgLoader;
 	private List<Products.Product> mProductLst;
-	private Context mContext;
 	private LayoutInflater mInflater;
 	
-	public MenuItemAdapter(Context c, List<Products.Product> productLst){
+	public MenuItemAdapter(Context c, SQLiteDatabase sqlite, List<Products.Product> productLst){
+		mSqlite = sqlite;
 		mProductLst = productLst;
-		mContext = c;
 		mImgLoader = new ImageLoader(c, R.drawable.default_image,
 				MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		mInflater =
-				(LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				(LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 	
 	@Override
@@ -64,7 +66,7 @@ public class MenuItemAdapter extends BaseAdapter{
 		if(p.getProductPrice() < 0)
 			holder.tvPrice.setVisibility(View.INVISIBLE);
 		else
-			holder.tvPrice.setText(GlobalProperty.currencyFormat(mContext, p.getProductPrice()));
+			holder.tvPrice.setText(GlobalProperty.currencyFormat(mSqlite, p.getProductPrice()));
 
 		new Handler().postDelayed(new Runnable(){
 

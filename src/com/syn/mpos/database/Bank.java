@@ -43,7 +43,7 @@ public class Bank extends MPOSDatabase{
 				mSqlite.insert(BankTable.TABLE_NAME, null, cv);
 			}
 			mSqlite.setTransactionSuccessful();
-		} catch (Exception e) {
+		}finally{
 			mSqlite.endTransaction();
 		}
 	}

@@ -49,7 +49,7 @@ public class PaymentAmountButton extends MPOSDatabase {
 				mSqlite.insert(PaymentButtonTable.TABLE_NAME, null, cv);
 			}
 			mSqlite.setTransactionSuccessful();
-		} catch (Exception e) {
+		} finally{
 			mSqlite.endTransaction();
 		}
 	}

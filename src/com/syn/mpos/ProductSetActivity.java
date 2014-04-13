@@ -5,9 +5,10 @@ import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.GlobalProperty;
-import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Products;
+import com.syn.pos.OrderTransaction;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -31,10 +32,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ProductSetActivity extends Activity {
+public class ProductSetActivity extends Activity{
 
-	private MPOSSQLiteHelper mSqliteHelper;
-	private SQLiteDatabase mSqlite;
 	private Products mProduct;
 	
 	@Override
@@ -52,9 +51,7 @@ public class ProductSetActivity extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
 		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		mSqlite = mSqliteHelper.getWritableDatabase();
-		mProduct = new Products(mSqlite);
+		mProduct = new Products(MPOSApplication.getDatabase());
 		
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
@@ -68,22 +65,9 @@ public class ProductSetActivity extends Activity {
 	}
 	
 	public SQLiteDatabase getDatabase(){
-		return mSqlite;
+		return MPOSApplication.getDatabase();
 	}
 	
-	@Override
-	protected void onResume() {
-		if(!mSqlite.isOpen())
-			mSqlite = mSqliteHelper.getReadableDatabase();
-		super.onResume();
-	}
-
-	@Override
-	protected void onPause() {
-		mSqlite.close();
-		super.onPause();
-	}
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -143,13 +127,19 @@ public class ProductSetActivity extends Activity {
 			createSetGroupButton();
 		}
 
+		public void onMenuSetClick(OrderTransaction.OrderDetail order){
+			
+		}
+		
+		@SuppressLint("NewApi")
 		private void createSetGroupButton(){
 			List<Products.ProductComponentGroup> productCompGroupLst;
 			productCompGroupLst = 
 					((ProductSetActivity) getActivity()).getProduct().listProductComponentGroup(mProductId);
 			if(productCompGroupLst != null){
 				LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
-				for(final Products.ProductComponentGroup pCompGroup : productCompGroupLst){
+				for(int i = 0; i < productCompGroupLst.size(); i++){
+					final Products.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
 					View setGroupView = mInflater.inflate(R.layout.set_group_button_layout, null);
 					TextView tvGroupName = (TextView) setGroupView.findViewById(R.id.textView2);
 					TextView tvBadge = (TextView) setGroupView.findViewById(R.id.textView1);
@@ -159,12 +149,23 @@ public class ProductSetActivity extends Activity {
 
 						@Override
 						public void onClick(View v) {
+							v.setSelected(true);
 							mProductCompLst = 
-									((ProductSetActivity) getActivity()).getProduct().listProductComponent(pCompGroup.getProductGroupId());
+									((ProductSetActivity) getActivity()).
+										getProduct().listProductComponent(pCompGroup.getProductGroupId());
 							mSetItemAdapter.notifyDataSetChanged();
 						}
 						
 					});
+					
+					if(i == 0){
+						try {
+							setGroupView.callOnClick();
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
 					scrollContent.addView(setGroupView);
 				}
 			}
@@ -217,7 +218,7 @@ public class ProductSetActivity extends Activity {
 			private ImageLoader mImgLoader;
 			
 			public SetItemAdapter(){
-				mImgLoader = new ImageLoader(getActivity(), 0,
+				mImgLoader = new ImageLoader(getActivity(), R.drawable.default_image,
 						MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 			}
 			
@@ -252,7 +253,7 @@ public class ProductSetActivity extends Activity {
 				
 				final Products.ProductComponent pComp = mProductCompLst.get(position);
 				holder.tvMenu.setText(pComp.getProductName());
-				holder.tvPrice.setText(GlobalProperty.currencyFormat(getActivity(), pComp.getFlexibleProductPrice()));
+				holder.tvPrice.setText(GlobalProperty.currencyFormat(((ProductSetActivity) getActivity()).getDatabase(), pComp.getFlexibleProductPrice()));
 
 				new Handler().postDelayed(new Runnable(){
 

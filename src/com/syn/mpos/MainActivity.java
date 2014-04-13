@@ -66,8 +66,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 	public static final int TAB_UNDERLINE_COLOR = 0xFF1D78B2;
 	
-	private MPOSSQLiteHelper mSqliteHelper;
-	private SQLiteDatabase mSqlite;
 	private Shop mShop;
 	private Computer mComputer;
 	private Products mProducts;
@@ -134,13 +132,11 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		mSqlite = mSqliteHelper.getReadableDatabase();
-		mShop = new Shop(mSqlite);
-		mComputer = new Computer(mSqlite);
-		mProducts = new Products(mSqlite);
-		mSession = new Session(mSqlite);
-		mTransaction = new Transaction(mSqlite);
+		mShop = new Shop(MPOSApplication.getDatabase());
+		mComputer = new Computer(MPOSApplication.getDatabase());
+		mProducts = new Products(MPOSApplication.getDatabase());
+		mSession = new Session(MPOSApplication.getDatabase());
+		mTransaction = new Transaction(MPOSApplication.getDatabase());
 		
 		mProductDeptLst = mProducts.listProductDept();
 		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
@@ -174,7 +170,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			mSessionId = getCurrentSession();
 			mTransactionId = mTransaction.openTransaction(mComputerId, mShopId, mSessionId, mStaffId);
 			// add current date for LoadSaleTransaction read Sale Data and send to server
-			SyncSaleLog syncLog = new SyncSaleLog(mSqlite);
+			SyncSaleLog syncLog = new SyncSaleLog(MPOSApplication.getDatabase());
 			syncLog.addSyncSaleLog(String.valueOf(Util.getDate().getTimeInMillis()));
 		}
 		countHoldOrder();
@@ -203,18 +199,12 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 	
 	public SQLiteDatabase getDatabase(){
-		return mSqlite;
-	}
-	
-	@Override
-	protected void onPause() {
-		mSqlite.close();
-		super.onPause();
+		return MPOSApplication.getDatabase();
 	}
 
 	@Override
 	protected void onResume() {
-		mSqlite = mSqliteHelper.getReadableDatabase();
+		init();
 		super.onResume();
 	}
 
@@ -237,10 +227,10 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		else
 			mTbRowVat.setVisibility(View.GONE);
 		
-		mTvVatExclude.setText(GlobalProperty.currencyFormat(this, totalVatExclude));
-		mTvSubTotal.setText(GlobalProperty.currencyFormat(this, subTotal));
-		mTvDiscount.setText("-" + GlobalProperty.currencyFormat(this, totalDiscount));
-		mTvTotalPrice.setText(GlobalProperty.currencyFormat(this, vatable));
+		mTvVatExclude.setText(GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), totalVatExclude));
+		mTvSubTotal.setText(GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), subTotal));
+		mTvDiscount.setText("-" + GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), totalDiscount));
+		mTvTotalPrice.setText(GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), vatable));
 	}
 
 	@Override
@@ -303,7 +293,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 
 	private void countTransNotSend(){
 		if(mItemSendSale != null){
-			Cursor cursor = mSqlite.rawQuery(
+			Cursor cursor = MPOSApplication.getDatabase().rawQuery(
 					"SELECT COUNT(" + OrderTransactionTable.COLUMN_TRANSACTION_ID + ") " +
 					" FROM " + OrderTransactionTable.TABLE_NAME + 
 					" WHERE " + OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " + 
@@ -449,8 +439,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			holder.chk.setChecked(orderDetail.isChecked());
 			holder.tvOrderNo.setText(Integer.toString(position + 1) + ". ");
 			holder.tvOrderName.setText(orderDetail.getProductName());
-			holder.tvOrderPrice.setText(GlobalProperty.currencyFormat(MainActivity.this, orderDetail.getPricePerUnit()));
-			holder.txtOrderAmount.setText(GlobalProperty.qtyFormat(MainActivity.this, orderDetail.getQty()));
+			holder.tvOrderPrice.setText(GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), orderDetail.getPricePerUnit()));
+			holder.txtOrderAmount.setText(GlobalProperty.qtyFormat(MPOSApplication.getDatabase(), orderDetail.getQty()));
 	
 			holder.btnMinus.setOnClickListener(new OnClickListener(){
 	
@@ -582,7 +572,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 
 			c.setTimeInMillis(Long.parseLong(trans.getOpenTime()));
 			tvNo.setText(Integer.toString(position + 1) + ".");
-			tvOpenTime.setText(GlobalProperty.dateTimeFormat(MainActivity.this, c.getTime()));
+			tvOpenTime.setText(GlobalProperty.dateTimeFormat(MPOSApplication.getDatabase(), c.getTime()));
 			tvOpenStaff.setText(trans.getStaffName());
 			tvRemark.setText(trans.getTransactionNote());
 
@@ -706,7 +696,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 									}).show();
 								}
 							};
-					MPOSUtil.doEndday(mSqlite, mShopId, mComputerId, mSessionId, mStaffId, 0.0f, true, progressListener);
+					MPOSUtil.doEndday(MPOSApplication.getDatabase(), mShopId, mComputerId, mSessionId, mStaffId, 0.0f, true, progressListener);
 				}
 			}).show();
 		}else{
@@ -841,7 +831,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 					
 					if(!txtPassword.getText().toString().isEmpty()){
 						pass = txtPassword.getText().toString();
-						Login login = new Login(mSqlite, user, pass);
+						Login login = new Login(MPOSApplication.getDatabase(), user, pass);
 						
 						if(login.checkUser()){
 							ShopData.Staff s = login.checkLogin();
@@ -854,7 +844,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 								
 								ContentValues cv = new ContentValues();
 								cv.put(OrderTransactionTable.COLUMN_OPEN_STAFF, mStaffId);
-								mSqlite.update(OrderTransactionTable.TABLE_NAME, 
+								MPOSApplication.getDatabase().update(OrderTransactionTable.TABLE_NAME, 
 										cv, OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND " + 
 										ComputerTable.COLUMN_COMPUTER_ID + "=?", 
 										new String[]{
@@ -925,7 +915,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 
 	public void logout() {
-		Staff s = new Staff(mSqlite);
+		Staff s = new Staff(MPOSApplication.getDatabase());
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.logout)
 		.setIcon(android.R.drawable.ic_dialog_info)
@@ -1122,7 +1112,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		builder.setView(sizeView);
 		builder.setTitle(R.string.product_size);
 		final AlertDialog dialog = builder.create();
-		lvProSize.setAdapter(new ProductSizeAdapter(this, pSizeLst));
+		lvProSize.setAdapter(new ProductSizeAdapter(this, MPOSApplication.getDatabase(), pSizeLst));
 		lvProSize.setOnItemClickListener(new OnItemClickListener(){
 	
 			@Override

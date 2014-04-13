@@ -29,8 +29,6 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends Activity implements OnClickListener {
 	
-	private MPOSSQLiteHelper mSqliteHelper;
-	private SQLiteDatabase mSqlite;
 	private Shop mShop;
 	private int mShopId;
 	private int mStaffId;
@@ -69,9 +67,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	}
 
 	private void init(){
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		mSqlite = mSqliteHelper.getReadableDatabase();
-		mShop = new Shop(mSqlite);
+		mShop = new Shop(MPOSApplication.getDatabase());
 		mShopId = mShop.getShopProperty().getShopID();
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -80,12 +76,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 		}
-	}
-	
-	@Override
-	protected void onPause() {
-		mSqlite.close();
-		super.onPause();
 	}
 
 	@Override
@@ -103,14 +93,14 @@ public class LoginActivity extends Activity implements OnClickListener {
 			startActivity(intent);
 			return true;
 		case R.id.itemUpdate:
-			MPOSUtil.updateData(mSqlite, mShopId, LoginActivity.this);
+			MPOSUtil.updateData(MPOSApplication.getDatabase(), mShopId, LoginActivity.this);
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
 			startActivity(intent);
 			return true;
 		case R.id.itemClearSale:
-			MPOSUtil.clearSale(mSqlite);
+			MPOSUtil.clearSale(MPOSApplication.getDatabase());
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
@@ -127,7 +117,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private void gotoMainActivity(){
 		mTxtUser.setText(null);
 		mTxtPass.setText(null);
-		Session sess = new Session(mSqlite);
+		Session sess = new Session(MPOSApplication.getDatabase());
 		if(sess.getSessionEnddayDetail(String.valueOf(Util.getDate().getTimeInMillis())) > 0){
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.endday)
@@ -155,7 +145,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 			
 			if(!mTxtPass.getText().toString().isEmpty()){
 				pass = mTxtPass.getText().toString();
-				Login login = new Login(mSqlite, user, pass);
+				Login login = new Login(MPOSApplication.getDatabase(), user, pass);
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();

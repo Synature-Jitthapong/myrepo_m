@@ -28,6 +28,7 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		HeaderFooterReceiptTable.onCreate(db);
 		OrderDetailTable.onCreate(db);
 		OrderTransactionTable.onCreate(db);
+		OrderSetTable.onCreate(db);
 		PrintReceiptLogTable.onCreate(db);
 		PaymentDetailTable.onCreate(db);
 		PaymentButtonTable.onCreate(db);

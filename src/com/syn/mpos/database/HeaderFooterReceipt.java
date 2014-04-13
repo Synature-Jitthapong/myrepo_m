@@ -56,7 +56,7 @@ public class HeaderFooterReceipt extends MPOSDatabase{
 				mSqlite.insertOrThrow(HeaderFooterReceiptTable.TABLE_NAME, null, cv);
 			}
 			mSqlite.setTransactionSuccessful();
-		} catch (Exception e) {
+		} finally{
 			mSqlite.endTransaction();
 		}
 	}

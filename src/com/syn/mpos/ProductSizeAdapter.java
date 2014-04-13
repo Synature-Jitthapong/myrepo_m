@@ -6,6 +6,7 @@ import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.Products;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +15,12 @@ import android.widget.TextView;
 
 public class ProductSizeAdapter extends BaseAdapter{
 	
-	private Context mContext;
+	private SQLiteDatabase mSqlite;
 	private LayoutInflater mInflater;
 	private List<Products.Product> mProLst;
 	
-	public ProductSizeAdapter(Context c, List<Products.Product> proLst){
-		mContext = c;
+	public ProductSizeAdapter(Context c, SQLiteDatabase sqlite, List<Products.Product> proLst){
+		mSqlite = sqlite;
 		mInflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mProLst = proLst;
 	}
@@ -53,7 +54,7 @@ public class ProductSizeAdapter extends BaseAdapter{
 		}
 		Products.Product p = mProLst.get(position);
 		holder.tvProductName.setText(p.getProductName());
-		holder.tvProductPrice.setText(GlobalProperty.currencyFormat(mContext, 
+		holder.tvProductPrice.setText(GlobalProperty.currencyFormat(mSqlite, 
 				p.getProductPrice()));
 		return convertView;
 	}

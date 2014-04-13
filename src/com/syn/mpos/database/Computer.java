@@ -61,7 +61,7 @@ public class Computer extends MPOSDatabase{
 				mSqlite.insertOrThrow(ComputerTable.TABLE_COMPUTER, null, cv);
 			}
 			mSqlite.setTransactionSuccessful();
-		} catch (Exception e) {
+		} finally{
 			mSqlite.endTransaction();
 		}
 	}

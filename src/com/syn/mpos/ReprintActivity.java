@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.database.ComputerTable;
-import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrderTransactionTable;
 import com.syn.mpos.database.Transaction;
 import com.syn.mpos.database.Util;
@@ -15,7 +14,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,8 +28,6 @@ import android.widget.TextView;
 
 public class ReprintActivity extends Activity {
 	
-	private MPOSSQLiteHelper mSqliteHelper;
-	private SQLiteDatabase mSqlite;
 	private boolean mIsOnPrint;
 	private ReprintTransAdapter mTransAdapter;
 	private int mStaffId;
@@ -56,9 +52,6 @@ public class ReprintActivity extends Activity {
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		mSqlite = mSqliteHelper.getReadableDatabase();
-		
 		mTransAdapter = new ReprintTransAdapter(this, 
 				listTransaction(String.valueOf(Util.getDate().getTimeInMillis())));
 		mLvTrans.setAdapter(mTransAdapter);
@@ -66,7 +59,7 @@ public class ReprintActivity extends Activity {
 
 	private List<OrderTransaction> listTransaction(String saleDate){
 		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
-		Cursor cursor = mSqlite.query(OrderTransactionTable.TABLE_NAME, 
+		Cursor cursor = MPOSApplication.getDatabase().query(OrderTransactionTable.TABLE_NAME, 
 				new String[]{
 				OrderTransactionTable.COLUMN_TRANSACTION_ID,
 				ComputerTable.COLUMN_COMPUTER_ID,
@@ -174,7 +167,7 @@ public class ReprintActivity extends Activity {
 		private int mComputerId;
 		
 		public Reprint(int transactionId, int computerId, PrintStatusListener listener) {
-			super(mSqlite, mStaffId, listener);
+			super(MPOSApplication.getDatabase(), mStaffId, listener);
 			mTransactionId = transactionId;
 			mComputerId = computerId;
 		}

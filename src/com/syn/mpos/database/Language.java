@@ -26,7 +26,7 @@ public  class Language extends MPOSDatabase{
 				mSqlite.insertOrThrow(LanguageTable.TABLE_NAME, null, cv);
 			}
 			mSqlite.setTransactionSuccessful();
-		} catch (Exception e) {
+		} finally{
 			mSqlite.endTransaction();
 		}
 	}

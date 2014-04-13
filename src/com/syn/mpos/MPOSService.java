@@ -78,7 +78,7 @@ public class MPOSService {
 						try {
 							shop.insertShopProperty(sd.getShopProperty());
 							comp.insertComputer(sd.getComputerProperty());
-							GlobalProperty.insertProperty(MPOSApplication.sContext, sd.getGlobalProperty());
+							GlobalProperty.insertProperty(sqlite, sd.getGlobalProperty());
 							staff.insertStaff(sd.getStaffs());
 							lang.insertLanguage(sd.getLanguage());
 							hf.addHeaderFooterReceipt(sd.getHeaderFooterReceipt());
