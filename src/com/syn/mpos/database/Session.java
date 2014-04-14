@@ -3,17 +3,17 @@ package com.syn.mpos.database;
 import java.util.Calendar;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class Session extends MPOSDatabase{
 	
 	public static final int NOT_ENDDAY_STATUS = 0;
 	public static final int ALREADY_ENDDAY_STATUS = 1;
 	
-	public Session(SQLiteDatabase db) {
-		super(db);
+	public Session(Context c) {
+		super(c);
 	}
 
 	public void autoEnddaySession(String currentSaleDate, int closeStaffId){

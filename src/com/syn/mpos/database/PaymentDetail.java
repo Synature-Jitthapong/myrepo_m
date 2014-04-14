@@ -6,17 +6,17 @@ import java.util.List;
 import com.syn.pos.Payment;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class PaymentDetail extends MPOSDatabase {
 	
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 
-	public PaymentDetail(SQLiteDatabase db) {
-		super(db);
+	public PaymentDetail(Context c) {
+		super(c);
 	}
 	
 	public List<Payment.PayType> listPayType(){

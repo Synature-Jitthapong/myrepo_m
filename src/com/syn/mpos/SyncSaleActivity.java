@@ -7,6 +7,7 @@ import com.syn.mpos.database.ComputerTable;
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrderTransactionTable;
+import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Transaction;
 import com.syn.pos.OrderTransaction;
 
@@ -88,9 +89,12 @@ public class SyncSaleActivity extends Activity{
 	}
 
 	private void sendSale(){
+		Shop shop = new Shop(this);
+		shop.open();
 		for(final SendTransaction trans : mTransLst){
-			MPOSUtil.doSendSaleBySelectedTransaction(MPOSApplication.getDatabase(), 
-					mShopId, mComputerId, trans.getTransactionId(), mStaffId, new ProgressListener(){
+			MPOSUtil.doSendSaleBySelectedTransaction( 
+					mShopId, mComputerId, trans.getTransactionId(), 
+					mStaffId, shop.getCompanyVatRate(), new ProgressListener(){
 
 				@Override
 				public void onPre() {
@@ -122,7 +126,9 @@ public class SyncSaleActivity extends Activity{
 	
 	private List<SendTransaction> listNotSendTransaction(){
 		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
-		Cursor cursor = MPOSApplication.getDatabase().query(OrderTransactionTable.TABLE_NAME, 
+		MPOSSQLiteHelper sqliteHelper = new MPOSSQLiteHelper(this);
+		SQLiteDatabase sqlite = sqliteHelper.getWritableDatabase();
+		Cursor cursor = sqlite.query(OrderTransactionTable.TABLE_NAME, 
 				new String[]{
 					OrderTransactionTable.COLUMN_TRANSACTION_ID,
 					ComputerTable.COLUMN_COMPUTER_ID,

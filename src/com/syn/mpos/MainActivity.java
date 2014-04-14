@@ -10,8 +10,8 @@ import com.syn.mpos.database.ComputerTable;
 import com.syn.mpos.database.GlobalProperty;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrderTransactionTable;
+import com.syn.mpos.database.PrintReceiptLog;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Session;
 import com.syn.mpos.database.Shop;
@@ -31,7 +31,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -66,6 +65,9 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	
 	public static final int TAB_UNDERLINE_COLOR = 0xFF1D78B2;
 	
+	// send sale request code from payment activity
+	public static final int PAYMENT_REQUEST = 1;
+	
 	private Shop mShop;
 	private Computer mComputer;
 	private Products mProducts;
@@ -82,7 +84,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	private int mSessionId;
 	private int mStaffId;
 	private int mShopId;
-	
 	
 	private PagerSlidingTabStrip mTabs;
 	private ViewPager mPager;
@@ -132,12 +133,13 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
-		mShop = new Shop(MPOSApplication.getDatabase());
-		mComputer = new Computer(MPOSApplication.getDatabase());
-		mProducts = new Products(MPOSApplication.getDatabase());
-		mSession = new Session(MPOSApplication.getDatabase());
-		mTransaction = new Transaction(MPOSApplication.getDatabase());
+		mShop = new Shop(this);
+		mComputer = new Computer(this);
+		mProducts = new Products(this);
+		mSession = new Session(this);
+		mTransaction = new Transaction(this);
 		
+		mProducts.open();
 		mProductDeptLst = mProducts.listProductDept();
 		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
 		mPager.setAdapter(mPageAdapter);
@@ -162,6 +164,12 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 	
 	private void init(){
+		mShop.open();
+		mComputer.open();
+		mProducts.open();
+		mSession.open();
+		mTransaction.open();
+		
 		mShopId = mShop.getShopProperty().getShopID();
 		mComputerId = mComputer.getComputerProperty().getComputerID();
 		
@@ -170,7 +178,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			mSessionId = getCurrentSession();
 			mTransactionId = mTransaction.openTransaction(mComputerId, mShopId, mSessionId, mStaffId);
 			// add current date for LoadSaleTransaction read Sale Data and send to server
-			SyncSaleLog syncLog = new SyncSaleLog(MPOSApplication.getDatabase());
+			SyncSaleLog syncLog = new SyncSaleLog(this);
+			syncLog.open();
 			syncLog.addSyncSaleLog(String.valueOf(Util.getDate().getTimeInMillis()));
 		}
 		countHoldOrder();
@@ -198,10 +207,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		return mProducts;
 	}
 	
-	public SQLiteDatabase getDatabase(){
-		return MPOSApplication.getDatabase();
-	}
-
 	@Override
 	protected void onResume() {
 		init();
@@ -227,10 +232,22 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		else
 			mTbRowVat.setVisibility(View.GONE);
 		
-		mTvVatExclude.setText(GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), totalVatExclude));
-		mTvSubTotal.setText(GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), subTotal));
-		mTvDiscount.setText("-" + GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), totalDiscount));
-		mTvTotalPrice.setText(GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), vatable));
+		mTvVatExclude.setText(GlobalProperty.currencyFormat(this, totalVatExclude));
+		mTvSubTotal.setText(GlobalProperty.currencyFormat(this, subTotal));
+		mTvDiscount.setText("-" + GlobalProperty.currencyFormat(this, totalDiscount));
+		mTvTotalPrice.setText(GlobalProperty.currencyFormat(this, vatable));
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		if(requestCode == PAYMENT_REQUEST){
+			if(resultCode == RESULT_OK){
+				int transactionId = intent.getIntExtra("transactionId", 0);
+				int computerId = intent.getIntExtra("computerId", 0);
+				printReceipt(transactionId, computerId);
+				sendSale();
+			}
+		}
 	}
 
 	@Override
@@ -293,7 +310,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 
 	private void countTransNotSend(){
 		if(mItemSendSale != null){
-			Cursor cursor = MPOSApplication.getDatabase().rawQuery(
+			Cursor cursor = mTransaction.getDatabase().rawQuery(
 					"SELECT COUNT(" + OrderTransactionTable.COLUMN_TRANSACTION_ID + ") " +
 					" FROM " + OrderTransactionTable.TABLE_NAME + 
 					" WHERE " + OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " + 
@@ -325,35 +342,13 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			}
 		}
 	}
-
-//	@Override
-//	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-//		super.onActivityResult(requestCode, resultCode, intent);
-//		if(intent != null){
-//			final int transId = intent.getIntExtra("transactionId", 0);
-//			final int compId = intent.getIntExtra("computerId", 0);
-//			final int staffId = intent.getIntExtra("staffId", 0);
-//			new Handler().postDelayed(new Runnable() {
-//	
-//				@Override
-//				public void run() {
-//					PrintReceipt printReceipt = new PrintReceipt();
-//					printReceipt
-//							.printReceipt(transId, compId, staffId);
-//				}
-//	
-//			}, 1000);
-//		}
-//	}
-
 	
 	public void paymentClicked(final View v){
 		Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
 		intent.putExtra("transactionId", mTransactionId);
 		intent.putExtra("computerId", mComputerId);
 		intent.putExtra("staffId", mStaffId);
-		intent.putExtra("shopId", mShopId);
-		startActivityForResult(intent, 0);
+		startActivityForResult(intent, PAYMENT_REQUEST);
 	}
 
 	public void discountClicked(final View v){
@@ -439,8 +434,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			holder.chk.setChecked(orderDetail.isChecked());
 			holder.tvOrderNo.setText(Integer.toString(position + 1) + ". ");
 			holder.tvOrderName.setText(orderDetail.getProductName());
-			holder.tvOrderPrice.setText(GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), orderDetail.getPricePerUnit()));
-			holder.txtOrderAmount.setText(GlobalProperty.qtyFormat(MPOSApplication.getDatabase(), orderDetail.getQty()));
+			holder.tvOrderPrice.setText(GlobalProperty.currencyFormat(MainActivity.this, orderDetail.getPricePerUnit()));
+			holder.txtOrderAmount.setText(GlobalProperty.qtyFormat(MainActivity.this, orderDetail.getQty()));
 	
 			holder.btnMinus.setOnClickListener(new OnClickListener(){
 	
@@ -572,7 +567,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 
 			c.setTimeInMillis(Long.parseLong(trans.getOpenTime()));
 			tvNo.setText(Integer.toString(position + 1) + ".");
-			tvOpenTime.setText(GlobalProperty.dateTimeFormat(MPOSApplication.getDatabase(), c.getTime()));
+			tvOpenTime.setText(GlobalProperty.dateTimeFormat(MainActivity.this, c.getTime()));
 			tvOpenStaff.setText(trans.getStaffName());
 			tvRemark.setText(trans.getTransactionNote());
 
@@ -696,7 +691,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 									}).show();
 								}
 							};
-					MPOSUtil.doEndday(MPOSApplication.getDatabase(), mShopId, mComputerId, mSessionId, mStaffId, 0.0f, true, progressListener);
+					MPOSUtil.doEndday(mShopId, mComputerId, mSessionId, 
+							mStaffId, 0.0f, mShop.getCompanyVatRate(), true, progressListener);
 				}
 			}).show();
 		}else{
@@ -831,7 +827,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 					
 					if(!txtPassword.getText().toString().isEmpty()){
 						pass = txtPassword.getText().toString();
-						Login login = new Login(MPOSApplication.getDatabase(), user, pass);
+						Login login = new Login(MainActivity.this, user, pass);
 						
 						if(login.checkUser()){
 							ShopData.Staff s = login.checkLogin();
@@ -844,7 +840,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 								
 								ContentValues cv = new ContentValues();
 								cv.put(OrderTransactionTable.COLUMN_OPEN_STAFF, mStaffId);
-								MPOSApplication.getDatabase().update(OrderTransactionTable.TABLE_NAME, 
+								mTransaction.getDatabase().update(OrderTransactionTable.TABLE_NAME, 
 										cv, OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND " + 
 										ComputerTable.COLUMN_COMPUTER_ID + "=?", 
 										new String[]{
@@ -915,7 +911,8 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	}
 
 	public void logout() {
-		Staff s = new Staff(MPOSApplication.getDatabase());
+		Staff s = new Staff(this);
+		s.open();
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.logout)
 		.setIcon(android.R.drawable.ic_dialog_info)
@@ -1112,7 +1109,7 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 		builder.setView(sizeView);
 		builder.setTitle(R.string.product_size);
 		final AlertDialog dialog = builder.create();
-		lvProSize.setAdapter(new ProductSizeAdapter(this, MPOSApplication.getDatabase(), pSizeLst));
+		lvProSize.setAdapter(new ProductSizeAdapter(this, pSizeLst));
 		lvProSize.setOnItemClickListener(new OnItemClickListener(){
 	
 			@Override
@@ -1157,5 +1154,55 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 			mTxtBarCode.setText(null);
 		}
 		return false;
+	}
+	
+	private void printReceipt(int transactionId, int computerId){
+		PrintReceiptLog printLog = 
+				new PrintReceiptLog(this);
+		printLog.open();
+		printLog.insertLog(transactionId, computerId, mStaffId);
+		
+		new PrintReceipt(MainActivity.this, mStaffId, new PrintReceipt.PrintStatusListener() {
+			
+			@Override
+			public void onPrintSuccess() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onPrintFail(String msg) {
+				MPOSUtil.makeToask(MainActivity.this, msg);
+			}
+			
+			@Override
+			public void onPrepare() {
+				// TODO Auto-generated method stub
+				
+			}
+		}).execute();
+	}
+	
+	private void sendSale(){
+		MPOSUtil.doSendSale(mShopId, mComputerId, mStaffId, 
+				mShop.getCompanyVatRate(), new ProgressListener(){
+
+				@Override
+				public void onPre() {
+				}
+
+				@Override
+				public void onPost() {
+					countTransNotSend();
+					MPOSUtil.makeToask(MainActivity.this, 
+							MainActivity.this.getString(R.string.send_sale_data_success));
+				}
+
+				@Override
+				public void onError(String msg) {
+					MPOSUtil.makeToask(MainActivity.this, msg);
+				}
+				
+			});
 	}
 }

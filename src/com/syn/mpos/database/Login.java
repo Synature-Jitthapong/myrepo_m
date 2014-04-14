@@ -4,15 +4,15 @@ import com.j1tth4.mobile.util.EncryptSHA1;
 import com.j1tth4.mobile.util.Encryption;
 import com.syn.pos.ShopData;
 
+import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 public class Login extends MPOSDatabase{
 	private String user;
 	private String passEncrypt;
 	
-	public Login(SQLiteDatabase db, String user, String pass) {
-		super(db);
+	public Login(Context c, String user, String pass) {
+		super(c);
 		this.user = user;
 		Encryption encrypt = new EncryptSHA1();
 		passEncrypt = encrypt.sha1(pass);

@@ -62,8 +62,7 @@ public class MenuPageFragment extends Fragment {
 
 		final GridView gvItem = (GridView) inflater.inflate(R.layout.menu_grid_view, container, false);
 		mProductLst = ((MainActivity) getActivity()).getProduct().listProduct(mDeptId);
-		mAdapter = new MenuItemAdapter(getActivity(), 
-				((MainActivity)getActivity()).getDatabase(), mProductLst);
+		mAdapter = new MenuItemAdapter(getActivity(), mProductLst);
 		gvItem.setAdapter(mAdapter);
 		gvItem.setOnItemClickListener(new OnItemClickListener(){
 
@@ -85,7 +84,7 @@ public class MenuPageFragment extends Fragment {
 					int position, long id) {
 				Products.Product p = (Products.Product) parent.getItemAtPosition(position);
 				ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgUrl(), p.getProductName(), 
-						GlobalProperty.currencyFormat(((MainActivity) getActivity()).getDatabase(), p.getProductPrice()));
+						GlobalProperty.currencyFormat(getActivity(), p.getProductPrice()));
 				imgZoom.show(getFragmentManager(), "MenuImage");
 				return true;
 			}

@@ -12,7 +12,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -51,7 +50,8 @@ public class ProductSetActivity extends Activity{
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
 		
-		mProduct = new Products(MPOSApplication.getDatabase());
+		mProduct = new Products(this);
+		mProduct.open();
 		
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
@@ -62,10 +62,6 @@ public class ProductSetActivity extends Activity{
 
 	public Products getProduct(){
 		return mProduct;
-	}
-	
-	public SQLiteDatabase getDatabase(){
-		return MPOSApplication.getDatabase();
 	}
 	
 	@Override
@@ -253,7 +249,7 @@ public class ProductSetActivity extends Activity{
 				
 				final Products.ProductComponent pComp = mProductCompLst.get(position);
 				holder.tvMenu.setText(pComp.getProductName());
-				holder.tvPrice.setText(GlobalProperty.currencyFormat(((ProductSetActivity) getActivity()).getDatabase(), pComp.getFlexibleProductPrice()));
+				holder.tvPrice.setText(GlobalProperty.currencyFormat(getActivity(), pComp.getFlexibleProductPrice()));
 
 				new Handler().postDelayed(new Runnable(){
 

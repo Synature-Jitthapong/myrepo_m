@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -33,10 +34,10 @@ public class GlobalProperty{
 		return dateFormat.format(d);	
 	}
 	
-	public static String dateFormat(SQLiteDatabase sqlite, Date d){
+	public static String dateFormat(Context c, Date d){
 		SimpleDateFormat dateFormat = getSimpleDateFormat();
-		if(!getGlobalProperty(sqlite).getDateFormat().equals(""))
-			dateFormat.applyPattern(getGlobalProperty(sqlite).getDateFormat());
+		if(!getGlobalProperty(c).getDateFormat().equals(""))
+			dateFormat.applyPattern(getGlobalProperty(c).getDateFormat());
 		return dateFormat.format(d);	
 	}
 	
@@ -46,21 +47,21 @@ public class GlobalProperty{
 		return dateFormat.format(d);
 	}
 	
-	public static String dateTimeFormat(SQLiteDatabase sqlite, Date d){
+	public static String dateTimeFormat(Context c, Date d){
 		SimpleDateFormat dateFormat = getSimpleDateFormat();
 		dateFormat.applyPattern("dd/MM/yyyy HH:mm:ss");
-		if(!getGlobalProperty(sqlite).getDateFormat().equals("") && 
-				!getGlobalProperty(sqlite).getTimeFormat().equals(""))
-			dateFormat.applyPattern(getGlobalProperty(sqlite).getDateFormat() + " " +
-					getGlobalProperty(sqlite).getTimeFormat());
+		if(!getGlobalProperty(c).getDateFormat().equals("") && 
+				!getGlobalProperty(c).getTimeFormat().equals(""))
+			dateFormat.applyPattern(getGlobalProperty(c).getDateFormat() + " " +
+					getGlobalProperty(c).getTimeFormat());
 		return dateFormat.format(d);
 	}
 	
-	public static String timeFormat(SQLiteDatabase sqlite, Date d){
+	public static String timeFormat(Context c, Date d){
 		SimpleDateFormat dateFormat = getSimpleDateFormat();
 		dateFormat.applyPattern("HH:mm:ss");
-		if(!getGlobalProperty(sqlite).getTimeFormat().equals(""))
-			dateFormat.applyPattern(getGlobalProperty(sqlite).getTimeFormat());
+		if(!getGlobalProperty(c).getTimeFormat().equals(""))
+			dateFormat.applyPattern(getGlobalProperty(c).getTimeFormat());
 		return dateFormat.format(d);
 	}
 	
@@ -70,10 +71,10 @@ public class GlobalProperty{
 		return decFormat.format(qty);
 	}
 	
-	public static String qtyFormat(SQLiteDatabase sqlite, double qty){
+	public static String qtyFormat(Context c, double qty){
 		DecimalFormat decFormat = getDecimalFormat();
-		if(!getGlobalProperty(sqlite).getQtyFormat().equals("")){
-			decFormat.applyPattern(getGlobalProperty(sqlite).getQtyFormat());
+		if(!getGlobalProperty(c).getQtyFormat().equals("")){
+			decFormat.applyPattern(getGlobalProperty(c).getQtyFormat());
 			return decFormat.format(qty);
 		}else{
 			NumberFormat numFormat = getNumberFormat();
@@ -87,10 +88,10 @@ public class GlobalProperty{
 		return decFormat.format(currency);
 	}
 	
-	public static String currencyFormat(SQLiteDatabase sqlite, double currency){
+	public static String currencyFormat(Context c, double currency){
 		DecimalFormat decFormat = getDecimalFormat();
-		if(!getGlobalProperty(sqlite).getCurrencyFormat().equals("")){
-			decFormat.applyPattern(getGlobalProperty(sqlite).getCurrencyFormat());
+		if(!getGlobalProperty(c).getCurrencyFormat().equals("")){
+			decFormat.applyPattern(getGlobalProperty(c).getCurrencyFormat());
 			return decFormat.format(currency);
 		}else{
 			NumberFormat numFormat = getNumberFormat();
@@ -98,9 +99,9 @@ public class GlobalProperty{
 		}
 	}
 	
-	public static ShopData.GlobalProperty getGlobalProperty(SQLiteDatabase sqlite) {
-		ShopData.GlobalProperty gb = 
-				new ShopData.GlobalProperty();
+	public static ShopData.GlobalProperty getGlobalProperty(Context c) {
+		ShopData.GlobalProperty gb = new ShopData.GlobalProperty();
+		SQLiteDatabase sqlite = getDatabase(c);
 		Cursor cursor = sqlite.query(GlobalPropertyTable.TABLE_NAME, COLUMNS, 
 				null, null, null, null, null);
 		if (cursor.moveToFirst()) {
@@ -123,7 +124,8 @@ public class GlobalProperty{
 		return gb;
 	}
 
-	public static void insertProperty(SQLiteDatabase sqlite, List<ShopData.GlobalProperty> globalLst) throws SQLException{
+	public static void insertProperty(Context c, List<ShopData.GlobalProperty> globalLst) throws SQLException{
+		SQLiteDatabase sqlite = getDatabase(c);
 		sqlite.beginTransaction();
 		try {
 			sqlite.delete(GlobalPropertyTable.TABLE_NAME, null, null);
@@ -142,6 +144,12 @@ public class GlobalProperty{
 		} finally{
 			sqlite.endTransaction();
 		}
+	}
+	
+	private static SQLiteDatabase getDatabase(Context c){
+		MPOSSQLiteHelper sqliteHelper = new MPOSSQLiteHelper(c);
+		SQLiteDatabase sqlite = sqliteHelper.getWritableDatabase();
+		return sqlite;
 	}
 	
 	private static SimpleDateFormat getSimpleDateFormat(){

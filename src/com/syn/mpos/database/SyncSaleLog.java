@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class SyncSaleLog extends MPOSDatabase{
+	
 	public static final int SYNC_FAIL = 0;
 	public static final int SYNC_SUCCESS = 1;
 	
-	public SyncSaleLog(SQLiteDatabase db) {
-		super(db);
+	public SyncSaleLog(Context c) {
+		super(c);
 	}
 	
 	public List<String> listSessionDate(){

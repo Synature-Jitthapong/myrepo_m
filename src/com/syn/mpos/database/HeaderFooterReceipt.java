@@ -6,16 +6,17 @@ import java.util.List;
 import com.syn.pos.ShopData;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class HeaderFooterReceipt extends MPOSDatabase{
+	
 	public static final int HEADER_LINE_TYPE = 0;
 	public static final int FOOTER_LINE_TYPE = 1;
 
-	public HeaderFooterReceipt(SQLiteDatabase db) {
-		super(db);
+	public HeaderFooterReceipt(Context c) {
+		super(c);
 	}
 	
 	public List<ShopData.HeaderFooterReceipt> listHeaderFooter(int lineType){

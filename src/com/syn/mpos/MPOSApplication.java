@@ -1,15 +1,11 @@
 package com.syn.mpos;
 
-import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import com.syn.mpos.database.MPOSSQLiteHelper;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 
@@ -29,12 +25,12 @@ public class MPOSApplication extends Application {
 
 	// server image path
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
-
-	// application context
-	public static Context sContext;
 	
 	// device code
 	public static String sDeviceCode;
+	
+	// application context
+	private static Context sContext;
 	
 	public static String getDeviceCode() {
 		return Secure.getString(sContext.getContentResolver(), Secure.ANDROID_ID);
@@ -87,13 +83,7 @@ public class MPOSApplication extends Application {
 		sContext = getApplicationContext();
 	}
 
-	public static SQLiteDatabase getDatabase(){
-		MPOSSQLiteHelper sqliteHelper = new MPOSSQLiteHelper(sContext);
-		return sqliteHelper.getWritableDatabase();
-	}
-	
-	public static String fixesDigitLength(int length, double value){
-		BigDecimal b = new BigDecimal(value);
-		return b.setScale(length, BigDecimal.ROUND_HALF_UP).toString();
+	public static Context getContext(){
+		return sContext;
 	}
 }

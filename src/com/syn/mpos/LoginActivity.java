@@ -2,7 +2,6 @@ package com.syn.mpos;
 
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
-import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Session;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Util;
@@ -15,7 +14,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,7 +65,10 @@ public class LoginActivity extends Activity implements OnClickListener {
 	}
 
 	private void init(){
-		mShop = new Shop(MPOSApplication.getDatabase());
+		mShop = new Shop(this);
+
+		mShop.open();
+		
 		mShopId = mShop.getShopProperty().getShopID();
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -93,14 +94,14 @@ public class LoginActivity extends Activity implements OnClickListener {
 			startActivity(intent);
 			return true;
 		case R.id.itemUpdate:
-			MPOSUtil.updateData(MPOSApplication.getDatabase(), mShopId, LoginActivity.this);
+			MPOSUtil.updateData(mShopId, LoginActivity.this);
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
 			startActivity(intent);
 			return true;
 		case R.id.itemClearSale:
-			MPOSUtil.clearSale(MPOSApplication.getDatabase());
+			MPOSUtil.clearSale();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
@@ -117,7 +118,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private void gotoMainActivity(){
 		mTxtUser.setText(null);
 		mTxtPass.setText(null);
-		Session sess = new Session(MPOSApplication.getDatabase());
+		Session sess = new Session(this);
+		sess.open();
 		if(sess.getSessionEnddayDetail(String.valueOf(Util.getDate().getTimeInMillis())) > 0){
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.endday)
@@ -145,10 +147,12 @@ public class LoginActivity extends Activity implements OnClickListener {
 			
 			if(!mTxtPass.getText().toString().isEmpty()){
 				pass = mTxtPass.getText().toString();
-				Login login = new Login(MPOSApplication.getDatabase(), user, pass);
+				Login login = new Login(this, user, pass);
+				login.open();
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();
+					
 					if(s != null){
 						mStaffId = s.getStaffID();
 						gotoMainActivity();

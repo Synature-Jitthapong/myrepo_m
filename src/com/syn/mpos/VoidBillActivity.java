@@ -6,11 +6,11 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Transaction;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -78,7 +78,7 @@ public class VoidBillActivity extends Activity {
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 
-		btnBillDate.setText(GlobalProperty.dateFormat(MPOSApplication.getDatabase(), mCalendar.getTime()));
+		btnBillDate.setText(GlobalProperty.dateFormat(this, mCalendar.getTime()));
 	    btnBillDate.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -90,7 +90,7 @@ public class VoidBillActivity extends Activity {
 						mCalendar.setTimeInMillis(date);
 						mDate = mCalendar.getTimeInMillis();
 						
-						btnBillDate.setText(GlobalProperty.dateFormat(MPOSApplication.getDatabase(), mCalendar.getTime()));
+						btnBillDate.setText(GlobalProperty.dateFormat(VoidBillActivity.this, mCalendar.getTime()));
 					}
 				});
 				dialogFragment.show(getFragmentManager(), "Condition");
@@ -118,7 +118,7 @@ public class VoidBillActivity extends Activity {
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
 				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = GlobalProperty.dateTimeFormat(MPOSApplication.getDatabase(), c.getTime());
+				mReceiptDate = GlobalProperty.dateTimeFormat(VoidBillActivity.this, c.getTime());
 				
 				mItemConfirm.setEnabled(true);
 				searchVoidItem();
@@ -156,7 +156,8 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void init(){
-		mTransaction = new Transaction(MPOSApplication.getDatabase());
+		mTransaction = new Transaction(this);
+		mTransaction.open();
 		mTransLst = new ArrayList<OrderTransaction>();
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -211,7 +212,7 @@ public class VoidBillActivity extends Activity {
 			}
 			
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
-			holder.tvPaidTime.setText(GlobalProperty.dateTimeFormat(MPOSApplication.getDatabase(), c.getTime()));
+			holder.tvPaidTime.setText(GlobalProperty.dateTimeFormat(VoidBillActivity.this, c.getTime()));
 			
 			return convertView;
 		}
@@ -265,9 +266,9 @@ public class VoidBillActivity extends Activity {
 			}
 		
 			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(GlobalProperty.qtyFormat(MPOSApplication.getDatabase(), order.getQty()));
-			holder.tvPrice.setText(GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), order.getTotalRetailPrice()));
+			holder.tvQty.setText(GlobalProperty.qtyFormat(VoidBillActivity.this, order.getQty()));
+			holder.tvPrice.setText(GlobalProperty.currencyFormat(VoidBillActivity.this, order.getPricePerUnit()));
+			holder.tvTotalPrice.setText(GlobalProperty.currencyFormat(VoidBillActivity.this, order.getTotalRetailPrice()));
 			
 			return convertView;
 		}
@@ -333,29 +334,24 @@ public class VoidBillActivity extends Activity {
 					d.dismiss();
 					init();
 					
-					// send real time sale
-					new Handler().post(new Runnable(){
+					Shop shop = new Shop(VoidBillActivity.this);
+					shop.open();
+					MPOSUtil.doSendSale(mShopId, mComputerId, mStaffId, 
+							shop.getCompanyVatRate(), new ProgressListener(){
 
 						@Override
-						public void run() {
-							MPOSUtil.doSendSale(MPOSApplication.getDatabase(), mShopId, mComputerId, mStaffId, new ProgressListener(){
+						public void onPre() {
+						}
 
-								@Override
-								public void onPre() {
-								}
+						@Override
+						public void onPost() {
+						}
 
-								@Override
-								public void onPost() {
-								}
-
-								@Override
-								public void onError(String msg) {
-									new AlertDialog.Builder(VoidBillActivity.this)
-									.setMessage(msg)
-									.show();
-								}
-								
-							});
+						@Override
+						public void onError(String msg) {
+							new AlertDialog.Builder(VoidBillActivity.this)
+							.setMessage(msg)
+							.show();
 						}
 						
 					});

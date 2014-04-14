@@ -3,16 +3,16 @@ package com.syn.mpos.database;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.ShopData;
 
 public class Computer extends MPOSDatabase{
 
-	public Computer(SQLiteDatabase db) {
-		super(db);
+	public Computer(Context c) {
+		super(c);
 	}
 
 	public boolean checkIsMainComputer(int computerId){

@@ -5,14 +5,14 @@ import java.util.List;
 import com.syn.pos.ShopData;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class Staff extends MPOSDatabase{
 	
-	public Staff(SQLiteDatabase db) {
-		super(db);
+	public Staff(Context c) {
+		super(c);
 	}
 
 	public ShopData.Staff getStaff(int staffId){

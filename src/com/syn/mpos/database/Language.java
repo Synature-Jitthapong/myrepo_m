@@ -3,15 +3,15 @@ package com.syn.mpos.database;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.ShopData;
 
 public  class Language extends MPOSDatabase{
 
-	public Language(SQLiteDatabase db){
-		super(db);
+	public Language(Context c){
+		super(c);
 	}
 	
 	public void insertLanguage(List<ShopData.Language> langLst) throws SQLException{	

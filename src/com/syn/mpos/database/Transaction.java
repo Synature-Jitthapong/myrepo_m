@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.mpos.database.StockDocument.DocumentTypeEntry;
+import com.syn.mpos.database.StockDocument.DocumentTypeTable;
 import com.syn.pos.OrderTransaction;
 
 /**
@@ -25,8 +25,8 @@ public class Transaction extends MPOSDatabase {
 	public static final int TRANS_STATUS_VOID = 8;
 	public static final int TRANS_STATUS_HOLD = 9;
 	
-	public Transaction(SQLiteDatabase db) {
-		super(db);
+	public Transaction(Context c) {
+		super(c);
 	}
 
 	public OrderTransaction getTransaction(int transactionId, int computerId) {
@@ -716,7 +716,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(ShopTable.COLUMN_SHOP_ID, shopId);
 		cv.put(SessionTable.COLUMN_SESS_ID, sessionId);
 		cv.put(OrderTransactionTable.COLUMN_OPEN_STAFF, staffId);
-		cv.put(DocumentTypeEntry.COLUMN_DOC_TYPE, 8);
+		cv.put(DocumentTypeTable.COLUMN_DOC_TYPE, 8);
 		cv.put(OrderTransactionTable.COLUMN_OPEN_TIME, dateTime.getTimeInMillis());
 		cv.put(OrderTransactionTable.COLUMN_SALE_DATE, date.getTimeInMillis());
 		cv.put(OrderTransactionTable.COLUMN_RECEIPT_YEAR, date.get(Calendar.YEAR));

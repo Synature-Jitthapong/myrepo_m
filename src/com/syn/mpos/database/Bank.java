@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.BankName;
 
 public class Bank extends MPOSDatabase{
 
-	public Bank(SQLiteDatabase db) {
-		super(db);
+	public Bank(Context c) {
+		super(c);
 	}
 	
 	public List<BankName> listAllBank(){

@@ -42,8 +42,7 @@
             android:name="com.syn.mpos.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" >
-            <intent-filter>
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" ><intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />

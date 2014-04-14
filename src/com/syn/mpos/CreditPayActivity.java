@@ -9,7 +9,6 @@ import com.j1tth4.mobile.util.Logger;
 import com.syn.mpos.database.Bank;
 import com.syn.mpos.database.CreditCard;
 import com.syn.mpos.database.GlobalProperty;
-import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.PaymentDetail;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
@@ -20,7 +19,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -190,7 +188,8 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void init(){
-		mPayment = new PaymentDetail(MPOSApplication.getDatabase());
+		mPayment = new PaymentDetail(this);
+		mPayment.open();
 		displayTotalPrice();
 		loadCreditCardType();
 		loadBankName();
@@ -199,7 +198,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(GlobalProperty.currencyFormat(MPOSApplication.getDatabase(), mPaymentLeft));
+		mTxtTotalPrice.setText(GlobalProperty.currencyFormat(this, mPaymentLeft));
 		mTxtTotalPay.setText(mTxtTotalPrice.getText());
 	}
 	
@@ -366,7 +365,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadCreditCardType(){
-		CreditCard credit = new CreditCard(MPOSApplication.getDatabase());
+		CreditCard credit = new CreditCard(this);
 		mCreditCardLst = credit.listAllCreditCardType();
 		
 		ArrayAdapter<CreditCardType> adapter = 
@@ -392,7 +391,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadBankName(){
-		Bank bank = new Bank(MPOSApplication.getDatabase());
+		Bank bank = new Bank(this);
 		mBankLst = bank.listAllBank();
 		
 		ArrayAdapter<BankName> adapter = 

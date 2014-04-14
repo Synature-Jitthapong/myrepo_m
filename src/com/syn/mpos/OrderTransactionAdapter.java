@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import com.syn.pos.OrderTransaction;
 
 public abstract class OrderTransactionAdapter extends BaseAdapter {
+	
 	protected List<OrderTransaction> mTransLst;
 	protected LayoutInflater mInflater;
 

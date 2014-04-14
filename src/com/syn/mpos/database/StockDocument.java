@@ -1,6 +1,6 @@
 package com.syn.mpos.database;
 
-import android.database.sqlite.SQLiteDatabase;
+import android.content.Context;
 
 public class StockDocument extends MPOSDatabase {
 
@@ -15,11 +15,11 @@ public class StockDocument extends MPOSDatabase {
 	public static final int DOC_STATUS_APPROVE = 2;
 	public static final int DOC_STATUS_CANCLE = 99;
 	
-	public StockDocument(SQLiteDatabase db) {
-		super(db);
+	public StockDocument(Context c) {
+		super(c);
 	}
 	
-	public static abstract class DocumentEntry{
+	public static abstract class DocumentTable{
 		public static final String TABLE_DOCUMENT = "Document";
 		public static final String COLUMN_DOC_ID = "document_id";
 		public static final String COLUMN_REF_DOC_ID = "ref_doc_id";
@@ -36,7 +36,7 @@ public class StockDocument extends MPOSDatabase {
 		public static final String COLUMN_IS_SEND_TO_HQ_DATE = "is_send_to_hq_date_time";	
 	}
 	
-	public static abstract class DocumentTypeEntry{
+	public static abstract class DocumentTypeTable{
 		public static final String TABLE_DOCUMENT_TYPE = "DocumentType";
 		public static final String COLUMN_DOC_TYPE = "document_type_id";
 		public static final String COLUMN_DOC_TYPE_HEADER = "document_type_header";

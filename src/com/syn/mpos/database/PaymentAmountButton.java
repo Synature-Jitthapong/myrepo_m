@@ -6,13 +6,13 @@ import java.util.List;
 import com.syn.pos.Payment;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 public class PaymentAmountButton extends MPOSDatabase {
 	
-	public PaymentAmountButton(SQLiteDatabase db) {
-		super(db);
+	public PaymentAmountButton(Context c) {
+		super(c);
 	}
 	
 	public List<Payment.PaymentAmountButton> listPaymentButton(){

@@ -1,6 +1,6 @@
 package com.syn.mpos.database;
 
-import com.syn.mpos.database.StockDocument.DocumentTypeEntry;
+import com.syn.mpos.database.StockDocument.DocumentTypeTable;
 
 import android.database.sqlite.SQLiteDatabase;
 
@@ -43,7 +43,7 @@ public class OrderTransactionTable{
 		COLUMN_CLOSE_TIME + " TEXT, " +
 		COLUMN_CLOSE_STAFF + " INTEGER, " +
 		COLUMN_STATUS_ID + " INTEGER DEFAULT 1, " +
-		DocumentTypeEntry.COLUMN_DOC_TYPE + " INTEGER DEFAULT 8, " +
+		DocumentTypeTable.COLUMN_DOC_TYPE + " INTEGER DEFAULT 8, " +
 		COLUMN_RECEIPT_YEAR + " INTEGER, " +
 		COLUMN_RECEIPT_MONTH + " INTEGER, " +
 		COLUMN_RECEIPT_ID + " INTEGER, " +
