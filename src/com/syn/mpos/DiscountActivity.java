@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.syn.mpos.R;
 import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Products;
 import com.syn.mpos.database.Transaction;
 import com.syn.pos.OrderTransaction;
@@ -37,6 +38,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 
 public class DiscountActivity extends Activity{
 	
@@ -44,6 +46,8 @@ public class DiscountActivity extends Activity{
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final String DISCOUNT_FRAGMENT_TAG = "DiscountDialog";
 	
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private Transaction mTransaction;
 	private OrderTransaction.OrderDetail mOrder;
 	private Products mProducts;
@@ -78,25 +82,27 @@ public class DiscountActivity extends Activity{
 		mTxtTotalDiscount = (EditText) findViewById(R.id.txtTotalDiscount);
 		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
 		
+		mSqliteHelper = new MPOSSQLiteHelper(this);
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 	}
 
+	public SQLiteDatabase getDatabase(){
+		return mSqlite;
+	}
+	
 	@Override
 	protected void onResume() {
 		init();
 		super.onResume();
 	}
 
-
 	private void init(){
-		mTransaction = new Transaction(this);
-		mProducts = new Products(this);
+		mSqlite = mSqliteHelper.getWritableDatabase();
+		mTransaction = new Transaction(mSqlite);
+		mProducts = new Products(mSqlite);
 
-		mTransaction.open();
-		mProducts.open();
-		
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
@@ -231,11 +237,11 @@ public class DiscountActivity extends Activity{
 			
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvName.setText(order.getProductName());
-			tvQty.setText(GlobalProperty.qtyFormat(DiscountActivity.this, order.getQty()));
-			tvUnitPrice.setText(GlobalProperty.currencyFormat(DiscountActivity.this, order.getPricePerUnit()));
-			tvTotalPrice.setText(GlobalProperty.currencyFormat(DiscountActivity.this, order.getTotalRetailPrice()));
-			tvDiscount.setText(GlobalProperty.currencyFormat(DiscountActivity.this, order.getPriceDiscount()));
-			tvSalePrice.setText(GlobalProperty.currencyFormat(DiscountActivity.this, order.getTotalSalePrice()));
+			tvQty.setText(GlobalProperty.qtyFormat(mSqlite, order.getQty()));
+			tvUnitPrice.setText(GlobalProperty.currencyFormat(mSqlite, order.getPricePerUnit()));
+			tvTotalPrice.setText(GlobalProperty.currencyFormat(mSqlite, order.getTotalRetailPrice()));
+			tvDiscount.setText(GlobalProperty.currencyFormat(mSqlite, order.getPriceDiscount()));
+			tvSalePrice.setText(GlobalProperty.currencyFormat(mSqlite, order.getTotalSalePrice()));
 			
 			return rowView;
 		}
@@ -261,10 +267,10 @@ public class DiscountActivity extends Activity{
 		else
 			mLayoutVat.setVisibility(View.GONE);
 		
-		mTxtTotalVatExc.setText(GlobalProperty.currencyFormat(DiscountActivity.this, totalVatExclude));
-		mTxtSubTotal.setText(GlobalProperty.currencyFormat(DiscountActivity.this, subTotal));
-		mTxtTotalDiscount.setText(GlobalProperty.currencyFormat(DiscountActivity.this, totalDiscount));
-		mTxtTotalPrice.setText(GlobalProperty.currencyFormat(DiscountActivity.this, mTotalPrice));
+		mTxtTotalVatExc.setText(GlobalProperty.currencyFormat(mSqlite, totalVatExclude));
+		mTxtSubTotal.setText(GlobalProperty.currencyFormat(mSqlite, subTotal));
+		mTxtTotalDiscount.setText(GlobalProperty.currencyFormat(mSqlite, totalDiscount));
+		mTxtTotalPrice.setText(GlobalProperty.currencyFormat(mSqlite, mTotalPrice));
 	}
 
 	private void cancel(){
@@ -358,10 +364,12 @@ public class DiscountActivity extends Activity{
 			else if(mDiscountType == PRICE_DISCOUNT_TYPE)
 				((RadioButton)rdoDiscountType.findViewById(R.id.rdoPrice)).setChecked(true);
 			if(mDiscountType == PERCENT_DISCOUNT_TYPE)
-				txtDiscount.setText(GlobalProperty.currencyFormat(getActivity(),
+				txtDiscount.setText(GlobalProperty.currencyFormat(
+						((DiscountActivity) getActivity()).getDatabase(),
 								mDiscount * 100 / mTotalRetailPrice));
 			else
-				txtDiscount.setText(GlobalProperty.currencyFormat(getActivity(), mDiscount));
+				txtDiscount.setText(GlobalProperty.currencyFormat(
+						((DiscountActivity) getActivity()).getDatabase(), mDiscount));
 			txtDiscount.setSelectAllOnFocus(true);
 			txtDiscount.requestFocus();
 			txtDiscount.setOnEditorActionListener(new OnEditorActionListener(){

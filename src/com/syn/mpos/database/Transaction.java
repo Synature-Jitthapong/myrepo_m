@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.mpos.database.StockDocument.DocumentTypeTable;
 import com.syn.pos.OrderTransaction;
@@ -25,8 +25,8 @@ public class Transaction extends MPOSDatabase {
 	public static final int TRANS_STATUS_VOID = 8;
 	public static final int TRANS_STATUS_HOLD = 9;
 	
-	public Transaction(Context c) {
-		super(c);
+	public Transaction(SQLiteDatabase db) {
+		super(db);
 	}
 
 	public OrderTransaction getTransaction(int transactionId, int computerId) {

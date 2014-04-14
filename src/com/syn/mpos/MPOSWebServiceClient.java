@@ -24,10 +24,13 @@ import com.syn.pos.ShopData;
 import com.syn.pos.WebServiceResult;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
-public class MPOSService {
+public class MPOSWebServiceClient {
 
-	public void loadShopData(final ProgressListener progressListener){
+	public void loadShopData(final SQLiteDatabase sqlite, 
+			final ProgressListener progressListener){
+		
 		final String url = MPOSApplication.getFullUrl();
 
 		final AuthenDeviceListener authenDeviceListener = new AuthenDeviceListener() {
@@ -65,41 +68,28 @@ public class MPOSService {
 
 					@Override
 					public void onPost(ShopData sd) {
-						Shop shop = new Shop(MPOSApplication.getContext());
-						Computer comp = new Computer(MPOSApplication.getContext());
-						Language lang = new Language(MPOSApplication.getContext());
-						Staff staff = new Staff(MPOSApplication.getContext());
-						HeaderFooterReceipt hf = new HeaderFooterReceipt(MPOSApplication.getContext());
-						Bank bank = new Bank(MPOSApplication.getContext());
-						CreditCard credit = new CreditCard(MPOSApplication.getContext());
-						PaymentDetail payment = new PaymentDetail(MPOSApplication.getContext());
-						PaymentAmountButton payButton = new PaymentAmountButton(MPOSApplication.getContext());
+						Shop shop = new Shop(sqlite);
+						Computer comp = new Computer(sqlite);
+						Language lang = new Language(sqlite);
+						Staff staff = new Staff(sqlite);
+						HeaderFooterReceipt hf = new HeaderFooterReceipt(sqlite);
+						Bank bank = new Bank(sqlite);
+						CreditCard credit = new CreditCard(sqlite);
+						PaymentDetail payment = new PaymentDetail(sqlite);
+						PaymentAmountButton payButton = new PaymentAmountButton(sqlite);
 						
-						shop.open();
-						comp.open();
-						lang.open();
-						staff.open();
-						hf.open();
-						bank.open();
-						credit.open();
-						payment.open();
-						payButton.open();
-						try {
-							shop.insertShopProperty(sd.getShopProperty());
-							comp.insertComputer(sd.getComputerProperty());
-							GlobalProperty.insertProperty(MPOSApplication.getContext(), sd.getGlobalProperty());
-							staff.insertStaff(sd.getStaffs());
-							lang.insertLanguage(sd.getLanguage());
-							hf.addHeaderFooterReceipt(sd.getHeaderFooterReceipt());
-							bank.insertBank(sd.getBankName());
-							credit.insertCreditCardType(sd.getCreditCardType());
-							payment.insertPaytype(sd.getPayType());
-							payButton.insertPaymentAmountButton(sd.getPaymentAmountButton());
+						shop.insertShopProperty(sd.getShopProperty());
+						comp.insertComputer(sd.getComputerProperty());
+						GlobalProperty.insertProperty(sqlite, sd.getGlobalProperty());
+						staff.insertStaff(sd.getStaffs());
+						lang.insertLanguage(sd.getLanguage());
+						hf.addHeaderFooterReceipt(sd.getHeaderFooterReceipt());
+						bank.insertBank(sd.getBankName());
+						credit.insertCreditCardType(sd.getCreditCardType());
+						payment.insertPaytype(sd.getPayType());
+						payButton.insertPaymentAmountButton(sd.getPaymentAmountButton());
 							
-							progressListener.onPost();
-						} catch (Exception e) {
-							progressListener.onError(e.getMessage());
-						}
+						progressListener.onPost();
 					}
 				};
 				new LoadShop(shopId, loadShopListener).execute(url);
@@ -109,7 +99,8 @@ public class MPOSService {
 	}
 
 	// load product
-	public void loadProductData(final int shopId, final ProgressListener progressListener){
+	public void loadProductData(final SQLiteDatabase sqlite, 
+			final ProgressListener progressListener){
 		
 		final String url = MPOSApplication.getFullUrl();
 
@@ -148,8 +139,7 @@ public class MPOSService {
 
 					@Override
 					public void onPost(ProductGroups pgs) {
-						Products p = new Products(MPOSApplication.getContext());
-						p.open();
+						Products p = new Products(sqlite);
 						try {
 							p.insertProductGroup(pgs.getProductGroup(),
 									mgs.getMenuGroup());
@@ -170,10 +160,10 @@ public class MPOSService {
 						}
 					}
 				};
-				new LoadProduct(shopId, loadProductListener).execute(url);
+				new LoadProduct(loadProductListener).execute(url);
 			}
 		};
-		new LoadMenu(shopId, loadMenuListener).execute(url);
+		new LoadMenu(loadMenuListener).execute(url);
 	}
 	
 	public static class SendPartialSaleTransaction extends SendSaleTransaction{
@@ -285,12 +275,12 @@ public class MPOSService {
 	private class LoadProduct extends MPOSMainService{
 		private LoadProductListener mListener;
 		
-		public LoadProduct(int shopId, LoadProductListener listener) {
+		public LoadProduct(LoadProductListener listener) {
 			super(LOAD_PRODUCT_METHOD);
 			
 			mProperty = new PropertyInfo();
 			mProperty.setName(SHOP_ID_PARAM);
-			mProperty.setValue(shopId);
+			mProperty.setValue(MPOSApplication.getShop().getShopID());
 			mProperty.setType(int.class);
 			mSoapRequest.addProperty(mProperty);
 			
@@ -323,12 +313,12 @@ public class MPOSService {
 	private class LoadMenu extends MPOSMainService{
 		private LoadMenuListener mListener;
 		
-		public LoadMenu(int shopId, LoadMenuListener listener) {
+		public LoadMenu(LoadMenuListener listener) {
 			super(LOAD_MENU_METHOD);
 			
 			mProperty = new PropertyInfo();
 			mProperty.setName(SHOP_ID_PARAM);
-			mProperty.setValue(shopId);
+			mProperty.setValue(MPOSApplication.getShop().getShopID());
 			mProperty.setType(int.class);
 			mSoapRequest.addProperty(mProperty);
 			

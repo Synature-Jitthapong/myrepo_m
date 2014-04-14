@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.CreditCardType;
 
 public class CreditCard extends MPOSDatabase{
 	
-	public CreditCard(Context c) {
-		super(c);
+	public CreditCard(SQLiteDatabase db) {
+		super(db);
 	}
 
 	public List<CreditCardType> listAllCreditCardType(){
@@ -35,18 +35,12 @@ public class CreditCard extends MPOSDatabase{
 	}
 	
 	public void insertCreditCardType(List<CreditCardType> creditCardLst){
-		mSqlite.beginTransaction();
-		try {
-			mSqlite.delete(CreditCardTable.TABLE_NAME, null, null);
-			for(CreditCardType credit : creditCardLst){
-				ContentValues cv = new ContentValues();
-				cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, credit.getCreditCardTypeId());
-				cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME, credit.getCreditCardTypeName());
-				mSqlite.insert(CreditCardTable.TABLE_NAME, null, cv);
-			}
-			mSqlite.setTransactionSuccessful();
-		} finally{
-			mSqlite.endTransaction();
+		mSqlite.delete(CreditCardTable.TABLE_NAME, null, null);
+		for(CreditCardType credit : creditCardLst){
+			ContentValues cv = new ContentValues();
+			cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, credit.getCreditCardTypeId());
+			cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME, credit.getCreditCardTypeName());
+			mSqlite.insert(CreditCardTable.TABLE_NAME, null, cv);
 		}
 	}
 }

@@ -3,6 +3,7 @@ package com.syn.mpos;
 import java.util.List;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 
 import com.epson.eposprint.BatteryStatusChangeEventListener;
@@ -29,6 +30,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	public static final String TAG = "PrintReceipt";
 	private PrintStatusListener mPrintListener;
 	private Context mContext;
+	private SQLiteDatabase mSqlite;
 	private Print mPrinter;
 	private Transaction mTrans;
 	private Staff mStaff;
@@ -36,19 +38,16 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	private PaymentDetail mPayment;
 	private int mStaffId;
 	
-	public PrintReceipt(Context c, int staffId, PrintStatusListener listener){
+	public PrintReceipt(Context c, SQLiteDatabase sqlite, 
+			int staffId, PrintStatusListener listener){
 		mContext = c;
 		mPrintListener = listener;
 		mStaffId = staffId;
-		mShop = new Shop(c);
-		mTrans = new Transaction(c);
-		mPayment = new PaymentDetail(c);
-		mStaff = new Staff(c);
-		
-		mTrans.open();
-		mShop.open();
-		mPayment.open();
-		mStaff.open();
+		mSqlite = sqlite;
+		mShop = new Shop(sqlite);
+		mTrans = new Transaction(sqlite);
+		mPayment = new PaymentDetail(sqlite);
+		mStaff = new Staff(sqlite);
 		
 		mPrinter = new Print(MPOSApplication.getContext());
 		mPrinter.setStatusChangeEventCallback(this);
@@ -101,7 +100,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 			builder.addTextAlign(Builder.ALIGN_CENTER);
 			builder.addTextSize(1, 1);
 			// add header
-			HeaderFooterReceipt headerFooter = new HeaderFooterReceipt(mContext);
+			HeaderFooterReceipt headerFooter = new HeaderFooterReceipt(mSqlite);
 			for(ShopData.HeaderFooterReceipt hf : 
 				headerFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
 				builder.addText(hf.getTextInLine());
@@ -109,7 +108,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 			}
 			
 			String saleDate = MPOSApplication.getContext().getString(R.string.date) + " " +
-					GlobalProperty.dateTimeFormat(mContext, Util.getDateTime().getTime());
+					GlobalProperty.dateTimeFormat(mSqlite, Util.getDateTime().getTime());
 			String receiptNo = MPOSApplication.getContext().getString(R.string.receipt_no) + " " +
 					mTrans.getReceiptNo(transactionId, computerId);
 			String cashCheer = MPOSApplication.getContext().getString(R.string.cashier) + " " +
@@ -127,8 +126,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    				orderLst.get(i);
 	    		
 	    		String productName = order.getProductName();
-	    		String productQty = GlobalProperty.qtyFormat(mContext, order.getQty()) + "x ";
-	    		String productPrice = GlobalProperty.currencyFormat(mContext, order.getTotalRetailPrice());
+	    		String productQty = GlobalProperty.qtyFormat(mSqlite, order.getQty()) + "x ";
+	    		String productPrice = GlobalProperty.currencyFormat(mSqlite, order.getTotalRetailPrice());
 	    		
 	    		builder.addText(productQty);
 	    		builder.addText(productName);
@@ -147,15 +146,15 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	String vatRateText = MPOSApplication.getContext().getString(R.string.tax) + " " +
 	    			GlobalProperty.currencyFormat(vatRate, "#,###.##") + "%";
 	    	
-	    	String strTotalRetailPrice = GlobalProperty.currencyFormat(mContext, totalRetailPrice);
-	    	String strTotalSalePrice = GlobalProperty.currencyFormat(mContext, totalSalePrice);
-	    	String strTotalDiscount = "-" + GlobalProperty.currencyFormat(mContext,
+	    	String strTotalRetailPrice = GlobalProperty.currencyFormat(mSqlite, totalRetailPrice);
+	    	String strTotalSalePrice = GlobalProperty.currencyFormat(mSqlite, totalSalePrice);
+	    	String strTotalDiscount = "-" + GlobalProperty.currencyFormat(mSqlite,
 	    			mTrans.getPriceDiscount(transactionId, computerId));
 	    	//String strTotalPaid = GlobalProperty.currencyFormat(
 	    	//		mPayment.getTotalPaid(transactionId, computerId));
-	    	String strTotalChange = GlobalProperty.currencyFormat(mContext, change);
-	    	String strBeforeVat = GlobalProperty.currencyFormat(mContext, beforVat);
-	    	String strTransactionVat = GlobalProperty.currencyFormat(mContext, transactionVat);
+	    	String strTotalChange = GlobalProperty.currencyFormat(mSqlite, change);
+	    	String strBeforeVat = GlobalProperty.currencyFormat(mSqlite, beforVat);
+	    	String strTransactionVat = GlobalProperty.currencyFormat(mSqlite, transactionVat);
 	    	
 	    	// total item
 	    	String strTotalQty = String.valueOf(mTrans.getTotalQty(transactionId, computerId));
@@ -175,7 +174,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	if(transactionVatExclude > 0){
 	    		String vatExcludeText = MPOSApplication.getContext().getString(R.string.tax) + " " +
 	    				GlobalProperty.currencyFormat(vatRate, "#,###.##") + "%";
-	    		String strVatExclude = GlobalProperty.currencyFormat(mContext, transactionVatExclude);
+	    		String strVatExclude = GlobalProperty.currencyFormat(mSqlite, transactionVatExclude);
 	    		builder.addText(vatExcludeText);
 	    		builder.addText(createLineSpace(vatExcludeText.length() + strVatExclude.length()));
 	    		builder.addText(strVatExclude + "\n");
@@ -187,12 +186,12 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	builder.addText(strTotalSalePrice + "\n");
 
 	    	// total payment
-	    	PaymentDetail paymentDetail = new PaymentDetail(mContext);
+	    	PaymentDetail paymentDetail = new PaymentDetail(mSqlite);
 	    	List<Payment.PaymentDetail> paymentLst = paymentDetail.listPaymentGroupByType(transactionId, computerId);
 	    	for(int i = 0; i < paymentLst.size(); i++){
 	    		Payment.PaymentDetail payment = paymentLst.get(i);
 		    	String paymentText = payment.getPayTypeName() + " ";
-		    	String strTotalPaid = GlobalProperty.currencyFormat(mContext, payment.getPaid());
+		    	String strTotalPaid = GlobalProperty.currencyFormat(mSqlite, payment.getPaid());
 		    	if(i < paymentLst.size() - 1){
 			    	builder.addText(paymentText);
 		    		builder.addText(createLineSpace(paymentText.length() + strTotalPaid.length()));
@@ -296,8 +295,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		PrintReceiptLog printLog = new PrintReceiptLog(mContext);
-		printLog.open();
+		PrintReceiptLog printLog = new PrintReceiptLog(mSqlite);
 		for(PrintReceiptLog.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
 			try {
 				printReceipt(printReceipt.getTransactionId(), printReceipt.getComputerId());

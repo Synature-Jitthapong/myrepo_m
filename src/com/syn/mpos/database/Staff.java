@@ -5,14 +5,14 @@ import java.util.List;
 import com.syn.pos.ShopData;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
 public class Staff extends MPOSDatabase{
 	
-	public Staff(Context c) {
-		super(c);
+	public Staff(SQLiteDatabase db) {
+		super(db);
 	}
 
 	public ShopData.Staff getStaff(int staffId){
@@ -29,20 +29,14 @@ public class Staff extends MPOSDatabase{
 	}
 	
 	public void insertStaff(List<ShopData.Staff> staffLst) throws SQLException{
-		mSqlite.beginTransaction();
-		try {
-			mSqlite.delete(StaffTable.TABLE_NAME, null, null);
-			for(ShopData.Staff staff : staffLst){
-				ContentValues cv = new ContentValues();
-				cv.put(StaffTable.COLUMN_STAFF_ID, staff.getStaffID());
-				cv.put(StaffTable.COLUMN_STAFF_CODE, staff.getStaffCode());
-				cv.put(StaffTable.COLUMN_STAFF_NAME, staff.getStaffName());
-				cv.put(StaffTable.COLUMN_STAFF_PASS, staff.getStaffPassword());
-				mSqlite.insertOrThrow(StaffTable.TABLE_NAME, null, cv);
-			}
-			mSqlite.setTransactionSuccessful();
-		} finally{
-			mSqlite.endTransaction();
+		mSqlite.delete(StaffTable.TABLE_NAME, null, null);
+		for(ShopData.Staff staff : staffLst){
+			ContentValues cv = new ContentValues();
+			cv.put(StaffTable.COLUMN_STAFF_ID, staff.getStaffID());
+			cv.put(StaffTable.COLUMN_STAFF_CODE, staff.getStaffCode());
+			cv.put(StaffTable.COLUMN_STAFF_NAME, staff.getStaffName());
+			cv.put(StaffTable.COLUMN_STAFF_PASS, staff.getStaffPassword());
+			mSqlite.insertOrThrow(StaffTable.TABLE_NAME, null, cv);
 		}
 	}
 }

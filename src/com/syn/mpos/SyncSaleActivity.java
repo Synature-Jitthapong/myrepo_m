@@ -33,6 +33,8 @@ import android.widget.TextView;
 
 public class SyncSaleActivity extends Activity{
 	
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private boolean mIsOnSync;
 	private int mShopId;
 	private int mComputerId;
@@ -62,6 +64,9 @@ public class SyncSaleActivity extends Activity{
 		mShopId = intent.getIntExtra("shopId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getWritableDatabase();
+		
 		mTransLst = listNotSendTransaction();
 		mSyncAdapter = new SyncItemAdapter(this, mTransLst);
 		mLvSyncItem.setAdapter(mSyncAdapter);
@@ -89,10 +94,9 @@ public class SyncSaleActivity extends Activity{
 	}
 
 	private void sendSale(){
-		Shop shop = new Shop(this);
-		shop.open();
+		Shop shop = new Shop(mSqlite);
 		for(final SendTransaction trans : mTransLst){
-			MPOSUtil.doSendSaleBySelectedTransaction( 
+			MPOSUtil.doSendSaleBySelectedTransaction(mSqlite,
 					mShopId, mComputerId, trans.getTransactionId(), 
 					mStaffId, shop.getCompanyVatRate(), new ProgressListener(){
 
@@ -126,9 +130,7 @@ public class SyncSaleActivity extends Activity{
 	
 	private List<SendTransaction> listNotSendTransaction(){
 		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
-		MPOSSQLiteHelper sqliteHelper = new MPOSSQLiteHelper(this);
-		SQLiteDatabase sqlite = sqliteHelper.getWritableDatabase();
-		Cursor cursor = sqlite.query(OrderTransactionTable.TABLE_NAME, 
+		Cursor cursor = mSqlite.query(OrderTransactionTable.TABLE_NAME, 
 				new String[]{
 					OrderTransactionTable.COLUMN_TRANSACTION_ID,
 					ComputerTable.COLUMN_COMPUTER_ID,

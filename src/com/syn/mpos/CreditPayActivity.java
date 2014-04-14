@@ -9,6 +9,7 @@ import com.j1tth4.mobile.util.Logger;
 import com.syn.mpos.database.Bank;
 import com.syn.mpos.database.CreditCard;
 import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.PaymentDetail;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
@@ -19,6 +20,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -42,6 +44,8 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	
 	public static final String TAG = "CreditPayActivity";
 	
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private PaymentDetail mPayment;
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
@@ -132,6 +136,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 			
 		});
 		
+		mSqliteHelper = new MPOSSQLiteHelper(this);
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
@@ -188,8 +193,8 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void init(){
-		mPayment = new PaymentDetail(this);
-		mPayment.open();
+		mSqlite = mSqliteHelper.getWritableDatabase();
+		mPayment = new PaymentDetail(mSqlite);
 		displayTotalPrice();
 		loadCreditCardType();
 		loadBankName();
@@ -198,7 +203,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(GlobalProperty.currencyFormat(this, mPaymentLeft));
+		mTxtTotalPrice.setText(GlobalProperty.currencyFormat(mSqlite, mPaymentLeft));
 		mTxtTotalPay.setText(mTxtTotalPrice.getText());
 	}
 	
@@ -365,7 +370,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadCreditCardType(){
-		CreditCard credit = new CreditCard(this);
+		CreditCard credit = new CreditCard(mSqlite);
 		mCreditCardLst = credit.listAllCreditCardType();
 		
 		ArrayAdapter<CreditCardType> adapter = 
@@ -391,7 +396,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadBankName(){
-		Bank bank = new Bank(this);
+		Bank bank = new Bank(mSqlite);
 		mBankLst = bank.listAllBank();
 		
 		ArrayAdapter<BankName> adapter = 

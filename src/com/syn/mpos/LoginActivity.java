@@ -2,8 +2,8 @@ package com.syn.mpos;
 
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
+import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Session;
-import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Util;
 import com.syn.pos.ShopData;
 
@@ -14,6 +14,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,8 +28,8 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends Activity implements OnClickListener {
 	
-	private Shop mShop;
-	private int mShopId;
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private int mStaffId;
 	private Button mBtnLogin;
 	private EditText mTxtUser;
@@ -47,8 +48,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 		mTxtPass.setSelectAllOnFocus(true);
 		mBtnLogin.setOnClickListener(this);
 		
-		//mTxtUser.setText("11");
-		//mTxtPass.setText("11");
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		
 		mTxtPass.setOnEditorActionListener(new OnEditorActionListener(){
 
 			@Override
@@ -65,11 +66,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	}
 
 	private void init(){
-		mShop = new Shop(this);
-
-		mShop.open();
-		
-		mShopId = mShop.getShopProperty().getShopID();
+		mSqlite = mSqliteHelper.getWritableDatabase();
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
@@ -94,7 +91,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 			startActivity(intent);
 			return true;
 		case R.id.itemUpdate:
-			MPOSUtil.updateData(mShopId, LoginActivity.this);
+			MPOSUtil.updateData(mSqlite, LoginActivity.this);
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
@@ -109,6 +106,12 @@ public class LoginActivity extends Activity implements OnClickListener {
 	}
 
 	@Override
+	protected void onPause() {
+		mSqliteHelper.close();
+		super.onPause();
+	}
+
+	@Override
 	protected void onResume() {
 		init();
 		mTxtUser.requestFocus();
@@ -118,8 +121,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private void gotoMainActivity(){
 		mTxtUser.setText(null);
 		mTxtPass.setText(null);
-		Session sess = new Session(this);
-		sess.open();
+		Session sess = new Session(mSqlite);
 		if(sess.getSessionEnddayDetail(String.valueOf(Util.getDate().getTimeInMillis())) > 0){
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.endday)
@@ -147,8 +149,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 			
 			if(!mTxtPass.getText().toString().isEmpty()){
 				pass = mTxtPass.getText().toString();
-				Login login = new Login(this, user, pass);
-				login.open();
+				Login login = new Login(mSqlite, user, pass);
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();

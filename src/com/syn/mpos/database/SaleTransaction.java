@@ -7,8 +7,8 @@ import java.util.List;
 import com.syn.mpos.MPOSUtil;
 import com.syn.mpos.database.StockDocument.DocumentTypeTable;
 
-import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class SaleTransaction extends MPOSDatabase{
 	
@@ -16,19 +16,17 @@ public class SaleTransaction extends MPOSDatabase{
 	private String mSessionDate;
 	private int mTransactionId;
 	
-	public SaleTransaction(Context c, String sessionDate, int transactionId, double vatRate){
-		super(c);
+	public SaleTransaction(SQLiteDatabase db, String sessionDate, int transactionId, double vatRate){
+		super(db);
 		mTransactionId = transactionId;
 		mSessionDate = sessionDate;
 		mVatRate = vatRate;
-		open();
 	}
 
-	public SaleTransaction(Context c, String sessionDate, double vatRate) {
-		super(c);
+	public SaleTransaction(SQLiteDatabase db, String sessionDate, double vatRate) {
+		super(db);
 		mSessionDate = sessionDate;
 		mVatRate = vatRate;
-		open();
 	}
 
 	public POSData_SaleTransaction listSaleSaleTransactionByTransactionId() {

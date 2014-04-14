@@ -3,6 +3,10 @@ package com.syn.mpos;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.syn.mpos.database.Computer;
+import com.syn.mpos.database.Shop;
+import com.syn.pos.ShopData;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -31,6 +35,12 @@ public class MPOSApplication extends Application {
 	
 	// application context
 	private static Context sContext;
+	
+	// shop objecj
+	private static Shop sShop;
+	
+	// computer object
+	private static Computer sComputer;
 	
 	public static String getDeviceCode() {
 		return Secure.getString(sContext.getContentResolver(), Secure.ANDROID_ID);
@@ -83,6 +93,14 @@ public class MPOSApplication extends Application {
 		sContext = getApplicationContext();
 	}
 
+	public static ShopData.ComputerProperty getComputer(){
+		return sComputer.getComputerProperty();
+	}
+	
+	public static ShopData.ShopProperty getShop(){
+		return sShop.getShopProperty();
+	}
+	
 	public static Context getContext(){
 		return sContext;
 	}

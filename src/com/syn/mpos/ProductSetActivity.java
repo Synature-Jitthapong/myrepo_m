@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Products;
 import com.syn.pos.OrderTransaction;
 
@@ -12,6 +13,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -33,6 +35,8 @@ import android.widget.TextView;
 
 public class ProductSetActivity extends Activity{
 
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private Products mProduct;
 	
 	@Override
@@ -50,8 +54,10 @@ public class ProductSetActivity extends Activity{
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
 		
-		mProduct = new Products(this);
-		mProduct.open();
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getWritableDatabase();
+		
+		mProduct = new Products(mSqlite);
 		
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
@@ -62,6 +68,10 @@ public class ProductSetActivity extends Activity{
 
 	public Products getProduct(){
 		return mProduct;
+	}
+	
+	public SQLiteDatabase getDatabase(){
+		return mSqlite;
 	}
 	
 	@Override
@@ -249,7 +259,8 @@ public class ProductSetActivity extends Activity{
 				
 				final Products.ProductComponent pComp = mProductCompLst.get(position);
 				holder.tvMenu.setText(pComp.getProductName());
-				holder.tvPrice.setText(GlobalProperty.currencyFormat(getActivity(), pComp.getFlexibleProductPrice()));
+				holder.tvPrice.setText(GlobalProperty.currencyFormat(
+						((ProductSetActivity) getActivity()).getDatabase(), pComp.getFlexibleProductPrice()));
 
 				new Handler().postDelayed(new Runnable(){
 

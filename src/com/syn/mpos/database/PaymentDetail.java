@@ -6,17 +6,17 @@ import java.util.List;
 import com.syn.pos.Payment;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
 public class PaymentDetail extends MPOSDatabase {
 	
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 
-	public PaymentDetail(Context c) {
-		super(c);
+	public PaymentDetail(SQLiteDatabase db) {
+		super(db);
 	}
 	
 	public List<Payment.PayType> listPayType(){
@@ -207,19 +207,13 @@ public class PaymentDetail extends MPOSDatabase {
 	}
 	
 	public void insertPaytype(List<Payment.PayType> payTypeLst){
-		mSqlite.beginTransaction();
-		try {
-			mSqlite.delete(PayTypeTable.TABLE_NAME, null, null);
-			for(Payment.PayType payType : payTypeLst){
-				ContentValues cv = new ContentValues();
-				cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payType.getPayTypeID());
-				cv.put(PayTypeTable.COLUMN_PAY_TYPE_CODE, payType.getPayTypeCode());
-				cv.put(PayTypeTable.COLUMN_PAY_TYPE_NAME, payType.getPayTypeName());
-				mSqlite.insert(PayTypeTable.TABLE_NAME, null, cv);
-			}
-			mSqlite.setTransactionSuccessful();
-		} finally{
-			mSqlite.endTransaction();
+		mSqlite.delete(PayTypeTable.TABLE_NAME, null, null);
+		for(Payment.PayType payType : payTypeLst){
+			ContentValues cv = new ContentValues();
+			cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payType.getPayTypeID());
+			cv.put(PayTypeTable.COLUMN_PAY_TYPE_CODE, payType.getPayTypeCode());
+			cv.put(PayTypeTable.COLUMN_PAY_TYPE_NAME, payType.getPayTypeName());
+			mSqlite.insert(PayTypeTable.TABLE_NAME, null, cv);
 		}
 	}
 }

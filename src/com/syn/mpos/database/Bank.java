@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.BankName;
 
 public class Bank extends MPOSDatabase{
 
-	public Bank(Context c) {
-		super(c);
+	public Bank(SQLiteDatabase db) {
+		super(db);
 	}
 	
 	public List<BankName> listAllBank(){
@@ -33,18 +33,12 @@ public class Bank extends MPOSDatabase{
 	}
 	
 	public void insertBank(List<BankName> bankLst){
-		mSqlite.beginTransaction();
-		try {
-			mSqlite.delete(BankTable.TABLE_NAME, null, null);
-			for(BankName bank : bankLst){
-				ContentValues cv = new ContentValues();
-				cv.put(BankTable.COLUMN_BANK_ID, bank.getBankNameId());
-				cv.put(BankTable.COLUMN_BANK_NAME, bank.getBankName());
-				mSqlite.insert(BankTable.TABLE_NAME, null, cv);
-			}
-			mSqlite.setTransactionSuccessful();
-		}finally{
-			mSqlite.endTransaction();
+		mSqlite.delete(BankTable.TABLE_NAME, null, null);
+		for(BankName bank : bankLst){
+			ContentValues cv = new ContentValues();
+			cv.put(BankTable.COLUMN_BANK_ID, bank.getBankNameId());
+			cv.put(BankTable.COLUMN_BANK_NAME, bank.getBankName());
+			mSqlite.insert(BankTable.TABLE_NAME, null, cv);
 		}
 	}
 }

@@ -30,6 +30,8 @@ import android.widget.TextView;
 
 public class ReprintActivity extends Activity {
 	
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private boolean mIsOnPrint;
 	private ReprintTransAdapter mTransAdapter;
 	private int mStaffId;
@@ -54,6 +56,9 @@ public class ReprintActivity extends Activity {
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getWritableDatabase();
+		
 		mTransAdapter = new ReprintTransAdapter(this, 
 				listTransaction(String.valueOf(Util.getDate().getTimeInMillis())));
 		mLvTrans.setAdapter(mTransAdapter);
@@ -61,9 +66,7 @@ public class ReprintActivity extends Activity {
 
 	private List<OrderTransaction> listTransaction(String saleDate){
 		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
-		MPOSSQLiteHelper sqliteHelper = new MPOSSQLiteHelper(this);
-		SQLiteDatabase sqlite = sqliteHelper.getWritableDatabase();
-		Cursor cursor = sqlite.query(OrderTransactionTable.TABLE_NAME, 
+		Cursor cursor = mSqlite.query(OrderTransactionTable.TABLE_NAME, 
 				new String[]{
 				OrderTransactionTable.COLUMN_TRANSACTION_ID,
 				ComputerTable.COLUMN_COMPUTER_ID,
@@ -171,7 +174,7 @@ public class ReprintActivity extends Activity {
 		private int mComputerId;
 		
 		public Reprint(int transactionId, int computerId, PrintStatusListener listener) {
-			super(ReprintActivity.this, mStaffId, listener);
+			super(ReprintActivity.this, mSqlite, mStaffId, listener);
 			mTransactionId = transactionId;
 			mComputerId = computerId;
 		}

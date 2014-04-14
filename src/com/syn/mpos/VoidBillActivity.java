@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.Transaction;
 import com.syn.pos.OrderTransaction;
@@ -17,6 +18,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,6 +37,8 @@ import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
 	
+	private MPOSSQLiteHelper mSqliteHelper;
+	private SQLiteDatabase mSqlite;
 	private Transaction mTransaction;
 	private List<OrderTransaction> mTransLst;
 	private List<OrderTransaction.OrderDetail> mOrderLst;
@@ -78,7 +82,8 @@ public class VoidBillActivity extends Activity {
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 
-		btnBillDate.setText(GlobalProperty.dateFormat(this, mCalendar.getTime()));
+		btnBillDate.setText(GlobalProperty.dateFormat(
+				mSqlite, mCalendar.getTime()));
 	    btnBillDate.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -90,7 +95,8 @@ public class VoidBillActivity extends Activity {
 						mCalendar.setTimeInMillis(date);
 						mDate = mCalendar.getTimeInMillis();
 						
-						btnBillDate.setText(GlobalProperty.dateFormat(VoidBillActivity.this, mCalendar.getTime()));
+						btnBillDate.setText(GlobalProperty.dateFormat(
+								mSqlite, mCalendar.getTime()));
 					}
 				});
 				dialogFragment.show(getFragmentManager(), "Condition");
@@ -118,12 +124,16 @@ public class VoidBillActivity extends Activity {
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
 				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = GlobalProperty.dateTimeFormat(VoidBillActivity.this, c.getTime());
+				mReceiptDate = GlobalProperty.dateTimeFormat(
+						mSqlite, c.getTime());
 				
 				mItemConfirm.setEnabled(true);
 				searchVoidItem();
 			}
 		});
+		
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getWritableDatabase();
 		
 	    Intent intent = getIntent();
 	    mStaffId = intent.getIntExtra("staffId", 0);
@@ -156,8 +166,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void init(){
-		mTransaction = new Transaction(this);
-		mTransaction.open();
+		mTransaction = new Transaction(mSqlite);
 		mTransLst = new ArrayList<OrderTransaction>();
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -212,7 +221,8 @@ public class VoidBillActivity extends Activity {
 			}
 			
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
-			holder.tvPaidTime.setText(GlobalProperty.dateTimeFormat(VoidBillActivity.this, c.getTime()));
+			holder.tvPaidTime.setText(GlobalProperty.dateTimeFormat(
+					mSqlite, c.getTime()));
 			
 			return convertView;
 		}
@@ -266,9 +276,12 @@ public class VoidBillActivity extends Activity {
 			}
 		
 			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(GlobalProperty.qtyFormat(VoidBillActivity.this, order.getQty()));
-			holder.tvPrice.setText(GlobalProperty.currencyFormat(VoidBillActivity.this, order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(GlobalProperty.currencyFormat(VoidBillActivity.this, order.getTotalRetailPrice()));
+			holder.tvQty.setText(GlobalProperty.qtyFormat(
+					mSqlite, order.getQty()));
+			holder.tvPrice.setText(GlobalProperty.currencyFormat(
+					mSqlite, order.getPricePerUnit()));
+			holder.tvTotalPrice.setText(GlobalProperty.currencyFormat(
+					mSqlite, order.getTotalRetailPrice()));
 			
 			return convertView;
 		}
@@ -334,9 +347,8 @@ public class VoidBillActivity extends Activity {
 					d.dismiss();
 					init();
 					
-					Shop shop = new Shop(VoidBillActivity.this);
-					shop.open();
-					MPOSUtil.doSendSale(mShopId, mComputerId, mStaffId, 
+					Shop shop = new Shop(mSqlite);
+					MPOSUtil.doSendSale(mSqlite, mShopId, mComputerId, mStaffId, 
 							shop.getCompanyVatRate(), new ProgressListener(){
 
 						@Override

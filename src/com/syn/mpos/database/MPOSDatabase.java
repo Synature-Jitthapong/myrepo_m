@@ -2,8 +2,6 @@ package com.syn.mpos.database;
 
 import java.util.UUID;
 
-import android.content.Context;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 public class MPOSDatabase{
@@ -15,27 +13,10 @@ public class MPOSDatabase{
 	public static final int ALREADY_SEND = 1;
 	public static final int NOT_SEND = 0;
 	
-	protected Context mContext;
+	protected SQLiteDatabase mSqlite;
 	
-	private MPOSSQLiteHelper mSqliteHelper;
-	
-	protected SQLiteDatabase mSqlite = null;
-	
-	public MPOSDatabase(Context c){
-		mContext = c;
-		mSqliteHelper = new MPOSSQLiteHelper(c);
-	}
-	
-	public void open() throws SQLException{
-		mSqlite = mSqliteHelper.getWritableDatabase();
-	}
-	
-	public void close(){
-		mSqliteHelper.close();
-	}
-	
-	public SQLiteDatabase getDatabase(){
-		return mSqlite;
+	public MPOSDatabase(SQLiteDatabase db){
+		mSqlite = db;
 	}
 	
 	public String getUUID(){

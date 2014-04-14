@@ -3,16 +3,16 @@ package com.syn.mpos.database;
 import java.util.List;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.ShopData;
 
 public class Shop extends MPOSDatabase{
 	
-	public Shop(Context c){
-		super(c);
+	public Shop(SQLiteDatabase db){
+		super(db);
 	}
 	
 	public double getCompanyVatRate(){
@@ -58,34 +58,28 @@ public class Shop extends MPOSDatabase{
 	}
 
 	public void insertShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
-		mSqlite.beginTransaction();
-		try {
-			mSqlite.execSQL("DELETE FROM " + ShopTable.TABLE_NAME);
-			for(ShopData.ShopProperty shop : shopPropLst){
-				ContentValues cv = new ContentValues();
-				cv.put(ShopTable.COLUMN_SHOP_ID, shop.getShopID());
-				cv.put(ShopTable.COLUMN_SHOP_CODE, shop.getShopCode());
-				cv.put(ShopTable.COLUMN_SHOP_NAME, shop.getShopName());
-				cv.put(ShopTable.COLUMN_SHOP_TYPE, shop.getShopType());
-				cv.put(ShopTable.COLUMN_VAT_TYPE, shop.getVatType());
-				cv.put(ShopTable.COLUMN_OPEN_HOUR, shop.getOpenHour());
-				cv.put(ShopTable.COLUMN_CLOSE_HOUR, shop.getCloseHour());
-				cv.put(ShopTable.COLUMN_COMPANY, shop.getCompanyName());
-				cv.put(ShopTable.COLUMN_ADDR1, shop.getCompanyAddress1());
-				cv.put(ShopTable.COLUMN_ADDR2, shop.getCompanyAddress2());
-				cv.put(ShopTable.COLUMN_CITY, shop.getCompanyCity());
-				cv.put(ShopTable.COLUMN_PROVINCE_ID, shop.getCompanyProvince());
-				cv.put(ShopTable.COLUMN_ZIPCODE, shop.getCompanyZipCode());
-				cv.put(ShopTable.COLUMN_TELEPHONE, shop.getCompanyTelephone());
-				cv.put(ShopTable.COLUMN_FAX, shop.getCompanyFax());
-				cv.put(ShopTable.COLUMN_TAX_ID, shop.getCompanyTaxID());
-				cv.put(ShopTable.COLUMN_REGISTER_ID, shop.getCompanyRegisterID());
-				cv.put(ShopTable.COLUMN_VAT, shop.getCompanyVat());
-				mSqlite.insertOrThrow(ShopTable.TABLE_NAME, null, cv);
-			}
-			mSqlite.setTransactionSuccessful();
-		} finally{
-			mSqlite.endTransaction();
+		mSqlite.delete(ShopTable.TABLE_NAME, null, null);
+		for(ShopData.ShopProperty shop : shopPropLst){
+			ContentValues cv = new ContentValues();
+			cv.put(ShopTable.COLUMN_SHOP_ID, shop.getShopID());
+			cv.put(ShopTable.COLUMN_SHOP_CODE, shop.getShopCode());
+			cv.put(ShopTable.COLUMN_SHOP_NAME, shop.getShopName());
+			cv.put(ShopTable.COLUMN_SHOP_TYPE, shop.getShopType());
+			cv.put(ShopTable.COLUMN_VAT_TYPE, shop.getVatType());
+			cv.put(ShopTable.COLUMN_OPEN_HOUR, shop.getOpenHour());
+			cv.put(ShopTable.COLUMN_CLOSE_HOUR, shop.getCloseHour());
+			cv.put(ShopTable.COLUMN_COMPANY, shop.getCompanyName());
+			cv.put(ShopTable.COLUMN_ADDR1, shop.getCompanyAddress1());
+			cv.put(ShopTable.COLUMN_ADDR2, shop.getCompanyAddress2());
+			cv.put(ShopTable.COLUMN_CITY, shop.getCompanyCity());
+			cv.put(ShopTable.COLUMN_PROVINCE_ID, shop.getCompanyProvince());
+			cv.put(ShopTable.COLUMN_ZIPCODE, shop.getCompanyZipCode());
+			cv.put(ShopTable.COLUMN_TELEPHONE, shop.getCompanyTelephone());
+			cv.put(ShopTable.COLUMN_FAX, shop.getCompanyFax());
+			cv.put(ShopTable.COLUMN_TAX_ID, shop.getCompanyTaxID());
+			cv.put(ShopTable.COLUMN_REGISTER_ID, shop.getCompanyRegisterID());
+			cv.put(ShopTable.COLUMN_VAT, shop.getCompanyVat());
+			mSqlite.insertOrThrow(ShopTable.TABLE_NAME, null, cv);
 		}
 	}
 }
