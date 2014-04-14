@@ -31,6 +31,7 @@ import com.syn.mpos.database.SaleTransaction;
 import com.syn.mpos.database.Session;
 import com.syn.mpos.database.SessionDetailTable;
 import com.syn.mpos.database.SessionTable;
+import com.syn.mpos.database.Shop;
 import com.syn.mpos.database.SyncSaleLog;
 import com.syn.mpos.database.SyncSaleLogTable;
 import com.syn.mpos.database.Transaction;
@@ -410,7 +411,9 @@ public class MPOSUtil {
 
 			@Override
 			public void onPost() {
-				mPOSService.loadProductData(sqlite, new ProgressListener(){
+				Shop shop = new Shop(sqlite);
+				mPOSService.loadProductData(sqlite, 
+						shop.getShopProperty().getShopID(), new ProgressListener(){
 
 					@Override
 					public void onPre() {

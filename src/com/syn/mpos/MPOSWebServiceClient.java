@@ -77,19 +77,22 @@ public class MPOSWebServiceClient {
 						CreditCard credit = new CreditCard(sqlite);
 						PaymentDetail payment = new PaymentDetail(sqlite);
 						PaymentAmountButton payButton = new PaymentAmountButton(sqlite);
-						
-						shop.insertShopProperty(sd.getShopProperty());
-						comp.insertComputer(sd.getComputerProperty());
-						GlobalProperty.insertProperty(sqlite, sd.getGlobalProperty());
-						staff.insertStaff(sd.getStaffs());
-						lang.insertLanguage(sd.getLanguage());
-						hf.addHeaderFooterReceipt(sd.getHeaderFooterReceipt());
-						bank.insertBank(sd.getBankName());
-						credit.insertCreditCardType(sd.getCreditCardType());
-						payment.insertPaytype(sd.getPayType());
-						payButton.insertPaymentAmountButton(sd.getPaymentAmountButton());
+						try {
+							shop.insertShopProperty(sd.getShopProperty());
+							comp.insertComputer(sd.getComputerProperty());
+							GlobalProperty.insertProperty(sqlite, sd.getGlobalProperty());
+							staff.insertStaff(sd.getStaffs());
+							lang.insertLanguage(sd.getLanguage());
+							hf.addHeaderFooterReceipt(sd.getHeaderFooterReceipt());
+							bank.insertBank(sd.getBankName());
+							credit.insertCreditCardType(sd.getCreditCardType());
+							payment.insertPaytype(sd.getPayType());
+							payButton.insertPaymentAmountButton(sd.getPaymentAmountButton());
 							
-						progressListener.onPost();
+							progressListener.onPost();
+						} catch (Exception e) {
+							progressListener.onError(e.getMessage());
+						}
 					}
 				};
 				new LoadShop(shopId, loadShopListener).execute(url);
@@ -99,7 +102,7 @@ public class MPOSWebServiceClient {
 	}
 
 	// load product
-	public void loadProductData(final SQLiteDatabase sqlite, 
+	public void loadProductData(final SQLiteDatabase sqlite, final int shopId,
 			final ProgressListener progressListener){
 		
 		final String url = MPOSApplication.getFullUrl();
@@ -160,10 +163,10 @@ public class MPOSWebServiceClient {
 						}
 					}
 				};
-				new LoadProduct(loadProductListener).execute(url);
+				new LoadProduct(shopId, loadProductListener).execute(url);
 			}
 		};
-		new LoadMenu(loadMenuListener).execute(url);
+		new LoadMenu(shopId, loadMenuListener).execute(url);
 	}
 	
 	public static class SendPartialSaleTransaction extends SendSaleTransaction{
@@ -275,12 +278,12 @@ public class MPOSWebServiceClient {
 	private class LoadProduct extends MPOSMainService{
 		private LoadProductListener mListener;
 		
-		public LoadProduct(LoadProductListener listener) {
+		public LoadProduct(int shopId, LoadProductListener listener) {
 			super(LOAD_PRODUCT_METHOD);
 			
 			mProperty = new PropertyInfo();
 			mProperty.setName(SHOP_ID_PARAM);
-			mProperty.setValue(MPOSApplication.getShop().getShopID());
+			mProperty.setValue(shopId);
 			mProperty.setType(int.class);
 			mSoapRequest.addProperty(mProperty);
 			
@@ -313,12 +316,12 @@ public class MPOSWebServiceClient {
 	private class LoadMenu extends MPOSMainService{
 		private LoadMenuListener mListener;
 		
-		public LoadMenu(LoadMenuListener listener) {
+		public LoadMenu(int shopId, LoadMenuListener listener) {
 			super(LOAD_MENU_METHOD);
 			
 			mProperty = new PropertyInfo();
 			mProperty.setName(SHOP_ID_PARAM);
-			mProperty.setValue(MPOSApplication.getShop().getShopID());
+			mProperty.setValue(shopId);
 			mProperty.setType(int.class);
 			mSoapRequest.addProperty(mProperty);
 			

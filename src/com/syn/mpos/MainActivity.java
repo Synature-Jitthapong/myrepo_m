@@ -213,12 +213,6 @@ public class MainActivity extends FragmentActivity implements MenuPageFragment.O
 	public SQLiteDatabase getDatabase(){
 		return mSqlite;
 	}
-	
-	@Override
-	protected void onPause() {
-		mSqliteHelper.close();
-		super.onPause();
-	}
 
 	@Override
 	protected void onResume() {
