@@ -123,17 +123,23 @@ public class GlobalProperty{
 	}
 
 	public static void insertProperty(SQLiteDatabase sqlite, List<ShopData.GlobalProperty> globalLst) throws SQLException{
-		sqlite.delete(GlobalPropertyTable.TABLE_NAME, null, null);
-		for (ShopData.GlobalProperty global : globalLst) {
-			ContentValues cv = new ContentValues();
-			cv.put(GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL, global.getCurrencySymbol());
-			cv.put(GlobalPropertyTable.COLUMN_CURRENCY_CODE, global.getCurrencyCode());
-			cv.put(GlobalPropertyTable.COLUMN_CURRENCY_NAME, global.getCurrencyName());
-			cv.put(GlobalPropertyTable.COLUMN_CURRENCY_FORMAT, global.getCurrencyFormat());
-			cv.put(GlobalPropertyTable.COLUMN_DATE_FORMAT, global.getDateFormat());
-			cv.put(GlobalPropertyTable.COLUMN_TIME_FORMAT, global.getTimeFormat());
-			cv.put(GlobalPropertyTable.COLUMN_QTY_FORMAT, global.getQtyFormat());
-			sqlite.insertOrThrow(GlobalPropertyTable.TABLE_NAME, null, cv);
+		sqlite.beginTransaction();
+		try {
+			sqlite.delete(GlobalPropertyTable.TABLE_NAME, null, null);
+			for (ShopData.GlobalProperty global : globalLst) {
+				ContentValues cv = new ContentValues();
+				cv.put(GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL, global.getCurrencySymbol());
+				cv.put(GlobalPropertyTable.COLUMN_CURRENCY_CODE, global.getCurrencyCode());
+				cv.put(GlobalPropertyTable.COLUMN_CURRENCY_NAME, global.getCurrencyName());
+				cv.put(GlobalPropertyTable.COLUMN_CURRENCY_FORMAT, global.getCurrencyFormat());
+				cv.put(GlobalPropertyTable.COLUMN_DATE_FORMAT, global.getDateFormat());
+				cv.put(GlobalPropertyTable.COLUMN_TIME_FORMAT, global.getTimeFormat());
+				cv.put(GlobalPropertyTable.COLUMN_QTY_FORMAT, global.getQtyFormat());
+				sqlite.insertOrThrow(GlobalPropertyTable.TABLE_NAME, null, cv);
+			}
+			sqlite.setTransactionSuccessful();
+		} finally {
+			sqlite.endTransaction();
 		}
 	}
 	

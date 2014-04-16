@@ -207,13 +207,19 @@ public class PaymentDetail extends MPOSDatabase {
 	}
 	
 	public void insertPaytype(List<Payment.PayType> payTypeLst){
-		mSqlite.delete(PayTypeTable.TABLE_NAME, null, null);
-		for(Payment.PayType payType : payTypeLst){
-			ContentValues cv = new ContentValues();
-			cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payType.getPayTypeID());
-			cv.put(PayTypeTable.COLUMN_PAY_TYPE_CODE, payType.getPayTypeCode());
-			cv.put(PayTypeTable.COLUMN_PAY_TYPE_NAME, payType.getPayTypeName());
-			mSqlite.insert(PayTypeTable.TABLE_NAME, null, cv);
+		mSqlite.beginTransaction();
+		try {
+			mSqlite.delete(PayTypeTable.TABLE_NAME, null, null);
+			for(Payment.PayType payType : payTypeLst){
+				ContentValues cv = new ContentValues();
+				cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payType.getPayTypeID());
+				cv.put(PayTypeTable.COLUMN_PAY_TYPE_CODE, payType.getPayTypeCode());
+				cv.put(PayTypeTable.COLUMN_PAY_TYPE_NAME, payType.getPayTypeName());
+				mSqlite.insertOrThrow(PayTypeTable.TABLE_NAME, null, cv);
+			}
+			mSqlite.setTransactionSuccessful();
+		} finally {
+			mSqlite.endTransaction();
 		}
 	}
 }

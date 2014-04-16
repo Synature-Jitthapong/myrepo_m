@@ -34,6 +34,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class PaymentActivity extends Activity  implements OnClickListener {
@@ -77,8 +78,8 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 	    LayoutParams params = getWindow().getAttributes();
-	    params.width = 960;
-	    params.height= 500;
+	    params.width = WindowManager.LayoutParams.MATCH_PARENT;
+	    params.height= WindowManager.LayoutParams.WRAP_CONTENT;
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
@@ -519,6 +520,8 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 				holder = new ViewHolder();
 				convertView = mInflater.inflate(R.layout.button_template, null);
 				holder.btnPayment = (Button) convertView.findViewById(R.id.button1);
+				holder.btnPayment.setMinWidth(128);
+				holder.btnPayment.setMinHeight(96);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();

@@ -33,12 +33,18 @@ public class Bank extends MPOSDatabase{
 	}
 	
 	public void insertBank(List<BankName> bankLst){
-		mSqlite.delete(BankTable.TABLE_NAME, null, null);
-		for(BankName bank : bankLst){
-			ContentValues cv = new ContentValues();
-			cv.put(BankTable.COLUMN_BANK_ID, bank.getBankNameId());
-			cv.put(BankTable.COLUMN_BANK_NAME, bank.getBankName());
-			mSqlite.insert(BankTable.TABLE_NAME, null, cv);
+		mSqlite.beginTransaction();
+		try {
+			mSqlite.delete(BankTable.TABLE_NAME, null, null);
+			for(BankName bank : bankLst){
+				ContentValues cv = new ContentValues();
+				cv.put(BankTable.COLUMN_BANK_ID, bank.getBankNameId());
+				cv.put(BankTable.COLUMN_BANK_NAME, bank.getBankName());
+				mSqlite.insertOrThrow(BankTable.TABLE_NAME, null, cv);
+			}
+			mSqlite.setTransactionSuccessful();
+		} finally{
+			mSqlite.endTransaction();
 		}
 	}
 }

@@ -39,12 +39,18 @@ public class PaymentAmountButton extends MPOSDatabase {
 	}
 	
 	public void insertPaymentAmountButton(List<Payment.PaymentAmountButton> paymentAmountLst){
-		mSqlite.delete(PaymentButtonTable.TABLE_NAME, null, null);
-		for(Payment.PaymentAmountButton payButton : paymentAmountLst){
-			ContentValues cv = new ContentValues();
-			cv.put(PaymentButtonTable.COLUMN_PAYMENT_AMOUNT_ID, payButton.getPaymentAmountID());
-			cv.put(PaymentButtonTable.COLUMN_PAYMENT_AMOUNT, payButton.getPaymentAmount());
-			mSqlite.insert(PaymentButtonTable.TABLE_NAME, null, cv);
+		mSqlite.beginTransaction();
+		try {
+			mSqlite.delete(PaymentButtonTable.TABLE_NAME, null, null);
+			for(Payment.PaymentAmountButton payButton : paymentAmountLst){
+				ContentValues cv = new ContentValues();
+				cv.put(PaymentButtonTable.COLUMN_PAYMENT_AMOUNT_ID, payButton.getPaymentAmountID());
+				cv.put(PaymentButtonTable.COLUMN_PAYMENT_AMOUNT, payButton.getPaymentAmount());
+				mSqlite.insertOrThrow(PaymentButtonTable.TABLE_NAME, null, cv);
+			}
+			mSqlite.setTransactionSuccessful();
+		} finally {
+			mSqlite.endTransaction();
 		}
 	}
 }

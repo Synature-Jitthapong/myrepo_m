@@ -8,7 +8,7 @@
         android:id="@+id/lvProSize"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/white_corner_background"
+        android:background="@drawable/radius_background"
         android:choiceMode="singleChoice"
         android:listSelector="@drawable/list_selector" >
 

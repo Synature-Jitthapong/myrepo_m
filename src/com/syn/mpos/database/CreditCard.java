@@ -35,12 +35,18 @@ public class CreditCard extends MPOSDatabase{
 	}
 	
 	public void insertCreditCardType(List<CreditCardType> creditCardLst){
-		mSqlite.delete(CreditCardTable.TABLE_NAME, null, null);
-		for(CreditCardType credit : creditCardLst){
-			ContentValues cv = new ContentValues();
-			cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, credit.getCreditCardTypeId());
-			cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME, credit.getCreditCardTypeName());
-			mSqlite.insert(CreditCardTable.TABLE_NAME, null, cv);
+		mSqlite.beginTransaction();
+		try {
+			mSqlite.delete(CreditCardTable.TABLE_NAME, null, null);
+			for(CreditCardType credit : creditCardLst){
+				ContentValues cv = new ContentValues();
+				cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, credit.getCreditCardTypeId());
+				cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME, credit.getCreditCardTypeName());
+				mSqlite.insertOrThrow(CreditCardTable.TABLE_NAME, null, cv);
+			}
+			mSqlite.setTransactionSuccessful();
+		} finally {
+			mSqlite.endTransaction();
 		}
 	}
 }
