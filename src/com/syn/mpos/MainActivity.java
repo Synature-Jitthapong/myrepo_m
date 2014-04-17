@@ -285,7 +285,8 @@ public class MainActivity extends FragmentActivity implements
 			logout();
 			return true;
 		case R.id.itemReport:
-			
+			intent = new Intent(MainActivity.this, SaleReportActivity.class);
+			startActivity(intent);
 			return true;
 		case R.id.itemVoid:
 			voidBill();

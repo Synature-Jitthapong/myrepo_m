@@ -11,8 +11,11 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 public class Reporting extends MPOSDatabase{
+	
 	public static final String SUMM_DEPT = "summ_dept";
 	public static final String SUMM_GROUP = "summ_group";
+	
+	public static final String TEMP_BILL_REPORT = "tmp_bill_report";
 	
 	public static final String TEMP_PRODUCT_REPORT = "tmp_product_report";
 	public static final String COLUMN_PRODUCT_QTY = "product_qty";

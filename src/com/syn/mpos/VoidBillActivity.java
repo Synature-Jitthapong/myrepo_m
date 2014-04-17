@@ -82,6 +82,9 @@ public class VoidBillActivity extends Activity {
 	    btnBillDate = (Button) findViewById(R.id.btnBillDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 
+		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getWritableDatabase();
+		
 		btnBillDate.setText(GlobalProperty.dateFormat(
 				mSqlite, mCalendar.getTime()));
 	    btnBillDate.setOnClickListener(new OnClickListener(){
@@ -131,9 +134,6 @@ public class VoidBillActivity extends Activity {
 				searchVoidItem();
 			}
 		});
-		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		mSqlite = mSqliteHelper.getWritableDatabase();
 		
 	    Intent intent = getIntent();
 	    mStaffId = intent.getIntExtra("staffId", 0);

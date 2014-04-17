@@ -8,23 +8,28 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.syn.mpos.SaleReportActivity$PlaceholderFragment" >
+    tools:context="com.syn.mpos.BillReportFragment" >
 
     <TableLayout
+        android:id="@+id/headerContent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:stretchColumns="*">
+        android:layout_height="wrap_content"
+        android:stretchColumns="*" >
+
     </TableLayout>
 
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:background="@drawable/bottom_radius_background" >
 
         <TableLayout
+            android:id="@+id/detailContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:stretchColumns="*" >
+
         </TableLayout>
 
     </ScrollView>

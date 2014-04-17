@@ -73,8 +73,7 @@
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/btnOrderMinus"
         android:layout_toRightOf="@+id/checkBox1"
-        android:text="Medium Text"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <EditText
         android:id="@+id/txtOrderQty"

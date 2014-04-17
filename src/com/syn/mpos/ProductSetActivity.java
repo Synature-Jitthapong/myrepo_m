@@ -13,6 +13,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +27,8 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -37,6 +40,10 @@ public class ProductSetActivity extends Activity{
 
 	private MPOSSQLiteHelper mSqliteHelper;
 	private SQLiteDatabase mSqlite;
+	
+	private Cursor mGroupCursor;
+	private Cursor mDetailCursor;
+	
 	private Products mProduct;
 	
 	@Override
@@ -46,8 +53,8 @@ public class ProductSetActivity extends Activity{
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 	    LayoutParams params = getWindow().getAttributes();
-	    params.width = 960;
-	    params.height= 500;
+	    params.width = WindowManager.LayoutParams.MATCH_PARENT;
+	    params.height= WindowManager.LayoutParams.WRAP_CONTENT;
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
@@ -102,7 +109,7 @@ public class ProductSetActivity extends Activity{
 		private List<Products.ProductComponent> mProductCompLst;
 		private OrderSetAdapter mOrderSetAdapter;
 		private SetItemAdapter mSetItemAdapter;
-		private ListView mLvOrderSet;
+		private ExpandableListView mLvOrderSet;
 		private GridView mGvSetItem;
 		private HorizontalScrollView mScroll;
 		private LayoutInflater mInflater;
@@ -182,39 +189,75 @@ public class ProductSetActivity extends Activity{
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_product_set,
 					container, false);
-			mLvOrderSet = (ListView) rootView.findViewById(R.id.lvOrderSet);
+			mLvOrderSet = (ExpandableListView) rootView.findViewById(R.id.expandableListView1);
 			mGvSetItem = (GridView) rootView.findViewById(R.id.gvSetItem);
 			mScroll = (HorizontalScrollView) rootView.findViewById(R.id.horizontalScrollView1);
 			return rootView;
 		}
 		
-		public class OrderSetAdapter extends BaseAdapter{
-			
-			public OrderSetAdapter(){
-				
-			}
-			
-			@Override
-			public int getCount() {
-				return 0;
-			}
+		public class OrderSetAdapter extends BaseExpandableListAdapter{
 
 			@Override
-			public Object getItem(int position) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public long getItemId(int position) {
+			public int getGroupCount() {
 				// TODO Auto-generated method stub
 				return 0;
 			}
 
 			@Override
-			public View getView(int position, View convertView, ViewGroup parent) {
+			public int getChildrenCount(int groupPosition) {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
+			@Override
+			public Object getGroup(int groupPosition) {
 				// TODO Auto-generated method stub
 				return null;
+			}
+
+			@Override
+			public Object getChild(int groupPosition, int childPosition) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public long getGroupId(int groupPosition) {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
+			@Override
+			public long getChildId(int groupPosition, int childPosition) {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
+			@Override
+			public boolean hasStableIds() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public View getGroupView(int groupPosition, boolean isExpanded,
+					View convertView, ViewGroup parent) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public View getChildView(int groupPosition, int childPosition,
+					boolean isLastChild, View convertView, ViewGroup parent) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public boolean isChildSelectable(int groupPosition,
+					int childPosition) {
+				// TODO Auto-generated method stub
+				return false;
 			}
 			
 		}

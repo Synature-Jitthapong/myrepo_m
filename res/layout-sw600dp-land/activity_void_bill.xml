@@ -17,7 +17,6 @@
         android:layout_marginRight="4dp"
         android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:background="@drawable/radius_background"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -39,7 +38,8 @@
                 android:id="@+id/btnBillDate"
                 style="?android:attr/spinnerStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:minWidth="128dip" />
 
             <Button
                 android:id="@+id/btnSearch"
@@ -82,8 +82,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/bottom_radius_background"
             android:choiceMode="singleChoice"
             android:listSelector="@drawable/list_selector" >
+
         </ListView>
     </LinearLayout>
 
@@ -95,7 +97,6 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:background="@drawable/radius_background"
         android:orientation="vertical" >
 
         <TableLayout
@@ -207,7 +208,9 @@
         <ListView
             android:id="@+id/lvBillDetail"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="match_parent"
+            android:background="@drawable/bottom_radius_background" >
+
         </ListView>
     </LinearLayout>
 

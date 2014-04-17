@@ -34,7 +34,6 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class PaymentActivity extends Activity  implements OnClickListener {
@@ -120,13 +119,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 			resultCreditCode = resultCode;
 		}
 	}
-
-	@Override
-	protected void onPause() {
-		mSqliteHelper.close();
-		super.onPause();
-	}
-
+	
 	@Override
 	protected void onResume() {
 		if(mTransaction.getTransaction(mTransactionId, 
