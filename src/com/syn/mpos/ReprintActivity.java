@@ -181,7 +181,8 @@ public class ReprintActivity extends Activity {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			printReceipt(mTransactionId, mComputerId);
+			//printReceipt(mTransactionId, mComputerId);
+			printReceiptWintek(mTransactionId, mComputerId);
 			return null;
 		}
 	}

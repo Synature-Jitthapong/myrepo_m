@@ -273,7 +273,6 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		}
 	}
 	
-
 	public void printReceiptWintek(int transactionId, int computerId){
 		StringBuilder builder = new StringBuilder();
 		Printer printer=null;
