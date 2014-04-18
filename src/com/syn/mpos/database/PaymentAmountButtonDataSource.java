@@ -9,9 +9,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class PaymentAmountButton extends MPOSDatabase {
+public class PaymentAmountButtonDataSource extends MPOSDatabase {
 	
-	public PaymentAmountButton(SQLiteDatabase db) {
+	public PaymentAmountButtonDataSource(SQLiteDatabase db) {
 		super(db);
 	}
 	

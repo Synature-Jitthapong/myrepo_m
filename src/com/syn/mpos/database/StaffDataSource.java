@@ -9,9 +9,9 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class Staff extends MPOSDatabase{
+public class StaffDataSource extends MPOSDatabase{
 	
-	public Staff(SQLiteDatabase db) {
+	public StaffDataSource(SQLiteDatabase db) {
 		super(db);
 	}
 

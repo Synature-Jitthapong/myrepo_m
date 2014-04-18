@@ -7,17 +7,17 @@ import org.ksoap2.serialization.PropertyInfo;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.FileManager;
 import com.j1tth4.mobile.util.JSONUtil;
-import com.syn.mpos.database.Bank;
-import com.syn.mpos.database.Computer;
-import com.syn.mpos.database.CreditCard;
-import com.syn.mpos.database.GlobalProperty;
-import com.syn.mpos.database.HeaderFooterReceipt;
-import com.syn.mpos.database.Language;
-import com.syn.mpos.database.PaymentAmountButton;
-import com.syn.mpos.database.PaymentDetail;
-import com.syn.mpos.database.Products;
-import com.syn.mpos.database.Shop;
-import com.syn.mpos.database.Staff;
+import com.syn.mpos.database.BankDataSource;
+import com.syn.mpos.database.ComputerDataSource;
+import com.syn.mpos.database.CreditCardDataSource;
+import com.syn.mpos.database.GlobalPropertyDataSource;
+import com.syn.mpos.database.HeaderFooterReceiptDataSource;
+import com.syn.mpos.database.LanguageDataSource;
+import com.syn.mpos.database.PaymentAmountButtonDataSource;
+import com.syn.mpos.database.PaymentDetailDataSource;
+import com.syn.mpos.database.ProductsDataSource;
+import com.syn.mpos.database.ShopDataSource;
+import com.syn.mpos.database.StaffDataSource;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
@@ -68,19 +68,19 @@ public class MPOSWebServiceClient {
 
 					@Override
 					public void onPost(ShopData sd) {
-						Shop shop = new Shop(sqlite);
-						Computer comp = new Computer(sqlite);
-						Language lang = new Language(sqlite);
-						Staff staff = new Staff(sqlite);
-						HeaderFooterReceipt hf = new HeaderFooterReceipt(sqlite);
-						Bank bank = new Bank(sqlite);
-						CreditCard credit = new CreditCard(sqlite);
-						PaymentDetail payment = new PaymentDetail(sqlite);
-						PaymentAmountButton payButton = new PaymentAmountButton(sqlite);
+						ShopDataSource shop = new ShopDataSource(sqlite);
+						ComputerDataSource comp = new ComputerDataSource(sqlite);
+						LanguageDataSource lang = new LanguageDataSource(sqlite);
+						StaffDataSource staff = new StaffDataSource(sqlite);
+						HeaderFooterReceiptDataSource hf = new HeaderFooterReceiptDataSource(sqlite);
+						BankDataSource bank = new BankDataSource(sqlite);
+						CreditCardDataSource credit = new CreditCardDataSource(sqlite);
+						PaymentDetailDataSource payment = new PaymentDetailDataSource(sqlite);
+						PaymentAmountButtonDataSource payButton = new PaymentAmountButtonDataSource(sqlite);
 						try {
 							shop.insertShopProperty(sd.getShopProperty());
 							comp.insertComputer(sd.getComputerProperty());
-							GlobalProperty.insertProperty(sqlite, sd.getGlobalProperty());
+							GlobalPropertyDataSource.insertProperty(sqlite, sd.getGlobalProperty());
 							staff.insertStaff(sd.getStaffs());
 							lang.insertLanguage(sd.getLanguage());
 							hf.addHeaderFooterReceipt(sd.getHeaderFooterReceipt());
@@ -142,7 +142,7 @@ public class MPOSWebServiceClient {
 
 					@Override
 					public void onPost(ProductGroups pgs) {
-						Products p = new Products(sqlite);
+						ProductsDataSource p = new ProductsDataSource(sqlite);
 						try {
 							p.insertProductGroup(pgs.getProductGroup(),
 									mgs.getMenuGroup());

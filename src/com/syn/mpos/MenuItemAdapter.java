@@ -13,18 +13,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.j1tth4.mobile.util.ImageLoader;
-import com.syn.mpos.database.GlobalProperty;
-import com.syn.mpos.database.Products;
+import com.syn.mpos.database.GlobalPropertyDataSource;
+import com.syn.mpos.database.ProductsDataSource;
 
 public class MenuItemAdapter extends BaseAdapter{
 	
 	private SQLiteDatabase mSqlite;
 	private ImageLoader mImgLoader;
-	private List<Products.Product> mProductLst;
+	private List<ProductsDataSource.Product> mProductLst;
 	private LayoutInflater mInflater;
 	
 	public MenuItemAdapter(Context c, SQLiteDatabase sqlite, 
-			List<Products.Product> productLst){
+			List<ProductsDataSource.Product> productLst){
 		mProductLst = productLst;
 		mSqlite = sqlite;
 		mImgLoader = new ImageLoader(c, R.drawable.default_image,
@@ -39,7 +39,7 @@ public class MenuItemAdapter extends BaseAdapter{
 	}
 
 	@Override
-	public Products.Product getItem(int position) {
+	public ProductsDataSource.Product getItem(int position) {
 		return mProductLst.get(position);
 	}
 
@@ -50,7 +50,7 @@ public class MenuItemAdapter extends BaseAdapter{
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		final Products.Product p = mProductLst.get(position);
+		final ProductsDataSource.Product p = mProductLst.get(position);
 		final ViewHolder holder;
 		if(convertView == null){
 			convertView = mInflater.inflate(R.layout.menu_template, null);
@@ -67,7 +67,7 @@ public class MenuItemAdapter extends BaseAdapter{
 		if(p.getProductPrice() < 0)
 			holder.tvPrice.setVisibility(View.INVISIBLE);
 		else
-			holder.tvPrice.setText(GlobalProperty.currencyFormat(mSqlite, p.getProductPrice()));
+			holder.tvPrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, p.getProductPrice()));
 
 		new Handler().postDelayed(new Runnable(){
 

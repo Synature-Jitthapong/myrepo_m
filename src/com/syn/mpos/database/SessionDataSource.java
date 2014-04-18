@@ -7,12 +7,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class Session extends MPOSDatabase{
+public class SessionDataSource extends MPOSDatabase{
 	
 	public static final int NOT_ENDDAY_STATUS = 0;
 	public static final int ALREADY_ENDDAY_STATUS = 1;
 	
-	public Session(SQLiteDatabase db) {
+	public SessionDataSource(SQLiteDatabase db) {
 		super(db);
 	}
 

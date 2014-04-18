@@ -9,9 +9,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.BankName;
 
-public class Bank extends MPOSDatabase{
+public class BankDataSource extends MPOSDatabase{
 
-	public Bank(SQLiteDatabase db) {
+	public BankDataSource(SQLiteDatabase db) {
 		super(db);
 	}
 	

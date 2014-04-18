@@ -18,14 +18,14 @@ import com.syn.pos.OrderTransaction;
  * @author j1tth4
  * 
  */
-public class Transaction extends MPOSDatabase {
+public class OrderTransactionDataSource extends MPOSDatabase {
 
 	public static final int TRANS_STATUS_NEW = 1;
 	public static final int TRANS_STATUS_SUCCESS = 2;
 	public static final int TRANS_STATUS_VOID = 8;
 	public static final int TRANS_STATUS_HOLD = 9;
 	
-	public Transaction(SQLiteDatabase db) {
+	public OrderTransactionDataSource(SQLiteDatabase db) {
 		super(db);
 	}
 
@@ -810,7 +810,7 @@ public class Transaction extends MPOSDatabase {
 	
 	public void updateTransactionSendStatus(int transactionId){
 		ContentValues cv = new ContentValues();
-		cv.put(COLUMN_SEND_STATUS, SyncSaleLog.SYNC_SUCCESS);
+		cv.put(COLUMN_SEND_STATUS, SyncSaleLogDataSource.SYNC_SUCCESS);
 		mSqlite.update(OrderTransactionTable.TABLE_NAME, cv, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" +
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ", 
@@ -823,7 +823,7 @@ public class Transaction extends MPOSDatabase {
 	
 	public void updateTransactionSendStatus(String saleDate){
 		ContentValues cv = new ContentValues();
-		cv.put(COLUMN_SEND_STATUS, SyncSaleLog.SYNC_SUCCESS);
+		cv.put(COLUMN_SEND_STATUS, SyncSaleLogDataSource.SYNC_SUCCESS);
 		mSqlite.update(OrderTransactionTable.TABLE_NAME, cv, 
 				OrderTransactionTable.COLUMN_SALE_DATE + "=?" +
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ", 
@@ -879,7 +879,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(OrderDetailTable.COLUMN_PRICE_DISCOUNT, discount);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE, salePrice);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_VAT, vat);
-		if(vatType == Products.VAT_TYPE_EXCLUDE)
+		if(vatType == ProductsDataSource.VAT_TYPE_EXCLUDE)
 			cv.put(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE, vat);
 		else
 		cv.put(OrderDetailTable.COLUMN_DISCOUNT_TYPE, discountType);
@@ -954,7 +954,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE, totalRetailPrice);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE, totalRetailPrice);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_VAT, vat);
-		if(vatType == Products.VAT_TYPE_EXCLUDE)
+		if(vatType == ProductsDataSource.VAT_TYPE_EXCLUDE)
 			cv.put(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE, vat);
 		cv.put(OrderDetailTable.COLUMN_PRICE_DISCOUNT, 0);
 		return mSqlite.update(OrderDetailTable.TABLE_ORDER, cv, 
@@ -986,7 +986,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(ProductsTable.COLUMN_VAT_TYPE, vatType);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_VAT, vat);
 		cv.put(ProductsTable.COLUMN_PRODUCT_TYPE_ID, productType);
-		if(vatType == Products.VAT_TYPE_EXCLUDE)
+		if(vatType == ProductsDataSource.VAT_TYPE_EXCLUDE)
 			cv.put(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE, vat);
 		long rowId = mSqlite.insertOrThrow(OrderDetailTable.TABLE_ORDER, null, cv);
 		if(rowId == -1)
@@ -1038,8 +1038,8 @@ public class Transaction extends MPOSDatabase {
 						+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN (?,?)", 
 				new String[]{
 						sessionDate,
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS), 
-						String.valueOf(Transaction.TRANS_STATUS_VOID)
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS), 
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_VOID)
 				});
 		if(cursor.moveToFirst()){
 			totalReceipt = cursor.getInt(0);
@@ -1057,7 +1057,7 @@ public class Transaction extends MPOSDatabase {
 						+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + "=?", 
 				new String[]{
 						sessionDate,
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS)
 				});
 		if(cursor.moveToFirst()){
 			totalReceiptAmount = cursor.getFloat(0);

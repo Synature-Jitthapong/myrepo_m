@@ -10,20 +10,20 @@ import com.syn.mpos.database.StockDocument.DocumentTypeTable;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class SaleTransaction extends MPOSDatabase{
+public class SaleTransactionDataSource extends MPOSDatabase{
 	
 	private double mVatRate;
 	private String mSessionDate;
 	private int mTransactionId;
 	
-	public SaleTransaction(SQLiteDatabase db, String sessionDate, int transactionId, double vatRate){
+	public SaleTransactionDataSource(SQLiteDatabase db, String sessionDate, int transactionId, double vatRate){
 		super(db);
 		mTransactionId = transactionId;
 		mSessionDate = sessionDate;
 		mVatRate = vatRate;
 	}
 
-	public SaleTransaction(SQLiteDatabase db, String sessionDate, double vatRate) {
+	public SaleTransactionDataSource(SQLiteDatabase db, String sessionDate, double vatRate) {
 		super(db);
 		mSessionDate = sessionDate;
 		mVatRate = vatRate;
@@ -381,8 +381,8 @@ public class SaleTransaction extends MPOSDatabase{
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] {
 						String.valueOf(mTransactionId),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(Transaction.TRANS_STATUS_VOID)});
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_VOID)});
 	}
 	
 	public Cursor queryAllTransactionInSaleDate() {
@@ -393,8 +393,8 @@ public class SaleTransaction extends MPOSDatabase{
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] {
 						mSessionDate,
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(Transaction.TRANS_STATUS_VOID)});
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_VOID)});
 	}
 	
 	public Cursor queryTransaction() {
@@ -406,8 +406,8 @@ public class SaleTransaction extends MPOSDatabase{
 				" AND " + MPOSDatabase.COLUMN_SEND_STATUS + "=?",
 				new String[] {
 						mSessionDate,
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(Transaction.TRANS_STATUS_VOID),
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_VOID),
 						String.valueOf(MPOSDatabase.NOT_SEND) });
 	}
 
@@ -432,7 +432,7 @@ public class SaleTransaction extends MPOSDatabase{
 				"SELECT * " + 
 				" FROM " + SyncSaleLogTable.TABLE_NAME + 
 				" WHERE " + SyncSaleLogTable.COLUMN_SYNC_STATUS + "=?",
-				new String[] { String.valueOf(SyncSaleLog.SYNC_FAIL) });
+				new String[] { String.valueOf(SyncSaleLogDataSource.SYNC_FAIL) });
 	}
 
 	public static class POSData_SaleTransaction {

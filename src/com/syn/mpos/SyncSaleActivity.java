@@ -7,8 +7,8 @@ import com.syn.mpos.database.ComputerTable;
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrderTransactionTable;
-import com.syn.mpos.database.Shop;
-import com.syn.mpos.database.Transaction;
+import com.syn.mpos.database.ShopDataSource;
+import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.pos.OrderTransaction;
 
 import android.app.Activity;
@@ -94,7 +94,7 @@ public class SyncSaleActivity extends Activity{
 	}
 
 	private void sendSale(){
-		Shop shop = new Shop(mSqlite);
+		ShopDataSource shop = new ShopDataSource(mSqlite);
 		for(final SendTransaction trans : mTransLst){
 			MPOSUtil.doSendSaleBySelectedTransaction(mSqlite,
 					mShopId, mComputerId, trans.getTransactionId(), 
@@ -140,7 +140,7 @@ public class SyncSaleActivity extends Activity{
 				}, OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " +
 					MPOSDatabase.COLUMN_SEND_STATUS + "=?", 
 				new String[]{
-					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+					String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
 				}, null, null, OrderTransactionTable.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){

@@ -15,8 +15,6 @@
         android:targetSdkVersion="17" />
 
     <supports-screens
-        android:largeScreens="true"
-        android:normalScreens="false"
         android:smallScreens="false" android:requiresSmallestWidthDp="1024"/>
 
     <uses-feature

@@ -15,7 +15,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.ShopData;
 
-public class GlobalProperty{
+public class GlobalPropertyDataSource{
 	
 	public static final String[] COLUMNS = {
 		GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL,

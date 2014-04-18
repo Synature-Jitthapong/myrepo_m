@@ -9,9 +9,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.ShopData;
 
-public class Shop extends MPOSDatabase{
+public class ShopDataSource extends MPOSDatabase{
 	
-	public Shop(SQLiteDatabase db){
+	public ShopDataSource(SQLiteDatabase db){
 		super(db);
 	}
 	

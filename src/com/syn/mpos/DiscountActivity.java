@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.R;
-import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.mpos.database.Products;
-import com.syn.mpos.database.Transaction;
+import com.syn.mpos.database.ProductsDataSource;
+import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
@@ -48,9 +48,9 @@ public class DiscountActivity extends Activity{
 	
 	private MPOSSQLiteHelper mSqliteHelper;
 	private SQLiteDatabase mSqlite;
-	private Transaction mTransaction;
+	private OrderTransactionDataSource mTransaction;
 	private OrderTransaction.OrderDetail mOrder;
-	private Products mProducts;
+	private ProductsDataSource mProducts;
 	
 	private int mTransactionId;
 	private int mComputerId;
@@ -100,8 +100,8 @@ public class DiscountActivity extends Activity{
 
 	private void init(){
 		mSqlite = mSqliteHelper.getWritableDatabase();
-		mTransaction = new Transaction(mSqlite);
-		mProducts = new Products(mSqlite);
+		mTransaction = new OrderTransactionDataSource(mSqlite);
+		mProducts = new ProductsDataSource(mSqlite);
 
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
@@ -237,11 +237,11 @@ public class DiscountActivity extends Activity{
 			
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvName.setText(order.getProductName());
-			tvQty.setText(GlobalProperty.qtyFormat(mSqlite, order.getQty()));
-			tvUnitPrice.setText(GlobalProperty.currencyFormat(mSqlite, order.getPricePerUnit()));
-			tvTotalPrice.setText(GlobalProperty.currencyFormat(mSqlite, order.getTotalRetailPrice()));
-			tvDiscount.setText(GlobalProperty.currencyFormat(mSqlite, order.getPriceDiscount()));
-			tvSalePrice.setText(GlobalProperty.currencyFormat(mSqlite, order.getTotalSalePrice()));
+			tvQty.setText(GlobalPropertyDataSource.qtyFormat(mSqlite, order.getQty()));
+			tvUnitPrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, order.getPricePerUnit()));
+			tvTotalPrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, order.getTotalRetailPrice()));
+			tvDiscount.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, order.getPriceDiscount()));
+			tvSalePrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, order.getTotalSalePrice()));
 			
 			return rowView;
 		}
@@ -267,10 +267,10 @@ public class DiscountActivity extends Activity{
 		else
 			mLayoutVat.setVisibility(View.GONE);
 		
-		mTxtTotalVatExc.setText(GlobalProperty.currencyFormat(mSqlite, totalVatExclude));
-		mTxtSubTotal.setText(GlobalProperty.currencyFormat(mSqlite, subTotal));
-		mTxtTotalDiscount.setText(GlobalProperty.currencyFormat(mSqlite, totalDiscount));
-		mTxtTotalPrice.setText(GlobalProperty.currencyFormat(mSqlite, mTotalPrice));
+		mTxtTotalVatExc.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalVatExclude));
+		mTxtSubTotal.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, subTotal));
+		mTxtTotalDiscount.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalDiscount));
+		mTxtTotalPrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, mTotalPrice));
 	}
 
 	private void cancel(){
@@ -364,11 +364,11 @@ public class DiscountActivity extends Activity{
 			else if(mDiscountType == PRICE_DISCOUNT_TYPE)
 				((RadioButton)rdoDiscountType.findViewById(R.id.rdoPrice)).setChecked(true);
 			if(mDiscountType == PERCENT_DISCOUNT_TYPE)
-				txtDiscount.setText(GlobalProperty.currencyFormat(
+				txtDiscount.setText(GlobalPropertyDataSource.currencyFormat(
 						((DiscountActivity) getActivity()).getDatabase(),
 								mDiscount * 100 / mTotalRetailPrice));
 			else
-				txtDiscount.setText(GlobalProperty.currencyFormat(
+				txtDiscount.setText(GlobalPropertyDataSource.currencyFormat(
 						((DiscountActivity) getActivity()).getDatabase(), mDiscount));
 			txtDiscount.setSelectAllOnFocus(true);
 			txtDiscount.requestFocus();

@@ -3,7 +3,7 @@ package com.syn.mpos;
 import com.syn.mpos.R;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.mpos.database.Session;
+import com.syn.mpos.database.SessionDataSource;
 import com.syn.mpos.database.Util;
 import com.syn.pos.ShopData;
 
@@ -121,7 +121,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private void gotoMainActivity(){
 		mTxtUser.setText(null);
 		mTxtPass.setText(null);
-		Session sess = new Session(mSqlite);
+		SessionDataSource sess = new SessionDataSource(mSqlite);
 		if(sess.getSessionEnddayDetail(String.valueOf(Util.getDate().getTimeInMillis())) > 0){
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.endday)

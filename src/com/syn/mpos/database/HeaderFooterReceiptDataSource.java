@@ -10,12 +10,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class HeaderFooterReceipt extends MPOSDatabase{
+public class HeaderFooterReceiptDataSource extends MPOSDatabase{
 	
 	public static final int HEADER_LINE_TYPE = 0;
 	public static final int FOOTER_LINE_TYPE = 1;
 
-	public HeaderFooterReceipt(SQLiteDatabase db) {
+	public HeaderFooterReceiptDataSource(SQLiteDatabase db) {
 		super(db);
 	}
 	

@@ -8,12 +8,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class SyncSaleLog extends MPOSDatabase{
+public class SyncSaleLogDataSource extends MPOSDatabase{
 	
 	public static final int SYNC_FAIL = 0;
 	public static final int SYNC_SUCCESS = 1;
 	
-	public SyncSaleLog(SQLiteDatabase db) {
+	public SyncSaleLogDataSource(SQLiteDatabase db) {
 		super(db);
 	}
 	

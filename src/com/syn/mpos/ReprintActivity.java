@@ -6,7 +6,7 @@ import java.util.List;
 import com.syn.mpos.database.ComputerTable;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrderTransactionTable;
-import com.syn.mpos.database.Transaction;
+import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.mpos.database.Util;
 import com.syn.pos.OrderTransaction;
 
@@ -76,7 +76,7 @@ public class ReprintActivity extends Activity {
 				OrderTransactionTable.COLUMN_STATUS_ID + "=?", 
 				new String[]{
 					saleDate,
-				 	String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
+				 	String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS)
 				}, null, null, OrderTransactionTable.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){
 			do{

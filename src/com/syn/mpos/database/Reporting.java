@@ -77,13 +77,13 @@ public class Reporting extends MPOSDatabase{
 				" FROM " + PaymentDetailTable.TABLE_NAME +
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=a." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND " + ComputerTable.COLUMN_COMPUTER_ID + "=a." + ComputerTable.COLUMN_COMPUTER_ID +
-				" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CASH +
+				" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + PaymentDetailDataSource.PAY_TYPE_CASH +
 				") AS TotalCash, " +
 				"(SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") " +
 				" FROM " + PaymentDetailTable.TABLE_NAME +
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=a." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND " + ComputerTable.COLUMN_COMPUTER_ID + "=a." + ComputerTable.COLUMN_COMPUTER_ID +
-				" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CREDIT +
+				" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + PaymentDetailDataSource.PAY_TYPE_CREDIT +
 				") AS TotalCredit " +
 				" FROM " + OrderTransactionTable.TABLE_NAME + " a " +
 				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b " +
@@ -95,8 +95,8 @@ public class Reporting extends MPOSDatabase{
 
 		Cursor cursor = mSqlite.rawQuery(strSql, 
 				new String[]{
-				String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-				String.valueOf(Transaction.TRANS_STATUS_VOID),
+				String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
+				String.valueOf(OrderTransactionDataSource.TRANS_STATUS_VOID),
 				String.valueOf(mDateFrom), 
 				String.valueOf(mDateTo)});
 		
@@ -251,7 +251,7 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(groupId)
 				});
 		
@@ -291,7 +291,7 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(deptId)
 				});
 		
@@ -381,19 +381,19 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
+						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS)
 				});
 		
 		if(cursor.moveToFirst()){

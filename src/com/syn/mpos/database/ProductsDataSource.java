@@ -11,7 +11,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class Products extends MPOSDatabase {
+public class ProductsDataSource extends MPOSDatabase {
 	
 	public static final int NORMAL_TYPE = 0;
 	public static final int SET_TYPE = 1;
@@ -45,7 +45,7 @@ public class Products extends MPOSDatabase {
 		ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME
 	};
 
-	public Products(SQLiteDatabase db){
+	public ProductsDataSource(SQLiteDatabase db){
 		super(db);
 	}
 	
@@ -462,6 +462,52 @@ public class Products extends MPOSDatabase {
 		}
 	}
 
+	/**
+	 * @author j1tth4
+	 * for display orderset 
+	 */
+	public static class ProductSet extends ProductComponentGroup{
+		public List<ProductSetDetail> mProductLst = 
+				new ArrayList<ProductSetDetail>();
+		
+		private int transactionId;
+		private int orderDetailId;
+		
+		public int getTransactionId() {
+			return transactionId;
+		}
+		public void setTransactionId(int transactionId) {
+			this.transactionId = transactionId;
+		}
+		public int getOrderDetailId() {
+			return orderDetailId;
+		}
+		public void setOrderDetailId(int orderDetailId) {
+			this.orderDetailId = orderDetailId;
+		}
+		
+		public static class ProductSetDetail extends Product{
+			private int orderSetId;
+			private double orderSetQty;
+			
+			public double getOrderSetQty() {
+				return orderSetQty;
+			}
+
+			public void setOrderSetQty(double orderSetQty) {
+				this.orderSetQty = orderSetQty;
+			}
+
+			public int getOrderSetId() {
+				return orderSetId;
+			}
+
+			public void setOrderSetId(int orderSetId) {
+				this.orderSetId = orderSetId;
+			}
+		}
+	}
+	
 	public static class ProductComponentGroup extends ProductComponent{
 		private int groupNo;
 		private String groupName;

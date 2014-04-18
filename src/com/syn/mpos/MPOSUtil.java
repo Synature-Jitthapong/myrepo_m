@@ -22,21 +22,21 @@ import android.widget.Toast;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.MPOSWebServiceClient.SendSaleTransaction;
-import com.syn.mpos.database.Computer;
+import com.syn.mpos.database.ComputerDataSource;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrderDetailTable;
 import com.syn.mpos.database.OrderTransactionTable;
 import com.syn.mpos.database.PaymentDetailTable;
-import com.syn.mpos.database.SaleTransaction;
-import com.syn.mpos.database.Session;
+import com.syn.mpos.database.SaleTransactionDataSource;
+import com.syn.mpos.database.SessionDataSource;
 import com.syn.mpos.database.SessionDetailTable;
 import com.syn.mpos.database.SessionTable;
-import com.syn.mpos.database.Shop;
-import com.syn.mpos.database.SyncSaleLog;
+import com.syn.mpos.database.ShopDataSource;
+import com.syn.mpos.database.SyncSaleLogDataSource;
 import com.syn.mpos.database.SyncSaleLogTable;
-import com.syn.mpos.database.Transaction;
+import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.mpos.database.Util;
-import com.syn.mpos.database.SaleTransaction.POSData_SaleTransaction;
+import com.syn.mpos.database.SaleTransactionDataSource.POSData_SaleTransaction;
 
 public class MPOSUtil {
 	public static LinearLayout createDetailColumn(Context c, String[] detailText){
@@ -93,7 +93,7 @@ public class MPOSUtil {
 					@Override
 					public void onPost() {
 						// do update transaction already send
-						Transaction trans = new Transaction(sqlite);
+						OrderTransactionDataSource trans = new OrderTransactionDataSource(sqlite);
 						trans.updateTransactionSendStatus(transactionId);
 						listener.onPost();
 					}
@@ -146,7 +146,7 @@ public class MPOSUtil {
 					@Override
 					public void onPost() {
 						// do update transaction already send
-						Transaction trans = new Transaction(sqlite);
+						OrderTransactionDataSource trans = new OrderTransactionDataSource(sqlite);
 						trans.updateTransactionSendStatus(sessionDate);
 						listener.onPost();
 					}
@@ -180,10 +180,10 @@ public class MPOSUtil {
 			final boolean isEndday, final ProgressListener listener) {
 		
 		// check is main computer
-		Computer comp = new Computer(sqlite);
+		ComputerDataSource comp = new ComputerDataSource(sqlite);
 		if (comp.checkIsMainComputer(computerId)) {
-			final SyncSaleLog syncLog = 
-					new SyncSaleLog(sqlite);
+			final SyncSaleLogDataSource syncLog = 
+					new SyncSaleLogDataSource(sqlite);
 			LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
 
 				@Override
@@ -202,7 +202,7 @@ public class MPOSUtil {
 								@Override
 								public void onError(String mesg) {
 									syncLog.updateSyncSaleLog(sessionDate,
-											SyncSaleLog.SYNC_FAIL);
+											SyncSaleLogDataSource.SYNC_FAIL);
 									listener.onError(mesg);
 								}
 
@@ -213,10 +213,10 @@ public class MPOSUtil {
 								@Override
 								public void onPost() {
 									syncLog.updateSyncSaleLog(sessionDate,
-											SyncSaleLog.SYNC_SUCCESS);
+											SyncSaleLogDataSource.SYNC_SUCCESS);
 									try {
-										Transaction trans = new Transaction(sqlite);
-										Session sess = new Session(sqlite);
+										OrderTransactionDataSource trans = new OrderTransactionDataSource(sqlite);
+										SessionDataSource sess = new SessionDataSource(sqlite);
 										sess.addSessionEnddayDetail(sessionDate,
 												trans.getTotalReceipt(sessionDate),
 												trans.getTotalReceiptAmount(sessionDate));
@@ -299,20 +299,20 @@ public class MPOSUtil {
 	public static class LoadSaleTransaction extends AsyncTask<Void, Void, POSData_SaleTransaction>{
 
 		protected LoadSaleTransactionListener mListener;
-		protected SaleTransaction mSaleTrans;
+		protected SaleTransactionDataSource mSaleTrans;
 		protected String mSessionDate;
 			
 		public LoadSaleTransaction(SQLiteDatabase sqlite, String sessionDate, int transactionId, double vatRate,
 				LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransaction(sqlite, sessionDate, transactionId, vatRate);
+			mSaleTrans = new SaleTransactionDataSource(sqlite, sessionDate, transactionId, vatRate);
 			mSessionDate = sessionDate;
 		}
 		
 		public LoadSaleTransaction(SQLiteDatabase sqlite, String sessionDate, double vatRate, 
 				LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransaction(sqlite, sessionDate, vatRate);
+			mSaleTrans = new SaleTransactionDataSource(sqlite, sessionDate, vatRate);
 			mSessionDate = sessionDate;
 		}
 		
@@ -411,7 +411,7 @@ public class MPOSUtil {
 
 			@Override
 			public void onPost() {
-				Shop shop = new Shop(sqlite);
+				ShopDataSource shop = new ShopDataSource(sqlite);
 				mPOSService.loadProductData(sqlite, 
 						shop.getShopProperty().getShopID(), new ProgressListener(){
 

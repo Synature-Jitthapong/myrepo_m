@@ -10,12 +10,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class PaymentDetail extends MPOSDatabase {
+public class PaymentDetailDataSource extends MPOSDatabase {
 	
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 
-	public PaymentDetail(SQLiteDatabase db) {
+	public PaymentDetailDataSource(SQLiteDatabase db) {
 		super(db);
 	}
 	

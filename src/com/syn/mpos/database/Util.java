@@ -49,7 +49,7 @@ public class Util {
 	}
 	
 	public static double calculateVatAmount(double totalPrice, double vatRate, int vatType){
-		if(vatType == Products.VAT_TYPE_INCLUDED)
+		if(vatType == ProductsDataSource.VAT_TYPE_INCLUDED)
 			return totalPrice * vatRate / (100 + vatRate);
 		else
 			return totalPrice * vatRate / 100;

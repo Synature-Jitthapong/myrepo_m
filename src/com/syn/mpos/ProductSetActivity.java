@@ -4,15 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
-import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.mpos.database.Products;
+import com.syn.mpos.database.OrderSetDataSource;
+import com.syn.mpos.database.OrderTransactionDataSource;
+import com.syn.mpos.database.ProductsDataSource;
 import com.syn.pos.OrderTransaction;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -26,6 +31,8 @@ import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
@@ -41,10 +48,13 @@ public class ProductSetActivity extends Activity{
 	private MPOSSQLiteHelper mSqliteHelper;
 	private SQLiteDatabase mSqlite;
 	
-	private Cursor mGroupCursor;
-	private Cursor mDetailCursor;
+	private OrderTransactionDataSource mTransaction; 
 	
-	private Products mProduct;
+	private int mTransactionId;
+	private int mComputerId;
+	private int mOrderDetailId;
+	
+	private ProductsDataSource mProduct;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,16 +74,44 @@ public class ProductSetActivity extends Activity{
 		mSqliteHelper = new MPOSSQLiteHelper(this);
 		mSqlite = mSqliteHelper.getWritableDatabase();
 		
-		mProduct = new Products(mSqlite);
+		mTransaction = new OrderTransactionDataSource(mSqlite);
+		mProduct = new ProductsDataSource(mSqlite);
 		
-		if (savedInstanceState == null) {
-			getFragmentManager().beginTransaction()
-					.add(R.id.container, 
-							PlaceholderFragment.newInsance(getIntent().getIntExtra("productId", 0))).commit();
+		Intent intent = getIntent();
+		mTransactionId = intent.getIntExtra("transactionId", 0);
+		mComputerId = intent.getIntExtra("computerId", 0);
+		int productId = intent.getIntExtra("productId", 0);
+		int productTypeId = intent.getIntExtra("productTypeId", 0);
+		int vatType = intent.getIntExtra("vatType", 0);
+		double vatRate = intent.getDoubleExtra("vatRate", 0);
+		double productPrice = intent.getDoubleExtra("productPrice", 0);
+		
+		mOrderDetailId = mTransaction.addOrderDetail(mTransactionId, mComputerId, productId, 
+				productTypeId, vatType, vatRate, 1, productPrice);
+		
+		if(mTransactionId == 0 || mOrderDetailId == 0 || productId == 0){
+			new AlertDialog.Builder(this)
+			.setTitle(R.string.error)
+			.setMessage("transactionId=" + mTransactionId + 
+					", orderDetailId=" + mOrderDetailId + 
+					", productId=" + productId)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					finish();
+				}
+			}).show();
+		}else{
+			if (savedInstanceState == null) {
+				getFragmentManager().beginTransaction()
+						.add(R.id.container, 
+								PlaceholderFragment.newInsance(mTransactionId, mOrderDetailId, productId)).commit();
+			}
 		}
 	}
 
-	public Products getProduct(){
+	public ProductsDataSource getProduct(){
 		return mProduct;
 	}
 	
@@ -103,20 +141,26 @@ public class ProductSetActivity extends Activity{
 	/**
 	 * A placeholder fragment containing a simple view.
 	 */
-	public static class PlaceholderFragment extends Fragment {
+	public static class PlaceholderFragment extends Fragment{
 		
+		private int mTransactionId;
+		private int mOrderDetailId;
 		private int mProductId;
-		private List<Products.ProductComponent> mProductCompLst;
-		private OrderSetAdapter mOrderSetAdapter;
-		private SetItemAdapter mSetItemAdapter;
+		
+		private List<ProductsDataSource.ProductComponent> mProductCompLst;
+		
+		private OrderSetDataSource mOrderSet;
+		
 		private ExpandableListView mLvOrderSet;
 		private GridView mGvSetItem;
 		private HorizontalScrollView mScroll;
 		private LayoutInflater mInflater;
 		
-		public static PlaceholderFragment newInsance(int productId) {
+		public static PlaceholderFragment newInsance(int transactionId, int orderDetailId, int productId) {
 			PlaceholderFragment f = new PlaceholderFragment();
 			Bundle b = new Bundle();
+			b.putInt("transactionId", transactionId);
+			b.putInt("orderDetailId", orderDetailId);
 			b.putInt("productId", productId);
 			f.setArguments(b);
 			return f;
@@ -125,34 +169,36 @@ public class ProductSetActivity extends Activity{
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			mProductId = getArguments().getInt("productId");
+			
 			mInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			mProductCompLst = new ArrayList<Products.ProductComponent>();
-			mOrderSetAdapter = new OrderSetAdapter();
-			mSetItemAdapter = new SetItemAdapter();
+			
+			mTransactionId = getArguments().getInt("transactionId");
+			mOrderDetailId = getArguments().getInt("orderDetailId");
+			mProductId = getArguments().getInt("productId");
+			
+			mOrderSet = new OrderSetDataSource(((ProductSetActivity) getActivity()).getDatabase());
+			
+			mProductCompLst = new ArrayList<ProductsDataSource.ProductComponent>();
+			
 		}
 
 		@Override
 		public void onActivityCreated(Bundle savedInstanceState) {
 			super.onActivityCreated(savedInstanceState);
-			mLvOrderSet.setAdapter(mOrderSetAdapter);
-			mGvSetItem.setAdapter(mSetItemAdapter);
+
 			createSetGroupButton();
+			loadOrderSet();
 		}
 
-		public void onMenuSetClick(OrderTransaction.OrderDetail order){
-			
-		}
-		
 		@SuppressLint("NewApi")
 		private void createSetGroupButton(){
-			List<Products.ProductComponentGroup> productCompGroupLst;
+			List<ProductsDataSource.ProductComponentGroup> productCompGroupLst;
 			productCompGroupLst = 
 					((ProductSetActivity) getActivity()).getProduct().listProductComponentGroup(mProductId);
 			if(productCompGroupLst != null){
 				LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
 				for(int i = 0; i < productCompGroupLst.size(); i++){
-					final Products.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
+					final ProductsDataSource.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
 					View setGroupView = mInflater.inflate(R.layout.set_group_button_layout, null);
 					TextView tvGroupName = (TextView) setGroupView.findViewById(R.id.textView2);
 					TextView tvBadge = (TextView) setGroupView.findViewById(R.id.textView1);
@@ -166,7 +212,11 @@ public class ProductSetActivity extends Activity{
 							mProductCompLst = 
 									((ProductSetActivity) getActivity()).
 										getProduct().listProductComponent(pCompGroup.getProductGroupId());
-							mSetItemAdapter.notifyDataSetChanged();
+							
+							// i use Products.ProductGroupId instead ProductComponent.PGroupId
+							SetItemAdapter adapter = new SetItemAdapter(
+									pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
+							mGvSetItem.setAdapter(adapter);
 						}
 						
 					});
@@ -184,6 +234,16 @@ public class ProductSetActivity extends Activity{
 			}
 		}
 		
+		/**
+		 * load order set
+		 */
+		private void loadOrderSet(){
+			List<ProductsDataSource.ProductSet> setLst = 
+					mOrderSet.listOrderSet(mTransactionId, mOrderDetailId); 
+			OrderSetAdapter adapter = new OrderSetAdapter(setLst);
+			mLvOrderSet.setAdapter(adapter);
+		}
+		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
@@ -196,41 +256,48 @@ public class ProductSetActivity extends Activity{
 		}
 		
 		public class OrderSetAdapter extends BaseExpandableListAdapter{
-
+			
+			private List<ProductsDataSource.ProductSet> mProductSetLst;
+			
+			private LayoutInflater mInflater;
+			
+			public OrderSetAdapter(List<ProductsDataSource.ProductSet> productSetLst){
+				mProductSetLst = productSetLst;
+				
+				mInflater = (LayoutInflater) getActivity().getSystemService(
+						Context.LAYOUT_INFLATER_SERVICE);
+			}
+			
 			@Override
 			public int getGroupCount() {
-				// TODO Auto-generated method stub
-				return 0;
+				return mProductSetLst != null ? mProductSetLst.size() : 0;
 			}
 
 			@Override
 			public int getChildrenCount(int groupPosition) {
-				// TODO Auto-generated method stub
-				return 0;
+				ProductsDataSource.ProductSet set = mProductSetLst.get(groupPosition);
+				return set.mProductLst != null ? set.mProductLst.size() : 0;
 			}
 
 			@Override
-			public Object getGroup(int groupPosition) {
-				// TODO Auto-generated method stub
-				return null;
+			public ProductsDataSource.ProductSet getGroup(int groupPosition) {
+				return mProductSetLst.get(groupPosition);
 			}
 
 			@Override
-			public Object getChild(int groupPosition, int childPosition) {
-				// TODO Auto-generated method stub
-				return null;
+			public ProductsDataSource.ProductSet.ProductSetDetail getChild(int groupPosition, int childPosition) {
+				ProductsDataSource.ProductSet set = mProductSetLst.get(groupPosition);
+				return set.mProductLst.get(childPosition);
 			}
 
 			@Override
 			public long getGroupId(int groupPosition) {
-				// TODO Auto-generated method stub
-				return 0;
+				return groupPosition;
 			}
 
 			@Override
 			public long getChildId(int groupPosition, int childPosition) {
-				// TODO Auto-generated method stub
-				return 0;
+				return childPosition;
 			}
 
 			@Override
@@ -262,22 +329,36 @@ public class ProductSetActivity extends Activity{
 			
 		}
 		
+		/**
+		 * @author j1tth4
+		 * set menu item adapter
+		 */
 		public class SetItemAdapter extends BaseAdapter{
+			
+			private int mPcompGroupId;
+			private double mRequireAmount;
 			
 			private ImageLoader mImgLoader;
 			
-			public SetItemAdapter(){
+			/**
+			 * @param pcompGroupId
+			 * @param requireAmount
+			 */
+			public SetItemAdapter(int pcompGroupId, double requireAmount){
+				mPcompGroupId = pcompGroupId;
+				mRequireAmount = requireAmount;
+				
 				mImgLoader = new ImageLoader(getActivity(), R.drawable.default_image,
 						MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 			}
-			
+
 			@Override
 			public int getCount() {
 				return mProductCompLst != null ? mProductCompLst.size() : 0;
 			}
 
 			@Override
-			public Products.ProductComponent getItem(int position) {
+			public ProductsDataSource.ProductComponent getItem(int position) {
 				return mProductCompLst.get(position);
 			}
 
@@ -300,9 +381,9 @@ public class ProductSetActivity extends Activity{
 					holder = (MenuItemAdapter.ViewHolder) convertView.getTag();
 				}
 				
-				final Products.ProductComponent pComp = mProductCompLst.get(position);
+				final ProductsDataSource.ProductComponent pComp = mProductCompLst.get(position);
 				holder.tvMenu.setText(pComp.getProductName());
-				holder.tvPrice.setText(GlobalProperty.currencyFormat(
+				holder.tvPrice.setText(GlobalPropertyDataSource.currencyFormat(
 						((ProductSetActivity) getActivity()).getDatabase(), pComp.getFlexibleProductPrice()));
 
 				new Handler().postDelayed(new Runnable(){
@@ -318,6 +399,18 @@ public class ProductSetActivity extends Activity{
 					}
 					
 				}, 500);
+				
+				convertView.setOnClickListener(new OnClickListener(){
+
+					@Override
+					public void onClick(View v) {
+						mOrderSet.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
+								pComp.getProductName(), mPcompGroupId, mRequireAmount);
+						
+						loadOrderSet();
+					}
+					
+				});
 				return convertView;
 			}
 			

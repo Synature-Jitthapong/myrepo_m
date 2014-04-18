@@ -3,16 +3,16 @@ package com.syn.mpos;
 import java.util.Calendar;
 
 import com.syn.mpos.database.ComputerTable;
-import com.syn.mpos.database.GlobalProperty;
+import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrderDetailTable;
 import com.syn.mpos.database.OrderTransactionTable;
 import com.syn.mpos.database.PayTypeTable;
-import com.syn.mpos.database.PaymentDetail;
+import com.syn.mpos.database.PaymentDetailDataSource;
 import com.syn.mpos.database.PaymentDetailTable;
 import com.syn.mpos.database.Reporting;
-import com.syn.mpos.database.Transaction;
+import com.syn.mpos.database.OrderTransactionDataSource;
 
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -102,8 +102,8 @@ public class SaleReportActivity extends Activity {
 		
 		btnCreateReport.setText(getString(R.string.create_report));
 		
-		btnDateFrom.setText(GlobalProperty.dateFormat(mSqlite, mCalendar.getTime()));
-		btnDateTo.setText(GlobalProperty.dateFormat(mSqlite, mCalendar.getTime()));
+		btnDateFrom.setText(GlobalPropertyDataSource.dateFormat(mSqlite, mCalendar.getTime()));
+		btnDateTo.setText(GlobalPropertyDataSource.dateFormat(mSqlite, mCalendar.getTime()));
 		
 		spReportType.setOnItemSelectedListener(new OnItemSelectedListener(){
 
@@ -139,7 +139,7 @@ public class SaleReportActivity extends Activity {
 						mDateFrom = mCalendar.getTimeInMillis();
 						
 						
-						btnDateFrom.setText(GlobalProperty.dateFormat(
+						btnDateFrom.setText(GlobalPropertyDataSource.dateFormat(
 								mSqlite, mCalendar.getTime()));
 					}
 				});
@@ -159,7 +159,7 @@ public class SaleReportActivity extends Activity {
 						mDateTo = mCalendar.getTimeInMillis();
 						
 						
-						btnDateTo.setText(GlobalProperty.dateFormat(
+						btnDateTo.setText(GlobalPropertyDataSource.dateFormat(
 								mSqlite, mCalendar.getTime()));
 					}
 				});
@@ -253,26 +253,26 @@ public class SaleReportActivity extends Activity {
 					calendar.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(OrderTransactionTable.COLUMN_SALE_DATE)));
 					
 					row.addView(createContent(getActivity(), 
-							GlobalProperty.dateFormat(db, calendar.getTime())), params); 
+							GlobalPropertyDataSource.dateFormat(db, calendar.getTime())), params); 
 					row.addView(createContent(getActivity(), 
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO))), params);
 					row.addView(createContent(getActivity(), 
-							GlobalProperty.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
+							GlobalPropertyDataSource.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
 									cursor.getDouble(cursor.getColumnIndex("TotalRetailPrice")))), params);
 					row.addView(createContent(getActivity(), 
-							GlobalProperty.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
+							GlobalPropertyDataSource.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
 									cursor.getDouble(cursor.getColumnIndex("TotalSalePrice")))), params);
 					row.addView(createContent(getActivity(), 
-							GlobalProperty.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
+							GlobalPropertyDataSource.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
 									cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT)))), params);
 					row.addView(createContent(getActivity(), 
-							GlobalProperty.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
+							GlobalPropertyDataSource.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
 									cursor.getDouble(cursor.getColumnIndex("TotalDiscount")))), params);
 					row.addView(createContent(getActivity(), 
-							GlobalProperty.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
+							GlobalPropertyDataSource.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
 									cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)))), params);
 					row.addView(createContent(getActivity(), 
-							GlobalProperty.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
+							GlobalPropertyDataSource.currencyFormat(((SaleReportActivity) getActivity()).getDatabase(), 
 									cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT)))), params);
 					mDetailContent.addView(row);
 				}while(cursor.moveToNext());
@@ -329,13 +329,13 @@ public class SaleReportActivity extends Activity {
 					" FROM " + PaymentDetailTable.TABLE_NAME +
 					" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=a." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 					" AND " + ComputerTable.COLUMN_COMPUTER_ID + "=a." + ComputerTable.COLUMN_COMPUTER_ID +
-					" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CASH +
+					" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + PaymentDetailDataSource.PAY_TYPE_CASH +
 					") AS TotalCash, " +
 					"(SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") " +
 					" FROM " + PaymentDetailTable.TABLE_NAME +
 					" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=a." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 					" AND " + ComputerTable.COLUMN_COMPUTER_ID + "=a." + ComputerTable.COLUMN_COMPUTER_ID +
-					" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + PaymentDetail.PAY_TYPE_CREDIT +
+					" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + PaymentDetailDataSource.PAY_TYPE_CREDIT +
 					") AS TotalCredit " +
 					" FROM " + OrderTransactionTable.TABLE_NAME + " a " +
 					" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b " +
@@ -347,8 +347,8 @@ public class SaleReportActivity extends Activity {
 
 			return ((SaleReportActivity) getActivity()).getDatabase().rawQuery(strSql, 
 					new String[]{
-					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-					String.valueOf(Transaction.TRANS_STATUS_VOID),
+					String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
+					String.valueOf(OrderTransactionDataSource.TRANS_STATUS_VOID),
 					String.valueOf(dateFrom), 
 					String.valueOf(dateTo)});
 		}

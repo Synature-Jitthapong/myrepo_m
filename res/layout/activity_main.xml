@@ -4,14 +4,31 @@
     android:layout_height="match_parent"
     android:baselineAligned="false"
     android:orientation="horizontal"
-    android:padding="@dimen/activity_horizontal_margin"
+    android:padding="@dimen/medium_space"
     tools:context=".MainActivity" >
 
     <LinearLayout
         android:id="@+id/LinearLayout1"
-        android:layout_width="350dp"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_weight="0.5"
         android:orientation="vertical" >
+
+        <EditText
+            android:id="@+id/txtBarCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/medium_space"
+            android:ems="1"
+            android:hint="@string/barcode"
+            android:imeOptions="actionSearch"
+            android:lines="1"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textSize="22sp" >
+
+            <requestFocus />
+        </EditText>
 
         <ListView
             android:id="@+id/lvOrder"
@@ -153,8 +170,9 @@
         android:background="@color/light_grey" />
 
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent" >
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" >
 
         <com.astuetz.PagerSlidingTabStrip
             android:id="@+id/tabs"
@@ -181,19 +199,16 @@
 
         <Button
             android:id="@+id/buttonClearBill"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:drawableLeft="@drawable/ic_action_remove"
             android:onClick="clearBillClicked"
             android:text="@string/cancel_bill"
             android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
         <Button
             android:id="@+id/buttonCash"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -207,7 +222,6 @@
 
         <Button
             android:id="@+id/buttonDiscount"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -221,7 +235,6 @@
 
         <Button
             android:id="@+id/buttonHold"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

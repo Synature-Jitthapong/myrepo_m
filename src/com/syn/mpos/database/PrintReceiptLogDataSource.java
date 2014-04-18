@@ -8,12 +8,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class PrintReceiptLog extends MPOSDatabase{
+public class PrintReceiptLogDataSource extends MPOSDatabase{
 	
 	public static final int PRINT_NOT_SUCCESS = 0;
 	public static final int PRINT_SUCCESS = 1;
 
-	public PrintReceiptLog(SQLiteDatabase db) {
+	public PrintReceiptLogDataSource(SQLiteDatabase db) {
 		super(db);
 	}
 	

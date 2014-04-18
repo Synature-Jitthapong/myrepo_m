@@ -8,9 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.ShopData;
 
-public  class Language extends MPOSDatabase{
+public  class LanguageDataSource extends MPOSDatabase{
 
-	public Language(SQLiteDatabase db){
+	public LanguageDataSource(SQLiteDatabase db){
 		super(db);
 	}
 	

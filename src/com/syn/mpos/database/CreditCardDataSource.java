@@ -9,9 +9,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.CreditCardType;
 
-public class CreditCard extends MPOSDatabase{
+public class CreditCardDataSource extends MPOSDatabase{
 	
-	public CreditCard(SQLiteDatabase db) {
+	public CreditCardDataSource(SQLiteDatabase db) {
 		super(db);
 	}
 

@@ -2,8 +2,8 @@ package com.syn.mpos;
 
 import java.util.List;
 
-import com.syn.mpos.database.GlobalProperty;
-import com.syn.mpos.database.Products;
+import com.syn.mpos.database.GlobalPropertyDataSource;
+import com.syn.mpos.database.ProductsDataSource;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,9 +17,9 @@ public class ProductSizeAdapter extends BaseAdapter{
 	
 	private SQLiteDatabase mSqlite;
 	private LayoutInflater mInflater;
-	private List<Products.Product> mProLst;
+	private List<ProductsDataSource.Product> mProLst;
 	
-	public ProductSizeAdapter(Context c, SQLiteDatabase sqlite, List<Products.Product> proLst){
+	public ProductSizeAdapter(Context c, SQLiteDatabase sqlite, List<ProductsDataSource.Product> proLst){
 		mSqlite = sqlite;
 		mInflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mProLst = proLst;
@@ -31,7 +31,7 @@ public class ProductSizeAdapter extends BaseAdapter{
 	}
 
 	@Override
-	public Products.Product getItem(int position) {
+	public ProductsDataSource.Product getItem(int position) {
 		return mProLst.get(position);
 	}
 
@@ -52,9 +52,9 @@ public class ProductSizeAdapter extends BaseAdapter{
 		}else{
 			holder = (ViewHolder) convertView.getTag();
 		}
-		Products.Product p = mProLst.get(position);
+		ProductsDataSource.Product p = mProLst.get(position);
 		holder.tvProductName.setText(p.getProductName());
-		holder.tvProductPrice.setText(GlobalProperty.currencyFormat(
+		holder.tvProductPrice.setText(GlobalPropertyDataSource.currencyFormat(
 				mSqlite, p.getProductPrice()));
 		return convertView;
 	}
