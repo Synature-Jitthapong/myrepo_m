@@ -9,7 +9,6 @@ import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrderSetDataSource;
 import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.mpos.database.ProductsDataSource;
-import com.syn.pos.OrderTransaction;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -18,7 +17,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,8 +29,6 @@ import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
@@ -40,7 +36,6 @@ import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 public class ProductSetActivity extends Activity{

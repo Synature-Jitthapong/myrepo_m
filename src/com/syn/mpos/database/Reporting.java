@@ -77,14 +77,7 @@ public class Reporting extends MPOSDatabase{
 				" FROM " + PaymentDetailTable.TABLE_NAME +
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=a." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND " + ComputerTable.COLUMN_COMPUTER_ID + "=a." + ComputerTable.COLUMN_COMPUTER_ID +
-				" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + PaymentDetailDataSource.PAY_TYPE_CASH +
-				") AS TotalCash, " +
-				"(SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") " +
-				" FROM " + PaymentDetailTable.TABLE_NAME +
-				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=a." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
-				" AND " + ComputerTable.COLUMN_COMPUTER_ID + "=a." + ComputerTable.COLUMN_COMPUTER_ID +
-				" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + PaymentDetailDataSource.PAY_TYPE_CREDIT +
-				") AS TotalCredit " +
+				") AS TotalPayment " +
 				" FROM " + OrderTransactionTable.TABLE_NAME + " a " +
 				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b " +
 				" ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=b." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
@@ -115,8 +108,7 @@ public class Reporting extends MPOSDatabase{
 				reportDetail.setDiscount(cursor.getDouble(cursor.getColumnIndex("TotalDiscount")));
 				reportDetail.setVatable(cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)));
 				reportDetail.setTotalVat(cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT)));
-				reportDetail.setCash(cursor.getDouble(cursor.getColumnIndex("TotalCash")));
-				reportDetail.setCredit(cursor.getDouble(cursor.getColumnIndex("TotalCredit")));
+				reportDetail.setTotalPayment(cursor.getDouble(cursor.getColumnIndex("TotalPayment")));
 				reportDetail.setSendStatus(cursor.getInt(cursor.getColumnIndex(MPOSDatabase.COLUMN_SEND_STATUS)));
 				report.reportDetail.add(reportDetail);
 				
