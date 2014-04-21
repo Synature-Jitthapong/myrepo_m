@@ -262,5 +262,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="send">Send</string>
     <string name="title_activity_sale_report_html">SaleReportHtmlActivity</string>
     <string name="title_activity_product_set">Set menu</string>
+    <string name="internal_printer">Internal Printer</string>
+    <string name="internal_printer_wintec">WINTEC Printer</string>
 
 </resources>

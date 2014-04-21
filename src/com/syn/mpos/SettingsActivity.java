@@ -15,6 +15,9 @@ import android.view.View;
 
 import java.util.List;
 
+import cn.wintec.wtandroidjar2.ComIO;
+import cn.wintec.wtandroidjar2.Printer;
+
 import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
@@ -25,6 +28,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_PRINTER_IP = "printer_ip";
 	public static final String KEY_PREF_PRINTER_LIST = "printer_list";
 	public static final String KEY_PREF_PRINTER_FONT_LIST = "printer_font_list";
+	public static final String KEY_PREF_PRINTER_INTERNAL = "printer_internal";
 	
 	private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
@@ -121,7 +125,7 @@ public class SettingsActivity extends PreferenceActivity {
 			addPreferencesFromResource(R.xml.pref_printer);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
-			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_FONT_LIST));
 		}
 	}
 	
@@ -136,6 +140,30 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 	
 	public void printTestClick(final View v){
+		if(MPOSApplication.getInternalPrinterSetting()){
+			wintecTestPrint();
+		}else{
+			epsonTestPrint();
+		}
+	}
+	
+	private void wintecTestPrint(){
+		Printer printer=null;
+		final String devicePath = "/dev/ttySAC1";
+		final ComIO.Baudrate baudrate = ComIO.Baudrate.valueOf("BAUD_38400");
+		printer = new Printer(devicePath,baudrate);
+		
+		String[] subElement = MPOSApplication.getContext().getString(R.string.print_test_text).split("\n");
+    	for(int i=0;i < subElement.length;i++){
+    		String data = subElement[i].replace("*", " ");
+    		printer.PRN_Print(data);
+		}
+    	printer.PRN_PrintAndFeedLine(6);		
+		printer.PRN_HalfCutPaper();	
+		printer.PRN_Close();
+	}
+	
+	private void epsonTestPrint(){
 		Print printer = new Print();
 		try {
 			printer.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(), 0, 1000);

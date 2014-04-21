@@ -36,6 +36,12 @@ public class MPOSApplication extends Application {
 		return Secure.getString(sContext.getContentResolver(), Secure.ANDROID_ID);
 	}
 
+	public static boolean getInternalPrinterSetting(){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(sContext);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_PRINTER_INTERNAL, false);
+	}
+	
 	public static String getPrinterFont() {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(sContext);

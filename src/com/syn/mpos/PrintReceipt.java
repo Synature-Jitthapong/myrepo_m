@@ -64,7 +64,17 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		return line.toString();
 	}
 	
-	private static String createLineSpace(int usedSpace){
+	private static String adjustAlignCenter(String text){
+		int maxSpace = 45;
+		int rimSpace = (maxSpace - text.length()) / 2;
+		StringBuilder empText = new StringBuilder();
+		for(int i = 0; i < rimSpace; i++){
+			empText.append(" ");
+		}
+		return empText.toString() + text + empText.toString();
+	}
+	
+	private static String createHorizontalSpace(int usedSpace){
 		int maxSpace = 45;
 		StringBuilder space = new StringBuilder();
 		if(usedSpace > maxSpace){
@@ -115,9 +125,9 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 					mTrans.getReceiptNo(transactionId, computerId);
 			String cashCheer = MPOSApplication.getContext().getString(R.string.cashier) + " " +
 					mStaff.getStaff(mStaffId).getStaffName();
-			builder.addText(saleDate + createLineSpace(saleDate.length()) + "\n");
-			builder.addText(receiptNo + createLineSpace(receiptNo.length()) + "\n");
-			builder.addText(cashCheer + createLineSpace(cashCheer.length()));
+			builder.addText(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
+			builder.addText(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
+			builder.addText(cashCheer + createHorizontalSpace(cashCheer.length()));
 			builder.addText("\n" + createLine("=") + "\n");
 			
 			List<OrderTransaction.OrderDetail> orderLst = 
@@ -133,7 +143,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    		
 	    		builder.addText(productQty);
 	    		builder.addText(productName);
-	    		builder.addText(createLineSpace(productQty.length() + 
+	    		builder.addText(createHorizontalSpace(productQty.length() + 
 	    				productName.length() + productPrice.length()));
 	    		builder.addText(productPrice);
 	    		builder.addText("\n");
@@ -162,13 +172,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	String strTotalQty = String.valueOf(mTrans.getTotalQty(transactionId, computerId));
 	    	builder.addText(itemText);
 	    	builder.addText(strTotalQty);
-	    	builder.addText(createLineSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
+	    	builder.addText(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
 	    	builder.addText(strTotalRetailPrice + "\n");
 	    	
 	    	// total discount
 	    	if(totalDiscount > 0){
 		    	builder.addText(discountText);
-		    	builder.addText(createLineSpace(discountText.length() + strTotalDiscount.length()));
+		    	builder.addText(createHorizontalSpace(discountText.length() + strTotalDiscount.length()));
 		    	builder.addText(strTotalDiscount + "\n");
 	    	}
 	    	
@@ -178,13 +188,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    				GlobalPropertyDataSource.currencyFormat(vatRate, "#,###.##") + "%";
 	    		String strVatExclude = GlobalPropertyDataSource.currencyFormat(mSqlite, transactionVatExclude);
 	    		builder.addText(vatExcludeText);
-	    		builder.addText(createLineSpace(vatExcludeText.length() + strVatExclude.length()));
+	    		builder.addText(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
 	    		builder.addText(strVatExclude + "\n");
 	    	}
 	    	
 	    	// total price
 	    	builder.addText(totalText);
-	    	builder.addText(createLineSpace(totalText.length() + strTotalSalePrice.length()));
+	    	builder.addText(createHorizontalSpace(totalText.length() + strTotalSalePrice.length()));
 	    	builder.addText(strTotalSalePrice + "\n");
 
 	    	// total payment
@@ -196,18 +206,18 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		    	String strTotalPaid = GlobalPropertyDataSource.currencyFormat(mSqlite, payment.getPaid());
 		    	if(i < paymentLst.size() - 1){
 			    	builder.addText(paymentText);
-		    		builder.addText(createLineSpace(paymentText.length() + strTotalPaid.length()));
+		    		builder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
 			    	builder.addText(strTotalPaid);
 		    	}else if(i == paymentLst.size() - 1){
 			    	if(change > 0){
 				    	builder.addText(paymentText);
 				    	builder.addText(strTotalPaid);
-			    		builder.addText(createLineSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
+			    		builder.addText(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
 				    	builder.addText(changeText);
 				    	builder.addText(strTotalChange);
 				    }else{
 				    	builder.addText(paymentText);
-			    		builder.addText(createLineSpace(paymentText.length() + strTotalPaid.length()));
+			    		builder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
 				    	builder.addText(strTotalPaid);
 				    }
 		    	}
@@ -218,12 +228,12 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		    if(mShop.getShopProperty().getVatType() == ProductsDataSource.VAT_TYPE_INCLUDED){
 			    // before vat
 			    builder.addText(beforeVatText);
-			    builder.addText(createLineSpace(beforeVatText.length() + strBeforeVat.length()));
+			    builder.addText(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
 			    builder.addText(strBeforeVat + "\n");
 			    
 			    // transaction vat
 		    	builder.addText(vatRateText);
-		    	builder.addText(createLineSpace(vatRateText.length() + strTransactionVat.length()));
+		    	builder.addText(createHorizontalSpace(vatRateText.length() + strTransactionVat.length()));
 		    	builder.addText(strTransactionVat + "\n");
 		    }
 	    	// add footer
@@ -273,7 +283,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		}
 	}
 	
-	public void printReceiptWintek(int transactionId, int computerId){
+	public void printReceiptWintec(int transactionId, int computerId){
 		StringBuilder builder = new StringBuilder();
 		Printer printer=null;
 		final String devicePath = "/dev/ttySAC1";
@@ -290,12 +300,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		double change = totalPaid - totalSalePrice;
 		double beforVat = transactionVatable - transactionVat;
 		
-		printer=new Printer(devicePath,baudrate);
+		printer = new Printer(devicePath,baudrate);
 		
 		// add header
 		HeaderFooterReceiptDataSource headerFooter = new HeaderFooterReceiptDataSource(mSqlite);
 		for(ShopData.HeaderFooterReceipt hf : 
 			headerFooter.listHeaderFooter(HeaderFooterReceiptDataSource.HEADER_LINE_TYPE)){
+			builder.append("<h>");
 			builder.append(hf.getTextInLine());
 			builder.append("\n");
 		}
@@ -306,9 +317,9 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 				mTrans.getReceiptNo(transactionId, computerId);
 		String cashCheer = MPOSApplication.getContext().getString(R.string.cashier) + " " +
 				mStaff.getStaff(mStaffId).getStaffName();
-		builder.append(saleDate + createLineSpace(saleDate.length()) + "\n");
-		builder.append(receiptNo + createLineSpace(receiptNo.length()) + "\n");
-		builder.append(cashCheer + createLineSpace(cashCheer.length()));
+		builder.append(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
+		builder.append(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
+		builder.append(cashCheer + createHorizontalSpace(cashCheer.length()));
 		builder.append(createLine("=") + "\n");
 		
 		List<OrderTransaction.OrderDetail> orderLst = 
@@ -324,7 +335,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
     		
     		builder.append(productQty);
     		builder.append(productName);
-    		builder.append(createLineSpace(productQty.length() + 
+    		builder.append(createHorizontalSpace(productQty.length() + 
     				productName.length() + productPrice.length()));
     		builder.append(productPrice);
     		builder.append("\n");
@@ -353,13 +364,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
     	String strTotalQty = String.valueOf(mTrans.getTotalQty(transactionId, computerId));
     	builder.append(itemText);
     	builder.append(strTotalQty);
-    	builder.append(createLineSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
+    	builder.append(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
     	builder.append(strTotalRetailPrice + "\n");
     	
     	// total discount
     	if(totalDiscount > 0){
 	    	builder.append(discountText);
-	    	builder.append(createLineSpace(discountText.length() + strTotalDiscount.length()));
+	    	builder.append(createHorizontalSpace(discountText.length() + strTotalDiscount.length()));
 	    	builder.append(strTotalDiscount + "\n");
     	}
     	
@@ -369,13 +380,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
     				GlobalPropertyDataSource.currencyFormat(vatRate, "#,###.##") + "%";
     		String strVatExclude = GlobalPropertyDataSource.currencyFormat(mSqlite, transactionVatExclude);
     		builder.append(vatExcludeText);
-    		builder.append(createLineSpace(vatExcludeText.length() + strVatExclude.length()));
+    		builder.append(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
     		builder.append(strVatExclude + "\n");
     	}
     	
     	// total price
     	builder.append(totalText);
-    	builder.append(createLineSpace(totalText.length() + strTotalSalePrice.length()));
+    	builder.append(createHorizontalSpace(totalText.length() + strTotalSalePrice.length()));
     	builder.append(strTotalSalePrice + "\n");
 
     	// total payment
@@ -387,18 +398,18 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	String strTotalPaid = GlobalPropertyDataSource.currencyFormat(mSqlite, payment.getPaid());
 	    	if(i < paymentLst.size() - 1){
 		    	builder.append(paymentText);
-	    		builder.append(createLineSpace(paymentText.length() + strTotalPaid.length()));
+	    		builder.append(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
 		    	builder.append(strTotalPaid);
 	    	}else if(i == paymentLst.size() - 1){
 		    	if(change > 0){
 			    	builder.append(paymentText);
 			    	builder.append(strTotalPaid);
-		    		builder.append(createLineSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
+		    		builder.append(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
 			    	builder.append(changeText);
 			    	builder.append(strTotalChange);
 			    }else{
 			    	builder.append(paymentText);
-		    		builder.append(createLineSpace(paymentText.length() + strTotalPaid.length()));
+		    		builder.append(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
 			    	builder.append(strTotalPaid);
 			    }
 	    	}
@@ -409,27 +420,41 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    if(mShop.getShopProperty().getVatType() == ProductsDataSource.VAT_TYPE_INCLUDED){
 		    // before vat
 		    builder.append(beforeVatText);
-		    builder.append(createLineSpace(beforeVatText.length() + strBeforeVat.length()));
+		    builder.append(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
 		    builder.append(strBeforeVat + "\n");
 		    
 		    // transaction vat
 	    	builder.append(vatRateText);
-	    	builder.append(createLineSpace(vatRateText.length() + strTransactionVat.length()));
+	    	builder.append(createHorizontalSpace(vatRateText.length() + strTransactionVat.length()));
 	    	builder.append(strTransactionVat + "\n");
 	    }
+	    
     	// add footer
     	for(ShopData.HeaderFooterReceipt hf : 
 			headerFooter.listHeaderFooter(HeaderFooterReceiptDataSource.FOOTER_LINE_TYPE)){
+    		builder.append("<h>");
 			builder.append(hf.getTextInLine());
 			builder.append("\n");
 		}
     	
     	String[] subElement = builder.toString().split("\n");
     	for(int i=0;i < subElement.length;i++){
-			 printer.PRN_Print(subElement[i]);
+    		String data = subElement[i];
+			if(data.contains("<h>")){
+				data = adjustAlignCenter(data.replace("<h>", ""));
+			}
+			data = unicodeToASCII(data);
+    		printer.PRN_Print(data);
+//			try {
+//				Thread.sleep(100);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
     	printer.PRN_PrintAndFeedLine(6);		
 		printer.PRN_HalfCutPaper();	
+		printer.PRN_Close();
 	}
 
 	@Override
@@ -459,8 +484,11 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		PrintReceiptLogDataSource printLog = new PrintReceiptLogDataSource(mSqlite);
 		for(PrintReceiptLogDataSource.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
 			try {
-				//printReceipt(printReceipt.getTransactionId(), printReceipt.getComputerId());
-				printReceiptWintek(printReceipt.getTransactionId(), printReceipt.getComputerId());
+				if(MPOSApplication.getInternalPrinterSetting()){
+					printReceiptWintec(printReceipt.getTransactionId(), printReceipt.getComputerId());
+				}else{
+					printReceipt(printReceipt.getTransactionId(), printReceipt.getComputerId());
+				}
 				printLog.deletePrintStatus(printReceipt.getPriceReceiptLogId());
 				
 			} catch (Exception e) {
@@ -472,6 +500,25 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		return null;
 	}
 	
+	public static String unicodeToASCII(String unicode) {
+		// initial temporary space of ascii.
+		StringBuffer ascii = new StringBuffer(unicode);
+		int code;
+
+		// continue loop based on number of character.
+		for (int i = 0; i < unicode.length(); i++) {
+			// reading a value of each character in the unicode (as String).
+			code = (int) unicode.charAt(i);
+
+			// check the value is Thai language in Unicode scope or not.
+			if ((0xE01 <= code) && (code <= 0xE5B)) {
+				// if yes, it will be converted to Thai language in ASCII scope.
+				ascii.setCharAt(i, (char) (code - 0xD60));
+			}
+		}
+		return ascii.toString();
+	}
+		
 	public static OPOSThaiText parsingThaiCodePage21(String prntTxt) {
 		String strLine1 = null;
 		String strLine2 = null;

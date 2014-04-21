@@ -571,6 +571,8 @@ containing a value of this type.
         public static final int info_cat=0x7f05007a;
         public static final int information=0x7f05002c;
         public static final int init=0x7f0500a5;
+        public static final int internal_printer=0x7f050106;
+        public static final int internal_printer_wintec=0x7f050107;
         public static final int inventory=0x7f050007;
         public static final int ip_address=0x7f050056;
         public static final int ip_address_summary=0x7f050057;

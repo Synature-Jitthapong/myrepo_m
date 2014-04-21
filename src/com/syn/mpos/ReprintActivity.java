@@ -181,8 +181,11 @@ public class ReprintActivity extends Activity {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			//printReceipt(mTransactionId, mComputerId);
-			printReceiptWintek(mTransactionId, mComputerId);
+			if(MPOSApplication.getInternalPrinterSetting()){
+				printReceiptWintec(mTransactionId, mComputerId);
+			}else{
+				printReceipt(mTransactionId, mComputerId);	
+			}
 			return null;
 		}
 	}

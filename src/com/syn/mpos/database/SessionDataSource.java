@@ -22,7 +22,7 @@ public class SessionDataSource extends MPOSDatabase{
 		cv.put(OrderTransactionTable.COLUMN_CLOSE_STAFF, closeStaffId);
 		cv.put(SessionTable.COLUMN_CLOSE_DATE, Util.getDateTime().getTimeInMillis());
 		
-		mSqlite.update(SessionTable.TABLE_NAME, cv, 
+		mSqlite.update(SessionDetailTable.TABLE_NAME, cv, 
 				SessionTable.COLUMN_IS_ENDDAY + "=? " +
 				" AND " + SessionTable.COLUMN_SESS_DATE + "<?", 
 				new String[]{
@@ -118,7 +118,7 @@ public class SessionDataSource extends MPOSDatabase{
 		cv.put(SessionTable.COLUMN_ENDDAY_DATE, dateTime.getTimeInMillis());
 		cv.put(SessionTable.COLUMN_TOTAL_QTY_RECEIPT, totalQtyReceipt);
 		cv.put(SessionTable.COLUMN_TOTAL_AMOUNT_RECEIPT, totalAmountReceipt);
-		return mSqlite.insertOrThrow(SessionTable.TABLE_NAME, null, cv);
+		return mSqlite.insertOrThrow(SessionDetailTable.TABLE_NAME, null, cv);
 	}
 
 	public int closeSession(int sessionId, int computerId,

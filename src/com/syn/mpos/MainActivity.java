@@ -794,17 +794,17 @@ public class MainActivity extends FragmentActivity implements
 		View inputLayout = inflater.inflate(R.layout.input_text_layout, null);
 		final EditText txtRemark = (EditText) inputLayout.findViewById(R.id.editText1);
 		txtRemark.setHint(R.string.remark);
-		new AlertDialog.Builder(MainActivity.this)
-		.setTitle(R.string.hold)
-		.setView(inputLayout)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+		builder.setTitle(R.string.hold);
+		builder.setView(inputLayout);
+		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				
 			}
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+		});
+		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -813,7 +813,11 @@ public class MainActivity extends FragmentActivity implements
 				
 				init();
 			}
-		}).show();
+		});
+		AlertDialog dialog = builder.create();
+		dialog.show();
+		dialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, 
+				WindowManager.LayoutParams.WRAP_CONTENT);
 	}
 
 	public void holdBill() {
@@ -874,9 +878,9 @@ public class MainActivity extends FragmentActivity implements
 		});
 		
 		AlertDialog dialog = builder.create();
-		dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, 
-				WindowManager.LayoutParams.WRAP_CONTENT);
 		dialog.show();
+		dialog.getWindow().setLayout(690, 
+				WindowManager.LayoutParams.WRAP_CONTENT);
 	}
 
 	public void switchUser() {
