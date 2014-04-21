@@ -208,6 +208,9 @@ public class SaleReportActivity extends Activity {
 		}
 
 		public void createReport(){
+			mHeaderContent.removeAllViews();
+			addRowToHeaderTable(getActivity(), mHeaderContent, 
+					getDefaultHeaderPrefix(), getDefaultHeaderSubfix());
 			mDetailContent.removeAllViews();
 
 			Reporting reporting = new Reporting(getActivityDatabase(), mDateFrom, mDateTo);
@@ -260,30 +263,43 @@ public class SaleReportActivity extends Activity {
 			mHeaderContent = (TableLayout) rootView.findViewById(R.id.headerContent);
 			mDetailContent = (TableLayout) rootView.findViewById(R.id.bodyContent);
 			
-			String[] headerContent = {
-					getActivity().getString(R.string.bill_no),
-					getActivity().getString(R.string.sale_price),
-					getActivity().getString(R.string.discount),
-					getActivity().getString(R.string.total_price),
-					getActivity().getString(R.string.total_sale),
-					getActivity().getString(R.string.total_vat),
-					getActivity().getString(R.string.total_payment)
-				};
+			String[] headerPrefix = getDefaultHeaderPrefix();
+			String[] headerSubfix = getDefaultHeaderSubfix();
 			
 			// create header
-			addRowToHeaderTable(getActivity(), mHeaderContent, headerContent);
+			addRowToHeaderTable(getActivity(), mHeaderContent, headerPrefix, headerSubfix);
 			return rootView;
 		}
 
 		private SQLiteDatabase getActivityDatabase(){
 			return ((SaleReportActivity) getActivity()).getDatabase();
 		}
+		
+		private String[] getDefaultHeaderSubfix(){
+			String[] headerSubfix = {
+					getActivity().getString(R.string.total_payment)
+			};
+			return headerSubfix;
+		}
+		
+		private String[] getDefaultHeaderPrefix(){
+			String[] headerText = {
+				getActivity().getString(R.string.bill_no),
+				getActivity().getString(R.string.sale_price),
+				getActivity().getString(R.string.discount),
+				getActivity().getString(R.string.total_price),
+				getActivity().getString(R.string.total_sale),
+				getActivity().getString(R.string.total_vat)
+			};
+			return headerText;
+		}
 	}
 	
-	public static void addRowToHeaderTable(Context c, TableLayout tbLayout, String[] contents){
+	public static void addRowToHeaderTable(Context c, TableLayout tbLayout, 
+			String[] prefix, String[] subfixs){
 		TableRow row = new TableRow(c);
-		for(int i = 0; i < contents.length; i++){
-			String content = contents[i];
+		for(int i = 0; i < prefix.length; i++){
+			String content = prefix[i];
 			TextView tvContent = new TextView(c);
 			TableRow.LayoutParams params = 
 					new TableRow.LayoutParams(
@@ -294,6 +310,20 @@ public class SaleReportActivity extends Activity {
 			tvContent.setTextAppearance(c, R.style.HeaderText);
 			tvContent.setBackgroundResource(R.drawable.border);
 			tvContent.setText(content); 
+			row.addView(tvContent);
+		}
+		for(int i = 0; i < subfixs.length; i++){
+			String subfix = subfixs[i];
+			TextView tvContent = new TextView(c);
+			TableRow.LayoutParams params = 
+					new TableRow.LayoutParams(
+							0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
+
+			tvContent.setLayoutParams(params);
+			tvContent.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER);
+			tvContent.setTextAppearance(c, R.style.HeaderText);
+			tvContent.setBackgroundResource(R.drawable.border);
+			tvContent.setText(subfix); 
 			row.addView(tvContent);
 		}
 		tbLayout.addView(row);
