@@ -74,7 +74,7 @@
 
                 <TextView
                     android:id="@+id/textView1"
-                    style="@style/ColumnHeader"
+                    style="@style/HeaderText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="1dp"
@@ -85,7 +85,7 @@
 
                 <TextView
                     android:id="@+id/textView3"
-                    style="@style/ColumnHeader"
+                    style="@style/HeaderText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
@@ -95,7 +95,7 @@
 
                 <TextView
                     android:id="@+id/textView4"
-                    style="@style/ColumnHeader"
+                    style="@style/HeaderText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
@@ -104,7 +104,7 @@
 
                 <TextView
                     android:id="@+id/textView2"
-                    style="@style/ColumnHeader"
+                    style="@style/HeaderText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
@@ -165,6 +165,7 @@
                     android:gravity="center_vertical"
                     android:inputType="number"
                     android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                    android:textColor="@color/dark_green"
                     android:textStyle="bold" >
 
                     <requestFocus />
@@ -184,6 +185,7 @@
                     android:gravity="center_vertical"
                     android:inputType="number"
                     android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                    android:textColor="@color/light_red"
                     android:textStyle="bold" />
 
                 <EditText

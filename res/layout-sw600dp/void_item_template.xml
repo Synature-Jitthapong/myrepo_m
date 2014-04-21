@@ -9,7 +9,7 @@
 
     <TextView
         android:id="@+id/tvItem"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
@@ -21,7 +21,7 @@
 
     <TextView
         android:id="@+id/tvQty"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
@@ -31,7 +31,7 @@
 
     <TextView
         android:id="@+id/tvPrice"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="1dp"
@@ -41,7 +41,7 @@
 
     <TextView
         android:id="@+id/tvTotalPrice"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.5"

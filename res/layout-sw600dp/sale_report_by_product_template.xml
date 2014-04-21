@@ -6,7 +6,7 @@
 
     <TextView
         android:id="@+id/tvNo"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.2"
@@ -15,7 +15,7 @@
 
     <TextView
         android:id="@+id/tvProCode"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.8"
@@ -23,7 +23,7 @@
 
             <TextView
                 android:id="@+id/tvProName"
-                style="@style/ColumnDetail"
+                style="@style/BodyText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -31,7 +31,7 @@
 
             <TextView
                 android:id="@+id/tvProPrice"
-                style="@style/ColumnDetail"
+                style="@style/BodyText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.8"
@@ -39,7 +39,7 @@
 
             <TextView
                 android:id="@+id/tvQty"
-                style="@style/ColumnDetail"
+                style="@style/BodyText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
@@ -47,7 +47,7 @@
 
             <TextView
                 android:id="@+id/tvQtyPercent"
-                style="@style/ColumnDetail"
+                style="@style/BodyText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
@@ -55,7 +55,7 @@
 
             <TextView
                 android:id="@+id/tvSubTotal"
-                style="@style/ColumnDetail"
+                style="@style/BodyText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.8"
@@ -63,7 +63,7 @@
 
             <TextView
                 android:id="@+id/tvSubTotalPercent"
-                style="@style/ColumnDetail"
+                style="@style/BodyText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
@@ -71,7 +71,7 @@
 
             <TextView
                 android:id="@+id/tvDiscount"
-                style="@style/ColumnDetail"
+                style="@style/BodyText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.8"
@@ -79,7 +79,7 @@
 
             <TextView
                 android:id="@+id/tvTotalPrice"
-                style="@style/ColumnDetail"
+                style="@style/BodyText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.8"
@@ -87,14 +87,14 @@
 
             <TextView
                 android:id="@+id/tvTotalPricePercent"
-                style="@style/ColumnDetail"
+                style="@style/BodyText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5" />
 
             <TextView
                 android:id="@+id/tvVatType"
-                style="@style/ColumnDetail"
+                style="@style/BodyText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.2" />

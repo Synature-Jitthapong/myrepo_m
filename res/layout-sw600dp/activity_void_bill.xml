@@ -53,7 +53,7 @@
 
             <TextView
                 android:id="@+id/textView8"
-                style="@style/ColumnHeader"
+                style="@style/HeaderText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -63,7 +63,7 @@
 
             <TextView
                 android:id="@+id/textView9"
-                style="@style/ColumnHeader"
+                style="@style/HeaderText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="0dp"
@@ -163,7 +163,7 @@
 
                 <TextView
                     android:id="@+id/textView4"
-                    style="@style/ColumnHeader"
+                    style="@style/HeaderText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -173,7 +173,7 @@
 
                 <TextView
                     android:id="@+id/textView5"
-                    style="@style/ColumnHeader"
+                    style="@style/HeaderText"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:gravity="right"
@@ -182,7 +182,7 @@
 
                 <TextView
                     android:id="@+id/textView6"
-                    style="@style/ColumnHeader"
+                    style="@style/HeaderText"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:gravity="right"
@@ -191,7 +191,7 @@
 
                 <TextView
                     android:id="@+id/textView7"
-                    style="@style/ColumnHeader"
+                    style="@style/HeaderText"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="0dp"

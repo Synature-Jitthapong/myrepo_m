@@ -13,7 +13,7 @@
 
     <TextView
         android:id="@+id/tvReceipt"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -26,7 +26,7 @@
 
     <TextView
         android:id="@+id/tvTotalPrice"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.7"
@@ -34,7 +34,7 @@
 
     <TextView
         android:id="@+id/tvTotalDisc"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.7"
@@ -42,7 +42,7 @@
 
     <TextView
         android:id="@+id/tvSubTotal"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.7"
@@ -50,7 +50,7 @@
 
     <TextView
         android:id="@+id/tvTotalSale"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.7"
@@ -59,7 +59,7 @@
 
     <TextView
         android:id="@+id/tvVatable"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.7"
@@ -67,7 +67,7 @@
 
     <TextView
         android:id="@+id/tvTotalVat"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.7"
@@ -75,7 +75,7 @@
 
     <TextView
         android:id="@+id/tvCash"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.7"
@@ -83,7 +83,7 @@
 
     <TextView
         android:id="@+id/tvCredit"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.7"
@@ -91,7 +91,7 @@
 
     <TextView
         android:id="@+id/tvVoucher"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.7"
@@ -99,7 +99,7 @@
 
     <TextView
         android:id="@+id/tvTotalPayment"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.7" />

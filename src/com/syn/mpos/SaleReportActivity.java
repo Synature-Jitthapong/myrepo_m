@@ -1,25 +1,20 @@
 package com.syn.mpos;
 
 import java.util.Calendar;
+import java.util.List;
 
-import com.syn.mpos.database.ComputerTable;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.mpos.database.OrderDetailTable;
-import com.syn.mpos.database.OrderTransactionTable;
-import com.syn.mpos.database.PayTypeTable;
 import com.syn.mpos.database.PaymentDetailDataSource;
-import com.syn.mpos.database.PaymentDetailTable;
 import com.syn.mpos.database.Reporting;
-import com.syn.mpos.database.OrderTransactionDataSource;
+import com.syn.pos.Payment.PaymentDetail;
 import com.syn.pos.Report;
 
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -35,6 +30,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -217,41 +213,41 @@ public class SaleReportActivity extends Activity {
 			Reporting reporting = new Reporting(getActivityDatabase(), mDateFrom, mDateTo);
 			Report report = reporting.getSaleReportByBill();
 			
+			PaymentDetailDataSource payment = 
+					new PaymentDetailDataSource(getActivityDatabase());
+			
 			if(report != null){
 				for(int i = 0; i < report.reportDetail.size(); i++){
 					Report.ReportDetail detail = report.reportDetail.get(i);
 					
 					TableRow row = new TableRow(getActivity());
 					
-					TableRow.LayoutParams colParams = new TableRow.LayoutParams();
-					colParams.width = LayoutParams.WRAP_CONTENT;
-					colParams.height = LayoutParams.WRAP_CONTENT;
-					row.addView(createContent(detail.getReceiptNo()), colParams);
+					TextView tvReceiptNo = createContent(getActivity(), detail.getReceiptNo());
+					tvReceiptNo.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+					row.addView(tvReceiptNo);
+					row.addView(createContent(getActivity(), GlobalPropertyDataSource.currencyFormat(
+							getActivityDatabase(), detail.getTotalPrice())));
+					row.addView(createContent(getActivity(), GlobalPropertyDataSource.currencyFormat(
+							getActivityDatabase(), detail.getDiscount())));
+					row.addView(createContent(getActivity(), GlobalPropertyDataSource.currencyFormat(
+							getActivityDatabase(), detail.getTotalPrice())));
+					row.addView(createContent(getActivity(), GlobalPropertyDataSource.currencyFormat(
+							getActivityDatabase(), detail.getVatable())));
+					row.addView(createContent(getActivity(), GlobalPropertyDataSource.currencyFormat(
+							getActivityDatabase(), detail.getTotalVat())));
 					
-					colParams = new TableRow.LayoutParams();
-					colParams.width = LayoutParams.WRAP_CONTENT;
-					colParams.height = LayoutParams.WRAP_CONTENT;
-					colParams.gravity = Gravity.RIGHT;
-					row.addView(createContent(GlobalPropertyDataSource.currencyFormat(
-							getActivityDatabase(), detail.getTotalPrice())), colParams);
-					row.addView(createContent(GlobalPropertyDataSource.currencyFormat(
-							getActivityDatabase(), detail.getDiscount())), colParams);
-					row.addView(createContent(GlobalPropertyDataSource.currencyFormat(
-							getActivityDatabase(), detail.getTotalPrice())), colParams);
-					row.addView(createContent(GlobalPropertyDataSource.currencyFormat(
-							getActivityDatabase(), detail.getVatable())), colParams);
-					row.addView(createContent(GlobalPropertyDataSource.currencyFormat(
-							getActivityDatabase(), detail.getTotalVat())), colParams);
 					// pay type
+					List<PaymentDetail> payTypeLst = 
+							payment.listPaymentGroupByType(detail.getTransactionId(), detail.getComputerId());
+					for(PaymentDetail pay : payTypeLst){
+						row.addView(createContent(getActivity(), 
+								GlobalPropertyDataSource.currencyFormat(getActivityDatabase(), 
+										pay.getPayAmount())));
+					}
 					
-					
-					row.addView(createContent(GlobalPropertyDataSource.currencyFormat(
-							getActivityDatabase(), detail.getTotalPayment())), colParams);
-					
-					TableRow.LayoutParams rowParams = new TableRow.LayoutParams();
-					rowParams.width = LayoutParams.WRAP_CONTENT;
-					rowParams.height = LayoutParams.WRAP_CONTENT;
-					mDetailContent.addView(row, rowParams);
+					row.addView(createContent(getActivity(), GlobalPropertyDataSource.currencyFormat(
+							getActivityDatabase(), detail.getTotalPayment())));
+					mDetailContent.addView(row);
 				}
 			}
 		}
@@ -262,67 +258,57 @@ public class SaleReportActivity extends Activity {
 			View rootView = inflater.inflate(R.layout.fragment_sale_report,
 					container, false);
 			mHeaderContent = (TableLayout) rootView.findViewById(R.id.headerContent);
-			mDetailContent = (TableLayout) rootView.findViewById(R.id.detailContent);
+			mDetailContent = (TableLayout) rootView.findViewById(R.id.bodyContent);
 			
-			String[] billHeaderColumnsPrefix = {
+			String[] headerContent = {
 					getActivity().getString(R.string.bill_no),
 					getActivity().getString(R.string.sale_price),
 					getActivity().getString(R.string.discount),
 					getActivity().getString(R.string.total_price),
 					getActivity().getString(R.string.total_sale),
 					getActivity().getString(R.string.total_vat),
+					getActivity().getString(R.string.total_payment)
 				};
-				
-			String[] billHeaderColumnsSubfix = {
-					getActivity().getString(R.string.total_payment),
-			};
 			
 			// create header
-			createTableHeader(mHeaderContent, 
-					billHeaderColumnsPrefix, billHeaderColumnsSubfix);
-			
+			addRowToHeaderTable(getActivity(), mHeaderContent, headerContent);
 			return rootView;
-		}
-		
-		/**
-		 * create table header 
-		 * @param tbLayout
-		 */
-		public void createTableHeader(TableLayout tbLayout, String[] headerPrefix,
-				String[] headerSubfix){
-			
-			TableRow row = new TableRow(getActivity());
-			TableRow.LayoutParams colParams = new TableRow.LayoutParams();
-			colParams.width = LayoutParams.WRAP_CONTENT;
-			colParams.height = LayoutParams.WRAP_CONTENT;
-			colParams.gravity = Gravity.CENTER;
-			// prefix
-			for(String content : headerPrefix){
-				row.addView(createContent(content), colParams);
-			}
-			
-			// payment
-			
-			// subfix
-			for(String content : headerSubfix){
-				row.addView(createContent(content), colParams);
-			}
-
-			TableRow.LayoutParams rowParams = new TableRow.LayoutParams();
-			rowParams.width = LayoutParams.WRAP_CONTENT;
-			rowParams.height = LayoutParams.WRAP_CONTENT;
-			tbLayout.addView(row, rowParams);
-		}
-		
-		private TextView createContent(String content){
-			TextView tvContent = new TextView(getActivity());
-			tvContent.setText(content); 
-			return tvContent;
 		}
 
 		private SQLiteDatabase getActivityDatabase(){
 			return ((SaleReportActivity) getActivity()).getDatabase();
 		}
 	}
+	
+	public static void addRowToHeaderTable(Context c, TableLayout tbLayout, String[] contents){
+		TableRow row = new TableRow(c);
+		for(int i = 0; i < contents.length; i++){
+			String content = contents[i];
+			TextView tvContent = new TextView(c);
+			TableRow.LayoutParams params = 
+					new TableRow.LayoutParams(
+							0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
 
+			tvContent.setLayoutParams(params);
+			tvContent.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER);
+			tvContent.setTextAppearance(c, R.style.HeaderText);
+			tvContent.setBackgroundResource(R.drawable.border);
+			tvContent.setText(content); 
+			row.addView(tvContent);
+		}
+		tbLayout.addView(row);
+	}
+	
+	public static TextView createContent(Context c, String content){
+		TextView tvContent = new TextView(c);
+		TableRow.LayoutParams params = 
+				new TableRow.LayoutParams(
+						0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
+		tvContent.setLayoutParams(params);
+		tvContent.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
+		tvContent.setTextAppearance(c, R.style.BodyText);
+		tvContent.setBackgroundResource(R.drawable.border);
+		tvContent.setText(content);
+		return tvContent;
+	}
 }

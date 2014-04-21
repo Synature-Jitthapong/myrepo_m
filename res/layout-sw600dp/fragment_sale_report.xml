@@ -1,6 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -12,26 +11,24 @@
 
     <TableLayout
         android:id="@+id/headerContent"
+        style="@style/HeaderRow"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:stretchColumns="*" >
+        android:layout_height="wrap_content" >
 
     </TableLayout>
 
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bottom_radius_background" >
+        android:layout_height="wrap_content" >
 
         <TableLayout
-            android:id="@+id/detailContent"
+            android:id="@+id/bodyContent"
+            style="@style/BodyRow"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:stretchColumns="*" >
+            android:layout_height="wrap_content" >
 
         </TableLayout>
 
     </ScrollView>
-
 </LinearLayout>

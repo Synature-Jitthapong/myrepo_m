@@ -116,9 +116,13 @@ containing a value of this type.
     }
     public static final class color {
         public static final int background_tab_pressed=0x7f060000;
+        public static final int blue_green=0x7f060007;
+        public static final int dark_green=0x7f060005;
         public static final int dark_grey=0x7f060003;
         public static final int light_grey=0x7f060001;
+        public static final int light_red=0x7f060008;
         public static final int smoke_white=0x7f060004;
+        public static final int text_shadow=0x7f060006;
         public static final int white_grey=0x7f060002;
     }
     public static final class dimen {
@@ -131,6 +135,8 @@ containing a value of this type.
          */
         public static final int activity_horizontal_margin=0x7f070000;
         public static final int activity_vertical_margin=0x7f070001;
+        public static final int border_offset=0x7f070005;
+        public static final int border_width=0x7f070004;
         public static final int medium_radius=0x7f070003;
         public static final int medium_space=0x7f070002;
     }
@@ -138,24 +144,25 @@ containing a value of this type.
         public static final int actionbar_bottom=0x7f020000;
         public static final int background_tab=0x7f020001;
         public static final int badge_text=0x7f020002;
-        public static final int bottom_radius_background=0x7f020003;
-        public static final int button_selector=0x7f020004;
-        public static final int company_logo=0x7f020005;
-        public static final int default_image=0x7f020006;
-        public static final int ic_action_accept=0x7f020007;
-        public static final int ic_action_remove=0x7f020008;
-        public static final int ic_action_warning=0x7f020009;
-        public static final int ic_launcher=0x7f02000a;
-        public static final int list_selector=0x7f02000b;
-        public static final int menu_default=0x7f02000c;
-        public static final int menu_pressed=0x7f02000d;
-        public static final int order_background=0x7f02000e;
-        public static final int radius_background=0x7f02000f;
+        public static final int border=0x7f020003;
+        public static final int bottom_radius_background=0x7f020004;
+        public static final int button_selector=0x7f020005;
+        public static final int company_logo=0x7f020006;
+        public static final int default_image=0x7f020007;
+        public static final int ic_action_accept=0x7f020008;
+        public static final int ic_action_remove=0x7f020009;
+        public static final int ic_action_warning=0x7f02000a;
+        public static final int ic_launcher=0x7f02000b;
+        public static final int list_selector=0x7f02000c;
+        public static final int menu_default=0x7f02000d;
+        public static final int menu_pressed=0x7f02000e;
+        public static final int order_background=0x7f02000f;
+        public static final int radius_background=0x7f020010;
     }
     public static final class id {
         public static final int LinearLayout01=0x7f0b0048;
         public static final int LinearLayout1=0x7f0b001c;
-        public static final int LinearLayout2=0x7f0b001d;
+        public static final int LinearLayout2=0x7f0b0021;
         public static final int LinearLayout3=0x7f0b0041;
         public static final int RelativeLayout1=0x7f0b0043;
         public static final int ScrollView1=0x7f0b0003;
@@ -165,6 +172,7 @@ containing a value of this type.
         public static final int TableRow3=0x7f0b0067;
         public static final int TableRow4=0x7f0b0069;
         public static final int action_settings=0x7f0b00c7;
+        public static final int bodyContent=0x7f0b007b;
         public static final int btnBillDate=0x7f0b005c;
         public static final int btnClearSelOrder=0x7f0b002e;
         public static final int btnDateFrom=0x7f0b006b;
@@ -196,7 +204,6 @@ containing a value of this type.
         public static final int buttonLogin=0x7f0b002b;
         public static final int checkBox1=0x7f0b008e;
         public static final int container=0x7f0b0059;
-        public static final int detailContent=0x7f0b007b;
         public static final int editText1=0x7f0b007f;
         public static final int editTextPassWord=0x7f0b0029;
         public static final int expandableListView1=0x7f0b0077;
@@ -242,7 +249,7 @@ containing a value of this type.
         public static final int loadImgProgress=0x7f0b0081;
         public static final int lvBill=0x7f0b005e;
         public static final int lvBillDetail=0x7f0b0061;
-        public static final int lvOrder=0x7f0b0021;
+        public static final int lvOrder=0x7f0b0020;
         public static final int lvPayDetail=0x7f0b0042;
         public static final int lvProSize=0x7f0b0095;
         public static final int lvSync=0x7f0b005b;
@@ -269,7 +276,7 @@ containing a value of this type.
         public static final int tbRowDiscount=0x7f0b0033;
         public static final int tbRowVat=0x7f0b0036;
         public static final int textView1=0x7f0b0001;
-        public static final int textView10=0x7f0b0020;
+        public static final int textView10=0x7f0b001f;
         public static final int textView12=0x7f0b0025;
         public static final int textView2=0x7f0b0000;
         public static final int textView3=0x7f0b0008;
@@ -277,8 +284,8 @@ containing a value of this type.
         public static final int textView5=0x7f0b0015;
         public static final int textView6=0x7f0b0012;
         public static final int textView7=0x7f0b0018;
-        public static final int textView8=0x7f0b001e;
-        public static final int textView9=0x7f0b001f;
+        public static final int textView8=0x7f0b001d;
+        public static final int textView9=0x7f0b001e;
         public static final int textViewDiscount=0x7f0b0035;
         public static final int textViewHoldTitle=0x7f0b0034;
         public static final int textViewMenuName=0x7f0b0086;
@@ -702,10 +709,12 @@ containing a value of this type.
     
          */
         public static final int BaseActivityDialogTheme=0x7f090007;
-        public static final int ButtonText=0x7f090001;
-        public static final int ButtonTextWhite=0x7f090000;
-        public static final int ColumnDetail=0x7f090002;
-        public static final int ColumnHeader=0x7f090003;
+        public static final int BodyRow=0x7f090002;
+        public static final int BodyText=0x7f090003;
+        /**  Table Style 
+         */
+        public static final int HeaderRow=0x7f090000;
+        public static final int HeaderText=0x7f090001;
     }
     public static final class xml {
         public static final int pref_general=0x7f040000;

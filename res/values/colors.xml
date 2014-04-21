@@ -4,4 +4,8 @@
     <color name="white_grey">#FFFAFAFA</color>
     <color name="dark_grey">#FFBBBBBB</color>
 	<color name="smoke_white">#FFFCFCFC</color>
+	<color name="dark_green">#0F7F0F</color>
+	<color name="text_shadow">#AFFFFFFF</color>
+	<color name="blue_green">#0f92bd</color>
+	<color name="light_red">#ff3016</color>
 </resources>

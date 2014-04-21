@@ -8,7 +8,7 @@
 
     <TextView
         android:id="@+id/tvPayType"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
@@ -19,7 +19,7 @@
 
     <TextView
         android:id="@+id/tvPayDetail"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
@@ -29,7 +29,7 @@
 
     <TextView
         android:id="@+id/tvPayAmount"
-        style="@style/ColumnDetail"
+        style="@style/BodyText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
