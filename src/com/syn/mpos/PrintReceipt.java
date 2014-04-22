@@ -443,14 +443,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 			if(data.contains("<h>")){
 				data = adjustAlignCenter(data.replace("<h>", ""));
 			}
-			data = unicodeToASCII(data);
     		printer.PRN_Print(data);
-//			try {
-//				Thread.sleep(100);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
     	printer.PRN_PrintAndFeedLine(6);		
 		printer.PRN_HalfCutPaper();	
