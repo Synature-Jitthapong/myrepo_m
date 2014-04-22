@@ -18,10 +18,10 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param orderDetailId
 	 * @return
 	 */
-	public List<ProductsDataSource.ProductSet> listOrderSet(int transactionId, int orderDetailId){
+	public List<MPOSOrderTransaction.OrderSet> listOrderSet(int transactionId, int orderDetailId){
 		
-		List<ProductsDataSource.ProductSet> productSetLst = 
-				new ArrayList<ProductsDataSource.ProductSet>();
+		List<MPOSOrderTransaction.OrderSet> productSetLst = 
+				new ArrayList<MPOSOrderTransaction.OrderSet>();
 		
 		Cursor mainCursor = mSqlite.rawQuery(
 				" SELECT b." + ProductComponentTable.COLUMN_PGROUP_ID + ", "  
@@ -44,7 +44,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 				int pcompGroupId = mainCursor.getInt(mainCursor.getColumnIndex(
 						ProductComponentTable.COLUMN_PGROUP_ID));
 				
-				ProductsDataSource.ProductSet group = new ProductsDataSource.ProductSet();
+				MPOSOrderTransaction.OrderSet group = new MPOSOrderTransaction.OrderSet();
 				group.setTransactionId(transactionId);
 				group.setOrderDetailId(orderDetailId);
 				group.setProductGroupId(pcompGroupId);
@@ -74,8 +74,8 @@ public class OrderSetDataSource extends MPOSDatabase{
 				
 				if(detailCursor.moveToFirst()){
 					do{
-						ProductsDataSource.ProductSet.ProductSetDetail detail = 
-								new ProductsDataSource.ProductSet.ProductSetDetail();
+						MPOSOrderTransaction.OrderSet.OrderSetDetail detail = 
+								new MPOSOrderTransaction.OrderSet.OrderSetDetail();
 						detail.setOrderSetId(detailCursor.getInt(detailCursor.getColumnIndex(
 								OrderSetTable.COLUMN_ORDER_SET_ID)));
 						detail.setProductId(detailCursor.getInt(detailCursor.getColumnIndex(

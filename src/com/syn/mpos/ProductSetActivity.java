@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.GlobalPropertyDataSource;
+import com.syn.mpos.database.MPOSOrderTransaction;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrderSetDataSource;
 import com.syn.mpos.database.OrderTransactionDataSource;
@@ -233,7 +234,7 @@ public class ProductSetActivity extends Activity{
 		 * load order set
 		 */
 		private void loadOrderSet(){
-			List<ProductsDataSource.ProductSet> setLst = 
+			List<MPOSOrderTransaction.OrderSet> setLst = 
 					mOrderSet.listOrderSet(mTransactionId, mOrderDetailId); 
 			OrderSetAdapter adapter = new OrderSetAdapter(setLst);
 			mLvOrderSet.setAdapter(adapter);
@@ -252,11 +253,11 @@ public class ProductSetActivity extends Activity{
 		
 		public class OrderSetAdapter extends BaseExpandableListAdapter{
 			
-			private List<ProductsDataSource.ProductSet> mProductSetLst;
+			private List<MPOSOrderTransaction.OrderSet> mProductSetLst;
 			
 			private LayoutInflater mInflater;
 			
-			public OrderSetAdapter(List<ProductsDataSource.ProductSet> productSetLst){
+			public OrderSetAdapter(List<MPOSOrderTransaction.OrderSet> productSetLst){
 				mProductSetLst = productSetLst;
 				
 				mInflater = (LayoutInflater) getActivity().getSystemService(
@@ -270,18 +271,18 @@ public class ProductSetActivity extends Activity{
 
 			@Override
 			public int getChildrenCount(int groupPosition) {
-				ProductsDataSource.ProductSet set = mProductSetLst.get(groupPosition);
+				MPOSOrderTransaction.OrderSet set = mProductSetLst.get(groupPosition);
 				return set.mProductLst != null ? set.mProductLst.size() : 0;
 			}
 
 			@Override
-			public ProductsDataSource.ProductSet getGroup(int groupPosition) {
+			public MPOSOrderTransaction.OrderSet getGroup(int groupPosition) {
 				return mProductSetLst.get(groupPosition);
 			}
 
 			@Override
-			public ProductsDataSource.ProductSet.ProductSetDetail getChild(int groupPosition, int childPosition) {
-				ProductsDataSource.ProductSet set = mProductSetLst.get(groupPosition);
+			public MPOSOrderTransaction.OrderSet.OrderSetDetail getChild(int groupPosition, int childPosition) {
+				MPOSOrderTransaction.OrderSet set = mProductSetLst.get(groupPosition);
 				return set.mProductLst.get(childPosition);
 			}
 
