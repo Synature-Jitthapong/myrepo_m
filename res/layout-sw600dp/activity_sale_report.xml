@@ -101,6 +101,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.8"
+                android:gravity="right"
                 android:text="@string/total" />
 
             <TextView
@@ -190,7 +191,8 @@
                 style="@style/HeaderText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8" />
+                android:layout_weight="0.8"
+                android:gravity="right" />
 
             <TextView
                 android:id="@+id/tvSummProTotalPricePercent"
@@ -295,33 +297,6 @@
                 android:text="@string/total_vat" />
 
             <TextView
-                android:id="@+id/TextView09"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right"
-                android:text="@string/cash" />
-
-            <TextView
-                android:id="@+id/TextView11"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right"
-                android:text="@string/credit" />
-
-            <TextView
-                android:id="@+id/TextView12"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right"
-                android:text="Voucher" />
-
-            <TextView
                 android:id="@+id/textView8"
                 style="@style/HeaderText"
                 android:layout_width="0dp"
@@ -402,33 +377,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.7"
                 android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummTotalCash"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-
-            <TextView
-                android:id="@+id/tvSummTotalCredit"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-
-            <TextView
-                android:id="@+id/TextView14"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
                 android:id="@+id/tvSummTotalPay"

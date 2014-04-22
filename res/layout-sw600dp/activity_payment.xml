@@ -81,7 +81,8 @@
                     android:layout_marginTop="1dp"
                     android:layout_weight="0.8"
                     android:gravity="left"
-                    android:text="@string/pay_type" />
+                    android:text="@string/pay_type"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
                     android:id="@+id/textView3"
@@ -91,7 +92,8 @@
                     android:layout_marginTop="1dp"
                     android:layout_weight="1"
                     android:gravity="left"
-                    android:text="@string/pay_detail" />
+                    android:text="@string/pay_detail"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
                     android:id="@+id/textView4"
@@ -100,7 +102,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:layout_weight="0.8"
-                    android:text="@string/pay_amount" />
+                    android:text="@string/pay_amount"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
                     android:id="@+id/textView2"

@@ -12,16 +12,19 @@ import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.mpos.database.PaymentDetailDataSource;
 import com.syn.mpos.database.Reporting;
+import com.syn.pos.Payment;
 import com.syn.pos.Report;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,7 +70,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	private Spinner mSpReportType;
 	private LinearLayout mLayoutBillReport;
 	private LinearLayout mLayoutProductReport;
-	private LinearLayout mBillHeader;
+	//private LinearLayout mBillHeader;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +80,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 
 		mLayoutBillReport = (LinearLayout) findViewById(R.id.billLayout);
 		mLayoutProductReport = (LinearLayout) findViewById(R.id.productLayout);
-		mBillHeader = (LinearLayout) findViewById(R.id.billHeader);
+		//mBillHeader = (LinearLayout) findViewById(R.id.billHeader);
 		
 		mLvReport = (ListView) findViewById(R.id.lvReport);
 		mLvReportProduct = (ExpandableListView) findViewById(R.id.lvReportProduct);
@@ -99,6 +102,10 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mLvReportProduct.setGroupIndicator(null);
 	}
 	
+	public SQLiteDatabase getDatabase(){
+		return mSqlite;
+	}
+	
 	private void genBillReport(){
 		mReporting = new Reporting(mSqlite, mDateFrom, mDateTo);
 		mReport = mReporting.getSaleReportByBill();
@@ -118,8 +125,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			TextView tvSummSubTotal = (TextView) findViewById(R.id.tvSummSubTotal);
 			TextView tvSummVatable = (TextView) findViewById(R.id.tvSummVatable);
 			TextView tvSummTotalVat = (TextView) findViewById(R.id.tvSummTotalVat);
-			TextView tvSummTotalCash = (TextView) findViewById(R.id.tvSummTotalCash);
-			TextView tvSummTotalCredit = (TextView) findViewById(R.id.tvSummTotalCredit);
 			TextView tvSummTotalPay = (TextView) findViewById(R.id.tvSummTotalPay);
 			
 			double totalPrice = 0.0f;
@@ -128,8 +133,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			double totalVatable = 0.0f;
 			double totalVat = 0.0f;
 			double totalPay = 0.0f;
-			double totalCash = 0.0f;
-			double totalCredit = 0.0f;
 			
 			PaymentDetailDataSource payment = new PaymentDetailDataSource(mSqlite);
 			for(Report.ReportDetail reportDetail : mReport.reportDetail){
@@ -139,10 +142,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 					totalSub += reportDetail.getSubTotal();
 					totalVatable += reportDetail.getVatable();
 					totalVat += reportDetail.getTotalVat();
-					totalCash += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
-							reportDetail.getComputerId(), PaymentDetailDataSource.PAY_TYPE_CASH);
-					totalCredit += mReporting.getTotalPayByPayType(reportDetail.getTransactionId(), 
-							reportDetail.getComputerId(), PaymentDetailDataSource.PAY_TYPE_CREDIT);
 					totalPay += payment.getTotalPaid(reportDetail.getTransactionId(), 
 							reportDetail.getComputerId());
 				}
@@ -153,8 +152,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			tvSummVatable.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalVatable));
 			tvSummTotalVat.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalVat));
 			tvSummTotalPay.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalPay));
-			tvSummTotalCash.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalCash));
-			tvSummTotalCredit.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalCredit));
 		}
 	}
 	
@@ -328,7 +325,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				boolean isLastChild, View convertView, ViewGroup parent) {	
 			ProductReportViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.sale_report_by_product_template, parent, false);
+				convertView = mInflater.inflate(R.layout.product_report_template, parent, false);
 				holder = new ProductReportViewHolder();
 				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
 				holder.tvProductCode = (TextView) convertView.findViewById(R.id.tvProCode);
@@ -531,33 +528,28 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.sale_report_by_bill_template, null);
+				convertView = mInflater.inflate(R.layout.bill_report_template, null);
 				holder = new ViewHolder();
 				holder.imgSendStatus = (ImageView) convertView.findViewById(R.id.imgSendStatus);
 				holder.tvReceipt = (TextView) convertView.findViewById(R.id.tvReceipt);
 				holder.tvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
 				holder.tvDiscount = (TextView) convertView.findViewById(R.id.tvTotalDisc);
 				holder.tvSubTotal = (TextView) convertView.findViewById(R.id.tvSubTotal);
-				holder.tvTotalSale = (TextView) convertView.findViewById(R.id.tvTotalSale);
 				holder.tvVatable = (TextView) convertView.findViewById(R.id.tvVatable);
 				holder.tvTotalVat = (TextView) convertView.findViewById(R.id.tvTotalVat);
-				holder.tvCash = (TextView) convertView.findViewById(R.id.tvCash);
-				holder.tvCredit = (TextView) convertView.findViewById(R.id.tvCredit);
 				holder.tvTotalPayment = (TextView) convertView.findViewById(R.id.tvTotalPayment);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
-			Report.ReportDetail report = mReport.reportDetail.get(position);
+			
+			final Report.ReportDetail report = mReport.reportDetail.get(position);
 			double vatable = report.getVatable();
 			double totalVat = report.getTotalVat();
 			double totalPrice = report.getTotalPrice();
 			double totalDiscount = report.getDiscount();
 			double subTotal = report.getSubTotal();
-			double cash = report.getCash();
-			double credit = report.getCredit();
-			//double voucheer = report.get
-			double totalPay = cash + credit;
+			double totalPay = report.getTotalPayment();
 			
 			holder.tvReceipt.setText(report.getReceiptNo());
 			holder.tvReceipt.setSelected(true);
@@ -582,8 +574,19 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 //				idx++;
 //			}
 			
-			holder.tvCash.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, cash));
-			holder.tvCredit.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, credit));
+			holder.tvTotalPayment.setTextColor(Color.BLUE);
+			holder.tvTotalPayment.setPaintFlags(holder.tvTotalPayment.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+			holder.tvTotalPayment.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					PaymentDetailFragment f = 
+							PaymentDetailFragment.newInstance(
+									report.getTransactionId(), report.getComputerId());
+					f.show(getFragmentManager(), "PaymentDialogFragment");
+				}
+				
+			});
 			
 			if(report.getSendStatus() == MPOSDatabase.ALREADY_SEND){
 				holder.imgSendStatus.setImageResource(R.drawable.ic_action_accept);
@@ -603,16 +606,105 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			TextView tvTotalPrice;
 			TextView tvDiscount;
 			TextView tvSubTotal;
-			TextView tvTotalSale;
 			TextView tvVatable;
 			TextView tvTotalVat;
-			TextView tvCash;
-			TextView tvCredit;
-			TextView tvVoucher;
 			TextView tvTotalPayment;
 		}
 	}
 
+	/*
+	 * Payment detail dialog
+	 */
+	public static class PaymentDetailFragment extends DialogFragment{
+		
+		private PaymentDetailDataSource mPayment;
+		private List<Payment.PaymentDetail> mPaymentLst;
+		private PaymentDetailAdapter mPaymentAdapter;
+		
+		private int mTransactionId;
+		private int mComputerId;
+		
+		private LayoutInflater mInflater;
+		
+		public static PaymentDetailFragment newInstance(int transactionId, int computerId){
+			PaymentDetailFragment f = new PaymentDetailFragment();
+			Bundle b = new Bundle();
+			b.putInt("transactionId", transactionId);
+			b.putInt("computerId", computerId);
+			f.setArguments(b);
+			return f;
+		}
+		
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			mTransactionId = getArguments().getInt("transactionId");
+			mComputerId = getArguments().getInt("computerId");
+			
+			mPayment = new PaymentDetailDataSource(((SaleReportActivity) getActivity()).getDatabase());
+			mPaymentLst = mPayment.listPaymentGroupByType(mTransactionId, mComputerId);
+			mPaymentAdapter = new PaymentDetailAdapter();
+			
+			mInflater = (LayoutInflater) 
+					getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			
+			super.onCreate(savedInstanceState);
+		}
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			View v = mInflater.inflate(R.layout.listview, null);
+			final ListView lv = (ListView) v;
+			lv.setAdapter(mPaymentAdapter);
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle(R.string.payment);
+			builder.setView(v);
+			builder.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					getDialog().dismiss();
+				}
+			});
+
+			return builder.create();
+		}
+
+		private class PaymentDetailAdapter extends BaseAdapter{
+
+			@Override
+			public int getCount() {
+				return mPaymentLst != null ? mPaymentLst.size() : 0;
+			}
+
+			@Override
+			public Payment.PaymentDetail getItem(int position) {
+				return mPaymentLst.get(position);
+			}
+
+			@Override
+			public long getItemId(int position) {
+				return position;
+			}
+
+			@Override
+			public View getView(int position, View convertView, ViewGroup parent) {
+				convertView = mInflater.inflate(R.layout.template_flex_left_right, null);
+				TextView tvLeft = (TextView) convertView.findViewById(R.id.textView1);
+				TextView tvRight = (TextView) convertView.findViewById(R.id.textView2);
+				
+				Payment.PaymentDetail payment = mPaymentLst.get(position);
+				
+				tvLeft.setText(payment.getPayTypeName());
+				tvRight.setText(GlobalPropertyDataSource.currencyFormat(
+						((SaleReportActivity) getActivity()).getDatabase(), payment.getPayAmount()));
+				
+				return convertView;
+			}
+			
+		}
+	}
+	
 	@Override
 	public void onClick(View v) {
 		DialogFragment dialogFragment;
