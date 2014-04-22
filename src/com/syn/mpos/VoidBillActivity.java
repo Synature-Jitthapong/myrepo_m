@@ -6,10 +6,10 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.syn.mpos.database.GlobalPropertyDataSource;
+import com.syn.mpos.database.MPOSOrderTransaction;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.ShopDataSource;
 import com.syn.mpos.database.OrderTransactionDataSource;
-import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -40,8 +40,8 @@ public class VoidBillActivity extends Activity {
 	private MPOSSQLiteHelper mSqliteHelper;
 	private SQLiteDatabase mSqlite;
 	private OrderTransactionDataSource mTransaction;
-	private List<OrderTransaction> mTransLst;
-	private List<OrderTransaction.OrderDetail> mOrderLst;
+	private List<MPOSOrderTransaction> mTransLst;
+	private List<MPOSOrderTransaction.OrderDetail> mOrderLst;
 	private BillAdapter mBillAdapter;
 	private BillDetailAdapter mBillDetailAdapter;
 	
@@ -121,7 +121,7 @@ public class VoidBillActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View v, int position,
 					long id) {
 				Calendar c = Calendar.getInstance();
-				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
+				MPOSOrderTransaction trans = (MPOSOrderTransaction) parent.getItemAtPosition(position);
 				c.setTimeInMillis(Long.parseLong(trans.getPaidTime()));
 				
 				mTransactionId = trans.getTransactionId();
@@ -167,8 +167,8 @@ public class VoidBillActivity extends Activity {
 	
 	private void init(){
 		mTransaction = new OrderTransactionDataSource(mSqlite);
-		mTransLst = new ArrayList<OrderTransaction>();
-		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
+		mTransLst = new ArrayList<MPOSOrderTransaction>();
+		mOrderLst = new ArrayList<MPOSOrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();
 		mBillDetailAdapter = new BillDetailAdapter();
 		mLvBill.setAdapter(mBillAdapter);
@@ -185,7 +185,7 @@ public class VoidBillActivity extends Activity {
 		}
 
 		@Override
-		public OrderTransaction getItem(int position) {
+		public MPOSOrderTransaction getItem(int position) {
 			return mTransLst.get(position);
 		}
 
@@ -196,7 +196,7 @@ public class VoidBillActivity extends Activity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			final OrderTransaction trans = mTransLst.get(position);
+			final MPOSOrderTransaction trans = mTransLst.get(position);
 			ViewHolder holder;
 			
 			LayoutInflater inflater = (LayoutInflater) 
@@ -247,7 +247,7 @@ public class VoidBillActivity extends Activity {
 		}
 
 		@Override
-		public OrderTransaction.OrderDetail getItem(int position) {
+		public MPOSOrderTransaction.OrderDetail getItem(int position) {
 			return mOrderLst.get(position);
 		}
 
@@ -258,7 +258,7 @@ public class VoidBillActivity extends Activity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			OrderTransaction.OrderDetail order = mOrderLst.get(position);
+			MPOSOrderTransaction.OrderDetail order = mOrderLst.get(position);
 			ViewHolder holder;
 			
 			if(convertView == null){
