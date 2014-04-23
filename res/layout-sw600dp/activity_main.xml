@@ -14,27 +14,43 @@
         android:layout_weight="0.5"
         android:orientation="vertical" >
 
-        <EditText
-            android:id="@+id/txtBarCode"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/medium_space"
-            android:ems="1"
-            android:hint="@string/barcode"
-            android:imeOptions="actionSearch"
-            android:lines="1"
-            android:maxLines="1"
-            android:singleLine="true"
-            android:textSize="22sp" >
+            android:layout_height="wrap_content" >
 
-            <requestFocus />
-        </EditText>
+            <EditText
+                android:id="@+id/txtBarCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/medium_space"
+                android:ems="1"
+                android:hint="@string/barcode"
+                android:imeOptions="actionSearch"
+                android:lines="1"
+                android:maxLines="1"
+                android:paddingRight="48dp"
+                android:singleLine="true"
+                android:textSize="22sp" />
+
+            <ImageButton
+                android:id="@+id/imgBtnClearBarcode"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignRight="@+id/txtBarCode"
+                android:minWidth="48dip"
+                android:onClick="onClearBarCode"
+                android:src="@drawable/ic_action_cancel" />
+
+        </RelativeLayout>
 
         <ListView
             android:id="@+id/lvOrder"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" >
+            android:layout_weight="1"
+            android:background="@drawable/order_background" >
 
         </ListView>
     
@@ -67,6 +83,7 @@
             android:id="@+id/tbLayoutSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/order_bottom_background"
             android:padding="4dp" >
 
             <TableRow
@@ -163,11 +180,6 @@
             </TableRow>
         </TableLayout>
     </LinearLayout>
-
-    <View
-        android:layout_width="1dp"
-        android:layout_height="fill_parent"
-        android:background="@color/light_grey" />
 
     <RelativeLayout
         android:layout_width="0dp"

@@ -924,6 +924,10 @@ public class MainActivity extends FragmentActivity implements
 		return false;
 	}
 	
+	public void onClearBarCode(final View v){
+		mTxtBarCode.setText(null);
+	}
+	
 	private void loadOrder(){
 		mOrderDetailLst = mTransaction.listAllOrder(mTransactionId, mComputerId);
 		mOrderDetailAdapter.notifyDataSetChanged();
