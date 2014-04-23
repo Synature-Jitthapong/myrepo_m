@@ -319,7 +319,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 				mStaff.getStaff(mStaffId).getStaffName();
 		builder.append(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
 		builder.append(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
-		builder.append(cashCheer + createHorizontalSpace(cashCheer.length()));
+		builder.append(cashCheer + createHorizontalSpace(cashCheer.length()) + "\n");
 		builder.append(createLine("=") + "\n");
 		
 		List<OrderTransaction.OrderDetail> orderLst = 

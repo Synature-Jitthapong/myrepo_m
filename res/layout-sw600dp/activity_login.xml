@@ -47,6 +47,7 @@
         android:layout_alignLeft="@+id/txtPass"
         android:layout_alignRight="@+id/txtPass"
         android:layout_below="@+id/txtPass"
+        android:drawableLeft="@drawable/ic_action_not_secure"
         android:text="@string/login"
         android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
