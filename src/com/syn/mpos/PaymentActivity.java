@@ -4,6 +4,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.wintec.wtandroidjar2.Msr;
+
+import com.j1tth4.mobile.util.Logger;
 import com.syn.mpos.R;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSSQLiteHelper;
@@ -13,6 +16,9 @@ import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.pos.Payment;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -36,12 +42,16 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PaymentActivity extends Activity  implements OnClickListener {
+public class PaymentActivity extends Activity  implements OnClickListener{
 	
 	public static final int REQUEST_CREDIT_PAY = 1;
 	public static final int RESULT_ENOUGH = 1;
 	public static final int RESULT_NOT_ENOUGH = -1;
-	private int resultCreditCode = RESULT_NOT_ENOUGH;
+
+	/*
+	 * credit pay not enough result code
+	 */
+	private int mResultCreditCode = RESULT_NOT_ENOUGH;
 	
 	private MPOSSQLiteHelper mSqliteHelper;
 	private SQLiteDatabase mSqlite;
@@ -116,7 +126,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if(requestCode == REQUEST_CREDIT_PAY){
-			resultCreditCode = resultCode;
+			mResultCreditCode = resultCode;
 		}
 	}
 	
@@ -128,7 +138,7 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 		}else{
 			summary();
 			loadPayDetail();
-			if(resultCreditCode == RESULT_ENOUGH)
+			if(mResultCreditCode == RESULT_ENOUGH)
 				confirm();
 		}
 		super.onResume();
@@ -540,4 +550,5 @@ public class PaymentActivity extends Activity  implements OnClickListener {
 			Button btnPayment;
 		}
 	}
+
 }

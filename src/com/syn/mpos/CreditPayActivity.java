@@ -5,6 +5,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import cn.wintec.wtandroidjar2.ComIO;
+import cn.wintec.wtandroidjar2.Msr;
+
 import com.j1tth4.mobile.util.Logger;
 import com.syn.mpos.database.BankDataSource;
 import com.syn.mpos.database.CreditCardDataSource;
@@ -22,6 +25,8 @@ import android.content.Intent;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -40,9 +45,40 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
-public class CreditPayActivity extends Activity implements TextWatcher{
+public class CreditPayActivity extends Activity implements TextWatcher, 
+	Runnable{
 	
 	public static final String TAG = "CreditPayActivity";
+	
+	/*
+	 * Message add rx data from magnatic reader
+	 */
+	public static final int MSG_ADD_RX_DATA = 0x001;
+	
+	/*
+	 * is magnatic read state
+	 */
+	private boolean mIsRead = false;
+	
+	/*
+	 * magnatic data tracks
+	 * track1, track2, track3
+	 */
+	private byte mEnterTrack1;
+	private byte mEnterTrack2;
+	private byte mEnterTrack3;
+	
+	/*
+	 * Magnetic reader
+	 */
+	private static final String mDevicePath = "/dev/ttySAC3";	
+	private static final String mBaudRate = "BAUD_9600";
+	private Msr mMsr;
+	
+	/*
+	 * Thread for run magnetic reader listener 
+	 */
+	private Thread mMsrThread;
 	
 	private MPOSSQLiteHelper mSqliteHelper;
 	private SQLiteDatabase mSqlite;
@@ -141,6 +177,22 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mPaymentLeft = intent.getDoubleExtra("paymentLeft", 0.0d);
+		
+		mMsr = new Msr(mDevicePath, ComIO.Baudrate.valueOf(mBaudRate));
+		
+		// start magnetic reader thread
+		try {
+			mMsrThread = new Thread(this);
+			mMsrThread.start();
+			mIsRead = true;
+			Logger.appendLog(this, MPOSApplication.LOG_DIR, 
+					MPOSApplication.LOG_FILE_NAME, "Start magnetic reader thread");
+		} catch (Exception e) {
+			Logger.appendLog(this, MPOSApplication.LOG_DIR, 
+					MPOSApplication.LOG_FILE_NAME, 
+					"Error start magnetic reader thread " + 
+					e.getMessage());
+		}
 	}
 
 	@Override
@@ -450,4 +502,78 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
 	}
+	
+	/*
+	 * Close magnetic reader thread
+	 */
+	private synchronized void closeMsrThread(){
+		if(mMsrThread != null){
+			mMsrThread.interrupt();
+			mMsrThread = null;
+		}
+	}
+	
+	@Override
+	protected void onDestroy() {
+		closeMsrThread();
+		super.onDestroy();
+	}
+
+	/*
+	 * Listener for magnetic reader
+	 */
+	@Override
+	public void run() {
+		while(mIsRead){
+			try {
+				String str = mMsr.MSR_GetTrackData(
+						mEnterTrack1, mEnterTrack2, mEnterTrack3);
+				 if(str.length() > 0){
+					 Bundle bundle = new Bundle();	 
+					 bundle.putString("content", str); 
+					 Message message = new Message();
+				     message.setData(bundle);
+				     message.what = MSG_ADD_RX_DATA;
+				     mMsrHandler.sendMessage(message);
+				}
+			} catch (Exception e) {
+				Logger.appendLog(MPOSApplication.getContext(), 
+						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+						" Error when read data from magnetic card : " + e.getMessage());
+			}
+		}
+	}
+	
+	/*
+	 * Handler for listener magnatic reader
+	 */
+	private Handler mMsrHandler = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg) {
+			if(msg.what == MSG_ADD_RX_DATA){
+				final String content = msg.getData().getString("content");
+				if(!content.equals("")){
+					runOnUiThread(new Runnable(){
+
+						@Override
+						public void run() {
+							new AlertDialog.Builder(CreditPayActivity.this)
+							.setMessage(content + "\r\n")
+							.show();
+						}
+						
+					});
+					Logger.appendLog(MPOSApplication.getContext(), 
+							MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+							content);
+				}else{
+					Logger.appendLog(MPOSApplication.getContext(), 
+							MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+							"Cannot receive anything.");
+				}
+			}
+		}
+		
+	};
 }
