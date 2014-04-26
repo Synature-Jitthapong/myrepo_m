@@ -224,7 +224,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="endday_success">Endday successfully.</string>
     <string name="product_size">Product Size</string>
     <string name="enter_valid_numeric">Please enter valid numeric.</string>
-    <string name="card_holder">CardHolder</string>
     <string name="cvv2">Card Verification Number</string>
     <string name="endday_progress">Ending day please wait&#8230;</string>
     <string name="date">Date</string>
@@ -264,5 +263,9 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="title_activity_product_set">Set menu</string>
     <string name="internal_printer">Internal Printer</string>
     <string name="internal_printer_wintec">WINTEC Printer</string>
+    <string name="spinner_please_select">Please select</string>
+    <string name="card_holder_name">Card Holder Name</string>
+    <string name="please_select_card">Please select card type.</string>
+    <string name="please_select_bank">Please select bank.</string>
 
 </resources>

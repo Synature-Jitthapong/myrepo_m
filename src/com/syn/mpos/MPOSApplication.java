@@ -3,6 +3,9 @@ package com.syn.mpos;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import cn.wintec.wtandroidjar2.ComIO;
+import cn.wintec.wtandroidjar2.DspPos;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,25 +14,45 @@ import android.provider.Settings.Secure;
 
 public class MPOSApplication extends Application {
 	
-	// service name
+	/*
+	 * WebService file name
+	 */
 	public static final String WS_NAME = "ws_mpos.asmx";
 
-	// image dir
+	/*
+	 * Menu image dir
+	 */
 	public static final String IMG_DIR = "mPOSImg";
 	
-	// log file name
+	/*
+	 * Log file name
+	 */
 	public static final String LOG_FILE_NAME = "mpos_";
 	
-	// log dir
+	/*
+	 * Log dir
+	 */
 	public static final String LOG_DIR = "mPOSLog";
 
-	// server image path
+	/*
+	 * Image path on server
+	 */
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
 	
-	// device code
+	/*
+	 * WINTEC POS device path
+	 */
+	public static final String WINTEC_DEFAULT_DEVICE_PATH = "/dev/ttySAC3";
+	public static final String WINTEC_DEFAULT_BAUD_RATE = "BAUD_9600";
+	
+	/*
+	 * Android Device Code
+	 */
 	public static String sDeviceCode;
 	
-	// application context
+	/*
+	 * Application Context
+	 */
 	private static Context sContext;
 	
 	public static String getDeviceCode() {
@@ -87,9 +110,24 @@ public class MPOSApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		sContext = getApplicationContext();
+		
+		// show customer display
+		showCustomerDisplay();
 	}
 
 	public static Context getContext(){
 		return sContext;
+	}
+	
+	private void showCustomerDisplay(){
+		DspPos dsp = new DspPos(WINTEC_DEFAULT_DEVICE_PATH, 
+				ComIO.Baudrate.valueOf(WINTEC_DEFAULT_BAUD_RATE));	    
+		
+		dsp.DSP_ClearScreen();
+		dsp.DSP_Dispay("Welcome to");
+		dsp.DSP_MoveCursorDown();
+		dsp.DSP_MoveCursorEndLeft();
+		dsp.DSP_Dispay("pRoMiSe System");
+		dsp.DSP_Close();
 	}
 }

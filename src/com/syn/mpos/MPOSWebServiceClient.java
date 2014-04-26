@@ -363,7 +363,9 @@ public class MPOSWebServiceClient {
 				int shopId = Integer.parseInt(result);
 				if(shopId > 0)
 					mListener.onPost(shopId);
-				else
+				else if(shopId == 0)
+					mListener.onError(mContext.getString(R.string.device_not_register));
+				else if(shopId == -1)
 					mListener.onError(mContext.getString(R.string.computer_setting_not_valid));
 			} catch (NumberFormatException e) {
 				this.mListener.onError(result);
