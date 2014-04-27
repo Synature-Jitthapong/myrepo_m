@@ -3,6 +3,7 @@ package com.syn.mpos.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.mpos.database.table.HeaderFooterReceiptTable;
 import com.syn.pos.ShopData;
 
 import android.content.ContentValues;

@@ -11,6 +11,12 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.mpos.database.StockDocument.DocumentTypeTable;
+import com.syn.mpos.database.table.ComputerTable;
+import com.syn.mpos.database.table.OrderDetailTable;
+import com.syn.mpos.database.table.OrderTransactionTable;
+import com.syn.mpos.database.table.ProductsTable;
+import com.syn.mpos.database.table.SessionTable;
+import com.syn.mpos.database.table.ShopTable;
 
 /**
  * 
@@ -19,9 +25,24 @@ import com.syn.mpos.database.StockDocument.DocumentTypeTable;
  */
 public class OrderTransactionDataSource extends MPOSDatabase {
 
+	/*
+	 * Status new transaction
+	 */
 	public static final int TRANS_STATUS_NEW = 1;
+	
+	/*
+	 * Status success transaction
+	 */
 	public static final int TRANS_STATUS_SUCCESS = 2;
+	
+	/*
+	 * Status void transaction
+	 */
 	public static final int TRANS_STATUS_VOID = 8;
+	
+	/*
+	 * Status hold transaction
+	 */
 	public static final int TRANS_STATUS_HOLD = 9;
 
 	public OrderTransactionDataSource(SQLiteDatabase db) {
@@ -91,7 +112,7 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		}
 		return trans;
 	}
-
+	
 	public double getMemberDiscount(int transactionId, int computerId,
 			boolean tempTable) {
 		double memberDiscount = 0.0f;
@@ -674,7 +695,7 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 	}
 
 	public int openTransaction(int computerId, int shopId, int sessionId,
-			int staffId) throws SQLException {
+			int staffId, double vatRate) throws SQLException {
 		int transactionId = getMaxTransaction(computerId);
 		Calendar date = Util.getDate();
 		Calendar dateTime = Util.getDateTime();
@@ -693,6 +714,7 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 				date.get(Calendar.YEAR));
 		cv.put(OrderTransactionTable.COLUMN_RECEIPT_MONTH,
 				date.get(Calendar.MONTH) + 1);
+		cv.put(ProductsTable.COLUMN_VAT_RATE, vatRate);
 		long rowId = mSqlite.insertOrThrow(OrderTransactionTable.TABLE_NAME,
 				null, cv);
 		if (rowId == -1)

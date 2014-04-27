@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.syn.mpos.database.table.ShopTable;
 import com.syn.pos.ShopData;
 
 public class ShopDataSource extends MPOSDatabase{

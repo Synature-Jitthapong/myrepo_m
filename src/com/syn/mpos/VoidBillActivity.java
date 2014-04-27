@@ -8,7 +8,6 @@ import java.util.List;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSOrderTransaction;
 import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.mpos.database.ShopDataSource;
 import com.syn.mpos.database.OrderTransactionDataSource;
 
 import android.os.Bundle;
@@ -347,9 +346,8 @@ public class VoidBillActivity extends Activity {
 					d.dismiss();
 					init();
 					
-					ShopDataSource shop = new ShopDataSource(mSqlite);
 					MPOSUtil.doSendSale(mSqlite, mShopId, mComputerId, mStaffId, 
-							shop.getCompanyVatRate(), new ProgressListener(){
+							new ProgressListener(){
 
 						@Override
 						public void onPre() {

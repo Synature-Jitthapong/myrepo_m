@@ -2,6 +2,12 @@ package com.syn.mpos.database;
 
 import java.util.Calendar;
 
+import com.syn.mpos.database.table.ComputerTable;
+import com.syn.mpos.database.table.OrderTransactionTable;
+import com.syn.mpos.database.table.SessionDetailTable;
+import com.syn.mpos.database.table.SessionTable;
+import com.syn.mpos.database.table.ShopTable;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;

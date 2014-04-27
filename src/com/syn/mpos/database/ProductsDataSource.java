@@ -3,6 +3,11 @@ package com.syn.mpos.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.mpos.database.table.ProductComponentGroupTable;
+import com.syn.mpos.database.table.ProductComponentTable;
+import com.syn.mpos.database.table.ProductDeptTable;
+import com.syn.mpos.database.table.ProductGroupTable;
+import com.syn.mpos.database.table.ProductsTable;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 

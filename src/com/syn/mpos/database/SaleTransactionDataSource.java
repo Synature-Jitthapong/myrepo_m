@@ -6,27 +6,46 @@ import java.util.List;
 
 import com.syn.mpos.MPOSUtil;
 import com.syn.mpos.database.StockDocument.DocumentTypeTable;
+import com.syn.mpos.database.table.ComputerTable;
+import com.syn.mpos.database.table.CreditCardTable;
+import com.syn.mpos.database.table.OrderDetailTable;
+import com.syn.mpos.database.table.OrderTransactionTable;
+import com.syn.mpos.database.table.PayTypeTable;
+import com.syn.mpos.database.table.PaymentDetailTable;
+import com.syn.mpos.database.table.ProductsTable;
+import com.syn.mpos.database.table.SessionDetailTable;
+import com.syn.mpos.database.table.SessionTable;
+import com.syn.mpos.database.table.ShopTable;
+import com.syn.mpos.database.table.SyncSaleLogTable;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+/*
+ * This class do generate SaleTransactionData
+ * for send to HQ Server
+ */
 public class SaleTransactionDataSource extends MPOSDatabase{
 	
-	private double mVatRate;
+	/*
+	 * mSessionDate for query ordertransaction with session date
+	 */
 	private String mSessionDate;
+	
+	/*
+	 * mTransactionId for query OrderTransaction with transactionId
+	 */
 	private int mTransactionId;
 	
-	public SaleTransactionDataSource(SQLiteDatabase db, String sessionDate, int transactionId, double vatRate){
+	public SaleTransactionDataSource(SQLiteDatabase db, String sessionDate, int transactionId){
 		super(db);
 		mTransactionId = transactionId;
 		mSessionDate = sessionDate;
-		mVatRate = vatRate;
 	}
 
-	public SaleTransactionDataSource(SQLiteDatabase db, String sessionDate, double vatRate) {
+	public SaleTransactionDataSource(SQLiteDatabase db, String sessionDate) {
 		super(db);
 		mSessionDate = sessionDate;
-		mVatRate = vatRate;
 	}
 
 	public POSData_SaleTransaction listSaleSaleTransactionByTransactionId() {
@@ -128,7 +147,8 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_NOTE)));
 					orderTrans.setiSaleMode(cursor.getInt(
 							cursor.getColumnIndex(ProductsTable.COLUMN_SALE_MODE)));
-					orderTrans.setfVatPercent(MPOSUtil.fixesDigitLength(4, mVatRate));
+					orderTrans.setfVatPercent(MPOSUtil.fixesDigitLength(4, cursor.getDouble(
+							cursor.getColumnIndex(ProductsTable.COLUMN_VAT_RATE))));
 					orderTrans.setfTransactionExcludeVAT(MPOSUtil.fixesDigitLength(4,cursor.getDouble(
 							cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT))));
 					orderTrans.setiNoCust(1);

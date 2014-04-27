@@ -1,4 +1,6 @@
-package com.syn.mpos.database;
+package com.syn.mpos.database.table;
+
+import com.syn.mpos.database.StaffTable;
 
 import android.database.sqlite.SQLiteDatabase;
 

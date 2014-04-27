@@ -6,13 +6,11 @@ import java.util.List;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.syn.mpos.database.ComputerDataSource;
-import com.syn.mpos.database.ComputerTable;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.MPOSOrderTransaction;
 import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.mpos.database.OrderTransactionTable;
 import com.syn.mpos.database.PrintReceiptLogDataSource;
 import com.syn.mpos.database.ProductsDataSource;
 import com.syn.mpos.database.SessionDataSource;
@@ -21,6 +19,8 @@ import com.syn.mpos.database.StaffDataSource;
 import com.syn.mpos.database.SyncSaleLogDataSource;
 import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.mpos.database.Util;
+import com.syn.mpos.database.table.ComputerTable;
+import com.syn.mpos.database.table.OrderTransactionTable;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;
@@ -180,7 +180,8 @@ public class MainActivity extends FragmentActivity implements
 		mTransactionId = mTransaction.getCurrTransaction(mComputerId);
 		if(mTransactionId == 0){
 			mSessionId = getCurrentSession();
-			mTransactionId = mTransaction.openTransaction(mComputerId, mShopId, mSessionId, mStaffId);
+			mTransactionId = mTransaction.openTransaction(mComputerId, mShopId, mSessionId, 
+					mStaffId, mShop.getCompanyVatRate());
 			// add current date for LoadSaleTransaction read Sale Data and send to server
 			SyncSaleLogDataSource syncLog = new SyncSaleLogDataSource(mSqlite);
 			syncLog.addSyncSaleLog(String.valueOf(Util.getDate().getTimeInMillis()));
@@ -1075,7 +1076,7 @@ public class MainActivity extends FragmentActivity implements
 								}
 							};
 					MPOSUtil.doEndday(mSqlite, mShopId, mComputerId, mSessionId, 
-							mStaffId, 0.0f, mShop.getCompanyVatRate(), true, progressListener);
+							mStaffId, 0.0f, true, progressListener);
 				}
 			}).show();
 		}else{
@@ -1338,7 +1339,7 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	private void sendSale(){
 		MPOSUtil.doSendSale(mSqlite, mShopId, mComputerId, mStaffId, 
-				mShop.getCompanyVatRate(), new ProgressListener(){
+				new ProgressListener(){
 
 				@Override
 				public void onPre() {

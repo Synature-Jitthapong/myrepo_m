@@ -3,6 +3,12 @@ package com.syn.mpos.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.mpos.database.table.BankTable;
+import com.syn.mpos.database.table.ComputerTable;
+import com.syn.mpos.database.table.CreditCardTable;
+import com.syn.mpos.database.table.OrderTransactionTable;
+import com.syn.mpos.database.table.PayTypeTable;
+import com.syn.mpos.database.table.PaymentDetailTable;
 import com.syn.pos.Payment;
 
 import android.content.ContentValues;

@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.syn.mpos.database.table.CreditCardTable;
 import com.syn.pos.CreditCardType;
 
 public class CreditCardDataSource extends MPOSDatabase{

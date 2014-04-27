@@ -1,5 +1,6 @@
-package com.syn.mpos.database;
+package com.syn.mpos.database.table;
 
+import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.StockDocument.DocumentTypeTable;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -61,6 +62,7 @@ public class OrderTransactionTable{
 		COLUMN_OTHER_DISCOUNT + " REAL DEFAULT 0, " +
 		MPOSDatabase.COLUMN_SEND_STATUS + " INTEGER DEFAULT 0, " +
 		ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
+		ProductsTable.COLUMN_VAT_RATE + " REAL DEFAULT 0, " +
 		"PRIMARY KEY (" + COLUMN_TRANSACTION_ID + " ASC, " + ComputerTable.COLUMN_COMPUTER_ID + " ASC) ); ";
 	
 	public static void onCreate(SQLiteDatabase db) {

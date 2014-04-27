@@ -14,9 +14,6 @@ import android.content.DialogInterface;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.view.LayoutInflater;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
@@ -24,52 +21,34 @@ import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.syn.mpos.database.ComputerDataSource;
 import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.mpos.database.OrderDetailTable;
-import com.syn.mpos.database.OrderTransactionTable;
-import com.syn.mpos.database.PaymentDetailTable;
 import com.syn.mpos.database.SaleTransactionDataSource;
 import com.syn.mpos.database.SessionDataSource;
-import com.syn.mpos.database.SessionDetailTable;
-import com.syn.mpos.database.SessionTable;
 import com.syn.mpos.database.ShopDataSource;
 import com.syn.mpos.database.SyncSaleLogDataSource;
-import com.syn.mpos.database.SyncSaleLogTable;
 import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.mpos.database.Util;
 import com.syn.mpos.database.SaleTransactionDataSource.POSData_SaleTransaction;
+import com.syn.mpos.database.table.OrderDetailTable;
+import com.syn.mpos.database.table.OrderTransactionTable;
+import com.syn.mpos.database.table.PaymentDetailTable;
+import com.syn.mpos.database.table.SessionDetailTable;
+import com.syn.mpos.database.table.SessionTable;
+import com.syn.mpos.database.table.SyncSaleLogTable;
 
 public class MPOSUtil {
-	public static LinearLayout createDetailColumn(Context c, String[] detailText){
-		if(detailText.length < 1)
-			return null;
-		
-		LayoutInflater inflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout detailColumn = new LinearLayout(c);
-		for(int i = 0; i < detailText.length; i++){
-			TextView tvHeader = (TextView) inflater.inflate(R.layout.tv_column_detail, null);
-			tvHeader.setText(detailText[i]);
-			detailColumn.addView(tvHeader);
-		}
-		return detailColumn;
-	}
 	
-	public static LinearLayout createHeaderColumn(Context c, String[] headerText){
-		if(headerText.length < 1)
-			return null;
-		
-		LayoutInflater inflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout headerColumn = new LinearLayout(c);
-		for(int i = 0; i < headerText.length; i++){
-			TextView tvHeader = (TextView) inflater.inflate(R.layout.tv_column_header, null);
-			tvHeader.setText(headerText[i]);
-			headerColumn.addView(tvHeader);
-		}
-		return headerColumn;
-	}
-	
-	public static void doSendSaleBySelectedTransaction(final SQLiteDatabase sqlite, 
+	/**
+	 * send sale transaction by specific transactionId
+	 * @param sqlite
+	 * @param shopId
+	 * @param computerId
+	 * @param transactionId
+	 * @param staffId
+	 * @param listener
+	 */
+	public static void doSendSaleBySpecificTransaction(final SQLiteDatabase sqlite, 
 			final int shopId, final int computerId, final int transactionId, 
-			final int staffId, double vatRate, final ProgressListener listener) {
+			final int staffId, final ProgressListener listener) {
 		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
 
 			@Override
@@ -118,11 +97,19 @@ public class MPOSUtil {
 
 		};
 		new LoadSaleTransactionByTransactionId(sqlite, String.valueOf(Util.getDate().getTimeInMillis()),
-				transactionId, vatRate, loadSaleListener).execute();
+				transactionId, loadSaleListener).execute();
 	}
 	
+	/**
+	 * TO DO send sale transaction
+	 * @param sqlite
+	 * @param shopId
+	 * @param computerId
+	 * @param staffId
+	 * @param listener
+	 */
 	public static void doSendSale(final SQLiteDatabase sqlite, final int shopId, final int computerId, 
-			final int staffId, double vatRate, final ProgressListener listener) {
+			final int staffId, final ProgressListener listener) {
 		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
 
 			@Override
@@ -170,13 +157,24 @@ public class MPOSUtil {
 			}
 
 		};
-		new LoadSaleTransaction(sqlite, String.valueOf(Util.getDate().getTimeInMillis()), vatRate,
+		new LoadSaleTransaction(sqlite, String.valueOf(Util.getDate().getTimeInMillis()),
 				loadSaleListener).execute();
 	}
 	
+	/**
+	 * TO DO Endday
+	 * @param sqlite
+	 * @param shopId
+	 * @param computerId
+	 * @param sessionId
+	 * @param closeStaffId
+	 * @param closeAmount
+	 * @param isEndday
+	 * @param listener
+	 */
 	public static void doEndday(final SQLiteDatabase sqlite, 
 			final int shopId, final int computerId, final int sessionId,
-			final int closeStaffId, final double closeAmount, double vatRate,
+			final int closeStaffId, final double closeAmount,
 			final boolean isEndday, final ProgressListener listener) {
 		
 		// check is main computer
@@ -250,12 +248,12 @@ public class MPOSUtil {
 			List<String> dateLst = syncLog.listSessionDate();
 			if (dateLst != null) {
 				for (String date : dateLst) {
-					new LoadSaleTransactionForEndday(sqlite, date, vatRate, loadSaleListener)
+					new LoadSaleTransactionForEndday(sqlite, date, loadSaleListener)
 							.execute();
 				}
 			}else{
 				new LoadSaleTransactionForEndday(sqlite, String.valueOf(Util.getDate().getTimeInMillis()), 
-						vatRate, loadSaleListener).execute();
+						loadSaleListener).execute();
 			}
 		} else {
 			Context context = MPOSApplication.getContext();
@@ -265,12 +263,15 @@ public class MPOSUtil {
 		}
 	}
 
+	/**
+	 * @author j1tth4
+	 * task for load sale OrderTransaction by transactionId
+	 */
 	public static class LoadSaleTransactionByTransactionId extends LoadSaleTransaction{
 
 		public LoadSaleTransactionByTransactionId(final SQLiteDatabase sqlite, 
-				String sessionDate, int transactionId, 
-				double vatRate, LoadSaleTransactionListener listener) {
-			super(sqlite, sessionDate, transactionId, vatRate, listener);
+				String sessionDate, int transactionId, LoadSaleTransactionListener listener) {
+			super(sqlite, sessionDate, transactionId, listener);
 		}
 
 		@Override
@@ -280,13 +281,15 @@ public class MPOSUtil {
 		
 	}
 	
-	// load sale transaction for endday
+	/**
+	 * @author j1tth4
+	 * task for load OrderTransaction when endday
+	 */
 	public static class LoadSaleTransactionForEndday extends LoadSaleTransaction{
 
 		public LoadSaleTransactionForEndday(SQLiteDatabase sqlite, 
-				String sessionDate, double vatRate,
-				LoadSaleTransactionListener listener) {
-			super(sqlite, sessionDate, vatRate, listener);
+				String sessionDate, LoadSaleTransactionListener listener) {
+			super(sqlite, sessionDate, listener);
 		}
 		
 		@Override
@@ -295,24 +298,27 @@ public class MPOSUtil {
 		}
 	}
 	
-	// load sale transaction for send realtime
+	/**
+	 * @author j1tth4
+	 * task for load OrderTransaction 
+	 */
 	public static class LoadSaleTransaction extends AsyncTask<Void, Void, POSData_SaleTransaction>{
 
 		protected LoadSaleTransactionListener mListener;
 		protected SaleTransactionDataSource mSaleTrans;
 		protected String mSessionDate;
 			
-		public LoadSaleTransaction(SQLiteDatabase sqlite, String sessionDate, int transactionId, double vatRate,
+		public LoadSaleTransaction(SQLiteDatabase sqlite, String sessionDate, int transactionId,
 				LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransactionDataSource(sqlite, sessionDate, transactionId, vatRate);
+			mSaleTrans = new SaleTransactionDataSource(sqlite, sessionDate, transactionId);
 			mSessionDate = sessionDate;
 		}
 		
-		public LoadSaleTransaction(SQLiteDatabase sqlite, String sessionDate, double vatRate, 
+		public LoadSaleTransaction(SQLiteDatabase sqlite, String sessionDate, 
 				LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransactionDataSource(sqlite, sessionDate, vatRate);
+			mSaleTrans = new SaleTransactionDataSource(sqlite, sessionDate);
 			mSessionDate = sessionDate;
 		}
 		
@@ -337,11 +343,11 @@ public class MPOSUtil {
 	}
 	
 	public static void sendSaleData(final SQLiteDatabase sqlite, final Context c, 
-			int shopId, int computerId, int staffId, double vatRate){
+			int shopId, int computerId, int staffId){
 		final ProgressDialog progress = new ProgressDialog(c);
 		progress.setTitle(R.string.send_sale_data);
 		progress.setMessage(c.getString(R.string.send_sale_data_progress));
-		MPOSUtil.doSendSale(sqlite, shopId, computerId, staffId, vatRate, new ProgressListener(){
+		MPOSUtil.doSendSale(sqlite, shopId, computerId, staffId, new ProgressListener(){
 
 			@Override
 			public void onPre() {

@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.syn.mpos.database.table.LanguageTable;
 import com.syn.pos.ShopData;
 
 public  class LanguageDataSource extends MPOSDatabase{

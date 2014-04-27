@@ -1,5 +1,29 @@
 package com.syn.mpos.database;
 
+import com.syn.mpos.database.table.BankTable;
+import com.syn.mpos.database.table.ComputerTable;
+import com.syn.mpos.database.table.CreditCardTable;
+import com.syn.mpos.database.table.GlobalPropertyTable;
+import com.syn.mpos.database.table.HeaderFooterReceiptTable;
+import com.syn.mpos.database.table.LanguageTable;
+import com.syn.mpos.database.table.OrderDetailTable;
+import com.syn.mpos.database.table.OrderSetTable;
+import com.syn.mpos.database.table.OrderTransactionTable;
+import com.syn.mpos.database.table.PayTypeTable;
+import com.syn.mpos.database.table.PaymentButtonTable;
+import com.syn.mpos.database.table.PaymentDetailTable;
+import com.syn.mpos.database.table.PrintReceiptLogTable;
+import com.syn.mpos.database.table.ProductComponentGroupTable;
+import com.syn.mpos.database.table.ProductComponentTable;
+import com.syn.mpos.database.table.ProductDeptTable;
+import com.syn.mpos.database.table.ProductGroupTable;
+import com.syn.mpos.database.table.ProductsTable;
+import com.syn.mpos.database.table.SessionDetailTable;
+import com.syn.mpos.database.table.SessionTable;
+import com.syn.mpos.database.table.ShopTable;
+import com.syn.mpos.database.table.StaffPermissionTable;
+import com.syn.mpos.database.table.SyncSaleLogTable;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;

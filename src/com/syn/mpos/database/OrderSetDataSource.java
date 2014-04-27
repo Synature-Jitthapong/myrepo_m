@@ -3,6 +3,13 @@ package com.syn.mpos.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.mpos.database.table.OrderDetailTable;
+import com.syn.mpos.database.table.OrderSetTable;
+import com.syn.mpos.database.table.OrderTransactionTable;
+import com.syn.mpos.database.table.ProductComponentGroupTable;
+import com.syn.mpos.database.table.ProductComponentTable;
+import com.syn.mpos.database.table.ProductsTable;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;

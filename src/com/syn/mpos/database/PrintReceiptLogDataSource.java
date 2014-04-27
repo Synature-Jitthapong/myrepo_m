@@ -3,6 +3,10 @@ package com.syn.mpos.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.mpos.database.table.ComputerTable;
+import com.syn.mpos.database.table.OrderTransactionTable;
+import com.syn.mpos.database.table.PrintReceiptLogTable;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;

@@ -3,12 +3,11 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.database.ComputerTable;
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.mpos.database.OrderTransactionTable;
-import com.syn.mpos.database.ShopDataSource;
 import com.syn.mpos.database.OrderTransactionDataSource;
+import com.syn.mpos.database.table.ComputerTable;
+import com.syn.mpos.database.table.OrderTransactionTable;
 import com.syn.pos.OrderTransaction;
 
 import android.app.Activity;
@@ -94,11 +93,10 @@ public class SyncSaleActivity extends Activity{
 	}
 
 	private void sendSale(){
-		ShopDataSource shop = new ShopDataSource(mSqlite);
 		for(final SendTransaction trans : mTransLst){
-			MPOSUtil.doSendSaleBySelectedTransaction(mSqlite,
+			MPOSUtil.doSendSaleBySpecificTransaction(mSqlite,
 					mShopId, mComputerId, trans.getTransactionId(), 
-					mStaffId, shop.getCompanyVatRate(), new ProgressListener(){
+					mStaffId, new ProgressListener(){
 
 				@Override
 				public void onPre() {

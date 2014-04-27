@@ -3,6 +3,9 @@ package com.syn.mpos.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.mpos.database.table.SessionTable;
+import com.syn.mpos.database.table.SyncSaleLogTable;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;

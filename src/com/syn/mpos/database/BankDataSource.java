@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.syn.mpos.database.table.BankTable;
 import com.syn.pos.BankName;
 
 public class BankDataSource extends MPOSDatabase{
