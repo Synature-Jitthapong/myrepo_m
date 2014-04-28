@@ -606,18 +606,16 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 								mTxtCardHolderName.setText(cardHolderName);
 								
 								try {
-									CardType cardType = checkCardType(cardNo);
-									ArrayAdapter spCardAdapter = (ArrayAdapter) mSpCardType.getAdapter(); 
+									CardType cardType = checkCardType(cardNo); 
 									switch(cardType){
 									case VISA:
-										mSpCardType.setSelection(spCardAdapter.getPosition("VISA"));
+										mSpCardType.setSelection(1);
 										break;
 									case MASTER:
-										mSpCardType.setSelection(spCardAdapter.getPosition("MASTER"));
+										mSpCardType.setSelection(2);
 										break;
-									case AMERICAN:
-										mSpCardType.setSelection(spCardAdapter.getPosition("AMERICAN"));
-										break;
+									default:
+										mSpCardType.setSelection(0);
 									}
 								} catch (Exception e) {
 									Logger.appendLog(MPOSApplication.getContext(), 

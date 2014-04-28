@@ -178,4 +178,19 @@ public class SessionDataSource extends MPOSDatabase{
 		cursor.close();
 		return sessionId;
 	}
+	
+	public int getCurrentSession(int computerId){
+		int sessionId = 0;
+		Cursor cursor = mSqlite.query(SessionTable.TABLE_NAME, 
+				new String[]{SessionTable.COLUMN_SESS_ID},  
+				ComputerTable.COLUMN_COMPUTER_ID + " =? ", 
+				new String[]{
+					String.valueOf(computerId) 
+				},null, null, null);
+		if(cursor.moveToFirst()){
+			sessionId = cursor.getInt(0);
+		}
+		cursor.close();
+		return sessionId;
+	}
 }

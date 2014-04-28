@@ -4,9 +4,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.wintec.wtandroidjar2.Msr;
+import cn.wintec.wtandroidjar2.ComIO;
+import cn.wintec.wtandroidjar2.Drw;
 
-import com.j1tth4.mobile.util.Logger;
 import com.syn.mpos.R;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSSQLiteHelper;
@@ -16,9 +16,6 @@ import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.pos.Payment;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -45,13 +42,18 @@ import android.widget.TextView;
 public class PaymentActivity extends Activity  implements OnClickListener{
 	
 	public static final int REQUEST_CREDIT_PAY = 1;
-	public static final int RESULT_ENOUGH = 1;
+	public static final int RESULT_ENOUGH = 2;
 	public static final int RESULT_NOT_ENOUGH = -1;
 
 	/*
 	 * credit pay not enough result code
 	 */
 	private int mResultCreditCode = RESULT_NOT_ENOUGH;
+	
+	/*
+	 * Wintec Cash Drawer 
+	 */
+	private Drw mDrw;
 	
 	private MPOSSQLiteHelper mSqliteHelper;
 	private SQLiteDatabase mSqlite;
@@ -108,6 +110,10 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mTransaction = new OrderTransactionDataSource(mSqlite);
 		mPayment = new PaymentDetailDataSource(mSqlite);
 		
+		// init drw
+		mDrw = new Drw(MPOSApplication.WINTEC_DEFAULT_DEVICE_PATH,
+				ComIO.Baudrate.valueOf(MPOSApplication.WINTEC_DEFAULT_BAUD_RATE));
+		
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<Payment.PaymentDetail>();
 		mPaymentButtonAdapter = new PaymentButtonAdapter();
@@ -142,6 +148,12 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 				confirm();
 		}
 		super.onResume();
+	}
+
+	@Override
+	protected void onDestroy() {
+		mDrw.DRW_Close();
+		super.onDestroy();
 	}
 
 	@Override
@@ -289,38 +301,21 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 
 	public void confirm() {
 		if(mTotalPaid >=mTotalSalePrice){
+
+			// open cash drawer
+			mDrw.DRW_Open();
+			
 			mTransaction.successTransaction(mTransactionId, 
 					mComputerId, mStaffId);
+			
 			mChange = mTotalPaid - mTotalSalePrice;
-			if(mChange > 0){
-				LayoutInflater inflater = (LayoutInflater) 
-						PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
-				tvChange.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, mChange));
-				
-				new AlertDialog.Builder(PaymentActivity.this)
-				.setTitle(R.string.change)
-				.setCancelable(false)
-				.setView(tvChange)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						Intent intent = new Intent();
-						intent.putExtra("transactionId", mTransactionId);
-						intent.putExtra("computerId", mComputerId);
-						setResult(RESULT_OK, intent);
-						finish();
-					}
-				})
-				.show();
-			}else{
-				Intent intent = new Intent();
-				intent.putExtra("transactionId", mTransactionId);
-				intent.putExtra("computerId", mComputerId);
-				setResult(RESULT_OK, intent);
-				finish();
-			}
+			
+			Intent intent = new Intent();
+			intent.putExtra("transactionId", mTransactionId);
+			intent.putExtra("computerId", mComputerId);
+			intent.putExtra("change", mChange);
+			setResult(RESULT_OK, intent);
+			finish();
 		}else{
 			new AlertDialog.Builder(PaymentActivity.this)
 			.setIcon(android.R.drawable.ic_dialog_alert)

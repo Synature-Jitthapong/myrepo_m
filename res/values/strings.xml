@@ -267,5 +267,8 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="card_holder_name">Card Holder Name</string>
     <string name="please_select_card">Please select card type.</string>
     <string name="please_select_bank">Please select bank.</string>
+    <string name="system_date">System Date</string>
+    <string name="system_date_less">System date less than session date. mPOS will not allow to do anything.</string>
+    <string name="date_time_setting">Date &amp; time Settings</string>
 
 </resources>

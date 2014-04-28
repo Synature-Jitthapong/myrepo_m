@@ -1,6 +1,11 @@
 package com.syn.mpos;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 import com.syn.mpos.R;
+import com.syn.mpos.database.ComputerDataSource;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.SessionDataSource;
@@ -49,6 +54,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 		mBtnLogin.setOnClickListener(this);
 		
 		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mSqlite = mSqliteHelper.getWritableDatabase();
 		
 		mTxtPass.setOnEditorActionListener(new OnEditorActionListener(){
 
@@ -66,7 +72,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 	}
 
 	private void init(){
-		mSqlite = mSqliteHelper.getWritableDatabase();
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
@@ -76,6 +81,49 @@ public class LoginActivity extends Activity implements OnClickListener {
 		}
 	}
 
+	/**
+	 * Compare system date with session date
+	 * if system date less than session date 
+	 * this not allow to do anything and 
+	 * force to date & time setting.
+	 * @return
+	 */
+	private boolean checkSessionDate(){
+		ComputerDataSource computer = new ComputerDataSource(mSqlite);
+		SessionDataSource session = new SessionDataSource(mSqlite);
+		int computerId= computer.getComputerProperty().getComputerID();
+		int sessionId = session.getCurrentSession(computerId);
+		if(sessionId != 0){
+			String strSaleDate = session.getSessionDate(computerId);
+			Calendar calendar = Calendar.getInstance(Locale.US);
+			calendar.setTimeInMillis(Long.parseLong(strSaleDate));
+			Date saleDate = calendar.getTime();
+			calendar = Calendar.getInstance();
+			if(saleDate.compareTo(calendar.getTime()) > 0){
+				new AlertDialog.Builder(this)
+				.setCancelable(false)
+				.setTitle(R.string.system_date)
+				.setMessage(R.string.system_date_less)
+				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+					}
+				})
+				.setPositiveButton(R.string.date_time_setting, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						startActivity(
+								new Intent(android.provider.Settings.ACTION_DATE_SETTINGS));
+					}
+				}).show();
+			}
+		}
+		return true;
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_login, menu);
@@ -106,13 +154,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 	}
 
 	@Override
-	protected void onPause() {
-		mSqliteHelper.close();
-		super.onPause();
-	}
-
-	@Override
 	protected void onResume() {
+		checkSessionDate();
 		init();
 		mTxtUser.requestFocus();
 		super.onResume();

@@ -540,6 +540,7 @@ containing a value of this type.
         public static final int cvv2=0x7f0500e0;
         public static final int date=0x7f0500e2;
         public static final int date_time=0x7f05007f;
+        public static final int date_time_setting=0x7f05010d;
         public static final int delete=0x7f050064;
         public static final int device_code=0x7f0500f3;
         public static final int device_not_register=0x7f0500b8;
@@ -688,6 +689,8 @@ containing a value of this type.
         public static final int sub_total=0x7f050012;
         public static final int summary=0x7f050065;
         public static final int switch_user=0x7f05000b;
+        public static final int system_date=0x7f05010b;
+        public static final int system_date_less=0x7f05010c;
         public static final int tax=0x7f0500fd;
         public static final int tax_exclude=0x7f0500fe;
         public static final int tender=0x7f0500e3;

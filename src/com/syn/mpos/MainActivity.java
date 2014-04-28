@@ -114,61 +114,66 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		setContentView(R.layout.activity_main);
-
-		mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
-		mLvOrderDetail = (ListView) findViewById(R.id.lvOrder);
-		mLayoutOrderCtrl = (LinearLayout) findViewById(R.id.layoutOrderCtrl);
-		mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
-		mBtnClearSelOrder = (ImageButton) findViewById(R.id.btnClearSelOrder);
-		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
-		mTvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
-		mTvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
-		mTvDiscount = (TextView) findViewById(R.id.textViewDiscount);
-		mTbRowVat = (TableRow) findViewById(R.id.tbRowVat);
-		mTbRowDiscount = (TableRow) findViewById(R.id.tbRowDiscount);
-		mBtnDiscount = (Button) findViewById(R.id.buttonDiscount);
-		mBtnCash = (Button) findViewById(R.id.buttonCash);
-		mBtnHold = (Button) findViewById(R.id.buttonHold);
-		mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-		mPager = (ViewPager) findViewById(R.id.pager);
-		
 		Intent intent = getIntent();
-		mStaffId = intent.getIntExtra("staffId", 0);
-		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		mSqlite = mSqliteHelper.getWritableDatabase();
-		
-		mProducts = new ProductsDataSource(mSqlite);
-
-		mProductDeptLst = mProducts.listProductDept();
-		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
-		mPager.setAdapter(mPageAdapter);
-		
-		final int pageMargin = (int) TypedValue.applyDimension(
-				TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
-						.getDisplayMetrics());
-		mPager.setPageMargin(pageMargin);
-		mTabs.setViewPager(mPager);
-		mTabs.setIndicatorColor(TAB_UNDERLINE_COLOR);
-		
-		mProgress = new ProgressDialog(this);
-		mProgress.setCancelable(false);
-		mOrderDetailLst = new ArrayList<MPOSOrderTransaction.OrderDetail>();
-		mOrderDetailAdapter = new OrderDetailAdapter();
-		mLvOrderDetail.setAdapter(mOrderDetailAdapter);
-		
-		mBtnDelSelOrder.setOnClickListener(this);
-		mBtnClearSelOrder.setOnClickListener(this);
-		mLvOrderDetail.setOnItemClickListener(this);
-		mTxtBarCode.setOnKeyListener(this);
+				mStaffId = intent.getIntExtra("staffId", 0);
+		if(mStaffId == 0){
+			startActivity(new Intent(MainActivity.this, LoginActivity.class));
+			finish();
+		}else{
+			setContentView(R.layout.activity_main);
+			mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
+			mLvOrderDetail = (ListView) findViewById(R.id.lvOrder);
+			mLayoutOrderCtrl = (LinearLayout) findViewById(R.id.layoutOrderCtrl);
+			mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
+			mBtnClearSelOrder = (ImageButton) findViewById(R.id.btnClearSelOrder);
+			mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
+			mTvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
+			mTvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
+			mTvDiscount = (TextView) findViewById(R.id.textViewDiscount);
+			mTbRowVat = (TableRow) findViewById(R.id.tbRowVat);
+			mTbRowDiscount = (TableRow) findViewById(R.id.tbRowDiscount);
+			mBtnDiscount = (Button) findViewById(R.id.buttonDiscount);
+			mBtnCash = (Button) findViewById(R.id.buttonCash);
+			mBtnHold = (Button) findViewById(R.id.buttonHold);
+			mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+			mPager = (ViewPager) findViewById(R.id.pager);
+	
+			mSqliteHelper = new MPOSSQLiteHelper(this);
+			mSqlite = mSqliteHelper.getWritableDatabase();
+			
+			mProducts = new ProductsDataSource(mSqlite);
+	
+			mProductDeptLst = mProducts.listProductDept();
+			mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
+			mPager.setAdapter(mPageAdapter);
+			
+			final int pageMargin = (int) TypedValue.applyDimension(
+					TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
+							.getDisplayMetrics());
+			mPager.setPageMargin(pageMargin);
+			mTabs.setViewPager(mPager);
+			mTabs.setIndicatorColor(TAB_UNDERLINE_COLOR);
+			
+			mProgress = new ProgressDialog(this);
+			mProgress.setCancelable(false);
+			mOrderDetailLst = new ArrayList<MPOSOrderTransaction.OrderDetail>();
+			mOrderDetailAdapter = new OrderDetailAdapter();
+			mLvOrderDetail.setAdapter(mOrderDetailAdapter);
+			
+			mBtnDelSelOrder.setOnClickListener(this);
+			mBtnClearSelOrder.setOnClickListener(this);
+			mLvOrderDetail.setOnItemClickListener(this);
+			mTxtBarCode.setOnKeyListener(this);
+		}
 	}
 	
+//	@Override
+//	protected void onSaveInstanceState(Bundle outState) {
+//		outState.putInt("staffId", mStaffId);		
+//		super.onSaveInstanceState(outState);
+//	}
+
 	private void init(){
-		if(!mSqlite.isOpen())
-			mSqlite = mSqliteHelper.getWritableDatabase();
-		
 		mShop = new ShopDataSource(mSqlite);
 		mComputer = new ComputerDataSource(mSqlite);
 		mSession = new SessionDataSource(mSqlite);
@@ -203,8 +208,28 @@ public class MainActivity extends FragmentActivity implements
 			if(resultCode == RESULT_OK){
 				int transactionId = intent.getIntExtra("transactionId", 0);
 				int computerId = intent.getIntExtra("computerId", 0);
+				double change = intent.getDoubleExtra("change", 0);
 				printReceipt(transactionId, computerId);
 				sendSale();
+				
+				if(change > 0){
+					LayoutInflater inflater = (LayoutInflater) 
+							MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
+					tvChange.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, change));
+					
+					new AlertDialog.Builder(MainActivity.this)
+					.setTitle(R.string.change)
+					.setCancelable(false)
+					.setView(tvChange)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					})
+					.show();
+				}
 			}
 		}
 	}
