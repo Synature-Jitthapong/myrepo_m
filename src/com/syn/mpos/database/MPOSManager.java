@@ -1,7 +1,15 @@
 package com.syn.mpos.database;
 
-public interface MPOSManager {
-	abstract int openTransaction(int computerId, int shopId, int sessionId, 
-			int staffId, double vatRate);
+import android.database.sqlite.SQLiteDatabase;
+
+public class MPOSManager {
 	
+	private SQLiteDatabase mSqlite;
+	
+	private int mShopId;
+	private int mStaffId;
+	private int mTransactionId;
+	private int mComputerId;
+	
+	private double mTotalSalePrice;
 }
