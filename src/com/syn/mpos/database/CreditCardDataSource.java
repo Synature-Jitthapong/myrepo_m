@@ -16,6 +16,24 @@ public class CreditCardDataSource extends MPOSDatabase{
 		super(db);
 	}
 
+	public String getCreditCardType(int typeId){
+		String cardType = "";
+		Cursor cursor = mSqlite.query(CreditCardTable.TABLE_NAME, 
+				new String[]{ 
+					CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME
+				}, 
+				CreditCardTable.COLUMN_CREDITCARD_TYPE_ID + "=?", 
+				new String[]{
+					String.valueOf(typeId)
+				}, null, null, null);
+		if(cursor.moveToFirst()){
+			cardType = cursor.getString(
+					cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME));
+		}
+		cursor.close();
+		return cardType;
+	}
+	
 	public List<CreditCardType> listAllCreditCardType(){
 		List<CreditCardType> creditCardLst = 
 				new ArrayList<CreditCardType>();

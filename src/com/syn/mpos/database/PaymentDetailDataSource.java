@@ -53,6 +53,8 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 				new ArrayList<Payment.PaymentDetail>();
 		Cursor cursor = mSqlite.rawQuery(
 				"SELECT a." + PayTypeTable.COLUMN_PAY_TYPE_ID + ", " +
+				" a." + CreditCardTable.COLUMN_CREDITCARD_TYPE_ID + ", " +
+				" a." + CreditCardTable.COLUMN_CREDITCARD_NO + ", " +
 				" SUM(a." + PaymentDetailTable.COLUMN_PAID + ") AS " + PaymentDetailTable.COLUMN_PAID + ", " +
 				" SUM(a." + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") AS " + PaymentDetailTable.COLUMN_PAY_AMOUNT + ", " +
 				" b." + PayTypeTable.COLUMN_PAY_TYPE_CODE + ", " +
@@ -74,6 +76,8 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 				Payment.PaymentDetail payment = 
 						new Payment.PaymentDetail();
 				payment.setPayTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
+				payment.setCreditCardType(cursor.getInt(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID)));
+				payment.setCreaditCardNo(cursor.getString(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_NO)));
 				payment.setPaid(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAID)));
 				payment.setPayAmount(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAY_AMOUNT)));
 				payment.setPayTypeCode(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)));

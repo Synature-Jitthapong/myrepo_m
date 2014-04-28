@@ -14,6 +14,7 @@ import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.j1tth4.mobile.util.Logger;
+import com.syn.mpos.database.CreditCardDataSource;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.HeaderFooterReceiptDataSource;
 import com.syn.mpos.database.PaymentDetailDataSource;
@@ -202,7 +203,10 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	List<Payment.PaymentDetail> paymentLst = paymentDetail.listPaymentGroupByType(transactionId, computerId);
 	    	for(int i = 0; i < paymentLst.size(); i++){
 	    		Payment.PaymentDetail payment = paymentLst.get(i);
-		    	String paymentText = payment.getPayTypeName() + " ";
+	    		String paymentText = payment.getPayTypeName() + " ";
+		    	if(payment.getPayTypeID() == PaymentDetailDataSource.PAY_TYPE_CREDIT){
+		    		paymentText = generateCardNo(payment);
+		    	}
 		    	String strTotalPaid = GlobalPropertyDataSource.currencyFormat(mSqlite, payment.getPaid());
 		    	if(i < paymentLst.size() - 1){
 			    	builder.addText(paymentText);
@@ -394,24 +398,42 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
     	List<Payment.PaymentDetail> paymentLst = paymentDetail.listPaymentGroupByType(transactionId, computerId);
     	for(int i = 0; i < paymentLst.size(); i++){
     		Payment.PaymentDetail payment = paymentLst.get(i);
-	    	String paymentText = payment.getPayTypeName() + " ";
 	    	String strTotalPaid = GlobalPropertyDataSource.currencyFormat(mSqlite, payment.getPaid());
-	    	if(i < paymentLst.size() - 1){
-		    	builder.append(paymentText);
-	    		builder.append(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
-		    	builder.append(strTotalPaid);
-	    	}else if(i == paymentLst.size() - 1){
-		    	if(change > 0){
-			    	builder.append(paymentText);
-			    	builder.append(strTotalPaid);
-		    		builder.append(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
-			    	builder.append(changeText);
-			    	builder.append(strTotalChange);
-			    }else{
+	    	if(payment.getPayTypeID() == PaymentDetailDataSource.PAY_TYPE_CREDIT){
+	    		String paymentText = payment.getPayTypeName();
+	    		String cardNoText = "xxxx xxxx xxxx ";
+	    		try {
+	    			CreditCardDataSource card = new CreditCardDataSource(mSqlite);
+	    			paymentText = payment.getPayTypeName() + ":" + 
+    					card.getCreditCardType(payment.getCreditCardType());
+	    			cardNoText += payment.getCreaditCardNo().substring(12, 16);
+	    		} catch (Exception e) {
+	    			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
+	    					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
+	    		}
+	    		builder.append(paymentText + "\n");
+    			builder.append(cardNoText);
+    			builder.append(createHorizontalSpace(cardNoText.length() + strTotalPaid.length()));
+    			builder.append(strTotalPaid);
+	    	}else{
+	    		String paymentText = payment.getPayTypeName() + " ";
+		    	if(i < paymentLst.size() - 1){
 			    	builder.append(paymentText);
 		    		builder.append(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
 			    	builder.append(strTotalPaid);
-			    }
+		    	}else if(i == paymentLst.size() - 1){
+			    	if(change > 0){
+				    	builder.append(paymentText);
+				    	builder.append(strTotalPaid);
+			    		builder.append(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
+				    	builder.append(changeText);
+				    	builder.append(strTotalChange);
+				    }else{
+				    	builder.append(paymentText);
+			    		builder.append(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
+				    	builder.append(strTotalPaid);
+				    }
+		    	}
 	    	}
     		builder.append("\n");
     	}
@@ -491,6 +513,21 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 			}
 		}
 		return null;
+	}
+	
+	private String generateCardNo(Payment.PaymentDetail payment){
+		String paymentText = "";
+		// credit card : visa, master xxxx xxxx xxxx 0000
+		try {
+			String cardNo = " xxxx xxxx xxxx " + payment.getCreaditCardNo().substring(12, 16);
+			CreditCardDataSource card = new CreditCardDataSource(mSqlite);
+			paymentText = payment.getPayTypeName() + ":" + 
+					card.getCreditCardType(payment.getCreditCardType()) + cardNo;
+		} catch (Exception e) {
+			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
+					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
+		}
+    	return paymentText;
 	}
 	
 	public static String unicodeToASCII(String unicode) {
