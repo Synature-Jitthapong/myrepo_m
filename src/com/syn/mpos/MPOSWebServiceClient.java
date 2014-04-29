@@ -7,30 +7,21 @@ import org.ksoap2.serialization.PropertyInfo;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.FileManager;
 import com.j1tth4.mobile.util.JSONUtil;
-import com.syn.mpos.database.BankDataSource;
-import com.syn.mpos.database.ComputerDataSource;
-import com.syn.mpos.database.CreditCardDataSource;
-import com.syn.mpos.database.GlobalPropertyDataSource;
-import com.syn.mpos.database.HeaderFooterReceiptDataSource;
-import com.syn.mpos.database.LanguageDataSource;
-import com.syn.mpos.database.PaymentAmountButtonDataSource;
-import com.syn.mpos.database.PaymentDetailDataSource;
-import com.syn.mpos.database.ProductsDataSource;
-import com.syn.mpos.database.ShopDataSource;
-import com.syn.mpos.database.StaffDataSource;
+import com.j1tth4.mobile.util.Logger;
+import com.syn.mpos.database.MPOSProductManager;
+import com.syn.mpos.database.MPOSShopManager;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
 import com.syn.pos.WebServiceResult;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
 public class MPOSWebServiceClient {
 
-	public void loadShopData(final SQLiteDatabase sqlite, 
-			final ProgressListener progressListener){
+	public void loadShopData(final ProgressListener progressListener){
 		
+		final Context context = MPOSApplication.getContext();
 		final String url = MPOSApplication.getFullUrl();
 
 		final AuthenDeviceListener authenDeviceListener = new AuthenDeviceListener() {
@@ -68,29 +59,23 @@ public class MPOSWebServiceClient {
 
 					@Override
 					public void onPost(ShopData sd) {
-						ShopDataSource shop = new ShopDataSource(sqlite);
-						ComputerDataSource comp = new ComputerDataSource(sqlite);
-						LanguageDataSource lang = new LanguageDataSource(sqlite);
-						StaffDataSource staff = new StaffDataSource(sqlite);
-						HeaderFooterReceiptDataSource hf = new HeaderFooterReceiptDataSource(sqlite);
-						BankDataSource bank = new BankDataSource(sqlite);
-						CreditCardDataSource credit = new CreditCardDataSource(sqlite);
-						PaymentDetailDataSource payment = new PaymentDetailDataSource(sqlite);
-						PaymentAmountButtonDataSource payButton = new PaymentAmountButtonDataSource(sqlite);
+						MPOSShopManager shopManager = new MPOSShopManager(context);
 						try {
-							shop.insertShopProperty(sd.getShopProperty());
-							comp.insertComputer(sd.getComputerProperty());
-							GlobalPropertyDataSource.insertProperty(sqlite, sd.getGlobalProperty());
-							staff.insertStaff(sd.getStaffs());
-							lang.insertLanguage(sd.getLanguage());
-							hf.addHeaderFooterReceipt(sd.getHeaderFooterReceipt());
-							bank.insertBank(sd.getBankName());
-							credit.insertCreditCardType(sd.getCreditCardType());
-							payment.insertPaytype(sd.getPayType());
-							payButton.insertPaymentAmountButton(sd.getPaymentAmountButton());
-							
+							shopManager.addShop(sd.getShopProperty());
+							shopManager.addComputer(sd.getComputerProperty());
+							shopManager.addGlobalProperty(sd.getGlobalProperty());
+							shopManager.addStaff(sd.getStaffs());
+							shopManager.addLanguage(sd.getLanguage());
+							shopManager.addHeaderFooter(sd.getHeaderFooterReceipt());
+							shopManager.addBank(sd.getBankName());
+							shopManager.addCreditCard(sd.getCreditCardType());
+							shopManager.addPaymentType(sd.getPayType());
+							shopManager.addPaymentButton(sd.getPaymentAmountButton());
 							progressListener.onPost();
 						} catch (Exception e) {
+							Logger.appendLog(context, MPOSApplication.LOG_DIR, 
+									MPOSApplication.LOG_FILE_NAME, 
+									"Error when add shop data : " + e.getMessage());
 							progressListener.onError(e.getMessage());
 						}
 					}
@@ -102,9 +87,10 @@ public class MPOSWebServiceClient {
 	}
 
 	// load product
-	public void loadProductData(final SQLiteDatabase sqlite, final int shopId,
+	public void loadProductData(final int shopId,
 			final ProgressListener progressListener){
 		
+		final Context context = MPOSApplication.getContext();
 		final String url = MPOSApplication.getFullUrl();
 
 		final LoadMenuListener loadMenuListener = new LoadMenuListener() {
@@ -142,15 +128,13 @@ public class MPOSWebServiceClient {
 
 					@Override
 					public void onPost(ProductGroups pgs) {
-						ProductsDataSource p = new ProductsDataSource(sqlite);
+						MPOSProductManager productManager = new MPOSProductManager(context);
 						try {
-							p.insertProductGroup(pgs.getProductGroup(),
-									mgs.getMenuGroup());
-							p.insertProductDept(pgs.getProductDept(),
-									mgs.getMenuDept());
-							p.insertProducts(pgs.getProduct(), mgs.getMenuItem());
-							p.insertPComponentGroup(pgs.getPComponentGroup());
-							p.insertProductComponent(pgs.getPComponentSet());
+							productManager.addProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
+							productManager.addProductDept(pgs.getProductDept(), mgs.getMenuDept());
+							productManager.addProduct(pgs.getProduct(), mgs.getMenuItem());
+							productManager.addProductComponentGroup(pgs.getPComponentGroup());
+							productManager.addProductComponent(pgs.getPComponentSet());
 							
 							// clear all menu picture
 							FileManager fm = new FileManager(
@@ -159,6 +143,9 @@ public class MPOSWebServiceClient {
 
 							progressListener.onPost();
 						} catch (Exception e) {
+							Logger.appendLog(context, MPOSApplication.LOG_DIR, 
+								MPOSApplication.LOG_FILE_NAME, 
+								"Error when add product data : " + e.getMessage());
 							progressListener.onError(e.getMessage());
 						}
 					}

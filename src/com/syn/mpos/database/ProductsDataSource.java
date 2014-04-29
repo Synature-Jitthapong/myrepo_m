@@ -546,16 +546,16 @@ public class ProductsDataSource extends MPOSDatabase {
 	}
 	
 	/**
-	 * @param productLst
-	 * @param menuItemLst
+	 * @param pLst
+	 * @param mLst
 	 * @throws SQLException
 	 */
-	protected void insertProducts(List<ProductGroups.Products> productLst,
-		List<MenuGroups.MenuItem> menuItemLst) throws SQLException{
+	protected void insertProducts(List<ProductGroups.Products> pLst,
+		List<MenuGroups.MenuItem> mLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ProductsTable.TABLE_NAME, null, null);
-			for(ProductGroups.Products p : productLst){
+			for(ProductGroups.Products p : pLst){
 				ContentValues cv = new ContentValues();
 				cv.put(ProductsTable.COLUMN_PRODUCT_ID, p.getProductID());
 				cv.put(ProductsTable.COLUMN_PRODUCT_DEPT_ID, p.getProductDeptID());
@@ -572,7 +572,7 @@ public class ProductsDataSource extends MPOSDatabase {
 				getWritableDatabase().insertOrThrow(ProductsTable.TABLE_NAME, null, cv);
 			}
 			
-			for(MenuGroups.MenuItem m : menuItemLst){
+			for(MenuGroups.MenuItem m : mLst){
 				ContentValues cv = new ContentValues();
 				cv.put(ProductsTable.COLUMN_PRODUCT_NAME, m.getMenuName_0());
 				cv.put(ProductsTable.COLUMN_IMG_URL, m.getMenuImageLink());

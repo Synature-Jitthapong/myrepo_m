@@ -19,6 +19,11 @@ public class MPOSTransactionManager {
 	private int mStaffId;
 	
 	/*
+	 * sessionId
+	 */
+	private int mSessionId;
+	
+	/*
 	 * transactionId
 	 */
 	private int mTransactionId;
@@ -43,17 +48,9 @@ public class MPOSTransactionManager {
 	 */
 	private double mTotalSalePrice;
 	
-	/*
-	 * total vat
-	 */
-	private double mTotalVat;
-	
-	public MPOSTransactionManager(Context context, int sessionId, 
-			int shopId, int staffId, double companyVatRate){
-		mShopId = shopId;
+	public MPOSTransactionManager(Context context, int sessionId, int staffId){
 		mStaffId = staffId;
 		mSessionId = sessionId;
-		mCompanyVatRate = companyVatRate;
 		mTransaction = new OrderTransactionDataSource(context);
 	}
 	
@@ -62,8 +59,7 @@ public class MPOSTransactionManager {
 	}
 	
 	public void openTransaction(){
-		mTransaction.openTransaction(mShopId, mComputerId, 
-				mSessionId, mStaffId, mCompanyVatRate);
+		
 	}
 
 	public int getmStaffId() {
