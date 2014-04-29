@@ -15,7 +15,6 @@ public class PrintReceiptLogTable{
 			"CREATE TABLE " + TABLE_NAME + "( " +
 			COLUMN_PRINT_RECEIPT_LOG_ID + " INTEGER, " + 
 			OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER, " +
-			ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, " +
 			StaffTable.COLUMN_STAFF_ID + " INTEGER, " +
 			COLUMN_PRINT_RECEIPT_LOG_TIME + " TEXT, " +
 			COLUMN_PRINT_RECEIPT_LOG_STATUS + " INTEGER DEFAULT 0, " +

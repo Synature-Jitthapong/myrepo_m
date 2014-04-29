@@ -18,8 +18,8 @@ import com.syn.mpos.database.table.SessionTable;
 import com.syn.mpos.database.table.ShopTable;
 import com.syn.mpos.database.table.SyncSaleLogTable;
 
+import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 /*
  * This class do generate SaleTransactionData
@@ -37,14 +37,14 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	 */
 	private int mTransactionId;
 	
-	public SaleTransactionDataSource(SQLiteDatabase db, String sessionDate, int transactionId){
-		super(db);
+	public SaleTransactionDataSource(Context context, String sessionDate, int transactionId){
+		super(context);
 		mTransactionId = transactionId;
 		mSessionDate = sessionDate;
 	}
 
-	public SaleTransactionDataSource(SQLiteDatabase db, String sessionDate) {
-		super(db);
+	public SaleTransactionDataSource(Context context, String sessionDate) {
+		super(context);
 		mSessionDate = sessionDate;
 	}
 
@@ -369,7 +369,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	}
 
 	public Cursor queryPaymentDetail(int transId) {
-		return mSqlite.rawQuery(
+		return getReadableDatabase().rawQuery(
 				"SELECT " + PaymentDetailTable.COLUMN_PAY_ID + ", " +
 				ComputerTable.COLUMN_COMPUTER_ID + ", " +
 				PayTypeTable.COLUMN_PAY_TYPE_ID + ", " +
@@ -386,7 +386,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	}
 
 	public Cursor queryOrderDetail(int transId) {
-		return mSqlite.rawQuery(
+		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + OrderDetailTable.TABLE_ORDER + 
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
@@ -394,7 +394,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	}
 
 	public Cursor queryTransactionByTransactionId() {
-		return mSqlite.rawQuery(
+		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + OrderTransactionTable.TABLE_NAME + 
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" + 
@@ -406,7 +406,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	}
 	
 	public Cursor queryAllTransactionInSaleDate() {
-		return mSqlite.rawQuery(
+		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + OrderTransactionTable.TABLE_NAME + 
 				" WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?" + 
@@ -418,7 +418,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	}
 	
 	public Cursor queryTransaction() {
-		return mSqlite.rawQuery(
+		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + OrderTransactionTable.TABLE_NAME + 
 				" WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?" + 
@@ -432,7 +432,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	}
 
 	public Cursor querySessionEndday() {
-		return mSqlite.rawQuery(
+		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + SessionDetailTable.TABLE_NAME + 
 				" WHERE " + SessionTable.COLUMN_SESS_DATE + "=?",
@@ -440,7 +440,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	}
 
 	public Cursor querySession() {
-		return mSqlite.rawQuery(
+		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + SessionTable.TABLE_NAME + 
 				" WHERE " + SessionTable.COLUMN_SESS_DATE + "=?",
@@ -448,7 +448,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	}
 
 	public Cursor querySyncSaleLog() {
-		return mSqlite.rawQuery(
+		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + SyncSaleLogTable.TABLE_NAME + 
 				" WHERE " + SyncSaleLogTable.COLUMN_SYNC_STATUS + "=?",

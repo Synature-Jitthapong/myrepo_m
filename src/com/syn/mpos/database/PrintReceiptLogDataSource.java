@@ -8,22 +8,25 @@ import com.syn.mpos.database.table.OrderTransactionTable;
 import com.syn.mpos.database.table.PrintReceiptLogTable;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class PrintReceiptLogDataSource extends MPOSDatabase{
 	
 	public static final int PRINT_NOT_SUCCESS = 0;
 	public static final int PRINT_SUCCESS = 1;
 
-	public PrintReceiptLogDataSource(SQLiteDatabase db) {
-		super(db);
+	public PrintReceiptLogDataSource(Context context) {
+		super(context);
 	}
 	
-	public List<PrintReceipt> listPrintReceiptLog(){
+	/**
+	 * @return List<PrintReceipt>
+	 */
+	protected List<PrintReceipt> listPrintReceiptLog(){
 		List<PrintReceipt> printLst = new ArrayList<PrintReceipt>();
-		Cursor cursor = mSqlite.query(PrintReceiptLogTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(PrintReceiptLogTable.TABLE_NAME, 
 				new String[]{
 					OrderTransactionTable.COLUMN_TRANSACTION_ID,
 					ComputerTable.COLUMN_COMPUTER_ID,
@@ -51,16 +54,23 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 		return printLst;
 	}
 	
-	public void deletePrintStatus(int printReceiptLogId){
-		mSqlite.delete(PrintReceiptLogTable.TABLE_NAME, 
+	/**
+	 * @param printReceiptLogId
+	 */
+	protected void deletePrintStatus(int printReceiptLogId){
+		getWritableDatabase().delete(PrintReceiptLogTable.TABLE_NAME, 
 				PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID + "=?", 
 				new String[]{String.valueOf(printReceiptLogId)}  );
 	}
 	
-	public void updatePrintStatus(int printReceiptLogId, int status){
+	/**
+	 * @param printReceiptLogId
+	 * @param status
+	 */
+	protected void updatePrintStatus(int printReceiptLogId, int status){
 		ContentValues cv = new ContentValues();
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS, status);
-		mSqlite.update(PrintReceiptLogTable.TABLE_NAME, cv, 
+		getWritableDatabase().update(PrintReceiptLogTable.TABLE_NAME, cv, 
 				PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID + "=?", 
 				new String[]{
 					String.valueOf(printReceiptLogId)
@@ -68,14 +78,18 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 		);
 	}
 	
-	public void insertLog(int transactionId, int computerId, int staffId) throws SQLException{
+	/**
+	 * @param transactionId
+	 * @param staffId
+	 * @throws SQLException
+	 */
+	protected void insertLog(int transactionId, int staffId) throws SQLException{
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_TRANSACTION_ID, transactionId);
-		cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
 		cv.put(StaffTable.COLUMN_STAFF_ID, staffId);
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME, Util.getDateTime().getTimeInMillis());
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS, PRINT_NOT_SUCCESS);
-		mSqlite.insertOrThrow(PrintReceiptLogTable.TABLE_NAME, null, cv);
+		getWritableDatabase().insertOrThrow(PrintReceiptLogTable.TABLE_NAME, null, cv);
 	}
 
 	public static class PrintReceipt{

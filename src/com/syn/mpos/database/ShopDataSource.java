@@ -3,22 +3,25 @@ package com.syn.mpos.database;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.mpos.database.table.ShopTable;
 import com.syn.pos.ShopData;
 
 public class ShopDataSource extends MPOSDatabase{
 	
-	public ShopDataSource(SQLiteDatabase db){
-		super(db);
+	public ShopDataSource(Context context){
+		super(context);
 	}
 	
-	public double getCompanyVatRate(){
+	/**
+	 * @return company vat rate
+	 */
+	protected double getCompanyVatRate(){
 		double vatRate = 7;
-		Cursor cursor = mSqlite.query(ShopTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(ShopTable.TABLE_NAME, 
 				new String[]{
 				ShopTable.COLUMN_VAT
 				}, null, null, null, null, null);
@@ -29,10 +32,13 @@ public class ShopDataSource extends MPOSDatabase{
 		return vatRate;
 	}
 
-	public ShopData.ShopProperty getShopProperty(){
+	/**
+	 * @return ShopData.ShopProperty
+	 */
+	protected ShopData.ShopProperty getShopProperty(){
 		ShopData.ShopProperty sp = 
 				new ShopData.ShopProperty();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + ShopTable.TABLE_NAME, null);
+		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + ShopTable.TABLE_NAME, null);
 		if(cursor.moveToFirst()){
 			sp.setShopID(cursor.getInt(cursor.getColumnIndex(ShopTable.COLUMN_SHOP_ID)));
 			sp.setShopCode(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_SHOP_CODE)));
@@ -58,10 +64,14 @@ public class ShopDataSource extends MPOSDatabase{
 		return sp;
 	}
 
-	public void insertShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
-		mSqlite.beginTransaction();
+	/**
+	 * @param shopPropLst
+	 * @throws SQLException
+	 */
+	protected void insertShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
+		getWritableDatabase().beginTransaction();
 		try {
-			mSqlite.delete(ShopTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(ShopTable.TABLE_NAME, null, null);
 			for(ShopData.ShopProperty shop : shopPropLst){
 				ContentValues cv = new ContentValues();
 				cv.put(ShopTable.COLUMN_SHOP_ID, shop.getShopID());
@@ -82,11 +92,11 @@ public class ShopDataSource extends MPOSDatabase{
 				cv.put(ShopTable.COLUMN_TAX_ID, shop.getCompanyTaxID());
 				cv.put(ShopTable.COLUMN_REGISTER_ID, shop.getCompanyRegisterID());
 				cv.put(ShopTable.COLUMN_VAT, shop.getCompanyVat());
-				mSqlite.insertOrThrow(ShopTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(ShopTable.TABLE_NAME, null, cv);
 			}
-			mSqlite.setTransactionSuccessful();
+			getWritableDatabase().setTransactionSuccessful();
 		} finally {
-			mSqlite.endTransaction();
+			getWritableDatabase().endTransaction();
 		}
 	}
 }

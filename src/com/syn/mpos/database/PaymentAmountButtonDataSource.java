@@ -7,19 +7,22 @@ import com.syn.mpos.database.table.PaymentButtonTable;
 import com.syn.pos.Payment;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 public class PaymentAmountButtonDataSource extends MPOSDatabase {
 	
-	public PaymentAmountButtonDataSource(SQLiteDatabase db) {
-		super(db);
+	public PaymentAmountButtonDataSource(Context context) {
+		super(context);
 	}
 	
-	public List<Payment.PaymentAmountButton> listPaymentButton(){
+	/**
+	 * @return List<Payment.PaymentAmountButton>
+	 */
+	protected List<Payment.PaymentAmountButton> listPaymentButton(){
 		List<Payment.PaymentAmountButton> paymentButtonLst = 
 				new ArrayList<Payment.PaymentAmountButton>();
-		Cursor cursor = mSqlite.query(PaymentButtonTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(PaymentButtonTable.TABLE_NAME, 
 				new String[]{
 				PaymentButtonTable.COLUMN_PAYMENT_AMOUNT_ID,
 				PaymentButtonTable.COLUMN_PAYMENT_AMOUNT
@@ -39,19 +42,22 @@ public class PaymentAmountButtonDataSource extends MPOSDatabase {
 		return paymentButtonLst;
 	}
 	
-	public void insertPaymentAmountButton(List<Payment.PaymentAmountButton> paymentAmountLst){
-		mSqlite.beginTransaction();
+	/**
+	 * @param paymentAmountLst
+	 */
+	protected void insertPaymentAmountButton(List<Payment.PaymentAmountButton> paymentAmountLst){
+		getWritableDatabase().beginTransaction();
 		try {
-			mSqlite.delete(PaymentButtonTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(PaymentButtonTable.TABLE_NAME, null, null);
 			for(Payment.PaymentAmountButton payButton : paymentAmountLst){
 				ContentValues cv = new ContentValues();
 				cv.put(PaymentButtonTable.COLUMN_PAYMENT_AMOUNT_ID, payButton.getPaymentAmountID());
 				cv.put(PaymentButtonTable.COLUMN_PAYMENT_AMOUNT, payButton.getPaymentAmount());
-				mSqlite.insertOrThrow(PaymentButtonTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(PaymentButtonTable.TABLE_NAME, null, cv);
 			}
-			mSqlite.setTransactionSuccessful();
+			getWritableDatabase().setTransactionSuccessful();
 		} finally {
-			mSqlite.endTransaction();
+			getWritableDatabase().endTransaction();
 		}
 	}
 }

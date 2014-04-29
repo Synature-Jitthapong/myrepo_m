@@ -1,8 +1,6 @@
 package com.syn.mpos.database;
 
-import android.database.sqlite.SQLiteDatabase;
-
-public class StockDocument extends MPOSDatabase {
+public class StockDocument {
 
 	public static final int SALE_DOC = 20;
 	public static final int VOID_DOC = 21;
@@ -14,11 +12,7 @@ public class StockDocument extends MPOSDatabase {
 	public static final int DOC_STATUS_SAVE = 1;
 	public static final int DOC_STATUS_APPROVE = 2;
 	public static final int DOC_STATUS_CANCLE = 99;
-	
-	public StockDocument(SQLiteDatabase db) {
-		super(db);
-	}
-	
+
 	public static abstract class DocumentTable{
 		public static final String TABLE_DOCUMENT = "Document";
 		public static final String COLUMN_DOC_ID = "document_id";

@@ -31,7 +31,7 @@ public class SessionTable{
 			COLUMN_OPEN_AMOUNT + " REAL, " +
 			COLUMN_CLOSE_AMOUNT + " REAL, " +
 			COLUMN_IS_ENDDAY + " INTEGER, " +
-			"PRIMARY KEY (" + COLUMN_SESS_ID + ", " + ComputerTable.COLUMN_COMPUTER_ID + "));";
+			"PRIMARY KEY (" + COLUMN_SESS_ID + "));";
 	
 	
 	public static void onCreate(SQLiteDatabase db) {

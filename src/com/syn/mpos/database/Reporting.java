@@ -14,9 +14,9 @@ import com.syn.mpos.database.table.ProductsTable;
 import com.syn.pos.Report;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class Reporting extends MPOSDatabase{
 	
@@ -40,26 +40,25 @@ public class Reporting extends MPOSDatabase{
 	
 	protected long mDateFrom, mDateTo;
 	
-	public Reporting(SQLiteDatabase db, long dFrom, long dTo){
-		super(db);
+	public Reporting(Context context, long dFrom, long dTo){
+		super(context);
 		mDateFrom = dFrom;
 		mDateTo = dTo;
 	}
 	
-	public Reporting(SQLiteDatabase db){
-		super(db);
+	public Reporting(Context context){
+		super(context);
 	}
 	
-	public double getTotalPayByPayType(int transactionId, int computerId, int payTypeId){
+	public double getTotalPayByPayType(int transactionId, int payTypeId){
 		double totalPay = 0.0f;
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") " +
 				" FROM " + PaymentDetailTable.TABLE_NAME +
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " +
-				" AND " + ComputerTable.COLUMN_COMPUTER_ID + "=? " +
 				" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(transactionId),
-				String.valueOf(computerId), String.valueOf(payTypeId)});
+				String.valueOf(payTypeId)});
 		if(cursor.moveToFirst()){
 			totalPay = cursor.getDouble(0);
 		}
@@ -94,7 +93,7 @@ public class Reporting extends MPOSDatabase{
 				" AND a." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? " +  
 				" GROUP BY a." + OrderTransactionTable.COLUMN_TRANSACTION_ID;
 
-		Cursor cursor = mSqlite.rawQuery(strSql, 
+		Cursor cursor = getReadableDatabase().rawQuery(strSql, 
 				new String[]{
 				String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
 				String.valueOf(OrderTransactionDataSource.TRANS_STATUS_VOID),
@@ -142,7 +141,7 @@ public class Reporting extends MPOSDatabase{
 					groupSection.setProductGroupName(group.getProductGroupName());
 
 					// product
-					Cursor cursor = mSqlite.rawQuery("SELECT a."
+					Cursor cursor = getReadableDatabase().rawQuery("SELECT a."
 							+ COLUMN_PRODUCT_QTY + ", " + " a."
 							+ COLUMN_PRODUCT_QTY_PERCENT + ", " + " a."
 							+ COLUMN_PRODUCT_SUB_TOTAL + ", " + " a."
@@ -231,7 +230,7 @@ public class Reporting extends MPOSDatabase{
 	
 	public Report.ReportDetail getSummaryByGroup(int groupId){
 		Report.ReportDetail report = null;
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(o." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS TotalQty, " +
 				" SUM(o." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
 				" SUM(o." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, " +
@@ -273,7 +272,7 @@ public class Reporting extends MPOSDatabase{
 	
 	public Report.ReportDetail getSummaryByDept(int deptId){
 		Report.ReportDetail report = null;
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(o." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS TotalQty, " +
 				" SUM(o." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
 				" SUM(o." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, " +
@@ -313,7 +312,7 @@ public class Reporting extends MPOSDatabase{
 	
 	public Report.ReportDetail getProductSummaryAll(){
 		Report.ReportDetail report = null;
-		Cursor cursor = mSqlite.query(TEMP_PRODUCT_REPORT, 
+		Cursor cursor = getReadableDatabase().query(TEMP_PRODUCT_REPORT, 
 				new String[]{
 					COLUMN_PRODUCT_SUMM_QTY,
 					COLUMN_PRODUCT_SUMM_SUB_TOTAL,
@@ -333,7 +332,7 @@ public class Reporting extends MPOSDatabase{
 	}
 	
 	private void createProductDataTmp() throws SQLException{
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getWritableDatabase().rawQuery(
 				" SELECT b." + ProductsTable.COLUMN_PRODUCT_ID + ", " +
 				" SUM(b." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS Qty, " +
 			    " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS RetailPrice, " +
@@ -425,7 +424,7 @@ public class Reporting extends MPOSDatabase{
 				cv.put(COLUMN_PRODUCT_TOTAL_PRICE_PERCENT, salePricePercent);
 				
 				try {
-					mSqlite.insertOrThrow(TEMP_PRODUCT_REPORT, null, cv);
+					getWritableDatabase().insertOrThrow(TEMP_PRODUCT_REPORT, null, cv);
 				} catch (Exception e) {
 					e.printStackTrace();
 					return;
@@ -439,7 +438,7 @@ public class Reporting extends MPOSDatabase{
 	public List<Report.GroupOfProduct> listProductGroup(){
 		List<Report.GroupOfProduct> reportLst = null;
 		
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getReadableDatabase().rawQuery(
 					" SELECT c." + ProductsTable.COLUMN_PRODUCT_DEPT_ID + ", " + 
 					" c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ", " + 
 					" d." + ProductsTable.COLUMN_PRODUCT_GROUP_ID + ", " +
@@ -473,8 +472,8 @@ public class Reporting extends MPOSDatabase{
 	}
 	
 	private void createReportProductTmp() throws SQLException{
-		mSqlite.execSQL("DROP TABLE IF EXISTS " + TEMP_PRODUCT_REPORT);
-		mSqlite.execSQL("CREATE TABLE " + TEMP_PRODUCT_REPORT + " ( " +
+		getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + TEMP_PRODUCT_REPORT);
+		getWritableDatabase().execSQL("CREATE TABLE " + TEMP_PRODUCT_REPORT + " ( " +
 				ProductsTable.COLUMN_PRODUCT_ID + " INTEGER, " +
 				COLUMN_PRODUCT_QTY + " REAL, " +
 				COLUMN_PRODUCT_QTY_PERCENT + " REAL, " +
