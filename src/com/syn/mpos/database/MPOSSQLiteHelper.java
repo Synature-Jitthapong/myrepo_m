@@ -38,6 +38,21 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 	private static final String DB_NAME = "mpos.db";
 	private static final int DB_VERSION = 1;
 
+	private static MPOSSQLiteHelper sHelper;
+	
+	/**
+	 * @param context
+	 * @return SQLiteOpenHelper instance
+	 * This singleton pattern for only get one SQLiteOpenHelper instance
+	 * for thread save
+	 */
+	public static synchronized MPOSSQLiteHelper getInstance(Context context){
+		if(sHelper == null){
+			sHelper = new MPOSSQLiteHelper(context);
+		}
+		return sHelper;
+	}
+	
 	public MPOSSQLiteHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
 	}

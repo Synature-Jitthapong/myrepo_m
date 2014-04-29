@@ -73,9 +73,9 @@ public class MPOSManager {
 	 */
 	private double mTotalVat;
 	
-	public MPOSManager(Context c, int staffId){
+	public MPOSManager(Context context, int staffId){
 		mStaffId = staffId;
-		mSqliteHelper = new MPOSSQLiteHelper(c);
+		mSqliteHelper = MPOSSQLiteHelper.getInstance(context);
 		SQLiteDatabase sqlite = open();
 		
 		mShop = new ShopDataSource(sqlite);
@@ -86,12 +86,29 @@ public class MPOSManager {
 	}
 	
 	/**
+	 * This update transaction to status success.
+	 * @return rows affected
+	 * 0 if fail update
+	 */
+	public int closeTransaction(){
+		return mTransaction.successTransaction(mTransactionId, mComputerId, mStaffId);
+	}
+	
+	/**
 	 * Open transaction
 	 * @return current transactionId
 	 */
 	public int openTransaction(){
 		return mTransaction.openTransaction(getComputerId(), getShopId(), 
 				getCurrentSession(), mStaffId, getCompanyVatRate());
+	}
+		
+	/**
+	 * @return current sessionId
+	 * 0 if not have session
+	 */
+	public int getCurrentSession(){
+		return mSession.getCurrentSession(getComputerId(), mStaffId);
 	}
 	
 	/**
@@ -117,11 +134,7 @@ public class MPOSManager {
 	public int getComputerId(){
 		return getComputer().getComputerID();
 	}
-	
-	public int getCurrentSession(){
-		return mSession.getCurrentSession(getComputerId(), mStaffId);
-	}
-	
+
 	/**
 	 * get shop object
 	 * @return ShopData.ShopProperty
@@ -145,5 +158,61 @@ public class MPOSManager {
 	 */
 	private SQLiteDatabase open() throws SQLiteException{
 		return mSqliteHelper.getWritableDatabase();
+	}
+
+	public int getmStaffId() {
+		return mStaffId;
+	}
+
+	public void setmStaffId(int mStaffId) {
+		this.mStaffId = mStaffId;
+	}
+
+	public int getmTransactionId() {
+		return mTransactionId;
+	}
+
+	public void setmTransactionId(int mTransactionId) {
+		this.mTransactionId = mTransactionId;
+	}
+
+	public int getmComputerId() {
+		return mComputerId;
+	}
+
+	public void setmComputerId(int mComputerId) {
+		this.mComputerId = mComputerId;
+	}
+
+	public double getmTotalPrice() {
+		return mTotalPrice;
+	}
+
+	public void setmTotalPrice(double mTotalPrice) {
+		this.mTotalPrice = mTotalPrice;
+	}
+
+	public double getmTotalDiscount() {
+		return mTotalDiscount;
+	}
+
+	public void setmTotalDiscount(double mTotalDiscount) {
+		this.mTotalDiscount = mTotalDiscount;
+	}
+
+	public double getmTotalSalePrice() {
+		return mTotalSalePrice;
+	}
+
+	public void setmTotalSalePrice(double mTotalSalePrice) {
+		this.mTotalSalePrice = mTotalSalePrice;
+	}
+
+	public double getmTotalVat() {
+		return mTotalVat;
+	}
+
+	public void setmTotalVat(double mTotalVat) {
+		this.mTotalVat = mTotalVat;
 	}
 }
