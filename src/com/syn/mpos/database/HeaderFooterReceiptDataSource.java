@@ -7,24 +7,24 @@ import com.syn.mpos.database.table.HeaderFooterReceiptTable;
 import com.syn.pos.ShopData;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 public class HeaderFooterReceiptDataSource extends MPOSDatabase{
 	
 	public static final int HEADER_LINE_TYPE = 0;
 	public static final int FOOTER_LINE_TYPE = 1;
 
-	public HeaderFooterReceiptDataSource(SQLiteDatabase db) {
-		super(db);
+	public HeaderFooterReceiptDataSource(Context context) {
+		super(context);
 	}
 	
-	public List<ShopData.HeaderFooterReceipt> listHeaderFooter(int lineType){
+	protected List<ShopData.HeaderFooterReceipt> listHeaderFooter(int lineType){
 		List<ShopData.HeaderFooterReceipt> hfLst = 
 				new ArrayList<ShopData.HeaderFooterReceipt>();
 
-		Cursor cursor = mSqlite.query(HeaderFooterReceiptTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(HeaderFooterReceiptTable.TABLE_NAME, 
 				new String[]{HeaderFooterReceiptTable.COLUMN_TEXT_IN_LINE, 
 				HeaderFooterReceiptTable.COLUMN_LINE_TYPE, 
 				HeaderFooterReceiptTable.COLUMN_LINE_ORDER}, 
@@ -45,21 +45,21 @@ public class HeaderFooterReceiptDataSource extends MPOSDatabase{
 		return hfLst;
 	}
 	
-	public void addHeaderFooterReceipt(
+	protected void addHeaderFooterReceipt(
 		List<ShopData.HeaderFooterReceipt> headerFooterLst) throws SQLException{
-		mSqlite.beginTransaction();
+		getWritableDatabase().beginTransaction();
 		try {
-			mSqlite.delete(HeaderFooterReceiptTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(HeaderFooterReceiptTable.TABLE_NAME, null, null);
 			for(ShopData.HeaderFooterReceipt hf : headerFooterLst){
 				ContentValues cv = new ContentValues();
 				cv.put(HeaderFooterReceiptTable.COLUMN_TEXT_IN_LINE, hf.getTextInLine());
 				cv.put(HeaderFooterReceiptTable.COLUMN_LINE_TYPE, hf.getLineType());
 				cv.put(HeaderFooterReceiptTable.COLUMN_LINE_ORDER, hf.getLineOrder());
-				mSqlite.insertOrThrow(HeaderFooterReceiptTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(HeaderFooterReceiptTable.TABLE_NAME, null, cv);
 			}
-			mSqlite.setTransactionSuccessful();
+			getWritableDatabase().setTransactionSuccessful();
 		} finally {
-			mSqlite.endTransaction();
+			getWritableDatabase().endTransaction();
 		}
 	}
 }

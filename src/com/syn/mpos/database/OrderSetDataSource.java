@@ -11,26 +11,27 @@ import com.syn.mpos.database.table.ProductComponentTable;
 import com.syn.mpos.database.table.ProductsTable;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class OrderSetDataSource extends MPOSDatabase{
 
-	public OrderSetDataSource(SQLiteDatabase db) {
-		super(db);
+	public OrderSetDataSource(Context context) {
+		super(context);
 	}
 	
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
-	 * @return
+	 * @return List<MPOSOrderTransaction.OrderSet> 
 	 */
-	public List<MPOSOrderTransaction.OrderSet> listOrderSet(int transactionId, int orderDetailId){
+	protected List<MPOSOrderTransaction.OrderSet> listOrderSet(int transactionId, int orderDetailId){
 		
 		List<MPOSOrderTransaction.OrderSet> productSetLst = 
 				new ArrayList<MPOSOrderTransaction.OrderSet>();
 		
-		Cursor mainCursor = mSqlite.rawQuery(
+		Cursor mainCursor = getReadableDatabase().rawQuery(
 				" SELECT b." + ProductComponentTable.COLUMN_PGROUP_ID + ", "  
 				+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NO + ", "
 				+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NAME + ", "
@@ -63,7 +64,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 						ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
 				
 				// query set detail
-				Cursor detailCursor = mSqlite.query(OrderSetTable.TABLE_NAME, 
+				Cursor detailCursor = getReadableDatabase().query(OrderSetTable.TABLE_NAME, 
 						new String[] {
 							OrderSetTable.COLUMN_ORDER_SET_ID,
 							ProductsTable.COLUMN_PRODUCT_ID,
@@ -110,12 +111,13 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param transactionId
 	 * @param orderDetailId
 	 * @param pcompGroupId
-	 * @return
+	 * @return total qty of group
 	 */
-	public double getTotalQty(int transactionId, int orderDetailId, int pcompGroupId){
+	protected double getTotalQty(int transactionId, int orderDetailId, int pcompGroupId){
+		
 		double totalQty = 0;
 		
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + OrderSetTable.COLUMN_ORDER_SET_QTY + ") "
 				+ " FROM " + OrderSetTable.TABLE_NAME
 				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
@@ -138,8 +140,8 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param transactionId
 	 * @param orderDetailId
 	 */
-	public void deleteOrderSet(int transactionId, int orderDetailId){
-		mSqlite.delete(OrderSetTable.TABLE_NAME, 
+	protected void deleteOrderSet(int transactionId, int orderDetailId){
+		getWritableDatabase().delete(OrderSetTable.TABLE_NAME, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
 				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? ", 
 				new String[]{
@@ -153,8 +155,8 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param orderDetailId
 	 * @param orderSetId
 	 */
-	public void deleteOrderSet(int transactionId, int orderDetailId, int orderSetId){
-		mSqlite.delete(OrderSetTable.TABLE_NAME, 
+	protected void deleteOrderSet(int transactionId, int orderDetailId, int orderSetId){
+		getWritableDatabase().delete(OrderSetTable.TABLE_NAME, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
 				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? "
 				+ " AND " + OrderSetTable.COLUMN_ORDER_SET_ID + "=?", 
@@ -172,13 +174,13 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param productId
 	 * @param orderSetQty
 	 */
-	public void updateOrderSet(int transactionId, int orderDetailId, int orderSetId,
+	protected void updateOrderSet(int transactionId, int orderDetailId, int orderSetId,
 			int productId, double orderSetQty){
 		
 		ContentValues cv = new ContentValues();
 		cv.put(OrderSetTable.COLUMN_ORDER_SET_QTY, orderSetQty);
 		
-		mSqlite.update(OrderSetTable.TABLE_NAME, cv, 
+		getWritableDatabase().update(OrderSetTable.TABLE_NAME, cv, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
 						+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? "
 								+ " AND " + OrderSetTable.COLUMN_ORDER_SET_ID + "=?", 
@@ -197,7 +199,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param pcompGroupId
 	 * @param reqAmount
 	 */
-	public void addOrderSet(int transactionId, int orderDetailId, int productId, 
+	protected void addOrderSet(int transactionId, int orderDetailId, int productId, 
 			String productName, int pcompGroupId, double reqAmount){
 		
 		int maxOrderSetId = getMaxOrderSetId(transactionId, orderDetailId);
@@ -212,18 +214,21 @@ public class OrderSetDataSource extends MPOSDatabase{
 		cv.put(ProductComponentGroupTable.COLUMN_REQ_AMOUNT, reqAmount);
 		cv.put(OrderSetTable.COLUMN_ORDER_SET_QTY, 1);
 		
-		mSqlite.insertOrThrow(OrderSetTable.TABLE_NAME, ProductsTable.COLUMN_PRODUCT_NAME, cv);
+		getWritableDatabase().insertOrThrow(
+				OrderSetTable.TABLE_NAME, ProductsTable.COLUMN_PRODUCT_NAME, cv);
 	}
 	
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
-	 * @return
+	 * @return max orderSetId
+	 * 0 if no row
 	 */
-	public int getMaxOrderSetId(int transactionId, int orderDetailId){
+	protected int getMaxOrderSetId(int transactionId, int orderDetailId){
+		
 		int maxOrderSetId = 0;
 		
-		Cursor cursor = mSqlite.rawQuery(
+		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT MAX (" + OrderSetTable.COLUMN_ORDER_SET_ID + ")"
 						+ " FROM " + OrderSetTable.TABLE_NAME 
 						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID 

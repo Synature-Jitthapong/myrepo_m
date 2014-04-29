@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.mpos.database.table.GlobalPropertyTable;
 import com.syn.pos.ShopData;
 
-public class GlobalPropertyDataSource{
+public class GlobalPropertyDataSource extends MPOSDatabase{
 	
 	public static final String[] COLUMNS = {
 		GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL,
@@ -27,54 +27,67 @@ public class GlobalPropertyDataSource{
 		GlobalPropertyTable.COLUMN_DATE_FORMAT,
 		GlobalPropertyTable.COLUMN_TIME_FORMAT
 	};
+	
+	private static GlobalPropertyDataSource sInstance;
+	
+	public static synchronized GlobalPropertyDataSource getInstance(Context context){
+		if(sInstance == null){
+			sInstance = new GlobalPropertyDataSource(context);
+		}
+		return sInstance;
+	}
+	
+	public GlobalPropertyDataSource(Context context) {
+		super(context);
+	}
 
-	public static String dateFormat(Date d, String pattern){
+	public String dateFormat(Date d, String pattern){
 		SimpleDateFormat dateFormat = getSimpleDateFormat();
 		dateFormat.applyPattern(pattern);
 		return dateFormat.format(d);	
 	}
 	
-	public static String dateFormat(SQLiteDatabase sqlite, Date d){
+	public String dateFormat(Date d){
 		SimpleDateFormat dateFormat = getSimpleDateFormat();
-		if(!getGlobalProperty(sqlite).getDateFormat().equals(""))
-			dateFormat.applyPattern(getGlobalProperty(sqlite).getDateFormat());
+		if(!getGlobalProperty().getDateFormat().equals(""))
+			dateFormat.applyPattern(getGlobalProperty().getDateFormat());
 		return dateFormat.format(d);	
 	}
 	
-	public static String dateTimeFormat(Date d, String pattern){
+	public String dateTimeFormat(Date d, String pattern){
 		SimpleDateFormat dateFormat = getSimpleDateFormat();
 		dateFormat.applyPattern(pattern);
 		return dateFormat.format(d);
 	}
 	
-	public static String dateTimeFormat(SQLiteDatabase sqlite, Date d){
+	public String dateTimeFormat(Date d){
 		SimpleDateFormat dateFormat = getSimpleDateFormat();
 		dateFormat.applyPattern("dd/MM/yyyy HH:mm:ss");
-		if(!getGlobalProperty(sqlite).getDateFormat().equals("") && 
-				!getGlobalProperty(sqlite).getTimeFormat().equals(""))
-			dateFormat.applyPattern(getGlobalProperty(sqlite).getDateFormat() + " " +
-					getGlobalProperty(sqlite).getTimeFormat());
+		if(!getGlobalProperty().getDateFormat().equals("") && 
+				!getGlobalProperty().getTimeFormat().equals(""))
+			dateFormat.applyPattern(getGlobalProperty().getDateFormat() + " " +
+					getGlobalProperty().getTimeFormat());
 		return dateFormat.format(d);
 	}
 	
-	public static String timeFormat(SQLiteDatabase sqlite, Date d){
+	public String timeFormat(Date d){
 		SimpleDateFormat dateFormat = getSimpleDateFormat();
 		dateFormat.applyPattern("HH:mm:ss");
-		if(!getGlobalProperty(sqlite).getTimeFormat().equals(""))
-			dateFormat.applyPattern(getGlobalProperty(sqlite).getTimeFormat());
+		if(!getGlobalProperty().getTimeFormat().equals(""))
+			dateFormat.applyPattern(getGlobalProperty().getTimeFormat());
 		return dateFormat.format(d);
 	}
 	
-	public static String qtyFormat(double qty, String pattern){
+	public String qtyFormat(double qty, String pattern){
 		DecimalFormat decFormat = getDecimalFormat();
 		decFormat.applyPattern(pattern);
 		return decFormat.format(qty);
 	}
 	
-	public static String qtyFormat(SQLiteDatabase sqlite, double qty){
+	public String qtyFormat(double qty){
 		DecimalFormat decFormat = getDecimalFormat();
-		if(!getGlobalProperty(sqlite).getQtyFormat().equals("")){
-			decFormat.applyPattern(getGlobalProperty(sqlite).getQtyFormat());
+		if(!getGlobalProperty().getQtyFormat().equals("")){
+			decFormat.applyPattern(getGlobalProperty().getQtyFormat());
 			return decFormat.format(qty);
 		}else{
 			NumberFormat numFormat = getNumberFormat();
@@ -82,16 +95,16 @@ public class GlobalPropertyDataSource{
 		}
 	}
 	
-	public static String currencyFormat(double currency, String pattern){
+	public String currencyFormat(double currency, String pattern){
 		DecimalFormat decFormat = getDecimalFormat();
 		decFormat.applyPattern(pattern);
 		return decFormat.format(currency);
 	}
 	
-	public static String currencyFormat(SQLiteDatabase sqlite, double currency){
+	public String currencyFormat(double currency){
 		DecimalFormat decFormat = getDecimalFormat();
-		if(!getGlobalProperty(sqlite).getCurrencyFormat().equals("")){
-			decFormat.applyPattern(getGlobalProperty(sqlite).getCurrencyFormat());
+		if(!getGlobalProperty().getCurrencyFormat().equals("")){
+			decFormat.applyPattern(getGlobalProperty().getCurrencyFormat());
 			return decFormat.format(currency);
 		}else{
 			NumberFormat numFormat = getNumberFormat();
@@ -99,9 +112,9 @@ public class GlobalPropertyDataSource{
 		}
 	}
 	
-	public static ShopData.GlobalProperty getGlobalProperty(SQLiteDatabase sqlite) {
+	public ShopData.GlobalProperty getGlobalProperty() {
 		ShopData.GlobalProperty gb = new ShopData.GlobalProperty();
-		Cursor cursor = sqlite.query(GlobalPropertyTable.TABLE_NAME, COLUMNS, 
+		Cursor cursor = getReadableDatabase().query(GlobalPropertyTable.TABLE_NAME, COLUMNS, 
 				null, null, null, null, null);
 		if (cursor.moveToFirst()) {
 			gb.setCurrencyCode(cursor.getString(cursor
@@ -123,10 +136,10 @@ public class GlobalPropertyDataSource{
 		return gb;
 	}
 
-	public static void insertProperty(SQLiteDatabase sqlite, List<ShopData.GlobalProperty> globalLst) throws SQLException{
-		sqlite.beginTransaction();
+	public void insertProperty(List<ShopData.GlobalProperty> globalLst) throws SQLException{
+		getWritableDatabase().beginTransaction();
 		try {
-			sqlite.delete(GlobalPropertyTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(GlobalPropertyTable.TABLE_NAME, null, null);
 			for (ShopData.GlobalProperty global : globalLst) {
 				ContentValues cv = new ContentValues();
 				cv.put(GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL, global.getCurrencySymbol());
@@ -136,26 +149,26 @@ public class GlobalPropertyDataSource{
 				cv.put(GlobalPropertyTable.COLUMN_DATE_FORMAT, global.getDateFormat());
 				cv.put(GlobalPropertyTable.COLUMN_TIME_FORMAT, global.getTimeFormat());
 				cv.put(GlobalPropertyTable.COLUMN_QTY_FORMAT, global.getQtyFormat());
-				sqlite.insertOrThrow(GlobalPropertyTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(GlobalPropertyTable.TABLE_NAME, null, cv);
 			}
-			sqlite.setTransactionSuccessful();
+			getWritableDatabase().setTransactionSuccessful();
 		} finally {
-			sqlite.endTransaction();
+			getWritableDatabase().endTransaction();
 		}
 	}
 	
-	private static SimpleDateFormat getSimpleDateFormat(){
+	private SimpleDateFormat getSimpleDateFormat(){
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 		return dateFormat;
 	}
 	
-	private static NumberFormat getNumberFormat(){
+	private NumberFormat getNumberFormat(){
 		NumberFormat numFormat = NumberFormat.getInstance(Locale.getDefault());
 		numFormat.setRoundingMode(RoundingMode.HALF_UP);
 		return numFormat;
 	}
 	
-	private static DecimalFormat getDecimalFormat(){
+	private DecimalFormat getDecimalFormat(){
 		DecimalFormat decFormat = new DecimalFormat();
 		decFormat.setRoundingMode(RoundingMode.HALF_UP);
 		return decFormat;

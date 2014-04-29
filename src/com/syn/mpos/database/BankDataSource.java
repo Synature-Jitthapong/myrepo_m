@@ -4,22 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.mpos.database.table.BankTable;
 import com.syn.pos.BankName;
 
 public class BankDataSource extends MPOSDatabase{
 
-	public BankDataSource(SQLiteDatabase db) {
-		super(db);
+	public BankDataSource(Context context) {
+		super(context);
 	}
 	
-	public List<BankName> listAllBank(){
+	protected List<BankName> listAllBank(){
 		List<BankName> bankLst = 
 				new ArrayList<BankName>();
-		Cursor cursor = mSqlite.query(BankTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(BankTable.TABLE_NAME, 
 				new String[]{BankTable.COLUMN_BANK_ID, BankTable.COLUMN_BANK_NAME}, null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
@@ -33,19 +33,19 @@ public class BankDataSource extends MPOSDatabase{
 		return bankLst;
 	}
 	
-	public void insertBank(List<BankName> bankLst){
-		mSqlite.beginTransaction();
+	protected void insertBank(List<BankName> bankLst){
+		getWritableDatabase().beginTransaction();
 		try {
-			mSqlite.delete(BankTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(BankTable.TABLE_NAME, null, null);
 			for(BankName bank : bankLst){
 				ContentValues cv = new ContentValues();
 				cv.put(BankTable.COLUMN_BANK_ID, bank.getBankNameId());
 				cv.put(BankTable.COLUMN_BANK_NAME, bank.getBankName());
-				mSqlite.insertOrThrow(BankTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(BankTable.TABLE_NAME, null, cv);
 			}
-			mSqlite.setTransactionSuccessful();
+			getWritableDatabase().setTransactionSuccessful();
 		} finally{
-			mSqlite.endTransaction();
+			getWritableDatabase().endTransaction();
 		}
 	}
 }

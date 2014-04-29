@@ -3,22 +3,22 @@ package com.syn.mpos.database;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.mpos.database.table.ComputerTable;
 import com.syn.pos.ShopData;
 
 public class ComputerDataSource extends MPOSDatabase{
 
-	public ComputerDataSource(SQLiteDatabase db) {
-		super(db);
+	public ComputerDataSource(Context context) {
+		super(context);
 	}
 
-	public boolean checkIsMainComputer(int computerId){
+	protected boolean checkIsMainComputer(int computerId){
 		boolean isMainComputer = false;
-		Cursor cursor = mSqlite.query(ComputerTable.TABLE_COMPUTER, 
+		Cursor cursor = getReadableDatabase().query(ComputerTable.TABLE_COMPUTER, 
 				new String[]{
 				ComputerTable.COLUMN_IS_MAIN_COMPUTER
 				}, ComputerTable.COLUMN_COMPUTER_ID + "=?", 
@@ -33,10 +33,10 @@ public class ComputerDataSource extends MPOSDatabase{
 		return isMainComputer;
 	}
 	
-	public ShopData.ComputerProperty getComputerProperty() {
+	protected ShopData.ComputerProperty getComputerProperty() {
 		ShopData.ComputerProperty computer = 
 				new ShopData.ComputerProperty();
-		Cursor cursor = mSqlite.rawQuery("SELECT * FROM " + ComputerTable.TABLE_COMPUTER, null);
+		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + ComputerTable.TABLE_COMPUTER, null);
 		if (cursor.moveToFirst()) {
 			computer.setComputerID(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 			computer.setComputerName(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_NAME)));
@@ -48,10 +48,10 @@ public class ComputerDataSource extends MPOSDatabase{
 		return computer;
 	}
 
-	public void insertComputer(List<ShopData.ComputerProperty> compLst) throws SQLException{
-		mSqlite.beginTransaction();
+	protected void insertComputer(List<ShopData.ComputerProperty> compLst) throws SQLException{
+		getWritableDatabase().beginTransaction();
 		try {
-			mSqlite.delete(ComputerTable.TABLE_COMPUTER, null, null);
+			getWritableDatabase().delete(ComputerTable.TABLE_COMPUTER, null, null);
 			for (ShopData.ComputerProperty comp : compLst) {
 				ContentValues cv = new ContentValues();
 				cv.put(ComputerTable.COLUMN_COMPUTER_ID, comp.getComputerID());
@@ -59,11 +59,11 @@ public class ComputerDataSource extends MPOSDatabase{
 				cv.put(ComputerTable.COLUMN_DEVICE_CODE, comp.getDeviceCode());
 				cv.put(ComputerTable.COLUMN_REGISTER_NUMBER, comp.getRegistrationNumber());
 				cv.put(ComputerTable.COLUMN_IS_MAIN_COMPUTER, comp.getIsMainComputer());
-				mSqlite.insertOrThrow(ComputerTable.TABLE_COMPUTER, null, cv);
+				getWritableDatabase().insertOrThrow(ComputerTable.TABLE_COMPUTER, null, cv);
 			}
-			mSqlite.setTransactionSuccessful();
+			getWritableDatabase().setTransactionSuccessful();
 		} finally {
-			mSqlite.endTransaction();
+			getWritableDatabase().endTransaction();
 		}
 	}
 }

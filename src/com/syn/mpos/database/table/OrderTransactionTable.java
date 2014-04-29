@@ -63,7 +63,7 @@ public class OrderTransactionTable{
 		MPOSDatabase.COLUMN_SEND_STATUS + " INTEGER DEFAULT 0, " +
 		ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
 		ProductsTable.COLUMN_VAT_RATE + " REAL DEFAULT 0, " +
-		"PRIMARY KEY (" + COLUMN_TRANSACTION_ID + " ASC, " + ComputerTable.COLUMN_COMPUTER_ID + " ASC) ); ";
+		"PRIMARY KEY (" + COLUMN_TRANSACTION_ID + ") ); ";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);

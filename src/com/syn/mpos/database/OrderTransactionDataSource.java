@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -45,13 +46,18 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 	 */
 	public static final int TRANS_STATUS_HOLD = 9;
 
-	public OrderTransactionDataSource(SQLiteDatabase db) {
-		super(db);
+	public OrderTransactionDataSource(Context context) {
+		super(context);
 	}
 
-	public MPOSOrderTransaction getTransaction(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @param computerId
+	 * @return MPOSOrderTransaction
+	 */
+	protected MPOSOrderTransaction getTransaction(int transactionId) {
 		MPOSOrderTransaction trans = new MPOSOrderTransaction();
-		Cursor cursor = mSqlite.query(
+		Cursor cursor = getReadableDatabase().query(
 				OrderTransactionTable.TABLE_NAME,
 				new String[] { OrderTransactionTable.COLUMN_TRANSACTION_ID,
 						ComputerTable.COLUMN_COMPUTER_ID,
@@ -59,10 +65,8 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 						OrderTransactionTable.COLUMN_PAID_TIME,
 						OrderTransactionTable.COLUMN_RECEIPT_NO },
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
-						+ ComputerTable.COLUMN_COMPUTER_ID + "=? AND "
 						+ OrderTransactionTable.COLUMN_STATUS_ID + "=?",
 				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId),
 						String.valueOf(TRANS_STATUS_SUCCESS) }, null, null,
 				OrderTransactionTable.COLUMN_SALE_DATE);
 		if (cursor != null) {
@@ -83,9 +87,13 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return trans;
 	}
 
-	public MPOSOrderTransaction getTransaction(long saleDate) {
+	/**
+	 * @param saleDate
+	 * @return MPOSOrderTransaction
+	 */
+	protected MPOSOrderTransaction getTransaction(long saleDate) {
 		MPOSOrderTransaction trans = new MPOSOrderTransaction();
-		Cursor cursor = mSqlite.query(
+		Cursor cursor = getReadableDatabase().query(
 				OrderTransactionTable.TABLE_NAME,
 				new String[] { OrderTransactionTable.COLUMN_TRANSACTION_ID,
 						ComputerTable.COLUMN_COMPUTER_ID,
@@ -112,51 +120,36 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		}
 		return trans;
 	}
-	
-	public double getMemberDiscount(int transactionId, int computerId,
-			boolean tempTable) {
-		double memberDiscount = 0.0f;
-		Cursor cursor = mSqlite.rawQuery(" SELECT SUM("
-				+ OrderDetailTable.COLUMN_MEMBER_DISCOUNT
-				+ ")"
-				+ " FROM "
-				+ (tempTable == true ? OrderDetailTable.TABLE_ORDER_TMP
-						: OrderDetailTable.TABLE_ORDER) + " WHERE "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=? ", new String[] {
-				String.valueOf(transactionId), String.valueOf(computerId) });
-		if (cursor.moveToFirst()) {
-			memberDiscount = cursor.getFloat(0);
-		}
-		cursor.close();
-		return memberDiscount;
-	}
 
-	public double getOtherDiscount(int transactionId, int computerId) {
-		double otherDiscount = 0.0f;
-		Cursor cursor = mSqlite.query(
-				OrderTransactionTable.TABLE_NAME,
-				new String[] { OrderTransactionTable.COLUMN_OTHER_DISCOUNT },
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
-						+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId) }, null, null, null);
-		if (cursor.moveToFirst()) {
-			otherDiscount = cursor.getFloat(0);
-		}
-		cursor.close();
-		return otherDiscount;
-	}
+	/**
+	 * @param transactionId
+	 * @return 
+	 */
+//	protected double getOtherDiscount(int transactionId) {
+//		double otherDiscount = 0.0f;
+//		Cursor cursor = getReadableDatabase().query(
+//				OrderTransactionTable.TABLE_NAME,
+//				new String[] { OrderTransactionTable.COLUMN_OTHER_DISCOUNT },
+//				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+//				new String[] { String.valueOf(transactionId)}, null, null, null);
+//		if (cursor.moveToFirst()) {
+//			otherDiscount = cursor.getDouble(0);
+//		}
+//		cursor.close();
+//		return otherDiscount;
+//	}
 
-	public String getReceiptNo(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return receipt number
+	 */
+	protected String getReceiptNo(int transactionId) {
 		String receiptNo = "";
-		Cursor cursor = mSqlite.query(
+		Cursor cursor = getReadableDatabase().query(
 				OrderTransactionTable.TABLE_NAME,
 				new String[] { OrderTransactionTable.COLUMN_RECEIPT_NO },
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
-						+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId) }, null, null, null);
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+				new String[] { String.valueOf(transactionId)}, null, null, null);
 		if (cursor.moveToFirst()) {
 			receiptNo = cursor.getString(0);
 		}
@@ -164,184 +157,217 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return receiptNo;
 	}
 
-	public double getTransactionVatExclude(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return transaction vat excluded
+	 */
+	protected double getTransactionVatExclude(int transactionId) {
 		double transVatExclude = 0.0f;
-		Cursor cursor = mSqlite
+		Cursor cursor = getReadableDatabase()
 				.query(OrderTransactionTable.TABLE_NAME,
 						new String[] { OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT },
-						OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
-								+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
-						new String[] { String.valueOf(transactionId),
-								String.valueOf(computerId) }, null, null, null);
+						OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+						new String[] { String.valueOf(transactionId)}, null, null, null);
 		if (cursor.moveToFirst()) {
-			transVatExclude = cursor.getFloat(0);
+			transVatExclude = cursor.getDouble(0);
 		}
 		cursor.close();
 		return transVatExclude;
 	}
 
-	public double getTransactionVatable(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return transaction vatable
+	 */
+	protected double getTransactionVatable(int transactionId) {
 		double transVatable = 0.0f;
-		Cursor cursor = mSqlite.query(
+		Cursor cursor = getReadableDatabase().query(
 				OrderTransactionTable.TABLE_NAME,
 				new String[] { OrderTransactionTable.COLUMN_TRANS_VATABLE },
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
-						+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId) }, null, null, null);
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+				new String[] { String.valueOf(transactionId)}, null, null, null);
 		if (cursor.moveToFirst()) {
-			transVatable = cursor.getFloat(0);
+			transVatable = cursor.getDouble(0);
 		}
 		cursor.close();
 		return transVatable;
 	}
 
-	public double getTransactionVat(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return transaction vat
+	 */
+	protected double getTransactionVat(int transactionId) {
 		double transVat = 0.0f;
-		Cursor cursor = mSqlite.query(
+		Cursor cursor = getReadableDatabase().query(
 				OrderTransactionTable.TABLE_NAME,
 				new String[] { OrderTransactionTable.COLUMN_TRANS_VAT },
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
-						+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId) }, null, null, null);
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+				new String[] { String.valueOf(transactionId) }, null, null, null);
 		if (cursor.moveToFirst()) {
-			transVat = cursor.getFloat(0);
+			transVat = cursor.getDouble(0);
 		}
 		cursor.close();
 		return transVat;
 	}
 
-	public double getDiscountPriceDiscount(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return total temp discount
+	 */
+	protected double getTmpPriceDiscount(int transactionId) {
 		double priceDiscount = 0.0f;
-		Cursor cursor = mSqlite.rawQuery(" SELECT SUM("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_PRICE_DISCOUNT + ")" + " FROM "
 				+ OrderDetailTable.TABLE_ORDER_TMP + " WHERE "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=? ", new String[] {
-				String.valueOf(transactionId), String.valueOf(computerId) });
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[] {String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
-			priceDiscount = cursor.getFloat(0);
+			priceDiscount = cursor.getDouble(0);
 		}
 		cursor.close();
 		return priceDiscount;
 	}
 
-	public double getPriceDiscount(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return total discount
+	 */
+	protected double getPriceDiscount(int transactionId) {
 		double priceDiscount = 0.0f;
-		Cursor cursor = mSqlite.rawQuery(" SELECT SUM("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_PRICE_DISCOUNT + ")" + " FROM "
 				+ OrderDetailTable.TABLE_ORDER + " WHERE "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=? ", new String[] {
-				String.valueOf(transactionId), String.valueOf(computerId) });
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[] {String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
-			priceDiscount = cursor.getFloat(0);
+			priceDiscount = cursor.getDouble(0);
 		}
 		cursor.close();
 		return priceDiscount;
 	}
 
-	public double getDiscountTotalVatExclude(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return total temp vat exclude
+	 */
+	protected double getTmpTotalVatExclude(int transactionId) {
 		double totalVat = 0.0f;
-		Cursor cursor = mSqlite.rawQuery(" SELECT SUM("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ")" + " FROM "
 				+ OrderDetailTable.TABLE_ORDER_TMP + " WHERE "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=? ", new String[] {
-				String.valueOf(transactionId), String.valueOf(computerId) });
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[] {String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
-			totalVat = cursor.getFloat(0);
+			totalVat = cursor.getDouble(0);
 		}
 		cursor.close();
 		return totalVat;
 	}
 
-	public double getTotalVatExclude(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return total vat exclude
+	 */
+	protected double getTotalVatExclude(int transactionId) {
 		double totalVat = 0.0f;
-		Cursor cursor = mSqlite.rawQuery(" SELECT SUM("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ")" + " FROM "
 				+ OrderDetailTable.TABLE_ORDER + " WHERE "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=? ", new String[] {
-				String.valueOf(transactionId), String.valueOf(computerId) });
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[] {String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
-			totalVat = cursor.getFloat(0);
+			totalVat = cursor.getDouble(0);
 		}
 		cursor.close();
 		return totalVat;
 	}
 
-	public double getDiscountTotalVat(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return total temp vat
+	 */
+	protected double getTmpTotalVat(int transactionId) {
 		double totalVat = 0.0f;
-		Cursor cursor = mSqlite.rawQuery(" SELECT SUM("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_TOTAL_VAT + ")" + " FROM "
 				+ OrderDetailTable.TABLE_ORDER_TMP + " WHERE "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=? ", new String[] {
-				String.valueOf(transactionId), String.valueOf(computerId) });
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[] {String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
-			totalVat = cursor.getFloat(0);
+			totalVat = cursor.getDouble(0);
 		}
 		cursor.close();
 		return totalVat;
 	}
 
-	public double getTotalVat(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return total vat
+	 */
+	protected double getTotalVat(int transactionId) {
 		double totalVat = 0.0f;
-		Cursor cursor = mSqlite.rawQuery(" SELECT SUM("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_TOTAL_VAT + ")" + " FROM "
 				+ OrderDetailTable.TABLE_ORDER + " WHERE "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=? ", new String[] {
-				String.valueOf(transactionId), String.valueOf(computerId) });
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[] {String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
-			totalVat = cursor.getFloat(0);
+			totalVat = cursor.getDouble(0);
 		}
 		cursor.close();
 		return totalVat;
 	}
 
-	public double getDiscountTotalSalePrice(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return temp total sale price
+	 */
+	protected double getTmpTotalSalePrice(int transactionId) {
 		double totalSalePrice = 0.0f;
-		Cursor cursor = mSqlite.rawQuery(" SELECT SUM("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ")" + " FROM "
 				+ OrderDetailTable.TABLE_ORDER_TMP + " WHERE "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=? ", new String[] {
-				String.valueOf(transactionId), String.valueOf(computerId) });
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[] {String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
-			totalSalePrice = cursor.getFloat(0);
+			totalSalePrice = cursor.getDouble(0);
 		}
 		cursor.close();
 		return totalSalePrice;
 	}
 
-	public double getTotalSalePrice(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return total sale price
+	 */
+	protected double getTotalSalePrice(int transactionId) {
 		double totalSalePrice = 0.0f;
-		Cursor cursor = mSqlite.rawQuery(" SELECT SUM("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ")" + " FROM "
 				+ OrderDetailTable.TABLE_ORDER + " WHERE "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=? ", new String[] {
-				String.valueOf(transactionId), String.valueOf(computerId) });
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[] {String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
-			totalSalePrice = cursor.getFloat(0);
+			totalSalePrice = cursor.getDouble(0);
 		}
 		cursor.close();
 		return totalSalePrice;
 	}
 
-	public double getDisocuntTotalRetailPrice(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return temp total retail price
+	 */
+	protected double getTmpTotalRetailPrice(int transactionId) {
 		double totalRetailPrice = 0.0f;
-		Cursor cursor = mSqlite.rawQuery(" SELECT SUM("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ")" + " FROM "
 				+ OrderDetailTable.TABLE_ORDER_TMP + " WHERE "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=? ", new String[] {
-				String.valueOf(transactionId), String.valueOf(computerId) });
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[] {String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
-			totalRetailPrice = cursor.getFloat(0);
+			totalRetailPrice = cursor.getDouble(0);
 		}
 		cursor.close();
 		return totalRetailPrice;
@@ -377,10 +403,15 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return totalQty;
 	}
 
-	public MPOSOrderTransaction.OrderDetail getOrder(int transactionId,
-			int computerId, int orderDetailId) {
-		MPOSOrderTransaction.OrderDetail orderDetail = new MPOSOrderTransaction.OrderDetail();
-		Cursor cursor = mSqlite.rawQuery(
+	/**
+	 * @param transactionId
+	 * @param orderDetailId
+	 * @return MPOSOrderTransaction.OrderDetail
+	 */
+	protected MPOSOrderTransaction.OrderDetail getOrder(int transactionId, int orderDetailId) {
+		MPOSOrderTransaction.OrderDetail orderDetail = 
+				new MPOSOrderTransaction.OrderDetail();
+		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
 						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " a."
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " a."
@@ -397,10 +428,8 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 						+ " ON a." + ProductsTable.COLUMN_PRODUCT_ID + "="
 						+ " b." + ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
 						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
-						+ " AND a." + ComputerTable.COLUMN_COMPUTER_ID + "=?"
 						+ " AND a." + OrderDetailTable.COLUMN_ORDER_ID + "=?",
 				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId),
 						String.valueOf(orderDetailId) });
 
 		if (cursor.moveToFirst()) {
@@ -410,10 +439,14 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return orderDetail;
 	}
 
-	public List<MPOSOrderTransaction.OrderDetail> listAllOrderTmp(
-			int transactionId, int computerId) {
-		List<MPOSOrderTransaction.OrderDetail> orderDetailLst = new ArrayList<MPOSOrderTransaction.OrderDetail>();
-		Cursor cursor = mSqlite.rawQuery(
+	/**
+	 * @param transactionId
+	 * @return List<MPOSOrderTransaction.OrderDetail>
+	 */
+	protected List<MPOSOrderTransaction.OrderDetail> listAllOrderTmp(int transactionId) {
+		List<MPOSOrderTransaction.OrderDetail> orderDetailLst = 
+				new ArrayList<MPOSOrderTransaction.OrderDetail>();
+		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
 						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " a."
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " a."
@@ -429,10 +462,8 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 						+ " LEFT JOIN " + ProductsTable.TABLE_NAME + " b "
 						+ " ON a." + ProductsTable.COLUMN_PRODUCT_ID + "="
 						+ " b." + ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
-						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
-						+ " AND a." + ComputerTable.COLUMN_COMPUTER_ID + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId) });
+						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+				new String[] { String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
 			do {
 				orderDetailLst.add(toOrderDetail(cursor));
@@ -442,10 +473,14 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return orderDetailLst;
 	}
 
-	public List<MPOSOrderTransaction.OrderDetail> listAllOrderGroupByProduct(
-			int transactionId, int computerId) {
-		List<MPOSOrderTransaction.OrderDetail> orderDetailLst = new ArrayList<MPOSOrderTransaction.OrderDetail>();
-		Cursor cursor = mSqlite.rawQuery(" SELECT a."
+	/**
+	 * @param transactionId
+	 * @return List<MPOSOrderTransaction.OrderDetail>
+	 */
+	protected List<MPOSOrderTransaction.OrderDetail> listAllOrderGroupByProduct(int transactionId){
+		List<MPOSOrderTransaction.OrderDetail> orderDetailLst = 
+				new ArrayList<MPOSOrderTransaction.OrderDetail>();
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT a."
 				+ OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
 				+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " SUM(a."
 				+ OrderDetailTable.COLUMN_ORDER_QTY + ") AS "
@@ -468,10 +503,9 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 				+ ProductsTable.COLUMN_PRODUCT_ID + "=" + " b."
 				+ ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
 				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
-				+ " AND a." + ComputerTable.COLUMN_COMPUTER_ID + "=?"
 				+ " GROUP BY a." + ProductsTable.COLUMN_PRODUCT_ID + ", a."
 				+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE, new String[] {
-				String.valueOf(transactionId), String.valueOf(computerId) });
+				String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
 			do {
 				orderDetailLst.add(toOrderDetail(cursor));
@@ -481,10 +515,14 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return orderDetailLst;
 	}
 
-	public List<MPOSOrderTransaction.OrderDetail> listAllOrder(
-			int transactionId, int computerId) {
-		List<MPOSOrderTransaction.OrderDetail> orderDetailLst = new ArrayList<MPOSOrderTransaction.OrderDetail>();
-		Cursor cursor = mSqlite.rawQuery(
+	/**
+	 * @param transactionId
+	 * @return List<MPOSOrderTransaction.OrderDetail>
+	 */
+	protected List<MPOSOrderTransaction.OrderDetail> listAllOrder(int transactionId) {
+		List<MPOSOrderTransaction.OrderDetail> orderDetailLst = 
+				new ArrayList<MPOSOrderTransaction.OrderDetail>();
+		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
 						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " a."
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " a."
@@ -500,10 +538,8 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 						+ " LEFT JOIN " + ProductsTable.TABLE_NAME + " b"
 						+ " ON a." + ProductsTable.COLUMN_PRODUCT_ID + "="
 						+ " b." + ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
-						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
-						+ " AND a." + ComputerTable.COLUMN_COMPUTER_ID + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId) });
+						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+				new String[] { String.valueOf(transactionId) });
 		if (cursor.moveToFirst()) {
 			do {
 				orderDetailLst.add(toOrderDetail(cursor));
@@ -514,7 +550,8 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 	}
 
 	private MPOSOrderTransaction.OrderDetail toOrderDetail(Cursor cursor) {
-		MPOSOrderTransaction.OrderDetail orderDetail = new MPOSOrderTransaction.OrderDetail();
+		MPOSOrderTransaction.OrderDetail orderDetail = 
+				new MPOSOrderTransaction.OrderDetail();
 		orderDetail.setOrderDetailId(cursor.getInt(cursor
 				.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
 		orderDetail.setProductId(cursor.getInt(cursor
@@ -542,15 +579,20 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 
 	public static String formatReceiptNo(String header, int year, int month,
 			int id) {
-		String receiptYear = String.format(Locale.getDefault(), "%04d", year);
-		String receiptMonth = String.format(Locale.getDefault(), "%02d", month);
-		String receiptId = String.format(Locale.getDefault(), "%06d", id);
+		String receiptYear = String.format(Locale.US, "%04d", year);
+		String receiptMonth = String.format(Locale.US, "%02d", month);
+		String receiptId = String.format(Locale.US, "%06d", id);
 		return header + receiptMonth + receiptYear + "/" + receiptId;
 	}
 
-	public List<MPOSOrderTransaction> listTransaction(long saleDate) {
-		List<MPOSOrderTransaction> transLst = new ArrayList<MPOSOrderTransaction>();
-		Cursor cursor = mSqlite.rawQuery(
+	/**
+	 * @param saleDate
+	 * @return List<MPOSOrderTransaction>
+	 */
+	protected List<MPOSOrderTransaction> listTransaction(long saleDate) {
+		List<MPOSOrderTransaction> transLst = 
+				new ArrayList<MPOSOrderTransaction>();
+		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT a." + OrderTransactionTable.COLUMN_TRANSACTION_ID
 						+ ", " + " a." + ComputerTable.COLUMN_COMPUTER_ID
 						+ ", " + " a." + OrderTransactionTable.COLUMN_PAID_TIME
@@ -598,9 +640,14 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return transLst;
 	}
 
-	public List<MPOSOrderTransaction> listHoldOrder(int computerId) {
-		List<MPOSOrderTransaction> transLst = new ArrayList<MPOSOrderTransaction>();
-		Cursor cursor = mSqlite.rawQuery(
+	/**
+	 * @param saleDate
+	 * @return List<MPOSOrderTransaction>
+	 */
+	protected List<MPOSOrderTransaction> listHoldOrder(long saleDate) {
+		List<MPOSOrderTransaction> transLst = 
+				new ArrayList<MPOSOrderTransaction>();
+		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT a." + OrderTransactionTable.COLUMN_TRANSACTION_ID
 						+ ", " + " a." + ComputerTable.COLUMN_COMPUTER_ID
 						+ ", " + " a." + OrderTransactionTable.COLUMN_OPEN_TIME
@@ -612,12 +659,10 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 						+ " LEFT JOIN " + StaffTable.TABLE_NAME + " b "
 						+ " ON a." + OrderTransactionTable.COLUMN_OPEN_STAFF
 						+ "=" + " b." + StaffTable.COLUMN_STAFF_ID
-						+ " WHERE a." + ComputerTable.COLUMN_COMPUTER_ID + "=?"
-						+ " AND a." + OrderTransactionTable.COLUMN_SALE_DATE
+						+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE
 						+ "=?" + " AND a."
 						+ OrderTransactionTable.COLUMN_STATUS_ID + "=?",
-				new String[] { String.valueOf(computerId),
-						String.valueOf(Util.getDate().getTimeInMillis()),
+				new String[] {String.valueOf(saleDate),
 						String.valueOf(TRANS_STATUS_HOLD) });
 		if (cursor.moveToFirst()) {
 			do {
@@ -642,13 +687,14 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return transLst;
 	}
 
-	public int getMaxTransaction(int computerId) {
+	/**
+	 * @return max transactionId
+	 */
+	protected int getMaxTransaction() {
 		int transactionId = 0;
-		Cursor cursor = mSqlite.rawQuery(" SELECT MAX("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT MAX("
 				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ") " + " FROM "
-				+ OrderTransactionTable.TABLE_NAME + " WHERE "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
-				new String[] { String.valueOf(computerId) });
+				+ OrderTransactionTable.TABLE_NAME, null);
 		if (cursor.moveToFirst()) {
 			transactionId = cursor.getInt(0);
 			cursor.moveToNext();
@@ -657,16 +703,19 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return transactionId + 1;
 	}
 
-	public int getMaxReceiptId(int computerId, int year, int month) {
+	/**
+	 * @param year
+	 * @param month
+	 * @return max receiptId
+	 */
+	protected int getMaxReceiptId(int year, int month) {
 		int maxReceiptId = 0;
-		Cursor cursor = mSqlite.rawQuery(" SELECT MAX("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT MAX("
 				+ OrderTransactionTable.COLUMN_RECEIPT_ID + ") " + " FROM "
 				+ OrderTransactionTable.TABLE_NAME + " WHERE "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=?" + " AND "
 				+ OrderTransactionTable.COLUMN_RECEIPT_YEAR + "=?" + " AND "
 				+ OrderTransactionTable.COLUMN_RECEIPT_MONTH + "=?",
-				new String[] { String.valueOf(computerId),
-						String.valueOf(year), String.valueOf(month) });
+				new String[] { String.valueOf(year), String.valueOf(month) });
 		if (cursor.moveToFirst()) {
 			maxReceiptId = cursor.getInt(0);
 			cursor.moveToNext();
@@ -675,16 +724,19 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return maxReceiptId + 1;
 	}
 
-	public int getCurrTransaction(int computerId) {
+	/**
+	 * @param saleDate
+	 * @return current transactionId by saleDate
+	 */
+	protected int getCurrTransaction(long saleDate) {
 		int transactionId = 0;
-		Cursor cursor = mSqlite.rawQuery(" SELECT "
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT "
 				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " FROM "
 				+ OrderTransactionTable.TABLE_NAME + " WHERE "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=?" + " AND "
 				+ OrderTransactionTable.COLUMN_STATUS_ID + "=?" + " AND "
 				+ OrderTransactionTable.COLUMN_SALE_DATE + "=?", new String[] {
-				String.valueOf(computerId), String.valueOf(TRANS_STATUS_NEW),
-				String.valueOf(Util.getDate().getTimeInMillis()) });
+				String.valueOf(TRANS_STATUS_NEW),
+				String.valueOf(saleDate) });
 		if (cursor.moveToFirst()) {
 			if (cursor.getLong(0) != 0)
 				transactionId = cursor.getInt(0);
@@ -694,9 +746,18 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return transactionId;
 	}
 
-	public int openTransaction(int computerId, int shopId, int sessionId,
+	/**
+	 * @param shopId
+	 * @param computerId
+	 * @param sessionId
+	 * @param staffId
+	 * @param vatRate
+	 * @return transactionId
+	 * @throws SQLException
+	 */
+	protected int openTransaction(int shopId, int computerId, int sessionId,
 			int staffId, double vatRate) throws SQLException {
-		int transactionId = getMaxTransaction(computerId);
+		int transactionId = getMaxTransaction();
 		Calendar date = Util.getDate();
 		Calendar dateTime = Util.getDateTime();
 		ContentValues cv = new ContentValues();
@@ -715,17 +776,22 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		cv.put(OrderTransactionTable.COLUMN_RECEIPT_MONTH,
 				date.get(Calendar.MONTH) + 1);
 		cv.put(ProductsTable.COLUMN_VAT_RATE, vatRate);
-		long rowId = mSqlite.insertOrThrow(OrderTransactionTable.TABLE_NAME,
+		long rowId = getWritableDatabase().insertOrThrow(OrderTransactionTable.TABLE_NAME,
 				null, cv);
 		if (rowId == -1)
 			transactionId = 0;
 		return transactionId;
 	}
 
-	public int successTransaction(int transactionId, int computerId, int staffId) {
+	/**
+	 * @param transactionId
+	 * @param staffId
+	 * @return row affected
+	 */
+	protected int successTransaction(int transactionId, int staffId) {
 		Calendar date = Util.getDate();
 		Calendar dateTime = Util.getDateTime();
-		int receiptId = getMaxReceiptId(computerId, date.get(Calendar.YEAR),
+		int receiptId = getMaxReceiptId(date.get(Calendar.YEAR),
 				date.get(Calendar.MONTH) + 1);
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_STATUS_ID, TRANS_STATUS_SUCCESS);
@@ -739,47 +805,52 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		cv.put(OrderTransactionTable.COLUMN_RECEIPT_NO,
 				formatReceiptNo("", date.get(Calendar.YEAR),
 						date.get(Calendar.MONTH) + 1, receiptId));
-		return mSqlite.update(
+		return getWritableDatabase().update(
 				OrderTransactionTable.TABLE_NAME,
 				cv,
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" + " AND "
-						+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId) });
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+				new String[] { String.valueOf(transactionId)});
 	}
 
-	public int prepareTransaction(int transactionId, int computerId) {
+	/**
+	 * @param transactionId
+	 * @return row affected
+	 */
+	protected int prepareTransaction(int transactionId) {
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_STATUS_ID, TRANS_STATUS_NEW);
 		cv.put(OrderTransactionTable.COLUMN_TRANS_NOTE, "");
-		return mSqlite.update(
+		return getWritableDatabase().update(
 				OrderTransactionTable.TABLE_NAME,
 				cv,
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
-						+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId) });
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+				new String[] { String.valueOf(transactionId)});
 	}
 
-	public int deleteTransaction(int transactionId, int computerId) {
-		return mSqlite.delete(
+	/**
+	 * @param transactionId
+	 * @return row affected
+	 */
+	protected int deleteTransaction(int transactionId) {
+		return getWritableDatabase().delete(
 				OrderTransactionTable.TABLE_NAME,
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" + " AND "
-						+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId) });
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+				new String[] { String.valueOf(transactionId)});
 	}
 
-	public int countHoldOrder(int computerId) {
+	/**
+	 * @param saleDate
+	 * @return number of hold transaction
+	 */
+	protected int countHoldOrder(long saleDate) {
 		int total = 0;
-		Cursor cursor = mSqlite.rawQuery(" SELECT COUNT("
+		Cursor cursor = getReadableDatabase().rawQuery(" SELECT COUNT("
 				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ") " + " FROM "
 				+ OrderTransactionTable.TABLE_NAME + " WHERE "
 				+ OrderTransactionTable.COLUMN_STATUS_ID + "=?" + " AND "
-				+ ComputerTable.COLUMN_COMPUTER_ID + "=?" + " AND "
 				+ OrderTransactionTable.COLUMN_SALE_DATE + "=?", new String[] {
-				String.valueOf(TRANS_STATUS_HOLD), String.valueOf(computerId),
-				String.valueOf(Util.getDate().getTimeInMillis()) });
+				String.valueOf(TRANS_STATUS_HOLD),
+				String.valueOf(saleDate) });
 		if (cursor.moveToFirst()) {
 			total = cursor.getInt(0);
 		}
@@ -787,23 +858,30 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		return total;
 	}
 
-	public int holdTransaction(int transactionId, int computerId, String note) {
+	/**
+	 * @param transactionId
+	 * @param note
+	 * @return row affected
+	 */
+	protected int holdTransaction(int transactionId, String note) {
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_STATUS_ID, TRANS_STATUS_HOLD);
 		cv.put(OrderTransactionTable.COLUMN_TRANS_NOTE, note);
-		return mSqlite.update(
+		return getWritableDatabase().update(
 				OrderTransactionTable.TABLE_NAME,
 				cv,
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" + " AND "
-						+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(computerId) });
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+				new String[] { String.valueOf(transactionId)});
 	}
 
-	public void updateTransactionSendStatus(int transactionId) {
+	/**
+	 * @param transactionId
+	 * @return row affected
+	 */
+	protected int updateTransactionSendStatus(int transactionId) {
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_SEND_STATUS, SyncSaleLogDataSource.SYNC_SUCCESS);
-		mSqlite.update(
+		return getWritableDatabase().update(
 				OrderTransactionTable.TABLE_NAME,
 				cv,
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" + " AND "
@@ -813,18 +891,21 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 						String.valueOf(TRANS_STATUS_VOID) });
 	}
 
-	public void updateTransactionSendStatus(String saleDate) {
+	/**
+	 * @param saleDate
+	 * @return row affected
+	 */
+	protected int updateTransactionSendStatus(long saleDate) {
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_SEND_STATUS, SyncSaleLogDataSource.SYNC_SUCCESS);
-		mSqlite.update(OrderTransactionTable.TABLE_NAME, cv,
+		return getWritableDatabase().update(OrderTransactionTable.TABLE_NAME, cv,
 				OrderTransactionTable.COLUMN_SALE_DATE + "=?" + " AND "
 						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
-				new String[] { saleDate, String.valueOf(TRANS_STATUS_SUCCESS),
+				new String[] { String.valueOf(saleDate), String.valueOf(TRANS_STATUS_SUCCESS),
 						String.valueOf(TRANS_STATUS_VOID) });
 	}
 
-	public int updateTransactionVat(int transactionId, int computerId,
-			double totalSalePrice) {
+	protected int updateTransactionVat(int transactionId, double totalSalePrice) {
 		double totalVat = getTotalVat(transactionId, computerId);
 		double totalVatExclude = getTotalVatExclude(transactionId, computerId);
 		double totalVatable = totalSalePrice + totalVatExclude;

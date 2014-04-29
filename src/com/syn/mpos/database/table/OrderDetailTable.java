@@ -34,8 +34,8 @@ public class OrderDetailTable{
 			COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
 			COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
 			ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
-			"PRIMARY KEY (" + COLUMN_ORDER_ID + " ASC, " +
-			OrderTransactionTable.COLUMN_TRANSACTION_ID + " ASC, " + ComputerTable.COLUMN_COMPUTER_ID + " ASC) );";
+			"PRIMARY KEY (" + COLUMN_ORDER_ID + ", " +
+			OrderTransactionTable.COLUMN_TRANSACTION_ID + ") );";
 	
 	private static final String ORDER_TMP_SQL_CREATE =
 			"CREATE TABLE " + TABLE_ORDER_TMP + " ( " +
@@ -55,8 +55,8 @@ public class OrderDetailTable{
 			COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
 			COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
 			ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
-			"PRIMARY KEY (" + COLUMN_ORDER_ID + " ASC, " +
-			OrderTransactionTable.COLUMN_TRANSACTION_ID + " ASC, " + ComputerTable.COLUMN_COMPUTER_ID + " ASC) );";
+			"PRIMARY KEY (" + COLUMN_ORDER_ID + ", " +
+			OrderTransactionTable.COLUMN_TRANSACTION_ID + ") );";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(ORDER_SQL_CREATE);

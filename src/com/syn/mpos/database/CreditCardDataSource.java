@@ -4,21 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.mpos.database.table.CreditCardTable;
 import com.syn.pos.CreditCardType;
 
 public class CreditCardDataSource extends MPOSDatabase{
 	
-	public CreditCardDataSource(SQLiteDatabase db) {
-		super(db);
+	public CreditCardDataSource(Context context) {
+		super(context);
 	}
 
-	public String getCreditCardType(int typeId){
+	protected String getCreditCardType(int typeId){
 		String cardType = "";
-		Cursor cursor = mSqlite.query(CreditCardTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(CreditCardTable.TABLE_NAME, 
 				new String[]{ 
 					CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME
 				}, 
@@ -34,10 +34,10 @@ public class CreditCardDataSource extends MPOSDatabase{
 		return cardType;
 	}
 	
-	public List<CreditCardType> listAllCreditCardType(){
+	protected List<CreditCardType> listAllCreditCardType(){
 		List<CreditCardType> creditCardLst = 
 				new ArrayList<CreditCardType>();
-		Cursor cursor = mSqlite.query(CreditCardTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(CreditCardTable.TABLE_NAME, 
 				new String[]{CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, 
 				CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME}, 
 				null, null, null, null, null);
@@ -53,19 +53,19 @@ public class CreditCardDataSource extends MPOSDatabase{
 		return creditCardLst;
 	}
 	
-	public void insertCreditCardType(List<CreditCardType> creditCardLst){
-		mSqlite.beginTransaction();
+	protected void insertCreditCardType(List<CreditCardType> creditCardLst){
+		getWritableDatabase().beginTransaction();
 		try {
-			mSqlite.delete(CreditCardTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(CreditCardTable.TABLE_NAME, null, null);
 			for(CreditCardType credit : creditCardLst){
 				ContentValues cv = new ContentValues();
 				cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, credit.getCreditCardTypeId());
 				cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME, credit.getCreditCardTypeName());
-				mSqlite.insertOrThrow(CreditCardTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(CreditCardTable.TABLE_NAME, null, cv);
 			}
-			mSqlite.setTransactionSuccessful();
+			getWritableDatabase().setTransactionSuccessful();
 		} finally {
-			mSqlite.endTransaction();
+			getWritableDatabase().endTransaction();
 		}
 	}
 }
