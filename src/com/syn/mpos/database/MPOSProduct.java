@@ -13,17 +13,33 @@ import com.syn.pos.ProductGroups.Products;
 
 import android.content.Context;
 
-public class MPOSProductManager {
+public class MPOSProduct {
 
 	/*
 	 * product data source
 	 */
 	private ProductsDataSource mProduct;
 	
-	public MPOSProductManager(Context context){
+	public MPOSProduct(Context context){
 		mProduct = new ProductsDataSource(context);
 	}
 
+	/**
+	 * @param productId
+	 * @return product vat type
+	 */
+	public int getVatType(int productId){
+		return getProduct(productId).getVatType();
+	}
+	
+	/**
+	 * @param productId
+	 * @return product vat rate
+	 */
+	public double getVatRate(int productId){
+		return getProduct(productId).getVatRate();
+	}
+	
 	/**
 	 * @param productDeptId
 	 * @return ProductsDataSource.ProductDept

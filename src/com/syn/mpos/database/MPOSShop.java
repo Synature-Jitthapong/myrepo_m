@@ -15,7 +15,7 @@ import com.syn.pos.ShopData.Staff;
 
 import android.content.Context;
 
-public class MPOSShopManager{
+public class MPOSShop{
 	
 	/*
 	 * shop data source
@@ -67,7 +67,7 @@ public class MPOSShopManager{
 	 */
 	private HeaderFooterReceiptDataSource mHeaderFooter;
 	
-	public MPOSShopManager(Context context){
+	public MPOSShop(Context context){
 		mShop = new ShopDataSource(context);
 		mComputer = new ComputerDataSource(context);
 		mGlobalProp = new GlobalPropertyDataSource(context);
@@ -95,10 +95,24 @@ public class MPOSShopManager{
 	}
 	
 	/**
+	 * @return company vat rate
+	 */
+	public double getCompanyVatRate(){
+		return getShop().getCompanyVat();
+	}
+	
+	/**
 	 * @return ComputerProperty
 	 */
 	public ComputerProperty getComputer(){
 		return mComputer.getComputerProperty();
+	}
+	
+	/**
+	 * @return GlobalPropertyDataSource
+	 */
+	public GlobalPropertyDataSource getGlobalProperty(){
+		return mGlobalProp;
 	}
 	
 	/**

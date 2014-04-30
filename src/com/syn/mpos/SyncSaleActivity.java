@@ -31,9 +31,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class SyncSaleActivity extends Activity{
-	
-	private MPOSSQLiteHelper mSqliteHelper;
-	private SQLiteDatabase mSqlite;
+
 	private boolean mIsOnSync;
 	private int mShopId;
 	private int mComputerId;
@@ -62,10 +60,7 @@ public class SyncSaleActivity extends Activity{
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mShopId = intent.getIntExtra("shopId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
-		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		mSqlite = mSqliteHelper.getWritableDatabase();
-		
+
 		mTransLst = listNotSendTransaction();
 		mSyncAdapter = new SyncItemAdapter(this, mTransLst);
 		mLvSyncItem.setAdapter(mSyncAdapter);
@@ -94,7 +89,7 @@ public class SyncSaleActivity extends Activity{
 
 	private void sendSale(){
 		for(final SendTransaction trans : mTransLst){
-			MPOSUtil.doSendSaleBySpecificTransaction(mSqlite,
+			MPOSUtil.doSendSaleBySpecificTransaction(
 					mShopId, mComputerId, trans.getTransactionId(), 
 					mStaffId, new ProgressListener(){
 

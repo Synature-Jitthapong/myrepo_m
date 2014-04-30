@@ -232,7 +232,7 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 	 * @param transactionId
 	 * @return total discount
 	 */
-	protected double getPriceDiscount(int transactionId) {
+	protected double getTotalPriceDiscount(int transactionId) {
 		double priceDiscount = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_PRICE_DISCOUNT + ")" + " FROM "
@@ -649,7 +649,7 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 	 * @param saleDate
 	 * @return List<MPOSOrderTransaction>
 	 */
-	protected List<MPOSOrderTransaction> listHoldOrder(long saleDate) {
+	protected List<MPOSOrderTransaction> listHoldOrder(String saleDate) {
 		List<MPOSOrderTransaction> transLst = 
 				new ArrayList<MPOSOrderTransaction>();
 		Cursor cursor = getReadableDatabase().rawQuery(
@@ -667,7 +667,7 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 						+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE
 						+ "=?" + " AND a."
 						+ OrderTransactionTable.COLUMN_STATUS_ID + "=?",
-				new String[] {String.valueOf(saleDate),
+				new String[] {saleDate,
 						String.valueOf(TRANS_STATUS_HOLD) });
 		if (cursor.moveToFirst()) {
 			do {
@@ -730,18 +730,18 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 	}
 
 	/**
-	 * @param sessionId
+	 * @param saleDate
 	 * @return transactionId
 	 */
-	protected int getCurrTransaction(int sessionId) {
+	protected int getCurrTransaction(String saleDate) {
 		int transactionId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(" SELECT "
 				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " FROM "
 				+ OrderTransactionTable.TABLE_NAME + " WHERE "
 				+ OrderTransactionTable.COLUMN_STATUS_ID + "=?" + " AND "
-				+ SessionTable.COLUMN_SESS_ID + "=?", new String[] {
+				+ OrderTransactionTable.COLUMN_SALE_DATE + "=?", new String[] {
 				String.valueOf(TRANS_STATUS_NEW),
-				String.valueOf(sessionId) });
+				saleDate});
 		if (cursor.moveToFirst()) {
 			if (cursor.getLong(0) != 0)
 				transactionId = cursor.getInt(0);
@@ -915,7 +915,8 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 	 * @param totalSalePrice
 	 * @return row affected
 	 */
-	protected int updateTransactionVat(int transactionId, double totalSalePrice) {
+	protected int updateTransactionVat(int transactionId) {
+		double totalSalePrice = getTotalSalePrice(transactionId);
 		double totalVat = getTotalVat(transactionId);
 		double totalVatExclude = getTotalVatExclude(transactionId);
 		double totalVatable = totalSalePrice + totalVatExclude;

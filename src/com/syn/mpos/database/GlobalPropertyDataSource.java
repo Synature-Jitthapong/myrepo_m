@@ -28,14 +28,14 @@ public class GlobalPropertyDataSource extends MPOSDatabase{
 		GlobalPropertyTable.COLUMN_TIME_FORMAT
 	};
 	
-	private static GlobalPropertyDataSource sInstance;
-	
-	public static synchronized GlobalPropertyDataSource getInstance(Context context){
-		if(sInstance == null){
-			sInstance = new GlobalPropertyDataSource(context);
-		}
-		return sInstance;
-	}
+//	private static GlobalPropertyDataSource sInstance;
+//	
+//	public static synchronized GlobalPropertyDataSource getInstance(Context context){
+//		if(sInstance == null){
+//			sInstance = new GlobalPropertyDataSource(context);
+//		}
+//		return sInstance;
+//	}
 	
 	public GlobalPropertyDataSource(Context context) {
 		super(context);

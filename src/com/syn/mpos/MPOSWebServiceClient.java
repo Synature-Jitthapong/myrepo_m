@@ -8,8 +8,8 @@ import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.FileManager;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.j1tth4.mobile.util.Logger;
-import com.syn.mpos.database.MPOSProductManager;
-import com.syn.mpos.database.MPOSShopManager;
+import com.syn.mpos.database.MPOSProduct;
+import com.syn.mpos.database.MPOSShop;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
@@ -59,7 +59,7 @@ public class MPOSWebServiceClient {
 
 					@Override
 					public void onPost(ShopData sd) {
-						MPOSShopManager shopManager = new MPOSShopManager(context);
+						MPOSShop shopManager = new MPOSShop(context);
 						try {
 							shopManager.addShop(sd.getShopProperty());
 							shopManager.addComputer(sd.getComputerProperty());
@@ -128,7 +128,7 @@ public class MPOSWebServiceClient {
 
 					@Override
 					public void onPost(ProductGroups pgs) {
-						MPOSProductManager productManager = new MPOSProductManager(context);
+						MPOSProduct productManager = new MPOSProduct(context);
 						try {
 							productManager.addProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
 							productManager.addProductDept(pgs.getProductDept(), mgs.getMenuDept());

@@ -46,7 +46,7 @@ public class MPOSUtil {
 	 * @param staffId
 	 * @param listener
 	 */
-	public static void doSendSaleBySpecificTransaction(final SQLiteDatabase sqlite, 
+	public static void doSendSaleBySpecificTransaction( 
 			final int shopId, final int computerId, final int transactionId, 
 			final int staffId, final ProgressListener listener) {
 		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
