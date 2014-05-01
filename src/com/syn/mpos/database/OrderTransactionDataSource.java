@@ -510,7 +510,8 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 				+ ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
 				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
 				+ " GROUP BY a." + ProductsTable.COLUMN_PRODUCT_ID + ", a."
-				+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE, new String[] {
+				+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE
+				+ " Order BY a." + OrderDetailTable.COLUMN_ORDER_ID, new String[] {
 				String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
 			do {
