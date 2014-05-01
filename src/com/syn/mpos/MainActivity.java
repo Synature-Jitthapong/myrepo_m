@@ -1425,11 +1425,12 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
-	private void printReceipt(int transactionId, int computerId){
-		PrintReceiptLogDataSource printLog = new PrintReceiptLogDataSource(mSqlite);
-		printLog.insertLog(transactionId, computerId, mStaffId);
+	private void printReceipt(int transactionId){
+		PrintReceiptLogDataSource printLog = 
+				new PrintReceiptLogDataSource(MPOSApplication.getContext());
+		printLog.insertLog(transactionId, mStaffId);
 		
-		new PrintReceipt(MainActivity.this, mSqlite, mStaffId, new PrintReceipt.PrintStatusListener() {
+		new PrintReceipt(MainActivity.this, mStaffId, new PrintReceipt.PrintStatusListener() {
 			
 			@Override
 			public void onPrintSuccess() {

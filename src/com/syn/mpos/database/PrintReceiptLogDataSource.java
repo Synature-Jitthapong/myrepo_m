@@ -24,7 +24,7 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 	/**
 	 * @return List<PrintReceipt>
 	 */
-	protected List<PrintReceipt> listPrintReceiptLog(){
+	public List<PrintReceipt> listPrintReceiptLog(){
 		List<PrintReceipt> printLst = new ArrayList<PrintReceipt>();
 		Cursor cursor = getReadableDatabase().query(PrintReceiptLogTable.TABLE_NAME, 
 				new String[]{
@@ -57,7 +57,7 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 	/**
 	 * @param printReceiptLogId
 	 */
-	protected void deletePrintStatus(int printReceiptLogId){
+	public void deletePrintStatus(int printReceiptLogId){
 		getWritableDatabase().delete(PrintReceiptLogTable.TABLE_NAME, 
 				PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID + "=?", 
 				new String[]{String.valueOf(printReceiptLogId)}  );
@@ -67,7 +67,7 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 	 * @param printReceiptLogId
 	 * @param status
 	 */
-	protected void updatePrintStatus(int printReceiptLogId, int status){
+	public void updatePrintStatus(int printReceiptLogId, int status){
 		ContentValues cv = new ContentValues();
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS, status);
 		getWritableDatabase().update(PrintReceiptLogTable.TABLE_NAME, cv, 
@@ -83,7 +83,7 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 	 * @param staffId
 	 * @throws SQLException
 	 */
-	protected void insertLog(int transactionId, int staffId) throws SQLException{
+	public void insertLog(int transactionId, int staffId) throws SQLException{
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_TRANSACTION_ID, transactionId);
 		cv.put(StaffTable.COLUMN_STAFF_ID, staffId);

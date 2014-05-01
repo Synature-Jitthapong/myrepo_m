@@ -101,10 +101,25 @@ public class MPOSShop{
 	}
 	
 	/**
+	 * @param typeId
+	 * @return card type
+	 */
+	public String getCreditCardType(int typeId){
+	 	return mCreditCard.getCreditCardType(typeId);
+	}
+	
+	/**
 	 * @return isMainComputer
 	 */
 	public boolean checkIsMainComputer(){
 		return mComputer.checkIsMainComputer(getComputerId());
+	}
+	
+	/**
+	 * @return company vat type
+	 */
+	public int getCompanyVatType(){
+		return getShop().getVatType();
 	}
 	
 	/**
@@ -150,6 +165,14 @@ public class MPOSShop{
 	 */
 	public void updateSyncSaleLog(String saleDate, int status){
 		mSyncSaleLog.updateSyncSaleLog(saleDate, status);
+	}
+	
+	/**
+	 * @param lineType
+	 * @return List<ShopData.HeaderFooterReceipt>
+	 */
+	public List<ShopData.HeaderFooterReceipt> listHeaderFooterReceipt(int lineType){
+		return mHeaderFooter.listHeaderFooter(lineType);
 	}
 	
 	/**

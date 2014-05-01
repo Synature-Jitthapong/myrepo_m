@@ -17,6 +17,7 @@ import com.j1tth4.mobile.util.Logger;
 import com.syn.mpos.database.CreditCardDataSource;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.HeaderFooterReceiptDataSource;
+import com.syn.mpos.database.MPOSShop;
 import com.syn.mpos.database.PaymentDetailDataSource;
 import com.syn.mpos.database.PrintReceiptLogDataSource;
 import com.syn.mpos.database.ProductsDataSource;
@@ -28,29 +29,19 @@ import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
 import com.syn.pos.ShopData;
 
-public class PrintReceipt extends AsyncTask<Void, Void, Void> implements BatteryStatusChangeEventListener, StatusChangeEventListener{
+public class PrintReceipt extends AsyncTask<Void, Void, Void> 
+	implements BatteryStatusChangeEventListener, StatusChangeEventListener{
 	
 	public static final String TAG = "PrintReceipt";
+	private MPOSShop mShop;
 	private PrintStatusListener mPrintListener;
 	private Context mContext;
-	private SQLiteDatabase mSqlite;
 	private Print mPrinter;
-	private OrderTransactionDataSource mTrans;
-	private StaffDataSource mStaff;
-	private ShopDataSource mShop;
-	private PaymentDetailDataSource mPayment;
-	private int mStaffId;
 	
-	public PrintReceipt(Context c, SQLiteDatabase sqlite, 
-			int staffId, PrintStatusListener listener){
-		mContext = c;
+	public PrintReceipt(PrintStatusListener listener){
+		mContext = MPOSApplication.getContext();
+		mShop = new MPOSShop(MPOSApplication.getContext());
 		mPrintListener = listener;
-		mStaffId = staffId;
-		mSqlite = sqlite;
-		mShop = new ShopDataSource(sqlite);
-		mTrans = new OrderTransactionDataSource(sqlite);
-		mPayment = new PaymentDetailDataSource(sqlite);
-		mStaff = new StaffDataSource(sqlite);
 		
 		mPrinter = new Print(MPOSApplication.getContext());
 		mPrinter.setStatusChangeEventCallback(this);
@@ -87,18 +78,12 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		return space.toString();
 	}
 	
-	protected void printReceipt(int transactionId, int computerId){
-		double vatRate = mShop.getCompanyVatRate();
-		double transactionVat = mTrans.getTransactionVat(transactionId, computerId);
-		double transactionVatExclude = mTrans.getTransactionVatExclude(transactionId, computerId);
-		double transactionVatable = mTrans.getTransactionVatable(transactionId, computerId);
-		double totalRetailPrice = mTrans.getTotalRetailPrice(transactionId, computerId);
-		double totalDiscount = mTrans.getPriceDiscount(transactionId, computerId);
-		double totalSalePrice = transactionVatable;//mTrans.getTotalSalePrice(transactionId, computerId) + transactionVatExclude;
-		double totalPaid = mPayment.getTotalPaid(transactionId, computerId);
-		double change = totalPaid - totalSalePrice;
+	protected void printReceipt(int staffId, String receiptNumber, double vatRate,
+			double subTotalPrice, double totalDiscount, double totalSalePrice, double transactionVat,
+			double transactionVatExclude, double transactionVatable, 
+			double totalPaid, double change, int totalQty, 
+			List<OrderTransaction.OrderDetail> orderLst, List<Payment.PaymentDetail> paymentLst){
 		double beforVat = transactionVatable - transactionVat;
-		
 		try {
 			mPrinter.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(), 0, 1000);	
 			Builder builder = new Builder(MPOSApplication.getPrinterName(), Builder.MODEL_ANK, 
@@ -113,34 +98,31 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 			builder.addTextAlign(Builder.ALIGN_CENTER);
 			builder.addTextSize(1, 1);
 			// add header
-			HeaderFooterReceiptDataSource headerFooter = new HeaderFooterReceiptDataSource(mSqlite);
 			for(ShopData.HeaderFooterReceipt hf : 
-				headerFooter.listHeaderFooter(HeaderFooterReceiptDataSource.HEADER_LINE_TYPE)){
+				mShop.listHeaderFooterReceipt(HeaderFooterReceiptDataSource.HEADER_LINE_TYPE)){
 				builder.addText(hf.getTextInLine());
 				builder.addText("\n");
 			}
 			
 			String saleDate = MPOSApplication.getContext().getString(R.string.date) + " " +
-					GlobalPropertyDataSource.dateTimeFormat(mSqlite, Util.getDateTime().getTime());
+					mShop.getGlobalProperty().dateTimeFormat(Util.getDateTime().getTime());
 			String receiptNo = MPOSApplication.getContext().getString(R.string.receipt_no) + " " +
-					mTrans.getReceiptNo(transactionId, computerId);
+					receiptNumber;
 			String cashCheer = MPOSApplication.getContext().getString(R.string.cashier) + " " +
-					mStaff.getStaff(mStaffId).getStaffName();
+					mShop.getStaff(staffId).getStaffName();
 			builder.addText(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
 			builder.addText(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
 			builder.addText(cashCheer + createHorizontalSpace(cashCheer.length()));
 			builder.addText("\n" + createLine("=") + "\n");
 			
-			List<OrderTransaction.OrderDetail> orderLst = 
-					mTrans.listAllOrderGroupByProduct(transactionId, computerId);
 			builder.addTextAlign(Builder.ALIGN_CENTER);
 	    	for(int i = 0; i < orderLst.size(); i++){
 	    		OrderTransaction.OrderDetail order = 
 	    				orderLst.get(i);
 	    		
 	    		String productName = order.getProductName();
-	    		String productQty = GlobalPropertyDataSource.qtyFormat(mSqlite, order.getQty()) + "x ";
-	    		String productPrice = GlobalPropertyDataSource.currencyFormat(mSqlite, order.getTotalRetailPrice());
+	    		String productQty = mShop.getGlobalProperty().qtyFormat(order.getQty()) + "x ";
+	    		String productPrice = mShop.getGlobalProperty().currencyFormat(order.getTotalRetailPrice());
 	    		
 	    		builder.addText(productQty);
 	    		builder.addText(productName);
@@ -157,20 +139,17 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	String beforeVatText = MPOSApplication.getContext().getString(R.string.before_vat);
 	    	String discountText = MPOSApplication.getContext().getString(R.string.discount);
 	    	String vatRateText = MPOSApplication.getContext().getString(R.string.tax) + " " +
-	    			GlobalPropertyDataSource.currencyFormat(vatRate, "#,###.##") + "%";
+	    			mShop.getGlobalProperty().currencyFormat(vatRate, "#,###.##") + "%";
 	    	
-	    	String strTotalRetailPrice = GlobalPropertyDataSource.currencyFormat(mSqlite, totalRetailPrice);
-	    	String strTotalSalePrice = GlobalPropertyDataSource.currencyFormat(mSqlite, totalSalePrice);
-	    	String strTotalDiscount = "-" + GlobalPropertyDataSource.currencyFormat(mSqlite,
-	    			mTrans.getPriceDiscount(transactionId, computerId));
-	    	//String strTotalPaid = GlobalProperty.currencyFormat(
-	    	//		mPayment.getTotalPaid(transactionId, computerId));
-	    	String strTotalChange = GlobalPropertyDataSource.currencyFormat(mSqlite, change);
-	    	String strBeforeVat = GlobalPropertyDataSource.currencyFormat(mSqlite, beforVat);
-	    	String strTransactionVat = GlobalPropertyDataSource.currencyFormat(mSqlite, transactionVat);
+	    	String strTotalRetailPrice = mShop.getGlobalProperty().currencyFormat(subTotalPrice);
+	    	String strTotalSalePrice = mShop.getGlobalProperty().currencyFormat(totalSalePrice);
+	    	String strTotalDiscount = "-" + mShop.getGlobalProperty().currencyFormat(totalDiscount);
+	    	String strTotalChange = mShop.getGlobalProperty().currencyFormat(change);
+	    	String strBeforeVat = mShop.getGlobalProperty().currencyFormat(beforVat);
+	    	String strTransactionVat = mShop.getGlobalProperty().currencyFormat(transactionVat);
 	    	
 	    	// total item
-	    	String strTotalQty = String.valueOf(mTrans.getTotalQty(transactionId, computerId));
+	    	String strTotalQty = String.valueOf(totalQty);
 	    	builder.addText(itemText);
 	    	builder.addText(strTotalQty);
 	    	builder.addText(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
@@ -186,8 +165,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	// transaction exclude vat
 	    	if(transactionVatExclude > 0){
 	    		String vatExcludeText = MPOSApplication.getContext().getString(R.string.tax) + " " +
-	    				GlobalPropertyDataSource.currencyFormat(vatRate, "#,###.##") + "%";
-	    		String strVatExclude = GlobalPropertyDataSource.currencyFormat(mSqlite, transactionVatExclude);
+	    				mShop.getGlobalProperty().currencyFormat(vatRate, "#,###.##") + "%";
+	    		String strVatExclude = mShop.getGlobalProperty().currencyFormat(transactionVatExclude);
 	    		builder.addText(vatExcludeText);
 	    		builder.addText(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
 	    		builder.addText(strVatExclude + "\n");
@@ -199,15 +178,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	builder.addText(strTotalSalePrice + "\n");
 
 	    	// total payment
-	    	PaymentDetailDataSource paymentDetail = new PaymentDetailDataSource(mSqlite);
-	    	List<Payment.PaymentDetail> paymentLst = paymentDetail.listPaymentGroupByType(transactionId, computerId);
 	    	for(int i = 0; i < paymentLst.size(); i++){
 	    		Payment.PaymentDetail payment = paymentLst.get(i);
 	    		String paymentText = payment.getPayTypeName() + " ";
 		    	if(payment.getPayTypeID() == PaymentDetailDataSource.PAY_TYPE_CREDIT){
 		    		paymentText = generateCardNo(payment);
 		    	}
-		    	String strTotalPaid = GlobalPropertyDataSource.currencyFormat(mSqlite, payment.getPaid());
+		    	String strTotalPaid = mShop.getGlobalProperty().currencyFormat(payment.getPaid());
 		    	if(i < paymentLst.size() - 1){
 			    	builder.addText(paymentText);
 		    		builder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
@@ -229,7 +206,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    	}
 		    builder.addText(createLine("=") + "\n");
 		    
-		    if(mShop.getShopProperty().getVatType() == ProductsDataSource.VAT_TYPE_INCLUDED){
+		    if(mShop.getCompanyVatType() == ProductsDataSource.VAT_TYPE_INCLUDED){
 			    // before vat
 			    builder.addText(beforeVatText);
 			    builder.addText(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
@@ -242,7 +219,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		    }
 	    	// add footer
 	    	for(ShopData.HeaderFooterReceipt hf : 
-				headerFooter.listHeaderFooter(HeaderFooterReceiptDataSource.FOOTER_LINE_TYPE)){
+				mShop.listHeaderFooterReceipt(HeaderFooterReceiptDataSource.FOOTER_LINE_TYPE)){
 				builder.addText(hf.getTextInLine());
 				builder.addText("\n");
 			}
@@ -287,55 +264,43 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 		}
 	}
 	
-	public void printReceiptWintec(int transactionId, int computerId){
+	public void printReceiptWintec(int staffId, String receiptNumber, double vatRate,
+			double subTotalPrice, double totalDiscount, double totalSalePrice, double transactionVat,
+			double transactionVatExclude, double transactionVatable, 
+			double totalPaid, double change, int totalQty, 
+			List<OrderTransaction.OrderDetail> orderLst, List<Payment.PaymentDetail> paymentLst){
 		StringBuilder builder = new StringBuilder();
 		Printer printer=null;
 		final String devicePath = "/dev/ttySAC1";
 		final ComIO.Baudrate baudrate = ComIO.Baudrate.valueOf("BAUD_38400");
-		 
-		double vatRate = mShop.getCompanyVatRate();
-		double transactionVat = mTrans.getTransactionVat(transactionId, computerId);
-		double transactionVatExclude = mTrans.getTransactionVatExclude(transactionId, computerId);
-		double transactionVatable = mTrans.getTransactionVatable(transactionId, computerId);
-		double totalRetailPrice = mTrans.getTotalRetailPrice(transactionId, computerId);
-		double totalDiscount = mTrans.getPriceDiscount(transactionId, computerId);
-		double totalSalePrice = transactionVatable;//mTrans.getTotalSalePrice(transactionId, computerId) + transactionVatExclude;
-		double totalPaid = mPayment.getTotalPaid(transactionId, computerId);
-		double change = totalPaid - totalSalePrice;
 		double beforVat = transactionVatable - transactionVat;
-		
 		printer = new Printer(devicePath,baudrate);
 		
 		// add header
-		HeaderFooterReceiptDataSource headerFooter = new HeaderFooterReceiptDataSource(mSqlite);
 		for(ShopData.HeaderFooterReceipt hf : 
-			headerFooter.listHeaderFooter(HeaderFooterReceiptDataSource.HEADER_LINE_TYPE)){
+			mShop.listHeaderFooterReceipt(HeaderFooterReceiptDataSource.HEADER_LINE_TYPE)){
 			builder.append("<h>");
 			builder.append(hf.getTextInLine());
 			builder.append("\n");
 		}
 		
 		String saleDate = MPOSApplication.getContext().getString(R.string.date) + " " +
-				GlobalPropertyDataSource.dateTimeFormat(mSqlite, Util.getDateTime().getTime());
+				mShop.getGlobalProperty().dateTimeFormat(Util.getDateTime().getTime());
 		String receiptNo = MPOSApplication.getContext().getString(R.string.receipt_no) + " " +
-				mTrans.getReceiptNo(transactionId, computerId);
+				receiptNumber;
 		String cashCheer = MPOSApplication.getContext().getString(R.string.cashier) + " " +
-				mStaff.getStaff(mStaffId).getStaffName();
+				mShop.getStaff(staffId).getStaffName();
 		builder.append(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
 		builder.append(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
 		builder.append(cashCheer + createHorizontalSpace(cashCheer.length()) + "\n");
 		builder.append(createLine("=") + "\n");
 		
-		List<OrderTransaction.OrderDetail> orderLst = 
-				mTrans.listAllOrderGroupByProduct(transactionId, computerId);
-		
     	for(int i = 0; i < orderLst.size(); i++){
     		OrderTransaction.OrderDetail order = 
     				orderLst.get(i);
-    		
     		String productName = order.getProductName();
-    		String productQty = GlobalPropertyDataSource.qtyFormat(mSqlite, order.getQty()) + "x ";
-    		String productPrice = GlobalPropertyDataSource.currencyFormat(mSqlite, order.getTotalRetailPrice());
+    		String productQty = mShop.getGlobalProperty().qtyFormat(order.getQty()) + "x ";
+    		String productPrice = mShop.getGlobalProperty().currencyFormat(order.getTotalRetailPrice());
     		
     		builder.append(productQty);
     		builder.append(productName);
@@ -352,20 +317,17 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
     	String beforeVatText = MPOSApplication.getContext().getString(R.string.before_vat);
     	String discountText = MPOSApplication.getContext().getString(R.string.discount);
     	String vatRateText = MPOSApplication.getContext().getString(R.string.tax) + " " +
-    			GlobalPropertyDataSource.currencyFormat(vatRate, "#,###.##") + "%";
+    			mShop.getGlobalProperty().currencyFormat(vatRate, "#,###.##") + "%";
     	
-    	String strTotalRetailPrice = GlobalPropertyDataSource.currencyFormat(mSqlite, totalRetailPrice);
-    	String strTotalSalePrice = GlobalPropertyDataSource.currencyFormat(mSqlite, totalSalePrice);
-    	String strTotalDiscount = "-" + GlobalPropertyDataSource.currencyFormat(mSqlite,
-    			mTrans.getPriceDiscount(transactionId, computerId));
-    	//String strTotalPaid = GlobalProperty.currencyFormat(
-    	//		mPayment.getTotalPaid(transactionId, computerId));
-    	String strTotalChange = GlobalPropertyDataSource.currencyFormat(mSqlite, change);
-    	String strBeforeVat = GlobalPropertyDataSource.currencyFormat(mSqlite, beforVat);
-    	String strTransactionVat = GlobalPropertyDataSource.currencyFormat(mSqlite, transactionVat);
+    	String strTotalRetailPrice = mShop.getGlobalProperty().currencyFormat(subTotalPrice);
+    	String strTotalSalePrice = mShop.getGlobalProperty().currencyFormat(totalSalePrice);
+    	String strTotalDiscount = "-" + mShop.getGlobalProperty().currencyFormat(totalDiscount);
+    	String strTotalChange = mShop.getGlobalProperty().currencyFormat(change);
+    	String strBeforeVat = mShop.getGlobalProperty().currencyFormat(beforVat);
+    	String strTransactionVat = mShop.getGlobalProperty().currencyFormat(transactionVat);
     	
     	// total item
-    	String strTotalQty = String.valueOf(mTrans.getTotalQty(transactionId, computerId));
+    	String strTotalQty = String.valueOf(totalQty);
     	builder.append(itemText);
     	builder.append(strTotalQty);
     	builder.append(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
@@ -381,8 +343,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
     	// transaction exclude vat
     	if(transactionVatExclude > 0){
     		String vatExcludeText = MPOSApplication.getContext().getString(R.string.tax) + " " +
-    				GlobalPropertyDataSource.currencyFormat(vatRate, "#,###.##") + "%";
-    		String strVatExclude = GlobalPropertyDataSource.currencyFormat(mSqlite, transactionVatExclude);
+    				mShop.getGlobalProperty().currencyFormat(vatRate, "#,###.##") + "%";
+    		String strVatExclude = mShop.getGlobalProperty().currencyFormat(transactionVatExclude);
     		builder.append(vatExcludeText);
     		builder.append(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
     		builder.append(strVatExclude + "\n");
@@ -394,18 +356,15 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
     	builder.append(strTotalSalePrice + "\n");
 
     	// total payment
-    	PaymentDetailDataSource paymentDetail = new PaymentDetailDataSource(mSqlite);
-    	List<Payment.PaymentDetail> paymentLst = paymentDetail.listPaymentGroupByType(transactionId, computerId);
     	for(int i = 0; i < paymentLst.size(); i++){
     		Payment.PaymentDetail payment = paymentLst.get(i);
-	    	String strTotalPaid = GlobalPropertyDataSource.currencyFormat(mSqlite, payment.getPaid());
+	    	String strTotalPaid = mShop.getGlobalProperty().currencyFormat(payment.getPaid());
 	    	if(payment.getPayTypeID() == PaymentDetailDataSource.PAY_TYPE_CREDIT){
 	    		String paymentText = payment.getPayTypeName();
 	    		String cardNoText = "xxxx xxxx xxxx ";
 	    		try {
-	    			CreditCardDataSource card = new CreditCardDataSource(mSqlite);
 	    			paymentText = payment.getPayTypeName() + ":" + 
-    					card.getCreditCardType(payment.getCreditCardType());
+    					mShop.getCreditCardType(payment.getCreditCardType());
 	    			cardNoText += payment.getCreaditCardNo().substring(12, 16);
 	    		} catch (Exception e) {
 	    			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
@@ -439,7 +398,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
     	}
 	    builder.append(createLine("=") + "\n");
 	    
-	    if(mShop.getShopProperty().getVatType() == ProductsDataSource.VAT_TYPE_INCLUDED){
+	    if(mShop.getCompanyVatType() == ProductsDataSource.VAT_TYPE_INCLUDED){
 		    // before vat
 		    builder.append(beforeVatText);
 		    builder.append(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
@@ -453,7 +412,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 	    
     	// add footer
     	for(ShopData.HeaderFooterReceipt hf : 
-			headerFooter.listHeaderFooter(HeaderFooterReceiptDataSource.FOOTER_LINE_TYPE)){
+			mShop.listHeaderFooterReceipt(HeaderFooterReceiptDataSource.FOOTER_LINE_TYPE)){
     		builder.append("<h>");
 			builder.append(hf.getTextInLine());
 			builder.append("\n");
@@ -496,7 +455,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		PrintReceiptLogDataSource printLog = new PrintReceiptLogDataSource(mSqlite);
+		PrintReceiptLogDataSource printLog = new PrintReceiptLogDataSource(mContext);
 		for(PrintReceiptLogDataSource.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
 			try {
 				if(MPOSApplication.getInternalPrinterSetting()){
@@ -570,8 +529,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 			case 213:
 			case 214:
 			case 215:
-				// ไม้หันอากาศ และ สระด้านบน เช่น อิ อี
-				// Check if letter next to it is วรรณยุกต์
+				// ��������������������������������� ��������� ��������������������������� ������������ ������ ������
+				// Check if letter next to it is ���������������������������
 				if (i == prntTxt.length() - 1) {
 					// This is the last letter
 					strChar = Character.toString(prntTxt.charAt(i));
@@ -585,115 +544,115 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 					case 235:
 					case 236:
 					case 237:
-						// วรรณยุกต์ และการันต์
+						// ��������������������������� ������������������������������
 						switch (aNextCode) {
 						case 0xe8:
-							// ไม้เอก
+							// ������������������
 							switch (aCode) {
 							case 0xd1:
-								// ไม้หันอากาศ
+								// ���������������������������������
 								aNextCode = 0x80;
 								break;
 							case 0xd4:
-								// อิ
+								// ������
 								aNextCode = 0x84;
 								break;
 							case 0xd5:
-								// อี
+								// ������
 								aNextCode = 0x89;
 								break;
 							case 0xd6:
-								// อึ
+								// ������
 								aNextCode = 0x8d;
 								break;
 							case 0xd7:
-								// อื
+								// ������
 								aNextCode = 0x91;
 								break;
 							}
 
 							break;
 						case 0xe9:
-							// ไม้โท
+							// ���������������
 							switch (aCode) {
 							case 0xd1:
-								// ไม้หันอากาศ
+								// ���������������������������������
 								aNextCode = 0x81;
 								break;
 							case 0xd4:
-								// อิ
+								// ������
 								aNextCode = 0x85;
 								break;
 							case 0xd5:
-								// อี
+								// ������
 								aNextCode = 0x8a;
 								break;
 							case 0xd6:
-								// อึ
+								// ������
 								aNextCode = 0x8e;
 								break;
 							case 0xd7:
-								// อื
+								// ������
 								aNextCode = 0x92;
 								break;
 							}
 
 							break;
 						case 0xea:
-							// ไม้ตรี
+							// ������������������
 							switch (aCode) {
 							case 0xd1:
-								// ไม้หันอากาศ
+								// ���������������������������������
 								aNextCode = 0x82;
 								break;
 							case 0xd4:
-								// อิ
+								// ������
 								aNextCode = 0x86;
 								break;
 							case 0xd5:
-								// อี
+								// ������
 								aNextCode = 0x8b;
 								break;
 							case 0xd6:
-								// อึ
+								// ������
 								aNextCode = 0x8f;
 								break;
 							case 0xd7:
-								// อื
+								// ������
 								aNextCode = 0x93;
 								break;
 							}
 							break;
 						case 0xeb:
-							// ไม้จักวา
+							// ������������������������
 							switch (aCode) {
 							case 0xd1:
-								// ไม้หันอากาศ
+								// ���������������������������������
 								aNextCode = 0x83;
 								break;
 							case 0xd4:
-								// อิ
+								// ������
 								aNextCode = 0x87;
 								break;
 							case 0xd5:
-								// อี
+								// ������
 								aNextCode = 0x8c;
 								break;
 							case 0xd6:
-								// อึ
+								// ������
 								aNextCode = 0x90;
 								break;
 							case 0xd7:
-								// อื
+								// ������
 								aNextCode = 0x94;
 								break;
 							}
 							break;
 						case 0xec:
-							// การันต์
+							// ���������������������
 							switch (aCode) {
 							case 0xd4:
-								// อิ
+								// ������
 								aNextCode = 0x88;
 
 								break;
@@ -720,8 +679,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 			case 235:
 			case 236:
 			case 237:
-				// วรรณยุกต์
-				// Check if letter next to it is วรรณยุกต์
+				// ���������������������������
+				// Check if letter next to it is ���������������������������
 				if (i == prntTxt.length() - 1) {
 					// This is the last letter
 					strLine1 = strLine1.substring(1, strLine1.length() - 1)
@@ -730,27 +689,27 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 					aNextCode = (int) prntTxt.charAt(i);
 					switch (aNextCode) {
 					case 0xd3:
-						// สระอำ
+						// ���������������
 						switch (aCode) {
-						// เปลี่ยน สระอำ เป็น สระอา และ เปลี่ยน
-						// ลูกกลมข้างบนรวมกับวรรณยุกต์
+						// ��������������������� ��������������� ������������ ��������������� ��������� ���������������������
+						// ���������������������������������������������������������������������������������
 						case 0xe8:
-							// ไม้เอก
+							// ������������������
 							strLine1 = strLine1.substring(1,
 									strLine1.length() - 1) + (char) 0x95 + " ";
 							break;
 						case 0xe9:
-							// ไม้โท
+							// ���������������
 							strLine1 = strLine1.substring(1,
 									strLine1.length() - 1) + (char) 0x96 + " ";
 							break;
 						case 0xea:
-							// ไม้ตรี
+							// ������������������
 							strLine1 = strLine1.substring(1,
 									strLine1.length() - 1) + (char) 0x97 + " ";
 							break;
 						case 0xeb:
-							// ไม้จักวา
+							// ������������������������
 							strLine1 = strLine1.substring(1,
 									strLine1.length() - 1) + (char) 0x98 + " ";
 							break;
@@ -769,7 +728,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void> implements Battery
 				break;
 			case 0xd8:
 			case 217:
-				// สระ อุ อู
+				// ��������� ������ ������
 				strLine3 = strLine3.substring(1, strLine3.length() - 1)
 						+ Character.toString(prntTxt.charAt(i));
 
