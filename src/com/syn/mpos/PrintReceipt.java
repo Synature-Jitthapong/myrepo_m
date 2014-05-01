@@ -3,7 +3,6 @@ package com.syn.mpos;
 import java.util.List;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Printer;
@@ -14,17 +13,12 @@ import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.j1tth4.mobile.util.Logger;
-import com.syn.mpos.database.CreditCardDataSource;
-import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.HeaderFooterReceiptDataSource;
 import com.syn.mpos.database.MPOSShop;
 import com.syn.mpos.database.MPOSTransaction;
 import com.syn.mpos.database.PaymentDetailDataSource;
 import com.syn.mpos.database.PrintReceiptLogDataSource;
 import com.syn.mpos.database.ProductsDataSource;
-import com.syn.mpos.database.ShopDataSource;
-import com.syn.mpos.database.StaffDataSource;
-import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.mpos.database.Util;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
@@ -79,12 +73,27 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		return space.toString();
 	}
 	
-	protected void printReceipt(int staffId, String receiptNumber, double vatRate,
-			double subTotalPrice, double totalDiscount, double totalSalePrice, double transactionVat,
-			double transactionVatExclude, double transactionVatable, 
-			double totalPaid, double change, int totalQty, 
+	/**
+	 * @param staffId
+	 * @param receiptNumber
+	 * @param subTotalPrice
+	 * @param totalDiscount
+	 * @param totalSalePrice
+	 * @param transactionVat
+	 * @param transactionVatExclude
+	 * @param transactionVatable
+	 * @param totalPaid
+	 * @param totalQty
+	 * @param orderLst
+	 * @param paymentLst
+	 */
+	protected void printReceipt(int staffId, String receiptNumber,
+			double subTotalPrice, double totalDiscount, double totalSalePrice, 
+			double transactionVat, double transactionVatExclude, 
+			double transactionVatable, double totalPaid, int totalQty, 
 			List<OrderTransaction.OrderDetail> orderLst, List<Payment.PaymentDetail> paymentLst){
 		double beforVat = transactionVatable - transactionVat;
+		double change = totalPaid - transactionVatable;
 		try {
 			mPrinter.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(), 0, 1000);	
 			Builder builder = new Builder(MPOSApplication.getPrinterName(), Builder.MODEL_ANK, 
@@ -140,7 +149,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    	String beforeVatText = MPOSApplication.getContext().getString(R.string.before_vat);
 	    	String discountText = MPOSApplication.getContext().getString(R.string.discount);
 	    	String vatRateText = MPOSApplication.getContext().getString(R.string.tax) + " " +
-	    			mShop.getGlobalProperty().currencyFormat(vatRate, "#,###.##") + "%";
+	    			mShop.getGlobalProperty().currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 	    	
 	    	String strTotalRetailPrice = mShop.getGlobalProperty().currencyFormat(subTotalPrice);
 	    	String strTotalSalePrice = mShop.getGlobalProperty().currencyFormat(totalSalePrice);
@@ -166,7 +175,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    	// transaction exclude vat
 	    	if(transactionVatExclude > 0){
 	    		String vatExcludeText = MPOSApplication.getContext().getString(R.string.tax) + " " +
-	    				mShop.getGlobalProperty().currencyFormat(vatRate, "#,###.##") + "%";
+	    				mShop.getGlobalProperty().currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 	    		String strVatExclude = mShop.getGlobalProperty().currencyFormat(transactionVatExclude);
 	    		builder.addText(vatExcludeText);
 	    		builder.addText(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
@@ -181,27 +190,41 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    	// total payment
 	    	for(int i = 0; i < paymentLst.size(); i++){
 	    		Payment.PaymentDetail payment = paymentLst.get(i);
-	    		String paymentText = payment.getPayTypeName() + " ";
-		    	if(payment.getPayTypeID() == PaymentDetailDataSource.PAY_TYPE_CREDIT){
-		    		paymentText = generateCardNo(payment);
-		    	}
 		    	String strTotalPaid = mShop.getGlobalProperty().currencyFormat(payment.getPaid());
-		    	if(i < paymentLst.size() - 1){
-			    	builder.addText(paymentText);
-		    		builder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
-			    	builder.addText(strTotalPaid);
-		    	}else if(i == paymentLst.size() - 1){
-			    	if(change > 0){
-				    	builder.addText(paymentText);
-				    	builder.addText(strTotalPaid);
-			    		builder.addText(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
-				    	builder.addText(changeText);
-				    	builder.addText(strTotalChange);
-				    }else{
+		    	if(payment.getPayTypeID() == PaymentDetailDataSource.PAY_TYPE_CREDIT){
+		    		String paymentText = payment.getPayTypeName();
+		    		String cardNoText = "xxxx xxxx xxxx ";
+		    		try {
+		    			paymentText = payment.getPayTypeName() + ":" + 
+	    					mShop.getCreditCardType(payment.getCreditCardType());
+		    			cardNoText += payment.getCreaditCardNo().substring(12, 16);
+		    		} catch (Exception e) {
+		    			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
+		    					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
+		    		}
+		    		builder.addText(paymentText + "\n");
+	    			builder.addText(cardNoText);
+	    			builder.addText(createHorizontalSpace(cardNoText.length() + strTotalPaid.length()));
+	    			builder.addText(strTotalPaid);
+		    	}else{
+		    		String paymentText = payment.getPayTypeName() + " ";
+			    	if(i < paymentLst.size() - 1){
 				    	builder.addText(paymentText);
 			    		builder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
 				    	builder.addText(strTotalPaid);
-				    }
+			    	}else if(i == paymentLst.size() - 1){
+				    	if(change > 0){
+					    	builder.addText(paymentText);
+					    	builder.addText(strTotalPaid);
+				    		builder.addText(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
+					    	builder.addText(changeText);
+					    	builder.addText(strTotalChange);
+					    }else{
+					    	builder.addText(paymentText);
+				    		builder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
+					    	builder.addText(strTotalPaid);
+					    }
+			    	}
 		    	}
 	    		builder.addText("\n");
 	    	}
@@ -265,17 +288,33 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		}
 	}
 	
-	public void printReceiptWintec(int staffId, String receiptNumber, double vatRate,
-			double subTotalPrice, double totalDiscount, double totalSalePrice, double transactionVat,
-			double transactionVatExclude, double transactionVatable, 
-			double totalPaid, double change, int totalQty, 
+	/**
+	 * @param staffId
+	 * @param receiptNumber
+	 * @param subTotalPrice
+	 * @param totalDiscount
+	 * @param totalSalePrice
+	 * @param transactionVat
+	 * @param transactionVatExclude
+	 * @param transactionVatable
+	 * @param totalPaid
+	 * @param totalQty
+	 * @param orderLst
+	 * @param paymentLst
+	 */
+	public void printReceiptWintec(int staffId, String receiptNumber,
+			double subTotalPrice, double totalDiscount, double totalSalePrice, 
+			double transactionVat, double transactionVatExclude, 
+			double transactionVatable, double totalPaid, int totalQty, 
 			List<OrderTransaction.OrderDetail> orderLst, List<Payment.PaymentDetail> paymentLst){
 		StringBuilder builder = new StringBuilder();
 		Printer printer=null;
 		final String devicePath = "/dev/ttySAC1";
 		final ComIO.Baudrate baudrate = ComIO.Baudrate.valueOf("BAUD_38400");
-		double beforVat = transactionVatable - transactionVat;
 		printer = new Printer(devicePath,baudrate);
+
+		double beforVat = transactionVatable - transactionVat;
+		double change = totalPaid - transactionVatable;
 		
 		// add header
 		for(ShopData.HeaderFooterReceipt hf : 
@@ -318,7 +357,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     	String beforeVatText = MPOSApplication.getContext().getString(R.string.before_vat);
     	String discountText = MPOSApplication.getContext().getString(R.string.discount);
     	String vatRateText = MPOSApplication.getContext().getString(R.string.tax) + " " +
-    			mShop.getGlobalProperty().currencyFormat(vatRate, "#,###.##") + "%";
+    			mShop.getGlobalProperty().currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
     	
     	String strTotalRetailPrice = mShop.getGlobalProperty().currencyFormat(subTotalPrice);
     	String strTotalSalePrice = mShop.getGlobalProperty().currencyFormat(totalSalePrice);
@@ -344,7 +383,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     	// transaction exclude vat
     	if(transactionVatExclude > 0){
     		String vatExcludeText = MPOSApplication.getContext().getString(R.string.tax) + " " +
-    				mShop.getGlobalProperty().currencyFormat(vatRate, "#,###.##") + "%";
+    				mShop.getGlobalProperty().currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
     		String strVatExclude = mShop.getGlobalProperty().currencyFormat(transactionVatExclude);
     		builder.append(vatExcludeText);
     		builder.append(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
@@ -457,12 +496,24 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	@Override
 	protected Void doInBackground(Void... params) {
 		PrintReceiptLogDataSource printLog = new PrintReceiptLogDataSource(mContext);
+		MPOSTransaction mposTrans = new MPOSTransaction(mContext);
 		for(PrintReceiptLogDataSource.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
+			mposTrans.setTransactionId(printReceipt.getTransactionId());
 			try {
 				if(MPOSApplication.getInternalPrinterSetting()){
-					printReceiptWintec(printReceipt.getTransactionId(), printReceipt.getComputerId());
+					printReceiptWintec(mposTrans.getOpenTransactionStaffId(), 
+							mposTrans.getReceiptNo(), mposTrans.getSubTotalPrice(), 
+							mposTrans.getTotalPriceDiscount(), mposTrans.getTotalSalePrice(), 
+							mposTrans.getTransactionVat(), mposTrans.getTotalVatExclude(), 
+							mposTrans.getTransactionVatable(), mposTrans.getTotalPaid(), 
+							mposTrans.getOrderQty(), mposTrans.listAllOrder(), mposTrans.listPaymentDetail());
 				}else{
-					printReceipt(printReceipt.getTransactionId(), printReceipt.getComputerId());
+					printReceipt(mposTrans.getOpenTransactionStaffId(), 
+							mposTrans.getReceiptNo(), mposTrans.getSubTotalPrice(), 
+							mposTrans.getTotalPriceDiscount(), mposTrans.getTotalSalePrice(), 
+							mposTrans.getTransactionVat(), mposTrans.getTotalVatExclude(), 
+							mposTrans.getTransactionVatable(), mposTrans.getTotalPaid(), 
+							mposTrans.getOrderQty(), mposTrans.listAllOrder(), mposTrans.listPaymentDetail());
 				}
 				printLog.deletePrintStatus(printReceipt.getPriceReceiptLogId());
 				

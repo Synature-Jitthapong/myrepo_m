@@ -2,6 +2,9 @@ package com.syn.mpos.database;
 
 import java.util.List;
 
+import com.syn.pos.OrderTransaction;
+import com.syn.pos.Payment.PaymentDetail;
+
 import android.content.Context;
 
 /**
@@ -26,13 +29,6 @@ public class MPOSTransaction {
 	
 	private int mTransactionId;
 	private int mSessionId;
-	
-	private double mTotalVatExcluded;
-	private double mTotalVat;
-	private double mTotalSalePrice;
-	private double mTotalPriceVatable;
-	private double mTotalDiscount;
-	private double mSubTotalPrice;
 	
 	public MPOSTransaction(Context context){
 		mContext = context;
@@ -61,7 +57,7 @@ public class MPOSTransaction {
 	public void openTransaction(int sessionId, int staffId){
 		SessionDataSource session = new SessionDataSource(mContext);
 		String saleDate = session.getSessionDate(sessionId);
-		if(getCurrentTransaction(saleDate) == 0){
+		if(getCurrentTransactionId(saleDate) == 0){
 			MPOSShop ms = new MPOSShop(mContext);
 			mTransactionId = mTransaction.openTransaction(ms.getShopId(), 
 					ms.getComputerId(), sessionId, staffId, ms.getCompanyVatRate());
@@ -69,19 +65,6 @@ public class MPOSTransaction {
 			SyncSaleLogDataSource syncLog = new SyncSaleLogDataSource(mContext);
 			syncLog.addSyncSaleLog(saleDate);
 		}
-	}
-	
-	/**
-	 * summary
-	 */
-	public void summary(){
-		mSubTotalPrice = mTransaction.getTotalRetailPrice(mTransactionId);
-		mTotalVatExcluded = mTransaction.getTotalVatExclude(mTransactionId);
-		mTotalVat = mTransaction.getTotalVat(mTransactionId);
-		mTotalDiscount = mTransaction.getTotalPriceDiscount(mTransactionId);
-		mTotalSalePrice = mTransaction.getTotalSalePrice(mTransactionId);
-		mTotalPriceVatable = mTransaction.getTransactionVatable(mTransactionId);
-		mTransaction.updateTransactionVat(mTransactionId);
 	}
 
 	/**
@@ -173,10 +156,107 @@ public class MPOSTransaction {
 	}
 	
 	/**
+	 * Update transaction vat
+	 */
+	public void updateTransactionVat(){
+		mTransaction.updateTransactionVat(mTransactionId);
+	}
+	
+	/**
+	 * @return receipt number
+	 */
+	public String getReceiptNo(){
+		return mTransaction.getReceiptNo(mTransactionId);
+	}
+	
+	/**
+	 * @return List<PaymentDetail>
+	 */
+	public List<PaymentDetail> listPaymentDetail(){
+		return mPayment.listPaymentGroupByType(mTransactionId);
+	}
+	
+	/**
+	 * @return total order qty
+	 */
+	public int getOrderQty(){
+		return mTransaction.getTotalOrderQty(mTransactionId);
+	}
+	
+	/**
+	 * @return total paid
+	 */
+	public double getTotalPaid(){
+		return mPayment.getTotalPaid(mTransactionId);
+	}
+	
+	/**
+	 * @return subTotal
+	 */
+	public double getSubTotalPrice(){
+		return mTransaction.getTotalRetailPrice(mTransactionId);	
+	}
+	
+	/**
+	 * @return totalVatExclude
+	 */
+	public double getTotalVatExclude(){
+		return mTransaction.getTotalVatExclude(mTransactionId);
+	}
+	
+	/**
+	 * @return totalVat
+	 */
+	public double getTotalVat(){
+		return mTransaction.getTotalVat(mTransactionId);
+	}
+	
+	/**
+	 * @return totalPriceDiscount
+	 */
+	public double getTotalPriceDiscount(){
+		return mTransaction.getTotalPriceDiscount(mTransactionId);
+	}
+	
+	/**
+	 * @return totalSalePrice
+	 */
+	public double getTotalSalePrice(){
+		return mTransaction.getTotalSalePrice(mTransactionId);
+	}
+	
+	/**
+	 * @return vatable
+	 */
+	public double getTransactionVatable(){
+		return mTransaction.getTransactionVatable(mTransactionId);
+	}
+	
+	/**
+	 * @return transactionVat
+	 */
+	public double getTransactionVat(){
+		return mTransaction.getTransactionVat(mTransactionId);
+	}
+	
+	/**
+	 * @return open staffId
+	 */
+	public int getOpenTransactionStaffId(){
+		return getTransaction().getOpenStaffId();
+	}
+	
+	/**
+	 * @return MPOSOrderTransaction object
+	 */
+	public MPOSOrderTransaction getTransaction(){
+		return mTransaction.getTransaction(mTransactionId);
+	}
+	/**
 	 * @param saleDate
 	 * @return current transactionId
 	 */
-	public int getCurrentTransaction(String saleDate){
+	public int getCurrentTransactionId(String saleDate){
 		return mTransaction.getCurrTransaction(saleDate);
 	}
 
@@ -224,53 +304,5 @@ public class MPOSTransaction {
 
 	public void setTransactionId(int mTransactionId) {
 		this.mTransactionId = mTransactionId;
-	}
-
-	public double getTotalDiscount() {
-		return mTotalDiscount;
-	}
-
-	public void setTotalDiscount(double mTotalDiscount) {
-		this.mTotalDiscount = mTotalDiscount;
-	}
-
-	public double getTotalSalePrice() {
-		return mTotalSalePrice;
-	}
-
-	public void setTotalSalePrice(double mTotalSalePrice) {
-		this.mTotalSalePrice = mTotalSalePrice;
-	}
-
-	public double getTotalVatExcluded() {
-		return mTotalVatExcluded;
-	}
-
-	public void setTotalVatExcluded(double mTotalVatExcluded) {
-		this.mTotalVatExcluded = mTotalVatExcluded;
-	}
-
-	public double getTotalVat() {
-		return mTotalVat;
-	}
-
-	public void setTotalVat(double mTotalVat) {
-		this.mTotalVat = mTotalVat;
-	}
-
-	public double getTotalPriceVatable() {
-		return mTotalPriceVatable;
-	}
-
-	public void setTotalPriceVatable(double mTotalPriceVatable) {
-		this.mTotalPriceVatable = mTotalPriceVatable;
-	}
-
-	public double getSubTotalPrice() {
-		return mSubTotalPrice;
-	}
-
-	public void setSubTotalPrice(double mSubTotalPrice) {
-		this.mSubTotalPrice = mSubTotalPrice;
 	}
 }

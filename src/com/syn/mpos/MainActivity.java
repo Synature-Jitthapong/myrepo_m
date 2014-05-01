@@ -1087,20 +1087,19 @@ public class MainActivity extends FragmentActivity implements
 	 * summary transaction 
 	 */
 	public void summary(){
-		mTransaction.summary();
-		if(mTransaction.getTotalDiscount() > 0)
+		if(mTransaction.getTotalPriceDiscount() > 0)
 			mTbRowDiscount.setVisibility(View.VISIBLE);
 		else
 			mTbRowDiscount.setVisibility(View.GONE);
 		
-		if(mTransaction.getTotalVatExcluded() > 0)
+		if(mTransaction.getTotalVatExclude() > 0)
 			mTbRowVat.setVisibility(View.VISIBLE);
 		else
 			mTbRowVat.setVisibility(View.GONE);
-		mTvVatExclude.setText(mShop.getGlobalProperty().currencyFormat(mTransaction.getTotalVatExcluded()));
+		mTvVatExclude.setText(mShop.getGlobalProperty().currencyFormat(mTransaction.getTotalVatExclude()));
 		mTvSubTotal.setText(mShop.getGlobalProperty().currencyFormat(mTransaction.getSubTotalPrice()));
-		mTvDiscount.setText("-" + mShop.getGlobalProperty().currencyFormat(mTransaction.getTotalDiscount()));
-		mTvTotalPrice.setText(mShop.getGlobalProperty().currencyFormat(mTransaction.getTotalPriceVatable()));
+		mTvDiscount.setText("-" + mShop.getGlobalProperty().currencyFormat(mTransaction.getTotalPriceDiscount()));
+		mTvTotalPrice.setText(mShop.getGlobalProperty().currencyFormat(mTransaction.getTransactionVatable()));
 	}
 
 	/**
