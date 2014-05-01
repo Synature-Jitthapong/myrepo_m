@@ -204,17 +204,16 @@ public class SessionDataSource extends MPOSDatabase{
 	 * @param saleDate
 	 * @return sessionId
 	 */
-	protected int getCurrentSession(int staffId, long saleDate) {
+	protected int getCurrentSession(int staffId, String saleDate) {
 		int sessionId = 0;
-		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_NAME, 
-				new String[]{SessionTable.COLUMN_SESS_ID},  
-				OrderTransactionTable.COLUMN_OPEN_STAFF + " =? " +
-				" AND " + SessionTable.COLUMN_SESS_DATE + " =? " +
-				" AND " + SessionTable.COLUMN_IS_ENDDAY + " =? ",
-				new String[]{
-				String.valueOf(staffId),
-				String.valueOf(saleDate),
-				String.valueOf(NOT_ENDDAY_STATUS)}, null, null, null);
+		Cursor cursor = getReadableDatabase().query(
+				SessionTable.TABLE_NAME,
+				new String[] { SessionTable.COLUMN_SESS_ID },
+				OrderTransactionTable.COLUMN_OPEN_STAFF + " =? " + " AND "
+						+ SessionTable.COLUMN_SESS_DATE + " =? " + " AND "
+						+ SessionTable.COLUMN_IS_ENDDAY + " =? ",
+				new String[] { String.valueOf(staffId), saleDate,
+						String.valueOf(NOT_ENDDAY_STATUS) }, null, null, null);
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}
@@ -223,14 +222,19 @@ public class SessionDataSource extends MPOSDatabase{
 	}
 	
 	/**
-	 * @return sessionId
+	 * @param staffId
+	 * @return current sessionId by staff
 	 */
-	protected int getCurrentSession(){
+	protected int getCurrentSession(int staffId) {
 		int sessionId = 0;
-		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_NAME, 
-				new String[]{SessionTable.COLUMN_SESS_ID}, null, null, null, null, 
-				SessionTable.COLUMN_SESS_DATE + " DESC ", "LIMIT 1");
-		if(cursor.moveToFirst()){
+		Cursor cursor = getReadableDatabase().query(
+				SessionTable.TABLE_NAME,
+				new String[] { SessionTable.COLUMN_SESS_ID },
+				OrderTransactionTable.COLUMN_OPEN_STAFF + "=?" + " AND "
+						+ SessionTable.COLUMN_IS_ENDDAY + "=?",
+				new String[] { String.valueOf(staffId),
+						String.valueOf(NOT_ENDDAY_STATUS) }, null, null, null);
+		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}
 		cursor.close();

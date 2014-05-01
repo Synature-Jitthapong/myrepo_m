@@ -11,11 +11,22 @@ import android.content.Context;
 public class MPOSTransaction {
 	
 	private Context mContext;
-
+	/**
+	 * Session data source
+	 */
+	private SessionDataSource mSession;
+	/**
+	 * Transaction data source
+	 */
 	private OrderTransactionDataSource mTransaction;
-
+	/**
+	 * Payment data source
+	 */
+	private PaymentDetailDataSource mPayment;
+	
 	private int mTransactionId;
 	private int mComputerId;
+	private int mSessionId;
 	
 	private double mTotalVatExcluded;
 	private double mTotalVat;
@@ -27,7 +38,9 @@ public class MPOSTransaction {
 	public MPOSTransaction(Context context, int computerId){
 		mContext = context;
 		mComputerId = computerId;
-		mTransaction = new OrderTransactionDataSource(context);
+		mTransaction = new OrderTransactionDataSource(context.getApplicationContext());
+		mSession = new SessionDataSource(context.getApplicationContext());
+		mPayment = new PaymentDetailDataSource(context.getApplicationContext());
 	}
 	
 	/**
@@ -89,6 +102,20 @@ public class MPOSTransaction {
 	}
 	
 	/**
+	 * @return total transaction not send
+	 */
+	public int countTransNotSend(){
+		return mTransaction.countTransNotSend();
+	}
+	
+	/**
+	 * @return total hold order
+	 */
+	public int countHoldOrder(){
+		return mTransaction.countHoldOrder(getCurrentSessionDate());
+	}
+	
+	/**
 	 * @param note
 	 */
 	public void holdOrder(String note){
@@ -129,10 +156,69 @@ public class MPOSTransaction {
 				productId, productType, vatType, vatRate, orderQty, pricePerUnit);
 	}
 	
+	/**
+	 * clear current transaction
+	 */
+	public void clearTransaction(){
+		mTransaction.deleteOrderDetail(mTransactionId);
+		mTransaction.deleteTransaction(mTransactionId);
+		mPayment.deleteAllPaymentDetail(mTransactionId);
+	}
+	
+	/**
+	 * Update field OpenStaffId
+	 * @param staffId
+	 */
+	public void updateTransaction(int staffId){
+		mTransaction.updateTransaction(mTransactionId, staffId);
+	}
+	
+	/**
+	 * @param saleDate
+	 * @return current transactionId
+	 */
 	public int getCurrentTransaction(String saleDate){
 		return mTransaction.getCurrTransaction(saleDate);
 	}
 
+	/**
+	 * @param shopId
+	 * @param computerId
+	 * @param openStaffId
+	 * @param openAmount
+	 * @return sessionId
+	 */
+	public void openSession(int shopId, int computerId, 
+			int openStaffId, double openAmount){
+		if(getCurrentSession(openStaffId) == 0){
+			mSessionId = mSession.addSession(shopId, computerId, 
+					openStaffId, openAmount);
+		}
+	}
+	
+	/**
+	 * @param sessionId
+	 * @return session date
+	 */
+	public String getCurrentSessionDate(){
+		return mSession.getSessionDate(mSessionId);
+	}
+	
+	/**
+	 * @return session date string long millisecond pattern
+	 */
+	public String getLastSessionDate(){
+		return mSession.getSessionDate();
+	}
+	
+	/**
+	 * @return sessionId
+	 * 0 if not have session
+	 */
+	public int getCurrentSession(int staffId){
+		return mSession.getCurrentSession(staffId);
+	}
+	
 	public int getTransactionId() {
 		return mTransactionId;
 	}

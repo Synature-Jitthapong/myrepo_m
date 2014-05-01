@@ -21,7 +21,7 @@ public class MPOSProduct {
 	private ProductsDataSource mProduct;
 	
 	public MPOSProduct(Context context){
-		mProduct = new ProductsDataSource(context);
+		mProduct = new ProductsDataSource(context.getApplicationContext());
 	}
 
 	/**
@@ -49,11 +49,27 @@ public class MPOSProduct {
 	}
 	
 	/**
+	 * @param barCode
+	 * @return @return ProductsDataSource.Product
+	 */
+	public ProductsDataSource.Product getProduct(String barCode){
+		return mProduct.getProduct(barCode);
+	}
+	
+	/**
 	 * @param productId
 	 * @return ProductsDataSource.Product
 	 */
 	public ProductsDataSource.Product getProduct(int productId){
 		return mProduct.getProduct(productId);
+	}
+	
+	/**
+	 * @param productId
+	 * @return List<ProductsDataSource.Product>
+	 */
+	public List<ProductsDataSource.Product> listProductSize(int productId){
+		return mProduct.listProductSize(productId);
 	}
 	
 	/**

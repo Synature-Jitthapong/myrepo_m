@@ -19,7 +19,7 @@ public class Login extends MPOSDatabase{
 		mPassEncrypt = encrypt.sha1(pass);
 	}
 	
-	protected boolean checkUser(){
+	public boolean checkUser(){
 		boolean isFound = false;
 		Cursor cursor = getReadableDatabase().query(StaffTable.TABLE_NAME, 
 				new String[]{StaffTable.COLUMN_STAFF_CODE}, 
@@ -32,7 +32,7 @@ public class Login extends MPOSDatabase{
 		return isFound;
 	}
 	
-	protected ShopData.Staff checkLogin() {
+	public ShopData.Staff checkLogin() {
 		ShopData.Staff s = null;
 		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " 
 				+ StaffTable.TABLE_NAME

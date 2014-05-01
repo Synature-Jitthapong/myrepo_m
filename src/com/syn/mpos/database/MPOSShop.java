@@ -6,6 +6,7 @@ import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
 import com.syn.pos.Payment.PayType;
 import com.syn.pos.Payment.PaymentAmountButton;
+import com.syn.pos.ShopData;
 import com.syn.pos.ShopData.ComputerProperty;
 import com.syn.pos.ShopData.GlobalProperty;
 import com.syn.pos.ShopData.HeaderFooterReceipt;
@@ -17,67 +18,72 @@ import android.content.Context;
 
 public class MPOSShop{
 	
-	/*
+	/**
 	 * shop data source
 	 */
 	private ShopDataSource mShop;
 	
-	/*
+	/**
 	 * computer data source
 	 */
 	private ComputerDataSource mComputer;
 	
-	/*
+	/**
 	 * staff data source
 	 */
 	private StaffDataSource mStaff;
 	
-	/*
+	/**
 	 * global property data source
 	 */
 	private GlobalPropertyDataSource mGlobalProp;
 	
-	/*
+	/**
 	 * bank data source
 	 */
 	private BankDataSource mBank;
 	
-	/*
+	/**
 	 * credit card data source
 	 */
 	private CreditCardDataSource mCreditCard;
 	
-	/*
+	/**
 	 * payment data source 
 	 */
 	private PaymentDetailDataSource mPayment;
 	
-	/*
+	/**
 	 * payment button data source
 	 */
 	private PaymentAmountButtonDataSource mPaymentButton;
 	
-	/*
+	/**
 	 * language data source 
 	 */
 	private LanguageDataSource mLanguage;
 	
-	/*
+	/**
 	 * bill header footer data source
 	 */
 	private HeaderFooterReceiptDataSource mHeaderFooter;
+	/**
+	 * SyncSaleLog data source
+	 */
+	private SyncSaleLogDataSource mSyncSaleLog;
 	
 	public MPOSShop(Context context){
-		mShop = new ShopDataSource(context);
-		mComputer = new ComputerDataSource(context);
-		mGlobalProp = new GlobalPropertyDataSource(context);
-		mStaff = new StaffDataSource(context);
-		mBank = new BankDataSource(context);
-		mCreditCard = new CreditCardDataSource(context);
-		mPayment = new PaymentDetailDataSource(context);
-		mPaymentButton = new PaymentAmountButtonDataSource(context);
-		mLanguage = new LanguageDataSource(context);
-		mHeaderFooter = new HeaderFooterReceiptDataSource(context);
+		mShop = new ShopDataSource(context.getApplicationContext());
+		mComputer = new ComputerDataSource(context.getApplicationContext());
+		mGlobalProp = new GlobalPropertyDataSource(context.getApplicationContext());
+		mStaff = new StaffDataSource(context.getApplicationContext());
+		mBank = new BankDataSource(context.getApplicationContext());
+		mCreditCard = new CreditCardDataSource(context.getApplicationContext());
+		mPayment = new PaymentDetailDataSource(context.getApplicationContext());
+		mPaymentButton = new PaymentAmountButtonDataSource(context.getApplicationContext());
+		mLanguage = new LanguageDataSource(context.getApplicationContext());
+		mHeaderFooter = new HeaderFooterReceiptDataSource(context.getApplicationContext());
+		mSyncSaleLog = new SyncSaleLogDataSource(context.getApplicationContext());
 	}
 	
 	/**
@@ -92,6 +98,13 @@ public class MPOSShop{
 	 */
 	public int getShopId(){
 		return getShop().getShopID();
+	}
+	
+	/**
+	 * @return isMainComputer
+	 */
+	public boolean checkIsMainComputer(){
+		return mComputer.checkIsMainComputer(getComputerId());
 	}
 	
 	/**
@@ -122,6 +135,23 @@ public class MPOSShop{
 		return mShop.getShopProperty();
 	}
 
+	/**
+	 * @param staffId
+	 * @return ShopData.Staff
+	 */
+	public ShopData.Staff getStaff(int staffId){
+		return mStaff.getStaff(staffId);
+	}
+	
+	/**
+	 * Update status of sync sale log
+	 * @param saleDate
+	 * @param status
+	 */
+	public void updateSyncSaleLog(String saleDate, int status){
+		mSyncSaleLog.updateSyncSaleLog(saleDate, status);
+	}
+	
 	/**
 	 * @param headerFooterLst
 	 */

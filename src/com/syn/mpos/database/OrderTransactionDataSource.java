@@ -10,6 +10,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
+import com.syn.mpos.R;
 import com.syn.mpos.database.StockDocument.DocumentTypeTable;
 import com.syn.mpos.database.table.ComputerTable;
 import com.syn.mpos.database.table.OrderDetailTable;
@@ -85,7 +86,7 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 		}
 		return trans;
 	}
-
+		
 	/**
 	 * @param saleDate
 	 * @return MPOSOrderTransaction
@@ -844,18 +845,41 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 	}
 
 	/**
+	 * @return total transaction that not sent
+	 */
+	protected int countTransNotSend(){
+		int total = 0;
+		Cursor cursor = getReadableDatabase()
+				.rawQuery(
+						"SELECT COUNT("
+								+ OrderTransactionTable.COLUMN_TRANSACTION_ID
+								+ ") " + " FROM "
+								+ OrderTransactionTable.TABLE_NAME + " WHERE "
+								+ OrderTransactionTable.COLUMN_STATUS_ID
+								+ "=? AND " + MPOSDatabase.COLUMN_SEND_STATUS
+								+ "=?",
+						new String[] {
+								String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
+								String.valueOf(MPOSDatabase.NOT_SEND) });
+		if (cursor.moveToFirst()) {
+			total = cursor.getInt(0);
+		}
+		cursor.close();
+		return total;
+	}
+	
+	/**
 	 * @param saleDate
 	 * @return number of hold transaction
 	 */
-	protected int countHoldOrder(long saleDate) {
+	protected int countHoldOrder(String saleDate) {
 		int total = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(" SELECT COUNT("
 				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ") " + " FROM "
 				+ OrderTransactionTable.TABLE_NAME + " WHERE "
 				+ OrderTransactionTable.COLUMN_STATUS_ID + "=?" + " AND "
 				+ OrderTransactionTable.COLUMN_SALE_DATE + "=?", new String[] {
-				String.valueOf(TRANS_STATUS_HOLD),
-				String.valueOf(saleDate) });
+				String.valueOf(TRANS_STATUS_HOLD), saleDate});
 		if (cursor.moveToFirst()) {
 			total = cursor.getInt(0);
 		}
@@ -879,6 +903,22 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 				new String[] { String.valueOf(transactionId)});
 	}
 
+	/**
+	 * @param transactionId
+	 * @param staffId
+	 * @return row affected
+	 */
+	protected int updateTransaction(int transactionId, int staffId){
+		ContentValues cv = new ContentValues();
+		cv.put(OrderTransactionTable.COLUMN_OPEN_STAFF, staffId);
+		return getWritableDatabase().update(OrderTransactionTable.TABLE_NAME, 
+				cv, OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND " + 
+				ComputerTable.COLUMN_COMPUTER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId)
+				});
+	}
+	
 	/**
 	 * @param transactionId
 	 * @return row affected

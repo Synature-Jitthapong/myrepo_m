@@ -21,6 +21,8 @@ import com.j1tth4.mobile.util.JSONUtil;
 import com.syn.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.syn.mpos.database.ComputerDataSource;
 import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.MPOSShop;
+import com.syn.mpos.database.MPOSTransaction;
 import com.syn.mpos.database.SaleTransactionDataSource;
 import com.syn.mpos.database.SessionDataSource;
 import com.syn.mpos.database.ShopDataSource;
@@ -172,16 +174,13 @@ public class MPOSUtil {
 	 * @param isEndday
 	 * @param listener
 	 */
-	public static void doEndday(final SQLiteDatabase sqlite, 
-			final int shopId, final int computerId, final int sessionId,
+	public static void doEndday(final int shopId, final int computerId, final int sessionId,
 			final int closeStaffId, final double closeAmount,
 			final boolean isEndday, final ProgressListener listener) {
 		
 		// check is main computer
-		ComputerDataSource comp = new ComputerDataSource(sqlite);
-		if (comp.checkIsMainComputer(computerId)) {
-			final SyncSaleLogDataSource syncLog = 
-					new SyncSaleLogDataSource(sqlite);
+		final MPOSShop shop = new MPOSShop(MPOSApplication.getContext());
+		if (shop.checkIsMainComputer()) {
 			LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
 
 				@Override
@@ -199,8 +198,7 @@ public class MPOSUtil {
 
 								@Override
 								public void onError(String mesg) {
-									syncLog.updateSyncSaleLog(sessionDate,
-											SyncSaleLogDataSource.SYNC_FAIL);
+									shop.updateSyncSaleLog(sessionDate, SyncSaleLogDataSource.SYNC_FAIL);
 									listener.onError(mesg);
 								}
 
@@ -210,7 +208,7 @@ public class MPOSUtil {
 
 								@Override
 								public void onPost() {
-									syncLog.updateSyncSaleLog(sessionDate,
+									shop.updateSyncSaleLog(sessionDate, 
 											SyncSaleLogDataSource.SYNC_SUCCESS);
 									try {
 										OrderTransactionDataSource trans = new OrderTransactionDataSource(sqlite);
