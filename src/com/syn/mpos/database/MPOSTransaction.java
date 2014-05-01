@@ -25,7 +25,6 @@ public class MPOSTransaction {
 	private PaymentDetailDataSource mPayment;
 	
 	private int mTransactionId;
-	private int mComputerId;
 	private int mSessionId;
 	
 	private double mTotalVatExcluded;
@@ -35,9 +34,8 @@ public class MPOSTransaction {
 	private double mTotalDiscount;
 	private double mSubTotalPrice;
 	
-	public MPOSTransaction(Context context, int computerId){
+	public MPOSTransaction(Context context){
 		mContext = context;
-		mComputerId = computerId;
 		mTransaction = new OrderTransactionDataSource(context.getApplicationContext());
 		mSession = new SessionDataSource(context.getApplicationContext());
 		mPayment = new PaymentDetailDataSource(context.getApplicationContext());
@@ -143,6 +141,7 @@ public class MPOSTransaction {
 	}
 	
 	/**
+	 * @param computerId
 	 * @param productId
 	 * @param productType
 	 * @param vatType
@@ -150,9 +149,9 @@ public class MPOSTransaction {
 	 * @param orderQty
 	 * @param pricePerUnit
 	 */
-	public void addOrder(int productId, int productType, int vatType,
+	public void addOrder(int computerId, int productId, int productType, int vatType,
 			double vatRate, double orderQty, double pricePerUnit){
-		mTransaction.addOrderDetail(mTransactionId, mComputerId, 
+		mTransaction.addOrderDetail(mTransactionId, computerId, 
 				productId, productType, vatType, vatRate, orderQty, pricePerUnit);
 	}
 	

@@ -137,9 +137,9 @@ public class MainActivity extends FragmentActivity implements
 			mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 			mPager = (ViewPager) findViewById(R.id.pager);
 	
-			mShop = new MPOSShop(this);
-			mProducts = new MPOSProduct(this);
-			mTransaction = new MPOSTransaction(this, mShop.getComputerId());
+			mShop = new MPOSShop(getApplicationContext());
+			mProducts = new MPOSProduct(getApplicationContext());
+			mTransaction = new MPOSTransaction(getApplicationContext());
 			
 			mProductDeptLst = mProducts.listProductDept();
 			mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
@@ -780,7 +780,7 @@ public class MainActivity extends FragmentActivity implements
 		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
 		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
 		List<MPOSOrderTransaction> billLst = 
-				mTransaction.listHoldOrder(mTransaction.getCurrentSessionDate(mSessionId));
+				mTransaction.listHoldOrder(mTransaction.getCurrentSessionDate());
 		HoldBillAdapter billAdapter = new HoldBillAdapter(billLst);
 		lvHoldBill.setAdapter(billAdapter);
 		lvHoldBill.setOnItemClickListener(new OnItemClickListener(){
@@ -1288,7 +1288,8 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	private void addOrder(int productId, int productTypeId, int vatType, 
 			double vatRate, double qty, double price){
-		mTransaction.addOrder(productId, productTypeId, vatType, vatRate, qty, price);
+		mTransaction.addOrder(mShop.getComputerId(), 
+				productId, productTypeId, vatType, vatRate, qty, price);
 		loadOrder();
 	}
 

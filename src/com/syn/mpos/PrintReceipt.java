@@ -18,6 +18,7 @@ import com.syn.mpos.database.CreditCardDataSource;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.HeaderFooterReceiptDataSource;
 import com.syn.mpos.database.MPOSShop;
+import com.syn.mpos.database.MPOSTransaction;
 import com.syn.mpos.database.PaymentDetailDataSource;
 import com.syn.mpos.database.PrintReceiptLogDataSource;
 import com.syn.mpos.database.ProductsDataSource;
@@ -472,21 +473,6 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 			}
 		}
 		return null;
-	}
-	
-	private String generateCardNo(Payment.PaymentDetail payment){
-		String paymentText = "";
-		// credit card : visa, master xxxx xxxx xxxx 0000
-		try {
-			String cardNo = " xxxx xxxx xxxx " + payment.getCreaditCardNo().substring(12, 16);
-			CreditCardDataSource card = new CreditCardDataSource(mSqlite);
-			paymentText = payment.getPayTypeName() + ":" + 
-					card.getCreditCardType(payment.getCreditCardType()) + cardNo;
-		} catch (Exception e) {
-			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
-					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
-		}
-    	return paymentText;
 	}
 	
 	public static String unicodeToASCII(String unicode) {
