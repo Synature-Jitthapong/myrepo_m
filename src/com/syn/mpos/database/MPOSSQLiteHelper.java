@@ -53,7 +53,7 @@ public class MPOSSQLiteHelper extends SQLiteOpenHelper{
 		return sHelper;
 	}
 	
-	public MPOSSQLiteHelper(Context context) {
+	private MPOSSQLiteHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
 	}
 

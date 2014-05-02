@@ -6,7 +6,10 @@ import java.util.List;
 
 import com.syn.mpos.R;
 import com.syn.mpos.database.GlobalPropertyDataSource;
+import com.syn.mpos.database.MPOSProduct;
 import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.MPOSShop;
+import com.syn.mpos.database.MPOSTransaction;
 import com.syn.mpos.database.ProductsDataSource;
 import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.pos.OrderTransaction;
@@ -46,14 +49,11 @@ public class DiscountActivity extends Activity{
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final String DISCOUNT_FRAGMENT_TAG = "DiscountDialog";
 	
-	private MPOSSQLiteHelper mSqliteHelper;
-	private SQLiteDatabase mSqlite;
-	private OrderTransactionDataSource mTransaction;
+	private MPOSShop mShop;
+	private MPOSTransaction mTransaction;
+	private MPOSProduct mProduct;
 	private OrderTransaction.OrderDetail mOrder;
-	private ProductsDataSource mProducts;
 	
-	private int mTransactionId;
-	private int mComputerId;
 	private int mPosition = -1;
 	private double mTotalPrice = 0.0f;
 	private boolean mIsEdited = false;
@@ -82,14 +82,9 @@ public class DiscountActivity extends Activity{
 		mTxtTotalDiscount = (EditText) findViewById(R.id.txtTotalDiscount);
 		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
 		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		Intent intent = getIntent();
-		mTransactionId = intent.getIntExtra("transactionId", 0);
-		mComputerId = intent.getIntExtra("computerId", 0);
-	}
-
-	public SQLiteDatabase getDatabase(){
-		return mSqlite;
+		mShop = new MPOSShop(getApplicationContext());
+		mTransaction = new MPOSTransaction(getApplicationContext());
+		mProduct = new MPOSProduct(getApplicationContext());
 	}
 	
 	@Override
@@ -99,10 +94,7 @@ public class DiscountActivity extends Activity{
 	}
 
 	private void init(){
-		mSqlite = mSqliteHelper.getWritableDatabase();
-		mTransaction = new OrderTransactionDataSource(mSqlite);
-		mProducts = new ProductsDataSource(mSqlite);
-
+		
 		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
@@ -114,7 +106,7 @@ public class DiscountActivity extends Activity{
 				OrderTransaction.OrderDetail order = 
 						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
 				
-				if(mProducts.getProduct(order.getProductId()).getDiscountAllow() == 1){
+				if(mProduct.getProduct(order.getProductId()).getDiscountAllow() == 1){
 					mPosition = position;
 					mOrder = order;
 					DiscountDialogFragment discount = 
@@ -146,8 +138,8 @@ public class DiscountActivity extends Activity{
 			cancel();
 			return true;
 		case R.id.itemConfirm:
-			if (mTransaction.confirmDiscount(mTransactionId, mComputerId))
-				finish();
+			mTransaction.confirmDiscount();
+			finish();
 			return true;
 		default:
 		return super.onOptionsItemSelected(item);
@@ -174,10 +166,9 @@ public class DiscountActivity extends Activity{
 				discount = mOrder.getTotalRetailPrice() * discount / 100;
 			}	
 			double totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - discount;
-			mTransaction.discountEatchProduct(mOrder.getOrderDetailId(), 
-					mTransactionId, mComputerId,
+			mTransaction.discountEatchProduct(mOrder.getOrderDetailId(),
 					mOrder.getVatType(),
-					mProducts.getVatRate(mOrder.getProductId()), 
+					mProduct.getVatRate(mOrder.getProductId()), 
 					totalPriceAfterDiscount, discount, discountType);
 			
 			OrderTransaction.OrderDetail order = mOrderLst.get(mPosition);
@@ -237,21 +228,20 @@ public class DiscountActivity extends Activity{
 			
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvName.setText(order.getProductName());
-			tvQty.setText(GlobalPropertyDataSource.qtyFormat(mSqlite, order.getQty()));
-			tvUnitPrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, order.getPricePerUnit()));
-			tvTotalPrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, order.getTotalRetailPrice()));
-			tvDiscount.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, order.getPriceDiscount()));
-			tvSalePrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, order.getTotalSalePrice()));
+			tvQty.setText(mShop.getGlobalProperty().qtyFormat(order.getQty()));
+			tvUnitPrice.setText(mShop.getGlobalProperty().currencyFormat(order.getPricePerUnit()));
+			tvTotalPrice.setText(mShop.getGlobalProperty().currencyFormat(order.getTotalRetailPrice()));
+			tvDiscount.setText(mShop.getGlobalProperty().currencyFormat(order.getPriceDiscount()));
+			tvSalePrice.setText(mShop.getGlobalProperty().currencyFormat(order.getTotalSalePrice()));
 			
 			return rowView;
 		}
 	}
 	
 	private void loadOrder() {
-		if (mTransaction.copyOrderToTmp(mTransactionId, mComputerId)) {
-			mOrderLst = mTransaction.listAllOrderTmp(mTransactionId, mComputerId);
-			mDisAdapter.notifyDataSetChanged();
-		}
+		mTransaction.prepareDiscount();
+		mOrderLst = mTransaction.listOrderForDiscunt();
+		mDisAdapter.notifyDataSetChanged();
 	}
 
 	private void summary() {

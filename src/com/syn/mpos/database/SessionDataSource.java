@@ -81,24 +81,6 @@ public class SessionDataSource extends MPOSDatabase{
 	}
 	
 	/**
-	 * @param sessionId
-	 * @return session date
-	 */
-	protected String getSessionDate(int sessionId){
-		String sessionDate = "";
-		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_NAME, 
-				new String[]{SessionTable.COLUMN_SESS_DATE}, 
-				SessionTable.COLUMN_SESS_ID + "=? ", 
-				new String[]{String.valueOf(sessionId)}, null, null, null);
-		
-		if(cursor.moveToFirst()){
-			sessionDate = cursor.getString(0);
-		}
-		cursor.close();
-		return sessionDate;
-	}
-	
-	/**
 	 * @return max sessionId
 	 */
 	protected int getMaxSessionId() {
@@ -225,7 +207,7 @@ public class SessionDataSource extends MPOSDatabase{
 	 * @param staffId
 	 * @return current sessionId by staff
 	 */
-	protected int getCurrentSession(int staffId) {
+	protected int getCurrentSessionId(int staffId) {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().query(
 				SessionTable.TABLE_NAME,

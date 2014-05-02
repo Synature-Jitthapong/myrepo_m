@@ -102,15 +102,7 @@ public class MPOSUtil {
 				transactionId, loadSaleListener).execute();
 	}
 	
-	/**
-	 * TO DO send sale transaction
-	 * @param sqlite
-	 * @param shopId
-	 * @param computerId
-	 * @param staffId
-	 * @param listener
-	 */
-	public static void doSendSale(final SQLiteDatabase sqlite, final int shopId, final int computerId, 
+	public static void doSendSale(final int shopId, final int computerId, 
 			final int staffId, final ProgressListener listener) {
 		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
 
@@ -267,9 +259,9 @@ public class MPOSUtil {
 	 */
 	public static class LoadSaleTransactionByTransactionId extends LoadSaleTransaction{
 
-		public LoadSaleTransactionByTransactionId(final SQLiteDatabase sqlite, 
+		public LoadSaleTransactionByTransactionId(Context context, 
 				String sessionDate, int transactionId, LoadSaleTransactionListener listener) {
-			super(sqlite, sessionDate, transactionId, listener);
+			super(context, sessionDate, transactionId, listener);
 		}
 
 		@Override
@@ -285,9 +277,9 @@ public class MPOSUtil {
 	 */
 	public static class LoadSaleTransactionForEndday extends LoadSaleTransaction{
 
-		public LoadSaleTransactionForEndday(SQLiteDatabase sqlite, 
+		public LoadSaleTransactionForEndday(Context context, 
 				String sessionDate, LoadSaleTransactionListener listener) {
-			super(sqlite, sessionDate, listener);
+			super(context, sessionDate, listener);
 		}
 		
 		@Override
@@ -306,17 +298,17 @@ public class MPOSUtil {
 		protected SaleTransactionDataSource mSaleTrans;
 		protected String mSessionDate;
 			
-		public LoadSaleTransaction(SQLiteDatabase sqlite, String sessionDate, int transactionId,
+		public LoadSaleTransaction(Context context, String sessionDate, int transactionId,
 				LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransactionDataSource(sqlite, sessionDate, transactionId);
+			mSaleTrans = new SaleTransactionDataSource(context, sessionDate, transactionId);
 			mSessionDate = sessionDate;
 		}
 		
-		public LoadSaleTransaction(SQLiteDatabase sqlite, String sessionDate, 
+		public LoadSaleTransaction(Context context, String sessionDate, 
 				LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransactionDataSource(sqlite, sessionDate);
+			mSaleTrans = new SaleTransactionDataSource(context, sessionDate);
 			mSessionDate = sessionDate;
 		}
 		

@@ -9,39 +9,30 @@ import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Msr;
 
 import com.j1tth4.mobile.util.Logger;
-import com.syn.mpos.database.BankDataSource;
-import com.syn.mpos.database.CreditCardDataSource;
-import com.syn.mpos.database.GlobalPropertyDataSource;
-import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.MPOSShop;
+import com.syn.mpos.database.MPOSTransaction;
 import com.syn.mpos.database.PaymentDetailDataSource;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -86,14 +77,12 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	 */
 	private Thread mMsrThread;
 	
-	private MPOSSQLiteHelper mSqliteHelper;
-	private SQLiteDatabase mSqlite;
-	private PaymentDetailDataSource mPayment;
+	private MPOSTransaction mTransaction;
+	private MPOSShop mShop;
+	
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
 	
-	private int mTransactionId;
-	private int mComputerId;
 	private int mBankId;
 	private int mCardTypeId;
 	private int mExpYear;
@@ -179,10 +168,9 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 			
 		});
 		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
+		mTransaction = new MPOSTransaction(getApplicationContext());
+		mShop = new MPOSShop(getApplicationContext());
 		Intent intent = getIntent();
-		mTransactionId = intent.getIntExtra("transactionId", 0);
-		mComputerId = intent.getIntExtra("computerId", 0);
 		mPaymentLeft = intent.getDoubleExtra("paymentLeft", 0.0d);
 		
 		mMsr = new Msr(MPOSApplication.WINTEC_DEFAULT_DEVICE_PATH, 
@@ -253,8 +241,6 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void init(){
-		mSqlite = mSqliteHelper.getWritableDatabase();
-		mPayment = new PaymentDetailDataSource(mSqlite);
 		displayTotalPrice();
 		loadCreditCardType();
 		loadBankName();
@@ -263,7 +249,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, mPaymentLeft));
+		mTxtTotalPrice.setText(mShop.getGlobalProperty().currencyFormat(mPaymentLeft));
 		mTxtTotalPay.setText(mTxtTotalPrice.getText());
 	}
 	
@@ -349,8 +335,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 									+ mTxtCardNoSeq3.getText().toString()
 									+ mTxtCardNoSeq4.getText().toString();
 							try {
-								mPayment.addPaymentDetail(
-										mTransactionId, mComputerId,
+								mTransaction.addPayment(mShop.getComputerId(),
 										PaymentDetailDataSource.PAY_TYPE_CREDIT,
 										mTotalCreditPay, mTotalCreditPay >= mPaymentLeft ?
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
@@ -430,8 +415,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void loadCreditCardType(){
-		CreditCardDataSource credit = new CreditCardDataSource(mSqlite);
-		mCreditCardLst = credit.listAllCreditCardType();
+		mCreditCardLst = mShop.listAllCreditCardType();
 		
 		CreditCardType cc = new CreditCardType();
 		cc.setCreditCardTypeId(0);
@@ -461,8 +445,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void loadBankName(){
-		BankDataSource bank = new BankDataSource(mSqlite);
-		mBankLst = bank.listAllBank();
+		mBankLst = mShop.listAllBank();
 		
 		BankName b = new BankName();
 		b.setBankNameId(0);

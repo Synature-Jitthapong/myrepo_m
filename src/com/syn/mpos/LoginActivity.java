@@ -92,7 +92,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 		ComputerDataSource computer = new ComputerDataSource(mSqlite);
 		SessionDataSource session = new SessionDataSource(mSqlite);
 		int computerId= computer.getComputerProperty().getComputerID();
-		int sessionId = session.getCurrentSession(computerId);
+		int sessionId = session.getCurrentSessionId(computerId);
 		if(sessionId != 0){
 			String strSaleDate = session.getSessionDate(computerId);
 			Calendar calendar = Calendar.getInstance(Locale.US);

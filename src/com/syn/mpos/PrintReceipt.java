@@ -503,14 +503,14 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 				if(MPOSApplication.getInternalPrinterSetting()){
 					printReceiptWintec(mposTrans.getOpenTransactionStaffId(), 
 							mposTrans.getReceiptNo(), mposTrans.getSubTotalPrice(), 
-							mposTrans.getTotalPriceDiscount(), mposTrans.getTotalSalePrice(), 
+							mposTrans.getTotalDiscount(), mposTrans.getTotalSalePrice(), 
 							mposTrans.getTransactionVat(), mposTrans.getTotalVatExclude(), 
 							mposTrans.getTransactionVatable(), mposTrans.getTotalPaid(), 
 							mposTrans.getOrderQty(), mposTrans.listAllOrder(), mposTrans.listPaymentDetail());
 				}else{
 					printReceipt(mposTrans.getOpenTransactionStaffId(), 
 							mposTrans.getReceiptNo(), mposTrans.getSubTotalPrice(), 
-							mposTrans.getTotalPriceDiscount(), mposTrans.getTotalSalePrice(), 
+							mposTrans.getTotalDiscount(), mposTrans.getTotalSalePrice(), 
 							mposTrans.getTransactionVat(), mposTrans.getTotalVatExclude(), 
 							mposTrans.getTransactionVatable(), mposTrans.getTotalPaid(), 
 							mposTrans.getOrderQty(), mposTrans.listAllOrder(), mposTrans.listPaymentDetail());

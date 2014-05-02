@@ -2,7 +2,7 @@ package com.syn.mpos.database;
 
 import java.util.List;
 
-import com.syn.pos.OrderTransaction;
+import com.syn.pos.OrderTransaction.OrderDetail;
 import com.syn.pos.Payment.PaymentDetail;
 
 import android.content.Context;
@@ -27,9 +27,6 @@ public class MPOSTransaction {
 	 */
 	private PaymentDetailDataSource mPayment;
 	
-	private int mTransactionId;
-	private int mSessionId;
-	
 	public MPOSTransaction(Context context){
 		mContext = context;
 		mTransaction = new OrderTransactionDataSource(context.getApplicationContext());
@@ -38,76 +35,64 @@ public class MPOSTransaction {
 	}
 	
 	/**
-	 * change transaction status to STATUS_NEW
-	 */
-	public void prepareTransaction(){
-		mTransaction.prepareTransaction(mTransactionId);
-	}
-	
-	/**
-	 * close transaction
-	 */
-	public void closeTransaction(int staffId){
-		mTransaction.successTransaction(mTransactionId, staffId);
-	}
-	
-	/**
-	 * open transaction
-	 */
-	public void openTransaction(int sessionId, int staffId){
-		SessionDataSource session = new SessionDataSource(mContext);
-		String saleDate = session.getSessionDate(sessionId);
-		if(getCurrentTransactionId(saleDate) == 0){
-			MPOSShop ms = new MPOSShop(mContext);
-			mTransactionId = mTransaction.openTransaction(ms.getShopId(), 
-					ms.getComputerId(), sessionId, staffId, ms.getCompanyVatRate());
-			
-			SyncSaleLogDataSource syncLog = new SyncSaleLogDataSource(mContext);
-			syncLog.addSyncSaleLog(saleDate);
-		}
-	}
-
-	/**
-	 * @return List<MPOSOrderTransaction.OrderDetail>
-	 */
-	public List<MPOSOrderTransaction.OrderDetail> listAllOrder(){
-		return mTransaction.listAllOrder(mTransactionId);
-	}
-	
-	/**
-	 * @param saleDate
-	 * @return List<MPOSOrderTransaction>
-	 */
-	public List<MPOSOrderTransaction> listHoldOrder(String saleDate){
-		return mTransaction.listHoldOrder(saleDate);
-	}
-	
-	/**
-	 * @return total transaction not send
-	 */
-	public int countTransNotSend(){
-		return mTransaction.countTransNotSend();
-	}
-	
-	/**
-	 * @return total hold order
-	 */
-	public int countHoldOrder(){
-		return mTransaction.countHoldOrder(getCurrentSessionDate());
-	}
-	
-	/**
-	 * @param note
-	 */
-	public void holdOrder(String note){
-		mTransaction.holdTransaction(mTransactionId, note);
-	}
-	
-	/**
 	 * @param orderDetailId
 	 */
 	public void deleteOrder(int orderDetailId){
-		mTransaction.deleteOrderDetail(mTransactionId, orderDetailId);
+		mTransaction.deleteOrderDetail(getCurrentTransactionId(), orderDetailId);
+	}
+
+	/**
+	 * @param payTypeId
+	 */
+	public void deletePayment(int payTypeId){
+		mPayment.deletePaymentDetail(payTypeId);
+	}
+
+	/**
+	 * delete all payment of current transactionId
+	 */
+	public void deleteAllPayment(){
+		mPayment.deleteAllPaymentDetail(getCurrentTransactionId());
+	}
+
+	/**
+	 * clear current transaction
+	 */
+	public void clearTransaction(){
+		int transactionId = getCurrentTransactionId();
+		mTransaction.deleteOrderDetail(transactionId);
+		mTransaction.deleteTransaction(transactionId);
+		mPayment.deleteAllPaymentDetail(transactionId);
+	}
+
+	/**
+	 * update field send status
+	 * @param saleDate
+	 */
+	public void updateTransactionSendStatus(String saleDate){
+		mTransaction.updateTransactionSendStatus(saleDate);
+	}
+	
+	/**
+	 * update field send status
+	 */
+	public void updateTransactionSendStatus(){
+		mTransaction.updateTransactionSendStatus(getCurrentTransactionId());
+	}
+	
+	/**
+	 * Update field OpenStaffId
+	 * @param staffId
+	 */
+	public void updateTransaction(int staffId){
+		mTransaction.updateTransaction(getCurrentTransactionId(), staffId);
+	}
+	
+	/**
+	 * Update transaction vat
+	 */
+	public void updateTransactionVat(){
+		mTransaction.updateTransactionVat(getCurrentTransactionId());
 	}
 	
 	/**
@@ -119,8 +104,36 @@ public class MPOSTransaction {
 	 */
 	public void updateOrder(int orderDetailId, int vatType, double vatRate,
 			double orderQty, double pricePerUnit){
-		mTransaction.updateOrderDetail(mTransactionId, 
+		mTransaction.updateOrderDetail(getCurrentTransactionId(), 
 				orderDetailId, vatType, vatRate, orderQty, pricePerUnit);
+	}
+
+	/**
+	 * @param note
+	 */
+	public void holdOrder(String note){
+		mTransaction.holdTransaction(getCurrentTransactionId(), note);
+	}
+
+	/**
+	 * Confirm discount
+	 */
+	public void confirmDiscount(){
+		mTransaction.confirmDiscount(getCurrentTransactionId());
+	}
+	
+	/**
+	 * @param orderDetailId
+	 * @param vatType
+	 * @param vatRate
+	 * @param salePrice
+	 * @param discount
+	 * @param discountType
+	 */
+	public void discountEatchProduct(int orderDetailId, int vatType, double vatRate,
+			double salePrice, double discount, int discountType){
+		mTransaction.discountEatchProduct(orderDetailId, 
+				getCurrentTransactionId(), vatType, vatRate, salePrice, discount, discountType);
 	}
 	
 	/**
@@ -134,109 +147,200 @@ public class MPOSTransaction {
 	 */
 	public void addOrder(int computerId, int productId, int productType, int vatType,
 			double vatRate, double orderQty, double pricePerUnit){
-		mTransaction.addOrderDetail(mTransactionId, computerId, 
+		mTransaction.addOrderDetail(getCurrentTransactionId(), computerId, 
 				productId, productType, vatType, vatRate, orderQty, pricePerUnit);
 	}
-	
+
 	/**
-	 * clear current transaction
+	 * @param computerId
+	 * @param payTypeId
+	 * @param paid
+	 * @param pay
+	 * @param cardNo
+	 * @param expMonth
+	 * @param expYear
+	 * @param bankId
+	 * @param cardTypeId
+	 * @param remark
 	 */
-	public void clearTransaction(){
-		mTransaction.deleteOrderDetail(mTransactionId);
-		mTransaction.deleteTransaction(mTransactionId);
-		mPayment.deleteAllPaymentDetail(mTransactionId);
+	public void addPayment(int computerId, int payTypeId, double paid, double pay, 
+			String cardNo, int expMonth, int expYear, int bankId, int cardTypeId, String remark){
+		mPayment.addPaymentDetail(getCurrentTransactionId(), computerId, payTypeId, 
+				paid, pay, cardNo, expMonth, expYear, bankId, cardTypeId, remark);
+	}
+
+	/**
+	 * @param saleDate
+	 * @return List<MPOSOrderTransaction>
+	 */
+	public List<MPOSOrderTransaction> listHoldOrder(String saleDate){
+		return mTransaction.listHoldOrder(saleDate);
+	}
+
+	/**
+	 * @return List<MPOSOrderTransaction.OrderDetail>
+	 */
+	public List<MPOSOrderTransaction.OrderDetail> listOrderForDiscunt(){
+		return mTransaction.listAllOrderTmp(getCurrentTransactionId());
 	}
 	
 	/**
-	 * Update field OpenStaffId
-	 * @param staffId
+	 * @return List<MPOSOrderTransaction.OrderDetail>
 	 */
-	public void updateTransaction(int staffId){
-		mTransaction.updateTransaction(mTransactionId, staffId);
+	public List<MPOSOrderTransaction.OrderDetail> listAllOrder(){
+		return mTransaction.listAllOrder(getCurrentTransactionId());
 	}
-	
+
 	/**
-	 * Update transaction vat
+	 * @return List<PaymentDetail>
 	 */
-	public void updateTransactionVat(){
-		mTransaction.updateTransactionVat(mTransactionId);
-	}
-	
-	/**
-	 * @return receipt number
-	 */
-	public String getReceiptNo(){
-		return mTransaction.getReceiptNo(mTransactionId);
+	public List<PaymentDetail> listPayment(){
+		return mPayment.listPayment(getCurrentTransactionId());
 	}
 	
 	/**
 	 * @return List<PaymentDetail>
 	 */
 	public List<PaymentDetail> listPaymentDetail(){
-		return mPayment.listPaymentGroupByType(mTransactionId);
+		return mPayment.listPaymentGroupByType(getCurrentTransactionId());
+	}
+	
+	/**
+	 * Prepare order for discount
+	 */
+	public void prepareDiscount(){
+		mTransaction.copyOrderToTmp(getCurrentTransactionId());
+	}
+	
+	/**
+	 * change transaction status to STATUS_NEW
+	 */
+	public void prepareTransaction(){
+		mTransaction.prepareTransaction(getCurrentTransactionId());
+	}
+
+	/**
+	 * close transaction
+	 */
+	public void closeTransaction(int staffId){
+		mTransaction.successTransaction(getCurrentTransactionId(), staffId);
+	}
+
+	/**
+	 * @param staffId
+	 * @return current transactionId
+	 */
+	public int openTransaction(int staffId){
+		int transactionId = 0;
+		if(getCurrentTransactionId() == 0){
+			MPOSShop ms = new MPOSShop(mContext);
+			int sessionId = getCurrentSessionId(staffId);
+			transactionId = mTransaction.openTransaction(ms.getShopId(), 
+					ms.getComputerId(), sessionId, staffId, ms.getCompanyVatRate());
+			
+			SyncSaleLogDataSource syncLog = new SyncSaleLogDataSource(mContext);
+			syncLog.addSyncSaleLog(getLastSessionDate());
+		}
+		return transactionId;
+	}
+
+	/**
+	 * @return total transaction not send
+	 */
+	public int countTransNotSend(){
+		return mTransaction.countTransNotSend();
+	}
+
+	/**
+	 * @return total hold order
+	 */
+	public int countHoldOrder(){
+		return mTransaction.countHoldOrder(getLastSessionDate());
+	}
+
+	/**
+	 * @return receipt number
+	 */
+	public String getReceiptNo(){
+		return mTransaction.getReceiptNo(getCurrentTransactionId());
+	}
+
+	/**
+	 * @return total paid
+	 */
+	public double getTotalPaid(){
+		return mPayment.getTotalPaid(getCurrentTransactionId());
 	}
 	
 	/**
 	 * @return total order qty
 	 */
 	public int getOrderQty(){
-		return mTransaction.getTotalOrderQty(mTransactionId);
+		return mTransaction.getTotalOrderQty(getCurrentTransactionId());
 	}
-	
-	/**
-	 * @return total paid
-	 */
-	public double getTotalPaid(){
-		return mPayment.getTotalPaid(mTransactionId);
-	}
+
 	
 	/**
 	 * @return subTotal
 	 */
 	public double getSubTotalPrice(){
-		return mTransaction.getTotalRetailPrice(mTransactionId);	
+		return mTransaction.getTotalRetailPrice(getCurrentTransactionId());	
 	}
 	
 	/**
 	 * @return totalVatExclude
 	 */
 	public double getTotalVatExclude(){
-		return mTransaction.getTotalVatExclude(mTransactionId);
+		return mTransaction.getTotalVatExclude(getCurrentTransactionId());
+	}
+	
+	/**
+	 * @return totalVatExclude
+	 */
+	public double getTmpTotalVatExclude(){
+		return mTransaction.getTmpTotalVatExclude(getCurrentTransactionId());
 	}
 	
 	/**
 	 * @return totalVat
 	 */
 	public double getTotalVat(){
-		return mTransaction.getTotalVat(mTransactionId);
+		return mTransaction.getTotalVat(getCurrentTransactionId());
 	}
 	
 	/**
-	 * @return totalPriceDiscount
+	 * @return totalDiscount
 	 */
-	public double getTotalPriceDiscount(){
-		return mTransaction.getTotalPriceDiscount(mTransactionId);
+	public double getTmpTotalDisocunt(){
+		return mTransaction.getTmpTotalDiscount(getCurrentTransactionId()) + getTotalVatExclude();
+	}
+	
+	/**
+	 * @return totalDiscount
+	 */
+	public double getTotalDiscount(){
+		return mTransaction.getTotalDiscount(getCurrentTransactionId());
 	}
 	
 	/**
 	 * @return totalSalePrice
 	 */
 	public double getTotalSalePrice(){
-		return mTransaction.getTotalSalePrice(mTransactionId);
+		return mTransaction.getTotalSalePrice(getCurrentTransactionId());
 	}
 	
 	/**
 	 * @return vatable
 	 */
 	public double getTransactionVatable(){
-		return mTransaction.getTransactionVatable(mTransactionId);
+		return mTransaction.getTransactionVatable(getCurrentTransactionId());
 	}
 	
 	/**
 	 * @return transactionVat
 	 */
 	public double getTransactionVat(){
-		return mTransaction.getTransactionVat(mTransactionId);
+		return mTransaction.getTransactionVat(getCurrentTransactionId());
 	}
 	
 	/**
@@ -250,14 +354,16 @@ public class MPOSTransaction {
 	 * @return MPOSOrderTransaction object
 	 */
 	public MPOSOrderTransaction getTransaction(){
-		return mTransaction.getTransaction(mTransactionId);
+		return mTransaction.getTransaction(getCurrentTransactionId());
 	}
+
 	/**
-	 * @param saleDate
+	 * Get current transactionId identify by sessionDate
 	 * @return current transactionId
 	 */
-	public int getCurrentTransactionId(String saleDate){
-		return mTransaction.getCurrTransaction(saleDate);
+	public int getCurrentTransactionId(){
+		String sessionDate = getLastSessionDate();
+		return mTransaction.getCurrTransaction(sessionDate);
 	}
 
 	/**
@@ -267,20 +373,14 @@ public class MPOSTransaction {
 	 * @param openAmount
 	 * @return sessionId
 	 */
-	public void openSession(int shopId, int computerId, 
+	public int openSession(int shopId, int computerId, 
 			int openStaffId, double openAmount){
-		if(getCurrentSession(openStaffId) == 0){
-			mSessionId = mSession.addSession(shopId, computerId, 
+		int sessionId = getCurrentSessionId(openStaffId);
+		if( sessionId == 0){
+			sessionId = mSession.addSession(shopId, computerId, 
 					openStaffId, openAmount);
 		}
-	}
-	
-	/**
-	 * @param sessionId
-	 * @return session date
-	 */
-	public String getCurrentSessionDate(){
-		return mSession.getSessionDate(mSessionId);
+		return sessionId;
 	}
 	
 	/**
@@ -291,18 +391,11 @@ public class MPOSTransaction {
 	}
 	
 	/**
+	 * Get current sessionId identify by staffId
 	 * @return sessionId
 	 * 0 if not have session
 	 */
-	public int getCurrentSession(int staffId){
-		return mSession.getCurrentSession(staffId);
-	}
-	
-	public int getTransactionId() {
-		return mTransactionId;
-	}
-
-	public void setTransactionId(int mTransactionId) {
-		this.mTransactionId = mTransactionId;
+	public int getCurrentSessionId(int staffId){
+		return mSession.getCurrentSessionId(staffId);
 	}
 }

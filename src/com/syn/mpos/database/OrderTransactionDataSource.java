@@ -215,7 +215,7 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 	 * @param transactionId
 	 * @return total temp discount
 	 */
-	protected double getTmpPriceDiscount(int transactionId) {
+	protected double getTmpTotalDiscount(int transactionId) {
 		double priceDiscount = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_PRICE_DISCOUNT + ")" + " FROM "
@@ -233,7 +233,7 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 	 * @param transactionId
 	 * @return total discount
 	 */
-	protected double getTotalPriceDiscount(int transactionId) {
+	protected double getTotalDiscount(int transactionId) {
 		double priceDiscount = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(" SELECT SUM("
 				+ OrderDetailTable.COLUMN_PRICE_DISCOUNT + ")" + " FROM "
@@ -941,13 +941,13 @@ public class OrderTransactionDataSource extends MPOSDatabase {
 	 * @param saleDate
 	 * @return row affected
 	 */
-	protected int updateTransactionSendStatus(long saleDate) {
+	protected int updateTransactionSendStatus(String saleDate) {
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_SEND_STATUS, SyncSaleLogDataSource.SYNC_SUCCESS);
 		return getWritableDatabase().update(OrderTransactionTable.TABLE_NAME, cv,
 				OrderTransactionTable.COLUMN_SALE_DATE + "=?" + " AND "
 						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
-				new String[] { String.valueOf(saleDate), String.valueOf(TRANS_STATUS_SUCCESS),
+				new String[] {saleDate, String.valueOf(TRANS_STATUS_SUCCESS),
 						String.valueOf(TRANS_STATUS_VOID) });
 	}
 

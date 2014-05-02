@@ -1,11 +1,18 @@
 package com.syn.mpos;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.ImageLoader;
+import com.j1tth4.mobile.util.JSONUtil;
+import com.syn.mpos.MPOSUtil.LoadSaleTransaction;
+import com.syn.mpos.MPOSUtil.LoadSaleTransactionForEndday;
+import com.syn.mpos.MPOSUtil.LoadSaleTransactionListener;
+import com.syn.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.syn.mpos.database.ComputerDataSource;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.Login;
@@ -23,6 +30,7 @@ import com.syn.mpos.database.StaffDataSource;
 import com.syn.mpos.database.SyncSaleLogDataSource;
 import com.syn.mpos.database.OrderTransactionDataSource;
 import com.syn.mpos.database.Util;
+import com.syn.mpos.database.SaleTransactionDataSource.POSData_SaleTransaction;
 import com.syn.mpos.database.table.ComputerTable;
 import com.syn.mpos.database.table.OrderTransactionTable;
 import com.syn.pos.ShopData;
@@ -36,6 +44,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -86,7 +95,6 @@ public class MainActivity extends FragmentActivity implements
 	private List<ProductsDataSource.ProductDept> mProductDeptLst;
 	private MenuItemPagerAdapter mPageAdapter;
 	
-	private int mSessionId;
 	private int mStaffId;
 	
 	private PagerSlidingTabStrip mTabs;
@@ -114,7 +122,6 @@ public class MainActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
-		mSessionId = intent.getIntExtra("sessionId", 0);
 		if(mStaffId == 0){
 			startActivity(new Intent(MainActivity.this, LoginActivity.class));
 			finish();
@@ -166,7 +173,7 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	private void openTransaction(){
-		mTransaction.openTransaction(mSessionId, mStaffId);
+		mTransaction.openTransaction(mStaffId);
 		countHoldOrder();
 		countTransNotSend();
 		loadOrder();
@@ -185,7 +192,7 @@ public class MainActivity extends FragmentActivity implements
 				int transactionId = intent.getIntExtra("transactionId", 0);
 				int computerId = intent.getIntExtra("computerId", 0);
 				double change = intent.getDoubleExtra("change", 0);
-				printReceipt(transactionId, computerId);
+				printReceipt();
 				sendSale();
 				
 				if(change > 0){
@@ -275,8 +282,6 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	public void paymentClicked(final View v){
 		Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
-		intent.putExtra("transactionId", mTransaction.getTransactionId());
-		intent.putExtra("computerId", mShop.getComputerId());
 		intent.putExtra("staffId", mStaffId);
 		startActivityForResult(intent, PAYMENT_REQUEST);
 	}
@@ -287,8 +292,6 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	public void discountClicked(final View v){
 		Intent intent = new Intent(MainActivity.this, DiscountActivity.class);
-		intent.putExtra("transactionId", mTransaction.getTransactionId());
-		intent.putExtra("computerId", mShop.getComputerId());
 		startActivity(intent);
 	}
 
@@ -1087,7 +1090,8 @@ public class MainActivity extends FragmentActivity implements
 	 * summary transaction 
 	 */
 	public void summary(){
-		if(mTransaction.getTotalPriceDiscount() > 0)
+		mTransaction.updateTransactionVat();
+		if(mTransaction.getTotalDiscount() > 0)
 			mTbRowDiscount.setVisibility(View.VISIBLE);
 		else
 			mTbRowDiscount.setVisibility(View.GONE);
@@ -1098,7 +1102,7 @@ public class MainActivity extends FragmentActivity implements
 			mTbRowVat.setVisibility(View.GONE);
 		mTvVatExclude.setText(mShop.getGlobalProperty().currencyFormat(mTransaction.getTotalVatExclude()));
 		mTvSubTotal.setText(mShop.getGlobalProperty().currencyFormat(mTransaction.getSubTotalPrice()));
-		mTvDiscount.setText("-" + mShop.getGlobalProperty().currencyFormat(mTransaction.getTotalPriceDiscount()));
+		mTvDiscount.setText("-" + mShop.getGlobalProperty().currencyFormat(mTransaction.getTotalDiscount()));
 		mTvTotalPrice.setText(mShop.getGlobalProperty().currencyFormat(mTransaction.getTransactionVatable()));
 	}
 
@@ -1206,8 +1210,6 @@ public class MainActivity extends FragmentActivity implements
 									}).show();
 								}
 							};
-					MPOSUtil.doEndday(mSqlite, mShopId, mComputerId, mSessionId, 
-							mStaffId, 0.0f, true, progressListener);
 				}
 			}).show();
 		}else{
@@ -1425,12 +1427,12 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
-	private void printReceipt(int transactionId){
+	private void printReceipt(){
 		PrintReceiptLogDataSource printLog = 
 				new PrintReceiptLogDataSource(MPOSApplication.getContext());
-		printLog.insertLog(transactionId, mStaffId);
+		printLog.insertLog(mTransaction.getTransactionId(), mStaffId);
 		
-		new PrintReceipt(MainActivity.this, mStaffId, new PrintReceipt.PrintStatusListener() {
+		new PrintReceipt(new PrintReceipt.PrintStatusListener() {
 			
 			@Override
 			public void onPrintSuccess() {
@@ -1455,33 +1457,57 @@ public class MainActivity extends FragmentActivity implements
 	 * send sale data to server
 	 */
 	private void sendSale(){
-		MPOSUtil.doSendSale(mSqlite, mShopId, mComputerId, mStaffId, 
-				new ProgressListener(){
+		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
 
-				@Override
-				public void onPre() {
-				}
-
-				@Override
-				public void onPost() {
-					countTransNotSend();
-					MPOSUtil.makeToask(MainActivity.this, 
-							MainActivity.this.getString(R.string.send_sale_data_success));
-				}
-
-				@Override
-				public void onError(String msg) {
-					MPOSUtil.makeToask(MainActivity.this, msg);
-				}
+			@Override
+			public void onPre() {
 				
-			});
-	}
+			}
 
-	/**
-	 * get current session
-	 * @return
-	 */
-	private void getCurrentSession(){
-		mTransaction.getCurrentSession(mStaffId);
+			@Override
+			public void onPost(POSData_SaleTransaction saleTrans,
+					final String sessionDate) {
+
+				JSONUtil jsonUtil = new JSONUtil();
+				Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
+				final String jsonSale = jsonUtil.toJson(type, saleTrans);
+
+				ProgressListener sendSaleListener = new ProgressListener() {
+					@Override
+					public void onPre() {
+					}
+
+					@Override
+					public void onPost() {
+						// do update transaction already send
+						mTransaction.updateTransactionSendStatus();
+						countTransNotSend();
+						MPOSUtil.makeToask(MainActivity.this, 
+								MainActivity.this.getString(R.string.send_sale_data_success));
+					}
+
+					@Override
+					public void onError(String msg) {
+						MPOSUtil.makeToask(MainActivity.this, msg);
+					}
+				};
+				new MPOSWebServiceClient.SendPartialSaleTransaction(MPOSApplication.getContext(), 
+						mStaffId, mShop.getShopId(), mShop.getComputerId(), 
+						jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl());
+			}
+
+			@Override
+			public void onError(String msg) {
+				MPOSUtil.makeToask(MainActivity.this, msg);
+			}
+
+			@Override
+			public void onPost() {
+			}
+
+		};
+		new LoadSaleTransaction(MPOSApplication.getContext(),
+				mTransaction.getTransaction().getSaleDate(), 
+				mTransaction.getTransactionId(), loadSaleListener).execute();
 	}
 }

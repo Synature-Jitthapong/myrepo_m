@@ -130,7 +130,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @param computerId
 	 * @param payTypeId
 	 * @param paid
-	 * @param amount
+	 * @param pay
 	 * @param creditCardNo
 	 * @param expireMonth
 	 * @param expireYear
@@ -141,7 +141,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @throws SQLException
 	 */
 	protected long addPaymentDetail(int transactionId, int computerId, 
-			int payTypeId, double paid, double amount , String creditCardNo, int expireMonth, 
+			int payTypeId, double paid, double pay , String creditCardNo, int expireMonth, 
 			int expireYear, int bankId,int creditCardTypeId, String remark) throws SQLException {
 		int paymentId = getMaxPaymentDetailId(transactionId);
 		ContentValues cv = new ContentValues();
@@ -150,7 +150,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 		cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
 		cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payTypeId);
 		cv.put(PaymentDetailTable.COLUMN_PAID, paid);
-		cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, amount);
+		cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, pay);
 		cv.put(CreditCardTable.COLUMN_CREDITCARD_NO, creditCardNo);
 		cv.put(CreditCardTable.COLUMN_EXP_MONTH, expireMonth);
 		cv.put(CreditCardTable.COLUMN_EXP_YEAR, expireYear);

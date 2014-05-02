@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
+import com.syn.pos.Payment;
 import com.syn.pos.Payment.PayType;
 import com.syn.pos.Payment.PaymentAmountButton;
 import com.syn.pos.ShopData;
@@ -84,6 +85,36 @@ public class MPOSShop{
 		mLanguage = new LanguageDataSource(context.getApplicationContext());
 		mHeaderFooter = new HeaderFooterReceiptDataSource(context.getApplicationContext());
 		mSyncSaleLog = new SyncSaleLogDataSource(context.getApplicationContext());
+	}
+	
+	/**
+	 * @return List<BankName>
+	 */
+	public List<BankName> listAllBank(){
+		return mBank.listAllBank();
+	}
+	
+	/**
+	 * @return List<CreditCardType>
+	 */
+	public List<CreditCardType> listAllCreditCardType(){
+		return mCreditCard.listAllCreditCardType();
+	}
+	
+	/**
+	 * List pay type
+	 * @return List<Payment.PayType>
+	 */
+	public List<Payment.PayType> listPayType(){
+		return mPayment.listPayType();
+	}
+	
+	/**
+	 * List payment button
+	 * @return List<Payment.PaymentAmountButton>
+	 */
+	public List<Payment.PaymentAmountButton> listPaymentAmountButton(){
+		return mPaymentButton.listPaymentButton();
 	}
 	
 	/**
