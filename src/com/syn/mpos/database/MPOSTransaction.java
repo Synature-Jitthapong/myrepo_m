@@ -295,9 +295,9 @@ public class MPOSTransaction {
 	}
 	
 	/**
-	 * @return totalVatExclude
+	 * @return total vat exclude when do discount
 	 */
-	public double getTmpTotalVatExclude(){
+	public double getDiscountTotalVatExclude(){
 		return mTransaction.getTmpTotalVatExclude(getCurrentTransactionId());
 	}
 	
@@ -309,10 +309,10 @@ public class MPOSTransaction {
 	}
 	
 	/**
-	 * @return totalDiscount
+	 * @return total discount when do discount
 	 */
-	public double getTmpTotalDisocunt(){
-		return mTransaction.getTmpTotalDiscount(getCurrentTransactionId()) + getTotalVatExclude();
+	public double getDiscountTotalDisocunt(){
+		return mTransaction.getTmpTotalDiscount(getCurrentTransactionId());
 	}
 	
 	/**
@@ -323,7 +323,21 @@ public class MPOSTransaction {
 	}
 	
 	/**
-	 * @return totalSalePrice
+	 * @return total sale price when do discount
+	 */
+	public double getDiscountTotalSalePrice(){
+		return mTransaction.getTmpTotalSalePrice(getCurrentTransactionId()) + getDiscountTotalVatExclude();
+	}
+	
+	/**
+	 * @return sub total when discount
+	 */
+	public double getDiscountSubTotal(){
+		return mTransaction.getTmpTotalRetailPrice(getCurrentTransactionId());
+	}
+	
+	/**
+	 * @return total sale price
 	 */
 	public double getTotalSalePrice(){
 		return mTransaction.getTotalSalePrice(getCurrentTransactionId());
@@ -337,7 +351,7 @@ public class MPOSTransaction {
 	}
 	
 	/**
-	 * @return transactionVat
+	 * @return transacton vat
 	 */
 	public double getTransactionVat(){
 		return mTransaction.getTransactionVat(getCurrentTransactionId());

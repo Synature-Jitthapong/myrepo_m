@@ -245,22 +245,15 @@ public class DiscountActivity extends Activity{
 	}
 
 	private void summary() {
-		double subTotal = mTransaction.getDisocuntTotalRetailPrice(mTransactionId, mComputerId);
-		double totalVatExclude = mTransaction.getDiscountTotalVatExclude(mTransactionId, mComputerId);
-		double totalDiscount = mTransaction.getDiscountPriceDiscount(mTransactionId, mComputerId); 
-				
-		mTotalPrice = mTransaction.getDiscountTotalSalePrice(mTransactionId, mComputerId) + 
-				totalVatExclude;
-		
-		if(totalVatExclude > 0)
+		mTotalPrice = mTransaction.getDiscountTotalSalePrice();
+		if(mTransaction.getDiscountTotalVatExclude() > 0)
 			mLayoutVat.setVisibility(View.VISIBLE);
 		else
 			mLayoutVat.setVisibility(View.GONE);
-		
-		mTxtTotalVatExc.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalVatExclude));
-		mTxtSubTotal.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, subTotal));
-		mTxtTotalDiscount.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalDiscount));
-		mTxtTotalPrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, mTotalPrice));
+		mTxtTotalVatExc.setText(mShop.getGlobalProperty().currencyFormat(mTransaction.getDiscountTotalVatExclude()));
+		mTxtSubTotal.setText(mShop.getGlobalProperty().currencyFormat(mTransaction.getDiscountSubTotal()));
+		mTxtTotalDiscount.setText(mShop.getGlobalProperty().currencyFormat(mTransaction.getDiscountTotalDisocunt()));
+		mTxtTotalPrice.setText(mShop.getGlobalProperty().currencyFormat(mTotalPrice));
 	}
 
 	private void cancel(){
