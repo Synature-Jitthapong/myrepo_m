@@ -20,7 +20,7 @@ public class HeaderFooterReceiptDataSource extends MPOSDatabase{
 		super(context);
 	}
 	
-	protected List<ShopData.HeaderFooterReceipt> listHeaderFooter(int lineType){
+	public List<ShopData.HeaderFooterReceipt> listHeaderFooter(int lineType){
 		List<ShopData.HeaderFooterReceipt> hfLst = 
 				new ArrayList<ShopData.HeaderFooterReceipt>();
 
@@ -45,7 +45,7 @@ public class HeaderFooterReceiptDataSource extends MPOSDatabase{
 		return hfLst;
 	}
 	
-	protected void addHeaderFooterReceipt(
+	public void insertHeaderFooterReceipt(
 		List<ShopData.HeaderFooterReceipt> headerFooterLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {

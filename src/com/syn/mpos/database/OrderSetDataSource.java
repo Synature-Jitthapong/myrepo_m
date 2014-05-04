@@ -13,7 +13,6 @@ import com.syn.mpos.database.table.ProductsTable;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 public class OrderSetDataSource extends MPOSDatabase{
 
@@ -26,7 +25,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param orderDetailId
 	 * @return List<MPOSOrderTransaction.OrderSet> 
 	 */
-	protected List<MPOSOrderTransaction.OrderSet> listOrderSet(int transactionId, int orderDetailId){
+	public List<MPOSOrderTransaction.OrderSet> listOrderSet(int transactionId, int orderDetailId){
 		
 		List<MPOSOrderTransaction.OrderSet> productSetLst = 
 				new ArrayList<MPOSOrderTransaction.OrderSet>();
@@ -113,7 +112,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param pcompGroupId
 	 * @return total qty of group
 	 */
-	protected double getTotalQty(int transactionId, int orderDetailId, int pcompGroupId){
+	public double getTotalQty(int transactionId, int orderDetailId, int pcompGroupId){
 		
 		double totalQty = 0;
 		
@@ -140,7 +139,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param transactionId
 	 * @param orderDetailId
 	 */
-	protected void deleteOrderSet(int transactionId, int orderDetailId){
+	public void deleteOrderSet(int transactionId, int orderDetailId){
 		getWritableDatabase().delete(OrderSetTable.TABLE_NAME, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
 				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? ", 
@@ -155,7 +154,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param orderDetailId
 	 * @param orderSetId
 	 */
-	protected void deleteOrderSet(int transactionId, int orderDetailId, int orderSetId){
+	public void deleteOrderSet(int transactionId, int orderDetailId, int orderSetId){
 		getWritableDatabase().delete(OrderSetTable.TABLE_NAME, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
 				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? "
@@ -174,7 +173,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param productId
 	 * @param orderSetQty
 	 */
-	protected void updateOrderSet(int transactionId, int orderDetailId, int orderSetId,
+	public void updateOrderSet(int transactionId, int orderDetailId, int orderSetId,
 			int productId, double orderSetQty){
 		
 		ContentValues cv = new ContentValues();
@@ -199,7 +198,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param pcompGroupId
 	 * @param reqAmount
 	 */
-	protected void addOrderSet(int transactionId, int orderDetailId, int productId, 
+	public void addOrderSet(int transactionId, int orderDetailId, int productId, 
 			String productName, int pcompGroupId, double reqAmount){
 		
 		int maxOrderSetId = getMaxOrderSetId(transactionId, orderDetailId);
@@ -224,7 +223,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @return max orderSetId
 	 * 0 if no row
 	 */
-	protected int getMaxOrderSetId(int transactionId, int orderDetailId){
+	public int getMaxOrderSetId(int transactionId, int orderDetailId){
 		
 		int maxOrderSetId = 0;
 		

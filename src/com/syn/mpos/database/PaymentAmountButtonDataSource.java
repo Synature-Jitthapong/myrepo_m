@@ -19,7 +19,7 @@ public class PaymentAmountButtonDataSource extends MPOSDatabase {
 	/**
 	 * @return List<Payment.PaymentAmountButton>
 	 */
-	protected List<Payment.PaymentAmountButton> listPaymentButton(){
+	public List<Payment.PaymentAmountButton> listPaymentButton(){
 		List<Payment.PaymentAmountButton> paymentButtonLst = 
 				new ArrayList<Payment.PaymentAmountButton>();
 		Cursor cursor = getReadableDatabase().query(PaymentButtonTable.TABLE_NAME, 
@@ -45,7 +45,7 @@ public class PaymentAmountButtonDataSource extends MPOSDatabase {
 	/**
 	 * @param paymentAmountLst
 	 */
-	protected void insertPaymentAmountButton(List<Payment.PaymentAmountButton> paymentAmountLst){
+	public void insertPaymentAmountButton(List<Payment.PaymentAmountButton> paymentAmountLst){
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(PaymentButtonTable.TABLE_NAME, null, null);

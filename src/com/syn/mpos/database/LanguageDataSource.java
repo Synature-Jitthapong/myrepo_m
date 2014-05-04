@@ -15,7 +15,7 @@ public  class LanguageDataSource extends MPOSDatabase{
 		super(context);
 	}
 	
-	protected void insertLanguage(List<ShopData.Language> langLst) throws SQLException{
+	public void insertLanguage(List<ShopData.Language> langLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(LanguageTable.TABLE_NAME, null, null);

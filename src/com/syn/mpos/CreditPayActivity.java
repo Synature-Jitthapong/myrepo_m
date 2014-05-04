@@ -9,8 +9,9 @@ import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Msr;
 
 import com.j1tth4.mobile.util.Logger;
-import com.syn.mpos.database.MPOSShop;
-import com.syn.mpos.database.MPOSTransaction;
+import com.syn.mpos.database.BankDataSource;
+import com.syn.mpos.database.CreditCardDataSource;
+import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.PaymentDetailDataSource;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
@@ -76,13 +77,15 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	 * Thread for run magnetic reader listener 
 	 */
 	private Thread mMsrThread;
-	
-	private MPOSTransaction mTransaction;
-	private MPOSShop mShop;
+
+	private PaymentDetailDataSource mPayment;
+	private GlobalPropertyDataSource mGlobal;
 	
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
 	
+	private int mTransactionId;
+	private int mComputerId;
 	private int mBankId;
 	private int mCardTypeId;
 	private int mExpYear;
@@ -168,9 +171,12 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 			
 		});
 		
-		mTransaction = new MPOSTransaction(getApplicationContext());
-		mShop = new MPOSShop(getApplicationContext());
+		mPayment = new PaymentDetailDataSource(getApplicationContext());
+		mGlobal = new GlobalPropertyDataSource(getApplicationContext());
+		
 		Intent intent = getIntent();
+		mTransactionId = intent.getIntExtra("transactionId", 0);
+		mComputerId = intent.getIntExtra("computerId", 0);
 		mPaymentLeft = intent.getDoubleExtra("paymentLeft", 0.0d);
 		
 		mMsr = new Msr(MPOSApplication.WINTEC_DEFAULT_DEVICE_PATH, 
@@ -249,7 +255,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(mShop.getGlobalProperty().currencyFormat(mPaymentLeft));
+		mTxtTotalPrice.setText(mGlobal.currencyFormat(mPaymentLeft));
 		mTxtTotalPay.setText(mTxtTotalPrice.getText());
 	}
 	
@@ -335,7 +341,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 									+ mTxtCardNoSeq3.getText().toString()
 									+ mTxtCardNoSeq4.getText().toString();
 							try {
-								mTransaction.addPayment(mShop.getComputerId(),
+								mPayment.addPaymentDetail(mTransactionId, mComputerId,
 										PaymentDetailDataSource.PAY_TYPE_CREDIT,
 										mTotalCreditPay, mTotalCreditPay >= mPaymentLeft ?
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
@@ -415,7 +421,8 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void loadCreditCardType(){
-		mCreditCardLst = mShop.listAllCreditCardType();
+		CreditCardDataSource cd = new CreditCardDataSource(getApplicationContext());
+		mCreditCardLst = cd.listAllCreditCardType();
 		
 		CreditCardType cc = new CreditCardType();
 		cc.setCreditCardTypeId(0);
@@ -445,7 +452,8 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void loadBankName(){
-		mBankLst = mShop.listAllBank();
+		BankDataSource bk = new BankDataSource(getApplicationContext());
+		mBankLst = bk.listAllBank();
 		
 		BankName b = new BankName();
 		b.setBankNameId(0);
@@ -524,17 +532,17 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 
 	private CardType checkCardType(String cardNumber){
 		if(cardNumber.matches("^4[0-9]{6,}$")){
-			Logger.appendLog(MPOSApplication.getContext(), 
+			Logger.appendLog(getApplicationContext(), 
 					MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME,
 					"VISA");
 			return CardType.VISA;
 		}else if(cardNumber.matches("^5[1-5][0-9]{5,}$")){
-			Logger.appendLog(MPOSApplication.getContext(), 
+			Logger.appendLog(getApplicationContext(), 
 					MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME,
 					"MASTER");
 			return CardType.MASTER;
 		}else if(cardNumber.matches("^3[47][0-9]{5,}$")){
-			Logger.appendLog(MPOSApplication.getContext(), 
+			Logger.appendLog(getApplicationContext(), 
 					MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME,
 					"AMERICAN");
 			return CardType.AMERICAN;
@@ -552,7 +560,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 				final String content = mMsr.MSR_GetTrackData(
 						mEnterTrack1, mEnterTrack2, mEnterTrack3);
 				
-				Logger.appendLog(MPOSApplication.getContext(), 
+				Logger.appendLog(getApplicationContext(), 
 						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME,
 						content);
 				
@@ -571,7 +579,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 								String expDate = arrTrack1[2].substring(0, 8);
 								String cardNo = arrTrack2[0].substring(7);
 								
-								Logger.appendLog(MPOSApplication.getContext(), 
+								Logger.appendLog(getApplicationContext(), 
 										MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
 										"Track1 : " + track1 + "\n" +
 										"Track2 : " + track2);
@@ -601,12 +609,12 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 										mSpCardType.setSelection(0);
 									}
 								} catch (Exception e) {
-									Logger.appendLog(MPOSApplication.getContext(), 
+									Logger.appendLog(getApplicationContext(), 
 											MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
 											"Error set selected spinner card type");
 								}
 								
-								Logger.appendLog(MPOSApplication.getContext(), 
+								Logger.appendLog(getApplicationContext(), 
 										MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
 										"CARD NO : " + cardNo + " \n " +
 										"CARD HOLDER NAME : " + cardHolderName + "\n" +
@@ -622,7 +630,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 									}
 								})
 								.show();
-								Logger.appendLog(MPOSApplication.getContext(), 
+								Logger.appendLog(getApplicationContext(), 
 										MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
 										"Error " + e.getMessage());
 							}
@@ -630,12 +638,12 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 						
 					});
 				}else{
-					Logger.appendLog(MPOSApplication.getContext(), 
+					Logger.appendLog(getApplicationContext(), 
 							MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
 							"Cannot receive anything.");
 				}
 			} catch (Exception e) {
-				Logger.appendLog(MPOSApplication.getContext(), 
+				Logger.appendLog(getApplicationContext(), 
 						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
 						" Error when read data from magnetic card : " + e.getMessage());
 			}

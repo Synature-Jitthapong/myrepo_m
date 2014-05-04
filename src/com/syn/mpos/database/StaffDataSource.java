@@ -19,7 +19,7 @@ public class StaffDataSource extends MPOSDatabase{
 	 * @param staffId
 	 * @return ShopData.Staff
 	 */
-	protected ShopData.Staff getStaff(int staffId){
+	public ShopData.Staff getStaff(int staffId){
 		ShopData.Staff s = null;
 		Cursor cursor = getReadableDatabase().query(StaffTable.TABLE_NAME, 
 				new String[]{StaffTable.COLUMN_STAFF_CODE, 
@@ -39,7 +39,7 @@ public class StaffDataSource extends MPOSDatabase{
 	 * @param staffLst
 	 * @throws SQLException
 	 */
-	protected void insertStaff(List<ShopData.Staff> staffLst) throws SQLException{
+	public void insertStaff(List<ShopData.Staff> staffLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(StaffTable.TABLE_NAME, null, null);

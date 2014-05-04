@@ -16,26 +16,28 @@ public class ShopDataSource extends MPOSDatabase{
 		super(context);
 	}
 	
+	public int getCompanyVatType(){
+		return getShopProperty().getVatType();
+	}
+	
 	/**
 	 * @return company vat rate
 	 */
-	protected double getCompanyVatRate(){
-		double vatRate = 7;
-		Cursor cursor = getReadableDatabase().query(ShopTable.TABLE_NAME, 
-				new String[]{
-				ShopTable.COLUMN_VAT
-				}, null, null, null, null, null);
-		if(cursor.moveToFirst()){
-			vatRate = cursor.getFloat(0);
-		}
-		cursor.close();
-		return vatRate;
+	public double getCompanyVatRate(){
+		return getShopProperty().getCompanyVat();
 	}
 
 	/**
+	 * @return shop id
+	 */
+	public int getShopId(){
+		return getShopProperty().getShopID();
+	}
+	
+	/**
 	 * @return ShopData.ShopProperty
 	 */
-	protected ShopData.ShopProperty getShopProperty(){
+	public ShopData.ShopProperty getShopProperty(){
 		ShopData.ShopProperty sp = 
 				new ShopData.ShopProperty();
 		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + ShopTable.TABLE_NAME, null);
@@ -68,7 +70,7 @@ public class ShopDataSource extends MPOSDatabase{
 	 * @param shopPropLst
 	 * @throws SQLException
 	 */
-	protected void insertShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
+	public void insertShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ShopTable.TABLE_NAME, null, null);

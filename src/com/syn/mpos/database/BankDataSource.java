@@ -16,7 +16,7 @@ public class BankDataSource extends MPOSDatabase{
 		super(context);
 	}
 	
-	protected List<BankName> listAllBank(){
+	public List<BankName> listAllBank(){
 		List<BankName> bankLst = 
 				new ArrayList<BankName>();
 		Cursor cursor = getReadableDatabase().query(BankTable.TABLE_NAME, 
@@ -33,7 +33,7 @@ public class BankDataSource extends MPOSDatabase{
 		return bankLst;
 	}
 	
-	protected void insertBank(List<BankName> bankLst){
+	public void insertBank(List<BankName> bankLst){
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(BankTable.TABLE_NAME, null, null);

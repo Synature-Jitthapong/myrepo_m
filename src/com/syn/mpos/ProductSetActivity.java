@@ -8,7 +8,7 @@ import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSOrderTransaction;
 import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrderSetDataSource;
-import com.syn.mpos.database.OrderTransactionDataSource;
+import com.syn.mpos.database.OrdersDataSource;
 import com.syn.mpos.database.ProductsDataSource;
 
 import android.annotation.SuppressLint;
@@ -41,16 +41,15 @@ import android.widget.TextView;
 
 public class ProductSetActivity extends Activity{
 
-	private MPOSSQLiteHelper mSqliteHelper;
-	private SQLiteDatabase mSqlite;
+	private static Context sContext;
+	private static ProductsDataSource sProduct;
+	private static GlobalPropertyDataSource sGlobal;
 	
-	private OrderTransactionDataSource mTransaction; 
+	private OrdersDataSource mOrders; 
 	
 	private int mTransactionId;
 	private int mComputerId;
 	private int mOrderDetailId;
-	
-	private ProductsDataSource mProduct;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +66,10 @@ public class ProductSetActivity extends Activity{
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
 		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		mSqlite = mSqliteHelper.getWritableDatabase();
-		
-		mTransaction = new OrderTransactionDataSource(mSqlite);
-		mProduct = new ProductsDataSource(mSqlite);
+		sContext = ProductSetActivity.this;
+		sProduct = new ProductsDataSource(getApplicationContext());
+		sGlobal = new GlobalPropertyDataSource(getApplicationContext());
+		mOrders = new OrdersDataSource(getApplicationContext());
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -82,7 +80,7 @@ public class ProductSetActivity extends Activity{
 		double vatRate = intent.getDoubleExtra("vatRate", 0);
 		double productPrice = intent.getDoubleExtra("productPrice", 0);
 		
-		mOrderDetailId = mTransaction.addOrderDetail(mTransactionId, mComputerId, productId, 
+		mOrderDetailId = mOrders.addOrderDetail(mTransactionId, mComputerId, productId, 
 				productTypeId, vatType, vatRate, 1, productPrice);
 		
 		if(mTransactionId == 0 || mOrderDetailId == 0 || productId == 0){
@@ -105,14 +103,6 @@ public class ProductSetActivity extends Activity{
 								PlaceholderFragment.newInsance(mTransactionId, mOrderDetailId, productId)).commit();
 			}
 		}
-	}
-
-	public ProductsDataSource getProduct(){
-		return mProduct;
-	}
-	
-	public SQLiteDatabase getDatabase(){
-		return mSqlite;
 	}
 	
 	@Override
@@ -172,7 +162,7 @@ public class ProductSetActivity extends Activity{
 			mOrderDetailId = getArguments().getInt("orderDetailId");
 			mProductId = getArguments().getInt("productId");
 			
-			mOrderSet = new OrderSetDataSource(((ProductSetActivity) getActivity()).getDatabase());
+			mOrderSet = new OrderSetDataSource(getActivity().getApplicationContext());
 			
 			mProductCompLst = new ArrayList<ProductsDataSource.ProductComponent>();
 			
@@ -189,8 +179,7 @@ public class ProductSetActivity extends Activity{
 		@SuppressLint("NewApi")
 		private void createSetGroupButton(){
 			List<ProductsDataSource.ProductComponentGroup> productCompGroupLst;
-			productCompGroupLst = 
-					((ProductSetActivity) getActivity()).getProduct().listProductComponentGroup(mProductId);
+			productCompGroupLst = sProduct.listProductComponentGroup(mProductId);
 			if(productCompGroupLst != null){
 				LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
 				for(int i = 0; i < productCompGroupLst.size(); i++){
@@ -205,9 +194,7 @@ public class ProductSetActivity extends Activity{
 						@Override
 						public void onClick(View v) {
 							v.setSelected(true);
-							mProductCompLst = 
-									((ProductSetActivity) getActivity()).
-										getProduct().listProductComponent(pCompGroup.getProductGroupId());
+							mProductCompLst = sProduct.listProductComponent(pCompGroup.getProductGroupId());
 							
 							// i use Products.ProductGroupId instead ProductComponent.PGroupId
 							SetItemAdapter adapter = new SetItemAdapter(
@@ -365,29 +352,28 @@ public class ProductSetActivity extends Activity{
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
-				final MenuItemAdapter.ViewHolder holder;
+				final MainActivity.MenuItemViewHolder holder;
 				if(convertView == null){
 					convertView = mInflater.inflate(R.layout.menu_template, null);
-					holder = new MenuItemAdapter.ViewHolder();
+					holder = new MainActivity.MenuItemViewHolder();
 					holder.tvMenu = (TextView) convertView.findViewById(R.id.textViewMenuName);
 					holder.tvPrice = (TextView) convertView.findViewById(R.id.textViewMenuPrice);
 					holder.imgMenu = (ImageView) convertView.findViewById(R.id.imageViewMenu);
 					convertView.setTag(holder);
 				}else{
-					holder = (MenuItemAdapter.ViewHolder) convertView.getTag();
+					holder = (MainActivity.MenuItemViewHolder) convertView.getTag();
 				}
 				
 				final ProductsDataSource.ProductComponent pComp = mProductCompLst.get(position);
 				holder.tvMenu.setText(pComp.getProductName());
-				holder.tvPrice.setText(GlobalPropertyDataSource.currencyFormat(
-						((ProductSetActivity) getActivity()).getDatabase(), pComp.getFlexibleProductPrice()));
+				holder.tvPrice.setText(sGlobal.currencyFormat(pComp.getFlexibleProductPrice()));
 
 				new Handler().postDelayed(new Runnable(){
 
 					@Override
 					public void run() {
 						try {
-							mImgLoader.displayImage(MPOSApplication.getImageUrl() + pComp.getImgUrl(), holder.imgMenu);
+							mImgLoader.displayImage(MPOSApplication.getImageUrl(sContext.getApplicationContext()) + pComp.getImgUrl(), holder.imgMenu);
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

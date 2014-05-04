@@ -4,12 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import com.syn.mpos.R;
-import com.syn.mpos.database.ComputerDataSource;
 import com.syn.mpos.database.Login;
-import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.SessionDataSource;
-import com.syn.mpos.database.Util;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;
@@ -19,7 +15,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,8 +28,8 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends Activity implements OnClickListener {
 	
-	private MPOSSQLiteHelper mSqliteHelper;
-	private SQLiteDatabase mSqlite;
+	private SessionDataSource mSession;
+	
 	private int mStaffId;
 	private Button mBtnLogin;
 	private EditText mTxtUser;
@@ -53,8 +48,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 		mTxtPass.setSelectAllOnFocus(true);
 		mBtnLogin.setOnClickListener(this);
 		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		mSqlite = mSqliteHelper.getWritableDatabase();
+		mSession = new SessionDataSource(getApplicationContext());
 		
 		mTxtPass.setOnEditorActionListener(new OnEditorActionListener(){
 
@@ -89,12 +83,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 	 * @return
 	 */
 	private boolean checkSessionDate(){
-		ComputerDataSource computer = new ComputerDataSource(mSqlite);
-		SessionDataSource session = new SessionDataSource(mSqlite);
-		int computerId= computer.getComputerProperty().getComputerID();
-		int sessionId = session.getCurrentSessionId(computerId);
-		if(sessionId != 0){
-			String strSaleDate = session.getSessionDate(computerId);
+		if(mSession.getCurrentSessionId(mStaffId) != 0){
+			String strSaleDate = mSession.getSessionDate();
 			Calendar calendar = Calendar.getInstance(Locale.US);
 			calendar.setTimeInMillis(Long.parseLong(strSaleDate));
 			Date saleDate = calendar.getTime();
@@ -139,14 +129,14 @@ public class LoginActivity extends Activity implements OnClickListener {
 			startActivity(intent);
 			return true;
 		case R.id.itemUpdate:
-			MPOSUtil.updateData(mSqlite, LoginActivity.this);
+			MPOSUtil.updateData(LoginActivity.this);
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
 			startActivity(intent);
 			return true;
 		case R.id.itemClearSale:
-			MPOSUtil.clearSale();
+			MPOSUtil.clearSale(LoginActivity.this);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
@@ -164,8 +154,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private void gotoMainActivity(){
 		mTxtUser.setText(null);
 		mTxtPass.setText(null);
-		SessionDataSource sess = new SessionDataSource(mSqlite);
-		if(sess.getSessionEnddayDetail(String.valueOf(Util.getDate().getTimeInMillis())) > 0){
+		if(mSession.checkEndday(mSession.getSessionDate()) > 0){
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.endday)
 			.setMessage(R.string.alredy_endday)
@@ -192,7 +181,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 			
 			if(!mTxtPass.getText().toString().isEmpty()){
 				pass = mTxtPass.getText().toString();
-				Login login = new Login(mSqlite, user, pass);
+				Login login = new Login(getApplicationContext(), user, pass);
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();

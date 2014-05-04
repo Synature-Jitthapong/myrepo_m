@@ -8,8 +8,17 @@ import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.FileManager;
 import com.j1tth4.mobile.util.JSONUtil;
 import com.j1tth4.mobile.util.Logger;
-import com.syn.mpos.database.MPOSProduct;
-import com.syn.mpos.database.MPOSShop;
+import com.syn.mpos.database.BankDataSource;
+import com.syn.mpos.database.ComputerDataSource;
+import com.syn.mpos.database.CreditCardDataSource;
+import com.syn.mpos.database.GlobalPropertyDataSource;
+import com.syn.mpos.database.HeaderFooterReceiptDataSource;
+import com.syn.mpos.database.LanguageDataSource;
+import com.syn.mpos.database.PaymentAmountButtonDataSource;
+import com.syn.mpos.database.PaymentDetailDataSource;
+import com.syn.mpos.database.ProductsDataSource;
+import com.syn.mpos.database.ShopDataSource;
+import com.syn.mpos.database.StaffDataSource;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
@@ -19,10 +28,9 @@ import android.content.Context;
 
 public class MPOSWebServiceClient {
 
-	public void loadShopData(final ProgressListener progressListener){
+	public void loadShopData(final Context context, final AuthenDeviceListener progressListener){
 		
-		final Context context = MPOSApplication.getContext();
-		final String url = MPOSApplication.getFullUrl();
+		final String url = MPOSApplication.getFullUrl(context);
 
 		final AuthenDeviceListener authenDeviceListener = new AuthenDeviceListener() {
 
@@ -41,7 +49,7 @@ public class MPOSWebServiceClient {
 			}
 
 			@Override
-			public void onPost(int shopId) {
+			public void onPost(final int shopId) {
 				final LoadShopListener loadShopListener = new LoadShopListener() {
 
 					@Override
@@ -59,19 +67,28 @@ public class MPOSWebServiceClient {
 
 					@Override
 					public void onPost(ShopData sd) {
-						MPOSShop shopManager = new MPOSShop(context);
+						ShopDataSource shop = new ShopDataSource(context.getApplicationContext());
+						ComputerDataSource computer = new ComputerDataSource(context.getApplicationContext());
+						GlobalPropertyDataSource global = new GlobalPropertyDataSource(context.getApplicationContext());
+						StaffDataSource staff = new StaffDataSource(context.getApplicationContext());
+						LanguageDataSource lang = new LanguageDataSource(context.getApplicationContext());
+						HeaderFooterReceiptDataSource hf = new HeaderFooterReceiptDataSource(context.getApplicationContext());
+						BankDataSource bank = new BankDataSource(context.getApplicationContext());
+						CreditCardDataSource cd = new CreditCardDataSource(context.getApplicationContext());
+						PaymentDetailDataSource pd = new PaymentDetailDataSource(context.getApplicationContext());
+						PaymentAmountButtonDataSource pb = new PaymentAmountButtonDataSource(context.getApplicationContext());
 						try {
-							shopManager.addShop(sd.getShopProperty());
-							shopManager.addComputer(sd.getComputerProperty());
-							shopManager.addGlobalProperty(sd.getGlobalProperty());
-							shopManager.addStaff(sd.getStaffs());
-							shopManager.addLanguage(sd.getLanguage());
-							shopManager.addHeaderFooter(sd.getHeaderFooterReceipt());
-							shopManager.addBank(sd.getBankName());
-							shopManager.addCreditCard(sd.getCreditCardType());
-							shopManager.addPaymentType(sd.getPayType());
-							shopManager.addPaymentButton(sd.getPaymentAmountButton());
-							progressListener.onPost();
+							shop.insertShopProperty(sd.getShopProperty());
+							computer.insertComputer(sd.getComputerProperty());
+							global.insertProperty(sd.getGlobalProperty());
+							staff.insertStaff(sd.getStaffs());
+							lang.insertLanguage(sd.getLanguage());
+							hf.insertHeaderFooterReceipt(sd.getHeaderFooterReceipt());
+							bank.insertBank(sd.getBankName());
+							cd.insertCreditCardType(sd.getCreditCardType());
+							pd.insertPaytype(sd.getPayType());
+							pb.insertPaymentAmountButton(sd.getPaymentAmountButton());
+							progressListener.onPost(shopId);
 						} catch (Exception e) {
 							Logger.appendLog(context, MPOSApplication.LOG_DIR, 
 									MPOSApplication.LOG_FILE_NAME, 
@@ -80,18 +97,17 @@ public class MPOSWebServiceClient {
 						}
 					}
 				};
-				new LoadShop(shopId, loadShopListener).execute(url);
+				new LoadShop(context, shopId, loadShopListener).execute(url);
 			}
 		};
-		new AuthenDevice(authenDeviceListener).execute(url);
+		new AuthenDevice(context, authenDeviceListener).execute(url);
 	}
 
 	// load product
-	public void loadProductData(final int shopId,
+	public void loadProductData(final Context context, final int shopId,
 			final ProgressListener progressListener){
 		
-		final Context context = MPOSApplication.getContext();
-		final String url = MPOSApplication.getFullUrl();
+		final String url = MPOSApplication.getFullUrl(context);
 
 		final LoadMenuListener loadMenuListener = new LoadMenuListener() {
 
@@ -128,39 +144,38 @@ public class MPOSWebServiceClient {
 
 					@Override
 					public void onPost(ProductGroups pgs) {
-						MPOSProduct productManager = new MPOSProduct(context);
+						ProductsDataSource pd = new ProductsDataSource(context.getApplicationContext());
 						try {
-							productManager.addProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
-							productManager.addProductDept(pgs.getProductDept(), mgs.getMenuDept());
-							productManager.addProduct(pgs.getProduct(), mgs.getMenuItem());
-							productManager.addProductComponentGroup(pgs.getPComponentGroup());
-							productManager.addProductComponent(pgs.getPComponentSet());
+							pd.insertProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
+							pd.insertProductDept(pgs.getProductDept(), mgs.getMenuDept());
+							pd.insertProducts(pgs.getProduct(), mgs.getMenuItem());
+							pd.insertPComponentGroup(pgs.getPComponentGroup());
+							pd.insertProductComponent(pgs.getPComponentSet());
 							
 							// clear all menu picture
-							FileManager fm = new FileManager(
-									MPOSApplication.getContext(), MPOSApplication.IMG_DIR);
+							FileManager fm = new FileManager(context.getApplicationContext(), MPOSApplication.IMG_DIR);
 							fm.clear();
 
 							progressListener.onPost();
 						} catch (Exception e) {
-							Logger.appendLog(context, MPOSApplication.LOG_DIR, 
+							Logger.appendLog(context.getApplicationContext(), MPOSApplication.LOG_DIR, 
 								MPOSApplication.LOG_FILE_NAME, 
 								"Error when add product data : " + e.getMessage());
 							progressListener.onError(e.getMessage());
 						}
 					}
 				};
-				new LoadProduct(shopId, loadProductListener).execute(url);
+				new LoadProduct(context, shopId, loadProductListener).execute(url);
 			}
 		};
-		new LoadMenu(shopId, loadMenuListener).execute(url);
+		new LoadMenu(context, shopId, loadMenuListener).execute(url);
 	}
 	
 	public static class SendPartialSaleTransaction extends SendSaleTransaction{
 
-		public SendPartialSaleTransaction(Context c, int staffId, int shopId, int computerId,
+		public SendPartialSaleTransaction(Context context, int staffId, int shopId, int computerId,
 				String jsonSale, ProgressListener listener) {
-			super(MPOSMainService.SEND_PARTIAL_SALE_TRANS_METHOD, 
+			super(context, MPOSMainService.SEND_PARTIAL_SALE_TRANS_METHOD, 
 					staffId, shopId, computerId, jsonSale, listener);
 		}
 	}
@@ -170,9 +185,9 @@ public class MPOSWebServiceClient {
 		
 		private ProgressListener mListener;
 		
-		public SendSaleTransaction(String method, int shopId, int computerId,
+		public SendSaleTransaction(Context context, String method, int shopId, int computerId,
 				int staffId, String jsonSale, ProgressListener listener) {
-			super(method);
+			super(context, method);
 			mListener = listener;
 
 			// shopId
@@ -230,8 +245,8 @@ public class MPOSWebServiceClient {
 	private class LoadShop extends MPOSMainService{
 		private LoadShopListener mListener;
 		
-		public LoadShop(int shopId, LoadShopListener listener) {
-			super(LOAD_SHOP_METHOD);
+		public LoadShop(Context context, int shopId, LoadShopListener listener) {
+			super(context, LOAD_SHOP_METHOD);
 			
 			mProperty = new PropertyInfo();
 			mProperty.setName(SHOP_ID_PARAM);
@@ -265,8 +280,8 @@ public class MPOSWebServiceClient {
 	private class LoadProduct extends MPOSMainService{
 		private LoadProductListener mListener;
 		
-		public LoadProduct(int shopId, LoadProductListener listener) {
-			super(LOAD_PRODUCT_METHOD);
+		public LoadProduct(Context context, int shopId, LoadProductListener listener) {
+			super(context, LOAD_PRODUCT_METHOD);
 			
 			mProperty = new PropertyInfo();
 			mProperty.setName(SHOP_ID_PARAM);
@@ -303,8 +318,8 @@ public class MPOSWebServiceClient {
 	private class LoadMenu extends MPOSMainService{
 		private LoadMenuListener mListener;
 		
-		public LoadMenu(int shopId, LoadMenuListener listener) {
-			super(LOAD_MENU_METHOD);
+		public LoadMenu(Context context, int shopId, LoadMenuListener listener) {
+			super(context, LOAD_MENU_METHOD);
 			
 			mProperty = new PropertyInfo();
 			mProperty.setName(SHOP_ID_PARAM);
@@ -339,8 +354,8 @@ public class MPOSWebServiceClient {
 	private class AuthenDevice extends MPOSMainService{
 		private AuthenDeviceListener mListener;
 		
-		public AuthenDevice(AuthenDeviceListener listener) {
-			super(CHECK_DEVICE_METHOD);
+		public AuthenDevice(Context context, AuthenDeviceListener listener) {
+			super(context, CHECK_DEVICE_METHOD);
 			mListener = listener;
 		}
 

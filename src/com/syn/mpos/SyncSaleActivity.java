@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.mpos.database.OrderTransactionDataSource;
+import com.syn.mpos.database.OrdersDataSource;
 import com.syn.mpos.database.table.ComputerTable;
 import com.syn.mpos.database.table.OrderTransactionTable;
 import com.syn.pos.OrderTransaction;
@@ -133,7 +133,7 @@ public class SyncSaleActivity extends Activity{
 				}, OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " +
 					MPOSDatabase.COLUMN_SEND_STATUS + "=?", 
 				new String[]{
-					String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
+					String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
 				}, null, null, OrderTransactionTable.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){

@@ -28,7 +28,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	/**
 	 * @return List<Payment.PayType>
 	 */
-	protected List<Payment.PayType> listPayType(){
+	public List<Payment.PayType> listPayType(){
 		List<Payment.PayType> payTypeLst = 
 				new ArrayList<Payment.PayType>();
 		Cursor cursor = getReadableDatabase().query(PayTypeTable.TABLE_NAME,
@@ -55,7 +55,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @param transactionId
 	 * @return List<Payment.PaymentDetail>
 	 */
-	protected List<Payment.PaymentDetail> listPaymentGroupByType(int transactionId){
+	public List<Payment.PaymentDetail> listPaymentGroupByType(int transactionId){
 		List<Payment.PaymentDetail> paymentLst = 
 				new ArrayList<Payment.PaymentDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
@@ -101,7 +101,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @param transactionId
 	 * @return row affected
 	 */
-	protected int deleteAllPaymentDetail(int transactionId){
+	public int deleteAllPaymentDetail(int transactionId){
 		return getWritableDatabase().delete(PaymentDetailTable.TABLE_NAME, 
 					OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
 					new String[]{String.valueOf(transactionId)});
@@ -111,7 +111,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @param transactionId
 	 * @return max paymentDetailId
 	 */
-	protected int getMaxPaymentDetailId(int transactionId) {
+	public int getMaxPaymentDetailId(int transactionId) {
 		int maxPaymentId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + PaymentDetailTable.COLUMN_PAY_ID + ") "
@@ -140,7 +140,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @return The ID of newly row inserted
 	 * @throws SQLException
 	 */
-	protected long addPaymentDetail(int transactionId, int computerId, 
+	public long addPaymentDetail(int transactionId, int computerId, 
 			int payTypeId, double paid, double pay , String creditCardNo, int expireMonth, 
 			int expireYear, int bankId,int creditCardTypeId, String remark) throws SQLException {
 		int paymentId = getMaxPaymentDetailId(transactionId);
@@ -167,7 +167,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @param amount
 	 * @return row affected
 	 */
-	protected int updatePaymentDetail(int transactionId, int payTypeId,
+	public int updatePaymentDetail(int transactionId, int payTypeId,
 			double paid, double amount){
 		ContentValues cv = new ContentValues();
 		cv.put(PaymentDetailTable.COLUMN_PAID, paid);
@@ -186,7 +186,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @param payTypeId
 	 * @return row affected
 	 */
-	protected int deletePaymentDetail(int payTypeId){
+	public int deletePaymentDetail(int payTypeId){
 		return getWritableDatabase().delete(PaymentDetailTable.TABLE_NAME, 
 				PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(payTypeId)});
@@ -196,7 +196,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @param transactionId
 	 * @return total paid
 	 */
-	protected double getTotalPaid(int transactionId){
+	public double getTotalPaid(int transactionId){
 		double totalPaid = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAID + ") "
@@ -216,7 +216,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @param transactionId
 	 * @return List<com.syn.pos.Payment.PaymentDetail>
 	 */
-	protected List<com.syn.pos.Payment.PaymentDetail> listPayment(int transactionId){
+	public List<com.syn.pos.Payment.PaymentDetail> listPayment(int transactionId){
 		List<com.syn.pos.Payment.PaymentDetail> paymentLst = 
 				new ArrayList<com.syn.pos.Payment.PaymentDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
@@ -255,7 +255,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	/**
 	 * @param payTypeLst
 	 */
-	protected void insertPaytype(List<Payment.PayType> payTypeLst){
+	public void insertPaytype(List<Payment.PayType> payTypeLst){
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(PayTypeTable.TABLE_NAME, null, null);

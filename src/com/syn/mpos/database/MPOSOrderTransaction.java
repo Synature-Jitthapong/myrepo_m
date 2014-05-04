@@ -9,6 +9,18 @@ import com.syn.pos.OrderTransaction;
 
 public class MPOSOrderTransaction extends OrderTransaction{
 	
+	public static class MPOSOrderDetail extends OrderDetail{
+		private double vatExclude;
+
+		public double getVatExclude() {
+			return vatExclude;
+		}
+
+		public void setVatExclude(double vatExclude) {
+			this.vatExclude = vatExclude;
+		}
+	}
+	
 	/**
 	 * @author j1tth4
 	 * for display orderset 

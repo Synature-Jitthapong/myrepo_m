@@ -8,7 +8,7 @@ import java.util.List;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSOrderTransaction;
 import com.syn.mpos.database.MPOSSQLiteHelper;
-import com.syn.mpos.database.OrderTransactionDataSource;
+import com.syn.mpos.database.OrdersDataSource;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -38,7 +38,7 @@ public class VoidBillActivity extends Activity {
 	
 	private MPOSSQLiteHelper mSqliteHelper;
 	private SQLiteDatabase mSqlite;
-	private OrderTransactionDataSource mTransaction;
+	private OrdersDataSource mTransaction;
 	private List<MPOSOrderTransaction> mTransLst;
 	private List<MPOSOrderTransaction.OrderDetail> mOrderLst;
 	private BillAdapter mBillAdapter;
@@ -165,7 +165,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void init(){
-		mTransaction = new OrderTransactionDataSource(mSqlite);
+		mTransaction = new OrdersDataSource(mSqlite);
 		mTransLst = new ArrayList<MPOSOrderTransaction>();
 		mOrderLst = new ArrayList<MPOSOrderTransaction.OrderDetail>();
 		mBillAdapter = new BillAdapter();

@@ -64,7 +64,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param productId
 	 * @return List<ProductComponentGroup>
 	 */
-	protected List<ProductComponentGroup> listProductComponentGroup(int productId){
+	public List<ProductComponentGroup> listProductComponentGroup(int productId){
 		List<ProductComponentGroup> pCompGroupLst = null;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT a." + ProductsTable.COLUMN_PRODUCT_ID + ",a."
@@ -117,7 +117,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param groupId
 	 * @return List<ProductComponent>
 	 */
-	protected List<ProductComponent> listProductComponent(int groupId){
+	public List<ProductComponent> listProductComponent(int groupId){
 		List<ProductComponent> pCompLst = null;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT a." + ProductsTable.COLUMN_PRODUCT_ID + ",a."
@@ -168,7 +168,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	/**
 	 * @return List<ProductGroup>
 	 */
-	protected List<ProductGroup> listProductGroup(){
+	public List<ProductGroup> listProductGroup(){
 		List<ProductGroup> pgLst = new ArrayList<ProductGroup>();
 		Cursor cursor = getReadableDatabase().query(ProductGroupTable.TABLE_NAME, 
 				ALL_PRODUCT_GROUP_COLS, null, null, null, null, null);
@@ -185,7 +185,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	/**
 	 * @return List<ProductDept>
 	 */
-	protected List<ProductDept> listProductDept(){
+	public List<ProductDept> listProductDept(){
 		List<ProductDept> pdLst = new ArrayList<ProductDept>();
 		Cursor cursor = getReadableDatabase().query(ProductDeptTable.TABLE_NAME, 
 				ALL_PRODUCT_DEPT_COLS,
@@ -205,7 +205,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param proId
 	 * @return List<Product>
 	 */
-	protected List<Product> listProductSize(int proId){
+	public List<Product> listProductSize(int proId){
 		List<Product> pLst = null;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT b." + ProductsTable.COLUMN_PRODUCT_ID + ", " + " b."
@@ -254,7 +254,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param query
 	 * @return List<Product>
 	 */
-	protected List<Product> listProduct(String query){
+	public List<Product> listProduct(String query){
 		List<Product> pLst = new ArrayList<Product>();
 		Cursor cursor = getReadableDatabase().query(
 				ProductsTable.TABLE_NAME,
@@ -277,7 +277,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param deptId
 	 * @return List<Product>
 	 */
-	protected List<Product> listProduct(int deptId){
+	public List<Product> listProduct(int deptId){
 		List<Product> pLst = new ArrayList<Product>();
 		Cursor cursor = getReadableDatabase().query(
 				ProductsTable.TABLE_NAME,
@@ -300,7 +300,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param productId
 	 * @return product vat rate
 	 */
-	protected double getVatRate(int productId){
+	public double getVatRate(int productId){
 		double vatRate = 0.0f;
 		Cursor cursor = queryProduct(
 				new String[] { ProductsTable.COLUMN_VAT_RATE },
@@ -317,7 +317,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param barCode
 	 * @return Product
 	 */
-	protected Product getProduct(String barCode){
+	public Product getProduct(String barCode){
 		Product p = null;
 		Cursor cursor = getReadableDatabase().query(ProductsTable.TABLE_NAME,
 				ALL_PRODUCT_COLS, ProductsTable.COLUMN_PRODUCT_BAR_CODE + "=?",
@@ -333,7 +333,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param proId
 	 * @return Product
 	 */
-	protected Product getProduct(int proId){
+	public Product getProduct(int proId){
 		Product p = null;
 		Cursor cursor = getReadableDatabase().query(ProductsTable.TABLE_NAME,
 				ALL_PRODUCT_COLS, ProductsTable.COLUMN_PRODUCT_ID + "=?",
@@ -349,7 +349,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param deptId
 	 * @return ProductDept
 	 */
-	protected ProductDept getProductDept(int deptId){
+	public ProductDept getProductDept(int deptId){
 		ProductDept pd = null;
 		Cursor cursor = getReadableDatabase().query(
 				ProductDeptTable.TABLE_NAME, ALL_PRODUCT_DEPT_COLS,
@@ -368,12 +368,12 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param selectionArgs
 	 * @return Cursor
 	 */
-	protected Cursor queryProduct(String[] columns, String selection, String[] selectionArgs){
+	public Cursor queryProduct(String[] columns, String selection, String[] selectionArgs){
 		return getReadableDatabase().query(ProductsTable.TABLE_NAME, columns,
 				selection, selectionArgs, null, null, null);
 	}
 	
-	protected Product toProduct(Cursor cursor){
+	public Product toProduct(Cursor cursor){
 		Product p = new Product();
 		p.setProductId(cursor.getInt(cursor
 				.getColumnIndex(ProductsTable.COLUMN_PRODUCT_ID)));
@@ -404,7 +404,7 @@ public class ProductsDataSource extends MPOSDatabase {
 		return p;
 	}
 
-	protected ProductDept toProductDept(Cursor cursor){
+	public ProductDept toProductDept(Cursor cursor){
 		ProductDept pd = new ProductDept();
 		pd.setProductDeptId(cursor.getInt(cursor
 				.getColumnIndex(ProductsTable.COLUMN_PRODUCT_DEPT_ID)));
@@ -417,7 +417,7 @@ public class ProductsDataSource extends MPOSDatabase {
 		return pd;
 	}
 
-	protected ProductGroup toProductGroup(Cursor cursor){
+	public ProductGroup toProductGroup(Cursor cursor){
 		ProductGroup pg = new ProductGroup();
 		pg.setProductGroupId(cursor.getInt(cursor
 				.getColumnIndex(ProductsTable.COLUMN_PRODUCT_GROUP_ID)));
@@ -432,7 +432,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param pCompGroupLst
 	 * @throws SQLException
 	 */
-	protected void insertPComponentGroup(List<ProductGroups.PComponentGroup> pCompGroupLst) throws SQLException{
+	public void insertPComponentGroup(List<ProductGroups.PComponentGroup> pCompGroupLst) throws SQLException{
 		getWritableDatabase().delete(ProductComponentGroupTable.TABLE_NAME, null, null);
 		for(ProductGroups.PComponentGroup pCompGroup : pCompGroupLst){
 			ContentValues cv = new ContentValues();
@@ -450,7 +450,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param pCompLst
 	 * @throws SQLException
 	 */
-	protected void insertProductComponent(List<ProductGroups.ProductComponent> pCompLst) throws SQLException{
+	public void insertProductComponent(List<ProductGroups.ProductComponent> pCompLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ProductComponentTable.TABLE_NAME, null, null);
@@ -476,7 +476,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param mgLst
 	 * @throws SQLException
 	 */
-	protected void insertProductGroup(List<ProductGroups.ProductGroup> pgLst,
+	public void insertProductGroup(List<ProductGroups.ProductGroup> pgLst,
 		List<MenuGroups.MenuGroup> mgLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
@@ -513,7 +513,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param mdLst
 	 * @throws SQLException
 	 */
-	protected void insertProductDept(List<ProductGroups.ProductDept> pdLst,
+	public void insertProductDept(List<ProductGroups.ProductDept> pdLst,
 		List<MenuGroups.MenuDept> mdLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
@@ -550,7 +550,7 @@ public class ProductsDataSource extends MPOSDatabase {
 	 * @param mLst
 	 * @throws SQLException
 	 */
-	protected void insertProducts(List<ProductGroups.Products> pLst,
+	public void insertProducts(List<ProductGroups.Products> pLst,
 		List<MenuGroups.MenuItem> mLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {

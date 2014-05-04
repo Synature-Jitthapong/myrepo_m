@@ -16,7 +16,7 @@ public class CreditCardDataSource extends MPOSDatabase{
 		super(context);
 	}
 
-	protected String getCreditCardType(int typeId){
+	public String getCreditCardType(int typeId){
 		String cardType = "";
 		Cursor cursor = getReadableDatabase().query(CreditCardTable.TABLE_NAME, 
 				new String[]{ 
@@ -34,7 +34,7 @@ public class CreditCardDataSource extends MPOSDatabase{
 		return cardType;
 	}
 	
-	protected List<CreditCardType> listAllCreditCardType(){
+	public List<CreditCardType> listAllCreditCardType(){
 		List<CreditCardType> creditCardLst = 
 				new ArrayList<CreditCardType>();
 		Cursor cursor = getReadableDatabase().query(CreditCardTable.TABLE_NAME, 
@@ -53,7 +53,7 @@ public class CreditCardDataSource extends MPOSDatabase{
 		return creditCardLst;
 	}
 	
-	protected void insertCreditCardType(List<CreditCardType> creditCardLst){
+	public void insertCreditCardType(List<CreditCardType> creditCardLst){
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(CreditCardTable.TABLE_NAME, null, null);

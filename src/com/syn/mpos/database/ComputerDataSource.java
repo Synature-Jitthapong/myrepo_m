@@ -16,24 +16,18 @@ public class ComputerDataSource extends MPOSDatabase{
 		super(context);
 	}
 
-	protected boolean checkIsMainComputer(int computerId){
+	public int getComputerId(){
+		return getComputerProperty().getComputerID();
+	}
+	
+	public boolean checkIsMainComputer(int computerId){
 		boolean isMainComputer = false;
-		Cursor cursor = getReadableDatabase().query(ComputerTable.TABLE_COMPUTER, 
-				new String[]{
-				ComputerTable.COLUMN_IS_MAIN_COMPUTER
-				}, ComputerTable.COLUMN_COMPUTER_ID + "=?", 
-				new String[]{
-					String.valueOf(computerId)
-				}, null, null, null);
-		if(cursor.moveToFirst()){
-			if(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_IS_MAIN_COMPUTER)) != 0)
-				isMainComputer = true;
-		}
-		cursor.close();
+		if(getComputerProperty().getIsMainComputer() != 0)
+			isMainComputer = true;
 		return isMainComputer;
 	}
 	
-	protected ShopData.ComputerProperty getComputerProperty() {
+	public ShopData.ComputerProperty getComputerProperty() {
 		ShopData.ComputerProperty computer = 
 				new ShopData.ComputerProperty();
 		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + ComputerTable.TABLE_COMPUTER, null);
@@ -41,6 +35,7 @@ public class ComputerDataSource extends MPOSDatabase{
 			computer.setComputerID(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 			computer.setComputerName(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_NAME)));
 			computer.setDeviceCode(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_DEVICE_CODE)));
+			computer.setIsMainComputer(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_IS_MAIN_COMPUTER)));
 			computer.setRegistrationNumber(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_REGISTER_NUMBER)));
 			cursor.moveToNext();
 		}
@@ -48,7 +43,7 @@ public class ComputerDataSource extends MPOSDatabase{
 		return computer;
 	}
 
-	protected void insertComputer(List<ShopData.ComputerProperty> compLst) throws SQLException{
+	public void insertComputer(List<ShopData.ComputerProperty> compLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ComputerTable.TABLE_COMPUTER, null, null);

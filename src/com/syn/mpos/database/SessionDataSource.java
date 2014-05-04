@@ -26,7 +26,7 @@ public class SessionDataSource extends MPOSDatabase{
 	 * @param currentSaleDate
 	 * @param closeStaffId
 	 */
-	protected void autoEnddaySession(String currentSaleDate, int closeStaffId){
+	public void autoEnddaySession(String currentSaleDate, int closeStaffId){
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_IS_ENDDAY, ALREADY_ENDDAY_STATUS);
 		cv.put(OrderTransactionTable.COLUMN_CLOSE_STAFF, closeStaffId);
@@ -48,7 +48,7 @@ public class SessionDataSource extends MPOSDatabase{
 	 * @param isEndday
 	 * @return row affected
 	 */
-	protected int closeShift(int sessionId, int closeStaffId,
+	public int closeShift(int sessionId, int closeStaffId,
 			double closeAmount, boolean isEndday) {
 		return closeSession(sessionId, closeStaffId,
 				closeAmount, isEndday);
@@ -57,7 +57,7 @@ public class SessionDataSource extends MPOSDatabase{
 	/**
 	 * @return session date
 	 */
-	protected String getSessionDate(){
+	public String getSessionDate(){
 		String sessionDate = "";
 		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_NAME, 
 				new String[]{SessionTable.COLUMN_SESS_DATE}, 
@@ -74,7 +74,7 @@ public class SessionDataSource extends MPOSDatabase{
 	 * @param sessionId
 	 * @return row affected
 	 */
-	protected int deleteSession(int sessionId){
+	public int deleteSession(int sessionId){
 		return getWritableDatabase().delete(SessionTable.TABLE_NAME, 
 				SessionTable.COLUMN_SESS_ID + "=?", 
 				new String[]{String.valueOf(sessionId)});
@@ -83,7 +83,7 @@ public class SessionDataSource extends MPOSDatabase{
 	/**
 	 * @return max sessionId
 	 */
-	protected int getMaxSessionId() {
+	public int getMaxSessionId() {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + SessionTable.COLUMN_SESS_ID + ") " + 
@@ -102,7 +102,7 @@ public class SessionDataSource extends MPOSDatabase{
 	 * @param openAmount
 	 * @return sessionId
 	 */
-	protected int addSession(int shopId, int computerId, int openStaffId,
+	public int openSession(int shopId, int computerId, int openStaffId,
 			double openAmount){
 		int sessionId = getMaxSessionId();
 		Calendar date = Util.getDate();
@@ -132,7 +132,7 @@ public class SessionDataSource extends MPOSDatabase{
 	 * @return the row ID of newly insert
 	 * @throws SQLException
 	 */
-	protected long addSessionEnddayDetail(String sessionDate,
+	public long addSessionEnddayDetail(String sessionDate,
 			double totalQtyReceipt, double totalAmountReceipt) throws SQLException {
 		Calendar dateTime = Util.getDateTime();
 		ContentValues cv = new ContentValues();
@@ -150,7 +150,7 @@ public class SessionDataSource extends MPOSDatabase{
 	 * @param isEndday
 	 * @return row affected
 	 */
-	protected int closeSession(int sessionId, int closeStaffId, 
+	public int closeSession(int sessionId, int closeStaffId, 
 			double closeAmount, boolean isEndday){
 		Calendar dateTime = Util.getDateTime();
 		ContentValues cv = new ContentValues();
@@ -165,8 +165,12 @@ public class SessionDataSource extends MPOSDatabase{
 				});
 	}
 
-	// ???
-	protected int getSessionEnddayDetail(String sessionDate){
+	
+	/**
+	 * @param sessionDate
+	 * @return number of session endday
+	 */
+	public int checkEndday(String sessionDate){
 		int session = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT COUNT(*) " +
@@ -186,7 +190,7 @@ public class SessionDataSource extends MPOSDatabase{
 	 * @param saleDate
 	 * @return sessionId
 	 */
-	protected int getCurrentSession(int staffId, String saleDate) {
+	public int getCurrentSession(int staffId, String saleDate) {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().query(
 				SessionTable.TABLE_NAME,
@@ -207,7 +211,7 @@ public class SessionDataSource extends MPOSDatabase{
 	 * @param staffId
 	 * @return current sessionId by staff
 	 */
-	protected int getCurrentSessionId(int staffId) {
+	public int getCurrentSessionId(int staffId) {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().query(
 				SessionTable.TABLE_NAME,

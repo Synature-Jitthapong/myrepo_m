@@ -401,8 +401,8 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] {
 						String.valueOf(mTransactionId),
-						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
-						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_VOID)});
+						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrdersDataSource.TRANS_STATUS_VOID)});
 	}
 	
 	public Cursor queryAllTransactionInSaleDate() {
@@ -413,8 +413,8 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] {
 						mSessionDate,
-						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
-						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_VOID)});
+						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrdersDataSource.TRANS_STATUS_VOID)});
 	}
 	
 	public Cursor queryTransaction() {
@@ -426,8 +426,8 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 				" AND " + MPOSDatabase.COLUMN_SEND_STATUS + "=?",
 				new String[] {
 						mSessionDate,
-						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_SUCCESS),
-						String.valueOf(OrderTransactionDataSource.TRANS_STATUS_VOID),
+						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(OrdersDataSource.TRANS_STATUS_VOID),
 						String.valueOf(MPOSDatabase.NOT_SEND) });
 	}
 

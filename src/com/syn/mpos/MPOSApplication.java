@@ -50,50 +50,45 @@ public class MPOSApplication extends Application {
 	 */
 	public static String sDeviceCode;
 	
-	/*
-	 * Application Context
-	 */
-	private static Context sContext;
-	
-	public static String getDeviceCode() {
-		return Secure.getString(sContext.getContentResolver(), Secure.ANDROID_ID);
+	public static String getDeviceCode(Context context) {
+		return Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
 	}
 
-	public static boolean getInternalPrinterSetting(){
+	public static boolean getInternalPrinterSetting(Context context){
 		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(sContext);
+				.getDefaultSharedPreferences(context);
 		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_PRINTER_INTERNAL, false);
 	}
 	
-	public static String getPrinterFont() {
+	public static String getPrinterFont(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(sContext);
+				.getDefaultSharedPreferences(context);
 		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_FONT_LIST, "");
 	}
 	
-	public static String getPrinterName() {
+	public static String getPrinterName(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(sContext);
+				.getDefaultSharedPreferences(context);
 		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_LIST, "");
 	}
 	
-	public static String getPrinterIp() {
+	public static String getPrinterIp(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(sContext);
+				.getDefaultSharedPreferences(context);
 		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_IP, "");
 	}
 
-	public static String getImageUrl() {
-		return getUrl() + "/" + SERVER_IMG_PATH;
+	public static String getImageUrl(Context context) {
+		return getUrl(context) + "/" + SERVER_IMG_PATH;
 	}
 
-	public static String getFullUrl() {
-		return getUrl() + "/" + WS_NAME;
+	public static String getFullUrl(Context context) {
+		return getUrl(context) + "/" + WS_NAME;
 	}
 
-	public static String getUrl() {
+	public static String getUrl(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(sContext);
+				.getDefaultSharedPreferences(context);
 		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL,
 				"");
 		try {
@@ -109,14 +104,9 @@ public class MPOSApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		sContext = getApplicationContext();
 		
 		// show customer display
 		showCustomerDisplay();
-	}
-
-	public static Context getContext(){
-		return sContext;
 	}
 	
 	private void showCustomerDisplay(){
