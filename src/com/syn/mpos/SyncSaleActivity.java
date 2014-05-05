@@ -14,7 +14,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -89,7 +88,7 @@ public class SyncSaleActivity extends Activity{
 
 	private void sendSale(){
 		for(final SendTransaction trans : mTransLst){
-			MPOSUtil.doSendSaleBySpecificTransaction(
+			MPOSUtil.doSendSaleBySpecificTransaction(SyncSaleActivity.this,
 					mShopId, mComputerId, trans.getTransactionId(), 
 					mStaffId, new ProgressListener(){
 
@@ -123,7 +122,8 @@ public class SyncSaleActivity extends Activity{
 	
 	private List<SendTransaction> listNotSendTransaction(){
 		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
-		Cursor cursor = mSqlite.query(OrderTransactionTable.TABLE_NAME, 
+		MPOSSQLiteHelper helper = MPOSSQLiteHelper.getInstance(getApplicationContext());
+		Cursor cursor = helper.getReadableDatabase().query(OrderTransactionTable.TABLE_ORDER_TRANS, 
 				new String[]{
 					OrderTransactionTable.COLUMN_TRANSACTION_ID,
 					ComputerTable.COLUMN_COMPUTER_ID,

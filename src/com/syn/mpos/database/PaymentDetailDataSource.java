@@ -31,7 +31,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	public List<Payment.PayType> listPayType(){
 		List<Payment.PayType> payTypeLst = 
 				new ArrayList<Payment.PayType>();
-		Cursor cursor = getReadableDatabase().query(PayTypeTable.TABLE_NAME,
+		Cursor cursor = getReadableDatabase().query(PayTypeTable.TABLE_PAY_TYPE,
 				new String[]{
 				PayTypeTable.COLUMN_PAY_TYPE_ID,
 				PayTypeTable.COLUMN_PAY_TYPE_CODE,
@@ -68,8 +68,8 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 						+ PaymentDetailTable.COLUMN_PAY_AMOUNT + ", " + " b."
 						+ PayTypeTable.COLUMN_PAY_TYPE_CODE + ", " + " b."
 						+ PayTypeTable.COLUMN_PAY_TYPE_NAME + " FROM "
-						+ PaymentDetailTable.TABLE_NAME + " a " + " LEFT JOIN "
-						+ PayTypeTable.TABLE_NAME + " b " + " ON a."
+						+ PaymentDetailTable.TABLE_PAYMENT_DETAIL + " a " + " LEFT JOIN "
+						+ PayTypeTable.TABLE_PAY_TYPE + " b " + " ON a."
 						+ PayTypeTable.COLUMN_PAY_TYPE_ID + "=b."
 						+ PayTypeTable.COLUMN_PAY_TYPE_ID + " WHERE a."
 						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
@@ -102,7 +102,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @return row affected
 	 */
 	public int deleteAllPaymentDetail(int transactionId){
-		return getWritableDatabase().delete(PaymentDetailTable.TABLE_NAME, 
+		return getWritableDatabase().delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, 
 					OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
 					new String[]{String.valueOf(transactionId)});
 	}
@@ -115,7 +115,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 		int maxPaymentId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + PaymentDetailTable.COLUMN_PAY_ID + ") "
-						+ " FROM " + PaymentDetailTable.TABLE_NAME + " WHERE "
+						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE "
 						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[]{String.valueOf(transactionId)});
 		if(cursor.moveToFirst()){
@@ -157,7 +157,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 		cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, creditCardTypeId);
 		cv.put(BankTable.COLUMN_BANK_ID, bankId);
 		cv.put(PaymentDetailTable.COLUMN_REMARK, remark);
-		return getWritableDatabase().insertOrThrow(PaymentDetailTable.TABLE_NAME, null, cv);
+		return getWritableDatabase().insertOrThrow(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, cv);
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(PaymentDetailTable.COLUMN_PAID, paid);
 		cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, amount);
-		return getWritableDatabase().update(PaymentDetailTable.TABLE_NAME, cv, 
+		return getWritableDatabase().update(PaymentDetailTable.TABLE_PAYMENT_DETAIL, cv, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
 								+ " AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{
@@ -187,7 +187,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	 * @return row affected
 	 */
 	public int deletePaymentDetail(int payTypeId){
-		return getWritableDatabase().delete(PaymentDetailTable.TABLE_NAME, 
+		return getWritableDatabase().delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, 
 				PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(payTypeId)});
 	}
@@ -200,7 +200,7 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 		double totalPaid = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAID + ") "
-						+ " FROM " + PaymentDetailTable.TABLE_NAME + " WHERE "
+						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE "
 						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[]{
 						String.valueOf(transactionId)
@@ -227,8 +227,8 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 						+ PaymentDetailTable.COLUMN_REMARK + ", " + " b."
 						+ PayTypeTable.COLUMN_PAY_TYPE_CODE + ", " + " b."
 						+ PayTypeTable.COLUMN_PAY_TYPE_NAME + " FROM "
-						+ PaymentDetailTable.TABLE_NAME + " a " + " LEFT JOIN "
-						+ PayTypeTable.TABLE_NAME + " b " + " ON a."
+						+ PaymentDetailTable.TABLE_PAYMENT_DETAIL + " a " + " LEFT JOIN "
+						+ PayTypeTable.TABLE_PAY_TYPE + " b " + " ON a."
 						+ PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + " b."
 						+ PayTypeTable.COLUMN_PAY_TYPE_ID + " WHERE a."
 						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
@@ -258,13 +258,13 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	public void insertPaytype(List<Payment.PayType> payTypeLst){
 		getWritableDatabase().beginTransaction();
 		try {
-			getWritableDatabase().delete(PayTypeTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(PayTypeTable.TABLE_PAY_TYPE, null, null);
 			for(Payment.PayType payType : payTypeLst){
 				ContentValues cv = new ContentValues();
 				cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payType.getPayTypeID());
 				cv.put(PayTypeTable.COLUMN_PAY_TYPE_CODE, payType.getPayTypeCode());
 				cv.put(PayTypeTable.COLUMN_PAY_TYPE_NAME, payType.getPayTypeName());
-				getWritableDatabase().insertOrThrow(PayTypeTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(PayTypeTable.TABLE_PAY_TYPE, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();
 		} finally {

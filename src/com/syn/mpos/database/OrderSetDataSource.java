@@ -35,8 +35,8 @@ public class OrderSetDataSource extends MPOSDatabase{
 				+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NO + ", "
 				+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NAME + ", "
 				+ " b." + ProductComponentGroupTable.COLUMN_REQ_AMOUNT
-				+ " FROM " + OrderSetTable.TABLE_NAME + " a "
-				+ " LEFT JOIN " + ProductComponentGroupTable.TABLE_NAME + " b "
+				+ " FROM " + OrderSetTable.TABLE_ORDER_SET + " a "
+				+ " LEFT JOIN " + ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP + " b "
 				+ " ON a." + ProductComponentTable.COLUMN_PGROUP_ID + "=" 
 				+ " b." + ProductComponentTable.COLUMN_PGROUP_ID
 				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
@@ -63,7 +63,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 						ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
 				
 				// query set detail
-				Cursor detailCursor = getReadableDatabase().query(OrderSetTable.TABLE_NAME, 
+				Cursor detailCursor = getReadableDatabase().query(OrderSetTable.TABLE_ORDER_SET, 
 						new String[] {
 							OrderSetTable.COLUMN_ORDER_SET_ID,
 							ProductsTable.COLUMN_PRODUCT_ID,
@@ -118,7 +118,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 		
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + OrderSetTable.COLUMN_ORDER_SET_QTY + ") "
-				+ " FROM " + OrderSetTable.TABLE_NAME
+				+ " FROM " + OrderSetTable.TABLE_ORDER_SET
 				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
 				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? "
 				+ " AND " + ProductComponentTable.COLUMN_PGROUP_ID + "=? ", 
@@ -140,7 +140,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param orderDetailId
 	 */
 	public void deleteOrderSet(int transactionId, int orderDetailId){
-		getWritableDatabase().delete(OrderSetTable.TABLE_NAME, 
+		getWritableDatabase().delete(OrderSetTable.TABLE_ORDER_SET, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
 				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? ", 
 				new String[]{
@@ -155,7 +155,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 	 * @param orderSetId
 	 */
 	public void deleteOrderSet(int transactionId, int orderDetailId, int orderSetId){
-		getWritableDatabase().delete(OrderSetTable.TABLE_NAME, 
+		getWritableDatabase().delete(OrderSetTable.TABLE_ORDER_SET, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
 				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? "
 				+ " AND " + OrderSetTable.COLUMN_ORDER_SET_ID + "=?", 
@@ -179,7 +179,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 		ContentValues cv = new ContentValues();
 		cv.put(OrderSetTable.COLUMN_ORDER_SET_QTY, orderSetQty);
 		
-		getWritableDatabase().update(OrderSetTable.TABLE_NAME, cv, 
+		getWritableDatabase().update(OrderSetTable.TABLE_ORDER_SET, cv, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
 						+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? "
 								+ " AND " + OrderSetTable.COLUMN_ORDER_SET_ID + "=?", 
@@ -214,7 +214,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 		cv.put(OrderSetTable.COLUMN_ORDER_SET_QTY, 1);
 		
 		getWritableDatabase().insertOrThrow(
-				OrderSetTable.TABLE_NAME, ProductsTable.COLUMN_PRODUCT_NAME, cv);
+				OrderSetTable.TABLE_ORDER_SET, ProductsTable.COLUMN_PRODUCT_NAME, cv);
 	}
 	
 	/**
@@ -229,7 +229,7 @@ public class OrderSetDataSource extends MPOSDatabase{
 		
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT MAX (" + OrderSetTable.COLUMN_ORDER_SET_ID + ")"
-						+ " FROM " + OrderSetTable.TABLE_NAME 
+						+ " FROM " + OrderSetTable.TABLE_ORDER_SET 
 						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID 
 						+ " =? AND " + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
 						new String[]{String.valueOf(transactionId), String.valueOf(orderDetailId)});

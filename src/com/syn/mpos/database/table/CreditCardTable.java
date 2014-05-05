@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class CreditCardTable{
 
-	public static final String TABLE_NAME = "CreditCardType";
+	public static final String TABLE_CREDIT_CARD_TYPE = "CreditCardType";
 	public static final String COLUMN_CREDITCARD_TYPE_ID = "creditcard_type_id";
 	public static final String COLUMN_CREDITCARD_TYPE_NAME = "creditcard_type_name";
 	public static final String COLUMN_CREDITCARD_NO = "creditcard_no";
@@ -12,7 +12,7 @@ public class CreditCardTable{
 	public static final String COLUMN_EXP_YEAR = "exp_year";
 
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_NAME + " ( " +
+			"CREATE TABLE " + TABLE_CREDIT_CARD_TYPE + " ( " +
 			COLUMN_CREDITCARD_TYPE_ID + " INTEGER, " +
 			COLUMN_CREDITCARD_TYPE_NAME + " TEXT, " +
 			" PRIMARY KEY (" + COLUMN_CREDITCARD_TYPE_ID + ") );";

@@ -24,7 +24,7 @@ public class HeaderFooterReceiptDataSource extends MPOSDatabase{
 		List<ShopData.HeaderFooterReceipt> hfLst = 
 				new ArrayList<ShopData.HeaderFooterReceipt>();
 
-		Cursor cursor = getReadableDatabase().query(HeaderFooterReceiptTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(HeaderFooterReceiptTable.TABLE_HEADER_FOOTER_RECEIPT, 
 				new String[]{HeaderFooterReceiptTable.COLUMN_TEXT_IN_LINE, 
 				HeaderFooterReceiptTable.COLUMN_LINE_TYPE, 
 				HeaderFooterReceiptTable.COLUMN_LINE_ORDER}, 
@@ -49,13 +49,13 @@ public class HeaderFooterReceiptDataSource extends MPOSDatabase{
 		List<ShopData.HeaderFooterReceipt> headerFooterLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
-			getWritableDatabase().delete(HeaderFooterReceiptTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(HeaderFooterReceiptTable.TABLE_HEADER_FOOTER_RECEIPT, null, null);
 			for(ShopData.HeaderFooterReceipt hf : headerFooterLst){
 				ContentValues cv = new ContentValues();
 				cv.put(HeaderFooterReceiptTable.COLUMN_TEXT_IN_LINE, hf.getTextInLine());
 				cv.put(HeaderFooterReceiptTable.COLUMN_LINE_TYPE, hf.getLineType());
 				cv.put(HeaderFooterReceiptTable.COLUMN_LINE_ORDER, hf.getLineOrder());
-				getWritableDatabase().insertOrThrow(HeaderFooterReceiptTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(HeaderFooterReceiptTable.TABLE_HEADER_FOOTER_RECEIPT, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();
 		} finally {

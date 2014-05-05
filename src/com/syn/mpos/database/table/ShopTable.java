@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class ShopTable{
 
-	public static final String TABLE_NAME = "Shop";
+	public static final String TABLE_SHOP = "Shop";
 	public static final String COLUMN_SHOP_ID = "shop_id";
 	public static final String COLUMN_SHOP_CODE = "shop_code";
 	public static final String COLUMN_SHOP_NAME = "shop_name";
@@ -25,7 +25,7 @@ public class ShopTable{
 	public static final String COLUMN_VAT = "vat";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_NAME + " ( " +
+			"CREATE TABLE " + TABLE_SHOP + " ( " +
 			COLUMN_SHOP_ID + " INTEGER, " +
 			COLUMN_SHOP_CODE + " TEXT, " +
 			COLUMN_SHOP_NAME + " TEXT, " +

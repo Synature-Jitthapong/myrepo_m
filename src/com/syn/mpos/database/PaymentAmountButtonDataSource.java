@@ -22,7 +22,7 @@ public class PaymentAmountButtonDataSource extends MPOSDatabase {
 	public List<Payment.PaymentAmountButton> listPaymentButton(){
 		List<Payment.PaymentAmountButton> paymentButtonLst = 
 				new ArrayList<Payment.PaymentAmountButton>();
-		Cursor cursor = getReadableDatabase().query(PaymentButtonTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(PaymentButtonTable.TABLE_PAYMENT_BUTTON, 
 				new String[]{
 				PaymentButtonTable.COLUMN_PAYMENT_AMOUNT_ID,
 				PaymentButtonTable.COLUMN_PAYMENT_AMOUNT
@@ -48,12 +48,12 @@ public class PaymentAmountButtonDataSource extends MPOSDatabase {
 	public void insertPaymentAmountButton(List<Payment.PaymentAmountButton> paymentAmountLst){
 		getWritableDatabase().beginTransaction();
 		try {
-			getWritableDatabase().delete(PaymentButtonTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(PaymentButtonTable.TABLE_PAYMENT_BUTTON, null, null);
 			for(Payment.PaymentAmountButton payButton : paymentAmountLst){
 				ContentValues cv = new ContentValues();
 				cv.put(PaymentButtonTable.COLUMN_PAYMENT_AMOUNT_ID, payButton.getPaymentAmountID());
 				cv.put(PaymentButtonTable.COLUMN_PAYMENT_AMOUNT, payButton.getPaymentAmount());
-				getWritableDatabase().insertOrThrow(PaymentButtonTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(PaymentButtonTable.TABLE_PAYMENT_BUTTON, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();
 		} finally {

@@ -19,7 +19,7 @@ public class BankDataSource extends MPOSDatabase{
 	public List<BankName> listAllBank(){
 		List<BankName> bankLst = 
 				new ArrayList<BankName>();
-		Cursor cursor = getReadableDatabase().query(BankTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(BankTable.TABLE_BANK, 
 				new String[]{BankTable.COLUMN_BANK_ID, BankTable.COLUMN_BANK_NAME}, null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
@@ -36,12 +36,12 @@ public class BankDataSource extends MPOSDatabase{
 	public void insertBank(List<BankName> bankLst){
 		getWritableDatabase().beginTransaction();
 		try {
-			getWritableDatabase().delete(BankTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(BankTable.TABLE_BANK, null, null);
 			for(BankName bank : bankLst){
 				ContentValues cv = new ContentValues();
 				cv.put(BankTable.COLUMN_BANK_ID, bank.getBankNameId());
 				cv.put(BankTable.COLUMN_BANK_NAME, bank.getBankName());
-				getWritableDatabase().insertOrThrow(BankTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(BankTable.TABLE_BANK, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();
 		} finally{

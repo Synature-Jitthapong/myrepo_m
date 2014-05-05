@@ -32,7 +32,7 @@ public class SessionDataSource extends MPOSDatabase{
 		cv.put(OrderTransactionTable.COLUMN_CLOSE_STAFF, closeStaffId);
 		cv.put(SessionTable.COLUMN_CLOSE_DATE, Util.getDateTime().getTimeInMillis());
 		
-		getWritableDatabase().update(SessionDetailTable.TABLE_NAME, cv, 
+		getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, cv, 
 				SessionTable.COLUMN_IS_ENDDAY + "=? " +
 				" AND " + SessionTable.COLUMN_SESS_DATE + "<?", 
 				new String[]{
@@ -59,7 +59,7 @@ public class SessionDataSource extends MPOSDatabase{
 	 */
 	public String getSessionDate(){
 		String sessionDate = "";
-		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_SESSION, 
 				new String[]{SessionTable.COLUMN_SESS_DATE}, 
 				null, null, null, null, SessionTable.COLUMN_SESS_DATE + " DESC ", "1");
 		
@@ -75,7 +75,7 @@ public class SessionDataSource extends MPOSDatabase{
 	 * @return row affected
 	 */
 	public int deleteSession(int sessionId){
-		return getWritableDatabase().delete(SessionTable.TABLE_NAME, 
+		return getWritableDatabase().delete(SessionTable.TABLE_SESSION, 
 				SessionTable.COLUMN_SESS_ID + "=?", 
 				new String[]{String.valueOf(sessionId)});
 	}
@@ -87,7 +87,7 @@ public class SessionDataSource extends MPOSDatabase{
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + SessionTable.COLUMN_SESS_ID + ") " + 
-				" FROM " + SessionTable.TABLE_NAME, null);
+				" FROM " + SessionTable.TABLE_SESSION, null);
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}
@@ -117,7 +117,7 @@ public class SessionDataSource extends MPOSDatabase{
 		cv.put(SessionTable.COLUMN_OPEN_AMOUNT, openAmount);
 		cv.put(SessionTable.COLUMN_IS_ENDDAY, 0);
 		try {
-			getWritableDatabase().insertOrThrow(SessionTable.TABLE_NAME, null, cv);
+			getWritableDatabase().insertOrThrow(SessionTable.TABLE_SESSION, null, cv);
 		} catch (Exception e) {
 			sessionId = 0;
 			e.printStackTrace();
@@ -140,7 +140,7 @@ public class SessionDataSource extends MPOSDatabase{
 		cv.put(SessionTable.COLUMN_ENDDAY_DATE, dateTime.getTimeInMillis());
 		cv.put(SessionTable.COLUMN_TOTAL_QTY_RECEIPT, totalQtyReceipt);
 		cv.put(SessionTable.COLUMN_TOTAL_AMOUNT_RECEIPT, totalAmountReceipt);
-		return getWritableDatabase().insertOrThrow(SessionDetailTable.TABLE_NAME, null, cv);
+		return getWritableDatabase().insertOrThrow(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, cv);
 	}
 
 	/**
@@ -158,7 +158,7 @@ public class SessionDataSource extends MPOSDatabase{
 		cv.put(SessionTable.COLUMN_CLOSE_DATE, dateTime.getTimeInMillis());
 		cv.put(SessionTable.COLUMN_CLOSE_AMOUNT, closeAmount);
 		cv.put(SessionTable.COLUMN_IS_ENDDAY, isEndday == true ? 1 : 0);
-		return getWritableDatabase().update(SessionTable.TABLE_NAME, cv, 
+		return getWritableDatabase().update(SessionTable.TABLE_SESSION, cv, 
 				SessionTable.COLUMN_SESS_ID + "=? AND ", 
 				new String[]{
 					String.valueOf(sessionId)
@@ -174,7 +174,7 @@ public class SessionDataSource extends MPOSDatabase{
 		int session = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT COUNT(*) " +
-				" FROM " + SessionDetailTable.TABLE_NAME +
+				" FROM " + SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL +
 				" WHERE " + SessionTable.COLUMN_SESS_DATE + "=?", 
 				new String[]{
 				sessionDate});
@@ -193,7 +193,7 @@ public class SessionDataSource extends MPOSDatabase{
 	public int getCurrentSession(int staffId, String saleDate) {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().query(
-				SessionTable.TABLE_NAME,
+				SessionTable.TABLE_SESSION,
 				new String[] { SessionTable.COLUMN_SESS_ID },
 				OrderTransactionTable.COLUMN_OPEN_STAFF + " =? " + " AND "
 						+ SessionTable.COLUMN_SESS_DATE + " =? " + " AND "
@@ -214,7 +214,7 @@ public class SessionDataSource extends MPOSDatabase{
 	public int getCurrentSessionId(int staffId) {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().query(
-				SessionTable.TABLE_NAME,
+				SessionTable.TABLE_SESSION,
 				new String[] { SessionTable.COLUMN_SESS_ID },
 				OrderTransactionTable.COLUMN_OPEN_STAFF + "=?" + " AND "
 						+ SessionTable.COLUMN_IS_ENDDAY + "=?",

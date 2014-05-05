@@ -379,7 +379,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 				PaymentDetailTable.COLUMN_REMARK + ", " +
 				" SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") AS " + 
 				PaymentDetailTable.COLUMN_PAY_AMOUNT +
-				" FROM " + PaymentDetailTable.TABLE_NAME + 
+				" FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + 
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" +
 				" GROUP BY " + PayTypeTable.COLUMN_PAY_TYPE_ID,
 				new String[] { String.valueOf(transId) });
@@ -396,7 +396,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	public Cursor queryTransactionByTransactionId() {
 		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
-				" FROM " + OrderTransactionTable.TABLE_NAME + 
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + 
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" + 
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] {
@@ -408,7 +408,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	public Cursor queryAllTransactionInSaleDate() {
 		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
-				" FROM " + OrderTransactionTable.TABLE_NAME + 
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + 
 				" WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?" + 
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] {
@@ -420,7 +420,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	public Cursor queryTransaction() {
 		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
-				" FROM " + OrderTransactionTable.TABLE_NAME + 
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + 
 				" WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?" + 
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) " + 
 				" AND " + MPOSDatabase.COLUMN_SEND_STATUS + "=?",
@@ -434,7 +434,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	public Cursor querySessionEndday() {
 		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
-				" FROM " + SessionDetailTable.TABLE_NAME + 
+				" FROM " + SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + 
 				" WHERE " + SessionTable.COLUMN_SESS_DATE + "=?",
 				new String[] {mSessionDate});
 	}
@@ -442,7 +442,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	public Cursor querySession() {
 		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
-				" FROM " + SessionTable.TABLE_NAME + 
+				" FROM " + SessionTable.TABLE_SESSION + 
 				" WHERE " + SessionTable.COLUMN_SESS_DATE + "=?",
 				new String[] {mSessionDate});
 	}
@@ -450,7 +450,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 	public Cursor querySyncSaleLog() {
 		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
-				" FROM " + SyncSaleLogTable.TABLE_NAME + 
+				" FROM " + SyncSaleLogTable.TABLE_SYNC_LOG + 
 				" WHERE " + SyncSaleLogTable.COLUMN_SYNC_STATUS + "=?",
 				new String[] { String.valueOf(SyncSaleLogDataSource.SYNC_FAIL) });
 	}

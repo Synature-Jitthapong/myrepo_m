@@ -4,12 +4,12 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class ProductDeptTable{
 	
-	public static final String TABLE_NAME = "ProductDept";
+	public static final String TABLE_PRODUCT_DEPT = "ProductDept";
 	public static final String COLUMN_PRODUCT_DEPT_CODE = "product_dept_code";
 	public static final String COLUMN_PRODUCT_DEPT_NAME = "product_dept_name";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_NAME + " ( " +
+			"CREATE TABLE " + TABLE_PRODUCT_DEPT + " ( " +
 			ProductsTable.COLUMN_PRODUCT_DEPT_ID + " INTEGER, " +
 			ProductsTable.COLUMN_PRODUCT_GROUP_ID + " INTEGER, " +
 			COLUMN_PRODUCT_DEPT_CODE + " TEXT, " +

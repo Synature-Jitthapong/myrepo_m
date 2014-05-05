@@ -4,11 +4,11 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class SyncSaleLogTable{
 
-	public static final String TABLE_NAME = "SyncSaleLog";
+	public static final String TABLE_SYNC_LOG = "SyncSaleLog";
 	public static final String COLUMN_SYNC_STATUS = "sync_status";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_NAME + " ( " +
+			"CREATE TABLE " + TABLE_SYNC_LOG + " ( " +
 			SessionTable.COLUMN_SESS_DATE + " TEXT, " + 
 			COLUMN_SYNC_STATUS + " INTEGER DEFAULT 0, " + 
 			" PRIMARY KEY (" + SessionTable.COLUMN_SESS_DATE + ")" + " );";

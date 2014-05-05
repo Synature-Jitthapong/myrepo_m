@@ -26,7 +26,7 @@ public class SyncSaleLogDataSource extends MPOSDatabase{
 	public List<String> listSessionDate(){
 		List<String> sessionDateLst = null;
 		Cursor cursor = getReadableDatabase().query(
-				SyncSaleLogTable.TABLE_NAME,
+				SyncSaleLogTable.TABLE_SYNC_LOG,
 				new String[] { SessionTable.COLUMN_SESS_DATE },
 				SyncSaleLogTable.COLUMN_SYNC_STATUS + "=?",
 				new String[] { String.valueOf(SYNC_FAIL) }, null, null, null);
@@ -48,7 +48,7 @@ public class SyncSaleLogDataSource extends MPOSDatabase{
 	 */
 	public String getSyncSaleSessionDate(String sessionDate){
 		String syncDate = "";
-		Cursor cursor = getReadableDatabase().query(SyncSaleLogTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(SyncSaleLogTable.TABLE_SYNC_LOG, 
 				new String[]{SessionTable.COLUMN_SESS_DATE}, 
 				SessionTable.COLUMN_SESS_DATE + "=?", 
 				new String[]{String.valueOf(sessionDate)}, null, null, null);
@@ -65,7 +65,7 @@ public class SyncSaleLogDataSource extends MPOSDatabase{
 	public void updateSyncSaleLog(String sessionDate, int status){
 		ContentValues cv = new ContentValues();
 		cv.put(SyncSaleLogTable.COLUMN_SYNC_STATUS, status);
-		getWritableDatabase().update(SyncSaleLogTable.TABLE_NAME, cv, 
+		getWritableDatabase().update(SyncSaleLogTable.TABLE_SYNC_LOG, cv, 
 				SessionTable.COLUMN_SESS_DATE + "=?", 
 				new String[]{sessionDate});
 	}
@@ -79,7 +79,7 @@ public class SyncSaleLogDataSource extends MPOSDatabase{
 			ContentValues cv = new ContentValues();
 			cv.put(SessionTable.COLUMN_SESS_DATE, sessionDate);
 			cv.put(SyncSaleLogTable.COLUMN_SYNC_STATUS, 0);
-			getWritableDatabase().insertOrThrow(SyncSaleLogTable.TABLE_NAME, null, cv);
+			getWritableDatabase().insertOrThrow(SyncSaleLogTable.TABLE_SYNC_LOG, null, cv);
 		}
 	}
 }

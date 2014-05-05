@@ -48,7 +48,8 @@ public class MPOSUtil {
 	public static void doSendSaleBySpecificTransaction(final Context context,
 			final int shopId, final int computerId, final int transactionId, 
 			final int staffId, final ProgressListener listener) {
-		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
+		new LoadSaleTransactionByTransactionId(context.getApplicationContext(), String.valueOf(Util.getDate().getTimeInMillis()),
+				transactionId, new LoadSaleTransactionListener() {
 
 			@Override
 			public void onPre() {
@@ -62,8 +63,9 @@ public class MPOSUtil {
 				JSONUtil jsonUtil = new JSONUtil();
 				Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
 				final String jsonSale = jsonUtil.toJson(type, saleTrans);
-
-				ProgressListener sendSaleListener = new ProgressListener() {
+ 
+				new MPOSWebServiceClient.SendPartialSaleTransaction(context.getApplicationContext(), 
+						staffId, shopId, computerId, jsonSale, new ProgressListener() {
 					@Override
 					public void onPre() {
 					}
@@ -80,9 +82,7 @@ public class MPOSUtil {
 					public void onError(String msg) {
 						listener.onError(msg);
 					}
-				};
-				new MPOSWebServiceClient.SendPartialSaleTransaction(context.getApplicationContext(), 
-						staffId, shopId, computerId, jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl(context));
+				}).execute(MPOSApplication.getFullUrl(context));
 			}
 
 			@Override
@@ -94,14 +94,13 @@ public class MPOSUtil {
 			public void onPost() {
 			}
 
-		};
-		new LoadSaleTransactionByTransactionId(context.getApplicationContext(), String.valueOf(Util.getDate().getTimeInMillis()),
-				transactionId, loadSaleListener).execute();
+		}).execute();
 	}
 	
 	public static void doSendSale(final Context context, final int shopId, final int computerId, 
 			final int staffId, final ProgressListener listener) {
-		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
+		new LoadSaleTransaction(context.getApplicationContext(), String.valueOf(Util.getDate().getTimeInMillis()),
+				new LoadSaleTransactionListener() {
 
 			@Override
 			public void onPre() {
@@ -116,7 +115,8 @@ public class MPOSUtil {
 				Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
 				final String jsonSale = jsonUtil.toJson(type, saleTrans);
 
-				ProgressListener sendSaleListener = new ProgressListener() {
+				new MPOSWebServiceClient.SendPartialSaleTransaction(context.getApplicationContext(), 
+						staffId, shopId, computerId, jsonSale, new ProgressListener() {
 					@Override
 					public void onPre() {
 					}
@@ -133,9 +133,7 @@ public class MPOSUtil {
 					public void onError(String msg) {
 						listener.onError(msg);
 					}
-				};
-				new MPOSWebServiceClient.SendPartialSaleTransaction(context.getApplicationContext(), 
-						staffId, shopId, computerId, jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl(context));
+				}).execute(MPOSApplication.getFullUrl(context));
 			}
 
 			@Override
@@ -147,9 +145,7 @@ public class MPOSUtil {
 			public void onPost() {
 			}
 
-		};
-		new LoadSaleTransaction(context.getApplicationContext(), String.valueOf(Util.getDate().getTimeInMillis()),
-				loadSaleListener).execute();
+		}).execute();
 	}
 	
 	/**
@@ -383,11 +379,11 @@ public class MPOSUtil {
 		SQLiteDatabase sqlite = mSqliteHelper.getWritableDatabase();
 		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
 		sqlite.delete(OrderDetailTable.TABLE_ORDER_TMP, null, null);
-		sqlite.delete(OrderTransactionTable.TABLE_NAME, null, null);
-		sqlite.delete(PaymentDetailTable.TABLE_NAME, null, null);
-		sqlite.delete(SessionTable.TABLE_NAME, null, null);
-		sqlite.delete(SessionDetailTable.TABLE_NAME, null, null);	
-		sqlite.delete(SyncSaleLogTable.TABLE_NAME, null, null);
+		sqlite.delete(OrderTransactionTable.TABLE_ORDER_TRANS, null, null);
+		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
+		sqlite.delete(SessionTable.TABLE_SESSION, null, null);
+		sqlite.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, null);	
+		sqlite.delete(SyncSaleLogTable.TABLE_SYNC_LOG, null, null);
 	}
 	
 	public static void updateData(final Context context){

@@ -4,12 +4,12 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class BankTable {
 
-	public static final String TABLE_NAME = "BankName";
+	public static final String TABLE_BANK = "BankName";
 	public static final String COLUMN_BANK_ID = "bank_id";
 	public static final String COLUMN_BANK_NAME = "bank_name";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_NAME + " ( " +
+			"CREATE TABLE " + TABLE_BANK + " ( " +
 			COLUMN_BANK_ID + " INTEGER, " +
 			COLUMN_BANK_NAME + " TEXT, " +
 			"PRIMARY KEY (" + COLUMN_BANK_ID + ") );";

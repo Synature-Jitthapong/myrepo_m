@@ -4,12 +4,12 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class OrderSetTable {
 	
-	public static final String TABLE_NAME = "OrderSet";
+	public static final String TABLE_ORDER_SET = "OrderSet";
 	public static final String COLUMN_ORDER_SET_ID = "order_set_id";
 	public static final String COLUMN_ORDER_SET_QTY = "order_set_qty";
 	
 	private static final String SQL_CREATE = 
-			"CREATE TABLE " + TABLE_NAME + "( "
+			"CREATE TABLE " + TABLE_ORDER_SET + "( "
 			+ COLUMN_ORDER_SET_ID + " INTEGER NOT NULL,"
 			+ OrderDetailTable.COLUMN_ORDER_ID + " INTEGER NOT NULL, "
 			+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER NOT NULL, "

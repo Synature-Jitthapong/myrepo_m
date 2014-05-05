@@ -262,7 +262,6 @@ public class MainActivity extends FragmentActivity implements
 			return true;
 		case R.id.itemReprint:
 			intent = new Intent(MainActivity.this, ReprintActivity.class);
-			intent.putExtra("staffId", mStaffId);
 			startActivity(intent);
 			return true;
 		case R.id.itemSendSale:
@@ -1211,6 +1210,8 @@ public class MainActivity extends FragmentActivity implements
 									}).show();
 								}
 							};
+					MPOSUtil.doEndday(MainActivity.this, sShop.getShopId(), 
+							mComputer.getComputerId(), mSessionId, mStaffId, 0, true, progressListener);
 				}
 			}).show();
 		}else{
@@ -1458,31 +1459,17 @@ public class MainActivity extends FragmentActivity implements
 	 * send sale data to server
 	 */
 	private void sendSale(){
-		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
+		MPOSUtil.doSendSale(MainActivity.this, sShop.getShopId(), 
+				mComputer.getComputerId(), mStaffId, new ProgressListener(){
 
-			@Override
-			public void onPre() {
-				
-			}
-
-			@Override
-			public void onPost(POSData_SaleTransaction saleTrans,
-					final String sessionDate) {
-
-				JSONUtil jsonUtil = new JSONUtil();
-				Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
-				final String jsonSale = jsonUtil.toJson(type, saleTrans);
-
-				ProgressListener sendSaleListener = new ProgressListener() {
 					@Override
 					public void onPre() {
+						// TODO Auto-generated method stub
+						
 					}
 
 					@Override
 					public void onPost() {
-						// do update transaction already send
-						mOrders.updateTransactionSendStatus(mTransactionId);
-						countTransNotSend();
 						MPOSUtil.makeToask(MainActivity.this, 
 								MainActivity.this.getString(R.string.send_sale_data_success));
 					}
@@ -1491,23 +1478,6 @@ public class MainActivity extends FragmentActivity implements
 					public void onError(String msg) {
 						MPOSUtil.makeToask(MainActivity.this, msg);
 					}
-				};
-				new MPOSWebServiceClient.SendPartialSaleTransaction(getApplicationContext(), 
-						mStaffId, sShop.getShopId(), mComputer.getComputerId(), 
-						jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl(getApplicationContext()));
-			}
-
-			@Override
-			public void onError(String msg) {
-				MPOSUtil.makeToask(MainActivity.this, msg);
-			}
-
-			@Override
-			public void onPost() {
-			}
-
-		};
-		new LoadSaleTransaction(getApplicationContext(),
-				mSession.getSessionDate(), mTransactionId, loadSaleListener).execute();
+		});
 	}
 }

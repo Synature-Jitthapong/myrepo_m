@@ -4,14 +4,14 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class PaymentDetailTable{
 	
-	public static final String TABLE_NAME = "PaymentDetail";
+	public static final String TABLE_PAYMENT_DETAIL = "PaymentDetail";
 	public static final String COLUMN_PAY_ID = "pay_detail_id";
 	public static final String COLUMN_PAY_AMOUNT = "pay_amount";
 	public static final String COLUMN_PAID = "pad";
 	public static final String COLUMN_REMARK = "remark";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_NAME + " ( " +
+			"CREATE TABLE " + TABLE_PAYMENT_DETAIL + " ( " +
 					COLUMN_PAY_ID + " INTEGER, " +
 			OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER, " +
 			ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, " +

@@ -140,7 +140,7 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 	
 	public void printTestClick(final View v){
-		if(MPOSApplication.getInternalPrinterSetting()){
+		if(MPOSApplication.getInternalPrinterSetting(getApplicationContext())){
 			wintecTestPrint();
 		}else{
 			epsonTestPrint();
@@ -153,7 +153,7 @@ public class SettingsActivity extends PreferenceActivity {
 		final ComIO.Baudrate baudrate = ComIO.Baudrate.valueOf("BAUD_38400");
 		printer = new Printer(devicePath,baudrate);
 		
-		String[] subElement = MPOSApplication.getContext().getString(R.string.print_test_text).split("\n");
+		String[] subElement = getApplicationContext().getString(R.string.print_test_text).split("\n");
     	for(int i=0;i < subElement.length;i++){
     		String data = subElement[i].replace("*", " ");
     		printer.PRN_Print(data);
@@ -166,15 +166,15 @@ public class SettingsActivity extends PreferenceActivity {
 	private void epsonTestPrint(){
 		Print printer = new Print();
 		try {
-			printer.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(), 0, 1000);
-			Builder builder = new Builder(MPOSApplication.getPrinterName(), Builder.MODEL_ANK, 
-				MPOSApplication.getContext());
-			if(MPOSApplication.getPrinterFont().equals("a")){
+			printer.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(getApplicationContext()), 0, 1000);
+			Builder builder = new Builder(MPOSApplication.getPrinterName(getApplicationContext()), Builder.MODEL_ANK, 
+					getApplicationContext());
+			if(MPOSApplication.getPrinterFont(getApplicationContext()).equals("a")){
 				builder.addTextFont(Builder.FONT_A);
-			}else if(MPOSApplication.getPrinterFont().equals("b")){
+			}else if(MPOSApplication.getPrinterFont(getApplicationContext()).equals("b")){
 				builder.addTextFont(Builder.FONT_B);
 			}
-			String printText = MPOSApplication.getContext().getString(R.string.print_test_text).replaceAll("\\*", " ");
+			String printText = getApplicationContext().getString(R.string.print_test_text).replaceAll("\\*", " ");
 			builder.addTextAlign(Builder.ALIGN_CENTER);
 			builder.addTextSize(1, 1);
 			builder.addText(printText);

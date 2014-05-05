@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class OrderTransactionTable{
 	
-	public static final String TABLE_NAME = "OrderTransaction";
+	public static final String TABLE_ORDER_TRANS = "OrderTransaction";
 	public static final String COLUMN_TRANSACTION_ID = "transaction_id";
 	public static final String COLUMN_RECEIPT_YEAR = "receipt_year";
 	public static final String COLUMN_RECEIPT_MONTH = "receipt_month";
@@ -32,7 +32,7 @@ public class OrderTransactionTable{
 	public static final String COLUMN_MEMBER_ID = "member_id";
 	
 	private static final String SQL_CREATE =
-		"CREATE TABLE " + TABLE_NAME + " ( " +
+		"CREATE TABLE " + TABLE_ORDER_TRANS + " ( " +
 		MPOSDatabase.COLUMN_UUID + " TEXT, " +
 		COLUMN_TRANSACTION_ID + " INTEGER, " +
 		ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, " +

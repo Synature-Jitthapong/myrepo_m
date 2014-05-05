@@ -18,7 +18,7 @@ public class CreditCardDataSource extends MPOSDatabase{
 
 	public String getCreditCardType(int typeId){
 		String cardType = "";
-		Cursor cursor = getReadableDatabase().query(CreditCardTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(CreditCardTable.TABLE_CREDIT_CARD_TYPE, 
 				new String[]{ 
 					CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME
 				}, 
@@ -37,7 +37,7 @@ public class CreditCardDataSource extends MPOSDatabase{
 	public List<CreditCardType> listAllCreditCardType(){
 		List<CreditCardType> creditCardLst = 
 				new ArrayList<CreditCardType>();
-		Cursor cursor = getReadableDatabase().query(CreditCardTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(CreditCardTable.TABLE_CREDIT_CARD_TYPE, 
 				new String[]{CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, 
 				CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME}, 
 				null, null, null, null, null);
@@ -56,12 +56,12 @@ public class CreditCardDataSource extends MPOSDatabase{
 	public void insertCreditCardType(List<CreditCardType> creditCardLst){
 		getWritableDatabase().beginTransaction();
 		try {
-			getWritableDatabase().delete(CreditCardTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(CreditCardTable.TABLE_CREDIT_CARD_TYPE, null, null);
 			for(CreditCardType credit : creditCardLst){
 				ContentValues cv = new ContentValues();
 				cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, credit.getCreditCardTypeId());
 				cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME, credit.getCreditCardTypeName());
-				getWritableDatabase().insertOrThrow(CreditCardTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(CreditCardTable.TABLE_CREDIT_CARD_TYPE, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();
 		} finally {

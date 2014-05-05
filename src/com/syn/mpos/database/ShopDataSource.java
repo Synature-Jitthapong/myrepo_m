@@ -40,7 +40,7 @@ public class ShopDataSource extends MPOSDatabase{
 	public ShopData.ShopProperty getShopProperty(){
 		ShopData.ShopProperty sp = 
 				new ShopData.ShopProperty();
-		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + ShopTable.TABLE_NAME, null);
+		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + ShopTable.TABLE_SHOP, null);
 		if(cursor.moveToFirst()){
 			sp.setShopID(cursor.getInt(cursor.getColumnIndex(ShopTable.COLUMN_SHOP_ID)));
 			sp.setShopCode(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_SHOP_CODE)));
@@ -73,7 +73,7 @@ public class ShopDataSource extends MPOSDatabase{
 	public void insertShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
-			getWritableDatabase().delete(ShopTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(ShopTable.TABLE_SHOP, null, null);
 			for(ShopData.ShopProperty shop : shopPropLst){
 				ContentValues cv = new ContentValues();
 				cv.put(ShopTable.COLUMN_SHOP_ID, shop.getShopID());
@@ -94,7 +94,7 @@ public class ShopDataSource extends MPOSDatabase{
 				cv.put(ShopTable.COLUMN_TAX_ID, shop.getCompanyTaxID());
 				cv.put(ShopTable.COLUMN_REGISTER_ID, shop.getCompanyRegisterID());
 				cv.put(ShopTable.COLUMN_VAT, shop.getCompanyVat());
-				getWritableDatabase().insertOrThrow(ShopTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(ShopTable.TABLE_SHOP, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();
 		} finally {

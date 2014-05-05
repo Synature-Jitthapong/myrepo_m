@@ -26,7 +26,7 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 	 */
 	public List<PrintReceipt> listPrintReceiptLog(){
 		List<PrintReceipt> printLst = new ArrayList<PrintReceipt>();
-		Cursor cursor = getReadableDatabase().query(PrintReceiptLogTable.TABLE_NAME, 
+		Cursor cursor = getReadableDatabase().query(PrintReceiptLogTable.TABLE_PRINT_LOG, 
 				new String[]{
 					OrderTransactionTable.COLUMN_TRANSACTION_ID,
 					ComputerTable.COLUMN_COMPUTER_ID,
@@ -58,7 +58,7 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 	 * @param printReceiptLogId
 	 */
 	public void deletePrintStatus(int printReceiptLogId){
-		getWritableDatabase().delete(PrintReceiptLogTable.TABLE_NAME, 
+		getWritableDatabase().delete(PrintReceiptLogTable.TABLE_PRINT_LOG, 
 				PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID + "=?", 
 				new String[]{String.valueOf(printReceiptLogId)}  );
 	}
@@ -70,7 +70,7 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 	public void updatePrintStatus(int printReceiptLogId, int status){
 		ContentValues cv = new ContentValues();
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS, status);
-		getWritableDatabase().update(PrintReceiptLogTable.TABLE_NAME, cv, 
+		getWritableDatabase().update(PrintReceiptLogTable.TABLE_PRINT_LOG, cv, 
 				PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID + "=?", 
 				new String[]{
 					String.valueOf(printReceiptLogId)
@@ -89,7 +89,7 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 		cv.put(StaffTable.COLUMN_STAFF_ID, staffId);
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME, Util.getDateTime().getTimeInMillis());
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS, PRINT_NOT_SUCCESS);
-		getWritableDatabase().insertOrThrow(PrintReceiptLogTable.TABLE_NAME, null, cv);
+		getWritableDatabase().insertOrThrow(PrintReceiptLogTable.TABLE_PRINT_LOG, null, cv);
 	}
 
 	public static class PrintReceipt{

@@ -114,7 +114,7 @@ public class GlobalPropertyDataSource extends MPOSDatabase{
 	
 	public ShopData.GlobalProperty getGlobalProperty() {
 		ShopData.GlobalProperty gb = new ShopData.GlobalProperty();
-		Cursor cursor = getReadableDatabase().query(GlobalPropertyTable.TABLE_NAME, COLUMNS, 
+		Cursor cursor = getReadableDatabase().query(GlobalPropertyTable.TABLE_GLOBAL_PROPERTY, COLUMNS, 
 				null, null, null, null, null);
 		if (cursor.moveToFirst()) {
 			gb.setCurrencyCode(cursor.getString(cursor
@@ -139,7 +139,7 @@ public class GlobalPropertyDataSource extends MPOSDatabase{
 	public void insertProperty(List<ShopData.GlobalProperty> globalLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
-			getWritableDatabase().delete(GlobalPropertyTable.TABLE_NAME, null, null);
+			getWritableDatabase().delete(GlobalPropertyTable.TABLE_GLOBAL_PROPERTY, null, null);
 			for (ShopData.GlobalProperty global : globalLst) {
 				ContentValues cv = new ContentValues();
 				cv.put(GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL, global.getCurrencySymbol());
@@ -149,7 +149,7 @@ public class GlobalPropertyDataSource extends MPOSDatabase{
 				cv.put(GlobalPropertyTable.COLUMN_DATE_FORMAT, global.getDateFormat());
 				cv.put(GlobalPropertyTable.COLUMN_TIME_FORMAT, global.getTimeFormat());
 				cv.put(GlobalPropertyTable.COLUMN_QTY_FORMAT, global.getQtyFormat());
-				getWritableDatabase().insertOrThrow(GlobalPropertyTable.TABLE_NAME, null, cv);
+				getWritableDatabase().insertOrThrow(GlobalPropertyTable.TABLE_GLOBAL_PROPERTY, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();
 		} finally {

@@ -54,7 +54,7 @@ public class Reporting extends MPOSDatabase{
 		double totalPay = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") " +
-				" FROM " + PaymentDetailTable.TABLE_NAME +
+				" FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL +
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " +
 				" AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(transactionId),
@@ -81,11 +81,11 @@ public class Reporting extends MPOSDatabase{
 				" SUM(b." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + " + " + 
 				" b." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ") AS TotalDiscount, " +
 				"(SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") " +
-				" FROM " + PaymentDetailTable.TABLE_NAME +
+				" FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL +
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=a." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND " + ComputerTable.COLUMN_COMPUTER_ID + "=a." + ComputerTable.COLUMN_COMPUTER_ID +
 				") AS TotalPayment " +
-				" FROM " + OrderTransactionTable.TABLE_NAME + " a " +
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a " +
 				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b " +
 				" ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=b." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND a." + ComputerTable.COLUMN_COMPUTER_ID + "=b." + ComputerTable.COLUMN_COMPUTER_ID +
@@ -154,7 +154,7 @@ public class Reporting extends MPOSDatabase{
 							+ ProductsTable.COLUMN_PRODUCT_PRICE + ", " + " b."
 							+ ProductsTable.COLUMN_VAT_TYPE + " FROM "
 							+ TEMP_PRODUCT_REPORT + " a " + " INNER JOIN "
-							+ ProductsTable.TABLE_NAME + " b " + " ON a."
+							+ ProductsTable.TABLE_PRODUCTS + " b " + " ON a."
 							+ ProductsTable.COLUMN_PRODUCT_ID + "=b."
 							+ ProductsTable.COLUMN_PRODUCT_ID + " WHERE b."
 							+ ProductsTable.COLUMN_PRODUCT_DEPT_ID + "=?"
@@ -235,13 +235,13 @@ public class Reporting extends MPOSDatabase{
 				" SUM(o." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
 				" SUM(o." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, " +
 				" SUM(o." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice " +
-				" FROM " + OrderTransactionTable.TABLE_NAME + " t " + 
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t " + 
 				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o " +
 				" ON t." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=o." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND t." + ComputerTable.COLUMN_COMPUTER_ID + "=o." + ComputerTable.COLUMN_COMPUTER_ID +
-				" INNER JOIN " + ProductsTable.TABLE_NAME + " p " +
+				" INNER JOIN " + ProductsTable.TABLE_PRODUCTS + " p " +
 				" ON o." + ProductsTable.COLUMN_PRODUCT_ID + "=p." + ProductsTable.COLUMN_PRODUCT_ID +
-				" INNER JOIN " + ProductDeptTable.TABLE_NAME + " pd " +
+				" INNER JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " pd " +
 				" ON p." + ProductsTable.COLUMN_PRODUCT_DEPT_ID + "=pd." + ProductsTable.COLUMN_PRODUCT_DEPT_ID +
 				" WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
 				" AND t." + OrderTransactionTable.COLUMN_STATUS_ID + "=?" +
@@ -277,11 +277,11 @@ public class Reporting extends MPOSDatabase{
 				" SUM(o." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
 				" SUM(o." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, " +
 				" SUM(o." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice " +
-				" FROM " + OrderTransactionTable.TABLE_NAME + " t " + 
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t " + 
 				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o " +
 				" ON t." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=o." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND t." + ComputerTable.COLUMN_COMPUTER_ID + "=o." + ComputerTable.COLUMN_COMPUTER_ID +
-				" INNER JOIN " + ProductsTable.TABLE_NAME + " p " +
+				" INNER JOIN " + ProductsTable.TABLE_PRODUCTS + " p " +
 				" ON o." + ProductsTable.COLUMN_PRODUCT_ID + "=p." + ProductsTable.COLUMN_PRODUCT_ID +
 				" WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
 				" AND t." + OrderTransactionTable.COLUMN_STATUS_ID + "=?" +
@@ -340,7 +340,7 @@ public class Reporting extends MPOSDatabase{
 			    " SUM(b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS SalePrice, " +
 				// total qty
 				" (SELECT SUM(o." + OrderDetailTable.COLUMN_ORDER_QTY + ") " +
-				" FROM " + OrderTransactionTable.TABLE_NAME + " t " + 
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t " + 
 				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o " +
 				" ON t." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=o." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND t." + ComputerTable.COLUMN_COMPUTER_ID + "=o." + ComputerTable.COLUMN_COMPUTER_ID +
@@ -348,7 +348,7 @@ public class Reporting extends MPOSDatabase{
 				" AND t." + OrderTransactionTable.COLUMN_STATUS_ID + "=?) AS TotalQty, " +
 				// total retail price
 				" (SELECT SUM(o." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") " +
-				" FROM " + OrderTransactionTable.TABLE_NAME + " t " + 
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t " + 
 				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o " +
 				" ON t." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=o." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND t." + ComputerTable.COLUMN_COMPUTER_ID + "=o." + ComputerTable.COLUMN_COMPUTER_ID +
@@ -356,7 +356,7 @@ public class Reporting extends MPOSDatabase{
 				" AND t." + OrderTransactionTable.COLUMN_STATUS_ID + "=?) AS TotalRetailPrice, " +
 				// total discount
 				" (SELECT SUM(o." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") " +
-				" FROM " + OrderTransactionTable.TABLE_NAME + " t " + 
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t " + 
 				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o " +
 				" ON t." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=o." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND t." + ComputerTable.COLUMN_COMPUTER_ID + "=o." + ComputerTable.COLUMN_COMPUTER_ID +
@@ -364,13 +364,13 @@ public class Reporting extends MPOSDatabase{
 				" AND t." + OrderTransactionTable.COLUMN_STATUS_ID + "=?) AS TotalDiscount, " +
 				// total sale price
 				" (SELECT SUM(o." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") " +
-				" FROM " + OrderTransactionTable.TABLE_NAME + " t " + 
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t " + 
 				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o " +
 				" ON t." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=o." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND t." + ComputerTable.COLUMN_COMPUTER_ID + "=o." + ComputerTable.COLUMN_COMPUTER_ID +
 				" WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
 				" AND t." + OrderTransactionTable.COLUMN_STATUS_ID + "=?) AS TotalSalePrice " +
-				" FROM " + OrderTransactionTable.TABLE_NAME + " a " +
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a " +
 				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b " +
 				" ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=b." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
 				" AND a." + ComputerTable.COLUMN_COMPUTER_ID + "=b." + ComputerTable.COLUMN_COMPUTER_ID + 
@@ -444,11 +444,11 @@ public class Reporting extends MPOSDatabase{
 					" d." + ProductsTable.COLUMN_PRODUCT_GROUP_ID + ", " +
 					" d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME + 
 					" FROM " + TEMP_PRODUCT_REPORT + " a " +
-					" INNER JOIN " + ProductsTable.TABLE_NAME + " b " +
+					" INNER JOIN " + ProductsTable.TABLE_PRODUCTS + " b " +
 					" ON a." + ProductsTable.COLUMN_PRODUCT_ID + "=b." + ProductsTable.COLUMN_PRODUCT_ID +
-					" INNER JOIN " + ProductDeptTable.TABLE_NAME + " c " +
+					" INNER JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " c " +
 					" ON b." + ProductsTable.COLUMN_PRODUCT_DEPT_ID + "=c." + ProductsTable.COLUMN_PRODUCT_DEPT_ID +
-					" INNER JOIN " + ProductGroupTable.TABLE_NAME + " d " +
+					" INNER JOIN " + ProductGroupTable.TABLE_PRODUCT_GROUP + " d " +
 					" ON c." + ProductsTable.COLUMN_PRODUCT_GROUP_ID + "=d." + ProductsTable.COLUMN_PRODUCT_GROUP_ID + 
 					" GROUP BY d." + ProductsTable.COLUMN_PRODUCT_GROUP_ID + ", " +
 					" c." + ProductsTable.COLUMN_PRODUCT_DEPT_ID +

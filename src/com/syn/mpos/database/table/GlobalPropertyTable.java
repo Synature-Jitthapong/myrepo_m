@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class GlobalPropertyTable{
 
-	public static final String TABLE_NAME = "GlobalProperty";
+	public static final String TABLE_GLOBAL_PROPERTY = "GlobalProperty";
 	public static final String COLUMN_CURRENCY_SYMBOL = "currency_symbol";
 	public static final String COLUMN_CURRENCY_CODE = "currency_code";
 	public static final String COLUMN_CURRENCY_NAME = "currency_name";
@@ -14,7 +14,7 @@ public class GlobalPropertyTable{
 	public static final String COLUMN_TIME_FORMAT = "time_format";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_NAME + " ( " +
+			"CREATE TABLE " + TABLE_GLOBAL_PROPERTY + " ( " +
 			COLUMN_CURRENCY_SYMBOL + " TEXT DEFAULT '$', " +
 			COLUMN_CURRENCY_CODE + " TEXT DEFAULT 'USD', " +
 			COLUMN_CURRENCY_NAME + " TEXT, " +

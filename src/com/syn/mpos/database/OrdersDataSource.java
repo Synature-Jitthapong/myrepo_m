@@ -57,7 +57,7 @@ public class OrdersDataSource extends MPOSDatabase {
 	public MPOSOrderTransaction getTransaction(int transactionId) {
 		MPOSOrderTransaction trans = new MPOSOrderTransaction();
 		Cursor cursor = getReadableDatabase().query(
-				OrderTransactionTable.TABLE_NAME,
+				OrderTransactionTable.TABLE_ORDER_TRANS,
 				new String[] { OrderTransactionTable.COLUMN_TRANSACTION_ID,
 						ComputerTable.COLUMN_COMPUTER_ID,
 						OrderTransactionTable.COLUMN_TRANS_VATABLE,
@@ -105,7 +105,7 @@ public class OrdersDataSource extends MPOSDatabase {
 	public MPOSOrderTransaction getTransaction(long saleDate) {
 		MPOSOrderTransaction trans = new MPOSOrderTransaction();
 		Cursor cursor = getReadableDatabase().query(
-				OrderTransactionTable.TABLE_NAME,
+				OrderTransactionTable.TABLE_ORDER_TRANS,
 				new String[] { OrderTransactionTable.COLUMN_TRANSACTION_ID,
 						ComputerTable.COLUMN_COMPUTER_ID,
 						OrderTransactionTable.COLUMN_TRANS_VATABLE,
@@ -256,7 +256,7 @@ public class OrdersDataSource extends MPOSDatabase {
 						+ ", " + " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE
 						+ ", " + " b." + ProductsTable.COLUMN_PRODUCT_NAME
 						+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
-						+ " LEFT JOIN " + ProductsTable.TABLE_NAME + " b "
+						+ " LEFT JOIN " + ProductsTable.TABLE_PRODUCTS + " b "
 						+ " ON a." + ProductsTable.COLUMN_PRODUCT_ID + "="
 						+ " b." + ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
 						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
@@ -291,7 +291,7 @@ public class OrdersDataSource extends MPOSDatabase {
 						+ ", " + " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE
 						+ ", " + " b." + ProductsTable.COLUMN_PRODUCT_NAME
 						+ " FROM " + OrderDetailTable.TABLE_ORDER_TMP + " a "
-						+ " LEFT JOIN " + ProductsTable.TABLE_NAME + " b "
+						+ " LEFT JOIN " + ProductsTable.TABLE_PRODUCTS + " b "
 						+ " ON a." + ProductsTable.COLUMN_PRODUCT_ID + "="
 						+ " b." + ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
 						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
@@ -332,7 +332,7 @@ public class OrdersDataSource extends MPOSDatabase {
 						+ OrderDetailTable.COLUMN_DISCOUNT_TYPE + ", " + " b."
 						+ ProductsTable.COLUMN_PRODUCT_NAME + " FROM "
 						+ OrderDetailTable.TABLE_ORDER + " a" + " LEFT JOIN "
-						+ ProductsTable.TABLE_NAME + " b" + " ON a."
+						+ ProductsTable.TABLE_PRODUCTS + " b" + " ON a."
 						+ ProductsTable.COLUMN_PRODUCT_ID + "=" + " b."
 						+ ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
 						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
@@ -369,7 +369,7 @@ public class OrdersDataSource extends MPOSDatabase {
 						+ ", " + " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE
 						+ ", " + " b." + ProductsTable.COLUMN_PRODUCT_NAME
 						+ " FROM " + OrderDetailTable.TABLE_ORDER + " a"
-						+ " LEFT JOIN " + ProductsTable.TABLE_NAME + " b"
+						+ " LEFT JOIN " + ProductsTable.TABLE_PRODUCTS + " b"
 						+ " ON a." + ProductsTable.COLUMN_PRODUCT_ID + "="
 						+ " b." + ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
 						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
@@ -423,7 +423,7 @@ public class OrdersDataSource extends MPOSDatabase {
 	 * @param saleDate
 	 * @return List<MPOSOrderTransaction>
 	 */
-	public List<MPOSOrderTransaction> listTransaction(long saleDate) {
+	public List<MPOSOrderTransaction> listTransaction(String saleDate) {
 		List<MPOSOrderTransaction> transLst = new ArrayList<MPOSOrderTransaction>();
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT a." + OrderTransactionTable.COLUMN_TRANSACTION_ID
@@ -439,14 +439,15 @@ public class OrdersDataSource extends MPOSDatabase {
 						+ OrderTransactionTable.COLUMN_RECEIPT_NO + ", "
 						+ " b." + StaffTable.COLUMN_STAFF_CODE + ", " + " b."
 						+ StaffTable.COLUMN_STAFF_NAME + " FROM "
-						+ OrderTransactionTable.TABLE_NAME + " a "
+						+ OrderTransactionTable.TABLE_ORDER_TRANS + " a "
 						+ " LEFT JOIN " + StaffTable.TABLE_NAME + " b "
 						+ " ON a." + OrderTransactionTable.COLUMN_OPEN_STAFF
 						+ "=b." + StaffTable.COLUMN_STAFF_ID + " WHERE a."
 						+ OrderTransactionTable.COLUMN_SALE_DATE + "=?"
 						+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID
 						+ "=?",
-				new String[] { String.valueOf(saleDate),
+				new String[] {
+						saleDate,
 						String.valueOf(TRANS_STATUS_SUCCESS) });
 		if (cursor.moveToFirst()) {
 			do {
@@ -487,7 +488,7 @@ public class OrdersDataSource extends MPOSDatabase {
 						+ OrderTransactionTable.COLUMN_TRANS_NOTE + ", "
 						+ " b." + StaffTable.COLUMN_STAFF_CODE + ", " + " b."
 						+ StaffTable.COLUMN_STAFF_NAME + " FROM "
-						+ OrderTransactionTable.TABLE_NAME + " a "
+						+ OrderTransactionTable.TABLE_ORDER_TRANS + " a "
 						+ " LEFT JOIN " + StaffTable.TABLE_NAME + " b "
 						+ " ON a." + OrderTransactionTable.COLUMN_OPEN_STAFF
 						+ "=" + " b." + StaffTable.COLUMN_STAFF_ID
@@ -525,7 +526,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		int transactionId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ ") " + " FROM " + OrderTransactionTable.TABLE_NAME,
+						+ ") " + " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS,
 				null);
 		if (cursor.moveToFirst()) {
 			transactionId = cursor.getInt(0);
@@ -544,7 +545,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		int maxReceiptId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + OrderTransactionTable.COLUMN_RECEIPT_ID + ") "
-						+ " FROM " + OrderTransactionTable.TABLE_NAME
+						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
 						+ " WHERE " + OrderTransactionTable.COLUMN_RECEIPT_YEAR
 						+ "=?" + " AND "
 						+ OrderTransactionTable.COLUMN_RECEIPT_MONTH + "=?",
@@ -567,7 +568,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		int transactionId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ " FROM " + OrderTransactionTable.TABLE_NAME
+						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
 						+ " WHERE " + OrderTransactionTable.COLUMN_STATUS_ID
 						+ "=?" + " AND "
 						+ OrderTransactionTable.COLUMN_SALE_DATE + "=?",
@@ -612,7 +613,7 @@ public class OrdersDataSource extends MPOSDatabase {
 				date.get(Calendar.MONTH) + 1);
 		cv.put(ProductsTable.COLUMN_VAT_RATE, vatRate);
 		long rowId = getWritableDatabase().insertOrThrow(
-				OrderTransactionTable.TABLE_NAME, null, cv);
+				OrderTransactionTable.TABLE_ORDER_TRANS, null, cv);
 		if (rowId == -1)
 			transactionId = 0;
 		return transactionId;
@@ -640,7 +641,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		cv.put(OrderTransactionTable.COLUMN_RECEIPT_NO,
 				formatReceiptNo("", date.get(Calendar.YEAR),
 						date.get(Calendar.MONTH) + 1, receiptId));
-		return getWritableDatabase().update(OrderTransactionTable.TABLE_NAME,
+		return getWritableDatabase().update(OrderTransactionTable.TABLE_ORDER_TRANS,
 				cv, OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
 	}
@@ -653,7 +654,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_STATUS_ID, TRANS_STATUS_NEW);
 		cv.put(OrderTransactionTable.COLUMN_TRANS_NOTE, "");
-		return getWritableDatabase().update(OrderTransactionTable.TABLE_NAME,
+		return getWritableDatabase().update(OrderTransactionTable.TABLE_ORDER_TRANS,
 				cv, OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
 	}
@@ -673,7 +674,7 @@ public class OrdersDataSource extends MPOSDatabase {
 	 * @return row affected
 	 */
 	public int deleteTransaction(int transactionId) {
-		return getWritableDatabase().delete(OrderTransactionTable.TABLE_NAME,
+		return getWritableDatabase().delete(OrderTransactionTable.TABLE_ORDER_TRANS,
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
 	}
@@ -685,7 +686,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		int total = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT COUNT(" + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ ") " + " FROM " + OrderTransactionTable.TABLE_NAME
+						+ ") " + " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
 						+ " WHERE " + OrderTransactionTable.COLUMN_STATUS_ID
 						+ "=? AND " + MPOSDatabase.COLUMN_SEND_STATUS + "=?",
 				new String[] {
@@ -706,7 +707,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		int total = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT COUNT(" + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ ") " + " FROM " + OrderTransactionTable.TABLE_NAME
+						+ ") " + " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
 						+ " WHERE " + OrderTransactionTable.COLUMN_STATUS_ID
 						+ "=?" + " AND "
 						+ OrderTransactionTable.COLUMN_SALE_DATE + "=?",
@@ -727,7 +728,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_STATUS_ID, TRANS_STATUS_HOLD);
 		cv.put(OrderTransactionTable.COLUMN_TRANS_NOTE, note);
-		return getWritableDatabase().update(OrderTransactionTable.TABLE_NAME,
+		return getWritableDatabase().update(OrderTransactionTable.TABLE_ORDER_TRANS,
 				cv, OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
 	}
@@ -741,7 +742,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_OPEN_STAFF, staffId);
 		return getWritableDatabase().update(
-				OrderTransactionTable.TABLE_NAME,
+				OrderTransactionTable.TABLE_ORDER_TRANS,
 				cv,
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
 						+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
@@ -756,7 +757,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_SEND_STATUS, SyncSaleLogDataSource.SYNC_SUCCESS);
 		return getWritableDatabase().update(
-				OrderTransactionTable.TABLE_NAME,
+				OrderTransactionTable.TABLE_ORDER_TRANS,
 				cv,
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" + " AND "
 						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
@@ -773,7 +774,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_SEND_STATUS, SyncSaleLogDataSource.SYNC_SUCCESS);
 		return getWritableDatabase().update(
-				OrderTransactionTable.TABLE_NAME,
+				OrderTransactionTable.TABLE_ORDER_TRANS,
 				cv,
 				OrderTransactionTable.COLUMN_SALE_DATE + "=?" + " AND "
 						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
@@ -795,7 +796,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		cv.put(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT,
 				summOrder.getVatExclude());
 		return getWritableDatabase().update(
-				OrderTransactionTable.TABLE_NAME,
+				OrderTransactionTable.TABLE_ORDER_TRANS,
 				cv,
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
 						+ ComputerTable.COLUMN_COMPUTER_ID + "=?",
@@ -1012,7 +1013,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		cv.put(MPOSDatabase.COLUMN_SEND_STATUS, MPOSDatabase.NOT_SEND);
 		cv.put(OrderTransactionTable.COLUMN_VOID_TIME, Util.getDate()
 				.getTimeInMillis());
-		return getWritableDatabase().update(OrderTransactionTable.TABLE_NAME,
+		return getWritableDatabase().update(OrderTransactionTable.TABLE_ORDER_TRANS,
 				cv, OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? ",
 				new String[] { String.valueOf(transactionId) });
 	}
@@ -1025,7 +1026,7 @@ public class OrdersDataSource extends MPOSDatabase {
 		int totalReceipt = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT COUNT (" + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ ") " + " FROM " + OrderTransactionTable.TABLE_NAME
+						+ ") " + " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
 						+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE
 						+ "=? " + " AND "
 						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN (?,?)",
@@ -1050,7 +1051,7 @@ public class OrdersDataSource extends MPOSDatabase {
 						"SELECT SUM ("
 								+ OrderTransactionTable.COLUMN_TRANS_VATABLE
 								+ ") " + " FROM "
-								+ OrderTransactionTable.TABLE_NAME + " WHERE "
+								+ OrderTransactionTable.TABLE_ORDER_TRANS + " WHERE "
 								+ OrderTransactionTable.COLUMN_SALE_DATE
 								+ "=? " + " AND "
 								+ OrderTransactionTable.COLUMN_STATUS_ID + "=?",

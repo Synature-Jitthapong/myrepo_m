@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class SessionTable{
 	
-	public static final String TABLE_NAME = "Session";
+	public static final String TABLE_SESSION = "Session";
 	public static final String COLUMN_SESS_ID = "session_id";
 	public static final String COLUMN_SESS_DATE = "session_date";
 	public static final String COLUMN_OPEN_DATE = "open_date_time";
@@ -19,7 +19,7 @@ public class SessionTable{
 	public static final String COLUMN_SEND_TO_HQ_DATE = "send_to_hq_date_time";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_NAME + " ( " +
+			"CREATE TABLE " + TABLE_SESSION + " ( " +
 			COLUMN_SESS_ID + " INTEGER, " +
 			ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, " +
 			ShopTable.COLUMN_SHOP_ID + " INTEGER, " +

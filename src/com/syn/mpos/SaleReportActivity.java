@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrdersDataSource;
 import com.syn.mpos.database.PaymentDetailDataSource;
 import com.syn.mpos.database.Reporting;
@@ -22,7 +21,6 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
@@ -48,10 +46,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	//private static final String TAG = "SaleReportActivity";
 	public static final int BILL_REPORT = 1;
 	public static final int PRODUCT_REPORT = 2;
-	
-	private MPOSSQLiteHelper mSqliteHelper;
-	private SQLiteDatabase mSqlite;
-	
+
+	private static GlobalPropertyDataSource sGlobal;
 	private Report mReport;
 	private Reporting mReporting;
 	private BillReportAdapter mBillReportAdapter;
@@ -85,9 +81,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mLvReport = (ListView) findViewById(R.id.lvReport);
 		mLvReportProduct = (ExpandableListView) findViewById(R.id.lvReportProduct);
 		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		mSqlite = mSqliteHelper.getWritableDatabase();
-		
+		sGlobal = new GlobalPropertyDataSource(SaleReportActivity.this);
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -101,19 +95,15 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mLvReportProduct.setAdapter(mProductReportAdapter);
 		mLvReportProduct.setGroupIndicator(null);
 	}
-	
-	public SQLiteDatabase getDatabase(){
-		return mSqlite;
-	}
-	
+
 	private void genBillReport(){
-		mReporting = new Reporting(mSqlite, mDateFrom, mDateTo);
+		mReporting = new Reporting(SaleReportActivity.this, mDateFrom, mDateTo);
 		mReport = mReporting.getSaleReportByBill();
 		mBillReportAdapter.notifyDataSetChanged();
 	}
 	
 	private void genProductReport(){
-		mReporting = new Reporting(mSqlite, mDateFrom, mDateTo);
+		mReporting = new Reporting(SaleReportActivity.this, mDateFrom, mDateTo);
 		mReport = mReporting.getProductDataReport();
 		mProductReportAdapter.notifyDataSetChanged();
 	}
@@ -134,7 +124,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			double totalVat = 0.0f;
 			double totalPay = 0.0f;
 			
-			PaymentDetailDataSource payment = new PaymentDetailDataSource(mSqlite);
+			PaymentDetailDataSource payment = new PaymentDetailDataSource(SaleReportActivity.this);
 			for(Report.ReportDetail reportDetail : mReport.reportDetail){
 				if(reportDetail.getTransStatus() != OrdersDataSource.TRANS_STATUS_VOID){
 					totalPrice += reportDetail.getTotalPrice();
@@ -142,16 +132,15 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 					totalSub += reportDetail.getSubTotal();
 					totalVatable += reportDetail.getVatable();
 					totalVat += reportDetail.getTotalVat();
-					totalPay += payment.getTotalPaid(reportDetail.getTransactionId(), 
-							reportDetail.getComputerId());
+					totalPay += payment.getTotalPaid(reportDetail.getTransactionId());
 				}
 			}
-			tvSummTotalPrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalPrice));
-			tvSummDiscount.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalDiscount));
-			tvSummSubTotal.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalSub));
-			tvSummVatable.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalVatable));
-			tvSummTotalVat.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalVat));
-			tvSummTotalPay.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalPay));
+			tvSummTotalPrice.setText(sGlobal.currencyFormat(totalPrice));
+			tvSummDiscount.setText(sGlobal.currencyFormat(totalDiscount));
+			tvSummSubTotal.setText(sGlobal.currencyFormat(totalSub));
+			tvSummVatable.setText(sGlobal.currencyFormat(totalVatable));
+			tvSummTotalVat.setText(sGlobal.currencyFormat(totalVat));
+			tvSummTotalPay.setText(sGlobal.currencyFormat(totalPay));
 		}
 	}
 	
@@ -237,8 +226,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mBtnDateTo = (Button) mConditionItem.getActionView().findViewById(R.id.btnDateTo);
 		mBtnCreateReport = (Button) ((MenuItem) menu.findItem(R.id.itemCreateReport)).getActionView();
 		mBtnCreateReport.setText(R.string.create_report);
-		mBtnDateFrom.setText(GlobalPropertyDataSource.dateFormat(mSqlite, mCalendar.getTime()));
-		mBtnDateTo.setText(GlobalPropertyDataSource.dateFormat(mSqlite, mCalendar.getTime()));
+		mBtnDateFrom.setText(sGlobal.dateFormat(mCalendar.getTime()));
+		mBtnDateTo.setText(sGlobal.dateFormat(mCalendar.getTime()));
 		mBtnDateFrom.setOnClickListener(this);
 		mBtnDateTo.setOnClickListener(this);
 		mSpReportType.setOnItemSelectedListener(new OnItemSelectedListener(){
@@ -284,13 +273,13 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			TextView tvSummProTotalPrice = (TextView) findViewById(R.id.tvSummProTotalPrice);
 			TextView tvSummProTotalPricePercent = (TextView) findViewById(R.id.tvSummProTotalPricePercent);
 			
-			tvSummProQty.setText(GlobalPropertyDataSource.qtyFormat(mSqlite, summProduct.getQty()));
-			tvSummProQtyPercent.setText(GlobalPropertyDataSource.qtyFormat(mSqlite, summProduct.getQty() / summProduct.getQty() * 100));
-			tvSummProSubTotal.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, summProduct.getSubTotal()));
-			tvSummProSubTotalPercent.setText(GlobalPropertyDataSource.qtyFormat(mSqlite, summProduct.getSubTotal() / summProduct.getSubTotal() * 100));
-			tvSummProDiscount.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, summProduct.getDiscount()));
-			tvSummProTotalPrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, summProduct.getTotalPrice()));
-			tvSummProTotalPricePercent.setText(GlobalPropertyDataSource.qtyFormat(mSqlite, summProduct.getTotalPrice() / summProduct.getTotalPrice() * 100));
+			tvSummProQty.setText(sGlobal.qtyFormat(summProduct.getQty()));
+			tvSummProQtyPercent.setText(sGlobal.qtyFormat(summProduct.getQty() / summProduct.getQty() * 100));
+			tvSummProSubTotal.setText(sGlobal.currencyFormat(summProduct.getSubTotal()));
+			tvSummProSubTotalPercent.setText(sGlobal.qtyFormat(summProduct.getSubTotal() / summProduct.getSubTotal() * 100));
+			tvSummProDiscount.setText(sGlobal.currencyFormat(summProduct.getDiscount()));
+			tvSummProTotalPrice.setText(sGlobal.currencyFormat(summProduct.getTotalPrice()));
+			tvSummProTotalPricePercent.setText(sGlobal.qtyFormat(summProduct.getTotalPrice() / summProduct.getTotalPrice() * 100));
 		}
 	}
 	
@@ -388,22 +377,22 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			holder.tvNo.setText(String.valueOf(position + 1) + ".");
 			holder.tvProductCode.setText(reportDetail.getProductCode());
 			holder.tvProductName.setText(reportDetail.getProductName());
-			holder.tvProductPrice.setText(GlobalPropertyDataSource.currencyFormat(
-					mSqlite, reportDetail.getPricePerUnit()));
-			holder.tvQty.setText(GlobalPropertyDataSource.qtyFormat(
-					mSqlite, reportDetail.getQty()));
-			holder.tvQtyPercent.setText(GlobalPropertyDataSource.currencyFormat(
-					mSqlite, reportDetail.getQtyPercent()));
-			holder.tvSubTotal.setText(GlobalPropertyDataSource.currencyFormat(
-					mSqlite, reportDetail.getSubTotal()));
-			holder.tvSubTotalPercent.setText(GlobalPropertyDataSource.currencyFormat(
-					mSqlite, reportDetail.getSubTotalPercent()));
-			holder.tvDiscount.setText(GlobalPropertyDataSource.currencyFormat(
-					mSqlite, reportDetail.getDiscount()));
-			holder.tvTotalPrice.setText(GlobalPropertyDataSource.currencyFormat(
-					mSqlite, reportDetail.getTotalPrice()));
-			holder.tvTotalPricePercent.setText(GlobalPropertyDataSource.currencyFormat(
-					mSqlite, reportDetail.getTotalPricePercent()));
+			holder.tvProductPrice.setText(sGlobal.currencyFormat(
+					reportDetail.getPricePerUnit()));
+			holder.tvQty.setText(sGlobal.qtyFormat(
+					reportDetail.getQty()));
+			holder.tvQtyPercent.setText(sGlobal.currencyFormat(
+					reportDetail.getQtyPercent()));
+			holder.tvSubTotal.setText(sGlobal.currencyFormat(
+					reportDetail.getSubTotal()));
+			holder.tvSubTotalPercent.setText(sGlobal.currencyFormat(
+					reportDetail.getSubTotalPercent()));
+			holder.tvDiscount.setText(sGlobal.currencyFormat(
+					reportDetail.getDiscount()));
+			holder.tvTotalPrice.setText(sGlobal.currencyFormat(
+					reportDetail.getTotalPrice()));
+			holder.tvTotalPricePercent.setText(sGlobal.currencyFormat(
+					reportDetail.getTotalPricePercent()));
 			holder.tvVatType.setText(reportDetail.getVat());
 		}
 		
@@ -493,11 +482,10 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	}
 	
 	public class BillReportAdapter extends BaseAdapter{
+		
 		private LayoutInflater mInflater;
-		private PaymentDetailDataSource mPayment;
 		
 		public BillReportAdapter(){
-			mPayment = new PaymentDetailDataSource(mSqlite);
 			mInflater = (LayoutInflater)
 					SaleReportActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
@@ -553,12 +541,12 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			
 			holder.tvReceipt.setText(report.getReceiptNo());
 			holder.tvReceipt.setSelected(true);
-			holder.tvTotalPrice.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalPrice));
-			holder.tvDiscount.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalDiscount));
-			holder.tvSubTotal.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, subTotal));
-			holder.tvVatable.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, vatable));
-			holder.tvTotalVat.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalVat));
-			holder.tvTotalPayment.setText(GlobalPropertyDataSource.currencyFormat(mSqlite, totalPay));
+			holder.tvTotalPrice.setText(sGlobal.currencyFormat(totalPrice));
+			holder.tvDiscount.setText(sGlobal.currencyFormat(totalDiscount));
+			holder.tvSubTotal.setText(sGlobal.currencyFormat(subTotal));
+			holder.tvVatable.setText(sGlobal.currencyFormat(vatable));
+			holder.tvTotalVat.setText(sGlobal.currencyFormat(totalVat));
+			holder.tvTotalPayment.setText(sGlobal.currencyFormat(totalPay));
 			
 //			List<Payment.PaymentDetail> payTypeLst = 
 //					mPayment.listPaymentGroupByType(report.getTransactionId(), report.getComputerId());
@@ -581,8 +569,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				@Override
 				public void onClick(View v) {
 					PaymentDetailFragment f = 
-							PaymentDetailFragment.newInstance(
-									report.getTransactionId(), report.getComputerId());
+							PaymentDetailFragment.newInstance(report.getTransactionId());
 					f.show(getFragmentManager(), "PaymentDialogFragment");
 				}
 				
@@ -622,15 +609,13 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		private PaymentDetailAdapter mPaymentAdapter;
 		
 		private int mTransactionId;
-		private int mComputerId;
 		
 		private LayoutInflater mInflater;
 		
-		public static PaymentDetailFragment newInstance(int transactionId, int computerId){
+		public static PaymentDetailFragment newInstance(int transactionId){
 			PaymentDetailFragment f = new PaymentDetailFragment();
 			Bundle b = new Bundle();
 			b.putInt("transactionId", transactionId);
-			b.putInt("computerId", computerId);
 			f.setArguments(b);
 			return f;
 		}
@@ -638,10 +623,9 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			mTransactionId = getArguments().getInt("transactionId");
-			mComputerId = getArguments().getInt("computerId");
 			
-			mPayment = new PaymentDetailDataSource(((SaleReportActivity) getActivity()).getDatabase());
-			mPaymentLst = mPayment.listPaymentGroupByType(mTransactionId, mComputerId);
+			mPayment = new PaymentDetailDataSource(getActivity());
+			mPaymentLst = mPayment.listPaymentGroupByType(mTransactionId);
 			mPaymentAdapter = new PaymentDetailAdapter();
 			
 			mInflater = (LayoutInflater) 
@@ -696,8 +680,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				Payment.PaymentDetail payment = mPaymentLst.get(position);
 				
 				tvLeft.setText(payment.getPayTypeName());
-				tvRight.setText(GlobalPropertyDataSource.currencyFormat(
-						((SaleReportActivity) getActivity()).getDatabase(), payment.getPayAmount()));
+				tvRight.setText(sGlobal.currencyFormat(payment.getPayAmount()));
 				
 				return convertView;
 			}
@@ -718,7 +701,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 					mCalendar.setTimeInMillis(date);
 					mDateFrom = mCalendar.getTimeInMillis();
 					
-					mBtnDateFrom.setText(GlobalPropertyDataSource.dateFormat(mSqlite, mCalendar.getTime()));
+					mBtnDateFrom.setText(sGlobal.dateFormat(mCalendar.getTime()));
 				}
 			});
 			dialogFragment.show(getFragmentManager(), "Condition");
@@ -731,7 +714,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 					mCalendar.setTimeInMillis(date);
 					mDateTo = mCalendar.getTimeInMillis();
 					
-					mBtnDateTo.setText(GlobalPropertyDataSource.dateFormat(mSqlite, mCalendar.getTime()));
+					mBtnDateTo.setText(sGlobal.dateFormat(mCalendar.getTime()));
 				}
 			});
 			dialogFragment.show(getFragmentManager(), "Condition");

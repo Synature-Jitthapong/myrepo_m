@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class ProductComponentTable{
 	
-	public static final String TABLE_NAME = "ProductComponent";
+	public static final String TABLE_PCOMPONENT = "ProductComponent";
 	public static final String COLUMN_PGROUP_ID = "pgroup_id";
 	public static final String COLUMN_CHILD_PRODUCT_ID = "child_product_id";
 	public static final String COLUMN_CHILD_PRODUCT_AMOUNT = "child_product_amount";
@@ -12,7 +12,7 @@ public class ProductComponentTable{
 	public static final String COLUMN_FLEXIBLE_INCLUDE_PRICE = "flexible_include_price";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_NAME + " ( " +
+			"CREATE TABLE " + TABLE_PCOMPONENT + " ( " +
 			COLUMN_PGROUP_ID + " INTEGER, " +
 			ProductsTable.COLUMN_PRODUCT_ID + " INTEGER, " +
 			ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 0, " +

@@ -4,10 +4,10 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class SessionDetailTable {
 
-	public static final String TABLE_NAME = "SessionEnddayDetail";
+	public static final String TABLE_SESSION_ENDDAY_DETAIL = "SessionEnddayDetail";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_NAME + " ( " +
+			"CREATE TABLE " + TABLE_SESSION_ENDDAY_DETAIL + " ( " +
 			SessionTable.COLUMN_SESS_DATE + " TEXT, " +
 			SessionTable.COLUMN_ENDDAY_DATE + " TEXT, " +
 			SessionTable.COLUMN_TOTAL_QTY_RECEIPT + " INTEGER, " +

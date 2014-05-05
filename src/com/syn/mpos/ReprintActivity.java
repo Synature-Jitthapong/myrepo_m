@@ -1,21 +1,15 @@
 package com.syn.mpos;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.MPOSOrderTransaction;
 import com.syn.mpos.database.OrdersDataSource;
-import com.syn.mpos.database.Util;
-import com.syn.mpos.database.table.ComputerTable;
-import com.syn.mpos.database.table.OrderTransactionTable;
+import com.syn.mpos.database.SessionDataSource;
 import com.syn.pos.OrderTransaction;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,11 +24,10 @@ import android.widget.TextView;
 
 public class ReprintActivity extends Activity {
 	
-	private MPOSSQLiteHelper mSqliteHelper;
-	private SQLiteDatabase mSqlite;
+	private OrdersDataSource mOrders;
+	
 	private boolean mIsOnPrint;
 	private ReprintTransAdapter mTransAdapter;
-	private int mStaffId;
 	private ListView mLvTrans;
 	
 	@Override
@@ -53,42 +46,13 @@ public class ReprintActivity extends Activity {
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		mLvTrans = (ListView) findViewById(R.id.listView1);
-		Intent intent = getIntent();
-		mStaffId = intent.getIntExtra("staffId", 0);
-		
-		mSqliteHelper = new MPOSSQLiteHelper(this);
-		mSqlite = mSqliteHelper.getWritableDatabase();
-		
-		mTransAdapter = new ReprintTransAdapter(this, 
-				listTransaction(String.valueOf(Util.getDate().getTimeInMillis())));
-		mLvTrans.setAdapter(mTransAdapter);
-	}
 
-	private List<OrderTransaction> listTransaction(String saleDate){
-		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
-		Cursor cursor = mSqlite.query(OrderTransactionTable.TABLE_NAME, 
-				new String[]{
-				OrderTransactionTable.COLUMN_TRANSACTION_ID,
-				ComputerTable.COLUMN_COMPUTER_ID,
-				OrderTransactionTable.COLUMN_RECEIPT_NO
-				}, 
-				OrderTransactionTable.COLUMN_SALE_DATE + "=? AND " +
-				OrderTransactionTable.COLUMN_STATUS_ID + "=?", 
-				new String[]{
-					saleDate,
-				 	String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS)
-				}, null, null, OrderTransactionTable.COLUMN_TRANSACTION_ID);
-		if(cursor.moveToFirst()){
-			do{
-				OrderTransaction trans = new OrderTransaction();
-				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
-				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
-				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
-				transLst.add(trans);
-			}while(cursor.moveToNext());
-		}
-		cursor.close();
-		return transLst;
+		mOrders = new OrdersDataSource(getApplicationContext());
+		
+		SessionDataSource sess = new SessionDataSource(getApplicationContext());
+		mTransAdapter = new ReprintTransAdapter(getApplication(), 
+				mOrders.listTransaction(sess.getSessionDate()));
+		mLvTrans.setAdapter(mTransAdapter);
 	}
 	
 	@Override
@@ -105,9 +69,8 @@ public class ReprintActivity extends Activity {
 	
 	public class ReprintTransAdapter extends OrderTransactionAdapter{
 
-		public ReprintTransAdapter(Context c, List<OrderTransaction> transLst) {
+		public ReprintTransAdapter(Context c, List<MPOSOrderTransaction> transLst) {
 			super(c, transLst);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
@@ -131,7 +94,7 @@ public class ReprintActivity extends Activity {
 
 				@Override
 				public void onClick(View v) {
-					new Reprint(trans.getTransactionId(), trans.getComputerId(), new Reprint.PrintStatusListener() {
+					new Reprint(trans.getTransactionId(), new Reprint.PrintStatusListener() {
 						
 						@Override
 						public void onPrintSuccess() {
@@ -170,21 +133,19 @@ public class ReprintActivity extends Activity {
 
 	
 	public class Reprint extends PrintReceipt{
-		private int mTransactionId;
-		private int mComputerId;
 		
-		public Reprint(int transactionId, int computerId, PrintStatusListener listener) {
-			super(ReprintActivity.this, mSqlite, mStaffId, listener);
-			mTransactionId = transactionId;
-			mComputerId = computerId;
+		public int mTransactionId;
+		
+		public Reprint(int transactionId, PrintStatusListener listener) {
+			super(ReprintActivity.this, listener);
 		}
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			if(MPOSApplication.getInternalPrinterSetting()){
-				printReceiptWintec(mTransactionId, mComputerId);
+			if(MPOSApplication.getInternalPrinterSetting(ReprintActivity.this)){
+				printReceiptWintec(mTransactionId);
 			}else{
-				printReceipt(mTransactionId, mComputerId);	
+				printReceipt(mTransactionId);	
 			}
 			return null;
 		}
