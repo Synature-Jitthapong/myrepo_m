@@ -3,6 +3,7 @@ package com.syn.mpos.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.mpos.database.MPOSOrderTransaction.OrderSet;
 import com.syn.mpos.database.table.OrderDetailTable;
 import com.syn.mpos.database.table.OrderSetTable;
 import com.syn.mpos.database.table.OrderTransactionTable;
@@ -106,6 +107,48 @@ public class OrderSetDataSource extends MPOSDatabase{
 		return productSetLst;
 	}
 	
+	/**
+	 * List order set detail
+	 * @param transactionId
+	 * @param orderDetailId
+	 * @return List<OrderSet.OrderSetDetail
+	 */
+	public List<OrderSet.OrderSetDetail> listOrderSetDetail(int transactionId, int orderDetailId){
+		List<OrderSet.OrderSetDetail> orderSetDetailLst = 
+				new ArrayList<OrderSet.OrderSetDetail>();
+		// query set detail
+		Cursor detailCursor = getReadableDatabase().query(OrderSetTable.TABLE_ORDER_SET, 
+				new String[] {
+					OrderSetTable.COLUMN_ORDER_SET_ID,
+					ProductsTable.COLUMN_PRODUCT_ID,
+					ProductsTable.COLUMN_PRODUCT_NAME,
+					OrderSetTable.COLUMN_ORDER_SET_QTY
+				}, 
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
+				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? ",
+				new String[]{
+					String.valueOf(transactionId), 
+					String.valueOf(orderDetailId)
+				},null, null, null);
+		
+		if(detailCursor.moveToFirst()){
+			do{
+				MPOSOrderTransaction.OrderSet.OrderSetDetail detail = 
+						new MPOSOrderTransaction.OrderSet.OrderSetDetail();
+				detail.setOrderSetId(detailCursor.getInt(detailCursor.getColumnIndex(
+						OrderSetTable.COLUMN_ORDER_SET_ID)));
+				detail.setProductId(detailCursor.getInt(detailCursor.getColumnIndex(
+						ProductsTable.COLUMN_PRODUCT_ID)));
+				detail.setProductName(detailCursor.getString(detailCursor.getColumnIndex(
+						ProductsTable.COLUMN_PRODUCT_NAME)));
+				detail.setOrderSetQty(detailCursor.getDouble(detailCursor.getColumnIndex(
+						OrderSetTable.COLUMN_ORDER_SET_QTY)));
+				orderSetDetailLst.add(detail);
+			}while(detailCursor.moveToNext());
+		}
+		detailCursor.close();
+		return orderSetDetailLst;
+	}
 	/**
 	 * @param transactionId
 	 * @param orderDetailId

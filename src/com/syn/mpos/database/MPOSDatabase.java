@@ -14,7 +14,7 @@ public class MPOSDatabase{
 	public static final int ALREADY_SEND = 1;
 	public static final int NOT_SEND = 0;
 	
-	protected MPOSSQLiteHelper mDatabaseHelper;
+	private MPOSSQLiteHelper mDatabaseHelper;
 	
 	public MPOSDatabase(Context context){
 		mDatabaseHelper = MPOSSQLiteHelper.getInstance(context);

@@ -9,8 +9,21 @@ import com.syn.pos.OrderTransaction;
 
 public class MPOSOrderTransaction extends OrderTransaction{
 	
+	/**
+	 * @author j1tth4
+	 * for display order with order set detail
+	 */
 	public static class MPOSOrderDetail extends OrderDetail{
+		private List<OrderSet.OrderSetDetail> orderSetDetailLst;
 		private double vatExclude;
+
+		public List<OrderSet.OrderSetDetail> getOrderSetDetailLst() {
+			return orderSetDetailLst;
+		}
+
+		public void setOrderSetDetailLst(List<OrderSet.OrderSetDetail> orderSetDetailLst) {
+			this.orderSetDetailLst = orderSetDetailLst;
+		}
 
 		public double getVatExclude() {
 			return vatExclude;

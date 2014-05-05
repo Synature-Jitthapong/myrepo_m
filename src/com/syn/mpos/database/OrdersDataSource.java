@@ -45,8 +45,11 @@ public class OrdersDataSource extends MPOSDatabase {
 	 */
 	public static final int TRANS_STATUS_HOLD = 9;
 
+	private OrderSetDataSource mOrderSet;
+	
 	public OrdersDataSource(Context context) {
 		super(context);
+		mOrderSet = new OrderSetDataSource(context);
 	}
 
 	/**
@@ -244,7 +247,9 @@ public class OrdersDataSource extends MPOSDatabase {
 			int orderDetailId) {
 		MPOSOrderTransaction.MPOSOrderDetail orderDetail = new MPOSOrderTransaction.MPOSOrderDetail();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
+				" SELECT "
+						+ " a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
 						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " a."
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " a."
 						+ ProductsTable.COLUMN_PRODUCT_PRICE + ", " + " a."
@@ -279,7 +284,9 @@ public class OrdersDataSource extends MPOSDatabase {
 			int transactionId) {
 		List<MPOSOrderTransaction.MPOSOrderDetail> orderDetailLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
+				" SELECT "
+						+ " a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
 						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " a."
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " a."
 						+ ProductsTable.COLUMN_PRODUCT_PRICE + ", " + " a."
@@ -313,7 +320,9 @@ public class OrdersDataSource extends MPOSDatabase {
 			int transactionId) {
 		List<MPOSOrderTransaction.MPOSOrderDetail> orderDetailLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
+				" SELECT "
+						+ " a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
 						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " SUM(a."
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ") AS "
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " SUM(a."
@@ -357,7 +366,9 @@ public class OrdersDataSource extends MPOSDatabase {
 		List<MPOSOrderTransaction.MPOSOrderDetail> orderDetailLst = 
 				new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
+				" SELECT "
+						+ " a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
 						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " a."
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " a."
 						+ ProductsTable.COLUMN_PRODUCT_PRICE + ", " + " a."
@@ -386,6 +397,8 @@ public class OrdersDataSource extends MPOSDatabase {
 	private MPOSOrderTransaction.MPOSOrderDetail toOrderDetail(Cursor cursor) {
 		MPOSOrderTransaction.MPOSOrderDetail orderDetail = 
 				new MPOSOrderTransaction.MPOSOrderDetail();
+		orderDetail.setTransactionId(cursor.getInt(cursor
+				.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
 		orderDetail.setOrderDetailId(cursor.getInt(cursor
 				.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
 		orderDetail.setProductId(cursor.getInt(cursor
@@ -408,6 +421,14 @@ public class OrdersDataSource extends MPOSDatabase {
 				.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
 		orderDetail.setDiscountType(cursor.getInt(cursor
 				.getColumnIndex(OrderDetailTable.COLUMN_DISCOUNT_TYPE)));
+
+		// generate order set detail
+		List<MPOSOrderTransaction.OrderSet.OrderSetDetail> orderSetDetailLst = 
+				mOrderSet.listOrderSetDetail(orderDetail.getTransactionId(), 
+						orderDetail.getOrderDetailId());
+		if(orderSetDetailLst.size() > 0){
+			orderDetail.setOrderSetDetailLst(orderSetDetailLst);
+		}
 		return orderDetail;
 	}
 
@@ -787,7 +808,7 @@ public class OrdersDataSource extends MPOSDatabase {
 	 * @param totalSalePrice
 	 * @return row affected
 	 */
-	public int updateTransactionVat(int transactionId) {
+	protected int updateTransactionVat(int transactionId) {
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = getSummaryOrder(transactionId);
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_TRANS_VAT, summOrder.getVat());
@@ -803,6 +824,14 @@ public class OrdersDataSource extends MPOSDatabase {
 				new String[] { String.valueOf(transactionId) });
 	}
 
+	/**
+	 * @param transactionId
+	 * @return rows affected
+	 */
+	public int summary(int transactionId){
+		return updateTransactionVat(transactionId);
+	}
+	
 	/**
 	 * @param transactionId
 	 * @return can confirm discount ?

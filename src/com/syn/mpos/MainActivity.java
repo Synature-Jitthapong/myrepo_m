@@ -1079,8 +1079,7 @@ public class MainActivity extends FragmentActivity implements
 	 * summary transaction 
 	 */
 	public void summary(){
-		mOrders.updateTransactionVat(mTransactionId);
-		MPOSOrderTransaction trans = mOrders.getTransaction(mTransactionId);
+		mOrders.summary(mTransactionId);
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
 				mOrders.getSummaryOrder(mTransactionId);
 		if(summOrder.getPriceDiscount() > 0)
@@ -1095,6 +1094,7 @@ public class MainActivity extends FragmentActivity implements
 		mTvVatExclude.setText(sGlobal.currencyFormat(summOrder.getVatExclude()));
 		mTvSubTotal.setText(sGlobal.currencyFormat(summOrder.getTotalRetailPrice()));
 		mTvDiscount.setText("-" + sGlobal.currencyFormat(summOrder.getPriceDiscount()));
+		MPOSOrderTransaction trans = mOrders.getTransaction(mTransactionId);
 		mTvTotalPrice.setText(sGlobal.currencyFormat(trans.getTransactionVatable()));
 	}
 
