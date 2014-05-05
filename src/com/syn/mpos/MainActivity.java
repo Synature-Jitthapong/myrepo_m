@@ -1,16 +1,11 @@
 package com.syn.mpos;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.google.gson.reflect.TypeToken;
 import com.j1tth4.mobile.util.ImageLoader;
-import com.j1tth4.mobile.util.JSONUtil;
-import com.syn.mpos.MPOSUtil.LoadSaleTransaction;
-import com.syn.mpos.MPOSUtil.LoadSaleTransactionListener;
 import com.syn.mpos.database.ComputerDataSource;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.Login;
@@ -18,7 +13,6 @@ import com.syn.mpos.database.MPOSOrderTransaction;
 import com.syn.mpos.database.OrdersDataSource;
 import com.syn.mpos.database.PrintReceiptLogDataSource;
 import com.syn.mpos.database.ProductsDataSource;
-import com.syn.mpos.database.SaleTransactionDataSource.POSData_SaleTransaction;
 import com.syn.mpos.database.SessionDataSource;
 import com.syn.mpos.database.ShopDataSource;
 import com.syn.mpos.database.StaffDataSource;
@@ -111,79 +105,75 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
+		mLvOrderDetail = (ListView) findViewById(R.id.lvOrder);
+		mLayoutOrderCtrl = (LinearLayout) findViewById(R.id.layoutOrderCtrl);
+		mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
+		mBtnClearSelOrder = (ImageButton) findViewById(R.id.btnClearSelOrder);
+		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
+		mTvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
+		mTvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
+		mTvDiscount = (TextView) findViewById(R.id.textViewDiscount);
+		mTbRowVat = (TableRow) findViewById(R.id.tbRowVat);
+		mTbRowDiscount = (TableRow) findViewById(R.id.tbRowDiscount);
+		mBtnDiscount = (Button) findViewById(R.id.buttonDiscount);
+		mBtnCash = (Button) findViewById(R.id.buttonCash);
+		mBtnHold = (Button) findViewById(R.id.buttonHold);
+		mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+		mPager = (ViewPager) findViewById(R.id.pager);
+
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
-		if(mStaffId == 0){
-			startActivity(new Intent(MainActivity.this, LoginActivity.class));
-			finish();
-		}else{
-			setContentView(R.layout.activity_main);
-			mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
-			mLvOrderDetail = (ListView) findViewById(R.id.lvOrder);
-			mLayoutOrderCtrl = (LinearLayout) findViewById(R.id.layoutOrderCtrl);
-			mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
-			mBtnClearSelOrder = (ImageButton) findViewById(R.id.btnClearSelOrder);
-			mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
-			mTvSubTotal = (TextView) findViewById(R.id.textViewSubTotal);
-			mTvVatExclude = (TextView) findViewById(R.id.textViewVatExclude);
-			mTvDiscount = (TextView) findViewById(R.id.textViewDiscount);
-			mTbRowVat = (TableRow) findViewById(R.id.tbRowVat);
-			mTbRowDiscount = (TableRow) findViewById(R.id.tbRowDiscount);
-			mBtnDiscount = (Button) findViewById(R.id.buttonDiscount);
-			mBtnCash = (Button) findViewById(R.id.buttonCash);
-			mBtnHold = (Button) findViewById(R.id.buttonHold);
-			mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-			mPager = (ViewPager) findViewById(R.id.pager);
-	
-			mSession = new SessionDataSource(getApplicationContext());
-			mOrders = new OrdersDataSource(getApplicationContext());
-			sProducts = new ProductsDataSource(getApplicationContext());
-			sShop = new ShopDataSource(getApplicationContext());
-			mComputer = new ComputerDataSource(getApplicationContext());
-			sGlobal = new GlobalPropertyDataSource(getApplicationContext());
-			
-			mProductDeptLst = sProducts.listProductDept();
-			mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
-			mPager.setAdapter(mPageAdapter);
-			
-			final int pageMargin = (int) TypedValue.applyDimension(
-					TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
-							.getDisplayMetrics());
-			mPager.setPageMargin(pageMargin);
-			mTabs.setViewPager(mPager);
-			mTabs.setIndicatorColor(TAB_UNDERLINE_COLOR);
-			
-			mProgress = new ProgressDialog(this);
-			mProgress.setCancelable(false);
-			mOrderDetailLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
-			mOrderDetailAdapter = new OrderDetailAdapter();
-			mLvOrderDetail.setAdapter(mOrderDetailAdapter);
-			
-			mBtnDelSelOrder.setOnClickListener(this);
-			mBtnClearSelOrder.setOnClickListener(this);
-			mLvOrderDetail.setOnItemClickListener(this);
-			mTxtBarCode.setOnKeyListener(this);
-		}
+		
+		mSession = new SessionDataSource(getApplicationContext());
+		mOrders = new OrdersDataSource(getApplicationContext());
+		sProducts = new ProductsDataSource(getApplicationContext());
+		sShop = new ShopDataSource(getApplicationContext());
+		mComputer = new ComputerDataSource(getApplicationContext());
+		sGlobal = new GlobalPropertyDataSource(getApplicationContext());
+		
+		mProductDeptLst = sProducts.listProductDept();
+		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
+		mPager.setAdapter(mPageAdapter);
+		
+		final int pageMargin = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
+						.getDisplayMetrics());
+		mPager.setPageMargin(pageMargin);
+		mTabs.setViewPager(mPager);
+		mTabs.setIndicatorColor(TAB_UNDERLINE_COLOR);
+		
+		mProgress = new ProgressDialog(this);
+		mProgress.setCancelable(false);
+		mOrderDetailLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
+		mOrderDetailAdapter = new OrderDetailAdapter();
+		mLvOrderDetail.setAdapter(mOrderDetailAdapter);
+		
+		mBtnDelSelOrder.setOnClickListener(this);
+		mBtnClearSelOrder.setOnClickListener(this);
+		mLvOrderDetail.setOnItemClickListener(this);
+		mTxtBarCode.setOnKeyListener(this);
 	}
-
-	private int openSession(){
+	
+	private void openTransaction(){
+		openSession();	
+		mTransactionId = mOrders.getCurrTransactionId(mSession.getSessionDate());
+		if(mTransactionId == 0){
+			mTransactionId = mOrders.openTransaction(sShop.getShopId(), mComputer.getComputerId(),
+					mSessionId, mStaffId, sShop.getCompanyVatRate());
+		}
+		countHoldOrder();
+		countTransNotSend();
+		loadOrder();
+	}
+	
+	private void openSession(){
 		mSessionId = mSession.getCurrentSessionId(mStaffId); 
 		if(mSessionId == 0){
 			mSessionId = mSession.openSession(sShop.getShopId(), 
 					mComputer.getComputerId(), mStaffId, 0);
 		}
-		return mSessionId;
-	}
-	
-	private void openTransaction(){
-		mTransactionId = mOrders.getCurrTransactionId(mSession.getSessionDate());
-		if(mTransactionId == 0){
-			mTransactionId = mOrders.openTransaction(sShop.getShopId(), mComputer.getComputerId(),
-					openSession(), mStaffId, sShop.getCompanyVatRate());
-		}
-		countHoldOrder();
-		countTransNotSend();
-		loadOrder();
 	}
 	
 	@Override
