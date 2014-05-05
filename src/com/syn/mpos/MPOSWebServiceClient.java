@@ -50,7 +50,7 @@ public class MPOSWebServiceClient {
 
 			@Override
 			public void onPost(final int shopId) {
-				final LoadShopListener loadShopListener = new LoadShopListener() {
+				new LoadShop(context, shopId, new LoadShopListener() {
 
 					@Override
 					public void onPre() {
@@ -96,8 +96,7 @@ public class MPOSWebServiceClient {
 							progressListener.onError(e.getMessage());
 						}
 					}
-				};
-				new LoadShop(context, shopId, loadShopListener).execute(url);
+				}).execute(url);
 			}
 		};
 		new AuthenDevice(context, authenDeviceListener).execute(url);
@@ -109,7 +108,7 @@ public class MPOSWebServiceClient {
 		
 		final String url = MPOSApplication.getFullUrl(context);
 
-		final LoadMenuListener loadMenuListener = new LoadMenuListener() {
+		new LoadMenu(context, shopId, new LoadMenuListener() {
 
 			@Override
 			public void onPre() {
@@ -127,7 +126,7 @@ public class MPOSWebServiceClient {
 
 			@Override
 			public void onPost(final MenuGroups mgs) {
-				final LoadProductListener loadProductListener = new LoadProductListener() {
+				new LoadProduct(context, shopId, new LoadProductListener() {
 
 					@Override
 					public void onPre() {
@@ -164,11 +163,9 @@ public class MPOSWebServiceClient {
 							progressListener.onError(e.getMessage());
 						}
 					}
-				};
-				new LoadProduct(context, shopId, loadProductListener).execute(url);
+				}).execute(url);
 			}
-		};
-		new LoadMenu(context, shopId, loadMenuListener).execute(url);
+		}).execute(url);
 	}
 	
 	public static class SendPartialSaleTransaction extends SendSaleTransaction{
