@@ -497,7 +497,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		PrintReceiptLogDataSource printLog = new PrintReceiptLogDataSource(mContext);
+		PrintReceiptLogDataSource printLog = new PrintReceiptLogDataSource(mContext.getApplicationContext());
 		for(PrintReceiptLogDataSource.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
 			try {
 				if(MPOSApplication.getInternalPrinterSetting(mContext)){

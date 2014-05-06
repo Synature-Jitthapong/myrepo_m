@@ -97,7 +97,7 @@ public class MainActivity extends FragmentActivity implements
 	private Button mBtnHold;
 	private MenuItem mItemHoldBill;
 	private MenuItem mItemSendSale;
-	private LinearLayout mLayoutOrderCtrl;
+	//private LinearLayout mLayoutOrderCtrl;
 	private ImageButton mBtnDelSelOrder;
 	private ImageButton mBtnClearSelOrder;
 	private ProgressDialog mProgress;
@@ -108,7 +108,7 @@ public class MainActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_main);
 		mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
 		mLvOrderDetail = (ListView) findViewById(R.id.lvOrder);
-		mLayoutOrderCtrl = (LinearLayout) findViewById(R.id.layoutOrderCtrl);
+		//mLayoutOrderCtrl = (LinearLayout) findViewById(R.id.layoutOrderCtrl);
 		mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
 		mBtnClearSelOrder = (ImageButton) findViewById(R.id.btnClearSelOrder);
 		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
@@ -294,7 +294,9 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if(keyCode == KeyEvent.KEYCODE_BACK){
-			return true;
+			return false;
+		}else if(keyCode == KeyEvent.KEYCODE_HOME){
+			return false;
 		}else{
 			return super.onKeyDown(keyCode, event);
 		}
@@ -379,7 +381,7 @@ public class MainActivity extends FragmentActivity implements
 										orderDetail.getOrderDetailId());
 								mOrderDetailLst.remove(position);
 								mOrderDetailAdapter.notifyDataSetChanged();
-								mLayoutOrderCtrl.setVisibility(View.GONE);
+								//mLayoutOrderCtrl.setVisibility(View.GONE);
 							}
 						}).show();
 					}
@@ -527,6 +529,9 @@ public class MainActivity extends FragmentActivity implements
 		private List<ProductsDataSource.Product> mProductLst;
 		private MenuItemAdapter mAdapter;
 		private int mDeptId;
+
+		private ImageLoader mImgLoader;
+		private LayoutInflater mInflater;
 		
 		public static MenuPageFragment newInstance(int deptId){
 			MenuPageFragment f = new MenuPageFragment();
@@ -545,6 +550,11 @@ public class MainActivity extends FragmentActivity implements
 			else{
 				mDeptId = getArguments().getInt("deptId");
 			}
+			mImgLoader = new ImageLoader(getActivity(), R.drawable.default_image,
+					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+			mInflater =
+					(LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			mAdapter = new MenuItemAdapter();
 		}
 		
 		@Override
@@ -559,7 +569,6 @@ public class MainActivity extends FragmentActivity implements
 
 			final GridView gvItem = (GridView) inflater.inflate(R.layout.menu_grid_view, container, false);
 			mProductLst = sProducts.listProduct(mDeptId);
-			mAdapter = new MenuItemAdapter();
 			gvItem.setAdapter(mAdapter);
 			gvItem.setOnItemClickListener(new OnItemClickListener(){
 
@@ -595,17 +604,7 @@ public class MainActivity extends FragmentActivity implements
 		 * MenuItemAdapter
 		 */
 		private class MenuItemAdapter extends BaseAdapter{
-			
-			private ImageLoader mImgLoader;
-			private LayoutInflater mInflater;
-			
-			public MenuItemAdapter(){
-				mImgLoader = new ImageLoader(getActivity(), R.drawable.default_image,
-						MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
-				mInflater =
-						(LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			}
-			
+		
 			@Override
 			public int getCount() {
 				return mProductLst.size();
@@ -1019,12 +1018,12 @@ public class MainActivity extends FragmentActivity implements
 			}
 			mOrderDetailAdapter.notifyDataSetChanged();
 			
-			if(listSelectedOrder().size() > 0){
-				mLayoutOrderCtrl.setVisibility(View.VISIBLE);
-			}
-			else{
-				mLayoutOrderCtrl.setVisibility(View.GONE);
-			}
+//			if(listSelectedOrder().size() > 0){
+//				mLayoutOrderCtrl.setVisibility(View.VISIBLE);
+//			}
+//			else{
+//				mLayoutOrderCtrl.setVisibility(View.GONE);
+//			}
 			break;
 		}
 	}
@@ -1221,12 +1220,15 @@ public class MainActivity extends FragmentActivity implements
 	 * clear selected order
 	 */
 	private void clearSelectedOrder(){
-		for(MPOSOrderTransaction.MPOSOrderDetail order : listSelectedOrder()){
-			if(order.isChecked())
-				order.setChecked(false);
+		final List<MPOSOrderTransaction.MPOSOrderDetail> selectedOrderLst = listSelectedOrder();
+		if(selectedOrderLst.size() > 0){
+			for(MPOSOrderTransaction.MPOSOrderDetail order : selectedOrderLst){
+				if(order.isChecked())
+					order.setChecked(false);
+			}
+			mOrderDetailAdapter.notifyDataSetChanged();
+			//mLayoutOrderCtrl.setVisibility(View.GONE);
 		}
-		mOrderDetailAdapter.notifyDataSetChanged();
-		mLayoutOrderCtrl.setVisibility(View.GONE);
 	}
 
 	/**
@@ -1234,27 +1236,37 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	private void deleteSelectedOrder(){
 		final List<MPOSOrderTransaction.MPOSOrderDetail> selectedOrderLst = listSelectedOrder();
-		new AlertDialog.Builder(MainActivity.this)
-		.setTitle(R.string.delete)
-		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setMessage(this.getString(R.string.confirm_delete) + " (" + selectedOrderLst.size() + ") ?")
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			}
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				for(MPOSOrderTransaction.MPOSOrderDetail order : selectedOrderLst){
-						mOrders.deleteOrderDetail(mTransactionId, order.getOrderDetailId());
-				}
-				loadOrder();
-				mLayoutOrderCtrl.setVisibility(View.GONE);
-			}
-		}).show();
+		if (selectedOrderLst.size() > 0) {
+			new AlertDialog.Builder(MainActivity.this)
+					.setTitle(R.string.delete)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setMessage(
+							this.getString(R.string.confirm_delete) + " ("
+									+ selectedOrderLst.size() + ") ?")
+					.setNegativeButton(android.R.string.cancel,
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+								}
+							})
+					.setPositiveButton(android.R.string.ok,
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									for (MPOSOrderTransaction.MPOSOrderDetail order : selectedOrderLst) {
+										mOrders.deleteOrderDetail(
+												mTransactionId,
+												order.getOrderDetailId());
+									}
+									loadOrder();
+									//mLayoutOrderCtrl.setVisibility(View.GONE);
+								}
+							}).show();
+		}
 	}
 
 	/**
@@ -1419,12 +1431,15 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
+	/**
+	 * Print Receipt
+	 */
 	private void printReceipt(){
 		PrintReceiptLogDataSource printLog = 
 				new PrintReceiptLogDataSource(getApplicationContext());
 		printLog.insertLog(mTransactionId, mStaffId);
 		
-		new PrintReceipt(getApplicationContext(), new PrintReceipt.PrintStatusListener() {
+		new PrintReceipt(MainActivity.this, new PrintReceipt.PrintStatusListener() {
 			
 			@Override
 			public void onPrintSuccess() {
@@ -1454,12 +1469,11 @@ public class MainActivity extends FragmentActivity implements
 
 					@Override
 					public void onPre() {
-						// TODO Auto-generated method stub
-						
 					}
 
 					@Override
 					public void onPost() {
+						countTransNotSend();
 						MPOSUtil.makeToask(MainActivity.this, 
 								MainActivity.this.getString(R.string.send_sale_data_success));
 					}

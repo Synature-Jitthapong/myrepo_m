@@ -12,11 +12,6 @@ public class SessionTable{
 	public static final String COLUMN_OPEN_AMOUNT = "open_amount";
 	public static final String COLUMN_CLOSE_AMOUNT = "close_amount";
 	public static final String COLUMN_IS_ENDDAY = "is_endday";
-	public static final String COLUMN_ENDDAY_DATE = "endday_date_time";
-	public static final String COLUMN_TOTAL_QTY_RECEIPT = "total_qty_receipt";
-	public static final String COLUMN_TOTAL_AMOUNT_RECEIPT = "total_amount_receipt";
-	public static final String COLUMN_IS_SEND_TO_HQ = "is_send_to_hq";
-	public static final String COLUMN_SEND_TO_HQ_DATE = "send_to_hq_date_time";
 	
 	private static final String SQL_CREATE =
 			"CREATE TABLE " + TABLE_SESSION + " ( " +

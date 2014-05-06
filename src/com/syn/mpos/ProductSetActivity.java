@@ -6,7 +6,7 @@ import java.util.List;
 import com.j1tth4.mobile.util.ImageLoader;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSOrderTransaction;
-import com.syn.mpos.database.MPOSSQLiteHelper;
+import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.OrderSetDataSource;
 import com.syn.mpos.database.OrdersDataSource;
 import com.syn.mpos.database.ProductsDataSource;

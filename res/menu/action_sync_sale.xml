@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/itemSendAll" android:title="@string/send_all" android:icon="@drawable/ic_action_accept" android:showAsAction="always|withText"></item>
+    <item android:id="@+id/itemProgress" android:visible="false" android:actionLayout="@layout/progress" android:showAsAction="always"></item>
     
 
 </menu>

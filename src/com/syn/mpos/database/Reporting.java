@@ -3,6 +3,7 @@ package com.syn.mpos.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.syn.mpos.database.table.BaseColumn;
 import com.syn.mpos.database.table.ComputerTable;
 import com.syn.mpos.database.table.OrderDetailTable;
 import com.syn.mpos.database.table.OrderTransactionTable;
@@ -74,7 +75,7 @@ public class Reporting extends MPOSDatabase{
 				" a." + OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT + ", " +
 				" a." + OrderTransactionTable.COLUMN_TRANS_VAT + ", " +
 				" a." + OrderTransactionTable.COLUMN_TRANS_VATABLE + ", " +
-				" a." + MPOSDatabase.COLUMN_SEND_STATUS + ", " +
+				" a." + BaseColumn.COLUMN_SEND_STATUS + ", " +
 				" SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + " * b." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS TotalRetailPrice, " +
 				" SUM(b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + " * b." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS TotalSalePrice, " +
 				" a." + OrderTransactionTable.COLUMN_OTHER_DISCOUNT + " + " + 
@@ -116,7 +117,7 @@ public class Reporting extends MPOSDatabase{
 				reportDetail.setVatable(cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)));
 				reportDetail.setTotalVat(cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT)));
 				reportDetail.setTotalPayment(cursor.getDouble(cursor.getColumnIndex("TotalPayment")));
-				reportDetail.setSendStatus(cursor.getInt(cursor.getColumnIndex(MPOSDatabase.COLUMN_SEND_STATUS)));
+				reportDetail.setSendStatus(cursor.getInt(cursor.getColumnIndex(BaseColumn.COLUMN_SEND_STATUS)));
 				report.reportDetail.add(reportDetail);
 				
 			}while(cursor.moveToNext());

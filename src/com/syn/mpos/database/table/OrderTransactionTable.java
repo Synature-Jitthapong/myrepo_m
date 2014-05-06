@@ -1,6 +1,5 @@
 package com.syn.mpos.database.table;
 
-import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.StockDocument.DocumentTypeTable;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -33,7 +32,7 @@ public class OrderTransactionTable{
 	
 	private static final String SQL_CREATE =
 		"CREATE TABLE " + TABLE_ORDER_TRANS + " ( " +
-		MPOSDatabase.COLUMN_UUID + " TEXT, " +
+		BaseColumn.COLUMN_UUID + " TEXT, " +
 		COLUMN_TRANSACTION_ID + " INTEGER, " +
 		ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, " +
 		ShopTable.COLUMN_SHOP_ID + " INTEGER, " +
@@ -60,7 +59,7 @@ public class OrderTransactionTable{
 		COLUMN_TRANS_VATABLE + " REAL DEFAULT 0, " +
 		COLUMN_TRANS_NOTE + " TEXT, " +
 		COLUMN_OTHER_DISCOUNT + " REAL DEFAULT 0, " +
-		MPOSDatabase.COLUMN_SEND_STATUS + " INTEGER DEFAULT 0, " +
+		BaseColumn.COLUMN_SEND_STATUS + " INTEGER DEFAULT 0, " +
 		ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
 		ProductsTable.COLUMN_VAT_RATE + " REAL DEFAULT 0, " +
 		"PRIMARY KEY (" + COLUMN_TRANSACTION_ID + ") ); ";

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.MPOSSQLiteHelper;
 import com.syn.mpos.database.OrdersDataSource;
+import com.syn.mpos.database.table.BaseColumn;
 import com.syn.mpos.database.table.ComputerTable;
 import com.syn.mpos.database.table.OrderTransactionTable;
 import com.syn.pos.OrderTransaction;
@@ -37,6 +37,8 @@ public class SyncSaleActivity extends Activity{
 	private int mStaffId;
 	private List<SendTransaction> mTransLst;
 	private SyncItemAdapter mSyncAdapter;
+	private MenuItem mItemProgress;
+	private MenuItem mItemSendAll;
 	private ListView mLvSyncItem;
 	
 	@Override
@@ -52,14 +54,18 @@ public class SyncSaleActivity extends Activity{
 	    params.dimAmount = 0.5f;
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
-		setContentView(R.layout.sync_sale_layout);
+		setContentView(R.layout.activity_sync_sale);
 		
-		mLvSyncItem = (ListView) findViewById(R.id.listView1);
+		mLvSyncItem = (ListView) findViewById(R.id.lvSync);
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mShopId = intent.getIntExtra("shopId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 
+		loadTransNotSend();
+	}
+	
+	private void loadTransNotSend(){
 		mTransLst = listNotSendTransaction();
 		mSyncAdapter = new SyncItemAdapter(this, mTransLst);
 		mLvSyncItem.setAdapter(mSyncAdapter);
@@ -68,6 +74,8 @@ public class SyncSaleActivity extends Activity{
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.action_sync_sale, menu);
+		mItemProgress = menu.findItem(R.id.itemProgress);
+		mItemSendAll = menu.findItem(R.id.itemSendAll);
 		return true;
 	}
 	
@@ -87,51 +95,48 @@ public class SyncSaleActivity extends Activity{
 	}
 
 	private void sendSale(){
-		for(final SendTransaction trans : mTransLst){
-			MPOSUtil.doSendSaleBySpecificTransaction(SyncSaleActivity.this,
-					mShopId, mComputerId, trans.getTransactionId(), 
-					mStaffId, new ProgressListener(){
+		MPOSUtil.doSendSale(SyncSaleActivity.this,
+				mShopId, mComputerId, mStaffId, new ProgressListener(){
 
-				@Override
-				public void onPre() {
-					mIsOnSync = true;
-					trans.setOnSend(true);
-					mSyncAdapter.notifyDataSetChanged();
-				}
+			@Override
+			public void onPre() {
+				mIsOnSync = true;
+				mItemProgress.setVisible(true);
+				mItemSendAll.setVisible(false);
+			}
 
-				@Override
-				public void onPost() {
-					mIsOnSync = false;
-					trans.setOnSend(false);
-					trans.setSendStatus(MPOSDatabase.ALREADY_SEND);
-					mSyncAdapter.notifyDataSetChanged();
-				}
+			@Override
+			public void onPost() {
+				mIsOnSync = false;
+				loadTransNotSend();
+				mItemProgress.setVisible(false);
+				mItemSendAll.setVisible(true);
+			}
 
-				@Override
-				public void onError(String msg) {
-					mIsOnSync = false;
-					trans.setOnSend(false);
-					trans.setSendStatus(MPOSDatabase.NOT_SEND);
-					mSyncAdapter.notifyDataSetChanged();
-					MPOSUtil.makeToask(SyncSaleActivity.this, msg);
-				}
-				
-			});
-		}
+			@Override
+			public void onError(String msg) {
+				mIsOnSync = false;
+				loadTransNotSend();
+				MPOSUtil.makeToask(SyncSaleActivity.this, msg);
+				mItemProgress.setVisible(false);
+				mItemSendAll.setVisible(true);
+			}
+			
+		});
 	}
 	
 	private List<SendTransaction> listNotSendTransaction(){
 		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
-		MPOSSQLiteHelper helper = MPOSSQLiteHelper.getInstance(getApplicationContext());
+		MPOSDatabase.MPOSOpenHelper helper = MPOSDatabase.MPOSOpenHelper.getInstance(getApplicationContext());
 		Cursor cursor = helper.getReadableDatabase().query(OrderTransactionTable.TABLE_ORDER_TRANS, 
 				new String[]{
 					OrderTransactionTable.COLUMN_TRANSACTION_ID,
 					ComputerTable.COLUMN_COMPUTER_ID,
 					OrderTransactionTable.COLUMN_RECEIPT_NO,
 					OrderTransactionTable.COLUMN_CLOSE_TIME,
-					MPOSDatabase.COLUMN_SEND_STATUS
+					BaseColumn.COLUMN_SEND_STATUS
 				}, OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " +
-					MPOSDatabase.COLUMN_SEND_STATUS + "=?", 
+					BaseColumn.COLUMN_SEND_STATUS + "=?", 
 				new String[]{
 					String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
@@ -142,7 +147,7 @@ public class SyncSaleActivity extends Activity{
 				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
-				trans.setSendStatus(cursor.getInt(cursor.getColumnIndex(MPOSDatabase.COLUMN_SEND_STATUS)));
+				trans.setSendStatus(cursor.getInt(cursor.getColumnIndex(BaseColumn.COLUMN_SEND_STATUS)));
 				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_CLOSE_TIME)));
 				transLst.add(trans);
 			}while(cursor.moveToNext());

@@ -286,6 +286,8 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	public void creditPay(){
 		if(mTotalSalePrice > 0 && mPaymentLeft > 0){
 			Intent intent = new Intent(PaymentActivity.this, CreditPayActivity.class);
+			intent.putExtra("transactionId", mTransactionId);
+			intent.putExtra("computerId", mComputerId);
 			intent.putExtra("paymentLeft", mPaymentLeft);
 			startActivityForResult(intent, 1);
 		}

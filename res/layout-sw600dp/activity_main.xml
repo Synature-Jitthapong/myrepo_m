@@ -26,6 +26,7 @@
                 android:ems="1"
                 android:hint="@string/barcode"
                 android:imeOptions="actionSearch"
+                android:inputType="number"
                 android:lines="1"
                 android:maxLines="1"
                 android:paddingRight="48dp"
@@ -58,9 +59,9 @@
             android:id="@+id/layoutOrderCtrl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/order_background"
             android:gravity="right"
-            android:paddingLeft="8dp"
-            android:visibility="gone" >
+            android:paddingLeft="8dp" >
 
             <ImageButton
                 android:id="@+id/btnClearSelOrder"

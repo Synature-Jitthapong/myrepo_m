@@ -2,6 +2,7 @@ package com.syn.mpos.database;
 
 import java.util.Calendar;
 
+import com.syn.mpos.database.table.BaseColumn;
 import com.syn.mpos.database.table.ComputerTable;
 import com.syn.mpos.database.table.OrderTransactionTable;
 import com.syn.mpos.database.table.SessionDetailTable;
@@ -126,20 +127,33 @@ public class SessionDataSource extends MPOSDatabase{
 	}
 
 	/**
+	 * Update set send status
+	 * @param sessionDate
+	 * @param status
+	 * @return rows affected
+	 */
+	public int updateSessionEnddayDetail(String sessionDate, int status){
+		ContentValues cv = new ContentValues();
+		cv.put(BaseColumn.COLUMN_SEND_STATUS, status);
+		return getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL,
+				cv, SessionTable.COLUMN_SESS_DATE + "=?", new String[]{sessionDate});
+	}
+	
+	/**
 	 * @param sessionDate
 	 * @param totalQtyReceipt
 	 * @param totalAmountReceipt
 	 * @return the row ID of newly insert
 	 * @throws SQLException
 	 */
-	public long addSessionEnddayDetail(String sessionDate,
-			double totalQtyReceipt, double totalAmountReceipt) throws SQLException {
+	public long addSessionEnddayDetail(String sessionDate, double totalQtyReceipt, 
+			double totalAmountReceipt) throws SQLException {
 		Calendar dateTime = Util.getDateTime();
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_SESS_DATE, sessionDate);
-		cv.put(SessionTable.COLUMN_ENDDAY_DATE, dateTime.getTimeInMillis());
-		cv.put(SessionTable.COLUMN_TOTAL_QTY_RECEIPT, totalQtyReceipt);
-		cv.put(SessionTable.COLUMN_TOTAL_AMOUNT_RECEIPT, totalAmountReceipt);
+		cv.put(SessionDetailTable.COLUMN_ENDDAY_DATE, dateTime.getTimeInMillis());
+		cv.put(SessionDetailTable.COLUMN_TOTAL_QTY_RECEIPT, totalQtyReceipt);
+		cv.put(SessionDetailTable.COLUMN_TOTAL_AMOUNT_RECEIPT, totalAmountReceipt);
 		return getWritableDatabase().insertOrThrow(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, cv);
 	}
 
@@ -159,7 +173,7 @@ public class SessionDataSource extends MPOSDatabase{
 		cv.put(SessionTable.COLUMN_CLOSE_AMOUNT, closeAmount);
 		cv.put(SessionTable.COLUMN_IS_ENDDAY, isEndday == true ? 1 : 0);
 		return getWritableDatabase().update(SessionTable.TABLE_SESSION, cv, 
-				SessionTable.COLUMN_SESS_ID + "=? AND ", 
+				SessionTable.COLUMN_SESS_ID + "=?", 
 				new String[]{
 					String.valueOf(sessionId)
 				});
@@ -200,6 +214,25 @@ public class SessionDataSource extends MPOSDatabase{
 						+ SessionTable.COLUMN_IS_ENDDAY + " =? ",
 				new String[] { String.valueOf(staffId), saleDate,
 						String.valueOf(NOT_ENDDAY_STATUS) }, null, null, null);
+		if (cursor.moveToFirst()) {
+			sessionId = cursor.getInt(0);
+		}
+		cursor.close();
+		return sessionId;
+	}
+	
+	/**
+	 * @return current sessionId
+	 */
+	public int getCurrentSessionId() {
+		int sessionId = 0;
+		Cursor cursor = getReadableDatabase().query(
+				SessionTable.TABLE_SESSION,
+				new String[] { SessionTable.COLUMN_SESS_ID },
+				SessionTable.COLUMN_IS_ENDDAY + "=?",
+				new String[] {
+						String.valueOf(NOT_ENDDAY_STATUS) }, null, null, 
+						SessionTable.COLUMN_SESS_ID + " DESC ", "1");
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}

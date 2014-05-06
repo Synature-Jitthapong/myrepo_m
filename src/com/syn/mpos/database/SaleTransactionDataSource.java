@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.syn.mpos.MPOSUtil;
 import com.syn.mpos.database.StockDocument.DocumentTypeTable;
+import com.syn.mpos.database.table.BaseColumn;
 import com.syn.mpos.database.table.ComputerTable;
 import com.syn.mpos.database.table.CreditCardTable;
 import com.syn.mpos.database.table.OrderDetailTable;
@@ -16,58 +17,31 @@ import com.syn.mpos.database.table.ProductsTable;
 import com.syn.mpos.database.table.SessionDetailTable;
 import com.syn.mpos.database.table.SessionTable;
 import com.syn.mpos.database.table.ShopTable;
-import com.syn.mpos.database.table.SyncSaleLogTable;
 
 import android.content.Context;
 import android.database.Cursor;
 
 /*
- * This class do generate SaleTransactionData
+ * This class to do generate SaleTransactionData
  * for send to HQ Server
  */
 public class SaleTransactionDataSource extends MPOSDatabase{
-	
+
 	/*
-	 * mSessionDate for query ordertransaction with session date
+	 * session date for query transaction
 	 */
 	private String mSessionDate;
 	
 	/*
-	 * mTransactionId for query OrderTransaction with transactionId
+	 * List all transaction in session date?
 	 */
-	private int mTransactionId;
+	private boolean mIsAllTrans = false;
 	
-	public SaleTransactionDataSource(Context context, String sessionDate, int transactionId){
-		super(context);
-		mTransactionId = transactionId;
-		mSessionDate = sessionDate;
-	}
-
-	public SaleTransactionDataSource(Context context, String sessionDate) {
+	public SaleTransactionDataSource(Context context, 
+			String sessionDate, boolean isAllTrans) {
 		super(context);
 		mSessionDate = sessionDate;
-	}
-
-	public POSData_SaleTransaction listSaleSaleTransactionByTransactionId() {
-		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
-		SaleData_SessionInfo sessInfo = new SaleData_SessionInfo();
-
-		sessInfo.setxTableSession(buildSessionObj());
-		sessInfo.setxTableSessionEndDay(buildSessEnddayObj());
-		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(false, true));
-		posSaleTrans.setxSessionInfo(sessInfo);
-		return posSaleTrans;
-	}
-	
-	public POSData_SaleTransaction listAllSaleTransactionInSaleDate() {
-		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
-		SaleData_SessionInfo sessInfo = new SaleData_SessionInfo();
-
-		sessInfo.setxTableSession(buildSessionObj());
-		sessInfo.setxTableSessionEndDay(buildSessEnddayObj());
-		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(true, false));
-		posSaleTrans.setxSessionInfo(sessInfo);
-		return posSaleTrans;
+		mIsAllTrans = isAllTrans;
 	}
 	
 	public POSData_SaleTransaction listSaleTransaction() {
@@ -76,25 +50,18 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 
 		sessInfo.setxTableSession(buildSessionObj());
 		sessInfo.setxTableSessionEndDay(buildSessEnddayObj());
-		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(false, false));
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst());
 		posSaleTrans.setxSessionInfo(sessInfo);
 		return posSaleTrans;
 	}
 
-	/*
-	 * SaleData_SaleTransaction{ SaleTable_OrderTransaction{
-	 * [SaleTable_OrderDetail] [SaleTable_OrderPromotion]
-	 * [SaleTable_PaymentDetail] } }
-	 */
-	public List<SaleData_SaleTransaction> buildSaleTransLst(boolean listAll, boolean listByTransId) {
+	public List<SaleData_SaleTransaction> buildSaleTransLst() {
 		List<SaleData_SaleTransaction> saleTransLst = new ArrayList<SaleData_SaleTransaction>();
 		Cursor cursor = queryTransaction();
-		
-		if(listAll)
-			cursor = queryAllTransactionInSaleDate();
-		else if(listByTransId)
-			cursor = queryTransactionByTransactionId();
-		else 
+
+		if(mIsAllTrans)
+			cursor = queryAllTransactionInSessionDate();
+		else
 			cursor = queryTransaction();
 		
 		if (cursor != null) {
@@ -104,7 +71,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 					SaleTable_OrderTransaction orderTrans = new SaleTable_OrderTransaction();
 					
 					orderTrans.setSzUDID(
-							cursor.getString(cursor.getColumnIndex(MPOSDatabase.COLUMN_UUID)));
+							cursor.getString(cursor.getColumnIndex(BaseColumn.COLUMN_UUID)));
 					orderTrans.setiTransactionID(
 							cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
 					orderTrans.setiComputerID(cursor.getInt(
@@ -298,15 +265,15 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 					saleSessEnd
 							.setDtEndDayDateTime(Util.dateTimeFormat(
 									cursor.getString(cursor
-											.getColumnIndex(SessionTable.COLUMN_ENDDAY_DATE)),
+											.getColumnIndex(SessionDetailTable.COLUMN_ENDDAY_DATE)),
 									"yyyy-MM-dd HH:mm:ss"));
 					saleSessEnd
 							.setfTotalAmountReceipt(MPOSUtil.fixesDigitLength(
 									4,
 									cursor.getDouble(cursor
-											.getColumnIndex(SessionTable.COLUMN_TOTAL_AMOUNT_RECEIPT))));
+											.getColumnIndex(SessionDetailTable.COLUMN_TOTAL_AMOUNT_RECEIPT))));
 					saleSessEnd.setiTotalQtyReceipt(cursor.getInt(cursor
-							.getColumnIndex(SessionTable.COLUMN_TOTAL_QTY_RECEIPT)));
+							.getColumnIndex(SessionDetailTable.COLUMN_TOTAL_QTY_RECEIPT)));
 				} while (cursor.moveToNext());
 			} else {
 				Calendar c = Calendar.getInstance();
@@ -392,20 +359,8 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transId) });
 	}
-
-	public Cursor queryTransactionByTransactionId() {
-		return getReadableDatabase().rawQuery(
-				"SELECT * " + 
-				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + 
-				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" + 
-				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
-				new String[] {
-						String.valueOf(mTransactionId),
-						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
-						String.valueOf(OrdersDataSource.TRANS_STATUS_VOID)});
-	}
 	
-	public Cursor queryAllTransactionInSaleDate() {
+	public Cursor queryAllTransactionInSessionDate() {
 		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + 
@@ -423,7 +378,7 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + 
 				" WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?" + 
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) " + 
-				" AND " + MPOSDatabase.COLUMN_SEND_STATUS + "=?",
+				" AND " + BaseColumn.COLUMN_SEND_STATUS + "=?",
 				new String[] {
 						mSessionDate,
 						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
@@ -445,14 +400,6 @@ public class SaleTransactionDataSource extends MPOSDatabase{
 				" FROM " + SessionTable.TABLE_SESSION + 
 				" WHERE " + SessionTable.COLUMN_SESS_DATE + "=?",
 				new String[] {mSessionDate});
-	}
-
-	public Cursor querySyncSaleLog() {
-		return getReadableDatabase().rawQuery(
-				"SELECT * " + 
-				" FROM " + SyncSaleLogTable.TABLE_SYNC_LOG + 
-				" WHERE " + SyncSaleLogTable.COLUMN_SYNC_STATUS + "=?",
-				new String[] { String.valueOf(SyncSaleLogDataSource.SYNC_FAIL) });
 	}
 
 	public static class POSData_SaleTransaction {

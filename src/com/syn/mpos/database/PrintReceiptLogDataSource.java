@@ -29,7 +29,6 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 		Cursor cursor = getReadableDatabase().query(PrintReceiptLogTable.TABLE_PRINT_LOG, 
 				new String[]{
 					OrderTransactionTable.COLUMN_TRANSACTION_ID,
-					ComputerTable.COLUMN_COMPUTER_ID,
 					StaffTable.COLUMN_STAFF_ID,
 					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID,
 					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME,
@@ -42,7 +41,6 @@ public class PrintReceiptLogDataSource extends MPOSDatabase{
 			do{
 				PrintReceipt print = new PrintReceipt();
 				print.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
-				print.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 				print.setStaffId(cursor.getInt(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_ID)));
 				print.setPriceReceiptLogId(cursor.getInt(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID)));
 				print.setPrintReceiptLogTime(cursor.getString(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME)));
