@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSOrderTransaction;
-import com.syn.mpos.database.OrdersDataSource;
+import com.syn.mpos.database.TransactionDataSource;
 import com.syn.mpos.database.ProductsDataSource;
 
 import android.os.Bundle;
@@ -45,7 +45,7 @@ public class DiscountActivity extends Activity{
 	
 	private static GlobalPropertyDataSource sGlobal;
 	
-	private OrdersDataSource mOrders;
+	private TransactionDataSource mOrders;
 	private ProductsDataSource mProduct;
 	
 	private MPOSOrderTransaction.MPOSOrderDetail mOrder;
@@ -81,7 +81,7 @@ public class DiscountActivity extends Activity{
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
-		mOrders = new OrdersDataSource(getApplicationContext());
+		mOrders = new TransactionDataSource(getApplicationContext());
 		mProduct = new ProductsDataSource(getApplicationContext());
 		sGlobal = new GlobalPropertyDataSource(getApplicationContext());
 	}

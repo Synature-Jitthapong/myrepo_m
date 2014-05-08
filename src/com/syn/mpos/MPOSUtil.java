@@ -23,7 +23,7 @@ import com.syn.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.SaleTransactionDataSource;
 import com.syn.mpos.database.SessionDataSource;
-import com.syn.mpos.database.OrdersDataSource;
+import com.syn.mpos.database.TransactionDataSource;
 import com.syn.mpos.database.SaleTransactionDataSource.POSData_SaleTransaction;
 import com.syn.mpos.database.table.OrderDetailTable;
 import com.syn.mpos.database.table.OrderTransactionTable;
@@ -70,7 +70,7 @@ public class MPOSUtil {
 						@Override
 						public void onPost() {
 							// do update transaction already send
-							OrdersDataSource trans = new OrdersDataSource(context.getApplicationContext());
+							TransactionDataSource trans = new TransactionDataSource(context.getApplicationContext());
 							trans.updateTransactionSendStatus(sessionDate);
 							listener.onPost();
 						}
@@ -113,7 +113,7 @@ public class MPOSUtil {
 			final boolean isEndday, final ProgressListener listener) {
 
 		final SessionDataSource sess = new SessionDataSource(context.getApplicationContext());
-		final OrdersDataSource trans = new OrdersDataSource(context.getApplicationContext());
+		final TransactionDataSource trans = new TransactionDataSource(context.getApplicationContext());
 		final String sessionDate = sess.getSessionDate();
 		// add session endday
 		sess.addSessionEnddayDetail(sessionDate,

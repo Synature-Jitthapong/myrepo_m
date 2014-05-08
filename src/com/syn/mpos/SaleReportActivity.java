@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.OrdersDataSource;
+import com.syn.mpos.database.TransactionDataSource;
 import com.syn.mpos.database.PaymentDetailDataSource;
 import com.syn.mpos.database.Reporting;
 import com.syn.pos.Payment;
@@ -126,7 +126,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			
 			PaymentDetailDataSource payment = new PaymentDetailDataSource(SaleReportActivity.this);
 			for(Report.ReportDetail reportDetail : mReport.reportDetail){
-				if(reportDetail.getTransStatus() != OrdersDataSource.TRANS_STATUS_VOID){
+				if(reportDetail.getTransStatus() != TransactionDataSource.TRANS_STATUS_VOID){
 					totalPrice += reportDetail.getTotalPrice();
 					totalDiscount += reportDetail.getDiscount();
 					totalSub += reportDetail.getSubTotal();
@@ -580,7 +580,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			}else{
 				holder.imgSendStatus.setImageResource(R.drawable.ic_action_warning);
 			}
-			if(report.getTransStatus() == OrdersDataSource.TRANS_STATUS_VOID){
+			if(report.getTransStatus() == TransactionDataSource.TRANS_STATUS_VOID){
 				holder.tvReceipt.setTextColor(Color.RED);
 				holder.tvReceipt.setPaintFlags(holder.tvReceipt.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			}

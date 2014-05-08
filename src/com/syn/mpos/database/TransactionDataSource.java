@@ -24,7 +24,7 @@ import com.syn.mpos.database.table.ShopTable;
  * @author j1tth4
  * 
  */
-public class OrdersDataSource extends MPOSDatabase {
+public class TransactionDataSource extends MPOSDatabase {
 
 	/*
 	 * New transaction status
@@ -48,7 +48,7 @@ public class OrdersDataSource extends MPOSDatabase {
 
 	private OrderSetDataSource mOrderSet;
 	
-	public OrdersDataSource(Context context) {
+	public TransactionDataSource(Context context) {
 		super(context);
 		mOrderSet = new OrderSetDataSource(context);
 	}
@@ -446,26 +446,52 @@ public class OrdersDataSource extends MPOSDatabase {
 	public List<MPOSOrderTransaction> listTransaction(String saleDate) {
 		List<MPOSOrderTransaction> transLst = new ArrayList<MPOSOrderTransaction>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT a." + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ ", " + " a." + ComputerTable.COLUMN_COMPUTER_ID
-						+ ", " + " a." + OrderTransactionTable.COLUMN_PAID_TIME
-						+ ", " + " a."
-						+ OrderTransactionTable.COLUMN_TRANS_NOTE + ", "
-						+ " a." + OrderTransactionTable.COLUMN_RECEIPT_YEAR
-						+ ", " + " a."
-						+ OrderTransactionTable.COLUMN_RECEIPT_MONTH + ", "
-						+ " a." + OrderTransactionTable.COLUMN_RECEIPT_ID
-						+ ", " + " a."
-						+ OrderTransactionTable.COLUMN_RECEIPT_NO + ", "
-						+ " b." + StaffTable.COLUMN_STAFF_CODE + ", " + " b."
-						+ StaffTable.COLUMN_STAFF_NAME + " FROM "
-						+ OrderTransactionTable.TABLE_ORDER_TRANS + " a "
-						+ " LEFT JOIN " + StaffTable.TABLE_NAME + " b "
-						+ " ON a." + OrderTransactionTable.COLUMN_OPEN_STAFF
-						+ "=b." + StaffTable.COLUMN_STAFF_ID + " WHERE a."
-						+ OrderTransactionTable.COLUMN_SALE_DATE + "=?"
-						+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID
-						+ "=?",
+				" SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID
+						+ ", " + ComputerTable.COLUMN_COMPUTER_ID
+						+ ", " + OrderTransactionTable.COLUMN_PAID_TIME
+						+ ", " + OrderTransactionTable.COLUMN_TRANS_NOTE 
+						+ ", " + OrderTransactionTable.COLUMN_RECEIPT_NO
+						+ ", " + OrderTransactionTable.COLUMN_STATUS_ID
+						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
+						+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?",
+				new String[] {saleDate});
+		if (cursor.moveToFirst()) {
+			do {
+				MPOSOrderTransaction trans = new MPOSOrderTransaction();
+				trans.setTransactionId(cursor.getInt(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
+				trans.setComputerId(cursor.getInt(cursor
+						.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+				trans.setTransactionStatusId(cursor.getInt(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_STATUS_ID)));
+				trans.setTransactionNote(cursor.getString(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_NOTE)));
+				trans.setPaidTime(cursor.getString(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_PAID_TIME)));
+				trans.setReceiptNo(cursor.getString(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
+				transLst.add(trans);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return transLst;
+	}
+	
+	/**
+	 * @param saleDate
+	 * @return List<MPOSOrderTransaction>
+	 */
+	public List<MPOSOrderTransaction> listSuccessTransaction(String saleDate) {
+		List<MPOSOrderTransaction> transLst = new ArrayList<MPOSOrderTransaction>();
+		Cursor cursor = getReadableDatabase().rawQuery(
+				" SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID
+						+ ", " + ComputerTable.COLUMN_COMPUTER_ID
+						+ ", " + OrderTransactionTable.COLUMN_PAID_TIME
+						+ ", " + OrderTransactionTable.COLUMN_TRANS_NOTE 
+						+ ", " + OrderTransactionTable.COLUMN_RECEIPT_NO
+						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
+						+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
+						+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + "=?",
 				new String[] {
 						saleDate,
 						String.valueOf(TRANS_STATUS_SUCCESS) });
@@ -480,11 +506,6 @@ public class OrdersDataSource extends MPOSDatabase {
 						.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_NOTE)));
 				trans.setPaidTime(cursor.getString(cursor
 						.getColumnIndex(OrderTransactionTable.COLUMN_PAID_TIME)));
-				trans.setStaffName(cursor.getString(cursor
-						.getColumnIndex(StaffTable.COLUMN_STAFF_CODE))
-						+ ":"
-						+ cursor.getString(cursor
-								.getColumnIndex(StaffTable.COLUMN_STAFF_NAME)));
 				trans.setReceiptNo(cursor.getString(cursor
 						.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
 				transLst.add(trans);
@@ -710,7 +731,7 @@ public class OrdersDataSource extends MPOSDatabase {
 						+ " WHERE " + OrderTransactionTable.COLUMN_STATUS_ID
 						+ "=? AND " + BaseColumn.COLUMN_SEND_STATUS + "=?",
 				new String[] {
-						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(MPOSDatabase.NOT_SEND) });
 		if (cursor.moveToFirst()) {
 			total = cursor.getInt(0);
@@ -1057,8 +1078,8 @@ public class OrdersDataSource extends MPOSDatabase {
 						+ "=? " + " AND "
 						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN (?,?)",
 				new String[] { sessionDate,
-						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
-						String.valueOf(OrdersDataSource.TRANS_STATUS_VOID) });
+						String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDataSource.TRANS_STATUS_VOID) });
 		if (cursor.moveToFirst()) {
 			totalReceipt = cursor.getInt(0);
 		}
@@ -1083,7 +1104,7 @@ public class OrdersDataSource extends MPOSDatabase {
 								+ OrderTransactionTable.COLUMN_STATUS_ID + "=?",
 						new String[] {
 								sessionDate,
-								String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS) });
+								String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS) });
 		if (cursor.moveToFirst()) {
 			totalReceiptAmount = cursor.getFloat(0);
 		}

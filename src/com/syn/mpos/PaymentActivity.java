@@ -11,7 +11,7 @@ import com.syn.mpos.R;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.PaymentAmountButtonDataSource;
 import com.syn.mpos.database.PaymentDetailDataSource;
-import com.syn.mpos.database.OrdersDataSource;
+import com.syn.mpos.database.TransactionDataSource;
 import com.syn.pos.Payment;
 
 import android.os.Bundle;
@@ -54,7 +54,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	private Drw mDrw;
 	
 	private PaymentDetailDataSource mPayment;
-	private OrdersDataSource mOrders;
+	private TransactionDataSource mOrders;
 	private GlobalPropertyDataSource mGlobal;
 	
 	private List<Payment.PaymentDetail> mPayLst;
@@ -106,7 +106,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
-		mOrders = new OrdersDataSource(getApplicationContext());
+		mOrders = new TransactionDataSource(getApplicationContext());
 		mPayment = new PaymentDetailDataSource(getApplicationContext());
 		mGlobal = new GlobalPropertyDataSource(getApplicationContext());
 		
@@ -134,7 +134,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	@Override
 	protected void onResume() {
 		if(mOrders.getTransaction(mTransactionId).getTransactionStatusId() == 
-				OrdersDataSource.TRANS_STATUS_SUCCESS){
+				TransactionDataSource.TRANS_STATUS_SUCCESS){
 			finish();
 		}else{
 			summary();

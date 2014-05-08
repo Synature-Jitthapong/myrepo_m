@@ -10,7 +10,7 @@ import com.syn.mpos.database.ComputerDataSource;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.Login;
 import com.syn.mpos.database.MPOSOrderTransaction;
-import com.syn.mpos.database.OrdersDataSource;
+import com.syn.mpos.database.TransactionDataSource;
 import com.syn.mpos.database.PrintReceiptLogDataSource;
 import com.syn.mpos.database.ProductsDataSource;
 import com.syn.mpos.database.SessionDataSource;
@@ -51,7 +51,6 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -70,7 +69,7 @@ public class MainActivity extends FragmentActivity implements
 	private static GlobalPropertyDataSource sGlobal;
 	
 	private SessionDataSource mSession;
-	private OrdersDataSource mOrders;
+	private TransactionDataSource mOrders;
 	private ComputerDataSource mComputer;
 	
 	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderDetailLst;
@@ -97,7 +96,6 @@ public class MainActivity extends FragmentActivity implements
 	private Button mBtnHold;
 	private MenuItem mItemHoldBill;
 	private MenuItem mItemSendSale;
-	//private LinearLayout mLayoutOrderCtrl;
 	private ImageButton mBtnDelSelOrder;
 	private ImageButton mBtnClearSelOrder;
 	private ProgressDialog mProgress;
@@ -108,7 +106,6 @@ public class MainActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_main);
 		mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
 		mLvOrderDetail = (ListView) findViewById(R.id.lvOrder);
-		//mLayoutOrderCtrl = (LinearLayout) findViewById(R.id.layoutOrderCtrl);
 		mBtnDelSelOrder = (ImageButton) findViewById(R.id.btnDelOrder);
 		mBtnClearSelOrder = (ImageButton) findViewById(R.id.btnClearSelOrder);
 		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
@@ -127,7 +124,7 @@ public class MainActivity extends FragmentActivity implements
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
 		mSession = new SessionDataSource(getApplicationContext());
-		mOrders = new OrdersDataSource(getApplicationContext());
+		mOrders = new TransactionDataSource(getApplicationContext());
 		sProducts = new ProductsDataSource(getApplicationContext());
 		sShop = new ShopDataSource(getApplicationContext());
 		mComputer = new ComputerDataSource(getApplicationContext());
@@ -740,15 +737,12 @@ public class MainActivity extends FragmentActivity implements
 	 * Hold order click
 	 */
 	public void holdOrderClicked(final View v){
-		LayoutInflater inflater = (LayoutInflater)
-				MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		
-		View inputLayout = inflater.inflate(R.layout.input_text_layout, null);
-		final EditText txtRemark = (EditText) inputLayout.findViewById(R.id.editText1);
+		final EditText txtRemark = new EditText(MainActivity.this);
+		txtRemark.requestFocus();
 		txtRemark.setHint(R.string.remark);
 		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 		builder.setTitle(R.string.hold);
-		builder.setView(inputLayout);
+		builder.setView(txtRemark);
 		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
 			@Override
@@ -771,7 +765,7 @@ public class MainActivity extends FragmentActivity implements
 				WindowManager.LayoutParams.WRAP_CONTENT);
 	}
 
-	public void showHoldBill() {
+	private void showHoldBill() {
 		final MPOSOrderTransaction holdTrans = new MPOSOrderTransaction();
 		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
 		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);

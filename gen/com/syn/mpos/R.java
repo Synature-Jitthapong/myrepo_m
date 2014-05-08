@@ -206,7 +206,6 @@ containing a value of this type.
         public static final int billLayout=0x7f0b0076;
         public static final int billSummary=0x7f0b007a;
         public static final int bodyContent=0x7f0b00aa;
-        public static final int btnBillDate=0x7f0b0084;
         public static final int btnClearSelOrder=0x7f0b0031;
         public static final int btnDateFrom=0x7f0b009a;
         public static final int btnDateTo=0x7f0b009b;
@@ -360,6 +359,7 @@ containing a value of this type.
         public static final int tvReceipt=0x7f0b008b;
         public static final int tvReceiptNo=0x7f0b00cf;
         public static final int tvRemark=0x7f0b00ad;
+        public static final int tvSaleDate=0x7f0b0084;
         public static final int tvSalePrice=0x7f0b00a5;
         public static final int tvSubTotal=0x7f0b008d;
         public static final int tvSubTotalPercent=0x7f0b00c8;
@@ -609,6 +609,7 @@ containing a value of this type.
         public static final int no_vat=0x7f050072;
         public static final int not_allow_discount=0x7f0500ba;
         public static final int not_allow_discount_price=0x7f0500b9;
+        public static final int not_found_bill=0x7f05010f;
         public static final int not_found_item=0x7f0500c3;
         public static final int not_found_printer=0x7f0500fa;
         public static final int not_main_computer=0x7f0500ed;
@@ -743,6 +744,7 @@ containing a value of this type.
         public static final int vatable=0x7f050050;
         public static final int view_stock=0x7f0500d2;
         public static final int void_bill=0x7f050078;
+        public static final int void_bill_success=0x7f050110;
         public static final int web_service=0x7f050058;
         public static final int web_service_summary=0x7f050059;
         public static final int yes=0x7f0500ae;

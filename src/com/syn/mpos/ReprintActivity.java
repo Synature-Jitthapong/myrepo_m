@@ -3,7 +3,7 @@ package com.syn.mpos;
 import java.util.List;
 
 import com.syn.mpos.database.MPOSOrderTransaction;
-import com.syn.mpos.database.OrdersDataSource;
+import com.syn.mpos.database.TransactionDataSource;
 import com.syn.mpos.database.SessionDataSource;
 import com.syn.pos.OrderTransaction;
 
@@ -24,7 +24,7 @@ import android.widget.TextView;
 
 public class ReprintActivity extends Activity {
 	
-	private OrdersDataSource mOrders;
+	private TransactionDataSource mOrders;
 	
 	private boolean mIsOnPrint;
 	private ReprintTransAdapter mTransAdapter;
@@ -47,11 +47,11 @@ public class ReprintActivity extends Activity {
 		
 		mLvTrans = (ListView) findViewById(R.id.listView1);
 
-		mOrders = new OrdersDataSource(getApplicationContext());
+		mOrders = new TransactionDataSource(getApplicationContext());
 		
 		SessionDataSource sess = new SessionDataSource(getApplicationContext());
 		mTransAdapter = new ReprintTransAdapter(getApplication(), 
-				mOrders.listTransaction(sess.getSessionDate()));
+				mOrders.listSuccessTransaction(sess.getSessionDate()));
 		mLvTrans.setAdapter(mTransAdapter);
 	}
 	

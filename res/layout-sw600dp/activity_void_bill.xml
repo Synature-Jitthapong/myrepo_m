@@ -31,12 +31,14 @@
                 android:text="@string/sale_date"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <Button
-                android:id="@+id/btnBillDate"
-                style="?android:attr/spinnerStyle"
+            <TextView
+                android:id="@+id/tvSaleDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="128dip" />
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:text="Large Text"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <Button
                 android:id="@+id/btnSearch"

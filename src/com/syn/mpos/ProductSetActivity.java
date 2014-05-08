@@ -8,7 +8,7 @@ import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSOrderTransaction;
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.OrderSetDataSource;
-import com.syn.mpos.database.OrdersDataSource;
+import com.syn.mpos.database.TransactionDataSource;
 import com.syn.mpos.database.ProductsDataSource;
 
 import android.annotation.SuppressLint;
@@ -45,7 +45,7 @@ public class ProductSetActivity extends Activity{
 	private static ProductsDataSource sProduct;
 	private static GlobalPropertyDataSource sGlobal;
 	
-	private OrdersDataSource mOrders; 
+	private TransactionDataSource mOrders; 
 	
 	private int mTransactionId;
 	private int mComputerId;
@@ -69,7 +69,7 @@ public class ProductSetActivity extends Activity{
 		sContext = ProductSetActivity.this;
 		sProduct = new ProductsDataSource(getApplicationContext());
 		sGlobal = new GlobalPropertyDataSource(getApplicationContext());
-		mOrders = new OrdersDataSource(getApplicationContext());
+		mOrders = new TransactionDataSource(getApplicationContext());
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);

@@ -96,8 +96,8 @@ public class Reporting extends MPOSDatabase{
 
 		Cursor cursor = getReadableDatabase().rawQuery(strSql, 
 				new String[]{
-				String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
-				String.valueOf(OrdersDataSource.TRANS_STATUS_VOID),
+				String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS),
+				String.valueOf(TransactionDataSource.TRANS_STATUS_VOID),
 				String.valueOf(mDateFrom), 
 				String.valueOf(mDateTo)});
 		
@@ -251,7 +251,7 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(groupId)
 				});
 		
@@ -291,7 +291,7 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(deptId)
 				});
 		
@@ -381,19 +381,19 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS),
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(OrdersDataSource.TRANS_STATUS_SUCCESS)
+						String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS)
 				});
 		
 		if(cursor.moveToFirst()){

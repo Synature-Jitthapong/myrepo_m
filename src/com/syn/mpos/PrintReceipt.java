@@ -17,7 +17,7 @@ import com.syn.mpos.database.CreditCardDataSource;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.HeaderFooterReceiptDataSource;
 import com.syn.mpos.database.MPOSOrderTransaction;
-import com.syn.mpos.database.OrdersDataSource;
+import com.syn.mpos.database.TransactionDataSource;
 import com.syn.mpos.database.PaymentDetailDataSource;
 import com.syn.mpos.database.PrintReceiptLogDataSource;
 import com.syn.mpos.database.ProductsDataSource;
@@ -32,7 +32,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	implements BatteryStatusChangeEventListener, StatusChangeEventListener{
 	
 	public static final String TAG = "PrintReceipt";
-	private OrdersDataSource mOrders;
+	private TransactionDataSource mOrders;
 	private PaymentDetailDataSource mPayment;
 	private ShopDataSource mShop;
 	private HeaderFooterReceiptDataSource mHeaderFooter;
@@ -49,7 +49,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	 */
 	public PrintReceipt(Context context, PrintStatusListener listener){
 		mContext = context;
-		mOrders = new OrdersDataSource(context.getApplicationContext());
+		mOrders = new TransactionDataSource(context.getApplicationContext());
 		mPayment = new PaymentDetailDataSource(context.getApplicationContext());
 		mShop = new ShopDataSource(context.getApplicationContext());
 		mGlobal = new GlobalPropertyDataSource(context.getApplicationContext());
