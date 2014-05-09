@@ -1,7 +1,7 @@
 package com.syn.mpos.database;
 
-import com.j1tth4.mobile.util.EncryptSHA1;
-import com.j1tth4.mobile.util.Encryption;
+import com.j1tth4.util.EncryptSHA1;
+import com.j1tth4.util.Encryption;
 import com.syn.pos.ShopData;
 
 import android.content.Context;

@@ -671,6 +671,7 @@ containing a value of this type.
         public static final int save_success=0x7f0500aa;
         public static final int search=0x7f05007e;
         public static final int search_product_hint=0x7f0500d5;
+        public static final int select_order_first=0x7f050111;
         public static final int send=0x7f050102;
         public static final int send_all=0x7f050100;
         public static final int send_sale_data=0x7f0500c4;

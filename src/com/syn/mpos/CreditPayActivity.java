@@ -8,7 +8,10 @@ import java.util.Locale;
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Msr;
 
-import com.j1tth4.mobile.util.Logger;
+import com.j1tth4.exceptionhandler.ExceptionHandler;
+import com.j1tth4.util.CreditCardParser;
+import com.j1tth4.util.Logger;
+import com.j1tth4.util.VerifyCardType;
 import com.syn.mpos.database.BankDataSource;
 import com.syn.mpos.database.CreditCardDataSource;
 import com.syn.mpos.database.GlobalPropertyDataSource;
@@ -42,12 +45,6 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	Runnable{
 	
 	public static final String TAG = "CreditPayActivity";
-
-	public static enum CardType{
-		VISA,
-		MASTER,
-		AMERICAN
-	};
 	
 	/*
 	 * is magnatic read state
@@ -66,12 +63,6 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	 * Magnetic reader
 	 */
 	private Msr mMsr;
-	
-	/*
-	 * split card data character
-	 */
-	private static final String CARD_CARRIAGE_RETURN = "%";
-	private static final String CARD_SEQMENT = "\\^";
 	
 	/*
 	 * Thread for run magnetic reader listener 
@@ -108,6 +99,12 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		/**
+		 * Register ExceptinHandler for catch error when application crash.
+		 */
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -181,7 +178,12 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 		
 		mMsr = new Msr(MPOSApplication.WINTEC_DEFAULT_DEVICE_PATH, 
 				ComIO.Baudrate.valueOf(MPOSApplication.WINTEC_DEFAULT_BAUD_RATE));
-		
+		//test();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
 		// start magnetic reader thread
 		try {
 			mMsrThread = new Thread(this);
@@ -529,26 +531,6 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 		mMsr.MSR_Close();
 		super.onDestroy();
 	}
-
-	private CardType checkCardType(String cardNumber){
-		if(cardNumber.matches("^4[0-9]{6,}$")){
-			Logger.appendLog(getApplicationContext(), 
-					MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME,
-					"VISA");
-			return CardType.VISA;
-		}else if(cardNumber.matches("^5[1-5][0-9]{5,}$")){
-			Logger.appendLog(getApplicationContext(), 
-					MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME,
-					"MASTER");
-			return CardType.MASTER;
-		}else if(cardNumber.matches("^3[47][0-9]{5,}$")){
-			Logger.appendLog(getApplicationContext(), 
-					MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME,
-					"AMERICAN");
-			return CardType.AMERICAN;
-		}
-		return null;
-	}
 	
 	/*
 	 * Listener for magnetic reader
@@ -570,19 +552,10 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 						@Override
 						public void run() {
 							try {
-								String[] track = TextUtils.split(content, CARD_CARRIAGE_RETURN);
-								String track1 = track[0].trim();
-								String track2 = track[1].trim();
-								String[] arrTrack1 = TextUtils.split(track1, CARD_SEQMENT);
-								String[] arrTrack2 = TextUtils.split(track2, "=");
-								String cardHolderName = arrTrack1[1];
-								String expDate = arrTrack1[2].substring(0, 8);
-								String cardNo = arrTrack2[0].substring(7);
-								
-								Logger.appendLog(getApplicationContext(), 
-										MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
-										"Track1 : " + track1 + "\n" +
-										"Track2 : " + track2);
+								CreditCardParser parser = new CreditCardParser();
+								String cardNo = parser.getCardNo();
+								String cardHolderName = parser.getCardHolderName();
+								String expDate = parser.getExpDate();
 								
 								mTxtCardNoSeq1.setText(null);
 								mTxtCardNoSeq2.setText(null);
@@ -597,7 +570,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 								mTxtCardHolderName.setText(cardHolderName);
 								
 								try {
-									CardType cardType = checkCardType(cardNo); 
+									VerifyCardType.CardType cardType = VerifyCardType.checkCardType(cardNo); 
 									switch(cardType){
 									case VISA:
 										mSpCardType.setSelection(1);
@@ -638,9 +611,9 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 						
 					});
 				}else{
-					Logger.appendLog(getApplicationContext(), 
-							MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
-							"Cannot receive anything.");
+//					Logger.appendLog(getApplicationContext(), 
+//							MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+//							"Cannot receive anything.");
 				}
 			} catch (Exception e) {
 				Logger.appendLog(getApplicationContext(), 
@@ -650,4 +623,64 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 		}
 	}
 
+	// debug test
+	private void test(){
+		String content = "Track2:0025870064605584=1299=330001234=16824?";
+		String content1 = "Track1:B4552939410162971^JITTHAPONG ARJSALEE       ^170220100000   876540039600C000?"
+
++"Track2:4552939410162971=17022010000039687654?";
+		try {
+			CreditCardParser parser = new CreditCardParser();
+			if(parser.parser(content1)){
+				mTxtCardNoSeq1.setText(null);
+				mTxtCardNoSeq2.setText(null);
+				mTxtCardNoSeq3.setText(null);
+				mTxtCardNoSeq4.setText(null);
+				mTxtCardHolderName.setText(null);
+				
+				String cardNo = parser.getCardNo();
+				String cardHolderName = parser.getCardHolderName();
+				String expDate = parser.getExpDate();
+				
+				mTxtCardNoSeq1.setText(cardNo.substring(0, 4));
+				mTxtCardNoSeq2.setText(cardNo.substring(4, 8));
+				mTxtCardNoSeq3.setText(cardNo.substring(8, 12));
+				mTxtCardNoSeq4.setText(cardNo.substring(12, 16));
+				mTxtCardHolderName.setText(cardHolderName);
+				//mSpExpMonth.setSelection();
+				
+				try {
+					VerifyCardType.CardType cardType = VerifyCardType.checkCardType(cardNo); 
+					switch(cardType){
+					case VISA:
+						mSpCardType.setSelection(1);
+						break;
+					case MASTER:
+						mSpCardType.setSelection(2);
+						break;
+					default:
+						mSpCardType.setSelection(0);
+					}
+				} catch (Exception e) {
+					Logger.appendLog(getApplicationContext(), 
+							MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+							"Error set selected spinner card type");
+				}
+			}
+		} catch (Exception e) {
+			new AlertDialog.Builder(CreditPayActivity.this)
+			.setTitle(R.string.error)
+			.setMessage("Error parser card data " + e.getMessage())
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			})
+			.show();
+			Logger.appendLog(getApplicationContext(), 
+					MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+					"Error " + e.getMessage());
+		}
+	}
 }

@@ -1,5 +1,6 @@
 package com.syn.mpos;
 
+import java.text.NumberFormat;
 import java.util.List;
 
 import android.content.Context;
@@ -12,7 +13,7 @@ import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
-import com.j1tth4.mobile.util.Logger;
+import com.j1tth4.util.Logger;
 import com.syn.mpos.database.CreditCardDataSource;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.HeaderFooterReceiptDataSource;
@@ -168,7 +169,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    	String strTransactionVat = mGlobal.currencyFormat(trans.getTransactionVat());
 	    	
 	    	// total item
-	    	String strTotalQty = String.valueOf(summOrder.getQty());
+	    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
 	    	builder.addText(itemText);
 	    	builder.addText(strTotalQty);
 	    	builder.addText(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
@@ -198,7 +199,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 
 	    	// total payment
 	    	List<Payment.PaymentDetail> paymentLst = 
-	    			mPayment.listPayment(transactionId);
+	    			mPayment.listPaymentGroupByType(transactionId);
 	    	for(int i = 0; i < paymentLst.size(); i++){
 	    		Payment.PaymentDetail payment = paymentLst.get(i);
 		    	String strTotalPaid = mGlobal.currencyFormat(payment.getPaid());
@@ -213,7 +214,9 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		    			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
 		    					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
 		    		}
-		    		builder.addText(paymentText + "\n");
+		    		builder.addText(paymentText);
+		    		builder.addText(createHorizontalSpace(paymentText.length()));
+		    		builder.addText("\n");
 	    			builder.addText(cardNoText);
 	    			builder.addText(createHorizontalSpace(cardNoText.length() + strTotalPaid.length()));
 	    			builder.addText(strTotalPaid);
@@ -367,7 +370,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     	String strTransactionVat = mGlobal.currencyFormat(trans.getTransactionVat());
     	
     	// total item
-    	String strTotalQty = String.valueOf(summOrder.getQty());
+    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
     	builder.append(itemText);
     	builder.append(strTotalQty);
     	builder.append(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
@@ -397,7 +400,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 
     	// total payment
     	List<Payment.PaymentDetail> paymentLst = 
-    			mPayment.listPayment(transactionId);
+    			mPayment.listPaymentGroupByType(transactionId);
     	for(int i = 0; i < paymentLst.size(); i++){
     		Payment.PaymentDetail payment = paymentLst.get(i);
 	    	String strTotalPaid = mGlobal.currencyFormat(payment.getPaid());
@@ -412,7 +415,9 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
 	    					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
 	    		}
-	    		builder.append(paymentText + "\n");
+	    		builder.append(paymentText);
+	    		builder.append(createHorizontalSpace(paymentText.length()));
+	    		builder.append("\n");
     			builder.append(cardNoText);
     			builder.append(createHorizontalSpace(cardNoText.length() + strTotalPaid.length()));
     			builder.append(strTotalPaid);

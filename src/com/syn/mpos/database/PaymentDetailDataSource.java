@@ -183,13 +183,37 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 	}
 
 	/**
+	 * @param transactionId
 	 * @param payTypeId
 	 * @return row affected
 	 */
-	public int deletePaymentDetail(int payTypeId){
-		return getWritableDatabase().delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, 
-				PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
-				new String[]{String.valueOf(payTypeId)});
+	public int deletePaymentDetail(int transactionId, int payTypeId){
+		return getWritableDatabase().delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL,
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
+				+ PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(payTypeId)});
+	}
+	
+	/**
+	 * @param transactionId
+	 * @return total paid
+	 */
+	public double getTotalPay(int transactionId){
+		double totalPaid = 0.0f;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
+						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE "
+						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+				new String[]{
+						String.valueOf(transactionId)
+				});
+		if(cursor.moveToFirst()){
+			totalPaid = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalPaid;
 	}
 	
 	/**
@@ -239,11 +263,12 @@ public class PaymentDetailDataSource extends MPOSDatabase {
 			do{
 				com.syn.pos.Payment.PaymentDetail payDetail
 					= new com.syn.pos.Payment.PaymentDetail();
+				payDetail.setTransactionID(transactionId);
 				payDetail.setPaymentDetailID(cursor.getInt(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAY_ID)));
 				payDetail.setPayTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
 				payDetail.setPayTypeCode(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)));
 				payDetail.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
-				payDetail.setPayAmount(cursor.getFloat(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAID)));
+				payDetail.setPaid(cursor.getFloat(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAID)));
 				payDetail.setRemark(cursor.getString(cursor.getColumnIndex(PaymentDetailTable.COLUMN_REMARK)));
 				paymentLst.add(payDetail);
 			}while(cursor.moveToNext());

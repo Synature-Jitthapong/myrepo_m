@@ -5,7 +5,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.j1tth4.mobile.util.ImageLoader;
+import com.j1tth4.exceptionhandler.ExceptionHandler;
+import com.j1tth4.util.ImageLoader;
 import com.syn.mpos.database.ComputerDataSource;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.Login;
@@ -69,7 +70,7 @@ public class MainActivity extends FragmentActivity implements
 	private static GlobalPropertyDataSource sGlobal;
 	
 	private SessionDataSource mSession;
-	private TransactionDataSource mOrders;
+	private TransactionDataSource mTransaction;
 	private ComputerDataSource mComputer;
 	
 	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderDetailLst;
@@ -103,6 +104,12 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		/**
+		 * Register ExceptinHandler for catch error when application crash.
+		 */
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+		
 		setContentView(R.layout.activity_main);
 		mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
 		mLvOrderDetail = (ListView) findViewById(R.id.lvOrder);
@@ -124,7 +131,7 @@ public class MainActivity extends FragmentActivity implements
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
 		mSession = new SessionDataSource(getApplicationContext());
-		mOrders = new TransactionDataSource(getApplicationContext());
+		mTransaction = new TransactionDataSource(getApplicationContext());
 		sProducts = new ProductsDataSource(getApplicationContext());
 		sShop = new ShopDataSource(getApplicationContext());
 		mComputer = new ComputerDataSource(getApplicationContext());
@@ -151,26 +158,6 @@ public class MainActivity extends FragmentActivity implements
 		mBtnClearSelOrder.setOnClickListener(this);
 		mLvOrderDetail.setOnItemClickListener(this);
 		mTxtBarCode.setOnKeyListener(this);
-	}
-	
-	private void openTransaction(){
-		openSession();	
-		mTransactionId = mOrders.getCurrTransactionId(mSession.getSessionDate());
-		if(mTransactionId == 0){
-			mTransactionId = mOrders.openTransaction(sShop.getShopId(), mComputer.getComputerId(),
-					mSessionId, mStaffId, sShop.getCompanyVatRate());
-		}
-		countHoldOrder();
-		countTransNotSend();
-		loadOrder();
-	}
-	
-	private void openSession(){
-		mSessionId = mSession.getCurrentSessionId(mStaffId); 
-		if(mSessionId == 0){
-			mSessionId = mSession.openSession(sShop.getShopId(), 
-					mComputer.getComputerId(), mStaffId, 0);
-		}
 	}
 	
 	@Override
@@ -285,6 +272,7 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	public void discountClicked(final View v){
 		Intent intent = new Intent(MainActivity.this, DiscountActivity.class);
+		intent.putExtra("transactionId", mTransactionId);
 		startActivity(intent);
 	}
 
@@ -354,7 +342,7 @@ public class MainActivity extends FragmentActivity implements
 					
 					if(--qty > 0){
 						orderDetail.setQty(qty);
-						mOrders.updateOrderDetail(mTransactionId,
+						mTransaction.updateOrderDetail(mTransactionId,
 								orderDetail.getOrderDetailId(), 
 								orderDetail.getVatType(),
 								sProducts.getVatRate(orderDetail.getProductId()), 
@@ -374,7 +362,7 @@ public class MainActivity extends FragmentActivity implements
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								mOrders.deleteOrderDetail(mTransactionId, 
+								mTransaction.deleteOrderDetail(mTransactionId, 
 										orderDetail.getOrderDetailId());
 								mOrderDetailLst.remove(position);
 								mOrderDetailAdapter.notifyDataSetChanged();
@@ -394,7 +382,7 @@ public class MainActivity extends FragmentActivity implements
 				public void onClick(View v) {
 					double qty = orderDetail.getQty();
 					orderDetail.setQty(++qty);
-					mOrders.updateOrderDetail(mTransactionId,
+					mTransaction.updateOrderDetail(mTransactionId,
 							orderDetail.getOrderDetailId(),
 							orderDetail.getVatType(),
 							sProducts.getVatRate(orderDetail.getProductId()), 
@@ -547,7 +535,7 @@ public class MainActivity extends FragmentActivity implements
 			else{
 				mDeptId = getArguments().getInt("deptId");
 			}
-			mImgLoader = new ImageLoader(getActivity(), R.drawable.default_image,
+			mImgLoader = new ImageLoader(getActivity(), 0,
 					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 			mInflater =
 					(LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -710,254 +698,6 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 	
-	public void clearBillClicked(final View v){
-		new AlertDialog.Builder(MainActivity.this)
-		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setTitle(R.string.clear_bill)
-		.setMessage(R.string.confirm_clear_bill)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			
-			}
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				clearTransaction();
-			}
-		})
-		.show();
-	}
-
-	/**
-	 * @param v
-	 * Hold order click
-	 */
-	public void holdOrderClicked(final View v){
-		final EditText txtRemark = new EditText(MainActivity.this);
-		txtRemark.requestFocus();
-		txtRemark.setHint(R.string.remark);
-		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-		builder.setTitle(R.string.hold);
-		builder.setView(txtRemark);
-		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			}
-		});
-		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				String note = txtRemark.getText().toString();
-				mOrders.holdTransaction(mTransactionId, note);
-				
-				openTransaction();
-			}
-		});
-		AlertDialog dialog = builder.create();
-		dialog.show();
-		dialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, 
-				WindowManager.LayoutParams.WRAP_CONTENT);
-	}
-
-	private void showHoldBill() {
-		final MPOSOrderTransaction holdTrans = new MPOSOrderTransaction();
-		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
-		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
-		List<MPOSOrderTransaction> billLst = 
-				mOrders.listHoldOrder(mSession.getSessionDate());
-		HoldBillAdapter billAdapter = new HoldBillAdapter(billLst);
-		lvHoldBill.setAdapter(billAdapter);
-		lvHoldBill.setOnItemClickListener(new OnItemClickListener(){
-	
-			@Override
-			public void onItemClick(AdapterView<?> parent, View v, int position,
-					long id) {
-				MPOSOrderTransaction trans = (MPOSOrderTransaction) parent.getItemAtPosition(position);
-				if (mOrderDetailLst.size() == 0) {
-					holdTrans.setTransactionId(trans.getTransactionId());
-				}
-			}
-			
-		});
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-		builder.setTitle(R.string.hold_bill);
-		builder.setView(holdBillView);
-		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			}
-		});
-		builder.setPositiveButton(android.R.string.ok, null);
-		
-		AlertDialog dialog = builder.create();
-		dialog.show();
-		dialog.getWindow().setLayout(690, 
-				WindowManager.LayoutParams.WRAP_CONTENT);
-		dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				if(mOrderDetailLst.size() > 0){
-					new AlertDialog.Builder(MainActivity.this)
-					.setTitle(R.string.hold)
-					.setMessage(R.string.hold_order)
-					.setNeutralButton(R.string.close,
-							new DialogInterface.OnClickListener() {
-	
-								@Override
-								public void onClick(
-										DialogInterface dialog,
-										int which) {
-								}
-	
-							}).show();
-				}else{
-					/* hold current transaction
-					 * and prepare selected transaction
-					 */
-					mOrders.holdTransaction(mTransactionId, "");
-					mOrders.prepareTransaction(holdTrans.getTransactionId());
-					openTransaction();
-				}
-			}
-		});
-	}
-
-	public void switchUser() {
-		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-		View swUserView = inflater.inflate(R.layout.switch_user_popup, null);
-		final EditText txtUser = (EditText) swUserView.findViewById(R.id.txtUser);
-		final EditText txtPassword = (EditText) swUserView.findViewById(R.id.txtPassword);
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-		builder.setTitle(R.string.switch_user);
-		builder.setView(swUserView);
-		builder.setCancelable(false);
-		builder.setNeutralButton(android.R.string.ok, null);
-		
-		final AlertDialog d = builder.create();	
-		d.show();
-		Button btnOk = d.getButton(AlertDialog.BUTTON_NEUTRAL);
-		btnOk.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				String user = "";
-				String pass = "";
-			
-				if(!txtUser.getText().toString().isEmpty()){
-					user = txtUser.getText().toString();
-					
-					if(!txtPassword.getText().toString().isEmpty()){
-						pass = txtPassword.getText().toString();
-						Login login = new Login(MainActivity.this.getApplicationContext(), user, pass);
-						
-						if(login.checkUser()){
-							ShopData.Staff s = login.checkLogin();
-							if(s != null){
-								mStaffId = s.getStaffID();
-								openSession();
-								mOrders.updateTransaction(mTransactionId, mStaffId);
-								openTransaction();
-								d.dismiss();
-							}else{
-								new AlertDialog.Builder(MainActivity.this)
-								.setIcon(android.R.drawable.ic_dialog_alert)
-								.setTitle(R.string.login)
-								.setMessage(R.string.incorrect_password)
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										
-									}
-								})
-								.show();
-							}
-						}else{
-							new AlertDialog.Builder(MainActivity.this)
-							.setIcon(android.R.drawable.ic_dialog_alert)
-							.setTitle(R.string.login)
-							.setMessage(R.string.incorrect_user)
-							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									
-								}
-							})
-							.show();
-						}
-					}else{
-						new AlertDialog.Builder(MainActivity.this)
-						.setIcon(android.R.drawable.ic_dialog_alert)
-						.setTitle(R.string.login)
-						.setMessage(R.string.enter_password)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								
-							}
-						})
-						.show();
-					}
-				}else{
-					new AlertDialog.Builder(MainActivity.this)
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setTitle(R.string.login)
-					.setMessage(R.string.enter_username)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							
-						}
-					})
-					.show();
-				}
-			}
-			
-		});
-	}
-
-	/**
-	 * Logout
-	 */
-	public void logout() {
-		StaffDataSource staff = new StaffDataSource(getApplicationContext());
-		ShopData.Staff s = staff.getStaff(mStaffId);
-		new AlertDialog.Builder(MainActivity.this)
-		.setTitle(R.string.logout)
-		.setIcon(android.R.drawable.ic_dialog_info)
-		.setMessage(s.getStaffName() + "\n" + this.getString(R.string.confirm_logout))
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				
-			}
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				finish();
-			}
-		})
-		.show();
-	}
-	
 	/**
 	 * on menu item click
 	 * @param productId
@@ -1059,22 +799,12 @@ public class MainActivity extends FragmentActivity implements
 	}
 	
 	/**
-	 * load order
-	 */
-	private void loadOrder(){
-		mOrderDetailLst = mOrders.listAllOrder(mTransactionId);
-		mOrderDetailAdapter.notifyDataSetChanged();
-		if(mOrderDetailAdapter.getCount() > 1)
-			mLvOrderDetail.setSelection(mOrderDetailAdapter.getCount() - 1);
-	}
-
-	/**
 	 * summary transaction 
 	 */
 	public void summary(){
-		mOrders.summary(mTransactionId);
+		mTransaction.summary(mTransactionId);
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
-				mOrders.getSummaryOrder(mTransactionId);
+				mTransaction.getSummaryOrder(mTransactionId);
 		if(summOrder.getPriceDiscount() > 0)
 			mTbRowDiscount.setVisibility(View.VISIBLE);
 		else
@@ -1087,15 +817,310 @@ public class MainActivity extends FragmentActivity implements
 		mTvVatExclude.setText(sGlobal.currencyFormat(summOrder.getVatExclude()));
 		mTvSubTotal.setText(sGlobal.currencyFormat(summOrder.getTotalRetailPrice()));
 		mTvDiscount.setText("-" + sGlobal.currencyFormat(summOrder.getPriceDiscount()));
-		MPOSOrderTransaction trans = mOrders.getTransaction(mTransactionId);
+		MPOSOrderTransaction trans = mTransaction.getTransaction(mTransactionId);
 		mTvTotalPrice.setText(sGlobal.currencyFormat(trans.getTransactionVatable()));
+	}
+
+	public void clearBillClicked(final View v){
+		new AlertDialog.Builder(MainActivity.this)
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setTitle(R.string.clear_bill)
+		.setMessage(R.string.confirm_clear_bill)
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+			
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				clearTransaction();
+			}
+		})
+		.show();
+	}
+
+	/**
+	 * @param v
+	 * Hold order click
+	 */
+	public void holdOrderClicked(final View v){
+		final EditText txtRemark = new EditText(MainActivity.this);
+		txtRemark.setHint(R.string.remark);
+		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+		builder.setTitle(R.string.hold);
+		builder.setView(txtRemark);
+		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		});
+		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				String note = txtRemark.getText().toString();
+				mTransaction.holdTransaction(mTransactionId, note);
+				
+				openTransaction();
+			}
+		});
+		final AlertDialog dialog = builder.create();
+		dialog.show();
+		dialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, 
+				WindowManager.LayoutParams.WRAP_CONTENT);
+		txtRemark.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+		    @Override
+		    public void onFocusChange(View v, boolean hasFocus) {
+		        if (hasFocus) {
+		            dialog.getWindow().setSoftInputMode(
+		            		WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		        }
+		    }
+		});
+	}
+
+	public void switchUser() {
+		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+		View swUserView = inflater.inflate(R.layout.switch_user_popup, null);
+		final EditText txtUser = (EditText) swUserView.findViewById(R.id.txtUser);
+		final EditText txtPassword = (EditText) swUserView.findViewById(R.id.txtPassword);
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+		builder.setTitle(R.string.switch_user);
+		builder.setView(swUserView);
+		builder.setCancelable(false);
+		builder.setNeutralButton(android.R.string.ok, null);
+		
+		final AlertDialog d = builder.create();	
+		d.show();
+		Button btnOk = d.getButton(AlertDialog.BUTTON_NEUTRAL);
+		btnOk.setOnClickListener(new OnClickListener(){
+	
+			@Override
+			public void onClick(View v) {
+				String user = "";
+				String pass = "";
+			
+				if(!txtUser.getText().toString().isEmpty()){
+					user = txtUser.getText().toString();
+					
+					if(!txtPassword.getText().toString().isEmpty()){
+						pass = txtPassword.getText().toString();
+						Login login = new Login(MainActivity.this.getApplicationContext(), user, pass);
+						
+						if(login.checkUser()){
+							ShopData.Staff s = login.checkLogin();
+							if(s != null){
+								mStaffId = s.getStaffID();
+								openSession();
+								mTransaction.updateTransaction(mTransactionId, mStaffId);
+								openTransaction();
+								d.dismiss();
+							}else{
+								new AlertDialog.Builder(MainActivity.this)
+								.setIcon(android.R.drawable.ic_dialog_alert)
+								.setTitle(R.string.login)
+								.setMessage(R.string.incorrect_password)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										
+									}
+								})
+								.show();
+							}
+						}else{
+							new AlertDialog.Builder(MainActivity.this)
+							.setIcon(android.R.drawable.ic_dialog_alert)
+							.setTitle(R.string.login)
+							.setMessage(R.string.incorrect_user)
+							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									
+								}
+							})
+							.show();
+						}
+					}else{
+						new AlertDialog.Builder(MainActivity.this)
+						.setIcon(android.R.drawable.ic_dialog_alert)
+						.setTitle(R.string.login)
+						.setMessage(R.string.enter_password)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								
+							}
+						})
+						.show();
+					}
+				}else{
+					new AlertDialog.Builder(MainActivity.this)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle(R.string.login)
+					.setMessage(R.string.enter_username)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							
+						}
+					})
+					.show();
+				}
+			}
+			
+		});
+	}
+
+	/**
+	 * Logout
+	 */
+	public void logout() {
+		StaffDataSource staff = new StaffDataSource(getApplicationContext());
+		ShopData.Staff s = staff.getStaff(mStaffId);
+		new AlertDialog.Builder(MainActivity.this)
+		.setTitle(R.string.logout)
+		.setIcon(android.R.drawable.ic_dialog_info)
+		.setMessage(s.getStaffName() + "\n" + this.getString(R.string.confirm_logout))
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				
+			}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+		})
+		.show();
+	}
+
+	/**
+	 * load order
+	 */
+	private void loadOrder(){
+		mOrderDetailLst = mTransaction.listAllOrder(mTransactionId);
+		mOrderDetailAdapter.notifyDataSetChanged();
+		if(mOrderDetailAdapter.getCount() > 1)
+			mLvOrderDetail.setSelection(mOrderDetailAdapter.getCount() - 1);
+	}
+
+	private void openTransaction(){
+		openSession();	
+		mTransactionId = mTransaction.getCurrTransactionId(mSession.getSessionDate());
+		if(mTransactionId == 0){
+			mTransactionId = mTransaction.openTransaction(sShop.getShopId(), mComputer.getComputerId(),
+					mSessionId, mStaffId, sShop.getCompanyVatRate());
+		}
+		countHoldOrder();
+		countTransNotSend();
+		loadOrder();
+	}
+
+	private void openSession(){
+		mSessionId = mSession.getCurrentSessionId(mStaffId); 
+		if(mSessionId == 0){
+			mSessionId = mSession.openSession(sShop.getShopId(), 
+					mComputer.getComputerId(), mStaffId, 0);
+		}
+	}
+
+	private void showHoldBill() {
+		final MPOSOrderTransaction holdTrans = new MPOSOrderTransaction();
+		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
+		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
+		List<MPOSOrderTransaction> billLst = 
+				mTransaction.listHoldOrder(mSession.getSessionDate());
+		HoldBillAdapter billAdapter = new HoldBillAdapter(billLst);
+		lvHoldBill.setAdapter(billAdapter);
+		lvHoldBill.setOnItemClickListener(new OnItemClickListener(){
+	
+			@Override
+			public void onItemClick(AdapterView<?> parent, View v, int position,
+					long id) {
+				MPOSOrderTransaction trans = (MPOSOrderTransaction) parent.getItemAtPosition(position);
+				holdTrans.setTransactionId(trans.getTransactionId());
+			}
+			
+		});
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+		builder.setTitle(R.string.hold_bill);
+		builder.setView(holdBillView);
+		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		});
+		builder.setPositiveButton(android.R.string.ok, null);
+		
+		final AlertDialog dialog = builder.create();
+		dialog.show();
+		dialog.getWindow().setLayout(690, 
+				WindowManager.LayoutParams.WRAP_CONTENT);
+		dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new OnClickListener(){
+	
+			@Override
+			public void onClick(View v) {
+				if(mOrderDetailLst.size() > 0){
+					new AlertDialog.Builder(MainActivity.this)
+					.setTitle(R.string.hold)
+					.setMessage(R.string.hold_order)
+					.setNeutralButton(R.string.close,
+							new DialogInterface.OnClickListener() {
+	
+								@Override
+								public void onClick(
+										DialogInterface dialog,
+										int which) {
+								}
+	
+							}).show();
+				}else{
+					if(holdTrans.getTransactionId() != 0){
+						mTransaction.prepareTransaction(holdTrans.getTransactionId());
+						// Delete current transaction because not have any orders.
+						mTransaction.deleteTransaction(mTransactionId);
+						openTransaction();
+						dialog.dismiss();
+					}else{
+						new AlertDialog.Builder(MainActivity.this)
+						.setTitle(R.string.hold_bill)
+						.setMessage(R.string.select_order_first)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						}).show();
+					}
+				}
+			}
+		});
 	}
 
 	/**
 	 * cancel order transaction
 	 */
 	private void clearTransaction(){
-		mOrders.cancelTransaction(mTransactionId);
+		mTransaction.cancelTransaction(mTransactionId);
 		openTransaction();
 	}
 
@@ -1252,7 +1277,7 @@ public class MainActivity extends FragmentActivity implements
 								public void onClick(DialogInterface dialog,
 										int which) {
 									for (MPOSOrderTransaction.MPOSOrderDetail order : selectedOrderLst) {
-										mOrders.deleteOrderDetail(
+										mTransaction.deleteOrderDetail(
 												mTransactionId,
 												order.getOrderDetailId());
 									}
@@ -1287,7 +1312,7 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	private void addOrder(int productId, int productTypeId, int vatType, 
 			double vatRate, double qty, double price){
-		mOrders.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
+		mTransaction.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
 				productId, productTypeId, vatType, vatRate, qty, price);
 		loadOrder();
 	}
@@ -1402,7 +1427,7 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	private void countTransNotSend(){
 		if(mItemSendSale != null){
-			int total = mOrders.countTransNotSend();
+			int total = mTransaction.countTransNotSend();
 			if(total > 0){
 				mItemSendSale.setTitle(this.getString(R.string.send_sale_data) + "(" + total + ")");
 			}else{
@@ -1416,7 +1441,7 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	private void countHoldOrder(){
 		if(mItemHoldBill != null){
-			int totalHold = mOrders.countHoldOrder(mSession.getSessionDate());
+			int totalHold = mTransaction.countHoldOrder(mSession.getSessionDate());
 			if(totalHold > 0){
 				mItemHoldBill.setTitle(this.getString(R.string.hold_bill) + "(" + totalHold + ")");
 			}else{

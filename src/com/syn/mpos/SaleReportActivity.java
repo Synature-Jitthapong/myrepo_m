@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 
+import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.TransactionDataSource;
@@ -71,6 +72,12 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		/**
+		 * Register ExceptinHandler for catch error when application crash.
+		 */
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+		
 		setContentView(R.layout.activity_sale_report);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -132,7 +139,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 					totalSub += reportDetail.getSubTotal();
 					totalVatable += reportDetail.getVatable();
 					totalVat += reportDetail.getTotalVat();
-					totalPay += payment.getTotalPaid(reportDetail.getTransactionId());
+					totalPay += payment.getTotalPay(reportDetail.getTransactionId());
 				}
 			}
 			tvSummTotalPrice.setText(sGlobal.currencyFormat(totalPrice));

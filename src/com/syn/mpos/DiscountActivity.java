@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSOrderTransaction;
 import com.syn.mpos.database.TransactionDataSource;
@@ -45,7 +46,7 @@ public class DiscountActivity extends Activity{
 	
 	private static GlobalPropertyDataSource sGlobal;
 	
-	private TransactionDataSource mOrders;
+	private TransactionDataSource mTransaction;
 	private ProductsDataSource mProduct;
 	
 	private MPOSOrderTransaction.MPOSOrderDetail mOrder;
@@ -68,6 +69,12 @@ public class DiscountActivity extends Activity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
+		/**
+		 * Register ExceptinHandler for catch error when application crash.
+		 */
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+		
 		setContentView(R.layout.activity_discount);
 		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -81,18 +88,9 @@ public class DiscountActivity extends Activity{
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
-		mOrders = new TransactionDataSource(getApplicationContext());
+		mTransaction = new TransactionDataSource(getApplicationContext());
 		mProduct = new ProductsDataSource(getApplicationContext());
 		sGlobal = new GlobalPropertyDataSource(getApplicationContext());
-	}
-	
-	@Override
-	protected void onResume() {
-		init();
-		super.onResume();
-	}
-
-	private void init(){
 		
 		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		mDisAdapter = new DiscountAdapter();
@@ -138,7 +136,7 @@ public class DiscountActivity extends Activity{
 			cancel();
 			return true;
 		case R.id.itemConfirm:
-			mOrders.confirmDiscount(mTransactionId);
+			mTransaction.confirmDiscount(mTransactionId);
 			finish();
 			return true;
 		default:
@@ -166,7 +164,7 @@ public class DiscountActivity extends Activity{
 				discount = mOrder.getTotalRetailPrice() * discount / 100;
 			}	
 			double totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - discount;
-			mOrders.discountEatchProduct(mTransactionId, 
+			mTransaction.discountEatchProduct(mTransactionId, 
 					mOrder.getOrderDetailId(), mOrder.getVatType(),
 					mProduct.getVatRate(mOrder.getProductId()), 
 					totalPriceAfterDiscount, discount, discountType);
@@ -239,14 +237,15 @@ public class DiscountActivity extends Activity{
 	}
 	
 	private void loadOrder() {
-		if(mOrders.prepareDiscount(mTransactionId)){
-			mOrderLst = mOrders.listAllOrderForDiscount(mTransactionId);
+		if(mTransaction.prepareDiscount(mTransactionId)){
+			mOrderLst = mTransaction.listAllOrderForDiscount(mTransactionId);
 			mDisAdapter.notifyDataSetChanged();
 		}
 	}
 
 	private void summary() {
-		MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrderForDiscount(mTransactionId);
+		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
+				mTransaction.getSummaryOrderForDiscount(mTransactionId);
 		mTotalPrice = summOrder.getTotalSalePrice();
 		double totalVatExcluded = summOrder.getVatExclude();
 		if(totalVatExcluded > 0)
@@ -279,7 +278,7 @@ public class DiscountActivity extends Activity{
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									mOrders.cancelDiscount(mTransactionId);
+									mTransaction.cancelDiscount(mTransactionId);
 									finish();
 								}
 							}).show();

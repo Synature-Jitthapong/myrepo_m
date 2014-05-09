@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSOrderTransaction;
 import com.syn.mpos.database.TransactionDataSource;
@@ -64,6 +65,12 @@ public class VoidBillActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		/**
+		 * Register ExceptinHandler for catch error when application crash.
+		 */
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+		
 		setContentView(R.layout.activity_void_bill);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -116,6 +123,8 @@ public class VoidBillActivity extends Activity {
 				
 				if(trans.getTransactionStatusId() == TransactionDataSource.TRANS_STATUS_SUCCESS)
 					mItemConfirm.setEnabled(true);
+				else if(trans.getTransactionStatusId() == TransactionDataSource.TRANS_STATUS_VOID)
+					mItemConfirm.setEnabled(false);
 				searchVoidItem();
 			}
 		});

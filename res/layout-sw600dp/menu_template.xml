@@ -17,8 +17,7 @@
         android:layout_centerHorizontal="true"
         android:layout_margin="4dp"
         android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:src="@drawable/default_image" />
+        android:focusableInTouchMode="false" />
 
     <TextView
         android:id="@+id/textViewMenuName"

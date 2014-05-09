@@ -7,6 +7,7 @@ import java.util.List;
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Drw;
 
+import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.R;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.PaymentAmountButtonDataSource;
@@ -82,6 +83,12 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
+		/**
+		 * Register ExceptinHandler for catch error when application crash.
+		 */
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -220,12 +227,12 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			
 			tvPayType.setText(payTypeName);
 			tvPayDetail.setText(payment.getRemark());
-			tvPayAmount.setText(mGlobal.currencyFormat(payment.getPayAmount()));
+			tvPayAmount.setText(mGlobal.currencyFormat(payment.getPaid()));
 			imgDel.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
-					deletePayment(payment.getPayTypeID());
+					deletePayment(payment.getTransactionID(), payment.getPayTypeID());
 				}
 				
 			});
@@ -249,8 +256,8 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mTxtChange.setText(mGlobal.currencyFormat(mChange));
 	}
 	
-	private void deletePayment(int payTypeId){
-		mPayment.deletePaymentDetail(payTypeId);
+	private void deletePayment(int transactionId, int payTypeId){
+		mPayment.deletePaymentDetail(transactionId, payTypeId);
 		loadPayDetail();
 	}
 	

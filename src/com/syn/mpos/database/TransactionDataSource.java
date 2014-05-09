@@ -453,8 +453,13 @@ public class TransactionDataSource extends MPOSDatabase {
 						+ ", " + OrderTransactionTable.COLUMN_RECEIPT_NO
 						+ ", " + OrderTransactionTable.COLUMN_STATUS_ID
 						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-						+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?",
-				new String[] {saleDate});
+						+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=? AND "
+						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN(?, ?)",
+				new String[] {
+						saleDate,
+						String.valueOf(TRANS_STATUS_VOID),
+						String.valueOf(TRANS_STATUS_SUCCESS)
+				});
 		if (cursor.moveToFirst()) {
 			do {
 				MPOSOrderTransaction trans = new MPOSOrderTransaction();
@@ -872,8 +877,8 @@ public class TransactionDataSource extends MPOSDatabase {
 	}
 
 	/**
-	 * @param orderDetailId
 	 * @param transactionId
+	 * @param orderDetailId
 	 * @param vatType
 	 * @param vatRate
 	 * @param salePrice
@@ -881,7 +886,7 @@ public class TransactionDataSource extends MPOSDatabase {
 	 * @param discountType
 	 * @return row affected
 	 */
-	public int discountEatchProduct(int orderDetailId, int transactionId,
+	public int discountEatchProduct(int transactionId, int orderDetailId, 
 			int vatType, double vatRate, double salePrice, double discount,
 			int discountType) {
 		double vat = Util.calculateVatAmount(salePrice, vatRate, vatType);

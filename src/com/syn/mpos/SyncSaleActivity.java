@@ -3,6 +3,7 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.database.MPOSDatabase;
 import com.syn.mpos.database.TransactionDataSource;
 import com.syn.mpos.database.table.BaseColumn;
@@ -44,6 +45,12 @@ public class SyncSaleActivity extends Activity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		/**
+		 * Register ExceptinHandler for catch error when application crash.
+		 */
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);

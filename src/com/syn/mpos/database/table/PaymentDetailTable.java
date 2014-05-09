@@ -7,7 +7,7 @@ public class PaymentDetailTable{
 	public static final String TABLE_PAYMENT_DETAIL = "PaymentDetail";
 	public static final String COLUMN_PAY_ID = "pay_detail_id";
 	public static final String COLUMN_PAY_AMOUNT = "pay_amount";
-	public static final String COLUMN_PAID = "pad";
+	public static final String COLUMN_PAID = "paid";
 	public static final String COLUMN_REMARK = "remark";
 	
 	private static final String SQL_CREATE =

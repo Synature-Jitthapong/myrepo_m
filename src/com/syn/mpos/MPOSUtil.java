@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.j1tth4.mobile.util.Logger;
+import com.j1tth4.util.Logger;
 import com.syn.mpos.MPOSWebServiceClient.AuthenDeviceListener;
 import com.syn.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.syn.mpos.database.MPOSDatabase;

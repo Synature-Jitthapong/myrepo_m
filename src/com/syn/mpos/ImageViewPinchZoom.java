@@ -3,7 +3,7 @@ package com.syn.mpos;
 import com.imagezoom.ImageAttacher;
 import com.imagezoom.ImageAttacher.OnMatrixChangedListener;
 import com.imagezoom.ImageAttacher.OnPhotoTapListener;
-import com.j1tth4.mobile.util.ImageLoader;
+import com.j1tth4.util.ImageLoader;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
