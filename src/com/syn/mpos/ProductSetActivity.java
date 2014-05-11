@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.j1tth4.util.ImageLoader;
-import com.syn.mpos.database.GlobalPropertyDataSource;
-import com.syn.mpos.database.MPOSOrderTransaction;
-import com.syn.mpos.database.TransactionDataSource;
-import com.syn.mpos.database.ProductsDataSource;
+import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.MPOSOrderTransaction;
+import com.syn.mpos.dao.ProductsDao;
+import com.syn.mpos.dao.TransactionDao;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -39,10 +39,10 @@ import android.widget.TextView;
 public class ProductSetActivity extends Activity{
 
 	private static Context sContext;
-	private static ProductsDataSource sProduct;
-	private static GlobalPropertyDataSource sGlobal;
+	private static ProductsDao sProduct;
+	private static GlobalPropertyDao sGlobal;
 	
-	private static TransactionDataSource sTransaction; 
+	private static TransactionDao sTransaction; 
 	
 	private int mTransactionId;
 	private int mComputerId;
@@ -64,9 +64,9 @@ public class ProductSetActivity extends Activity{
 		setContentView(R.layout.activity_product_set);
 		
 		sContext = ProductSetActivity.this;
-		sProduct = new ProductsDataSource(getApplicationContext());
-		sGlobal = new GlobalPropertyDataSource(getApplicationContext());
-		sTransaction = new TransactionDataSource(getApplicationContext());
+		sProduct = new ProductsDao(getApplicationContext());
+		sGlobal = new GlobalPropertyDao(getApplicationContext());
+		sTransaction = new TransactionDao(getApplicationContext());
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -130,7 +130,7 @@ public class ProductSetActivity extends Activity{
 		private int mOrderDetailId;
 		private int mProductId;
 		
-		private List<ProductsDataSource.ProductComponent> mProductCompLst;
+		private List<ProductsDao.ProductComponent> mProductCompLst;
 		
 		private ExpandableListView mLvOrderSet;
 		private GridView mGvSetItem;
@@ -157,7 +157,7 @@ public class ProductSetActivity extends Activity{
 			mOrderDetailId = getArguments().getInt("orderDetailId");
 			mProductId = getArguments().getInt("productId");
 			
-			mProductCompLst = new ArrayList<ProductsDataSource.ProductComponent>();
+			mProductCompLst = new ArrayList<ProductsDao.ProductComponent>();
 			
 		}
 
@@ -171,12 +171,12 @@ public class ProductSetActivity extends Activity{
 
 		@SuppressLint("NewApi")
 		private void createSetGroupButton(){
-			List<ProductsDataSource.ProductComponentGroup> productCompGroupLst;
+			List<ProductsDao.ProductComponentGroup> productCompGroupLst;
 			productCompGroupLst = sProduct.listProductComponentGroup(mProductId);
 			if(productCompGroupLst != null){
 				LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
 				for(int i = 0; i < productCompGroupLst.size(); i++){
-					final ProductsDataSource.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
+					final ProductsDao.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
 					View setGroupView = mInflater.inflate(R.layout.set_group_button_layout, null);
 					TextView tvGroupName = (TextView) setGroupView.findViewById(R.id.textView2);
 					TextView tvBadge = (TextView) setGroupView.findViewById(R.id.textView1);
@@ -334,7 +334,7 @@ public class ProductSetActivity extends Activity{
 			}
 
 			@Override
-			public ProductsDataSource.ProductComponent getItem(int position) {
+			public ProductsDao.ProductComponent getItem(int position) {
 				return mProductCompLst.get(position);
 			}
 
@@ -357,7 +357,7 @@ public class ProductSetActivity extends Activity{
 					holder = (MainActivity.MenuItemViewHolder) convertView.getTag();
 				}
 				
-				final ProductsDataSource.ProductComponent pComp = mProductCompLst.get(position);
+				final ProductsDao.ProductComponent pComp = mProductCompLst.get(position);
 				holder.tvMenu.setText(pComp.getProductName());
 				holder.tvPrice.setText(sGlobal.currencyFormat(pComp.getFlexibleProductPrice()));
 

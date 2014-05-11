@@ -6,9 +6,9 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.syn.mpos.database.GlobalPropertyDataSource;
-import com.syn.mpos.database.MPOSOrderTransaction;
-import com.syn.mpos.database.TransactionDataSource;
+import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.MPOSOrderTransaction;
+import com.syn.mpos.dao.TransactionDao;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -36,8 +36,8 @@ import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
 	
-	private TransactionDataSource mOrders;
-	private GlobalPropertyDataSource mGlobal;
+	private TransactionDao mOrders;
+	private GlobalPropertyDao mGlobal;
 	
 	private List<MPOSOrderTransaction> mTransLst;
 	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderLst;
@@ -87,8 +87,8 @@ public class VoidBillActivity extends Activity {
 	    tvSaleDate = (TextView) findViewById(R.id.tvSaleDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 
-		mOrders = new TransactionDataSource(getApplicationContext());
-		mGlobal = new GlobalPropertyDataSource(getApplicationContext());
+		mOrders = new TransactionDao(getApplicationContext());
+		mGlobal = new GlobalPropertyDao(getApplicationContext());
 		mTransLst = new ArrayList<MPOSOrderTransaction>();
 		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -121,9 +121,9 @@ public class VoidBillActivity extends Activity {
 				mReceiptNo = trans.getReceiptNo();
 				mReceiptDate = mGlobal.dateTimeFormat(c.getTime());
 				
-				if(trans.getTransactionStatusId() == TransactionDataSource.TRANS_STATUS_SUCCESS)
+				if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
 					mItemConfirm.setEnabled(true);
-				else if(trans.getTransactionStatusId() == TransactionDataSource.TRANS_STATUS_VOID)
+				else if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID)
 					mItemConfirm.setEnabled(false);
 				searchVoidItem();
 			}
@@ -204,7 +204,7 @@ public class VoidBillActivity extends Activity {
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
 			holder.tvPaidTime.setText(mGlobal.dateTimeFormat(c.getTime()));
 			
-			if(trans.getTransactionStatusId() == TransactionDataSource.TRANS_STATUS_VOID){
+			if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID){
 				holder.tvReceiptNo.setTextColor(Color.RED);
 				holder.tvReceiptNo.setPaintFlags(holder.tvReceiptNo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			}

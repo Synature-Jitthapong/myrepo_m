@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.syn.mpos.database.GlobalPropertyDataSource;
-import com.syn.mpos.database.MPOSOrderTransaction;
-import com.syn.mpos.database.TransactionDataSource;
-import com.syn.mpos.database.ProductsDataSource;
+import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.MPOSOrderTransaction;
+import com.syn.mpos.dao.ProductsDao;
+import com.syn.mpos.dao.TransactionDao;
 
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -44,10 +44,10 @@ public class DiscountActivity extends Activity{
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final String DISCOUNT_FRAGMENT_TAG = "DiscountDialog";
 	
-	private static GlobalPropertyDataSource sGlobal;
+	private static GlobalPropertyDao sGlobal;
 	
-	private TransactionDataSource mTransaction;
-	private ProductsDataSource mProduct;
+	private TransactionDao mTransaction;
+	private ProductsDao mProduct;
 	
 	private MPOSOrderTransaction.MPOSOrderDetail mOrder;
 	
@@ -88,9 +88,9 @@ public class DiscountActivity extends Activity{
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
-		mTransaction = new TransactionDataSource(getApplicationContext());
-		mProduct = new ProductsDataSource(getApplicationContext());
-		sGlobal = new GlobalPropertyDataSource(getApplicationContext());
+		mTransaction = new TransactionDao(getApplicationContext());
+		mProduct = new ProductsDao(getApplicationContext());
+		sGlobal = new GlobalPropertyDao(getApplicationContext());
 		
 		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		mDisAdapter = new DiscountAdapter();
@@ -103,7 +103,7 @@ public class DiscountActivity extends Activity{
 				MPOSOrderTransaction.MPOSOrderDetail order = 
 						(MPOSOrderTransaction.MPOSOrderDetail) parent.getItemAtPosition(position);
 				
-				ProductsDataSource p = new ProductsDataSource(getApplicationContext());
+				ProductsDao p = new ProductsDao(getApplicationContext());
 				if(p.getProduct(order.getProductId()).getDiscountAllow() == 1){
 					mPosition = position;
 					mOrder = order;

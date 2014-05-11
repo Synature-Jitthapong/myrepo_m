@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.TransactionDataSource;
-import com.syn.mpos.database.table.BaseColumn;
-import com.syn.mpos.database.table.ComputerTable;
-import com.syn.mpos.database.table.OrderTransactionTable;
+import com.syn.mpos.dao.BaseColumn;
+import com.syn.mpos.dao.MPOSDatabase;
+import com.syn.mpos.dao.TransactionDao;
+import com.syn.mpos.dao.table.ComputerTable;
+import com.syn.mpos.dao.table.OrderTransactionTable;
 import com.syn.pos.OrderTransaction;
 
 import android.app.Activity;
@@ -145,7 +145,7 @@ public class SyncSaleActivity extends Activity{
 				}, OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " +
 					BaseColumn.COLUMN_SEND_STATUS + "=?", 
 				new String[]{
-					String.valueOf(TransactionDataSource.TRANS_STATUS_SUCCESS),
+					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
 				}, null, null, OrderTransactionTable.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){

@@ -6,7 +6,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.widget.BaseAdapter;
 
-import com.syn.mpos.database.MPOSOrderTransaction;
+import com.syn.mpos.dao.MPOSOrderTransaction;
 import com.syn.pos.OrderTransaction;
 
 /**

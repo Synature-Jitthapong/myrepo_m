@@ -12,10 +12,10 @@ import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.j1tth4.util.CreditCardParser;
 import com.j1tth4.util.Logger;
 import com.j1tth4.util.VerifyCardType;
-import com.syn.mpos.database.BankDataSource;
-import com.syn.mpos.database.CreditCardDataSource;
-import com.syn.mpos.database.GlobalPropertyDataSource;
-import com.syn.mpos.database.PaymentDetailDataSource;
+import com.syn.mpos.dao.BankNameDao;
+import com.syn.mpos.dao.CreditCardDao;
+import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.PaymentDetailDao;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
 
@@ -68,8 +68,8 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	 */
 	private Thread mMsrThread;
 
-	private PaymentDetailDataSource mPayment;
-	private GlobalPropertyDataSource mGlobal;
+	private PaymentDetailDao mPayment;
+	private GlobalPropertyDao mGlobal;
 	
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
@@ -167,8 +167,8 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 			
 		});
 		
-		mPayment = new PaymentDetailDataSource(getApplicationContext());
-		mGlobal = new GlobalPropertyDataSource(getApplicationContext());
+		mPayment = new PaymentDetailDao(getApplicationContext());
+		mGlobal = new GlobalPropertyDao(getApplicationContext());
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -343,7 +343,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 									+ mTxtCardNoSeq4.getText().toString();
 							try {
 								mPayment.addPaymentDetail(mTransactionId, mComputerId,
-										PaymentDetailDataSource.PAY_TYPE_CREDIT,
+										PaymentDetailDao.PAY_TYPE_CREDIT,
 										mTotalCreditPay, mTotalCreditPay >= mPaymentLeft ?
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
 										mExpYear, mBankId, mCardTypeId, "");
@@ -422,7 +422,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void loadCreditCardType(){
-		CreditCardDataSource cd = new CreditCardDataSource(getApplicationContext());
+		CreditCardDao cd = new CreditCardDao(getApplicationContext());
 		mCreditCardLst = cd.listAllCreditCardType();
 		
 		CreditCardType cc = new CreditCardType();
@@ -453,7 +453,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void loadBankName(){
-		BankDataSource bk = new BankDataSource(getApplicationContext());
+		BankNameDao bk = new BankNameDao(getApplicationContext());
 		mBankLst = bk.listAllBank();
 		
 		BankName b = new BankName();

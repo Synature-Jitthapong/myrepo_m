@@ -7,16 +7,16 @@ import java.util.List;
 import com.astuetz.PagerSlidingTabStrip;
 import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.j1tth4.util.ImageLoader;
-import com.syn.mpos.database.ComputerDataSource;
-import com.syn.mpos.database.GlobalPropertyDataSource;
-import com.syn.mpos.database.Login;
-import com.syn.mpos.database.MPOSOrderTransaction;
-import com.syn.mpos.database.TransactionDataSource;
-import com.syn.mpos.database.PrintReceiptLogDataSource;
-import com.syn.mpos.database.ProductsDataSource;
-import com.syn.mpos.database.SessionDataSource;
-import com.syn.mpos.database.ShopDataSource;
-import com.syn.mpos.database.StaffDataSource;
+import com.syn.mpos.dao.ComputerDao;
+import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.Login;
+import com.syn.mpos.dao.MPOSOrderTransaction;
+import com.syn.mpos.dao.PrintReceiptLogDao;
+import com.syn.mpos.dao.ProductsDao;
+import com.syn.mpos.dao.SessionDao;
+import com.syn.mpos.dao.ShopDao;
+import com.syn.mpos.dao.StaffDao;
+import com.syn.mpos.dao.TransactionDao;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;
@@ -65,17 +65,17 @@ public class MainActivity extends FragmentActivity implements
 	// send sale request code from payment activity
 	public static final int PAYMENT_REQUEST = 1;
 	
-	private static ProductsDataSource sProducts;
-	private static ShopDataSource sShop;
-	private static GlobalPropertyDataSource sGlobal;
+	private static ProductsDao sProducts;
+	private static ShopDao sShop;
+	private static GlobalPropertyDao sGlobal;
 	
-	private SessionDataSource mSession;
-	private TransactionDataSource mTransaction;
-	private ComputerDataSource mComputer;
+	private SessionDao mSession;
+	private TransactionDao mTransaction;
+	private ComputerDao mComputer;
 	
 	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderDetailLst;
 	private OrderDetailAdapter mOrderDetailAdapter;
-	private List<ProductsDataSource.ProductDept> mProductDeptLst;
+	private List<ProductsDao.ProductDept> mProductDeptLst;
 	private MenuItemPagerAdapter mPageAdapter;
 	
 	private int mSessionId;
@@ -130,12 +130,12 @@ public class MainActivity extends FragmentActivity implements
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
-		mSession = new SessionDataSource(getApplicationContext());
-		mTransaction = new TransactionDataSource(getApplicationContext());
-		sProducts = new ProductsDataSource(getApplicationContext());
-		sShop = new ShopDataSource(getApplicationContext());
-		mComputer = new ComputerDataSource(getApplicationContext());
-		sGlobal = new GlobalPropertyDataSource(getApplicationContext());
+		mSession = new SessionDao(getApplicationContext());
+		mTransaction = new TransactionDao(getApplicationContext());
+		sProducts = new ProductsDao(getApplicationContext());
+		sShop = new ShopDao(getApplicationContext());
+		mComputer = new ComputerDao(getApplicationContext());
+		sGlobal = new GlobalPropertyDao(getApplicationContext());
 		
 		mProductDeptLst = sProducts.listProductDept();
 		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
@@ -511,7 +511,7 @@ public class MainActivity extends FragmentActivity implements
 	
 	public static class MenuPageFragment extends Fragment {
 		
-		private List<ProductsDataSource.Product> mProductLst;
+		private List<ProductsDao.Product> mProductLst;
 		private MenuItemAdapter mAdapter;
 		private int mDeptId;
 
@@ -560,8 +560,8 @@ public class MainActivity extends FragmentActivity implements
 				@Override
 				public void onItemClick(AdapterView<?> parent, View v, int position,
 						long id) {
-					ProductsDataSource.Product p = 
-							(ProductsDataSource.Product) parent.getItemAtPosition(position);
+					ProductsDao.Product p = 
+							(ProductsDao.Product) parent.getItemAtPosition(position);
 					
 					((MainActivity) getActivity()).onMenuClick(p.getProductId(), p.getProductTypeId(), 
 							p.getVatType(), p.getVatRate(), p.getProductPrice());
@@ -573,7 +573,7 @@ public class MainActivity extends FragmentActivity implements
 				@Override
 				public boolean onItemLongClick(AdapterView<?> parent, View v,
 						int position, long id) {
-					ProductsDataSource.Product p = (ProductsDataSource.Product) parent.getItemAtPosition(position);
+					ProductsDao.Product p = (ProductsDao.Product) parent.getItemAtPosition(position);
 					ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgUrl(), p.getProductName(), 
 							sGlobal.currencyFormat(p.getProductPrice()));
 					imgZoom.show(getFragmentManager(), "MenuImage");
@@ -596,7 +596,7 @@ public class MainActivity extends FragmentActivity implements
 			}
 
 			@Override
-			public ProductsDataSource.Product getItem(int position) {
+			public ProductsDao.Product getItem(int position) {
 				return mProductLst.get(position);
 			}
 
@@ -607,7 +607,7 @@ public class MainActivity extends FragmentActivity implements
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
-				final ProductsDataSource.Product p = mProductLst.get(position);
+				final ProductsDao.Product p = mProductLst.get(position);
 				final MenuItemViewHolder holder;
 				if(convertView == null){
 					convertView = mInflater.inflate(R.layout.menu_template, null);
@@ -652,9 +652,9 @@ public class MainActivity extends FragmentActivity implements
 	private class ProductSizeAdapter extends BaseAdapter{
 		
 		private LayoutInflater mInflater;
-		private List<ProductsDataSource.Product> mProLst;
+		private List<ProductsDao.Product> mProLst;
 		
-		public ProductSizeAdapter(List<ProductsDataSource.Product> proLst){
+		public ProductSizeAdapter(List<ProductsDao.Product> proLst){
 			mInflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			mProLst = proLst;
 		}
@@ -665,7 +665,7 @@ public class MainActivity extends FragmentActivity implements
 		}
 
 		@Override
-		public ProductsDataSource.Product getItem(int position) {
+		public ProductsDao.Product getItem(int position) {
 			return mProLst.get(position);
 		}
 
@@ -686,7 +686,7 @@ public class MainActivity extends FragmentActivity implements
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
-			ProductsDataSource.Product p = mProLst.get(position);
+			ProductsDao.Product p = mProLst.get(position);
 			holder.tvProductName.setText(p.getProductName());
 			holder.tvProductPrice.setText(sGlobal.currencyFormat(p.getProductPrice()));
 			return convertView;
@@ -708,12 +708,12 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	public void onMenuClick(int productId, int productTypeId, int vatType, 
 			double vatRate, double productPrice) {
-		if(productTypeId == ProductsDataSource.NORMAL_TYPE || 
-				productTypeId == ProductsDataSource.SET_TYPE){
+		if(productTypeId == ProductsDao.NORMAL_TYPE || 
+				productTypeId == ProductsDao.SET_TYPE){
 			checkOpenPrice(productId, productTypeId, vatType, vatRate, 1, productPrice);
-		}else if(productTypeId == ProductsDataSource.SIZE_TYPE){
+		}else if(productTypeId == ProductsDao.SIZE_TYPE){
 			productSizeDialog(productId);
-		}else if(productTypeId == ProductsDataSource.SET_TYPE_CAN_SELECT){
+		}else if(productTypeId == ProductsDao.SET_TYPE_CAN_SELECT){
 //			Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
 //			intent.putExtra("transactionId", mTransactionId);
 //			intent.putExtra("computerId", mComputerId);
@@ -773,7 +773,7 @@ public class MainActivity extends FragmentActivity implements
 		if(keyCode == KeyEvent.KEYCODE_ENTER){
 			String barCode = mTxtBarCode.getText().toString();
 			if(!barCode.equals("")){
-				ProductsDataSource.Product p = sProducts.getProduct(barCode);
+				ProductsDao.Product p = sProducts.getProduct(barCode);
 				if(p != null){
 					checkOpenPrice(p.getProductId(), p.getProductTypeId(), 
 							p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
@@ -986,7 +986,7 @@ public class MainActivity extends FragmentActivity implements
 	 * Logout
 	 */
 	public void logout() {
-		StaffDataSource staff = new StaffDataSource(getApplicationContext());
+		StaffDao staff = new StaffDao(getApplicationContext());
 		ShopData.Staff s = staff.getStaff(mStaffId);
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.logout)
@@ -1397,7 +1397,7 @@ public class MainActivity extends FragmentActivity implements
 	 * @param proId
 	 */
 	private void productSizeDialog(int proId){
-		List<ProductsDataSource.Product> pSizeLst = sProducts.listProductSize(proId);
+		List<ProductsDao.Product> pSizeLst = sProducts.listProductSize(proId);
 		LayoutInflater inflater = (LayoutInflater)
 				this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -1412,7 +1412,7 @@ public class MainActivity extends FragmentActivity implements
 			@Override
 			public void onItemClick(AdapterView<?> parent, View v, int position,
 					long arg3) {
-				ProductsDataSource.Product p = (ProductsDataSource.Product) parent.getItemAtPosition(position);
+				ProductsDao.Product p = (ProductsDao.Product) parent.getItemAtPosition(position);
 				addOrder(p.getProductId(), p.getProductTypeId(), p.getVatType(), 
 						p.getVatRate(), 1, p.getProductPrice());
 				dialog.dismiss();
@@ -1454,8 +1454,8 @@ public class MainActivity extends FragmentActivity implements
 	 * Print Receipt
 	 */
 	private void printReceipt(){
-		PrintReceiptLogDataSource printLog = 
-				new PrintReceiptLogDataSource(getApplicationContext());
+		PrintReceiptLogDao printLog = 
+				new PrintReceiptLogDao(getApplicationContext());
 		printLog.insertLog(mTransactionId, mStaffId);
 		
 		new PrintReceipt(MainActivity.this, new PrintReceipt.PrintStatusListener() {

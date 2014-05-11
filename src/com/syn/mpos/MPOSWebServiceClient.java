@@ -8,17 +8,17 @@ import com.google.gson.reflect.TypeToken;
 import com.j1tth4.util.FileManager;
 import com.j1tth4.util.JSONUtil;
 import com.j1tth4.util.Logger;
-import com.syn.mpos.database.BankDataSource;
-import com.syn.mpos.database.ComputerDataSource;
-import com.syn.mpos.database.CreditCardDataSource;
-import com.syn.mpos.database.GlobalPropertyDataSource;
-import com.syn.mpos.database.HeaderFooterReceiptDataSource;
-import com.syn.mpos.database.LanguageDataSource;
-import com.syn.mpos.database.PaymentAmountButtonDataSource;
-import com.syn.mpos.database.PaymentDetailDataSource;
-import com.syn.mpos.database.ProductsDataSource;
-import com.syn.mpos.database.ShopDataSource;
-import com.syn.mpos.database.StaffDataSource;
+import com.syn.mpos.dao.BankNameDao;
+import com.syn.mpos.dao.ComputerDao;
+import com.syn.mpos.dao.CreditCardDao;
+import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.HeaderFooterReceiptDao;
+import com.syn.mpos.dao.LanguageDao;
+import com.syn.mpos.dao.PaymentAmountButtonDao;
+import com.syn.mpos.dao.PaymentDetailDao;
+import com.syn.mpos.dao.ProductsDao;
+import com.syn.mpos.dao.ShopDao;
+import com.syn.mpos.dao.StaffDao;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 import com.syn.pos.ShopData;
@@ -67,16 +67,16 @@ public class MPOSWebServiceClient {
 
 					@Override
 					public void onPost(ShopData sd) {
-						ShopDataSource shop = new ShopDataSource(context.getApplicationContext());
-						ComputerDataSource computer = new ComputerDataSource(context.getApplicationContext());
-						GlobalPropertyDataSource global = new GlobalPropertyDataSource(context.getApplicationContext());
-						StaffDataSource staff = new StaffDataSource(context.getApplicationContext());
-						LanguageDataSource lang = new LanguageDataSource(context.getApplicationContext());
-						HeaderFooterReceiptDataSource hf = new HeaderFooterReceiptDataSource(context.getApplicationContext());
-						BankDataSource bank = new BankDataSource(context.getApplicationContext());
-						CreditCardDataSource cd = new CreditCardDataSource(context.getApplicationContext());
-						PaymentDetailDataSource pd = new PaymentDetailDataSource(context.getApplicationContext());
-						PaymentAmountButtonDataSource pb = new PaymentAmountButtonDataSource(context.getApplicationContext());
+						ShopDao shop = new ShopDao(context.getApplicationContext());
+						ComputerDao computer = new ComputerDao(context.getApplicationContext());
+						GlobalPropertyDao global = new GlobalPropertyDao(context.getApplicationContext());
+						StaffDao staff = new StaffDao(context.getApplicationContext());
+						LanguageDao lang = new LanguageDao(context.getApplicationContext());
+						HeaderFooterReceiptDao hf = new HeaderFooterReceiptDao(context.getApplicationContext());
+						BankNameDao bank = new BankNameDao(context.getApplicationContext());
+						CreditCardDao cd = new CreditCardDao(context.getApplicationContext());
+						PaymentDetailDao pd = new PaymentDetailDao(context.getApplicationContext());
+						PaymentAmountButtonDao pb = new PaymentAmountButtonDao(context.getApplicationContext());
 						try {
 							shop.insertShopProperty(sd.getShopProperty());
 							computer.insertComputer(sd.getComputerProperty());
@@ -143,7 +143,7 @@ public class MPOSWebServiceClient {
 
 					@Override
 					public void onPost(ProductGroups pgs) {
-						ProductsDataSource pd = new ProductsDataSource(context.getApplicationContext());
+						ProductsDao pd = new ProductsDao(context.getApplicationContext());
 						try {
 							pd.insertProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
 							pd.insertProductDept(pgs.getProductDept(), mgs.getMenuDept());

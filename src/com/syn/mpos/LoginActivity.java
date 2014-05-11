@@ -3,10 +3,10 @@ package com.syn.mpos;
 import java.util.Calendar;
 import java.util.Locale;
 
-import com.syn.mpos.database.ComputerDataSource;
-import com.syn.mpos.database.Login;
-import com.syn.mpos.database.SessionDataSource;
-import com.syn.mpos.database.ShopDataSource;
+import com.syn.mpos.dao.ComputerDao;
+import com.syn.mpos.dao.Login;
+import com.syn.mpos.dao.SessionDao;
+import com.syn.mpos.dao.ShopDao;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;
@@ -32,9 +32,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 	
 	public static final int REQUEST_FOR_SETTING_DATE = 1;
 	
-	private SessionDataSource mSession;
-	private ShopDataSource mShop;
-	private ComputerDataSource mComputer;
+	private SessionDao mSession;
+	private ShopDao mShop;
+	private ComputerDao mComputer;
 	
 	private int mStaffId;
 	private Button mBtnLogin;
@@ -54,9 +54,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 		mTxtPass.setSelectAllOnFocus(true);
 		mBtnLogin.setOnClickListener(this);
 		
-		mSession = new SessionDataSource(getApplicationContext());
-		mShop = new ShopDataSource(getApplicationContext());
-		mComputer = new ComputerDataSource(getApplicationContext());
+		mSession = new SessionDao(getApplicationContext());
+		mShop = new ShopDao(getApplicationContext());
+		mComputer = new ComputerDao(getApplicationContext());
 		
 		mTxtPass.setOnEditorActionListener(new OnEditorActionListener(){
 

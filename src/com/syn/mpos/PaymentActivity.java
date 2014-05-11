@@ -9,10 +9,10 @@ import cn.wintec.wtandroidjar2.Drw;
 
 import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.R;
-import com.syn.mpos.database.GlobalPropertyDataSource;
-import com.syn.mpos.database.PaymentAmountButtonDataSource;
-import com.syn.mpos.database.PaymentDetailDataSource;
-import com.syn.mpos.database.TransactionDataSource;
+import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.PaymentAmountButtonDao;
+import com.syn.mpos.dao.PaymentDetailDao;
+import com.syn.mpos.dao.TransactionDao;
 import com.syn.pos.Payment;
 
 import android.os.Bundle;
@@ -54,9 +54,9 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	 */
 	private Drw mDrw;
 	
-	private PaymentDetailDataSource mPayment;
-	private TransactionDataSource mOrders;
-	private GlobalPropertyDataSource mGlobal;
+	private PaymentDetailDao mPayment;
+	private TransactionDao mOrders;
+	private GlobalPropertyDao mGlobal;
 	
 	private List<Payment.PaymentDetail> mPayLst;
 	private PaymentAdapter mPaymentAdapter;
@@ -113,9 +113,9 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
-		mOrders = new TransactionDataSource(getApplicationContext());
-		mPayment = new PaymentDetailDataSource(getApplicationContext());
-		mGlobal = new GlobalPropertyDataSource(getApplicationContext());
+		mOrders = new TransactionDao(getApplicationContext());
+		mPayment = new PaymentDetailDao(getApplicationContext());
+		mGlobal = new GlobalPropertyDao(getApplicationContext());
 		
 		// init drw
 		mDrw = new Drw(MPOSApplication.WINTEC_DEFAULT_DEVICE_PATH,
@@ -141,7 +141,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	@Override
 	protected void onResume() {
 		if(mOrders.getTransaction(mTransactionId).getTransactionStatusId() == 
-				TransactionDataSource.TRANS_STATUS_SUCCESS){
+				TransactionDao.TRANS_STATUS_SUCCESS){
 			finish();
 		}else{
 			summary();
@@ -220,7 +220,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			
 			String payTypeCash = PaymentActivity.this.getString(R.string.cash);
 			String payTypeCredit = PaymentActivity.this.getString(R.string.credit);
-			String payTypeName = payment.getPayTypeID() == PaymentDetailDataSource.PAY_TYPE_CASH ? payTypeCash : payTypeCredit;
+			String payTypeName = payment.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CASH ? payTypeCash : payTypeCredit;
 			if(payment.getPayTypeName() != null){
 				payTypeName = payment.getPayTypeName();
 			}
@@ -397,7 +397,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			break;
 		case R.id.btnPayEnter:
 			if(!mStrTotalPay.toString().isEmpty()){
-				addPayment(PaymentDetailDataSource.PAY_TYPE_CASH, "");
+				addPayment(PaymentDetailDao.PAY_TYPE_CASH, "");
 			}
 			break;
 		}
@@ -459,9 +459,9 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 
 				@Override
 				public void onClick(View v) {
-					if(payType.getPayTypeID() == PaymentDetailDataSource.PAY_TYPE_CASH){
+					if(payType.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CASH){
 						
-					}else if(payType.getPayTypeID() == PaymentDetailDataSource.PAY_TYPE_CREDIT){
+					}else if(payType.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CREDIT){
 						creditPay();
 					}else{
 						popupOtherPayment(payType.getPayTypeName(), payType.getPayTypeID());
@@ -475,14 +475,14 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	
 	public class PaymentButtonAdapter extends BaseAdapter{
 		
-		private PaymentAmountButtonDataSource mPaymentButton;
+		private PaymentAmountButtonDao mPaymentButton;
 		private List<Payment.PaymentAmountButton> mPaymentButtonLst;
 		private LayoutInflater mInflater;
 		
 		public PaymentButtonAdapter(){
 			mInflater = (LayoutInflater)
 					PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			mPaymentButton = new PaymentAmountButtonDataSource(getApplicationContext());
+			mPaymentButton = new PaymentAmountButtonDao(getApplicationContext());
 			mPaymentButtonLst = mPaymentButton.listPaymentButton();
 		}
 		
@@ -526,7 +526,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 					mStrTotalPay.append(mGlobal.currencyFormat(
 							paymentButton.getPaymentAmount()));
 					calculateInputPrice();
-					addPayment(PaymentDetailDataSource.PAY_TYPE_CASH, "");
+					addPayment(PaymentDetailDao.PAY_TYPE_CASH, "");
 				}
 				
 			});

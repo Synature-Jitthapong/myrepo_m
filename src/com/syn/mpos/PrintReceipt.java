@@ -14,17 +14,17 @@ import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.j1tth4.util.Logger;
-import com.syn.mpos.database.CreditCardDataSource;
-import com.syn.mpos.database.GlobalPropertyDataSource;
-import com.syn.mpos.database.HeaderFooterReceiptDataSource;
-import com.syn.mpos.database.MPOSOrderTransaction;
-import com.syn.mpos.database.TransactionDataSource;
-import com.syn.mpos.database.PaymentDetailDataSource;
-import com.syn.mpos.database.PrintReceiptLogDataSource;
-import com.syn.mpos.database.ProductsDataSource;
-import com.syn.mpos.database.ShopDataSource;
-import com.syn.mpos.database.StaffDataSource;
-import com.syn.mpos.database.Util;
+import com.syn.mpos.dao.CreditCardDao;
+import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.HeaderFooterReceiptDao;
+import com.syn.mpos.dao.MPOSOrderTransaction;
+import com.syn.mpos.dao.PaymentDetailDao;
+import com.syn.mpos.dao.PrintReceiptLogDao;
+import com.syn.mpos.dao.ProductsDao;
+import com.syn.mpos.dao.ShopDao;
+import com.syn.mpos.dao.StaffDao;
+import com.syn.mpos.dao.TransactionDao;
+import com.syn.mpos.dao.Util;
 import com.syn.pos.OrderTransaction;
 import com.syn.pos.Payment;
 import com.syn.pos.ShopData;
@@ -33,13 +33,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	implements BatteryStatusChangeEventListener, StatusChangeEventListener{
 	
 	public static final String TAG = "PrintReceipt";
-	private TransactionDataSource mOrders;
-	private PaymentDetailDataSource mPayment;
-	private ShopDataSource mShop;
-	private HeaderFooterReceiptDataSource mHeaderFooter;
-	private GlobalPropertyDataSource mGlobal;
-	private StaffDataSource mStaff;
-	private CreditCardDataSource mCreditCard;
+	private TransactionDao mOrders;
+	private PaymentDetailDao mPayment;
+	private ShopDao mShop;
+	private HeaderFooterReceiptDao mHeaderFooter;
+	private GlobalPropertyDao mGlobal;
+	private StaffDao mStaff;
+	private CreditCardDao mCreditCard;
 	private PrintStatusListener mPrintListener;
 	private Context mContext;
 	private Print mPrinter;
@@ -50,13 +50,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	 */
 	public PrintReceipt(Context context, PrintStatusListener listener){
 		mContext = context;
-		mOrders = new TransactionDataSource(context.getApplicationContext());
-		mPayment = new PaymentDetailDataSource(context.getApplicationContext());
-		mShop = new ShopDataSource(context.getApplicationContext());
-		mGlobal = new GlobalPropertyDataSource(context.getApplicationContext());
-		mHeaderFooter = new HeaderFooterReceiptDataSource(context.getApplicationContext());
-		mStaff = new StaffDataSource(context.getApplicationContext());
-		mCreditCard = new CreditCardDataSource(context.getApplicationContext());
+		mOrders = new TransactionDao(context.getApplicationContext());
+		mPayment = new PaymentDetailDao(context.getApplicationContext());
+		mShop = new ShopDao(context.getApplicationContext());
+		mGlobal = new GlobalPropertyDao(context.getApplicationContext());
+		mHeaderFooter = new HeaderFooterReceiptDao(context.getApplicationContext());
+		mStaff = new StaffDao(context.getApplicationContext());
+		mCreditCard = new CreditCardDao(context.getApplicationContext());
 		mPrintListener = listener;
 		
 		mPrinter = new Print(context.getApplicationContext());
@@ -117,7 +117,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 			builder.addTextSize(1, 1);
 			// add header
 			for(ShopData.HeaderFooterReceipt hf : 
-				mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDataSource.HEADER_LINE_TYPE)){
+				mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDao.HEADER_LINE_TYPE)){
 				builder.addText(hf.getTextInLine());
 				builder.addText("\n");
 			}
@@ -203,7 +203,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    	for(int i = 0; i < paymentLst.size(); i++){
 	    		Payment.PaymentDetail payment = paymentLst.get(i);
 		    	String strTotalPaid = mGlobal.currencyFormat(payment.getPaid());
-		    	if(payment.getPayTypeID() == PaymentDetailDataSource.PAY_TYPE_CREDIT){
+		    	if(payment.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CREDIT){
 		    		String paymentText = payment.getPayTypeName();
 		    		String cardNoText = "xxxx xxxx xxxx ";
 		    		try {
@@ -244,7 +244,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    	}
 		    builder.addText(createLine("=") + "\n");
 		    
-		    if(mShop.getCompanyVatType() == ProductsDataSource.VAT_TYPE_INCLUDED){
+		    if(mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
 			    // before vat
 			    builder.addText(beforeVatText);
 			    builder.addText(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
@@ -257,7 +257,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		    }
 	    	// add footer
 	    	for(ShopData.HeaderFooterReceipt hf : 
-				mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDataSource.FOOTER_LINE_TYPE)){
+				mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDao.FOOTER_LINE_TYPE)){
 				builder.addText(hf.getTextInLine());
 				builder.addText("\n");
 			}
@@ -319,7 +319,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		
 		// add header
 		for(ShopData.HeaderFooterReceipt hf : 
-			mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDataSource.HEADER_LINE_TYPE)){
+			mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDao.HEADER_LINE_TYPE)){
 			builder.append("<h>");
 			builder.append(hf.getTextInLine());
 			builder.append("\n");
@@ -404,7 +404,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     	for(int i = 0; i < paymentLst.size(); i++){
     		Payment.PaymentDetail payment = paymentLst.get(i);
 	    	String strTotalPaid = mGlobal.currencyFormat(payment.getPaid());
-	    	if(payment.getPayTypeID() == PaymentDetailDataSource.PAY_TYPE_CREDIT){
+	    	if(payment.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CREDIT){
 	    		String paymentText = payment.getPayTypeName();
 	    		String cardNoText = "xxxx xxxx xxxx ";
 	    		try {
@@ -445,7 +445,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     	}
 	    builder.append(createLine("=") + "\n");
 	    
-	    if(mShop.getCompanyVatType() == ProductsDataSource.VAT_TYPE_INCLUDED){
+	    if(mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
 		    // before vat
 		    builder.append(beforeVatText);
 		    builder.append(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
@@ -459,7 +459,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    
     	// add footer
     	for(ShopData.HeaderFooterReceipt hf : 
-			mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDataSource.FOOTER_LINE_TYPE)){
+			mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDao.FOOTER_LINE_TYPE)){
     		builder.append("<h>");
 			builder.append(hf.getTextInLine());
 			builder.append("\n");
@@ -502,8 +502,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		PrintReceiptLogDataSource printLog = new PrintReceiptLogDataSource(mContext.getApplicationContext());
-		for(PrintReceiptLogDataSource.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
+		PrintReceiptLogDao printLog = new PrintReceiptLogDao(mContext.getApplicationContext());
+		for(PrintReceiptLogDao.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
 			try {
 				if(MPOSApplication.getInternalPrinterSetting(mContext)){
 					printReceiptWintec(printReceipt.getTransactionId());
@@ -513,7 +513,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 				printLog.deletePrintStatus(printReceipt.getPriceReceiptLogId());
 				
 			} catch (Exception e) {
-				printLog.updatePrintStatus(printReceipt.getPriceReceiptLogId(), PrintReceiptLogDataSource.PRINT_NOT_SUCCESS);
+				printLog.updatePrintStatus(printReceipt.getPriceReceiptLogId(), PrintReceiptLogDao.PRINT_NOT_SUCCESS);
 				Logger.appendLog(mContext, 
 						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, e.getMessage());
 			}

@@ -7,11 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.syn.mpos.database.GlobalPropertyDataSource;
-import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.TransactionDataSource;
-import com.syn.mpos.database.PaymentDetailDataSource;
-import com.syn.mpos.database.Reporting;
+import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.MPOSDatabase;
+import com.syn.mpos.dao.PaymentDetailDao;
+import com.syn.mpos.dao.Reporting;
+import com.syn.mpos.dao.TransactionDao;
 import com.syn.pos.Payment;
 import com.syn.pos.Report;
 
@@ -48,7 +48,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	public static final int BILL_REPORT = 1;
 	public static final int PRODUCT_REPORT = 2;
 
-	private static GlobalPropertyDataSource sGlobal;
+	private static GlobalPropertyDao sGlobal;
 	private Report mReport;
 	private Reporting mReporting;
 	private BillReportAdapter mBillReportAdapter;
@@ -88,7 +88,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mLvReport = (ListView) findViewById(R.id.lvReport);
 		mLvReportProduct = (ExpandableListView) findViewById(R.id.lvReportProduct);
 		
-		sGlobal = new GlobalPropertyDataSource(SaleReportActivity.this);
+		sGlobal = new GlobalPropertyDao(SaleReportActivity.this);
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -131,9 +131,9 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			double totalVat = 0.0f;
 			double totalPay = 0.0f;
 			
-			PaymentDetailDataSource payment = new PaymentDetailDataSource(SaleReportActivity.this);
+			PaymentDetailDao payment = new PaymentDetailDao(SaleReportActivity.this);
 			for(Report.ReportDetail reportDetail : mReport.reportDetail){
-				if(reportDetail.getTransStatus() != TransactionDataSource.TRANS_STATUS_VOID){
+				if(reportDetail.getTransStatus() != TransactionDao.TRANS_STATUS_VOID){
 					totalPrice += reportDetail.getTotalPrice();
 					totalDiscount += reportDetail.getDiscount();
 					totalSub += reportDetail.getSubTotal();
@@ -587,7 +587,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			}else{
 				holder.imgSendStatus.setImageResource(R.drawable.ic_action_warning);
 			}
-			if(report.getTransStatus() == TransactionDataSource.TRANS_STATUS_VOID){
+			if(report.getTransStatus() == TransactionDao.TRANS_STATUS_VOID){
 				holder.tvReceipt.setTextColor(Color.RED);
 				holder.tvReceipt.setPaintFlags(holder.tvReceipt.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			}
@@ -611,7 +611,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	 */
 	public static class PaymentDetailFragment extends DialogFragment{
 		
-		private PaymentDetailDataSource mPayment;
+		private PaymentDetailDao mPayment;
 		private List<Payment.PaymentDetail> mPaymentLst;
 		private PaymentDetailAdapter mPaymentAdapter;
 		
@@ -631,7 +631,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		public void onCreate(Bundle savedInstanceState) {
 			mTransactionId = getArguments().getInt("transactionId");
 			
-			mPayment = new PaymentDetailDataSource(getActivity());
+			mPayment = new PaymentDetailDao(getActivity());
 			mPaymentLst = mPayment.listPaymentGroupByType(mTransactionId);
 			mPaymentAdapter = new PaymentDetailAdapter();
 			

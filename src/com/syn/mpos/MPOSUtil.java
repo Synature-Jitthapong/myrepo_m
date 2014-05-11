@@ -20,16 +20,16 @@ import com.google.gson.reflect.TypeToken;
 import com.j1tth4.util.Logger;
 import com.syn.mpos.MPOSWebServiceClient.AuthenDeviceListener;
 import com.syn.mpos.MPOSWebServiceClient.SendSaleTransaction;
-import com.syn.mpos.database.MPOSDatabase;
-import com.syn.mpos.database.SaleTransactionDataSource;
-import com.syn.mpos.database.SessionDataSource;
-import com.syn.mpos.database.TransactionDataSource;
-import com.syn.mpos.database.SaleTransactionDataSource.POSData_SaleTransaction;
-import com.syn.mpos.database.table.OrderDetailTable;
-import com.syn.mpos.database.table.OrderTransactionTable;
-import com.syn.mpos.database.table.PaymentDetailTable;
-import com.syn.mpos.database.table.SessionDetailTable;
-import com.syn.mpos.database.table.SessionTable;
+import com.syn.mpos.dao.MPOSDatabase;
+import com.syn.mpos.dao.SaleTransactionDao;
+import com.syn.mpos.dao.SessionDao;
+import com.syn.mpos.dao.TransactionDao;
+import com.syn.mpos.dao.SaleTransactionDao.POSData_SaleTransaction;
+import com.syn.mpos.dao.table.OrderDetailTable;
+import com.syn.mpos.dao.table.OrderTransactionTable;
+import com.syn.mpos.dao.table.PaymentDetailTable;
+import com.syn.mpos.dao.table.SessionDetailTable;
+import com.syn.mpos.dao.table.SessionTable;
 
 public class MPOSUtil {
 	
@@ -45,7 +45,7 @@ public class MPOSUtil {
 			final int shopId, final int computerId, 
 			final int staffId, final ProgressListener listener) {
 		
-		SessionDataSource session = new SessionDataSource(context.getApplicationContext());
+		SessionDao session = new SessionDao(context.getApplicationContext());
 		final String sessionDate = session.getSessionDate();
 		new LoadSaleTransaction(context.getApplicationContext(), sessionDate,
 				false, new LoadSaleTransactionListener() {
@@ -70,7 +70,7 @@ public class MPOSUtil {
 						@Override
 						public void onPost() {
 							// do update transaction already send
-							TransactionDataSource trans = new TransactionDataSource(context.getApplicationContext());
+							TransactionDao trans = new TransactionDao(context.getApplicationContext());
 							trans.updateTransactionSendStatus(sessionDate);
 							listener.onPost();
 						}
@@ -112,8 +112,8 @@ public class MPOSUtil {
 			final int closeStaffId, final double closeAmount,
 			final boolean isEndday, final ProgressListener listener) {
 
-		final SessionDataSource sess = new SessionDataSource(context.getApplicationContext());
-		final TransactionDataSource trans = new TransactionDataSource(context.getApplicationContext());
+		final SessionDao sess = new SessionDao(context.getApplicationContext());
+		final TransactionDao trans = new TransactionDao(context.getApplicationContext());
 		final String sessionDate = sess.getSessionDate();
 		// add session endday
 		sess.addSessionEnddayDetail(sessionDate,
@@ -152,7 +152,7 @@ public class MPOSUtil {
 									sess.getWritableDatabase().beginTransaction();
 									try {
 										sess.updateSessionEnddayDetail(sessionDate, 
-												SessionDataSource.ALREADY_ENDDAY_STATUS);
+												SessionDao.ALREADY_ENDDAY_STATUS);
 										sess.getWritableDatabase().setTransactionSuccessful();
 										listener.onPost();
 									} catch (SQLException e) {
@@ -220,12 +220,12 @@ public class MPOSUtil {
 	public static class LoadSaleTransaction extends AsyncTask<Void, Void, POSData_SaleTransaction>{
 
 		protected LoadSaleTransactionListener mListener;
-		protected SaleTransactionDataSource mSaleTrans;
+		protected SaleTransactionDao mSaleTrans;
 			
 		public LoadSaleTransaction(Context context, String sessionDate,
 				boolean isListAll, LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransactionDataSource(context, sessionDate, isListAll);
+			mSaleTrans = new SaleTransactionDao(context, sessionDate, isListAll);
 		}
 		
 		@Override
