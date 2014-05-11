@@ -6,7 +6,6 @@ import java.util.List;
 import com.j1tth4.util.ImageLoader;
 import com.syn.mpos.database.GlobalPropertyDataSource;
 import com.syn.mpos.database.MPOSOrderTransaction;
-import com.syn.mpos.database.OrderSetDataSource;
 import com.syn.mpos.database.TransactionDataSource;
 import com.syn.mpos.database.ProductsDataSource;
 
@@ -43,7 +42,7 @@ public class ProductSetActivity extends Activity{
 	private static ProductsDataSource sProduct;
 	private static GlobalPropertyDataSource sGlobal;
 	
-	private TransactionDataSource mOrders; 
+	private static TransactionDataSource sTransaction; 
 	
 	private int mTransactionId;
 	private int mComputerId;
@@ -67,7 +66,7 @@ public class ProductSetActivity extends Activity{
 		sContext = ProductSetActivity.this;
 		sProduct = new ProductsDataSource(getApplicationContext());
 		sGlobal = new GlobalPropertyDataSource(getApplicationContext());
-		mOrders = new TransactionDataSource(getApplicationContext());
+		sTransaction = new TransactionDataSource(getApplicationContext());
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -78,7 +77,7 @@ public class ProductSetActivity extends Activity{
 		double vatRate = intent.getDoubleExtra("vatRate", 0);
 		double productPrice = intent.getDoubleExtra("productPrice", 0);
 		
-		mOrderDetailId = mOrders.addOrderDetail(mTransactionId, mComputerId, productId, 
+		mOrderDetailId = sTransaction.addOrderDetail(mTransactionId, mComputerId, productId, 
 				productTypeId, vatType, vatRate, 1, productPrice);
 		
 		if(mTransactionId == 0 || mOrderDetailId == 0 || productId == 0){
@@ -133,8 +132,6 @@ public class ProductSetActivity extends Activity{
 		
 		private List<ProductsDataSource.ProductComponent> mProductCompLst;
 		
-		private OrderSetDataSource mOrderSet;
-		
 		private ExpandableListView mLvOrderSet;
 		private GridView mGvSetItem;
 		private HorizontalScrollView mScroll;
@@ -159,8 +156,6 @@ public class ProductSetActivity extends Activity{
 			mTransactionId = getArguments().getInt("transactionId");
 			mOrderDetailId = getArguments().getInt("orderDetailId");
 			mProductId = getArguments().getInt("productId");
-			
-			mOrderSet = new OrderSetDataSource(getActivity().getApplicationContext());
 			
 			mProductCompLst = new ArrayList<ProductsDataSource.ProductComponent>();
 			
@@ -220,7 +215,7 @@ public class ProductSetActivity extends Activity{
 		 */
 		private void loadOrderSet(){
 			List<MPOSOrderTransaction.OrderSet> setLst = 
-					mOrderSet.listOrderSet(mTransactionId, mOrderDetailId); 
+					sTransaction.listOrderSet(mTransactionId, mOrderDetailId); 
 			OrderSetAdapter adapter = new OrderSetAdapter(setLst);
 			mLvOrderSet.setAdapter(adapter);
 		}
@@ -384,7 +379,7 @@ public class ProductSetActivity extends Activity{
 
 					@Override
 					public void onClick(View v) {
-						mOrderSet.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
+						sTransaction.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
 								pComp.getProductName(), mPcompGroupId, mRequireAmount);
 						
 						loadOrderSet();

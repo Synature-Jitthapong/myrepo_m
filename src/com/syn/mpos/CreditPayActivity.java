@@ -26,7 +26,6 @@ import android.content.Intent;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
