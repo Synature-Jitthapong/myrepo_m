@@ -9,18 +9,14 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.syn.mpos.ProductSetActivity$PlaceholderFragment" >
 
-    <ExpandableListView
-        android:id="@+id/expandableListView1"
+    <ListView
+        android:id="@+id/lvOrderSet"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="0.5" >
+        android:layout_weight="0.5"
+        android:background="@drawable/order_background" >
 
-    </ExpandableListView>
-
-    <View
-        android:layout_width="1dip"
-        android:layout_height="fill_parent"
-        android:background="@color/light_grey" />
+    </ListView>
 
     <RelativeLayout
         android:layout_width="0dp"
@@ -29,8 +25,8 @@
 
         <GridView
             android:id="@+id/gvSetItem"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
@@ -45,9 +41,10 @@
         <HorizontalScrollView
             android:id="@+id/horizontalScrollView1"
             android:layout_width="match_parent"
-            android:layout_height="72dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true" >
+            android:layout_alignParentRight="true"
+            android:minHeight="72dip" >
 
             <LinearLayout
                 android:id="@+id/LinearLayout1"

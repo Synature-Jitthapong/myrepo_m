@@ -154,6 +154,8 @@ public class ProductsDao extends MPOSDatabase {
 						.getColumnIndex(ProductsTable.COLUMN_PRODUCT_NAME)));
 				pComp.setImgUrl(cursor.getString(cursor
 						.getColumnIndex(ProductsTable.COLUMN_IMG_URL)));
+				pComp.setProductPrice(cursor.getDouble(cursor
+						.getColumnIndex(ProductsTable.COLUMN_PRODUCT_PRICE)));
 				pCompLst.add(pComp);
 			}while(cursor.moveToNext());
 		}

@@ -114,7 +114,7 @@
         </activity>
         <activity
             android:name="com.syn.mpos.ProductSetActivity"
-            android:label="@string/title_activity_product_set" android:screenOrientation="landscape" android:theme="@style/ActivityDialogTheme">
+            android:label="@string/title_activity_product_set" android:screenOrientation="landscape">
         </activity>
         <receiver android:enabled="true" android:name=".BootUpReceiver"
 			android:permission="android.permission.RECEIVE_BOOT_COMPLETED">

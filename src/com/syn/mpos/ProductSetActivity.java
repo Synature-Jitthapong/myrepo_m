@@ -1,5 +1,6 @@
 package com.syn.mpos;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import com.j1tth4.util.ImageLoader;
 import com.syn.mpos.dao.GlobalPropertyDao;
 import com.syn.mpos.dao.MPOSOrderTransaction;
 import com.syn.mpos.dao.ProductsDao;
+import com.syn.mpos.dao.ProductsDao.Product;
 import com.syn.mpos.dao.TransactionDao;
 
 import android.annotation.SuppressLint;
@@ -29,11 +31,14 @@ import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class ProductSetActivity extends Activity{
@@ -42,7 +47,7 @@ public class ProductSetActivity extends Activity{
 	private static ProductsDao sProduct;
 	private static GlobalPropertyDao sGlobal;
 	
-	private static TransactionDao sTransaction; 
+	private static TransactionDao sTransaction;
 	
 	private int mTransactionId;
 	private int mComputerId;
@@ -51,15 +56,7 @@ public class ProductSetActivity extends Activity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_ACTION_BAR);
-	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
-	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-	    LayoutParams params = getWindow().getAttributes();
-	    params.width = WindowManager.LayoutParams.MATCH_PARENT;
-	    params.height= WindowManager.LayoutParams.WRAP_CONTENT;
-	    params.alpha = 1.0f;
-	    params.dimAmount = 0.5f;
-	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
+		
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
 		
@@ -72,39 +69,20 @@ public class ProductSetActivity extends Activity{
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		int productId = intent.getIntExtra("productId", 0);
-		int productTypeId = intent.getIntExtra("productTypeId", 0);
-		int vatType = intent.getIntExtra("vatType", 0);
-		double vatRate = intent.getDoubleExtra("vatRate", 0);
-		double productPrice = intent.getDoubleExtra("productPrice", 0);
 		
+		Product p = sProduct.getProduct(productId);
 		mOrderDetailId = sTransaction.addOrderDetail(mTransactionId, mComputerId, productId, 
-				productTypeId, vatType, vatRate, 1, productPrice);
+				p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
 		
-		if(mTransactionId == 0 || mOrderDetailId == 0 || productId == 0){
-			new AlertDialog.Builder(this)
-			.setTitle(R.string.error)
-			.setMessage("transactionId=" + mTransactionId + 
-					", orderDetailId=" + mOrderDetailId + 
-					", productId=" + productId)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					finish();
-				}
-			}).show();
-		}else{
-			if (savedInstanceState == null) {
-				getFragmentManager().beginTransaction()
-						.add(R.id.container, 
-								PlaceholderFragment.newInsance(mTransactionId, mOrderDetailId, productId)).commit();
-			}
+		if (savedInstanceState == null) {
+			getFragmentManager().beginTransaction()
+					.add(R.id.container, 
+							PlaceholderFragment.newInsance(mTransactionId, mOrderDetailId, productId)).commit();
 		}
 	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.product_set, menu);
 		return true;
@@ -114,6 +92,10 @@ public class ProductSetActivity extends Activity{
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
+			cancelOrder();
+			finish();
+			return true;
+		case R.id.itemConfirm:
 			finish();
 			return true;
 		default:
@@ -121,6 +103,10 @@ public class ProductSetActivity extends Activity{
 		}
 	}
 
+	private void cancelOrder(){
+		sTransaction.deleteOrderDetail(mTransactionId);
+	}
+	
 	/**
 	 * A placeholder fragment containing a simple view.
 	 */
@@ -131,8 +117,10 @@ public class ProductSetActivity extends Activity{
 		private int mProductId;
 		
 		private List<ProductsDao.ProductComponent> mProductCompLst;
+		private List<MPOSOrderTransaction.OrderSet> mOrderSetLst;
+		private OrderSetAdapter mOrderSetAdapter;
 		
-		private ExpandableListView mLvOrderSet;
+		private ListView mLvOrderSet;
 		private GridView mGvSetItem;
 		private HorizontalScrollView mScroll;
 		private LayoutInflater mInflater;
@@ -158,7 +146,8 @@ public class ProductSetActivity extends Activity{
 			mProductId = getArguments().getInt("productId");
 			
 			mProductCompLst = new ArrayList<ProductsDao.ProductComponent>();
-			
+			mOrderSetLst = new ArrayList<MPOSOrderTransaction.OrderSet>();
+			mOrderSetAdapter = new OrderSetAdapter();
 		}
 
 		@Override
@@ -169,30 +158,51 @@ public class ProductSetActivity extends Activity{
 			loadOrderSet();
 		}
 
+		private void updateBadge(int groupId, double requireAmount){
+			double totalQty = sTransaction.getOrderSetTotalQty(
+				mTransactionId, mOrderDetailId, groupId);
+			final LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
+			View groupBtn = scrollContent.findViewById(groupId);
+			TextView tvBadge = (TextView) groupBtn.findViewById(R.id.textView1);
+			tvBadge.setText(NumberFormat.getInstance().format(requireAmount - totalQty));
+		}
+		
 		@SuppressLint("NewApi")
 		private void createSetGroupButton(){
 			List<ProductsDao.ProductComponentGroup> productCompGroupLst;
 			productCompGroupLst = sProduct.listProductComponentGroup(mProductId);
 			if(productCompGroupLst != null){
-				LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
+				final LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
 				for(int i = 0; i < productCompGroupLst.size(); i++){
 					final ProductsDao.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
 					View setGroupView = mInflater.inflate(R.layout.set_group_button_layout, null);
 					TextView tvGroupName = (TextView) setGroupView.findViewById(R.id.textView2);
 					TextView tvBadge = (TextView) setGroupView.findViewById(R.id.textView1);
 					tvGroupName.setText(pCompGroup.getGroupName());
-					tvBadge.setText(String.valueOf(pCompGroup.getRequireAmount()));
+					tvBadge.setText(NumberFormat.getInstance().format(pCompGroup.getRequireAmount()));
+					if(pCompGroup.getRequireAmount() > 0)
+						tvBadge.setVisibility(View.VISIBLE);
+					else
+						tvBadge.setVisibility(View.GONE);
 					setGroupView.setOnClickListener(new OnClickListener(){
 
 						@Override
 						public void onClick(View v) {
-							v.setSelected(true);
 							mProductCompLst = sProduct.listProductComponent(pCompGroup.getProductGroupId());
 							
 							// i use Products.ProductGroupId instead ProductComponent.PGroupId
 							SetItemAdapter adapter = new SetItemAdapter(
 									pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
 							mGvSetItem.setAdapter(adapter);
+
+							v.setId(pCompGroup.getProductGroupId());
+							v.setSelected(true);
+							for(int j = 0; j < scrollContent.getChildCount(); j++){
+								View child = scrollContent.getChildAt(j);
+								if(child.getId() != pCompGroup.getProductGroupId()){
+									child.setSelected(false);
+								}
+							}
 						}
 						
 					});
@@ -205,7 +215,9 @@ public class ProductSetActivity extends Activity{
 							e.printStackTrace();
 						}
 					}
-					scrollContent.addView(setGroupView);
+					scrollContent.addView(setGroupView, 
+							new LinearLayout.LayoutParams(
+									LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 				}
 			}
 		}
@@ -214,10 +226,11 @@ public class ProductSetActivity extends Activity{
 		 * load order set
 		 */
 		private void loadOrderSet(){
-			List<MPOSOrderTransaction.OrderSet> setLst = 
+			mOrderSetLst =
 					sTransaction.listOrderSet(mTransactionId, mOrderDetailId); 
-			OrderSetAdapter adapter = new OrderSetAdapter(setLst);
-			mLvOrderSet.setAdapter(adapter);
+			mOrderSetAdapter.notifyDataSetChanged();
+			mLvOrderSet.setSelection(mOrderSetAdapter.getCount() - 1);
+			//mLvOrderSet.smoothScrollToPosition(mOrderSetAdapter.getCount());
 		}
 		
 		@Override
@@ -225,84 +238,173 @@ public class ProductSetActivity extends Activity{
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_product_set,
 					container, false);
-			mLvOrderSet = (ExpandableListView) rootView.findViewById(R.id.expandableListView1);
+			mLvOrderSet = (ListView) rootView.findViewById(R.id.lvOrderSet);
 			mGvSetItem = (GridView) rootView.findViewById(R.id.gvSetItem);
 			mScroll = (HorizontalScrollView) rootView.findViewById(R.id.horizontalScrollView1);
+			mLvOrderSet.setAdapter(mOrderSetAdapter);
 			return rootView;
 		}
 		
-		public class OrderSetAdapter extends BaseExpandableListAdapter{
-			
-			private List<MPOSOrderTransaction.OrderSet> mProductSetLst;
+		
+		/**
+		 * @author j1tth4
+		 *
+		 */
+		private class OrderSetAdapter extends BaseAdapter{
 			
 			private LayoutInflater mInflater;
 			
-			public OrderSetAdapter(List<MPOSOrderTransaction.OrderSet> productSetLst){
-				mProductSetLst = productSetLst;
+			public OrderSetAdapter(){
+				mInflater = (LayoutInflater) 
+						getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			}
+			
+			@Override
+			public int getCount() {
+				return mOrderSetLst != null ? mOrderSetLst.size() : 0;
+			}
+
+			@Override
+			public MPOSOrderTransaction.OrderSet getItem(int position) {
+				return mOrderSetLst.get(position);
+			}
+
+			@Override
+			public long getItemId(int position) {
+				return position;
+			}
+
+			@Override
+			public View getView(int position, View convertView, ViewGroup parent) {
+				ViewSetGroupHolder holder = null;
+				if(convertView == null){
+					convertView = mInflater.inflate(R.layout.order_set_template, null);
+					holder = new ViewSetGroupHolder();
+					holder.setDetailContent = (LinearLayout) convertView.findViewById(R.id.setDetailContent);
+					holder.tvSetGroupName = (TextView) convertView.findViewById(R.id.tvSetGroupName);
+					holder.btnDel = (Button) convertView.findViewById(R.id.btnSetGroupDel);
+					convertView.setTag(holder);
+				}else{
+					holder = (ViewSetGroupHolder) convertView.getTag();
+				}
 				
-				mInflater = (LayoutInflater) getActivity().getSystemService(
-						Context.LAYOUT_INFLATER_SERVICE);
+				final MPOSOrderTransaction.OrderSet set = mOrderSetLst.get(position);
+				holder.tvSetGroupName.setText(set.getGroupName());
+				
+				if(set.mProductLst != null){
+					holder.setDetailContent.removeAllViews();
+					for(int i = 0 ; i < set.mProductLst.size(); i ++){
+						final MPOSOrderTransaction.OrderSet.OrderSetDetail detail =
+								set.mProductLst.get(i);
+						View detailView = mInflater.inflate(R.layout.order_set_detail_template, null);
+						TextView tvSetNo = (TextView) detailView.findViewById(R.id.tvSetNo);
+						TextView tvSetName = (TextView) detailView.findViewById(R.id.tvSetName);
+						EditText txtSetQty = (EditText) detailView.findViewById(R.id.txtSetQty);
+						Button btnSetMinus = (Button) detailView.findViewById(R.id.btnSetMinus);
+						Button btnSetPlus = (Button) detailView.findViewById(R.id.btnSetPlus);
+						tvSetNo.setText(String.valueOf(i + 1) + ".");
+						tvSetName.setText(detail.getProductName());
+						txtSetQty.setText(sGlobal.qtyFormat(detail.getOrderSetQty()));
+						btnSetMinus.setOnClickListener(new OnClickListener(){
+
+							@Override
+							public void onClick(View v) {
+								double qty = detail.getOrderSetQty();
+								if(qty > 0){
+									if(--qty == 0){
+										new AlertDialog.Builder(getActivity())
+										.setTitle(R.string.delete)
+										.setMessage(R.string.confirm_delete_item)
+										.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+											
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+											}
+										}).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+											
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+												sTransaction.deleteOrderSet(
+														mTransactionId, mOrderDetailId, detail.getOrderSetId());
+												set.mProductLst.remove(detail);
+												updateBadge(set.getProductGroupId(), set.getRequireAmount());
+												mOrderSetAdapter.notifyDataSetChanged();
+											}
+										}).show();
+									}else{
+										detail.setOrderSetQty(qty);
+										sTransaction.updateOrderSet(mTransactionId, 
+												mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
+										updateBadge(set.getProductGroupId(), set.getRequireAmount());
+										mOrderSetAdapter.notifyDataSetChanged();
+									}
+								}
+							}
+							
+						});
+						btnSetPlus.setOnClickListener(new OnClickListener(){
+
+							@Override
+							public void onClick(View v) {
+								double qty = detail.getOrderSetQty();
+								if(set.getRequireAmount() > 0){
+									// count total group qty from db
+									double totalQty = sTransaction.getOrderSetTotalQty(
+											mTransactionId, mOrderDetailId, set.getProductGroupId());
+									if(totalQty < set.getRequireAmount()){
+										detail.setOrderSetQty(++qty);
+										sTransaction.updateOrderSet(mTransactionId, 
+												mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
+										updateBadge(set.getProductGroupId(), set.getRequireAmount());
+										mOrderSetAdapter.notifyDataSetChanged();
+									}
+								}else{
+									detail.setOrderSetQty(++qty);
+									sTransaction.updateOrderSet(mTransactionId, 
+											mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
+									updateBadge(set.getProductGroupId(), set.getRequireAmount());
+									mOrderSetAdapter.notifyDataSetChanged();
+								}
+							}
+							
+						});
+						holder.btnDel.setOnClickListener(new OnClickListener(){
+
+							@Override
+							public void onClick(View v) {
+								new AlertDialog.Builder(getActivity())
+								.setTitle(R.string.delete)
+								.setMessage(R.string.confirm_delete_all)
+								.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+									}
+								}).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										sTransaction.deleteOrderSet(mTransactionId, mOrderDetailId);
+										loadOrderSet();
+									}
+									
+								}).show();
+							}
+							
+						});
+						holder.setDetailContent.addView(detailView);
+					}
+				}
+				
+				return convertView;
 			}
 			
-			@Override
-			public int getGroupCount() {
-				return mProductSetLst != null ? mProductSetLst.size() : 0;
+			private class ViewSetGroupHolder{
+				LinearLayout setDetailContent;
+				TextView tvSetGroupName;
+				Button btnDel;
 			}
-
-			@Override
-			public int getChildrenCount(int groupPosition) {
-				MPOSOrderTransaction.OrderSet set = mProductSetLst.get(groupPosition);
-				return set.mProductLst != null ? set.mProductLst.size() : 0;
-			}
-
-			@Override
-			public MPOSOrderTransaction.OrderSet getGroup(int groupPosition) {
-				return mProductSetLst.get(groupPosition);
-			}
-
-			@Override
-			public MPOSOrderTransaction.OrderSet.OrderSetDetail getChild(int groupPosition, int childPosition) {
-				MPOSOrderTransaction.OrderSet set = mProductSetLst.get(groupPosition);
-				return set.mProductLst.get(childPosition);
-			}
-
-			@Override
-			public long getGroupId(int groupPosition) {
-				return groupPosition;
-			}
-
-			@Override
-			public long getChildId(int groupPosition, int childPosition) {
-				return childPosition;
-			}
-
-			@Override
-			public boolean hasStableIds() {
-				// TODO Auto-generated method stub
-				return false;
-			}
-
-			@Override
-			public View getGroupView(int groupPosition, boolean isExpanded,
-					View convertView, ViewGroup parent) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public View getChildView(int groupPosition, int childPosition,
-					boolean isLastChild, View convertView, ViewGroup parent) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public boolean isChildSelectable(int groupPosition,
-					int childPosition) {
-				// TODO Auto-generated method stub
-				return false;
-			}
-			
 		}
 		
 		/**
@@ -324,8 +426,8 @@ public class ProductSetActivity extends Activity{
 				mPcompGroupId = pcompGroupId;
 				mRequireAmount = requireAmount;
 				
-				mImgLoader = new ImageLoader(getActivity(), R.drawable.default_image,
-						MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+				mImgLoader = new ImageLoader(getActivity(), 0,
+						MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.SMALL);
 			}
 
 			@Override
@@ -359,7 +461,7 @@ public class ProductSetActivity extends Activity{
 				
 				final ProductsDao.ProductComponent pComp = mProductCompLst.get(position);
 				holder.tvMenu.setText(pComp.getProductName());
-				holder.tvPrice.setText(sGlobal.currencyFormat(pComp.getFlexibleProductPrice()));
+				holder.tvPrice.setText(sGlobal.currencyFormat(pComp.getProductPrice()));
 
 				new Handler().postDelayed(new Runnable(){
 
@@ -379,9 +481,19 @@ public class ProductSetActivity extends Activity{
 
 					@Override
 					public void onClick(View v) {
-						sTransaction.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
-								pComp.getProductName(), mPcompGroupId, mRequireAmount);
-						
+						if(mRequireAmount > 0){
+							// count total group qty from db
+							double totalQty = sTransaction.getOrderSetTotalQty(
+									mTransactionId, mOrderDetailId, mPcompGroupId);
+							if(totalQty < mRequireAmount){
+								sTransaction.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
+										pComp.getProductName(), mPcompGroupId, mRequireAmount);
+								updateBadge(mPcompGroupId, mRequireAmount);
+							}
+						}else{
+							sTransaction.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
+									pComp.getProductName(), mPcompGroupId, mRequireAmount);
+						}
 						loadOrderSet();
 					}
 					

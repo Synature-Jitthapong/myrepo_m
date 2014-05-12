@@ -710,6 +710,7 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param transactionId
 	 */
 	public void cancelTransaction(int transactionId) {
+		deleteOrderSet(transactionId);
 		deleteOrderDetail(transactionId);
 		deleteTransaction(transactionId);
 	}
@@ -1136,7 +1137,8 @@ public class TransactionDao extends MPOSDatabase {
 				+ " ON a." + ProductComponentTable.COLUMN_PGROUP_ID + "=" 
 				+ " b." + ProductComponentTable.COLUMN_PGROUP_ID
 				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
-				+ " AND a." + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
+				+ " AND a." + OrderDetailTable.COLUMN_ORDER_ID + "=?"
+				+ " GROUP BY b." + ProductComponentTable.COLUMN_PGROUP_ID, 
 				new String[]{
 						String.valueOf(transactionId), 
 						String.valueOf(orderDetailId)
@@ -1268,6 +1270,17 @@ public class TransactionDao extends MPOSDatabase {
 		}
 		cursor.close();
 		return totalQty;
+	}
+	
+	/**
+	 * @param transactionId
+	 */
+	public void deleteOrderSet(int transactionId){
+		getWritableDatabase().delete(OrderSetTable.TABLE_ORDER_SET, 
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? ", 
+				new String[]{
+					String.valueOf(transactionId)
+				});
 	}
 	
 	/**

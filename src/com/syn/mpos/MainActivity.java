@@ -52,6 +52,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -321,6 +322,7 @@ public class MainActivity extends FragmentActivity implements
 			if(convertView == null){
 				holder = new ViewHolder();
 				convertView = mInflater.inflate(R.layout.order_list_template, null);
+				holder.orderSetContent = (LinearLayout) convertView.findViewById(R.id.orderSetContent);
 				holder.chk = (CheckBox) convertView.findViewById(R.id.checkBox1);
 				holder.tvOrderNo = (TextView) convertView.findViewById(R.id.tvOrderNo);
 				holder.tvOrderName = (TextView) convertView.findViewById(R.id.tvOrderName);
@@ -338,6 +340,27 @@ public class MainActivity extends FragmentActivity implements
 			holder.tvOrderPrice.setText(sGlobal.currencyFormat(orderDetail.getPricePerUnit()));
 			holder.txtOrderAmount.setText(sGlobal.qtyFormat(orderDetail.getQty()));
 	
+			if(orderDetail.getOrderSetDetailLst() != null){
+				holder.orderSetContent.removeAllViews();
+				for(int i = 0; i < orderDetail.getOrderSetDetailLst().size(); i++){
+					MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail = 
+							orderDetail.getOrderSetDetailLst().get(i);
+					final View detailView = mInflater.inflate(R.layout.order_set_detail_template, null);
+					TextView tvSetNo = (TextView) detailView.findViewById(R.id.tvSetNo);
+					TextView tvSetName = (TextView) detailView.findViewById(R.id.tvSetName);
+					EditText txtSetQty = (EditText) detailView.findViewById(R.id.txtSetQty);
+					Button btnSetMinus = (Button) detailView.findViewById(R.id.btnSetMinus);
+					Button btnSetPlus = (Button) detailView.findViewById(R.id.btnSetPlus);
+					
+					tvSetNo.setText(String.valueOf(i + 1));
+					tvSetName.setText(setDetail.getProductName());
+					txtSetQty.setText(sGlobal.qtyFormat(setDetail.getOrderSetQty()));
+					btnSetMinus.setVisibility(View.GONE);
+					btnSetPlus.setVisibility(View.GONE);
+					holder.orderSetContent.addView(detailView);
+				}
+			}
+			
 			holder.btnMinus.setOnClickListener(new OnClickListener(){
 	
 				@Override
@@ -420,6 +443,7 @@ public class MainActivity extends FragmentActivity implements
 		}
 		
 		private class ViewHolder{
+			LinearLayout orderSetContent;
 			CheckBox chk;
 			TextView tvOrderNo;
 			TextView tvOrderName;
@@ -540,7 +564,7 @@ public class MainActivity extends FragmentActivity implements
 				mDeptId = getArguments().getInt("deptId");
 			}
 			mImgLoader = new ImageLoader(getActivity(), 0,
-					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.SMALL);
 			mInflater =
 					(LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			mAdapter = new MenuItemAdapter();
@@ -718,15 +742,11 @@ public class MainActivity extends FragmentActivity implements
 		}else if(productTypeId == ProductsDao.SIZE_TYPE){
 			productSizeDialog(productId);
 		}else if(productTypeId == ProductsDao.SET_TYPE_CAN_SELECT){
-//			Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
-//			intent.putExtra("transactionId", mTransactionId);
-//			intent.putExtra("computerId", mComputerId);
-//			intent.putExtra("productTypeId", productTypeId);
-//			intent.putExtra("productId", productId);
-//			intent.putExtra("vatType", vatType);
-//			intent.putExtra("vatRate", vatRate);
-//			intent.putExtra("productPrice", productPrice);
-//			startActivity(intent);
+			Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
+			intent.putExtra("transactionId", mTransactionId);
+			intent.putExtra("computerId", mComputer.getComputerId());
+			intent.putExtra("productId", productId);
+			startActivity(intent);
 		}
 	}
 
