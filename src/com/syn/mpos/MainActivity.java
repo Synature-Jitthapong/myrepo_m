@@ -170,8 +170,12 @@ public class MainActivity extends FragmentActivity implements
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if(requestCode == PAYMENT_REQUEST){
 			if(resultCode == RESULT_OK){
+				// request param from PaymentActivity for log to 
+				// PrintReceiptLog
 				double change = intent.getDoubleExtra("change", 0);
-				printReceipt();
+				int transactionId = intent.getIntExtra("transactionId", 0);
+				int staffId = intent.getIntExtra("staffId", 0);
+				printReceipt(transactionId, staffId);
 				sendSale();
 				
 				if(change > 0){
@@ -1451,12 +1455,13 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	/**
-	 * Print Receipt
+	 * @param transactionId
+	 * @param staffId
 	 */
-	private void printReceipt(){
+	private void printReceipt(int transactionId, int staffId){
 		PrintReceiptLogDao printLog = 
 				new PrintReceiptLogDao(getApplicationContext());
-		printLog.insertLog(mTransactionId, mStaffId);
+		printLog.insertLog(transactionId, staffId);
 		
 		new PrintReceipt(MainActivity.this, new PrintReceipt.PrintStatusListener() {
 			

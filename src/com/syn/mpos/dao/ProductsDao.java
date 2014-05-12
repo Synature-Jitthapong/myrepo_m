@@ -3,11 +3,6 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.dao.table.ProductComponentGroupTable;
-import com.syn.mpos.dao.table.ProductComponentTable;
-import com.syn.mpos.dao.table.ProductDeptTable;
-import com.syn.mpos.dao.table.ProductGroupTable;
-import com.syn.mpos.dao.table.ProductsTable;
 import com.syn.pos.MenuGroups;
 import com.syn.pos.ProductGroups;
 

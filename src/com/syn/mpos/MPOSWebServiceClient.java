@@ -15,7 +15,7 @@ import com.syn.mpos.dao.GlobalPropertyDao;
 import com.syn.mpos.dao.HeaderFooterReceiptDao;
 import com.syn.mpos.dao.LanguageDao;
 import com.syn.mpos.dao.PaymentAmountButtonDao;
-import com.syn.mpos.dao.PaymentDetailDao;
+import com.syn.mpos.dao.PaymentDao;
 import com.syn.mpos.dao.ProductsDao;
 import com.syn.mpos.dao.ShopDao;
 import com.syn.mpos.dao.StaffDao;
@@ -75,7 +75,7 @@ public class MPOSWebServiceClient {
 						HeaderFooterReceiptDao hf = new HeaderFooterReceiptDao(context.getApplicationContext());
 						BankNameDao bank = new BankNameDao(context.getApplicationContext());
 						CreditCardDao cd = new CreditCardDao(context.getApplicationContext());
-						PaymentDetailDao pd = new PaymentDetailDao(context.getApplicationContext());
+						PaymentDao pd = new PaymentDao(context.getApplicationContext());
 						PaymentAmountButtonDao pb = new PaymentAmountButtonDao(context.getApplicationContext());
 						try {
 							shop.insertShopProperty(sd.getShopProperty());

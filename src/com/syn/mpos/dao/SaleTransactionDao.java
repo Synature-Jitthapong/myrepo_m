@@ -5,17 +5,17 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.syn.mpos.MPOSUtil;
+import com.syn.mpos.dao.ComputerDao.ComputerTable;
+import com.syn.mpos.dao.CreditCardDao.CreditCardTable;
+import com.syn.mpos.dao.PaymentDao.PayTypeTable;
+import com.syn.mpos.dao.PaymentDao.PaymentDetailTable;
+import com.syn.mpos.dao.ProductsDao.ProductsTable;
+import com.syn.mpos.dao.SessionDao.SessionDetailTable;
+import com.syn.mpos.dao.SessionDao.SessionTable;
+import com.syn.mpos.dao.ShopDao.ShopTable;
 import com.syn.mpos.dao.StockDocument.DocumentTypeTable;
-import com.syn.mpos.dao.table.ComputerTable;
-import com.syn.mpos.dao.table.CreditCardTable;
-import com.syn.mpos.dao.table.OrderDetailTable;
-import com.syn.mpos.dao.table.OrderTransactionTable;
-import com.syn.mpos.dao.table.PayTypeTable;
-import com.syn.mpos.dao.table.PaymentDetailTable;
-import com.syn.mpos.dao.table.ProductsTable;
-import com.syn.mpos.dao.table.SessionDetailTable;
-import com.syn.mpos.dao.table.SessionTable;
-import com.syn.mpos.dao.table.ShopTable;
+import com.syn.mpos.dao.TransactionDao.OrderDetailTable;
+import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
 
 import android.content.Context;
 import android.database.Cursor;

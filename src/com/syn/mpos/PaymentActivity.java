@@ -11,7 +11,7 @@ import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.R;
 import com.syn.mpos.dao.GlobalPropertyDao;
 import com.syn.mpos.dao.PaymentAmountButtonDao;
-import com.syn.mpos.dao.PaymentDetailDao;
+import com.syn.mpos.dao.PaymentDao;
 import com.syn.mpos.dao.TransactionDao;
 import com.syn.pos.Payment;
 
@@ -54,7 +54,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	 */
 	private Drw mDrw;
 	
-	private PaymentDetailDao mPayment;
+	private PaymentDao mPayment;
 	private TransactionDao mOrders;
 	private GlobalPropertyDao mGlobal;
 	
@@ -114,7 +114,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
 		mOrders = new TransactionDao(getApplicationContext());
-		mPayment = new PaymentDetailDao(getApplicationContext());
+		mPayment = new PaymentDao(getApplicationContext());
 		mGlobal = new GlobalPropertyDao(getApplicationContext());
 		
 		// init drw
@@ -220,7 +220,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			
 			String payTypeCash = PaymentActivity.this.getString(R.string.cash);
 			String payTypeCredit = PaymentActivity.this.getString(R.string.credit);
-			String payTypeName = payment.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CASH ? payTypeCash : payTypeCredit;
+			String payTypeName = payment.getPayTypeID() == PaymentDao.PAY_TYPE_CASH ? payTypeCash : payTypeCredit;
 			if(payment.getPayTypeName() != null){
 				payTypeName = payment.getPayTypeName();
 			}
@@ -312,6 +312,8 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			
 			Intent intent = new Intent();
 			intent.putExtra("change", mChange);
+			intent.putExtra("transactionId", mTransactionId);
+			intent.putExtra("staffId", mStaffId);
 			setResult(RESULT_OK, intent);
 			finish();
 		}else{
@@ -397,7 +399,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			break;
 		case R.id.btnPayEnter:
 			if(!mStrTotalPay.toString().isEmpty()){
-				addPayment(PaymentDetailDao.PAY_TYPE_CASH, "");
+				addPayment(PaymentDao.PAY_TYPE_CASH, "");
 			}
 			break;
 		}
@@ -459,9 +461,9 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 
 				@Override
 				public void onClick(View v) {
-					if(payType.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CASH){
+					if(payType.getPayTypeID() == PaymentDao.PAY_TYPE_CASH){
 						
-					}else if(payType.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CREDIT){
+					}else if(payType.getPayTypeID() == PaymentDao.PAY_TYPE_CREDIT){
 						creditPay();
 					}else{
 						popupOtherPayment(payType.getPayTypeName(), payType.getPayTypeID());
@@ -526,7 +528,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 					mStrTotalPay.append(mGlobal.currencyFormat(
 							paymentButton.getPaymentAmount()));
 					calculateInputPrice();
-					addPayment(PaymentDetailDao.PAY_TYPE_CASH, "");
+					addPayment(PaymentDao.PAY_TYPE_CASH, "");
 				}
 				
 			});

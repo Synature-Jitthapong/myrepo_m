@@ -18,7 +18,7 @@ import com.syn.mpos.dao.CreditCardDao;
 import com.syn.mpos.dao.GlobalPropertyDao;
 import com.syn.mpos.dao.HeaderFooterReceiptDao;
 import com.syn.mpos.dao.MPOSOrderTransaction;
-import com.syn.mpos.dao.PaymentDetailDao;
+import com.syn.mpos.dao.PaymentDao;
 import com.syn.mpos.dao.PrintReceiptLogDao;
 import com.syn.mpos.dao.ProductsDao;
 import com.syn.mpos.dao.ShopDao;
@@ -34,7 +34,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	
 	public static final String TAG = "PrintReceipt";
 	private TransactionDao mOrders;
-	private PaymentDetailDao mPayment;
+	private PaymentDao mPayment;
 	private ShopDao mShop;
 	private HeaderFooterReceiptDao mHeaderFooter;
 	private GlobalPropertyDao mGlobal;
@@ -51,7 +51,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	public PrintReceipt(Context context, PrintStatusListener listener){
 		mContext = context;
 		mOrders = new TransactionDao(context.getApplicationContext());
-		mPayment = new PaymentDetailDao(context.getApplicationContext());
+		mPayment = new PaymentDao(context.getApplicationContext());
 		mShop = new ShopDao(context.getApplicationContext());
 		mGlobal = new GlobalPropertyDao(context.getApplicationContext());
 		mHeaderFooter = new HeaderFooterReceiptDao(context.getApplicationContext());
@@ -203,7 +203,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    	for(int i = 0; i < paymentLst.size(); i++){
 	    		Payment.PaymentDetail payment = paymentLst.get(i);
 		    	String strTotalPaid = mGlobal.currencyFormat(payment.getPaid());
-		    	if(payment.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CREDIT){
+		    	if(payment.getPayTypeID() == PaymentDao.PAY_TYPE_CREDIT){
 		    		String paymentText = payment.getPayTypeName();
 		    		String cardNoText = "xxxx xxxx xxxx ";
 		    		try {
@@ -404,7 +404,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     	for(int i = 0; i < paymentLst.size(); i++){
     		Payment.PaymentDetail payment = paymentLst.get(i);
 	    	String strTotalPaid = mGlobal.currencyFormat(payment.getPaid());
-	    	if(payment.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CREDIT){
+	    	if(payment.getPayTypeID() == PaymentDao.PAY_TYPE_CREDIT){
 	    		String paymentText = payment.getPayTypeName();
 	    		String cardNoText = "xxxx xxxx xxxx ";
 	    		try {

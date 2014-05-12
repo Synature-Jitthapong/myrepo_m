@@ -145,6 +145,7 @@ public class ReprintActivity extends Activity {
 		
 		public Reprint(int transactionId, PrintStatusListener listener) {
 			super(ReprintActivity.this, listener);
+			mTransactionId = transactionId;
 		}
 
 		@Override

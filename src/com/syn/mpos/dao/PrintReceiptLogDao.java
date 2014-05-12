@@ -3,9 +3,8 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.dao.table.ComputerTable;
-import com.syn.mpos.dao.table.OrderTransactionTable;
-import com.syn.mpos.dao.table.PrintReceiptLogTable;
+import com.syn.mpos.dao.StaffDao.StaffTable;
+import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
 
 import android.content.ContentValues;
 import android.content.Context;

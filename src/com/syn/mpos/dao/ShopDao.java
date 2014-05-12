@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.mpos.dao.table.ShopTable;
 import com.syn.pos.ShopData;
 
 public class ShopDao extends MPOSDatabase{

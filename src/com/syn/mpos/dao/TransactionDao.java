@@ -11,17 +11,15 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.syn.mpos.dao.ComputerDao.ComputerTable;
 import com.syn.mpos.dao.MPOSOrderTransaction.OrderSet;
+import com.syn.mpos.dao.ProductsDao.ProductComponentGroupTable;
+import com.syn.mpos.dao.ProductsDao.ProductComponentTable;
+import com.syn.mpos.dao.ProductsDao.ProductsTable;
+import com.syn.mpos.dao.SessionDao.SessionTable;
+import com.syn.mpos.dao.ShopDao.ShopTable;
+import com.syn.mpos.dao.StaffDao.StaffTable;
 import com.syn.mpos.dao.StockDocument.DocumentTypeTable;
-import com.syn.mpos.dao.table.ComputerTable;
-import com.syn.mpos.dao.table.OrderDetailTable;
-import com.syn.mpos.dao.table.OrderSetTable;
-import com.syn.mpos.dao.table.OrderTransactionTable;
-import com.syn.mpos.dao.table.ProductComponentGroupTable;
-import com.syn.mpos.dao.table.ProductComponentTable;
-import com.syn.mpos.dao.table.ProductsTable;
-import com.syn.mpos.dao.table.SessionTable;
-import com.syn.mpos.dao.table.ShopTable;
 
 /**
  * 
@@ -536,7 +534,7 @@ public class TransactionDao extends MPOSDatabase {
 						+ " b." + StaffTable.COLUMN_STAFF_CODE + ", " + " b."
 						+ StaffTable.COLUMN_STAFF_NAME + " FROM "
 						+ OrderTransactionTable.TABLE_ORDER_TRANS + " a "
-						+ " LEFT JOIN " + StaffTable.TABLE_NAME + " b "
+						+ " LEFT JOIN " + StaffTable.TABLE_STAFF + " b "
 						+ " ON a." + OrderTransactionTable.COLUMN_OPEN_STAFF
 						+ "=" + " b." + StaffTable.COLUMN_STAFF_ID
 						+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE

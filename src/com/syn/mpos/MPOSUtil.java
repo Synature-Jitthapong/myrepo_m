@@ -21,15 +21,15 @@ import com.j1tth4.util.Logger;
 import com.syn.mpos.MPOSWebServiceClient.AuthenDeviceListener;
 import com.syn.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.syn.mpos.dao.MPOSDatabase;
+import com.syn.mpos.dao.PaymentDao.PaymentDetailTable;
 import com.syn.mpos.dao.SaleTransactionDao;
 import com.syn.mpos.dao.SessionDao;
+import com.syn.mpos.dao.SessionDao.SessionDetailTable;
+import com.syn.mpos.dao.SessionDao.SessionTable;
 import com.syn.mpos.dao.TransactionDao;
 import com.syn.mpos.dao.SaleTransactionDao.POSData_SaleTransaction;
-import com.syn.mpos.dao.table.OrderDetailTable;
-import com.syn.mpos.dao.table.OrderTransactionTable;
-import com.syn.mpos.dao.table.PaymentDetailTable;
-import com.syn.mpos.dao.table.SessionDetailTable;
-import com.syn.mpos.dao.table.SessionTable;
+import com.syn.mpos.dao.TransactionDao.OrderDetailTable;
+import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
 
 public class MPOSUtil {
 	

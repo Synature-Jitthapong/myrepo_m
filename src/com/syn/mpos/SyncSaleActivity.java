@@ -5,10 +5,10 @@ import java.util.List;
 
 import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.dao.BaseColumn;
+import com.syn.mpos.dao.ComputerDao.ComputerTable;
 import com.syn.mpos.dao.MPOSDatabase;
 import com.syn.mpos.dao.TransactionDao;
-import com.syn.mpos.dao.table.ComputerTable;
-import com.syn.mpos.dao.table.OrderTransactionTable;
+import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
 import com.syn.pos.OrderTransaction;
 
 import android.app.Activity;

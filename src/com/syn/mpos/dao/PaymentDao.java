@@ -3,12 +3,10 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.dao.table.BankTable;
-import com.syn.mpos.dao.table.ComputerTable;
-import com.syn.mpos.dao.table.CreditCardTable;
-import com.syn.mpos.dao.table.OrderTransactionTable;
-import com.syn.mpos.dao.table.PayTypeTable;
-import com.syn.mpos.dao.table.PaymentDetailTable;
+import com.syn.mpos.dao.BankNameDao.BankTable;
+import com.syn.mpos.dao.ComputerDao.ComputerTable;
+import com.syn.mpos.dao.CreditCardDao.CreditCardTable;
+import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
 import com.syn.pos.Payment;
 
 import android.content.ContentValues;
@@ -17,12 +15,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class PaymentDetailDao extends MPOSDatabase {
+public class PaymentDao extends MPOSDatabase {
 	
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 
-	public PaymentDetailDao(Context context) {
+	public PaymentDao(Context context) {
 		super(context);
 	}
 	

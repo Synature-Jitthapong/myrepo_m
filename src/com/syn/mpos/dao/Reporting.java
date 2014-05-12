@@ -3,14 +3,14 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.dao.table.ComputerTable;
-import com.syn.mpos.dao.table.OrderDetailTable;
-import com.syn.mpos.dao.table.OrderTransactionTable;
-import com.syn.mpos.dao.table.PayTypeTable;
-import com.syn.mpos.dao.table.PaymentDetailTable;
-import com.syn.mpos.dao.table.ProductDeptTable;
-import com.syn.mpos.dao.table.ProductGroupTable;
-import com.syn.mpos.dao.table.ProductsTable;
+import com.syn.mpos.dao.ComputerDao.ComputerTable;
+import com.syn.mpos.dao.PaymentDao.PayTypeTable;
+import com.syn.mpos.dao.PaymentDao.PaymentDetailTable;
+import com.syn.mpos.dao.ProductsDao.ProductDeptTable;
+import com.syn.mpos.dao.ProductsDao.ProductGroupTable;
+import com.syn.mpos.dao.ProductsDao.ProductsTable;
+import com.syn.mpos.dao.TransactionDao.OrderDetailTable;
+import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
 import com.syn.pos.Report;
 
 import android.content.ContentValues;

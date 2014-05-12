@@ -15,7 +15,7 @@ import com.j1tth4.util.VerifyCardType;
 import com.syn.mpos.dao.BankNameDao;
 import com.syn.mpos.dao.CreditCardDao;
 import com.syn.mpos.dao.GlobalPropertyDao;
-import com.syn.mpos.dao.PaymentDetailDao;
+import com.syn.mpos.dao.PaymentDao;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
 
@@ -68,7 +68,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	 */
 	private Thread mMsrThread;
 
-	private PaymentDetailDao mPayment;
+	private PaymentDao mPayment;
 	private GlobalPropertyDao mGlobal;
 	
 	private List<BankName> mBankLst;
@@ -167,7 +167,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 			
 		});
 		
-		mPayment = new PaymentDetailDao(getApplicationContext());
+		mPayment = new PaymentDao(getApplicationContext());
 		mGlobal = new GlobalPropertyDao(getApplicationContext());
 		
 		Intent intent = getIntent();
@@ -177,12 +177,6 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 		
 		mMsr = new Msr(MPOSApplication.WINTEC_DEFAULT_DEVICE_PATH, 
 				ComIO.Baudrate.valueOf(MPOSApplication.WINTEC_DEFAULT_BAUD_RATE));
-		//test();
-	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
 		// start magnetic reader thread
 		try {
 			mMsrThread = new Thread(this);
@@ -196,6 +190,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 					"Error start magnetic reader thread " + 
 					e.getMessage());
 		}
+		//test();
 	}
 
 	@Override
@@ -343,7 +338,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 									+ mTxtCardNoSeq4.getText().toString();
 							try {
 								mPayment.addPaymentDetail(mTransactionId, mComputerId,
-										PaymentDetailDao.PAY_TYPE_CREDIT,
+										PaymentDao.PAY_TYPE_CREDIT,
 										mTotalCreditPay, mTotalCreditPay >= mPaymentLeft ?
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
 										mExpYear, mBankId, mCardTypeId, "");
@@ -541,56 +536,57 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 				final String content = mMsr.MSR_GetTrackData(
 						mEnterTrack1, mEnterTrack2, mEnterTrack3);
 				
-				Logger.appendLog(getApplicationContext(), 
-						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME,
-						content);
-				
 				if(content.length() > 0){
+					Logger.appendLog(getApplicationContext(), 
+						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME,
+						"Content : " + content);
 					runOnUiThread(new Runnable(){
 
 						@Override
 						public void run() {
 							try {
 								CreditCardParser parser = new CreditCardParser();
-								String cardNo = parser.getCardNo();
-								String cardHolderName = parser.getCardHolderName();
-								String expDate = parser.getExpDate();
-								
-								mTxtCardNoSeq1.setText(null);
-								mTxtCardNoSeq2.setText(null);
-								mTxtCardNoSeq3.setText(null);
-								mTxtCardNoSeq4.setText(null);
-								mTxtCardHolderName.setText(null);
-								
-								mTxtCardNoSeq1.setText(cardNo.substring(0, 4));
-								mTxtCardNoSeq2.setText(cardNo.substring(4, 8));
-								mTxtCardNoSeq3.setText(cardNo.substring(8, 12));
-								mTxtCardNoSeq4.setText(cardNo.substring(12, 16));
-								mTxtCardHolderName.setText(cardHolderName);
-								
-								try {
-									VerifyCardType.CardType cardType = VerifyCardType.checkCardType(cardNo); 
-									switch(cardType){
-									case VISA:
-										mSpCardType.setSelection(1);
-										break;
-									case MASTER:
-										mSpCardType.setSelection(2);
-										break;
-									default:
-										mSpCardType.setSelection(0);
+								if(parser.parser(content)){
+									String cardNo = parser.getCardNo();
+									String cardHolderName = parser.getCardHolderName();
+									String expDate = parser.getExpDate();
+									
+									mTxtCardNoSeq1.setText(null);
+									mTxtCardNoSeq2.setText(null);
+									mTxtCardNoSeq3.setText(null);
+									mTxtCardNoSeq4.setText(null);
+									mTxtCardHolderName.setText(null);
+									
+									mTxtCardNoSeq1.setText(cardNo.substring(0, 4));
+									mTxtCardNoSeq2.setText(cardNo.substring(4, 8));
+									mTxtCardNoSeq3.setText(cardNo.substring(8, 12));
+									mTxtCardNoSeq4.setText(cardNo.substring(12, 16));
+									mTxtCardHolderName.setText(cardHolderName);
+									
+									try {
+										VerifyCardType.CardType cardType = VerifyCardType.checkCardType(cardNo); 
+										switch(cardType){
+										case VISA:
+											mSpCardType.setSelection(1);
+											break;
+										case MASTER:
+											mSpCardType.setSelection(2);
+											break;
+										default:
+											mSpCardType.setSelection(0);
+										}
+									} catch (Exception e) {
+										Logger.appendLog(getApplicationContext(), 
+												MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+												"Error set selected spinner card type");
 									}
-								} catch (Exception e) {
+									
 									Logger.appendLog(getApplicationContext(), 
 											MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
-											"Error set selected spinner card type");
+											"CARD NO : " + cardNo + " \n " +
+											"CARD HOLDER NAME : " + cardHolderName + "\n" +
+											"EXP DATE : " + expDate);	
 								}
-								
-								Logger.appendLog(getApplicationContext(), 
-										MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
-										"CARD NO : " + cardNo + " \n " +
-										"CARD HOLDER NAME : " + cardHolderName + "\n" +
-										"EXP DATE : " + expDate);
 							} catch (Exception e) {
 								new AlertDialog.Builder(CreditPayActivity.this)
 								.setTitle(R.string.error)
@@ -609,10 +605,6 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 						}
 						
 					});
-				}else{
-//					Logger.appendLog(getApplicationContext(), 
-//							MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
-//							"Cannot receive anything.");
 				}
 			} catch (Exception e) {
 				Logger.appendLog(getApplicationContext(), 

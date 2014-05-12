@@ -3,7 +3,6 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.dao.table.PaymentButtonTable;
 import com.syn.pos.Payment;
 
 import android.content.ContentValues;

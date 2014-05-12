@@ -2,11 +2,9 @@ package com.syn.mpos.dao;
 
 import java.util.Calendar;
 
-import com.syn.mpos.dao.table.ComputerTable;
-import com.syn.mpos.dao.table.OrderTransactionTable;
-import com.syn.mpos.dao.table.SessionDetailTable;
-import com.syn.mpos.dao.table.SessionTable;
-import com.syn.mpos.dao.table.ShopTable;
+import com.syn.mpos.dao.ComputerDao.ComputerTable;
+import com.syn.mpos.dao.ShopDao.ShopTable;
+import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
 
 import android.content.ContentValues;
 import android.content.Context;

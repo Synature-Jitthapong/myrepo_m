@@ -9,7 +9,7 @@ import java.util.List;
 import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.dao.GlobalPropertyDao;
 import com.syn.mpos.dao.MPOSDatabase;
-import com.syn.mpos.dao.PaymentDetailDao;
+import com.syn.mpos.dao.PaymentDao;
 import com.syn.mpos.dao.Reporting;
 import com.syn.mpos.dao.TransactionDao;
 import com.syn.pos.Payment;
@@ -131,7 +131,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			double totalVat = 0.0f;
 			double totalPay = 0.0f;
 			
-			PaymentDetailDao payment = new PaymentDetailDao(SaleReportActivity.this);
+			PaymentDao payment = new PaymentDao(SaleReportActivity.this);
 			for(Report.ReportDetail reportDetail : mReport.reportDetail){
 				if(reportDetail.getTransStatus() != TransactionDao.TRANS_STATUS_VOID){
 					totalPrice += reportDetail.getTotalPrice();
@@ -611,7 +611,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	 */
 	public static class PaymentDetailFragment extends DialogFragment{
 		
-		private PaymentDetailDao mPayment;
+		private PaymentDao mPayment;
 		private List<Payment.PaymentDetail> mPaymentLst;
 		private PaymentDetailAdapter mPaymentAdapter;
 		
@@ -631,7 +631,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		public void onCreate(Bundle savedInstanceState) {
 			mTransactionId = getArguments().getInt("transactionId");
 			
-			mPayment = new PaymentDetailDao(getActivity());
+			mPayment = new PaymentDao(getActivity());
 			mPaymentLst = mPayment.listPaymentGroupByType(mTransactionId);
 			mPaymentAdapter = new PaymentDetailAdapter();
 			
