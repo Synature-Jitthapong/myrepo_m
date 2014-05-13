@@ -24,16 +24,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
 import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -72,7 +67,8 @@ public class ProductSetActivity extends Activity{
 		
 		Product p = sProduct.getProduct(productId);
 		mOrderDetailId = sTransaction.addOrderDetail(mTransactionId, mComputerId, productId, 
-				p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
+				p.getProductCode(), p.getProductName(), p.getProductTypeId(), 
+				p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
 		
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()

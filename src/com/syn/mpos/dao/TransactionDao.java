@@ -71,7 +71,7 @@ public class TransactionDao extends MPOSDatabase {
 						OrderTransactionTable.COLUMN_RECEIPT_NO,
 						OrderTransactionTable.COLUMN_OPEN_STAFF },
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
-				new String[] { String.valueOf(transactionId)}, null, null,
+				new String[] { String.valueOf(transactionId) }, null, null,
 				OrderTransactionTable.COLUMN_SALE_DATE);
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -103,47 +103,47 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param saleDate
 	 * @return MPOSOrderTransaction
 	 */
-//	public MPOSOrderTransaction getTransaction(long saleDate) {
-//		MPOSOrderTransaction trans = new MPOSOrderTransaction();
-//		Cursor cursor = getReadableDatabase().query(
-//				OrderTransactionTable.TABLE_ORDER_TRANS,
-//				new String[] { OrderTransactionTable.COLUMN_TRANSACTION_ID,
-//						ComputerTable.COLUMN_COMPUTER_ID,
-//						OrderTransactionTable.COLUMN_TRANS_VATABLE,
-//						OrderTransactionTable.COLUMN_TRANS_VAT,
-//						OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT,
-//						OrderTransactionTable.COLUMN_PAID_TIME,
-//						OrderTransactionTable.COLUMN_RECEIPT_NO,
-//						OrderTransactionTable.COLUMN_OPEN_STAFF },
-//				OrderTransactionTable.COLUMN_SALE_DATE + "=? AND "
-//						+ OrderTransactionTable.COLUMN_STATUS_ID + "=?",
-//				new String[] { String.valueOf(saleDate),
-//						String.valueOf(TRANS_STATUS_SUCCESS), }, null, null,
-//				OrderTransactionTable.COLUMN_SALE_DATE);
-//
-//		if (cursor != null) {
-//			if (cursor.moveToFirst()) {
-//				trans.setTransactionId(cursor.getInt(cursor
-//						.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
-//				trans.setTransactionVatable(cursor.getDouble(cursor
-//						.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)));
-//				trans.setTransactionVat(cursor.getDouble(cursor
-//						.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT)));
-//				trans.setTransactionVatExclude(cursor.getDouble(cursor
-//						.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT)));
-//				trans.setComputerId(cursor.getInt(cursor
-//						.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
-//				trans.setPaidTime(cursor.getString(cursor
-//						.getColumnIndex(OrderTransactionTable.COLUMN_PAID_TIME)));
-//				trans.setReceiptNo(cursor.getString(cursor
-//						.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
-//				trans.setOpenStaffId(cursor.getInt(cursor
-//						.getColumnIndex(OrderTransactionTable.COLUMN_OPEN_STAFF)));
-//			}
-//			cursor.close();
-//		}
-//		return trans;
-//	}
+	// public MPOSOrderTransaction getTransaction(long saleDate) {
+	// MPOSOrderTransaction trans = new MPOSOrderTransaction();
+	// Cursor cursor = getReadableDatabase().query(
+	// OrderTransactionTable.TABLE_ORDER_TRANS,
+	// new String[] { OrderTransactionTable.COLUMN_TRANSACTION_ID,
+	// ComputerTable.COLUMN_COMPUTER_ID,
+	// OrderTransactionTable.COLUMN_TRANS_VATABLE,
+	// OrderTransactionTable.COLUMN_TRANS_VAT,
+	// OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT,
+	// OrderTransactionTable.COLUMN_PAID_TIME,
+	// OrderTransactionTable.COLUMN_RECEIPT_NO,
+	// OrderTransactionTable.COLUMN_OPEN_STAFF },
+	// OrderTransactionTable.COLUMN_SALE_DATE + "=? AND "
+	// + OrderTransactionTable.COLUMN_STATUS_ID + "=?",
+	// new String[] { String.valueOf(saleDate),
+	// String.valueOf(TRANS_STATUS_SUCCESS), }, null, null,
+	// OrderTransactionTable.COLUMN_SALE_DATE);
+	//
+	// if (cursor != null) {
+	// if (cursor.moveToFirst()) {
+	// trans.setTransactionId(cursor.getInt(cursor
+	// .getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
+	// trans.setTransactionVatable(cursor.getDouble(cursor
+	// .getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)));
+	// trans.setTransactionVat(cursor.getDouble(cursor
+	// .getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT)));
+	// trans.setTransactionVatExclude(cursor.getDouble(cursor
+	// .getColumnIndex(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT)));
+	// trans.setComputerId(cursor.getInt(cursor
+	// .getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+	// trans.setPaidTime(cursor.getString(cursor
+	// .getColumnIndex(OrderTransactionTable.COLUMN_PAID_TIME)));
+	// trans.setReceiptNo(cursor.getString(cursor
+	// .getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
+	// trans.setOpenStaffId(cursor.getInt(cursor
+	// .getColumnIndex(OrderTransactionTable.COLUMN_OPEN_STAFF)));
+	// }
+	// cursor.close();
+	// }
+	// return trans;
+	// }
 
 	/**
 	 * Get summary order for discount
@@ -158,12 +158,13 @@ public class TransactionDao extends MPOSDatabase {
 				"SELECT " + " SUM (" + OrderDetailTable.COLUMN_ORDER_QTY
 						+ ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
 						+ " SUM (" + OrderDetailTable.COLUMN_PRICE_DISCOUNT
-						+ ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
-						+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE
-						+ ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
+						+ ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT
+						+ ", " + " SUM ("
+						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS "
+						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
 						+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
-						+ ") AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", "
-						+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT
+						+ ") AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
+						+ ", " + " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT
 						+ ") AS " + OrderDetailTable.COLUMN_TOTAL_VAT + ", "
 						+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE
 						+ ") AS " + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE
@@ -204,12 +205,13 @@ public class TransactionDao extends MPOSDatabase {
 				"SELECT " + " SUM (" + OrderDetailTable.COLUMN_ORDER_QTY
 						+ ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
 						+ " SUM (" + OrderDetailTable.COLUMN_PRICE_DISCOUNT
-						+ ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
-						+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE
-						+ ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
+						+ ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT
+						+ ", " + " SUM ("
+						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS "
+						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
 						+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
-						+ ") AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", "
-						+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT
+						+ ") AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
+						+ ", " + " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT
 						+ ") AS " + OrderDetailTable.COLUMN_TOTAL_VAT + ", "
 						+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE
 						+ ") AS " + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE
@@ -245,23 +247,24 @@ public class TransactionDao extends MPOSDatabase {
 			int orderDetailId) {
 		MPOSOrderTransaction.MPOSOrderDetail orderDetail = new MPOSOrderTransaction.MPOSOrderDetail();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT "
-						+ " a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
-						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
-						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " a."
-						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " a."
-						+ ProductsTable.COLUMN_PRODUCT_PRICE + ", " + " a."
-						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
-						+ " a." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
-						+ ", " + " a." + ProductsTable.COLUMN_VAT_TYPE + ", "
-						+ " a." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT
-						+ ", " + " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT
-						+ ", " + " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE
-						+ ", " + " b." + ProductsTable.COLUMN_PRODUCT_NAME
-						+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
-						+ " LEFT JOIN " + ProductsTable.TABLE_PRODUCTS + " b "
-						+ " ON a." + ProductsTable.COLUMN_PRODUCT_ID + "="
-						+ " b." + ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
+				" SELECT " + " a."
+						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", "
+						+ " a." + ProductsTable.COLUMN_PRODUCT_ID + ", "
+						+ " a." + OrderDetailTable.COLUMN_ORDER_QTY + ", "
+						+ " a." + ProductsTable.COLUMN_PRODUCT_PRICE + ", "
+						+ " a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE
+						+ ", " + " a."
+						+ OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", "
+						+ " a." + ProductsTable.COLUMN_VAT_TYPE + ", " + " a."
+						+ OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ", "
+						+ " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
+						+ " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE + ", "
+						+ " b." + ProductsTable.COLUMN_PRODUCT_NAME + " FROM "
+						+ OrderDetailTable.TABLE_ORDER + " a " + " LEFT JOIN "
+						+ ProductsTable.TABLE_PRODUCTS + " b " + " ON a."
+						+ ProductsTable.COLUMN_PRODUCT_ID + "=" + " b."
+						+ ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
 						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
 						+ " AND a." + OrderDetailTable.COLUMN_ORDER_ID + "=?",
 				new String[] { String.valueOf(transactionId),
@@ -282,20 +285,21 @@ public class TransactionDao extends MPOSDatabase {
 			int transactionId) {
 		List<MPOSOrderTransaction.MPOSOrderDetail> orderDetailLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT "
-						+ " a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
-						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
-						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " a."
-						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " a."
-						+ ProductsTable.COLUMN_PRODUCT_PRICE + ", " + " a."
-						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
-						+ " a." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
-						+ ", " + " a." + ProductsTable.COLUMN_VAT_TYPE + ", "
-						+ " a." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT
-						+ ", " + " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT
-						+ ", " + " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE
-						+ ", " + " b." + ProductsTable.COLUMN_PRODUCT_NAME
-						+ " FROM " + OrderDetailTable.TABLE_ORDER_TMP + " a "
+				" SELECT " + " a."
+						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", "
+						+ " a." + ProductsTable.COLUMN_PRODUCT_ID + ", "
+						+ " a." + OrderDetailTable.COLUMN_ORDER_QTY + ", "
+						+ " a." + ProductsTable.COLUMN_PRODUCT_PRICE + ", "
+						+ " a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE
+						+ ", " + " a."
+						+ OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", "
+						+ " a." + ProductsTable.COLUMN_VAT_TYPE + ", " + " a."
+						+ OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ", "
+						+ " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
+						+ " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE + ", "
+						+ " b." + ProductsTable.COLUMN_PRODUCT_NAME + " FROM "
+						+ OrderDetailTable.TABLE_ORDER_TMP + " a "
 						+ " LEFT JOIN " + ProductsTable.TABLE_PRODUCTS + " b "
 						+ " ON a." + ProductsTable.COLUMN_PRODUCT_ID + "="
 						+ " b." + ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
@@ -318,14 +322,15 @@ public class TransactionDao extends MPOSDatabase {
 			int transactionId) {
 		List<MPOSOrderTransaction.MPOSOrderDetail> orderDetailLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT "
-						+ " a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
-						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
-						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " SUM(a."
-						+ OrderDetailTable.COLUMN_ORDER_QTY + ") AS "
-						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " SUM(a."
-						+ ProductsTable.COLUMN_PRODUCT_PRICE + ") AS "
-						+ ProductsTable.COLUMN_PRODUCT_PRICE + ", " + " SUM(a."
+				" SELECT " + " a."
+						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", "
+						+ " a." + ProductsTable.COLUMN_PRODUCT_ID + ", "
+						+ " SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY
+						+ ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
+						+ " SUM(a." + ProductsTable.COLUMN_PRODUCT_PRICE
+						+ ") AS " + ProductsTable.COLUMN_PRODUCT_PRICE + ", "
+						+ " SUM(a."
 						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS "
 						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
 						+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
@@ -360,27 +365,28 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param transactionId
 	 * @return List<MPOSOrderTransaction.MPOSOrderDetail>
 	 */
-	public List<MPOSOrderTransaction.MPOSOrderDetail> listAllOrder(int transactionId) {
-		List<MPOSOrderTransaction.MPOSOrderDetail> orderDetailLst = 
-				new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
+	public List<MPOSOrderTransaction.MPOSOrderDetail> listAllOrder(
+			int transactionId) {
+		List<MPOSOrderTransaction.MPOSOrderDetail> orderDetailLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT "
-						+ " a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
-						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", " + " a."
-						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " a."
-						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " a."
-						+ ProductsTable.COLUMN_PRODUCT_PRICE + ", " + " a."
-						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
-						+ " a." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
-						+ ", " + " a." + ProductsTable.COLUMN_VAT_TYPE + ", "
-						+ " a." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT
-						+ ", " + " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT
-						+ ", " + " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE
-						+ ", " + " b." + ProductsTable.COLUMN_PRODUCT_NAME
-						+ " FROM " + OrderDetailTable.TABLE_ORDER + " a"
-						+ " LEFT JOIN " + ProductsTable.TABLE_PRODUCTS + " b"
-						+ " ON a." + ProductsTable.COLUMN_PRODUCT_ID + "="
-						+ " b." + ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
+				" SELECT " + " a."
+						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+						+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", "
+						+ " a." + ProductsTable.COLUMN_PRODUCT_ID + ", "
+						+ " a." + OrderDetailTable.COLUMN_ORDER_QTY + ", "
+						+ " a." + ProductsTable.COLUMN_PRODUCT_PRICE + ", "
+						+ " a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE
+						+ ", " + " a."
+						+ OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", "
+						+ " a." + ProductsTable.COLUMN_VAT_TYPE + ", " + " a."
+						+ OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ", "
+						+ " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
+						+ " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE + ", "
+						+ " b." + ProductsTable.COLUMN_PRODUCT_NAME + " FROM "
+						+ OrderDetailTable.TABLE_ORDER + " a" + " LEFT JOIN "
+						+ ProductsTable.TABLE_PRODUCTS + " b" + " ON a."
+						+ ProductsTable.COLUMN_PRODUCT_ID + "=" + " b."
+						+ ProductsTable.COLUMN_PRODUCT_ID + " WHERE a."
 						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
 		if (cursor.moveToFirst()) {
@@ -393,8 +399,7 @@ public class TransactionDao extends MPOSDatabase {
 	}
 
 	private MPOSOrderTransaction.MPOSOrderDetail toOrderDetail(Cursor cursor) {
-		MPOSOrderTransaction.MPOSOrderDetail orderDetail = 
-				new MPOSOrderTransaction.MPOSOrderDetail();
+		MPOSOrderTransaction.MPOSOrderDetail orderDetail = new MPOSOrderTransaction.MPOSOrderDetail();
 		orderDetail.setTransactionId(cursor.getInt(cursor
 				.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
 		orderDetail.setOrderDetailId(cursor.getInt(cursor
@@ -421,10 +426,9 @@ public class TransactionDao extends MPOSDatabase {
 				.getColumnIndex(OrderDetailTable.COLUMN_DISCOUNT_TYPE)));
 
 		// generate order set detail
-		List<MPOSOrderTransaction.OrderSet.OrderSetDetail> orderSetDetailLst = 
-				listOrderSetDetail(orderDetail.getTransactionId(), 
-						orderDetail.getOrderDetailId());
-		if(orderSetDetailLst.size() > 0){
+		List<MPOSOrderTransaction.OrderSet.OrderSetDetail> orderSetDetailLst = listOrderSetDetail(
+				orderDetail.getTransactionId(), orderDetail.getOrderDetailId());
+		if (orderSetDetailLst.size() > 0) {
 			orderDetail.setOrderSetDetailLst(orderSetDetailLst);
 		}
 		return orderDetail;
@@ -445,20 +449,17 @@ public class TransactionDao extends MPOSDatabase {
 	public List<MPOSOrderTransaction> listTransaction(String saleDate) {
 		List<MPOSOrderTransaction> transLst = new ArrayList<MPOSOrderTransaction>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ ", " + ComputerTable.COLUMN_COMPUTER_ID
-						+ ", " + OrderTransactionTable.COLUMN_PAID_TIME
-						+ ", " + OrderTransactionTable.COLUMN_TRANS_NOTE 
-						+ ", " + OrderTransactionTable.COLUMN_RECEIPT_NO
-						+ ", " + OrderTransactionTable.COLUMN_STATUS_ID
-						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-						+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=? AND "
+				" SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+						+ ComputerTable.COLUMN_COMPUTER_ID + ", "
+						+ OrderTransactionTable.COLUMN_PAID_TIME + ", "
+						+ OrderTransactionTable.COLUMN_TRANS_NOTE + ", "
+						+ OrderTransactionTable.COLUMN_RECEIPT_NO + ", "
+						+ OrderTransactionTable.COLUMN_STATUS_ID + " FROM "
+						+ OrderTransactionTable.TABLE_ORDER_TRANS + " WHERE "
+						+ OrderTransactionTable.COLUMN_SALE_DATE + "=? AND "
 						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN(?, ?)",
-				new String[] {
-						saleDate,
-						String.valueOf(TRANS_STATUS_VOID),
-						String.valueOf(TRANS_STATUS_SUCCESS)
-				});
+				new String[] { saleDate, String.valueOf(TRANS_STATUS_VOID),
+						String.valueOf(TRANS_STATUS_SUCCESS) });
 		if (cursor.moveToFirst()) {
 			do {
 				MPOSOrderTransaction trans = new MPOSOrderTransaction();
@@ -480,25 +481,31 @@ public class TransactionDao extends MPOSDatabase {
 		cursor.close();
 		return transLst;
 	}
-	
+
 	/**
 	 * @param saleDate
 	 * @return List<MPOSOrderTransaction>
 	 */
 	public List<MPOSOrderTransaction> listSuccessTransaction(String saleDate) {
 		List<MPOSOrderTransaction> transLst = new ArrayList<MPOSOrderTransaction>();
-		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ ", " + ComputerTable.COLUMN_COMPUTER_ID
-						+ ", " + OrderTransactionTable.COLUMN_PAID_TIME
-						+ ", " + OrderTransactionTable.COLUMN_TRANS_NOTE 
-						+ ", " + OrderTransactionTable.COLUMN_RECEIPT_NO
-						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-						+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
-						+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + "=?",
-				new String[] {
-						saleDate,
-						String.valueOf(TRANS_STATUS_SUCCESS) });
+		Cursor cursor = getReadableDatabase()
+				.rawQuery(
+						" SELECT "
+								+ OrderTransactionTable.COLUMN_TRANSACTION_ID
+								+ ", " + ComputerTable.COLUMN_COMPUTER_ID
+								+ ", " + OrderTransactionTable.COLUMN_PAID_TIME
+								+ ", "
+								+ OrderTransactionTable.COLUMN_TRANS_NOTE
+								+ ", "
+								+ OrderTransactionTable.COLUMN_RECEIPT_NO
+								+ " FROM "
+								+ OrderTransactionTable.TABLE_ORDER_TRANS
+								+ " WHERE "
+								+ OrderTransactionTable.COLUMN_SALE_DATE + "=?"
+								+ " AND "
+								+ OrderTransactionTable.COLUMN_STATUS_ID + "=?",
+						new String[] { saleDate,
+								String.valueOf(TRANS_STATUS_SUCCESS) });
 		if (cursor.moveToFirst()) {
 			do {
 				MPOSOrderTransaction trans = new MPOSOrderTransaction();
@@ -571,8 +578,8 @@ public class TransactionDao extends MPOSDatabase {
 		int transactionId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ ") " + " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS,
-				null);
+						+ ") " + " FROM "
+						+ OrderTransactionTable.TABLE_ORDER_TRANS, null);
 		if (cursor.moveToFirst()) {
 			transactionId = cursor.getInt(0);
 			cursor.moveToNext();
@@ -686,8 +693,9 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderTransactionTable.COLUMN_RECEIPT_NO,
 				formatReceiptNo("", date.get(Calendar.YEAR),
 						date.get(Calendar.MONTH) + 1, receiptId));
-		return getWritableDatabase().update(OrderTransactionTable.TABLE_ORDER_TRANS,
-				cv, OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+		return getWritableDatabase().update(
+				OrderTransactionTable.TABLE_ORDER_TRANS, cv,
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
 	}
 
@@ -699,8 +707,9 @@ public class TransactionDao extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_STATUS_ID, TRANS_STATUS_NEW);
 		cv.put(OrderTransactionTable.COLUMN_TRANS_NOTE, "");
-		return getWritableDatabase().update(OrderTransactionTable.TABLE_ORDER_TRANS,
-				cv, OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+		return getWritableDatabase().update(
+				OrderTransactionTable.TABLE_ORDER_TRANS, cv,
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
 	}
 
@@ -720,7 +729,8 @@ public class TransactionDao extends MPOSDatabase {
 	 * @return row affected
 	 */
 	public int deleteTransaction(int transactionId) {
-		return getWritableDatabase().delete(OrderTransactionTable.TABLE_ORDER_TRANS,
+		return getWritableDatabase().delete(
+				OrderTransactionTable.TABLE_ORDER_TRANS,
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
 	}
@@ -732,9 +742,10 @@ public class TransactionDao extends MPOSDatabase {
 		int total = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT COUNT(" + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ ") " + " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-						+ " WHERE " + OrderTransactionTable.COLUMN_STATUS_ID
-						+ "=? AND " + BaseColumn.COLUMN_SEND_STATUS + "=?",
+						+ ") " + " FROM "
+						+ OrderTransactionTable.TABLE_ORDER_TRANS + " WHERE "
+						+ OrderTransactionTable.COLUMN_STATUS_ID + "=? AND "
+						+ BaseColumn.COLUMN_SEND_STATUS + "=?",
 				new String[] {
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(MPOSDatabase.NOT_SEND) });
@@ -753,10 +764,11 @@ public class TransactionDao extends MPOSDatabase {
 		int total = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT COUNT(" + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ ") " + " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-						+ " WHERE " + OrderTransactionTable.COLUMN_STATUS_ID
-						+ "=?" + " AND "
-						+ OrderTransactionTable.COLUMN_SALE_DATE + "=?",
+						+ ") " + " FROM "
+						+ OrderTransactionTable.TABLE_ORDER_TRANS + " WHERE "
+						+ OrderTransactionTable.COLUMN_STATUS_ID + "=?"
+						+ " AND " + OrderTransactionTable.COLUMN_SALE_DATE
+						+ "=?",
 				new String[] { String.valueOf(TRANS_STATUS_HOLD), saleDate });
 		if (cursor.moveToFirst()) {
 			total = cursor.getInt(0);
@@ -774,8 +786,9 @@ public class TransactionDao extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_STATUS_ID, TRANS_STATUS_HOLD);
 		cv.put(OrderTransactionTable.COLUMN_TRANS_NOTE, note);
-		return getWritableDatabase().update(OrderTransactionTable.TABLE_ORDER_TRANS,
-				cv, OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+		return getWritableDatabase().update(
+				OrderTransactionTable.TABLE_ORDER_TRANS, cv,
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
 	}
 
@@ -788,8 +801,7 @@ public class TransactionDao extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_OPEN_STAFF, staffId);
 		return getWritableDatabase().update(
-				OrderTransactionTable.TABLE_ORDER_TRANS,
-				cv,
+				OrderTransactionTable.TABLE_ORDER_TRANS, cv,
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
 	}
@@ -841,8 +853,7 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT,
 				summOrder.getVatExclude());
 		return getWritableDatabase().update(
-				OrderTransactionTable.TABLE_ORDER_TRANS,
-				cv,
+				OrderTransactionTable.TABLE_ORDER_TRANS, cv,
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
 	}
@@ -851,10 +862,10 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param transactionId
 	 * @return rows affected
 	 */
-	public int summary(int transactionId){
+	public int summary(int transactionId) {
 		return updateTransactionVat(transactionId);
 	}
-	
+
 	/**
 	 * @param transactionId
 	 * @return can confirm discount ?
@@ -886,7 +897,7 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param discountType
 	 * @return row affected
 	 */
-	public int discountEatchProduct(int transactionId, int orderDetailId, 
+	public int discountEatchProduct(int transactionId, int orderDetailId,
 			int vatType, double vatRate, double salePrice, double discount,
 			int discountType) {
 		double vat = Util.calculateVatAmount(salePrice, vatRate, vatType);
@@ -998,16 +1009,19 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param transactionId
 	 * @param computerId
 	 * @param productId
+	 * @param productCode
+	 * @param productName
 	 * @param productType
 	 * @param vatType
 	 * @param vatRate
 	 * @param orderQty
 	 * @param pricePerUnit
-	 * @return row affected
+	 * @return current orderDetailId
 	 */
 	public int addOrderDetail(int transactionId, int computerId, int productId,
-			int productType, int vatType, double vatRate, double orderQty,
-			double pricePerUnit) {
+			String productCode, String productName, 
+			int productType, int vatType, double vatRate, 
+			double orderQty, double pricePerUnit) {
 		int orderDetailId = getMaxOrderDetail(transactionId);
 		double totalRetailPrice = pricePerUnit * orderQty;
 		double vat = Util
@@ -1017,6 +1031,8 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderTransactionTable.COLUMN_TRANSACTION_ID, transactionId);
 		cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
 		cv.put(ProductsTable.COLUMN_PRODUCT_ID, productId);
+		cv.put(ProductsTable.COLUMN_PRODUCT_CODE, productCode);
+		cv.put(ProductsTable.COLUMN_PRODUCT_NAME, productName);
 		cv.put(OrderDetailTable.COLUMN_ORDER_QTY, orderQty);
 		cv.put(ProductsTable.COLUMN_PRODUCT_PRICE, pricePerUnit);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE, totalRetailPrice);
@@ -1065,8 +1081,9 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(BaseColumn.COLUMN_SEND_STATUS, MPOSDatabase.NOT_SEND);
 		cv.put(OrderTransactionTable.COLUMN_VOID_TIME, Util.getDate()
 				.getTimeInMillis());
-		return getWritableDatabase().update(OrderTransactionTable.TABLE_ORDER_TRANS,
-				cv, OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? ",
+		return getWritableDatabase().update(
+				OrderTransactionTable.TABLE_ORDER_TRANS, cv,
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? ",
 				new String[] { String.valueOf(transactionId) });
 	}
 
@@ -1078,10 +1095,11 @@ public class TransactionDao extends MPOSDatabase {
 		int totalReceipt = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT COUNT (" + OrderTransactionTable.COLUMN_TRANSACTION_ID
-						+ ") " + " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-						+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE
-						+ "=? " + " AND "
-						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN (?,?)",
+						+ ") " + " FROM "
+						+ OrderTransactionTable.TABLE_ORDER_TRANS + " WHERE "
+						+ OrderTransactionTable.COLUMN_SALE_DATE + "=? "
+						+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID
+						+ " IN (?,?)",
 				new String[] { sessionDate,
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID) });
@@ -1098,222 +1116,221 @@ public class TransactionDao extends MPOSDatabase {
 	 */
 	public double getTotalReceiptAmount(String sessionDate) {
 		double totalReceiptAmount = 0.0f;
-		Cursor cursor = getReadableDatabase()
-				.rawQuery(
-						"SELECT SUM ("
-								+ OrderTransactionTable.COLUMN_TRANS_VATABLE
-								+ ") " + " FROM "
-								+ OrderTransactionTable.TABLE_ORDER_TRANS + " WHERE "
-								+ OrderTransactionTable.COLUMN_SALE_DATE
-								+ "=? " + " AND "
-								+ OrderTransactionTable.COLUMN_STATUS_ID + "=?",
-						new String[] {
-								sessionDate,
-								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS) });
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT SUM (" + OrderTransactionTable.COLUMN_TRANS_VATABLE
+						+ ") " + " FROM "
+						+ OrderTransactionTable.TABLE_ORDER_TRANS + " WHERE "
+						+ OrderTransactionTable.COLUMN_SALE_DATE + "=? "
+						+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID
+						+ "=?",
+				new String[] { sessionDate,
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS) });
 		if (cursor.moveToFirst()) {
 			totalReceiptAmount = cursor.getFloat(0);
 		}
 		cursor.close();
 		return totalReceiptAmount;
 	}
-	
+
 	/**
 	 * Orders Set
-	 *
+	 * 
 	 * @param transactionId
 	 * @param orderDetailId
-	 * @return List<MPOSOrderTransaction.OrderSet> 
+	 * @return List<MPOSOrderTransaction.OrderSet>
 	 */
-	public List<MPOSOrderTransaction.OrderSet> listOrderSet(int transactionId, int orderDetailId){
-		List<MPOSOrderTransaction.OrderSet> productSetLst = 
-				new ArrayList<MPOSOrderTransaction.OrderSet>();
+	public List<MPOSOrderTransaction.OrderSet> listOrderSet(int transactionId,
+			int orderDetailId) {
+		List<MPOSOrderTransaction.OrderSet> productSetLst = new ArrayList<MPOSOrderTransaction.OrderSet>();
 		Cursor mainCursor = getReadableDatabase().rawQuery(
-				" SELECT b." + ProductComponentTable.COLUMN_PGROUP_ID + ", "  
-				+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NO + ", "
-				+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NAME + ", "
-				+ " b." + ProductComponentGroupTable.COLUMN_REQ_AMOUNT
-				+ " FROM " + OrderSetTable.TABLE_ORDER_SET + " a "
-				+ " LEFT JOIN " + ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP + " b "
-				+ " ON a." + ProductComponentTable.COLUMN_PGROUP_ID + "=" 
-				+ " b." + ProductComponentTable.COLUMN_PGROUP_ID
-				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
-				+ " AND a." + OrderDetailTable.COLUMN_ORDER_ID + "=?"
-				+ " GROUP BY b." + ProductComponentTable.COLUMN_PGROUP_ID, 
-				new String[]{
-						String.valueOf(transactionId), 
-						String.valueOf(orderDetailId)
-				});
-		
-		if(mainCursor.moveToFirst()){
-			do{
-				int pcompGroupId = mainCursor.getInt(mainCursor.getColumnIndex(
-						ProductComponentTable.COLUMN_PGROUP_ID));
+				" SELECT b." + ProductComponentTable.COLUMN_PGROUP_ID + ", "
+						+ " b."
+						+ ProductComponentGroupTable.COLUMN_SET_GROUP_NO + ", "
+						+ " b."
+						+ ProductComponentGroupTable.COLUMN_SET_GROUP_NAME
+						+ ", " + " b."
+						+ ProductComponentGroupTable.COLUMN_REQ_AMOUNT
+						+ " FROM " + OrderSetTable.TABLE_ORDER_SET + " a "
+						+ " LEFT JOIN "
+						+ ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP
+						+ " b " + " ON a."
+						+ ProductComponentTable.COLUMN_PGROUP_ID + "=" + " b."
+						+ ProductComponentTable.COLUMN_PGROUP_ID + " WHERE a."
+						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
+						+ " AND a." + OrderDetailTable.COLUMN_ORDER_ID + "=?"
+						+ " GROUP BY b."
+						+ ProductComponentTable.COLUMN_PGROUP_ID,
+				new String[] { String.valueOf(transactionId),
+						String.valueOf(orderDetailId) });
+
+		if (mainCursor.moveToFirst()) {
+			do {
+				int pcompGroupId = mainCursor
+						.getInt(mainCursor
+								.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID));
 				MPOSOrderTransaction.OrderSet group = new MPOSOrderTransaction.OrderSet();
 				group.setTransactionId(transactionId);
 				group.setOrderDetailId(orderDetailId);
 				group.setProductGroupId(pcompGroupId);
-				group.setGroupNo(mainCursor.getInt(mainCursor.getColumnIndex(
-						ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
-				group.setGroupName(mainCursor.getString(mainCursor.getColumnIndex(
-						ProductComponentGroupTable.COLUMN_SET_GROUP_NAME)));
-				group.setRequireAmount(mainCursor.getDouble(mainCursor.getColumnIndex(
-						ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
+				group.setGroupNo(mainCursor.getInt(mainCursor
+						.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
+				group.setGroupName(mainCursor.getString(mainCursor
+						.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME)));
+				group.setRequireAmount(mainCursor.getDouble(mainCursor
+						.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
 				// query set detail
-				Cursor detailCursor = getReadableDatabase().query(OrderSetTable.TABLE_ORDER_SET, 
-						new String[] {
-							OrderSetTable.COLUMN_ORDER_SET_ID,
-							ProductsTable.COLUMN_PRODUCT_ID,
-							ProductsTable.COLUMN_PRODUCT_NAME,
-							OrderSetTable.COLUMN_ORDER_SET_QTY
-						}, 
-						OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
-						+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? "
-						+ " AND " + ProductComponentTable.COLUMN_PGROUP_ID + "=?",
-						new String[]{
-							String.valueOf(transactionId), 
-							String.valueOf(orderDetailId), 
-							String.valueOf(pcompGroupId)
-						},null, null, null);
-				
-				if(detailCursor.moveToFirst()){
-					do{
-						MPOSOrderTransaction.OrderSet.OrderSetDetail detail = 
-								new MPOSOrderTransaction.OrderSet.OrderSetDetail();
-						detail.setOrderSetId(detailCursor.getInt(detailCursor.getColumnIndex(
-								OrderSetTable.COLUMN_ORDER_SET_ID)));
-						detail.setProductId(detailCursor.getInt(detailCursor.getColumnIndex(
-								ProductsTable.COLUMN_PRODUCT_ID)));
-						detail.setProductName(detailCursor.getString(detailCursor.getColumnIndex(
-								ProductsTable.COLUMN_PRODUCT_NAME)));
-						detail.setOrderSetQty(detailCursor.getDouble(detailCursor.getColumnIndex(
-								OrderSetTable.COLUMN_ORDER_SET_QTY)));
+				Cursor detailCursor = getReadableDatabase()
+						.query(OrderSetTable.TABLE_ORDER_SET,
+								new String[] {
+										OrderSetTable.COLUMN_ORDER_SET_ID,
+										ProductsTable.COLUMN_PRODUCT_ID,
+										ProductsTable.COLUMN_PRODUCT_NAME,
+										OrderSetTable.COLUMN_ORDER_SET_QTY },
+								OrderTransactionTable.COLUMN_TRANSACTION_ID
+										+ "=? "
+										+ " AND "
+										+ OrderDetailTable.COLUMN_ORDER_ID
+										+ "=? "
+										+ " AND "
+										+ ProductComponentTable.COLUMN_PGROUP_ID
+										+ "=?",
+								new String[] { String.valueOf(transactionId),
+										String.valueOf(orderDetailId),
+										String.valueOf(pcompGroupId) }, null,
+								null, null);
+
+				if (detailCursor.moveToFirst()) {
+					do {
+						MPOSOrderTransaction.OrderSet.OrderSetDetail detail = new MPOSOrderTransaction.OrderSet.OrderSetDetail();
+						detail.setOrderSetId(detailCursor.getInt(detailCursor
+								.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_ID)));
+						detail.setProductId(detailCursor.getInt(detailCursor
+								.getColumnIndex(ProductsTable.COLUMN_PRODUCT_ID)));
+						detail.setProductName(detailCursor.getString(detailCursor
+								.getColumnIndex(ProductsTable.COLUMN_PRODUCT_NAME)));
+						detail.setOrderSetQty(detailCursor.getDouble(detailCursor
+								.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_QTY)));
 						group.mProductLst.add(detail);
-					}while(detailCursor.moveToNext());
+					} while (detailCursor.moveToNext());
 				}
 				detailCursor.close();
-				
+
 				// productSet to list
 				productSetLst.add(group);
-				
-			}while(mainCursor.moveToNext());
+
+			} while (mainCursor.moveToNext());
 		}
 		mainCursor.close();
-		
+
 		return productSetLst;
 	}
-	
+
 	/**
 	 * List order set detail
+	 * 
 	 * @param transactionId
 	 * @param orderDetailId
 	 * @return List<OrderSet.OrderSetDetail
 	 */
-	public List<OrderSet.OrderSetDetail> listOrderSetDetail(int transactionId, int orderDetailId){
-		List<OrderSet.OrderSetDetail> orderSetDetailLst = 
-				new ArrayList<OrderSet.OrderSetDetail>();
+	public List<OrderSet.OrderSetDetail> listOrderSetDetail(int transactionId,
+			int orderDetailId) {
+		List<OrderSet.OrderSetDetail> orderSetDetailLst = new ArrayList<OrderSet.OrderSetDetail>();
 		// query set detail
-		Cursor detailCursor = getReadableDatabase().query(OrderSetTable.TABLE_ORDER_SET, 
-				new String[] {
-					OrderSetTable.COLUMN_ORDER_SET_ID,
-					ProductsTable.COLUMN_PRODUCT_ID,
-					ProductsTable.COLUMN_PRODUCT_NAME,
-					OrderSetTable.COLUMN_ORDER_SET_QTY
-				}, 
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
-				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? ",
-				new String[]{
-					String.valueOf(transactionId), 
-					String.valueOf(orderDetailId)
-				},null, null, null);
-		
-		if(detailCursor.moveToFirst()){
-			do{
-				MPOSOrderTransaction.OrderSet.OrderSetDetail detail = 
-						new MPOSOrderTransaction.OrderSet.OrderSetDetail();
-				detail.setOrderSetId(detailCursor.getInt(detailCursor.getColumnIndex(
-						OrderSetTable.COLUMN_ORDER_SET_ID)));
-				detail.setProductId(detailCursor.getInt(detailCursor.getColumnIndex(
-						ProductsTable.COLUMN_PRODUCT_ID)));
-				detail.setProductName(detailCursor.getString(detailCursor.getColumnIndex(
-						ProductsTable.COLUMN_PRODUCT_NAME)));
-				detail.setOrderSetQty(detailCursor.getDouble(detailCursor.getColumnIndex(
-						OrderSetTable.COLUMN_ORDER_SET_QTY)));
+		Cursor detailCursor = getReadableDatabase().query(
+				OrderSetTable.TABLE_ORDER_SET,
+				new String[] { OrderSetTable.COLUMN_ORDER_SET_ID,
+						ProductsTable.COLUMN_PRODUCT_ID,
+						ProductsTable.COLUMN_PRODUCT_NAME,
+						OrderSetTable.COLUMN_ORDER_SET_QTY },
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
+						+ OrderDetailTable.COLUMN_ORDER_ID + "=? ",
+				new String[] { String.valueOf(transactionId),
+						String.valueOf(orderDetailId) }, null, null, null);
+
+		if (detailCursor.moveToFirst()) {
+			do {
+				MPOSOrderTransaction.OrderSet.OrderSetDetail detail = new MPOSOrderTransaction.OrderSet.OrderSetDetail();
+				detail.setOrderSetId(detailCursor.getInt(detailCursor
+						.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_ID)));
+				detail.setProductId(detailCursor.getInt(detailCursor
+						.getColumnIndex(ProductsTable.COLUMN_PRODUCT_ID)));
+				detail.setProductName(detailCursor.getString(detailCursor
+						.getColumnIndex(ProductsTable.COLUMN_PRODUCT_NAME)));
+				detail.setOrderSetQty(detailCursor.getDouble(detailCursor
+						.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_QTY)));
 				orderSetDetailLst.add(detail);
-			}while(detailCursor.moveToNext());
+			} while (detailCursor.moveToNext());
 		}
 		detailCursor.close();
 		return orderSetDetailLst;
 	}
-	
+
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
 	 * @param pcompGroupId
 	 * @return total qty of group
 	 */
-	public double getOrderSetTotalQty(int transactionId, int orderDetailId, int pcompGroupId){
+	public double getOrderSetTotalQty(int transactionId, int orderDetailId,
+			int pcompGroupId) {
 		double totalQty = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + OrderSetTable.COLUMN_ORDER_SET_QTY + ") "
-				+ " FROM " + OrderSetTable.TABLE_ORDER_SET
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
-				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? "
-				+ " AND " + ProductComponentTable.COLUMN_PGROUP_ID + "=? ", 
-				new String[]{
-						String.valueOf(transactionId),
+						+ " FROM " + OrderSetTable.TABLE_ORDER_SET + " WHERE "
+						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
+						+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? "
+						+ " AND " + ProductComponentTable.COLUMN_PGROUP_ID
+						+ "=? ",
+				new String[] { String.valueOf(transactionId),
 						String.valueOf(orderDetailId),
-						String.valueOf(pcompGroupId)
-				});
-		
-		if(cursor.moveToFirst()){
+						String.valueOf(pcompGroupId) });
+
+		if (cursor.moveToFirst()) {
 			totalQty = cursor.getDouble(0);
 		}
 		cursor.close();
 		return totalQty;
 	}
-	
+
 	/**
 	 * @param transactionId
 	 */
-	public void deleteOrderSet(int transactionId){
-		getWritableDatabase().delete(OrderSetTable.TABLE_ORDER_SET, 
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? ", 
-				new String[]{
-					String.valueOf(transactionId)
-				});
+	public void deleteOrderSet(int transactionId) {
+		getWritableDatabase().delete(OrderSetTable.TABLE_ORDER_SET,
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? ",
+				new String[] { String.valueOf(transactionId) });
 	}
-	
+
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
 	 */
-	public void deleteOrderSet(int transactionId, int orderDetailId){
-		getWritableDatabase().delete(OrderSetTable.TABLE_ORDER_SET, 
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
-				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? ", 
-				new String[]{
-					String.valueOf(transactionId),
-					String.valueOf(orderDetailId)
-				});
+	public void deleteOrderSet(int transactionId, int orderDetailId) {
+		getWritableDatabase().delete(
+				OrderSetTable.TABLE_ORDER_SET,
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
+						+ OrderDetailTable.COLUMN_ORDER_ID + "=? ",
+				new String[] { String.valueOf(transactionId),
+						String.valueOf(orderDetailId) });
 	}
-	
+
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
 	 * @param orderSetId
 	 */
-	public void deleteOrderSet(int transactionId, int orderDetailId, int orderSetId){
-		getWritableDatabase().delete(OrderSetTable.TABLE_ORDER_SET, 
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
-				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? "
-				+ " AND " + OrderSetTable.COLUMN_ORDER_SET_ID + "=?", 
-				new String[]{
-					String.valueOf(transactionId),
-					String.valueOf(orderDetailId), 
-					String.valueOf(orderSetId)
-				});
+	public void deleteOrderSet(int transactionId, int orderDetailId,
+			int orderSetId) {
+		getWritableDatabase().delete(
+				OrderSetTable.TABLE_ORDER_SET,
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
+						+ OrderDetailTable.COLUMN_ORDER_ID + "=? " + " AND "
+						+ OrderSetTable.COLUMN_ORDER_SET_ID + "=?",
+				new String[] { String.valueOf(transactionId),
+						String.valueOf(orderDetailId),
+						String.valueOf(orderSetId) });
 	}
-	
+
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
@@ -1321,21 +1338,21 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param productId
 	 * @param orderSetQty
 	 */
-	public void updateOrderSet(int transactionId, int orderDetailId, int orderSetId,
-			int productId, double orderSetQty){
+	public void updateOrderSet(int transactionId, int orderDetailId,
+			int orderSetId, int productId, double orderSetQty) {
 		ContentValues cv = new ContentValues();
 		cv.put(OrderSetTable.COLUMN_ORDER_SET_QTY, orderSetQty);
-		getWritableDatabase().update(OrderSetTable.TABLE_ORDER_SET, cv, 
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
-						+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=? "
-								+ " AND " + OrderSetTable.COLUMN_ORDER_SET_ID + "=?", 
-				new String[]{
-					String.valueOf(transactionId),
-					String.valueOf(orderDetailId), 
-					String.valueOf(orderSetId)
-				});
+		getWritableDatabase().update(
+				OrderSetTable.TABLE_ORDER_SET,
+				cv,
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? " + " AND "
+						+ OrderDetailTable.COLUMN_ORDER_ID + "=? " + " AND "
+						+ OrderSetTable.COLUMN_ORDER_SET_ID + "=?",
+				new String[] { String.valueOf(transactionId),
+						String.valueOf(orderDetailId),
+						String.valueOf(orderSetId) });
 	}
-	
+
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
@@ -1344,8 +1361,9 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param pcompGroupId
 	 * @param reqAmount
 	 */
-	public void addOrderSet(int transactionId, int orderDetailId, int productId, 
-			String productName, int pcompGroupId, double reqAmount){
+	public void addOrderSet(int transactionId, int orderDetailId,
+			int productId, String productName, int pcompGroupId,
+			double reqAmount) {
 		int maxOrderSetId = getMaxOrderSetId(transactionId, orderDetailId);
 		ContentValues cv = new ContentValues();
 		cv.put(OrderSetTable.COLUMN_ORDER_SET_ID, maxOrderSetId);
@@ -1356,32 +1374,32 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(ProductComponentTable.COLUMN_PGROUP_ID, pcompGroupId);
 		cv.put(ProductComponentGroupTable.COLUMN_REQ_AMOUNT, reqAmount);
 		cv.put(OrderSetTable.COLUMN_ORDER_SET_QTY, 1);
-		getWritableDatabase().insertOrThrow(
-				OrderSetTable.TABLE_ORDER_SET, ProductsTable.COLUMN_PRODUCT_NAME, cv);
+		getWritableDatabase().insertOrThrow(OrderSetTable.TABLE_ORDER_SET,
+				ProductsTable.COLUMN_PRODUCT_NAME, cv);
 	}
-	
+
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
-	 * @return max orderSetId
-	 * 0 if no row
+	 * @return max orderSetId 0 if no row
 	 */
-	public int getMaxOrderSetId(int transactionId, int orderDetailId){
+	public int getMaxOrderSetId(int transactionId, int orderDetailId) {
 		int maxOrderSetId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT MAX (" + OrderSetTable.COLUMN_ORDER_SET_ID + ")"
-						+ " FROM " + OrderSetTable.TABLE_ORDER_SET 
-						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID 
-						+ " =? AND " + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
-						new String[]{String.valueOf(transactionId), String.valueOf(orderDetailId)});
-		if(cursor.moveToFirst()){
+						+ " FROM " + OrderSetTable.TABLE_ORDER_SET + " WHERE "
+						+ OrderTransactionTable.COLUMN_TRANSACTION_ID
+						+ " =? AND " + OrderDetailTable.COLUMN_ORDER_ID + "=?",
+				new String[] { String.valueOf(transactionId),
+						String.valueOf(orderDetailId) });
+		if (cursor.moveToFirst()) {
 			maxOrderSetId = cursor.getInt(0);
 		}
 		cursor.close();
 		return maxOrderSetId + 1;
 	}
-	
-	public static class OrderTransactionTable{
+
+	public static class OrderTransactionTable {
 		public static final String TABLE_ORDER_TRANS = "OrderTransaction";
 		public static final String COLUMN_TRANSACTION_ID = "transaction_id";
 		public static final String COLUMN_RECEIPT_YEAR = "receipt_year";
@@ -1405,52 +1423,45 @@ public class TransactionDao extends MPOSDatabase {
 		public static final String COLUMN_VOID_TIME = "void_time";
 		public static final String COLUMN_OTHER_DISCOUNT = "other_discount";
 		public static final String COLUMN_MEMBER_ID = "member_id";
-		
-		private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_ORDER_TRANS + " ( " +
-			BaseColumn.COLUMN_UUID + " TEXT, " +
-			COLUMN_TRANSACTION_ID + " INTEGER, " +
-			ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, " +
-			ShopTable.COLUMN_SHOP_ID + " INTEGER, " +
-			COLUMN_OPEN_TIME + " TEXT, " +
-			COLUMN_OPEN_STAFF + " INTEGER, " +
-			COLUMN_PAID_TIME + " TEXT, " +
-			COLUMN_PAID_STAFF_ID + " INTEGER, " +
-			COLUMN_CLOSE_TIME + " TEXT, " +
-			COLUMN_CLOSE_STAFF + " INTEGER, " +
-			COLUMN_STATUS_ID + " INTEGER DEFAULT 1, " +
-			DocumentTypeTable.COLUMN_DOC_TYPE + " INTEGER DEFAULT 8, " +
-			COLUMN_RECEIPT_YEAR + " INTEGER, " +
-			COLUMN_RECEIPT_MONTH + " INTEGER, " +
-			COLUMN_RECEIPT_ID + " INTEGER, " +
-			COLUMN_RECEIPT_NO + " TEXT, " +
-			COLUMN_SALE_DATE + " TEXT, " +
-			SessionTable.COLUMN_SESS_ID + " INTEGER, " +
-			COLUMN_VOID_STAFF_ID + " INTEGER, " +
-			COLUMN_VOID_REASON + " TEXT, " +
-			COLUMN_VOID_TIME + " TEXT, " +
-			COLUMN_MEMBER_ID + " INTEGER, " +
-			COLUMN_TRANS_VAT + " REAL DEFAULT 0, " +
-			COLUMN_TRANS_EXCLUDE_VAT + " REAL DEFAULT 0, " +
-			COLUMN_TRANS_VATABLE + " REAL DEFAULT 0, " +
-			COLUMN_TRANS_NOTE + " TEXT, " +
-			COLUMN_OTHER_DISCOUNT + " REAL DEFAULT 0, " +
-			BaseColumn.COLUMN_SEND_STATUS + " INTEGER DEFAULT 0, " +
-			ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
-			ProductsTable.COLUMN_VAT_RATE + " REAL DEFAULT 0, " +
-			"PRIMARY KEY (" + COLUMN_TRANSACTION_ID + ") ); ";
-		
+
+		private static final String SQL_CREATE = "CREATE TABLE "
+				+ TABLE_ORDER_TRANS + " ( " + BaseColumn.COLUMN_UUID
+				+ " TEXT, " + COLUMN_TRANSACTION_ID + " INTEGER, "
+				+ ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, "
+				+ ShopTable.COLUMN_SHOP_ID + " INTEGER, " + COLUMN_OPEN_TIME
+				+ " TEXT, " + COLUMN_OPEN_STAFF + " INTEGER, "
+				+ COLUMN_PAID_TIME + " TEXT, " + COLUMN_PAID_STAFF_ID
+				+ " INTEGER, " + COLUMN_CLOSE_TIME + " TEXT, "
+				+ COLUMN_CLOSE_STAFF + " INTEGER, " + COLUMN_STATUS_ID
+				+ " INTEGER DEFAULT 1, " + DocumentTypeTable.COLUMN_DOC_TYPE
+				+ " INTEGER DEFAULT 8, " + COLUMN_RECEIPT_YEAR + " INTEGER, "
+				+ COLUMN_RECEIPT_MONTH + " INTEGER, " + COLUMN_RECEIPT_ID
+				+ " INTEGER, " + COLUMN_RECEIPT_NO + " TEXT, "
+				+ COLUMN_SALE_DATE + " TEXT, " + SessionTable.COLUMN_SESS_ID
+				+ " INTEGER, " + COLUMN_VOID_STAFF_ID + " INTEGER, "
+				+ COLUMN_VOID_REASON + " TEXT, " + COLUMN_VOID_TIME + " TEXT, "
+				+ COLUMN_MEMBER_ID + " INTEGER, " + COLUMN_TRANS_VAT
+				+ " REAL DEFAULT 0, " + COLUMN_TRANS_EXCLUDE_VAT
+				+ " REAL DEFAULT 0, " + COLUMN_TRANS_VATABLE
+				+ " REAL DEFAULT 0, " + COLUMN_TRANS_NOTE + " TEXT, "
+				+ COLUMN_OTHER_DISCOUNT + " REAL DEFAULT 0, "
+				+ BaseColumn.COLUMN_SEND_STATUS + " INTEGER DEFAULT 0, "
+				+ ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, "
+				+ ProductsTable.COLUMN_VAT_RATE + " REAL DEFAULT 0, "
+				+ "PRIMARY KEY (" + COLUMN_TRANSACTION_ID + ") ); ";
+
 		public static void onCreate(SQLiteDatabase db) {
 			db.execSQL(SQL_CREATE);
 		}
 
-		public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			
+		public static void onUpgrade(SQLiteDatabase db, int oldVersion,
+				int newVersion) {
+
 		}
 	}
-	
-	public static class OrderDetailTable{
-		
+
+	public static class OrderDetailTable {
+
 		public static final String TABLE_ORDER = "OrderDetail";
 		public static final String TABLE_ORDER_TMP = "OrderDetailTmp";
 		public static final String COLUMN_ORDER_ID = "order_detail_id";
@@ -1463,84 +1474,90 @@ public class TransactionDao extends MPOSDatabase {
 		public static final String COLUMN_PRICE_DISCOUNT = "price_discount_amount";
 		public static final String COLUMN_DISCOUNT_TYPE = "discount_type";
 
-		private static final String ORDER_SQL_CREATE =
-				"CREATE TABLE " + TABLE_ORDER + " ( " +
-				COLUMN_ORDER_ID + " INTEGER, " +
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER, " +
-				ComputerDao.ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, " +
-				ProductsTable.COLUMN_PRODUCT_ID + " INTEGER, " +
-				ProductsTable.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 1, " +
-				COLUMN_ORDER_QTY + " REAL DEFAULT 1, " +
-				ProductsTable.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
-				COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 2, " +
-				ProductsTable.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, " +
-				COLUMN_TOTAL_VAT + " REAL DEFAULT 0, " +
-				COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, " +
-				COLUMN_MEMBER_DISCOUNT + " REAL DEFAULT 0, " +
-				COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
-				COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
-				COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
-				ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
-				"PRIMARY KEY (" + COLUMN_ORDER_ID + ", " +
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + ") );";
-		
-		private static final String ORDER_TMP_SQL_CREATE =
-				"CREATE TABLE " + TABLE_ORDER_TMP + " ( " +
-				COLUMN_ORDER_ID + " INTEGER, " +
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER, " +
-				ComputerDao.ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, " +
-				ProductsTable.COLUMN_PRODUCT_ID + " INTEGER, " +
-				ProductsTable.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 1, " +
-				COLUMN_ORDER_QTY + " REAL DEFAULT 1, " +
-				ProductsTable.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
-				COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 2, " +
-				ProductsTable.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, " +
-				COLUMN_TOTAL_VAT + " REAL DEFAULT 0, " +
-				COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, " +
-				COLUMN_MEMBER_DISCOUNT + " REAL DEFAULT 0, " +
-				COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, " +
-				COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, " +
-				COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, " +
-				ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, " +
-				"PRIMARY KEY (" + COLUMN_ORDER_ID + ", " +
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + ") );";
-		
+		private static final String ORDER_SQL_CREATE = "CREATE TABLE "
+				+ TABLE_ORDER + " ( " + COLUMN_ORDER_ID + " INTEGER, "
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER, "
+				+ ComputerDao.ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, "
+				+ ProductsTable.COLUMN_PRODUCT_ID + " INTEGER, "
+				+ ProductsTable.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 1, "
+				+ COLUMN_ORDER_QTY + " REAL DEFAULT 1, "
+				+ ProductsTable.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, "
+				+ COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 2, "
+				+ ProductsTable.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, "
+				+ ProductsTable.COLUMN_PRODUCT_CODE + " TEXT, "
+				+ ProductsTable.COLUMN_PRODUCT_NAME + " TEXT, "
+				+ COLUMN_TOTAL_VAT + " REAL DEFAULT 0, "
+				+ COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, "
+				+ COLUMN_MEMBER_DISCOUNT + " REAL DEFAULT 0, "
+				+ COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, "
+				+ COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, "
+				+ COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, "
+				+ ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, "
+				+ "PRIMARY KEY (" + COLUMN_ORDER_ID + ", "
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ") );";
+
+		private static final String ORDER_TMP_SQL_CREATE = "CREATE TABLE "
+				+ TABLE_ORDER_TMP + " ( " + COLUMN_ORDER_ID + " INTEGER, "
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER, "
+				+ ComputerDao.ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, "
+				+ ProductsTable.COLUMN_PRODUCT_ID + " INTEGER, "
+				+ ProductsTable.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 1, "
+				+ COLUMN_ORDER_QTY + " REAL DEFAULT 1, "
+				+ ProductsTable.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, "
+				+ COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 2, "
+				+ ProductsTable.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, "
+				+ ProductsTable.COLUMN_PRODUCT_CODE + " TEXT, "
+				+ ProductsTable.COLUMN_PRODUCT_NAME + " TEXT, "
+				+ COLUMN_TOTAL_VAT + " REAL DEFAULT 0, "
+				+ COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, "
+				+ COLUMN_MEMBER_DISCOUNT + " REAL DEFAULT 0, "
+				+ COLUMN_PRICE_DISCOUNT + " REAL DEFAULT 0, "
+				+ COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, "
+				+ COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, "
+				+ ProductsTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, "
+				+ "PRIMARY KEY (" + COLUMN_ORDER_ID + ", "
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ") );";
+
 		public static void onCreate(SQLiteDatabase db) {
 			db.execSQL(ORDER_SQL_CREATE);
 			db.execSQL(ORDER_TMP_SQL_CREATE);
 		}
 
-		public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			
+		public static void onUpgrade(SQLiteDatabase db, int oldVersion,
+				int newVersion) {
+
 		}
 	}
-	
+
 	public static class OrderSetTable {
-		
+
 		public static final String TABLE_ORDER_SET = "OrderSet";
 		public static final String COLUMN_ORDER_SET_ID = "order_set_id";
 		public static final String COLUMN_ORDER_SET_QTY = "order_set_qty";
-		
-		private static final String SQL_CREATE = 
-				"CREATE TABLE " + TABLE_ORDER_SET + "( "
-				+ COLUMN_ORDER_SET_ID + " INTEGER NOT NULL,"
-				+ OrderDetailTable.COLUMN_ORDER_ID + " INTEGER NOT NULL, "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER NOT NULL, "
-				+ ProductComponentTable.COLUMN_PGROUP_ID + " INTEGER NOT NULL, "
-				+ ProductsTable.COLUMN_PRODUCT_ID + " INTEGER NOT NULL, " 
-				+ ProductsTable.COLUMN_PRODUCT_NAME + " TEXT, "
-				+ ProductComponentGroupTable.COLUMN_REQ_AMOUNT + " REAL NOT NULL DEFAULT 0, "
-				+ COLUMN_ORDER_SET_QTY + " REAL NOT NULL DEFAULT 0, "
-				+ "PRIMARY KEY (" + COLUMN_ORDER_SET_ID + ", " + OrderDetailTable.COLUMN_ORDER_ID + ", "
-				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ")"
+
+		private static final String SQL_CREATE = "CREATE TABLE "
+				+ TABLE_ORDER_SET + "( " + COLUMN_ORDER_SET_ID
+				+ " INTEGER NOT NULL," + OrderDetailTable.COLUMN_ORDER_ID
+				+ " INTEGER NOT NULL, "
+				+ OrderTransactionTable.COLUMN_TRANSACTION_ID
+				+ " INTEGER NOT NULL, "
+				+ ProductComponentTable.COLUMN_PGROUP_ID
+				+ " INTEGER NOT NULL, " + ProductsTable.COLUMN_PRODUCT_ID
+				+ " INTEGER NOT NULL, " + ProductsTable.COLUMN_PRODUCT_NAME
+				+ " TEXT, " + ProductComponentGroupTable.COLUMN_REQ_AMOUNT
+				+ " REAL NOT NULL DEFAULT 0, " + COLUMN_ORDER_SET_QTY
+				+ " REAL NOT NULL DEFAULT 0, " + "PRIMARY KEY ("
+				+ COLUMN_ORDER_SET_ID + ", " + OrderDetailTable.COLUMN_ORDER_ID
+				+ ", " + OrderTransactionTable.COLUMN_TRANSACTION_ID + ")"
 				+ ");";
 
-		public static void onCreate(SQLiteDatabase db){
+		public static void onCreate(SQLiteDatabase db) {
 			db.execSQL(SQL_CREATE);
 		}
-		
-		public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
-			
+
+		public static void onUpgrade(SQLiteDatabase db, int oldVersion,
+				int newVersion) {
+
 		}
 	}
 }

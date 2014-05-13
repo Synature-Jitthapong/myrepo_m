@@ -1,5 +1,6 @@
 package com.syn.mpos;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -342,9 +343,8 @@ public class MainActivity extends FragmentActivity implements
 	
 			if(orderDetail.getOrderSetDetailLst() != null){
 				holder.orderSetContent.removeAllViews();
-				for(int i = 0; i < orderDetail.getOrderSetDetailLst().size(); i++){
-					MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail = 
-							orderDetail.getOrderSetDetailLst().get(i);
+				for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail : 
+					orderDetail.getOrderSetDetailLst()){
 					final View detailView = mInflater.inflate(R.layout.order_set_detail_template, null);
 					TextView tvSetNo = (TextView) detailView.findViewById(R.id.tvSetNo);
 					TextView tvSetName = (TextView) detailView.findViewById(R.id.tvSetName);
@@ -352,7 +352,7 @@ public class MainActivity extends FragmentActivity implements
 					Button btnSetMinus = (Button) detailView.findViewById(R.id.btnSetMinus);
 					Button btnSetPlus = (Button) detailView.findViewById(R.id.btnSetPlus);
 					
-					tvSetNo.setText(String.valueOf(i + 1));
+					tvSetNo.setText("-");
 					tvSetName.setText(setDetail.getProductName());
 					txtSetQty.setText(sGlobal.qtyFormat(setDetail.getOrderSetQty()));
 					btnSetMinus.setVisibility(View.GONE);
@@ -590,8 +590,8 @@ public class MainActivity extends FragmentActivity implements
 						long id) {
 					ProductsDao.Product p = 
 							(ProductsDao.Product) parent.getItemAtPosition(position);
-					
-					((MainActivity) getActivity()).onMenuClick(p.getProductId(), p.getProductTypeId(), 
+					((MainActivity) getActivity()).onMenuClick(p.getProductId(), p.getProductCode(), 
+							p.getProductName(), p.getProductTypeId(), 
 							p.getVatType(), p.getVatRate(), p.getProductPrice());
 				}
 			});
@@ -727,18 +727,20 @@ public class MainActivity extends FragmentActivity implements
 	}
 	
 	/**
-	 * on menu item click
 	 * @param productId
+	 * @param productCode
+	 * @param productName
 	 * @param productTypeId
 	 * @param vatType
 	 * @param vatRate
 	 * @param productPrice
 	 */
-	public void onMenuClick(int productId, int productTypeId, int vatType, 
-			double vatRate, double productPrice) {
+	public void onMenuClick(int productId, String productCode, String productName, 
+			int productTypeId, int vatType, double vatRate, double productPrice) {
 		if(productTypeId == ProductsDao.NORMAL_TYPE || 
 				productTypeId == ProductsDao.SET_TYPE){
-			checkOpenPrice(productId, productTypeId, vatType, vatRate, 1, productPrice);
+			addOrder(productId, productCode, productName, productTypeId, 
+					vatType, vatRate, 1, productPrice);
 		}else if(productTypeId == ProductsDao.SIZE_TYPE){
 			productSizeDialog(productId);
 		}else if(productTypeId == ProductsDao.SET_TYPE_CAN_SELECT){
@@ -775,13 +777,6 @@ public class MainActivity extends FragmentActivity implements
 				order.setChecked(true);
 			}
 			mOrderDetailAdapter.notifyDataSetChanged();
-			
-//			if(listSelectedOrder().size() > 0){
-//				mLayoutOrderCtrl.setVisibility(View.VISIBLE);
-//			}
-//			else{
-//				mLayoutOrderCtrl.setVisibility(View.GONE);
-//			}
 			break;
 		}
 	}
@@ -799,8 +794,8 @@ public class MainActivity extends FragmentActivity implements
 			if(!barCode.equals("")){
 				ProductsDao.Product p = sProducts.getProduct(barCode);
 				if(p != null){
-					checkOpenPrice(p.getProductId(), p.getProductTypeId(), 
-							p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
+					addOrder(p.getProductId(), p.getProductCode(), p.getProductName(), 
+							p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
 				}else{
 					new AlertDialog.Builder(MainActivity.this)
 					.setTitle(R.string.search)
@@ -1328,92 +1323,70 @@ public class MainActivity extends FragmentActivity implements
 
 	/**
 	 * @param productId
+	 * @param productCode
+	 * @param productName
 	 * @param productTypeId
 	 * @param vatType
 	 * @param vatRate
 	 * @param qty
 	 * @param price
 	 */
-	private void addOrder(int productId, int productTypeId, int vatType, 
-			double vatRate, double qty, double price){
-		mTransaction.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
-				productId, productTypeId, vatType, vatRate, qty, price);
-		loadOrder();
-	}
-
-	/**
-	 * @param productId
-	 * @param productTypeId
-	 * @param vatType
-	 * @param vatRate
-	 * @param qty
-	 * @param price
-	 */
-	private void checkOpenPrice(int productId, int productTypeId, int vatType, 
-			double vatRate, double qty, double price){
+	private void addOrder(final int productId, final String productCode, final String productName, 
+			final int productTypeId, final int vatType, final double vatRate, final double qty, double price){
 		if(price > -1){
-			addOrder(productId, productTypeId, vatType, vatRate, 1, price);
+			mTransaction.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
+					productId, productCode, productName, productTypeId, vatType, vatRate, qty, price);
 		}else{
-			openPriceDialog(productId, productTypeId, vatType, vatRate);
-		}
-	}
-
-	/**
-	 * create open price dialog
-	 * @param productId
-	 * @param productTypeId
-	 * @param vatType
-	 * @param vatRate
-	 */
-	private void openPriceDialog(final int productId, final int productTypeId, 
-			final int vatType, final double vatRate){
-		final EditText txtProductPrice = new EditText(this);
-		txtProductPrice.setOnEditorActionListener(new OnEditorActionListener(){
-	
-			@Override
-			public boolean onEditorAction(TextView v, int actionId,
-					KeyEvent event) {
-				// TODO Auto-generated method stub
-				return false;
-			}
-			
-		});
-		new AlertDialog.Builder(this)
-		.setTitle(R.string.enter_price)
-		.setView(txtProductPrice)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
-	
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				double productPrice = 0.0f;
-				try {
-					productPrice = Float.parseFloat(txtProductPrice.getText().toString());
-					addOrder(productId, productTypeId, vatType, vatRate, 1, productPrice);
-				} catch (NumberFormatException e) {
-					new AlertDialog.Builder(MainActivity.this)
-					.setTitle(R.string.enter_price)
-					.setMessage(R.string.enter_valid_numeric)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {	
-						}
-					})
-					.show();
-					e.printStackTrace();
+			final EditText txtProductPrice = new EditText(this);
+			txtProductPrice.setOnEditorActionListener(new OnEditorActionListener(){
+		
+				@Override
+				public boolean onEditorAction(TextView v, int actionId,
+						KeyEvent event) {
+					// TODO Auto-generated method stub
+					return false;
 				}
-			}
-		})
-		.show();
+				
+			});
+			new AlertDialog.Builder(this)
+			.setTitle(R.string.enter_price)
+			.setView(txtProductPrice)
+			.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
+		
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+			})
+			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					double openPrice = 0.0f;
+					try {
+						openPrice = MPOSUtil.stringToDouble(txtProductPrice.getText().toString());
+						mTransaction.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
+								productId, productCode, productName, productTypeId, vatType, vatRate, qty, openPrice);
+					} catch (ParseException e) {
+						new AlertDialog.Builder(MainActivity.this)
+						.setTitle(R.string.enter_price)
+						.setMessage(R.string.enter_valid_numeric)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {	
+							}
+						})
+						.show();
+						e.printStackTrace();
+					}
+				}
+			})
+			.show();
+		}
+		loadOrder();
 	}
 
 	/**
@@ -1437,8 +1410,8 @@ public class MainActivity extends FragmentActivity implements
 			public void onItemClick(AdapterView<?> parent, View v, int position,
 					long arg3) {
 				ProductsDao.Product p = (ProductsDao.Product) parent.getItemAtPosition(position);
-				addOrder(p.getProductId(), p.getProductTypeId(), p.getVatType(), 
-						p.getVatRate(), 1, p.getProductPrice());
+				addOrder(p.getProductId(), p.getProductCode(), p.getProductName(), 
+						p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
 				dialog.dismiss();
 			}
 			
