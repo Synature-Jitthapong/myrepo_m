@@ -163,6 +163,7 @@ public class DiscountActivity extends Activity{
 				}
 				discount = mOrder.getTotalRetailPrice() * discount / 100;
 			}	
+			discount = MPOSUtil.roundingPrice(discount);
 			double totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - discount;
 			mTransaction.discountEatchProduct(mTransactionId, 
 					mOrder.getOrderDetailId(), mOrder.getVatType(),

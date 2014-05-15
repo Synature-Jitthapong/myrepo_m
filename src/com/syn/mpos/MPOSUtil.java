@@ -382,12 +382,52 @@ public class MPOSUtil {
 				msg, Toast.LENGTH_LONG);
 		toast.show();
 	}
-	
-	public static String fixesDigitLength(int length, double value){
-		BigDecimal b = new BigDecimal(value);
-		return b.setScale(length, BigDecimal.ROUND_HALF_UP).toString();
+
+	/**
+	 * @param scale
+	 * @param value
+	 * @return string fixes digit
+	 */
+	public static String fixesDigitLength(int scale, double value){
+		return Double.toString(rounding(scale, value));
+	}
+
+	/**
+	 * @param scale
+	 * @param value
+	 * @return rounding value
+	 */
+	public static double rounding(int scale, double value){
+		BigDecimal big = new BigDecimal(String.valueOf(value));
+		return big.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
 	
+	/**
+	 * @param price
+	 * @return rounding value
+	 */
+	public static double roundingPrice(double price){
+		double result = price;
+		long iPart;		// integer part
+		double fPart;	// fractional part
+		iPart = (long) price;
+		fPart = price - iPart;
+		if(fPart < 0.25){
+			fPart = 0.0d;
+		}else if(fPart >= 0.25 && fPart < 0.50){
+			fPart = 0.25d;
+		}else if(fPart >= 0.50 && fPart < 0.75){
+			fPart = 0.50d;
+		}else if(fPart == 0.75){
+			fPart = 0.75d;
+		}else if(fPart > 0.75){
+			iPart += 1;
+			fPart = 0.0d;
+		}
+		result = iPart + fPart;
+		return result;
+	}
+
 	public static double stringToDouble(String text) throws ParseException{
 		double value = 0.0d;
 		NumberFormat format = NumberFormat.getInstance(Locale.getDefault());

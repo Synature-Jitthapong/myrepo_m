@@ -1,9 +1,12 @@
 package com.syn.mpos;
 
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.j1tth4.util.ImageLoader;
 import com.syn.mpos.dao.GlobalPropertyDao;
 import com.syn.mpos.dao.MPOSOrderTransaction;
@@ -20,6 +23,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.InputType;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,9 +40,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 public class ProductSetActivity extends Activity{
 
+	public static final String EDIT_MODE = "edit";
+	
+	public static final String ADD_MODE = "add";
+	
 	private static Context sContext;
 	private static ProductsDao sProduct;
 	private static GlobalPropertyDao sGlobal;
@@ -46,11 +56,17 @@ public class ProductSetActivity extends Activity{
 	
 	private int mTransactionId;
 	private int mComputerId;
+	private int mProductId;
 	private int mOrderDetailId;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		/**
+		 * Register ExceptinHandler for catch error when application crash.
+		 */
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
 		
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
@@ -59,21 +75,88 @@ public class ProductSetActivity extends Activity{
 		sProduct = new ProductsDao(getApplicationContext());
 		sGlobal = new GlobalPropertyDao(getApplicationContext());
 		sTransaction = new TransactionDao(getApplicationContext());
+		sTransaction.getWritableDatabase().beginTransaction();
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
-		int productId = intent.getIntExtra("productId", 0);
+		mProductId = intent.getIntExtra("productId", 0);
 		
-		Product p = sProduct.getProduct(productId);
-		mOrderDetailId = sTransaction.addOrderDetail(mTransactionId, mComputerId, productId, 
-				p.getProductCode(), p.getProductName(), p.getProductTypeId(), 
-				p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
-		
-		if (savedInstanceState == null) {
-			getFragmentManager().beginTransaction()
-					.add(R.id.container, 
-							PlaceholderFragment.newInsance(mTransactionId, mOrderDetailId, productId)).commit();
+		if(intent.getStringExtra("mode").equals(ADD_MODE)){
+			final Product p = sProduct.getProduct(mProductId);
+			if(p.getProductPrice() > -1){
+				mOrderDetailId = sTransaction.addOrderDetail(mTransactionId, mComputerId, mProductId, 
+						p.getProductCode(), p.getProductName(), p.getProductTypeId(), 
+						p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
+				if (savedInstanceState == null) {
+					getFragmentManager().beginTransaction()
+							.add(R.id.container, 
+									PlaceholderFragment.newInsance(mTransactionId, mOrderDetailId, mProductId)).commit();
+				}
+			}else{
+				final EditText txtProductPrice = new EditText(this);
+				txtProductPrice.setInputType(InputType.TYPE_CLASS_NUMBER);
+				txtProductPrice.setOnEditorActionListener(new OnEditorActionListener(){
+			
+					@Override
+					public boolean onEditorAction(TextView v, int actionId,
+							KeyEvent event) {
+						// TODO Auto-generated method stub
+						return false;
+					}
+					
+				});
+				new AlertDialog.Builder(this)
+				.setTitle(R.string.enter_price)
+				.setView(txtProductPrice)
+				.setCancelable(false)
+				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
+			
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						cancelOrderSet();
+					}
+					
+				})
+				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						double openPrice = 0.0f;
+						try {
+							openPrice = MPOSUtil.stringToDouble(txtProductPrice.getText().toString());
+							mOrderDetailId = sTransaction.addOrderDetail(mTransactionId, mComputerId, 
+									p.getProductId(), p.getProductCode(), p.getProductName(), 
+									p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, openPrice);
+							if (savedInstanceState == null) {
+								getFragmentManager().beginTransaction()
+										.add(R.id.container, 
+												PlaceholderFragment.newInsance(mTransactionId, mOrderDetailId, mProductId)).commit();
+							}
+						} catch (ParseException e) {
+							new AlertDialog.Builder(ProductSetActivity.this)
+							.setTitle(R.string.enter_price)
+							.setMessage(R.string.enter_valid_numeric)
+							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {	
+								}
+							})
+							.show();
+							e.printStackTrace();
+						}
+					}
+				})
+				.show();
+			}	
+		}else if(intent.getStringExtra("mode").equals(EDIT_MODE)){
+			mOrderDetailId = intent.getIntExtra("orderDetailId", 0);
+			if (savedInstanceState == null) {
+				getFragmentManager().beginTransaction()
+						.add(R.id.container, 
+								PlaceholderFragment.newInsance(mTransactionId, mOrderDetailId, mProductId)).commit();
+			}
 		}
 	}
 	
@@ -88,19 +171,70 @@ public class ProductSetActivity extends Activity{
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
-			cancelOrder();
-			finish();
+			cancelOrderSet();
 			return true;
 		case R.id.itemConfirm:
-			finish();
+			confirmOrderSet();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
-	private void cancelOrder(){
-		sTransaction.deleteOrderDetail(mTransactionId);
+	private void confirmOrderSet(){
+		List<ProductsDao.ProductComponentGroup> productCompGroupLst 
+			= sProduct.listProductComponentGroup(mProductId);
+		boolean canDone = true;
+		String selectGroup = "";
+		if(productCompGroupLst != null){
+			Iterator<ProductsDao.ProductComponentGroup> it = 
+					productCompGroupLst.iterator();
+			while(it.hasNext()){
+				ProductsDao.ProductComponentGroup pCompGroup = it.next();
+				if(pCompGroup.getRequireAmount() > 0){
+					if(pCompGroup.getRequireAmount() - sTransaction.getOrderSetTotalQty(mTransactionId, mOrderDetailId, 
+							pCompGroup.getProductGroupId()) > 0){
+						canDone = false;
+						selectGroup = pCompGroup.getGroupName();
+					}
+				}
+			}
+		}
+		
+		if(canDone){
+			// update flexibleIncludePrice to orderDetail
+			double totalFlexiblePrice = sTransaction.getFlexibleSummaryPrice(mTransactionId, mOrderDetailId);
+			if(totalFlexiblePrice > 0){
+				MPOSOrderTransaction.MPOSOrderDetail order = 
+						sTransaction.getOrder(mTransactionId, mOrderDetailId);
+				
+				Product p = sProduct.getProduct(mProductId);
+				sTransaction.updateOrderDetail(mTransactionId, mOrderDetailId, p.getVatRate(), 
+						p.getVatType(), (order.getTotalRetailPrice() + totalFlexiblePrice));
+			}
+			sTransaction.getWritableDatabase().setTransactionSuccessful();
+			sTransaction.getWritableDatabase().endTransaction();
+			finish();
+		}else{
+			new AlertDialog.Builder(ProductSetActivity.this)
+			.setTitle(R.string.title_activity_product_set)
+			.setMessage(ProductSetActivity.this.getString(R.string.please_select) + " " + selectGroup)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			}).show();
+		}
+	}
+	
+	private void cancelOrderSet(){
+		if(getIntent().getStringExtra("mode").equals(ADD_MODE)){
+			sTransaction.cancelOrder(mTransactionId);
+			sTransaction.getWritableDatabase().setTransactionSuccessful();
+		}
+		sTransaction.getWritableDatabase().endTransaction();
+		finish();
 	}
 	
 	/**
@@ -172,14 +306,17 @@ public class ProductSetActivity extends Activity{
 				for(int i = 0; i < productCompGroupLst.size(); i++){
 					final ProductsDao.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
 					View setGroupView = mInflater.inflate(R.layout.set_group_button_layout, null);
+					setGroupView.setId(pCompGroup.getProductGroupId());
 					TextView tvGroupName = (TextView) setGroupView.findViewById(R.id.textView2);
 					TextView tvBadge = (TextView) setGroupView.findViewById(R.id.textView1);
 					tvGroupName.setText(pCompGroup.getGroupName());
-					tvBadge.setText(NumberFormat.getInstance().format(pCompGroup.getRequireAmount()));
-					if(pCompGroup.getRequireAmount() > 0)
+					
+					if(pCompGroup.getRequireAmount() > 0){
 						tvBadge.setVisibility(View.VISIBLE);
-					else
+					}else{
 						tvBadge.setVisibility(View.GONE);
+					}
+					
 					setGroupView.setOnClickListener(new OnClickListener(){
 
 						@Override
@@ -191,7 +328,6 @@ public class ProductSetActivity extends Activity{
 									pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
 							mGvSetItem.setAdapter(adapter);
 
-							v.setId(pCompGroup.getProductGroupId());
 							v.setSelected(true);
 							for(int j = 0; j < scrollContent.getChildCount(); j++){
 								View child = scrollContent.getChildAt(j);
@@ -214,6 +350,10 @@ public class ProductSetActivity extends Activity{
 					scrollContent.addView(setGroupView, 
 							new LinearLayout.LayoutParams(
 									LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+					
+					if(pCompGroup.getRequireAmount() > 0){
+						updateBadge(pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
+					}
 				}
 			}
 		}
@@ -382,6 +522,7 @@ public class ProductSetActivity extends Activity{
 									public void onClick(DialogInterface dialog,
 											int which) {
 										sTransaction.deleteOrderSet(mTransactionId, mOrderDetailId);
+										updateBadge(set.getProductGroupId(), set.getRequireAmount());
 										loadOrderSet();
 									}
 									
@@ -457,7 +598,11 @@ public class ProductSetActivity extends Activity{
 				
 				final ProductsDao.ProductComponent pComp = mProductCompLst.get(position);
 				holder.tvMenu.setText(pComp.getProductName());
-				holder.tvPrice.setText(sGlobal.currencyFormat(pComp.getProductPrice()));
+				holder.tvPrice.setText(sGlobal.currencyFormat(pComp.getFlexibleProductPrice()));
+				if(pComp.getFlexibleProductPrice() > 0)
+					holder.tvPrice.setVisibility(View.VISIBLE);
+				else
+					holder.tvPrice.setVisibility(View.GONE);
 
 				new Handler().postDelayed(new Runnable(){
 
@@ -477,18 +622,21 @@ public class ProductSetActivity extends Activity{
 
 					@Override
 					public void onClick(View v) {
+						double price = pComp.getFlexibleIncludePrice() == 1 ? 
+								pComp.getFlexibleProductPrice() : 0;
 						if(mRequireAmount > 0){
 							// count total group qty from db
 							double totalQty = sTransaction.getOrderSetTotalQty(
 									mTransactionId, mOrderDetailId, mPcompGroupId);
+							
 							if(totalQty < mRequireAmount){
 								sTransaction.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
-										pComp.getProductName(), mPcompGroupId, mRequireAmount);
+										pComp.getProductName(), price, mPcompGroupId, mRequireAmount);
 								updateBadge(mPcompGroupId, mRequireAmount);
 							}
 						}else{
 							sTransaction.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
-									pComp.getProductName(), mPcompGroupId, mRequireAmount);
+									pComp.getProductName(), price, mPcompGroupId, mRequireAmount);
 						}
 						loadOrderSet();
 					}
@@ -496,7 +644,6 @@ public class ProductSetActivity extends Activity{
 				});
 				return convertView;
 			}
-			
 		}
 	}
 

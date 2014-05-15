@@ -58,10 +58,6 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		mStaff = new StaffDao(context.getApplicationContext());
 		mCreditCard = new CreditCardDao(context.getApplicationContext());
 		mPrintListener = listener;
-		
-		mPrinter = new Print(context.getApplicationContext());
-		mPrinter.setStatusChangeEventCallback(this);
-		mPrinter.setBatteryStatusChangeEventCallback(this);
 	}
 	
 	private static String createLine(String sign){
@@ -102,6 +98,10 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrder(transactionId);
 		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
 		double change = mPayment.getTotalPaid(transactionId) - trans.getTransactionVatable();
+
+		mPrinter = new Print(mContext.getApplicationContext());
+		mPrinter.setStatusChangeEventCallback(this);
+		mPrinter.setBatteryStatusChangeEventCallback(this);
 		try {
 			mPrinter.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(mContext), 0, 1000);	
 			Builder builder = new Builder(MPOSApplication.getPrinterName(mContext), Builder.MODEL_ANK, 
@@ -135,14 +135,14 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 			
 			builder.addTextAlign(Builder.ALIGN_CENTER);
 			List<MPOSOrderTransaction.MPOSOrderDetail> orderLst = 
-					mOrders.listAllOrder(transactionId);
+					mOrders.listAllOrderGroupByProduct(transactionId);
 	    	for(int i = 0; i < orderLst.size(); i++){
-	    		OrderTransaction.OrderDetail order = 
+	    		MPOSOrderTransaction.MPOSOrderDetail order = 
 	    				orderLst.get(i);
 	    		
 	    		String productName = order.getProductName();
 	    		String productQty = mGlobal.qtyFormat(order.getQty()) + "x ";
-	    		String productPrice = mGlobal.currencyFormat(order.getTotalRetailPrice());
+	    		String productPrice = mGlobal.currencyFormat(order.getPricePerUnit());
 	    		
 	    		builder.addText(productQty);
 	    		builder.addText(productName);
@@ -150,6 +150,21 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    				productName.length() + productPrice.length()));
 	    		builder.addText(productPrice);
 	    		builder.addText("\n");
+	    		
+	    		// orderSet
+	    		if(order.getOrderSetDetailLst() != null){
+	    			for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail :
+	    				order.getOrderSetDetailLst()){
+	    				String setName = setDetail.getProductName();
+	    				String setQty = "   " + mGlobal.qtyFormat(setDetail.getOrderSetQty()) + "x ";
+	    				String setPrice = mGlobal.currencyFormat(setDetail.getProductPrice());
+	    				builder.addText(setQty);
+	    				builder.addText(setName);
+	    				builder.addText(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
+	    				builder.addText(setPrice);
+	    				builder.addText("\n");
+	    			}
+	    		}
 	    	}
 	    	builder.addText(createLine("-") + "\n");
 	    	
@@ -337,13 +352,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		builder.append(createLine("=") + "\n");
 		
 		List<MPOSOrderTransaction.MPOSOrderDetail> orderLst = 
-				mOrders.listAllOrder(transactionId);
+				mOrders.listAllOrderGroupByProduct(transactionId);
     	for(int i = 0; i < orderLst.size(); i++){
-    		OrderTransaction.OrderDetail order = 
+    		MPOSOrderTransaction.MPOSOrderDetail order = 
     				orderLst.get(i);
     		String productName = order.getProductName();
     		String productQty = mGlobal.qtyFormat(order.getQty()) + "x ";
-    		String productPrice = mGlobal.currencyFormat(order.getTotalRetailPrice());
+    		String productPrice = mGlobal.currencyFormat(order.getPricePerUnit());
     		
     		builder.append(productQty);
     		builder.append(productName);
@@ -351,6 +366,21 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     				productName.length() + productPrice.length()));
     		builder.append(productPrice);
     		builder.append("\n");
+    		
+    		// orderSet
+    		if(order.getOrderSetDetailLst() != null){
+    			for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail :
+    				order.getOrderSetDetailLst()){
+    				String setName = setDetail.getProductName();
+    				String setQty = "   " + mGlobal.qtyFormat(setDetail.getOrderSetQty()) + "x ";
+    				String setPrice = mGlobal.currencyFormat(setDetail.getProductPrice());
+    				builder.append(setQty);
+    				builder.append(setName);
+    				builder.append(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
+    				builder.append(setPrice);
+    				builder.append("\n");
+    			}
+    		}
     	}
     	builder.append(createLine("-") + "\n");
     	
@@ -516,6 +546,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 				printLog.updatePrintStatus(printReceipt.getPriceReceiptLogId(), PrintReceiptLogDao.PRINT_NOT_SUCCESS);
 				Logger.appendLog(mContext, 
 						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, e.getMessage());
+				mPrintListener.onPrintFail(e.getMessage());
 			}
 		}
 		return null;

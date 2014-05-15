@@ -113,9 +113,9 @@ public class SaleTransactionDao extends MPOSDatabase{
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_NOTE)));
 					orderTrans.setiSaleMode(cursor.getInt(
 							cursor.getColumnIndex(ProductsTable.COLUMN_SALE_MODE)));
-					orderTrans.setfVatPercent(MPOSUtil.fixesDigitLength(4, cursor.getDouble(
+					orderTrans.setfVatPercent(MPOSUtil.fixesDigitLength(4,  cursor.getDouble(
 							cursor.getColumnIndex(ProductsTable.COLUMN_VAT_RATE))));
-					orderTrans.setfTransactionExcludeVAT(MPOSUtil.fixesDigitLength(4,cursor.getDouble(
+					orderTrans.setfTransactionExcludeVAT(MPOSUtil.fixesDigitLength(4, cursor.getDouble(
 							cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT))));
 					orderTrans.setiNoCust(1);
 					
@@ -222,7 +222,7 @@ public class SaleTransactionDao extends MPOSDatabase{
 					order.setiProductTypeID(cursor.getInt(cursor
 							.getColumnIndex(ProductsTable.COLUMN_PRODUCT_TYPE_ID)));
 					order.setfQty(
-							MPOSUtil.fixesDigitLength(4,cursor.getDouble(cursor
+							MPOSUtil.fixesDigitLength(4, cursor.getDouble(cursor
 									.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY))));
 					order.setfPricePerUnit(
 							MPOSUtil.fixesDigitLength(4, cursor.getDouble(

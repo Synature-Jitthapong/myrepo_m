@@ -1,5 +1,6 @@
 package com.syn.mpos;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -273,6 +274,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	}
 	
 	private void displayTotalPrice(){
+		mTotalSalePrice = MPOSUtil.roundingPrice(mTotalSalePrice);
 		mTxtTotalPrice.setText(mGlobal.currencyFormat(mTotalSalePrice));
 		displayEnterPrice();
 	}

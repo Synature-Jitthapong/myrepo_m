@@ -32,6 +32,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.InputType;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -341,17 +342,36 @@ public class MainActivity extends FragmentActivity implements
 			holder.tvOrderPrice.setText(sGlobal.currencyFormat(orderDetail.getPricePerUnit()));
 			holder.txtOrderAmount.setText(sGlobal.qtyFormat(orderDetail.getQty()));
 	
+			holder.orderSetContent.removeAllViews();
 			if(orderDetail.getOrderSetDetailLst() != null){
-				holder.orderSetContent.removeAllViews();
-				for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail : 
-					orderDetail.getOrderSetDetailLst()){
+				for(int i = 0; i < orderDetail.getOrderSetDetailLst().size(); i++){
+					final MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail = 
+							orderDetail.getOrderSetDetailLst().get(i);
 					final View detailView = mInflater.inflate(R.layout.order_set_detail_template, null);
 					TextView tvSetNo = (TextView) detailView.findViewById(R.id.tvSetNo);
 					TextView tvSetName = (TextView) detailView.findViewById(R.id.tvSetName);
 					EditText txtSetQty = (EditText) detailView.findViewById(R.id.txtSetQty);
 					Button btnSetMinus = (Button) detailView.findViewById(R.id.btnSetMinus);
 					Button btnSetPlus = (Button) detailView.findViewById(R.id.btnSetPlus);
-					
+					if(i==0){
+						Button btnSetMod = (Button)
+								detailView.findViewById(R.id.btnSetModify);
+						btnSetMod.setVisibility(View.VISIBLE);
+						btnSetMod.setOnClickListener(new OnClickListener(){
+
+							@Override
+							public void onClick(View v) {
+								Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
+								intent.putExtra("mode", ProductSetActivity.EDIT_MODE);
+								intent.putExtra("transactionId", mTransactionId);
+								intent.putExtra("computerId", mComputer.getComputerId());
+								intent.putExtra("orderDetailId", orderDetail.getOrderDetailId());
+								intent.putExtra("productId", orderDetail.getProductId());
+								startActivity(intent);
+							}
+							
+						});
+					}
 					tvSetNo.setText("-");
 					tvSetName.setText(setDetail.getProductName());
 					txtSetQty.setText(sGlobal.qtyFormat(setDetail.getOrderSetQty()));
@@ -389,7 +409,7 @@ public class MainActivity extends FragmentActivity implements
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								mTransaction.deleteOrderDetail(mTransactionId, 
+								mTransaction.cancelOrder(mTransactionId, 
 										orderDetail.getOrderDetailId());
 								mOrderDetailLst.remove(position);
 								mOrderDetailAdapter.notifyDataSetChanged();
@@ -745,6 +765,7 @@ public class MainActivity extends FragmentActivity implements
 			productSizeDialog(productId);
 		}else if(productTypeId == ProductsDao.SET_TYPE_CAN_SELECT){
 			Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
+			intent.putExtra("mode", ProductSetActivity.ADD_MODE);
 			intent.putExtra("transactionId", mTransactionId);
 			intent.putExtra("computerId", mComputer.getComputerId());
 			intent.putExtra("productId", productId);
@@ -1043,7 +1064,8 @@ public class MainActivity extends FragmentActivity implements
 		openSession();	
 		mTransactionId = mTransaction.getCurrTransactionId(mSession.getSessionDate());
 		if(mTransactionId == 0){
-			mTransactionId = mTransaction.openTransaction(sShop.getShopId(), mComputer.getComputerId(),
+			mTransactionId = mTransaction.openTransaction(mSession.getSessionDate(), 
+					sShop.getShopId(), mComputer.getComputerId(),
 					mSessionId, mStaffId, sShop.getCompanyVatRate());
 		}
 		countHoldOrder();
@@ -1296,7 +1318,7 @@ public class MainActivity extends FragmentActivity implements
 								public void onClick(DialogInterface dialog,
 										int which) {
 									for (MPOSOrderTransaction.MPOSOrderDetail order : selectedOrderLst) {
-										mTransaction.deleteOrderDetail(
+										mTransaction.cancelOrder(
 												mTransactionId,
 												order.getOrderDetailId());
 									}
@@ -1338,6 +1360,7 @@ public class MainActivity extends FragmentActivity implements
 					productId, productCode, productName, productTypeId, vatType, vatRate, qty, price);
 		}else{
 			final EditText txtProductPrice = new EditText(this);
+			txtProductPrice.setInputType(InputType.TYPE_CLASS_NUMBER);
 			txtProductPrice.setOnEditorActionListener(new OnEditorActionListener(){
 		
 				@Override
@@ -1355,8 +1378,6 @@ public class MainActivity extends FragmentActivity implements
 		
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					// TODO Auto-generated method stub
-					
 				}
 				
 			})

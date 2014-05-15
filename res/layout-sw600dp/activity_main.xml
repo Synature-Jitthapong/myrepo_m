@@ -65,19 +65,20 @@
 
             <ImageButton
                 android:id="@+id/btnClearSelOrder"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="48dp"
                 android:layout_height="wrap_content"
+                android:minHeight="48dip"
                 android:minWidth="48dip"
                 android:src="@android:drawable/ic_menu_revert" />
 
             <ImageButton
                 android:id="@+id/btnDelOrder"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="48dp"
                 android:layout_height="wrap_content"
+                android:minHeight="48dip"
                 android:minWidth="48dip"
                 android:src="@android:drawable/ic_menu_delete" />
+
         </LinearLayout>
 
         <TableLayout
