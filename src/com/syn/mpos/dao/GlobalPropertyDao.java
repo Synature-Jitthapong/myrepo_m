@@ -163,7 +163,7 @@ public class GlobalPropertyDao extends MPOSDatabase{
 	}
 	
 	private NumberFormat getNumberFormat(){
-		NumberFormat numFormat = NumberFormat.getInstance(Locale.getDefault());
+		NumberFormat numFormat = NumberFormat.getInstance(Locale.US);
 		numFormat.setRoundingMode(RoundingMode.HALF_UP);
 		return numFormat;
 	}
