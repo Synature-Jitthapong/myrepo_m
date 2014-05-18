@@ -16,6 +16,7 @@ public class MPOSOrderTransaction extends OrderTransaction{
 	public static class MPOSOrderDetail extends OrderDetail{
 		private List<OrderSet.OrderSetDetail> orderSetDetailLst;
 		private double vatExclude;
+		private int productTypeId;
 
 		public List<OrderSet.OrderSetDetail> getOrderSetDetailLst() {
 			return orderSetDetailLst;
@@ -23,6 +24,14 @@ public class MPOSOrderTransaction extends OrderTransaction{
 
 		public void setOrderSetDetailLst(List<OrderSet.OrderSetDetail> orderSetDetailLst) {
 			this.orderSetDetailLst = orderSetDetailLst;
+		}
+
+		public int getProductTypeId() {
+			return productTypeId;
+		}
+
+		public void setProductTypeId(int productTypeId) {
+			this.productTypeId = productTypeId;
 		}
 
 		public double getVatExclude() {

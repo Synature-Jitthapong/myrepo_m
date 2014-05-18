@@ -1,12 +1,11 @@
 package com.syn.mpos;
 
 import java.util.Calendar;
-import java.util.Locale;
-
 import com.syn.mpos.dao.ComputerDao;
 import com.syn.mpos.dao.Login;
 import com.syn.mpos.dao.SessionDao;
 import com.syn.mpos.dao.ShopDao;
+import com.syn.mpos.dao.Util;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;
@@ -32,11 +31,12 @@ public class LoginActivity extends Activity implements OnClickListener {
 	
 	public static final int REQUEST_FOR_SETTING_DATE = 1;
 	
+	private static int sStaffId;
+	
 	private SessionDao mSession;
 	private ShopDao mShop;
 	private ComputerDao mComputer;
 	
-	private int mStaffId;
 	private Button mBtnLogin;
 	private EditText mTxtUser;
 	private EditText mTxtPass;
@@ -81,6 +81,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 		}
+		if(sStaffId != 0){
+			gotoMainActivity();
+		}
 	}
 
 	@Override
@@ -97,97 +100,97 @@ public class LoginActivity extends Activity implements OnClickListener {
 	 * if system date less than session date 
 	 * this not allow to do anything and 
 	 * force to date & time setting.
-	 * @return
+	 * @return boolean
 	 */
 	private boolean checkSessionDate(){
-//		if(mSession.getCurrentSessionId() != 0){
-//			String strSessionDate = mSession.getSessionDate();
-//			Calendar sessionDate = Calendar.getInstance(Locale.US);
-//			sessionDate.setTimeInMillis(Long.parseLong(strSessionDate));
-//			Calendar currentDate =
-//			// sessionDate > currentDate
-//			if(sessionDate.getTime().compareTo(currentDate.getTime()) > 0){
-//				new AlertDialog.Builder(this)
-//				.setCancelable(false)
-//				.setTitle(R.string.system_date)
-//				.setMessage(R.string.system_date_less)
-//				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-//					
-//					@Override
-//					public void onClick(DialogInterface dialog, int which) {
-//						finish();
-//					}
-//				})
-//				.setPositiveButton(R.string.date_time_setting, new DialogInterface.OnClickListener() {
-//					
-//					@Override
-//					public void onClick(DialogInterface dialog, int which) {
-//						startActivityForResult(
-//								new Intent(android.provider.Settings.ACTION_DATE_SETTINGS),
-//								REQUEST_FOR_SETTING_DATE);
-//					}
-//				}).show();
-//			}
-//			if(currentDate.compareTo(sessionDate) > 0){
-//				// force end previous sale date
-//				new AlertDialog.Builder(this)
-//				.setCancelable(false)
-//				.setTitle(R.string.system_date)
-//				.setMessage(R.string.system_date_more_than_session)
-//				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-//					
-//					@Override
-//					public void onClick(DialogInterface dialog, int which) {
-//						finish();
-//					}
-//				})
-//				.setPositiveButton(R.string.endday, new DialogInterface.OnClickListener() {
-//					
-//					@Override
-//					public void onClick(DialogInterface dialog, int which) {
-//						// endday process
-//						final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
-//						progress.setMessage(LoginActivity.this.getString(R.string.endday_progress));
-//						progress.setCancelable(false);
-//						MPOSUtil.doEndday(LoginActivity.this, mShop.getShopId(), 
-//								mComputer.getComputerId(), mSession.getCurrentSessionId(), 
-//								mStaffId, 0, true,
-//								new ProgressListener(){
-//
-//									@Override
-//									public void onPre() {
-//										progress.show();
-//									}
-//
-//									@Override
-//									public void onPost() {
-//										if(progress.isShowing())
-//											progress.dismiss();
-//										gotoMainActivity();
-//									}
-//
-//									@Override
-//									public void onError(String msg) {
-//										if(progress.isShowing())
-//											progress.dismiss();
-//										new AlertDialog.Builder(LoginActivity.this)
-//										.setTitle(R.string.error)
-//										.setMessage(msg)
-//										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-//											
-//											@Override
-//											public void onClick(DialogInterface dialog, int which) {
-//											}
-//										}).show();
-//									}
-//							
-//								});
-//					}
-//				}).show();
-//			}
-//		}else{
+		if(mSession.getCurrentSessionId() != 0){
+			Calendar sessionDate = Calendar.getInstance();
+			sessionDate.setTimeInMillis(Long.parseLong(mSession.getSessionDate()));
+			// sessionDate > currentDate
+			if(sessionDate.getTime().compareTo(Util.getDate().getTime()) > 0){
+				new AlertDialog.Builder(this)
+				.setCancelable(false)
+				.setTitle(R.string.system_date)
+				.setMessage(R.string.system_date_less)
+				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+					}
+				})
+				.setPositiveButton(R.string.date_time_setting, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						startActivityForResult(
+								new Intent(android.provider.Settings.ACTION_DATE_SETTINGS),
+								REQUEST_FOR_SETTING_DATE);
+					}
+				}).show();
+			}
+			if(Util.getDate().getTime().compareTo(sessionDate.getTime()) > 0){
+				// force end previous sale date
+				new AlertDialog.Builder(this)
+				.setCancelable(false)
+				.setTitle(R.string.system_date)
+				.setMessage(R.string.system_date_more_than_session)
+				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+					}
+				})
+				.setPositiveButton(R.string.endday, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// endday process
+						final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
+						progress.setMessage(LoginActivity.this.getString(R.string.endday_progress));
+						progress.setCancelable(false);
+						MPOSUtil.doEndday(LoginActivity.this, mShop.getShopId(), 
+								mComputer.getComputerId(), mSession.getCurrentSessionId(), 
+								sStaffId, 0, true,
+								new ProgressListener(){
+
+									@Override
+									public void onPre() {
+										progress.show();
+									}
+
+									@Override
+									public void onPost() {
+										if(progress.isShowing())
+											progress.dismiss();
+										gotoMainActivity();
+									}
+
+									@Override
+									public void onError(String msg) {
+										if(progress.isShowing())
+											progress.dismiss();
+										new AlertDialog.Builder(LoginActivity.this)
+										.setTitle(R.string.error)
+										.setMessage(msg)
+										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+											
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+											}
+										}).show();
+									}
+							
+								});
+					}
+				}).show();
+			}else{
+				gotoMainActivity();
+			}
+		}else{
 			gotoMainActivity();
-		//}
+		}
 		return true;
 	}
 	
@@ -230,7 +233,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private void gotoMainActivity(){
 		mTxtUser.setText(null);
 		mTxtPass.setText(null);
-		if(mSession.checkEndday(mSession.getSessionDate()) > 0){
+		if(mSession.checkEndday(String.valueOf(Util.getDate().getTimeInMillis())) > 0){
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.endday)
 			.setMessage(R.string.alredy_endday)
@@ -243,7 +246,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 			}).show();
 		}else{
 			Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-			intent.putExtra("staffId", mStaffId);
+			intent.putExtra("staffId", sStaffId);
 			startActivity(intent);
 		}
 	}
@@ -263,7 +266,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 					ShopData.Staff s = login.checkLogin();
 					
 					if(s != null){
-						mStaffId = s.getStaffID();
+						sStaffId = s.getStaffID();
 						checkSessionDate();
 					}else{
 						new AlertDialog.Builder(LoginActivity.this)

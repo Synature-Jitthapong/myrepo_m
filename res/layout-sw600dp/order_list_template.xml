@@ -61,7 +61,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:minHeight="48dp"
-        android:text="111"
+        android:text="1"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <CheckBox
@@ -73,14 +73,15 @@
         android:layout_toRightOf="@+id/tvOrderNo"
         android:clickable="false"
         android:focusable="false"
-        android:focusableInTouchMode="false" />
+        android:focusableInTouchMode="false"
+        android:minHeight="48dp" />
 
     <TextView
         android:id="@+id/tvOrderName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/btnOrderMinus"
+        android:layout_toLeftOf="@+id/btnSetModify"
         android:layout_toRightOf="@+id/checkBox1"
         android:focusable="false"
         android:focusableInTouchMode="false"
@@ -110,5 +111,18 @@
         android:orientation="vertical" >
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btnSetModify"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/btnOrderMinus"
+        android:drawableLeft="@android:drawable/ic_menu_edit"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:paddingLeft="8dp"
+        android:visibility="gone" />
 
 </RelativeLayout>

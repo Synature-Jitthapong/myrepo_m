@@ -23,16 +23,6 @@
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <Button
-        android:id="@+id/btnSetModify"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableLeft="@android:drawable/ic_menu_manage"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:visibility="gone" />
-
-    <Button
         android:id="@+id/btnSetMinus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

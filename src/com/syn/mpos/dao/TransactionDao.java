@@ -2,7 +2,6 @@ package com.syn.mpos.dao;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -99,52 +98,6 @@ public class TransactionDao extends MPOSDatabase {
 		}
 		return trans;
 	}
-
-	/**
-	 * @param saleDate
-	 * @return MPOSOrderTransaction
-	 */
-	// public MPOSOrderTransaction getTransaction(long saleDate) {
-	// MPOSOrderTransaction trans = new MPOSOrderTransaction();
-	// Cursor cursor = getReadableDatabase().query(
-	// OrderTransactionTable.TABLE_ORDER_TRANS,
-	// new String[] { OrderTransactionTable.COLUMN_TRANSACTION_ID,
-	// ComputerTable.COLUMN_COMPUTER_ID,
-	// OrderTransactionTable.COLUMN_TRANS_VATABLE,
-	// OrderTransactionTable.COLUMN_TRANS_VAT,
-	// OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT,
-	// OrderTransactionTable.COLUMN_PAID_TIME,
-	// OrderTransactionTable.COLUMN_RECEIPT_NO,
-	// OrderTransactionTable.COLUMN_OPEN_STAFF },
-	// OrderTransactionTable.COLUMN_SALE_DATE + "=? AND "
-	// + OrderTransactionTable.COLUMN_STATUS_ID + "=?",
-	// new String[] { String.valueOf(saleDate),
-	// String.valueOf(TRANS_STATUS_SUCCESS), }, null, null,
-	// OrderTransactionTable.COLUMN_SALE_DATE);
-	//
-	// if (cursor != null) {
-	// if (cursor.moveToFirst()) {
-	// trans.setTransactionId(cursor.getInt(cursor
-	// .getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
-	// trans.setTransactionVatable(cursor.getDouble(cursor
-	// .getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)));
-	// trans.setTransactionVat(cursor.getDouble(cursor
-	// .getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT)));
-	// trans.setTransactionVatExclude(cursor.getDouble(cursor
-	// .getColumnIndex(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT)));
-	// trans.setComputerId(cursor.getInt(cursor
-	// .getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
-	// trans.setPaidTime(cursor.getString(cursor
-	// .getColumnIndex(OrderTransactionTable.COLUMN_PAID_TIME)));
-	// trans.setReceiptNo(cursor.getString(cursor
-	// .getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
-	// trans.setOpenStaffId(cursor.getInt(cursor
-	// .getColumnIndex(OrderTransactionTable.COLUMN_OPEN_STAFF)));
-	// }
-	// cursor.close();
-	// }
-	// return trans;
-	// }
 
 	/**
 	 * Get summary order for discount
@@ -251,6 +204,7 @@ public class TransactionDao extends MPOSDatabase {
 				" SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
 						+ OrderDetailTable.COLUMN_ORDER_ID + ", "
 						+ ProductsTable.COLUMN_PRODUCT_ID + ", "
+						+ ProductsTable.COLUMN_PRODUCT_TYPE_ID + ", "
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ", "
 						+ ProductsTable.COLUMN_PRODUCT_PRICE + ", "
 						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
@@ -285,6 +239,7 @@ public class TransactionDao extends MPOSDatabase {
 				" SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
 						+ OrderDetailTable.COLUMN_ORDER_ID + ", "
 						+ ProductsTable.COLUMN_PRODUCT_ID + ", "
+						+ ProductsTable.COLUMN_PRODUCT_TYPE_ID + ", "
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ", "
 						+ ProductsTable.COLUMN_PRODUCT_PRICE + ", "
 						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", " 
@@ -317,6 +272,7 @@ public class TransactionDao extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
 						+ OrderDetailTable.COLUMN_ORDER_ID + ", "
+						+ ProductsTable.COLUMN_PRODUCT_TYPE_ID + ", "
 						+ ProductsTable.COLUMN_PRODUCT_ID + ", " + " SUM("
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ") AS "
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ", " + " SUM("
@@ -360,6 +316,7 @@ public class TransactionDao extends MPOSDatabase {
 				" SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
 						+ OrderDetailTable.COLUMN_ORDER_ID + ", "
 						+ ProductsTable.COLUMN_PRODUCT_ID + ", "
+						+ ProductsTable.COLUMN_PRODUCT_TYPE_ID + ", "
 						+ OrderDetailTable.COLUMN_ORDER_QTY + ", "
 						+ ProductsTable.COLUMN_PRODUCT_PRICE + ", "
 						+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", " 
@@ -433,6 +390,8 @@ public class TransactionDao extends MPOSDatabase {
 				.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
 		orderDetail.setProductId(cursor.getInt(cursor
 				.getColumnIndex(ProductsTable.COLUMN_PRODUCT_ID)));
+		orderDetail.setProductTypeId(cursor.getInt(cursor
+				.getColumnIndex(ProductsTable.COLUMN_PRODUCT_TYPE_ID)));
 		orderDetail.setProductName(cursor.getString(cursor
 				.getColumnIndex(ProductsTable.COLUMN_PRODUCT_NAME)));
 		orderDetail.setQty(cursor.getFloat(cursor
