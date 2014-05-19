@@ -31,7 +31,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	
 	public static final int REQUEST_FOR_SETTING_DATE = 1;
 	
-	private static int sStaffId;
+	public static int sStaffId;
 	
 	private SessionDao mSession;
 	private ShopDao mShop;

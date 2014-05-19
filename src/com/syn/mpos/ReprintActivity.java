@@ -153,7 +153,7 @@ public class ReprintActivity extends Activity {
 			if(MPOSApplication.getInternalPrinterSetting(ReprintActivity.this)){
 				printReceiptWintec(mTransactionId);
 			}else{
-				printReceipt(mTransactionId);	
+				printReceiptEpson(mTransactionId);	
 			}
 			return null;
 		}

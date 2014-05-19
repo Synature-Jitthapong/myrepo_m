@@ -196,6 +196,7 @@ public class ProductSetActivity extends Activity{
 							pCompGroup.getProductGroupId()) > 0){
 						canDone = false;
 						selectGroup = pCompGroup.getGroupName();
+						break;
 					}
 				}
 			}
@@ -305,47 +306,64 @@ public class ProductSetActivity extends Activity{
 				final LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
 				for(int i = 0; i < productCompGroupLst.size(); i++){
 					final ProductsDao.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
+
 					View setGroupView = mInflater.inflate(R.layout.set_group_button_layout, null);
 					setGroupView.setId(pCompGroup.getProductGroupId());
 					TextView tvGroupName = (TextView) setGroupView.findViewById(R.id.textView2);
 					TextView tvBadge = (TextView) setGroupView.findViewById(R.id.textView1);
 					tvGroupName.setText(pCompGroup.getGroupName());
 					
+					if(pCompGroup.getGroupNo() == 0){
+						setGroupView.setEnabled(false);
+						if(sTransaction.checkAddedOrderSet(mTransactionId, 
+								mOrderDetailId, pCompGroup.getProductGroupId()) == 0){
+							List<ProductsDao.ProductComponent> pCompLst = 
+									sProduct.listProductComponent(pCompGroup.getProductGroupId());
+							if(pCompLst != null){
+								for(ProductsDao.ProductComponent pComp : pCompLst){
+									sTransaction.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
+											pComp.getProductName(), 
+											pCompGroup.getChildProductAmount() > 0 ? pCompGroup.getChildProductAmount() : 1,
+													pComp.getFlexibleProductPrice() > 0 ? pComp.getFlexibleProductPrice() : 0.0d,
+															pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
+								}
+							}
+						}
+					}else{
+						setGroupView.setOnClickListener(new OnClickListener(){
+	
+							@Override
+							public void onClick(View v) {
+								mProductCompLst = sProduct.listProductComponent(pCompGroup.getProductGroupId());
+								
+								// i use Products.ProductGroupId instead ProductComponent.PGroupId
+								SetItemAdapter adapter = new SetItemAdapter(
+										pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
+								mGvSetItem.setAdapter(adapter);
+	
+								v.setSelected(true);
+								for(int j = 0; j < scrollContent.getChildCount(); j++){
+									View child = scrollContent.getChildAt(j);
+									if(child.getId() != pCompGroup.getProductGroupId()){
+										child.setSelected(false);
+									}
+								}
+							}
+							
+						});	
+						if(i == 0){
+							try {
+								setGroupView.callOnClick();
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
 					if(pCompGroup.getRequireAmount() > 0){
 						tvBadge.setVisibility(View.VISIBLE);
 					}else{
 						tvBadge.setVisibility(View.GONE);
-					}
-					
-					setGroupView.setOnClickListener(new OnClickListener(){
-
-						@Override
-						public void onClick(View v) {
-							mProductCompLst = sProduct.listProductComponent(pCompGroup.getProductGroupId());
-							
-							// i use Products.ProductGroupId instead ProductComponent.PGroupId
-							SetItemAdapter adapter = new SetItemAdapter(
-									pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
-							mGvSetItem.setAdapter(adapter);
-
-							v.setSelected(true);
-							for(int j = 0; j < scrollContent.getChildCount(); j++){
-								View child = scrollContent.getChildAt(j);
-								if(child.getId() != pCompGroup.getProductGroupId()){
-									child.setSelected(false);
-								}
-							}
-						}
-						
-					});
-					
-					if(i == 0){
-						try {
-							setGroupView.callOnClick();
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
 					}
 					scrollContent.addView(setGroupView, 
 							new LinearLayout.LayoutParams(
@@ -631,12 +649,12 @@ public class ProductSetActivity extends Activity{
 							
 							if(totalQty < mRequireAmount){
 								sTransaction.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
-										pComp.getProductName(), price, mPcompGroupId, mRequireAmount);
+										pComp.getProductName(), 1, price, mPcompGroupId, mRequireAmount);
 								updateBadge(mPcompGroupId, mRequireAmount);
 							}
 						}else{
 							sTransaction.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
-									pComp.getProductName(), price, mPcompGroupId, mRequireAmount);
+									pComp.getProductName(), 1, price, mPcompGroupId, mRequireAmount);
 						}
 						loadOrderSet();
 					}

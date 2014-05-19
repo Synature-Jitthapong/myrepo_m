@@ -35,20 +35,20 @@ public class MPOSUtil {
 	
 	/**
 	 * @param context
-	 * @param sessionDate
 	 * @param shopId
 	 * @param computerId
 	 * @param staffId
+	 * @param sendAll
 	 * @param listener
 	 */
 	public static void doSendSale(final Context context, 
 			final int shopId, final int computerId, 
-			final int staffId, final ProgressListener listener) {
+			final int staffId, boolean sendAll, final ProgressListener listener) {
 		
 		SessionDao session = new SessionDao(context.getApplicationContext());
 		final String sessionDate = session.getSessionDate();
 		new LoadSaleTransaction(context.getApplicationContext(), sessionDate,
-				false, new LoadSaleTransactionListener() {
+				sendAll, new LoadSaleTransactionListener() {
 
 			@Override
 			public void onPre() {
@@ -249,12 +249,12 @@ public class MPOSUtil {
 	}
 	
 	public static void sendSaleData(final Context context, 
-			int shopId, int computerId, int staffId){
+			int shopId, int computerId, int staffId, boolean sendAll){
 		final ProgressDialog progress = new ProgressDialog(context);
 		progress.setTitle(R.string.send_sale_data);
 		progress.setMessage(context.getString(R.string.send_sale_data_progress));
 		MPOSUtil.doSendSale(context, shopId, computerId, staffId, 
-				new ProgressListener(){
+				sendAll, new ProgressListener(){
 
 			@Override
 			public void onPre() {
@@ -398,7 +398,7 @@ public class MPOSUtil {
 	 * @return rounding value
 	 */
 	public static double rounding(int scale, double value){
-		BigDecimal big = new BigDecimal(String.valueOf(value));
+		BigDecimal big = new BigDecimal(value);
 		return big.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
 	

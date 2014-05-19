@@ -8,6 +8,7 @@ import java.util.List;
 import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.dao.GlobalPropertyDao;
 import com.syn.mpos.dao.MPOSOrderTransaction;
+import com.syn.mpos.dao.PrintReceiptLogDao;
 import com.syn.mpos.dao.TransactionDao;
 
 import android.os.Bundle;
@@ -356,6 +357,10 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void printReceipt(){
+		PrintReceiptLogDao printLog = 
+				new PrintReceiptLogDao(getApplicationContext());
+		printLog.insertLog(mTransactionId, mStaffId);
+		
 		new PrintReceipt(VoidBillActivity.this, new PrintReceipt.PrintStatusListener() {
 			
 			@Override
@@ -380,7 +385,7 @@ public class VoidBillActivity extends Activity {
 	
 	private void sendSale(){
 		MPOSUtil.doSendSale(VoidBillActivity.this, mShopId, mComputerId, mStaffId, 
-				new ProgressListener(){
+				false, new ProgressListener(){
 
 			@Override
 			public void onPre() {

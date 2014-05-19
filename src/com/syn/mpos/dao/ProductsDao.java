@@ -21,6 +21,7 @@ public class ProductsDao extends MPOSDatabase {
 	public static final int SET_TYPE_CAN_SELECT = 7;
 	public static final int VAT_TYPE_INCLUDED = 1;
 	public static final int VAT_TYPE_EXCLUDE = 2;
+	public static final int NO_VAT = 0;
 	
 	public static final String[] ALL_PRODUCT_COLS = {
 		ProductsTable.COLUMN_PRODUCT_ID, 
@@ -116,14 +117,15 @@ public class ProductsDao extends MPOSDatabase {
 	public List<ProductComponent> listProductComponent(int groupId){
 		List<ProductComponent> pCompLst = null;
 		Cursor cursor = getReadableDatabase().rawQuery(
-				"SELECT a." + ProductsTable.COLUMN_PRODUCT_ID + ",a."
-						+ ProductComponentTable.COLUMN_PGROUP_ID + ",a."
+				"SELECT a." + ProductComponentTable.COLUMN_PGROUP_ID + ",a."
 						+ ProductComponentTable.COLUMN_CHILD_PRODUCT_AMOUNT
 						+ ",a."
 						+ ProductComponentTable.COLUMN_FLEXIBLE_INCLUDE_PRICE
 						+ ",a."
 						+ ProductComponentTable.COLUMN_FLEXIBLE_PRODUCT_PRICE
-						+ ",a." + ProductsTable.COLUMN_SALE_MODE + ",b."
+						+ ",a." + ProductsTable.COLUMN_SALE_MODE 
+						+ ",b." + ProductsTable.COLUMN_PRODUCT_ID 
+						+ ",b."
 						+ ProductsTable.COLUMN_PRODUCT_NAME + ",b."
 						+ ProductsTable.COLUMN_PRODUCT_PRICE + ",b."
 						+ ProductsTable.COLUMN_IMG_URL + " FROM "

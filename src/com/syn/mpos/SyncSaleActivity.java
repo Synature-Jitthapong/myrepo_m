@@ -103,7 +103,7 @@ public class SyncSaleActivity extends Activity{
 
 	private void sendSale(){
 		MPOSUtil.doSendSale(SyncSaleActivity.this,
-				mShopId, mComputerId, mStaffId, new ProgressListener(){
+				mShopId, mComputerId, mStaffId, true, new ProgressListener(){
 
 			@Override
 			public void onPre() {
@@ -143,10 +143,11 @@ public class SyncSaleActivity extends Activity{
 					OrderTransactionTable.COLUMN_CLOSE_TIME,
 					BaseColumn.COLUMN_SEND_STATUS
 				}, OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " +
-					BaseColumn.COLUMN_SEND_STATUS + "=?", 
+					BaseColumn.COLUMN_SEND_STATUS + " IN(?,?) ", 
 				new String[]{
 					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-				 	String.valueOf(MPOSDatabase.NOT_SEND)
+				 	String.valueOf(MPOSDatabase.NOT_SEND),
+				 	String.valueOf(MPOSDatabase.ALREADY_SEND)
 				}, null, null, OrderTransactionTable.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){
 			do{

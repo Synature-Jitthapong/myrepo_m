@@ -754,6 +754,9 @@ containing a value of this type.
         public static final int view_stock=0x7f0500d2;
         public static final int void_bill=0x7f050078;
         public static final int void_bill_success=0x7f050110;
+        public static final int void_by=0x7f050116;
+        public static final int void_receipt=0x7f050114;
+        public static final int void_time=0x7f050115;
         public static final int web_service=0x7f050058;
         public static final int web_service_summary=0x7f050059;
         public static final int yes=0x7f0500ae;

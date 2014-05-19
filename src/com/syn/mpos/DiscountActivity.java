@@ -247,7 +247,7 @@ public class DiscountActivity extends Activity{
 	private void summary() {
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
 				mTransaction.getSummaryOrderForDiscount(mTransactionId);
-		mTotalPrice = summOrder.getTotalSalePrice();
+		mTotalPrice = mTransaction.getTransaction(mTransactionId).getTransactionVatable();
 		double totalVatExcluded = summOrder.getVatExclude();
 		if(totalVatExcluded > 0)
 			mLayoutVat.setVisibility(View.VISIBLE);

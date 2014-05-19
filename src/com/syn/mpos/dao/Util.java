@@ -51,7 +51,9 @@ public class Util {
 	public static double calculateVatAmount(double totalPrice, double vatRate, int vatType){
 		if(vatType == ProductsDao.VAT_TYPE_INCLUDED)
 			return totalPrice * vatRate / (100 + vatRate);
-		else
+		else if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
 			return totalPrice * vatRate / 100;
+		else
+			return totalPrice * vatRate;
 	}
 }

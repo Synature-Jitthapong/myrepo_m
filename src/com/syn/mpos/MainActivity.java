@@ -21,7 +21,6 @@ import com.syn.mpos.dao.TransactionDao;
 import com.syn.pos.ShopData;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -53,7 +52,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -872,7 +870,22 @@ public class MainActivity extends FragmentActivity{
 		
 		sTransaction.summary(mTransactionId);
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
-				sTransaction.getSummaryOrder(mTransactionId);
+				sTransaction.getSummaryOrder(mTransactionId, false);
+		
+		TableRow rowSubTotal = new TableRow(MainActivity.this);
+		tvLabel = new TextView(MainActivity.this);
+		tvValue = new TextView(MainActivity.this);
+		tvLabel.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Medium);
+		tvLabel.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 
+				TableRow.LayoutParams.WRAP_CONTENT, 1f));
+		tvValue.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Medium);
+		tvValue.setGravity(Gravity.RIGHT);
+		tvLabel.setText(R.string.sub_total);
+		tvValue.setText(sGlobal.currencyFormat(summOrder.getTotalRetailPrice()));
+		rowSubTotal.addView(tvLabel);
+		rowSubTotal.addView(tvValue);
+		sTbSummary.addView(rowSubTotal);
+		
 		if(summOrder.getPriceDiscount() > 0){
 			TableRow rowDiscount = new TableRow(MainActivity.this);
 			tvLabel = new TextView(MainActivity.this);
@@ -903,19 +916,6 @@ public class MainActivity extends FragmentActivity{
 			rowExcludeVat.addView(tvValue);
 			sTbSummary.addView(rowExcludeVat);
 		}
-		TableRow rowSubTotal = new TableRow(MainActivity.this);
-		tvLabel = new TextView(MainActivity.this);
-		tvValue = new TextView(MainActivity.this);
-		tvLabel.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Medium);
-		tvLabel.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 
-				TableRow.LayoutParams.WRAP_CONTENT, 1f));
-		tvValue.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Medium);
-		tvValue.setGravity(Gravity.RIGHT);
-		tvLabel.setText(R.string.sub_total);
-		tvValue.setText(sGlobal.currencyFormat(summOrder.getTotalRetailPrice()));
-		rowSubTotal.addView(tvLabel);
-		rowSubTotal.addView(tvValue);
-		sTbSummary.addView(rowSubTotal);
 		
 		TableRow rowGrandTotal = new TableRow(MainActivity.this);
 		tvLabel = new TextView(MainActivity.this);
@@ -1119,6 +1119,7 @@ public class MainActivity extends FragmentActivity{
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				LoginActivity.sStaffId = 0;
 				finish();
 			}
 		})
@@ -1576,7 +1577,7 @@ public class MainActivity extends FragmentActivity{
 	 */
 	private void sendSale(){
 		MPOSUtil.doSendSale(MainActivity.this, sShop.getShopId(), 
-				sComputer.getComputerId(), mStaffId, new ProgressListener(){
+				sComputer.getComputerId(), mStaffId, false, new ProgressListener(){
 
 					@Override
 					public void onPre() {
