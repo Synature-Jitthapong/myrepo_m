@@ -29,7 +29,7 @@ public class SessionDao extends MPOSDatabase{
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_IS_ENDDAY, ALREADY_ENDDAY_STATUS);
 		cv.put(OrderTransactionTable.COLUMN_CLOSE_STAFF, closeStaffId);
-		cv.put(SessionTable.COLUMN_CLOSE_DATE, Util.getDateTime().getTimeInMillis());
+		cv.put(SessionTable.COLUMN_CLOSE_DATE, Util.getCalendar().getTimeInMillis());
 		
 		getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, cv, 
 				SessionTable.COLUMN_IS_ENDDAY + "=? " +
@@ -105,7 +105,7 @@ public class SessionDao extends MPOSDatabase{
 			double openAmount){
 		int sessionId = getMaxSessionId();
 		Calendar date = Util.getDate();
-		Calendar dateTime = Util.getDateTime();
+		Calendar dateTime = Util.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_SESS_ID, sessionId);
 		cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
@@ -146,7 +146,7 @@ public class SessionDao extends MPOSDatabase{
 	 */
 	public long addSessionEnddayDetail(String sessionDate, double totalQtyReceipt, 
 			double totalAmountReceipt) throws SQLException {
-		Calendar dateTime = Util.getDateTime();
+		Calendar dateTime = Util.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_SESS_DATE, sessionDate);
 		cv.put(SessionDetailTable.COLUMN_ENDDAY_DATE, dateTime.getTimeInMillis());
@@ -164,7 +164,7 @@ public class SessionDao extends MPOSDatabase{
 	 */
 	public int closeSession(int sessionId, int closeStaffId, 
 			double closeAmount, boolean isEndday){
-		Calendar dateTime = Util.getDateTime();
+		Calendar dateTime = Util.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_CLOSE_STAFF, closeStaffId);
 		cv.put(SessionTable.COLUMN_CLOSE_DATE, dateTime.getTimeInMillis());

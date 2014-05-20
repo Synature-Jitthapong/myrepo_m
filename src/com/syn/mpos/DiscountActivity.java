@@ -164,7 +164,7 @@ public class DiscountActivity extends Activity{
 				discount = mOrder.getTotalRetailPrice() * discount / 100;
 			}	
 			discount = MPOSUtil.roundingPrice(discount);
-			double totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - discount;
+			double totalPriceAfterDiscount = MPOSUtil.roundingPrice(mOrder.getTotalRetailPrice() - discount);
 			mTransaction.discountEatchProduct(mTransactionId, 
 					mOrder.getOrderDetailId(), mOrder.getVatType(),
 					mProduct.getVatRate(mOrder.getProductId()), 
@@ -247,12 +247,12 @@ public class DiscountActivity extends Activity{
 	private void summary() {
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
 				mTransaction.getSummaryOrderForDiscount(mTransactionId);
-		mTotalPrice = mTransaction.getTransaction(mTransactionId).getTransactionVatable();
 		double totalVatExcluded = summOrder.getVatExclude();
 		if(totalVatExcluded > 0)
 			mLayoutVat.setVisibility(View.VISIBLE);
 		else
 			mLayoutVat.setVisibility(View.GONE);
+		mTotalPrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
 		mTxtTotalVatExc.setText(sGlobal.currencyFormat(totalVatExcluded));
 		mTxtSubTotal.setText(sGlobal.currencyFormat(summOrder.getTotalRetailPrice()));
 		mTxtTotalDiscount.setText(sGlobal.currencyFormat(summOrder.getPriceDiscount()));

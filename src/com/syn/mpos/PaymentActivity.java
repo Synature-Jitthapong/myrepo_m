@@ -11,8 +11,10 @@ import cn.wintec.wtandroidjar2.Drw;
 import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.R;
 import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.MPOSOrderTransaction;
 import com.syn.mpos.dao.PaymentAmountButtonDao;
 import com.syn.mpos.dao.PaymentDao;
+import com.syn.mpos.dao.ShopDao;
 import com.syn.mpos.dao.TransactionDao;
 import com.syn.pos.Payment;
 
@@ -180,7 +182,9 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	}
 	
 	private void summary(){ 
-		mTotalSalePrice = mOrders.getTransaction(mTransactionId).getTransactionVatable();
+		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
+				mOrders.getSummaryOrder(mTransactionId);
+		mTotalSalePrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
 		displayTotalPrice();
 	}
 	
@@ -309,6 +313,10 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			mDrw.DRW_Open();
 			
 			mOrders.closeTransaction(mTransactionId, mStaffId);
+			
+			ShopDao shop = new ShopDao(this);
+			mOrders.updateTransactionVatable(mTransactionId, mTotalSalePrice, 
+					shop.getCompanyVatRate(), shop.getCompanyVatType());
 			
 			mChange = mTotalPaid - mTotalSalePrice;
 			

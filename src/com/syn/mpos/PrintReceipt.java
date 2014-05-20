@@ -97,7 +97,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		MPOSOrderTransaction trans = mOrders.getTransaction(transactionId);
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrder(transactionId);
 		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-		double change = mPayment.getTotalPaid(transactionId) - trans.getTransactionVatable();
+		double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice() + summOrder.getVatExclude());
 
 		mPrinter = new Print(mContext.getApplicationContext());
 		mPrinter.setStatusChangeEventCallback(this);
@@ -141,7 +141,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 			}
 			
 			String saleDate = mContext.getString(R.string.date) + " " +
-					mGlobal.dateTimeFormat(Util.getDateTime().getTime());
+					mGlobal.dateTimeFormat(Util.getCalendar().getTime());
 			String receiptNo = mContext.getString(R.string.receipt_no) + " " +
 					trans.getReceiptNo();
 			String cashCheer = mContext.getString(R.string.cashier) + " " +
@@ -194,7 +194,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    			mGlobal.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 	    	
 	    	String strTotalRetailPrice = mGlobal.currencyFormat(summOrder.getTotalRetailPrice());
-	    	String strTransVatable = mGlobal.currencyFormat(trans.getTransactionVatable());
+	    	String strTotalSale = mGlobal.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
 	    	String strTotalDiscount = "-" + mGlobal.currencyFormat(summOrder.getPriceDiscount());
 	    	String strTotalChange = mGlobal.currencyFormat(change);
 	    	String strBeforeVat = mGlobal.currencyFormat(beforVat);
@@ -226,8 +226,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    	
 	    	// total price
 	    	builder.addText(totalText);
-	    	builder.addText(createHorizontalSpace(totalText.length() + strTransVatable.length()));
-	    	builder.addText(strTransVatable + "\n");
+	    	builder.addText(createHorizontalSpace(totalText.length() + strTotalSale.length()));
+	    	builder.addText(strTotalSale + "\n");
 
 	    	// total payment
 	    	List<Payment.PaymentDetail> paymentLst = 
@@ -347,7 +347,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		MPOSOrderTransaction trans = mOrders.getTransaction(transactionId);
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrder(transactionId);
 		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-		double change = mPayment.getTotalPaid(transactionId) - trans.getTransactionVatable();
+		double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice() + summOrder.getVatExclude());
 		
 		// add void header
 		if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID){
@@ -368,7 +368,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		}
 		
 		String saleDate = mContext.getString(R.string.date) + " " +
-				mGlobal.dateTimeFormat(Util.getDateTime().getTime());
+				mGlobal.dateTimeFormat(Util.getCalendar().getTime());
 		String receiptNo = mContext.getString(R.string.receipt_no) + " " +
 				trans.getReceiptNo();
 		String cashCheer = mContext.getString(R.string.cashier) + " " +
@@ -420,7 +420,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     			mGlobal.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
     	
     	String strTotalRetailPrice = mGlobal.currencyFormat(summOrder.getTotalRetailPrice());
-    	String strTransVatable = mGlobal.currencyFormat(trans.getTransactionVatable());
+    	String strTotalSale = mGlobal.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
     	String strTotalDiscount = "-" + mGlobal.currencyFormat(summOrder.getPriceDiscount());
     	String strTotalChange = mGlobal.currencyFormat(change);
     	String strBeforeVat = mGlobal.currencyFormat(beforVat);
@@ -452,8 +452,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     	
     	// total price
     	builder.append(totalText);
-    	builder.append(createHorizontalSpace(totalText.length() + strTransVatable.length()));
-    	builder.append(strTransVatable + "\n");
+    	builder.append(createHorizontalSpace(totalText.length() + strTotalSale.length()));
+    	builder.append(strTotalSale + "\n");
 
     	// total payment
     	List<Payment.PaymentDetail> paymentLst = 

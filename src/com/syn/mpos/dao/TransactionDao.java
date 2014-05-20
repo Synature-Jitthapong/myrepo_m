@@ -53,6 +53,63 @@ public class TransactionDao extends MPOSDatabase {
 	}
 
 	/**
+	 * @param saleDate
+	 * @return MPOSOrderTransaction
+	 */
+	public MPOSOrderTransaction getTransaction(String saleDate) {
+		MPOSOrderTransaction trans = new MPOSOrderTransaction();
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+				+ ComputerTable.COLUMN_COMPUTER_ID + ", "
+				+ " SUM(" + OrderTransactionTable.COLUMN_TRANS_VATABLE + ")"
+				+ " AS " + OrderTransactionTable.COLUMN_TRANS_VATABLE + ","
+				+ " SUM(" + OrderTransactionTable.COLUMN_TRANS_VAT + ")"
+				+ " AS " + OrderTransactionTable.COLUMN_TRANS_VAT + ","
+				+ " SUM(" + OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT + ")"
+				+ " AS " + OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT + ","
+				+ OrderTransactionTable.COLUMN_STATUS_ID + ","
+				+ OrderTransactionTable.COLUMN_PAID_TIME + ","
+				+ OrderTransactionTable.COLUMN_VOID_TIME + ","
+				+ OrderTransactionTable.COLUMN_VOID_STAFF_ID + ","
+				+ OrderTransactionTable.COLUMN_VOID_REASON + ","
+				+ OrderTransactionTable.COLUMN_RECEIPT_NO + ","
+				+ OrderTransactionTable.COLUMN_OPEN_STAFF + ", "
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?",
+				new String[] {saleDate});
+		if (cursor != null) {
+			if (cursor.moveToFirst()) {
+				trans.setTransactionId(cursor.getInt(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
+				trans.setTransactionVatable(cursor.getDouble(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)));
+				trans.setTransactionVat(cursor.getDouble(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT)));
+				trans.setTransactionVatExclude(cursor.getDouble(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT)));
+				trans.setComputerId(cursor.getInt(cursor
+						.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+				trans.setTransactionStatusId(cursor.getInt(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_STATUS_ID)));
+				trans.setPaidTime(cursor.getString(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_PAID_TIME)));
+				trans.setVoidTime(cursor.getString(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_VOID_TIME)));
+				trans.setVoidStaffId(cursor.getInt(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_VOID_STAFF_ID)));
+				trans.setVoidReason(cursor.getString(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_VOID_REASON)));
+				trans.setReceiptNo(cursor.getString(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
+				trans.setOpenStaffId(cursor.getInt(cursor
+						.getColumnIndex(OrderTransactionTable.COLUMN_OPEN_STAFF)));
+			}
+			cursor.close();
+		}
+		return trans;
+	}
+	
+	/**
 	 * @param transactionId
 	 * @param computerId
 	 * @return MPOSOrderTransaction
@@ -156,13 +213,58 @@ public class TransactionDao extends MPOSDatabase {
 	}
 
 	/**
+	 * Get summary order by sale date
+	 * @param saleDate
+	 * @return MPOSOrderTransaction.MPOSOrderDetail
+	 */
+	public MPOSOrderTransaction.MPOSOrderDetail getSummaryOrder(
+			String saleDate) {
+		MPOSOrderTransaction.MPOSOrderDetail orderDetail = 
+				new MPOSOrderTransaction.MPOSOrderDetail();
+		String sql = "SELECT SUM (" + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " 
+				+ OrderDetailTable.COLUMN_ORDER_QTY + ", "
+				+ " SUM (" + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS " 
+				+ OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
+				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " 
+				+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
+				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS " 
+				+ OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", " 
+				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT + ") AS " 
+				+ OrderDetailTable.COLUMN_TOTAL_VAT + ", "
+				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") AS " 
+				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE
+				+ " FROM " + OrderDetailTable.TABLE_ORDER 
+				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				sql, new String[] {saleDate});
+		if (cursor.moveToFirst()) {
+			orderDetail.setQty(cursor.getDouble(cursor
+					.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+			orderDetail.setPriceDiscount(cursor.getDouble(cursor
+					.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
+			orderDetail
+					.setTotalRetailPrice(cursor.getDouble(cursor
+							.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
+			orderDetail.setTotalSalePrice(cursor.getDouble(cursor
+					.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
+			orderDetail.setVat(cursor.getDouble(cursor
+					.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT)));
+			orderDetail
+					.setVatExclude(cursor.getDouble(cursor
+							.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE)));
+		}
+		cursor.close();
+		return orderDetail;
+	}
+	
+	/**
 	 * Get summary order
 	 * 
 	 * @param transactionId
 	 * @return
 	 */
 	public MPOSOrderTransaction.MPOSOrderDetail getSummaryOrder(
-			int transactionId, boolean ignoreNoVat) {
+			int transactionId) {
 		MPOSOrderTransaction.MPOSOrderDetail orderDetail = 
 				new MPOSOrderTransaction.MPOSOrderDetail();
 		String sql = "SELECT SUM (" + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " 
@@ -179,9 +281,6 @@ public class TransactionDao extends MPOSDatabase {
 				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE
 				+ " FROM " + OrderDetailTable.TABLE_ORDER 
 				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?";
-		if(ignoreNoVat){
-			sql += " AND " + ProductsTable.COLUMN_VAT_TYPE + "=" + ProductsDao.NO_VAT; 
-		}
 		Cursor cursor = getReadableDatabase().rawQuery(
 				sql, new String[] { String.valueOf(transactionId) });
 		if (cursor.moveToFirst()) {
@@ -204,6 +303,87 @@ public class TransactionDao extends MPOSDatabase {
 		return orderDetail;
 	}
 
+	public String getMaxReceiptNo(String saleDate){
+		String receiptNo = "";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + OrderTransactionTable.COLUMN_RECEIPT_NO
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?" 
+				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) "
+				+ " ORDER BY " + OrderTransactionTable.COLUMN_TRANSACTION_ID
+				+ " DESC LIMIT 1", new String[]{
+						saleDate, 
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+					});
+		if(cursor.moveToFirst()){
+			receiptNo = cursor.getString(0);
+		}
+		cursor.close();
+		return receiptNo;
+	}
+	
+	public String getMinReceiptNo(String saleDate){
+		String receiptNo = "";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + OrderTransactionTable.COLUMN_RECEIPT_NO
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?" 
+				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) "
+				+ " ORDER BY " + OrderTransactionTable.COLUMN_TRANSACTION_ID
+				+ " ASC LIMIT 1", new String[]{
+						saleDate, 
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+					});
+		if(cursor.moveToFirst()){
+			receiptNo = cursor.getString(0);
+		}
+		cursor.close();
+		return receiptNo;
+	}
+	
+	private MPOSOrderTransaction.MPOSOrderDetail getSummaryOrderIgnoreNoVat(
+			int transactionId) {
+		MPOSOrderTransaction.MPOSOrderDetail orderDetail = 
+				new MPOSOrderTransaction.MPOSOrderDetail();
+		String sql = "SELECT SUM (" + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " 
+				+ OrderDetailTable.COLUMN_ORDER_QTY + ", "
+				+ " SUM (" + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS " 
+				+ OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
+				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " 
+				+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
+				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS " 
+				+ OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", " 
+				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT + ") AS " 
+				+ OrderDetailTable.COLUMN_TOTAL_VAT + ", "
+				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") AS " 
+				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE
+				+ " FROM " + OrderDetailTable.TABLE_ORDER 
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
+				+ " AND " + ProductsTable.COLUMN_VAT_TYPE + " != ?";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				sql, new String[] { String.valueOf(transactionId), String.valueOf(ProductsDao.NO_VAT) });
+		if (cursor.moveToFirst()) {
+			orderDetail.setQty(cursor.getDouble(cursor
+					.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+			orderDetail.setPriceDiscount(cursor.getDouble(cursor
+					.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
+			orderDetail
+					.setTotalRetailPrice(cursor.getDouble(cursor
+							.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
+			orderDetail.setTotalSalePrice(cursor.getDouble(cursor
+					.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
+			orderDetail.setVat(cursor.getDouble(cursor
+					.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT)));
+			orderDetail
+					.setVatExclude(cursor.getDouble(cursor
+							.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE)));
+		}
+		cursor.close();
+		return orderDetail;
+	}
+	
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
@@ -647,7 +827,7 @@ public class TransactionDao extends MPOSDatabase {
 		int transactionId = getMaxTransaction();
 		Calendar date = Calendar.getInstance();
 		date.setTimeInMillis(Long.parseLong(saleDate));
-		Calendar dateTime = Util.getDateTime();
+		Calendar dateTime = Util.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(BaseColumn.COLUMN_UUID, getUUID());
 		cv.put(OrderTransactionTable.COLUMN_TRANSACTION_ID, transactionId);
@@ -678,7 +858,7 @@ public class TransactionDao extends MPOSDatabase {
 	 */
 	public int closeTransaction(int transactionId, int staffId) {
 		Calendar date = Util.getDate();
-		Calendar dateTime = Util.getDateTime();
+		Calendar dateTime = Util.getCalendar();
 		int receiptId = getMaxReceiptId(date.get(Calendar.YEAR),
 				date.get(Calendar.MONTH) + 1);
 		ContentValues cv = new ContentValues();
@@ -858,16 +1038,29 @@ public class TransactionDao extends MPOSDatabase {
 	}
 
 	/**
+	 * Update after payment
+	 * @param transactionId
+	 * @param totalPayment
+	 * @param vatRate
+	 * @return rows affected
+	 */
+	public int updateTransactionVatable(int transactionId, double totalPayment, double vatRate, int vatType){
+		double vatable = totalPayment; //Util.calculateVatable(totalPayment, vatRate, vatType); 
+		ContentValues cv = new ContentValues();
+		cv.put(OrderTransactionTable.COLUMN_TRANS_VATABLE, vatable);
+		return getWritableDatabase().update(OrderTransactionTable.TABLE_ORDER_TRANS, cv, 
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", new String[]{String.valueOf(transactionId)});
+	}
+	
+	/**
 	 * @param transactionId
 	 * @param totalSalePrice
 	 * @return row affected
 	 */
 	protected int updateTransactionVat(int transactionId) {
-		MPOSOrderTransaction.MPOSOrderDetail summOrder = getSummaryOrder(transactionId, true);
-		double vatable = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
+		MPOSOrderTransaction.MPOSOrderDetail summOrder = getSummaryOrderIgnoreNoVat(transactionId);
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_TRANS_VAT, summOrder.getVat());
-		cv.put(OrderTransactionTable.COLUMN_TRANS_VATABLE, vatable);
 		cv.put(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT, summOrder.getVatExclude());
 		return getWritableDatabase().update(
 				OrderTransactionTable.TABLE_ORDER_TRANS, cv,
@@ -1122,7 +1315,7 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderTransactionTable.COLUMN_VOID_STAFF_ID, staffId);
 		cv.put(OrderTransactionTable.COLUMN_VOID_REASON, reason);
 		cv.put(BaseColumn.COLUMN_SEND_STATUS, MPOSDatabase.NOT_SEND);
-		cv.put(OrderTransactionTable.COLUMN_VOID_TIME, Util.getDateTime()
+		cv.put(OrderTransactionTable.COLUMN_VOID_TIME, Util.getCalendar()
 				.getTimeInMillis());
 		return getWritableDatabase().update(
 				OrderTransactionTable.TABLE_ORDER_TRANS, cv,

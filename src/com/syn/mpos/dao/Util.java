@@ -22,16 +22,6 @@ public class Util {
 				c.get(Calendar.DAY_OF_MONTH));
 	}
 	
-	public static Calendar getDateTime(){
-		Calendar c = getCalendar();
-		return new GregorianCalendar(c.get(Calendar.YEAR), 
-				c.get(Calendar.MONTH), 
-				c.get(Calendar.DAY_OF_MONTH), 
-				c.get(Calendar.HOUR_OF_DAY), 
-				c.get(Calendar.MINUTE), 
-				c.get(Calendar.SECOND));
-	}
-	
 	public static String dateTimeFormat(String time, String pattern){
 		String format = "";
 		Calendar calendar;
@@ -48,12 +38,21 @@ public class Util {
 		return format;
 	}
 	
+	public static double calculateVatable(double totalPrice, double vatRate, int vatType){
+		if(vatType == ProductsDao.VAT_TYPE_INCLUDED)
+			return totalPrice * 100 / (100 + vatRate);
+		else if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
+			return totalPrice * (100 + vatRate) / 100;
+		else
+			return totalPrice;
+	}
+	
 	public static double calculateVatAmount(double totalPrice, double vatRate, int vatType){
 		if(vatType == ProductsDao.VAT_TYPE_INCLUDED)
 			return totalPrice * vatRate / (100 + vatRate);
 		else if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
 			return totalPrice * vatRate / 100;
 		else
-			return totalPrice * vatRate;
+			return 0;
 	}
 }

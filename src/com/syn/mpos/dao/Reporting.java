@@ -50,6 +50,82 @@ public class Reporting extends MPOSDatabase{
 		super(context);
 	}
 	
+	/**
+	 * For create Summary By Sale Day
+	 * @param saleDate
+	 * @return List<SimpleProductData> 
+	 */
+	public List<SimpleProductData> listSummaryByProductDept(String saleDate){
+		List<SimpleProductData> simpleLst = new ArrayList<SimpleProductData>();
+		Cursor mainCursor = getReadableDatabase().rawQuery(
+				"SELECT SUM(b." + OrderDetailTable.COLUMN_ORDER_QTY + ")"
+				+ " AS " + OrderDetailTable.COLUMN_ORDER_QTY + ","
+				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
+				+ " AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ","
+				+ " d." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ", "
+				+ " d." + ProductsTable.COLUMN_PRODUCT_DEPT_ID
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
+				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
+				+ " ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "="
+				+ " b." + OrderTransactionTable.COLUMN_TRANSACTION_ID 
+				+ " LEFT JOIN " + ProductsTable.TABLE_PRODUCTS + " c "
+				+ " ON b." + ProductsTable.COLUMN_PRODUCT_ID + "="
+				+ " c." + ProductsTable.COLUMN_PRODUCT_ID
+				+ " LEFT JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " d "
+				+ " ON c." + ProductsTable.COLUMN_PRODUCT_DEPT_ID
+				+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
+				+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID + "=?"
+				+ " GROUP BY d." + ProductsTable.COLUMN_PRODUCT_DEPT_ID,
+				new String[]{
+						saleDate,
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+				});
+		if(mainCursor.moveToFirst()){
+			do{
+				SimpleProductData sp = new SimpleProductData();
+				sp.setDeptTotalQty(mainCursor.getInt(mainCursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+				sp.setDeptTotalPrice(mainCursor.getDouble(mainCursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
+				sp.setDeptName(mainCursor.getString(mainCursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME)));
+				
+				Cursor detailCursor = getReadableDatabase().rawQuery(
+						"SELECT SUM(b." + OrderDetailTable.COLUMN_ORDER_QTY + ") "
+						+ " AS " + OrderDetailTable.COLUMN_ORDER_QTY + ","
+						+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ")"
+						+ " AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
+						+ " c." + ProductsTable.COLUMN_PRODUCT_NAME
+						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
+						+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
+						+ " ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "="
+						+ " b." + OrderTransactionTable.COLUMN_TRANSACTION_ID 
+						+ " LEFT JOIN " + ProductsTable.TABLE_PRODUCTS + " c "
+						+ " ON b." + ProductsTable.COLUMN_PRODUCT_ID + "="
+						+ " c." + ProductsTable.COLUMN_PRODUCT_ID
+						+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
+						+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID + "=?"
+						+ " AND c." + ProductsTable.COLUMN_PRODUCT_DEPT_ID + "=?"
+						+ " GROUP BY c." + ProductsTable.COLUMN_PRODUCT_ID, 
+						new String[]{
+								saleDate,
+								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+								String.valueOf(mainCursor.getInt(mainCursor.getColumnIndex(ProductsTable.COLUMN_PRODUCT_DEPT_ID)))
+						});
+				if(detailCursor.moveToFirst()){
+					do{
+						SimpleProductData.Item item = new SimpleProductData.Item();
+						item.setItemName(detailCursor.getString(detailCursor.getColumnIndex(ProductsTable.COLUMN_PRODUCT_NAME)));
+						item.setTotalQty(detailCursor.getInt(detailCursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+						item.setTotalPrice(detailCursor.getDouble(detailCursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
+						sp.getItemLst().add(item);
+					}while(detailCursor.moveToNext());
+				}
+				simpleLst.add(sp);
+				detailCursor.close();
+			}while(mainCursor.moveToNext());
+		}
+		mainCursor.close();
+		return simpleLst;
+	}
+	
 	public double getTotalPayByPayType(int transactionId, int payTypeId){
 		double totalPay = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(
@@ -486,5 +562,73 @@ public class Reporting extends MPOSDatabase{
 				COLUMN_PRODUCT_SUMM_SUB_TOTAL + " REAL, " +
 				COLUMN_PRODUCT_SUMM_DISCOUNT + " REAL, " +
 				COLUMN_PRODUCT_SUMM_TOTAL_PRICE + " REAL);"); 
+	}
+	
+	/**
+	 * @author j1tth4
+	 * Create for Summary Sale By Day
+	 */
+	public static class SimpleProductData{
+		private String deptName;
+		private int deptTotalQty;
+		private double deptTotalPrice;
+		private List<Item> itemLst = new ArrayList<Item>();
+		
+		public String getDeptName() {
+			return deptName;
+		}
+
+		public void setDeptName(String deptName) {
+			this.deptName = deptName;
+		}
+
+		public int getDeptTotalQty() {
+			return deptTotalQty;
+		}
+
+		public void setDeptTotalQty(int deptTotalQty) {
+			this.deptTotalQty = deptTotalQty;
+		}
+
+		public double getDeptTotalPrice() {
+			return deptTotalPrice;
+		}
+
+		public void setDeptTotalPrice(double deptTotalPrice) {
+			this.deptTotalPrice = deptTotalPrice;
+		}
+
+		public List<Item> getItemLst() {
+			return itemLst;
+		}
+
+		public void setItemLst(List<Item> itemLst) {
+			this.itemLst = itemLst;
+		}
+
+		public static class Item{
+			private String itemName;
+			private int totalQty;
+			private double totalPrice;
+			
+			public String getItemName() {
+				return itemName;
+			}
+			public void setItemName(String itemName) {
+				this.itemName = itemName;
+			}
+			public int getTotalQty() {
+				return totalQty;
+			}
+			public void setTotalQty(int totalQty) {
+				this.totalQty = totalQty;
+			}
+			public double getTotalPrice() {
+				return totalPrice;
+			}
+			public void setTotalPrice(double totalPrice) {
+				this.totalPrice = totalPrice;
+			}
+		}
 	}
 }

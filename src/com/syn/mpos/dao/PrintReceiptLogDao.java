@@ -85,7 +85,7 @@ public class PrintReceiptLogDao extends MPOSDatabase{
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_TRANSACTION_ID, transactionId);
 		cv.put(StaffTable.COLUMN_STAFF_ID, staffId);
-		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME, Util.getDateTime().getTimeInMillis());
+		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME, Util.getCalendar().getTimeInMillis());
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS, PRINT_NOT_SUCCESS);
 		getWritableDatabase().insertOrThrow(PrintReceiptLogTable.TABLE_PRINT_LOG, null, cv);
 	}

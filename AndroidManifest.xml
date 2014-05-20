@@ -9,14 +9,15 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17" />
 
     <supports-screens
-        android:smallScreens="false" android:requiresSmallestWidthDp="1024"/>
+        android:requiresSmallestWidthDp="1024"
+        android:smallScreens="false" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -41,7 +42,8 @@
             android:name="com.syn.mpos.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" ><intent-filter>
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" >
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -84,7 +86,6 @@
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>
-
         <activity
             android:name="com.syn.mpos.AboutActivity"
             android:label="@string/title_activity_about"
@@ -93,7 +94,8 @@
         <activity
             android:name="com.syn.mpos.PaymentActivity"
             android:label="@string/payment"
-            android:screenOrientation="landscape" android:theme="@style/ActivityDialogTheme">
+            android:screenOrientation="landscape"
+            android:theme="@style/ActivityDialogTheme" >
         </activity>
         <activity
             android:name="com.syn.mpos.CreditPayActivity"
@@ -114,15 +116,25 @@
         </activity>
         <activity
             android:name="com.syn.mpos.ProductSetActivity"
-            android:label="@string/title_activity_product_set" android:screenOrientation="landscape">
+            android:label="@string/title_activity_product_set"
+            android:screenOrientation="landscape" >
         </activity>
-        <receiver android:enabled="true" android:name=".BootUpReceiver"
-			android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
-			<intent-filter>
-			    <action android:name="android.intent.action.BOOT_COMPLETED" />
-			    <category android:name="android.intent.category.DEFAULT" />
-			</intent-filter>
- 		</receiver>
+
+        <receiver
+            android:name="com.syn.mpos.BootUpReceiver"
+            android:enabled="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name="com.syn.mpos.EnddayActivity"
+            android:label="@string/title_activity_endday" >
+        </activity>
     </application>
 
 </manifest>

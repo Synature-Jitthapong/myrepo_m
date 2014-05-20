@@ -272,6 +272,12 @@ public class MainActivity extends FragmentActivity{
 			intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 			return true;
+		/*
+		 * Test
+		 */
+		case R.id.itemTestPrintSummary:
+			new PrintSummarySale(this, mStaffId).execute();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -870,7 +876,7 @@ public class MainActivity extends FragmentActivity{
 		
 		sTransaction.summary(mTransactionId);
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
-				sTransaction.getSummaryOrder(mTransactionId, false);
+				sTransaction.getSummaryOrder(mTransactionId);
 		
 		TableRow rowSubTotal = new TableRow(MainActivity.this);
 		tvLabel = new TextView(MainActivity.this);
@@ -917,7 +923,7 @@ public class MainActivity extends FragmentActivity{
 			sTbSummary.addView(rowExcludeVat);
 		}
 		
-		TableRow rowGrandTotal = new TableRow(MainActivity.this);
+		TableRow rowTotalSale = new TableRow(MainActivity.this);
 		tvLabel = new TextView(MainActivity.this);
 		tvValue = new TextView(MainActivity.this);
 		tvLabel.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 
@@ -926,12 +932,11 @@ public class MainActivity extends FragmentActivity{
 		tvValue.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Medium);
 		tvValue.setGravity(Gravity.RIGHT);
 		tvLabel.setText(R.string.total);
-		MPOSOrderTransaction trans = sTransaction.getTransaction(mTransactionId);
-		tvValue.setText(sGlobal.currencyFormat(trans.getTransactionVatable()));
+		tvValue.setText(sGlobal.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude()));
 		tvValue.setTextSize(32);
-		rowGrandTotal.addView(tvLabel);
-		rowGrandTotal.addView(tvValue);
-		sTbSummary.addView(rowGrandTotal);
+		rowTotalSale.addView(tvLabel);
+		rowTotalSale.addView(tvValue);
+		sTbSummary.addView(rowTotalSale);
 	}
 	
 	public void clearBillClicked(final View v){
