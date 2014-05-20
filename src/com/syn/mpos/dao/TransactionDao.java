@@ -53,6 +53,29 @@ public class TransactionDao extends MPOSDatabase {
 	}
 
 	/**
+	 * get transactionIds in day
+	 * @param saleDate
+	 * @return transId like "1,2,3"
+	 */
+	public String getSeperateTransactionId(String saleDate){
+		String transactionIds = "";
+		Cursor cursor = getReadableDatabase().query(
+				OrderTransactionTable.TABLE_ORDER_TRANS, 
+				new String[]{OrderTransactionTable.COLUMN_TRANSACTION_ID}, 
+				OrderTransactionTable.COLUMN_SALE_DATE + "=?", 
+				new String[]{saleDate}, null, null, null);
+		if(cursor.moveToFirst()){
+			do{
+				transactionIds += cursor.getString(0);
+				if(!cursor.isLast())
+					transactionIds += ",";
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return transactionIds;
+	}
+	
+	/**
 	 * @param saleDate
 	 * @return MPOSOrderTransaction
 	 */
@@ -73,7 +96,7 @@ public class TransactionDao extends MPOSDatabase {
 				+ OrderTransactionTable.COLUMN_VOID_STAFF_ID + ","
 				+ OrderTransactionTable.COLUMN_VOID_REASON + ","
 				+ OrderTransactionTable.COLUMN_RECEIPT_NO + ","
-				+ OrderTransactionTable.COLUMN_OPEN_STAFF + ", "
+				+ OrderTransactionTable.COLUMN_OPEN_STAFF
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
 				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?",
 				new String[] {saleDate});
@@ -221,20 +244,22 @@ public class TransactionDao extends MPOSDatabase {
 			String saleDate) {
 		MPOSOrderTransaction.MPOSOrderDetail orderDetail = 
 				new MPOSOrderTransaction.MPOSOrderDetail();
-		String sql = "SELECT SUM (" + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " 
+		String sql = "SELECT SUM (b." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " 
 				+ OrderDetailTable.COLUMN_ORDER_QTY + ", "
-				+ " SUM (" + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS " 
+				+ " SUM (b." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS " 
 				+ OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
-				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " 
+				+ " SUM (b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " 
 				+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
-				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS " 
+				+ " SUM (b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS " 
 				+ OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", " 
-				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT + ") AS " 
+				+ " SUM (b." + OrderDetailTable.COLUMN_TOTAL_VAT + ") AS " 
 				+ OrderDetailTable.COLUMN_TOTAL_VAT + ", "
-				+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") AS " 
+				+ " SUM (b." + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") AS " 
 				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE
-				+ " FROM " + OrderDetailTable.TABLE_ORDER 
-				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?";
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a " 
+				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
+				+ " ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=b." + OrderTransactionTable.COLUMN_TRANSACTION_ID
+				+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?";
 		Cursor cursor = getReadableDatabase().rawQuery(
 				sql, new String[] {saleDate});
 		if (cursor.moveToFirst()) {
@@ -1045,7 +1070,7 @@ public class TransactionDao extends MPOSDatabase {
 	 * @return rows affected
 	 */
 	public int updateTransactionVatable(int transactionId, double totalPayment, double vatRate, int vatType){
-		double vatable = totalPayment; //Util.calculateVatable(totalPayment, vatRate, vatType); 
+		double vatable = Util.calculateVatPrice(totalPayment, vatRate, vatType); 
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_TRANS_VATABLE, vatable);
 		return getWritableDatabase().update(OrderTransactionTable.TABLE_ORDER_TRANS, cv, 
@@ -1323,6 +1348,16 @@ public class TransactionDao extends MPOSDatabase {
 				new String[] { String.valueOf(transactionId) });
 	}
 
+	public MPOSOrderTransaction getSummaryVoidTransaction(String saleDate){
+		MPOSOrderTransaction trans = new MPOSOrderTransaction();
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT COUNT(" + OrderTransactionTable.COLUMN_TRANSACTION_ID + ") "
+				+ " AS " + OrderTransactionTable.COLUMN_TRANSACTION_ID
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS,
+				new String[]{saleDate});
+		return trans;
+	}
+	
 	/**
 	 * @param sessionDate
 	 * @return total receipt specific by sale date

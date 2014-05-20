@@ -38,10 +38,8 @@ public class Util {
 		return format;
 	}
 	
-	public static double calculateVatable(double totalPrice, double vatRate, int vatType){
-		if(vatType == ProductsDao.VAT_TYPE_INCLUDED)
-			return totalPrice * 100 / (100 + vatRate);
-		else if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
+	public static double calculateVatPrice(double totalPrice, double vatRate, int vatType){
+		if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
 			return totalPrice * (100 + vatRate) / 100;
 		else
 			return totalPrice;

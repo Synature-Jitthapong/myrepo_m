@@ -20,11 +20,14 @@ public abstract class WintecPrinter extends PrinterUtility{
 	
 	public WintecPrinter(){
 		mPrinter = new Printer(DEV_PATH, BAUD_RATE);
+		mBuilder = new StringBuilder();
 	}
 	
 	protected void print(){
 		String[] subElement = mBuilder.toString().split("\n");
     	for(String data : subElement){
+    		mPrinter.PRN_EnableBoldFont(0);
+    		mPrinter.PRN_DisableFontUnderline();
 			if(data.contains("<c>")){
 				data = adjustAlignCenter(data.replace("<c>", ""));
 			}
@@ -32,9 +35,9 @@ public abstract class WintecPrinter extends PrinterUtility{
 				mPrinter.PRN_EnableBoldFont(1);
 				data = data.replace("<b>", "");
 			}
-			if(data.contains("<l>")){
+			if(data.contains("<u>")){
 				mPrinter.PRN_EnableFontUnderline();
-				data = data.replace("<l>", "");
+				data = data.replace("<u>", "");
 			}
     		mPrinter.PRN_Print(data);
 		}

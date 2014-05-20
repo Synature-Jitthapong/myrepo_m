@@ -13,6 +13,7 @@ import com.syn.mpos.dao.ShopDao;
 import com.syn.mpos.dao.StaffDao;
 import com.syn.mpos.dao.TransactionDao;
 import com.syn.mpos.dao.Util;
+import com.syn.pos.Payment;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -50,49 +51,50 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 
 			// header
 			mBuilder.append("<c>" + mContext.getString(R.string.summary_sale_by_day) + "\n");
-			mBuilder.append(mContext.getString(R.string.shop) + " " + mShopDao.getShopProperty().getShopName() + "\n");
+			mBuilder.append("<c>" + mGlobalDao.dateFormat(Util.getDate().getTime()) + "\n");
+			mBuilder.append("<c>" + mContext.getString(R.string.shop) + " " + mShopDao.getShopProperty().getShopName() + "\n");
 			mBuilder.append(mContext.getString(R.string.print_by) + " " + mStaffDao.getStaff(mStaffId).getStaffName() + "\n");
 			mBuilder.append(mContext.getString(R.string.print_date) + " " + mGlobalDao.dateTimeFormat(Util.getCalendar().getTime()) + "\n");
 			
 			// ReceiptNo.
-			mBuilder.append("<l>" + mContext.getString(R.string.receipt_no) + "\n");
-			mBuilder.append(mTransDao.getMinReceiptNo(session.getSessionDate()) + "-\n");
+			mBuilder.append("<u>" + mContext.getString(R.string.receipt_no) + "\n");
+			mBuilder.append(mTransDao.getMinReceiptNo(session.getSessionDate()) + " -\n");
 			mBuilder.append(mTransDao.getMaxReceiptNo(session.getSessionDate()) + "\n\n");
 			
 			// Product Summary
 			List<SimpleProductData> simpleLst = mReport.listSummaryByProductDept(session.getSessionDate());
 			if(simpleLst != null){
 				for(SimpleProductData sp : simpleLst){
-					String deptName = sp.getDeptName() + "     ";
-					String deptTotalQty = mGlobalDao.qtyFormat(sp.getDeptTotalQty());
+					String deptName = sp.getDeptName();
+					String deptTotalQty = mGlobalDao.qtyFormat(sp.getDeptTotalQty()) + "   ";
 					String deptTotalPrice = mGlobalDao.currencyFormat(sp.getDeptTotalPrice());
 					mBuilder.append("<b>" + deptName);
-					mBuilder.append("<b>" + deptTotalQty);
 					mBuilder.append(createHorizontalSpace(deptName.length() + 
 							deptTotalQty.length() + deptTotalPrice.length()));
+					mBuilder.append("<b>" + deptTotalQty);
 					mBuilder.append("<b>" + deptTotalPrice + "\n");
 					if(sp.getItemLst() != null){
 						for(SimpleProductData.Item item : sp.getItemLst()){
-							String itemName = " -" + item.getItemName() + "    ";
-							String itemTotalQty = mGlobalDao.qtyFormat(item.getTotalQty());
+							String itemName = " -" + item.getItemName();
+							String itemTotalQty = mGlobalDao.qtyFormat(item.getTotalQty()) + "   ";
 							String itemTotalPrice = mGlobalDao.currencyFormat(item.getTotalPrice());
 							mBuilder.append(itemName);
-							mBuilder.append(itemTotalQty);
 							mBuilder.append(createHorizontalSpace(itemName.length() + 
 									itemTotalQty.length() + itemTotalPrice.length()));
+							mBuilder.append(itemTotalQty);
 							mBuilder.append(itemTotalPrice + "\n");
 						}
 					}
 					mBuilder.append("\n");
 				}
 				// Sub Total
-				String subTotalText = mContext.getString(R.string.sub_total) + "     ";
-				String subTotalQty = mGlobalDao.qtyFormat(order.getQty());
+				String subTotalText = mContext.getString(R.string.sub_total);
+				String subTotalQty = mGlobalDao.qtyFormat(order.getQty()) + "   ";
 				String subTotalPrice = mGlobalDao.currencyFormat(order.getTotalRetailPrice());
 				mBuilder.append(subTotalText);
-				mBuilder.append(subTotalQty);
 				mBuilder.append(createHorizontalSpace(subTotalText.length() + subTotalQty.length() 
 						+ subTotalPrice.length()));
+				mBuilder.append(subTotalQty);
 				mBuilder.append(subTotalPrice + "\n");
 			}
 			
@@ -103,7 +105,7 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 			
 			mBuilder.append(discountText);
 			mBuilder.append(createHorizontalSpace(discountText.length() + discount.length()));
-			mBuilder.append(discount);
+			mBuilder.append(discount + "\n");
 			mBuilder.append(subTotalText);
 			mBuilder.append(createHorizontalSpace(subTotalText.length() + subTotal.length()));
 			mBuilder.append(subTotal + "\n");
@@ -135,6 +137,25 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 				mBuilder.append(createHorizontalSpace(totalVatText.length() + totalVat.length()));
 				mBuilder.append(totalVat + "\n");
 			}
+			
+			List<Payment.PaymentDetail> summaryPaymentLst = 
+					mPaymentDao.listSummaryPayment(
+							mTransDao.getSeperateTransactionId(session.getSessionDate()));
+			if(summaryPaymentLst != null){
+				mBuilder.append(mContext.getString(R.string.payment_detail) + "\n");
+				for(Payment.PaymentDetail payment : summaryPaymentLst){
+					String payTypeName = payment.getPayTypeName();
+					String payAmount = mGlobalDao.currencyFormat(payment.getPayAmount());
+					mBuilder.append(payTypeName);
+					mBuilder.append(createHorizontalSpace(payTypeName.length() + payAmount.length()));
+					mBuilder.append(payAmount + "\n");
+				}
+			}
+			String totalReceiptInDay = mContext.getString(R.string.total_receipt_in_day);
+			String totalReceipt = String.valueOf(mTransDao.getTotalReceipt(session.getSessionDate()));
+			mBuilder.append(totalReceiptInDay);
+			mBuilder.append(createHorizontalSpace(totalReceiptInDay.length() + totalReceipt.length()));
+			mBuilder.append(totalReceipt);
 		}
 	}
 	

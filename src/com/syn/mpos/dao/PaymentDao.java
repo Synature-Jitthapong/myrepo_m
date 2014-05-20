@@ -8,6 +8,7 @@ import com.syn.mpos.dao.ComputerDao.ComputerTable;
 import com.syn.mpos.dao.CreditCardDao.CreditCardTable;
 import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
 import com.syn.pos.Payment;
+import com.syn.pos.Payment.PaymentDetail;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -22,6 +23,35 @@ public class PaymentDao extends MPOSDatabase {
 
 	public PaymentDao(Context context) {
 		super(context);
+	}
+	
+	/**
+	 * Get summary of payment in sale day
+	 * parameter is transactionId like "1,2,3,4"
+	 * @param transactionIds
+	 * @return List<Payment.PaymentDetail>
+	 */
+	public List<Payment.PaymentDetail> listSummaryPayment(String transactionIds){
+		List<Payment.PaymentDetail> paymentLst = new ArrayList<Payment.PaymentDetail>();
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT b." + PayTypeTable.COLUMN_PAY_TYPE_NAME + ", "
+				+ " SUM(a." + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
+				+ " AS " + PaymentDetailTable.COLUMN_PAY_AMOUNT
+				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " a "
+				+ " LEFT JOIN " + PayTypeTable.TABLE_PAY_TYPE + " b "
+				+ " ON a." + PayTypeTable.COLUMN_PAY_TYPE_ID + "=b." + PayTypeTable.COLUMN_PAY_TYPE_ID
+				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + " IN (" + transactionIds + ")"
+				+ " GROUP BY b." + PayTypeTable.COLUMN_PAY_TYPE_ID, null);
+		if(cursor.moveToFirst()){
+			do{
+				Payment.PaymentDetail payment = new Payment.PaymentDetail();
+				payment.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
+				payment.setPayAmount(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAY_AMOUNT)));
+				paymentLst.add(payment);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return paymentLst;
 	}
 	
 	/**

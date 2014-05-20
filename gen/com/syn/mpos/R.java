@@ -637,6 +637,7 @@ containing a value of this type.
         public static final int pay_detail=0x7f05001b;
         public static final int pay_type=0x7f05001a;
         public static final int payment=0x7f050032;
+        public static final int payment_detail=0x7f05011c;
         public static final int percent=0x7f0500c2;
         public static final int phone_no=0x7f050094;
         public static final int please_select=0x7f050113;
@@ -741,6 +742,7 @@ containing a value of this type.
         public static final int total_bill=0x7f05004c;
         public static final int total_payment=0x7f05001d;
         public static final int total_price=0x7f050014;
+        public static final int total_receipt_in_day=0x7f05011d;
         public static final int total_receive=0x7f050016;
         public static final int total_sale=0x7f05004f;
         public static final int total_vat=0x7f050051;

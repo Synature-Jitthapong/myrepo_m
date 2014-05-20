@@ -58,7 +58,8 @@ public class Reporting extends MPOSDatabase{
 	public List<SimpleProductData> listSummaryByProductDept(String saleDate){
 		List<SimpleProductData> simpleLst = new ArrayList<SimpleProductData>();
 		Cursor mainCursor = getReadableDatabase().rawQuery(
-				"SELECT SUM(b." + OrderDetailTable.COLUMN_ORDER_QTY + ")"
+				"SELECT a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+				+ " SUM(b." + OrderDetailTable.COLUMN_ORDER_QTY + ")"
 				+ " AS " + OrderDetailTable.COLUMN_ORDER_QTY + ","
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
 				+ " AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ","
@@ -88,25 +89,20 @@ public class Reporting extends MPOSDatabase{
 				sp.setDeptName(mainCursor.getString(mainCursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME)));
 				
 				Cursor detailCursor = getReadableDatabase().rawQuery(
-						"SELECT SUM(b." + OrderDetailTable.COLUMN_ORDER_QTY + ") "
+						"SELECT SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ") "
 						+ " AS " + OrderDetailTable.COLUMN_ORDER_QTY + ","
-						+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ")"
+						+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ")"
 						+ " AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
-						+ " c." + ProductsTable.COLUMN_PRODUCT_NAME
-						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
-						+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
-						+ " ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "="
-						+ " b." + OrderTransactionTable.COLUMN_TRANSACTION_ID 
-						+ " LEFT JOIN " + ProductsTable.TABLE_PRODUCTS + " c "
-						+ " ON b." + ProductsTable.COLUMN_PRODUCT_ID + "="
-						+ " c." + ProductsTable.COLUMN_PRODUCT_ID
-						+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
-						+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID + "=?"
-						+ " AND c." + ProductsTable.COLUMN_PRODUCT_DEPT_ID + "=?"
-						+ " GROUP BY c." + ProductsTable.COLUMN_PRODUCT_ID, 
+						+ " b." + ProductsTable.COLUMN_PRODUCT_NAME
+						+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
+						+ " LEFT JOIN " + ProductsTable.TABLE_PRODUCTS + " b "
+						+ " ON a." + ProductsTable.COLUMN_PRODUCT_ID + "="
+						+ " b." + ProductsTable.COLUMN_PRODUCT_ID
+						+ " WHERE a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" 
+						+ " AND b." + ProductsTable.COLUMN_PRODUCT_DEPT_ID + "=?"
+						+ " GROUP BY b." + ProductsTable.COLUMN_PRODUCT_ID, 
 						new String[]{
-								saleDate,
-								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+								String.valueOf(mainCursor.getInt(mainCursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID))),
 								String.valueOf(mainCursor.getInt(mainCursor.getColumnIndex(ProductsTable.COLUMN_PRODUCT_DEPT_ID)))
 						});
 				if(detailCursor.moveToFirst()){
