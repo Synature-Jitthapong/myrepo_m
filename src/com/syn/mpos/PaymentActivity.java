@@ -52,10 +52,8 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	 */
 	private int mResultCreditCode = RESULT_NOT_ENOUGH;
 	
-	/*
-	 * Wintec Cash Drawer 
-	 */
-	private Drw mDrw;
+	private WintecCustomerDisplay mDsp;
+	private WintecCashDrawer mDrw;
 	
 	private PaymentDao mPayment;
 	private TransactionDao mOrders;
@@ -120,10 +118,6 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mPayment = new PaymentDao(getApplicationContext());
 		mGlobal = new GlobalPropertyDao(getApplicationContext());
 		
-		// init drw
-		mDrw = new Drw(MPOSApplication.WINTEC_DEFAULT_DEVICE_PATH,
-				ComIO.Baudrate.valueOf(MPOSApplication.WINTEC_DEFAULT_BAUD_RATE));
-		
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<Payment.PaymentDetail>();
 		mPaymentButtonAdapter = new PaymentButtonAdapter();
@@ -131,6 +125,8 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mLvPayment.setAdapter(mPaymentAdapter);
 		mGvPaymentButton.setAdapter(mPaymentButtonAdapter);
 		loadPayType();
+		mDsp = new WintecCustomerDisplay();
+		mDrw = new WintecCashDrawer();
 	}
 
 	@Override
@@ -157,7 +153,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 
 	@Override
 	protected void onDestroy() {
-		mDrw.DRW_Close();
+		mDrw.close();
 		super.onDestroy();
 	}
 
@@ -185,7 +181,13 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
 				mOrders.getSummaryOrder(mTransactionId);
 		mTotalSalePrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
-		displayTotalPrice();
+
+		mTotalSalePrice = MPOSUtil.roundingPrice(mTotalSalePrice);
+		mTxtTotalPrice.setText(mGlobal.currencyFormat(mTotalSalePrice));
+		
+		mDsp.displayTotalPrice(PaymentActivity.this.getString(R.string.total), 
+				mGlobal.qtyFormat(summOrder.getQty()), 
+				mGlobal.currencyFormat(mTotalSalePrice));
 	}
 	
 	private class PaymentAdapter extends BaseAdapter{
@@ -277,12 +279,6 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		displayEnterPrice();
 	}
 	
-	private void displayTotalPrice(){
-		mTotalSalePrice = MPOSUtil.roundingPrice(mTotalSalePrice);
-		mTxtTotalPrice.setText(mGlobal.currencyFormat(mTotalSalePrice));
-		displayEnterPrice();
-	}
-	
 	private void calculateInputPrice(){
 		try {
 			mTotalPay = MPOSUtil.stringToDouble(mStrTotalPay.toString());
@@ -310,7 +306,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		if(mTotalPaid >=mTotalSalePrice){
 
 			// open cash drawer
-			mDrw.DRW_Open();
+			mDrw.openCashDrawer();
 			
 			mOrders.closeTransaction(mTransactionId, mStaffId);
 			
@@ -319,6 +315,10 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 					shop.getCompanyVatRate(), shop.getCompanyVatType());
 			
 			mChange = mTotalPaid - mTotalSalePrice;
+			
+			mDsp.displayTotalPay(PaymentActivity.this.getString(R.string.pay), 
+					PaymentActivity.this.getString(R.string.change), 
+					mGlobal.currencyFormat(mTotalPaid), mGlobal.currencyFormat(mChange));
 			
 			Intent intent = new Intent();
 			intent.putExtra("change", mChange);

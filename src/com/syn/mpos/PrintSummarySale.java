@@ -26,7 +26,6 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 	private ShopDao mShopDao;
 	private StaffDao mStaffDao;
 	private GlobalPropertyDao mGlobalDao;
-	private Reporting mReport;
 	
 	private int mStaffId;
 	
@@ -37,7 +36,6 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 		mShopDao = new ShopDao(context.getApplicationContext());
 		mStaffDao = new StaffDao(context.getApplicationContext());
 		mGlobalDao = new GlobalPropertyDao(context.getApplicationContext());
-		mReport = new Reporting(context.getApplicationContext());
 		
 		mStaffId = staffId;
 	}
@@ -47,7 +45,8 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 		public void preparedDataToPrint(){
 			SessionDao session = new SessionDao(mContext.getApplicationContext());
 			MPOSOrderTransaction trans = mTransDao.getTransaction(session.getSessionDate()); 
-			MPOSOrderTransaction.MPOSOrderDetail order = mTransDao.getSummaryOrder(session.getSessionDate());
+			MPOSOrderTransaction.MPOSOrderDetail summOrder 
+				= mTransDao.getSummaryOrderInDay(session.getSessionDate());
 
 			// header
 			mBuilder.append("<c>" + mContext.getString(R.string.summary_sale_by_day) + "\n");
@@ -62,12 +61,14 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 			mBuilder.append(mTransDao.getMaxReceiptNo(session.getSessionDate()) + "\n\n");
 			
 			// Product Summary
-			List<SimpleProductData> simpleLst = mReport.listSummaryByProductDept(session.getSessionDate());
+			Reporting report = new Reporting(mContext, session.getSessionDate(), session.getSessionDate());
+			List<SimpleProductData> simpleLst = report.getSummaryProductGroupInDay();
 			if(simpleLst != null){
 				for(SimpleProductData sp : simpleLst){
 					String deptName = sp.getDeptName();
-					String deptTotalQty = mGlobalDao.qtyFormat(sp.getDeptTotalQty()) + "   ";
 					String deptTotalPrice = mGlobalDao.currencyFormat(sp.getDeptTotalPrice());
+					String deptTotalQty = mGlobalDao.qtyFormat(sp.getDeptTotalQty()) + 
+							createQtySpace(deptTotalPrice.length());
 					mBuilder.append("<b>" + deptName);
 					mBuilder.append(createHorizontalSpace(deptName.length() + 
 							deptTotalQty.length() + deptTotalPrice.length()));
@@ -75,9 +76,10 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 					mBuilder.append("<b>" + deptTotalPrice + "\n");
 					if(sp.getItemLst() != null){
 						for(SimpleProductData.Item item : sp.getItemLst()){
-							String itemName = " -" + item.getItemName();
-							String itemTotalQty = mGlobalDao.qtyFormat(item.getTotalQty()) + "   ";
+							String itemName = "-" + item.getItemName();
 							String itemTotalPrice = mGlobalDao.currencyFormat(item.getTotalPrice());
+							String itemTotalQty = mGlobalDao.qtyFormat(item.getTotalQty()) + 
+									createQtySpace(itemTotalPrice.length());
 							mBuilder.append(itemName);
 							mBuilder.append(createHorizontalSpace(itemName.length() + 
 									itemTotalQty.length() + itemTotalPrice.length()));
@@ -85,23 +87,24 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 							mBuilder.append(itemTotalPrice + "\n");
 						}
 					}
-					mBuilder.append("\n");
 				}
 				// Sub Total
+				mBuilder.append("\n");
 				String subTotalText = mContext.getString(R.string.sub_total);
-				String subTotalQty = mGlobalDao.qtyFormat(order.getQty()) + "   ";
-				String subTotalPrice = mGlobalDao.currencyFormat(order.getTotalRetailPrice());
+				String subTotalPrice = mGlobalDao.currencyFormat(summOrder.getTotalRetailPrice());
+				String subTotalQty = mGlobalDao.qtyFormat(summOrder.getQty()) + 
+						createQtySpace(subTotalPrice.length());
 				mBuilder.append(subTotalText);
 				mBuilder.append(createHorizontalSpace(subTotalText.length() + subTotalQty.length() 
 						+ subTotalPrice.length()));
 				mBuilder.append(subTotalQty);
-				mBuilder.append(subTotalPrice + "\n");
+				mBuilder.append(subTotalPrice + "\n\n");
 			}
 			
 			String discountText = mContext.getString(R.string.discount);
-			String discount = mGlobalDao.currencyFormat(order.getPriceDiscount());
+			String discount = mGlobalDao.currencyFormat(summOrder.getPriceDiscount());
 			String subTotalText = mContext.getString(R.string.sub_total) + " ";
-			String subTotal = mGlobalDao.currencyFormat(order.getTotalRetailPrice());
+			String subTotal = mGlobalDao.currencyFormat(summOrder.getTotalSalePrice());
 			
 			mBuilder.append(discountText);
 			mBuilder.append(createHorizontalSpace(discountText.length() + discount.length()));
@@ -111,16 +114,16 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 			mBuilder.append(subTotal + "\n");
 			
 			// Vat Exclude
-			if(order.getVatExclude() > 0){
+			if(summOrder.getVatExclude() > 0){
 				String vatExcludeText = mContext.getString(R.string.vat_exclude);
-				String vatExclude = mGlobalDao.currencyFormat(order.getVatExclude());
+				String vatExclude = mGlobalDao.currencyFormat(summOrder.getVatExclude());
 				mBuilder.append(vatExcludeText);
 				mBuilder.append(createHorizontalSpace(vatExcludeText.length() + vatExclude.length()));
-				mBuilder.append(vatExclude + "\n");
+				mBuilder.append(vatExclude + "\n\n");
 			}
 			
 			String totalSaleText = mContext.getString(R.string.total_sale);
-			String totalSale = mGlobalDao.currencyFormat(order.getTotalSalePrice() + order.getVatExclude());
+			String totalSale = mGlobalDao.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
 			mBuilder.append(totalSaleText);
 			mBuilder.append(createHorizontalSpace(totalSaleText.length() + totalSale.length()));
 			mBuilder.append(totalSale + "\n");
@@ -135,7 +138,7 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 				mBuilder.append(beforeVat + "\n");
 				mBuilder.append(totalVatText);
 				mBuilder.append(createHorizontalSpace(totalVatText.length() + totalVat.length()));
-				mBuilder.append(totalVat + "\n");
+				mBuilder.append(totalVat + "\n\n");
 			}
 			
 			List<Payment.PaymentDetail> summaryPaymentLst = 
@@ -148,14 +151,27 @@ public class PrintSummarySale extends AsyncTask<Void, Void, Void> {
 					String payAmount = mGlobalDao.currencyFormat(payment.getPayAmount());
 					mBuilder.append(payTypeName);
 					mBuilder.append(createHorizontalSpace(payTypeName.length() + payAmount.length()));
-					mBuilder.append(payAmount + "\n");
+					mBuilder.append(payAmount + "\n\n");
 				}
 			}
 			String totalReceiptInDay = mContext.getString(R.string.total_receipt_in_day);
 			String totalReceipt = String.valueOf(mTransDao.getTotalReceipt(session.getSessionDate()));
 			mBuilder.append(totalReceiptInDay);
 			mBuilder.append(createHorizontalSpace(totalReceiptInDay.length() + totalReceipt.length()));
-			mBuilder.append(totalReceipt);
+			mBuilder.append(totalReceipt + "\n\n");
+			
+			MPOSOrderTransaction.MPOSOrderDetail summVoidOrder = 
+					mTransDao.getSummaryVoidOrderInDay(session.getSessionDate());
+			mBuilder.append(mContext.getString(R.string.void_bill) + "\n");
+			String voidBill = mContext.getString(R.string.void_bill_after_paid);
+			String totalVoidPrice = mGlobalDao.currencyFormat(summVoidOrder.getTotalSalePrice());
+			String totalVoidQty = mGlobalDao.qtyFormat(summVoidOrder.getQty()) +
+					createQtySpace(totalVoidPrice.length());
+			mBuilder.append(voidBill);
+			mBuilder.append(createHorizontalSpace(voidBill.length() + totalVoidQty.length() + 
+					totalVoidPrice.length()));
+			mBuilder.append(totalVoidQty);
+			mBuilder.append(totalVoidPrice);
 		}
 	}
 	

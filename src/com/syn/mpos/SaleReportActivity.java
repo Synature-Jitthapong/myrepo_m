@@ -54,8 +54,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	private BillReportAdapter mBillReportAdapter;
 	private ProductReportAdapter mProductReportAdapter;
 	private Calendar mCalendar;
-	private long mDateFrom;
-	private long mDateTo;
+	private String mDateFrom;
+	private String mDateTo;
 	
 	private MenuItem mConditionItem;
 	private Button mBtnDateFrom;
@@ -92,8 +92,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-		mDateFrom = mCalendar.getTimeInMillis();
-		mDateTo = mCalendar.getTimeInMillis();
+		mDateFrom = String.valueOf(mCalendar.getTimeInMillis());
+		mDateTo = String.valueOf(mCalendar.getTimeInMillis());
 		
 		mReport = new Report();
 		mBillReportAdapter = new BillReportAdapter();
@@ -132,15 +132,13 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			double totalPay = 0.0f;
 			
 			PaymentDao payment = new PaymentDao(SaleReportActivity.this);
-			for(Report.ReportDetail reportDetail : mReport.reportDetail){
-				if(reportDetail.getTransStatus() != TransactionDao.TRANS_STATUS_VOID){
-					totalPrice += reportDetail.getTotalPrice();
-					totalDiscount += reportDetail.getDiscount();
-					totalSub += reportDetail.getSubTotal();
-					totalVatable += reportDetail.getVatable();
-					totalVat += reportDetail.getTotalVat();
-					totalPay += payment.getTotalPay(reportDetail.getTransactionId());
-				}
+			for(Report.ReportDetail reportDetail : mReport.getReportDetail()){
+				totalPrice += reportDetail.getTotalPrice();
+				totalDiscount += reportDetail.getDiscount();
+				totalSub += reportDetail.getSubTotal();
+				totalVatable += reportDetail.getVatable();
+				totalVat += reportDetail.getTotalVat();
+				totalPay += payment.getTotalPay(reportDetail.getTransactionId());
 			}
 			tvSummTotalPrice.setText(sGlobal.currencyFormat(totalPrice));
 			tvSummDiscount.setText(sGlobal.currencyFormat(totalDiscount));
@@ -301,7 +299,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		
 		@Override
 		public Report.ReportDetail getChild(int groupPosition, int childPosition) {
-			return mReport.groupOfProductLst.get(groupPosition).reportDetail.get(childPosition);
+			return mReport.getGroupOfProductLst().get(groupPosition).getReportDetail().get(childPosition);
 		}
 
 		@Override
@@ -341,13 +339,13 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			}
 
 			Report.ReportDetail reportDetail = 
-					mReport.groupOfProductLst.get(groupPosition).reportDetail.get(childPosition);
+					mReport.getGroupOfProductLst().get(groupPosition).getReportDetail().get(childPosition);
 			setText(holder, childPosition, reportDetail);
 			
 			if(reportDetail.getProductName().equals(Reporting.SUMM_DEPT)){
-				setSummary(holder, mReport.groupOfProductLst.get(groupPosition).getProductDeptName());
+				setSummary(holder, mReport.getGroupOfProductLst().get(groupPosition).getProductDeptName());
 			}else if(reportDetail.getProductName().equals(Reporting.SUMM_GROUP)){
-				setSummary(holder, mReport.groupOfProductLst.get(groupPosition).getProductGroupName());
+				setSummary(holder, mReport.getGroupOfProductLst().get(groupPosition).getProductGroupName());
 			}
 			return convertView;
 		}
@@ -408,9 +406,9 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			int count = 0;
 			if(mReport != null)
 			{
-				if(mReport.groupOfProductLst != null){
-					if(mReport.groupOfProductLst.get(groupPosition).reportDetail != null){
-						count = mReport.groupOfProductLst.get(groupPosition).reportDetail.size();
+				if(mReport.getGroupOfProductLst() != null){
+					if(mReport.getGroupOfProductLst().get(groupPosition).getReportDetail() != null){
+						count = mReport.getGroupOfProductLst().get(groupPosition).getReportDetail().size();
 					}
 				}
 			}
@@ -419,15 +417,15 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 
 		@Override
 		public Report.GroupOfProduct getGroup(int groupPosition) {
-			return mReport.groupOfProductLst.get(groupPosition);
+			return mReport.getGroupOfProductLst().get(groupPosition);
 		}
 
 		@Override
 		public int getGroupCount() {
 			int count = 0;
 			if(mReport != null){
-				if(mReport.groupOfProductLst != null){
-					count = mReport.groupOfProductLst.size();
+				if(mReport.getGroupOfProductLst() != null){
+					count = mReport.getGroupOfProductLst().size();
 				}
 			}
 			return count;
@@ -454,8 +452,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			tvGroupHeader.setTextAppearance(SaleReportActivity.this, R.style.HeaderText);
 			tvGroupHeader.setPadding(8, 4, 4, 4);
 			tvGroupHeader.setTextSize(28);
-			tvGroupHeader.setText(mReport.groupOfProductLst.get(groupPosition).getProductGroupName() + ":" +
-					mReport.groupOfProductLst.get(groupPosition).getProductDeptName());
+			tvGroupHeader.setText(mReport.getGroupOfProductLst().get(groupPosition).getProductGroupName() + ":" +
+					mReport.getGroupOfProductLst().get(groupPosition).getProductDeptName());
 			return tvGroupHeader;
 		}
 
@@ -499,12 +497,12 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		
 		@Override
 		public int getCount() {
-			return mReport != null ? mReport.reportDetail.size() : 0;
+			return mReport != null ? mReport.getReportDetail().size() : 0;
 		}
 
 		@Override
 		public Report.ReportDetail getItem(int position) {
-			return mReport.reportDetail.get(position);
+			return mReport.getReportDetail().get(position);
 		}
 
 		@Override
@@ -538,7 +536,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				holder = (ViewHolder) convertView.getTag();
 			}
 			
-			final Report.ReportDetail report = mReport.reportDetail.get(position);
+			final Report.ReportDetail report = mReport.getReportDetail().get(position);
 			double vatable = report.getVatable();
 			double totalVat = report.getTotalVat();
 			double totalPrice = report.getTotalPrice();
@@ -706,7 +704,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				@Override
 				public void onSetDate(long date) {
 					mCalendar.setTimeInMillis(date);
-					mDateFrom = mCalendar.getTimeInMillis();
+					mDateFrom = String.valueOf(mCalendar.getTimeInMillis());
 					
 					mBtnDateFrom.setText(sGlobal.dateFormat(mCalendar.getTime()));
 				}
@@ -719,7 +717,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				@Override
 				public void onSetDate(long date) {
 					mCalendar.setTimeInMillis(date);
-					mDateTo = mCalendar.getTimeInMillis();
+					mDateTo = String.valueOf(mCalendar.getTimeInMillis());
 					
 					mBtnDateTo.setText(sGlobal.dateFormat(mCalendar.getTime()));
 				}

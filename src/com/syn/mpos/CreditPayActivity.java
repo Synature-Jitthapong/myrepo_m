@@ -5,9 +5,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import cn.wintec.wtandroidjar2.ComIO;
-import cn.wintec.wtandroidjar2.Msr;
-
 import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.j1tth4.util.CreditCardParser;
 import com.j1tth4.util.Logger;
@@ -51,23 +48,12 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	private boolean mIsRead = false;
 	
 	/*
-	 * magnatic data tracks
-	 * track1, track2, track3
-	 */
-	private byte mEnterTrack1;
-	private byte mEnterTrack2;
-	private byte mEnterTrack3;
-	
-	/*
-	 * Magnetic reader
-	 */
-	private Msr mMsr;
-	
-	/*
 	 * Thread for run magnetic reader listener 
 	 */
 	private Thread mMsrThread;
 
+	private WintecMagneticReader mMsrReader;
+	
 	private PaymentDao mPayment;
 	private GlobalPropertyDao mGlobal;
 	
@@ -175,10 +161,9 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mPaymentLeft = intent.getDoubleExtra("paymentLeft", 0.0d);
 		
-		mMsr = new Msr(MPOSApplication.WINTEC_DEFAULT_DEVICE_PATH, 
-				ComIO.Baudrate.valueOf(MPOSApplication.WINTEC_DEFAULT_BAUD_RATE));
 		// start magnetic reader thread
 		try {
+			mMsrReader = new WintecMagneticReader();
 			mMsrThread = new Thread(this);
 			mMsrThread.start();
 			mIsRead = true;
@@ -522,7 +507,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	protected void onDestroy() {
 		closeMsrThread();
 		mIsRead = false;
-		mMsr.MSR_Close();
+		mMsrReader.close();
 		super.onDestroy();
 	}
 	
@@ -533,8 +518,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	public void run() {
 		while(mIsRead){
 			try {
-				final String content = mMsr.MSR_GetTrackData(
-						mEnterTrack1, mEnterTrack2, mEnterTrack3);
+				final String content = mMsrReader.getTrackData();
 				
 				if(content.length() > 0){
 					Logger.appendLog(getApplicationContext(), 

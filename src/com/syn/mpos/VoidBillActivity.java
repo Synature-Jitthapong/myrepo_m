@@ -51,7 +51,7 @@ public class VoidBillActivity extends Activity {
 	private int mStaffId;
 	
 	private Calendar mCalendar;
-	private long mDate;
+	private String mDate;
 	private String mReceiptNo;
 	private String mReceiptDate;
 	
@@ -79,7 +79,7 @@ public class VoidBillActivity extends Activity {
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-		mDate = mCalendar.getTimeInMillis();
+		mDate = String.valueOf(mCalendar.getTimeInMillis());
 		
 		txtReceiptNo = (EditText) findViewById(R.id.txtReceiptNo);
 		txtReceiptDate = (EditText) findViewById(R.id.txtSaleDate);
@@ -161,6 +161,13 @@ public class VoidBillActivity extends Activity {
 	
 	private class BillAdapter extends BaseAdapter{
 
+		private LayoutInflater mInflater;
+		
+		public BillAdapter(){
+			mInflater = (LayoutInflater) 
+					VoidBillActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
+		
 		@Override
 		public int getCount() {
 			return mTransLst != null ? mTransLst.size() : 0;
@@ -178,22 +185,18 @@ public class VoidBillActivity extends Activity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			final MPOSOrderTransaction trans = mTransLst.get(position);
 			ViewHolder holder;
-			
-			LayoutInflater inflater = (LayoutInflater) 
-					VoidBillActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			if(convertView == null){
-				convertView = inflater.inflate(R.layout.receipt_template, null);
+				convertView = mInflater.inflate(R.layout.receipt_template, null);
 				holder = new ViewHolder();
 				holder.tvReceiptNo = (TextView) convertView.findViewById(R.id.tvReceiptNo);
 				holder.tvPaidTime = (TextView) convertView.findViewById(R.id.tvPaidTime);
-				
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
 			
+			final MPOSOrderTransaction trans = mTransLst.get(position);
 			Calendar c = Calendar.getInstance();
 			try {
 				c.setTimeInMillis(Long.parseLong(trans.getPaidTime()));
@@ -201,19 +204,16 @@ public class VoidBillActivity extends Activity {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
 			holder.tvPaidTime.setText(mGlobal.dateTimeFormat(c.getTime()));
-			
 			if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID){
 				holder.tvReceiptNo.setTextColor(Color.RED);
 				holder.tvReceiptNo.setPaintFlags(holder.tvReceiptNo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			}
-			
 			return convertView;
 		}
 		
-		private class ViewHolder{
+		class ViewHolder{
 			TextView tvReceiptNo;
 			TextView tvPaidTime;
 		}
@@ -281,7 +281,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText("");
 		txtReceiptDate.setText("");
 		
-		mTransLst = mOrders.listTransaction(String.valueOf(mDate));
+		mTransLst = mOrders.listTransaction(mDate);
 		if(mTransLst.size() == 0){
 			new AlertDialog.Builder(VoidBillActivity.this)
 			.setTitle(R.string.void_bill)

@@ -62,8 +62,13 @@ public class TransactionDao extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().query(
 				OrderTransactionTable.TABLE_ORDER_TRANS, 
 				new String[]{OrderTransactionTable.COLUMN_TRANSACTION_ID}, 
-				OrderTransactionTable.COLUMN_SALE_DATE + "=?", 
-				new String[]{saleDate}, null, null, null);
+				OrderTransactionTable.COLUMN_SALE_DATE + "=?"
+				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)", 
+				new String[]{
+						saleDate,
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+				}, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
 				transactionIds += cursor.getString(0);
@@ -98,8 +103,13 @@ public class TransactionDao extends MPOSDatabase {
 				+ OrderTransactionTable.COLUMN_RECEIPT_NO + ","
 				+ OrderTransactionTable.COLUMN_OPEN_STAFF
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?",
-				new String[] {saleDate});
+				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
+				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)",
+				new String[] {
+						saleDate,
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+				});
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				trans.setTransactionId(cursor.getInt(cursor
@@ -236,11 +246,43 @@ public class TransactionDao extends MPOSDatabase {
 	}
 
 	/**
+	 * Get summary of void order in day
+	 * @param saleDate
+	 * @return MPOSOrderTransaction.MPOSOrderDetail
+	 */
+	public MPOSOrderTransaction.MPOSOrderDetail getSummaryVoidOrderInDay(
+			String saleDate) {
+		MPOSOrderTransaction.MPOSOrderDetail orderDetail = 
+				new MPOSOrderTransaction.MPOSOrderDetail();
+		String sql = "SELECT a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ", "
+				+ " COUNT(a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ") "
+				+ " AS TotalVoid, "
+				+ " ( SELECT SUM (" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") "
+				+ "  FROM " + OrderDetailTable.TABLE_ORDER
+				+ "  WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID 
+				+ "  =a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + ") "
+				+ "  AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
+				+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
+				+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID + "=?";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				sql, new String[] {saleDate, String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
+		if (cursor.moveToFirst()) {
+			orderDetail.setQty(cursor.getDouble(cursor
+					.getColumnIndex("TotalVoid")));
+			orderDetail.setTotalSalePrice(cursor.getDouble(cursor
+					.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
+		}
+		cursor.close();
+		return orderDetail;
+	}
+	
+	/**
 	 * Get summary order by sale date
 	 * @param saleDate
 	 * @return MPOSOrderTransaction.MPOSOrderDetail
 	 */
-	public MPOSOrderTransaction.MPOSOrderDetail getSummaryOrder(
+	public MPOSOrderTransaction.MPOSOrderDetail getSummaryOrderInDay(
 			String saleDate) {
 		MPOSOrderTransaction.MPOSOrderDetail orderDetail = 
 				new MPOSOrderTransaction.MPOSOrderDetail();
@@ -259,9 +301,12 @@ public class TransactionDao extends MPOSDatabase {
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a " 
 				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
 				+ " ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=b." + OrderTransactionTable.COLUMN_TRANSACTION_ID
-				+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?";
+				+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
+				+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)";
 		Cursor cursor = getReadableDatabase().rawQuery(
-				sql, new String[] {saleDate});
+				sql, new String[] {saleDate, 
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
 		if (cursor.moveToFirst()) {
 			orderDetail.setQty(cursor.getDouble(cursor
 					.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
@@ -660,7 +705,8 @@ public class TransactionDao extends MPOSDatabase {
 						+ OrderTransactionTable.COLUMN_STATUS_ID + " FROM "
 						+ OrderTransactionTable.TABLE_ORDER_TRANS + " WHERE "
 						+ OrderTransactionTable.COLUMN_SALE_DATE + "=? AND "
-						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN(?, ?)",
+						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)"
+						+ " ORDER BY " + OrderTransactionTable.COLUMN_TRANSACTION_ID,
 				new String[] { saleDate, String.valueOf(TRANS_STATUS_VOID),
 						String.valueOf(TRANS_STATUS_SUCCESS) });
 		if (cursor.moveToFirst()) {
@@ -942,9 +988,20 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param transactionId
 	 * @param orderDetailId
 	 */
-	public void cancelOrder(int transactionId, int orderDetailId){
+	public void deleteOrder(int transactionId, int orderDetailId){
 		deleteOrderSet(transactionId, orderDetailId);
 		deleteOrderDetail(transactionId, orderDetailId);
+	}
+	
+	/**
+	 * Delete unnecessary transaction
+	 * @return rows affected
+	 */
+	public int deleteUnnecessaryTransaction() {
+		return getWritableDatabase().delete(
+				OrderTransactionTable.TABLE_ORDER_TRANS,
+				OrderTransactionTable.COLUMN_STATUS_ID + "=?",
+				new String[] { String.valueOf(TransactionDao.TRANS_STATUS_NEW) });
 	}
 	
 	/**
@@ -1348,16 +1405,6 @@ public class TransactionDao extends MPOSDatabase {
 				new String[] { String.valueOf(transactionId) });
 	}
 
-	public MPOSOrderTransaction getSummaryVoidTransaction(String saleDate){
-		MPOSOrderTransaction trans = new MPOSOrderTransaction();
-		Cursor cursor = getReadableDatabase().rawQuery(
-				"SELECT COUNT(" + OrderTransactionTable.COLUMN_TRANSACTION_ID + ") "
-				+ " AS " + OrderTransactionTable.COLUMN_TRANSACTION_ID
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS,
-				new String[]{saleDate});
-		return trans;
-	}
-	
 	/**
 	 * @param sessionDate
 	 * @return total receipt specific by sale date

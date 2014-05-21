@@ -40,12 +40,6 @@ public class MPOSApplication extends Application {
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
 	
 	/*
-	 * WINTEC POS device path
-	 */
-	public static final String WINTEC_DEFAULT_DEVICE_PATH = "/dev/ttySAC3";
-	public static final String WINTEC_DEFAULT_BAUD_RATE = "BAUD_9600";
-	
-	/*
 	 * Android Device Code
 	 */
 	public static String sDeviceCode;
@@ -110,14 +104,7 @@ public class MPOSApplication extends Application {
 	}
 	
 	private void showCustomerDisplay(){
-		DspPos dsp = new DspPos(WINTEC_DEFAULT_DEVICE_PATH, 
-				ComIO.Baudrate.valueOf(WINTEC_DEFAULT_BAUD_RATE));	    
-		
-		dsp.DSP_ClearScreen();
-		dsp.DSP_Dispay("Welcome to");
-		dsp.DSP_MoveCursorDown();
-		dsp.DSP_MoveCursorEndLeft();
-		dsp.DSP_Dispay("pRoMiSe System");
-		dsp.DSP_Close();
+		WintecCustomerDisplay wd = new WintecCustomerDisplay();
+		wd.displayWelcome();
 	}
 }

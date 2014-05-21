@@ -153,6 +153,8 @@ public class MPOSUtil {
 									try {
 										sess.updateSessionEnddayDetail(sessionDate, 
 												SessionDao.ALREADY_ENDDAY_STATUS);
+										// delete unnecessary transaction
+										trans.deleteUnnecessaryTransaction();
 										sess.getWritableDatabase().setTransactionSuccessful();
 										listener.onPost();
 									} catch (SQLException e) {

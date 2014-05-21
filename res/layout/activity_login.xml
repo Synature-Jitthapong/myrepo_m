@@ -16,13 +16,14 @@
         android:layout_alignParentRight="false"
         android:layout_alignParentTop="false"
         android:layout_below="@+id/textView1"
+        android:layout_marginBottom="@dimen/medium_space"
         android:layout_toRightOf="@+id/textView2"
         android:ems="10"
         android:hint="@string/user_name"
         android:lines="1"
         android:nextFocusDown="@+id/editTextPassWord"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <EditText
         android:id="@+id/txtPass"
@@ -31,6 +32,7 @@
         android:layout_alignLeft="@+id/txtUser"
         android:layout_alignRight="@+id/txtUser"
         android:layout_below="@+id/txtUser"
+        android:layout_marginBottom="@dimen/medium_space"
         android:ems="10"
         android:hint="@string/pass_word"
         android:imeOptions="actionDone"
@@ -38,13 +40,12 @@
         android:lines="1"
         android:nextFocusDown="@+id/buttonLogin"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
         android:id="@+id/buttonLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/txtPass"
         android:layout_alignRight="@+id/txtPass"
         android:layout_below="@+id/txtPass"
         android:drawableLeft="@drawable/ic_action_not_secure"
