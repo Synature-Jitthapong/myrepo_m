@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.j1tth4.util.ImageLoader;
-import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.FormatPropertyDao;
 import com.syn.mpos.dao.MPOSOrderTransaction;
 import com.syn.mpos.dao.ProductsDao;
 import com.syn.mpos.dao.ProductsDao.Product;
@@ -50,7 +50,7 @@ public class ProductSetActivity extends Activity{
 	
 	private static Context sContext;
 	private static ProductsDao sProduct;
-	private static GlobalPropertyDao sGlobal;
+	private static FormatPropertyDao sGlobal;
 	
 	private static TransactionDao sTransaction;
 	
@@ -73,7 +73,7 @@ public class ProductSetActivity extends Activity{
 		
 		sContext = ProductSetActivity.this;
 		sProduct = new ProductsDao(getApplicationContext());
-		sGlobal = new GlobalPropertyDao(getApplicationContext());
+		sGlobal = new FormatPropertyDao(getApplicationContext());
 		sTransaction = new TransactionDao(getApplicationContext());
 		sTransaction.getWritableDatabase().beginTransaction();
 		

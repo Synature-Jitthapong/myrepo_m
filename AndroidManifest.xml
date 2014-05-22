@@ -3,7 +3,7 @@
     package="com.syn.mpos"
     android:installLocation="auto"
     android:versionCode="2"
-    android:versionName="1.0.2" >
+    android:versionName="1.0.3" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -130,11 +130,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-
-        <activity
-            android:name="com.syn.mpos.EnddayActivity"
-            android:label="@string/title_activity_endday" >
-        </activity>
     </application>
 
 </manifest>

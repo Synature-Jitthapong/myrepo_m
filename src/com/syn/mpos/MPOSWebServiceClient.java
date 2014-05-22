@@ -11,7 +11,7 @@ import com.j1tth4.util.Logger;
 import com.syn.mpos.dao.BankNameDao;
 import com.syn.mpos.dao.ComputerDao;
 import com.syn.mpos.dao.CreditCardDao;
-import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.FormatPropertyDao;
 import com.syn.mpos.dao.HeaderFooterReceiptDao;
 import com.syn.mpos.dao.LanguageDao;
 import com.syn.mpos.dao.PaymentAmountButtonDao;
@@ -69,7 +69,7 @@ public class MPOSWebServiceClient {
 					public void onPost(ShopData sd) {
 						ShopDao shop = new ShopDao(context.getApplicationContext());
 						ComputerDao computer = new ComputerDao(context.getApplicationContext());
-						GlobalPropertyDao global = new GlobalPropertyDao(context.getApplicationContext());
+						FormatPropertyDao format = new FormatPropertyDao(context.getApplicationContext());
 						StaffDao staff = new StaffDao(context.getApplicationContext());
 						LanguageDao lang = new LanguageDao(context.getApplicationContext());
 						HeaderFooterReceiptDao hf = new HeaderFooterReceiptDao(context.getApplicationContext());
@@ -80,7 +80,7 @@ public class MPOSWebServiceClient {
 						try {
 							shop.insertShopProperty(sd.getShopProperty());
 							computer.insertComputer(sd.getComputerProperty());
-							global.insertProperty(sd.getGlobalProperty());
+							format.insertProperty(sd.getGlobalProperty());
 							staff.insertStaff(sd.getStaffs());
 							lang.insertLanguage(sd.getLanguage());
 							hf.insertHeaderFooterReceipt(sd.getHeaderFooterReceipt());

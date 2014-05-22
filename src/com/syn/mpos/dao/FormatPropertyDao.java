@@ -1,9 +1,9 @@
 package com.syn.mpos.dao;
 
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -16,7 +16,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.syn.pos.ShopData;
 
-public class GlobalPropertyDao extends MPOSDatabase{
+public class FormatPropertyDao extends MPOSDatabase{
 	
 	public static final String[] COLUMNS = {
 		GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL,
@@ -28,16 +28,7 @@ public class GlobalPropertyDao extends MPOSDatabase{
 		GlobalPropertyTable.COLUMN_TIME_FORMAT
 	};
 	
-//	private static GlobalPropertyDataSource sInstance;
-//	
-//	public static synchronized GlobalPropertyDataSource getInstance(Context context){
-//		if(sInstance == null){
-//			sInstance = new GlobalPropertyDataSource(context);
-//		}
-//		return sInstance;
-//	}
-	
-	public GlobalPropertyDao(Context context) {
+	public FormatPropertyDao(Context context) {
 		super(context);
 	}
 
@@ -52,6 +43,17 @@ public class GlobalPropertyDao extends MPOSDatabase{
 		if(!getGlobalProperty().getDateFormat().equals(""))
 			dateFormat.applyPattern(getGlobalProperty().getDateFormat());
 		return dateFormat.format(d);	
+	}
+	
+	public String dateTimeFormat(String dateTime, String pattern){
+		Calendar calendar = Calendar.getInstance(Locale.US);
+		if(dateTime == null || dateTime.isEmpty()){
+			dateTime = String.valueOf(Util.getMinimum().getTimeInMillis());
+		}
+		calendar.setTimeInMillis(Long.parseLong(dateTime));
+		SimpleDateFormat dateTimeFormat = getSimpleDateFormat();
+		dateTimeFormat.applyPattern(pattern);
+		return dateTimeFormat.format(calendar.getTime());
 	}
 	
 	public String dateTimeFormat(Date d, String pattern){
@@ -158,19 +160,17 @@ public class GlobalPropertyDao extends MPOSDatabase{
 	}
 	
 	private SimpleDateFormat getSimpleDateFormat(){
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
 		return dateFormat;
 	}
 	
 	private NumberFormat getNumberFormat(){
 		NumberFormat numFormat = NumberFormat.getInstance(Locale.US);
-		numFormat.setRoundingMode(RoundingMode.HALF_UP);
 		return numFormat;
 	}
 	
 	private DecimalFormat getDecimalFormat(){
 		DecimalFormat decFormat = new DecimalFormat();
-		decFormat.setRoundingMode(RoundingMode.HALF_UP);
 		return decFormat;
 	}
 	

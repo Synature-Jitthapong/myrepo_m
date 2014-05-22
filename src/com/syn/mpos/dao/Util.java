@@ -1,6 +1,5 @@
 package com.syn.mpos.dao;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -10,9 +9,17 @@ import java.util.Locale;
  *
  */
 public class Util {
+
+	public static final int MINIMUM_YEAR = 1900;
+	public static final int MINIMUM_MONTH = 0;
+	public static final int MINIMUM_DAY = 1;
 	
 	public static Calendar getCalendar(){
 		return Calendar.getInstance(Locale.US);
+	}
+	
+	public static Calendar getMinimum(){
+		return new GregorianCalendar(MINIMUM_YEAR, MINIMUM_MONTH, MINIMUM_DAY);
 	}
 	
 	public static Calendar getDate(){
@@ -20,22 +27,6 @@ public class Util {
 		return new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), 
 				c.get(Calendar.DAY_OF_MONTH));
-	}
-	
-	public static String dateTimeFormat(String time, String pattern){
-		String format = "";
-		Calendar calendar;
-		SimpleDateFormat dateTimeFormat = new SimpleDateFormat(pattern, Locale.getDefault());
-		try {
-			calendar = Calendar.getInstance();
-			calendar.setTimeInMillis(Long.parseLong(time));
-			format = dateTimeFormat.format(calendar.getTime());
-		} catch (NumberFormatException e) {
-			calendar = Calendar.getInstance();
-			format = dateTimeFormat.format(calendar.getTime());
-			e.printStackTrace();
-		}
-		return format;
 	}
 	
 	public static double calculateVatPrice(double totalPrice, double vatRate, int vatType){

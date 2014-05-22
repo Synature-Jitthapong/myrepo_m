@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 import com.j1tth4.util.Logger;
 import com.syn.mpos.MPOSWebServiceClient.AuthenDeviceListener;
 import com.syn.mpos.MPOSWebServiceClient.SendSaleTransaction;
+import com.syn.mpos.dao.FormatPropertyDao;
 import com.syn.mpos.dao.MPOSDatabase;
 import com.syn.mpos.dao.PaymentDao.PaymentDetailTable;
 import com.syn.mpos.dao.SaleTransactionDao;
@@ -29,6 +30,7 @@ import com.syn.mpos.dao.SessionDao.SessionTable;
 import com.syn.mpos.dao.TransactionDao;
 import com.syn.mpos.dao.SaleTransactionDao.POSData_SaleTransaction;
 import com.syn.mpos.dao.TransactionDao.OrderDetailTable;
+import com.syn.mpos.dao.TransactionDao.OrderSetTable;
 import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
 
 public class MPOSUtil {
@@ -60,7 +62,7 @@ public class MPOSUtil {
 
 				final String jsonSale = generateJSONSale(context, saleTrans);
 				
-				if(jsonSale != null && !jsonSale.equals("")){
+				if(jsonSale != null && !jsonSale.isEmpty()){
 					new MPOSWebServiceClient.SendPartialSaleTransaction(context.getApplicationContext(), 
 							staffId, shopId, computerId, jsonSale, new ProgressListener() {
 						@Override
@@ -77,6 +79,7 @@ public class MPOSUtil {
 
 						@Override
 						public void onError(String msg) {
+							logServerResponse(context, msg);
 							listener.onError(msg);
 						}
 					}).execute(MPOSApplication.getFullUrl(context));
@@ -137,9 +140,7 @@ public class MPOSUtil {
 	
 								@Override
 								public void onError(String mesg) {
-									Logger.appendLog(context, MPOSApplication.LOG_DIR, 
-											MPOSApplication.LOG_FILE_NAME, 
-											" Error when send data to the server : " + mesg);
+									logServerResponse(context, mesg);
 									listener.onError(mesg);
 								}
 	
@@ -250,57 +251,14 @@ public class MPOSUtil {
 		void onPost(POSData_SaleTransaction saleTrans);
 	}
 	
-	public static void sendSaleData(final Context context, 
-			int shopId, int computerId, int staffId, boolean sendAll){
+	/**
+	 * Update data from the server
+	 * @param context
+	 * @param listener
+	 */
+	public static void updateData(final Context context, final ProgressListener listener){
 		final ProgressDialog progress = new ProgressDialog(context);
-		progress.setTitle(R.string.send_sale_data);
-		progress.setMessage(context.getString(R.string.send_sale_data_progress));
-		MPOSUtil.doSendSale(context, shopId, computerId, staffId, 
-				sendAll, new ProgressListener(){
-
-			@Override
-			public void onPre() {
-				progress.show();
-			}
-
-			@Override
-			public void onPost() {
-				if(progress.isShowing())
-					progress.dismiss();
-				new AlertDialog.Builder(context)
-					.setTitle(R.string.send_sale_data)
-					.setMessage(R.string.send_sale_data_success)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-						}
-					})
-					.show();
-				
-			}
-
-			@Override
-			public void onError(String msg) {
-				if(progress.isShowing())
-					progress.dismiss();
-				new AlertDialog.Builder(context)
-				.setTitle(R.string.send_sale_data)
-				.setMessage(msg)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-					}
-				})
-				.show();
-			}
-			
-		});	
-	}
-	
-	public static void updateData(final Context context){
-		final ProgressDialog progress = new ProgressDialog(context);
+		progress.setCancelable(false);
 		final MPOSWebServiceClient mPOSService = new MPOSWebServiceClient();
 		mPOSService.loadShopData(context, new AuthenDeviceListener(){
 
@@ -309,6 +267,7 @@ public class MPOSUtil {
 				progress.setTitle(R.string.update_data);
 				progress.setMessage(context.getString(R.string.update_shop_progress));
 				progress.show();
+				listener.onPre();
 			}
 
 			@Override
@@ -330,12 +289,14 @@ public class MPOSUtil {
 							progress.dismiss();
 						
 						new AlertDialog.Builder(context)
+						.setCancelable(false)
 						.setTitle(R.string.update_data)
 						.setMessage(R.string.update_data_success)
 						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
+								listener.onPost();
 							}
 						})
 						.show();
@@ -355,6 +316,7 @@ public class MPOSUtil {
 							}
 						})
 						.show();
+						listener.onError(msg);
 					}
 					
 				});
@@ -374,11 +336,12 @@ public class MPOSUtil {
 					}
 				})
 				.show();
+				listener.onError(msg);
 			}
 			
 		});
 	}
-	
+
 	public static void makeToask(Context c, String msg){
 		Toast toast = Toast.makeText(c, 
 				msg, Toast.LENGTH_LONG);
@@ -390,8 +353,8 @@ public class MPOSUtil {
 	 * @param value
 	 * @return string fixes digit
 	 */
-	public static String fixesDigitLength(int scale, double value){
-		return Double.toString(rounding(scale, value));
+	public static String fixesDigitLength(FormatPropertyDao format, int scale, double value){
+		return format.currencyFormat(rounding(scale, value), "#,##0.0000");
 	}
 
 	/**
@@ -438,12 +401,19 @@ public class MPOSUtil {
 		return value;
 	}
 
+	public static void logServerResponse(Context context, String msg){
+		Logger.appendLog(context, MPOSApplication.LOG_DIR,
+				MPOSApplication.LOG_FILE_NAME,
+				" Server Response : " + msg);
+	}
+	
 	public static void clearSale(Context context){
 		MPOSDatabase.MPOSOpenHelper mSqliteHelper = 
 				MPOSDatabase.MPOSOpenHelper.getInstance(context.getApplicationContext());
 		SQLiteDatabase sqlite = mSqliteHelper.getWritableDatabase();
 		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
 		sqlite.delete(OrderDetailTable.TABLE_ORDER_TMP, null, null);
+		sqlite.delete(OrderSetTable.TABLE_ORDER_SET, null, null);
 		sqlite.delete(OrderTransactionTable.TABLE_ORDER_TRANS, null, null);
 		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
 		sqlite.delete(SessionTable.TABLE_SESSION, null, null);

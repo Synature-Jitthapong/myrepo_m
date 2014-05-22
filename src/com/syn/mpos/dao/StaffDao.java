@@ -16,6 +16,17 @@ public class StaffDao extends MPOSDatabase{
 		super(context);
 	}
 
+	public int countStaffs(){
+		int totalStaff = 0;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT COUNT(*) FROM " + StaffTable.TABLE_STAFF, 
+				null);
+		if(cursor.moveToFirst()){
+			totalStaff = cursor.getInt(0);
+		}
+		return totalStaff;
+	}
+	
 	/**
 	 * @param staffId
 	 * @return ShopData.Staff

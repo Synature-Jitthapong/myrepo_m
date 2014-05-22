@@ -1435,14 +1435,15 @@ public class TransactionDao extends MPOSDatabase {
 	public double getTotalReceiptAmount(String sessionDate) {
 		double totalReceiptAmount = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(
-				"SELECT SUM (" + OrderTransactionTable.COLUMN_TRANS_VATABLE
-						+ ") " + " FROM "
-						+ OrderTransactionTable.TABLE_ORDER_TRANS + " WHERE "
-						+ OrderTransactionTable.COLUMN_SALE_DATE + "=? "
-						+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID
-						+ "=?",
+				"SELECT "
+				+ " SUM (" + OrderTransactionTable.COLUMN_TRANS_VATABLE + ") " 
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS 
+				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=? "
+				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID
+				+ " IN(?,?)",
 				new String[] { sessionDate,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS) });
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
 		if (cursor.moveToFirst()) {
 			totalReceiptAmount = cursor.getFloat(0);
 		}

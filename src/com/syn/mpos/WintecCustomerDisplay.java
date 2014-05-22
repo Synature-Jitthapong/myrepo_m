@@ -18,22 +18,35 @@ public class WintecCustomerDisplay extends WintecUtils{
 	public void displayTotalPay(String textPay, String textChange, 
 			String totalPay, String change){
 		clearScreen();
-		mDsp.DSP_Dispay(textPay + " : " + totalPay);
+		mDsp.DSP_Dispay(textPay + ": " + totalPay);
 		try {
 			if(MPOSUtil.stringToDouble(change) > 0){
 				mDsp.DSP_MoveCursorDown();
 				mDsp.DSP_MoveCursorEndLeft();
-				mDsp.DSP_Dispay(textChange + " : " + change);
+				mDsp.DSP_Dispay(textChange + ": " + change);
 			}
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		close();
 	}
 	
-	public void displayTotalPrice(String text, String totalQty, String totalPrice){
+	public void displayTotalPrice(String totalText, String totalQty, 
+			String totalPrice, String totalDiscountText, String discount){
 		clearScreen();
-		mDsp.DSP_Dispay(text + " : " + totalPrice);
+		mDsp.DSP_Dispay(totalText + ": " + totalPrice);
+		try {
+			if(MPOSUtil.stringToDouble(discount) > 0){
+				mDsp.DSP_MoveCursorDown();
+				mDsp.DSP_MoveCursorEndLeft();
+				mDsp.DSP_Dispay(totalDiscountText + ": " + discount);
+			}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		close();
 	}
 	
 	public void displayOrder(String itemName, String itemQty, String itemPrice){
@@ -45,6 +58,7 @@ public class WintecCustomerDisplay extends WintecUtils{
 		mDsp.DSP_MoveCursorDown();
 		mDsp.DSP_MoveCursorEndLeft();
 		mDsp.DSP_Dispay(itemQty + " x " + itemPrice);
+		close();
 	}
 	
 	public void displayWelcome(){

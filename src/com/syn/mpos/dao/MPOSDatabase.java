@@ -5,7 +5,7 @@ import java.util.UUID;
 import com.syn.mpos.dao.BankNameDao.BankTable;
 import com.syn.mpos.dao.ComputerDao.ComputerTable;
 import com.syn.mpos.dao.CreditCardDao.CreditCardTable;
-import com.syn.mpos.dao.GlobalPropertyDao.GlobalPropertyTable;
+import com.syn.mpos.dao.FormatPropertyDao.GlobalPropertyTable;
 import com.syn.mpos.dao.HeaderFooterReceiptDao.HeaderFooterReceiptTable;
 import com.syn.mpos.dao.LanguageDao.LanguageTable;
 import com.syn.mpos.dao.PaymentAmountButtonDao.PaymentButtonTable;

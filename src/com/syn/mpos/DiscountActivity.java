@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.FormatPropertyDao;
 import com.syn.mpos.dao.MPOSOrderTransaction;
 import com.syn.mpos.dao.ProductsDao;
 import com.syn.mpos.dao.TransactionDao;
@@ -44,9 +44,9 @@ public class DiscountActivity extends Activity{
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final String DISCOUNT_FRAGMENT_TAG = "DiscountDialog";
 	
-	private static GlobalPropertyDao sGlobal;
+	private static FormatPropertyDao sFormat;
 	
-	private TransactionDao mTransaction;
+	private TransactionDao mTrans;
 	private ProductsDao mProduct;
 	
 	private MPOSOrderTransaction.MPOSOrderDetail mOrder;
@@ -88,9 +88,9 @@ public class DiscountActivity extends Activity{
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
-		mTransaction = new TransactionDao(getApplicationContext());
+		mTrans = new TransactionDao(getApplicationContext());
 		mProduct = new ProductsDao(getApplicationContext());
-		sGlobal = new GlobalPropertyDao(getApplicationContext());
+		sFormat = new FormatPropertyDao(getApplicationContext());
 		
 		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		mDisAdapter = new DiscountAdapter();
@@ -136,7 +136,7 @@ public class DiscountActivity extends Activity{
 			cancel();
 			return true;
 		case R.id.itemConfirm:
-			mTransaction.confirmDiscount(mTransactionId);
+			mTrans.confirmDiscount(mTransactionId);
 			finish();
 			return true;
 		default:
@@ -165,7 +165,7 @@ public class DiscountActivity extends Activity{
 			}	
 			discount = MPOSUtil.roundingPrice(discount);
 			double totalPriceAfterDiscount = MPOSUtil.roundingPrice(mOrder.getTotalRetailPrice() - discount);
-			mTransaction.discountEatchProduct(mTransactionId, 
+			mTrans.discountEatchProduct(mTransactionId, 
 					mOrder.getOrderDetailId(), mOrder.getVatType(),
 					mProduct.getVatRate(mOrder.getProductId()), 
 					totalPriceAfterDiscount, discount, discountType);
@@ -227,36 +227,36 @@ public class DiscountActivity extends Activity{
 			
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvName.setText(order.getProductName());
-			tvQty.setText(sGlobal.qtyFormat(order.getQty()));
-			tvUnitPrice.setText(sGlobal.currencyFormat(order.getPricePerUnit()));
-			tvTotalPrice.setText(sGlobal.currencyFormat(order.getTotalRetailPrice()));
-			tvDiscount.setText(sGlobal.currencyFormat(order.getPriceDiscount()));
-			tvSalePrice.setText(sGlobal.currencyFormat(order.getTotalSalePrice()));
+			tvQty.setText(sFormat.qtyFormat(order.getQty()));
+			tvUnitPrice.setText(sFormat.currencyFormat(order.getPricePerUnit()));
+			tvTotalPrice.setText(sFormat.currencyFormat(order.getTotalRetailPrice()));
+			tvDiscount.setText(sFormat.currencyFormat(order.getPriceDiscount()));
+			tvSalePrice.setText(sFormat.currencyFormat(order.getTotalSalePrice()));
 			
 			return rowView;
 		}
 	}
 	
 	private void loadOrder() {
-		if(mTransaction.prepareDiscount(mTransactionId)){
-			mOrderLst = mTransaction.listAllOrderForDiscount(mTransactionId);
+		if(mTrans.prepareDiscount(mTransactionId)){
+			mOrderLst = mTrans.listAllOrderForDiscount(mTransactionId);
 			mDisAdapter.notifyDataSetChanged();
 		}
 	}
 
 	private void summary() {
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
-				mTransaction.getSummaryOrderForDiscount(mTransactionId);
+				mTrans.getSummaryOrderForDiscount(mTransactionId);
 		double totalVatExcluded = summOrder.getVatExclude();
 		if(totalVatExcluded > 0)
 			mLayoutVat.setVisibility(View.VISIBLE);
 		else
 			mLayoutVat.setVisibility(View.GONE);
 		mTotalPrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
-		mTxtTotalVatExc.setText(sGlobal.currencyFormat(totalVatExcluded));
-		mTxtSubTotal.setText(sGlobal.currencyFormat(summOrder.getTotalRetailPrice()));
-		mTxtTotalDiscount.setText(sGlobal.currencyFormat(summOrder.getPriceDiscount()));
-		mTxtTotalPrice.setText(sGlobal.currencyFormat(mTotalPrice));
+		mTxtTotalVatExc.setText(sFormat.currencyFormat(totalVatExcluded));
+		mTxtSubTotal.setText(sFormat.currencyFormat(summOrder.getTotalRetailPrice()));
+		mTxtTotalDiscount.setText(sFormat.currencyFormat(summOrder.getPriceDiscount()));
+		mTxtTotalPrice.setText(sFormat.currencyFormat(mTotalPrice));
 	}
 
 	private void cancel(){
@@ -279,7 +279,7 @@ public class DiscountActivity extends Activity{
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									mTransaction.cancelDiscount(mTransactionId);
+									mTrans.cancelDiscount(mTransactionId);
 									finish();
 								}
 							}).show();
@@ -349,9 +349,9 @@ public class DiscountActivity extends Activity{
 			else if(mDiscountType == PRICE_DISCOUNT_TYPE)
 				((RadioButton)rdoDiscountType.findViewById(R.id.rdoPrice)).setChecked(true);
 			if(mDiscountType == PERCENT_DISCOUNT_TYPE)
-				txtDiscount.setText(sGlobal.currencyFormat(mDiscount * 100 / mTotalRetailPrice));
+				txtDiscount.setText(sFormat.currencyFormat(mDiscount * 100 / mTotalRetailPrice));
 			else
-				txtDiscount.setText(sGlobal.currencyFormat(mDiscount));
+				txtDiscount.setText(sFormat.currencyFormat(mDiscount));
 			txtDiscount.setSelectAllOnFocus(true);
 			txtDiscount.requestFocus();
 			txtDiscount.setOnEditorActionListener(new OnEditorActionListener(){

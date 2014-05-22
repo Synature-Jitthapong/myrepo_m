@@ -144,7 +144,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2.8"
                 android:gravity="right"
-                android:text="@string/summary" />
+                android:text="@string/grand_total" />
 
             <TextView
                 android:id="@+id/tvSummProQty"
@@ -387,5 +387,13 @@
                 android:gravity="right" />
         </LinearLayout>
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBarReport"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
 </FrameLayout>

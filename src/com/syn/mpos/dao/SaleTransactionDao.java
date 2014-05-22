@@ -1,7 +1,6 @@
 package com.syn.mpos.dao;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import com.syn.mpos.MPOSUtil;
@@ -26,6 +25,8 @@ import android.database.Cursor;
  */
 public class SaleTransactionDao extends MPOSDatabase{
 
+	private FormatPropertyDao mGlobal;
+	
 	/*
 	 * session date for query transaction
 	 */
@@ -39,6 +40,7 @@ public class SaleTransactionDao extends MPOSDatabase{
 	public SaleTransactionDao(Context context, 
 			String sessionDate, boolean isAllTrans) {
 		super(context);
+		mGlobal = new FormatPropertyDao(context.getApplicationContext());
 		mSessionDate = sessionDate;
 		mIsAllTrans = isAllTrans;
 	}
@@ -79,9 +81,9 @@ public class SaleTransactionDao extends MPOSDatabase{
 							cursor.getColumnIndex(ShopTable.COLUMN_SHOP_ID)));
 					orderTrans.setiOpenStaffID(cursor.getInt(
 							cursor.getColumnIndex(OrderTransactionTable.COLUMN_OPEN_STAFF)));
-					orderTrans.setDtOpenTime(Util.dateTimeFormat(
+					orderTrans.setDtOpenTime(mGlobal.dateTimeFormat(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_OPEN_TIME)), "yyyy-MM-dd HH:mm:ss"));
-					orderTrans.setDtCloseTime(Util.dateTimeFormat(
+					orderTrans.setDtCloseTime(mGlobal.dateTimeFormat(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_CLOSE_TIME)), "yyyy-MM-dd HH:mm:ss"));
 					orderTrans.setiDocType(
 							cursor.getInt(cursor.getColumnIndex(DocumentTypeTable.COLUMN_DOC_TYPE)));
@@ -95,27 +97,27 @@ public class SaleTransactionDao extends MPOSDatabase{
 							cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_ID)));
 					orderTrans.setSzReceiptNo(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
-					orderTrans.setDtSaleDate(Util.dateTimeFormat(
+					orderTrans.setDtSaleDate(mGlobal.dateTimeFormat(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_SALE_DATE)),"yyyy-MM-dd"));
 					orderTrans.setfTransVAT(
-							MPOSUtil.fixesDigitLength(4, cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT))));
+							MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT))));
 					orderTrans.setfTransactionVatable(
-							MPOSUtil.fixesDigitLength(4, cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE))));
+							MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE))));
 					orderTrans.setiSessionID(
 							cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
 					orderTrans.setiVoidStaffID(cursor.getInt(cursor
 							.getColumnIndex(OrderTransactionTable.COLUMN_VOID_STAFF_ID)));
 					orderTrans.setSzVoidReason(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_VOID_REASON)));
-					orderTrans.setDtVoidTime(Util.dateTimeFormat(
+					orderTrans.setDtVoidTime(mGlobal.dateTimeFormat(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_VOID_TIME)), "yyyy-MM-dd HH:mm:ss"));
 					orderTrans.setSzTransactionNote(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_NOTE)));
 					orderTrans.setiSaleMode(cursor.getInt(
 							cursor.getColumnIndex(ProductsTable.COLUMN_SALE_MODE)));
-					orderTrans.setfVatPercent(MPOSUtil.fixesDigitLength(4,  cursor.getDouble(
+					orderTrans.setfVatPercent(MPOSUtil.fixesDigitLength(mGlobal, 4,  cursor.getDouble(
 							cursor.getColumnIndex(ProductsTable.COLUMN_VAT_RATE))));
-					orderTrans.setfTransactionExcludeVAT(MPOSUtil.fixesDigitLength(4, cursor.getDouble(
+					orderTrans.setfTransactionExcludeVAT(MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(
 							cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT))));
 					orderTrans.setiNoCust(1);
 					
@@ -150,7 +152,7 @@ public class SaleTransactionDao extends MPOSDatabase{
 					payment.setiPayTypeID(cursor.getInt(cursor
 							.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
 					payment.setfPayAmount(
-							MPOSUtil.fixesDigitLength(4, cursor.getDouble(cursor
+							MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
 									.getColumnIndex(PaymentDetailTable.COLUMN_PAY_AMOUNT))));
 					payment.setSzCreditCardNo(cursor.getString(cursor
 							.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_NO)));
@@ -186,10 +188,10 @@ public class SaleTransactionDao extends MPOSDatabase{
 						promotion.setiOrderDetailID(cursor.getInt(cursor
 							.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
 						promotion.setfDiscountPrice(
-								MPOSUtil.fixesDigitLength(4, cursor.getDouble(cursor
+								MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
 									.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT))));
 						promotion.setfPriceAfterDiscount(
-								MPOSUtil.fixesDigitLength(4, cursor.getDouble(cursor
+								MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
 									.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE))));
 						promotion.setiDiscountTypeID(6);
 						promotion.setiPromotionID(0);
@@ -222,22 +224,22 @@ public class SaleTransactionDao extends MPOSDatabase{
 					order.setiProductTypeID(cursor.getInt(cursor
 							.getColumnIndex(ProductsTable.COLUMN_PRODUCT_TYPE_ID)));
 					order.setfQty(
-							MPOSUtil.fixesDigitLength(4, cursor.getDouble(cursor
+							MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
 									.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY))));
 					order.setfPricePerUnit(
-							MPOSUtil.fixesDigitLength(4, cursor.getDouble(
+							MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(
 									cursor.getColumnIndex(ProductsTable.COLUMN_PRODUCT_PRICE))));
 					order.setfRetailPrice(
-							MPOSUtil.fixesDigitLength(4, cursor.getDouble(
+							MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(
 									cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE))));
 					order.setfSalePrice(
-							MPOSUtil.fixesDigitLength(4, cursor.getDouble(
+							MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(
 									cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE))));
 					order.setfTotalVatAmount(
-							MPOSUtil.fixesDigitLength(4, cursor.getDouble(
+							MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(
 									cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT))));
 					order.setfPriceDiscountAmount(
-							MPOSUtil.fixesDigitLength(4, cursor.getDouble(
+							MPOSUtil.fixesDigitLength(mGlobal, 4, cursor.getDouble(
 									cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT))));
 					order.setiSaleMode(cursor.getInt(
 							cursor.getColumnIndex(ProductsTable.COLUMN_SALE_MODE)));
@@ -257,31 +259,29 @@ public class SaleTransactionDao extends MPOSDatabase{
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				do {
-					saleSessEnd.setDtSessionDate(Util.dateTimeFormat(cursor
+					saleSessEnd.setDtSessionDate(mGlobal.dateTimeFormat(cursor
 							.getString(cursor
 									.getColumnIndex(SessionTable.COLUMN_SESS_DATE)),
 							"yyyy-MM-dd"));
 					saleSessEnd
-							.setDtEndDayDateTime(Util.dateTimeFormat(
+							.setDtEndDayDateTime(mGlobal.dateTimeFormat(
 									cursor.getString(cursor
 											.getColumnIndex(SessionDetailTable.COLUMN_ENDDAY_DATE)),
 									"yyyy-MM-dd HH:mm:ss"));
 					saleSessEnd
 							.setfTotalAmountReceipt(MPOSUtil.fixesDigitLength(
-									4,
+									mGlobal, 4,
 									cursor.getDouble(cursor
 											.getColumnIndex(SessionDetailTable.COLUMN_TOTAL_AMOUNT_RECEIPT))));
 					saleSessEnd.setiTotalQtyReceipt(cursor.getInt(cursor
 							.getColumnIndex(SessionDetailTable.COLUMN_TOTAL_QTY_RECEIPT)));
 				} while (cursor.moveToNext());
 			} else {
-				Calendar c = Calendar.getInstance();
-				saleSessEnd.setDtSessionDate(Util.dateTimeFormat(
-						String.valueOf(c.getTimeInMillis()), "yyyy-MM-dd"));
-				saleSessEnd.setDtEndDayDateTime(Util.dateTimeFormat(
-						String.valueOf(c.getTimeInMillis()),
-						"yyyy-MM-dd HH:mm:ss"));
-				saleSessEnd.setfTotalAmountReceipt(MPOSUtil.fixesDigitLength(4, 0.0d));
+				saleSessEnd.setDtSessionDate(mGlobal.dateTimeFormat(
+						"", "yyyy-MM-dd"));
+				saleSessEnd.setDtEndDayDateTime(mGlobal.dateTimeFormat(
+						"", "yyyy-MM-dd HH:mm:ss"));
+				saleSessEnd.setfTotalAmountReceipt(MPOSUtil.fixesDigitLength(mGlobal, 4, 0.0d));
 				saleSessEnd.setiTotalQtyReceipt(0);
 			}
 			cursor.close();
@@ -301,28 +301,28 @@ public class SaleTransactionDao extends MPOSDatabase{
 							.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 					saleSess.setiShopID(cursor.getInt(cursor
 							.getColumnIndex(ShopTable.COLUMN_SHOP_ID)));
-					saleSess.setDtCloseSessionDateTime(Util.dateTimeFormat(
+					saleSess.setDtCloseSessionDateTime(mGlobal.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(SessionTable.COLUMN_SESS_DATE)),
 							"yyyy-MM-dd HH:mm:ss"));
-					saleSess.setDtOpenSessionDateTime(Util.dateTimeFormat(
+					saleSess.setDtOpenSessionDateTime(mGlobal.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(SessionTable.COLUMN_OPEN_DATE)),
 							"yyyy-MM-dd HH:mm:ss"));
-					saleSess.setDtCloseSessionDateTime(Util.dateTimeFormat(
+					saleSess.setDtCloseSessionDateTime(mGlobal.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(SessionTable.COLUMN_CLOSE_DATE)),
 							"yyyy-MM-dd HH:mm:ss"));
-					saleSess.setDtSessionDate(Util.dateTimeFormat(cursor
+					saleSess.setDtSessionDate(mGlobal.dateTimeFormat(cursor
 							.getString(cursor
 									.getColumnIndex(SessionTable.COLUMN_SESS_DATE)),
 							"yyyy-MM-dd"));
 					saleSess.setfOpenSessionAmount(MPOSUtil.fixesDigitLength(
-							4,
+							mGlobal, 4,
 							cursor.getDouble(cursor
 									.getColumnIndex(SessionTable.COLUMN_OPEN_AMOUNT))));
 					saleSess.setfCloseSessionAmount(MPOSUtil.fixesDigitLength(
-							4,
+							mGlobal, 4,
 							cursor.getDouble(cursor
 									.getColumnIndex(SessionTable.COLUMN_CLOSE_AMOUNT))));
 					saleSess.setiIsEndDaySession(cursor.getInt(cursor

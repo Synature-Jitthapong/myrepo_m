@@ -26,4 +26,12 @@ public abstract class PrinterUtility {
 		}
 		return space.toString();
 	}
+	
+	protected static String createLine(String sign){
+		StringBuilder line = new StringBuilder();
+		for(int i = 0; i <= HORIZONTAL_MAX_SPACE; i++){
+			line.append(sign);
+		}
+		return line.toString();
+	}
 }

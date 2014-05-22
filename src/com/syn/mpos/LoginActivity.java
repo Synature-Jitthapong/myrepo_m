@@ -1,6 +1,7 @@
 package com.syn.mpos;
 
 import java.util.Calendar;
+
 import com.syn.mpos.dao.ComputerDao;
 import com.syn.mpos.dao.Login;
 import com.syn.mpos.dao.SessionDao;
@@ -31,7 +32,13 @@ public class LoginActivity extends Activity implements OnClickListener {
 	
 	public static final int REQUEST_FOR_SETTING_DATE = 1;
 	
-	public static int sStaffId;
+	private int mStaffId;
+	
+	/*
+	 * first access of day.
+	 * mPOS will download data from the server
+	 */
+	private boolean mIsFirstAccess = false;
 	
 	private SessionDao mSession;
 	private ShopDao mShop;
@@ -73,19 +80,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 		});
 	}
 
-	private void init(){
-		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
-		if(url.equals("")){
-			Intent intent = new Intent(this, SettingsActivity.class);
-			startActivity(intent);
-		}
-		if(sStaffId != 0){
-			gotoMainActivity();
-		}
-	}
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(requestCode == REQUEST_FOR_SETTING_DATE){
@@ -100,13 +94,16 @@ public class LoginActivity extends Activity implements OnClickListener {
 	 * if system date less than session date 
 	 * this not allow to do anything and 
 	 * force to date & time setting.
-	 * @return boolean
 	 */
-	private boolean checkSessionDate(){
+	private void checkSessionDate(){
 		if(mSession.getCurrentSessionId() != 0){
 			Calendar sessionDate = Calendar.getInstance();
 			sessionDate.setTimeInMillis(Long.parseLong(mSession.getSessionDate()));
-			// sessionDate > currentDate
+			/*
+			 *  sessionDate > currentDate
+			 *  mPOS will force to go to date & time Settings
+			 *  for setting correct date.
+			 */
 			if(sessionDate.getTime().compareTo(Util.getDate().getTime()) > 0){
 				new AlertDialog.Builder(this)
 				.setCancelable(false)
@@ -129,7 +126,15 @@ public class LoginActivity extends Activity implements OnClickListener {
 					}
 				}).show();
 			}
+			
+			/*
+			 * Current date > Session date
+			 * mPOS will force to end day.
+			 */
 			if(Util.getDate().getTime().compareTo(sessionDate.getTime()) > 0){
+				// first access of day
+				mIsFirstAccess = true;
+				
 				// force end previous sale date
 				new AlertDialog.Builder(this)
 				.setCancelable(false)
@@ -152,7 +157,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 						progress.setCancelable(false);
 						MPOSUtil.doEndday(LoginActivity.this, mShop.getShopId(), 
 								mComputer.getComputerId(), mSession.getCurrentSessionId(), 
-								sStaffId, 0, true,
+								mStaffId, 0, true,
 								new ProgressListener(){
 
 									@Override
@@ -191,7 +196,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 		}else{
 			gotoMainActivity();
 		}
-		return true;
 	}
 	
 	@Override
@@ -209,7 +213,21 @@ public class LoginActivity extends Activity implements OnClickListener {
 			startActivity(intent);
 			return true;
 		case R.id.itemUpdate:
-			MPOSUtil.updateData(LoginActivity.this);
+			MPOSUtil.updateData(LoginActivity.this, new ProgressListener(){
+
+				@Override
+				public void onPre() {
+				}
+
+				@Override
+				public void onPost() {
+				}
+
+				@Override
+				public void onError(String msg) {
+				}
+				
+			});
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
@@ -225,9 +243,35 @@ public class LoginActivity extends Activity implements OnClickListener {
 
 	@Override
 	protected void onResume() {
-		init();
-		mTxtUser.requestFocus();
 		super.onResume();
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
+		if(url.equals("")){
+			mIsFirstAccess = true;
+			Intent intent = new Intent(this, SettingsActivity.class);
+			startActivity(intent);
+		}else{
+			mTxtUser.requestFocus();
+			if(mIsFirstAccess){
+				MPOSUtil.updateData(this, new ProgressListener(){
+		
+					@Override
+					public void onPre() {
+					}
+		
+					@Override
+					public void onPost() {
+						mIsFirstAccess = false;
+					}
+		
+					@Override
+					public void onError(String msg) {
+					}
+					
+				});
+			}
+		}
 	}
 			
 	private void gotoMainActivity(){
@@ -235,19 +279,40 @@ public class LoginActivity extends Activity implements OnClickListener {
 		mTxtPass.setText(null);
 		if(mSession.checkEndday(String.valueOf(Util.getDate().getTimeInMillis())) > 0){
 			new AlertDialog.Builder(this)
+			.setCancelable(false)
 			.setTitle(R.string.endday)
 			.setMessage(R.string.alredy_endday)
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					
 				}
 			}).show();
 		}else{
-			Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-			intent.putExtra("staffId", sStaffId);
-			startActivity(intent);
+			final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+			intent.putExtra("staffId", mStaffId);
+			if(mIsFirstAccess){
+				MPOSUtil.updateData(this, new ProgressListener(){
+
+					@Override
+					public void onPre() {
+					}
+
+					@Override
+					public void onPost() {
+						startActivity(intent);
+						finish();
+					}
+
+					@Override
+					public void onError(String msg) {
+					}
+					
+				});
+			}else{
+				startActivity(intent);
+				finish();
+			}
 		}
 	}
 	
@@ -266,7 +331,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 					ShopData.Staff s = login.checkLogin();
 					
 					if(s != null){
-						sStaffId = s.getStaffID();
+						mStaffId = s.getStaffID();
 						checkSessionDate();
 					}else{
 						new AlertDialog.Builder(LoginActivity.this)

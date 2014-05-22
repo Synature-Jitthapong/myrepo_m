@@ -6,7 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.FormatPropertyDao;
 import com.syn.mpos.dao.MPOSOrderTransaction;
 import com.syn.mpos.dao.PrintReceiptLogDao;
 import com.syn.mpos.dao.TransactionDao;
@@ -37,8 +37,8 @@ import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
 	
-	private TransactionDao mOrders;
-	private GlobalPropertyDao mGlobal;
+	private TransactionDao mTrans;
+	private FormatPropertyDao mFormat;
 	
 	private List<MPOSOrderTransaction> mTransLst;
 	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderLst;
@@ -88,8 +88,8 @@ public class VoidBillActivity extends Activity {
 	    tvSaleDate = (TextView) findViewById(R.id.tvSaleDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 
-		mOrders = new TransactionDao(getApplicationContext());
-		mGlobal = new GlobalPropertyDao(getApplicationContext());
+		mTrans = new TransactionDao(getApplicationContext());
+		mFormat = new FormatPropertyDao(getApplicationContext());
 		mTransLst = new ArrayList<MPOSOrderTransaction>();
 		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -97,7 +97,7 @@ public class VoidBillActivity extends Activity {
 		mLvBill.setAdapter(mBillAdapter);
 		mLvBillDetail.setAdapter(mBillDetailAdapter);
 		
-		tvSaleDate.setText(mGlobal.dateFormat(mCalendar.getTime()));
+		tvSaleDate.setText(mFormat.dateFormat(mCalendar.getTime()));
 	    
 	    btnSearch.setOnClickListener(new OnClickListener(){
 
@@ -120,7 +120,7 @@ public class VoidBillActivity extends Activity {
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
 				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = mGlobal.dateTimeFormat(c.getTime());
+				mReceiptDate = mFormat.dateTimeFormat(c.getTime());
 				
 				if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
 					mItemConfirm.setEnabled(true);
@@ -205,10 +205,13 @@ public class VoidBillActivity extends Activity {
 				e.printStackTrace();
 			}
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
-			holder.tvPaidTime.setText(mGlobal.dateTimeFormat(c.getTime()));
+			holder.tvPaidTime.setText(mFormat.dateTimeFormat(c.getTime()));
 			if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID){
 				holder.tvReceiptNo.setTextColor(Color.RED);
 				holder.tvReceiptNo.setPaintFlags(holder.tvReceiptNo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+			}else{
+				holder.tvReceiptNo.setTextColor(Color.BLACK);
+				holder.tvReceiptNo.setPaintFlags(holder.tvReceiptNo.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
 			}
 			return convertView;
 		}
@@ -262,9 +265,9 @@ public class VoidBillActivity extends Activity {
 			}
 		
 			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(mGlobal.qtyFormat(order.getQty()));
-			holder.tvPrice.setText(mGlobal.currencyFormat(order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(mGlobal.currencyFormat(order.getTotalRetailPrice()));
+			holder.tvQty.setText(mFormat.qtyFormat(order.getQty()));
+			holder.tvPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
+			holder.tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
 			
 			return convertView;
 		}
@@ -281,7 +284,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText("");
 		txtReceiptDate.setText("");
 		
-		mTransLst = mOrders.listTransaction(mDate);
+		mTransLst = mTrans.listTransaction(mDate);
 		if(mTransLst.size() == 0){
 			new AlertDialog.Builder(VoidBillActivity.this)
 			.setTitle(R.string.void_bill)
@@ -300,7 +303,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText(mReceiptNo);
 		txtReceiptDate.setText(mReceiptDate);
 		
-		mOrderLst = mOrders.listAllOrder(mTransactionId);
+		mOrderLst = mTrans.listAllOrder(mTransactionId);
 		mBillDetailAdapter.notifyDataSetChanged();
 	}
 
@@ -335,7 +338,7 @@ public class VoidBillActivity extends Activity {
 			public void onClick(View v) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					mOrders.voidTransaction(mTransactionId, mStaffId, voidReason);
+					mTrans.voidTransaction(mTransactionId, mStaffId, voidReason);
 					new AlertDialog.Builder(VoidBillActivity.this)
 					.setTitle(R.string.void_bill)
 					.setMessage(R.string.void_bill_success)

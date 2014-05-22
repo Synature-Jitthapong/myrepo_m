@@ -3,4 +3,5 @@
     <item android:id="@+id/itemReportType" android:actionLayout="@layout/spinner_view" android:showAsAction="always"></item>
     <item android:id="@+id/itemDateCondition" android:showAsAction="ifRoom" android:actionLayout="@layout/date_condition"></item>
     <item android:id="@+id/itemCreateReport" android:showAsAction="always|withText" android:actionLayout="@layout/button_action"></item>
+    <item android:id="@+id/itemPrint" android:showAsAction="always" android:actionLayout="@layout/button_action"></item>
 </menu>

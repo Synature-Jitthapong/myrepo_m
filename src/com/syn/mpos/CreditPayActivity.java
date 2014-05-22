@@ -11,7 +11,7 @@ import com.j1tth4.util.Logger;
 import com.j1tth4.util.VerifyCardType;
 import com.syn.mpos.dao.BankNameDao;
 import com.syn.mpos.dao.CreditCardDao;
-import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.FormatPropertyDao;
 import com.syn.mpos.dao.PaymentDao;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
@@ -55,7 +55,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	private WintecMagneticReader mMsrReader;
 	
 	private PaymentDao mPayment;
-	private GlobalPropertyDao mGlobal;
+	private FormatPropertyDao mFormat;
 	
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
@@ -154,7 +154,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 		});
 		
 		mPayment = new PaymentDao(getApplicationContext());
-		mGlobal = new GlobalPropertyDao(getApplicationContext());
+		mFormat = new FormatPropertyDao(getApplicationContext());
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -236,7 +236,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(mGlobal.currencyFormat(mPaymentLeft));
+		mTxtTotalPrice.setText(mFormat.currencyFormat(mPaymentLeft));
 		mTxtTotalPay.setText(mTxtTotalPrice.getText());
 	}
 	

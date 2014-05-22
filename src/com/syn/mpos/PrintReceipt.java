@@ -16,7 +16,7 @@ import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.j1tth4.util.Logger;
 import com.syn.mpos.dao.CreditCardDao;
-import com.syn.mpos.dao.GlobalPropertyDao;
+import com.syn.mpos.dao.FormatPropertyDao;
 import com.syn.mpos.dao.HeaderFooterReceiptDao;
 import com.syn.mpos.dao.MPOSOrderTransaction;
 import com.syn.mpos.dao.PaymentDao;
@@ -37,7 +37,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	private PaymentDao mPayment;
 	private ShopDao mShop;
 	private HeaderFooterReceiptDao mHeaderFooter;
-	private GlobalPropertyDao mGlobal;
+	private FormatPropertyDao mGlobal;
 	private StaffDao mStaff;
 	private CreditCardDao mCreditCard;
 	private PrintStatusListener mPrintListener;
@@ -53,7 +53,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		mOrders = new TransactionDao(context.getApplicationContext());
 		mPayment = new PaymentDao(context.getApplicationContext());
 		mShop = new ShopDao(context.getApplicationContext());
-		mGlobal = new GlobalPropertyDao(context.getApplicationContext());
+		mGlobal = new FormatPropertyDao(context.getApplicationContext());
 		mHeaderFooter = new HeaderFooterReceiptDao(context.getApplicationContext());
 		mStaff = new StaffDao(context.getApplicationContext());
 		mCreditCard = new CreditCardDao(context.getApplicationContext());

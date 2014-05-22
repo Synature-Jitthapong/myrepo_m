@@ -3,9 +3,6 @@ package com.syn.mpos;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import cn.wintec.wtandroidjar2.ComIO;
-import cn.wintec.wtandroidjar2.DspPos;
-
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;

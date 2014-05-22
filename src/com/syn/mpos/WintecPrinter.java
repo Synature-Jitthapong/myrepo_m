@@ -23,6 +23,8 @@ public abstract class WintecPrinter extends PrinterUtility{
 		mBuilder = new StringBuilder();
 	}
 	
+	public abstract void prepareDataToPrint();
+	
 	protected void print(){
 		String[] subElement = mBuilder.toString().split("\n");
     	for(String data : subElement){
