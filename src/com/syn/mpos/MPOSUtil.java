@@ -105,16 +105,19 @@ public class MPOSUtil {
 	 * @param shopId
 	 * @param computerId
 	 * @param sessionId
-	 * @param closeStaffId
+	 * @param staffId
 	 * @param closeAmount
 	 * @param isEndday
 	 * @param listener
 	 */
 	public static void doEndday(final Context context, final int shopId, 
 			final int computerId, final int sessionId,
-			final int closeStaffId, final double closeAmount,
+			final int staffId, final double closeAmount,
 			final boolean isEndday, final ProgressListener listener) {
 
+		// execute print summary sale task
+		new PrintReport(context, staffId, PrintReport.WhatPrint.SUMMARY_SALE).execute();
+		
 		final SessionDao sess = new SessionDao(context.getApplicationContext());
 		final TransactionDao trans = new TransactionDao(context.getApplicationContext());
 		final String sessionDate = sess.getSessionDate();
@@ -124,7 +127,7 @@ public class MPOSUtil {
 				trans.getTotalReceiptAmount(sessionDate));
 		// close session
 		sess.closeSession(sessionId,
-			closeStaffId, closeAmount, isEndday);
+			staffId, closeAmount, isEndday);
 
 		new LoadSaleTransaction(context, sessionDate, 
 				true, new LoadSaleTransactionListener() {
@@ -136,7 +139,7 @@ public class MPOSUtil {
 				if(jsonSale != null && !jsonSale.equals("")){
 					new MPOSWebServiceClient.SendSaleTransaction(context,
 							SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-							closeStaffId, shopId, computerId, jsonSale, new ProgressListener() {
+							staffId, shopId, computerId, jsonSale, new ProgressListener() {
 	
 								@Override
 								public void onError(String mesg) {
@@ -154,8 +157,6 @@ public class MPOSUtil {
 									try {
 										sess.updateSessionEnddayDetail(sessionDate, 
 												SessionDao.ALREADY_ENDDAY_STATUS);
-										// delete unnecessary transaction
-										trans.deleteUnnecessaryTransaction();
 										sess.getWritableDatabase().setTransactionSuccessful();
 										listener.onPost();
 									} catch (SQLException e) {

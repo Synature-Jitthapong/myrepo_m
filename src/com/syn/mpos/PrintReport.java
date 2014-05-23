@@ -34,10 +34,13 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 	private StaffDao mStaff;
 	private FormatPropertyDao mFormat;
 	private WhatPrint mWhatPrint;
+	private String mDateFrom;
+	private String mDateTo;
 	
 	private int mStaffId;
 	
-	public PrintReport(Context context, int staffId, WhatPrint whatPrint){
+	public PrintReport(Context context, String dateFrom, String dateTo, 
+			int staffId, WhatPrint whatPrint){
 		mContext = context;
 		mTrans = new TransactionDao(context.getApplicationContext());
 		mPayment = new PaymentDao(context.getApplicationContext());
@@ -46,20 +49,42 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 		mFormat = new FormatPropertyDao(context.getApplicationContext());
 		mWhatPrint = whatPrint;
 		
+		mDateFrom = dateFrom;
+		mDateTo = dateTo;
 		mStaffId = staffId;
 	}
 	
-	public PrintReport(Context context, WhatPrint whatPrint){
-		this(context, 0, whatPrint);
+	public PrintReport(Context context, String dateFrom, String dateTo, WhatPrint whatPrint){
+		this(context, dateFrom, dateTo, 0, whatPrint);
+	}
+	
+	public PrintReport(Context context, int staffId, WhatPrint whatPrint){
+		this(context, "", "", staffId, whatPrint);
+	}
+	
+	public class WintecPrintBillReport extends WintecPrinter{
+
+		@Override
+		public void prepareDataToPrint() {
+			MPOSOrderTransaction.MPOSOrderDetail summOrder 
+				= mTrans.getSummaryOrderInDay(mDateFrom, mDateTo);
+
+			// header
+			mBuilder.append("<c>" + mContext.getString(R.string.sale_by_bill_report) + "\n");
+			mBuilder.append("<c>" + mFormat.dateFormat(Util.getDate().getTime()) + "\n");
+			mBuilder.append("<c>" + mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
+			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n\n");
+			
+		}
+		
 	}
 	
 	public class WintecPrintSaleByProduct extends WintecPrinter{
 
 		@Override
 		public void prepareDataToPrint() {
-			SessionDao session = new SessionDao(mContext.getApplicationContext());
 			MPOSOrderTransaction.MPOSOrderDetail summOrder 
-				= mTrans.getSummaryOrderInDay(session.getSessionDate());
+				= mTrans.getSummaryOrderInDay(mDateFrom, mDateTo);
 
 			// header
 			mBuilder.append("<c>" + mContext.getString(R.string.sale_by_product_report) + "\n");
@@ -68,7 +93,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n\n");
 			
 			// Product Summary
-			Reporting reporting = new Reporting(mContext, session.getSessionDate(), session.getSessionDate());
+			Reporting reporting = new Reporting(mContext, mDateFrom, mDateTo);
 			Report reportData = reporting.getProductDataReport();
 			for(Report.GroupOfProduct group : reportData.getGroupOfProductLst()){
 				mBuilder.append("<b>" + group.getProductGroupName() + ": " + group.getProductDeptName()+ "\n");
@@ -77,14 +102,17 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 					if(detail.getProductName() == Reporting.SUMM_DEPT){
 						itemName = group.getProductDeptName() + " " +
 								mContext.getString(R.string.summary);
+						mBuilder.append(itemName);
 					}else if(detail.getProductName() == Reporting.SUMM_GROUP){
 						itemName = group.getProductGroupName() + " " +
 								mContext.getString(R.string.summary);
+						mBuilder.append("<b>" + itemName);
+					}else{
+						mBuilder.append(itemName);
 					}
 					String itemTotalPrice = mFormat.currencyFormat(detail.getSubTotal());
 					String itemTotalQty = mFormat.qtyFormat(detail.getQty()) + 
 							createQtySpace(itemTotalPrice.length());
-					mBuilder.append(itemName);
 					mBuilder.append(createHorizontalSpace(itemName.length() + 
 							itemTotalQty.length() + itemTotalPrice.length()));
 					mBuilder.append(itemTotalQty);
@@ -99,7 +127,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			String discountText = mContext.getString(R.string.discount);
 			String discount = mFormat.currencyFormat(summOrder.getPriceDiscount());
 			String subTotalText = mContext.getString(R.string.sub_total) + " ";
-			String subTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice());
+			String subTotal = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
 			
 			mBuilder.append(subTotalText);
 			mBuilder.append(createHorizontalSpace(subTotalText.length() + subTotal.length()));
@@ -108,13 +136,23 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			mBuilder.append(createHorizontalSpace(discountText.length() + discount.length()));
 			mBuilder.append(discount + "\n");
 			
+			// Vat Exclude
+			if(summOrder.getVatExclude() > 0){
+				String vatExcludeText = mContext.getString(R.string.vat_exclude);
+				String vatExclude = mFormat.currencyFormat(summOrder.getVatExclude());
+				mBuilder.append(vatExcludeText);
+				mBuilder.append(createHorizontalSpace(vatExcludeText.length() + vatExclude.length()));
+				mBuilder.append(vatExclude + "\n\n");
+			}else{
+				mBuilder.append("\n");
+			}
+			
 			String grandTotalText = mContext.getString(R.string.grand_total);
 			String grandTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
 			mBuilder.append(grandTotalText);
 			mBuilder.append(createHorizontalSpace(grandTotalText.length() + grandTotal.length()));
 			mBuilder.append(grandTotal + "\n");
 		}
-		
 	}
 	
 	public class WintecPrintSummarySale extends WintecPrinter{
@@ -124,7 +162,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			SessionDao session = new SessionDao(mContext.getApplicationContext());
 			MPOSOrderTransaction trans = mTrans.getTransaction(session.getSessionDate()); 
 			MPOSOrderTransaction.MPOSOrderDetail summOrder 
-				= mTrans.getSummaryOrderInDay(session.getSessionDate());
+				= mTrans.getSummaryOrderInDay(session.getSessionDate(), session.getSessionDate());
 
 			// header
 			mBuilder.append("<c>" + mContext.getString(R.string.summary_sale_by_day) + "\n");

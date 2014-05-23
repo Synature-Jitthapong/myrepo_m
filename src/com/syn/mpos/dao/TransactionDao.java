@@ -279,11 +279,11 @@ public class TransactionDao extends MPOSDatabase {
 	
 	/**
 	 * Get summary order by sale date
-	 * @param saleDate
+	 * @param dateFrom
 	 * @return MPOSOrderTransaction.MPOSOrderDetail
 	 */
 	public MPOSOrderTransaction.MPOSOrderDetail getSummaryOrderInDay(
-			String saleDate) {
+			String dateFrom, String dateTo) {
 		MPOSOrderTransaction.MPOSOrderDetail orderDetail = 
 				new MPOSOrderTransaction.MPOSOrderDetail();
 		String sql = "SELECT SUM (b." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " 
@@ -301,10 +301,12 @@ public class TransactionDao extends MPOSDatabase {
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a " 
 				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
 				+ " ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=b." + OrderTransactionTable.COLUMN_TRANSACTION_ID
-				+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
+				+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ?"
 				+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)";
 		Cursor cursor = getReadableDatabase().rawQuery(
-				sql, new String[] {saleDate, 
+				sql, new String[] {
+						dateFrom,
+						dateTo,
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
 		if (cursor.moveToFirst()) {
@@ -991,17 +993,6 @@ public class TransactionDao extends MPOSDatabase {
 	public void deleteOrder(int transactionId, int orderDetailId){
 		deleteOrderSet(transactionId, orderDetailId);
 		deleteOrderDetail(transactionId, orderDetailId);
-	}
-	
-	/**
-	 * Delete unnecessary transaction
-	 * @return rows affected
-	 */
-	public int deleteUnnecessaryTransaction() {
-		return getWritableDatabase().delete(
-				OrderTransactionTable.TABLE_ORDER_TRANS,
-				OrderTransactionTable.COLUMN_STATUS_ID + "=?",
-				new String[] { String.valueOf(TransactionDao.TRANS_STATUS_NEW) });
 	}
 	
 	/**

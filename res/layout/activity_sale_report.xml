@@ -133,81 +133,12 @@
         </ExpandableListView>
 
         <LinearLayout
-            android:id="@+id/layoutSummProduct"
+            android:id="@+id/productSummaryContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/TextView15"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2.8"
-                android:gravity="right"
-                android:text="@string/grand_total" />
-
-            <TextView
-                android:id="@+id/tvSummProQty"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummProQtyPercent"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummProSubTotal"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.8"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummProSubTotalPercent"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummProDiscount"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.8"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummProTotalPrice"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.8"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummProTotalPricePercent"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/TextView21"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.2" />
         </LinearLayout>
 
     </LinearLayout>
@@ -216,8 +147,7 @@
         android:id="@+id/billLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:visibility="gone" >
+        android:orientation="vertical" >
 
         <LinearLayout
             android:id="@+id/billHeader"
@@ -317,74 +247,11 @@
         </ListView>
 
         <LinearLayout
-            android:id="@+id/billSummary"
+            android:id="@+id/billSummaryContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/TextView10"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.2"
-                android:gravity="right"
-                android:text="@string/summary" />
-
-            <TextView
-                android:id="@+id/tvSummTotalPrice"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummDiscount"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummSubTotal"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummTotalSale"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.8"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/tvSummVatable"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummTotalVat"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right" />
-
-            <TextView
-                android:id="@+id/tvSummTotalPay"
-                style="@style/HeaderText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:gravity="right" />
         </LinearLayout>
     </LinearLayout>
 

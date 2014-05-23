@@ -142,6 +142,12 @@ public class MainActivity extends FragmentActivity{
 		super.onResume();
 	}
 
+	@Override
+	protected void onDestroy() {
+		clearTransaction();
+		super.onDestroy();
+	}
+
 	public static class PlaceholderFragment extends Fragment{
 		
 		private PagerSlidingTabStrip mTabs;
@@ -1316,9 +1322,6 @@ public class MainActivity extends FragmentActivity{
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					// execute print summary sale task
-					new PrintReport(MainActivity.this, mStaffId, PrintReport.WhatPrint.SUMMARY_SALE).execute();
-					
 					mProgress.setTitle(MainActivity.this.getString(R.string.endday));
 					mProgress.setMessage(MainActivity.this.getString(R.string.endday_progress));
 					MPOSUtil.doEndday(MainActivity.this, sShop.getShopId(), 
