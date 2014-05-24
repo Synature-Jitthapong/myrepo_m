@@ -220,7 +220,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			
 			// Product Summary
 			Reporting report = new Reporting(mContext, session.getSessionDate(), session.getSessionDate());
-			List<SimpleProductData> simpleLst = report.getSummaryProductGroupInDay();
+			List<SimpleProductData> simpleLst = report.listSummaryProductGroupInDay();
 			if(simpleLst != null){
 				for(SimpleProductData sp : simpleLst){
 					String groupName = sp.getDeptName();

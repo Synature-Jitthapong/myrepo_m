@@ -64,7 +64,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
-                android:id="@+id/textView9"
+                android:id="@+id/tvTo"
                 style="@style/HeaderText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

@@ -123,7 +123,7 @@ public class Reporting extends MPOSDatabase{
 	 * Get Summary Product by Group for print Summary Sale By Day
 	 * @return List<SimpleProductData>
 	 */
-	public List<SimpleProductData> getSummaryProductGroupInDay(){
+	public List<SimpleProductData> listSummaryProductGroupInDay(){
 		List<SimpleProductData> simpleLst = new ArrayList<SimpleProductData>();
 		
 		createReportProductTmp();

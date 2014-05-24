@@ -11,7 +11,9 @@ import com.syn.mpos.dao.MPOSDatabase;
 import com.syn.mpos.dao.MPOSOrderTransaction;
 import com.syn.mpos.dao.PaymentDao;
 import com.syn.mpos.dao.Reporting;
+import com.syn.mpos.dao.Reporting.SimpleProductData;
 import com.syn.mpos.dao.ShopDao;
+import com.syn.mpos.dao.StaffDao;
 import com.syn.mpos.dao.TransactionDao;
 import com.syn.pos.Payment;
 import com.syn.pos.Report;
@@ -55,14 +57,17 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	public static final int REPORT_BY_PRODUCT = 1;
 	public static final int REPORT_ENDDAY = 2;
 	
-	private static FormatPropertyDao sFormat;
+	private FormatPropertyDao mFormat;
 
 	private Reporting mReporting;
+	
+	private int mStaffId;
 	
 	private Calendar mCalendar;
 	private String mDateFrom;
 	private String mDateTo;
 	
+	private TextView mTvTo;
 	private Button mBtnDateFrom;
 	private Button mBtnDateTo;
 	private Spinner mSpReportType;
@@ -79,7 +84,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		setContentView(R.layout.activity_sale_report);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
-		sFormat = new FormatPropertyDao(SaleReportActivity.this);
+		mFormat = new FormatPropertyDao(SaleReportActivity.this);
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -87,6 +92,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mDateTo = String.valueOf(mCalendar.getTimeInMillis());
 
 		mReporting = new Reporting(SaleReportActivity.this, mDateFrom, mDateTo);
+		
+		mStaffId = getIntent().getIntExtra("staffId", 0);
 		
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction()
@@ -99,10 +106,26 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		case REPORT_BY_BILL:
 			getFragmentManager().beginTransaction()
 			.replace(R.id.reportContent, BillReportFragment.getInstance()).commit();
+			if(mBtnDateFrom != null){
+				mBtnDateFrom.setVisibility(View.VISIBLE);
+				mTvTo.setVisibility(View.VISIBLE);
+			}
 			break;
 		case REPORT_BY_PRODUCT:
 			getFragmentManager().beginTransaction()
 			.replace(R.id.reportContent, ProductReportFragment.getInstance()).commit();
+			if(mBtnDateFrom != null){
+				mBtnDateFrom.setVisibility(View.VISIBLE);
+				mTvTo.setVisibility(View.VISIBLE);
+			}
+			break;
+		case REPORT_ENDDAY:
+			getFragmentManager().beginTransaction()
+			.replace(R.id.reportContent, EnddayReportFragment.getInstance()).commit();
+			if(mBtnDateFrom != null){
+				mBtnDateFrom.setVisibility(View.GONE);
+				mTvTo.setVisibility(View.GONE);
+			}
 			break;
 		}
 	}
@@ -115,8 +138,9 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		mSpReportType = (Spinner) itemReportType.getActionView().findViewById(R.id.spinner1);
 		mBtnDateFrom = (Button) itemCondition.getActionView().findViewById(R.id.btnDateFrom);
 		mBtnDateTo = (Button) itemCondition.getActionView().findViewById(R.id.btnDateTo);
-		mBtnDateFrom.setText(sFormat.dateFormat(mCalendar.getTime()));
-		mBtnDateTo.setText(sFormat.dateFormat(mCalendar.getTime()));
+		mTvTo = (TextView) itemCondition.getActionView().findViewById(R.id.tvTo);
+		mBtnDateFrom.setText(mFormat.dateFormat(mCalendar.getTime()));
+		mBtnDateTo.setText(mFormat.dateFormat(mCalendar.getTime()));
 		mBtnDateFrom.setOnClickListener(this);
 		mBtnDateTo.setOnClickListener(this);
 		mSpReportType.setOnItemSelectedListener(new OnItemSelectedListener(){
@@ -256,7 +280,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				Payment.PaymentDetail payment = mPaymentLst.get(position);
 				
 				tvLeft.setText(payment.getPayTypeName());
-				tvRight.setText(sFormat.currencyFormat(payment.getPayAmount()));
+				tvRight.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(payment.getPayAmount()));
 				
 				return convertView;
 			}
@@ -277,7 +301,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 					mCalendar.setTimeInMillis(date);
 					mDateFrom = String.valueOf(mCalendar.getTimeInMillis());
 					
-					mBtnDateFrom.setText(sFormat.dateFormat(mCalendar.getTime()));
+					mBtnDateFrom.setText(mFormat.dateFormat(mCalendar.getTime()));
 					mReporting.setDateFrom(mDateFrom);
 				}
 			});
@@ -291,12 +315,149 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 					mCalendar.setTimeInMillis(date);
 					mDateTo = String.valueOf(mCalendar.getTimeInMillis());
 					
-					mBtnDateTo.setText(sFormat.dateFormat(mCalendar.getTime()));
+					mBtnDateTo.setText(mFormat.dateFormat(mCalendar.getTime()));
 					mReporting.setDateTo(mDateTo);
 				}
 			});
 			dialogFragment.show(getFragmentManager(), "Condition");
 			break;
+		}
+	}
+	
+	/**
+	 * @author j1tth4
+	 * Endday Report Fragment
+	 */
+	public static class EnddayReportFragment extends Fragment{
+
+		private static EnddayReportFragment sInstance;
+		
+		private TransactionDao mTrans;
+		
+		private LinearLayout mSaleHeaderContainer;
+		private LinearLayout mSaleReportItemContainer; 
+		
+		public static EnddayReportFragment getInstance(){
+			if(sInstance == null){
+				sInstance = new EnddayReportFragment();
+			}
+			return sInstance;
+		}
+		
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			setHasOptionsMenu(true);
+			
+			mTrans = new TransactionDao(getActivity());
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_endday_report, container, false);
+			mSaleHeaderContainer = (LinearLayout) rootView.findViewById(R.id.saleReportHeaderContainer);
+			mSaleReportItemContainer = (LinearLayout) rootView.findViewById(R.id.saleReportItemContainer);
+			return rootView;
+		}
+
+		@Override
+		public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+			inflater.inflate(R.menu.fragment_sale_report, menu);
+			super.onCreateOptionsMenu(menu, inflater);
+		}
+
+		@Override
+		public boolean onOptionsItemSelected(MenuItem item) {
+			SaleReportActivity activity = (SaleReportActivity) getActivity();
+			switch(item.getItemId()){
+			case R.id.itemCreateReport:
+				createReport();
+				return true;
+			case R.id.itemPrint:
+				new PrintReport(getActivity(), activity.mDateTo, activity.mDateTo, 
+						activity.mStaffId, PrintReport.WhatPrint.SUMMARY_SALE).execute();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+			}
+		}
+		
+		private void createReport(){
+			SaleReportActivity activity = ((SaleReportActivity) getActivity());
+			ShopDao shop = new ShopDao(getActivity());
+			StaffDao staff = new StaffDao(getActivity());
+			MPOSOrderTransaction.MPOSOrderDetail sumOrder 
+				= mTrans.getSummaryOrderInDay(activity.mDateTo, activity.mDateTo);
+			
+			mSaleHeaderContainer.removeAllViews();
+			// add header
+			TextView[] tvHeader = {
+					createTextViewContent(getString(R.string.endday_report), 0,
+							new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
+									LinearLayout.LayoutParams.WRAP_CONTENT))
+			};
+			mSaleHeaderContainer.addView(createRow(tvHeader));
+			
+			TextView[] tvDate = {
+				createTextViewContent(((SaleReportActivity) getActivity()).mFormat.dateFormat(activity.mDateTo), 0,
+						new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
+								LinearLayout.LayoutParams.WRAP_CONTENT))	
+			};
+			mSaleHeaderContainer.addView(createRow(tvDate));
+			
+			TextView[] tvShop = {
+					createTextViewContent(getString(R.string.shop) + " " + shop.getShopName(), 0,
+							new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
+									LinearLayout.LayoutParams.WRAP_CONTENT))	
+				};
+			mSaleHeaderContainer.addView(createRow(tvShop));
+			
+			Reporting reporting = new Reporting(getActivity(), activity.mDateTo, activity.mDateTo);
+			List<SimpleProductData> simpleLst = reporting.listSummaryProductGroupInDay();
+			for(SimpleProductData simple : simpleLst){
+				TextView[] tvHead = {
+						createTextViewContent(simple.getDeptName(), android.R.style.TextAppearance_Large,
+								new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
+										LinearLayout.LayoutParams.WRAP_CONTENT))	
+					};
+				mSaleReportItemContainer.addView(createRow(tvHead));
+				for(SimpleProductData.Item item : simple.getItemLst()){
+					TextView[] tvItem = {
+							createTextViewContent(item.getItemName(), 0,
+									new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
+											LinearLayout.LayoutParams.WRAP_CONTENT, 1f)),
+							createTextViewContent(((SaleReportActivity) getActivity()).mFormat.qtyFormat(item.getTotalQty()), 0,
+									new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
+											LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f)),
+							createTextViewContent(((SaleReportActivity) getActivity()).mFormat.qtyFormat(item.getTotalPrice()), 0,
+									new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
+											LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f)),
+					};
+					LinearLayout itemRow = createRow(tvItem);
+					mSaleReportItemContainer.addView(itemRow);
+				}
+			}
+		}
+		
+		private TextView createTextViewContent(String content, int appearance,
+				LinearLayout.LayoutParams params){
+			TextView tvContent = new TextView(getActivity());
+			if(appearance != 0)
+				tvContent.setTextAppearance(getActivity(), appearance);
+			else
+				tvContent.setTextAppearance(getActivity(), android.R.style.TextAppearance_Holo_Medium);
+			tvContent.setLayoutParams(params);
+			tvContent.setText(content);
+			return tvContent;
+		}
+		
+		private LinearLayout createRow(TextView[] tvContents){
+			LinearLayout row = new LinearLayout(getActivity());
+			for(TextView tvContent : tvContents){
+				row.addView(tvContent);
+			}
+			return row;
 		}
 	}
 	
@@ -419,12 +580,12 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				
 				holder.tvReceipt.setText(report.getReceiptNo());
 				holder.tvReceipt.setSelected(true);
-				holder.tvTotalPrice.setText(sFormat.currencyFormat(totalPrice));
-				holder.tvDiscount.setText(sFormat.currencyFormat(totalDiscount));
-				holder.tvSubTotal.setText(sFormat.currencyFormat(subTotal));
-				holder.tvVatable.setText(sFormat.currencyFormat(vatable));
-				holder.tvTotalVat.setText(sFormat.currencyFormat(totalVat));
-				holder.tvTotalPayment.setText(sFormat.currencyFormat(totalPay));
+				holder.tvTotalPrice.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalPrice));
+				holder.tvDiscount.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalDiscount));
+				holder.tvSubTotal.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(subTotal));
+				holder.tvVatable.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(vatable));
+				holder.tvTotalVat.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalVat));
+				holder.tvTotalPayment.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalPay));
 				
 //				List<Payment.PaymentDetail> payTypeLst = 
 //						mPayment.listPaymentGroupByType(report.getTransactionId(), report.getComputerId());
@@ -487,17 +648,17 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			TextView[] tvSummary = {
 					createTextViewSummary(getActivity(), getString(R.string.summary), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.2f)),
-					createTextViewSummary(getActivity(), sFormat.currencyFormat(summary.getTotalPrice()), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getTotalPrice()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
-					createTextViewSummary(getActivity(), sFormat.currencyFormat(summary.getDiscount()), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getDiscount()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
-					createTextViewSummary(getActivity(), sFormat.currencyFormat(summary.getSubTotal()), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getSubTotal()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
-					createTextViewSummary(getActivity(), sFormat.currencyFormat(summary.getVatable()), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getVatable()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
-					createTextViewSummary(getActivity(), sFormat.currencyFormat(summary.getTotalVat()), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getTotalVat()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
-					createTextViewSummary(getActivity(), sFormat.currencyFormat(summary.getTotalPayment()), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getTotalPayment()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
 			};
 			mBillSumContent.addView(createRowSummary(getActivity(), tvSummary));
@@ -684,21 +845,21 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				holder.tvNo.setText(String.valueOf(position + 1) + ".");
 				holder.tvProductCode.setText(reportDetail.getProductCode());
 				holder.tvProductName.setText(reportDetail.getProductName());
-				holder.tvProductPrice.setText(sFormat.currencyFormat(
+				holder.tvProductPrice.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(
 						reportDetail.getPricePerUnit()));
-				holder.tvQty.setText(sFormat.qtyFormat(
+				holder.tvQty.setText(((SaleReportActivity) getActivity()).mFormat.qtyFormat(
 						reportDetail.getQty()));
-				holder.tvQtyPercent.setText(sFormat.currencyFormat(
+				holder.tvQtyPercent.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(
 						reportDetail.getQtyPercent()));
-				holder.tvSubTotal.setText(sFormat.currencyFormat(
+				holder.tvSubTotal.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(
 						reportDetail.getSubTotal()));
-				holder.tvSubTotalPercent.setText(sFormat.currencyFormat(
+				holder.tvSubTotalPercent.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(
 						reportDetail.getSubTotalPercent()));
-				holder.tvDiscount.setText(sFormat.currencyFormat(
+				holder.tvDiscount.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(
 						reportDetail.getDiscount()));
-				holder.tvTotalPrice.setText(sFormat.currencyFormat(
+				holder.tvTotalPrice.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(
 						reportDetail.getTotalPrice()));
-				holder.tvTotalPricePercent.setText(sFormat.currencyFormat(
+				holder.tvTotalPricePercent.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(
 						reportDetail.getTotalPricePercent()));
 				holder.tvVatType.setText(reportDetail.getVat());
 			}
@@ -808,19 +969,19 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			TextView[] tvGrandTotal = {
 					createTextViewSummary(getActivity(), getString(R.string.grand_total), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2.8f)),
-					createTextViewSummary(getActivity(), sFormat.qtyFormat(summProduct.getQty()), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.qtyFormat(summProduct.getQty()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f)),
-					createTextViewSummary(getActivity(), sFormat.qtyFormat(summProduct.getQty() / summProduct.getQty() * 100), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.qtyFormat(summProduct.getQty() / summProduct.getQty() * 100), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f)),
-					createTextViewSummary(getActivity(), sFormat.currencyFormat(summProduct.getSubTotal()), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summProduct.getSubTotal()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f)),
-					createTextViewSummary(getActivity(), sFormat.qtyFormat(summProduct.getSubTotal() / summProduct.getSubTotal() * 100), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.qtyFormat(summProduct.getSubTotal() / summProduct.getSubTotal() * 100), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f)),
-					createTextViewSummary(getActivity(), sFormat.currencyFormat(summProduct.getDiscount()), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summProduct.getDiscount()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f)),
-					createTextViewSummary(getActivity(), sFormat.currencyFormat(summProduct.getTotalPrice()), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summProduct.getTotalPrice()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f)),
-					createTextViewSummary(getActivity(), sFormat.qtyFormat(summProduct.getTotalPrice() / summProduct.getTotalPrice() * 100), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.qtyFormat(summProduct.getTotalPrice() / summProduct.getTotalPrice() * 100), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f)),
 					createTextViewSummary(getActivity(), "", new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.2f))
@@ -837,7 +998,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			TextView[] tvSubTotal = {
 					createTextViewSummary(getActivity(), getString(R.string.sub_total), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 5.9f)),
-					createTextViewSummary(getActivity(), sFormat.currencyFormat(summOrder.getTotalRetailPrice()), new 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summOrder.getTotalRetailPrice()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f)),
 					createTextViewSummary(getActivity(), "", new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f)),
@@ -851,7 +1012,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				TextView[] tvTotalDiscount = {
 						createTextViewSummary(getActivity(), getString(R.string.discount), new 
 								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 5.9f)),
-						createTextViewSummary(getActivity(), sFormat.currencyFormat(summOrder.getPriceDiscount()), new 
+						createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summOrder.getPriceDiscount()), new 
 								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f)),
 						createTextViewSummary(getActivity(), "", new 
 								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f)),
@@ -867,7 +1028,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				TextView[] tvTotalVatExclude = {
 						createTextViewSummary(getActivity(), getString(R.string.vat_exclude), new 
 								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 5.9f)),
-						createTextViewSummary(getActivity(), sFormat.currencyFormat(summOrder.getVatExclude()) + " " +
+						createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summOrder.getVatExclude()) + " " +
 								NumberFormat.getInstance().format(shop.getCompanyVatRate()) + "%", new 
 								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f)),
 						createTextViewSummary(getActivity(), "", new 
@@ -882,7 +1043,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			TextView[] tvTotalSale = {
 					createTextViewSummary(getActivity(), getString(R.string.total_sale), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 5.9f)),
-					createTextViewSummary(getActivity(), sFormat.currencyFormat(summOrder.getTotalSalePrice() + 
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summOrder.getTotalSalePrice() + 
 							summOrder.getVatExclude()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f)),
 					createTextViewSummary(getActivity(), "", new 

@@ -12,7 +12,6 @@
 
         <TableRow
             android:id="@+id/tableRow1"
-            style="@style/HeaderRow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
@@ -62,7 +61,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
-                android:id="@+id/textView9"
+                android:id="@+id/tvTo"
                 style="@style/HeaderText"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
