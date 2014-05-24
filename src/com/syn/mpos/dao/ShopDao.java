@@ -16,6 +16,16 @@ public class ShopDao extends MPOSDatabase{
 		super(context);
 	}
 	
+	/**
+	 * @return Shop Name
+	 */
+	public String getShopName(){
+		return getShopProperty().getShopName();
+	}
+	
+	/**
+	 * @return Company Vat Type
+	 */
 	public int getCompanyVatType(){
 		return getShopProperty().getVatType();
 	}

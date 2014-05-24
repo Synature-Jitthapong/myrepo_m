@@ -1,5 +1,6 @@
 package com.syn.mpos;
 
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -635,7 +636,7 @@ public class MainActivity extends FragmentActivity{
 						long id) {
 					ProductsDao.Product p = 
 							(ProductsDao.Product) parent.getItemAtPosition(position);
-					((MainActivity) getActivity()).onMenuClick(p.getProductId(), p.getProductCode(), 
+					((MainActivity) getActivity()).onMenuClick(p.getProductId(),
 							p.getProductName(), p.getProductTypeId(), 
 							p.getVatType(), p.getVatRate(), p.getProductPrice());
 				}
@@ -802,11 +803,11 @@ public class MainActivity extends FragmentActivity{
 	 * @param vatRate
 	 * @param productPrice
 	 */
-	public void onMenuClick(int productId, String productCode, String productName, 
+	public void onMenuClick(int productId, String productName, 
 			int productTypeId, int vatType, double vatRate, double productPrice) {
 		if(productTypeId == ProductsDao.NORMAL_TYPE || 
 				productTypeId == ProductsDao.SET_TYPE){
-			addOrder(productId, productCode, productName, productTypeId, 
+			addOrder(productId, productName, productTypeId, 
 					vatType, vatRate, 1, productPrice);
 		}else if(productTypeId == ProductsDao.SIZE_TYPE){
 			productSizeDialog(productId);
@@ -846,12 +847,29 @@ public class MainActivity extends FragmentActivity{
 				}else{
 					order.setChecked(true);
 				}
+				countSelectedOrder();
 				sOrderDetailAdapter.notifyDataSetChanged();
 				break;
 			}
 		}
 		
 	};
+	
+	private void countSelectedOrder(){
+		boolean hasChecked = false;
+		for(MPOSOrderTransaction.MPOSOrderDetail order : 
+			sOrderDetailLst){
+			if(order.isChecked()){
+				hasChecked = true;
+				break;
+			}
+		}
+		if(hasChecked){
+			((LinearLayout) findViewById(R.id.orderCtrlContent)).setVisibility(View.VISIBLE);
+		}else{
+			((LinearLayout) findViewById(R.id.orderCtrlContent)).setVisibility(View.GONE);
+		}
+	}
 	
 	public OnKeyListener onKeyListener = new OnKeyListener(){
 
@@ -865,8 +883,9 @@ public class MainActivity extends FragmentActivity{
 				if(!barCode.equals("")){
 					ProductsDao.Product p = sProducts.getProduct(barCode);
 					if(p != null){
-						addOrder(p.getProductId(), p.getProductCode(), p.getProductName(), 
-								p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
+						addOrder(p.getProductId(), p.getProductName(), 
+								p.getProductTypeId(), p.getVatType(), p.getVatRate(), 
+								1, p.getProductPrice());
 					}else{
 						new AlertDialog.Builder(MainActivity.this)
 						.setTitle(R.string.search)
@@ -895,24 +914,28 @@ public class MainActivity extends FragmentActivity{
 	 */
 	public void summary(){
 		sTbSummary.removeAllViews();
+		
 		sTrans.summary(mTransactionId);
+		
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
 				sTrans.getSummaryOrder(mTransactionId);
-		sTbSummary.addView(createTableRowSummary(this.getString(R.string.sub_total), 
+		
+		sTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
 				sFormat.currencyFormat(summOrder.getTotalRetailPrice()), 
 				android.R.style.TextAppearance_Holo_Medium, 0));
 		
 		if(summOrder.getPriceDiscount() > 0){
-			sTbSummary.addView(createTableRowSummary(this.getString(R.string.discount), 
+			sTbSummary.addView(createTableRowSummary(getString(R.string.discount), 
 					"-" + sFormat.currencyFormat(summOrder.getPriceDiscount()), 
 							android.R.style.TextAppearance_Holo_Medium, 0));
 		}
 		if(summOrder.getVatExclude() > 0){
-			sTbSummary.addView(createTableRowSummary(this.getString(R.string.tax_exclude),
+			sTbSummary.addView(createTableRowSummary(getString(R.string.tax) +
+					" " + NumberFormat.getInstance().format(sShop.getCompanyVatRate()) + "%",
 					sFormat.currencyFormat(summOrder.getVatExclude()),
 					android.R.style.TextAppearance_Holo_Medium, 0));
 		}
-		sTbSummary.addView(createTableRowSummary(this.getString(R.string.total),
+		sTbSummary.addView(createTableRowSummary(getString(R.string.total),
 				sFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude()),
 				android.R.style.TextAppearance_Holo_Large, 32));
 	}
@@ -1108,7 +1131,7 @@ public class MainActivity extends FragmentActivity{
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.logout)
 		.setIcon(android.R.drawable.ic_dialog_info)
-		.setMessage(s.getStaffName() + "\n" + this.getString(R.string.confirm_logout))
+		.setMessage(s.getStaffName() + "\n" + getString(R.string.confirm_logout))
 		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
 			@Override
@@ -1481,11 +1504,11 @@ public class MainActivity extends FragmentActivity{
 	 * @param qty
 	 * @param price
 	 */
-	private void addOrder(final int productId, final String productCode, final String productName, 
+	private void addOrder(final int productId, final String productName, 
 			final int productTypeId, final int vatType, final double vatRate, final double qty, double price){
 		if(price > -1){
 			sTrans.addOrderDetail(mTransactionId, sComputer.getComputerId(), 
-					productId, productCode, productName, productTypeId, vatType, vatRate, qty, price);
+					productId, productName, productTypeId, vatType, vatRate, qty, price);
 			mDsp.displayOrder(productName, sFormat.qtyFormat(qty), sFormat.currencyFormat(price));
 		}else{
 			final EditText txtProductPrice = new EditText(this);
@@ -1518,7 +1541,7 @@ public class MainActivity extends FragmentActivity{
 					try {
 						openPrice = MPOSUtil.stringToDouble(txtProductPrice.getText().toString());
 						sTrans.addOrderDetail(mTransactionId, sComputer.getComputerId(), 
-								productId, productCode, productName, productTypeId, vatType, vatRate, qty, openPrice);
+								productId, productName, productTypeId, vatType, vatRate, qty, openPrice);
 
 						mDsp.displayOrder(productName, sFormat.qtyFormat(qty), sFormat.currencyFormat(openPrice));
 					} catch (ParseException e) {
@@ -1562,7 +1585,7 @@ public class MainActivity extends FragmentActivity{
 			public void onItemClick(AdapterView<?> parent, View v, int position,
 					long arg3) {
 				ProductsDao.Product p = (ProductsDao.Product) parent.getItemAtPosition(position);
-				addOrder(p.getProductId(), p.getProductCode(), p.getProductName(), 
+				addOrder(p.getProductId(), p.getProductName(), 
 						p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
 				dialog.dismiss();
 			}

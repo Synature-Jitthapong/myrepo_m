@@ -32,12 +32,21 @@ public class FormatPropertyDao extends MPOSDatabase{
 		super(context);
 	}
 
+	/**
+	 * @param d
+	 * @param pattern
+	 * @return String format date
+	 */
 	public String dateFormat(Date d, String pattern){
 		SimpleDateFormat dateFormat = getSimpleDateFormat();
 		dateFormat.applyPattern(pattern);
 		return dateFormat.format(d);	
 	}
 	
+	/**
+	 * @param d
+	 * @return String format date
+	 */
 	public String dateFormat(Date d){
 		SimpleDateFormat dateFormat = getSimpleDateFormat();
 		if(!getGlobalProperty().getDateFormat().equals(""))
@@ -45,69 +54,137 @@ public class FormatPropertyDao extends MPOSDatabase{
 		return dateFormat.format(d);	
 	}
 	
+	/**
+	 * @param date
+	 * @return String format date
+	 */
+	public String dateFormat(String date){
+		Calendar calendar = Util.convertStringToCalendar(date);
+		SimpleDateFormat dateFormat = getSimpleDateFormat();
+		if(!getGlobalProperty().getDateFormat().equals(""))
+			dateFormat.applyPattern(getGlobalProperty().getDateFormat());
+		return dateFormat.format(calendar.getTime());
+	}
+	
+	/**
+	 * @param dateTime
+	 * @return String format date time
+	 */
+	public String dateTimeFormat(String dateTime){
+		Calendar calendar = Util.convertStringToCalendar(dateTime);
+		SimpleDateFormat dateTimeFormat = getSimpleDateTimeFormat();
+		if(!getGlobalProperty().getDateFormat().equals("") && 
+				!getGlobalProperty().getTimeFormat().equals(""))
+			dateTimeFormat.applyPattern(getGlobalProperty().getDateFormat() + " " +
+					getGlobalProperty().getTimeFormat());
+		return dateTimeFormat.format(calendar.getTime());
+	}
+	
+	/**
+	 * @param time
+	 * @return String time format
+	 */
+	public String timeFormat(String time){
+		Calendar calendar = Util.convertStringToCalendar(time);
+		SimpleDateFormat timeFormat = getSimpleTimeFormat();
+		if(!getGlobalProperty().getTimeFormat().equals(""))
+			timeFormat.applyPattern(getGlobalProperty().getTimeFormat());
+		return timeFormat.format(calendar.getTime());
+	}
+	
+	/**
+	 * @param dateTime
+	 * @param pattern
+	 * @return String format date time
+	 */
 	public String dateTimeFormat(String dateTime, String pattern){
-		Calendar calendar = Calendar.getInstance(Locale.US);
-		if(dateTime == null || dateTime.isEmpty()){
-			dateTime = String.valueOf(Util.getMinimum().getTimeInMillis());
-		}
-		calendar.setTimeInMillis(Long.parseLong(dateTime));
-		SimpleDateFormat dateTimeFormat = getSimpleDateFormat();
+		Calendar calendar = Util.convertStringToCalendar(dateTime);
+		SimpleDateFormat dateTimeFormat = getSimpleDateTimeFormat();
 		dateTimeFormat.applyPattern(pattern);
 		return dateTimeFormat.format(calendar.getTime());
 	}
 	
+	/**
+	 * @param d
+	 * @param pattern
+	 * @return String format date time
+	 */
 	public String dateTimeFormat(Date d, String pattern){
-		SimpleDateFormat dateFormat = getSimpleDateFormat();
-		dateFormat.applyPattern(pattern);
-		return dateFormat.format(d);
+		SimpleDateFormat dateTimeFormat = getSimpleDateTimeFormat();
+		dateTimeFormat.applyPattern(pattern);
+		return dateTimeFormat.format(d);
 	}
 	
+	/**
+	 * @param d
+	 * @return String format date time
+	 */
 	public String dateTimeFormat(Date d){
-		SimpleDateFormat dateFormat = getSimpleDateFormat();
-		dateFormat.applyPattern("dd/MM/yyyy HH:mm:ss");
+		SimpleDateFormat dateTimeFormat = getSimpleDateTimeFormat();
 		if(!getGlobalProperty().getDateFormat().equals("") && 
 				!getGlobalProperty().getTimeFormat().equals(""))
-			dateFormat.applyPattern(getGlobalProperty().getDateFormat() + " " +
+			dateTimeFormat.applyPattern(getGlobalProperty().getDateFormat() + " " +
 					getGlobalProperty().getTimeFormat());
-		return dateFormat.format(d);
+		return dateTimeFormat.format(d);
 	}
 	
+	/**
+	 * @param d
+	 * @return String format time
+	 */
 	public String timeFormat(Date d){
-		SimpleDateFormat dateFormat = getSimpleDateFormat();
-		dateFormat.applyPattern("HH:mm:ss");
+		SimpleDateFormat timeFormat = getSimpleTimeFormat();
 		if(!getGlobalProperty().getTimeFormat().equals(""))
-			dateFormat.applyPattern(getGlobalProperty().getTimeFormat());
-		return dateFormat.format(d);
+			timeFormat.applyPattern(getGlobalProperty().getTimeFormat());
+		return timeFormat.format(d);
 	}
 	
+	/**
+	 * @param qty
+	 * @param pattern
+	 * @return qty format
+	 */
 	public String qtyFormat(double qty, String pattern){
-		DecimalFormat decFormat = getDecimalFormat();
-		decFormat.applyPattern(pattern);
-		return decFormat.format(qty);
+		DecimalFormat qtyFormat = getDecimalFormat();
+		qtyFormat.applyPattern(pattern);
+		return qtyFormat.format(qty);
 	}
 	
+	/**
+	 * @param qty
+	 * @return qty format
+	 */
 	public String qtyFormat(double qty){
-		DecimalFormat decFormat = getDecimalFormat();
+		DecimalFormat qtyFormat = getDecimalFormat();
 		if(!getGlobalProperty().getQtyFormat().equals("")){
-			decFormat.applyPattern(getGlobalProperty().getQtyFormat());
-			return decFormat.format(qty);
+			qtyFormat.applyPattern(getGlobalProperty().getQtyFormat());
+			return qtyFormat.format(qty);
 		}else{
 			NumberFormat numFormat = getNumberFormat();
 			return numFormat.format(qty);
 		}
 	}
 	
+	/**
+	 * @param currency
+	 * @param pattern
+	 * @return currency format
+	 */
 	public String currencyFormat(double currency, String pattern){
-		DecimalFormat decFormat = getDecimalFormat();
-		decFormat.applyPattern(pattern);
-		return decFormat.format(currency);
+		DecimalFormat currencyFormat = getDecimalFormat();
+		currencyFormat.applyPattern(pattern);
+		return currencyFormat.format(currency);
 	}
 	
+	/**
+	 * @param currency
+	 * @return currency format
+	 */
 	public String currencyFormat(double currency){
-		DecimalFormat decFormat = getDecimalFormat();
+		DecimalFormat currencyFormat = getDecimalFormat();
 		if(!getGlobalProperty().getCurrencyFormat().equals("")){
-			decFormat.applyPattern(getGlobalProperty().getCurrencyFormat());
-			return decFormat.format(currency);
+			currencyFormat.applyPattern(getGlobalProperty().getCurrencyFormat());
+			return currencyFormat.format(currency);
 		}else{
 			NumberFormat numFormat = getNumberFormat();
 			return numFormat.format(currency);
@@ -161,6 +238,16 @@ public class FormatPropertyDao extends MPOSDatabase{
 	
 	private SimpleDateFormat getSimpleDateFormat(){
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
+		return dateFormat;
+	}
+	
+	private SimpleDateFormat getSimpleDateTimeFormat(){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US);
+		return dateFormat;
+	}
+	
+	private SimpleDateFormat getSimpleTimeFormat(){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
 		return dateFormat;
 	}
 	

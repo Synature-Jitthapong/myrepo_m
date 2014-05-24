@@ -1,5 +1,6 @@
 package com.syn.mpos;
 
+import java.text.NumberFormat;
 import java.util.List;
 
 import com.syn.mpos.dao.FormatPropertyDao;
@@ -66,15 +67,49 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 
 		@Override
 		public void prepareDataToPrint() {
-			MPOSOrderTransaction.MPOSOrderDetail summOrder 
-				= mTrans.getSummaryOrderInDay(mDateFrom, mDateTo);
-
+			String date = mFormat.dateFormat(mDateTo);
+			if(!mDateFrom.equals(mDateTo)){
+				date = mFormat.dateFormat(mDateFrom) + " - " + 
+						mFormat.dateFormat(mDateTo);
+			}
 			// header
 			mBuilder.append("<c>" + mContext.getString(R.string.sale_by_bill_report) + "\n");
-			mBuilder.append("<c>" + mFormat.dateFormat(Util.getDate().getTime()) + "\n");
+			mBuilder.append("<c>" + date + "\n");
 			mBuilder.append("<c>" + mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
-			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n\n");
+			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n");
 			
+			String receiptHeader = mContext.getString(R.string.receipt);
+			String totalSaleHeader = mContext.getString(R.string.total);
+			String closeTimeHeader = mContext.getString(R.string.time) + 
+					createQtySpace(totalSaleHeader.length());
+			
+			// line
+			mBuilder.append(createLine("-") + "\n");
+			mBuilder.append(receiptHeader);
+			mBuilder.append(createHorizontalSpace(receiptHeader.length() 
+					+ closeTimeHeader.length() + totalSaleHeader.length()));
+			mBuilder.append(closeTimeHeader);
+			mBuilder.append(totalSaleHeader + "\n");
+			mBuilder.append(createLine("-") + "\n");
+			
+			Reporting reporting = new Reporting(mContext, mDateFrom, mDateTo);
+			List<Reporting.SaleTransactionReport> saleReportLst = 
+					reporting.listTransactionReport();
+			for(Reporting.SaleTransactionReport report : saleReportLst){
+				mBuilder.append(mFormat.dateFormat(report.getSaleDate()) + "\n");
+				for(MPOSOrderTransaction trans : report.getTransLst()){
+					String receiptNo = trans.getReceiptNo();
+					String totalSale = mFormat.currencyFormat(trans.getTransactionVatable());
+					String closeTime = mFormat.timeFormat(trans.getCloseTime()) + 
+							createQtySpace(totalSale.length());
+					mBuilder.append(receiptNo);
+					mBuilder.append(createHorizontalSpace(receiptNo.length() + 
+							totalSale.length() + closeTime.length()));
+					mBuilder.append(closeTime);
+					mBuilder.append(totalSale + "\n");
+				}
+				mBuilder.append("\n");
+			}
 		}
 		
 	}
@@ -85,10 +120,16 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 		public void prepareDataToPrint() {
 			MPOSOrderTransaction.MPOSOrderDetail summOrder 
 				= mTrans.getSummaryOrderInDay(mDateFrom, mDateTo);
-
+			
+			String date = mFormat.dateFormat(mDateTo);
+			if(!mDateFrom.equals(mDateTo)){
+				date = mFormat.dateFormat(mDateFrom) + " - " + 
+						mFormat.dateFormat(mDateTo);
+			}
+			
 			// header
 			mBuilder.append("<c>" + mContext.getString(R.string.sale_by_product_report) + "\n");
-			mBuilder.append("<c>" + mFormat.dateFormat(Util.getDate().getTime()) + "\n");
+			mBuilder.append("<c>" + date + "\n");
 			mBuilder.append("<c>" + mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n\n");
 			
@@ -138,7 +179,8 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			
 			// Vat Exclude
 			if(summOrder.getVatExclude() > 0){
-				String vatExcludeText = mContext.getString(R.string.vat_exclude);
+				String vatExcludeText = mContext.getString(R.string.tax_exclude) + " " +
+						NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 				String vatExclude = mFormat.currencyFormat(summOrder.getVatExclude());
 				mBuilder.append(vatExcludeText);
 				mBuilder.append(createHorizontalSpace(vatExcludeText.length() + vatExclude.length()));
@@ -231,7 +273,8 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			
 			// Vat Exclude
 			if(summOrder.getVatExclude() > 0){
-				String vatExcludeText = mContext.getString(R.string.vat_exclude);
+				String vatExcludeText = mContext.getString(R.string.vat_exclude) + " " +
+						NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 				String vatExclude = mFormat.currencyFormat(summOrder.getVatExclude());
 				mBuilder.append(vatExcludeText);
 				mBuilder.append(createHorizontalSpace(vatExcludeText.length() + vatExclude.length()));
@@ -304,6 +347,11 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				WintecPrintSaleByProduct wtPrintProduct = new WintecPrintSaleByProduct();
 				wtPrintProduct.prepareDataToPrint();
 				wtPrintProduct.print();
+				break;
+			case BILL_REPORT:
+				WintecPrintBillReport wtPrintBill = new WintecPrintBillReport();
+				wtPrintBill.prepareDataToPrint();
+				wtPrintBill.print();
 				break;
 			default:
 				break;

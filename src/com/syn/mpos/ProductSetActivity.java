@@ -85,8 +85,8 @@ public class ProductSetActivity extends Activity{
 		if(intent.getStringExtra("mode").equals(ADD_MODE)){
 			final Product p = sProduct.getProduct(mProductId);
 			if(p.getProductPrice() > -1){
-				mOrderDetailId = sTransaction.addOrderDetail(mTransactionId, mComputerId, mProductId, 
-						p.getProductCode(), p.getProductName(), p.getProductTypeId(), 
+				mOrderDetailId = sTransaction.addOrderDetail(mTransactionId, 
+						mComputerId, mProductId, p.getProductName(), p.getProductTypeId(), 
 						p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
 				if (savedInstanceState == null) {
 					getFragmentManager().beginTransaction()
@@ -125,8 +125,8 @@ public class ProductSetActivity extends Activity{
 						double openPrice = 0.0f;
 						try {
 							openPrice = MPOSUtil.stringToDouble(txtProductPrice.getText().toString());
-							mOrderDetailId = sTransaction.addOrderDetail(mTransactionId, mComputerId, 
-									p.getProductId(), p.getProductCode(), p.getProductName(), 
+							mOrderDetailId = sTransaction.addOrderDetail(mTransactionId, 
+									mComputerId, p.getProductId(), p.getProductName(), 
 									p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, openPrice);
 							if (savedInstanceState == null) {
 								getFragmentManager().beginTransaction()

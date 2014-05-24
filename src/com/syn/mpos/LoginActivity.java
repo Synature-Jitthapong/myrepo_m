@@ -3,6 +3,7 @@ package com.syn.mpos;
 import java.util.Calendar;
 
 import com.syn.mpos.dao.ComputerDao;
+import com.syn.mpos.dao.FormatPropertyDao;
 import com.syn.mpos.dao.Login;
 import com.syn.mpos.dao.SessionDao;
 import com.syn.mpos.dao.ShopDao;
@@ -13,22 +14,25 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class LoginActivity extends Activity implements OnClickListener {
+public class LoginActivity extends Activity{
 	
 	public static final int REQUEST_FOR_SETTING_DATE = 1;
 	
@@ -40,44 +44,25 @@ public class LoginActivity extends Activity implements OnClickListener {
 	 */
 	private boolean mIsFirstAccess = false;
 	
-	private SessionDao mSession;
 	private ShopDao mShop;
+	private SessionDao mSession;
 	private ComputerDao mComputer;
-	
-	private Button mBtnLogin;
-	private EditText mTxtUser;
-	private EditText mTxtPass;
+	private FormatPropertyDao mFormat;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 		
-		mBtnLogin = (Button) findViewById(R.id.buttonLogin);
-		mTxtUser = (EditText) findViewById(R.id.txtUser);
-		mTxtPass = (EditText) findViewById(R.id.txtPass);
+		mSession = new SessionDao(this);
+		mShop = new ShopDao(this);
+		mComputer = new ComputerDao(this);
+		mFormat = new FormatPropertyDao(this);
 		
-		mTxtUser.setSelectAllOnFocus(true);
-		mTxtPass.setSelectAllOnFocus(true);
-		mBtnLogin.setOnClickListener(this);
-		
-		mSession = new SessionDao(getApplicationContext());
-		mShop = new ShopDao(getApplicationContext());
-		mComputer = new ComputerDao(getApplicationContext());
-		
-		mTxtPass.setOnEditorActionListener(new OnEditorActionListener(){
-
-			@Override
-			public boolean onEditorAction(TextView v, int actionId,
-					KeyEvent event) {
-				if(actionId == EditorInfo.IME_ACTION_DONE){
-					checkLogin();
-					return true;
-				}
-				return false;
-			}
-			
-		});
+		if(savedInstanceState == null){
+			getFragmentManager().beginTransaction()
+				.add(R.id.loginContent, new Placeholder()).commit();
+		}
 	}
 
 	@Override
@@ -252,7 +237,11 @@ public class LoginActivity extends Activity implements OnClickListener {
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 		}else{
-			mTxtUser.requestFocus();
+
+			Placeholder placeHolder = (Placeholder) 
+					getFragmentManager().findFragmentById(R.id.loginContent);
+			
+			placeHolder.mTxtUser.requestFocus();
 			if(mIsFirstAccess){
 				MPOSUtil.updateData(this, new ProgressListener(){
 		
@@ -263,6 +252,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 					@Override
 					public void onPost() {
 						mIsFirstAccess = false;
+						startActivity(new Intent(LoginActivity.this, LoginActivity.class));
 					}
 		
 					@Override
@@ -275,8 +265,10 @@ public class LoginActivity extends Activity implements OnClickListener {
 	}
 			
 	private void gotoMainActivity(){
-		mTxtUser.setText(null);
-		mTxtPass.setText(null);
+		Placeholder placeHolder = (Placeholder) 
+				getFragmentManager().findFragmentById(R.id.loginContent);
+		placeHolder.mTxtUser.setText(null);
+		placeHolder.mTxtPass.setText(null);
 		if(mSession.checkEndday(String.valueOf(Util.getDate().getTimeInMillis())) > 0){
 			new AlertDialog.Builder(this)
 			.setCancelable(false)
@@ -316,15 +308,18 @@ public class LoginActivity extends Activity implements OnClickListener {
 		}
 	}
 	
-	private void checkLogin(){
+	public void checkLogin(){
 		String user = "";
 		String pass = "";
 	
-		if(!mTxtUser.getText().toString().isEmpty()){
-			user = mTxtUser.getText().toString();
+		Placeholder placeHolder = (Placeholder) 
+				getFragmentManager().findFragmentById(R.id.loginContent);
+		
+		if(!placeHolder.mTxtUser.getText().toString().isEmpty()){
+			user = placeHolder.mTxtUser.getText().toString();
 			
-			if(!mTxtPass.getText().toString().isEmpty()){
-				pass = mTxtPass.getText().toString();
+			if(!placeHolder.mTxtPass.getText().toString().isEmpty()){
+				pass = placeHolder.mTxtPass.getText().toString();
 				Login login = new Login(getApplicationContext(), user, pass);
 				
 				if(login.checkUser()){
@@ -390,13 +385,71 @@ public class LoginActivity extends Activity implements OnClickListener {
 			.show();
 		}
 	}
+	
+	public static class Placeholder extends Fragment{
+		
+		private Button mBtnLogin;
+		private EditText mTxtUser;
+		private EditText mTxtPass;
+		private TextView mTvShopName;
+		private TextView mTvSaleDate;
+		
+		public Placeholder(){
+		}
+		
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			super.onCreate(savedInstanceState);
+		}
 
-	@Override
-	public void onClick(View v) {
-		switch(v.getId()){
-		case R.id.buttonLogin:
-			checkLogin();
-			break;
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_login, container, false);
+			mBtnLogin = (Button) rootView.findViewById(R.id.buttonLogin);
+			mTxtUser = (EditText) rootView.findViewById(R.id.txtUser);
+			mTxtPass = (EditText) rootView.findViewById(R.id.txtPass);
+			mTvShopName = (TextView) rootView.findViewById(R.id.tvShopName);
+			mTvSaleDate = (TextView) rootView.findViewById(R.id.tvSaleDate);
+			
+			mTxtUser.setSelectAllOnFocus(true);
+			mTxtPass.setSelectAllOnFocus(true);
+			mBtnLogin.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					((LoginActivity) getActivity()).checkLogin();
+				}
+				
+			});
+			mTxtPass.setOnEditorActionListener(new OnEditorActionListener(){
+
+				@Override
+				public boolean onEditorAction(TextView v, int actionId,
+						KeyEvent event) {
+					if(actionId == EditorInfo.IME_ACTION_DONE){
+						((LoginActivity) getActivity()).checkLogin();
+						return true;
+					}
+					return false;
+				}
+				
+			});
+			
+			ShopDao shop = ((LoginActivity) getActivity()).mShop;
+			SessionDao session = ((LoginActivity) getActivity()).mSession;
+			FormatPropertyDao format = ((LoginActivity) getActivity()).mFormat;
+			
+			if(shop.getShopName() != null)
+				mTvShopName.setText(getString(R.string.shop) + " : " + shop.getShopName());
+			if(session.getSessionDate() != null && 
+					!session.getSessionDate().isEmpty())
+				mTvSaleDate.setText(getString(R.string.sale_date) + " : " + format.dateFormat(session.getSessionDate()));
+			else
+				mTvSaleDate.setText(getString(R.string.sale_date) + " :- ");
+			
+			return rootView;
 		}
 	}
 }

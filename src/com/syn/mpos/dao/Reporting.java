@@ -57,6 +57,69 @@ public class Reporting extends MPOSDatabase{
 	}
 	
 	/**
+	 * list transaction for print bill report
+	 * @return List<SaleTransactionReport>
+	 */
+	public List<SaleTransactionReport> listTransactionReport(){
+		List<SaleTransactionReport> transLst = new ArrayList<SaleTransactionReport>();
+		
+		Cursor mainCursor = getReadableDatabase().rawQuery(
+				"SELECT " + OrderTransactionTable.COLUMN_SALE_DATE
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE 
+				+ " BETWEEN ? AND ?"
+				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID
+				+ " IN (?,?)"
+				+ " GROUP BY " + OrderTransactionTable.COLUMN_SALE_DATE, 
+				new String[]{
+						mDateFrom,
+						mDateTo,
+						String.valueOf(TransactionDao.TRANS_STATUS_HOLD),
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+				});
+		if(mainCursor.moveToFirst()){
+			do{
+				SaleTransactionReport trans = new SaleTransactionReport();
+				trans.setSaleDate(mainCursor.getString(0));
+				
+				Cursor detailCursor = getReadableDatabase().rawQuery(
+						"SELECT a." + OrderTransactionTable.COLUMN_RECEIPT_NO + ", "
+						+ " a." + OrderTransactionTable.COLUMN_CLOSE_TIME + ", "
+						+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
+						+ " AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE
+						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
+						+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
+						+ " ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID
+						+ " =b." + OrderTransactionTable.COLUMN_TRANSACTION_ID
+						+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
+						+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)"
+						+ " GROUP BY a." + OrderTransactionTable.COLUMN_TRANSACTION_ID, 
+						new String[]{
+								mainCursor.getString(0),
+								String.valueOf(TransactionDao.TRANS_STATUS_HOLD),
+								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+						});
+				if(detailCursor.moveToFirst()){
+					do{
+						MPOSOrderTransaction detail = new MPOSOrderTransaction();
+						detail.setReceiptNo(detailCursor.getString(
+								detailCursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
+						detail.setCloseTime(detailCursor.getString(
+								detailCursor.getColumnIndex(OrderTransactionTable.COLUMN_CLOSE_TIME)));
+						detail.setTransactionVatable(detailCursor.getDouble(
+								detailCursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
+						trans.getTransLst().add(detail);
+					}while(detailCursor.moveToNext());
+				}
+				detailCursor.close();
+				transLst.add(trans);
+			}while(mainCursor.moveToNext());
+		}
+		mainCursor.close();
+		return transLst;
+	}
+	
+	/**
 	 * Get Summary Product by Group for print Summary Sale By Day
 	 * @return List<SimpleProductData>
 	 */
@@ -641,6 +704,22 @@ public class Reporting extends MPOSDatabase{
 				COLUMN_PRODUCT_SUMM_SUB_TOTAL + " REAL NOT NULL DEFAULT 0, " +
 				COLUMN_PRODUCT_SUMM_DISCOUNT + " REAL NOT NULL DEFAULT 0, " +
 				COLUMN_PRODUCT_SUMM_TOTAL_PRICE + " REAL NOT NULL DEFAULT 0);"); 
+	}
+	
+	public static class SaleTransactionReport{
+		private String saleDate;
+		
+		private List<MPOSOrderTransaction> transLst = 
+				new ArrayList<MPOSOrderTransaction>();
+		public String getSaleDate() {
+			return saleDate;
+		}
+		public void setSaleDate(String saleDate) {
+			this.saleDate = saleDate;
+		}
+		public List<MPOSOrderTransaction> getTransLst() {
+			return transLst;
+		}
 	}
 	
 	/**

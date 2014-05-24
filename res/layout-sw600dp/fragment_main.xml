@@ -55,12 +55,13 @@
         </ListView>
 
         <LinearLayout
-            android:id="@+id/layoutOrderCtrl"
+            android:id="@+id/orderCtrlContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/order_background"
             android:gravity="right"
-            android:paddingLeft="8dp" >
+            android:paddingLeft="8dp"
+            android:visibility="gone" >
 
             <ImageButton
                 android:id="@+id/btnClearSelOrder"

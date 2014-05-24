@@ -1327,8 +1327,8 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param pricePerUnit
 	 * @return current orderDetailId
 	 */
-	public int addOrderDetail(int transactionId, int computerId, int productId,
-			String productCode, String productName, 
+	public int addOrderDetail(int transactionId, int computerId, 
+			int productId, String productName, 
 			int productType, int vatType, double vatRate, 
 			double orderQty, double pricePerUnit) {
 		int orderDetailId = getMaxOrderDetail(transactionId);
@@ -1340,7 +1340,6 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderTransactionTable.COLUMN_TRANSACTION_ID, transactionId);
 		cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
 		cv.put(ProductsTable.COLUMN_PRODUCT_ID, productId);
-		cv.put(ProductsTable.COLUMN_PRODUCT_CODE, productCode);
 		cv.put(ProductsTable.COLUMN_PRODUCT_NAME, productName);
 		cv.put(OrderDetailTable.COLUMN_ORDER_QTY, orderQty);
 		cv.put(ProductsTable.COLUMN_PRODUCT_PRICE, pricePerUnit);
@@ -1886,7 +1885,6 @@ public class TransactionDao extends MPOSDatabase {
 				+ ProductsTable.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, "
 				+ COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 2, "
 				+ ProductsTable.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, "
-				+ ProductsTable.COLUMN_PRODUCT_CODE + " TEXT, "
 				+ ProductsTable.COLUMN_PRODUCT_NAME + " TEXT, "
 				+ COLUMN_TOTAL_VAT + " REAL DEFAULT 0, "
 				+ COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, "
@@ -1908,7 +1906,6 @@ public class TransactionDao extends MPOSDatabase {
 				+ ProductsTable.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, "
 				+ COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 2, "
 				+ ProductsTable.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, "
-				+ ProductsTable.COLUMN_PRODUCT_CODE + " TEXT, "
 				+ ProductsTable.COLUMN_PRODUCT_NAME + " TEXT, "
 				+ COLUMN_TOTAL_VAT + " REAL DEFAULT 0, "
 				+ COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, "

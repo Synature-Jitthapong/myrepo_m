@@ -29,6 +29,15 @@ public class Util {
 				c.get(Calendar.DAY_OF_MONTH));
 	}
 	
+	public static Calendar convertStringToCalendar(String dateTime){
+		Calendar calendar = Calendar.getInstance(Locale.US);
+		if(dateTime == null || dateTime.isEmpty()){
+			dateTime = String.valueOf(Util.getMinimum().getTimeInMillis());
+		}
+		calendar.setTimeInMillis(Long.parseLong(dateTime));
+		return calendar;
+	}
+	
 	public static double calculateVatPrice(double totalPrice, double vatRate, int vatType){
 		if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
 			return totalPrice * (100 + vatRate) / 100;

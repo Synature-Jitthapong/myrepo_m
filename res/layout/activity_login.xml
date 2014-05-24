@@ -1,83 +1,8 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/loginContent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="horizontal"
     tools:context=".LoginActivity" >
 
-    <requestFocus />
-
-    <EditText
-        android:id="@+id/txtUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentTop="false"
-        android:layout_below="@+id/textView1"
-        android:layout_marginBottom="@dimen/medium_space"
-        android:layout_toRightOf="@+id/textView2"
-        android:ems="10"
-        android:hint="@string/user_name"
-        android:lines="1"
-        android:nextFocusDown="@+id/editTextPassWord"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <EditText
-        android:id="@+id/txtPass"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/txtUser"
-        android:layout_alignRight="@+id/txtUser"
-        android:layout_below="@+id/txtUser"
-        android:layout_marginBottom="@dimen/medium_space"
-        android:ems="10"
-        android:hint="@string/pass_word"
-        android:imeOptions="actionDone"
-        android:inputType="textPassword"
-        android:lines="1"
-        android:nextFocusDown="@+id/buttonLogin"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <Button
-        android:id="@+id/buttonLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/txtPass"
-        android:layout_below="@+id/txtPass"
-        android:drawableLeft="@drawable/ic_action_not_secure"
-        android:text="@string/login"
-        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtUser"
-        android:layout_alignBottom="@+id/txtUser"
-        android:layout_alignLeft="@+id/textView1"
-        android:text="@string/user_name"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtPass"
-        android:layout_alignBottom="@+id/txtPass"
-        android:layout_alignLeft="@+id/textView1"
-        android:text="@string/pass_word"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/login"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="32sp" />
-
-</RelativeLayout>
+</FrameLayout>
