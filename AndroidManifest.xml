@@ -2,21 +2,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.syn.mpos"
     android:installLocation="auto"
-    android:versionCode="1"
-    android:versionName="0.1" >
+    android:versionCode="2"
+    android:versionName="1.0.3" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17" />
 
     <supports-screens
-        android:largeScreens="true"
-        android:normalScreens="false"
+        android:requiresSmallestWidthDp="1024"
         android:smallScreens="false" />
 
     <uses-feature
@@ -86,11 +86,6 @@
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>
-
-        <provider
-            android:name="com.syn.mpos.provider.ProductProvider"
-            android:authorities="com.syn.mpos.ProductProvider" />
-
         <activity
             android:name="com.syn.mpos.AboutActivity"
             android:label="@string/title_activity_about"
@@ -120,9 +115,21 @@
             android:theme="@style/ActivityDialogTheme" >
         </activity>
         <activity
-            android:name="com.syn.mpos.SaleReportHtmlActivity"
-            android:label="@string/title_activity_sale_report_html" >
+            android:name="com.syn.mpos.ProductSetActivity"
+            android:label="@string/title_activity_product_set"
+            android:screenOrientation="landscape" >
         </activity>
+
+        <receiver
+            android:name="com.syn.mpos.BootUpReceiver"
+            android:enabled="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

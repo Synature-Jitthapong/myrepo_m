@@ -1,7 +1,6 @@
 package com.syn.mpos;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -16,6 +15,9 @@ import android.view.View;
 
 import java.util.List;
 
+import cn.wintec.wtandroidjar2.ComIO;
+import cn.wintec.wtandroidjar2.Printer;
+
 import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
@@ -26,6 +28,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_PRINTER_IP = "printer_ip";
 	public static final String KEY_PREF_PRINTER_LIST = "printer_list";
 	public static final String KEY_PREF_PRINTER_FONT_LIST = "printer_font_list";
+	public static final String KEY_PREF_PRINTER_INTERNAL = "printer_internal";
 	
 	private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
@@ -122,7 +125,7 @@ public class SettingsActivity extends PreferenceActivity {
 			addPreferencesFromResource(R.xml.pref_printer);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
-			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_FONT_LIST));
 		}
 	}
 	
@@ -137,17 +140,41 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 	
 	public void printTestClick(final View v){
+		if(MPOSApplication.getInternalPrinterSetting(getApplicationContext())){
+			wintecTestPrint();
+		}else{
+			epsonTestPrint();
+		}
+	}
+	
+	private void wintecTestPrint(){
+		Printer printer=null;
+		final String devicePath = "/dev/ttySAC1";
+		final ComIO.Baudrate baudrate = ComIO.Baudrate.valueOf("BAUD_38400");
+		printer = new Printer(devicePath,baudrate);
+		
+		String[] subElement = getApplicationContext().getString(R.string.print_test_text).split("\n");
+    	for(int i=0;i < subElement.length;i++){
+    		String data = subElement[i].replace("*", " ");
+    		printer.PRN_Print(data);
+		}
+    	printer.PRN_PrintAndFeedLine(6);		
+		printer.PRN_HalfCutPaper();	
+		printer.PRN_Close();
+	}
+	
+	private void epsonTestPrint(){
 		Print printer = new Print();
 		try {
-			printer.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(), 0, 1000);
-			Builder builder = new Builder(MPOSApplication.getPrinterName(), Builder.MODEL_ANK, 
-				MPOSApplication.getContext());
-			if(MPOSApplication.getPrinterFont().equals("a")){
+			printer.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(getApplicationContext()), 0, 1000);
+			Builder builder = new Builder(MPOSApplication.getPrinterName(getApplicationContext()), Builder.MODEL_ANK, 
+					getApplicationContext());
+			if(MPOSApplication.getPrinterFont(getApplicationContext()).equals("a")){
 				builder.addTextFont(Builder.FONT_A);
-			}else if(MPOSApplication.getPrinterFont().equals("b")){
+			}else if(MPOSApplication.getPrinterFont(getApplicationContext()).equals("b")){
 				builder.addTextFont(Builder.FONT_B);
 			}
-			String printText = MPOSApplication.getContext().getString(R.string.print_test_text).replaceAll("\\*", " ");
+			String printText = getApplicationContext().getString(R.string.print_test_text).replaceAll("\\*", " ");
 			builder.addTextAlign(Builder.ALIGN_CENTER);
 			builder.addTextSize(1, 1);
 			builder.addText(printText);

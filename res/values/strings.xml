@@ -224,7 +224,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="endday_success">Endday successfully.</string>
     <string name="product_size">Product Size</string>
     <string name="enter_valid_numeric">Please enter valid numeric.</string>
-    <string name="card_holder">CardHolder</string>
     <string name="cvv2">Card Verification Number</string>
     <string name="endday_progress">Ending day please wait&#8230;</string>
     <string name="date">Date</string>
@@ -261,5 +260,38 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="title_activity_reprint">Reprint Receipt</string>
     <string name="send">Send</string>
     <string name="title_activity_sale_report_html">SaleReportHtmlActivity</string>
+    <string name="title_activity_product_set">Set menu</string>
+    <string name="internal_printer">Internal Printer</string>
+    <string name="internal_printer_wintec">WINTEC Printer</string>
+    <string name="spinner_please_select">Please select</string>
+    <string name="card_holder_name">Card Holder Name</string>
+    <string name="please_select_card">Please select card type.</string>
+    <string name="please_select_bank">Please select bank.</string>
+    <string name="system_date">System Date</string>
+    <string name="system_date_less">System date less than session date. mPOS will not allow to do anything.</string>
+    <string name="date_time_setting">Date &amp; time Settings</string>
+    <string name="system_date_more_than_session">System date more than session date. You must end previous sale date first.</string>
+    <string name="not_found_bill">Not found bill.</string>
+    <string name="void_bill_success">Void bill successfully.</string>
+    <string name="select_order_first">Select order first.</string>
+    <string name="confirm_delete_all">Are you sure you want to delete all item?</string>
+    <string name="please_select">Please select</string>
+    <string name="void_receipt">Void Receipt</string>
+    <string name="void_time">Void Time </string>
+    <string name="void_by">Void By </string>
+    <string name="title_activity_endday">EnddayActivity</string>
+    <string name="summary_sale_by_day">Summary Sale By Day</string>
+    <string name="shop">Shop</string>
+    <string name="print_by">Print By</string>
+    <string name="print_date">Print Date</string>
+    <string name="payment_detail">Payment Detail</string>
+    <string name="total_receipt_in_day">Total Receipt In Day</string>
+    <string name="void_bill_after_paid">Void Bill After Paid</string>
+    <string name="grand_total">Grand Total</string>
+    <string name="sale_by_product_report">Sale By Product Report</string>
+    <string name="sale_by_bill_report">Sale By Bill Report</string>
+    <string name="receipt">Receipt</string>
+    <string name="time">Time</string>
+    <string name="endday_report">End Day Report</string>
 
 </resources>

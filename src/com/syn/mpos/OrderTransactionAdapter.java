@@ -5,13 +5,20 @@ import java.util.List;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.widget.BaseAdapter;
+
+import com.syn.mpos.dao.MPOSOrderTransaction;
 import com.syn.pos.OrderTransaction;
 
+/**
+ * @author j1tth4
+ * bill adapter
+ */
 public abstract class OrderTransactionAdapter extends BaseAdapter {
-	protected List<OrderTransaction> mTransLst;
+	
+	protected List<MPOSOrderTransaction> mTransLst;
 	protected LayoutInflater mInflater;
 
-	public OrderTransactionAdapter(Context c, List<OrderTransaction> transLst) {
+	public OrderTransactionAdapter(Context c, List<MPOSOrderTransaction> transLst) {
 		mTransLst = transLst;
 		mInflater = (LayoutInflater) c
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

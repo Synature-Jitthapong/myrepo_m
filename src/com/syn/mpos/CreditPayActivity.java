@@ -5,43 +5,60 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import com.syn.mpos.provider.Bank;
-import com.syn.mpos.provider.CreditCard;
-import com.syn.mpos.provider.PaymentDetail;
+import com.j1tth4.exceptionhandler.ExceptionHandler;
+import com.j1tth4.util.CreditCardParser;
+import com.j1tth4.util.Logger;
+import com.j1tth4.util.VerifyCardType;
+import com.syn.mpos.dao.BankNameDao;
+import com.syn.mpos.dao.CreditCardDao;
+import com.syn.mpos.dao.FormatPropertyDao;
+import com.syn.mpos.dao.PaymentDao;
 import com.syn.pos.BankName;
 import com.syn.pos.CreditCardType;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnKeyListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
-public class CreditPayActivity extends Activity implements TextWatcher{
+public class CreditPayActivity extends Activity implements TextWatcher, 
+	Runnable{
+	
 	public static final String TAG = "CreditPayActivity";
+	
+	/*
+	 * is magnatic read state
+	 */
+	private boolean mIsRead = false;
+	
+	/*
+	 * Thread for run magnetic reader listener 
+	 */
+	private Thread mMsrThread;
+
+	private WintecMagneticReader mMsrReader;
+	
+	private PaymentDao mPayment;
+	private FormatPropertyDao mFormat;
+	
+	private List<BankName> mBankLst;
+	private List<CreditCardType> mCreditCardLst;
 	
 	private int mTransactionId;
 	private int mComputerId;
@@ -50,12 +67,11 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	private int mExpYear;
 	private int mExpMonth;
 	private double mPaymentLeft;
-	private PaymentDetail mPayment;
-	private List<BankName> mBankLst;
-	private List<CreditCardType> mCreditCardLst;
 	private double mTotalCreditPay;
+	
 	private EditText mTxtTotalPrice;
 	private EditText mTxtTotalPay;
+	private EditText mTxtCardHolderName;
 	private EditText mTxtCardNoSeq1;
 	private EditText mTxtCardNoSeq2;
 	private EditText mTxtCardNoSeq3;
@@ -68,12 +84,18 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		/**
+		 * Register ExceptinHandler for catch error when application crash.
+		 */
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 	    LayoutParams params = getWindow().getAttributes();
-	    params.width = 960;
-	    params.height= 500;
+	    params.width = WindowManager.LayoutParams.MATCH_PARENT;
+	    params.height= WindowManager.LayoutParams.WRAP_CONTENT;
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
@@ -86,6 +108,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 		mTxtCardNoSeq2 = (EditText) findViewById(R.id.txtCardNoSeq2);
 		mTxtCardNoSeq3 = (EditText) findViewById(R.id.txtCardNoSeq3);
 		mTxtCardNoSeq4 = (EditText) findViewById(R.id.txtCardNoSeq4);
+		mTxtCardHolderName = (EditText) findViewById(R.id.txtCardHolderName);
 		mSpBank = (Spinner) findViewById(R.id.spBank);
 		mSpCardType = (Spinner) findViewById(R.id.spCardType);
 		mSpExpYear = (Spinner) findViewById(R.id.spExpYear);
@@ -130,11 +153,35 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 			
 		});
 		
+		mPayment = new PaymentDao(getApplicationContext());
+		mFormat = new FormatPropertyDao(getApplicationContext());
+		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mPaymentLeft = intent.getDoubleExtra("paymentLeft", 0.0d);
+		
+		// start magnetic reader thread
+		try {
+			mMsrReader = new WintecMagneticReader();
+			mMsrThread = new Thread(this);
+			mMsrThread.start();
+			mIsRead = true;
+			Logger.appendLog(this, MPOSApplication.LOG_DIR, 
+					MPOSApplication.LOG_FILE_NAME, "Start magnetic reader thread");
+		} catch (Exception e) {
+			Logger.appendLog(this, MPOSApplication.LOG_DIR, 
+					MPOSApplication.LOG_FILE_NAME, 
+					"Error start magnetic reader thread " + 
+					e.getMessage());
+		}
+		//test();
+	}
+
+	@Override
+	protected void onResume() {
 		init();
+		super.onResume();
 	}
 
 	@Override
@@ -159,7 +206,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 
 	private void createSpinnerYear(){
 		String[] years = new String[10];
-		Calendar c = Calendar.getInstance(Locale.getDefault());
+		Calendar c = Calendar.getInstance(Locale.US);
 		for(int i = 0; i < years.length; i++){
 			years[i] = String.valueOf(c.get(Calendar.YEAR) + i);
 		}
@@ -181,7 +228,6 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void init(){
-		mPayment = new PaymentDetail(MPOSApplication.getWriteDatabase());
 		displayTotalPrice();
 		loadCreditCardType();
 		loadBankName();
@@ -190,99 +236,98 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(MPOSApplication.getGlobalProperty().currencyFormat(mPaymentLeft));
+		mTxtTotalPrice.setText(mFormat.currencyFormat(mPaymentLeft));
 		mTxtTotalPay.setText(mTxtTotalPrice.getText());
 	}
 	
-	private boolean checkCardNoSeq(){
-		boolean already = false;
-		if(!mTxtCardNoSeq1.equals("") && !mTxtCardNoSeq2.equals("") && 
-				!mTxtCardNoSeq3.equals("") && !mTxtCardNoSeq4.equals("")){
-			if(mTxtCardNoSeq1.getText().toString().length() < 4){
-				already = false;
-				mTxtCardNoSeq1.requestFocus();
-			}
-			else if(mTxtCardNoSeq2.getText().toString().length() < 4){
-				already = false;
-				mTxtCardNoSeq2.requestFocus();
-			}
-			else if(mTxtCardNoSeq3.getText().toString().length() < 4){
-				already = false;
-				mTxtCardNoSeq3.requestFocus();
-			}
-			else if(mTxtCardNoSeq4.getText().toString().length() < 4){
-				already = false;
-				mTxtCardNoSeq4.requestFocus();
-			}
-			else{
-				already = true;
-			}
-		}else{
-			already = false;
-		}
-		return already;
-	}
+//	private boolean checkCardNoSeq(){
+//		boolean already = false;
+//		if(!mTxtCardNoSeq1.equals("") && !mTxtCardNoSeq2.equals("") && 
+//				!mTxtCardNoSeq3.equals("") && !mTxtCardNoSeq4.equals("")){
+//			if(mTxtCardNoSeq1.getText().toString().length() < 4){
+//				already = false;
+//				mTxtCardNoSeq1.requestFocus();
+//			}
+//			else if(mTxtCardNoSeq2.getText().toString().length() < 4){
+//				already = false;
+//				mTxtCardNoSeq2.requestFocus();
+//			}
+//			else if(mTxtCardNoSeq3.getText().toString().length() < 4){
+//				already = false;
+//				mTxtCardNoSeq3.requestFocus();
+//			}
+//			else if(mTxtCardNoSeq4.getText().toString().length() < 4){
+//				already = false;
+//				mTxtCardNoSeq4.requestFocus();
+//			}
+//			else{
+//				already = true;
+//			}
+//		}else{
+//			already = false;
+//		}
+//		return already;
+//	}
 
 	public void confirm(){
 		//if (checkCardNoSeq()) {
 			//if (!mTxtCVV2.getText().toString().isEmpty()) {
-				
 				try {
 					mTotalCreditPay = MPOSUtil.stringToDouble(
 							mTxtTotalPay.getText().toString());
 				} catch (ParseException e) {
-					MPOSApplication.writeLog(TAG + "=>" + e.getMessage());
+					Logger.appendLog(this, MPOSApplication.LOG_DIR, 
+							MPOSApplication.LOG_FILE_NAME, e.getMessage());
 				}
 				
 				if (mTotalCreditPay > 0) {
-					LayoutInflater inflater = (LayoutInflater) 
-							CreditPayActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					View cardConfirmView = inflater.inflate(R.layout.confirm_credit_pay_layout, null);
-					((EditText) cardConfirmView.findViewById(R.id.txtTotalPay))
-						.setText(mTxtTotalPay.getText().toString());
-					((EditText) cardConfirmView.findViewById(R.id.txtCardNo))
-						.setText(mTxtCardNoSeq1.getText().toString() + "-" +
-								mTxtCardNoSeq2.getText().toString() + "-" +
-								mTxtCardNoSeq3.getText().toString() + "-" +
-								mTxtCardNoSeq4.getText().toString());
-					((EditText) cardConfirmView.findViewById(R.id.txtCardType))
-						.setText(mSpCardType.getItemAtPosition(mSpCardType.getSelectedItemPosition()).toString());
-					((EditText) cardConfirmView.findViewById(R.id.txtBank))
-						.setText(mSpBank.getItemAtPosition(mSpBank.getSelectedItemPosition()).toString());
-					((EditText) cardConfirmView.findViewById(R.id.txtExpDate))
-						.setText(mSpExpMonth.getItemAtPosition(mSpExpMonth.getSelectedItemPosition()).toString() + "/" +
-								mSpExpYear.getItemAtPosition(mSpExpYear.getSelectedItemPosition()).toString());
-					AlertDialog.Builder builder = new AlertDialog.Builder(CreditPayActivity.this);
-					builder.setTitle(R.string.credit_pay);
-					builder.setView(cardConfirmView);
-					builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-						}
-					});
-					builder.setNeutralButton(android.R.string.ok, null);
-					
-					final AlertDialog d = builder.create();
-					d.show();
-					
-					Button btnConfirm = d.getButton(AlertDialog.BUTTON_NEUTRAL);
-					btnConfirm.setOnClickListener(new OnClickListener(){
-
-						@Override
-						public void onClick(View v) {
+//					LayoutInflater inflater = (LayoutInflater) 
+//							CreditPayActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//					View cardConfirmView = inflater.inflate(R.layout.confirm_credit_pay_layout, null);
+//					((EditText) cardConfirmView.findViewById(R.id.txtTotalPay))
+//						.setText(mTxtTotalPay.getText().toString());
+//					((EditText) cardConfirmView.findViewById(R.id.txtCardNo))
+//						.setText(mTxtCardNoSeq1.getText().toString() + "-" +
+//								mTxtCardNoSeq2.getText().toString() + "-" +
+//								mTxtCardNoSeq3.getText().toString() + "-" +
+//								mTxtCardNoSeq4.getText().toString());
+//					((EditText) cardConfirmView.findViewById(R.id.txtCardType))
+//						.setText(mSpCardType.getItemAtPosition(mSpCardType.getSelectedItemPosition()).toString());
+//					((EditText) cardConfirmView.findViewById(R.id.txtBank))
+//						.setText(mSpBank.getItemAtPosition(mSpBank.getSelectedItemPosition()).toString());
+//					((EditText) cardConfirmView.findViewById(R.id.txtExpDate))
+//						.setText(mSpExpMonth.getItemAtPosition(mSpExpMonth.getSelectedItemPosition()).toString() + "/" +
+//								mSpExpYear.getItemAtPosition(mSpExpYear.getSelectedItemPosition()).toString());
+//					AlertDialog.Builder builder = new AlertDialog.Builder(CreditPayActivity.this);
+//					builder.setTitle(R.string.credit_pay);
+//					builder.setView(cardConfirmView);
+//					builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+//						
+//						@Override
+//						public void onClick(DialogInterface dialog, int which) {
+//						}
+//					});
+//					builder.setNeutralButton(android.R.string.ok, null);
+//					
+//					final AlertDialog d = builder.create();
+//					d.show();
+//					
+//					Button btnConfirm = d.getButton(AlertDialog.BUTTON_NEUTRAL);
+//					btnConfirm.setOnClickListener(new OnClickListener(){
+//
+//						@Override
+//						public void onClick(View v) {
 							String cardNo = mTxtCardNoSeq1.getText().toString()
 									+ mTxtCardNoSeq2.getText().toString()
 									+ mTxtCardNoSeq3.getText().toString()
 									+ mTxtCardNoSeq4.getText().toString();
 							try {
-								mPayment.addPaymentDetail(
-										mTransactionId, mComputerId,
-										PaymentDetail.PAY_TYPE_CREDIT,
+								mPayment.addPaymentDetail(mTransactionId, mComputerId,
+										PaymentDao.PAY_TYPE_CREDIT,
 										mTotalCreditPay, mTotalCreditPay >= mPaymentLeft ?
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
 										mExpYear, mBankId, mCardTypeId, "");
-								d.dismiss();
+								//d.dismiss();
 								Intent intent = new Intent();
 								if(mTotalCreditPay >= mPaymentLeft)
 									setResult(PaymentActivity.RESULT_ENOUGH, intent);
@@ -302,10 +347,10 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 									
 								}).show();
 							}
-							
-						}
-						
-					});
+//							
+//						}
+//						
+//					});
 				} else {
 					mTxtTotalPay.requestFocus();
 					new AlertDialog.Builder(CreditPayActivity.this)
@@ -357,8 +402,13 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadCreditCardType(){
-		CreditCard credit = new CreditCard(MPOSApplication.getWriteDatabase());
-		mCreditCardLst = credit.listAllCreditCardType();
+		CreditCardDao cd = new CreditCardDao(getApplicationContext());
+		mCreditCardLst = cd.listAllCreditCardType();
+		
+		CreditCardType cc = new CreditCardType();
+		cc.setCreditCardTypeId(0);
+		cc.setCreditCardTypeName(getString(R.string.spinner_please_select));
+		mCreditCardLst.add(0, cc);
 		
 		ArrayAdapter<CreditCardType> adapter = 
 				new ArrayAdapter<CreditCardType>(CreditPayActivity.this, 
@@ -383,8 +433,13 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadBankName(){
-		Bank bank = new Bank(MPOSApplication.getWriteDatabase());
-		mBankLst = bank.listAllBank();
+		BankNameDao bk = new BankNameDao(getApplicationContext());
+		mBankLst = bk.listAllBank();
+		
+		BankName b = new BankName();
+		b.setBankNameId(0);
+		b.setBankName(getString(R.string.spinner_please_select));
+		mBankLst.add(0, b);
 		
 		ArrayAdapter<BankName> adapter = 
 				new ArrayAdapter<BankName>(CreditPayActivity.this, 
@@ -436,5 +491,171 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
+	}
+	
+	/*
+	 * Close magnetic reader thread
+	 */
+	private synchronized void closeMsrThread(){
+		if(mMsrThread != null){
+			mMsrThread.interrupt();
+			mMsrThread = null;
+		}
+	}
+	
+	@Override
+	protected void onDestroy() {
+		closeMsrThread();
+		mIsRead = false;
+		mMsrReader.close();
+		super.onDestroy();
+	}
+	
+	/*
+	 * Listener for magnetic reader
+	 */
+	@Override
+	public void run() {
+		while(mIsRead){
+			try {
+				final String content = mMsrReader.getTrackData();
+				
+				if(content.length() > 0){
+					Logger.appendLog(getApplicationContext(), 
+						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME,
+						"Content : " + content);
+					runOnUiThread(new Runnable(){
+
+						@Override
+						public void run() {
+							try {
+								CreditCardParser parser = new CreditCardParser();
+								if(parser.parser(content)){
+									String cardNo = parser.getCardNo();
+									String cardHolderName = parser.getCardHolderName();
+									String expDate = parser.getExpDate();
+									
+									mTxtCardNoSeq1.setText(null);
+									mTxtCardNoSeq2.setText(null);
+									mTxtCardNoSeq3.setText(null);
+									mTxtCardNoSeq4.setText(null);
+									mTxtCardHolderName.setText(null);
+									
+									mTxtCardNoSeq1.setText(cardNo.substring(0, 4));
+									mTxtCardNoSeq2.setText(cardNo.substring(4, 8));
+									mTxtCardNoSeq3.setText(cardNo.substring(8, 12));
+									mTxtCardNoSeq4.setText(cardNo.substring(12, 16));
+									mTxtCardHolderName.setText(cardHolderName);
+									
+									try {
+										VerifyCardType.CardType cardType = VerifyCardType.checkCardType(cardNo); 
+										switch(cardType){
+										case VISA:
+											mSpCardType.setSelection(1);
+											break;
+										case MASTER:
+											mSpCardType.setSelection(2);
+											break;
+										default:
+											mSpCardType.setSelection(0);
+										}
+									} catch (Exception e) {
+										Logger.appendLog(getApplicationContext(), 
+												MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+												"Error set selected spinner card type");
+									}
+									
+									Logger.appendLog(getApplicationContext(), 
+											MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+											"CARD NO : " + cardNo + " \n " +
+											"CARD HOLDER NAME : " + cardHolderName + "\n" +
+											"EXP DATE : " + expDate);	
+								}
+							} catch (Exception e) {
+								new AlertDialog.Builder(CreditPayActivity.this)
+								.setTitle(R.string.error)
+								.setMessage("Error parser card data " + e.getMessage())
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+									}
+								})
+								.show();
+								Logger.appendLog(getApplicationContext(), 
+										MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+										"Error " + e.getMessage());
+							}
+						}
+						
+					});
+				}
+			} catch (Exception e) {
+				Logger.appendLog(getApplicationContext(), 
+						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+						" Error when read data from magnetic card : " + e.getMessage());
+			}
+		}
+	}
+
+	// debug test
+	private void test(){
+		String content = "Track2:0025870064605584=1299=330001234=16824?";
+		String content1 = "Track1:B4552939410162971^JITTHAPONG ARJSALEE       ^170220100000   876540039600C000?"
+
++"Track2:4552939410162971=17022010000039687654?";
+		try {
+			CreditCardParser parser = new CreditCardParser();
+			if(parser.parser(content1)){
+				mTxtCardNoSeq1.setText(null);
+				mTxtCardNoSeq2.setText(null);
+				mTxtCardNoSeq3.setText(null);
+				mTxtCardNoSeq4.setText(null);
+				mTxtCardHolderName.setText(null);
+				
+				String cardNo = parser.getCardNo();
+				String cardHolderName = parser.getCardHolderName();
+				String expDate = parser.getExpDate();
+				
+				mTxtCardNoSeq1.setText(cardNo.substring(0, 4));
+				mTxtCardNoSeq2.setText(cardNo.substring(4, 8));
+				mTxtCardNoSeq3.setText(cardNo.substring(8, 12));
+				mTxtCardNoSeq4.setText(cardNo.substring(12, 16));
+				mTxtCardHolderName.setText(cardHolderName);
+				//mSpExpMonth.setSelection();
+				
+				try {
+					VerifyCardType.CardType cardType = VerifyCardType.checkCardType(cardNo); 
+					switch(cardType){
+					case VISA:
+						mSpCardType.setSelection(1);
+						break;
+					case MASTER:
+						mSpCardType.setSelection(2);
+						break;
+					default:
+						mSpCardType.setSelection(0);
+					}
+				} catch (Exception e) {
+					Logger.appendLog(getApplicationContext(), 
+							MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+							"Error set selected spinner card type");
+				}
+			}
+		} catch (Exception e) {
+			new AlertDialog.Builder(CreditPayActivity.this)
+			.setTitle(R.string.error)
+			.setMessage("Error parser card data " + e.getMessage())
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			})
+			.show();
+			Logger.appendLog(getApplicationContext(), 
+					MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+					"Error " + e.getMessage());
+		}
 	}
 }

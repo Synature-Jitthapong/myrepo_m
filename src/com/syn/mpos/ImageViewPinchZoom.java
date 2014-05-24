@@ -3,7 +3,7 @@ package com.syn.mpos;
 import com.imagezoom.ImageAttacher;
 import com.imagezoom.ImageAttacher.OnMatrixChangedListener;
 import com.imagezoom.ImageAttacher.OnPhotoTapListener;
-import com.j1tth4.mobile.util.ImageLoader;
+import com.j1tth4.util.ImageLoader;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -82,7 +82,7 @@ public class ImageViewPinchZoom extends DialogFragment{
 
 			@Override
 			public void run() {
-				mImgLoader.displayImage(MPOSApplication.getImageUrl() + mImgName, imgMenu);
+				mImgLoader.displayImage(MPOSApplication.getImageUrl(getActivity()) + mImgName, imgMenu);
 				imgMenu.setVisibility(View.VISIBLE);
 				tvMenuName.setText(mMenuName + "\n" + mMenuPrice);
 				progress.setVisibility(View.GONE);

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/inputDiscountLayout"
+    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/list_selector"
     android:gravity="center_vertical"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:padding="4dp" >
 
     <Button
@@ -20,67 +20,14 @@
         android:text="@string/plus"
         android:textAppearance="?android:attr/textAppearanceLargeInverse" />
 
-    <Button
-        android:id="@+id/btnOrderMinus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/txtOrderQty"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:minWidth="48dp"
-        android:text="@string/minus"
-        android:textAppearance="?android:attr/textAppearanceLargeInverse" />
-
-    <TextView
-        android:id="@+id/tvOrderPrice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/tvOrderName"
-        android:layout_below="@+id/tvOrderName"
-        android:text="1"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tvOrderNo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/btnOrderMinus"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="111"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <CheckBox
-        android:id="@+id/checkBox1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/tvOrderNo"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/tvOrderNo"
-        android:clickable="false"
-        android:focusable="false"
-        android:focusableInTouchMode="false" />
-
-    <TextView
-        android:id="@+id/tvOrderName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/tvOrderNo"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/btnOrderMinus"
-        android:layout_toRightOf="@+id/checkBox1"
-        android:text="Medium Text"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
     <EditText
         android:id="@+id/txtOrderQty"
         android:layout_width="48dp"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/btnOrderPlus"
         android:layout_alignBottom="@+id/btnOrderPlus"
-        android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/btnOrderPlus"
+        android:editable="false"
         android:ems="10"
         android:focusable="false"
         android:focusableInTouchMode="false"
@@ -94,5 +41,88 @@
 
         <requestFocus />
     </EditText>
+
+    <Button
+        android:id="@+id/btnOrderMinus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/txtOrderQty"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:minWidth="48dp"
+        android:text="@string/minus"
+        android:textAppearance="?android:attr/textAppearanceLargeInverse" />
+
+    <TextView
+        android:id="@+id/tvOrderNo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:minHeight="48dp"
+        android:text="1"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <CheckBox
+        android:id="@+id/checkBox1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvOrderNo"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/tvOrderNo"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:minHeight="48dp" />
+
+    <TextView
+        android:id="@+id/tvOrderName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/btnSetModify"
+        android:layout_toRightOf="@+id/checkBox1"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:text="Menu Name"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/tvOrderPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvOrderName"
+        android:layout_toRightOf="@+id/checkBox1"
+        android:text="Price"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/orderSetContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tvOrderPrice"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/btnOrderPlus"
+        android:layout_toLeftOf="@+id/btnOrderPlus"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:orientation="vertical" >
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnSetModify"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/btnOrderMinus"
+        android:drawableLeft="@android:drawable/ic_menu_edit"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:paddingLeft="8dp"
+        android:visibility="gone" />
 
 </RelativeLayout>

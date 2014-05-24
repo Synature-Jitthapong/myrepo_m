@@ -4,20 +4,19 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.R;
-import com.syn.mpos.provider.GlobalProperty;
-import com.syn.mpos.provider.Transaction;
-import com.syn.pos.OrderTransaction;
+import com.j1tth4.exceptionhandler.ExceptionHandler;
+import com.syn.mpos.dao.FormatPropertyDao;
+import com.syn.mpos.dao.MPOSOrderTransaction;
+import com.syn.mpos.dao.ProductsDao;
+import com.syn.mpos.dao.TransactionDao;
 
 import android.os.Bundle;
-import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -40,21 +39,25 @@ import android.content.DialogInterface;
 import android.content.Intent;
 
 public class DiscountActivity extends Activity{
+	
 	public static final int PRICE_DISCOUNT_TYPE = 1;
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final String DISCOUNT_FRAGMENT_TAG = "DiscountDialog";
 	
+	private static FormatPropertyDao sFormat;
+	
+	private TransactionDao mTrans;
+	private ProductsDao mProduct;
+	
+	private MPOSOrderTransaction.MPOSOrderDetail mOrder;
+	
 	private int mTransactionId;
-	private int mComputerId;
 	private int mPosition = -1;
 	private double mTotalPrice = 0.0f;
-
-	private DiscountAdapter mDisAdapter;
 	private boolean mIsEdited = false;
-	private GlobalProperty mGlobalProp;
-	private Transaction mTransaction;
-	private OrderTransaction.OrderDetail mOrder;
-	private List<OrderTransaction.OrderDetail> mOrderLst;
+	
+	private DiscountAdapter mDisAdapter;
+	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderLst;
 	private LinearLayout mLayoutVat;
 	private ListView mLvDiscount;
 	private EditText mTxtTotalVatExc;
@@ -66,6 +69,12 @@ public class DiscountActivity extends Activity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
+		/**
+		 * Register ExceptinHandler for catch error when application crash.
+		 */
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+		
 		setContentView(R.layout.activity_discount);
 		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -79,14 +88,11 @@ public class DiscountActivity extends Activity{
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
-		mComputerId = intent.getIntExtra("computerId", 0);
-		init();
-	}
-
-	private void init(){
-		mGlobalProp = new GlobalProperty(MPOSApplication.getWriteDatabase());
-		mTransaction = new Transaction(MPOSApplication.getWriteDatabase());
-		mOrderLst = new ArrayList<OrderTransaction.OrderDetail>();
+		mTrans = new TransactionDao(getApplicationContext());
+		mProduct = new ProductsDao(getApplicationContext());
+		sFormat = new FormatPropertyDao(getApplicationContext());
+		
+		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
 		mLvDiscount.setOnItemClickListener(new OnItemClickListener(){
@@ -94,11 +100,11 @@ public class DiscountActivity extends Activity{
 			@Override
 			public void onItemClick(AdapterView<?> parent, View v, final int position,
 					final long id) {
-				OrderTransaction.OrderDetail order = 
-						(OrderTransaction.OrderDetail) parent.getItemAtPosition(position);
+				MPOSOrderTransaction.MPOSOrderDetail order = 
+						(MPOSOrderTransaction.MPOSOrderDetail) parent.getItemAtPosition(position);
 				
-				if(MPOSApplication.getProduct().
-						getProduct(order.getProductId()).getDiscountAllow() == 1){
+				ProductsDao p = new ProductsDao(getApplicationContext());
+				if(p.getProduct(order.getProductId()).getDiscountAllow() == 1){
 					mPosition = position;
 					mOrder = order;
 					DiscountDialogFragment discount = 
@@ -130,8 +136,8 @@ public class DiscountActivity extends Activity{
 			cancel();
 			return true;
 		case R.id.itemConfirm:
-			if (mTransaction.confirmDiscount(mTransactionId, mComputerId))
-				finish();
+			mTrans.confirmDiscount(mTransactionId);
+			finish();
 			return true;
 		default:
 		return super.onOptionsItemSelected(item);
@@ -145,7 +151,7 @@ public class DiscountActivity extends Activity{
 		mItemConfirm = menu.findItem(R.id.itemConfirm);
 		return true;
 	}
-	
+
 	private boolean updateDiscount(double discount, int discountType) {
 		if(discount >= 0){
 			if(discountType == 1){
@@ -157,14 +163,14 @@ public class DiscountActivity extends Activity{
 				}
 				discount = mOrder.getTotalRetailPrice() * discount / 100;
 			}	
-			double totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - discount;
-			mTransaction.discountEatchProduct(mOrder.getOrderDetailId(), 
-					mTransactionId, mComputerId,
-					mOrder.getVatType(),
-					MPOSApplication.getProduct().getVatRate(mOrder.getProductId()), 
+			discount = MPOSUtil.roundingPrice(discount);
+			double totalPriceAfterDiscount = MPOSUtil.roundingPrice(mOrder.getTotalRetailPrice() - discount);
+			mTrans.discountEatchProduct(mTransactionId, 
+					mOrder.getOrderDetailId(), mOrder.getVatType(),
+					mProduct.getVatRate(mOrder.getProductId()), 
 					totalPriceAfterDiscount, discount, discountType);
 			
-			OrderTransaction.OrderDetail order = mOrderLst.get(mPosition);
+			MPOSOrderTransaction.MPOSOrderDetail order = mOrderLst.get(mPosition);
 			order.setPriceDiscount(discount);
 			order.setTotalSalePrice(totalPriceAfterDiscount);
 			order.setDiscountType(discountType);
@@ -187,7 +193,7 @@ public class DiscountActivity extends Activity{
 		}
 
 		@Override
-		public OrderTransaction.OrderDetail getItem(int position) {
+		public MPOSOrderTransaction.MPOSOrderDetail getItem(int position) {
 			return mOrderLst.get(position);
 		}
 
@@ -204,7 +210,7 @@ public class DiscountActivity extends Activity{
 
 		@Override
 		public View getView(final int position, View convertView, ViewGroup parent) {
-			final OrderTransaction.OrderDetail order =
+			final MPOSOrderTransaction.MPOSOrderDetail order =
 					mOrderLst.get(position);
 			
 			LayoutInflater inflater = (LayoutInflater)
@@ -221,40 +227,36 @@ public class DiscountActivity extends Activity{
 			
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvName.setText(order.getProductName());
-			tvQty.setText(mGlobalProp.qtyFormat(order.getQty()));
-			tvUnitPrice.setText(mGlobalProp.currencyFormat(order.getPricePerUnit()));
-			tvTotalPrice.setText(mGlobalProp.currencyFormat(order.getTotalRetailPrice()));
-			tvDiscount.setText(mGlobalProp.currencyFormat(order.getPriceDiscount()));
-			tvSalePrice.setText(mGlobalProp.currencyFormat(order.getTotalSalePrice()));
+			tvQty.setText(sFormat.qtyFormat(order.getQty()));
+			tvUnitPrice.setText(sFormat.currencyFormat(order.getPricePerUnit()));
+			tvTotalPrice.setText(sFormat.currencyFormat(order.getTotalRetailPrice()));
+			tvDiscount.setText(sFormat.currencyFormat(order.getPriceDiscount()));
+			tvSalePrice.setText(sFormat.currencyFormat(order.getTotalSalePrice()));
 			
 			return rowView;
 		}
 	}
 	
 	private void loadOrder() {
-		if (mTransaction.copyOrderToTmp(mTransactionId, mComputerId)) {
-			mOrderLst = mTransaction.listAllOrderTmp(mTransactionId, mComputerId);
+		if(mTrans.prepareDiscount(mTransactionId)){
+			mOrderLst = mTrans.listAllOrderForDiscount(mTransactionId);
 			mDisAdapter.notifyDataSetChanged();
 		}
 	}
 
 	private void summary() {
-		double subTotal = mTransaction.getDisocuntTotalRetailPrice(mTransactionId, mComputerId);
-		double totalVatExclude = mTransaction.getDiscountTotalVatExclude(mTransactionId, mComputerId);
-		double totalDiscount = mTransaction.getDiscountPriceDiscount(mTransactionId, mComputerId); 
-				
-		mTotalPrice = mTransaction.getDiscountTotalSalePrice(mTransactionId, mComputerId) + 
-				totalVatExclude;
-		
-		if(totalVatExclude > 0)
+		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
+				mTrans.getSummaryOrderForDiscount(mTransactionId);
+		double totalVatExcluded = summOrder.getVatExclude();
+		if(totalVatExcluded > 0)
 			mLayoutVat.setVisibility(View.VISIBLE);
 		else
 			mLayoutVat.setVisibility(View.GONE);
-		
-		mTxtTotalVatExc.setText(mGlobalProp.currencyFormat(totalVatExclude));
-		mTxtSubTotal.setText(mGlobalProp.currencyFormat(subTotal));
-		mTxtTotalDiscount.setText(mGlobalProp.currencyFormat(totalDiscount));
-		mTxtTotalPrice.setText(mGlobalProp.currencyFormat(mTotalPrice));
+		mTotalPrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
+		mTxtTotalVatExc.setText(sFormat.currencyFormat(totalVatExcluded));
+		mTxtSubTotal.setText(sFormat.currencyFormat(summOrder.getTotalRetailPrice()));
+		mTxtTotalDiscount.setText(sFormat.currencyFormat(summOrder.getPriceDiscount()));
+		mTxtTotalPrice.setText(sFormat.currencyFormat(mTotalPrice));
 	}
 
 	private void cancel(){
@@ -277,8 +279,7 @@ public class DiscountActivity extends Activity{
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									mTransaction.cancelDiscount(mTransactionId, 
-											mComputerId);
+									mTrans.cancelDiscount(mTransactionId);
 									finish();
 								}
 							}).show();
@@ -348,11 +349,9 @@ public class DiscountActivity extends Activity{
 			else if(mDiscountType == PRICE_DISCOUNT_TYPE)
 				((RadioButton)rdoDiscountType.findViewById(R.id.rdoPrice)).setChecked(true);
 			if(mDiscountType == PERCENT_DISCOUNT_TYPE)
-				txtDiscount.setText(
-						MPOSApplication.getGlobalProperty().currencyFormat(
-								mDiscount * 100 / mTotalRetailPrice));
+				txtDiscount.setText(sFormat.currencyFormat(mDiscount * 100 / mTotalRetailPrice));
 			else
-				txtDiscount.setText(MPOSApplication.getGlobalProperty().currencyFormat(mDiscount));
+				txtDiscount.setText(sFormat.currencyFormat(mDiscount));
 			txtDiscount.setSelectAllOnFocus(true);
 			txtDiscount.requestFocus();
 			txtDiscount.setOnEditorActionListener(new OnEditorActionListener(){

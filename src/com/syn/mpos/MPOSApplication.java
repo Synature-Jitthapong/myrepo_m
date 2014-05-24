@@ -1,101 +1,85 @@
 package com.syn.mpos;
 
-import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import com.syn.mpos.provider.Computer;
-import com.syn.mpos.provider.GlobalProperty;
-import com.syn.mpos.provider.MPOSLog;
-import com.syn.mpos.provider.MPOSSQLiteHelper;
-import com.syn.mpos.provider.Products;
-import com.syn.mpos.provider.Shop;
-import com.syn.mpos.provider.Staff;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 
 public class MPOSApplication extends Application {
-
-	private static Context sContext;
 	
-	private static MPOSSQLiteHelper sSqliteHelper;
-	
-	private static GlobalProperty sGlobalProp;
-	
-	private static Shop sShop;
-	
-	private static MPOSLog sLog;
-	
-	private static Products sProduct;
-	
-	// sqlite db name
-	public static final String DB_NAME = "mpos.db";
-
-	/* db version
-	 * version 2 update printreceiptlog
+	/*
+	 * WebService file name
 	 */
-	public static final int DB_VERSION = 2;
-
-	// service name
 	public static final String WS_NAME = "ws_mpos.asmx";
 
-	// image dir
+	/*
+	 * Menu image dir
+	 */
 	public static final String IMG_DIR = "mPOSImg";
 	
-	// log dir
+	/*
+	 * Log file name
+	 */
+	public static final String LOG_FILE_NAME = "mpos_";
+	
+	/*
+	 * Log dir
+	 */
 	public static final String LOG_DIR = "mPOSLog";
 
-	// server image path
+	/*
+	 * Image path on server
+	 */
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
-
-	public static int getComputerId() {
-		Computer comp = new Computer(getWriteDatabase());
-		return comp.getComputerProperty().getComputerID();
+	
+	/*
+	 * Android Device Code
+	 */
+	public static String sDeviceCode;
+	
+	public static String getDeviceCode(Context context) {
+		return Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
 	}
 
-	public static int getShopId() {
-		Shop s = new Shop(getWriteDatabase());
-		return s.getShopProperty().getShopID();
-	}
-
-	public static String getDeviceCode() {
-		return Secure.getString(sContext.getContentResolver(), Secure.ANDROID_ID);
-	}
-
-	public static String getPrinterFont() {
+	public static boolean getInternalPrinterSetting(Context context){
 		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(sContext);
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_PRINTER_INTERNAL, false);
+	}
+	
+	public static String getPrinterFont(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
 		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_FONT_LIST, "");
 	}
 	
-	public static String getPrinterName() {
+	public static String getPrinterName(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(sContext);
+				.getDefaultSharedPreferences(context);
 		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_LIST, "");
 	}
 	
-	public static String getPrinterIp() {
+	public static String getPrinterIp(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(sContext);
+				.getDefaultSharedPreferences(context);
 		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_IP, "");
 	}
 
-	public static String getImageUrl() {
-		return getUrl() + "/" + SERVER_IMG_PATH;
+	public static String getImageUrl(Context context) {
+		return getUrl(context) + "/" + SERVER_IMG_PATH;
 	}
 
-	public static String getFullUrl() {
-		return getUrl() + "/" + WS_NAME;
+	public static String getFullUrl(Context context) {
+		return getUrl(context) + "/" + WS_NAME;
 	}
 
-	public static String getUrl() {
+	public static String getUrl(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(sContext);
+				.getDefaultSharedPreferences(context);
 		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL,
 				"");
 		try {
@@ -111,49 +95,13 @@ public class MPOSApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		sContext = getApplicationContext();
-		sSqliteHelper = new MPOSSQLiteHelper(sContext);
-		sGlobalProp = new GlobalProperty(getWriteDatabase());
-		sProduct = new Products(getWriteDatabase());
-		sShop = new Shop(getWriteDatabase());
-		sLog = new MPOSLog(sContext);
-	}
-
-	public static String fixesDigitLength(int length, double value){
-		BigDecimal b = new BigDecimal(value);
-		return b.setScale(length, BigDecimal.ROUND_HALF_UP).toString();
+		
+		// show customer display
+		showCustomerDisplay();
 	}
 	
-	public static SQLiteDatabase getReadDatabase(){
-		return sSqliteHelper.getReadableDatabase();
-	}
-	
-	public static SQLiteDatabase getWriteDatabase(){
-		return sSqliteHelper.getWritableDatabase();
-	}
-	
-	public static void writeLog(String mesg){
-		sLog.appendLog(mesg);
-	}
-	
-	public static String getStaff(int staffId){
-		Staff s = new Staff(getWriteDatabase());
-		return s.getStaff(staffId).getStaffName();
-	}
-	
-	public static Products getProduct(){
-		return sProduct;
-	}
-	
-	public static Shop getShop(){
-		return sShop;
-	}
-	
-	public static GlobalProperty getGlobalProperty(){
-		return sGlobalProp;
-	}
-	
-	public static Context getContext() {
-		return sContext;
+	private void showCustomerDisplay(){
+		WintecCustomerDisplay wd = new WintecCustomerDisplay();
+		wd.displayWelcome();
 	}
 }

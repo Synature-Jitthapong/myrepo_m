@@ -1,9 +1,9 @@
 package com.syn.mpos;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.List;
 import java.util.Locale;
 
 import android.app.AlertDialog;
@@ -13,55 +13,44 @@ import android.content.DialogInterface;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.view.LayoutInflater;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.j1tth4.mobile.util.JSONUtil;
-import com.syn.mpos.MPOSService.SendSaleTransaction;
-import com.syn.mpos.provider.Computer;
-import com.syn.mpos.provider.PaymentDetail;
-import com.syn.mpos.provider.SaleTransaction;
-import com.syn.mpos.provider.Session;
-import com.syn.mpos.provider.SyncSaleLog;
-import com.syn.mpos.provider.Transaction;
-import com.syn.mpos.provider.Util;
-import com.syn.mpos.provider.SaleTransaction.POSData_SaleTransaction;
+import com.j1tth4.util.Logger;
+import com.syn.mpos.MPOSWebServiceClient.AuthenDeviceListener;
+import com.syn.mpos.MPOSWebServiceClient.SendSaleTransaction;
+import com.syn.mpos.dao.FormatPropertyDao;
+import com.syn.mpos.dao.MPOSDatabase;
+import com.syn.mpos.dao.PaymentDao.PaymentDetailTable;
+import com.syn.mpos.dao.SaleTransactionDao;
+import com.syn.mpos.dao.SessionDao;
+import com.syn.mpos.dao.SessionDao.SessionDetailTable;
+import com.syn.mpos.dao.SessionDao.SessionTable;
+import com.syn.mpos.dao.TransactionDao;
+import com.syn.mpos.dao.SaleTransactionDao.POSData_SaleTransaction;
+import com.syn.mpos.dao.TransactionDao.OrderDetailTable;
+import com.syn.mpos.dao.TransactionDao.OrderSetTable;
+import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
 
 public class MPOSUtil {
-	public static LinearLayout createDetailColumn(Context c, String[] detailText){
-		if(detailText.length < 1)
-			return null;
-		
-		LayoutInflater inflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout detailColumn = new LinearLayout(c);
-		for(int i = 0; i < detailText.length; i++){
-			TextView tvHeader = (TextView) inflater.inflate(R.layout.tv_column_detail, null);
-			tvHeader.setText(detailText[i]);
-			detailColumn.addView(tvHeader);
-		}
-		return detailColumn;
-	}
 	
-	public static LinearLayout createHeaderColumn(Context c, String[] headerText){
-		if(headerText.length < 1)
-			return null;
+	/**
+	 * @param context
+	 * @param shopId
+	 * @param computerId
+	 * @param staffId
+	 * @param sendAll
+	 * @param listener
+	 */
+	public static void doSendSale(final Context context, 
+			final int shopId, final int computerId, 
+			final int staffId, boolean sendAll, final ProgressListener listener) {
 		
-		LayoutInflater inflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout headerColumn = new LinearLayout(c);
-		for(int i = 0; i < headerText.length; i++){
-			TextView tvHeader = (TextView) inflater.inflate(R.layout.tv_column_header, null);
-			tvHeader.setText(headerText[i]);
-			headerColumn.addView(tvHeader);
-		}
-		return headerColumn;
-	}
-	
-	public static void doSendSaleBySelectedTransaction(final int transactionId, final int staffId,
-			final ProgressListener listener) {
-		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
+		SessionDao session = new SessionDao(context.getApplicationContext());
+		final String sessionDate = session.getSessionDate();
+		new LoadSaleTransaction(context.getApplicationContext(), sessionDate,
+				sendAll, new LoadSaleTransactionListener() {
 
 			@Override
 			public void onPre() {
@@ -69,35 +58,34 @@ public class MPOSUtil {
 			}
 
 			@Override
-			public void onPost(POSData_SaleTransaction saleTrans,
-					final String sessionDate) {
+			public void onPost(POSData_SaleTransaction saleTrans) {
 
-				JSONUtil jsonUtil = new JSONUtil();
-				Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
-				final String jsonSale = jsonUtil.toJson(type, saleTrans);
+				final String jsonSale = generateJSONSale(context, saleTrans);
+				
+				if(jsonSale != null && !jsonSale.isEmpty()){
+					new MPOSWebServiceClient.SendPartialSaleTransaction(context.getApplicationContext(), 
+							staffId, shopId, computerId, jsonSale, new ProgressListener() {
+						@Override
+						public void onPre() {
+						}
 
-				ProgressListener sendSaleListener = new ProgressListener() {
-					@Override
-					public void onPre() {
-					}
+						@Override
+						public void onPost() {
+							// do update transaction already send
+							TransactionDao trans = new TransactionDao(context.getApplicationContext());
+							trans.updateTransactionSendStatus(sessionDate);
+							listener.onPost();
+						}
 
-					@Override
-					public void onPost() {
-						// do update transaction already send
-						Transaction trans = 
-								new Transaction(MPOSApplication.getWriteDatabase());
-						trans.updateTransactionSendStatus(transactionId);
-						MPOSApplication.writeLog("Send parial sale => " + jsonSale);
-						listener.onPost();
-					}
-
-					@Override
-					public void onError(String msg) {
-						listener.onError(msg);
-					}
-				};
-				new MPOSService.SendPartialSaleTransaction(MPOSApplication.getContext(), 
-						staffId, jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl());
+						@Override
+						public void onError(String msg) {
+							logServerResponse(context, msg);
+							listener.onError(msg);
+						}
+					}).execute(MPOSApplication.getFullUrl(context));
+				}else{
+					listener.onError("Wrong json sale data");
+				}
 			}
 
 			@Override
@@ -109,207 +97,139 @@ public class MPOSUtil {
 			public void onPost() {
 			}
 
-		};
-		new LoadSaleTransactionByTransactionId(String.valueOf(Util.getDate().getTimeInMillis()),
-				transactionId, loadSaleListener).execute();
+		}).execute();
 	}
-	
-	public static void doSendSale(final int staffId,
-			final ProgressListener listener) {
-		final LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
 
-			@Override
-			public void onPre() {
-				listener.onPre();
-			}
-
-			@Override
-			public void onPost(POSData_SaleTransaction saleTrans,
-					final String sessionDate) {
-
-				JSONUtil jsonUtil = new JSONUtil();
-				Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
-				final String jsonSale = jsonUtil.toJson(type, saleTrans);
-
-				ProgressListener sendSaleListener = new ProgressListener() {
-					@Override
-					public void onPre() {
-					}
-
-					@Override
-					public void onPost() {
-						// do update transaction already send
-						Transaction trans = 
-								new Transaction(MPOSApplication.getWriteDatabase());
-						trans.updateTransactionSendStatus(sessionDate);
-						MPOSApplication.writeLog("Send parial sale => " + jsonSale);
-						listener.onPost();
-					}
-
-					@Override
-					public void onError(String msg) {
-						listener.onError(msg);
-					}
-				};
-				new MPOSService.SendPartialSaleTransaction(MPOSApplication.getContext(), 
-						staffId, jsonSale, sendSaleListener).execute(MPOSApplication.getFullUrl());
-			}
-
-			@Override
-			public void onError(String msg) {
-				listener.onError(msg);
-			}
-
-			@Override
-			public void onPost() {
-			}
-
-		};
-		new LoadSaleTransaction(String.valueOf(Util.getDate().getTimeInMillis()),
-				loadSaleListener).execute();
-	}
-	
-	public static void doEndday(final int computerId, final int sessionId,
-			final int closeStaffId, final float closeAmount,
+	/**
+	 * @param context
+	 * @param shopId
+	 * @param computerId
+	 * @param sessionId
+	 * @param staffId
+	 * @param closeAmount
+	 * @param isEndday
+	 * @param listener
+	 */
+	public static void doEndday(final Context context, final int shopId, 
+			final int computerId, final int sessionId,
+			final int staffId, final double closeAmount,
 			final boolean isEndday, final ProgressListener listener) {
+
+		// execute print summary sale task
+		new PrintReport(context, staffId, PrintReport.WhatPrint.SUMMARY_SALE).execute();
 		
-		// check is main computer
-		Computer comp = new Computer(MPOSApplication.getReadDatabase());
-		if (comp.checkIsMainComputer(computerId)) {
-			final SyncSaleLog syncLog = 
-					new SyncSaleLog(MPOSApplication.getWriteDatabase());
-			LoadSaleTransactionListener loadSaleListener = new LoadSaleTransactionListener() {
+		final SessionDao sess = new SessionDao(context.getApplicationContext());
+		final TransactionDao trans = new TransactionDao(context.getApplicationContext());
+		final String sessionDate = sess.getSessionDate();
+		// add session endday
+		sess.addSessionEnddayDetail(sessionDate,
+				trans.getTotalReceipt(sessionDate),
+				trans.getTotalReceiptAmount(sessionDate));
+		// close session
+		sess.closeSession(sessionId,
+			staffId, closeAmount, isEndday);
 
-				@Override
-				public void onPost(POSData_SaleTransaction saleTrans,
-						final String sessionDate) {
+		new LoadSaleTransaction(context, sessionDate, 
+				true, new LoadSaleTransactionListener() {
 
-					JSONUtil jsonUtil = new JSONUtil();
-					Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
-					final String jsonSale = jsonUtil.toJson(type, saleTrans);
-					// Log.v("SaleTrans", saleJson);
+			@Override
+			public void onPost(POSData_SaleTransaction saleTrans) {
 
-					new MPOSService.SendSaleTransaction(
+				final String jsonSale = generateJSONSale(context, saleTrans);
+				if(jsonSale != null && !jsonSale.equals("")){
+					new MPOSWebServiceClient.SendSaleTransaction(context,
 							SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-							closeStaffId, jsonSale, new ProgressListener() {
-
+							staffId, shopId, computerId, jsonSale, new ProgressListener() {
+	
 								@Override
 								public void onError(String mesg) {
-									syncLog.updateSyncSaleLog(sessionDate,
-											SyncSaleLog.SYNC_FAIL);
+									logServerResponse(context, mesg);
 									listener.onError(mesg);
 								}
-
+	
 								@Override
 								public void onPre() {
 								}
-
+	
 								@Override
 								public void onPost() {
-									syncLog.updateSyncSaleLog(sessionDate,
-											SyncSaleLog.SYNC_SUCCESS);
+									sess.getWritableDatabase().beginTransaction();
 									try {
-										Transaction trans = 
-												new Transaction(MPOSApplication.getWriteDatabase());
-										Session sess = 
-												new Session(MPOSApplication.getWriteDatabase());
-										sess.addSessionEnddayDetail(sessionDate,
-												trans.getTotalReceipt(sessionDate),
-												trans.getTotalReceiptAmount(sessionDate));
-										sess.closeSession(sessionId, computerId,
-											closeStaffId, closeAmount, isEndday);
-										MPOSApplication.writeLog("Send endday sale => " + jsonSale);
+										sess.updateSessionEnddayDetail(sessionDate, 
+												SessionDao.ALREADY_ENDDAY_STATUS);
+										sess.getWritableDatabase().setTransactionSuccessful();
 										listener.onPost();
 									} catch (SQLException e) {
+										Logger.appendLog(context, MPOSApplication.LOG_DIR, 
+												MPOSApplication.LOG_FILE_NAME, 
+												" Error when update " 
+												+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + " : "
+												+ e.getMessage());
 										listener.onError(e.getMessage());
+									} finally{
+										sess.getWritableDatabase().endTransaction();
 									}
 								}
-							}).execute(MPOSApplication.getFullUrl());
+							}).execute(MPOSApplication.getFullUrl(context));
+				}else{
+					listener.onError("Wrong json sale data");
 				}
-
-				@Override
-				public void onError(String mesg) {
-					listener.onError(mesg);
-				}
-
-				@Override
-				public void onPre() {
-					listener.onPre();
-				}
-
-				@Override
-				public void onPost() {
-				}
-
-			};
-
-			// loop load sale by date that not successfully sync
-			List<String> dateLst = syncLog.listSessionDate();
-			if (dateLst != null) {
-				for (String date : dateLst) {
-					new LoadSaleTransactionForEndday(date, loadSaleListener)
-							.execute();
-				}
-			}else{
-				new LoadSaleTransactionForEndday(String.valueOf(Util.getDate().getTimeInMillis()), loadSaleListener)
-				.execute();
 			}
-		} else {
-			Context context = MPOSApplication.getContext();
-			listener.onError(context.getString(R.string.cannot_endday) + " "
-					+ context.getString(R.string.because) + " "
-					+ context.getString(R.string.not_main_computer));
-		}
+
+			@Override
+			public void onError(String mesg) {
+				listener.onError(mesg);
+			}
+
+			@Override
+			public void onPre() {
+				listener.onPre();
+			}
+
+			@Override
+			public void onPost() {
+			}
+
+		}).execute();
 	}
 
-	public static class LoadSaleTransactionByTransactionId extends LoadSaleTransaction{
-
-		public LoadSaleTransactionByTransactionId(String sessionDate,
-				int transactionId, LoadSaleTransactionListener listener) {
-			super(sessionDate, transactionId, listener);
-			// TODO Auto-generated constructor stub
+	/**
+	 * @param context
+	 * @param saleTrans
+	 * @return String JSON Sale
+	 */
+	private static String generateJSONSale(Context context,
+			POSData_SaleTransaction saleTrans) {
+		String jsonSale = null;
+		try {
+			Gson gson = new Gson();
+			Type type = new TypeToken<POSData_SaleTransaction>() {
+			}.getType();
+			jsonSale = gson.toJson(saleTrans, type);
+			Logger.appendLog(context, MPOSApplication.LOG_DIR,
+					MPOSApplication.LOG_FILE_NAME,
+					" JSON that send to the server : " + jsonSale);
+		} catch (Exception e) {
+			Logger.appendLog(context, MPOSApplication.LOG_DIR,
+					MPOSApplication.LOG_FILE_NAME,
+					" Error when generate json sale : " + e.getMessage());
 		}
-
-		@Override
-		protected POSData_SaleTransaction doInBackground(Void... params) {
-			return mSaleTrans.listSaleSaleTransactionByTransactionId();
-		}
-		
+		return jsonSale;
 	}
 	
-	// load sale transaction for endday
-	public static class LoadSaleTransactionForEndday extends LoadSaleTransaction{
-
-		public LoadSaleTransactionForEndday(String sessionDate,
-				LoadSaleTransactionListener listener) {
-			super(sessionDate, listener);
-		}
-		
-		@Override
-		protected POSData_SaleTransaction doInBackground(Void... params) {
-			return mSaleTrans.listAllSaleTransactionInSaleDate();
-		}
-	}
-	
-	// load sale transaction for send realtime
+	/**
+	 * @author j1tth4
+	 * task for load OrderTransaction 
+	 */
 	public static class LoadSaleTransaction extends AsyncTask<Void, Void, POSData_SaleTransaction>{
 
 		protected LoadSaleTransactionListener mListener;
-		protected SaleTransaction mSaleTrans;
-		protected String mSessionDate;
+		protected SaleTransactionDao mSaleTrans;
 			
-		public LoadSaleTransaction(String sessionDate, int transactionId,
-				LoadSaleTransactionListener listener){
+		public LoadSaleTransaction(Context context, String sessionDate,
+				boolean isListAll, LoadSaleTransactionListener listener){
 			mListener = listener;
-			mSaleTrans = new SaleTransaction(MPOSApplication.getWriteDatabase(), sessionDate, transactionId);
-			mSessionDate = sessionDate;
-		}
-		
-		public LoadSaleTransaction(String sessionDate, 
-				LoadSaleTransactionListener listener){
-			mListener = listener;
-			mSaleTrans = new SaleTransaction(MPOSApplication.getWriteDatabase(), sessionDate);
-			mSessionDate = sessionDate;
+			mSaleTrans = new SaleTransactionDao(context, sessionDate, isListAll);
 		}
 		
 		@Override
@@ -319,7 +239,7 @@ public class MPOSUtil {
 
 		@Override
 		protected void onPostExecute(POSData_SaleTransaction saleTrans) {
-			mListener.onPost(saleTrans, mSessionDate);
+			mListener.onPost(saleTrans);
 		}
 		
 		@Override
@@ -329,86 +249,39 @@ public class MPOSUtil {
 	}
 	
 	public static interface LoadSaleTransactionListener extends ProgressListener{
-		void onPost(POSData_SaleTransaction saleTrans, String sessionDate);
+		void onPost(POSData_SaleTransaction saleTrans);
 	}
 	
-	public static void sendSaleData(final Context c, int staffId){
-		final ProgressDialog progress = new ProgressDialog(c);
-		progress.setTitle(R.string.send_sale_data);
-		progress.setMessage(c.getString(R.string.send_sale_data_progress));
-		MPOSUtil.doSendSale(staffId, new ProgressListener(){
-
-			@Override
-			public void onPre() {
-				progress.show();
-			}
-
-			@Override
-			public void onPost() {
-				if(progress.isShowing())
-					progress.dismiss();
-				new AlertDialog.Builder(c)
-					.setTitle(R.string.send_sale_data)
-					.setMessage(R.string.send_sale_data_success)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-						}
-					})
-					.show();
-				
-			}
-
-			@Override
-			public void onError(String msg) {
-				if(progress.isShowing())
-					progress.dismiss();
-				new AlertDialog.Builder(c)
-				.setTitle(R.string.send_sale_data)
-				.setMessage(msg)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-					}
-				})
-				.show();
-			}
-			
-		});	
-	}
-	
-	public static void clearSale(){
-		SQLiteDatabase sqlite = MPOSApplication.getWriteDatabase();
-		sqlite.delete(Transaction.TABLE_ORDER, null, null);
-		sqlite.delete(Transaction.TABLE_ORDER_TMP, null, null);
-		sqlite.delete(Transaction.TABLE_TRANSACTION, null, null);
-		sqlite.delete(PaymentDetail.TABLE_PAYMENT, null, null);
-		sqlite.delete(Session.TABLE_SESSION, null, null);
-		sqlite.delete(Session.TABLE_SESSION_DETAIL, null, null);	
-		sqlite.delete(SyncSaleLog.TABLE_SYNC_SALE_LOG, null, null);	
-	}
-	
-	public static void updateData(final Context c){
-		final ProgressDialog progress = new ProgressDialog(c);
-		final MPOSService mPOSService = new MPOSService();
-		mPOSService.loadShopData(new ProgressListener(){
+	/**
+	 * Update data from the server
+	 * @param context
+	 * @param listener
+	 */
+	public static void updateData(final Context context, final ProgressListener listener){
+		final ProgressDialog progress = new ProgressDialog(context);
+		progress.setCancelable(false);
+		final MPOSWebServiceClient mPOSService = new MPOSWebServiceClient();
+		mPOSService.loadShopData(context, new AuthenDeviceListener(){
 
 			@Override
 			public void onPre() {
 				progress.setTitle(R.string.update_data);
-				progress.setMessage(c.getString(R.string.update_shop_progress));
+				progress.setMessage(context.getString(R.string.update_shop_progress));
 				progress.show();
+				listener.onPre();
 			}
 
 			@Override
 			public void onPost() {
-				mPOSService.loadProductData(new ProgressListener(){
+			}
+
+			@Override
+			public void onPost(int shopId) {
+				mPOSService.loadProductData(context, shopId, new ProgressListener(){
 
 					@Override
 					public void onPre() {
-						progress.setMessage(c.getString(R.string.update_product_progress));
+						progress.setMessage(context.getString(R.string.update_product_progress));
 					}
 
 					@Override
@@ -416,13 +289,15 @@ public class MPOSUtil {
 						if(progress.isShowing())
 							progress.dismiss();
 						
-						new AlertDialog.Builder(c)
+						new AlertDialog.Builder(context)
+						.setCancelable(false)
 						.setTitle(R.string.update_data)
 						.setMessage(R.string.update_data_success)
 						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
+								listener.onPost();
 							}
 						})
 						.show();
@@ -432,7 +307,7 @@ public class MPOSUtil {
 					public void onError(String msg) {
 						if(progress.isShowing())
 							progress.dismiss();
-						new AlertDialog.Builder(c)
+						new AlertDialog.Builder(context)
 						.setTitle(R.string.update_data)
 						.setMessage(msg)
 						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -442,6 +317,7 @@ public class MPOSUtil {
 							}
 						})
 						.show();
+						listener.onError(msg);
 					}
 					
 				});
@@ -451,7 +327,7 @@ public class MPOSUtil {
 			public void onError(String msg) {
 				if(progress.isShowing())
 					progress.dismiss();
-				new AlertDialog.Builder(c)
+				new AlertDialog.Builder(context)
 				.setTitle(R.string.update_data)
 				.setMessage(msg)
 				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -461,22 +337,87 @@ public class MPOSUtil {
 					}
 				})
 				.show();
+				listener.onError(msg);
 			}
 			
 		});
 	}
-	
+
 	public static void makeToask(Context c, String msg){
 		Toast toast = Toast.makeText(c, 
 				msg, Toast.LENGTH_LONG);
 		toast.show();
 	}
+
+	/**
+	 * @param scale
+	 * @param value
+	 * @return string fixes digit
+	 */
+	public static String fixesDigitLength(FormatPropertyDao format, int scale, double value){
+		return format.currencyFormat(rounding(scale, value), "#,##0.0000");
+	}
+
+	/**
+	 * @param scale
+	 * @param value
+	 * @return rounding value
+	 */
+	public static double rounding(int scale, double value){
+		BigDecimal big = new BigDecimal(value);
+		return big.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+	}
 	
+	/**
+	 * @param price
+	 * @return rounding value
+	 */
+	public static double roundingPrice(double price){
+		double result = price;
+		long iPart;		// integer part
+		double fPart;	// fractional part
+		iPart = (long) price;
+		fPart = price - iPart;
+		if(fPart < 0.25){
+			fPart = 0.0d;
+		}else if(fPart >= 0.25 && fPart < 0.50){
+			fPart = 0.25d;
+		}else if(fPart >= 0.50 && fPart < 0.75){
+			fPart = 0.50d;
+		}else if(fPart == 0.75){
+			fPart = 0.75d;
+		}else if(fPart > 0.75){
+			iPart += 1;
+			fPart = 0.0d;
+		}
+		result = iPart + fPart;
+		return result;
+	}
+
 	public static double stringToDouble(String text) throws ParseException{
 		double value = 0.0d;
 		NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
 		Number num = format.parse(text);
 		value = num.doubleValue();
 		return value;
+	}
+
+	public static void logServerResponse(Context context, String msg){
+		Logger.appendLog(context, MPOSApplication.LOG_DIR,
+				MPOSApplication.LOG_FILE_NAME,
+				" Server Response : " + msg);
+	}
+	
+	public static void clearSale(Context context){
+		MPOSDatabase.MPOSOpenHelper mSqliteHelper = 
+				MPOSDatabase.MPOSOpenHelper.getInstance(context.getApplicationContext());
+		SQLiteDatabase sqlite = mSqliteHelper.getWritableDatabase();
+		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
+		sqlite.delete(OrderDetailTable.TABLE_ORDER_TMP, null, null);
+		sqlite.delete(OrderSetTable.TABLE_ORDER_SET, null, null);
+		sqlite.delete(OrderTransactionTable.TABLE_ORDER_TRANS, null, null);
+		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
+		sqlite.delete(SessionTable.TABLE_SESSION, null, null);
+		sqlite.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, null);
 	}
 }

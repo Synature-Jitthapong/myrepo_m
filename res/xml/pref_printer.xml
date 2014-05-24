@@ -3,12 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android" >
     <PreferenceCategory 
         android:title="@string/printer_setting">
-        	<EditTextPreference 
+@layout/print_test_layout        	<CheckBoxPreference android:title="@string/internal_printer" android:key="printer_internal" android:defaultValue="true" android:summary="@string/internal_printer_wintec"/><EditTextPreference 
         	    android:title="@string/printer_ip" 
         	    android:key="printer_ip" 
-        	    android:selectAllOnFocus="true" android:widgetLayout="@layout/print_test_layout"/>
+        	    android:selectAllOnFocus="true"/>
         	<ListPreference android:key="printer_list" android:title="@string/printer_name" android:entryValues="@array/pref_printer_value" android:entries="@array/pref_printer_name" android:defaultValue="TM-T88V"/>
         	<ListPreference android:title="@string/font" android:key="printer_font_list" android:entryValues="@array/pref_printer_font_value" android:entries="@array/pref_printer_font_name" android:defaultValue="a"/>
+        	<Preference android:title="@string/print_test" android:widgetLayout="@layout/print_test_layout"/>
+        	
     </PreferenceCategory>
     
 
