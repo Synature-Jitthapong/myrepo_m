@@ -52,7 +52,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="46dp"
-        android:text="Shop Name"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="32sp" />
 
@@ -62,26 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/tvShopName"
         android:layout_below="@+id/tvShopName"
-        android:text="Sale date"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <EditText
-        android:id="@+id/txtPass"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:ems="10"
-        android:hint="@string/pass_word"
-        android:imeOptions="actionDone"
-        android:inputType="textPassword"
-        android:lines="1"
-        android:nextFocusDown="@+id/buttonLogin"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLarge" >
-
-        <requestFocus />
-    </EditText>
 
     <EditText
         android:id="@+id/txtUser"
@@ -93,6 +73,22 @@
         android:hint="@string/user_name"
         android:lines="1"
         android:nextFocusDown="@+id/editTextPassWord"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+        android:id="@+id/txtPass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="264dp"
+        android:ems="10"
+        android:hint="@string/pass_word"
+        android:imeOptions="actionDone"
+        android:inputType="textPassword"
+        android:lines="1"
+        android:nextFocusDown="@+id/buttonLogin"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 

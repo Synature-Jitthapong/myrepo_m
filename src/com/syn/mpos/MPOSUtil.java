@@ -6,10 +6,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -18,7 +15,6 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.j1tth4.util.Logger;
-import com.syn.mpos.MPOSWebServiceClient.AuthenDeviceListener;
 import com.syn.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.syn.mpos.dao.FormatPropertyDao;
 import com.syn.mpos.dao.MPOSDatabase;
@@ -121,10 +117,17 @@ public class MPOSUtil {
 		final SessionDao sess = new SessionDao(context.getApplicationContext());
 		final TransactionDao trans = new TransactionDao(context.getApplicationContext());
 		final String sessionDate = sess.getSessionDate();
-		// add session endday
-		sess.addSessionEnddayDetail(sessionDate,
-				trans.getTotalReceipt(sessionDate),
-				trans.getTotalReceiptAmount(sessionDate));
+		
+		try {
+			// add session endday
+			sess.addSessionEnddayDetail(sessionDate,
+					trans.getTotalReceipt(sessionDate),
+					trans.getTotalReceiptAmount(sessionDate));
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		// close session
 		sess.closeSession(sessionId,
 			staffId, closeAmount, isEndday);
@@ -136,7 +139,7 @@ public class MPOSUtil {
 			public void onPost(POSData_SaleTransaction saleTrans) {
 
 				final String jsonSale = generateJSONSale(context, saleTrans);
-				if(jsonSale != null && !jsonSale.equals("")){
+				if(jsonSale != null && !jsonSale.isEmpty()){
 					new MPOSWebServiceClient.SendSaleTransaction(context,
 							SendSaleTransaction.SEND_SALE_TRANS_METHOD,
 							staffId, shopId, computerId, jsonSale, new ProgressListener() {
@@ -153,11 +156,9 @@ public class MPOSUtil {
 	
 								@Override
 								public void onPost() {
-									sess.getWritableDatabase().beginTransaction();
 									try {
 										sess.updateSessionEnddayDetail(sessionDate, 
 												SessionDao.ALREADY_ENDDAY_STATUS);
-										sess.getWritableDatabase().setTransactionSuccessful();
 										listener.onPost();
 									} catch (SQLException e) {
 										Logger.appendLog(context, MPOSApplication.LOG_DIR, 
@@ -166,8 +167,6 @@ public class MPOSUtil {
 												+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + " : "
 												+ e.getMessage());
 										listener.onError(e.getMessage());
-									} finally{
-										sess.getWritableDatabase().endTransaction();
 									}
 								}
 							}).execute(MPOSApplication.getFullUrl(context));
@@ -250,97 +249,6 @@ public class MPOSUtil {
 	
 	public static interface LoadSaleTransactionListener extends ProgressListener{
 		void onPost(POSData_SaleTransaction saleTrans);
-	}
-	
-	/**
-	 * Update data from the server
-	 * @param context
-	 * @param listener
-	 */
-	public static void updateData(final Context context, final ProgressListener listener){
-		final ProgressDialog progress = new ProgressDialog(context);
-		progress.setCancelable(false);
-		final MPOSWebServiceClient mPOSService = new MPOSWebServiceClient();
-		mPOSService.loadShopData(context, new AuthenDeviceListener(){
-
-			@Override
-			public void onPre() {
-				progress.setTitle(R.string.update_data);
-				progress.setMessage(context.getString(R.string.update_shop_progress));
-				progress.show();
-				listener.onPre();
-			}
-
-			@Override
-			public void onPost() {
-			}
-
-			@Override
-			public void onPost(int shopId) {
-				mPOSService.loadProductData(context, shopId, new ProgressListener(){
-
-					@Override
-					public void onPre() {
-						progress.setMessage(context.getString(R.string.update_product_progress));
-					}
-
-					@Override
-					public void onPost() {
-						if(progress.isShowing())
-							progress.dismiss();
-						
-						new AlertDialog.Builder(context)
-						.setCancelable(false)
-						.setTitle(R.string.update_data)
-						.setMessage(R.string.update_data_success)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								listener.onPost();
-							}
-						})
-						.show();
-					}
-
-					@Override
-					public void onError(String msg) {
-						if(progress.isShowing())
-							progress.dismiss();
-						new AlertDialog.Builder(context)
-						.setTitle(R.string.update_data)
-						.setMessage(msg)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-							}
-						})
-						.show();
-						listener.onError(msg);
-					}
-					
-				});
-			}
-
-			@Override
-			public void onError(String msg) {
-				if(progress.isShowing())
-					progress.dismiss();
-				new AlertDialog.Builder(context)
-				.setTitle(R.string.update_data)
-				.setMessage(msg)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-					}
-				})
-				.show();
-				listener.onError(msg);
-			}
-			
-		});
 	}
 
 	public static void makeToask(Context c, String msg){

@@ -28,15 +28,20 @@ import android.content.Context;
 
 public class MPOSWebServiceClient {
 
-	public void loadShopData(final Context context, final AuthenDeviceListener progressListener){
+	public void authenDevice(final Context context, final AuthenDeviceListener listener){
+		final String url = MPOSApplication.getFullUrl(context);
+		new AuthenDevice(context, listener).execute(url);
+	}
+	
+	public void loadShopData(final Context context, final int shopId, final ProgressListener listener){
 		
 		final String url = MPOSApplication.getFullUrl(context);
 
-		final AuthenDeviceListener authenDeviceListener = new AuthenDeviceListener() {
+		new LoadShop(context, shopId, new LoadShopListener() {
 
 			@Override
 			public void onPre() {
-				progressListener.onPre();
+				listener.onPre();
 			}
 
 			@Override
@@ -45,63 +50,43 @@ public class MPOSWebServiceClient {
 
 			@Override
 			public void onError(String msg) {
-				progressListener.onError(msg);
+				listener.onError(msg);
 			}
 
 			@Override
-			public void onPost(final int shopId) {
-				new LoadShop(context, shopId, new LoadShopListener() {
-
-					@Override
-					public void onPre() {
-					}
-
-					@Override
-					public void onPost() {
-					}
-
-					@Override
-					public void onError(String msg) {
-						progressListener.onError(msg);
-					}
-
-					@Override
-					public void onPost(ShopData sd) {
-						ShopDao shop = new ShopDao(context.getApplicationContext());
-						ComputerDao computer = new ComputerDao(context.getApplicationContext());
-						FormatPropertyDao format = new FormatPropertyDao(context.getApplicationContext());
-						StaffDao staff = new StaffDao(context.getApplicationContext());
-						LanguageDao lang = new LanguageDao(context.getApplicationContext());
-						HeaderFooterReceiptDao hf = new HeaderFooterReceiptDao(context.getApplicationContext());
-						BankNameDao bank = new BankNameDao(context.getApplicationContext());
-						CreditCardDao cd = new CreditCardDao(context.getApplicationContext());
-						PaymentDao pd = new PaymentDao(context.getApplicationContext());
-						PaymentAmountButtonDao pb = new PaymentAmountButtonDao(context.getApplicationContext());
-						try {
-							shop.insertShopProperty(sd.getShopProperty());
-							computer.insertComputer(sd.getComputerProperty());
-							format.insertProperty(sd.getGlobalProperty());
-							staff.insertStaff(sd.getStaffs());
-							lang.insertLanguage(sd.getLanguage());
-							hf.insertHeaderFooterReceipt(sd.getHeaderFooterReceipt());
-							bank.insertBank(sd.getBankName());
-							cd.insertCreditCardType(sd.getCreditCardType());
-							pd.insertPaytype(sd.getPayType());
-							pb.insertPaymentAmountButton(sd.getPaymentAmountButton());
-							progressListener.onPost(shopId);
-						} catch (Exception e) {
-							Logger.appendLog(context, MPOSApplication.LOG_DIR, 
-									MPOSApplication.LOG_FILE_NAME, 
-									"Error when add shop data : " + e.getMessage());
-							progressListener.onError(e.getMessage());
-						}
-					}
-				}).execute(url);
+			public void onPost(ShopData sd) {
+				ShopDao shop = new ShopDao(context.getApplicationContext());
+				ComputerDao computer = new ComputerDao(context.getApplicationContext());
+				FormatPropertyDao format = new FormatPropertyDao(context.getApplicationContext());
+				StaffDao staff = new StaffDao(context.getApplicationContext());
+				LanguageDao lang = new LanguageDao(context.getApplicationContext());
+				HeaderFooterReceiptDao hf = new HeaderFooterReceiptDao(context.getApplicationContext());
+				BankNameDao bank = new BankNameDao(context.getApplicationContext());
+				CreditCardDao cd = new CreditCardDao(context.getApplicationContext());
+				PaymentDao pd = new PaymentDao(context.getApplicationContext());
+				PaymentAmountButtonDao pb = new PaymentAmountButtonDao(context.getApplicationContext());
+				try {
+					shop.insertShopProperty(sd.getShopProperty());
+					computer.insertComputer(sd.getComputerProperty());
+					format.insertProperty(sd.getGlobalProperty());
+					staff.insertStaff(sd.getStaffs());
+					lang.insertLanguage(sd.getLanguage());
+					hf.insertHeaderFooterReceipt(sd.getHeaderFooterReceipt());
+					bank.insertBank(sd.getBankName());
+					cd.insertCreditCardType(sd.getCreditCardType());
+					pd.insertPaytype(sd.getPayType());
+					pb.insertPaymentAmountButton(sd.getPaymentAmountButton());
+					listener.onPost();
+				} catch (Exception e) {
+					Logger.appendLog(context, MPOSApplication.LOG_DIR, 
+							MPOSApplication.LOG_FILE_NAME, 
+							"Error when add shop data : " + e.getMessage());
+					listener.onError(e.getMessage());
+				}
 			}
-		};
-		new AuthenDevice(context, authenDeviceListener).execute(url);
+		}).execute(url);
 	}
-
+	
 	// load product
 	public void loadProductData(final Context context, final int shopId,
 			final ProgressListener progressListener){

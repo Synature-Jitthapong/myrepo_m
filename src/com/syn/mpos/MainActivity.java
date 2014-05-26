@@ -83,6 +83,8 @@ public class MainActivity extends FragmentActivity{
 	private OrderDetailAdapter mOrderDetailAdapter;
 	private List<ProductsDao.ProductDept> mProductDeptLst;
 	private MenuItemPagerAdapter mPageAdapter;
+
+	private ImageLoader mImageLoader;
 	
 	private ProgressDialog mProgress;
 	
@@ -111,6 +113,12 @@ public class MainActivity extends FragmentActivity{
 		mComputer = new ComputerDao(getApplicationContext());
 		mFormat = new FormatPropertyDao(getApplicationContext());
 		
+		/*
+		 * Image Loader
+		 */
+		mImageLoader = new ImageLoader(this, 0,
+					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+		 
 		mDsp = new WintecCustomerDisplay();
 		
 		/*
@@ -126,7 +134,7 @@ public class MainActivity extends FragmentActivity{
 
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction().
-				add(R.id.container, LargeScreenFragment.newInstance()).commit();
+				add(R.id.container, new LargeScreenFragment()).commit();
 		}
 	}
 	
@@ -154,9 +162,7 @@ public class MainActivity extends FragmentActivity{
 		private PagerSlidingTabStrip mTabs;
 		private ViewPager mPager;
 		
-		public static LargeScreenFragment newInstance(){
-			LargeScreenFragment f = new LargeScreenFragment();
-			return f;
+		public LargeScreenFragment(){
 		}
 		
 		@Override
@@ -646,7 +652,6 @@ public class MainActivity extends FragmentActivity{
 		private int mDeptId;
 
 		private GridView mGvItem;
-		private ImageLoader mImgLoader;
 		private LayoutInflater mInflater;
 		
 		public static MenuPageFragment newInstance(int deptId){
@@ -660,23 +665,11 @@ public class MainActivity extends FragmentActivity{
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			if((savedInstanceState != null) && savedInstanceState.containsKey("deptId")){
-				mDeptId = savedInstanceState.getInt("deptId");
-			}
-			else{
-				mDeptId = getArguments().getInt("deptId");
-			}
-			mImgLoader = new ImageLoader(getActivity(), 0,
-					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.SMALL);
+			
+			mDeptId = getArguments().getInt("deptId");
 			mInflater =
 					(LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			mMenuItemAdapter = new MenuItemAdapter();
-		}
-		
-		@Override
-		public void onSaveInstanceState(Bundle outState) {
-			super.onSaveInstanceState(outState);
-			outState.putInt("deptId", mDeptId);
 		}
 
 		@Override
@@ -718,12 +711,10 @@ public class MainActivity extends FragmentActivity{
 
 			@Override
 			protected void onPreExecute() {
-				//sProgressLoadMenu.setVisibility(View.VISIBLE);
 			}
 
 			@Override
 			protected void onPostExecute(Void result) {
-				//sProgressLoadMenu.setVisibility(View.GONE);
 				mGvItem.setAdapter(mMenuItemAdapter);
 			}
 
@@ -783,7 +774,8 @@ public class MainActivity extends FragmentActivity{
 //					@Override
 //					public void run() {
 //						try {
-							mImgLoader.displayImage(MPOSApplication.getImageUrl(getActivity()) + 
+							((MainActivity) getActivity()).mImageLoader.displayImage(
+									MPOSApplication.getImageUrl(getActivity()) + 
 									p.getImgUrl(), holder.imgMenu);
 //						} catch (Exception e) {
 //							// TODO Auto-generated catch block

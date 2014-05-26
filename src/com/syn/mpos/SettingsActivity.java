@@ -167,11 +167,11 @@ public class SettingsActivity extends PreferenceActivity {
 		Print printer = new Print();
 		try {
 			printer.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(getApplicationContext()), 0, 1000);
-			Builder builder = new Builder(MPOSApplication.getPrinterName(getApplicationContext()), Builder.MODEL_ANK, 
+			Builder builder = new Builder(MPOSApplication.getEPSONModelName(getApplicationContext()), Builder.MODEL_ANK, 
 					getApplicationContext());
-			if(MPOSApplication.getPrinterFont(getApplicationContext()).equals("a")){
+			if(MPOSApplication.getEPSONPrinterFont(getApplicationContext()).equals("a")){
 				builder.addTextFont(Builder.FONT_A);
-			}else if(MPOSApplication.getPrinterFont(getApplicationContext()).equals("b")){
+			}else if(MPOSApplication.getEPSONPrinterFont(getApplicationContext()).equals("b")){
 				builder.addTextFont(Builder.FONT_B);
 			}
 			String printText = getApplicationContext().getString(R.string.print_test_text).replaceAll("\\*", " ");

@@ -61,7 +61,7 @@ public class LoginActivity extends Activity{
 		
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction()
-				.add(R.id.loginContent, new Placeholder()).commit();
+				.add(R.id.loginContent, new LargeScreenFragment()).commit();
 		}
 	}
 
@@ -198,21 +198,7 @@ public class LoginActivity extends Activity{
 			startActivity(intent);
 			return true;
 		case R.id.itemUpdate:
-			MPOSUtil.updateData(LoginActivity.this, new ProgressListener(){
-
-				@Override
-				public void onPre() {
-				}
-
-				@Override
-				public void onPost() {
-				}
-
-				@Override
-				public void onError(String msg) {
-				}
-				
-			});
+			updateData();
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
@@ -226,46 +212,142 @@ public class LoginActivity extends Activity{
 		}
 	}
 
+	private void updateData(){
+		final ProgressDialog progress = new ProgressDialog(this);
+		progress.setCancelable(false);
+		final MPOSWebServiceClient service = new MPOSWebServiceClient();
+		// checking device
+		service.authenDevice(this, new MPOSWebServiceClient.AuthenDeviceListener() {
+			
+			@Override
+			public void onPre() {
+				progress.setTitle(R.string.update_data);
+				progress.setMessage(getString(R.string.check_device_progress));
+				progress.show();
+			}
+			
+			@Override
+			public void onPost() {
+			}
+			
+			@Override
+			public void onError(String msg) {
+				if(progress.isShowing())
+					progress.dismiss();
+				new AlertDialog.Builder(LoginActivity.this)
+				.setCancelable(false)
+				.setTitle(R.string.update_data)
+				.setMessage(msg)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				}).show();
+			}
+			
+			@Override
+			public void onPost(final int shopId) {
+				// load shop data
+				service.loadShopData(LoginActivity.this, shopId, new ProgressListener(){
+
+					@Override
+					public void onPre() {
+						progress.setMessage(getString(R.string.update_shop_progress));
+					}
+
+					@Override
+					public void onPost() {
+						// load product datat
+						service.loadProductData(LoginActivity.this, shopId, new ProgressListener(){
+
+							@Override
+							public void onPre() {
+								progress.setMessage(getString(R.string.update_product_progress));
+							}
+
+							@Override
+							public void onPost() {
+								if(progress.isShowing())
+									progress.dismiss();
+								new AlertDialog.Builder(LoginActivity.this)
+								.setCancelable(false)
+								.setTitle(R.string.update_data)
+								.setMessage(R.string.update_data_success)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+										finish();
+									}
+								}).show();
+							}
+
+							@Override
+							public void onError(String msg) {
+								if(progress.isShowing())
+									progress.dismiss();
+								new AlertDialog.Builder(LoginActivity.this)
+								.setCancelable(false)
+								.setTitle(R.string.update_data)
+								.setMessage(msg)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+									}
+								}).show();
+							}
+							
+						});
+					}
+
+					@Override
+					public void onError(String msg) {
+						if(progress.isShowing())
+							progress.dismiss();
+						new AlertDialog.Builder(LoginActivity.this)
+						.setCancelable(false)
+						.setTitle(R.string.update_data)
+						.setMessage(msg)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						}).show();
+					}
+					
+				});
+			}
+		});
+	}
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
-		if(url.equals("")){
+		if(url.isEmpty()){
 			mIsFirstAccess = true;
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 		}else{
 
-			Placeholder placeHolder = (Placeholder) 
+			LargeScreenFragment placeHolder = (LargeScreenFragment) 
 					getFragmentManager().findFragmentById(R.id.loginContent);
 			
 			placeHolder.mTxtUser.requestFocus();
 			if(mIsFirstAccess){
-				MPOSUtil.updateData(this, new ProgressListener(){
-		
-					@Override
-					public void onPre() {
-					}
-		
-					@Override
-					public void onPost() {
-						mIsFirstAccess = false;
-						startActivity(new Intent(LoginActivity.this, LoginActivity.class));
-					}
-		
-					@Override
-					public void onError(String msg) {
-					}
-					
-				});
+				updateData();
 			}
 		}
 	}
 			
 	private void gotoMainActivity(){
-		Placeholder placeHolder = (Placeholder) 
+		LargeScreenFragment placeHolder = (LargeScreenFragment) 
 				getFragmentManager().findFragmentById(R.id.loginContent);
 		placeHolder.mTxtUser.setText(null);
 		placeHolder.mTxtPass.setText(null);
@@ -284,22 +366,110 @@ public class LoginActivity extends Activity{
 			final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 			intent.putExtra("staffId", mStaffId);
 			if(mIsFirstAccess){
-				MPOSUtil.updateData(this, new ProgressListener(){
-
+				final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
+				progress.setCancelable(false);
+				final MPOSWebServiceClient service = new MPOSWebServiceClient();
+				// check device
+				service.authenDevice(LoginActivity.this, new MPOSWebServiceClient.AuthenDeviceListener() {
+					
 					@Override
 					public void onPre() {
-					}
-
-					@Override
-					public void onPost() {
-						startActivity(intent);
-						finish();
-					}
-
-					@Override
-					public void onError(String msg) {
+						progress.setTitle(R.string.update_data);
+						progress.setMessage(getString(R.string.check_device_progress));
+						progress.show();
 					}
 					
+					@Override
+					public void onPost() {
+					}
+					
+					@Override
+					public void onError(String msg) {
+						if(progress.isShowing())
+							progress.dismiss();
+						new AlertDialog.Builder(LoginActivity.this)
+						.setCancelable(false)
+						.setTitle(R.string.update_data)
+						.setMessage(msg)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								startActivity(intent);
+								finish();
+							}
+						}).show();
+					}
+					
+					@Override
+					public void onPost(int shopId) {
+						// load shop data
+						service.loadShopData(LoginActivity.this, mShop.getShopId(), new ProgressListener(){
+
+							@Override
+							public void onPre() {
+								progress.setMessage(getString(R.string.update_shop_progress));
+							}
+
+							@Override
+							public void onPost() {
+								// load product data
+								service.loadProductData(LoginActivity.this, mShop.getShopId(), new ProgressListener(){
+
+									@Override
+									public void onPre() {
+										progress.setMessage(getString(R.string.update_product_progress));
+									}
+
+									@Override
+									public void onPost() {
+										if(progress.isShowing())
+											progress.dismiss();
+										startActivity(intent);
+										finish();
+									}
+
+									@Override
+									public void onError(String msg) {
+										if(progress.isShowing())
+											progress.dismiss();
+										new AlertDialog.Builder(LoginActivity.this)
+										.setCancelable(false)
+										.setTitle(R.string.update_data)
+										.setMessage(msg)
+										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+											
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+												startActivity(intent);
+												finish();
+											}
+										}).show();
+									}
+									
+								});
+							}
+
+							@Override
+							public void onError(String msg) {
+								if(progress.isShowing())
+									progress.dismiss();
+								new AlertDialog.Builder(LoginActivity.this)
+								.setCancelable(false)
+								.setTitle(R.string.update_data)
+								.setMessage(msg)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										startActivity(intent);
+										finish();
+									}
+								}).show();
+							}
+							
+						});
+					}
 				});
 			}else{
 				startActivity(intent);
@@ -312,7 +482,7 @@ public class LoginActivity extends Activity{
 		String user = "";
 		String pass = "";
 	
-		Placeholder placeHolder = (Placeholder) 
+		LargeScreenFragment placeHolder = (LargeScreenFragment) 
 				getFragmentManager().findFragmentById(R.id.loginContent);
 		
 		if(!placeHolder.mTxtUser.getText().toString().isEmpty()){
@@ -386,15 +556,15 @@ public class LoginActivity extends Activity{
 		}
 	}
 	
-	public static class Placeholder extends Fragment{
-		
+	public static class LargeScreenFragment extends Fragment{
+
 		private Button mBtnLogin;
 		private EditText mTxtUser;
 		private EditText mTxtPass;
 		private TextView mTvShopName;
 		private TextView mTvSaleDate;
-		
-		public Placeholder(){
+
+		public LargeScreenFragment(){
 		}
 		
 		@Override

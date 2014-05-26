@@ -22,9 +22,7 @@ public abstract class WintecPrinter extends PrinterUtility{
 		mPrinter = new Printer(DEV_PATH, BAUD_RATE);
 		mBuilder = new StringBuilder();
 	}
-	
-	public abstract void prepareDataToPrint();
-	
+
 	protected void print(){
 		String[] subElement = mBuilder.toString().split("\n");
     	for(String data : subElement){
@@ -57,4 +55,6 @@ public abstract class WintecPrinter extends PrinterUtility{
 		}
 		return empText.toString() + text + empText.toString();
 	}
+	
+	public abstract void prepareDataToPrint();
 }

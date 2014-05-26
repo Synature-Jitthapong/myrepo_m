@@ -208,7 +208,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 
 			// header
 			mBuilder.append("<c>" + mContext.getString(R.string.summary_sale_by_day) + "\n");
-			mBuilder.append("<c>" + mFormat.dateFormat(Util.getDate().getTime()) + "\n");
+			mBuilder.append("<c>" + mFormat.dateFormat(session.getSessionDate()) + "\n");
 			mBuilder.append("<c>" + mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 			mBuilder.append(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(mStaffId).getStaffName() + "\n");
 			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n");

@@ -37,7 +37,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	private PaymentDao mPayment;
 	private ShopDao mShop;
 	private HeaderFooterReceiptDao mHeaderFooter;
-	private FormatPropertyDao mGlobal;
+	private FormatPropertyDao mFormat;
 	private StaffDao mStaff;
 	private CreditCardDao mCreditCard;
 	private PrintStatusListener mPrintListener;
@@ -53,7 +53,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		mOrders = new TransactionDao(context.getApplicationContext());
 		mPayment = new PaymentDao(context.getApplicationContext());
 		mShop = new ShopDao(context.getApplicationContext());
-		mGlobal = new FormatPropertyDao(context.getApplicationContext());
+		mFormat = new FormatPropertyDao(context.getApplicationContext());
 		mHeaderFooter = new HeaderFooterReceiptDao(context.getApplicationContext());
 		mStaff = new StaffDao(context.getApplicationContext());
 		mCreditCard = new CreditCardDao(context.getApplicationContext());
@@ -104,13 +104,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		mPrinter.setBatteryStatusChangeEventCallback(this);
 		try {
 			mPrinter.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(mContext), 0, 1000);	
-			Builder builder = new Builder(MPOSApplication.getPrinterName(mContext), Builder.MODEL_ANK, 
+			Builder builder = new Builder(MPOSApplication.getEPSONModelName(mContext), Builder.MODEL_ANK, 
 					mContext);
 			
 			//builder.addTextLang(Builder.LANG_TH);
-			if(MPOSApplication.getPrinterFont(mContext).equals("a")){
+			if(MPOSApplication.getEPSONPrinterFont(mContext).equals("a")){
 				builder.addTextFont(Builder.FONT_A);
-			}else if(MPOSApplication.getPrinterFont(mContext).equals("b")){
+			}else if(MPOSApplication.getEPSONPrinterFont(mContext).equals("b")){
 				builder.addTextFont(Builder.FONT_B);
 			}
 
@@ -121,7 +121,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 				String voidReceipt = mContext.getString(R.string.void_receipt);
 				Calendar cVoidTime = Calendar.getInstance();
 				cVoidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
-				String voidTime = mContext.getString(R.string.void_time) + " " + mGlobal.dateTimeFormat(cVoidTime.getTime());
+				String voidTime = mContext.getString(R.string.void_time) + " " + mFormat.dateTimeFormat(cVoidTime.getTime());
 				String voidBy = mContext.getString(R.string.void_by) + " " + mStaff.getStaff(trans.getVoidStaffId()).getStaffName();
 				String voidReason = mContext.getString(R.string.reason) + " " + trans.getVoidReason();
 				builder.addText(voidReceipt + "\n");
@@ -141,7 +141,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 			}
 			
 			String saleDate = mContext.getString(R.string.date) + " " +
-					mGlobal.dateTimeFormat(Util.getCalendar().getTime());
+					mFormat.dateTimeFormat(Util.getCalendar().getTime());
 			String receiptNo = mContext.getString(R.string.receipt_no) + " " +
 					trans.getReceiptNo();
 			String cashCheer = mContext.getString(R.string.cashier) + " " +
@@ -158,8 +158,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    				orderLst.get(i);
 	    		
 	    		String productName = order.getProductName();
-	    		String productQty = mGlobal.qtyFormat(order.getQty()) + "x ";
-	    		String productPrice = mGlobal.currencyFormat(order.getPricePerUnit());
+	    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
+	    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
 	    		
 	    		builder.addText(productQty);
 	    		builder.addText(productName);
@@ -173,8 +173,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    			for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail :
 	    				order.getOrderSetDetailLst()){
 	    				String setName = setDetail.getProductName();
-	    				String setQty = "   " + mGlobal.qtyFormat(setDetail.getOrderSetQty()) + "x ";
-	    				String setPrice = mGlobal.currencyFormat(setDetail.getProductPrice());
+	    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
+	    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
 	    				builder.addText(setQty);
 	    				builder.addText(setName);
 	    				builder.addText(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
@@ -191,14 +191,14 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    	String beforeVatText = mContext.getString(R.string.before_vat);
 	    	String discountText = mContext.getString(R.string.discount);
 	    	String vatRateText = mContext.getString(R.string.tax) + " " +
-	    			mGlobal.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+	    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 	    	
-	    	String strTotalRetailPrice = mGlobal.currencyFormat(summOrder.getTotalRetailPrice());
-	    	String strTotalSale = mGlobal.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
-	    	String strTotalDiscount = "-" + mGlobal.currencyFormat(summOrder.getPriceDiscount());
-	    	String strTotalChange = mGlobal.currencyFormat(change);
-	    	String strBeforeVat = mGlobal.currencyFormat(beforVat);
-	    	String strTransactionVat = mGlobal.currencyFormat(trans.getTransactionVat());
+	    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
+	    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+	    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
+	    	String strTotalChange = mFormat.currencyFormat(change);
+	    	String strBeforeVat = mFormat.currencyFormat(beforVat);
+	    	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
 	    	
 	    	// total item
 	    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
@@ -217,8 +217,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    	// transaction exclude vat
 	    	if(trans.getTransactionVatExclude() > 0){
 	    		String vatExcludeText = mContext.getString(R.string.tax) + " " +
-	    				mGlobal.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
-	    		String strVatExclude = mGlobal.currencyFormat(trans.getTransactionVatExclude());
+	    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+	    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
 	    		builder.addText(vatExcludeText);
 	    		builder.addText(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
 	    		builder.addText(strVatExclude + "\n");
@@ -234,7 +234,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    			mPayment.listPaymentGroupByType(transactionId);
 	    	for(int i = 0; i < paymentLst.size(); i++){
 	    		Payment.PaymentDetail payment = paymentLst.get(i);
-		    	String strTotalPaid = mGlobal.currencyFormat(payment.getPaid());
+		    	String strTotalPaid = mFormat.currencyFormat(payment.getPaid());
 		    	if(payment.getPayTypeID() == PaymentDao.PAY_TYPE_CREDIT){
 		    		String paymentText = payment.getPayTypeName();
 		    		String cardNoText = "xxxx xxxx xxxx ";
@@ -354,7 +354,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 			builder.append("<c>" + mContext.getString(R.string.void_bill) + "\n");
 			Calendar voidTime = Calendar.getInstance();
 			voidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
-			builder.append(mContext.getString(R.string.void_time) + " " + mGlobal.dateTimeFormat(voidTime.getTime()) + "\n");
+			builder.append(mContext.getString(R.string.void_time) + " " + mFormat.dateTimeFormat(voidTime.getTime()) + "\n");
 			builder.append(mContext.getString(R.string.void_by) + " " + mStaff.getStaff(trans.getVoidStaffId()).getStaffName() + "\n");
 			builder.append(mContext.getString(R.string.reason) + " " + trans.getVoidReason() + "\n\n");
 		}
@@ -368,7 +368,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		}
 		
 		String saleDate = mContext.getString(R.string.date) + " " +
-				mGlobal.dateTimeFormat(Util.getCalendar().getTime());
+				mFormat.dateTimeFormat(Util.getCalendar().getTime());
 		String receiptNo = mContext.getString(R.string.receipt_no) + " " +
 				trans.getReceiptNo();
 		String cashCheer = mContext.getString(R.string.cashier) + " " +
@@ -384,8 +384,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     		MPOSOrderTransaction.MPOSOrderDetail order = 
     				orderLst.get(i);
     		String productName = order.getProductName();
-    		String productQty = mGlobal.qtyFormat(order.getQty()) + "x ";
-    		String productPrice = mGlobal.currencyFormat(order.getPricePerUnit());
+    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
+    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
     		
     		builder.append(productQty);
     		builder.append(productName);
@@ -399,8 +399,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     			for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail :
     				order.getOrderSetDetailLst()){
     				String setName = setDetail.getProductName();
-    				String setQty = "   " + mGlobal.qtyFormat(setDetail.getOrderSetQty()) + "x ";
-    				String setPrice = mGlobal.currencyFormat(setDetail.getProductPrice());
+    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
+    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
     				builder.append(setQty);
     				builder.append(setName);
     				builder.append(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
@@ -417,14 +417,14 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     	String beforeVatText = mContext.getString(R.string.before_vat);
     	String discountText = mContext.getString(R.string.discount);
     	String vatRateText = mContext.getString(R.string.tax) + " " +
-    			mGlobal.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
     	
-    	String strTotalRetailPrice = mGlobal.currencyFormat(summOrder.getTotalRetailPrice());
-    	String strTotalSale = mGlobal.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
-    	String strTotalDiscount = "-" + mGlobal.currencyFormat(summOrder.getPriceDiscount());
-    	String strTotalChange = mGlobal.currencyFormat(change);
-    	String strBeforeVat = mGlobal.currencyFormat(beforVat);
-    	String strTransactionVat = mGlobal.currencyFormat(trans.getTransactionVat());
+    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
+    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
+    	String strTotalChange = mFormat.currencyFormat(change);
+    	String strBeforeVat = mFormat.currencyFormat(beforVat);
+    	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
     	
     	// total item
     	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
@@ -443,8 +443,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     	// transaction exclude vat
     	if(trans.getTransactionVatExclude() > 0){
     		String vatExcludeText = mContext.getString(R.string.tax) + " " +
-    				mGlobal.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
-    		String strVatExclude = mGlobal.currencyFormat(trans.getTransactionVatExclude());
+    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
     		builder.append(vatExcludeText);
     		builder.append(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
     		builder.append(strVatExclude + "\n");
@@ -460,7 +460,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
     			mPayment.listPaymentGroupByType(transactionId);
     	for(int i = 0; i < paymentLst.size(); i++){
     		Payment.PaymentDetail payment = paymentLst.get(i);
-	    	String strTotalPaid = mGlobal.currencyFormat(payment.getPaid());
+	    	String strTotalPaid = mFormat.currencyFormat(payment.getPaid());
 	    	if(payment.getPayTypeID() == PaymentDao.PAY_TYPE_CREDIT){
 	    		String paymentText = payment.getPayTypeName();
 	    		String cardNoText = "xxxx xxxx xxxx ";
