@@ -4,6 +4,8 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
@@ -116,13 +118,13 @@ public class MPOSUtil {
 		
 		final SessionDao sess = new SessionDao(context.getApplicationContext());
 		final TransactionDao trans = new TransactionDao(context.getApplicationContext());
-		final String sessionDate = sess.getSessionDate();
+		final String currentSaleDate = sess.getSessionDate();
 		
 		try {
 			// add session endday
-			sess.addSessionEnddayDetail(sessionDate,
-					trans.getTotalReceipt(sessionDate),
-					trans.getTotalReceiptAmount(sessionDate));
+			sess.addSessionEnddayDetail(currentSaleDate,
+					trans.getTotalReceipt(currentSaleDate),
+					trans.getTotalReceiptAmount(currentSaleDate));
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -132,64 +134,72 @@ public class MPOSUtil {
 		sess.closeSession(sessionId,
 			staffId, closeAmount, isEndday);
 
-		new LoadSaleTransaction(context, sessionDate, 
-				true, new LoadSaleTransactionListener() {
+		// list session that is not send
+		List<String> sessLst = sess.listSessionEnddayNotSend();
+		for(final String sessionDate : sessLst){
+			/* 
+			 * execute load transaction json task
+			 * and send to hq 
+			 */
+			new LoadSaleTransaction(context, sessionDate, 
+					true, new LoadSaleTransactionListener() {
 
-			@Override
-			public void onPost(POSData_SaleTransaction saleTrans) {
+				@Override
+				public void onPost(POSData_SaleTransaction saleTrans) {
 
-				final String jsonSale = generateJSONSale(context, saleTrans);
-				if(jsonSale != null && !jsonSale.isEmpty()){
-					new MPOSWebServiceClient.SendSaleTransaction(context,
-							SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-							staffId, shopId, computerId, jsonSale, new ProgressListener() {
-	
-								@Override
-								public void onError(String mesg) {
-									logServerResponse(context, mesg);
-									listener.onError(mesg);
-								}
-	
-								@Override
-								public void onPre() {
-								}
-	
-								@Override
-								public void onPost() {
-									try {
-										sess.updateSessionEnddayDetail(sessionDate, 
-												SessionDao.ALREADY_ENDDAY_STATUS);
-										listener.onPost();
-									} catch (SQLException e) {
-										Logger.appendLog(context, MPOSApplication.LOG_DIR, 
-												MPOSApplication.LOG_FILE_NAME, 
-												" Error when update " 
-												+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + " : "
-												+ e.getMessage());
-										listener.onError(e.getMessage());
+					final String jsonSale = generateJSONSale(context, saleTrans);
+					if(jsonSale != null && !jsonSale.isEmpty()){
+						new MPOSWebServiceClient.SendSaleTransaction(context,
+								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
+								staffId, shopId, computerId, jsonSale, new ProgressListener() {
+		
+									@Override
+									public void onError(String mesg) {
+										logServerResponse(context, mesg);
+										listener.onError(mesg);
 									}
-								}
-							}).execute(MPOSApplication.getFullUrl(context));
-				}else{
-					listener.onError("Wrong json sale data");
+		
+									@Override
+									public void onPre() {
+									}
+		
+									@Override
+									public void onPost() {
+										try {
+											sess.updateSessionEnddayDetail(sessionDate, 
+													SessionDao.ALREADY_ENDDAY_STATUS);
+											listener.onPost();
+										} catch (SQLException e) {
+											Logger.appendLog(context, MPOSApplication.LOG_DIR, 
+													MPOSApplication.LOG_FILE_NAME, 
+													" Error when update " 
+													+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + " : "
+													+ e.getMessage());
+											listener.onError(e.getMessage());
+										}
+									}
+								}).execute(MPOSApplication.getFullUrl(context));
+					}else{
+						listener.onError("Wrong json sale data");
+					}
 				}
-			}
 
-			@Override
-			public void onError(String mesg) {
-				listener.onError(mesg);
-			}
+				@Override
+				public void onError(String mesg) {
+					listener.onError(mesg);
+				}
 
-			@Override
-			public void onPre() {
-				listener.onPre();
-			}
+				@Override
+				public void onPre() {
+					listener.onPre();
+				}
 
-			@Override
-			public void onPost() {
-			}
+				@Override
+				public void onPost() {
+				}
 
-		}).execute();
+			}).execute();
+		}
 	}
 
 	/**

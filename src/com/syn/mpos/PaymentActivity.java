@@ -48,7 +48,6 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	 */
 	private int mResultCreditCode = RESULT_NOT_ENOUGH;
 	
-	private WintecCustomerDisplay mDsp;
 	private WintecCashDrawer mDrw;
 	
 	private PaymentDao mPayment;
@@ -121,7 +120,6 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mLvPayment.setAdapter(mPaymentAdapter);
 		mGvPaymentButton.setAdapter(mPaymentButtonAdapter);
 		loadPayType();
-		mDsp = new WintecCustomerDisplay();
 		mDrw = new WintecCashDrawer();
 	}
 
@@ -180,12 +178,6 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 
 		mTotalSalePrice = MPOSUtil.roundingPrice(mTotalSalePrice);
 		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));
-		
-		mDsp.displayTotalPrice(getString(R.string.total), 
-				mFormat.qtyFormat(summOrder.getQty()),
-				mFormat.currencyFormat(mTotalSalePrice),
-				getString(R.string.discount),
-				mFormat.currencyFormat(summOrder.getPriceDiscount()));
 	}
 	
 	private class PaymentAdapter extends BaseAdapter{
@@ -314,11 +306,8 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			
 			mChange = mTotalPaid - mTotalSalePrice;
 			
-			mDsp.displayTotalPay(PaymentActivity.this.getString(R.string.pay), 
-					PaymentActivity.this.getString(R.string.change), 
-					mFormat.currencyFormat(mTotalPaid), mFormat.currencyFormat(mChange));
-			
 			Intent intent = new Intent();
+			intent.putExtra("totalPaid", mTotalPaid);
 			intent.putExtra("change", mChange);
 			intent.putExtra("transactionId", mTransactionId);
 			intent.putExtra("staffId", mStaffId);

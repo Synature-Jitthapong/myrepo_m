@@ -101,7 +101,7 @@ public class MPOSApplication extends Application {
 	}
 	
 	private void showCustomerDisplay(){
-		WintecCustomerDisplay wd = new WintecCustomerDisplay();
+		WintecCustomerDisplay wd = new WintecCustomerDisplay(getApplicationContext());
 		wd.displayWelcome();
 	}
 }

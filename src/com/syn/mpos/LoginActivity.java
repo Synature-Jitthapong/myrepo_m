@@ -606,6 +606,10 @@ public class LoginActivity extends Activity{
 				}
 				
 			});
+
+			((TextView) rootView.findViewById(R.id.tvDeviceCode))
+				.setText(getString(R.string.device_code) + ":" +
+						MPOSApplication.getDeviceCode(getActivity()));
 			
 			ShopDao shop = ((LoginActivity) getActivity()).mShop;
 			SessionDao session = ((LoginActivity) getActivity()).mSession;

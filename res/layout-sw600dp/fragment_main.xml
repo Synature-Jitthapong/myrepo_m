@@ -60,8 +60,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/order_background"
             android:gravity="right"
-            android:paddingLeft="8dp"
-            android:visibility="gone" >
+            android:paddingLeft="8dp" >
 
             <ImageButton
                 android:id="@+id/btnClearSelOrder"

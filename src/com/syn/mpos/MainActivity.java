@@ -23,6 +23,7 @@ import com.syn.pos.ShopData;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -119,7 +120,7 @@ public class MainActivity extends FragmentActivity{
 		mImageLoader = new ImageLoader(this, 0,
 					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		 
-		mDsp = new WintecCustomerDisplay();
+		mDsp = new WintecCustomerDisplay(getApplicationContext());
 		
 		/*
 		 * For create pager by productDept
@@ -275,27 +276,39 @@ public class MainActivity extends FragmentActivity{
 			
 			activity.mTrans.summary(activity.mTransactionId);
 			
-			MPOSOrderTransaction.MPOSOrderDetail summOrder = 
+			MPOSOrderTransaction.MPOSOrderDetail sumOrder = 
 					activity.mTrans.getSummaryOrder(activity.mTransactionId);
 			
 			mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
-					activity.mFormat.currencyFormat(summOrder.getTotalRetailPrice()), 
+					activity.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
 					android.R.style.TextAppearance_Holo_Medium, 0));
 			
-			if(summOrder.getPriceDiscount() > 0){
+			if(sumOrder.getPriceDiscount() > 0){
 				mTbSummary.addView(createTableRowSummary(getString(R.string.discount), 
-						"-" + activity.mFormat.currencyFormat(summOrder.getPriceDiscount()), 
+						"-" + activity.mFormat.currencyFormat(sumOrder.getPriceDiscount()), 
 								android.R.style.TextAppearance_Holo_Medium, 0));
 			}
-			if(summOrder.getVatExclude() > 0){
+			if(sumOrder.getVatExclude() > 0){
 				mTbSummary.addView(createTableRowSummary(getString(R.string.tax) +
 						" " + NumberFormat.getInstance().format(activity.mShop.getCompanyVatRate()) + "%",
-						activity.mFormat.currencyFormat(summOrder.getVatExclude()),
+						activity.mFormat.currencyFormat(sumOrder.getVatExclude()),
 						android.R.style.TextAppearance_Holo_Medium, 0));
 			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.total),
-					activity.mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude()),
+					activity.mFormat.currencyFormat(sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()),
 					android.R.style.TextAppearance_Holo_Large, 32));
+			
+			// display summary to customer display
+			if(sumOrder.getQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
+				activity.mDsp.setOrderTotalQty(activity.mFormat.qtyFormat(sumOrder.getQty()));
+				activity.mDsp.setOrderTotalPrice(activity.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
+				try {
+					activity.mDsp.displayOrder();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		private TableRow createTableRowSummary(String label, String value,
@@ -325,11 +338,31 @@ public class MainActivity extends FragmentActivity{
 			if(resultCode == RESULT_OK){
 				// request param from PaymentActivity for log to 
 				// PrintReceiptLog
+				double totalPaid = intent.getDoubleExtra("totalPaid", 0);
 				double change = intent.getDoubleExtra("change", 0);
 				int transactionId = intent.getIntExtra("transactionId", 0);
 				int staffId = intent.getIntExtra("staffId", 0);
 				printReceipt(transactionId, staffId);
 				sendSale();
+
+				mDsp.displayTotalPay(
+						mFormat.currencyFormat(totalPaid), mFormat.currencyFormat(change));
+				
+				new Handler().postDelayed(
+						new Runnable(){
+
+							@Override
+							public void run() {
+								runOnUiThread(new Runnable(){
+
+									@Override
+									public void run() {
+										mDsp.displayWelcome();
+									}
+									
+								});
+							}
+				}, 10000);
 				
 				if(change > 0){
 					LayoutInflater inflater = (LayoutInflater) 
@@ -475,7 +508,7 @@ public class MainActivity extends FragmentActivity{
 			holder.btnMinus.setOnClickListener(new OnClickListener(){
 	
 				@Override
-				public void onClick(View v) {
+				public synchronized void onClick(View v) {
 					double qty = orderDetail.getQty();
 					
 					if(--qty > 0){
@@ -501,11 +534,10 @@ public class MainActivity extends FragmentActivity{
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								deleteOrder(orderDetail.getOrderDetailId());
-								mOrderDetailLst.remove(position);
+								loadOrder();
 							}
 						}).show();
 					}
-					
 					mOrderDetailAdapter.notifyDataSetChanged();
 				}
 				
@@ -895,29 +927,12 @@ public class MainActivity extends FragmentActivity{
 				}else{
 					order.setChecked(true);
 				}
-				countSelectedOrder();
 				mOrderDetailAdapter.notifyDataSetChanged();
 				break;
 			}
 		}
 		
 	};
-	
-	private void countSelectedOrder(){
-		boolean hasChecked = false;
-		for(MPOSOrderTransaction.MPOSOrderDetail order : 
-			mOrderDetailLst){
-			if(order.isChecked()){
-				hasChecked = true;
-				break;
-			}
-		}
-		if(hasChecked){
-			((LinearLayout) findViewById(R.id.orderCtrlContent)).setVisibility(View.VISIBLE);
-		}else{
-			((LinearLayout) findViewById(R.id.orderCtrlContent)).setVisibility(View.GONE);
-		}
-	}
 	
 	public OnKeyListener onKeyListener = new OnKeyListener(){
 
@@ -1411,7 +1426,6 @@ public class MainActivity extends FragmentActivity{
 					order.setChecked(false);
 			}
 			mOrderDetailAdapter.notifyDataSetChanged();
-			//mLayoutOrderCtrl.setVisibility(View.GONE);
 		}
 	}
 
@@ -1445,7 +1459,6 @@ public class MainActivity extends FragmentActivity{
 										deleteOrder(order.getOrderDetailId());
 									}
 									loadOrder();
-									//mLayoutOrderCtrl.setVisibility(View.GONE);
 								}
 							}).show();
 		}
@@ -1469,7 +1482,7 @@ public class MainActivity extends FragmentActivity{
 	 * Delete Order
 	 * @param orderDetailId
 	 */
-	private void deleteOrder(int orderDetailId){
+	private synchronized void deleteOrder(int orderDetailId){
 		mTrans.deleteOrder(mTransactionId, orderDetailId);
 		mOrderDetailAdapter.notifyDataSetChanged();
 	}
@@ -1482,11 +1495,13 @@ public class MainActivity extends FragmentActivity{
 	 * @param vatType
 	 * @param vatRate
 	 */
-	private void updateOrder(int orderDetailId, double qty, 
+	private synchronized void updateOrder(int orderDetailId, double qty, 
 			double price, int vatType, double vatRate, String productName){
 		mTrans.updateOrderDetail(mTransactionId,
 				orderDetailId, vatType, vatRate, qty, price);
-		mDsp.displayOrder(productName, mFormat.qtyFormat(qty), mFormat.currencyFormat(price));
+		mDsp.setOrderName(productName);
+		mDsp.setOrderQty(mFormat.qtyFormat(qty));
+		mDsp.setOrderPrice(mFormat.currencyFormat(price));
 	}
 	
 	/**
@@ -1500,12 +1515,14 @@ public class MainActivity extends FragmentActivity{
 	 * @param qty
 	 * @param price
 	 */
-	private void addOrder(final int productId, final String productName, 
+	private synchronized void addOrder(final int productId, final String productName, 
 			final int productTypeId, final int vatType, final double vatRate, final double qty, double price){
 		if(price > -1){
 			mTrans.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
 					productId, productName, productTypeId, vatType, vatRate, qty, price);
-			mDsp.displayOrder(productName, mFormat.qtyFormat(qty), mFormat.currencyFormat(price));
+			mDsp.setOrderName(productName);
+			mDsp.setOrderQty(mFormat.qtyFormat(qty));
+			mDsp.setOrderPrice(mFormat.currencyFormat(price));
 		}else{
 			final EditText txtProductPrice = new EditText(this);
 			txtProductPrice.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -1539,7 +1556,9 @@ public class MainActivity extends FragmentActivity{
 						mTrans.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
 								productId, productName, productTypeId, vatType, vatRate, qty, openPrice);
 
-						mDsp.displayOrder(productName, mFormat.qtyFormat(qty), mFormat.currencyFormat(openPrice));
+						mDsp.setOrderName(productName);
+						mDsp.setOrderQty(mFormat.qtyFormat(qty));
+						mDsp.setOrderPrice(mFormat.currencyFormat(openPrice));
 					} catch (ParseException e) {
 						new AlertDialog.Builder(MainActivity.this)
 						.setTitle(R.string.enter_price)

@@ -1,6 +1,8 @@
 package com.syn.mpos.dao;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import com.syn.mpos.dao.ComputerDao.ComputerTable;
 import com.syn.mpos.dao.ShopDao.ShopTable;
@@ -21,6 +23,27 @@ public class SessionDao extends MPOSDatabase{
 		super(context);
 	}
 
+	/**
+	 * @return List<String> sessionDate 
+	 */
+	public List<String> listSessionEnddayNotSend(){
+		List<String> sessLst = new ArrayList<String>();
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + SessionTable.COLUMN_SESS_DATE
+				+ " FROM " + SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL
+				+ " WHERE " + BaseColumn.COLUMN_SEND_STATUS + "=?", 
+				new String[]{
+					String.valueOf(NOT_SEND)
+				}
+		);
+		if(cursor.moveToFirst()){
+			String sessDate = cursor.getString(0);
+			sessLst.add(sessDate);
+		}
+		cursor.close();
+		return sessLst;
+	}
+	
 	/**
 	 * @param currentSaleDate
 	 * @param closeStaffId
