@@ -5,18 +5,18 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.syn.mpos.dao.FormatPropertyDao;
+import com.syn.mpos.dao.Formater;
 import com.syn.mpos.dao.MPOSDatabase;
 import com.syn.mpos.dao.MPOSOrderTransaction;
-import com.syn.mpos.dao.PaymentDao;
-import com.syn.mpos.dao.ProductsDao;
+import com.syn.mpos.dao.PaymentDetail;
+import com.syn.mpos.dao.Products;
 import com.syn.mpos.dao.Reporting;
 import com.syn.mpos.dao.Reporting.SimpleProductData;
-import com.syn.mpos.dao.ShopDao;
-import com.syn.mpos.dao.TransactionDao;
-import com.syn.pos.Payment;
-import com.syn.pos.Report;
+import com.syn.mpos.dao.Shop;
+import com.syn.mpos.dao.Transaction;
+import com.synature.exceptionhandler.ExceptionHandler;
+import com.synature.pos.Payment;
+import com.synature.pos.Report;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -57,7 +57,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	public static final int REPORT_BY_PRODUCT = 1;
 	public static final int REPORT_ENDDAY = 2;
 	
-	private FormatPropertyDao mFormat;
+	private Formater mFormat;
 
 	private Reporting mReporting;
 	
@@ -84,7 +84,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		setContentView(R.layout.activity_sale_report);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
-		mFormat = new FormatPropertyDao(SaleReportActivity.this);
+		mFormat = new Formater(SaleReportActivity.this);
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
 				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -205,7 +205,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	 */
 	public static class PaymentDetailFragment extends DialogFragment{
 		
-		private PaymentDao mPayment;
+		private PaymentDetail mPayment;
 		private List<Payment.PaymentDetail> mPaymentLst;
 		private PaymentDetailAdapter mPaymentAdapter;
 		
@@ -225,7 +225,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		public void onCreate(Bundle savedInstanceState) {
 			mTransactionId = getArguments().getInt("transactionId");
 			
-			mPayment = new PaymentDao(getActivity());
+			mPayment = new PaymentDetail(getActivity());
 			mPaymentLst = mPayment.listPaymentGroupByType(mTransactionId);
 			mPaymentAdapter = new PaymentDetailAdapter();
 			
@@ -333,8 +333,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 
 		private static EnddayReportFragment sInstance;
 		
-		private TransactionDao mTrans;
-		private PaymentDao mPayment;
+		private Transaction mTrans;
+		private PaymentDetail mPayment;
 	
 		private LinearLayout mEnddayReportFooterContainer;
 		private ListView mLvEnddayReport;
@@ -351,8 +351,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			super.onCreate(savedInstanceState);
 			setHasOptionsMenu(true);
 			
-			mTrans = new TransactionDao(getActivity());
-			mPayment = new PaymentDao(getActivity());
+			mTrans = new Transaction(getActivity());
+			mPayment = new PaymentDetail(getActivity());
 		}
 
 		@Override
@@ -390,7 +390,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			LayoutInflater inflater = (LayoutInflater)
 					getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			SaleReportActivity activity = ((SaleReportActivity) getActivity());
-			ShopDao shop = new ShopDao(getActivity());
+			Shop shop = new Shop(getActivity());
 			MPOSOrderTransaction trans = mTrans.getTransaction(activity.mDateTo);
 			MPOSOrderTransaction.MPOSOrderDetail sumOrder 
 				= mTrans.getSummaryOrderInDay(activity.mDateTo, activity.mDateTo);
@@ -434,7 +434,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 							sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()));
 			mEnddayReportFooterContainer.addView(totalSaleView);
 			
-			if(shop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
+			if(shop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
 				View vatView = inflater.inflate(R.layout.left_mid_right_template, null);
 				((TextView) vatView.findViewById(R.id.tvMid)).setText(getString(R.string.before_vat));
 				((TextView) vatView.findViewById(R.id.tvRight)).setText(
@@ -729,7 +729,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				}else{
 					holder.imgSendStatus.setImageResource(R.drawable.ic_action_warning);
 				}
-				if(report.getTransStatus() == TransactionDao.TRANS_STATUS_VOID){
+				if(report.getTransStatus() == Transaction.TRANS_STATUS_VOID){
 					holder.tvReceipt.setTextColor(Color.RED);
 					holder.tvReceipt.setPaintFlags(holder.tvReceipt.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 				}else{
@@ -1099,7 +1099,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			mProductSumContent.removeAllViews();
 			mProductSumContent.addView(createRowSummary(getActivity(), tvGrandTotal));
 			
-			TransactionDao trans = new TransactionDao(getActivity());
+			Transaction trans = new Transaction(getActivity());
 			MPOSOrderTransaction.MPOSOrderDetail summOrder 
 				= trans.getSummaryOrderInDay(((SaleReportActivity) getActivity()).mDateFrom, 
 						((SaleReportActivity) getActivity()).mDateTo);	
@@ -1133,7 +1133,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			}
 			
 			if(summOrder.getVatExclude() > 0){
-				ShopDao shop = new ShopDao(getActivity());
+				Shop shop = new Shop(getActivity());
 				// total vatExclude
 				TextView[] tvTotalVatExclude = {
 						createTextViewSummary(getActivity(), getString(R.string.vat_exclude) + " " +

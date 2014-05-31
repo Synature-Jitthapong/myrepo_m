@@ -39,16 +39,16 @@ public class Util {
 	}
 	
 	public static double calculateVatPrice(double totalPrice, double vatRate, int vatType){
-		if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
+		if(vatType == Products.VAT_TYPE_EXCLUDE)
 			return totalPrice * (100 + vatRate) / 100;
 		else
 			return totalPrice;
 	}
 	
 	public static double calculateVatAmount(double totalPrice, double vatRate, int vatType){
-		if(vatType == ProductsDao.VAT_TYPE_INCLUDED)
+		if(vatType == Products.VAT_TYPE_INCLUDED)
 			return totalPrice * vatRate / (100 + vatRate);
-		else if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
+		else if(vatType == Products.VAT_TYPE_EXCLUDE)
 			return totalPrice * vatRate / 100;
 		else
 			return 0;

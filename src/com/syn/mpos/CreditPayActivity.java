@@ -5,16 +5,16 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.j1tth4.util.CreditCardParser;
-import com.j1tth4.util.Logger;
-import com.j1tth4.util.VerifyCardType;
-import com.syn.mpos.dao.BankNameDao;
-import com.syn.mpos.dao.CreditCardDao;
-import com.syn.mpos.dao.FormatPropertyDao;
-import com.syn.mpos.dao.PaymentDao;
-import com.syn.pos.BankName;
-import com.syn.pos.CreditCardType;
+import com.syn.mpos.dao.Bank;
+import com.syn.mpos.dao.CreditCard;
+import com.syn.mpos.dao.Formater;
+import com.syn.mpos.dao.PaymentDetail;
+import com.synature.exceptionhandler.ExceptionHandler;
+import com.synature.pos.BankName;
+import com.synature.pos.CreditCardType;
+import com.synature.util.CreditCardParser;
+import com.synature.util.Logger;
+import com.synature.util.VerifyCardType;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -54,8 +54,8 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 
 	private WintecMagneticReader mMsrReader;
 	
-	private PaymentDao mPayment;
-	private FormatPropertyDao mFormat;
+	private PaymentDetail mPayment;
+	private Formater mFormat;
 	
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
@@ -153,8 +153,8 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 			
 		});
 		
-		mPayment = new PaymentDao(getApplicationContext());
-		mFormat = new FormatPropertyDao(getApplicationContext());
+		mPayment = new PaymentDetail(getApplicationContext());
+		mFormat = new Formater(getApplicationContext());
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -323,7 +323,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 									+ mTxtCardNoSeq4.getText().toString();
 							try {
 								mPayment.addPaymentDetail(mTransactionId, mComputerId,
-										PaymentDao.PAY_TYPE_CREDIT,
+										PaymentDetail.PAY_TYPE_CREDIT,
 										mTotalCreditPay, mTotalCreditPay >= mPaymentLeft ?
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
 										mExpYear, mBankId, mCardTypeId, "");
@@ -402,7 +402,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void loadCreditCardType(){
-		CreditCardDao cd = new CreditCardDao(getApplicationContext());
+		CreditCard cd = new CreditCard(getApplicationContext());
 		mCreditCardLst = cd.listAllCreditCardType();
 		
 		CreditCardType cc = new CreditCardType();
@@ -433,7 +433,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	}
 	
 	private void loadBankName(){
-		BankNameDao bk = new BankNameDao(getApplicationContext());
+		Bank bk = new Bank(getApplicationContext());
 		mBankLst = bk.listAllBank();
 		
 		BankName b = new BankName();

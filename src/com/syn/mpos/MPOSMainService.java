@@ -1,12 +1,21 @@
 package com.syn.mpos;
 
+import java.lang.reflect.Type;
+
 import org.ksoap2.serialization.PropertyInfo;
 
 import android.content.Context;
 
-import com.j1tth4.util.DotNetWebServiceTask;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+import com.synature.pos.WebServiceResult;
+import com.synature.util.Ksoap2WebServiceTask;
 
-public class MPOSMainService extends DotNetWebServiceTask{
+
+public class MPOSMainService extends Ksoap2WebServiceTask{
+	
+	public static final String NAME_SPACE = "http://tempuri.org/";
 	// webservice method
 	public static final String CHECK_DEVICE_METHOD = "WSmPOS_CheckAuthenShopDevice";
 	public static final String LOAD_MENU_METHOD = "WSmPOS_JSON_LoadMenuDataV2";
@@ -23,7 +32,7 @@ public class MPOSMainService extends DotNetWebServiceTask{
 	public static final String JSON_SALE_PARAM = "szJsonSaleTransData";
 	
 	public MPOSMainService(Context context, String method) {
-		super(context.getApplicationContext(), method);
+		super(context.getApplicationContext(), NAME_SPACE, method);
 		
 		mProperty = new PropertyInfo();
 		mProperty.setName(DEVICE_CODE_PARAM);
@@ -32,4 +41,10 @@ public class MPOSMainService extends DotNetWebServiceTask{
 		mSoapRequest.addProperty(mProperty);
 	}
 
+	public WebServiceResult toServiceObject(String json) throws JsonSyntaxException{
+		Gson gson = new Gson();
+		Type type = new TypeToken<WebServiceResult>(){}.getType();
+		WebServiceResult ws = gson.fromJson(json, type);
+		return ws;
+	}
 }

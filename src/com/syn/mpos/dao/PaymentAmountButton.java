@@ -3,16 +3,16 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.pos.Payment;
+import com.synature.pos.Payment;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class PaymentAmountButtonDao extends MPOSDatabase {
+public class PaymentAmountButton extends MPOSDatabase {
 	
-	public PaymentAmountButtonDao(Context context) {
+	public PaymentAmountButton(Context context) {
 		super(context);
 	}
 	

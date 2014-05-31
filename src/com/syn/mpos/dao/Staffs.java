@@ -2,7 +2,7 @@ package com.syn.mpos.dao;
 
 import java.util.List;
 
-import com.syn.pos.ShopData;
+import com.synature.pos.ShopData;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,9 +10,9 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class StaffDao extends MPOSDatabase{
+public class Staffs extends MPOSDatabase{
 	
-	public StaffDao(Context context) {
+	public Staffs(Context context) {
 		super(context);
 	}
 

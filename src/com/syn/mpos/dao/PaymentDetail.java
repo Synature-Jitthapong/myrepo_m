@@ -3,12 +3,11 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.dao.BankNameDao.BankTable;
-import com.syn.mpos.dao.ComputerDao.ComputerTable;
-import com.syn.mpos.dao.CreditCardDao.CreditCardTable;
-import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
-import com.syn.pos.Payment;
-import com.syn.pos.Payment.PaymentDetail;
+import com.syn.mpos.dao.Bank.BankTable;
+import com.syn.mpos.dao.Computer.ComputerTable;
+import com.syn.mpos.dao.CreditCard.CreditCardTable;
+import com.syn.mpos.dao.Transaction.OrderTransactionTable;
+import com.synature.pos.Payment;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,12 +15,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class PaymentDao extends MPOSDatabase {
+public class PaymentDetail extends MPOSDatabase {
 	
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 
-	public PaymentDao(Context context) {
+	public PaymentDetail(Context context) {
 		super(context);
 	}
 	
@@ -144,8 +143,8 @@ public class PaymentDao extends MPOSDatabase {
 		int maxPaymentId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + PaymentDetailTable.COLUMN_PAY_ID + ") "
-						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE "
-						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
+						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[]{String.valueOf(transactionId)});
 		if(cursor.moveToFirst()){
 			maxPaymentId = cursor.getInt(0);
@@ -169,26 +168,55 @@ public class PaymentDao extends MPOSDatabase {
 	 * @return The ID of newly row inserted
 	 * @throws SQLException
 	 */
-	public long addPaymentDetail(int transactionId, int computerId, 
+	public void addPaymentDetail(int transactionId, int computerId, 
 			int payTypeId, double paid, double pay , String creditCardNo, int expireMonth, 
 			int expireYear, int bankId,int creditCardTypeId, String remark) throws SQLException {
-		int paymentId = getMaxPaymentDetailId(transactionId);
-		ContentValues cv = new ContentValues();
-		cv.put(PaymentDetailTable.COLUMN_PAY_ID, paymentId);
-		cv.put(OrderTransactionTable.COLUMN_TRANSACTION_ID, transactionId);
-		cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
-		cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payTypeId);
-		cv.put(PaymentDetailTable.COLUMN_PAID, paid);
-		cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, pay);
-		cv.put(CreditCardTable.COLUMN_CREDITCARD_NO, creditCardNo);
-		cv.put(CreditCardTable.COLUMN_EXP_MONTH, expireMonth);
-		cv.put(CreditCardTable.COLUMN_EXP_YEAR, expireYear);
-		cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, creditCardTypeId);
-		cv.put(BankTable.COLUMN_BANK_ID, bankId);
-		cv.put(PaymentDetailTable.COLUMN_REMARK, remark);
-		return getWritableDatabase().insertOrThrow(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, cv);
+		if(checkThisPayTypeIsAdded(transactionId, payTypeId)){
+			// update payment
+			double totalPaid = getTotalPaid(transactionId) + paid;
+			double totalPay = getTotalPay(transactionId) + pay;
+			updatePaymentDetail(transactionId, payTypeId, totalPaid, totalPay);
+		}else{
+			// add new payment
+			int paymentId = getMaxPaymentDetailId(transactionId);
+			ContentValues cv = new ContentValues();
+			cv.put(PaymentDetailTable.COLUMN_PAY_ID, paymentId);
+			cv.put(OrderTransactionTable.COLUMN_TRANSACTION_ID, transactionId);
+			cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
+			cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payTypeId);
+			cv.put(PaymentDetailTable.COLUMN_PAID, paid);
+			cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, pay);
+			cv.put(CreditCardTable.COLUMN_CREDITCARD_NO, creditCardNo);
+			cv.put(CreditCardTable.COLUMN_EXP_MONTH, expireMonth);
+			cv.put(CreditCardTable.COLUMN_EXP_YEAR, expireYear);
+			cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, creditCardTypeId);
+			cv.put(BankTable.COLUMN_BANK_ID, bankId);
+			cv.put(PaymentDetailTable.COLUMN_REMARK, remark);
+			getWritableDatabase().insertOrThrow(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, cv);
+		}
 	}
 
+	/**
+	 * @param transactionId
+	 * @param payTypeId
+	 * @return added or not
+	 */
+	public boolean checkThisPayTypeIsAdded(int transactionId, int payTypeId){
+		boolean isAdded = false;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT COUNT(" + PaymentDetailTable.COLUMN_PAY_ID + ")"
+				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
+				+ " AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
+				new String[]{String.valueOf(transactionId), String.valueOf(payTypeId)});
+		if(cursor.moveToFirst()){
+			if(cursor.getInt(0) > 0)
+				isAdded = true;
+		}
+		cursor.close();
+		return isAdded;
+	}
+	
 	/**
 	 * @param transactionId
 	 * @param payTypeId
@@ -233,8 +261,8 @@ public class PaymentDao extends MPOSDatabase {
 		double totalPaid = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
-						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE "
-						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
+						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[]{
 						String.valueOf(transactionId)
 				});
@@ -253,8 +281,8 @@ public class PaymentDao extends MPOSDatabase {
 		double totalPaid = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAID + ") "
-						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE "
-						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
+						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[]{
 						String.valueOf(transactionId)
 				});
@@ -269,35 +297,34 @@ public class PaymentDao extends MPOSDatabase {
 	 * @param transactionId
 	 * @return List<com.syn.pos.Payment.PaymentDetail>
 	 */
-	public List<com.syn.pos.Payment.PaymentDetail> listPayment(int transactionId){
-		List<com.syn.pos.Payment.PaymentDetail> paymentLst = 
-				new ArrayList<com.syn.pos.Payment.PaymentDetail>();
+	public List<com.synature.pos.Payment.PaymentDetail> listPayment(int transactionId){
+		List<com.synature.pos.Payment.PaymentDetail> paymentLst = 
+				new ArrayList<com.synature.pos.Payment.PaymentDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT a." + PaymentDetailTable.COLUMN_PAY_ID + ", " + " a."
-						+ PayTypeTable.COLUMN_PAY_TYPE_ID + ", " + " SUM(a."
-						+ PaymentDetailTable.COLUMN_PAID + ") AS "
-						+ PaymentDetailTable.COLUMN_PAID + ", " + " a."
-						+ PaymentDetailTable.COLUMN_REMARK + ", " + " b."
-						+ PayTypeTable.COLUMN_PAY_TYPE_CODE + ", " + " b."
-						+ PayTypeTable.COLUMN_PAY_TYPE_NAME + " FROM "
-						+ PaymentDetailTable.TABLE_PAYMENT_DETAIL + " a " + " LEFT JOIN "
-						+ PayTypeTable.TABLE_PAY_TYPE + " b " + " ON a."
-						+ PayTypeTable.COLUMN_PAY_TYPE_ID + "=" + " b."
-						+ PayTypeTable.COLUMN_PAY_TYPE_ID + " WHERE a."
-						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
+				" SELECT a." + PaymentDetailTable.COLUMN_PAY_ID + ", " 
+						+ " a." + PayTypeTable.COLUMN_PAY_TYPE_ID + ", " 
+						+ " a." + PaymentDetailTable.COLUMN_PAID + ", " 
+						+ " a." + PaymentDetailTable.COLUMN_REMARK + ", " 
+						+ " b." + PayTypeTable.COLUMN_PAY_TYPE_CODE + ", " 
+						+ " b." + PayTypeTable.COLUMN_PAY_TYPE_NAME 
+						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " a " 
+						+ " INNER JOIN " + PayTypeTable.TABLE_PAY_TYPE + " b "
+						+ " ON a." + PayTypeTable.COLUMN_PAY_TYPE_ID 
+						+ "=b." + PayTypeTable.COLUMN_PAY_TYPE_ID 
+						+ " WHERE a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
 						+ " GROUP BY a." + PayTypeTable.COLUMN_PAY_TYPE_ID,
 				new String[]{
 						String.valueOf(transactionId)});
 		if(cursor.moveToFirst()){
 			do{
-				com.syn.pos.Payment.PaymentDetail payDetail
-					= new com.syn.pos.Payment.PaymentDetail();
+				com.synature.pos.Payment.PaymentDetail payDetail
+					= new com.synature.pos.Payment.PaymentDetail();
 				payDetail.setTransactionID(transactionId);
 				payDetail.setPaymentDetailID(cursor.getInt(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAY_ID)));
 				payDetail.setPayTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
 				payDetail.setPayTypeCode(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)));
 				payDetail.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
-				payDetail.setPaid(cursor.getFloat(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAID)));
+				payDetail.setPaid(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAID)));
 				payDetail.setRemark(cursor.getString(cursor.getColumnIndex(PaymentDetailTable.COLUMN_REMARK)));
 				paymentLst.add(payDetail);
 			}while(cursor.moveToNext());

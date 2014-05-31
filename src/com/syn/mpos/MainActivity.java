@@ -7,19 +7,19 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.j1tth4.util.ImageLoader;
-import com.syn.mpos.dao.ComputerDao;
-import com.syn.mpos.dao.FormatPropertyDao;
-import com.syn.mpos.dao.Login;
+import com.syn.mpos.dao.Computer;
+import com.syn.mpos.dao.Formater;
+import com.syn.mpos.dao.UserVerification;
 import com.syn.mpos.dao.MPOSOrderTransaction;
-import com.syn.mpos.dao.PrintReceiptLogDao;
-import com.syn.mpos.dao.ProductsDao;
-import com.syn.mpos.dao.SessionDao;
-import com.syn.mpos.dao.ShopDao;
-import com.syn.mpos.dao.StaffDao;
-import com.syn.mpos.dao.TransactionDao;
-import com.syn.pos.ShopData;
+import com.syn.mpos.dao.PrintReceiptLog;
+import com.syn.mpos.dao.Products;
+import com.syn.mpos.dao.Session;
+import com.syn.mpos.dao.Shop;
+import com.syn.mpos.dao.Staffs;
+import com.syn.mpos.dao.Transaction;
+import com.synature.exceptionhandler.ExceptionHandler;
+import com.synature.pos.ShopData;
+import com.synature.util.ImageLoader;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -72,17 +72,17 @@ public class MainActivity extends FragmentActivity{
 	
 	private WintecCustomerDisplay mDsp;
 	
-	private ProductsDao mProducts;
-	private ShopDao mShop;
-	private FormatPropertyDao mFormat;
+	private Products mProducts;
+	private Shop mShop;
+	private Formater mFormat;
 	
-	private SessionDao mSession;
-	private TransactionDao mTrans;
-	private ComputerDao mComputer;
+	private Session mSession;
+	private Transaction mTrans;
+	private Computer mComputer;
 	
 	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderDetailLst;
 	private OrderDetailAdapter mOrderDetailAdapter;
-	private List<ProductsDao.ProductDept> mProductDeptLst;
+	private List<Products.ProductDept> mProductDeptLst;
 	private MenuItemPagerAdapter mPageAdapter;
 
 	private ImageLoader mImageLoader;
@@ -107,12 +107,12 @@ public class MainActivity extends FragmentActivity{
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
-		mSession = new SessionDao(getApplicationContext());
-		mTrans = new TransactionDao(getApplicationContext());
-		mProducts = new ProductsDao(getApplicationContext());
-		mShop = new ShopDao(getApplicationContext());
-		mComputer = new ComputerDao(getApplicationContext());
-		mFormat = new FormatPropertyDao(getApplicationContext());
+		mSession = new Session(getApplicationContext());
+		mTrans = new Transaction(getApplicationContext());
+		mProducts = new Products(getApplicationContext());
+		mShop = new Shop(getApplicationContext());
+		mComputer = new Computer(getApplicationContext());
+		mFormat = new Formater(getApplicationContext());
 		
 		/*
 		 * Image Loader
@@ -135,7 +135,7 @@ public class MainActivity extends FragmentActivity{
 
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction().
-				add(R.id.container, new LargeScreenFragment()).commit();
+				add(R.id.container, LargeScreenFragment.newInstance()).commit();
 		}
 	}
 	
@@ -163,7 +163,9 @@ public class MainActivity extends FragmentActivity{
 		private PagerSlidingTabStrip mTabs;
 		private ViewPager mPager;
 		
-		public LargeScreenFragment(){
+		public static LargeScreenFragment newInstance(){
+			LargeScreenFragment f = new LargeScreenFragment();
+			return f;
 		}
 		
 		@Override
@@ -258,8 +260,55 @@ public class MainActivity extends FragmentActivity{
 			
 			mLvOrderDetail.setAdapter(activity.mOrderDetailAdapter);
 			
-			mLvOrderDetail.setOnItemClickListener(((MainActivity) getActivity()).onItemClick);
-			mTxtBarCode.setOnKeyListener(((MainActivity) getActivity()).onKeyListener);
+			mLvOrderDetail.setOnItemClickListener(new OnItemClickListener(){
+
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view,
+						int position, long id) {
+					MPOSOrderTransaction.MPOSOrderDetail order = 
+							(MPOSOrderTransaction.MPOSOrderDetail) parent.getItemAtPosition(position);
+						
+						if(order.isChecked()){
+							order.setChecked(false);
+						}else{
+							order.setChecked(true);
+						}
+					activity.mOrderDetailAdapter.notifyDataSetChanged();
+				}
+				
+			});
+			mTxtBarCode.setOnKeyListener(new OnKeyListener(){
+
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event) {
+					if(event.getAction() != KeyEvent.ACTION_DOWN)
+						return true;
+					
+					if(keyCode == KeyEvent.KEYCODE_ENTER){
+						String barCode = ((EditText) v).getText().toString();
+						if(!barCode.equals("")){
+							Products.Product p = activity.mProducts.getProduct(barCode);
+							if(p != null){
+								activity.addOrder(p.getProductId(), p.getProductName(), 
+										p.getProductTypeId(), p.getVatType(), p.getVatRate(), 
+										1, p.getProductPrice());
+							}else{
+								new AlertDialog.Builder(getActivity())
+								.setTitle(R.string.search)
+								.setMessage(R.string.not_found_item)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+									}
+								}).show();
+							}
+						}
+						((EditText) v).setText(null);
+					}
+					return false;
+				}
+			});
 			return rootView;
 		}
 		
@@ -342,50 +391,93 @@ public class MainActivity extends FragmentActivity{
 				double change = intent.getDoubleExtra("change", 0);
 				int transactionId = intent.getIntExtra("transactionId", 0);
 				int staffId = intent.getIntExtra("staffId", 0);
-				printReceipt(transactionId, staffId);
-				sendSale();
-
-				mDsp.displayTotalPay(
-						mFormat.currencyFormat(totalPaid), mFormat.currencyFormat(change));
-				
-				new Handler().postDelayed(
-						new Runnable(){
-
-							@Override
-							public void run() {
-								runOnUiThread(new Runnable(){
-
-									@Override
-									public void run() {
-										mDsp.displayWelcome();
-									}
-									
-								});
-							}
-				}, 10000);
-				
-				if(change > 0){
-					LayoutInflater inflater = (LayoutInflater) 
-							MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
-					tvChange.setText(mFormat.currencyFormat(change));
-					
-					new AlertDialog.Builder(MainActivity.this)
-					.setTitle(R.string.change)
-					.setCancelable(false)
-					.setView(tvChange)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-						}
-					})
-					.show();
-				}
+				afterPaid(transactionId, staffId, totalPaid, change);
 			}
 		}
 	}
 
+	private void afterPaid(int transactionId, int staffId, double totalPaid, 
+			double change){
+		
+		PrintReceiptLog printLog = 
+				new PrintReceiptLog(getApplicationContext());
+		printLog.insertLog(transactionId, staffId);
+		
+		new PrintReceipt(MainActivity.this, new PrintReceipt.PrintStatusListener() {
+			
+			@Override
+			public void onPrintSuccess() {
+			}
+			
+			@Override
+			public void onPrintFail(String msg) {
+				MPOSUtil.makeToask(MainActivity.this, msg);
+			}
+			
+			@Override
+			public void onPrepare() {
+			}
+		}).execute();
+		
+		MPOSUtil.sendSale(MainActivity.this, mShop.getShopId(), 
+				mComputer.getComputerId(), mStaffId, false, new ProgressListener(){
+
+					@Override
+					public void onPre() {
+					}
+
+					@Override
+					public void onPost() {
+						countTransNotSend(MainActivity.this);
+						MPOSUtil.makeToask(MainActivity.this, 
+								MainActivity.this.getString(R.string.send_sale_data_success));
+					}
+
+					@Override
+					public void onError(String msg) {
+						MPOSUtil.makeToask(MainActivity.this, msg);
+					}
+		});
+
+		mDsp.displayTotalPay(
+				mFormat.currencyFormat(totalPaid), mFormat.currencyFormat(change));
+		
+		new Handler().postDelayed(
+				new Runnable(){
+
+					@Override
+					public void run() {
+						runOnUiThread(new Runnable(){
+
+							@Override
+							public void run() {
+								mDsp.displayWelcome();
+							}
+							
+						});
+					}
+		}, 10000);
+		
+		if(change > 0){
+			LayoutInflater inflater = (LayoutInflater) 
+					MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
+			tvChange.setText(mFormat.currencyFormat(change));
+			
+			new AlertDialog.Builder(MainActivity.this)
+			.setTitle(R.string.change)
+			.setCancelable(false)
+			.setView(tvChange)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			})
+			.show();
+		}	
+	}
+	
 	/**
 	 * @param v
 	 * Go to PaymentActivity
@@ -560,7 +652,7 @@ public class MainActivity extends FragmentActivity{
 				
 			});
 			
-			if(orderDetail.getProductTypeId() == ProductsDao.SET_TYPE_CAN_SELECT)
+			if(orderDetail.getProductTypeId() == Products.SET_TYPE_CAN_SELECT)
 				holder.btnSetMod.setVisibility(View.VISIBLE);
 			else
 				holder.btnSetMod.setVisibility(View.GONE);
@@ -665,20 +757,10 @@ public class MainActivity extends FragmentActivity{
 			return mProductDeptLst.size();
 		}		
 	}
-
-	/**
-	 * @author j1tth4
-	 * menu pager fragment
-	 */
-	public static class MenuItemViewHolder{
-		ImageView imgMenu;
-		TextView tvMenu;
-		TextView tvPrice;
-	}
 	
 	public static class MenuPageFragment extends android.support.v4.app.Fragment {
 		
-		private List<ProductsDao.Product> mProductLst;
+		private List<Products.Product> mProductLst;
 		private MenuItemAdapter mMenuItemAdapter;
 		
 		private int mDeptId;
@@ -714,8 +796,8 @@ public class MainActivity extends FragmentActivity{
 				@Override
 				public void onItemClick(AdapterView<?> parent, View v, int position,
 						long id) {
-					ProductsDao.Product p = 
-							(ProductsDao.Product) parent.getItemAtPosition(position);
+					Products.Product p = 
+							(Products.Product) parent.getItemAtPosition(position);
 					((MainActivity) getActivity()).onMenuClick(p.getProductId(),
 							p.getProductName(), p.getProductTypeId(), 
 							p.getVatType(), p.getVatRate(), p.getProductPrice());
@@ -727,7 +809,7 @@ public class MainActivity extends FragmentActivity{
 				@Override
 				public boolean onItemLongClick(AdapterView<?> parent, View v,
 						int position, long id) {
-					ProductsDao.Product p = (ProductsDao.Product) parent.getItemAtPosition(position);
+					Products.Product p = (Products.Product) parent.getItemAtPosition(position);
 					ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgUrl(), p.getProductName(), 
 							((MainActivity) getActivity()).mFormat.currencyFormat(p.getProductPrice()));
 					imgZoom.show(getFragmentManager(), "MenuImage");
@@ -770,7 +852,7 @@ public class MainActivity extends FragmentActivity{
 			}
 
 			@Override
-			public ProductsDao.Product getItem(int position) {
+			public Products.Product getItem(int position) {
 				return mProductLst.get(position);
 			}
 
@@ -781,7 +863,7 @@ public class MainActivity extends FragmentActivity{
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
-				final ProductsDao.Product p = mProductLst.get(position);
+				final Products.Product p = mProductLst.get(position);
 				final MenuItemViewHolder holder;
 				if(convertView == null){
 					convertView = mInflater.inflate(R.layout.menu_template, null);
@@ -801,21 +883,9 @@ public class MainActivity extends FragmentActivity{
 					holder.tvPrice.setText(((MainActivity) 
 							getActivity()).mFormat.currencyFormat(p.getProductPrice()));
 
-//				new Handler().postDelayed(new Runnable(){
-//
-//					@Override
-//					public void run() {
-//						try {
-							((MainActivity) getActivity()).mImageLoader.displayImage(
-									MPOSApplication.getImageUrl(getActivity()) + 
-									p.getImgUrl(), holder.imgMenu);
-//						} catch (Exception e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
-//					}
-//					
-//				}, 500);
+				((MainActivity) getActivity()).mImageLoader.displayImage(
+						MPOSApplication.getImageUrl(getActivity()) + 
+						p.getImgUrl(), holder.imgMenu);
 				return convertView;
 			}
 		}
@@ -828,9 +898,9 @@ public class MainActivity extends FragmentActivity{
 	private class ProductSizeAdapter extends BaseAdapter{
 		
 		private LayoutInflater mInflater;
-		private List<ProductsDao.Product> mProLst;
+		private List<Products.Product> mProLst;
 		
-		public ProductSizeAdapter(List<ProductsDao.Product> proLst){
+		public ProductSizeAdapter(List<Products.Product> proLst){
 			mInflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			mProLst = proLst;
 		}
@@ -841,7 +911,7 @@ public class MainActivity extends FragmentActivity{
 		}
 
 		@Override
-		public ProductsDao.Product getItem(int position) {
+		public Products.Product getItem(int position) {
 			return mProLst.get(position);
 		}
 
@@ -862,7 +932,7 @@ public class MainActivity extends FragmentActivity{
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
-			ProductsDao.Product p = mProLst.get(position);
+			Products.Product p = mProLst.get(position);
 			holder.tvProductName.setText(p.getProductName());
 			holder.tvProductPrice.setText(mFormat.currencyFormat(p.getProductPrice()));
 			return convertView;
@@ -885,13 +955,13 @@ public class MainActivity extends FragmentActivity{
 	 */
 	public void onMenuClick(int productId, String productName, 
 			int productTypeId, int vatType, double vatRate, double productPrice) {
-		if(productTypeId == ProductsDao.NORMAL_TYPE || 
-				productTypeId == ProductsDao.SET_TYPE){
+		if(productTypeId == Products.NORMAL_TYPE || 
+				productTypeId == Products.SET_TYPE){
 			addOrder(productId, productName, productTypeId, 
 					vatType, vatRate, 1, productPrice);
-		}else if(productTypeId == ProductsDao.SIZE_TYPE){
+		}else if(productTypeId == Products.SIZE_TYPE){
 			productSizeDialog(productId);
-		}else if(productTypeId == ProductsDao.SET_TYPE_CAN_SELECT){
+		}else if(productTypeId == Products.SET_TYPE_CAN_SELECT){
 			Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
 			intent.putExtra("mode", ProductSetActivity.ADD_MODE);
 			intent.putExtra("transactionId", mTransactionId);
@@ -911,62 +981,6 @@ public class MainActivity extends FragmentActivity{
 			break;
 		}
 	}
-
-	public OnItemClickListener onItemClick = new OnItemClickListener(){
-
-		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position,
-				long id) {
-			switch(parent.getId()){
-			case R.id.lvOrder:
-				MPOSOrderTransaction.MPOSOrderDetail order = 
-					(MPOSOrderTransaction.MPOSOrderDetail) parent.getItemAtPosition(position);
-				
-				if(order.isChecked()){
-					order.setChecked(false);
-				}else{
-					order.setChecked(true);
-				}
-				mOrderDetailAdapter.notifyDataSetChanged();
-				break;
-			}
-		}
-		
-	};
-	
-	public OnKeyListener onKeyListener = new OnKeyListener(){
-
-		@Override
-		public boolean onKey(View v, int keyCode, KeyEvent event) {
-			if(event.getAction() != KeyEvent.ACTION_DOWN)
-				return true;
-			
-			if(keyCode == KeyEvent.KEYCODE_ENTER){
-				String barCode = ((EditText) v).getText().toString();
-				if(!barCode.equals("")){
-					ProductsDao.Product p = mProducts.getProduct(barCode);
-					if(p != null){
-						addOrder(p.getProductId(), p.getProductName(), 
-								p.getProductTypeId(), p.getVatType(), p.getVatRate(), 
-								1, p.getProductPrice());
-					}else{
-						new AlertDialog.Builder(MainActivity.this)
-						.setTitle(R.string.search)
-						.setMessage(R.string.not_found_item)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-							}
-						}).show();
-					}
-				}
-				((EditText) v).setText(null);
-			}
-			return false;
-		}
-		
-	};
 	
 	public void clearBillClicked(final View v){
 		new AlertDialog.Builder(MainActivity.this)
@@ -1060,7 +1074,7 @@ public class MainActivity extends FragmentActivity{
 					
 					if(!txtPassword.getText().toString().isEmpty()){
 						pass = txtPassword.getText().toString();
-						Login login = new Login(MainActivity.this.getApplicationContext(), user, pass);
+						UserVerification login = new UserVerification(MainActivity.this.getApplicationContext(), user, pass);
 						
 						if(login.checkUser()){
 							ShopData.Staff s = login.checkLogin();
@@ -1134,7 +1148,7 @@ public class MainActivity extends FragmentActivity{
 	 * Logout
 	 */
 	public void logout() {
-		StaffDao staff = new StaffDao(getApplicationContext());
+		Staffs staff = new Staffs(getApplicationContext());
 		ShopData.Staff s = staff.getStaff(mStaffId);
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.logout)
@@ -1358,7 +1372,7 @@ public class MainActivity extends FragmentActivity{
 				public void onClick(DialogInterface dialog, int which) {
 					mProgress.setTitle(MainActivity.this.getString(R.string.endday));
 					mProgress.setMessage(MainActivity.this.getString(R.string.endday_progress));
-					MPOSUtil.doEndday(MainActivity.this, mShop.getShopId(), 
+					MPOSUtil.endday(MainActivity.this, mShop.getShopId(), 
 							mComputer.getComputerId(), mSessionId, mStaffId, 0, true,
 							new ProgressListener() {
 						
@@ -1584,7 +1598,7 @@ public class MainActivity extends FragmentActivity{
 	 * @param proId
 	 */
 	private void productSizeDialog(int proId){
-		List<ProductsDao.Product> pSizeLst = mProducts.listProductSize(proId);
+		List<Products.Product> pSizeLst = mProducts.listProductSize(proId);
 		LayoutInflater inflater = (LayoutInflater)
 				this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -1599,7 +1613,7 @@ public class MainActivity extends FragmentActivity{
 			@Override
 			public void onItemClick(AdapterView<?> parent, View v, int position,
 					long arg3) {
-				ProductsDao.Product p = (ProductsDao.Product) parent.getItemAtPosition(position);
+				Products.Product p = (Products.Product) parent.getItemAtPosition(position);
 				addOrder(p.getProductId(), p.getProductName(), 
 						p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
 				dialog.dismiss();
@@ -1641,60 +1655,5 @@ public class MainActivity extends FragmentActivity{
 				}
 			}
 		}
-	}
-
-	/**
-	 * @param transactionId
-	 * @param staffId
-	 */
-	private void printReceipt(int transactionId, int staffId){
-		PrintReceiptLogDao printLog = 
-				new PrintReceiptLogDao(getApplicationContext());
-		printLog.insertLog(transactionId, staffId);
-		
-		new PrintReceipt(MainActivity.this, new PrintReceipt.PrintStatusListener() {
-			
-			@Override
-			public void onPrintSuccess() {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onPrintFail(String msg) {
-				MPOSUtil.makeToask(MainActivity.this, msg);
-			}
-			
-			@Override
-			public void onPrepare() {
-				// TODO Auto-generated method stub
-				
-			}
-		}).execute();
-	}
-
-	/**
-	 * send sale data to server
-	 */
-	private void sendSale(){
-		MPOSUtil.doSendSale(MainActivity.this, mShop.getShopId(), 
-				mComputer.getComputerId(), mStaffId, false, new ProgressListener(){
-
-					@Override
-					public void onPre() {
-					}
-
-					@Override
-					public void onPost() {
-						countTransNotSend(MainActivity.this);
-						MPOSUtil.makeToask(MainActivity.this, 
-								MainActivity.this.getString(R.string.send_sale_data_success));
-					}
-
-					@Override
-					public void onError(String msg) {
-						MPOSUtil.makeToask(MainActivity.this, msg);
-					}
-		});
 	}
 }

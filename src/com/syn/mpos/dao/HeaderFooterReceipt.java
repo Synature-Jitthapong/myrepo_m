@@ -3,7 +3,7 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.pos.ShopData;
+import com.synature.pos.ShopData;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,12 +11,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class HeaderFooterReceiptDao extends MPOSDatabase{
+public class HeaderFooterReceipt extends MPOSDatabase{
 	
 	public static final int HEADER_LINE_TYPE = 0;
 	public static final int FOOTER_LINE_TYPE = 1;
 
-	public HeaderFooterReceiptDao(Context context) {
+	public HeaderFooterReceipt(Context context) {
 		super(context);
 	}
 	

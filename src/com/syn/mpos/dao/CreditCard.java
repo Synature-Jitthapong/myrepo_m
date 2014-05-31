@@ -3,16 +3,16 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.synature.pos.CreditCardType;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.pos.CreditCardType;
-
-public class CreditCardDao extends MPOSDatabase{
+public class CreditCard extends MPOSDatabase{
 	
-	public CreditCardDao(Context context) {
+	public CreditCard(Context context) {
 		super(context);
 	}
 

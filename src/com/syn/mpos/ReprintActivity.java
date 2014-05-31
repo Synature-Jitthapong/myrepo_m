@@ -2,11 +2,11 @@ package com.syn.mpos;
 
 import java.util.List;
 
-import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.dao.MPOSOrderTransaction;
-import com.syn.mpos.dao.SessionDao;
-import com.syn.mpos.dao.TransactionDao;
-import com.syn.pos.OrderTransaction;
+import com.syn.mpos.dao.Session;
+import com.syn.mpos.dao.Transaction;
+import com.synature.exceptionhandler.ExceptionHandler;
+import com.synature.pos.OrderTransaction;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 public class ReprintActivity extends Activity {
 	
-	private TransactionDao mOrders;
+	private Transaction mOrders;
 	
 	private boolean mIsOnPrint;
 	private ReprintTransAdapter mTransAdapter;
@@ -54,9 +54,9 @@ public class ReprintActivity extends Activity {
 		
 		mLvTrans = (ListView) findViewById(R.id.listView1);
 
-		mOrders = new TransactionDao(getApplicationContext());
+		mOrders = new Transaction(getApplicationContext());
 		
-		SessionDao sess = new SessionDao(getApplicationContext());
+		Session sess = new Session(getApplicationContext());
 		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, 
 				mOrders.listSuccessTransaction(sess.getSessionDate()));
 		mLvTrans.setAdapter(mTransAdapter);

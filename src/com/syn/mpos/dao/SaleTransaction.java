@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.syn.mpos.MPOSUtil;
-import com.syn.mpos.dao.ComputerDao.ComputerTable;
-import com.syn.mpos.dao.CreditCardDao.CreditCardTable;
-import com.syn.mpos.dao.PaymentDao.PayTypeTable;
-import com.syn.mpos.dao.PaymentDao.PaymentDetailTable;
-import com.syn.mpos.dao.ProductsDao.ProductsTable;
-import com.syn.mpos.dao.SessionDao.SessionDetailTable;
-import com.syn.mpos.dao.SessionDao.SessionTable;
-import com.syn.mpos.dao.ShopDao.ShopTable;
+import com.syn.mpos.dao.Computer.ComputerTable;
+import com.syn.mpos.dao.CreditCard.CreditCardTable;
+import com.syn.mpos.dao.PaymentDetail.PayTypeTable;
+import com.syn.mpos.dao.PaymentDetail.PaymentDetailTable;
+import com.syn.mpos.dao.Products.ProductsTable;
+import com.syn.mpos.dao.Session.SessionDetailTable;
+import com.syn.mpos.dao.Session.SessionTable;
+import com.syn.mpos.dao.Shop.ShopTable;
 import com.syn.mpos.dao.StockDocument.DocumentTypeTable;
-import com.syn.mpos.dao.TransactionDao.OrderDetailTable;
-import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
+import com.syn.mpos.dao.Transaction.OrderDetailTable;
+import com.syn.mpos.dao.Transaction.OrderTransactionTable;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -23,9 +23,9 @@ import android.database.Cursor;
  * This class to do generate SaleTransactionData
  * for send to HQ Server
  */
-public class SaleTransactionDao extends MPOSDatabase{
+public class SaleTransaction extends MPOSDatabase{
 
-	private FormatPropertyDao mGlobal;
+	private Formater mGlobal;
 	
 	/*
 	 * session date for query transaction
@@ -37,10 +37,10 @@ public class SaleTransactionDao extends MPOSDatabase{
 	 */
 	private boolean mIsAllTrans = false;
 	
-	public SaleTransactionDao(Context context, 
+	public SaleTransaction(Context context, 
 			String sessionDate, boolean isAllTrans) {
 		super(context);
-		mGlobal = new FormatPropertyDao(context.getApplicationContext());
+		mGlobal = new Formater(context.getApplicationContext());
 		mSessionDate = sessionDate;
 		mIsAllTrans = isAllTrans;
 	}
@@ -58,12 +58,12 @@ public class SaleTransactionDao extends MPOSDatabase{
 
 	public List<SaleData_SaleTransaction> buildSaleTransLst() {
 		List<SaleData_SaleTransaction> saleTransLst = new ArrayList<SaleData_SaleTransaction>();
-		Cursor cursor = queryTransaction();
+		Cursor cursor = queryTransactionNotSend();
 
 		if(mIsAllTrans)
 			cursor = queryAllTransactionInSessionDate();
 		else
-			cursor = queryTransaction();
+			cursor = queryTransactionNotSend();
 		
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -343,11 +343,9 @@ public class SaleTransactionDao extends MPOSDatabase{
 				CreditCardTable.COLUMN_EXP_MONTH + ", " +
 				CreditCardTable.COLUMN_EXP_YEAR + ", " +
 				PaymentDetailTable.COLUMN_REMARK + ", " +
-				" SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") AS " + 
 				PaymentDetailTable.COLUMN_PAY_AMOUNT +
 				" FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + 
-				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" +
-				" GROUP BY " + PayTypeTable.COLUMN_PAY_TYPE_ID,
+				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transId) });
 	}
 
@@ -367,11 +365,11 @@ public class SaleTransactionDao extends MPOSDatabase{
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] {
 						mSessionDate,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID)});
 	}
 	
-	public Cursor queryTransaction() {
+	public Cursor queryTransactionNotSend() {
 		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + 
@@ -380,8 +378,8 @@ public class SaleTransactionDao extends MPOSDatabase{
 				" AND " + BaseColumn.COLUMN_SEND_STATUS + "=?",
 				new String[] {
 						mSessionDate,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID),
 						String.valueOf(MPOSDatabase.NOT_SEND) });
 	}
 

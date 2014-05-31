@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.j1tth4.util.ImageLoader;
-import com.syn.mpos.dao.FormatPropertyDao;
+import com.syn.mpos.dao.Formater;
 import com.syn.mpos.dao.MPOSOrderTransaction;
-import com.syn.mpos.dao.ProductsDao;
-import com.syn.mpos.dao.ProductsDao.Product;
-import com.syn.mpos.dao.TransactionDao;
+import com.syn.mpos.dao.Products;
+import com.syn.mpos.dao.Products.Product;
+import com.syn.mpos.dao.Transaction;
+import com.synature.exceptionhandler.ExceptionHandler;
+import com.synature.util.ImageLoader;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -49,10 +49,10 @@ public class ProductSetActivity extends Activity{
 	public static final String ADD_MODE = "add";
 	
 	private static Context sContext;
-	private static ProductsDao sProduct;
-	private static FormatPropertyDao sGlobal;
+	private static Products sProduct;
+	private static Formater sGlobal;
 	
-	private static TransactionDao sTransaction;
+	private static Transaction sTransaction;
 	
 	private int mTransactionId;
 	private int mComputerId;
@@ -72,9 +72,9 @@ public class ProductSetActivity extends Activity{
 		setContentView(R.layout.activity_product_set);
 		
 		sContext = ProductSetActivity.this;
-		sProduct = new ProductsDao(getApplicationContext());
-		sGlobal = new FormatPropertyDao(getApplicationContext());
-		sTransaction = new TransactionDao(getApplicationContext());
+		sProduct = new Products(getApplicationContext());
+		sGlobal = new Formater(getApplicationContext());
+		sTransaction = new Transaction(getApplicationContext());
 		sTransaction.getWritableDatabase().beginTransaction();
 		
 		Intent intent = getIntent();
@@ -182,15 +182,15 @@ public class ProductSetActivity extends Activity{
 	}
 
 	private void confirmOrderSet(){
-		List<ProductsDao.ProductComponentGroup> productCompGroupLst 
+		List<Products.ProductComponentGroup> productCompGroupLst 
 			= sProduct.listProductComponentGroup(mProductId);
 		boolean canDone = true;
 		String selectGroup = "";
 		if(productCompGroupLst != null){
-			Iterator<ProductsDao.ProductComponentGroup> it = 
+			Iterator<Products.ProductComponentGroup> it = 
 					productCompGroupLst.iterator();
 			while(it.hasNext()){
-				ProductsDao.ProductComponentGroup pCompGroup = it.next();
+				Products.ProductComponentGroup pCompGroup = it.next();
 				if(pCompGroup.getRequireAmount() > 0){
 					if(pCompGroup.getRequireAmount() - sTransaction.getOrderSetTotalQty(mTransactionId, mOrderDetailId, 
 							pCompGroup.getProductGroupId()) > 0){
@@ -247,7 +247,7 @@ public class ProductSetActivity extends Activity{
 		private int mOrderDetailId;
 		private int mProductId;
 		
-		private List<ProductsDao.ProductComponent> mProductCompLst;
+		private List<Products.ProductComponent> mProductCompLst;
 		private List<MPOSOrderTransaction.OrderSet> mOrderSetLst;
 		private OrderSetAdapter mOrderSetAdapter;
 		
@@ -276,7 +276,7 @@ public class ProductSetActivity extends Activity{
 			mOrderDetailId = getArguments().getInt("orderDetailId");
 			mProductId = getArguments().getInt("productId");
 			
-			mProductCompLst = new ArrayList<ProductsDao.ProductComponent>();
+			mProductCompLst = new ArrayList<Products.ProductComponent>();
 			mOrderSetLst = new ArrayList<MPOSOrderTransaction.OrderSet>();
 			mOrderSetAdapter = new OrderSetAdapter();
 		}
@@ -300,12 +300,12 @@ public class ProductSetActivity extends Activity{
 		
 		@SuppressLint("NewApi")
 		private void createSetGroupButton(){
-			List<ProductsDao.ProductComponentGroup> productCompGroupLst;
+			List<Products.ProductComponentGroup> productCompGroupLst;
 			productCompGroupLst = sProduct.listProductComponentGroup(mProductId);
 			if(productCompGroupLst != null){
 				final LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
 				for(int i = 0; i < productCompGroupLst.size(); i++){
-					final ProductsDao.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
+					final Products.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
 
 					View setGroupView = mInflater.inflate(R.layout.set_group_button_layout, null);
 					setGroupView.setId(pCompGroup.getProductGroupId());
@@ -317,10 +317,10 @@ public class ProductSetActivity extends Activity{
 						setGroupView.setEnabled(false);
 						if(sTransaction.checkAddedOrderSet(mTransactionId, 
 								mOrderDetailId, pCompGroup.getProductGroupId()) == 0){
-							List<ProductsDao.ProductComponent> pCompLst = 
+							List<Products.ProductComponent> pCompLst = 
 									sProduct.listProductComponent(pCompGroup.getProductGroupId());
 							if(pCompLst != null){
-								for(ProductsDao.ProductComponent pComp : pCompLst){
+								for(Products.ProductComponent pComp : pCompLst){
 									sTransaction.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
 											pComp.getProductName(), 
 											pCompGroup.getChildProductAmount() > 0 ? pCompGroup.getChildProductAmount() : 1,
@@ -591,7 +591,7 @@ public class ProductSetActivity extends Activity{
 			}
 
 			@Override
-			public ProductsDao.ProductComponent getItem(int position) {
+			public Products.ProductComponent getItem(int position) {
 				return mProductCompLst.get(position);
 			}
 
@@ -602,19 +602,19 @@ public class ProductSetActivity extends Activity{
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
-				final MainActivity.MenuItemViewHolder holder;
+				final MenuItemViewHolder holder;
 				if(convertView == null){
 					convertView = mInflater.inflate(R.layout.menu_template, null);
-					holder = new MainActivity.MenuItemViewHolder();
+					holder = new MenuItemViewHolder();
 					holder.tvMenu = (TextView) convertView.findViewById(R.id.textViewMenuName);
 					holder.tvPrice = (TextView) convertView.findViewById(R.id.textViewMenuPrice);
 					holder.imgMenu = (ImageView) convertView.findViewById(R.id.imageViewMenu);
 					convertView.setTag(holder);
 				}else{
-					holder = (MainActivity.MenuItemViewHolder) convertView.getTag();
+					holder = (MenuItemViewHolder) convertView.getTag();
 				}
 				
-				final ProductsDao.ProductComponent pComp = mProductCompLst.get(position);
+				final Products.ProductComponent pComp = mProductCompLst.get(position);
 				holder.tvMenu.setText(pComp.getProductName());
 				holder.tvPrice.setText(sGlobal.currencyFormat(pComp.getFlexibleProductPrice()));
 				if(pComp.getFlexibleProductPrice() > 0)

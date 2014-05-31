@@ -3,19 +3,19 @@ package com.syn.mpos;
 import java.text.NumberFormat;
 import java.util.List;
 
-import com.syn.mpos.dao.FormatPropertyDao;
+import com.syn.mpos.dao.Formater;
 import com.syn.mpos.dao.MPOSOrderTransaction;
-import com.syn.mpos.dao.PaymentDao;
+import com.syn.mpos.dao.PaymentDetail;
 import com.syn.mpos.dao.Reporting;
 import com.syn.mpos.dao.Reporting.SimpleProductData;
-import com.syn.mpos.dao.ProductsDao;
-import com.syn.mpos.dao.SessionDao;
-import com.syn.mpos.dao.ShopDao;
-import com.syn.mpos.dao.StaffDao;
-import com.syn.mpos.dao.TransactionDao;
+import com.syn.mpos.dao.Products;
+import com.syn.mpos.dao.Session;
+import com.syn.mpos.dao.Shop;
+import com.syn.mpos.dao.Staffs;
+import com.syn.mpos.dao.Transaction;
 import com.syn.mpos.dao.Util;
-import com.syn.pos.Payment;
-import com.syn.pos.Report;
+import com.synature.pos.Payment;
+import com.synature.pos.Report;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -29,11 +29,11 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 	};
 	
 	private Context mContext;
-	private TransactionDao mTrans;
-	private PaymentDao mPayment;
-	private ShopDao mShop;
-	private StaffDao mStaff;
-	private FormatPropertyDao mFormat;
+	private Transaction mTrans;
+	private PaymentDetail mPayment;
+	private Shop mShop;
+	private Staffs mStaff;
+	private Formater mFormat;
 	private WhatPrint mWhatPrint;
 	private String mDateFrom;
 	private String mDateTo;
@@ -43,11 +43,11 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 	public PrintReport(Context context, String dateFrom, String dateTo, 
 			int staffId, WhatPrint whatPrint){
 		mContext = context;
-		mTrans = new TransactionDao(context.getApplicationContext());
-		mPayment = new PaymentDao(context.getApplicationContext());
-		mShop = new ShopDao(context.getApplicationContext());
-		mStaff = new StaffDao(context.getApplicationContext());
-		mFormat = new FormatPropertyDao(context.getApplicationContext());
+		mTrans = new Transaction(context.getApplicationContext());
+		mPayment = new PaymentDetail(context.getApplicationContext());
+		mShop = new Shop(context.getApplicationContext());
+		mStaff = new Staffs(context.getApplicationContext());
+		mFormat = new Formater(context.getApplicationContext());
 		mWhatPrint = whatPrint;
 		
 		mDateFrom = dateFrom;
@@ -201,7 +201,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 		
 		@Override
 		public void prepareDataToPrint() {
-			SessionDao session = new SessionDao(mContext.getApplicationContext());
+			Session session = new Session(mContext.getApplicationContext());
 			MPOSOrderTransaction trans = mTrans.getTransaction(session.getSessionDate()); 
 			MPOSOrderTransaction.MPOSOrderDetail summOrder 
 				= mTrans.getSummaryOrderInDay(session.getSessionDate(), session.getSessionDate());
@@ -287,7 +287,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			mBuilder.append(createHorizontalSpace(totalSaleText.length() + totalSale.length()));
 			mBuilder.append(totalSale + "\n");
 			
-			if(mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
+			if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
 				String beforeVatText = mContext.getString(R.string.before_vat);
 				String beforeVat = mFormat.currencyFormat(trans.getTransactionVatable() - trans.getTransactionVat());
 				String totalVatText = mContext.getString(R.string.total_vat);

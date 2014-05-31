@@ -2,17 +2,17 @@ package com.syn.mpos.dao;
 
 import java.util.List;
 
+import com.synature.pos.ShopData;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.pos.ShopData;
-
-public class ShopDao extends MPOSDatabase{
+public class Shop extends MPOSDatabase{
 	
-	public ShopDao(Context context){
+	public Shop(Context context){
 		super(context);
 	}
 	

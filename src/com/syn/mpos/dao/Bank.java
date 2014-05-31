@@ -3,16 +3,16 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.synature.pos.BankName;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.pos.BankName;
+public class Bank extends MPOSDatabase{
 
-public class BankNameDao extends MPOSDatabase{
-
-	public BankNameDao(Context context) {
+	public Bank(Context context) {
 		super(context);
 	}
 	

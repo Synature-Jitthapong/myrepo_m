@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.widget.BaseAdapter;
 
 import com.syn.mpos.dao.MPOSOrderTransaction;
-import com.syn.pos.OrderTransaction;
+import com.synature.pos.OrderTransaction;
 
 /**
  * @author j1tth4

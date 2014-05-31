@@ -3,14 +3,14 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.dao.ComputerDao.ComputerTable;
-import com.syn.mpos.dao.PaymentDao.PaymentDetailTable;
-import com.syn.mpos.dao.ProductsDao.ProductDeptTable;
-import com.syn.mpos.dao.ProductsDao.ProductGroupTable;
-import com.syn.mpos.dao.ProductsDao.ProductsTable;
-import com.syn.mpos.dao.TransactionDao.OrderDetailTable;
-import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
-import com.syn.pos.Report;
+import com.syn.mpos.dao.Computer.ComputerTable;
+import com.syn.mpos.dao.PaymentDetail.PaymentDetailTable;
+import com.syn.mpos.dao.Products.ProductDeptTable;
+import com.syn.mpos.dao.Products.ProductGroupTable;
+import com.syn.mpos.dao.Products.ProductsTable;
+import com.syn.mpos.dao.Transaction.OrderDetailTable;
+import com.syn.mpos.dao.Transaction.OrderTransactionTable;
+import com.synature.pos.Report;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -74,8 +74,8 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						mDateFrom,
 						mDateTo,
-						String.valueOf(TransactionDao.TRANS_STATUS_HOLD),
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+						String.valueOf(Transaction.TRANS_STATUS_HOLD),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
 				});
 		if(mainCursor.moveToFirst()){
 			do{
@@ -96,8 +96,8 @@ public class Reporting extends MPOSDatabase{
 						+ " GROUP BY a." + OrderTransactionTable.COLUMN_TRANSACTION_ID, 
 						new String[]{
 								mainCursor.getString(0),
-								String.valueOf(TransactionDao.TRANS_STATUS_HOLD),
-								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+								String.valueOf(Transaction.TRANS_STATUS_HOLD),
+								String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
 						});
 				if(detailCursor.moveToFirst()){
 					do{
@@ -208,8 +208,8 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE
 				+ " BETWEEN " + mDateFrom + " AND " + mDateTo
 				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN (" + TransactionDao.TRANS_STATUS_SUCCESS + ", "
-				+ TransactionDao.TRANS_STATUS_VOID + ")) AS SummTotalRetailPrice, "
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
+				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalRetailPrice, "
 				// total discount
 				+ " (SELECT SUM(o." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t "
@@ -219,8 +219,8 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE
 				+ " BETWEEN " + mDateFrom + " AND "
 				+ mDateTo + " AND t." + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN (" + TransactionDao.TRANS_STATUS_SUCCESS + ", "
-				+ TransactionDao.TRANS_STATUS_VOID + ")) AS SummTotalDiscount, " 
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
+				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalDiscount, " 
 				// total sale price
 				+ " (SELECT SUM(o." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + " + o."
 				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") "
@@ -231,8 +231,8 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE 
 				+ " BETWEEN " + mDateFrom + " AND " + mDateTo 
 				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID 
-				+ " IN (" + TransactionDao.TRANS_STATUS_SUCCESS + ", "
-				+ TransactionDao.TRANS_STATUS_VOID + ")) AS SummTotalSalePrice, "
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
+				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalSalePrice, "
 				// total payment
 				+ " (SELECT SUM(p." + PaymentDetailTable.COLUMN_PAY_AMOUNT +  ") "
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t " 
@@ -242,8 +242,8 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE 
 				+ " BETWEEN " + mDateFrom + " AND " + mDateTo 
 				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID 
-				+ " IN (" + TransactionDao.TRANS_STATUS_SUCCESS + ", "
-				+ TransactionDao.TRANS_STATUS_VOID + ")) AS SummTotalPayment "
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
+				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalPayment "
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
 				+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE
 				+ " BETWEEN ? AND ? "
@@ -254,8 +254,8 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						mDateFrom, 
 						mDateTo, 
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID),
 		});
 		if(cursor.moveToFirst()){
 			report.setVatable(cursor.getDouble(cursor.getColumnIndex("TransVatable")));
@@ -303,8 +303,8 @@ public class Reporting extends MPOSDatabase{
 
 		Cursor cursor = getReadableDatabase().rawQuery(strSql, 
 				new String[]{
-				String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-				String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+				String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+				String.valueOf(Transaction.TRANS_STATUS_VOID),
 				String.valueOf(mDateFrom), 
 				String.valueOf(mDateTo)});
 		
@@ -455,8 +455,8 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID),
 						String.valueOf(groupId)
 				});
 		
@@ -495,8 +495,8 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID),
 						String.valueOf(deptId)
 				});
 		
@@ -555,8 +555,8 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE
 				+ " BETWEEN " + mDateFrom + " AND " + mDateTo
 				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN (" + TransactionDao.TRANS_STATUS_SUCCESS + ", "
-				+ TransactionDao.TRANS_STATUS_VOID + ")) AS SummTotalQty, "
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
+				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalQty, "
 				// total retail price
 				+ " (SELECT SUM(o." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t "
@@ -568,8 +568,8 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE
 				+ " BETWEEN " + mDateFrom + " AND " + mDateTo
 				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN (" + TransactionDao.TRANS_STATUS_SUCCESS + ", "
-				+ TransactionDao.TRANS_STATUS_VOID + ")) AS SummTotalRetailPrice, "
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
+				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalRetailPrice, "
 				// total discount
 				+ " (SELECT SUM(o." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t "
@@ -581,8 +581,8 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE
 				+ " BETWEEN " + mDateFrom + " AND "
 				+ mDateTo + " AND t." + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN (" + TransactionDao.TRANS_STATUS_SUCCESS + ", "
-				+ TransactionDao.TRANS_STATUS_VOID + ")) AS SummTotalDiscount, " 
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
+				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalDiscount, " 
 				// total sale price
 				+ " (SELECT SUM(o." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + " + o."
 				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") "
@@ -595,8 +595,8 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE 
 				+ " BETWEEN " + mDateFrom + " AND " + mDateTo 
 				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID 
-				+ " IN (" + TransactionDao.TRANS_STATUS_SUCCESS + ", "
-				+ TransactionDao.TRANS_STATUS_VOID + ")) AS SummTotalSalePrice " 
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
+				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalSalePrice " 
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
 				+ " INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b "
 				+ " ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID 
@@ -610,8 +610,8 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID)
 				});
 		
 		if(cursor.moveToFirst()){

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.syn.mpos.dao.ComputerDao.ComputerTable;
-import com.syn.mpos.dao.ShopDao.ShopTable;
-import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
+import com.syn.mpos.dao.Computer.ComputerTable;
+import com.syn.mpos.dao.Shop.ShopTable;
+import com.syn.mpos.dao.Transaction.OrderTransactionTable;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,12 +14,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class SessionDao extends MPOSDatabase{
+public class Session extends MPOSDatabase{
 	
 	public static final int NOT_ENDDAY_STATUS = 0;
 	public static final int ALREADY_ENDDAY_STATUS = 1;
 	
-	public SessionDao(Context context) {
+	public Session(Context context) {
 		super(context);
 	}
 
@@ -290,11 +290,12 @@ public class SessionDao extends MPOSDatabase{
 
 		private static final String SQL_CREATE = "CREATE TABLE "
 				+ TABLE_SESSION_ENDDAY_DETAIL + " ( "
-				+ SessionTable.COLUMN_SESS_DATE + " TEXT, " + COLUMN_ENDDAY_DATE
-				+ " TEXT, " + COLUMN_TOTAL_QTY_RECEIPT + " INTEGER, "
-				+ COLUMN_TOTAL_AMOUNT_RECEIPT + " REAL, "
-				+ BaseColumn.COLUMN_SEND_STATUS + " INTEGER, " + "PRIMARY KEY ("
-				+ SessionTable.COLUMN_SESS_DATE + "));";
+				+ SessionTable.COLUMN_SESS_DATE + " TEXT, " 
+				+ COLUMN_ENDDAY_DATE + " TEXT, " 
+				+ COLUMN_TOTAL_QTY_RECEIPT + " INTEGER NOT NULL DEFAULT 0, "
+				+ COLUMN_TOTAL_AMOUNT_RECEIPT + " REAL NOT NULL DEFAULT 0, "
+				+ BaseColumn.COLUMN_SEND_STATUS + " INTEGER NOT NULL DEFAULT 0, " 
+				+ "PRIMARY KEY (" + SessionTable.COLUMN_SESS_DATE + "));";
 
 		public static void onCreate(SQLiteDatabase db) {
 			db.execSQL(SQL_CREATE);
@@ -318,20 +319,19 @@ public class SessionDao extends MPOSDatabase{
 		public static final String COLUMN_IS_ENDDAY = "is_endday";
 		
 		private static final String SQL_CREATE =
-				"CREATE TABLE " + TABLE_SESSION + " ( " +
-				COLUMN_SESS_ID + " INTEGER, " +
-				ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, " +
-				ShopTable.COLUMN_SHOP_ID + " INTEGER, " +
-				OrderTransactionTable.COLUMN_OPEN_STAFF + " INTEGER, " +
-				OrderTransactionTable.COLUMN_CLOSE_STAFF + " INTEGER, " +
-				COLUMN_SESS_DATE + " TEXT, " +
-				COLUMN_OPEN_DATE + " TEXT, " +
-				COLUMN_CLOSE_DATE + " TEXT, " +
-				COLUMN_OPEN_AMOUNT + " REAL, " +
-				COLUMN_CLOSE_AMOUNT + " REAL, " +
-				COLUMN_IS_ENDDAY + " INTEGER, " +
-				"PRIMARY KEY (" + COLUMN_SESS_ID + "));";
-		
+				"CREATE TABLE " + TABLE_SESSION + " ( " 
+				+ COLUMN_SESS_ID + " INTEGER, "
+				+ ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, "
+				+ ShopTable.COLUMN_SHOP_ID + " INTEGER, "
+				+ OrderTransactionTable.COLUMN_OPEN_STAFF + " INTEGER, "
+				+ OrderTransactionTable.COLUMN_CLOSE_STAFF + " INTEGER, "
+				+ COLUMN_SESS_DATE + " TEXT, " 
+				+ COLUMN_OPEN_DATE + " TEXT, "
+				+ COLUMN_CLOSE_DATE + " TEXT, " 
+				+ COLUMN_OPEN_AMOUNT + " REAL NOT NULL DEFAULT 0, " 
+				+ COLUMN_CLOSE_AMOUNT + " REAL NOT NULL DEFAULT 0, "
+				+ COLUMN_IS_ENDDAY + " INTEGER NOT NULL DEFAULT 0, " 
+				+ "PRIMARY KEY (" + COLUMN_SESS_ID + "));";
 		
 		public static void onCreate(SQLiteDatabase db) {
 			db.execSQL(SQL_CREATE);

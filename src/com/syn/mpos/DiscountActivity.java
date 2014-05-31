@@ -4,11 +4,11 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.syn.mpos.dao.FormatPropertyDao;
+import com.syn.mpos.dao.Formater;
 import com.syn.mpos.dao.MPOSOrderTransaction;
-import com.syn.mpos.dao.ProductsDao;
-import com.syn.mpos.dao.TransactionDao;
+import com.syn.mpos.dao.Products;
+import com.syn.mpos.dao.Transaction;
+import com.synature.exceptionhandler.ExceptionHandler;
 
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -44,10 +44,10 @@ public class DiscountActivity extends Activity{
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final String DISCOUNT_FRAGMENT_TAG = "DiscountDialog";
 	
-	private static FormatPropertyDao sFormat;
+	private static Formater sFormat;
 	
-	private TransactionDao mTrans;
-	private ProductsDao mProduct;
+	private Transaction mTrans;
+	private Products mProduct;
 	
 	private MPOSOrderTransaction.MPOSOrderDetail mOrder;
 	
@@ -88,9 +88,9 @@ public class DiscountActivity extends Activity{
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
-		mTrans = new TransactionDao(getApplicationContext());
-		mProduct = new ProductsDao(getApplicationContext());
-		sFormat = new FormatPropertyDao(getApplicationContext());
+		mTrans = new Transaction(getApplicationContext());
+		mProduct = new Products(getApplicationContext());
+		sFormat = new Formater(getApplicationContext());
 		
 		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		mDisAdapter = new DiscountAdapter();
@@ -103,7 +103,7 @@ public class DiscountActivity extends Activity{
 				MPOSOrderTransaction.MPOSOrderDetail order = 
 						(MPOSOrderTransaction.MPOSOrderDetail) parent.getItemAtPosition(position);
 				
-				ProductsDao p = new ProductsDao(getApplicationContext());
+				Products p = new Products(getApplicationContext());
 				if(p.getProduct(order.getProductId()).getDiscountAllow() == 1){
 					mPosition = position;
 					mOrder = order;

@@ -2,16 +2,16 @@ package com.syn.mpos.dao;
 
 import java.util.List;
 
+import com.synature.pos.ShopData;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.pos.ShopData;
+public  class Language extends MPOSDatabase{
 
-public  class LanguageDao extends MPOSDatabase{
-
-	public LanguageDao(Context context){
+	public Language(Context context){
 		super(context);
 	}
 	

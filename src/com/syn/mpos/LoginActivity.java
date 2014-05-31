@@ -2,13 +2,13 @@ package com.syn.mpos;
 
 import java.util.Calendar;
 
-import com.syn.mpos.dao.ComputerDao;
-import com.syn.mpos.dao.FormatPropertyDao;
-import com.syn.mpos.dao.Login;
-import com.syn.mpos.dao.SessionDao;
-import com.syn.mpos.dao.ShopDao;
+import com.syn.mpos.dao.Computer;
+import com.syn.mpos.dao.Formater;
+import com.syn.mpos.dao.UserVerification;
+import com.syn.mpos.dao.Session;
+import com.syn.mpos.dao.Shop;
 import com.syn.mpos.dao.Util;
-import com.syn.pos.ShopData;
+import com.synature.pos.ShopData;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -44,20 +44,20 @@ public class LoginActivity extends Activity{
 	 */
 	private boolean mIsFirstAccess = false;
 	
-	private ShopDao mShop;
-	private SessionDao mSession;
-	private ComputerDao mComputer;
-	private FormatPropertyDao mFormat;
+	private Shop mShop;
+	private Session mSession;
+	private Computer mComputer;
+	private Formater mFormat;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 		
-		mSession = new SessionDao(this);
-		mShop = new ShopDao(this);
-		mComputer = new ComputerDao(this);
-		mFormat = new FormatPropertyDao(this);
+		mSession = new Session(this);
+		mShop = new Shop(this);
+		mComputer = new Computer(this);
+		mFormat = new Formater(this);
 		
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction()
@@ -140,7 +140,7 @@ public class LoginActivity extends Activity{
 						final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
 						progress.setMessage(LoginActivity.this.getString(R.string.endday_progress));
 						progress.setCancelable(false);
-						MPOSUtil.doEndday(LoginActivity.this, mShop.getShopId(), 
+						MPOSUtil.endday(LoginActivity.this, mShop.getShopId(), 
 								mComputer.getComputerId(), mSession.getCurrentSessionId(), 
 								mStaffId, 0, true,
 								new ProgressListener(){
@@ -490,7 +490,7 @@ public class LoginActivity extends Activity{
 			
 			if(!placeHolder.mTxtPass.getText().toString().isEmpty()){
 				pass = placeHolder.mTxtPass.getText().toString();
-				Login login = new Login(getApplicationContext(), user, pass);
+				UserVerification login = new UserVerification(getApplicationContext(), user, pass);
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();
@@ -611,9 +611,9 @@ public class LoginActivity extends Activity{
 				.setText(getString(R.string.device_code) + ":" +
 						MPOSApplication.getDeviceCode(getActivity()));
 			
-			ShopDao shop = ((LoginActivity) getActivity()).mShop;
-			SessionDao session = ((LoginActivity) getActivity()).mSession;
-			FormatPropertyDao format = ((LoginActivity) getActivity()).mFormat;
+			Shop shop = ((LoginActivity) getActivity()).mShop;
+			Session session = ((LoginActivity) getActivity()).mSession;
+			Formater format = ((LoginActivity) getActivity()).mFormat;
 			
 			if(shop.getShopName() != null)
 				mTvShopName.setText(getString(R.string.shop) + " : " + shop.getShopName());
