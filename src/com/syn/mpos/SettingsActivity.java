@@ -15,12 +15,7 @@ import android.view.View;
 
 import java.util.List;
 
-import cn.wintec.wtandroidjar2.ComIO;
-import cn.wintec.wtandroidjar2.Printer;
-
-import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
-import com.epson.eposprint.Print;
 
 public class SettingsActivity extends PreferenceActivity {
 
@@ -29,6 +24,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_PRINTER_LIST = "printer_list";
 	public static final String KEY_PREF_PRINTER_FONT_LIST = "printer_font_list";
 	public static final String KEY_PREF_PRINTER_INTERNAL = "printer_internal";
+	public static final String KEY_PREF_SHOW_MENU_IMG = "show_menu_image";
 	
 	private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
@@ -46,6 +42,7 @@ public class SettingsActivity extends PreferenceActivity {
 			return;
 		}
 		
+		addPreferencesFromResource(R.xml.pref_connection);
 		addPreferencesFromResource(R.xml.pref_general);
 		addPreferencesFromResource(R.xml.pref_printer);
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
@@ -133,79 +130,85 @@ public class SettingsActivity extends PreferenceActivity {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_general);
-
+			addPreferencesFromResource(R.xml.pref_connection);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
 		}
 	}
 	
+	public static class GeneralPreferenceFragment extends PreferenceFragment{
+
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_general);
+		}
+		
+	}
+	
 	public void printTestClick(final View v){
 		if(MPOSApplication.getInternalPrinterSetting(getApplicationContext())){
-			wintecTestPrint();
+			WinTecTestPrint wt = new WinTecTestPrint(getApplicationContext());
+			wt.prepareDataToPrint();
+			wt.print();
 		}else{
-			epsonTestPrint();
+			EPSONTestPrint ep = new EPSONTestPrint(getApplicationContext());
+			ep.prepareDataToPrint();
+			ep.print();
 		}
 	}
 	
-	private void wintecTestPrint(){
-		Printer printer=null;
-		final String devicePath = "/dev/ttySAC1";
-		final ComIO.Baudrate baudrate = ComIO.Baudrate.valueOf("BAUD_38400");
-		printer = new Printer(devicePath,baudrate);
+	public static class WinTecTestPrint extends WintecPrinter{
 		
-		String[] subElement = getApplicationContext().getString(R.string.print_test_text).split("\n");
-    	for(int i=0;i < subElement.length;i++){
-    		String data = subElement[i].replace("*", " ");
-    		printer.PRN_Print(data);
+		private Context mContext;
+		
+		public WinTecTestPrint(Context context){
+			mContext = context;
 		}
-    	printer.PRN_PrintAndFeedLine(6);		
-		printer.PRN_HalfCutPaper();	
-		printer.PRN_Close();
+		
+		@Override
+		public void prepareDataToPrint(int transactionId) {
+		}
+
+		@Override
+		public void prepareDataToPrint() {
+			mBuilder.append(mContext.getString(R.string.print_test_text));
+		}
+		
 	}
 	
-	private void epsonTestPrint(){
-		Print printer = new Print();
-		try {
-			printer.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(getApplicationContext()), 0, 1000);
-			Builder builder = new Builder(MPOSApplication.getEPSONModelName(getApplicationContext()), Builder.MODEL_ANK, 
-					getApplicationContext());
-			if(MPOSApplication.getEPSONPrinterFont(getApplicationContext()).equals("a")){
-				builder.addTextFont(Builder.FONT_A);
-			}else if(MPOSApplication.getEPSONPrinterFont(getApplicationContext()).equals("b")){
-				builder.addTextFont(Builder.FONT_B);
-			}
-			String printText = getApplicationContext().getString(R.string.print_test_text).replaceAll("\\*", " ");
-			builder.addTextAlign(Builder.ALIGN_CENTER);
-			builder.addTextSize(1, 1);
-			builder.addText(printText);
-			builder.addFeedUnit(30);
-			builder.addCut(Builder.CUT_FEED);
+	public static class EPSONTestPrint extends EPSONPrinter{
 
-			// send builder data
-			int[] status = new int[1];
-			int[] battery = new int[1];
-			try {
-				printer.sendData(builder, 10000, status, battery);
-			} catch (EposException e) {
-				e.printStackTrace();
-			}
-			if (builder != null) {
-				builder.clearCommandBuffer();
-			}
-		} catch (EposException e) {
-			switch(e.getErrorStatus()){
-			case EposException.ERR_CONNECT:
-				MPOSUtil.makeToask(SettingsActivity.this, e.getMessage());
-				break;
-			default :
-				MPOSUtil.makeToask(SettingsActivity.this, SettingsActivity.this.getString(R.string.not_found_printer));
-			}
-		}	
-		try {
-			printer.closePrinter();
-			printer = null;
-		} catch (EposException e) {
-			e.printStackTrace();
+		public EPSONTestPrint(Context context) {
+			super(context);
 		}
+
+		@Override
+		public void onBatteryStatusChangeEvent(String arg0, int arg1) {
+		}
+
+		@Override
+		public void onStatusChangeEvent(String arg0, int arg1) {
+		}
+
+		@Override
+		public void prepareDataToPrint(int transactionId) {
+		}
+
+		@Override
+		public void prepareDataToPrint() {
+			String printText = mContext.getString(R.string.print_test_text).replaceAll("\\*", " ");
+			try {
+				mBuilder.addText(printText);
+			} catch (EposException e) {
+				switch(e.getErrorStatus()){
+				case EposException.ERR_CONNECT:
+					MPOSUtil.makeToask(mContext, e.getMessage());
+					break;
+				default :
+					MPOSUtil.makeToask(mContext, mContext.getString(R.string.not_found_printer));
+				}
+			}
+		}
+		
 	}
 }

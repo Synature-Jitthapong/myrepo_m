@@ -13,8 +13,8 @@
         <item >@string/font_small</item>
     </string-array>
     <string-array name="pref_printer_font_value">
-        <item >a</item>
         <item >b</item>
+        <item >c</item>
     </string-array>
     <string name="font_medium">Medium</string>
     <string name="font_small">Small</string>

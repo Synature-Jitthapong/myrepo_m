@@ -5,6 +5,9 @@
     <header
         android:fragment="com.syn.mpos.SettingsActivity$ConnectionPreferenceFragment"
         android:title="@string/connection"/>
+    <header
+        android:fragment="com.syn.mpos.SettingsActivity$GeneralPreferenceFragment"
+        android:title="@string/general_setting"/>
 	<header
         android:fragment="com.syn.mpos.SettingsActivity$PrinterPreferenceFragment"
         android:title="@string/printer_setting"/>

@@ -253,25 +253,24 @@ containing a value of this type.
         public static final int itemCloseShift=0x7f0b00e1;
         public static final int itemConfirm=0x7f0b00d2;
         public static final int itemContainer=0x7f0b006f;
-        public static final int itemCreateReport=0x7f0b00e8;
-        public static final int itemDateCondition=0x7f0b00e7;
+        public static final int itemCreateReport=0x7f0b00e7;
+        public static final int itemDateCondition=0x7f0b00e6;
         public static final int itemDirectReceive=0x7f0b00da;
         public static final int itemEndday=0x7f0b00e2;
         public static final int itemHoldBill=0x7f0b00d8;
         public static final int itemInventory=0x7f0b00d9;
-        public static final int itemLogout=0x7f0b00e5;
-        public static final int itemPrint=0x7f0b00e9;
+        public static final int itemLogout=0x7f0b00e4;
+        public static final int itemPrint=0x7f0b00e8;
         public static final int itemProgress=0x7f0b00d1;
         public static final int itemReport=0x7f0b00dd;
-        public static final int itemReportType=0x7f0b00e6;
+        public static final int itemReportType=0x7f0b00e5;
         public static final int itemReprint=0x7f0b00df;
         public static final int itemSendAll=0x7f0b00d0;
         public static final int itemSendSale=0x7f0b00d7;
         public static final int itemSetting=0x7f0b00d3;
         public static final int itemStockCard=0x7f0b00dc;
         public static final int itemStockCount=0x7f0b00db;
-        public static final int itemSwUser=0x7f0b00e4;
-        public static final int itemTestPrintSummary=0x7f0b00e3;
+        public static final int itemSwUser=0x7f0b00e3;
         public static final int itemUpdate=0x7f0b00d5;
         public static final int itemUtility=0x7f0b00de;
         public static final int itemVoid=0x7f0b00e0;
@@ -581,10 +580,11 @@ containing a value of this type.
         public static final int fax_no=0x7f050095;
         public static final int female=0x7f05008c;
         public static final int font=0x7f0500f1;
-        public static final int font_medium=0x7f050001;
-        public static final int font_small=0x7f050002;
+        public static final int font_medium=0x7f050002;
+        public static final int font_small=0x7f050001;
         public static final int gender=0x7f050087;
         public static final int general=0x7f0500bd;
+        public static final int general_setting=0x7f050129;
         public static final int grand_total=0x7f05011e;
         public static final int hello_world=0x7f05009a;
         public static final int hold=0x7f050042;
@@ -702,6 +702,7 @@ containing a value of this type.
         public static final int setting=0x7f0500a1;
         public static final int shop=0x7f050118;
         public static final int shop_info=0x7f05007a;
+        public static final int show_menu_image=0x7f050128;
         public static final int software_info=0x7f050069;
         public static final int spinner_please_select=0x7f050106;
         public static final int staff=0x7f050053;
@@ -825,10 +826,11 @@ containing a value of this type.
         public static final int HeaderText=0x7f060004;
     }
     public static final class xml {
-        public static final int pref_general=0x7f040000;
-        public static final int pref_headers=0x7f040001;
-        public static final int pref_printer=0x7f040002;
-        public static final int searchable=0x7f040003;
+        public static final int pref_connection=0x7f040000;
+        public static final int pref_general=0x7f040001;
+        public static final int pref_headers=0x7f040002;
+        public static final int pref_printer=0x7f040003;
+        public static final int searchable=0x7f040004;
     }
     public static final class styleable {
         /** Attributes that can be used with a PagerSlidingTabStrip.

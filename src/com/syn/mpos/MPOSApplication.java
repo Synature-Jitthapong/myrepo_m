@@ -87,9 +87,15 @@ public class MPOSApplication extends Application {
 		} catch (MalformedURLException e) {
 			// not found protocal
 			url = "http://" + url;
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return url;
+	}
+	
+	public static boolean isShowMenuImage(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_SHOW_MENU_IMG, true);
 	}
 
 	@Override

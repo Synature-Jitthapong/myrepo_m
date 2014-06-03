@@ -213,13 +213,6 @@ public class MainActivity extends FragmentActivity{
 				intent = new Intent(getActivity(), SettingsActivity.class);
 				startActivity(intent);
 				return true;
-			/*
-			 * Test
-			 */
-			case R.id.itemTestPrintSummary:
-				new PrintReport(getActivity(), activity.mStaffId, 
-						PrintReport.WhatPrint.SUMMARY_SALE).execute();
-				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 			}
@@ -355,7 +348,8 @@ public class MainActivity extends FragmentActivity{
 						android.R.style.TextAppearance_Holo_Medium, 0));
 			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.total),
-					activity.mFormat.currencyFormat(sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()),
+					activity.mFormat.currencyFormat(MPOSUtil.roundingPrice(
+							sumOrder.getTotalSalePrice() + sumOrder.getVatExclude())),
 					android.R.style.TextAppearance_Holo_Large, 32));
 			
 			// display summary to customer display
@@ -894,9 +888,11 @@ public class MainActivity extends FragmentActivity{
 					holder.tvPrice.setText(((MainActivity) 
 							getActivity()).mFormat.currencyFormat(p.getProductPrice()));
 
-				((MainActivity) getActivity()).mImageLoader.displayImage(
-						MPOSApplication.getImageUrl(getActivity()) + 
-						p.getImgUrl(), holder.imgMenu);
+				if(MPOSApplication.isShowMenuImage(getActivity())){
+					((MainActivity) getActivity()).mImageLoader.displayImage(
+							MPOSApplication.getImageUrl(getActivity()) + 
+							p.getImgUrl(), holder.imgMenu);
+				}
 				return convertView;
 			}
 		}
@@ -1543,7 +1539,7 @@ public class MainActivity extends FragmentActivity{
 			final int productTypeId, final int vatType, final double vatRate, final double qty, double price){
 		if(price > -1){
 			mTrans.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
-					productId, productName, productTypeId, vatType, vatRate, qty, price);
+					productId, productTypeId, vatType, vatRate, qty, price);
 			mDsp.setOrderName(productName);
 			mDsp.setOrderQty(mFormat.qtyFormat(qty));
 			mDsp.setOrderPrice(mFormat.currencyFormat(price));
@@ -1578,7 +1574,7 @@ public class MainActivity extends FragmentActivity{
 					try {
 						openPrice = MPOSUtil.stringToDouble(txtProductPrice.getText().toString());
 						mTrans.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
-								productId, productName, productTypeId, vatType, vatRate, qty, openPrice);
+								productId, productTypeId, vatType, vatRate, qty, openPrice);
 
 						mDsp.setOrderName(productName);
 						mDsp.setOrderQty(mFormat.qtyFormat(qty));
