@@ -3,9 +3,9 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.mpos.dao.ProductsDao.Product;
-import com.syn.mpos.dao.ProductsDao.ProductComponentGroup;
-import com.syn.pos.OrderTransaction;
+import com.syn.mpos.dao.Products.Product;
+import com.syn.mpos.dao.Products.ProductComponentGroup;
+import com.synature.pos.OrderTransaction;
 
 public class MPOSOrderTransaction extends OrderTransaction{
 	

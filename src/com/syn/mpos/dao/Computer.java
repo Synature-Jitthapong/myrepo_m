@@ -2,17 +2,17 @@ package com.syn.mpos.dao;
 
 import java.util.List;
 
+import com.synature.pos.ShopData;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.pos.ShopData;
+public class Computer extends MPOSDatabase{
 
-public class ComputerDao extends MPOSDatabase{
-
-	public ComputerDao(Context context) {
+	public Computer(Context context) {
 		super(context);
 	}
 

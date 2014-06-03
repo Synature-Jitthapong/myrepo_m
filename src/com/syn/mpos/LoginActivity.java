@@ -2,13 +2,13 @@ package com.syn.mpos;
 
 import java.util.Calendar;
 
-import com.syn.mpos.dao.ComputerDao;
-import com.syn.mpos.dao.FormatPropertyDao;
-import com.syn.mpos.dao.Login;
-import com.syn.mpos.dao.SessionDao;
-import com.syn.mpos.dao.ShopDao;
+import com.syn.mpos.dao.Computer;
+import com.syn.mpos.dao.Formater;
+import com.syn.mpos.dao.UserVerification;
+import com.syn.mpos.dao.Session;
+import com.syn.mpos.dao.Shop;
 import com.syn.mpos.dao.Util;
-import com.syn.pos.ShopData;
+import com.synature.pos.ShopData;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -44,24 +44,24 @@ public class LoginActivity extends Activity{
 	 */
 	private boolean mIsFirstAccess = false;
 	
-	private ShopDao mShop;
-	private SessionDao mSession;
-	private ComputerDao mComputer;
-	private FormatPropertyDao mFormat;
+	private Shop mShop;
+	private Session mSession;
+	private Computer mComputer;
+	private Formater mFormat;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 		
-		mSession = new SessionDao(this);
-		mShop = new ShopDao(this);
-		mComputer = new ComputerDao(this);
-		mFormat = new FormatPropertyDao(this);
+		mSession = new Session(this);
+		mShop = new Shop(this);
+		mComputer = new Computer(this);
+		mFormat = new Formater(this);
 		
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction()
-				.add(R.id.loginContent, new Placeholder()).commit();
+				.add(R.id.loginContent, new LargeScreenFragment()).commit();
 		}
 	}
 
@@ -140,7 +140,7 @@ public class LoginActivity extends Activity{
 						final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
 						progress.setMessage(LoginActivity.this.getString(R.string.endday_progress));
 						progress.setCancelable(false);
-						MPOSUtil.doEndday(LoginActivity.this, mShop.getShopId(), 
+						MPOSUtil.endday(LoginActivity.this, mShop.getShopId(), 
 								mComputer.getComputerId(), mSession.getCurrentSessionId(), 
 								mStaffId, 0, true,
 								new ProgressListener(){
@@ -198,21 +198,7 @@ public class LoginActivity extends Activity{
 			startActivity(intent);
 			return true;
 		case R.id.itemUpdate:
-			MPOSUtil.updateData(LoginActivity.this, new ProgressListener(){
-
-				@Override
-				public void onPre() {
-				}
-
-				@Override
-				public void onPost() {
-				}
-
-				@Override
-				public void onError(String msg) {
-				}
-				
-			});
+			updateData();
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
@@ -226,46 +212,142 @@ public class LoginActivity extends Activity{
 		}
 	}
 
+	private void updateData(){
+		final ProgressDialog progress = new ProgressDialog(this);
+		progress.setCancelable(false);
+		final MPOSWebServiceClient service = new MPOSWebServiceClient();
+		// checking device
+		service.authenDevice(this, new MPOSWebServiceClient.AuthenDeviceListener() {
+			
+			@Override
+			public void onPre() {
+				progress.setTitle(R.string.update_data);
+				progress.setMessage(getString(R.string.check_device_progress));
+				progress.show();
+			}
+			
+			@Override
+			public void onPost() {
+			}
+			
+			@Override
+			public void onError(String msg) {
+				if(progress.isShowing())
+					progress.dismiss();
+				new AlertDialog.Builder(LoginActivity.this)
+				.setCancelable(false)
+				.setTitle(R.string.update_data)
+				.setMessage(msg)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				}).show();
+			}
+			
+			@Override
+			public void onPost(final int shopId) {
+				// load shop data
+				service.loadShopData(LoginActivity.this, shopId, new ProgressListener(){
+
+					@Override
+					public void onPre() {
+						progress.setMessage(getString(R.string.update_shop_progress));
+					}
+
+					@Override
+					public void onPost() {
+						// load product datat
+						service.loadProductData(LoginActivity.this, shopId, new ProgressListener(){
+
+							@Override
+							public void onPre() {
+								progress.setMessage(getString(R.string.update_product_progress));
+							}
+
+							@Override
+							public void onPost() {
+								if(progress.isShowing())
+									progress.dismiss();
+								new AlertDialog.Builder(LoginActivity.this)
+								.setCancelable(false)
+								.setTitle(R.string.update_data)
+								.setMessage(R.string.update_data_success)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+										finish();
+									}
+								}).show();
+							}
+
+							@Override
+							public void onError(String msg) {
+								if(progress.isShowing())
+									progress.dismiss();
+								new AlertDialog.Builder(LoginActivity.this)
+								.setCancelable(false)
+								.setTitle(R.string.update_data)
+								.setMessage(msg)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+									}
+								}).show();
+							}
+							
+						});
+					}
+
+					@Override
+					public void onError(String msg) {
+						if(progress.isShowing())
+							progress.dismiss();
+						new AlertDialog.Builder(LoginActivity.this)
+						.setCancelable(false)
+						.setTitle(R.string.update_data)
+						.setMessage(msg)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						}).show();
+					}
+					
+				});
+			}
+		});
+	}
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
-		if(url.equals("")){
+		if(url.isEmpty()){
 			mIsFirstAccess = true;
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 		}else{
 
-			Placeholder placeHolder = (Placeholder) 
+			LargeScreenFragment placeHolder = (LargeScreenFragment) 
 					getFragmentManager().findFragmentById(R.id.loginContent);
 			
 			placeHolder.mTxtUser.requestFocus();
 			if(mIsFirstAccess){
-				MPOSUtil.updateData(this, new ProgressListener(){
-		
-					@Override
-					public void onPre() {
-					}
-		
-					@Override
-					public void onPost() {
-						mIsFirstAccess = false;
-						startActivity(new Intent(LoginActivity.this, LoginActivity.class));
-					}
-		
-					@Override
-					public void onError(String msg) {
-					}
-					
-				});
+				updateData();
 			}
 		}
 	}
 			
 	private void gotoMainActivity(){
-		Placeholder placeHolder = (Placeholder) 
+		LargeScreenFragment placeHolder = (LargeScreenFragment) 
 				getFragmentManager().findFragmentById(R.id.loginContent);
 		placeHolder.mTxtUser.setText(null);
 		placeHolder.mTxtPass.setText(null);
@@ -284,22 +366,110 @@ public class LoginActivity extends Activity{
 			final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 			intent.putExtra("staffId", mStaffId);
 			if(mIsFirstAccess){
-				MPOSUtil.updateData(this, new ProgressListener(){
-
+				final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
+				progress.setCancelable(false);
+				final MPOSWebServiceClient service = new MPOSWebServiceClient();
+				// check device
+				service.authenDevice(LoginActivity.this, new MPOSWebServiceClient.AuthenDeviceListener() {
+					
 					@Override
 					public void onPre() {
-					}
-
-					@Override
-					public void onPost() {
-						startActivity(intent);
-						finish();
-					}
-
-					@Override
-					public void onError(String msg) {
+						progress.setTitle(R.string.update_data);
+						progress.setMessage(getString(R.string.check_device_progress));
+						progress.show();
 					}
 					
+					@Override
+					public void onPost() {
+					}
+					
+					@Override
+					public void onError(String msg) {
+						if(progress.isShowing())
+							progress.dismiss();
+						new AlertDialog.Builder(LoginActivity.this)
+						.setCancelable(false)
+						.setTitle(R.string.update_data)
+						.setMessage(msg)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								startActivity(intent);
+								finish();
+							}
+						}).show();
+					}
+					
+					@Override
+					public void onPost(int shopId) {
+						// load shop data
+						service.loadShopData(LoginActivity.this, mShop.getShopId(), new ProgressListener(){
+
+							@Override
+							public void onPre() {
+								progress.setMessage(getString(R.string.update_shop_progress));
+							}
+
+							@Override
+							public void onPost() {
+								// load product data
+								service.loadProductData(LoginActivity.this, mShop.getShopId(), new ProgressListener(){
+
+									@Override
+									public void onPre() {
+										progress.setMessage(getString(R.string.update_product_progress));
+									}
+
+									@Override
+									public void onPost() {
+										if(progress.isShowing())
+											progress.dismiss();
+										startActivity(intent);
+										finish();
+									}
+
+									@Override
+									public void onError(String msg) {
+										if(progress.isShowing())
+											progress.dismiss();
+										new AlertDialog.Builder(LoginActivity.this)
+										.setCancelable(false)
+										.setTitle(R.string.update_data)
+										.setMessage(msg)
+										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+											
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+												startActivity(intent);
+												finish();
+											}
+										}).show();
+									}
+									
+								});
+							}
+
+							@Override
+							public void onError(String msg) {
+								if(progress.isShowing())
+									progress.dismiss();
+								new AlertDialog.Builder(LoginActivity.this)
+								.setCancelable(false)
+								.setTitle(R.string.update_data)
+								.setMessage(msg)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										startActivity(intent);
+										finish();
+									}
+								}).show();
+							}
+							
+						});
+					}
 				});
 			}else{
 				startActivity(intent);
@@ -312,7 +482,7 @@ public class LoginActivity extends Activity{
 		String user = "";
 		String pass = "";
 	
-		Placeholder placeHolder = (Placeholder) 
+		LargeScreenFragment placeHolder = (LargeScreenFragment) 
 				getFragmentManager().findFragmentById(R.id.loginContent);
 		
 		if(!placeHolder.mTxtUser.getText().toString().isEmpty()){
@@ -320,7 +490,7 @@ public class LoginActivity extends Activity{
 			
 			if(!placeHolder.mTxtPass.getText().toString().isEmpty()){
 				pass = placeHolder.mTxtPass.getText().toString();
-				Login login = new Login(getApplicationContext(), user, pass);
+				UserVerification login = new UserVerification(getApplicationContext(), user, pass);
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();
@@ -386,15 +556,15 @@ public class LoginActivity extends Activity{
 		}
 	}
 	
-	public static class Placeholder extends Fragment{
-		
+	public static class LargeScreenFragment extends Fragment{
+
 		private Button mBtnLogin;
 		private EditText mTxtUser;
 		private EditText mTxtPass;
 		private TextView mTvShopName;
 		private TextView mTvSaleDate;
-		
-		public Placeholder(){
+
+		public LargeScreenFragment(){
 		}
 		
 		@Override
@@ -436,10 +606,14 @@ public class LoginActivity extends Activity{
 				}
 				
 			});
+
+			((TextView) rootView.findViewById(R.id.tvDeviceCode))
+				.setText(getString(R.string.device_code) + ":" +
+						MPOSApplication.getDeviceCode(getActivity()));
 			
-			ShopDao shop = ((LoginActivity) getActivity()).mShop;
-			SessionDao session = ((LoginActivity) getActivity()).mSession;
-			FormatPropertyDao format = ((LoginActivity) getActivity()).mFormat;
+			Shop shop = ((LoginActivity) getActivity()).mShop;
+			Session session = ((LoginActivity) getActivity()).mSession;
+			Formater format = ((LoginActivity) getActivity()).mFormat;
 			
 			if(shop.getShopName() != null)
 				mTvShopName.setText(getString(R.string.shop) + " : " + shop.getShopName());

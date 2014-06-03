@@ -5,11 +5,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import com.j1tth4.exceptionhandler.ExceptionHandler;
-import com.syn.mpos.dao.FormatPropertyDao;
+import com.syn.mpos.dao.Formater;
 import com.syn.mpos.dao.MPOSOrderTransaction;
-import com.syn.mpos.dao.PrintReceiptLogDao;
-import com.syn.mpos.dao.TransactionDao;
+import com.syn.mpos.dao.PrintReceiptLog;
+import com.syn.mpos.dao.Transaction;
+import com.synature.exceptionhandler.ExceptionHandler;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -37,8 +37,8 @@ import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
 	
-	private TransactionDao mTrans;
-	private FormatPropertyDao mFormat;
+	private Transaction mTrans;
+	private Formater mFormat;
 	
 	private List<MPOSOrderTransaction> mTransLst;
 	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderLst;
@@ -88,8 +88,8 @@ public class VoidBillActivity extends Activity {
 	    tvSaleDate = (TextView) findViewById(R.id.tvSaleDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 
-		mTrans = new TransactionDao(getApplicationContext());
-		mFormat = new FormatPropertyDao(getApplicationContext());
+		mTrans = new Transaction(getApplicationContext());
+		mFormat = new Formater(getApplicationContext());
 		mTransLst = new ArrayList<MPOSOrderTransaction>();
 		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		mBillAdapter = new BillAdapter();
@@ -122,9 +122,9 @@ public class VoidBillActivity extends Activity {
 				mReceiptNo = trans.getReceiptNo();
 				mReceiptDate = mFormat.dateTimeFormat(c.getTime());
 				
-				if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
+				if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_SUCCESS)
 					mItemConfirm.setEnabled(true);
-				else if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID)
+				else if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID)
 					mItemConfirm.setEnabled(false);
 				searchVoidItem();
 			}
@@ -206,7 +206,7 @@ public class VoidBillActivity extends Activity {
 			}
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
 			holder.tvPaidTime.setText(mFormat.dateTimeFormat(c.getTime()));
-			if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID){
+			if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
 				holder.tvReceiptNo.setTextColor(Color.RED);
 				holder.tvReceiptNo.setPaintFlags(holder.tvReceiptNo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			}else{
@@ -360,8 +360,8 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void printReceipt(){
-		PrintReceiptLogDao printLog = 
-				new PrintReceiptLogDao(getApplicationContext());
+		PrintReceiptLog printLog = 
+				new PrintReceiptLog(getApplicationContext());
 		printLog.insertLog(mTransactionId, mStaffId);
 		
 		new PrintReceipt(VoidBillActivity.this, new PrintReceipt.PrintStatusListener() {
@@ -387,7 +387,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void sendSale(){
-		MPOSUtil.doSendSale(VoidBillActivity.this, mShopId, mComputerId, mStaffId, 
+		MPOSUtil.sendSale(VoidBillActivity.this, mShopId, mComputerId, mStaffId, 
 				false, new ProgressListener(){
 
 			@Override

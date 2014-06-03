@@ -1,5 +1,6 @@
 <resources>
-
+    <style name="BodyText" parent="BaseBodyText"></style>
+    <style name="HeaderText" parent="BaseHeaderText"></style>
     <!--
         Base application theme for API 11+. This theme completely replaces
         AppBaseTheme from res/values/styles.xml on API 11+ devices.

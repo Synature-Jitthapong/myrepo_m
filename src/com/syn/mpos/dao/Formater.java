@@ -8,15 +8,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.synature.pos.ShopData;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.pos.ShopData;
-
-public class FormatPropertyDao extends MPOSDatabase{
+public class Formater extends MPOSDatabase{
 	
 	public static final String[] COLUMNS = {
 		GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL,
@@ -28,7 +28,7 @@ public class FormatPropertyDao extends MPOSDatabase{
 		GlobalPropertyTable.COLUMN_TIME_FORMAT
 	};
 	
-	public FormatPropertyDao(Context context) {
+	public Formater(Context context) {
 		super(context);
 	}
 

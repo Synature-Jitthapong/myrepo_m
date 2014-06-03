@@ -61,7 +61,7 @@
     <string name="remark">Remark</string>
     <string name="update_product_data">Update Product</string>
     <string name="update_product_progress">Update product data&#8230;</string>
-    <string name="check_device">Check device</string>
+    <string name="check_device_progress">Checking device please wait...</string>
     <string name="update_shop_progress">Update shop data&#8230;</string>
     <string name="update_menu_progress">Update menu data&#8230;</string>
     <string name="error">Error</string>
@@ -243,7 +243,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="cannot_endday_have_order">Clear current order first!</string>
     <string name="barcode">Barcode</string>
     <string name="font">Font</string>
-    <string name="device_code">Device Code:</string>
+    <string name="device_code">Device Code</string>
     <string name="reprint_receipt">Reprint Receipt</string>
     <string name="plus">+</string>
     <string name="minus">-</string>
@@ -293,5 +293,9 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="receipt">Receipt</string>
     <string name="time">Time</string>
     <string name="endday_report">End Day Report</string>
+    <string name="cannot_update_data">Cannot update data.</string>
+    <string name="cannot_connect_to_network">Cannot connect to network.</string>
+    <string name="welcome_to">Welcome to</string>
+    <string name="promise_system">pRoMiSe System</string>
 
 </resources>

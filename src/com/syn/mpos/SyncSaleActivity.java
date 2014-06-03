@@ -3,13 +3,13 @@ package com.syn.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.j1tth4.exceptionhandler.ExceptionHandler;
 import com.syn.mpos.dao.BaseColumn;
-import com.syn.mpos.dao.ComputerDao.ComputerTable;
+import com.syn.mpos.dao.Computer.ComputerTable;
 import com.syn.mpos.dao.MPOSDatabase;
-import com.syn.mpos.dao.TransactionDao;
-import com.syn.mpos.dao.TransactionDao.OrderTransactionTable;
-import com.syn.pos.OrderTransaction;
+import com.syn.mpos.dao.Transaction;
+import com.syn.mpos.dao.Transaction.OrderTransactionTable;
+import com.synature.exceptionhandler.ExceptionHandler;
+import com.synature.pos.OrderTransaction;
 
 import android.app.Activity;
 import android.content.Context;
@@ -102,7 +102,7 @@ public class SyncSaleActivity extends Activity{
 	}
 
 	private void sendSale(){
-		MPOSUtil.doSendSale(SyncSaleActivity.this,
+		MPOSUtil.sendSale(SyncSaleActivity.this,
 				mShopId, mComputerId, mStaffId, true, new ProgressListener(){
 
 			@Override
@@ -145,7 +145,7 @@ public class SyncSaleActivity extends Activity{
 				}, OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " +
 					BaseColumn.COLUMN_SEND_STATUS + " IN(?,?) ", 
 				new String[]{
-					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND),
 				 	String.valueOf(MPOSDatabase.ALREADY_SEND)
 				}, null, null, OrderTransactionTable.COLUMN_TRANSACTION_ID);

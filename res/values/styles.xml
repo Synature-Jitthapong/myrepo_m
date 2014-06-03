@@ -1,46 +1,4 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Table Style -->
-    <style name="HeaderRow">
-		<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">wrap_content</item>
-	</style>
-	<style name="HeaderText">
-		<item name="android:textColor">@color/blue_green</item>
-		<item name="android:shadowColor">@color/text_shadow</item>
-		<item name="android:shadowDx">1</item>
-		<item name="android:shadowDy">1</item>
-		<item name="android:lines">1</item>
-		<item name="android:shadowRadius">1.0</item>
-		<item name="android:padding">5dp</item>
-		<item name="android:gravity">center</item>
-		<item name="android:textStyle">bold</item>
-		<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">wrap_content</item>
-	</style>
-	<style name="BodyRow">
-		<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">wrap_content</item>
-	</style>
-	<style name="BodyText">
-		<item name="android:shadowColor">@color/text_shadow</item>
-		<item name="android:shadowDx">1</item>
-		<item name="android:shadowDy">1</item>
-		<item name="android:shadowRadius">1.0</item>
-		<item name="android:lines">1</item>
-		<item name="android:padding">5dp</item>
-		<item name="android:gravity">center</item>
-		<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">wrap_content</item>
-	</style>
-
-    <!-- Application theme. 
-    	<item name="android:actionBarStyle">@style/ActionBarStyle</item>
-       	<item name="android:actionMenuTextColor">@color/smoke_white</item>
-        <item name="android:windowBackground">@color/light_gray</item>
-        <item name="android:background">@drawable/actionbar_background</item>
-    	<item name="android:actionBarStyle">@android:style/Widget.Holo.Light.ActionBar.Solid</item>
-        <item name="android:windowBackground">@color/light_gray</item>
-       	-->
     <style name="ActivityDialogTheme" parent="BaseActivityDialogTheme">
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -48,6 +6,8 @@
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:windowIsTranslucent">true</item>
     </style>
+	<style name="BodyText" parent="BaseBodyText"></style>
+    <style name="HeaderText" parent="BaseHeaderText"></style>
     <style name="AppTheme" parent="AppBaseTheme">
     </style>
 </resources>

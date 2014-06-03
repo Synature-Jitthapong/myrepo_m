@@ -51,13 +51,13 @@ public class MPOSApplication extends Application {
 		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_PRINTER_INTERNAL, false);
 	}
 	
-	public static String getPrinterFont(Context context) {
+	public static String getEPSONPrinterFont(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_FONT_LIST, "");
 	}
 	
-	public static String getPrinterName(Context context) {
+	public static String getEPSONModelName(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_LIST, "");
@@ -101,7 +101,7 @@ public class MPOSApplication extends Application {
 	}
 	
 	private void showCustomerDisplay(){
-		WintecCustomerDisplay wd = new WintecCustomerDisplay();
+		WintecCustomerDisplay wd = new WintecCustomerDisplay(getApplicationContext());
 		wd.displayWelcome();
 	}
 }

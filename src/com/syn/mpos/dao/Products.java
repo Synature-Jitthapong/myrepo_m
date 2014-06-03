@@ -3,8 +3,8 @@ package com.syn.mpos.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.syn.pos.MenuGroups;
-import com.syn.pos.ProductGroups;
+import com.synature.pos.MenuGroups;
+import com.synature.pos.ProductGroups;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,7 +12,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class ProductsDao extends MPOSDatabase {
+public class Products extends MPOSDatabase {
 	
 	public static final int NORMAL_TYPE = 0;
 	public static final int SET_TYPE = 1;
@@ -53,7 +53,7 @@ public class ProductsDao extends MPOSDatabase {
 		ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME
 	};
 
-	public ProductsDao(Context context){
+	public Products(Context context){
 		super(context);
 	}
 	

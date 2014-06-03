@@ -11,14 +11,14 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.syn.mpos.dao.ComputerDao.ComputerTable;
+import com.syn.mpos.dao.Computer.ComputerTable;
 import com.syn.mpos.dao.MPOSOrderTransaction.OrderSet;
-import com.syn.mpos.dao.ProductsDao.ProductComponentGroupTable;
-import com.syn.mpos.dao.ProductsDao.ProductComponentTable;
-import com.syn.mpos.dao.ProductsDao.ProductsTable;
-import com.syn.mpos.dao.SessionDao.SessionTable;
-import com.syn.mpos.dao.ShopDao.ShopTable;
-import com.syn.mpos.dao.StaffDao.StaffTable;
+import com.syn.mpos.dao.Products.ProductComponentGroupTable;
+import com.syn.mpos.dao.Products.ProductComponentTable;
+import com.syn.mpos.dao.Products.ProductsTable;
+import com.syn.mpos.dao.Session.SessionTable;
+import com.syn.mpos.dao.Shop.ShopTable;
+import com.syn.mpos.dao.Staffs.StaffTable;
 import com.syn.mpos.dao.StockDocument.DocumentTypeTable;
 
 /**
@@ -26,7 +26,7 @@ import com.syn.mpos.dao.StockDocument.DocumentTypeTable;
  * @author j1tth4
  * 
  */
-public class TransactionDao extends MPOSDatabase {
+public class Transaction extends MPOSDatabase {
 
 	/*
 	 * New transaction status
@@ -48,7 +48,7 @@ public class TransactionDao extends MPOSDatabase {
 	 */
 	public static final int TRANS_STATUS_HOLD = 9;
 
-	public TransactionDao(Context context) {
+	public Transaction(Context context) {
 		super(context);
 	}
 
@@ -66,8 +66,8 @@ public class TransactionDao extends MPOSDatabase {
 				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)", 
 				new String[]{
 						saleDate,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID)
 				}, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
@@ -107,8 +107,8 @@ public class TransactionDao extends MPOSDatabase {
 				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)",
 				new String[] {
 						saleDate,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID)
 				});
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -266,7 +266,7 @@ public class TransactionDao extends MPOSDatabase {
 				+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
 				+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID + "=?";
 		Cursor cursor = getReadableDatabase().rawQuery(
-				sql, new String[] {saleDate, String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
+				sql, new String[] {saleDate, String.valueOf(Transaction.TRANS_STATUS_VOID)});
 		if (cursor.moveToFirst()) {
 			orderDetail.setQty(cursor.getDouble(cursor
 					.getColumnIndex("TotalVoid")));
@@ -307,8 +307,8 @@ public class TransactionDao extends MPOSDatabase {
 				sql, new String[] {
 						dateFrom,
 						dateTo,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID)});
 		if (cursor.moveToFirst()) {
 			orderDetail.setQty(cursor.getDouble(cursor
 					.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
@@ -385,8 +385,8 @@ public class TransactionDao extends MPOSDatabase {
 				+ " ORDER BY " + OrderTransactionTable.COLUMN_TRANSACTION_ID
 				+ " DESC LIMIT 1", new String[]{
 						saleDate, 
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID)
 					});
 		if(cursor.moveToFirst()){
 			receiptNo = cursor.getString(0);
@@ -405,8 +405,8 @@ public class TransactionDao extends MPOSDatabase {
 				+ " ORDER BY " + OrderTransactionTable.COLUMN_TRANSACTION_ID
 				+ " ASC LIMIT 1", new String[]{
 						saleDate, 
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID)
 					});
 		if(cursor.moveToFirst()){
 			receiptNo = cursor.getString(0);
@@ -435,7 +435,7 @@ public class TransactionDao extends MPOSDatabase {
 				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
 				+ " AND " + ProductsTable.COLUMN_VAT_TYPE + " != ?";
 		Cursor cursor = getReadableDatabase().rawQuery(
-				sql, new String[] { String.valueOf(transactionId), String.valueOf(ProductsDao.NO_VAT) });
+				sql, new String[] { String.valueOf(transactionId), String.valueOf(Products.NO_VAT) });
 		if (cursor.moveToFirst()) {
 			orderDetail.setQty(cursor.getDouble(cursor
 					.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
@@ -1018,7 +1018,7 @@ public class TransactionDao extends MPOSDatabase {
 						+ OrderTransactionTable.COLUMN_STATUS_ID + "=? AND "
 						+ BaseColumn.COLUMN_SEND_STATUS + "=?",
 				new String[] {
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 						String.valueOf(MPOSDatabase.NOT_SEND) });
 		if (cursor.moveToFirst()) {
 			total = cursor.getInt(0);
@@ -1188,7 +1188,7 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderDetailTable.COLUMN_PRICE_DISCOUNT, discount);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE, salePrice);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_VAT, vat);
-		if (vatType == ProductsDao.VAT_TYPE_EXCLUDE)
+		if (vatType == Products.VAT_TYPE_EXCLUDE)
 			cv.put(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE, vat);
 		else
 			cv.put(OrderDetailTable.COLUMN_DISCOUNT_TYPE, discountType);
@@ -1271,7 +1271,7 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE, totalPrice);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE, totalPrice);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_VAT, vat);
-		if (vatType == ProductsDao.VAT_TYPE_EXCLUDE)
+		if (vatType == Products.VAT_TYPE_EXCLUDE)
 			cv.put(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE, vat);
 		return getWritableDatabase().update(OrderDetailTable.TABLE_ORDER, cv, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
@@ -1302,7 +1302,7 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE, totalRetailPrice);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE, totalRetailPrice);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_VAT, vat);
-		if (vatType == ProductsDao.VAT_TYPE_EXCLUDE)
+		if (vatType == Products.VAT_TYPE_EXCLUDE)
 			cv.put(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE, vat);
 		cv.put(OrderDetailTable.COLUMN_PRICE_DISCOUNT, 0);
 		return getWritableDatabase().update(
@@ -1348,7 +1348,7 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(ProductsTable.COLUMN_VAT_TYPE, vatType);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_VAT, vat);
 		cv.put(ProductsTable.COLUMN_PRODUCT_TYPE_ID, productType);
-		if (vatType == ProductsDao.VAT_TYPE_EXCLUDE)
+		if (vatType == Products.VAT_TYPE_EXCLUDE)
 			cv.put(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE, vat);
 		long rowId = getWritableDatabase().insertOrThrow(
 				OrderDetailTable.TABLE_ORDER, null, cv);
@@ -1409,8 +1409,8 @@ public class TransactionDao extends MPOSDatabase {
 						+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID
 						+ " IN (?,?)",
 				new String[] { sessionDate,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID) });
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID) });
 		if (cursor.moveToFirst()) {
 			totalReceipt = cursor.getInt(0);
 		}
@@ -1432,8 +1432,8 @@ public class TransactionDao extends MPOSDatabase {
 				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID
 				+ " IN(?,?)",
 				new String[] { sessionDate,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID)});
 		if (cursor.moveToFirst()) {
 			totalReceiptAmount = cursor.getFloat(0);
 		}
@@ -1878,7 +1878,7 @@ public class TransactionDao extends MPOSDatabase {
 		private static final String ORDER_SQL_CREATE = "CREATE TABLE "
 				+ TABLE_ORDER + " ( " + COLUMN_ORDER_ID + " INTEGER, "
 				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER, "
-				+ ComputerDao.ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, "
+				+ Computer.ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, "
 				+ ProductsTable.COLUMN_PRODUCT_ID + " INTEGER, "
 				+ ProductsTable.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 1, "
 				+ COLUMN_ORDER_QTY + " REAL DEFAULT 1, "
@@ -1899,7 +1899,7 @@ public class TransactionDao extends MPOSDatabase {
 		private static final String ORDER_TMP_SQL_CREATE = "CREATE TABLE "
 				+ TABLE_ORDER_TMP + " ( " + COLUMN_ORDER_ID + " INTEGER, "
 				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER, "
-				+ ComputerDao.ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, "
+				+ Computer.ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, "
 				+ ProductsTable.COLUMN_PRODUCT_ID + " INTEGER, "
 				+ ProductsTable.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 1, "
 				+ COLUMN_ORDER_QTY + " REAL DEFAULT 1, "
