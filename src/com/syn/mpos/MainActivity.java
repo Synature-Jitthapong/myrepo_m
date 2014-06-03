@@ -55,6 +55,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -156,7 +157,8 @@ public class MainActivity extends FragmentActivity{
 		private ListView mLvOrderDetail;
 		private EditText mTxtBarCode;
 		private TableLayout mTbSummary;
-
+		private ImageButton mBtnClearBarCode;
+		
 		private MenuItem mItemHoldBill;
 		private MenuItem mItemSendSale;
 		
@@ -248,6 +250,7 @@ public class MainActivity extends FragmentActivity{
 			mLvOrderDetail = (ListView) rootView.findViewById(R.id.lvOrder);
 			mTabs = (PagerSlidingTabStrip) rootView.findViewById(R.id.tabs);
 			mPager = (ViewPager) rootView.findViewById(R.id.pager);
+			mBtnClearBarCode = (ImageButton) rootView.findViewById(R.id.imgBtnClearBarcode);
 
 			final MainActivity activity = (MainActivity) getActivity();
 			mPager.setAdapter(activity.mPageAdapter);
@@ -286,7 +289,7 @@ public class MainActivity extends FragmentActivity{
 					
 					if(keyCode == KeyEvent.KEYCODE_ENTER){
 						String barCode = ((EditText) v).getText().toString();
-						if(!barCode.equals("")){
+						if(!barCode.isEmpty()){
 							Products.Product p = activity.mProducts.getProduct(barCode);
 							if(p != null){
 								activity.addOrder(p.getProductId(), p.getProductName(), 
@@ -308,6 +311,14 @@ public class MainActivity extends FragmentActivity{
 					}
 					return false;
 				}
+			});
+			mBtnClearBarCode.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					mTxtBarCode.setText(null);
+				}
+				
 			});
 			return rootView;
 		}
@@ -775,7 +786,7 @@ public class MainActivity extends FragmentActivity{
 			f.setArguments(b);
 			return f;
 		}
-
+		
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
@@ -1166,7 +1177,6 @@ public class MainActivity extends FragmentActivity{
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				startActivity(new Intent(MainActivity.this, LoginActivity.class));
 				finish();
 			}
 		})
@@ -1496,7 +1506,7 @@ public class MainActivity extends FragmentActivity{
 	 * Delete Order
 	 * @param orderDetailId
 	 */
-	private synchronized void deleteOrder(int orderDetailId){
+	private void deleteOrder(int orderDetailId){
 		mTrans.deleteOrder(mTransactionId, orderDetailId);
 		mOrderDetailAdapter.notifyDataSetChanged();
 	}
@@ -1509,7 +1519,7 @@ public class MainActivity extends FragmentActivity{
 	 * @param vatType
 	 * @param vatRate
 	 */
-	private synchronized void updateOrder(int orderDetailId, double qty, 
+	private void updateOrder(int orderDetailId, double qty, 
 			double price, int vatType, double vatRate, String productName){
 		mTrans.updateOrderDetail(mTransactionId,
 				orderDetailId, vatType, vatRate, qty, price);
@@ -1529,7 +1539,7 @@ public class MainActivity extends FragmentActivity{
 	 * @param qty
 	 * @param price
 	 */
-	private synchronized void addOrder(final int productId, final String productName, 
+	private void addOrder(final int productId, final String productName, 
 			final int productTypeId, final int vatType, final double vatRate, final double qty, double price){
 		if(price > -1){
 			mTrans.addOrderDetail(mTransactionId, mComputer.getComputerId(), 

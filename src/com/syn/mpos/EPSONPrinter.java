@@ -10,51 +10,60 @@ import com.epson.eposprint.StatusChangeEventListener;
 
 public abstract class EPSONPrinter extends PrinterUtility implements 
 	BatteryStatusChangeEventListener, StatusChangeEventListener{
-
-	public static final String DEFAULT_MODEL_NAME = "TM-T81";
-	public static final int DEFAULT_DEVICE_TYPE = Print.DEVTYPE_TCP;
-	public static final int DEFAULT_LANG = Builder.MODEL_ANK;
-	public static final int DEFAULT_INTERVAL = 1000;
 	
 	protected Context mContext;
 	protected Print mPrinter;
 	protected Builder mBuilder;
 	
-	private String mModelName = DEFAULT_MODEL_NAME;
-	private String mPrinterIp;
-	private int mLang = DEFAULT_LANG;
-	private int mDeviceType = DEFAULT_DEVICE_TYPE;
-	
-	public EPSONPrinter(Context context, int deviceType, 
-			String modelName, String printerIp, int lang){
+	public EPSONPrinter(Context context){
 		mContext = context;
 		mPrinter = new Print(context.getApplicationContext());
-		if(lang != 0)
-			mLang = lang;
-		if(deviceType != 0)
-			mDeviceType = deviceType;
-		mModelName = modelName;
-		mPrinterIp = printerIp;
-	}
-	
-	private void openPrinter() throws EposException{
-		mPrinter.openPrinter(mDeviceType, mPrinterIp, 0, DEFAULT_INTERVAL);
-		mPrinter.setBatteryStatusChangeEventCallback(this);
 		mPrinter.setStatusChangeEventCallback(this);
-		mBuilder = new Builder(mModelName, mLang, mContext.getApplicationContext());
+		mPrinter.setBatteryStatusChangeEventCallback(this);
+		
+		open();
+		createBuilder();
 	}
 	
-	private void closePrinter() throws EposException{
-		mPrinter.closePrinter();
-		mPrinter = null;
+	protected boolean open(){
+		try {
+			mPrinter.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(mContext), 0, 1000);
+			return true;
+		} catch (EposException e) {
+			e.printStackTrace();
+			return false;
+		}	
 	}
+	
+	protected boolean createBuilder(){
+		try {
+			mBuilder = new Builder(MPOSApplication.getEPSONModelName(mContext), Builder.MODEL_ANK, 
+					mContext);
+			mBuilder.addTextSize(1, 1);
+			
+			if(MPOSApplication.getEPSONPrinterFont(mContext).equals("a")){
+				mBuilder.addTextFont(Builder.FONT_A);
+			}else if(MPOSApplication.getEPSONPrinterFont(mContext).equals("b")){
+				mBuilder.addTextFont(Builder.FONT_B);
+			}
 
-	protected void print() throws EposException{
-		openPrinter();
-		// send builder data
+			return true;
+		} catch (EposException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public abstract void prepareDataToPrint(int transactionId);
+	public abstract void prepareDataToPrint();
+	
+	protected void print(){
+		// send mBuilder data
 		int[] status = new int[1];
 		int[] battery = new int[1];
 		try {
+			mBuilder.addFeedUnit(30);
+			mBuilder.addCut(Builder.CUT_FEED);
 			mPrinter.sendData(mBuilder, 10000, status, battery);
 		} catch (EposException e) {
 			e.printStackTrace();
@@ -62,8 +71,13 @@ public abstract class EPSONPrinter extends PrinterUtility implements
 		if (mBuilder != null) {
 			mBuilder.clearCommandBuffer();
 		}
-		closePrinter();
+
+		// close printer
+		try {
+			mPrinter.closePrinter();
+			mPrinter = null;
+		} catch (EposException e) {
+			e.printStackTrace();
+		}
 	}
-	
-	public abstract void prepareDataToPrint(int transactionId) throws EposException; 
 }

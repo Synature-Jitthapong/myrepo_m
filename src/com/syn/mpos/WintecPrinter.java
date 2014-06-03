@@ -56,5 +56,6 @@ public abstract class WintecPrinter extends PrinterUtility{
 		return empText.toString() + text + empText.toString();
 	}
 	
+	public abstract void prepareDataToPrint(int transactionId);
 	public abstract void prepareDataToPrint();
 }

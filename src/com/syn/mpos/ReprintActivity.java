@@ -151,9 +151,13 @@ public class ReprintActivity extends Activity {
 		@Override
 		protected Void doInBackground(Void... params) {
 			if(MPOSApplication.getInternalPrinterSetting(ReprintActivity.this)){
-				printReceiptWintec(mTransactionId);
+				WintecPrintReceipt wt = new WintecPrintReceipt();
+				wt.prepareDataToPrint(mTransactionId);
+				wt.print();
 			}else{
-				printReceiptEpson(mTransactionId);	
+				EPSONPrintReceipt ep = new EPSONPrintReceipt(ReprintActivity.this);	
+				ep.prepareDataToPrint(mTransactionId);
+				ep.print();
 			}
 			return null;
 		}

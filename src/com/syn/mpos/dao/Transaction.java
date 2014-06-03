@@ -1331,6 +1331,11 @@ public class Transaction extends MPOSDatabase {
 			int productId, String productName, 
 			int productType, int vatType, double vatRate, 
 			double orderQty, double pricePerUnit) {
+		if(checkAddedOrderDetail(transactionId, productId)){
+			
+		}else{
+			
+		}
 		int orderDetailId = getMaxOrderDetail(transactionId);
 		double totalRetailPrice = pricePerUnit * orderQty;
 		double vat = Util
@@ -1357,6 +1362,21 @@ public class Transaction extends MPOSDatabase {
 		return orderDetailId;
 	}
 
+	private boolean checkAddedOrderDetail(int transactionId, int productId){
+		boolean isAdded = false;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT COUNT(" + ProductsTable.COLUMN_PRODUCT_ID + ")"
+				+ " FROM " + OrderDetailTable.TABLE_ORDER
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
+				+ " AND " + ProductsTable.COLUMN_PRODUCT_ID + "=?", 
+				new String[]{String.valueOf(transactionId), String.valueOf(productId)});
+		if(cursor.moveToFirst()){
+			if(cursor.getInt(0) > 0)
+				isAdded = true;
+		}
+		cursor.close();
+		return isAdded;
+	}
 	/**
 	 * @param transactionId
 	 * @return max orderDetailId

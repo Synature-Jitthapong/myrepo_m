@@ -42,7 +42,6 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignRight="@+id/txtBarCode"
                 android:minWidth="48dip"
-                android:onClick="onClearBarCode"
                 android:src="@drawable/ic_action_cancel" />
         </RelativeLayout>
 

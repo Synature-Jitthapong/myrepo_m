@@ -28,7 +28,7 @@ public class WintecCustomerDisplay extends WintecUtils{
 	
 	public void displayTotalPay(String totalPay, String change){
 		clearScreen();
-		mDsp.DSP_Dispay(mContext.getString(R.string.pay));
+		mDsp.DSP_Dispay(mContext.getString(R.string.cash));
 		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - totalPay.length());
 		mDsp.DSP_Dispay(totalPay);
 		try {

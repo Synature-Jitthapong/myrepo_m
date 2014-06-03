@@ -6,14 +6,9 @@ import java.util.List;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import cn.wintec.wtandroidjar2.ComIO;
-import cn.wintec.wtandroidjar2.Printer;
 
-import com.epson.eposprint.BatteryStatusChangeEventListener;
 import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
-import com.epson.eposprint.Print;
-import com.epson.eposprint.StatusChangeEventListener;
 import com.syn.mpos.dao.CreditCard;
 import com.syn.mpos.dao.Formater;
 import com.syn.mpos.dao.HeaderFooterReceipt;
@@ -29,8 +24,7 @@ import com.synature.pos.Payment;
 import com.synature.pos.ShopData;
 import com.synature.util.Logger;
 
-public class PrintReceipt extends AsyncTask<Void, Void, Void> 
-	implements BatteryStatusChangeEventListener, StatusChangeEventListener{
+public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	
 	public static final String TAG = "PrintReceipt";
 	private Transaction mOrders;
@@ -42,7 +36,6 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	private CreditCard mCreditCard;
 	private PrintStatusListener mPrintListener;
 	private Context mContext;
-	private Print mPrinter;
 	
 	/**
 	 * @param context
@@ -60,84 +53,257 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		mPrintListener = listener;
 	}
 	
-	private static String createLine(String sign){
-		StringBuilder line = new StringBuilder();
-		for(int i = 0; i <= 45; i++){
-			line.append(sign);
-		}
-		return line.toString();
-	}
-	
-	private static String adjustAlignCenter(String text){
-		int maxSpace = 45;
-		int rimSpace = (maxSpace - text.length()) / 2;
-		StringBuilder empText = new StringBuilder();
-		for(int i = 0; i < rimSpace; i++){
-			empText.append(" ");
-		}
-		return empText.toString() + text + empText.toString();
-	}
-	
-	private static String createHorizontalSpace(int usedSpace){
-		int maxSpace = 45;
-		StringBuilder space = new StringBuilder();
-		if(usedSpace > maxSpace){
-			usedSpace = usedSpace - 2;
-		}
-		for(int i = usedSpace; i <= maxSpace; i++){
-			space.append(" ");
-		}
-		return space.toString();
-	}
-	
-	/**
-	 * @param transactionId
-	 */
-	protected void printReceiptEpson(int transactionId){
-		MPOSOrderTransaction trans = mOrders.getTransaction(transactionId);
-		MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrder(transactionId);
-		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-		double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+	protected class EPSONPrintReceipt extends EPSONPrinter{
 
-		mPrinter = new Print(mContext.getApplicationContext());
-		mPrinter.setStatusChangeEventCallback(this);
-		mPrinter.setBatteryStatusChangeEventCallback(this);
-		try {
-			mPrinter.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(mContext), 0, 1000);	
-			Builder builder = new Builder(MPOSApplication.getEPSONModelName(mContext), Builder.MODEL_ANK, 
-					mContext);
-			
-			//builder.addTextLang(Builder.LANG_TH);
-			if(MPOSApplication.getEPSONPrinterFont(mContext).equals("a")){
-				builder.addTextFont(Builder.FONT_A);
-			}else if(MPOSApplication.getEPSONPrinterFont(mContext).equals("b")){
-				builder.addTextFont(Builder.FONT_B);
+		
+		public EPSONPrintReceipt(Context context) {
+			super(context);
+		}
+
+		@Override
+		public void onBatteryStatusChangeEvent(String arg0, int arg1) {
+		}
+
+		@Override
+		public void onStatusChangeEvent(String arg0, int arg1) {
+		}
+
+		@Override
+		public void prepareDataToPrint(int transactionId){
+			MPOSOrderTransaction trans = mOrders.getTransaction(transactionId);
+			MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrder(transactionId);
+			double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
+			double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+
+			try {
+				mBuilder.addTextAlign(Builder.ALIGN_CENTER);
+				// add void header
+				if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
+					String voidReceipt = mContext.getString(R.string.void_receipt);
+					Calendar cVoidTime = Calendar.getInstance();
+					cVoidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
+					String voidTime = mContext.getString(R.string.void_time) + " " + mFormat.dateTimeFormat(cVoidTime.getTime());
+					String voidBy = mContext.getString(R.string.void_by) + " " + mStaff.getStaff(trans.getVoidStaffId()).getStaffName();
+					String voidReason = mContext.getString(R.string.reason) + " " + trans.getVoidReason();
+					mBuilder.addText(voidReceipt + "\n");
+					mBuilder.addText(voidTime);
+					mBuilder.addText(createHorizontalSpace(voidTime.length()) + "\n");
+					mBuilder.addText(voidBy);
+					mBuilder.addText(createHorizontalSpace(voidBy.length()) + "\n");
+					mBuilder.addText(voidReason);
+					mBuilder.addText(createHorizontalSpace(voidReason.length()) +"\n\n");
+				}
+				
+				// add header
+				for(ShopData.HeaderFooterReceipt hf : 
+					mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
+					mBuilder.addText(hf.getTextInLine());
+					mBuilder.addText("\n");
+				}
+				
+				String saleDate = mContext.getString(R.string.date) + " " +
+						mFormat.dateTimeFormat(Util.getCalendar().getTime());
+				String receiptNo = mContext.getString(R.string.receipt_no) + " " +
+						trans.getReceiptNo();
+				String cashCheer = mContext.getString(R.string.cashier) + " " +
+						mStaff.getStaff(trans.getOpenStaffId()).getStaffName();
+				mBuilder.addText(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
+				mBuilder.addText(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
+				mBuilder.addText(cashCheer + createHorizontalSpace(cashCheer.length()));
+				mBuilder.addText("\n" + createLine("=") + "\n");
+				
+				List<MPOSOrderTransaction.MPOSOrderDetail> orderLst = 
+						mOrders.listAllOrderGroupByProduct(transactionId);
+		    	for(int i = 0; i < orderLst.size(); i++){
+		    		MPOSOrderTransaction.MPOSOrderDetail order = 
+		    				orderLst.get(i);
+		    		
+		    		String productName = order.getProductName();
+		    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
+		    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
+		    		
+		    		mBuilder.addText(productQty);
+		    		mBuilder.addText(productName);
+		    		mBuilder.addText(createHorizontalSpace(productQty.length() + 
+		    				productName.length() + productPrice.length()));
+		    		mBuilder.addText(productPrice);
+		    		mBuilder.addText("\n");
+		    		
+		    		// orderSet
+		    		if(order.getOrderSetDetailLst() != null){
+		    			for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail :
+		    				order.getOrderSetDetailLst()){
+		    				String setName = setDetail.getProductName();
+		    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
+		    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
+		    				mBuilder.addText(setQty);
+		    				mBuilder.addText(setName);
+		    				mBuilder.addText(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
+		    				mBuilder.addText(setPrice);
+		    				mBuilder.addText("\n");
+		    			}
+		    		}
+		    	}
+		    	mBuilder.addText(createLine("-") + "\n");
+		    	
+		    	String itemText = mContext.getString(R.string.items) + ": ";
+		    	String totalText = mContext.getString(R.string.total) + "...............";
+		    	String changeText = mContext.getString(R.string.change) + " ";
+		    	String beforeVatText = mContext.getString(R.string.before_vat);
+		    	String discountText = mContext.getString(R.string.discount);
+		    	String vatRateText = mContext.getString(R.string.tax) + " " +
+		    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+		    	
+		    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
+		    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+		    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
+		    	String strTotalChange = mFormat.currencyFormat(change);
+		    	String strBeforeVat = mFormat.currencyFormat(beforVat);
+		    	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
+		    	
+		    	// total item
+		    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
+		    	mBuilder.addText(itemText);
+		    	mBuilder.addText(strTotalQty);
+		    	mBuilder.addText(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
+		    	mBuilder.addText(strTotalRetailPrice + "\n");
+		    	
+		    	// total discount
+		    	if(summOrder.getPriceDiscount() > 0){
+			    	mBuilder.addText(discountText);
+			    	mBuilder.addText(createHorizontalSpace(discountText.length() + strTotalDiscount.length()));
+			    	mBuilder.addText(strTotalDiscount + "\n");
+		    	}
+		    	
+		    	// transaction exclude vat
+		    	if(trans.getTransactionVatExclude() > 0){
+		    		String vatExcludeText = mContext.getString(R.string.tax) + " " +
+		    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+		    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
+		    		mBuilder.addText(vatExcludeText);
+		    		mBuilder.addText(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
+		    		mBuilder.addText(strVatExclude + "\n");
+		    	}
+		    	
+		    	// total price
+		    	mBuilder.addText(totalText);
+		    	mBuilder.addText(createHorizontalSpace(totalText.length() + strTotalSale.length()));
+		    	mBuilder.addText(strTotalSale + "\n");
+
+		    	// total payment
+		    	List<Payment.PaymentDetail> paymentLst = 
+		    			mPayment.listPaymentGroupByType(transactionId);
+		    	for(int i = 0; i < paymentLst.size(); i++){
+		    		Payment.PaymentDetail payment = paymentLst.get(i);
+			    	String strTotalPaid = mFormat.currencyFormat(payment.getPaid());
+			    	if(payment.getPayTypeID() == PaymentDetail.PAY_TYPE_CREDIT){
+			    		String paymentText = payment.getPayTypeName();
+			    		String cardNoText = "xxxx xxxx xxxx ";
+			    		try {
+			    			paymentText = payment.getPayTypeName() + ":" + 
+		    					mCreditCard.getCreditCardType(payment.getCreditCardType());
+			    			cardNoText += payment.getCreaditCardNo().substring(12, 16);
+			    		} catch (Exception e) {
+			    			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
+			    					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
+			    		}
+			    		mBuilder.addText(paymentText);
+			    		mBuilder.addText(createHorizontalSpace(paymentText.length()));
+			    		mBuilder.addText("\n");
+		    			mBuilder.addText(cardNoText);
+		    			mBuilder.addText(createHorizontalSpace(cardNoText.length() + strTotalPaid.length()));
+		    			mBuilder.addText(strTotalPaid);
+			    	}else{
+			    		String paymentText = payment.getPayTypeName() + " ";
+				    	if(i < paymentLst.size() - 1){
+					    	mBuilder.addText(paymentText);
+				    		mBuilder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
+					    	mBuilder.addText(strTotalPaid);
+				    	}else if(i == paymentLst.size() - 1){
+					    	if(change > 0){
+						    	mBuilder.addText(paymentText);
+						    	mBuilder.addText(strTotalPaid);
+					    		mBuilder.addText(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
+						    	mBuilder.addText(changeText);
+						    	mBuilder.addText(strTotalChange);
+						    }else{
+						    	mBuilder.addText(paymentText);
+					    		mBuilder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
+						    	mBuilder.addText(strTotalPaid);
+						    }
+				    	}
+			    	}
+		    		mBuilder.addText("\n");
+		    	}
+			    mBuilder.addText(createLine("=") + "\n");
+			    
+			    if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
+				    // before vat
+				    mBuilder.addText(beforeVatText);
+				    mBuilder.addText(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
+				    mBuilder.addText(strBeforeVat + "\n");
+				    
+				    // transaction vat
+			    	mBuilder.addText(vatRateText);
+			    	mBuilder.addText(createHorizontalSpace(vatRateText.length() + strTransactionVat.length()));
+			    	mBuilder.addText(strTransactionVat + "\n");
+			    }
+		    	// add footer
+		    	for(ShopData.HeaderFooterReceipt hf : 
+					mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
+					mBuilder.addText(hf.getTextInLine());
+					mBuilder.addText("\n");
+				}
+			} catch (EposException e) {
+				switch(e.getErrorStatus()){
+				case EposException.ERR_PARAM:
+					
+					break;
+				case EposException.ERR_MEMORY:
+					
+					break;
+				case EposException.ERR_UNSUPPORTED:
+					
+					break;
+				case EposException.ERR_FAILURE:
+					
+					break;
+				}
+				e.printStackTrace();
 			}
+		}
 
-			builder.addTextAlign(Builder.ALIGN_CENTER);
-			builder.addTextSize(1, 1);
+		@Override
+		public void prepareDataToPrint() {
+		}
+		
+	}
+
+	protected class WintecPrintReceipt extends WintecPrinter{
+
+		@Override
+		public void prepareDataToPrint(int transactionId) {
+			MPOSOrderTransaction trans = mOrders.getTransaction(transactionId);
+			MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrder(transactionId);
+			double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
+			double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+			
 			// add void header
 			if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
-				String voidReceipt = mContext.getString(R.string.void_receipt);
-				Calendar cVoidTime = Calendar.getInstance();
-				cVoidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
-				String voidTime = mContext.getString(R.string.void_time) + " " + mFormat.dateTimeFormat(cVoidTime.getTime());
-				String voidBy = mContext.getString(R.string.void_by) + " " + mStaff.getStaff(trans.getVoidStaffId()).getStaffName();
-				String voidReason = mContext.getString(R.string.reason) + " " + trans.getVoidReason();
-				builder.addText(voidReceipt + "\n");
-				builder.addText(voidTime);
-				builder.addText(createHorizontalSpace(voidTime.length()) + "\n");
-				builder.addText(voidBy);
-				builder.addText(createHorizontalSpace(voidBy.length()) + "\n");
-				builder.addText(voidReason);
-				builder.addText(createHorizontalSpace(voidReason.length()) +"\n\n");
+				mBuilder.append("<c>" + mContext.getString(R.string.void_bill) + "\n");
+				Calendar voidTime = Calendar.getInstance();
+				voidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
+				mBuilder.append(mContext.getString(R.string.void_time) + " " + mFormat.dateTimeFormat(voidTime.getTime()) + "\n");
+				mBuilder.append(mContext.getString(R.string.void_by) + " " + mStaff.getStaff(trans.getVoidStaffId()).getStaffName() + "\n");
+				mBuilder.append(mContext.getString(R.string.reason) + " " + trans.getVoidReason() + "\n\n");
 			}
 			
 			// add header
 			for(ShopData.HeaderFooterReceipt hf : 
 				mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
-				builder.addText(hf.getTextInLine());
-				builder.addText("\n");
+				mBuilder.append("<c>");
+				mBuilder.append(hf.getTextInLine());
+				mBuilder.append("\n");
 			}
 			
 			String saleDate = mContext.getString(R.string.date) + " " +
@@ -146,27 +312,26 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 					trans.getReceiptNo();
 			String cashCheer = mContext.getString(R.string.cashier) + " " +
 					mStaff.getStaff(trans.getOpenStaffId()).getStaffName();
-			builder.addText(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
-			builder.addText(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
-			builder.addText(cashCheer + createHorizontalSpace(cashCheer.length()));
-			builder.addText("\n" + createLine("=") + "\n");
+			mBuilder.append(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
+			mBuilder.append(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
+			mBuilder.append(cashCheer + createHorizontalSpace(cashCheer.length()) + "\n");
+			mBuilder.append(createLine("=") + "\n");
 			
 			List<MPOSOrderTransaction.MPOSOrderDetail> orderLst = 
 					mOrders.listAllOrderGroupByProduct(transactionId);
 	    	for(int i = 0; i < orderLst.size(); i++){
 	    		MPOSOrderTransaction.MPOSOrderDetail order = 
 	    				orderLst.get(i);
-	    		
 	    		String productName = order.getProductName();
 	    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
 	    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
 	    		
-	    		builder.addText(productQty);
-	    		builder.addText(productName);
-	    		builder.addText(createHorizontalSpace(productQty.length() + 
+	    		mBuilder.append(productQty);
+	    		mBuilder.append(productName);
+	    		mBuilder.append(createHorizontalSpace(productQty.length() + 
 	    				productName.length() + productPrice.length()));
-	    		builder.addText(productPrice);
-	    		builder.addText("\n");
+	    		mBuilder.append(productPrice);
+	    		mBuilder.append("\n");
 	    		
 	    		// orderSet
 	    		if(order.getOrderSetDetailLst() != null){
@@ -175,15 +340,15 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    				String setName = setDetail.getProductName();
 	    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
 	    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
-	    				builder.addText(setQty);
-	    				builder.addText(setName);
-	    				builder.addText(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
-	    				builder.addText(setPrice);
-	    				builder.addText("\n");
+	    				mBuilder.append(setQty);
+	    				mBuilder.append(setName);
+	    				mBuilder.append(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
+	    				mBuilder.append(setPrice);
+	    				mBuilder.append("\n");
 	    			}
 	    		}
 	    	}
-	    	builder.addText(createLine("-") + "\n");
+	    	mBuilder.append(createLine("-") + "\n");
 	    	
 	    	String itemText = mContext.getString(R.string.items) + ": ";
 	    	String totalText = mContext.getString(R.string.total) + "...............";
@@ -202,16 +367,16 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    	
 	    	// total item
 	    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
-	    	builder.addText(itemText);
-	    	builder.addText(strTotalQty);
-	    	builder.addText(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
-	    	builder.addText(strTotalRetailPrice + "\n");
+	    	mBuilder.append(itemText);
+	    	mBuilder.append(strTotalQty);
+	    	mBuilder.append(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
+	    	mBuilder.append(strTotalRetailPrice + "\n");
 	    	
 	    	// total discount
 	    	if(summOrder.getPriceDiscount() > 0){
-		    	builder.addText(discountText);
-		    	builder.addText(createHorizontalSpace(discountText.length() + strTotalDiscount.length()));
-		    	builder.addText(strTotalDiscount + "\n");
+		    	mBuilder.append(discountText);
+		    	mBuilder.append(createHorizontalSpace(discountText.length() + strTotalDiscount.length()));
+		    	mBuilder.append(strTotalDiscount + "\n");
 	    	}
 	    	
 	    	// transaction exclude vat
@@ -219,15 +384,15 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 	    		String vatExcludeText = mContext.getString(R.string.tax) + " " +
 	    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 	    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
-	    		builder.addText(vatExcludeText);
-	    		builder.addText(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
-	    		builder.addText(strVatExclude + "\n");
+	    		mBuilder.append(vatExcludeText);
+	    		mBuilder.append(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
+	    		mBuilder.append(strVatExclude + "\n");
 	    	}
 	    	
 	    	// total price
-	    	builder.addText(totalText);
-	    	builder.addText(createHorizontalSpace(totalText.length() + strTotalSale.length()));
-	    	builder.addText(strTotalSale + "\n");
+	    	mBuilder.append(totalText);
+	    	mBuilder.append(createHorizontalSpace(totalText.length() + strTotalSale.length()));
+	    	mBuilder.append(strTotalSale + "\n");
 
 	    	// total payment
 	    	List<Payment.PaymentDetail> paymentLst = 
@@ -246,304 +411,60 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		    			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
 		    					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
 		    		}
-		    		builder.addText(paymentText);
-		    		builder.addText(createHorizontalSpace(paymentText.length()));
-		    		builder.addText("\n");
-	    			builder.addText(cardNoText);
-	    			builder.addText(createHorizontalSpace(cardNoText.length() + strTotalPaid.length()));
-	    			builder.addText(strTotalPaid);
+		    		mBuilder.append(paymentText);
+		    		mBuilder.append(createHorizontalSpace(paymentText.length()));
+		    		mBuilder.append("\n");
+	    			mBuilder.append(cardNoText);
+	    			mBuilder.append(createHorizontalSpace(cardNoText.length() + strTotalPaid.length()));
+	    			mBuilder.append(strTotalPaid);
 		    	}else{
 		    		String paymentText = payment.getPayTypeName() + " ";
 			    	if(i < paymentLst.size() - 1){
-				    	builder.addText(paymentText);
-			    		builder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
-				    	builder.addText(strTotalPaid);
+				    	mBuilder.append(paymentText);
+			    		mBuilder.append(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
+				    	mBuilder.append(strTotalPaid);
 			    	}else if(i == paymentLst.size() - 1){
 				    	if(change > 0){
-					    	builder.addText(paymentText);
-					    	builder.addText(strTotalPaid);
-				    		builder.addText(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
-					    	builder.addText(changeText);
-					    	builder.addText(strTotalChange);
+					    	mBuilder.append(paymentText);
+					    	mBuilder.append(strTotalPaid);
+				    		mBuilder.append(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
+					    	mBuilder.append(changeText);
+					    	mBuilder.append(strTotalChange);
 					    }else{
-					    	builder.addText(paymentText);
-				    		builder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
-					    	builder.addText(strTotalPaid);
+					    	mBuilder.append(paymentText);
+				    		mBuilder.append(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
+					    	mBuilder.append(strTotalPaid);
 					    }
 			    	}
 		    	}
-	    		builder.addText("\n");
+	    		mBuilder.append("\n");
 	    	}
-		    builder.addText(createLine("=") + "\n");
+		    mBuilder.append(createLine("=") + "\n");
 		    
 		    if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
 			    // before vat
-			    builder.addText(beforeVatText);
-			    builder.addText(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
-			    builder.addText(strBeforeVat + "\n");
+			    mBuilder.append(beforeVatText);
+			    mBuilder.append(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
+			    mBuilder.append(strBeforeVat + "\n");
 			    
 			    // transaction vat
-		    	builder.addText(vatRateText);
-		    	builder.addText(createHorizontalSpace(vatRateText.length() + strTransactionVat.length()));
-		    	builder.addText(strTransactionVat + "\n");
+		    	mBuilder.append(vatRateText);
+		    	mBuilder.append(createHorizontalSpace(vatRateText.length() + strTransactionVat.length()));
+		    	mBuilder.append(strTransactionVat + "\n");
 		    }
+		    
 	    	// add footer
 	    	for(ShopData.HeaderFooterReceipt hf : 
 				mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
-				builder.addText(hf.getTextInLine());
-				builder.addText("\n");
+	    		mBuilder.append("<c>");
+				mBuilder.append(hf.getTextInLine());
+				mBuilder.append("\n");
 			}
-	    	
-			builder.addFeedUnit(30);
-			builder.addCut(Builder.CUT_FEED);
+		}
 
-			// send builder data
-			int[] status = new int[1];
-			int[] battery = new int[1];
-			try {
-				mPrinter.sendData(builder, 10000, status, battery);
-			} catch (EposException e) {
-				e.printStackTrace();
-			}
-			if (builder != null) {
-				builder.clearCommandBuffer();
-			}
-		} catch (EposException e) {
-			switch(e.getErrorStatus()){
-			case EposException.ERR_PARAM:
-				
-				break;
-			case EposException.ERR_MEMORY:
-				
-				break;
-			case EposException.ERR_UNSUPPORTED:
-				
-				break;
-			case EposException.ERR_FAILURE:
-				
-				break;
-			}
-			e.printStackTrace();
+		@Override
+		public void prepareDataToPrint() {
 		}
-		
-		try {
-			mPrinter.closePrinter();
-			mPrinter = null;
-		} catch (EposException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * @param transactionId
-	 */
-	public void printReceiptWintec(int transactionId){
-		StringBuilder builder = new StringBuilder();
-		Printer printer=null;
-		final String devicePath = "/dev/ttySAC1";
-		final ComIO.Baudrate baudrate = ComIO.Baudrate.valueOf("BAUD_38400");
-		printer = new Printer(devicePath,baudrate);
-		
-		MPOSOrderTransaction trans = mOrders.getTransaction(transactionId);
-		MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrder(transactionId);
-		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-		double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice() + summOrder.getVatExclude());
-		
-		// add void header
-		if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
-			builder.append("<c>" + mContext.getString(R.string.void_bill) + "\n");
-			Calendar voidTime = Calendar.getInstance();
-			voidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
-			builder.append(mContext.getString(R.string.void_time) + " " + mFormat.dateTimeFormat(voidTime.getTime()) + "\n");
-			builder.append(mContext.getString(R.string.void_by) + " " + mStaff.getStaff(trans.getVoidStaffId()).getStaffName() + "\n");
-			builder.append(mContext.getString(R.string.reason) + " " + trans.getVoidReason() + "\n\n");
-		}
-		
-		// add header
-		for(ShopData.HeaderFooterReceipt hf : 
-			mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
-			builder.append("<c>");
-			builder.append(hf.getTextInLine());
-			builder.append("\n");
-		}
-		
-		String saleDate = mContext.getString(R.string.date) + " " +
-				mFormat.dateTimeFormat(Util.getCalendar().getTime());
-		String receiptNo = mContext.getString(R.string.receipt_no) + " " +
-				trans.getReceiptNo();
-		String cashCheer = mContext.getString(R.string.cashier) + " " +
-				mStaff.getStaff(trans.getOpenStaffId()).getStaffName();
-		builder.append(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
-		builder.append(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
-		builder.append(cashCheer + createHorizontalSpace(cashCheer.length()) + "\n");
-		builder.append(createLine("=") + "\n");
-		
-		List<MPOSOrderTransaction.MPOSOrderDetail> orderLst = 
-				mOrders.listAllOrderGroupByProduct(transactionId);
-    	for(int i = 0; i < orderLst.size(); i++){
-    		MPOSOrderTransaction.MPOSOrderDetail order = 
-    				orderLst.get(i);
-    		String productName = order.getProductName();
-    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
-    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
-    		
-    		builder.append(productQty);
-    		builder.append(productName);
-    		builder.append(createHorizontalSpace(productQty.length() + 
-    				productName.length() + productPrice.length()));
-    		builder.append(productPrice);
-    		builder.append("\n");
-    		
-    		// orderSet
-    		if(order.getOrderSetDetailLst() != null){
-    			for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail :
-    				order.getOrderSetDetailLst()){
-    				String setName = setDetail.getProductName();
-    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
-    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
-    				builder.append(setQty);
-    				builder.append(setName);
-    				builder.append(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
-    				builder.append(setPrice);
-    				builder.append("\n");
-    			}
-    		}
-    	}
-    	builder.append(createLine("-") + "\n");
-    	
-    	String itemText = mContext.getString(R.string.items) + ": ";
-    	String totalText = mContext.getString(R.string.total) + "...............";
-    	String changeText = mContext.getString(R.string.change) + " ";
-    	String beforeVatText = mContext.getString(R.string.before_vat);
-    	String discountText = mContext.getString(R.string.discount);
-    	String vatRateText = mContext.getString(R.string.tax) + " " +
-    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
-    	
-    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
-    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
-    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
-    	String strTotalChange = mFormat.currencyFormat(change);
-    	String strBeforeVat = mFormat.currencyFormat(beforVat);
-    	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
-    	
-    	// total item
-    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
-    	builder.append(itemText);
-    	builder.append(strTotalQty);
-    	builder.append(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
-    	builder.append(strTotalRetailPrice + "\n");
-    	
-    	// total discount
-    	if(summOrder.getPriceDiscount() > 0){
-	    	builder.append(discountText);
-	    	builder.append(createHorizontalSpace(discountText.length() + strTotalDiscount.length()));
-	    	builder.append(strTotalDiscount + "\n");
-    	}
-    	
-    	// transaction exclude vat
-    	if(trans.getTransactionVatExclude() > 0){
-    		String vatExcludeText = mContext.getString(R.string.tax) + " " +
-    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
-    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
-    		builder.append(vatExcludeText);
-    		builder.append(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
-    		builder.append(strVatExclude + "\n");
-    	}
-    	
-    	// total price
-    	builder.append(totalText);
-    	builder.append(createHorizontalSpace(totalText.length() + strTotalSale.length()));
-    	builder.append(strTotalSale + "\n");
-
-    	// total payment
-    	List<Payment.PaymentDetail> paymentLst = 
-    			mPayment.listPaymentGroupByType(transactionId);
-    	for(int i = 0; i < paymentLst.size(); i++){
-    		Payment.PaymentDetail payment = paymentLst.get(i);
-	    	String strTotalPaid = mFormat.currencyFormat(payment.getPaid());
-	    	if(payment.getPayTypeID() == PaymentDetail.PAY_TYPE_CREDIT){
-	    		String paymentText = payment.getPayTypeName();
-	    		String cardNoText = "xxxx xxxx xxxx ";
-	    		try {
-	    			paymentText = payment.getPayTypeName() + ":" + 
-    					mCreditCard.getCreditCardType(payment.getCreditCardType());
-	    			cardNoText += payment.getCreaditCardNo().substring(12, 16);
-	    		} catch (Exception e) {
-	    			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
-	    					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
-	    		}
-	    		builder.append(paymentText);
-	    		builder.append(createHorizontalSpace(paymentText.length()));
-	    		builder.append("\n");
-    			builder.append(cardNoText);
-    			builder.append(createHorizontalSpace(cardNoText.length() + strTotalPaid.length()));
-    			builder.append(strTotalPaid);
-	    	}else{
-	    		String paymentText = payment.getPayTypeName() + " ";
-		    	if(i < paymentLst.size() - 1){
-			    	builder.append(paymentText);
-		    		builder.append(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
-			    	builder.append(strTotalPaid);
-		    	}else if(i == paymentLst.size() - 1){
-			    	if(change > 0){
-				    	builder.append(paymentText);
-				    	builder.append(strTotalPaid);
-			    		builder.append(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
-				    	builder.append(changeText);
-				    	builder.append(strTotalChange);
-				    }else{
-				    	builder.append(paymentText);
-			    		builder.append(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
-				    	builder.append(strTotalPaid);
-				    }
-		    	}
-	    	}
-    		builder.append("\n");
-    	}
-	    builder.append(createLine("=") + "\n");
-	    
-	    if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
-		    // before vat
-		    builder.append(beforeVatText);
-		    builder.append(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
-		    builder.append(strBeforeVat + "\n");
-		    
-		    // transaction vat
-	    	builder.append(vatRateText);
-	    	builder.append(createHorizontalSpace(vatRateText.length() + strTransactionVat.length()));
-	    	builder.append(strTransactionVat + "\n");
-	    }
-	    
-    	// add footer
-    	for(ShopData.HeaderFooterReceipt hf : 
-			mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
-    		builder.append("<c>");
-			builder.append(hf.getTextInLine());
-			builder.append("\n");
-		}
-    	
-    	String[] subElement = builder.toString().split("\n");
-    	for(int i=0;i < subElement.length;i++){
-    		String data = subElement[i];
-			if(data.contains("<c>")){
-				data = adjustAlignCenter(data.replace("<c>", ""));
-			}
-    		printer.PRN_Print(data);
-		}
-    	printer.PRN_PrintAndFeedLine(6);		
-		printer.PRN_HalfCutPaper();	
-		printer.PRN_Close();
-	}
-
-	@Override
-	public void onBatteryStatusChangeEvent(String arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onStatusChangeEvent(String arg0, int arg1) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -563,9 +484,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>
 		for(PrintReceiptLog.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
 			try {
 				if(MPOSApplication.getInternalPrinterSetting(mContext)){
-					printReceiptWintec(printReceipt.getTransactionId());
+					WintecPrintReceipt wt = new WintecPrintReceipt();
+					wt.prepareDataToPrint(printReceipt.getTransactionId());
+					wt.print();
 				}else{
-					printReceiptEpson(printReceipt.getTransactionId());
+					EPSONPrintReceipt ep = new EPSONPrintReceipt(mContext);
+					ep.prepareDataToPrint(printReceipt.getTransactionId());
+					ep.print();
 				}
 				printLog.deletePrintStatus(printReceipt.getPriceReceiptLogId());
 				
