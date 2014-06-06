@@ -72,7 +72,7 @@ public class SaleTransaction extends MPOSDatabase{
 					SaleTable_OrderTransaction orderTrans = new SaleTable_OrderTransaction();
 					
 					orderTrans.setSzUDID(
-							cursor.getString(cursor.getColumnIndex(BaseColumn.COLUMN_UUID)));
+							cursor.getString(cursor.getColumnIndex(COLUMN_UUID)));
 					orderTrans.setiTransactionID(
 							cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
 					orderTrans.setiComputerID(cursor.getInt(
@@ -375,7 +375,7 @@ public class SaleTransaction extends MPOSDatabase{
 				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + 
 				" WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?" + 
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) " + 
-				" AND " + BaseColumn.COLUMN_SEND_STATUS + "=?",
+				" AND " + COLUMN_SEND_STATUS + "=?",
 				new String[] {
 						mSessionDate,
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),

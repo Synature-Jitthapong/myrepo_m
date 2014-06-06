@@ -190,7 +190,7 @@ public class Products extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().query(ProductDeptTable.TABLE_PRODUCT_DEPT, 
 				ALL_PRODUCT_DEPT_COLS,
 				ProductsTable.COLUMN_ACTIVATE + "=?", new String[]{"1"}, null, null, 
-				ProductsTable.COLUMN_ORDERING);
+				COLUMN_ORDERING);
 		if(cursor.moveToFirst()){
 			do{
 				ProductDept pd = toProductDept(cursor);
@@ -261,8 +261,7 @@ public class Products extends MPOSDatabase {
 				ALL_PRODUCT_COLS,
 				"(" + ProductsTable.COLUMN_PRODUCT_CODE + " LIKE '%" + query
 						+ "%' " + " OR " + ProductsTable.COLUMN_PRODUCT_NAME
-						+ " LIKE '%" + query + "%')", null, null, null,
-				ProductsTable.COLUMN_ORDERING);
+						+ " LIKE '%" + query + "%')", null, null, null, COLUMN_ORDERING);
 		if(cursor.moveToFirst()){
 			do{
 				Product p = toProduct(cursor);
@@ -284,8 +283,7 @@ public class Products extends MPOSDatabase {
 				ALL_PRODUCT_COLS,
 				ProductsTable.COLUMN_PRODUCT_DEPT_ID + "=? " + " AND "
 						+ ProductsTable.COLUMN_ACTIVATE + "=?",
-				new String[] { String.valueOf(deptId), "1" }, null, null,
-				ProductsTable.COLUMN_ORDERING);
+				new String[] { String.valueOf(deptId), "1" }, null, null, COLUMN_ORDERING);
 		if(cursor.moveToFirst()){
 			do{
 				Product p = toProduct(cursor);
@@ -488,7 +486,7 @@ public class Products extends MPOSDatabase {
 				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME, pg.getProductGroupName());
 				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_TYPE, pg.getProductGroupType());
 				cv.put(ProductGroupTable.COLUMN_IS_COMMENT, pg.getIsComment());
-				cv.put(ProductsTable.COLUMN_ORDERING, pg.getProductGroupOrdering());
+				cv.put(COLUMN_ORDERING, pg.getProductGroupOrdering());
 				cv.put(ProductsTable.COLUMN_ACTIVATE, 0);
 				getWritableDatabase().insertOrThrow(ProductGroupTable.TABLE_PRODUCT_GROUP, null, cv);
 			}
@@ -524,7 +522,7 @@ public class Products extends MPOSDatabase {
 				cv.put(ProductsTable.COLUMN_PRODUCT_GROUP_ID, pd.getProductGroupID());
 				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE, pd.getProductDeptCode());
 				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME, pd.getProductDeptName());
-				cv.put(ProductsTable.COLUMN_ORDERING, pd.getProductDeptOrdering());
+				cv.put(COLUMN_ORDERING, pd.getProductDeptOrdering());
 				cv.put(ProductsTable.COLUMN_ACTIVATE, 0);
 				getWritableDatabase().insertOrThrow(ProductDeptTable.TABLE_PRODUCT_DEPT, null, cv);
 			}
@@ -576,7 +574,7 @@ public class Products extends MPOSDatabase {
 				ContentValues cv = new ContentValues();
 				cv.put(ProductsTable.COLUMN_PRODUCT_NAME, m.getMenuName_0());
 				cv.put(ProductsTable.COLUMN_IMG_URL, m.getMenuImageLink());
-				cv.put(ProductsTable.COLUMN_ORDERING, m.getMenuItemOrdering());
+				cv.put(COLUMN_ORDERING, m.getMenuItemOrdering());
 				cv.put(ProductsTable.COLUMN_ACTIVATE, m.getMenuActivate());
 				getWritableDatabase().update(ProductsTable.TABLE_PRODUCTS, cv, ProductsTable.COLUMN_PRODUCT_ID + "=?", 
 						new String[]{String.valueOf(m.getProductID())});
@@ -607,7 +605,6 @@ public class Products extends MPOSDatabase {
 		public static final String COLUMN_IMG_URL = "image_url";
 		public static final String COLUMN_ACTIVATE = "activate";
 		public static final String COLUMN_SALE_MODE = "sale_mode";
-		public static final String COLUMN_ORDERING = "ordering";	
 		
 		private static final String SQL_CREATE =
 				"CREATE TABLE " + TABLE_PRODUCTS + " ( " +
@@ -654,7 +651,7 @@ public class Products extends MPOSDatabase {
 				COLUMN_PRODUCT_GROUP_TYPE + " INTEGER DEFAULT 0, " +
 				COLUMN_IS_COMMENT + " INTEGER DEFAULT 0, " +
 				ProductsTable.COLUMN_ACTIVATE + " INTEGER DEFAULT 0, " +
-				ProductsTable.COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
+				COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
 				"PRIMARY KEY (" + ProductsTable.COLUMN_PRODUCT_GROUP_ID + "));";
 		
 		public static void onCreate(SQLiteDatabase db) {
@@ -679,7 +676,7 @@ public class Products extends MPOSDatabase {
 				COLUMN_PRODUCT_DEPT_CODE + " TEXT, " +
 				COLUMN_PRODUCT_DEPT_NAME + " TEXT, " +
 				ProductsTable.COLUMN_ACTIVATE + " INTEGER DEFAULT 0, " +
-				ProductsTable.COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
+				COLUMN_ORDERING + " INTEGER DEFAULT 0, " +
 				"PRIMARY KEY (" + ProductsTable.COLUMN_PRODUCT_DEPT_ID + "));";
 		
 		public static void onCreate(SQLiteDatabase db) {

@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:baselineAligned="false"
     android:orientation="horizontal" >
 
     <LinearLayout
         android:id="@+id/LinearLayout1"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="0.5"
+        android:layout_weight="0.6"
         android:orientation="vertical" >
 
         <RelativeLayout
@@ -45,13 +46,14 @@
                 android:src="@drawable/ic_action_cancel" />
         </RelativeLayout>
 
-        <ListView
+        <ExpandableListView
             android:id="@+id/lvOrder"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:background="@drawable/order_background" >
-        </ListView>
+
+        </ExpandableListView>
 
         <LinearLayout
             android:id="@+id/orderCtrlContent"
@@ -95,16 +97,11 @@
         android:layout_height="match_parent"
         android:layout_weight="1" >
 
-        <com.astuetz.PagerSlidingTabStrip
-            android:id="@+id/tabs"
+        <com.j1tth4.slidinglibs.SlidingTabLayout
+            android:id="@+id/sliding_tabs"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_margin="@dimen/medium_space"
-            android:padding="@dimen/medium_space" >
-        </com.astuetz.PagerSlidingTabStrip>
+            android:layout_height="wrap_content" >
+        </com.j1tth4.slidinglibs.SlidingTabLayout>
 
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"
@@ -113,9 +110,10 @@
             android:layout_above="@+id/buttonDiscount"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/tabs"
+            android:layout_below="@+id/sliding_tabs"
             android:layout_margin="@dimen/medium_space"
             app:context=".MainActivity" >
+
         </android.support.v4.view.ViewPager>
 
         <Button
@@ -135,7 +133,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:layout_weight="1"
             android:minWidth="100dp"
             android:onClick="paymentClicked"
             android:text="@string/payment"
@@ -147,7 +144,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_toRightOf="@+id/buttonCash"
-            android:layout_weight="1"
             android:drawableLeft="@drawable/ic_action_labels"
             android:minWidth="100dp"
             android:onClick="discountClicked"

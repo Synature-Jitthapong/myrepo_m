@@ -61,7 +61,7 @@ public class LoginActivity extends Activity{
 		
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction()
-				.add(R.id.loginContent, new LargeScreenFragment()).commit();
+				.add(R.id.loginContent, new PlaceholderFragment()).commit();
 		}
 	}
 
@@ -336,7 +336,7 @@ public class LoginActivity extends Activity{
 			startActivity(intent);
 		}else{
 
-			LargeScreenFragment placeHolder = (LargeScreenFragment) 
+			PlaceholderFragment placeHolder = (PlaceholderFragment) 
 					getFragmentManager().findFragmentById(R.id.loginContent);
 			
 			placeHolder.mTxtUser.requestFocus();
@@ -347,7 +347,7 @@ public class LoginActivity extends Activity{
 	}
 			
 	private void gotoMainActivity(){
-		LargeScreenFragment placeHolder = (LargeScreenFragment) 
+		PlaceholderFragment placeHolder = (PlaceholderFragment) 
 				getFragmentManager().findFragmentById(R.id.loginContent);
 		placeHolder.mTxtUser.setText(null);
 		placeHolder.mTxtPass.setText(null);
@@ -482,7 +482,7 @@ public class LoginActivity extends Activity{
 		String user = "";
 		String pass = "";
 	
-		LargeScreenFragment placeHolder = (LargeScreenFragment) 
+		PlaceholderFragment placeHolder = (PlaceholderFragment) 
 				getFragmentManager().findFragmentById(R.id.loginContent);
 		
 		if(!placeHolder.mTxtUser.getText().toString().isEmpty()){
@@ -556,7 +556,7 @@ public class LoginActivity extends Activity{
 		}
 	}
 	
-	public static class LargeScreenFragment extends Fragment{
+	public static class PlaceholderFragment extends Fragment{
 
 		private Button mBtnLogin;
 		private EditText mTxtUser;
@@ -564,7 +564,7 @@ public class LoginActivity extends Activity{
 		private TextView mTvShopName;
 		private TextView mTvSaleDate;
 
-		public LargeScreenFragment(){
+		public PlaceholderFragment(){
 		}
 		
 		@Override

@@ -147,7 +147,7 @@ public class Reporting extends MPOSDatabase{
 				+ " ON c." + ProductsTable.COLUMN_PRODUCT_GROUP_ID
 				+ "=d." + ProductsTable.COLUMN_PRODUCT_GROUP_ID
 				+ " GROUP BY " + " d." + ProductsTable.COLUMN_PRODUCT_GROUP_ID
-				+ " ORDER BY d." + ProductsTable.COLUMN_ORDERING, null);
+				+ " ORDER BY d." + COLUMN_ORDERING, null);
 		
 		if(groupCursor.moveToFirst()){
 			do{
@@ -171,7 +171,7 @@ public class Reporting extends MPOSDatabase{
 						+ " ON b." + ProductsTable.COLUMN_PRODUCT_DEPT_ID
 						+ " =c." + ProductsTable.COLUMN_PRODUCT_DEPT_ID
 						+ " WHERE c." + ProductsTable.COLUMN_PRODUCT_GROUP_ID + "=?"
-						+ " ORDER BY b." + ProductsTable.COLUMN_ORDERING,
+						+ " ORDER BY b." + COLUMN_ORDERING,
 						new String[] { 
 								String.valueOf(groupCursor.getInt(
 										groupCursor.getColumnIndex(ProductsTable.COLUMN_PRODUCT_GROUP_ID))) 
@@ -280,7 +280,7 @@ public class Reporting extends MPOSDatabase{
 				+ " a." + OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT + ", " 
 				+ " a." + OrderTransactionTable.COLUMN_TRANS_VAT + ", " 
 				+ " a." + OrderTransactionTable.COLUMN_TRANS_VATABLE + ", " 
-				+ " a." + BaseColumn.COLUMN_SEND_STATUS + ", " 
+				+ " a." + COLUMN_SEND_STATUS + ", " 
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + " * b."
 				+ OrderDetailTable.COLUMN_ORDER_QTY + ") AS TotalRetailPrice, "
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
@@ -323,7 +323,7 @@ public class Reporting extends MPOSDatabase{
 				reportDetail.setVatable(cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)));
 				reportDetail.setTotalVat(cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT)));
 				reportDetail.setTotalPayment(cursor.getDouble(cursor.getColumnIndex("TotalPayment")));
-				reportDetail.setSendStatus(cursor.getInt(cursor.getColumnIndex(BaseColumn.COLUMN_SEND_STATUS)));
+				reportDetail.setSendStatus(cursor.getInt(cursor.getColumnIndex(COLUMN_SEND_STATUS)));
 				report.getReportDetail().add(reportDetail);
 				
 			}while(cursor.moveToNext());
@@ -364,7 +364,7 @@ public class Reporting extends MPOSDatabase{
 							+ ProductsTable.COLUMN_PRODUCT_ID + "=b."
 							+ ProductsTable.COLUMN_PRODUCT_ID + " WHERE b."
 							+ ProductsTable.COLUMN_PRODUCT_DEPT_ID + "=?"
-							+ " ORDER BY b." + ProductsTable.COLUMN_ORDERING,
+							+ " ORDER BY b." + COLUMN_ORDERING,
 							new String[] { 
 									String.valueOf(group.getProductDeptId()) 
 							});
@@ -671,8 +671,8 @@ public class Reporting extends MPOSDatabase{
 					" ON c." + ProductsTable.COLUMN_PRODUCT_GROUP_ID + "=d." + ProductsTable.COLUMN_PRODUCT_GROUP_ID + 
 					" GROUP BY d." + ProductsTable.COLUMN_PRODUCT_GROUP_ID + ", " +
 					" c." + ProductsTable.COLUMN_PRODUCT_DEPT_ID +
-					" ORDER BY d." + ProductsTable.COLUMN_ORDERING + "," +
-					" c." + ProductsTable.COLUMN_ORDERING, null);
+					" ORDER BY d." + COLUMN_ORDERING + "," +
+					" c." + COLUMN_ORDERING, null);
 		
 		if(cursor.moveToFirst()){
 			do{

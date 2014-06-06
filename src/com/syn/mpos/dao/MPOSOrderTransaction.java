@@ -14,9 +14,20 @@ public class MPOSOrderTransaction extends OrderTransaction{
 	 * for display order with order set detail
 	 */
 	public static class MPOSOrderDetail extends OrderDetail{
-		private List<OrderSet.OrderSetDetail> orderSetDetailLst;
+		private List<OrderSet.OrderSetDetail> orderSetDetailLst = 
+				new ArrayList<OrderSet.OrderSetDetail>();
+		private List<MenuComment.Comment> orderCommentLst =
+				new ArrayList<MenuComment.Comment>();
 		private double vatExclude;
 		private int productTypeId;
+
+		public List<MenuComment.Comment> getOrderCommentLst() {
+			return orderCommentLst;
+		}
+
+		public void setOrderCommentLst(List<MenuComment.Comment> orderCommentLst) {
+			this.orderCommentLst = orderCommentLst;
+		}
 
 		public List<OrderSet.OrderSetDetail> getOrderSetDetailLst() {
 			return orderSetDetailLst;
@@ -48,12 +59,15 @@ public class MPOSOrderTransaction extends OrderTransaction{
 	 * for display orderset 
 	 */
 	public static class OrderSet extends ProductComponentGroup{
-		public List<OrderSetDetail> mProductLst = 
+		private List<OrderSetDetail> orderSetDetailLst = 
 				new ArrayList<OrderSetDetail>();
 		
 		private int transactionId;
 		private int orderDetailId;
 		
+		public List<OrderSetDetail> getOrderSetDetailLst() {
+			return orderSetDetailLst;
+		}
 		public int getTransactionId() {
 			return transactionId;
 		}

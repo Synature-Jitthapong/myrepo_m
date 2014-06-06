@@ -31,7 +31,7 @@ public class Session extends MPOSDatabase{
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT " + SessionTable.COLUMN_SESS_DATE
 				+ " FROM " + SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL
-				+ " WHERE " + BaseColumn.COLUMN_SEND_STATUS + "=?", 
+				+ " WHERE " + COLUMN_SEND_STATUS + "=?", 
 				new String[]{
 					String.valueOf(NOT_SEND)
 				}
@@ -155,7 +155,7 @@ public class Session extends MPOSDatabase{
 	 */
 	public int updateSessionEnddayDetail(String sessionDate, int status){
 		ContentValues cv = new ContentValues();
-		cv.put(BaseColumn.COLUMN_SEND_STATUS, status);
+		cv.put(COLUMN_SEND_STATUS, status);
 		return getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL,
 				cv, SessionTable.COLUMN_SESS_DATE + "=?", new String[]{sessionDate});
 	}
@@ -294,7 +294,7 @@ public class Session extends MPOSDatabase{
 				+ COLUMN_ENDDAY_DATE + " TEXT, " 
 				+ COLUMN_TOTAL_QTY_RECEIPT + " INTEGER NOT NULL DEFAULT 0, "
 				+ COLUMN_TOTAL_AMOUNT_RECEIPT + " REAL NOT NULL DEFAULT 0, "
-				+ BaseColumn.COLUMN_SEND_STATUS + " INTEGER NOT NULL DEFAULT 0, " 
+				+ COLUMN_SEND_STATUS + " INTEGER NOT NULL DEFAULT 0, " 
 				+ "PRIMARY KEY (" + SessionTable.COLUMN_SESS_DATE + "));";
 
 		public static void onCreate(SQLiteDatabase db) {

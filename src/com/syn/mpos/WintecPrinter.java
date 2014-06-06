@@ -26,8 +26,12 @@ public abstract class WintecPrinter extends PrinterUtility{
 	protected void print(){
 		String[] subElement = mBuilder.toString().split("\n");
     	for(String data : subElement){
-    		mPrinter.PRN_EnableBoldFont(0);
-    		mPrinter.PRN_DisableFontUnderline();
+    		if(!data.contains("<b>")){
+	    		mPrinter.PRN_EnableBoldFont(0);
+    		}
+    		if(!data.contains("<u>")){
+	    		mPrinter.PRN_DisableFontUnderline();
+    		}
 			if(data.contains("<c>")){
 				data = adjustAlignCenter(data.replace("<c>", ""));
 			}
@@ -47,8 +51,7 @@ public abstract class WintecPrinter extends PrinterUtility{
 	}
 	
 	private static String adjustAlignCenter(String text){
-		int maxSpace = 45;
-		int rimSpace = (maxSpace - text.length()) / 2;
+		int rimSpace = (HORIZONTAL_MAX_SPACE - text.length()) / 2;
 		StringBuilder empText = new StringBuilder();
 		for(int i = 0; i < rimSpace; i++){
 			empText.append(" ");

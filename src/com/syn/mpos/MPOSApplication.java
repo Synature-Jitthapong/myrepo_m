@@ -68,6 +68,24 @@ public class MPOSApplication extends Application {
 				.getDefaultSharedPreferences(context);
 		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_IP, "");
 	}
+	
+	public static String getSecondDisplayIp(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_SECOND_DISPLAY_IP, "");
+	}
+	
+	public static String getSecondDisplay(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_SECOND_DISPLAY_PORT, "");
+	}
+	
+	public static boolean isEnableSecondDisplay(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_ENABLE_SECOND_DISPLAY, false);
+	}
 
 	public static String getImageUrl(Context context) {
 		return getUrl(context) + "/" + SERVER_IMG_PATH;

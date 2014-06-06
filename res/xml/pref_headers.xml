@@ -11,5 +11,8 @@
 	<header
         android:fragment="com.syn.mpos.SettingsActivity$PrinterPreferenceFragment"
         android:title="@string/printer_setting"/>
+    <header
+        android:fragment="com.syn.mpos.SettingsActivity$SecondDisplayPreferenceFragment"
+        android:title="@string/second_display_setting"/>
 
 </preference-headers>

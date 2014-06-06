@@ -25,6 +25,9 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_PRINTER_FONT_LIST = "printer_font_list";
 	public static final String KEY_PREF_PRINTER_INTERNAL = "printer_internal";
 	public static final String KEY_PREF_SHOW_MENU_IMG = "show_menu_image";
+	public static final String KEY_PREF_SECOND_DISPLAY_IP = "second_display_ip";
+	public static final String KEY_PREF_SECOND_DISPLAY_PORT = "second_display_port";
+	public static final String KEY_PREF_ENABLE_SECOND_DISPLAY = "enable_second_display";
 	
 	private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
@@ -45,10 +48,13 @@ public class SettingsActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.pref_connection);
 		addPreferencesFromResource(R.xml.pref_general);
 		addPreferencesFromResource(R.xml.pref_printer);
+		addPreferencesFromResource(R.xml.pref_second_display);
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_FONT_LIST));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_IP));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
 	}
 
 	@Override
@@ -141,6 +147,18 @@ public class SettingsActivity extends PreferenceActivity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_general);
+		}
+		
+	}
+	
+	public static class SecondDisplayPreferenceFragment extends PreferenceFragment{
+
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_second_display);
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_IP));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
 		}
 		
 	}

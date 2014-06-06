@@ -299,5 +299,11 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="promise_system">pRoMiSe System</string>
     <string name="show_menu_image">Show menu image</string>
     <string name="general_setting">General Settings</string>
+    <string name="menu_comment">Menu Comment</string>
+    <string name="cancel_comment_confirm">Are you sure you want to cancel comment?</string>
+    <string name="second_display_setting">Second Display Settings</string>
+    <string name="second_display_setting_summary">Setting ipaddress, connection port of second display.</string>
+    <string name="port">Port</string>
+    <string name="enable_second_display">Enable Second Display</string>
 
 </resources>

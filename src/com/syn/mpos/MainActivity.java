@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.astuetz.PagerSlidingTabStrip;
+import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.syn.mpos.dao.Computer;
 import com.syn.mpos.dao.Formater;
+import com.syn.mpos.dao.MenuComment;
 import com.syn.mpos.dao.UserVerification;
 import com.syn.mpos.dao.MPOSOrderTransaction;
 import com.syn.mpos.dao.PrintReceiptLog;
@@ -51,9 +52,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -64,9 +67,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MainActivity extends FragmentActivity{
-	
-	public static final int TAB_UNDERLINE_COLOR = 0xFF1D78B2;
+public class MainActivity extends FragmentActivity implements MenuCommentFragment.OnCommentItemClickListener{
 	
 	// send sale request code from payment activity
 	public static final int PAYMENT_REQUEST = 1;
@@ -136,7 +137,7 @@ public class MainActivity extends FragmentActivity{
 
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction().
-				add(R.id.container, LargeScreenFragment.newInstance()).commit();
+				add(R.id.container, PlaceholderFragment.newInstance()).commit();
 		}
 	}
 	
@@ -152,9 +153,9 @@ public class MainActivity extends FragmentActivity{
 		super.onDestroy();
 	}
 
-	public static class LargeScreenFragment extends Fragment{
+	public static class PlaceholderFragment extends Fragment{
 
-		private ListView mLvOrderDetail;
+		private ExpandableListView mLvOrderDetail;
 		private EditText mTxtBarCode;
 		private TableLayout mTbSummary;
 		private ImageButton mBtnClearBarCode;
@@ -162,11 +163,11 @@ public class MainActivity extends FragmentActivity{
 		private MenuItem mItemHoldBill;
 		private MenuItem mItemSendSale;
 		
-		private PagerSlidingTabStrip mTabs;
+		private SlidingTabLayout mTabs;
 		private ViewPager mPager;
 		
-		public static LargeScreenFragment newInstance(){
-			LargeScreenFragment f = new LargeScreenFragment();
+		public static PlaceholderFragment newInstance(){
+			PlaceholderFragment f = new PlaceholderFragment();
 			return f;
 		}
 		
@@ -234,16 +235,15 @@ public class MainActivity extends FragmentActivity{
 			setHasOptionsMenu(true);
 		}
 
+		
 		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-			mTxtBarCode = (EditText) rootView.findViewById(R.id.txtBarCode);
-			mTbSummary = (TableLayout) rootView.findViewById(R.id.tbLayoutSummary);
-			mLvOrderDetail = (ListView) rootView.findViewById(R.id.lvOrder);
-			mTabs = (PagerSlidingTabStrip) rootView.findViewById(R.id.tabs);
-			mPager = (ViewPager) rootView.findViewById(R.id.pager);
-			mBtnClearBarCode = (ImageButton) rootView.findViewById(R.id.imgBtnClearBarcode);
+		public void onViewCreated(View view, Bundle savedInstanceState) {
+			mTxtBarCode = (EditText) view.findViewById(R.id.txtBarCode);
+			mTbSummary = (TableLayout) view.findViewById(R.id.tbLayoutSummary);
+			mLvOrderDetail = (ExpandableListView) view.findViewById(R.id.lvOrder);
+			mTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+			mPager = (ViewPager) view.findViewById(R.id.pager);
+			mBtnClearBarCode = (ImageButton) view.findViewById(R.id.imgBtnClearBarcode);
 
 			final MainActivity activity = (MainActivity) getActivity();
 			mPager.setAdapter(activity.mPageAdapter);
@@ -252,27 +252,10 @@ public class MainActivity extends FragmentActivity{
 							.getDisplayMetrics());
 			mPager.setPageMargin(pageMargin);
 			mTabs.setViewPager(mPager);
-			mTabs.setIndicatorColor(TAB_UNDERLINE_COLOR);
 			
 			mLvOrderDetail.setAdapter(activity.mOrderDetailAdapter);
+			mLvOrderDetail.setGroupIndicator(null);
 			
-			mLvOrderDetail.setOnItemClickListener(new OnItemClickListener(){
-
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view,
-						int position, long id) {
-					MPOSOrderTransaction.MPOSOrderDetail order = 
-							(MPOSOrderTransaction.MPOSOrderDetail) parent.getItemAtPosition(position);
-						
-						if(order.isChecked()){
-							order.setChecked(false);
-						}else{
-							order.setChecked(true);
-						}
-					activity.mOrderDetailAdapter.notifyDataSetChanged();
-				}
-				
-			});
 			mTxtBarCode.setOnKeyListener(new OnKeyListener(){
 
 				@Override
@@ -313,7 +296,12 @@ public class MainActivity extends FragmentActivity{
 				}
 				
 			});
-			return rootView;
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			return inflater.inflate(R.layout.fragment_main, container, false);
 		}
 		
 		public void onClearBarCode(final View v){
@@ -518,75 +506,109 @@ public class MainActivity extends FragmentActivity{
 		}
 	}
 
-	private class OrderDetailAdapter extends BaseAdapter{
-		private LayoutInflater mInflater;
-		
-		public OrderDetailAdapter(){
-			mInflater = (LayoutInflater) 
-					MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		}
-		
+	private class OrderDetailAdapter extends BaseExpandableListAdapter{
+
 		@Override
-		public int getCount() {
-			return mOrderDetailLst != null ? mOrderDetailLst.size() : 0;
+		public int getGroupCount() {
+			return mOrderDetailLst.size();
 		}
-	
+
 		@Override
-		public MPOSOrderTransaction.MPOSOrderDetail getItem(int position) {
-			return mOrderDetailLst.get(position);
+		public int getChildrenCount(int groupPosition) {
+			return mOrderDetailLst.get(groupPosition).getOrderSetDetailLst().size();
 		}
-	
+
 		@Override
-		public long getItemId(int position) {
-			return position;
+		public MPOSOrderTransaction.MPOSOrderDetail getGroup(int groupPosition) {
+			return mOrderDetailLst.get(groupPosition);
 		}
-	
+
 		@Override
-		public View getView(final int position, View convertView, ViewGroup parent) {
-			final MPOSOrderTransaction.MPOSOrderDetail orderDetail = mOrderDetailLst.get(position);
+		public MPOSOrderTransaction.OrderSet.OrderSetDetail getChild(int groupPosition, int childPosition) {
+			return mOrderDetailLst.get(groupPosition).getOrderSetDetailLst().get(childPosition);
+		}
+
+		@Override
+		public long getGroupId(int groupPosition) {
+			return groupPosition;
+		}
+
+		@Override
+		public long getChildId(int groupPosition, int childPosition) {
+			return 0;
+		}
+
+		@Override
+		public boolean hasStableIds() {
+			return false;
+		}
+
+		@Override
+		public View getGroupView(final int groupPosition, boolean isExpanded,
+				View convertView, ViewGroup parent) {
 			ViewHolder holder;		
 			if(convertView == null){
+				LayoutInflater inflater = (LayoutInflater)
+						MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				convertView = inflater.inflate(R.layout.order_list_template, null);
 				holder = new ViewHolder();
-				convertView = mInflater.inflate(R.layout.order_list_template, null);
-				holder.orderSetContent = (LinearLayout) convertView.findViewById(R.id.orderSetContent);
+				holder.menuInfoContent = (LinearLayout) convertView.findViewById(R.id.menuInfoContent);
 				holder.chk = (CheckBox) convertView.findViewById(R.id.checkBox1);
 				holder.tvOrderNo = (TextView) convertView.findViewById(R.id.tvOrderNo);
 				holder.tvOrderName = (TextView) convertView.findViewById(R.id.tvOrderName);
 				holder.tvOrderPrice = (TextView) convertView.findViewById(R.id.tvOrderPrice);
+				holder.tvComment = (TextView) convertView.findViewById(R.id.tvComment);
 				holder.txtOrderAmount = (EditText) convertView.findViewById(R.id.txtOrderQty);
-				holder.btnSetMod = (Button) convertView.findViewById(R.id.btnSetModify);
+				holder.btnComment = (ImageButton) convertView.findViewById(R.id.btnComment);
+				holder.btnSetMod = (ImageButton) convertView.findViewById(R.id.btnSetModify);
 				holder.btnMinus = (Button) convertView.findViewById(R.id.btnOrderMinus);
 				holder.btnPlus = (Button) convertView.findViewById(R.id.btnOrderPlus);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
+			final MPOSOrderTransaction.MPOSOrderDetail orderDetail = mOrderDetailLst.get(groupPosition);
 			holder.chk.setChecked(orderDetail.isChecked());
-			holder.tvOrderNo.setText(Integer.toString(position + 1) + ". ");
+			holder.tvOrderNo.setText(Integer.toString(groupPosition + 1) + ".");
 			holder.tvOrderName.setText(orderDetail.getProductName());
 			holder.tvOrderPrice.setText(mFormat.currencyFormat(orderDetail.getPricePerUnit()));
 			holder.txtOrderAmount.setText(mFormat.qtyFormat(orderDetail.getQty()));
-	
-			holder.orderSetContent.removeAllViews();
-			if(orderDetail.getOrderSetDetailLst() != null){
-				for(int i = 0; i < orderDetail.getOrderSetDetailLst().size(); i++){
-					final MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail = 
-							orderDetail.getOrderSetDetailLst().get(i);
-					final View detailView = mInflater.inflate(R.layout.order_set_detail_template, null);
-					TextView tvSetNo = (TextView) detailView.findViewById(R.id.tvSetNo);
-					TextView tvSetName = (TextView) detailView.findViewById(R.id.tvSetName);
-					EditText txtSetQty = (EditText) detailView.findViewById(R.id.txtSetQty);
-					Button btnSetMinus = (Button) detailView.findViewById(R.id.btnSetMinus);
-					Button btnSetPlus = (Button) detailView.findViewById(R.id.btnSetPlus);
-					tvSetNo.setText("-");
-					tvSetName.setText(setDetail.getProductName());
-					txtSetQty.setText(mFormat.qtyFormat(setDetail.getOrderSetQty()));
-					btnSetMinus.setVisibility(View.GONE);
-					btnSetPlus.setVisibility(View.GONE);
-					holder.orderSetContent.addView(detailView);
+			holder.tvComment.setText(null);
+			if(orderDetail.getOrderCommentLst() != null){
+				for(int i = 0; i < orderDetail.getOrderCommentLst().size(); i++){
+					final MenuComment.Comment comment = orderDetail.getOrderCommentLst().get(i);
+					holder.tvComment.append("-" + comment.getCommentName());
+					if(comment.getCommentPrice() > 0){
+						holder.tvComment.append(mFormat.qtyFormat(comment.getCommentQty()));
+						holder.tvComment.append("@" + mFormat.currencyFormat(comment.getCommentPrice()));
+					}
+					holder.tvComment.append("\n");
 				}
 			}
-			
+			holder.menuInfoContent.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					if(orderDetail.isChecked()){
+						orderDetail.setChecked(false);
+					}else{
+						orderDetail.setChecked(true);
+					}
+					mOrderDetailAdapter.notifyDataSetChanged();
+				}
+				
+			});
+			holder.btnComment.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					MenuCommentFragment commentDialog = 
+							MenuCommentFragment.newInstance(groupPosition, mTransactionId, 
+									orderDetail.getOrderDetailId(), orderDetail.getProductName());
+					commentDialog.show(getFragmentManager(), "CommentDialog");
+				}
+				
+			});
 			holder.btnSetMod.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -601,7 +623,6 @@ public class MainActivity extends FragmentActivity{
 				}
 				
 			});
-			
 			holder.btnMinus.setOnClickListener(new OnClickListener(){
 	
 				@Override
@@ -637,7 +658,6 @@ public class MainActivity extends FragmentActivity{
 					}
 					mOrderDetailAdapter.notifyDataSetChanged();
 				}
-				
 			});
 			
 			holder.btnPlus.setOnClickListener(new OnClickListener(){
@@ -657,39 +677,88 @@ public class MainActivity extends FragmentActivity{
 				
 			});
 			
-			if(orderDetail.getProductTypeId() == Products.SET_TYPE_CAN_SELECT)
+			if(orderDetail.getProductTypeId() == Products.SET_TYPE_CAN_SELECT){
 				holder.btnSetMod.setVisibility(View.VISIBLE);
-			else
+				holder.btnComment.setVisibility(View.GONE);
+			}else{
 				holder.btnSetMod.setVisibility(View.GONE);
-			if(orderDetail.isChecked())
+				holder.btnComment.setVisibility(View.VISIBLE);
+			}
+			if(orderDetail.isChecked()){
 				holder.chk.setVisibility(View.VISIBLE);
-			else
+			}else{
 				holder.chk.setVisibility(View.GONE);
+			}
+			// expand if order has set detail
+			if(orderDetail.getOrderSetDetailLst().size() > 0){
+				if(!isExpanded){
+					ExpandableListView lv = (ExpandableListView) parent;
+					lv.expandGroup(groupPosition);
+				}
+			}
 			return convertView;
 		}
-		
+
+		@Override
+		public View getChildView(int groupPosition, int childPosition,
+				boolean isLastChild, View convertView, ViewGroup parent) {
+			ProductSetActivity.ViewSetDetailHolder holder;
+			if(convertView == null){
+				LayoutInflater inflater = (LayoutInflater) 
+						getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				convertView = inflater.inflate(R.layout.order_set_detail_template, parent, false);
+				holder = new ProductSetActivity.ViewSetDetailHolder();
+				holder.tvSetNo = (TextView) convertView.findViewById(R.id.tvSetNo);
+				holder.tvSetName = (TextView) convertView.findViewById(R.id.tvSetName);
+				holder.txtSetQty = (EditText) convertView.findViewById(R.id.txtSetQty);
+				holder.btnSetMinus = (Button) convertView.findViewById(R.id.btnSetMinus);
+				holder.btnSetPlus = (Button) convertView.findViewById(R.id.btnSetPlus);
+				convertView.setTag(holder);
+			}else{
+				holder = (ProductSetActivity.ViewSetDetailHolder) convertView.getTag();
+			}
+			final MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail = 
+						mOrderDetailLst.get(groupPosition).getOrderSetDetailLst().get(childPosition);
+			holder.tvSetNo.setText("-");
+			holder.tvSetName.setText(setDetail.getProductName());
+			holder.txtSetQty.setText(mFormat.qtyFormat(setDetail.getOrderSetQty()));
+			holder.btnSetMinus.setVisibility(View.GONE);
+			holder.btnSetPlus.setVisibility(View.GONE);
+			convertView.setPadding(16, convertView.getPaddingTop(), convertView.getPaddingRight(),
+					convertView.getPaddingBottom());
+			return convertView;
+		}
+
+		@Override
+		public boolean isChildSelectable(int groupPosition, int childPosition) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
 		@Override
 		public void notifyDataSetChanged() {
 			Fragment f = getFragmentManager().findFragmentById(R.id.container);
-			if(f instanceof LargeScreenFragment){
-				((LargeScreenFragment) f).summary();
+			if(f instanceof PlaceholderFragment){
+				((PlaceholderFragment) f).summary();
 			}
 			super.notifyDataSetChanged();
 		}
 		
 		private class ViewHolder{
-			LinearLayout orderSetContent;
+			LinearLayout menuInfoContent;
 			CheckBox chk;
 			TextView tvOrderNo;
 			TextView tvOrderName;
 			TextView tvOrderPrice;
+			TextView tvComment;
 			EditText txtOrderAmount;
-			Button btnSetMod;
+			ImageButton btnSetMod;
+			ImageButton btnComment;
 			Button btnMinus;
 			Button btnPlus;
 		}
 	}
-
+	
 	private class HoldBillAdapter extends BaseAdapter{
 		LayoutInflater inflater;
 		List<MPOSOrderTransaction> transLst;
@@ -1179,6 +1248,15 @@ public class MainActivity extends FragmentActivity{
 		.show();
 	}
 
+	private void updateOrderDetailLst(int position, int orderDetailId){
+		mOrderDetailLst.set(position, mTrans.getOrder(mTransactionId, orderDetailId));
+		mOrderDetailAdapter.notifyDataSetChanged();
+		Fragment f = getFragmentManager().findFragmentById(R.id.container);
+		if(f instanceof PlaceholderFragment){
+			((PlaceholderFragment) f).mLvOrderDetail.setSelectedGroup(position);
+		}
+	}
+	
 	/**
 	 * load order
 	 */
@@ -1202,8 +1280,8 @@ public class MainActivity extends FragmentActivity{
 		protected void onPostExecute(Void result) {
 			mOrderDetailAdapter.notifyDataSetChanged();
 			Fragment f = getFragmentManager().findFragmentById(R.id.container);
-			if(f instanceof LargeScreenFragment){
-				((LargeScreenFragment) f).mLvOrderDetail.setSelection(mOrderDetailAdapter.getCount() - 1);
+			if(f instanceof PlaceholderFragment){
+				((PlaceholderFragment) f).mLvOrderDetail.setSelectedGroup(mOrderDetailAdapter.getGroupCount());
 			}
 		}
 
@@ -1634,13 +1712,13 @@ public class MainActivity extends FragmentActivity{
 	 */
 	private void countTransNotSend(Context context){
 		Fragment f = getFragmentManager().findFragmentById(R.id.container);
-		if(f instanceof LargeScreenFragment){
-			if(((LargeScreenFragment) f).mItemSendSale != null){
+		if(f instanceof PlaceholderFragment){
+			if(((PlaceholderFragment) f).mItemSendSale != null){
 				int total = mTrans.countTransNotSend();
 				if(total > 0){
-					((LargeScreenFragment) f).mItemSendSale.setTitle(context.getString(R.string.send_sale_data) + "(" + total + ")");
+					((PlaceholderFragment) f).mItemSendSale.setTitle(context.getString(R.string.send_sale_data) + "(" + total + ")");
 				}else{
-					((LargeScreenFragment) f).mItemSendSale.setTitle(context.getString(R.string.send_sale_data));
+					((PlaceholderFragment) f).mItemSendSale.setTitle(context.getString(R.string.send_sale_data));
 				}
 			}
 		}
@@ -1651,15 +1729,25 @@ public class MainActivity extends FragmentActivity{
 	 */
 	private void countHoldOrder(Context context){
 		Fragment f = getFragmentManager().findFragmentById(R.id.container);
-		if(f instanceof LargeScreenFragment){
-			if(((LargeScreenFragment) f).mItemHoldBill != null){
+		if(f instanceof PlaceholderFragment){
+			if(((PlaceholderFragment) f).mItemHoldBill != null){
 				int totalHold = mTrans.countHoldOrder(mSession.getSessionDate());
 				if(totalHold > 0){
-					((LargeScreenFragment) f).mItemHoldBill.setTitle(context.getString(R.string.hold_bill) + "(" + totalHold + ")");
+					((PlaceholderFragment) f).mItemHoldBill.setTitle(context.getString(R.string.hold_bill) + "(" + totalHold + ")");
 				}else{
-					((LargeScreenFragment) f).mItemHoldBill.setTitle(context.getString(R.string.hold_bill));
+					((PlaceholderFragment) f).mItemHoldBill.setTitle(context.getString(R.string.hold_bill));
 				}
 			}
 		}
+	}
+
+	@Override
+	public void onItemClick(int position, int orderDetailId) {
+		updateOrderDetailLst(position, orderDetailId);
+	}
+	
+	@Override
+	public void onButtonClick(int position, int orderDetailId) {
+		updateOrderDetailLst(position, orderDetailId);
 	}
 }

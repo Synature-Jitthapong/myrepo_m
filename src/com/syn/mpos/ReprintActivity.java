@@ -90,7 +90,7 @@ public class ReprintActivity extends Activity {
 				holder.tvNo = (TextView) convertView.findViewById(R.id.textView2);
 				holder.tvItem = (TextView) convertView.findViewById(R.id.textView1);
 				holder.progress = (ProgressBar) convertView.findViewById(R.id.progressBar1);
-				holder.btnPrint = (Button) convertView.findViewById(R.id.button1);
+				holder.btnPrint = (Button) convertView.findViewById(R.id.btnCommentMinus);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();

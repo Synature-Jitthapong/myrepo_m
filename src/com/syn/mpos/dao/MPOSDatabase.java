@@ -8,6 +8,9 @@ import com.syn.mpos.dao.CreditCard.CreditCardTable;
 import com.syn.mpos.dao.Formater.GlobalPropertyTable;
 import com.syn.mpos.dao.HeaderFooterReceipt.HeaderFooterReceiptTable;
 import com.syn.mpos.dao.Language.LanguageTable;
+import com.syn.mpos.dao.MenuComment.MenuCommentGroupTable;
+import com.syn.mpos.dao.MenuComment.MenuCommentTable;
+import com.syn.mpos.dao.MenuComment.MenuFixCommentTable;
 import com.syn.mpos.dao.PaymentAmountButton.PaymentButtonTable;
 import com.syn.mpos.dao.PaymentDetail.PayTypeTable;
 import com.syn.mpos.dao.PaymentDetail.PaymentDetailTable;
@@ -22,6 +25,7 @@ import com.syn.mpos.dao.Session.SessionTable;
 import com.syn.mpos.dao.Shop.ShopTable;
 import com.syn.mpos.dao.Staffs.StaffPermissionTable;
 import com.syn.mpos.dao.Staffs.StaffTable;
+import com.syn.mpos.dao.Transaction.OrderCommentTable;
 import com.syn.mpos.dao.Transaction.OrderDetailTable;
 import com.syn.mpos.dao.Transaction.OrderSetTable;
 import com.syn.mpos.dao.Transaction.OrderTransactionTable;
@@ -35,7 +39,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * @author j1tth4
  * 
  */
-public class MPOSDatabase {
+public class MPOSDatabase extends BaseColumn{
 	
 	public static final int NOT_SEND = 0;
 	public static final int ALREADY_SEND = 1;
@@ -89,9 +93,13 @@ public class MPOSDatabase {
 			GlobalPropertyTable.onCreate(db);
 			LanguageTable.onCreate(db);
 			HeaderFooterReceiptTable.onCreate(db);
+			MenuCommentTable.onCreate(db);
+			MenuCommentGroupTable.onCreate(db);
+			MenuFixCommentTable.onCreate(db);
 			OrderDetailTable.onCreate(db);
 			OrderTransactionTable.onCreate(db);
 			OrderSetTable.onCreate(db);
+			OrderCommentTable.onCreate(db);
 			PrintReceiptLogTable.onCreate(db);
 			PaymentDetailTable.onCreate(db);
 			PaymentButtonTable.onCreate(db);

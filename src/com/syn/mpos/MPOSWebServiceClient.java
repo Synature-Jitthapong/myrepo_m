@@ -12,6 +12,7 @@ import com.syn.mpos.dao.CreditCard;
 import com.syn.mpos.dao.Formater;
 import com.syn.mpos.dao.HeaderFooterReceipt;
 import com.syn.mpos.dao.Language;
+import com.syn.mpos.dao.MenuComment;
 import com.syn.mpos.dao.PaymentAmountButton;
 import com.syn.mpos.dao.PaymentDetail;
 import com.syn.mpos.dao.Products;
@@ -129,13 +130,16 @@ public class MPOSWebServiceClient {
 					@Override
 					public void onPost(ProductGroups pgs) {
 						Products pd = new Products(context.getApplicationContext());
+						MenuComment mc = new MenuComment(context.getApplicationContext());
 						try {
 							pd.insertProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
 							pd.insertProductDept(pgs.getProductDept(), mgs.getMenuDept());
 							pd.insertProducts(pgs.getProduct(), mgs.getMenuItem());
 							pd.insertPComponentGroup(pgs.getPComponentGroup());
 							pd.insertProductComponent(pgs.getPComponentSet());
-
+							mc.insertMenuComment(mgs.getMenuComment());
+							mc.insertMenuCommentGroup(mgs.getMenuCommentGroup());
+							mc.insertMenuFixComment(mgs.getMenuFixComment());
 							// clear all menu picture
 							FileManager fm = new FileManager(context.getApplicationContext(), MPOSApplication.IMG_DIR);
 							fm.clear();

@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="pref_printer_name">
-        <item>TM-T81</item><item >TM-T88V</item>
+        <item>TM-T81</item><item >@string/tm_t88v</item>
         
     </string-array>
     <string-array name="pref_printer_value">
-        <item>TM-T88V</item><item >TM-T88V</item>
+        <item>TM-T88V</item><item >@string/tm_t88v</item>
         
     </string-array>
     <string-array name="pref_printer_font_name">
-        <item >@string/font_medium</item>
-        <item >@string/font_small</item>
+        <item>@string/font_medium</item>
+        <item>@string/font_small</item>
     </string-array>
     <string-array name="pref_printer_font_value">
-        <item >b</item>
-        <item >c</item>
+        <item>b</item>
+        <item>c</item>
     </string-array>
+    <string name="tm_t88v">TM-T88V</string>
     <string name="font_medium">Medium</string>
     <string name="font_small">Small</string>
-    
+    <string name="default_second_display_port">6600</string>
 </resources>
