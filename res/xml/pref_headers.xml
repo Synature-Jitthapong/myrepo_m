@@ -3,16 +3,16 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.syn.mpos.SettingsActivity$ConnectionPreferenceFragment"
+        android:fragment="com.synature.mpos.SettingsActivity$ConnectionPreferenceFragment"
         android:title="@string/connection"/>
     <header
-        android:fragment="com.syn.mpos.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="com.synature.mpos.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/general_setting"/>
 	<header
-        android:fragment="com.syn.mpos.SettingsActivity$PrinterPreferenceFragment"
+        android:fragment="com.synature.mpos.SettingsActivity$PrinterPreferenceFragment"
         android:title="@string/printer_setting"/>
     <header
-        android:fragment="com.syn.mpos.SettingsActivity$SecondDisplayPreferenceFragment"
+        android:fragment="com.synature.mpos.SettingsActivity$SecondDisplayPreferenceFragment"
         android:title="@string/second_display_setting"/>
 
 </preference-headers>
