@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
  	<style name="BaseBodyText" parent="android:Widget.Holo.TextView">
 		<item name="android:shadowDx">1</item>
 		<item name="android:shadowDy">1</item>

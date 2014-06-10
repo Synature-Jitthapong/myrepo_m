@@ -57,6 +57,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	public static final int REPORT_BY_PRODUCT = 1;
 	public static final int REPORT_ENDDAY = 2;
 	
+	private Shop mShop;
+	
 	private Formater mFormat;
 
 	private Reporting mReporting;
@@ -84,6 +86,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		setContentView(R.layout.activity_sale_report);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
+		mShop = new Shop(this);
 		mFormat = new Formater(SaleReportActivity.this);
 		Calendar c = Calendar.getInstance();
 		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
@@ -188,6 +191,26 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			row.addView(tvSummary);
 		}
 		return row;
+	}
+	
+	private static TextView createTextViewItem(Context context, 
+			String content, LinearLayout.LayoutParams params){
+		TextView tvItem = new TextView(context);
+		tvItem.setText(content);
+		tvItem.setLayoutParams(params);
+		tvItem.setGravity(Gravity.RIGHT);
+		tvItem.setTextAppearance(context, R.style.BodyText);
+		return tvItem;
+	}
+	
+	private static TextView createTextViewHeader(Context context, 
+			String content, LinearLayout.LayoutParams params){
+		TextView tvHeader = new TextView(context);
+		tvHeader.setText(content);
+		tvHeader.setLayoutParams(params);
+		tvHeader.setGravity(Gravity.CENTER);
+		tvHeader.setTextAppearance(context, R.style.HeaderText);
+		return tvHeader;
 	}
 	
 	private static TextView createTextViewSummary(Context context, 
@@ -579,6 +602,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		private BillReportAdapter mBillReportAdapter;
 		
 		private ListView mLvReport;
+		private LinearLayout mBillHeader;
 		private LinearLayout mBillSumContent;
 		
 		public static BillReportFragment getInstance(){
@@ -624,10 +648,52 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_bill_report, container, false);
 
+			mBillHeader = (LinearLayout) rootView.findViewById(R.id.billHeader);
 			mBillSumContent = (LinearLayout) rootView.findViewById(R.id.billSummaryContent);
 			mLvReport = (ListView) rootView.findViewById(R.id.lvReport);
 			mLvReport.setAdapter(mBillReportAdapter);
+			
+			createHeader();
 			return rootView;
+		}
+		
+		private void createHeader(){
+			mBillHeader.removeAllViews();
+			TextView[] tvHeaders = {
+					createTextViewHeader(getActivity(), "", new 
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.2f)),
+					createTextViewHeader(getActivity(), getActivity().getString(R.string.bill_no), new 
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)),
+					createTextViewHeader(getActivity(), getActivity().getString(R.string.total), new 
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+					createTextViewHeader(getActivity(), getActivity().getString(R.string.discount), new 
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+					createTextViewHeader(getActivity(), getActivity().getString(R.string.sub_total), new 
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+					createTextViewHeader(getActivity(), getActivity().getString(R.string.vatable), new 
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
+			};
+			for(TextView tv : tvHeaders){
+				mBillHeader.addView(tv);
+			}
+			if(((SaleReportActivity) getActivity()).mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
+				tvHeaders = new TextView[]{
+						createTextViewHeader(getActivity(), getString(R.string.before_vat), new 
+								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+						createTextViewHeader(getActivity(), getString(R.string.total_vat), new 
+								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
+				};
+				for(TextView tv : tvHeaders){
+					mBillHeader.addView(tv);
+				}
+			}
+			tvHeaders = new TextView[]{
+					createTextViewHeader(getActivity(), getString(R.string.total_payment), new 
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
+			};
+			for(TextView tv : tvHeaders){
+				mBillHeader.addView(tv);
+			}
 		}
 		
 		public class BillReportAdapter extends BaseAdapter{
@@ -663,39 +729,79 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
-				ViewHolder holder;
 				if(convertView == null){
 					convertView = mInflater.inflate(R.layout.bill_report_template, null);
-					holder = new ViewHolder();
-					holder.imgSendStatus = (ImageView) convertView.findViewById(R.id.imgSendStatus);
-					holder.tvReceipt = (TextView) convertView.findViewById(R.id.tvReceipt);
-					holder.tvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
-					holder.tvDiscount = (TextView) convertView.findViewById(R.id.tvTotalDisc);
-					holder.tvSubTotal = (TextView) convertView.findViewById(R.id.tvSubTotal);
-					holder.tvVatable = (TextView) convertView.findViewById(R.id.tvVatable);
-					holder.tvTotalVat = (TextView) convertView.findViewById(R.id.tvTotalVat);
-					holder.tvTotalPayment = (TextView) convertView.findViewById(R.id.tvTotalPayment);
-					convertView.setTag(holder);
-				}else{
-					holder = (ViewHolder) convertView.getTag();
 				}
-				
 				final Report.ReportDetail report = mBillReport.getReportDetail().get(position);
 				double vatable = report.getVatable();
 				double totalVat = report.getTotalVat();
+				double beforVat = vatable - totalVat;
 				double totalPrice = report.getTotalPrice();
 				double totalDiscount = report.getDiscount();
 				double subTotal = report.getSubTotal();
 				double totalPay = report.getTotalPayment();
-				
-				holder.tvReceipt.setText(report.getReceiptNo());
-				holder.tvReceipt.setSelected(true);
-				holder.tvTotalPrice.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalPrice));
-				holder.tvDiscount.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalDiscount));
-				holder.tvSubTotal.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(subTotal));
-				holder.tvVatable.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(vatable));
-				holder.tvTotalVat.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalVat));
-				holder.tvTotalPayment.setText(((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalPay));
+
+				LinearLayout container = (LinearLayout) convertView;
+				if(container.getChildCount() > 0)
+					container.removeAllViews();
+				TextView tvBill = createTextViewItem(getActivity(), report.getReceiptNo(), new 
+						LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+				tvBill.setGravity(Gravity.LEFT);		
+				if(report.getTransStatus() == Transaction.TRANS_STATUS_VOID){
+					tvBill.setTextColor(Color.RED);
+					tvBill.setPaintFlags(tvBill.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+				}else{
+					tvBill.setTextColor(Color.BLACK);
+					tvBill.setPaintFlags(tvBill.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
+				}
+				TextView tvs[] = new TextView[]{
+						tvBill,
+						createTextViewItem(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalPrice), new 
+								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+						createTextViewItem(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalDiscount), new 
+								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+						createTextViewItem(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(subTotal), new 
+								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+						createTextViewItem(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(vatable), new 
+								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
+				};
+				ImageView imgSendStatus = new ImageView(getActivity());
+				imgSendStatus.setLayoutParams(new LinearLayout.LayoutParams(0, 
+						LinearLayout.LayoutParams.WRAP_CONTENT, 0.2f));
+				container.addView(imgSendStatus);
+				for(TextView tv : tvs){
+					container.addView(tv);
+				}
+				if(((SaleReportActivity) getActivity()).mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
+					tvs = new TextView[]{
+						createTextViewItem(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(beforVat), new 
+								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+						createTextViewItem(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalVat), new 
+								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+					};
+					for(TextView tv : tvs){
+						container.addView(tv);
+					}
+				}
+				TextView tvTotalPay = new TextView(getActivity());
+				tvTotalPay = createTextViewItem(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(totalPay), new 
+						LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f));
+				tvTotalPay.setFocusable(false);
+				tvTotalPay.setFocusableInTouchMode(false);
+				tvTotalPay.setTextAppearance(getActivity(), android.R.style.TextAppearance_Holo_Large);
+				tvTotalPay.setTextColor(Color.BLUE);
+				tvTotalPay.setPaintFlags(tvTotalPay.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+				tvTotalPay.setOnClickListener(new OnClickListener(){
+
+					@Override
+					public void onClick(View v) {
+						PaymentDetailFragment f = 
+								PaymentDetailFragment.newInstance(report.getTransactionId());
+						f.show(getFragmentManager(), "PaymentDialogFragment");
+					}
+					
+				});
+				container.addView(tvTotalPay);
 				
 //				List<Payment.PaymentDetail> payTypeLst = 
 //						mPayment.listPaymentGroupByType(report.getTransactionId(), report.getComputerId());
@@ -711,43 +817,25 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 //					idx++;
 //				}
 				
-				holder.tvTotalPayment.setTextColor(Color.BLUE);
-				holder.tvTotalPayment.setPaintFlags(holder.tvTotalPayment.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-				holder.tvTotalPayment.setOnClickListener(new OnClickListener(){
-
-					@Override
-					public void onClick(View v) {
-						PaymentDetailFragment f = 
-								PaymentDetailFragment.newInstance(report.getTransactionId());
-						f.show(getFragmentManager(), "PaymentDialogFragment");
-					}
-					
-				});
-				
+//				holder.tvTotalPayment.setTextColor(Color.BLUE);
+//				holder.tvTotalPayment.setPaintFlags(holder.tvTotalPayment.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+//				holder.tvTotalPayment.setOnClickListener(new OnClickListener(){
+//
+//					@Override
+//					public void onClick(View v) {
+//						PaymentDetailFragment f = 
+//								PaymentDetailFragment.newInstance(report.getTransactionId());
+//						f.show(getFragmentManager(), "PaymentDialogFragment");
+//					}
+//					
+//				});
+//				
 				if(report.getSendStatus() == MPOSDatabase.ALREADY_SEND){
-					holder.imgSendStatus.setImageResource(R.drawable.ic_action_accept);
+					imgSendStatus.setImageResource(R.drawable.ic_action_accept);
 				}else{
-					holder.imgSendStatus.setImageResource(R.drawable.ic_action_warning);
-				}
-				if(report.getTransStatus() == Transaction.TRANS_STATUS_VOID){
-					holder.tvReceipt.setTextColor(Color.RED);
-					holder.tvReceipt.setPaintFlags(holder.tvReceipt.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-				}else{
-					holder.tvReceipt.setTextColor(Color.BLACK);
-					holder.tvReceipt.setPaintFlags(holder.tvReceipt.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
+					imgSendStatus.setImageResource(R.drawable.ic_action_warning);
 				}
 				return convertView;
-			}
-			
-			class ViewHolder{
-				ImageView imgSendStatus;
-				TextView tvReceipt;
-				TextView tvTotalPrice;
-				TextView tvDiscount;
-				TextView tvSubTotal;
-				TextView tvVatable;
-				TextView tvTotalVat;
-				TextView tvTotalPayment;
 			}
 		}
 		
@@ -765,13 +853,20 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getSubTotal()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
 					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getVatable()), new 
-							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
-					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getTotalVat()), new 
-							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
-					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getTotalPayment()), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
 			};
-			mBillSumContent.addView(createRowSummary(getActivity(), tvSummary));
+			for(TextView tv : tvSummary){
+				mBillSumContent.addView(tv);	
+			}
+			if(((SaleReportActivity) getActivity()).mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
+				
+			}
+			tvSummary = new TextView[]{
+				createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getTotalVat()), new 
+						LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+				createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getTotalPayment()), new 
+						LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
+			};
 		}
 		
 		public class LoadBillReportTask extends AsyncTask<Void, Void, Void>{

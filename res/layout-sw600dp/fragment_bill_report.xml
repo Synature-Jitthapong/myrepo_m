@@ -12,87 +12,11 @@
         android:id="@+id/billHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp" >
+        android:layout_marginBottom="1dp"
+        android:divider="?android:attr/listDivider"
+        android:orientation="horizontal"
+        android:showDividers="middle" >
 
-        <TextView
-            android:id="@+id/TextView13"
-            style="@style/HeaderText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.2"
-            android:gravity="left" />
-
-        <TextView
-            android:id="@+id/textView1"
-            style="@style/HeaderText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="left"
-            android:text="@string/bill_no" />
-
-        <TextView
-            android:id="@+id/textView2"
-            style="@style/HeaderText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:gravity="right"
-            android:text="@string/total" />
-
-        <TextView
-            android:id="@+id/textView3"
-            style="@style/HeaderText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:gravity="right"
-            android:text="@string/discount_short" />
-
-        <TextView
-            android:id="@+id/textView4"
-            style="@style/HeaderText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:gravity="right"
-            android:text="@string/sub_total" />
-
-        <TextView
-            android:id="@+id/textView5"
-            style="@style/HeaderText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.8"
-            android:text="@string/total_sale"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/textView6"
-            style="@style/HeaderText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:gravity="right"
-            android:text="@string/vatable" />
-
-        <TextView
-            android:id="@+id/textView7"
-            style="@style/HeaderText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:gravity="right"
-            android:text="@string/total_vat" />
-
-        <TextView
-            android:id="@+id/textView8"
-            style="@style/HeaderText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:gravity="right"
-            android:text="@string/total_payment" />
     </LinearLayout>
 
     <ListView
@@ -108,7 +32,7 @@
         android:id="@+id/billSummaryContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:orientation="horizontal" >
     </LinearLayout>
 
 </LinearLayout>
