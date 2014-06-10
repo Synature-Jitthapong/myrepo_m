@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.syn.mpos"
+    package="com.synature.mpos"
     android:installLocation="auto"
     android:versionCode="2"
     android:versionName="1.0.3" >
@@ -33,13 +33,13 @@
         android:required="false" />
 
     <application
-        android:name="com.syn.mpos.MPOSApplication"
+        android:name="com.synature.mpos.MPOSApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.syn.mpos.LoginActivity"
+            android:name="com.synature.mpos.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" >
@@ -50,12 +50,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.syn.mpos.MainActivity"
+            android:name="com.synature.mpos.MainActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" >
         </activity>
         <activity
-            android:name="com.syn.mpos.DiscountActivity"
+            android:name="com.synature.mpos.DiscountActivity"
             android:label="@string/discount"
             android:screenOrientation="landscape" >
             <meta-data
@@ -63,7 +63,7 @@
                 android:value="com.syn.mpos.MainActivity" />
         </activity>
         <activity
-            android:name="com.syn.mpos.SaleReportActivity"
+            android:name="com.synature.mpos.SaleReportActivity"
             android:label="@string/title_activity_sale_report"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden" >
@@ -72,7 +72,7 @@
                 android:value="com.syn.mpos.MainActivity" />
         </activity>
         <activity
-            android:name="com.syn.mpos.VoidBillActivity"
+            android:name="com.synature.mpos.VoidBillActivity"
             android:label="@string/title_activity_void_bill"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" >
@@ -81,47 +81,47 @@
                 android:value="com.syn.mpos.MainActivity" />
         </activity>
         <activity
-            android:name="com.syn.mpos.SettingsActivity"
+            android:name="com.synature.mpos.SettingsActivity"
             android:label="@string/setting"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>
         <activity
-            android:name="com.syn.mpos.AboutActivity"
+            android:name="com.synature.mpos.AboutActivity"
             android:label="@string/title_activity_about"
             android:screenOrientation="landscape" >
         </activity>
         <activity
-            android:name="com.syn.mpos.PaymentActivity"
+            android:name="com.synature.mpos.PaymentActivity"
             android:label="@string/payment"
             android:screenOrientation="landscape"
             android:theme="@style/ActivityDialogTheme" >
         </activity>
         <activity
-            android:name="com.syn.mpos.CreditPayActivity"
+            android:name="com.synature.mpos.CreditPayActivity"
             android:label="@string/credit_pay"
             android:screenOrientation="landscape"
             android:theme="@style/ActivityDialogTheme" >
         </activity>
         <activity
-            android:name="com.syn.mpos.SyncSaleActivity"
+            android:name="com.synature.mpos.SyncSaleActivity"
             android:label="@string/send_sale_data"
             android:screenOrientation="landscape"
             android:theme="@style/ActivityDialogTheme" >
         </activity>
         <activity
-            android:name="com.syn.mpos.ReprintActivity"
+            android:name="com.synature.mpos.ReprintActivity"
             android:label="@string/title_activity_reprint"
             android:theme="@style/ActivityDialogTheme" >
         </activity>
         <activity
-            android:name="com.syn.mpos.ProductSetActivity"
+            android:name="com.synature.mpos.ProductSetActivity"
             android:label="@string/title_activity_product_set"
             android:screenOrientation="landscape" >
         </activity>
 
         <receiver
-            android:name="com.syn.mpos.BootUpReceiver"
+            android:name="com.synature.mpos.BootUpReceiver"
             android:enabled="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
             <intent-filter>

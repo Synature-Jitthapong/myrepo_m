@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.syn.mpos.dao.Formater;
-import com.syn.mpos.dao.MPOSOrderTransaction;
-import com.synature.mpos.seconddisplay.SecondDisplayProperty.clsSecDisplayItemData;
-import com.synature.mpos.seconddisplay.SecondDisplayProperty.clsSecDisplay_DetailItem;
-import com.synature.mpos.seconddisplay.SecondDisplayProperty.clsSecDisplay_TransSummary;
+import com.synature.mpos.dao.Formater;
+import com.synature.mpos.dao.MPOSOrderTransaction;
+import com.synature.pos.SecondDisplayProperty;
+import com.synature.pos.SecondDisplayProperty.clsSecDisplayItemData;
+import com.synature.pos.SecondDisplayProperty.clsSecDisplay_DetailItem;
+import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
 
 public class SecondDisplayJSON {
 	/**

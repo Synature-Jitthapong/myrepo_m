@@ -80,10 +80,10 @@
 
     <EditText
         android:id="@+id/txtOrderQty"
-        android:layout_width="wrap_content"
+        android:layout_width="48dp"
         android:layout_height="wrap_content"
         android:editable="false"
-        android:ems="2"
+        android:ems="10"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:gravity="center"
