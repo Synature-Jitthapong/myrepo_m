@@ -37,8 +37,10 @@ public class Session extends MPOSDatabase{
 				}
 		);
 		if(cursor.moveToFirst()){
-			String sessDate = cursor.getString(0);
-			sessLst.add(sessDate);
+			do{
+				String sessDate = cursor.getString(0);
+				sessLst.add(sessDate);
+			}while(cursor.moveToNext());
 		}
 		cursor.close();
 		return sessLst;

@@ -116,7 +116,7 @@ public class LoginActivity extends Activity{
 			 * Current date > Session date
 			 * mPOS will force to end day.
 			 */
-			if(Util.getDate().getTime().compareTo(sessionDate.getTime()) > 0){
+			else if(Util.getDate().getTime().compareTo(sessionDate.getTime()) > 0){
 				// first access of day
 				mIsFirstAccess = true;
 				
@@ -154,7 +154,17 @@ public class LoginActivity extends Activity{
 									public void onPost() {
 										if(progress.isShowing())
 											progress.dismiss();
-										gotoMainActivity();
+										new AlertDialog.Builder(LoginActivity.this)
+										.setCancelable(false)
+										.setTitle(R.string.endday)
+										.setMessage(R.string.endday_success)
+										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+											
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+												gotoMainActivity();
+											}
+										}).show();
 									}
 
 									@Override
@@ -162,12 +172,14 @@ public class LoginActivity extends Activity{
 										if(progress.isShowing())
 											progress.dismiss();
 										new AlertDialog.Builder(LoginActivity.this)
-										.setTitle(R.string.error)
-										.setMessage(msg)
+										.setCancelable(false)
+										.setTitle(R.string.endday)
+										.setMessage(R.string.endday_success)
 										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 											
 											@Override
 											public void onClick(DialogInterface dialog, int which) {
+												gotoMainActivity();
 											}
 										}).show();
 									}
@@ -326,7 +338,6 @@ public class LoginActivity extends Activity{
 	
 	@Override
 	protected void onResume() {
-		super.onResume();
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
@@ -344,6 +355,7 @@ public class LoginActivity extends Activity{
 				updateData();
 			}
 		}
+		super.onResume();
 	}
 			
 	private void gotoMainActivity(){
@@ -390,7 +402,7 @@ public class LoginActivity extends Activity{
 						new AlertDialog.Builder(LoginActivity.this)
 						.setCancelable(false)
 						.setTitle(R.string.update_data)
-						.setMessage(msg)
+						.setMessage(getString(R.string.cannot_update_data) + "\n" + msg)
 						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 							
 							@Override
@@ -436,7 +448,7 @@ public class LoginActivity extends Activity{
 										new AlertDialog.Builder(LoginActivity.this)
 										.setCancelable(false)
 										.setTitle(R.string.update_data)
-										.setMessage(msg)
+										.setMessage(getString(R.string.cannot_update_data) + "\n" + msg)
 										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 											
 											@Override
@@ -457,7 +469,7 @@ public class LoginActivity extends Activity{
 								new AlertDialog.Builder(LoginActivity.this)
 								.setCancelable(false)
 								.setTitle(R.string.update_data)
-								.setMessage(msg)
+								.setMessage(getString(R.string.cannot_update_data) + "\n" + msg)
 								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 									
 									@Override

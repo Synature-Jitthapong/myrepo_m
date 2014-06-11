@@ -32,7 +32,10 @@
         android:id="@+id/billSummaryContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:divider="?android:attr/listDivider"
+        android:orientation="horizontal"
+        android:showDividers="middle" >
+
     </LinearLayout>
 
 </LinearLayout>

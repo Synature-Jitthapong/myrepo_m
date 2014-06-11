@@ -859,14 +859,24 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				mBillSumContent.addView(tv);	
 			}
 			if(((SaleReportActivity) getActivity()).mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
-				
+				double beforVat = summary.getVatable() - summary.getTotalVat();
+				tvSummary = new TextView[]{
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(beforVat), new 
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+					createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getTotalVat()), new 
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
+				};
+				for(TextView tv : tvSummary){
+					mBillSumContent.addView(tv);
+				}
 			}
 			tvSummary = new TextView[]{
-				createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getTotalVat()), new 
-						LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
 				createTextViewSummary(getActivity(), ((SaleReportActivity) getActivity()).mFormat.currencyFormat(summary.getTotalPayment()), new 
 						LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
 			};
+			for(TextView tv : tvSummary){
+				mBillSumContent.addView(tv);
+			}
 		}
 		
 		public class LoadBillReportTask extends AsyncTask<Void, Void, Void>{

@@ -12,7 +12,9 @@
     <LinearLayout
         android:id="@+id/productHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:divider="?android:attr/listDivider"
+        android:showDividers="middle" >
 
         <TextView
             android:id="@+id/textView14"

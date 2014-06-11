@@ -19,6 +19,7 @@ import com.synature.mpos.dao.Shop;
 import com.synature.mpos.dao.Staffs;
 import com.synature.mpos.dao.Transaction;
 import com.synature.mpos.dao.UserVerification;
+import com.synature.mpos.dao.Util;
 import com.synature.pos.ShopData;
 import com.synature.util.ImageLoader;
 
@@ -143,7 +144,26 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	
 	@Override
 	protected void onResume() {
-		openTransaction();
+		if(mSession.getCurrentSessionId() > 0){
+			/*
+			 * If resume when system date > session date || 
+			 * session date > system date. It means the system date
+			 * is not valid.
+			 * It will be return to LoginActivity for new initial
+			 */
+			Calendar sessionCal = Calendar.getInstance();
+			String sessionDate = mSession.getSessionDate();
+			sessionCal.setTimeInMillis(Long.parseLong(sessionDate));
+			if(Util.getDate().getTime().compareTo(sessionCal.getTime()) > 0 || 
+					sessionCal.getTime().compareTo(Util.getDate().getTime()) > 0){
+				startActivity(new Intent(MainActivity.this, LoginActivity.class));
+				finish();
+			}else{
+				openTransaction();
+			}
+		}else{
+			openTransaction();
+		}
 		super.onResume();
 	}
 
@@ -1253,38 +1273,15 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 * load order
 	 */
 	private void loadOrder(){
-		new LoadOrderTask().execute();
+		mOrderDetailLst = mTrans.listAllOrder(mTransactionId);
+		mOrderDetailAdapter.notifyDataSetChanged();
+		Fragment f = getFragmentManager().findFragmentById(R.id.container);
+		if (f instanceof PlaceholderFragment) {
+			((PlaceholderFragment) f).mLvOrderDetail
+					.setSelectedGroup(mOrderDetailAdapter.getGroupCount());
+		}
 	}
 
-	/**
-	 * Task for load order
-	 * @author j1tth4
-	 */
-	private class LoadOrderTask extends AsyncTask<Void, Void, Void>{
-
-		@Override
-		protected void onPreExecute() {
-			// TODO Auto-generated method stub
-			super.onPreExecute();
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			mOrderDetailAdapter.notifyDataSetChanged();
-			Fragment f = getFragmentManager().findFragmentById(R.id.container);
-			if(f instanceof PlaceholderFragment){
-				((PlaceholderFragment) f).mLvOrderDetail.setSelectedGroup(mOrderDetailAdapter.getGroupCount());
-			}
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			mOrderDetailLst = mTrans.listAllOrder(mTransactionId);
-			return null;
-		}
-		
-	}
-	
 	private void openTransaction(){
 		openSession();	
 		mTransactionId = mTrans.getCurrTransactionId(mSession.getSessionDate());
@@ -1448,6 +1445,8 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				public void onClick(DialogInterface dialog, int which) {
 					mProgress.setTitle(MainActivity.this.getString(R.string.endday));
 					mProgress.setMessage(MainActivity.this.getString(R.string.endday_progress));
+					// execute print summary sale task
+					new PrintReport(MainActivity.this, mStaffId, PrintReport.WhatPrint.SUMMARY_SALE).execute();
 					MPOSUtil.endday(MainActivity.this, mShop.getShopId(), 
 							mComputer.getComputerId(), mSessionId, mStaffId, 0, true,
 							new ProgressListener() {
@@ -1479,13 +1478,17 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 						public void onError(String msg) {
 							if(mProgress.isShowing())
 								mProgress.dismiss();
-							
 							new AlertDialog.Builder(MainActivity.this)
-							.setMessage(msg)
+							.setTitle(R.string.endday)
+							.setMessage(R.string.endday_success)
+							.setCancelable(false)
 							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 								
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
+									if(mSession.checkEndday(mSession.getSessionDate()) > 0){
+										finish();
+									}
 								}
 							}).show();
 						}

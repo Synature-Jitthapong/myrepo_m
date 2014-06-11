@@ -111,9 +111,6 @@ public class MPOSUtil {
 			final int computerId, final int sessionId,
 			final int staffId, final double closeAmount,
 			final boolean isEndday, final ProgressListener listener) {
-
-		// execute print summary sale task
-		new PrintReport(context, staffId, PrintReport.WhatPrint.SUMMARY_SALE).execute();
 		
 		final Session sess = new Session(context.getApplicationContext());
 		final Transaction trans = new Transaction(context.getApplicationContext());
