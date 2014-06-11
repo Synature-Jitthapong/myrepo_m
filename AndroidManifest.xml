@@ -31,6 +31,9 @@
     <uses-feature
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
 
     <application
         android:name="com.synature.mpos.MPOSApplication"
@@ -130,6 +133,25 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+        <service android:name="com.synature.mpos.account.AuthenticatorService">
+            <intent-filter>
+                <action android:name="com.synature.mpos.account.Authenticator"/>
+            </intent-filter>
+            <meta-data 
+                android:name="com.synature.mpos.account.Authenticator"
+                android:resource="@xml/authenticator"/>
+        </service>
+        <service android:name="com.synature.mpos.sync.SyncService"
+                android:exported="true"
+                android:process=":sync">
+            <intent-filter>
+                <action android:name="com.synature.mpos.SyncAdapter"/>
+            </intent-filter>
+            <meta-data 
+                android:name="com.synature.mpos.SyncAdapter"
+                android:resource="@xml/syncadapter">
+            </meta-data>
+        </service>
     </application>
 
 </manifest>
