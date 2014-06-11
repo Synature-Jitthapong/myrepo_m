@@ -6,6 +6,10 @@
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:windowIsTranslucent">true</item>
     </style>
+    <style name="HeaderRow">
+        <item name="android:divider">?android:attr/listDivider</item>
+        <item name="android:showDividers">middle</item>
+    </style>
 	<style name="BodyText" parent="BaseBodyText"></style>
     <style name="HeaderText" parent="BaseHeaderText"></style>
     <style name="AppTheme" parent="AppBaseTheme">

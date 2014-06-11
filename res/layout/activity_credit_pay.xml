@@ -53,7 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="right"
-                android:text="@string/pay_amount"
+                android:text="@string/amount"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText

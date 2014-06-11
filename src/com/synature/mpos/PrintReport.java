@@ -281,7 +281,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				
 				// Vat Exclude
 				if(summOrder.getVatExclude() > 0){
-					String vatExcludeText = mContext.getString(R.string.tax_exclude) + " " +
+					String vatExcludeText = mContext.getString(R.string.vat_exclude) + " " +
 							NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 					String vatExclude = mFormat.currencyFormat(summOrder.getVatExclude());
 					mBuilder.addText(vatExcludeText);
@@ -372,7 +372,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			
 			// Vat Exclude
 			if(summOrder.getVatExclude() > 0){
-				String vatExcludeText = mContext.getString(R.string.tax_exclude) + " " +
+				String vatExcludeText = mContext.getString(R.string.vat_exclude) + " " +
 						NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 				String vatExclude = mFormat.currencyFormat(summOrder.getVatExclude());
 				mBuilder.append(vatExcludeText);
@@ -422,7 +422,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			try {
 				mBuilder.addTextAlign(Builder.ALIGN_CENTER);
 				// header
-				mBuilder.addText(mContext.getString(R.string.summary_sale_by_day) + "\n");
+				mBuilder.addText(mContext.getString(R.string.endday_report) + "\n");
 				mBuilder.addText(mFormat.dateFormat(session.getSessionDate()) + "\n");
 				mBuilder.addText(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 				mBuilder.addText(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(mStaffId).getStaffName() + "\n");
@@ -574,7 +574,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				= mTrans.getSummaryOrderInDay(session.getSessionDate(), session.getSessionDate());
 
 			// header
-			mBuilder.append("<c>" + mContext.getString(R.string.summary_sale_by_day) + "\n");
+			mBuilder.append("<c>" + mContext.getString(R.string.endday_report) + "\n");
 			mBuilder.append("<c>" + mFormat.dateFormat(session.getSessionDate()) + "\n");
 			mBuilder.append("<c>" + mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 			mBuilder.append(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(mStaffId).getStaffName() + "\n");

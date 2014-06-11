@@ -350,7 +350,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 								android.R.style.TextAppearance_Holo_Medium, 0));
 			}
 			if(sumOrder.getVatExclude() > 0){
-				mTbSummary.addView(createTableRowSummary(getString(R.string.tax) +
+				mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
 						" " + NumberFormat.getInstance().format(activity.mShop.getCompanyVatRate()) + "%",
 						activity.mFormat.currencyFormat(sumOrder.getVatExclude()),
 						android.R.style.TextAppearance_Holo_Medium, 0));
@@ -660,14 +660,14 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 						new AlertDialog.Builder(MainActivity.this)
 						.setTitle(R.string.delete)
 						.setMessage(R.string.confirm_delete_item)
-						.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+						.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								
 							}
 						})
-						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
@@ -1073,16 +1073,16 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	public void clearBillClicked(final View v){
 		new AlertDialog.Builder(MainActivity.this)
 		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setTitle(R.string.clear_bill)
-		.setMessage(R.string.confirm_clear_bill)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+		.setTitle(R.string.cancel_bill)
+		.setMessage(R.string.confirm_cancel_bill)
+		.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 			
 			}
 		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+		.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -1242,7 +1242,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		.setTitle(R.string.logout)
 		.setIcon(android.R.drawable.ic_dialog_info)
 		.setMessage(s.getStaffName() + "\n" + getString(R.string.confirm_logout))
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+		.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -1250,7 +1250,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				
 			}
 		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+		.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -1347,7 +1347,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				if(mOrderDetailLst.size() > 0){
 					new AlertDialog.Builder(MainActivity.this)
 					.setTitle(R.string.hold)
-					.setMessage(R.string.hold_order)
+					.setMessage(R.string.hold_current_order)
 					.setNeutralButton(R.string.close,
 							new DialogInterface.OnClickListener() {
 	
@@ -1368,7 +1368,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 					}else{
 						new AlertDialog.Builder(MainActivity.this)
 						.setTitle(R.string.hold_bill)
-						.setMessage(R.string.select_order_first)
+						.setMessage(R.string.select_item)
 						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 							
 							@Override
@@ -1407,13 +1407,13 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		.setCancelable(false)
 		.setTitle(R.string.close_shift)
 		.setMessage(R.string.confirm_close_shift)
-		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+		.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 			}
 		})
-		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+		.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -1433,13 +1433,13 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			.setCancelable(false)
 			.setTitle(R.string.endday)
 			.setMessage(R.string.confirm_endday)
-			.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 				}
 			})
-			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -1534,7 +1534,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 					.setMessage(
 							this.getString(R.string.confirm_delete) + " ("
 									+ selectedOrderLst.size() + ") ?")
-					.setNegativeButton(android.R.string.cancel,
+					.setNegativeButton(R.string.no,
 							new DialogInterface.OnClickListener() {
 
 								@Override
@@ -1542,7 +1542,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 										int which) {
 								}
 							})
-					.setPositiveButton(android.R.string.ok,
+					.setPositiveButton(R.string.yes,
 							new DialogInterface.OnClickListener() {
 
 								@Override

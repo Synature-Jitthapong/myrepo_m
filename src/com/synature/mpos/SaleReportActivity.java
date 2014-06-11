@@ -662,7 +662,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			TextView[] tvHeaders = {
 					createTextViewHeader(getActivity(), "", new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.2f)),
-					createTextViewHeader(getActivity(), getActivity().getString(R.string.bill_no), new 
+					createTextViewHeader(getActivity(), getActivity().getString(R.string.receipt_no), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.total), new 
 							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),

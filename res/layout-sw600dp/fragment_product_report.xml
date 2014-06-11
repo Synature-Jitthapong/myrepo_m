@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="left"
-            android:text="@string/item_name" />
+            android:text="@string/product_name" />
 
         <TextView
             android:id="@+id/TextView04"

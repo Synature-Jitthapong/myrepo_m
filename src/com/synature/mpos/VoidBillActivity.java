@@ -315,10 +315,9 @@ public class VoidBillActivity extends Activity {
 		txtVoidReason.setHint(R.string.reason);
 		AlertDialog.Builder builder = new AlertDialog.Builder(VoidBillActivity.this);
 		builder.setTitle(R.string.void_bill);
-		builder.setIcon(android.R.drawable.ic_dialog_alert);
 		builder.setView(inputLayout);
 		builder.setMessage(R.string.confirm_void_bill);
-		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+		builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -326,7 +325,7 @@ public class VoidBillActivity extends Activity {
 	            imm.hideSoftInputFromWindow(txtVoidReason.getWindowToken(), 0);
 			}
 		});
-		builder.setPositiveButton(android.R.string.ok, null);
+		builder.setPositiveButton(R.string.yes, null);
 		
 		final AlertDialog d = builder.create();
 		d.show();

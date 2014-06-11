@@ -151,7 +151,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		    	String changeText = mContext.getString(R.string.change) + " ";
 		    	String beforeVatText = mContext.getString(R.string.before_vat);
 		    	String discountText = mContext.getString(R.string.discount);
-		    	String vatRateText = mContext.getString(R.string.tax) + " " +
+		    	String vatRateText = mContext.getString(R.string.vat) + " " +
 		    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 		    	
 		    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
@@ -177,7 +177,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		    	
 		    	// transaction exclude vat
 		    	if(trans.getTransactionVatExclude() > 0){
-		    		String vatExcludeText = mContext.getString(R.string.tax) + " " +
+		    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
 		    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 		    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
 		    		mBuilder.addText(vatExcludeText);
@@ -355,7 +355,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	    	String changeText = mContext.getString(R.string.change) + " ";
 	    	String beforeVatText = mContext.getString(R.string.before_vat);
 	    	String discountText = mContext.getString(R.string.discount);
-	    	String vatRateText = mContext.getString(R.string.tax) + " " +
+	    	String vatRateText = mContext.getString(R.string.vat) + " " +
 	    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 	    	
 	    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
@@ -381,7 +381,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	    	
 	    	// transaction exclude vat
 	    	if(trans.getTransactionVatExclude() > 0){
-	    		String vatExcludeText = mContext.getString(R.string.tax) + " " +
+	    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
 	    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 	    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
 	    		mBuilder.append(vatExcludeText);

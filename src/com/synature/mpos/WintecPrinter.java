@@ -26,21 +26,21 @@ public abstract class WintecPrinter extends PrinterUtility{
 	protected void print(){
 		String[] subElement = mBuilder.toString().split("\n");
     	for(String data : subElement){
-    		if(!data.contains("<b>")){
-	    		mPrinter.PRN_EnableBoldFont(0);
-    		}
-    		if(!data.contains("<u>")){
-	    		mPrinter.PRN_DisableFontUnderline();
-    		}
+//    		if(!data.contains("<b>")){
+//	    		mPrinter.PRN_EnableBoldFont(0);
+//    		}
+//    		if(!data.contains("<u>")){
+//	    		mPrinter.PRN_DisableFontUnderline();
+//    		}
 			if(data.contains("<c>")){
 				data = adjustAlignCenter(data.replace("<c>", ""));
 			}
 			if(data.contains("<b>")){
-				mPrinter.PRN_EnableBoldFont(1);
+				//mPrinter.PRN_EnableBoldFont(1);
 				data = data.replace("<b>", "");
 			}
 			if(data.contains("<u>")){
-				mPrinter.PRN_EnableFontUnderline();
+				//mPrinter.PRN_EnableFontUnderline();
 				data = data.replace("<u>", "");
 			}
     		mPrinter.PRN_Print(data);

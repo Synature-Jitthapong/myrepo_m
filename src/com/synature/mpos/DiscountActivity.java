@@ -262,7 +262,7 @@ public class DiscountActivity extends Activity{
 	private void cancel(){
 		if (mIsEdited) {
 			new AlertDialog.Builder(DiscountActivity.this)
-					.setTitle(R.string.information)
+					.setTitle(R.string.discount)
 					.setIcon(android.R.drawable.ic_dialog_info)
 					.setMessage(R.string.confirm_cancel)
 					.setNegativeButton(R.string.no,

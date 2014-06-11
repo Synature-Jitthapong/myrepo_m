@@ -25,6 +25,7 @@ import com.synature.mpos.dao.PaymentDetail.PaymentDetailTable;
 import com.synature.mpos.dao.SaleTransaction.POSData_SaleTransaction;
 import com.synature.mpos.dao.Session.SessionDetailTable;
 import com.synature.mpos.dao.Session.SessionTable;
+import com.synature.mpos.dao.Transaction.OrderCommentTable;
 import com.synature.mpos.dao.Transaction.OrderDetailTable;
 import com.synature.mpos.dao.Transaction.OrderSetTable;
 import com.synature.mpos.dao.Transaction.OrderTransactionTable;
@@ -329,6 +330,7 @@ public class MPOSUtil {
 		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
 		sqlite.delete(OrderDetailTable.TABLE_ORDER_TMP, null, null);
 		sqlite.delete(OrderSetTable.TABLE_ORDER_SET, null, null);
+		sqlite.delete(OrderCommentTable.TABLE_ORDER_COMMENT, null, null);
 		sqlite.delete(OrderTransactionTable.TABLE_ORDER_TRANS, null, null);
 		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
 		sqlite.delete(SessionTable.TABLE_SESSION, null, null);

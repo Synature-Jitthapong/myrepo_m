@@ -64,7 +64,7 @@
         </activity>
         <activity
             android:name="com.synature.mpos.SaleReportActivity"
-            android:label="@string/title_activity_sale_report"
+            android:label="@string/sale_report"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden" >
             <meta-data
@@ -73,7 +73,7 @@
         </activity>
         <activity
             android:name="com.synature.mpos.VoidBillActivity"
-            android:label="@string/title_activity_void_bill"
+            android:label="@string/void_bill"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" >
             <meta-data
@@ -88,7 +88,7 @@
         </activity>
         <activity
             android:name="com.synature.mpos.AboutActivity"
-            android:label="@string/title_activity_about"
+            android:label="@string/about"
             android:screenOrientation="landscape" >
         </activity>
         <activity
@@ -111,12 +111,12 @@
         </activity>
         <activity
             android:name="com.synature.mpos.ReprintActivity"
-            android:label="@string/title_activity_reprint"
+            android:label="@string/reprint_receipt"
             android:theme="@style/ActivityDialogTheme" >
         </activity>
         <activity
             android:name="com.synature.mpos.ProductSetActivity"
-            android:label="@string/title_activity_product_set"
+            android:label="@string/set_menu"
             android:screenOrientation="landscape" >
         </activity>
 

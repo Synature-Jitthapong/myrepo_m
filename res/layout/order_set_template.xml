@@ -3,11 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:divider="?android:dividerVertical"
-    android:dividerPadding="8dp"
     android:gravity="center_vertical"
     android:minHeight="?android:listPreferredItemHeight"
     android:orientation="horizontal"
-    android:padding="@dimen/medium_space" >
+    android:padding="@dimen/medium_space"
+    android:showDividers="middle" >
 
     <TextView
         android:id="@+id/tvSetGroupName"
@@ -16,10 +16,11 @@
         android:layout_weight="1"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btnSetGroupDel"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/delete" />
+        android:src="@drawable/ic_action_discard" />
 
 </LinearLayout>

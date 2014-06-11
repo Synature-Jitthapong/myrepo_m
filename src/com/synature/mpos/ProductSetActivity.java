@@ -37,6 +37,7 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.GridView;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -216,7 +217,7 @@ public class ProductSetActivity extends Activity{
 			finish();
 		}else{
 			new AlertDialog.Builder(ProductSetActivity.this)
-			.setTitle(R.string.title_activity_product_set)
+			.setTitle(R.string.set_menu)
 			.setMessage(ProductSetActivity.this.getString(R.string.please_select) + " " + selectGroup)
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
@@ -448,7 +449,7 @@ public class ProductSetActivity extends Activity{
 					convertView = inflater.inflate(R.layout.order_set_template, null);
 					holder = new ViewSetGroupHolder();
 					holder.tvSetGroupName = (TextView) convertView.findViewById(R.id.tvSetGroupName);
-					holder.btnDel = (Button) convertView.findViewById(R.id.btnSetGroupDel);
+					holder.btnDel = (ImageButton) convertView.findViewById(R.id.btnSetGroupDel);
 					convertView.setTag(holder);
 				}else{
 					holder = (ViewSetGroupHolder) convertView.getTag();
@@ -461,13 +462,13 @@ public class ProductSetActivity extends Activity{
 					public void onClick(View v) {
 						new AlertDialog.Builder(getActivity())
 						.setTitle(R.string.delete)
-						.setMessage(R.string.confirm_delete_all)
-						.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+						.setMessage(R.string.confirm_delete)
+						.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 							}
-						}).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+						}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener(){
 
 							@Override
 							public void onClick(DialogInterface dialog,
@@ -521,12 +522,12 @@ public class ProductSetActivity extends Activity{
 								new AlertDialog.Builder(getActivity())
 								.setTitle(R.string.delete)
 								.setMessage(R.string.confirm_delete_item)
-								.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+								.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 									
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
 									}
-								}).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+								}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 									
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
@@ -582,7 +583,20 @@ public class ProductSetActivity extends Activity{
 				// TODO Auto-generated method stub
 				return false;
 			}
+
+			private class ViewSetGroupHolder{
+				TextView tvSetGroupName;
+				ImageButton btnDel;
+			}
 			
+			private class ViewSetDetailHolder{
+				TextView tvSetNo;
+				TextView tvSetName;
+				TextView tvSetPrice;
+				EditText txtSetQty;
+				Button btnSetMinus;
+				Button btnSetPlus;
+			}
 		}
 		
 		/**
@@ -679,19 +693,5 @@ public class ProductSetActivity extends Activity{
 				return convertView;
 			}
 		}
-	}
-	
-	public static class ViewSetDetailHolder{
-		TextView tvSetNo;
-		TextView tvSetName;
-		TextView tvSetPrice;
-		EditText txtSetQty;
-		Button btnSetMinus;
-		Button btnSetPlus;
-	}
-	
-	public static class ViewSetGroupHolder{
-		TextView tvSetGroupName;
-		Button btnDel;
 	}
 }

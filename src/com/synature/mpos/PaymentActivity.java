@@ -214,14 +214,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			TextView tvPayAmount = (TextView) rowView.findViewById(R.id.tvPayAmount);
 			Button imgDel = (Button) rowView.findViewById(R.id.btnDelete);
 			
-			String payTypeCash = PaymentActivity.this.getString(R.string.cash);
-			String payTypeCredit = PaymentActivity.this.getString(R.string.credit);
-			String payTypeName = payment.getPayTypeID() == PaymentDetail.PAY_TYPE_CASH ? payTypeCash : payTypeCredit;
-			if(payment.getPayTypeName() != null){
-				payTypeName = payment.getPayTypeName();
-			}
-			
-			tvPayType.setText(payTypeName);
+			tvPayType.setText(payment.getPayTypeName());
 			tvPayDetail.setText(payment.getRemark());
 			tvPayAmount.setText(mFormat.currencyFormat(payment.getPaid()));
 			imgDel.setOnClickListener(new OnClickListener(){

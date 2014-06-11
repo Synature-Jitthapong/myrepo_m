@@ -573,7 +573,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 								}
 							} catch (Exception e) {
 								new AlertDialog.Builder(CreditPayActivity.this)
-								.setTitle(R.string.error)
+								.setTitle(R.string.credit_card)
 								.setMessage("Error parser card data " + e.getMessage())
 								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 									
@@ -644,7 +644,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 			}
 		} catch (Exception e) {
 			new AlertDialog.Builder(CreditPayActivity.this)
-			.setTitle(R.string.error)
+			.setTitle(R.string.credit_card)
 			.setMessage("Error parser card data " + e.getMessage())
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
