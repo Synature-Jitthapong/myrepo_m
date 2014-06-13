@@ -20,6 +20,8 @@ import com.synature.mpos.provider.Staffs;
 import com.synature.mpos.provider.Transaction;
 import com.synature.mpos.provider.UserVerification;
 import com.synature.mpos.provider.Util;
+import com.synature.mpos.seconddisplay.ClientSocket;
+import com.synature.mpos.seconddisplay.ISocketConnection;
 import com.synature.pos.ShopData;
 import com.synature.util.ImageLoader;
 
@@ -68,12 +70,16 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MainActivity extends FragmentActivity implements MenuCommentFragment.OnCommentDismissListener{
+public class MainActivity extends FragmentActivity 
+	implements MenuCommentFragment.OnCommentDismissListener{
 	
 	// send sale request code from payment activity
 	public static final int PAYMENT_REQUEST = 1;
 	
 	private WintecCustomerDisplay mDsp;
+	
+	private Thread mSockThread;
+	private ISocketConnection mSockConn;
 	
 	private Products mProducts;
 	private Shop mShop;
@@ -117,7 +123,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		mComputer = new Computer(getApplicationContext());
 		mFormat = new Formater(getApplicationContext());
 		
-		/*
+		/**
 		 * Image Loader
 		 */
 		mImageLoader = new ImageLoader(this, 0,
@@ -125,7 +131,15 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		 
 		mDsp = new WintecCustomerDisplay(getApplicationContext());
 		
-		/*
+		/**
+		 * if enabled second display
+		 */
+		if(MPOSApplication.isEnableSecondDisplay(this)){
+			mSockThread = new Thread(mSockRunnable);
+			mSockThread.start();
+		}
+		
+		/**
 		 * For create pager by productDept
 		 */
 		mProductDeptLst = mProducts.listProductDept();
@@ -170,6 +184,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	@Override
 	protected void onDestroy() {
 		clearTransaction();
+		stopSocketThread();
 		super.onDestroy();
 	}
 
@@ -1057,6 +1072,11 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			intent.putExtra("productId", productId);
 			startActivity(intent);
 		}
+		
+		if(MPOSApplication.isEnableSecondDisplay(MainActivity.this)){
+			// test send socket
+			mSockConn.send("{\"iCommandTypeID\":1,\"szGrandTotalPrice\":\"0.00\",\"xTransaction\":{\"szTransName\":\"พีรพัฒน์ (เชอร์รี่) ทรงถาวรทวี\",\"iNoCustomer\":1,\"szCustName\":\"พีรพัฒน์ (เชอร์รี่) ทรงถาวรทวี\"},\"xListDetailItems\":[],\"xListTransSummarys\":[{\"szSumName\":\"Sub Total\",\"szSumAmount\":\"0.00\"},{\"szSumName\":\"Grand Total\",\"szSumAmount\":\"0.00\"},{\"szSumName\":\"Total Qty.\",\"szSumAmount\":\"0.00\"}]}");
+		}
 	}
 
 	public void onClick(View v) {
@@ -1744,4 +1764,31 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	public void onDismiss(int position, int orderDetailId) {
 		updateOrderDetailLst(position, orderDetailId);
 	}
+
+	/**
+	 * stop socket thread
+	 */
+	private void stopSocketThread(){
+		if(mSockThread != null){
+			mSockThread.interrupt();
+			mSockThread = null;
+		}
+	}
+	
+	private Runnable mSockRunnable = new Runnable(){
+
+		@Override
+		public void run() {
+			try {
+				mSockConn = new ClientSocket("10.59.0.99", 6600);
+				String msg;
+				while((msg = mSockConn.receive()) != null){
+					
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	};
 }

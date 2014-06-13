@@ -1944,11 +1944,39 @@ public class Transaction extends MPOSDatabase {
 	}
 	
 	/**
+	 * Get summary of order comment
+	 * @param transactionId
+	 * @return
+	 */
+	public double getTotalPriceComment(int transactionId){
+		double totalPriceComment = 0.0d;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT SUM(" + OrderDetailTable.COLUMN_ORDER_QTY + ")"
+				+ " FROM " + OrderCommentTable.TABLE_ORDER_COMMENT
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId)
+				});
+		if(cursor.moveToFirst()){
+			totalPriceComment = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalPriceComment;
+	}
+	
+	/**
 	 * Confirm order comment
 	 * @param transactionId
 	 * @param orderDetailId
 	 */
 	public void confirmOrderComment(int transactionId, int orderDetailId){
+		getWritableDatabase().delete(OrderCommentTable.TABLE_ORDER_COMMENT, 
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
+				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(orderDetailId)
+				});
 		getWritableDatabase().execSQL("INSERT INTO " + OrderCommentTable.TABLE_ORDER_COMMENT
 				+ " SELECT * FROM " + OrderCommentTable.TEMP_ORDER_COMMENT
 				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=" + transactionId

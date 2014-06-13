@@ -34,6 +34,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -44,28 +45,6 @@ public class DiscountActivity extends Activity{
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final String DISCOUNT_FRAGMENT_TAG = "DiscountDialog";
 	
-	private static Formater sFormat;
-	
-	private Transaction mTrans;
-	private Products mProduct;
-	
-	private MPOSOrderTransaction.MPOSOrderDetail mOrder;
-	
-	private int mTransactionId;
-	private int mPosition = -1;
-	private double mTotalPrice = 0.0f;
-	private boolean mIsEdited = false;
-	
-	private DiscountAdapter mDisAdapter;
-	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderLst;
-	private LinearLayout mLayoutVat;
-	private ListView mLvDiscount;
-	private EditText mTxtTotalVatExc;
-	private EditText mTxtSubTotal;
-	private EditText mTxtTotalDiscount;
-	private EditText mTxtTotalPrice;
-	private MenuItem mItemConfirm;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -78,216 +57,15 @@ public class DiscountActivity extends Activity{
 		setContentView(R.layout.activity_discount);
 		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
-		
-		mLayoutVat = (LinearLayout) findViewById(R.id.layoutVat);
-		mTxtTotalVatExc = (EditText) findViewById(R.id.txtTotalVatExclude);
-		mLvDiscount = (ListView) findViewById(R.id.lvOrder);
-		mTxtSubTotal = (EditText) findViewById(R.id.txtSubTotal);
-		mTxtTotalDiscount = (EditText) findViewById(R.id.txtTotalDiscount);
-		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
-		
+	
 		Intent intent = getIntent();
-		mTransactionId = intent.getIntExtra("transactionId", 0);
-		mTrans = new Transaction(getApplicationContext());
-		mProduct = new Products(getApplicationContext());
-		sFormat = new Formater(getApplicationContext());
-		
-		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
-		mDisAdapter = new DiscountAdapter();
-		mLvDiscount.setAdapter(mDisAdapter);
-		mLvDiscount.setOnItemClickListener(new OnItemClickListener(){
-	
-			@Override
-			public void onItemClick(AdapterView<?> parent, View v, final int position,
-					final long id) {
-				MPOSOrderTransaction.MPOSOrderDetail order = 
-						(MPOSOrderTransaction.MPOSOrderDetail) parent.getItemAtPosition(position);
-				
-				Products p = new Products(getApplicationContext());
-				if(p.getProduct(order.getProductId()).getDiscountAllow() == 1){
-					mPosition = position;
-					mOrder = order;
-					DiscountDialogFragment discount = 
-							DiscountDialogFragment.newInstance(
-									mOrder.getProductName(), mOrder.getPriceDiscount(), 
-									mOrder.getTotalRetailPrice(), mOrder.getDiscountType());
-					discount.show(getFragmentManager(), DISCOUNT_FRAGMENT_TAG);
-				}else{
-					new AlertDialog.Builder(DiscountActivity.this)
-					.setMessage(R.string.not_allow_discount)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							mLvDiscount.setItemChecked(mPosition, true);
-						}
-					})
-					.show();
-				}
-			}
-		});
-		loadOrder();
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()){
-		case android.R.id.home:
-			cancel();
-			return true;
-		case R.id.itemConfirm:
-			mTrans.confirmDiscount(mTransactionId);
-			finish();
-			return true;
-		default:
-		return super.onOptionsItemSelected(item);
-		}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.activity_discount, menu);
-		mItemConfirm = menu.findItem(R.id.itemConfirm);
-		return true;
-	}
-
-	private boolean updateDiscount(double discount, int discountType) {
-		if(discount >= 0){
-			if(discountType == 1){
-				if(mOrder.getTotalRetailPrice() < discount)
-					return false;
-			}else if(discountType==2){
-				if(discount > 100){
-					return false;
-				}
-				discount = mOrder.getTotalRetailPrice() * discount / 100;
-			}	
-			discount = MPOSUtil.roundingPrice(discount);
-			double totalPriceAfterDiscount = MPOSUtil.roundingPrice(mOrder.getTotalRetailPrice() - discount);
-			mTrans.discountEatchProduct(mTransactionId, 
-					mOrder.getOrderDetailId(), mOrder.getVatType(),
-					mProduct.getVatRate(mOrder.getProductId()), 
-					totalPriceAfterDiscount, discount, discountType);
-			
-			MPOSOrderTransaction.MPOSOrderDetail order = mOrderLst.get(mPosition);
-			order.setPriceDiscount(discount);
-			order.setTotalSalePrice(totalPriceAfterDiscount);
-			order.setDiscountType(discountType);
-			
-			mOrderLst.set(mPosition, order);
-			mDisAdapter.notifyDataSetChanged();
-			mIsEdited = true;
-			
-			return true;
-		}
-		
-		return false;
-	}
-
-	private class DiscountAdapter extends BaseAdapter{
-		
-		@Override
-		public int getCount() {
-			return mOrderLst != null ? mOrderLst.size() : 0;
-		}
-
-		@Override
-		public MPOSOrderTransaction.MPOSOrderDetail getItem(int position) {
-			return mOrderLst.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public void notifyDataSetChanged() {
-			summary();
-			super.notifyDataSetChanged();
-		}
-
-		@Override
-		public View getView(final int position, View convertView, ViewGroup parent) {
-			final MPOSOrderTransaction.MPOSOrderDetail order =
-					mOrderLst.get(position);
-			
-			LayoutInflater inflater = (LayoutInflater)
-					DiscountActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View rowView = convertView;
-			rowView = inflater.inflate(R.layout.discount_template, null);
-			TextView tvNo = (TextView) rowView.findViewById(R.id.tvNo);
-			TextView tvName = (TextView) rowView.findViewById(R.id.tvName);
-			TextView tvQty = (TextView) rowView.findViewById(R.id.tvQty);
-			TextView tvUnitPrice = (TextView) rowView.findViewById(R.id.tvPrice);
-			TextView tvTotalPrice = (TextView) rowView.findViewById(R.id.tvTotalPrice);
-			TextView tvDiscount = (TextView) rowView.findViewById(R.id.tvDiscount);
-			final TextView tvSalePrice = (TextView) rowView.findViewById(R.id.tvSalePrice);
-			
-			tvNo.setText(Integer.toString(position + 1) + ".");
-			tvName.setText(order.getProductName());
-			tvQty.setText(sFormat.qtyFormat(order.getQty()));
-			tvUnitPrice.setText(sFormat.currencyFormat(order.getPricePerUnit()));
-			tvTotalPrice.setText(sFormat.currencyFormat(order.getTotalRetailPrice()));
-			tvDiscount.setText(sFormat.currencyFormat(order.getPriceDiscount()));
-			tvSalePrice.setText(sFormat.currencyFormat(order.getTotalSalePrice()));
-			
-			return rowView;
+		int transactionId = intent.getIntExtra("transactionId", 0);
+		if(savedInstanceState == null){
+			getFragmentManager().beginTransaction().add(R.id.discountContainer, 
+					PlaceholderFragment.newInstance(transactionId)).commit();
 		}
 	}
 	
-	private void loadOrder() {
-		if(mTrans.prepareDiscount(mTransactionId)){
-			mOrderLst = mTrans.listAllOrderForDiscount(mTransactionId);
-			mDisAdapter.notifyDataSetChanged();
-		}
-	}
-
-	private void summary() {
-		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
-				mTrans.getSummaryOrderForDiscount(mTransactionId);
-		double totalVatExcluded = summOrder.getVatExclude();
-		if(totalVatExcluded > 0)
-			mLayoutVat.setVisibility(View.VISIBLE);
-		else
-			mLayoutVat.setVisibility(View.GONE);
-		mTotalPrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
-		mTxtTotalVatExc.setText(sFormat.currencyFormat(totalVatExcluded));
-		mTxtSubTotal.setText(sFormat.currencyFormat(summOrder.getTotalRetailPrice()));
-		mTxtTotalDiscount.setText(sFormat.currencyFormat(summOrder.getPriceDiscount()));
-		mTxtTotalPrice.setText(sFormat.currencyFormat(mTotalPrice));
-	}
-
-	private void cancel(){
-		if (mIsEdited) {
-			new AlertDialog.Builder(DiscountActivity.this)
-					.setTitle(R.string.discount)
-					.setIcon(android.R.drawable.ic_dialog_info)
-					.setMessage(R.string.confirm_cancel)
-					.setNegativeButton(R.string.no,
-							new DialogInterface.OnClickListener() {
-
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-								}
-							})
-					.setPositiveButton(R.string.yes,
-							new DialogInterface.OnClickListener() {
-
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									mTrans.cancelDiscount(mTransactionId);
-									finish();
-								}
-							}).show();
-		} else {
-			finish();
-		}	
-	}
-
 	public void doPositiveClick(double discount, int discountType){
 		if(updateDiscount(discount, discountType)){
 			mItemConfirm.setVisible(true);
@@ -341,7 +119,7 @@ public class DiscountActivity extends Activity{
 			
 			LayoutInflater inflater = (LayoutInflater)
 					getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View v = inflater.inflate(R.layout.discount_dialog, null);
+			View v = inflater.inflate(R.layout.input_discount_layout, null);
 			final EditText txtDiscount = (EditText) v.findViewById(R.id.txtDiscount);
 			final RadioGroup rdoDiscountType = (RadioGroup) v.findViewById(R.id.rdoDiscountType);
 			if(mDiscountType == PERCENT_DISCOUNT_TYPE)
@@ -426,5 +204,253 @@ public class DiscountActivity extends Activity{
 			}
 		})
 		.show();
+	}
+	
+	public static class PlaceholderFragment extends Fragment{
+		private Formater sFormat;
+		private Transaction mTrans;
+		private Products mProduct;
+		private MPOSOrderTransaction.MPOSOrderDetail mOrder;
+
+		private int mTransactionId;
+		private double mTotalPrice;
+		private int mPosition = -1;
+		private boolean mIsEdited = false;
+		
+		private DiscountAdapter mDisAdapter;
+		private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderLst;
+		
+		private LinearLayout mLayoutVat;
+		private ListView mLvDiscount;
+		private EditText mTxtTotalVatExc;
+		private EditText mTxtSubTotal;
+		private EditText mTxtTotalDiscount;
+		private EditText mTxtTotalPrice;
+		private MenuItem mItemConfirm;
+		
+		public static PlaceholderFragment newInstance(int transactionId){
+			PlaceholderFragment f = new PlaceholderFragment();
+			Bundle b = new Bundle();
+			b.putInt("transactionId", transactionId);
+			f.setArguments(b);
+			return f;
+		}
+		
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			mTransactionId = getArguments().getInt("transactionId");
+			
+			mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
+			mDisAdapter = new DiscountAdapter();
+			mLvDiscount.setAdapter(mDisAdapter);
+			mLvDiscount.setOnItemClickListener(new OnItemClickListener(){
+		
+				@Override
+				public void onItemClick(AdapterView<?> parent, View v, final int position,
+						final long id) {
+					MPOSOrderTransaction.MPOSOrderDetail order = 
+							(MPOSOrderTransaction.MPOSOrderDetail) parent.getItemAtPosition(position);
+					
+					Products p = new Products(getActivity());
+					if(p.getProduct(order.getProductId()).getDiscountAllow() == 1){
+						mPosition = position;
+						mOrder = order;
+						DiscountDialogFragment discount = 
+								DiscountDialogFragment.newInstance(
+										mOrder.getProductName(), mOrder.getPriceDiscount(), 
+										mOrder.getTotalRetailPrice(), mOrder.getDiscountType());
+						discount.show(getFragmentManager(), DISCOUNT_FRAGMENT_TAG);
+					}else{
+						new AlertDialog.Builder(getActivity())
+						.setMessage(R.string.not_allow_discount)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								mLvDiscount.setItemChecked(mPosition, true);
+							}
+						})
+						.show();
+					}
+				}
+			});
+			loadOrder();
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			return inflater.inflate(R.layout.fragment_discount, container, false);
+		}
+
+		@Override
+		public void onViewCreated(View view, Bundle savedInstanceState) {
+			mLayoutVat = (LinearLayout) view.findViewById(R.id.layoutVat);
+			mTxtTotalVatExc = (EditText) view.findViewById(R.id.txtTotalVatExclude);
+			mLvDiscount = (ListView) view.findViewById(R.id.lvOrder);
+			mTxtSubTotal = (EditText) view.findViewById(R.id.txtSubTotal);
+			mTxtTotalDiscount = (EditText) view.findViewById(R.id.txtTotalDiscount);
+			mTxtTotalPrice = (EditText) view.findViewById(R.id.txtTotalPrice);
+		}
+		
+		@Override
+		public boolean onOptionsItemSelected(MenuItem item) {
+			switch(item.getItemId()){
+			case android.R.id.home:
+				cancel();
+				return true;
+			case R.id.itemConfirm:
+				mTrans.confirmDiscount(mTransactionId);
+				finish();
+				return true;
+			default:
+			return super.onOptionsItemSelected(item);
+			}
+		}
+
+		@Override
+		public boolean onCreateOptionsMenu(Menu menu) {
+			MenuInflater inflater = getMenuInflater();
+			inflater.inflate(R.menu.activity_discount, menu);
+			mItemConfirm = menu.findItem(R.id.itemConfirm);
+			return true;
+		}
+
+		private boolean updateDiscount(double discount, int discountType) {
+			if(discount >= 0){
+				if(discountType == 1){
+					if(mOrder.getTotalRetailPrice() < discount)
+						return false;
+				}else if(discountType==2){
+					if(discount > 100){
+						return false;
+					}
+					discount = mOrder.getTotalRetailPrice() * discount / 100;
+				}	
+				discount = MPOSUtil.roundingPrice(discount);
+				double totalPriceAfterDiscount = MPOSUtil.roundingPrice(mOrder.getTotalRetailPrice() - discount);
+				mTrans.discountEatchProduct(mTransactionId, 
+						mOrder.getOrderDetailId(), mOrder.getVatType(),
+						mProduct.getVatRate(mOrder.getProductId()), 
+						totalPriceAfterDiscount, discount, discountType);
+				
+				MPOSOrderTransaction.MPOSOrderDetail order = mOrderLst.get(mPosition);
+				order.setPriceDiscount(discount);
+				order.setTotalSalePrice(totalPriceAfterDiscount);
+				order.setDiscountType(discountType);
+				
+				mOrderLst.set(mPosition, order);
+				mDisAdapter.notifyDataSetChanged();
+				mIsEdited = true;
+				
+				return true;
+			}
+			
+			return false;
+		}
+
+		private void cancel(){
+			if (mIsEdited) {
+				new AlertDialog.Builder(getActivity())
+						.setTitle(R.string.discount)
+						.setIcon(android.R.drawable.ic_dialog_info)
+						.setMessage(R.string.confirm_cancel)
+						.setNegativeButton(R.string.no,
+								new DialogInterface.OnClickListener() {
+
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+									}
+								})
+						.setPositiveButton(R.string.yes,
+								new DialogInterface.OnClickListener() {
+
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										mTrans.cancelDiscount(mTransactionId);
+										finish();
+									}
+								}).show();
+			} else {
+				finish();
+			}	
+		}
+		
+		private void summary() {
+			MPOSOrderTransaction.MPOSOrderDetail summOrder = 
+					mTrans.getSummaryOrderForDiscount(mTransactionId);
+			double totalVatExcluded = summOrder.getVatExclude();
+			if(totalVatExcluded > 0)
+				mLayoutVat.setVisibility(View.VISIBLE);
+			else
+				mLayoutVat.setVisibility(View.GONE);
+			mTotalPrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
+			mTxtTotalVatExc.setText(sFormat.currencyFormat(totalVatExcluded));
+			mTxtSubTotal.setText(sFormat.currencyFormat(summOrder.getTotalRetailPrice()));
+			mTxtTotalDiscount.setText(sFormat.currencyFormat(summOrder.getPriceDiscount()));
+			mTxtTotalPrice.setText(sFormat.currencyFormat(mTotalPrice));
+		}
+		
+		private void loadOrder() {
+			if(mTrans.prepareDiscount(mTransactionId)){
+				mOrderLst = mTrans.listAllOrderForDiscount(mTransactionId);
+				mDisAdapter.notifyDataSetChanged();
+			}
+		}
+		
+		private class DiscountAdapter extends BaseAdapter{
+			
+			@Override
+			public int getCount() {
+				return mOrderLst != null ? mOrderLst.size() : 0;
+			}
+
+			@Override
+			public MPOSOrderTransaction.MPOSOrderDetail getItem(int position) {
+				return mOrderLst.get(position);
+			}
+
+			@Override
+			public long getItemId(int position) {
+				return position;
+			}
+
+			@Override
+			public void notifyDataSetChanged() {
+				summary();
+				super.notifyDataSetChanged();
+			}
+
+			@Override
+			public View getView(final int position, View convertView, ViewGroup parent) {
+				final MPOSOrderTransaction.MPOSOrderDetail order =
+						mOrderLst.get(position);
+				
+				LayoutInflater inflater = (LayoutInflater)
+						getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				View rowView = convertView;
+				rowView = inflater.inflate(R.layout.discount_template, null);
+				TextView tvNo = (TextView) rowView.findViewById(R.id.tvNo);
+				TextView tvName = (TextView) rowView.findViewById(R.id.tvName);
+				TextView tvQty = (TextView) rowView.findViewById(R.id.tvQty);
+				TextView tvUnitPrice = (TextView) rowView.findViewById(R.id.tvPrice);
+				TextView tvTotalPrice = (TextView) rowView.findViewById(R.id.tvTotalPrice);
+				TextView tvDiscount = (TextView) rowView.findViewById(R.id.tvDiscount);
+				final TextView tvSalePrice = (TextView) rowView.findViewById(R.id.tvSalePrice);
+				
+				tvNo.setText(Integer.toString(position + 1) + ".");
+				tvName.setText(order.getProductName());
+				tvQty.setText(sFormat.qtyFormat(order.getQty()));
+				tvUnitPrice.setText(sFormat.currencyFormat(order.getPricePerUnit()));
+				tvTotalPrice.setText(sFormat.currencyFormat(order.getTotalRetailPrice()));
+				tvDiscount.setText(sFormat.currencyFormat(order.getPriceDiscount()));
+				tvSalePrice.setText(sFormat.currencyFormat(order.getTotalSalePrice()));
+				
+				return rowView;
+			}
+		}
 	}
 }
