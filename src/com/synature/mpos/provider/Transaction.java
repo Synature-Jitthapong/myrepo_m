@@ -1,4 +1,4 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -11,16 +11,16 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.synature.mpos.dao.Computer.ComputerTable;
-import com.synature.mpos.dao.MPOSOrderTransaction.OrderSet;
-import com.synature.mpos.dao.MenuComment.MenuCommentTable;
-import com.synature.mpos.dao.Products.ProductComponentGroupTable;
-import com.synature.mpos.dao.Products.ProductComponentTable;
-import com.synature.mpos.dao.Products.ProductsTable;
-import com.synature.mpos.dao.Session.SessionTable;
-import com.synature.mpos.dao.Shop.ShopTable;
-import com.synature.mpos.dao.Staffs.StaffTable;
-import com.synature.mpos.dao.StockDocument.DocumentTypeTable;
+import com.synature.mpos.provider.Computer.ComputerTable;
+import com.synature.mpos.provider.MPOSOrderTransaction.OrderSet;
+import com.synature.mpos.provider.MenuComment.MenuCommentTable;
+import com.synature.mpos.provider.Products.ProductComponentGroupTable;
+import com.synature.mpos.provider.Products.ProductComponentTable;
+import com.synature.mpos.provider.Products.ProductsTable;
+import com.synature.mpos.provider.Session.SessionTable;
+import com.synature.mpos.provider.Shop.ShopTable;
+import com.synature.mpos.provider.Staffs.StaffTable;
+import com.synature.mpos.provider.StockDocument.DocumentTypeTable;
 
 /**
  * 

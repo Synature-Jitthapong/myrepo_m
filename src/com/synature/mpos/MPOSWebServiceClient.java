@@ -6,18 +6,18 @@ import org.ksoap2.serialization.PropertyInfo;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.synature.mpos.dao.Bank;
-import com.synature.mpos.dao.Computer;
-import com.synature.mpos.dao.CreditCard;
-import com.synature.mpos.dao.Formater;
-import com.synature.mpos.dao.HeaderFooterReceipt;
-import com.synature.mpos.dao.Language;
-import com.synature.mpos.dao.MenuComment;
-import com.synature.mpos.dao.PaymentAmountButton;
-import com.synature.mpos.dao.PaymentDetail;
-import com.synature.mpos.dao.Products;
-import com.synature.mpos.dao.Shop;
-import com.synature.mpos.dao.Staffs;
+import com.synature.mpos.provider.Bank;
+import com.synature.mpos.provider.Computer;
+import com.synature.mpos.provider.CreditCard;
+import com.synature.mpos.provider.Formater;
+import com.synature.mpos.provider.HeaderFooterReceipt;
+import com.synature.mpos.provider.Language;
+import com.synature.mpos.provider.MenuComment;
+import com.synature.mpos.provider.PaymentAmountButton;
+import com.synature.mpos.provider.PaymentDetail;
+import com.synature.mpos.provider.Products;
+import com.synature.mpos.provider.Shop;
+import com.synature.mpos.provider.Staffs;
 import com.synature.pos.MenuGroups;
 import com.synature.pos.ProductGroups;
 import com.synature.pos.ShopData;
@@ -29,12 +29,12 @@ import android.content.Context;
 
 public class MPOSWebServiceClient {
 
-	public void authenDevice(final Context context, final AuthenDeviceListener listener){
+	public static void authenDevice(final Context context, final AuthenDeviceListener listener){
 		final String url = MPOSApplication.getFullUrl(context);
 		new AuthenDevice(context, listener).execute(url);
 	}
 	
-	public void loadShopData(final Context context, final int shopId, final ProgressListener listener){
+	public static void loadShopData(final Context context, final int shopId, final ProgressListener listener){
 		
 		final String url = MPOSApplication.getFullUrl(context);
 
@@ -89,7 +89,7 @@ public class MPOSWebServiceClient {
 	}
 	
 	// load product
-	public void loadProductData(final Context context, final int shopId,
+	public static void loadProductData(final Context context, final int shopId,
 			final ProgressListener progressListener){
 		
 		final String url = MPOSApplication.getFullUrl(context);
@@ -225,7 +225,7 @@ public class MPOSWebServiceClient {
 	}
 	
 	// load shop data
-	private class LoadShop extends MPOSMainService{
+	private static class LoadShop extends MPOSMainService{
 		private LoadShopListener mListener;
 		
 		public LoadShop(Context context, int shopId, LoadShopListener listener) {
@@ -259,7 +259,7 @@ public class MPOSWebServiceClient {
 	}
 	
 	// load products
-	private class LoadProduct extends MPOSMainService{
+	private static class LoadProduct extends MPOSMainService{
 		private LoadProductListener mListener;
 		
 		public LoadProduct(Context context, int shopId, LoadProductListener listener) {
@@ -296,7 +296,7 @@ public class MPOSWebServiceClient {
 	}
 	
 	// load menu data
-	private class LoadMenu extends MPOSMainService{
+	private static class LoadMenu extends MPOSMainService{
 		private LoadMenuListener mListener;
 		
 		public LoadMenu(Context context, int shopId, LoadMenuListener listener) {
@@ -331,7 +331,7 @@ public class MPOSWebServiceClient {
 	}
 
 	// check authen shop
-	private class AuthenDevice extends MPOSMainService{
+	private static class AuthenDevice extends MPOSMainService{
 		private AuthenDeviceListener mListener;
 		
 		public AuthenDevice(Context context, AuthenDeviceListener listener) {

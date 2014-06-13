@@ -1,10 +1,10 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.mpos.dao.Products.Product;
-import com.synature.mpos.dao.Products.ProductComponentGroup;
+import com.synature.mpos.provider.Products.Product;
+import com.synature.mpos.provider.Products.ProductComponentGroup;
 import com.synature.pos.OrderTransaction;
 
 public class MPOSOrderTransaction extends OrderTransaction{

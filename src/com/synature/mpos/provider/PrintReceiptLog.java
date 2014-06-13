@@ -1,10 +1,10 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.mpos.dao.Staffs.StaffTable;
-import com.synature.mpos.dao.Transaction.OrderTransactionTable;
+import com.synature.mpos.provider.Staffs.StaffTable;
+import com.synature.mpos.provider.Transaction.OrderTransactionTable;
 
 import android.content.ContentValues;
 import android.content.Context;

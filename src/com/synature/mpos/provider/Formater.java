@@ -1,4 +1,4 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

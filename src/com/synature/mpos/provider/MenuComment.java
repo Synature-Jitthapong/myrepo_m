@@ -1,9 +1,9 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.mpos.dao.Products.ProductsTable;
+import com.synature.mpos.provider.Products.ProductsTable;
 import com.synature.pos.MenuGroups;
 
 import android.content.ContentValues;

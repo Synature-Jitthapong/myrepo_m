@@ -1,12 +1,12 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.mpos.dao.Bank.BankTable;
-import com.synature.mpos.dao.Computer.ComputerTable;
-import com.synature.mpos.dao.CreditCard.CreditCardTable;
-import com.synature.mpos.dao.Transaction.OrderTransactionTable;
+import com.synature.mpos.provider.Bank.BankTable;
+import com.synature.mpos.provider.Computer.ComputerTable;
+import com.synature.mpos.provider.CreditCard.CreditCardTable;
+import com.synature.mpos.provider.Transaction.OrderTransactionTable;
 import com.synature.pos.Payment;
 
 import android.content.ContentValues;

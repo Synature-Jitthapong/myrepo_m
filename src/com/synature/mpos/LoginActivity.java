@@ -2,12 +2,12 @@ package com.synature.mpos;
 
 import java.util.Calendar;
 
-import com.synature.mpos.dao.Computer;
-import com.synature.mpos.dao.Formater;
-import com.synature.mpos.dao.Session;
-import com.synature.mpos.dao.Shop;
-import com.synature.mpos.dao.UserVerification;
-import com.synature.mpos.dao.Util;
+import com.synature.mpos.provider.Computer;
+import com.synature.mpos.provider.Formater;
+import com.synature.mpos.provider.Session;
+import com.synature.mpos.provider.Shop;
+import com.synature.mpos.provider.UserVerification;
+import com.synature.mpos.provider.Util;
 import com.synature.pos.ShopData;
 
 import android.os.Bundle;
@@ -227,9 +227,8 @@ public class LoginActivity extends Activity{
 	private void updateData(){
 		final ProgressDialog progress = new ProgressDialog(this);
 		progress.setCancelable(false);
-		final MPOSWebServiceClient service = new MPOSWebServiceClient();
 		// checking device
-		service.authenDevice(this, new MPOSWebServiceClient.AuthenDeviceListener() {
+		MPOSWebServiceClient.authenDevice(this, new MPOSWebServiceClient.AuthenDeviceListener() {
 			
 			@Override
 			public void onPre() {
@@ -261,7 +260,7 @@ public class LoginActivity extends Activity{
 			@Override
 			public void onPost(final int shopId) {
 				// load shop data
-				service.loadShopData(LoginActivity.this, shopId, new ProgressListener(){
+				MPOSWebServiceClient.loadShopData(LoginActivity.this, shopId, new ProgressListener(){
 
 					@Override
 					public void onPre() {
@@ -271,7 +270,7 @@ public class LoginActivity extends Activity{
 					@Override
 					public void onPost() {
 						// load product datat
-						service.loadProductData(LoginActivity.this, shopId, new ProgressListener(){
+						MPOSWebServiceClient.loadProductData(LoginActivity.this, shopId, new ProgressListener(){
 
 							@Override
 							public void onPre() {
@@ -380,9 +379,8 @@ public class LoginActivity extends Activity{
 			if(mIsFirstAccess){
 				final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
 				progress.setCancelable(false);
-				final MPOSWebServiceClient service = new MPOSWebServiceClient();
 				// check device
-				service.authenDevice(LoginActivity.this, new MPOSWebServiceClient.AuthenDeviceListener() {
+				MPOSWebServiceClient.authenDevice(LoginActivity.this, new MPOSWebServiceClient.AuthenDeviceListener() {
 					
 					@Override
 					public void onPre() {
@@ -407,8 +405,6 @@ public class LoginActivity extends Activity{
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								startActivity(intent);
-								finish();
 							}
 						}).show();
 					}
@@ -416,7 +412,7 @@ public class LoginActivity extends Activity{
 					@Override
 					public void onPost(int shopId) {
 						// load shop data
-						service.loadShopData(LoginActivity.this, mShop.getShopId(), new ProgressListener(){
+						MPOSWebServiceClient.loadShopData(LoginActivity.this, mShop.getShopId(), new ProgressListener(){
 
 							@Override
 							public void onPre() {
@@ -426,7 +422,7 @@ public class LoginActivity extends Activity{
 							@Override
 							public void onPost() {
 								// load product data
-								service.loadProductData(LoginActivity.this, mShop.getShopId(), new ProgressListener(){
+								MPOSWebServiceClient.loadProductData(LoginActivity.this, mShop.getShopId(), new ProgressListener(){
 
 									@Override
 									public void onPre() {

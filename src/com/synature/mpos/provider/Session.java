@@ -1,12 +1,12 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.synature.mpos.dao.Computer.ComputerTable;
-import com.synature.mpos.dao.Shop.ShopTable;
-import com.synature.mpos.dao.Transaction.OrderTransactionTable;
+import com.synature.mpos.provider.Computer.ComputerTable;
+import com.synature.mpos.provider.Shop.ShopTable;
+import com.synature.mpos.provider.Transaction.OrderTransactionTable;
 
 import android.content.ContentValues;
 import android.content.Context;

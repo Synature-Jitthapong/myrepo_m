@@ -122,7 +122,11 @@
             android:label="@string/set_menu"
             android:screenOrientation="landscape" >
         </activity>
-
+        <provider 
+            android:name="com.synature.mpos.provider.MPOSProvider"
+            android:authorities="com.synature.mpos.provider"
+            android:exported="false"
+            android:syncable="true"></provider>
         <receiver
             android:name="com.synature.mpos.BootUpReceiver"
             android:enabled="true"
@@ -133,22 +137,24 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-        <service android:name="com.synature.mpos.account.AuthenticatorService">
+        <service 
+            	android:name="com.synature.mpos.account.AuthenticatorService">
             <intent-filter>
-                <action android:name="com.synature.mpos.account.Authenticator"/>
+                <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
             <meta-data 
-                android:name="com.synature.mpos.account.Authenticator"
+                android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator"/>
         </service>
-        <service android:name="com.synature.mpos.sync.SyncService"
+        <service 
+            	android:name="com.synature.mpos.sync.SyncService"
                 android:exported="true"
                 android:process=":sync">
             <intent-filter>
-                <action android:name="com.synature.mpos.SyncAdapter"/>
+                <action android:name="android.content.SyncAdapter"/>
             </intent-filter>
             <meta-data 
-                android:name="com.synature.mpos.SyncAdapter"
+                android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter">
             </meta-data>
         </service>

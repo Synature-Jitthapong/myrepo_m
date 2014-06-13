@@ -3,9 +3,9 @@ package com.synature.mpos;
 import java.util.List;
 
 import com.synature.exceptionhandler.ExceptionHandler;
-import com.synature.mpos.dao.MPOSOrderTransaction;
-import com.synature.mpos.dao.Session;
-import com.synature.mpos.dao.Transaction;
+import com.synature.mpos.provider.MPOSOrderTransaction;
+import com.synature.mpos.provider.Session;
+import com.synature.mpos.provider.Transaction;
 import com.synature.pos.OrderTransaction;
 
 import android.os.Bundle;

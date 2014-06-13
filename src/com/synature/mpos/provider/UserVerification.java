@@ -1,4 +1,4 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 import com.synature.pos.ShopData;
 import com.synature.util.EncryptSHA1;

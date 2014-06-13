@@ -1,15 +1,15 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.mpos.dao.Computer.ComputerTable;
-import com.synature.mpos.dao.PaymentDetail.PaymentDetailTable;
-import com.synature.mpos.dao.Products.ProductDeptTable;
-import com.synature.mpos.dao.Products.ProductGroupTable;
-import com.synature.mpos.dao.Products.ProductsTable;
-import com.synature.mpos.dao.Transaction.OrderDetailTable;
-import com.synature.mpos.dao.Transaction.OrderTransactionTable;
+import com.synature.mpos.provider.Computer.ComputerTable;
+import com.synature.mpos.provider.PaymentDetail.PaymentDetailTable;
+import com.synature.mpos.provider.Products.ProductDeptTable;
+import com.synature.mpos.provider.Products.ProductGroupTable;
+import com.synature.mpos.provider.Products.ProductsTable;
+import com.synature.mpos.provider.Transaction.OrderDetailTable;
+import com.synature.mpos.provider.Transaction.OrderTransactionTable;
 import com.synature.pos.Report;
 
 import android.content.ContentValues;

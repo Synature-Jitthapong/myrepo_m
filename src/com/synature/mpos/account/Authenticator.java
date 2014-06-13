@@ -9,10 +9,16 @@ import android.os.Bundle;
 
 public class Authenticator extends AbstractAccountAuthenticator{
 
+	public static final String ACCOUNT_NAME = "synature";
+	
 	public Authenticator(Context context) {
 		super(context);
 	}
 
+	public static Account getAccount(String accountType){
+		return new Account(ACCOUNT_NAME, accountType);
+	}
+	
 	@Override
 	public Bundle editProperties(AccountAuthenticatorResponse response,
 			String accountType) {

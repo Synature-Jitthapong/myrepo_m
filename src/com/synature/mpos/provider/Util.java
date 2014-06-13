@@ -1,4 +1,4 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;

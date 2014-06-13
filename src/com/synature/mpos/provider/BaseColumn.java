@@ -1,4 +1,4 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 public abstract class BaseColumn {
 	public static final String COLUMN_UUID = "uuid";

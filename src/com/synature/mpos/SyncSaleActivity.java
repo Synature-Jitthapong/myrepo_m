@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.exceptionhandler.ExceptionHandler;
-import com.synature.mpos.dao.BaseColumn;
-import com.synature.mpos.dao.MPOSDatabase;
-import com.synature.mpos.dao.Transaction;
-import com.synature.mpos.dao.Computer.ComputerTable;
-import com.synature.mpos.dao.Transaction.OrderTransactionTable;
+import com.synature.mpos.provider.BaseColumn;
+import com.synature.mpos.provider.MPOSDatabase;
+import com.synature.mpos.provider.Transaction;
+import com.synature.mpos.provider.Computer.ComputerTable;
+import com.synature.mpos.provider.Transaction.OrderTransactionTable;
 import com.synature.pos.OrderTransaction;
 
 import android.app.Activity;

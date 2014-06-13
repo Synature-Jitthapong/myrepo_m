@@ -1,20 +1,20 @@
-package com.synature.mpos.dao;
+package com.synature.mpos.provider;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.mpos.MPOSUtil;
-import com.synature.mpos.dao.Computer.ComputerTable;
-import com.synature.mpos.dao.CreditCard.CreditCardTable;
-import com.synature.mpos.dao.PaymentDetail.PayTypeTable;
-import com.synature.mpos.dao.PaymentDetail.PaymentDetailTable;
-import com.synature.mpos.dao.Products.ProductsTable;
-import com.synature.mpos.dao.Session.SessionDetailTable;
-import com.synature.mpos.dao.Session.SessionTable;
-import com.synature.mpos.dao.Shop.ShopTable;
-import com.synature.mpos.dao.StockDocument.DocumentTypeTable;
-import com.synature.mpos.dao.Transaction.OrderDetailTable;
-import com.synature.mpos.dao.Transaction.OrderTransactionTable;
+import com.synature.mpos.provider.Computer.ComputerTable;
+import com.synature.mpos.provider.CreditCard.CreditCardTable;
+import com.synature.mpos.provider.PaymentDetail.PayTypeTable;
+import com.synature.mpos.provider.PaymentDetail.PaymentDetailTable;
+import com.synature.mpos.provider.Products.ProductsTable;
+import com.synature.mpos.provider.Session.SessionDetailTable;
+import com.synature.mpos.provider.Session.SessionTable;
+import com.synature.mpos.provider.Shop.ShopTable;
+import com.synature.mpos.provider.StockDocument.DocumentTypeTable;
+import com.synature.mpos.provider.Transaction.OrderDetailTable;
+import com.synature.mpos.provider.Transaction.OrderTransactionTable;
 
 import android.content.Context;
 import android.database.Cursor;
