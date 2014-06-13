@@ -104,7 +104,7 @@ public class PrintReceiptLog extends MPOSDatabase{
 				StaffTable.COLUMN_STAFF_ID + " INTEGER, " +
 				COLUMN_PRINT_RECEIPT_LOG_TIME + " TEXT, " +
 				COLUMN_PRINT_RECEIPT_LOG_STATUS + " INTEGER DEFAULT 0, " +
-				"PRIMARY KEY (" + COLUMN_PRINT_RECEIPT_LOG_ID + " AUTOINCREMENT ) );";
+				"PRIMARY KEY (" + COLUMN_PRINT_RECEIPT_LOG_ID + ") );";
 		
 		public static void onCreate(SQLiteDatabase db) {
 			db.execSQL(SQL_CREATE);

@@ -11,6 +11,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,8 +30,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 public class MenuCommentFragment extends DialogFragment{
-
+	
+	/**
+	 * selected order position
+	 */
 	private int mPosition;
+	
+	
 	private int mTransactionId;
 	private int mOrderDetailId;
 	private String mMenuName;
@@ -42,14 +48,14 @@ public class MenuCommentFragment extends DialogFragment{
 	private List<MenuComment.Comment> mCommentLst;
 	private MenuCommentAdapter mCommentAdapter;
 	private ArrayAdapter<MenuComment.CommentGroup> mCommentGroupAdapter;
-	
-	private OnCommentItemClickListener mListener;
+
+	private OnCommentDismissListener mListener;
 	
 	private Spinner mSpCommentGroup;
 	private ListView mLvComment;
 	
-	public static MenuCommentFragment newInstance(int position, 
-			int transactionId, int orderDetailId, String menuName){
+	public static MenuCommentFragment newInstance(int position, int transactionId, 
+			int orderDetailId, String menuName){
 		MenuCommentFragment f = new MenuCommentFragment();
 		Bundle b = new Bundle();
 		b.putInt("position", position);
@@ -63,7 +69,6 @@ public class MenuCommentFragment extends DialogFragment{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		mPosition = getArguments().getInt("position");
 		mTransactionId = getArguments().getInt("transactionId");
 		mOrderDetailId = getArguments().getInt("orderDetailId");
@@ -79,13 +84,16 @@ public class MenuCommentFragment extends DialogFragment{
 		commentGroup.setCommentGroupId(0);
 		commentGroup.setCommentGroupName("-- ALL --");
 		mCommentGroupLst.add(0, commentGroup);
+		
+		// create order comment temp
+		mTrans.createOrderCommentTemp(mTransactionId, mOrderDetailId);
 	}
 
 	@Override
 	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		if(activity instanceof OnCommentItemClickListener){
-			mListener = (OnCommentItemClickListener) activity;
+        super.onAttach(activity);
+		if(activity instanceof OnCommentDismissListener){
+			mListener = (OnCommentDismissListener) activity;
 		}
 	}
 
@@ -119,9 +127,17 @@ public class MenuCommentFragment extends DialogFragment{
 		});
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(getActivity().getString(R.string.menu_comment) + ":" + mMenuName);
+		builder.setTitle(getActivity().getString(R.string.menu_comment) + ": " + mMenuName);
 		builder.setView(view);
-		builder.setNeutralButton(R.string.close, null);
+		builder.setNegativeButton(android.R.string.cancel, null);
+		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				mTrans.confirmOrderComment(mTransactionId, mOrderDetailId);
+				mListener.onDismiss(mPosition, mOrderDetailId);
+			}
+		});
 		return builder.create();
 	}
 
@@ -221,7 +237,6 @@ public class MenuCommentFragment extends DialogFragment{
 						comment.setCommentQty(qty);
 						mTrans.updateOrderComment(mTransactionId, mOrderDetailId, comment.getCommentId(), qty);
 						mCommentAdapter.notifyDataSetChanged();
-						mListener.onButtonClick(mPosition, mOrderDetailId);
 					}
 				}
 				
@@ -234,7 +249,6 @@ public class MenuCommentFragment extends DialogFragment{
 					comment.setCommentQty(++qty);
 					mTrans.updateOrderComment(mTransactionId, mOrderDetailId, comment.getCommentId(), qty);
 					mCommentAdapter.notifyDataSetChanged();
-					mListener.onButtonClick(mPosition, mOrderDetailId);
 				}
 				
 			});
@@ -251,7 +265,6 @@ public class MenuCommentFragment extends DialogFragment{
 								1, comment.getCommentPrice());
 					}
 					mCommentAdapter.notifyDataSetChanged();
-					mListener.onItemClick(mPosition, mOrderDetailId);
 				}
 				
 			});
@@ -270,8 +283,7 @@ public class MenuCommentFragment extends DialogFragment{
 		}	
 	}
 	
-	public static interface OnCommentItemClickListener{
-		void onItemClick(int position, int orderDetailId);
-		void onButtonClick(int position, int orderDetailId);
+	public static interface OnCommentDismissListener{
+		void onDismiss(int position, int orderDetailId);
 	}
 }

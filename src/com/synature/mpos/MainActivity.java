@@ -20,7 +20,6 @@ import com.synature.mpos.provider.Staffs;
 import com.synature.mpos.provider.Transaction;
 import com.synature.mpos.provider.UserVerification;
 import com.synature.mpos.provider.Util;
-import com.synature.mpos.sync.SyncUtils;
 import com.synature.pos.ShopData;
 import com.synature.util.ImageLoader;
 
@@ -69,7 +68,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MainActivity extends FragmentActivity implements MenuCommentFragment.OnCommentItemClickListener{
+public class MainActivity extends FragmentActivity implements MenuCommentFragment.OnCommentDismissListener{
 	
 	// send sale request code from payment activity
 	public static final int PAYMENT_REQUEST = 1;
@@ -414,7 +413,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			double change){
 		
 		PrintReceiptLog printLog = 
-				new PrintReceiptLog(getApplicationContext());
+				new PrintReceiptLog(MainActivity.this);
 		printLog.insertLog(transactionId, staffId);
 		
 		new PrintReceipt(MainActivity.this, new PrintReceipt.PrintStatusListener() {
@@ -1736,14 +1735,13 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			}
 		}
 	}
-
-	@Override
-	public void onItemClick(int position, int orderDetailId) {
-		updateOrderDetailLst(position, orderDetailId);
-	}
 	
+	/**
+	 * after MenuCommentFragment dismiss
+	 * updateOrderDetailLst
+	 */
 	@Override
-	public void onButtonClick(int position, int orderDetailId) {
+	public void onDismiss(int position, int orderDetailId) {
 		updateOrderDetailLst(position, orderDetailId);
 	}
 }

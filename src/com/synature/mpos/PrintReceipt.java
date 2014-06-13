@@ -43,13 +43,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	 */
 	public PrintReceipt(Context context, PrintStatusListener listener){
 		mContext = context;
-		mOrders = new Transaction(context.getApplicationContext());
-		mPayment = new PaymentDetail(context.getApplicationContext());
-		mShop = new Shop(context.getApplicationContext());
-		mFormat = new Formater(context.getApplicationContext());
-		mHeaderFooter = new HeaderFooterReceipt(context.getApplicationContext());
-		mStaff = new Staffs(context.getApplicationContext());
-		mCreditCard = new CreditCard(context.getApplicationContext());
+		mOrders = new Transaction(context);
+		mPayment = new PaymentDetail(context);
+		mShop = new Shop(context);
+		mFormat = new Formater(context);
+		mHeaderFooter = new HeaderFooterReceipt(context);
+		mStaff = new Staffs(context);
+		mCreditCard = new CreditCard(context);
 		mPrintListener = listener;
 	}
 	
@@ -497,7 +497,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 			} catch (Exception e) {
 				printLog.updatePrintStatus(printReceipt.getPriceReceiptLogId(), PrintReceiptLog.PRINT_NOT_SUCCESS);
 				Logger.appendLog(mContext, 
-						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, e.getMessage());
+						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+						" Print receipt fail : " + e.getMessage());
 				mPrintListener.onPrintFail(e.getMessage());
 			}
 		}

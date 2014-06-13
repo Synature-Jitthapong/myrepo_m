@@ -1917,7 +1917,7 @@ public class Transaction extends MPOSDatabase {
 				+ " a." + OrderDetailTable.COLUMN_ORDER_QTY + ", "
 				+ " a." + ProductsTable.COLUMN_PRODUCT_PRICE + ", "
 				+ " b." + MenuCommentTable.COLUMN_COMMENT_NAME
-				+ " FROM " + OrderCommentTable.TABLE_ORDER_COMMENT + " a "
+				+ " FROM " + OrderCommentTable.TEMP_ORDER_COMMENT + " a "
 				+ " LEFT JOIN " + MenuCommentTable.TABLE_MENU_COMMENT + " b "
 				+ " ON a." + MenuCommentTable.COLUMN_COMMENT_ID
 				+ " =b." + MenuCommentTable.COLUMN_COMMENT_ID
@@ -1944,10 +1944,22 @@ public class Transaction extends MPOSDatabase {
 	}
 	
 	/**
+	 * Confirm order comment
+	 * @param transactionId
+	 * @param orderDetailId
+	 */
+	public void confirmOrderComment(int transactionId, int orderDetailId){
+		getWritableDatabase().execSQL("INSERT INTO " + OrderCommentTable.TABLE_ORDER_COMMENT
+				+ " SELECT * FROM " + OrderCommentTable.TEMP_ORDER_COMMENT
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=" + transactionId
+				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=" + orderDetailId);
+	}
+	
+	/**
 	 * @param transactionId
 	 */
 	public void deleteOrderComment(int transactionId){
-		getWritableDatabase().delete(OrderCommentTable.TABLE_ORDER_COMMENT, 
+		getWritableDatabase().delete(OrderCommentTable.TEMP_ORDER_COMMENT, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
 			new String[]{
 				String.valueOf(transactionId)
@@ -1959,7 +1971,7 @@ public class Transaction extends MPOSDatabase {
 	 * @param orderDetailId
 	 */
 	public void deleteOrderComment(int transactionId, int orderDetailId){
-		getWritableDatabase().delete(OrderCommentTable.TABLE_ORDER_COMMENT, 
+		getWritableDatabase().delete(OrderCommentTable.TEMP_ORDER_COMMENT, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
 				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
 			new String[]{
@@ -1974,7 +1986,7 @@ public class Transaction extends MPOSDatabase {
 	 * @param commentId
 	 */
 	public void deleteOrderComment(int transactionId, int orderDetailId, int commentId){
-		getWritableDatabase().delete(OrderCommentTable.TABLE_ORDER_COMMENT, 
+		getWritableDatabase().delete(OrderCommentTable.TEMP_ORDER_COMMENT, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
 				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=?"
 				+ " AND " + MenuCommentTable.COLUMN_COMMENT_ID + "=?", 
@@ -1999,7 +2011,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(OrderDetailTable.COLUMN_ORDER_ID, orderDetailId);
 		cv.put(MenuCommentTable.COLUMN_COMMENT_ID, commentId);
 		cv.put(OrderDetailTable.COLUMN_ORDER_QTY, commentQty);
-		getWritableDatabase().update(OrderCommentTable.TABLE_ORDER_COMMENT, cv, 
+		getWritableDatabase().update(OrderCommentTable.TEMP_ORDER_COMMENT, cv, 
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
 				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=?"
 				+ " AND " + MenuCommentTable.COLUMN_COMMENT_ID + "=?", 
@@ -2026,7 +2038,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(MenuCommentTable.COLUMN_COMMENT_ID, commentId);
 		cv.put(OrderDetailTable.COLUMN_ORDER_QTY, commentQty);
 		cv.put(ProductsTable.COLUMN_PRODUCT_PRICE, commentPrice);
-		getWritableDatabase().insertOrThrow(OrderCommentTable.TABLE_ORDER_COMMENT, 
+		getWritableDatabase().insertOrThrow(OrderCommentTable.TEMP_ORDER_COMMENT, 
 				null, cv);
 	}
 	
@@ -2038,7 +2050,7 @@ public class Transaction extends MPOSDatabase {
 	 */
 	public boolean checkAddedComment(int transactionId, int orderDetailId, int commentId){
 		boolean isAdded = false;
-		Cursor cursor = getReadableDatabase().query(OrderCommentTable.TABLE_ORDER_COMMENT, 
+		Cursor cursor = getReadableDatabase().query(OrderCommentTable.TEMP_ORDER_COMMENT, 
 				new String[]{
 					MenuCommentTable.COLUMN_COMMENT_ID
 				}, 
@@ -2056,6 +2068,20 @@ public class Transaction extends MPOSDatabase {
 		}
 		cursor.close();
 		return isAdded;
+	}
+	
+	/**
+	 * Create order comment temp when comment menu
+	 * @param transactionId
+	 * @param orderDetailId
+	 */
+	public void createOrderCommentTemp(int transactionId, int orderDetailId){
+		getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + OrderCommentTable.TEMP_ORDER_COMMENT);
+		getWritableDatabase().execSQL(
+				"CREATE TABLE " + OrderCommentTable.TEMP_ORDER_COMMENT 
+				+ " AS SELECT * FROM " + OrderCommentTable.TABLE_ORDER_COMMENT
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=" + transactionId
+				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=" + orderDetailId);
 	}
 	
 	public static class OrderTransactionTable {
@@ -2200,6 +2226,8 @@ public class Transaction extends MPOSDatabase {
 	public static class OrderCommentTable{
 		
 		public static final String TABLE_ORDER_COMMENT = "OrderComment";
+		
+		public static final String TEMP_ORDER_COMMENT = "OrderCommentTemp";
 		
 		private static final String SQL_CREATE = "CREATE TABLE " + TABLE_ORDER_COMMENT + " ( "
 				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER NOT NULL, "

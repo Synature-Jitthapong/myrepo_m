@@ -76,7 +76,7 @@ public class MPOSDatabase extends BaseColumn{
 		 */
 		public static synchronized MPOSOpenHelper getInstance(Context context) {
 			if (sHelper == null) {
-				sHelper = new MPOSOpenHelper(context);
+				sHelper = new MPOSOpenHelper(context.getApplicationContext());
 			}
 			return sHelper;
 		}
