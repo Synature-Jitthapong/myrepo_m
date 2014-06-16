@@ -12,6 +12,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.synature.mpos.provider.Computer.ComputerTable;
+import com.synature.mpos.provider.MPOSOrderTransaction.MPOSOrderDetail;
 import com.synature.mpos.provider.MPOSOrderTransaction.OrderSet;
 import com.synature.mpos.provider.MenuComment.MenuCommentTable;
 import com.synature.mpos.provider.Products.ProductComponentGroupTable;
@@ -1170,21 +1171,45 @@ public class Transaction extends MPOSDatabase {
 	 */
 	public boolean confirmDiscount(int transactionId) {
 		boolean isSuccess = false;
-		deleteOrderDetail(transactionId);
+		getWritableDatabase().beginTransaction();
 		try {
-			getWritableDatabase().execSQL(
-					" INSERT INTO " + OrderDetailTable.TABLE_ORDER
-							+ " SELECT * FROM "
-							+ OrderDetailTable.TABLE_ORDER_TMP + " WHERE "
-							+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "="
-							+ transactionId);
-			isSuccess = true;
-		} catch (Exception e) {
-			e.printStackTrace();
+			deleteOrderDetail(transactionId);
+			try {
+				getWritableDatabase().execSQL(
+						" INSERT INTO " + OrderDetailTable.TABLE_ORDER
+								+ " SELECT * FROM "
+								+ OrderDetailTable.TABLE_ORDER_TMP + " WHERE "
+								+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "="
+								+ transactionId);
+				isSuccess = true;
+				getWritableDatabase().setTransactionSuccessful();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} finally {
+			getWritableDatabase().endTransaction();
 		}
 		return isSuccess;
 	}
 
+	/**
+	 * @param transactionId
+	 * @return max total retail price
+	 */
+	public double getMaxTotalRetailPrice(int transactionId){
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT MAX(" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ")"
+						+ " FROM " + OrderDetailTable.TABLE_ORDER_TMP 
+						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[]{String.valueOf(transactionId)});
+		double maxRetailPrice = 0.0d;
+		if(cursor.moveToFirst()){
+			maxRetailPrice = cursor.getDouble(0);
+		}
+		cursor.close();
+		return maxRetailPrice;
+	}
+	
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
@@ -1205,8 +1230,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(OrderDetailTable.COLUMN_TOTAL_VAT, vat);
 		if (vatType == Products.VAT_TYPE_EXCLUDE)
 			cv.put(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE, vat);
-		else
-			cv.put(OrderDetailTable.COLUMN_DISCOUNT_TYPE, discountType);
+		cv.put(OrderDetailTable.COLUMN_DISCOUNT_TYPE, discountType);
 		return getWritableDatabase().update(
 				OrderDetailTable.TABLE_ORDER_TMP,
 				cv,
@@ -1242,15 +1266,15 @@ public class Transaction extends MPOSDatabase {
 
 	/**
 	 * @param transactionId
-	 * @return can copy order to temp table
+	 * @return true if create temp table successfully
 	 */
 	public boolean prepareDiscount(int transactionId) {
 		boolean isSuccess = false;
-		cancelDiscount(transactionId);
 		try {
+			getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + OrderDetailTable.TABLE_ORDER_TMP);
 			getWritableDatabase().execSQL(
-					" INSERT INTO " + OrderDetailTable.TABLE_ORDER_TMP
-							+ " SELECT * FROM " + OrderDetailTable.TABLE_ORDER
+					" CREATE TABLE " + OrderDetailTable.TABLE_ORDER_TMP
+							+ " AS SELECT * FROM " + OrderDetailTable.TABLE_ORDER
 							+ " WHERE "
 							+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "="
 							+ transactionId);
@@ -2207,12 +2231,8 @@ public class Transaction extends MPOSDatabase {
 				+ "PRIMARY KEY (" + COLUMN_ORDER_ID + ", "
 				+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ") );";
 
-		private static final String ORDER_TMP_SQL_CREATE = 
-				"CREATE TABLE " + TABLE_ORDER_TMP + " AS SELECT * FROM " + TABLE_ORDER;
-
 		public static void onCreate(SQLiteDatabase db) {
 			db.execSQL(ORDER_SQL_CREATE);
-			db.execSQL(ORDER_TMP_SQL_CREATE);
 		}
 
 		public static void onUpgrade(SQLiteDatabase db, int oldVersion,

@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/tvShopName"
         android:minWidth="390dip"
         android:orientation="vertical"
         android:padding="8dp" >

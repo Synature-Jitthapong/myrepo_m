@@ -288,25 +288,26 @@ public class MPOSUtil {
 	 * @return rounding value
 	 */
 	public static double roundingPrice(double price){
-		double result = price;
-		long iPart;		// integer part
-		double fPart;	// fractional part
-		iPart = (long) price;
-		fPart = price - iPart;
-		if(fPart < 0.25){
-			fPart = 0.0d;
-		}else if(fPart >= 0.25 && fPart < 0.50){
-			fPart = 0.25d;
-		}else if(fPart >= 0.50 && fPart < 0.75){
-			fPart = 0.50d;
-		}else if(fPart == 0.75){
-			fPart = 0.75d;
-		}else if(fPart > 0.75){
-			iPart += 1;
-			fPart = 0.0d;
-		}
-		result = iPart + fPart;
-		return result;
+//		double result = price;
+//		long iPart;		// integer part
+//		double fPart;	// fractional part
+//		iPart = (long) price;
+//		fPart = price - iPart;
+//		if(fPart < 0.25){
+//			fPart = 0.0d;
+//		}else if(fPart >= 0.25 && fPart < 0.50){
+//			fPart = 0.25d;
+//		}else if(fPart >= 0.50 && fPart < 0.75){
+//			fPart = 0.50d;
+//		}else if(fPart == 0.75){
+//			fPart = 0.75d;
+//		}else if(fPart > 0.75){
+//			iPart += 1;
+//			fPart = 0.0d;
+//		}
+//		result = iPart + fPart;
+//		return result;
+		return price;
 	}
 
 	public static double stringToDouble(String text) throws ParseException{
