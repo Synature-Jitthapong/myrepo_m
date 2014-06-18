@@ -32,7 +32,7 @@
     <string name="enter">Enter</string>
     <string name="qty">จำนวน</string>
     <string name="sale_price">ราคาขาย</string>
-    <string name="vat_exclude">ยังไม่รวมภาษี</string>
+    <string name="vat_exclude">ภาษี</string>
     <string name="confirm_cancel">ต้องการยกเลิกหรือไม่?</string>
     <string name="confirm_cancel_bill">ต้องการยกเลิกบิลหรือไม่?</string>
     <string name="enter_enough_money">กรุณาใส่จำนวนเงินให้เพียงพอ</string>

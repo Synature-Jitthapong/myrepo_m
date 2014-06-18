@@ -15,6 +15,7 @@ import com.synature.mpos.provider.Shop.ShopTable;
 import com.synature.mpos.provider.StockDocument.DocumentTypeTable;
 import com.synature.mpos.provider.Transaction.OrderDetailTable;
 import com.synature.mpos.provider.Transaction.OrderTransactionTable;
+import com.synature.pos.POSData_OrderTransInfo;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -893,6 +894,10 @@ public class SaleTransaction extends MPOSDatabase{
 	}
 
 	public static class SaleTable_OrderDetail {
+		private List<POSData_OrderTransInfo.POSData_ChildOrderSetLinkType7Info> xListChildOrderSetLinkType7 
+			= new ArrayList<POSData_OrderTransInfo.POSData_ChildOrderSetLinkType7Info>();
+		private List<POSData_OrderTransInfo.POSData_CommentInfo> xListCommentInfo = 
+				new ArrayList<POSData_OrderTransInfo.POSData_CommentInfo>();
 		private int iOrderDetailID;
 		private int iTransactionID;
 		private int iComputerID;
@@ -909,6 +914,14 @@ public class SaleTransaction extends MPOSDatabase{
 		private String fPriceDiscountAmount;
 		private int iParentOrderDetailID;
         private int iVatType;
+
+		public List<POSData_OrderTransInfo.POSData_ChildOrderSetLinkType7Info> getxListChildOrderSetLinkType7() {
+			return xListChildOrderSetLinkType7;
+		}
+
+		public List<POSData_OrderTransInfo.POSData_CommentInfo> getxListCommentInfo() {
+			return xListCommentInfo;
+		}
 
 		public int getiOrderDetailID() {
 			return iOrderDetailID;

@@ -270,7 +270,7 @@ public class MPOSUtil {
 	 * @return string fixes digit
 	 */
 	public static String fixesDigitLength(Formater format, int scale, double value){
-		return format.currencyFormat(rounding(scale, value), "#,##0.0000");
+		return format.currencyFormat(value, "#,##0.0000");
 	}
 
 	/**
@@ -278,16 +278,16 @@ public class MPOSUtil {
 	 * @param value
 	 * @return rounding value
 	 */
-	public static double rounding(int scale, double value){
-		BigDecimal big = new BigDecimal(value);
-		return big.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
-	}
+//	public static double rounding(int scale, double value){
+//		BigDecimal big = new BigDecimal(value);
+//		return big.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+//	}
 	
 	/**
 	 * @param price
 	 * @return rounding value
 	 */
-	public static double roundingPrice(double price){
+//	public static double roundingPrice(double price){
 //		double result = price;
 //		long iPart;		// integer part
 //		double fPart;	// fractional part
@@ -307,8 +307,8 @@ public class MPOSUtil {
 //		}
 //		result = iPart + fPart;
 //		return result;
-		return price;
-	}
+//		return price;
+//	}
 
 	public static double stringToDouble(String text) throws ParseException{
 		double value = 0.0d;

@@ -371,8 +371,7 @@ public class MainActivity extends FragmentActivity
 						android.R.style.TextAppearance_Holo_Medium, 0));
 			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.total),
-					activity.mFormat.currencyFormat(MPOSUtil.roundingPrice(
-							sumOrder.getTotalSalePrice() + sumOrder.getVatExclude())),
+					activity.mFormat.currencyFormat(sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()),
 					android.R.style.TextAppearance_Holo_Large, 32));
 			
 			// display summary to customer display
@@ -614,7 +613,7 @@ public class MainActivity extends FragmentActivity
 					final MenuComment.Comment comment = orderDetail.getOrderCommentLst().get(i);
 					holder.tvComment.append("-" + comment.getCommentName());
 					if(comment.getCommentPrice() > 0){
-						holder.tvComment.append(mFormat.qtyFormat(comment.getCommentQty()));
+						holder.tvComment.append(" " + mFormat.qtyFormat(comment.getCommentQty()));
 						holder.tvComment.append("@" + mFormat.currencyFormat(comment.getCommentPrice()));
 					}
 					holder.tvComment.append("\n");

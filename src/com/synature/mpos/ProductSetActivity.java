@@ -202,16 +202,6 @@ public class ProductSetActivity extends Activity{
 		}
 		
 		if(canDone){
-			// update flexibleIncludePrice to orderDetail
-			double totalFlexiblePrice = mTrans.getFlexibleSummaryPrice(mTransactionId, mOrderDetailId);
-			if(totalFlexiblePrice > 0){
-				MPOSOrderTransaction.MPOSOrderDetail order = 
-						mTrans.getOrder(mTransactionId, mOrderDetailId);
-				
-				Product p = mProduct.getProduct(mProductId);
-				mTrans.updateOrderDetail(mTransactionId, mOrderDetailId, p.getVatRate(), 
-						p.getVatType(), (order.getTotalRetailPrice() + totalFlexiblePrice));
-			}
 			mTrans.getWritableDatabase().setTransactionSuccessful();
 			mTrans.getWritableDatabase().endTransaction();
 			finish();
@@ -462,7 +452,7 @@ public class ProductSetActivity extends Activity{
 					public void onClick(View v) {
 						new AlertDialog.Builder(getActivity())
 						.setTitle(R.string.delete)
-						.setMessage(R.string.confirm_delete)
+						.setMessage(R.string.confirm_delete_item)
 						.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 							
 							@Override

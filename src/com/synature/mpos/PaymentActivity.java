@@ -174,8 +174,6 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
 				mOrders.getSummaryOrder(mTransactionId);
 		mTotalSalePrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
-
-		mTotalSalePrice = MPOSUtil.roundingPrice(mTotalSalePrice);
 		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));
 	}
 	

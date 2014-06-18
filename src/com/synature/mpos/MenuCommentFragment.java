@@ -258,7 +258,7 @@ public class MenuCommentFragment extends DialogFragment{
 				public void onClick(View v) {
 					if(comment.isSelected()){
 						comment.setSelected(false);
-						mTrans.deleteOrderComment(mTransactionId, mOrderDetailId, comment.getCommentId());
+						mTrans.deleteOrderCommentTemp(mTransactionId, mOrderDetailId, comment.getCommentId());
 					}else{
 						comment.setSelected(true);
 						mTrans.addOrderComment(mTransactionId, mOrderDetailId, comment.getCommentId(), 

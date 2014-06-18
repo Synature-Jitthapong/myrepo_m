@@ -12,7 +12,7 @@
         android:layout_weight="1"
         android:ems="10"
         android:imeOptions="actionDone"
-        android:inputType="number"
+        android:inputType="number|numberSigned|numberDecimal"
         android:lines="1"
         android:singleLine="true" >
 
