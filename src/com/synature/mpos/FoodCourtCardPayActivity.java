@@ -10,6 +10,7 @@ import com.synature.util.Logger;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,14 +20,15 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -61,12 +63,6 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 	private double mTotalSalePrice = 0.0d;
 	private double mCardBalance = 0.0d;
 	
-	private MenuItem mItemConfirm;
-	private EditText mTxtTotalPrice;
-	private EditText mTxtCardNo;
-	private EditText mTxtBalance;
-	private ImageButton mBtnCheckCard;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);/**
@@ -80,39 +76,12 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 	    LayoutParams params = getWindow().getAttributes();
 	    params.width = WindowManager.LayoutParams.MATCH_PARENT;
-	    params.height= WindowManager.LayoutParams.WRAP_CONTENT;
+	    params.height= getResources().getInteger(R.integer.activity_dialog_height);
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
 	    getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_food_court_card_pay);
-		
-		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotal);
-		mTxtCardNo = (EditText) findViewById(R.id.txtCardNo);
-		mTxtBalance = (EditText) findViewById(R.id.txtBalance);
-		mBtnCheckCard = (ImageButton) findViewById(R.id.btnCheckCard);
-		mTxtCardNo.setOnKeyListener(new OnKeyListener(){
-
-			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if(event.getAction() != KeyEvent.ACTION_DOWN)
-					return true;
-				
-				if(keyCode == KeyEvent.KEYCODE_ENTER){
-					loadCardInfo();
-				}
-				return false;
-			}
-		});
-		
-		mBtnCheckCard.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				loadCardInfo();
-			}
-			
-		});
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -121,8 +90,22 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mTrans = new Transaction(this);
 		mFormat = new Formater(this);
-		mTxtBalance.setText(mFormat.currencyFormat(mCardBalance));
-		summary();
+		
+		if(savedInstanceState == null){
+			getFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment(), "Placeholder").commit();
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		case android.R.id.home:
+			mTrans.cancelOrder(mTransactionId);
+			finish();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -158,69 +141,6 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		super.onDestroy();
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.food_court_card_pay, menu);
-		mItemConfirm = menu.findItem(R.id.itemConfirm);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()){
-			case android.R.id.home:
-				finish();
-				return true;
-			case R.id.itemConfirm:
-				confirm();
-				return true;
-			default :
-				return super.onOptionsItemSelected(item);
-		}
-	}
-
-	private void loadCardInfo(){
-		InputMethodManager imm = (InputMethodManager)getSystemService(
-			      Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(mTxtCardNo.getWindowToken(), 0);
-		if(!TextUtils.isEmpty(mTxtCardNo.getText())){
-			new FoodCourtBalanceOfCard(this, mShopId, mComputerId,
-					mStaffId, mTxtCardNo.getText().toString(), 
-					mCardBalanceListener).execute(MPOSApplication.getFullUrl(this));
-		}else{
-			mTxtCardNo.requestFocus();
-		}
-	}
-	
-	private void confirm(){
-		if(!TextUtils.isEmpty(mTxtCardNo.getText())){
-			if(mCardBalance >= mTotalSalePrice){
-				new FoodCourtCardPay(this, mShopId, mComputerId,
-						mStaffId, mTxtCardNo.getText().toString(),
-						mFormat.currencyFormat(mTotalSalePrice), mCardPayListener).execute(MPOSApplication.getFullUrl(this));
-			}else{
-				new AlertDialog.Builder(FoodCourtCardPayActivity.this)
-				.setTitle(R.string.payment)
-				.setMessage("Your balance not enough!")
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-					}
-				}).show();
-			}
-		}else{
-			mTxtCardNo.requestFocus();
-		}
-	}
-	
-	private void summary(){ 
-		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
-				mTrans.getSummaryOrder(mTransactionId);
-		mTotalSalePrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
-		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));		
-	}
-
 	/*
 	 * Close magnetic reader thread
 	 */
@@ -248,9 +168,11 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 								CreditCardParser parser = new CreditCardParser();
 								if(parser.parser(content)){
 									String cardNo = parser.getCardNo();
-									mTxtCardNo.setText(null);
-									mTxtCardNo.setText(cardNo);
-									loadCardInfo();
+									PlaceholderFragment fragment = (PlaceholderFragment)
+											getFragmentManager().findFragmentById(R.id.container);
+									fragment.mTxtCardNo.setText(null);
+									fragment.mTxtCardNo.setText(cardNo);
+									fragment.loadCardInfo();
 								}
 							} catch (Exception e) {
 								Logger.appendLog(getApplicationContext(), 
@@ -269,9 +191,164 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		}
 	}
 	
+	public static class PayResultFragment extends Fragment{
+		
+		private double mBalance;
+		private TextView mTvResult;
+		private EditText mTxtCardBalance;
+		
+		public static PayResultFragment newInstance(double balance){
+			PayResultFragment f = new PayResultFragment();
+			Bundle b = new Bundle();
+			b.putDouble("balance", balance);
+			f.setArguments(b);
+			return f;
+		}
+		
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			
+			mBalance = getArguments().getDouble("balance");
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			return inflater.inflate(R.layout.food_court_payment_result, container, false);
+		}
+
+		@Override
+		public void onViewCreated(View view, Bundle savedInstanceState) {
+			mTvResult = (TextView) view.findViewById(R.id.textView2);
+			mTxtCardBalance = (EditText) view.findViewById(R.id.txtCardBalance);
+			mTvResult.setText("Payment Successfully.");
+			mTxtCardBalance.setText(((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(mBalance));
+		}
+	}
+	
+	public static class PlaceholderFragment extends Fragment{
+
+		private MenuItem mItemConfirm;
+		private EditText mTxtTotalPrice;
+		private EditText mTxtCardNo;
+		private EditText mTxtBalance;
+		private ImageButton mBtnCheckCard;
+		
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			setHasOptionsMenu(true);
+		}
+
+		@Override
+		public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+			inflater.inflate(R.menu.food_court_card_pay, menu);
+			mItemConfirm = menu.findItem(R.id.itemConfirm);
+		}
+
+		@Override
+		public boolean onOptionsItemSelected(MenuItem item) {
+			switch(item.getItemId()){
+			case R.id.itemConfirm:
+				confirm();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+			}
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			return inflater.inflate(R.layout.fragment_food_court_card_pay, container, false);
+		}
+
+		@Override
+		public void onViewCreated(View view, Bundle savedInstanceState) {
+			mTxtTotalPrice = (EditText) view.findViewById(R.id.txtTotal);
+			mTxtCardNo = (EditText) view.findViewById(R.id.txtCardNo);
+			mTxtBalance = (EditText) view.findViewById(R.id.txtBalance);
+			mBtnCheckCard = (ImageButton) view.findViewById(R.id.btnCheckCard);
+			mTxtBalance.setText(((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(((FoodCourtCardPayActivity) getActivity()).mCardBalance));
+			mTxtCardNo.setOnKeyListener(new OnKeyListener(){
+
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event) {
+					if(event.getAction() != KeyEvent.ACTION_DOWN)
+						return true;
+					
+					if(keyCode == KeyEvent.KEYCODE_ENTER){
+						loadCardInfo();
+					}
+					return false;
+				}
+			});
+			
+			mBtnCheckCard.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					loadCardInfo();
+				}
+				
+			});
+			summary();
+		}
+		
+		private void loadCardInfo(){
+			InputMethodManager imm = (InputMethodManager) 
+					getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(mTxtCardNo.getWindowToken(), 0);
+			if(!TextUtils.isEmpty(mTxtCardNo.getText())){
+				new FoodCourtBalanceOfCard(getActivity(), ((FoodCourtCardPayActivity) getActivity()).mShopId, 
+						((FoodCourtCardPayActivity) getActivity()).mComputerId,
+						((FoodCourtCardPayActivity) getActivity()).mStaffId, 
+						mTxtCardNo.getText().toString(), 
+						((FoodCourtCardPayActivity) getActivity()).mCardBalanceListener).execute(MPOSApplication.getFullUrl(getActivity()));
+			}else{
+				mTxtCardNo.requestFocus();
+			}
+		}
+		
+		private void confirm(){
+			if(!TextUtils.isEmpty(mTxtCardNo.getText())){
+				if(((FoodCourtCardPayActivity) getActivity()).mCardBalance >= 
+						((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice){
+					new FoodCourtCardPay(getActivity(), ((FoodCourtCardPayActivity) getActivity()).mShopId, 
+							((FoodCourtCardPayActivity) getActivity()).mComputerId,
+							((FoodCourtCardPayActivity) getActivity()).mStaffId, mTxtCardNo.getText().toString(),
+							((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice), 
+							((FoodCourtCardPayActivity) getActivity()).mCardPayListener).execute(MPOSApplication.getFullUrl(getActivity()));
+				}else{
+					new AlertDialog.Builder(getActivity())
+					.setTitle(R.string.payment)
+					.setMessage("Your balance not enough!")
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					}).show();
+				}
+			}else{
+				mTxtCardNo.requestFocus();
+			}
+		}
+		
+		private void summary(){ 
+			MPOSOrderTransaction.MPOSOrderDetail summOrder = 
+					((FoodCourtCardPayActivity) getActivity()).mTrans.getSummaryOrder(((FoodCourtCardPayActivity) getActivity()).mTransactionId);
+			((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
+			mTxtTotalPrice.setText(((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice));		
+		}
+	}
+	
 	private void clearTextBox(){
-		mTxtCardNo.setText(null);
-		mTxtBalance.setText(null);
+		PlaceholderFragment fragment = (PlaceholderFragment)
+				getFragmentManager().findFragmentById(R.id.container);
+		fragment.mTxtCardNo.setText(null);
+		fragment.mTxtBalance.setText(null);
 	}
 	
 	/**
@@ -282,37 +359,31 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 
 		@Override
 		public void onPre() {
-			mItemConfirm.setEnabled(false);
+			PlaceholderFragment fragment = (PlaceholderFragment)
+					getFragmentManager().findFragmentById(R.id.container);
+			fragment.mItemConfirm.setEnabled(false);
 		}
 
 		@Override
 		public void onPost(PrepaidCardInfo cardInfo) {
-			mItemConfirm.setEnabled(true);
+			PlaceholderFragment placeholder = (PlaceholderFragment)
+					getFragmentManager().findFragmentById(R.id.container);
+			placeholder.mItemConfirm.setEnabled(true);
 			if(cardInfo != null){
 				mCardBalance = cardInfo.getfCurrentAmount();
-				mTxtBalance.setText(mFormat.currencyFormat(mCardBalance));
-				
-				LayoutInflater inflater = (LayoutInflater) 
-						getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				View view = inflater.inflate(R.layout.food_court_payment_result, null);
-				((TextView) view.findViewById(R.id.textView2)).setText("Payment Success.");
-				((EditText) view.findViewById(R.id.txtCardBalance)).setText(mTxtBalance.getText().toString());
-				new AlertDialog.Builder(FoodCourtCardPayActivity.this)
-				.setTitle(R.string.payment)
-				.setView(view)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-					}
-				}).show();
+				placeholder.mTxtBalance.setText(mFormat.currencyFormat(mCardBalance));
+			
+				PayResultFragment fragment = PayResultFragment.newInstance(mCardBalance);
+				getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
 			}
 		}
 
 		@Override
 		public void onError(String msg) {
+			PlaceholderFragment fragment = (PlaceholderFragment)
+					getFragmentManager().findFragmentById(R.id.container);
 			clearTextBox();
-			mItemConfirm.setEnabled(true);
+			fragment.mItemConfirm.setEnabled(true);
 			new AlertDialog.Builder(FoodCourtCardPayActivity.this)
 			.setTitle(R.string.payment)
 			.setMessage(msg)
@@ -334,27 +405,33 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 
 			@Override
 			public void onPre() {
-				mBtnCheckCard.setEnabled(false);
+				PlaceholderFragment fragment = (PlaceholderFragment)
+						getFragmentManager().findFragmentById(R.id.container);
+				fragment.mBtnCheckCard.setEnabled(false);
 			}
 
 			@Override
 			public void onPost(PrepaidCardInfo cardInfo) {
-				mBtnCheckCard.setEnabled(true);
+				PlaceholderFragment fragment = (PlaceholderFragment)
+						getFragmentManager().findFragmentById(R.id.container);
+				fragment.mBtnCheckCard.setEnabled(true);
 				if(cardInfo != null){
 					mCardBalance = cardInfo.getfCurrentAmount();
-					mTxtBalance.setText(mFormat.currencyFormat(mCardBalance));
+					fragment.mTxtBalance.setText(mFormat.currencyFormat(mCardBalance));
 					if(mCardBalance < mTotalSalePrice){
-						mTxtBalance.setTextColor(Color.RED);
+						fragment.mTxtBalance.setTextColor(Color.RED);
 					}else{
-						mTxtBalance.setTextColor(Color.BLACK);
+						fragment.mTxtBalance.setTextColor(Color.BLACK);
 					}
 				}
 			}
 
 			@Override
 			public void onError(String msg) {
+				PlaceholderFragment fragment = (PlaceholderFragment)
+						getFragmentManager().findFragmentById(R.id.container);
 				clearTextBox();
-				mBtnCheckCard.setEnabled(true);
+				fragment.mBtnCheckCard.setEnabled(true);
 				new AlertDialog.Builder(FoodCourtCardPayActivity.this)
 				.setTitle(R.string.payment)
 				.setMessage(msg)

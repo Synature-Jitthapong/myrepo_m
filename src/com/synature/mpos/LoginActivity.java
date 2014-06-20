@@ -619,17 +619,23 @@ public class LoginActivity extends Activity{
 				.setText(getString(R.string.device_code) + ":" +
 						MPOSApplication.getDeviceCode(getActivity()));
 			
-			Shop shop = ((LoginActivity) getActivity()).mShop;
-			Session session = ((LoginActivity) getActivity()).mSession;
-			Formater format = ((LoginActivity) getActivity()).mFormat;
-			
-			if(shop.getShopName() != null)
-				mTvShopName.setText(getString(R.string.shop) + " : " + shop.getShopName());
-			if(session.getSessionDate() != null && 
-					!session.getSessionDate().isEmpty())
-				mTvSaleDate.setText(getString(R.string.sale_date) + " : " + format.dateFormat(session.getSessionDate()));
-			else
-				mTvSaleDate.setText(getString(R.string.sale_date) + " :- ");
+			try {
+				Shop shop = ((LoginActivity) getActivity()).mShop;
+				Session session = ((LoginActivity) getActivity()).mSession;
+				Formater format = ((LoginActivity) getActivity()).mFormat;
+				
+				if(shop.getShopName() != null)
+					mTvShopName.setText(getString(R.string.shop) + " : " + shop.getShopName());
+				
+				if(session.getSessionDate() != null && 
+						!session.getSessionDate().isEmpty())
+					mTvSaleDate.setText(getString(R.string.sale_date) + " : " + format.dateFormat(session.getSessionDate()));
+				else
+					mTvSaleDate.setText(getString(R.string.sale_date) + " :- ");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			return rootView;
 		}

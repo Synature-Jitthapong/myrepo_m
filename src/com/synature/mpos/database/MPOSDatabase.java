@@ -66,7 +66,7 @@ public class MPOSDatabase extends BaseColumn{
 	public static class MPOSOpenHelper extends SQLiteOpenHelper {
 		
 		private static final String DB_NAME = "mpos.db";
-		private static final int DB_VERSION = 2;
+		private static final int DB_VERSION = 4;
 
 		private static MPOSOpenHelper sHelper;
 
@@ -125,8 +125,27 @@ public class MPOSDatabase extends BaseColumn{
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			BankTable.onUpgrade(db, oldVersion, newVersion);
+			ComputerTable.onUpgrade(db, oldVersion, newVersion);
+			CreditCardTable.onUpgrade(db, oldVersion, newVersion);
+			GlobalPropertyTable.onUpgrade(db, oldVersion, newVersion);
+			LanguageTable.onUpgrade(db, oldVersion, newVersion);
+			HeaderFooterReceiptTable.onUpgrade(db, oldVersion, newVersion);
+			MenuCommentTable.onUpgrade(db, oldVersion, newVersion);
+			MenuCommentGroupTable.onUpgrade(db, oldVersion, newVersion);
+			MenuFixCommentTable.onUpgrade(db, oldVersion, newVersion);
+			PrintReceiptLogTable.onUpgrade(db, oldVersion, newVersion);
+			PaymentDetailTable.onUpgrade(db, oldVersion, newVersion);
+			PaymentButtonTable.onUpgrade(db, oldVersion, newVersion);
+			PayTypeTable.onUpgrade(db, oldVersion, newVersion);
+			ProductDeptTable.onUpgrade(db, oldVersion, newVersion);
+			ProductGroupTable.onUpgrade(db, oldVersion, newVersion);
+			ProductComponentGroupTable.onUpgrade(db, oldVersion, newVersion);
+			ProductComponentTable.onUpgrade(db, oldVersion, newVersion);
+			ProductTable.onUpgrade(db, oldVersion, newVersion);
 			ShopTable.onUpgrade(db, oldVersion, newVersion);
-			
+			StaffPermissionTable.onUpgrade(db, oldVersion, newVersion);
+			StaffTable.onUpgrade(db, oldVersion, newVersion);
 		}
 	}
 }

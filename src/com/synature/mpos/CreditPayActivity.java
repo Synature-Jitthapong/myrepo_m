@@ -95,7 +95,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 	    LayoutParams params = getWindow().getAttributes();
 	    params.width = WindowManager.LayoutParams.MATCH_PARENT;
-	    params.height= WindowManager.LayoutParams.WRAP_CONTENT;
+	    params.height= getResources().getInteger(R.integer.activity_dialog_height);
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
