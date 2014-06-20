@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.synature.mpos.provider.Formater;
-import com.synature.mpos.provider.MPOSOrderTransaction;
+import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.pos.SecondDisplayProperty;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplayItemData;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplay_DetailItem;

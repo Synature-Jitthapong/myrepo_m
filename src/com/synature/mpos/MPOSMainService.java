@@ -25,11 +25,19 @@ public class MPOSMainService extends Ksoap2WebServiceTask{
 	public static final String SEND_PARTIAL_SALE_TRANS_METHOD = "WSmPOS_JSON_SendSalePartialTransactionData";
 	public static final String SEND_STOCK_METHOD = "WSmPOS_JSON_SendInventoryDocumentData";
 	
+	/**
+	 * The response of WebServiceResult
+	 * 0 success -1 error
+	 */
+	public static final int RESPONSE_SUCCESS = 0;
+	public static final int RESPONSE_ERROR = -1;
+	
 	public static final String SHOP_ID_PARAM = "iShopID";
 	public static final String COMPUTER_ID_PARAM = "iComputerID";
 	public static final String STAFF_ID_PARAM = "iStaffID";
 	public static final String DEVICE_CODE_PARAM = "szDeviceCode";
 	public static final String JSON_SALE_PARAM = "szJsonSaleTransData";
+	
 	
 	public MPOSMainService(Context context, String method) {
 		super(context.getApplicationContext(), NAME_SPACE, method);

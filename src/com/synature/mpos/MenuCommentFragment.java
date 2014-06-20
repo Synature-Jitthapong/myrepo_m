@@ -2,9 +2,9 @@ package com.synature.mpos;
 
 import java.util.List;
 
-import com.synature.mpos.provider.Formater;
-import com.synature.mpos.provider.MenuComment;
-import com.synature.mpos.provider.Transaction;
+import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.MenuComment;
+import com.synature.mpos.database.Transaction;
 
 import android.app.Activity;
 import android.app.AlertDialog;

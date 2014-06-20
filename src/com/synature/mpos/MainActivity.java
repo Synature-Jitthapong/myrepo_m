@@ -8,18 +8,18 @@ import java.util.List;
 
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.exceptionhandler.ExceptionHandler;
-import com.synature.mpos.provider.Computer;
-import com.synature.mpos.provider.Formater;
-import com.synature.mpos.provider.MPOSOrderTransaction;
-import com.synature.mpos.provider.MenuComment;
-import com.synature.mpos.provider.PrintReceiptLog;
-import com.synature.mpos.provider.Products;
-import com.synature.mpos.provider.Session;
-import com.synature.mpos.provider.Shop;
-import com.synature.mpos.provider.Staffs;
-import com.synature.mpos.provider.Transaction;
-import com.synature.mpos.provider.UserVerification;
-import com.synature.mpos.provider.Util;
+import com.synature.mpos.database.Computer;
+import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.MPOSOrderTransaction;
+import com.synature.mpos.database.MenuComment;
+import com.synature.mpos.database.PrintReceiptLog;
+import com.synature.mpos.database.Products;
+import com.synature.mpos.database.Session;
+import com.synature.mpos.database.Shop;
+import com.synature.mpos.database.Staffs;
+import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.UserVerification;
+import com.synature.mpos.database.Util;
 import com.synature.mpos.seconddisplay.ClientSocket;
 import com.synature.mpos.seconddisplay.ISocketConnection;
 import com.synature.pos.ShopData;
@@ -75,6 +75,7 @@ public class MainActivity extends FragmentActivity
 	
 	// send sale request code from payment activity
 	public static final int PAYMENT_REQUEST = 1;
+	public static final int FOOD_COURT_PAYMENT_REQUEST = 2;
 	
 	private WintecCustomerDisplay mDsp;
 	
@@ -511,11 +512,21 @@ public class MainActivity extends FragmentActivity
 	 */
 	public void paymentClicked(final View v){
 		if(mOrderDetailLst.size() > 0){
-			Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
-			intent.putExtra("transactionId", mTransactionId);
-			intent.putExtra("computerId", mComputer.getComputerId());
-			intent.putExtra("staffId", mStaffId);
-			startActivityForResult(intent, PAYMENT_REQUEST);
+			// food court type
+			if(mShop.getFastFoodType() == Shop.SHOP_TYPE_FOOD_COURT){
+				Intent intent = new Intent(MainActivity.this, FoodCourtCardPayActivity.class);
+				intent.putExtra("transactionId", mTransactionId);
+				intent.putExtra("shopId", mShop.getShopId());
+				intent.putExtra("computerId", mComputer.getComputerId());
+				intent.putExtra("staffId", mStaffId);
+				startActivityForResult(intent, FOOD_COURT_PAYMENT_REQUEST);
+			}else{
+				Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
+				intent.putExtra("transactionId", mTransactionId);
+				intent.putExtra("computerId", mComputer.getComputerId());
+				intent.putExtra("staffId", mStaffId);
+				startActivityForResult(intent, PAYMENT_REQUEST);
+			}
 		}
 	}
 
@@ -1273,6 +1284,7 @@ public class MainActivity extends FragmentActivity
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				startActivity(new Intent(MainActivity.this, LoginActivity.class));
 				finish();
 			}
 		})
@@ -1552,7 +1564,7 @@ public class MainActivity extends FragmentActivity
 					.setIcon(android.R.drawable.ic_dialog_alert)
 					.setMessage(
 							this.getString(R.string.confirm_delete) + " ("
-									+ selectedOrderLst.size() + ") ?")
+									+ selectedOrderLst.size() + ")")
 					.setNegativeButton(R.string.no,
 							new DialogInterface.OnClickListener() {
 

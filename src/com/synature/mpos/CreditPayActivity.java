@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Locale;
 
 import com.synature.exceptionhandler.ExceptionHandler;
-import com.synature.mpos.provider.Bank;
-import com.synature.mpos.provider.CreditCard;
-import com.synature.mpos.provider.Formater;
-import com.synature.mpos.provider.PaymentDetail;
+import com.synature.mpos.database.Bank;
+import com.synature.mpos.database.CreditCard;
+import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.PaymentDetail;
 import com.synature.pos.BankName;
 import com.synature.pos.CreditCardType;
 import com.synature.util.CreditCardParser;
@@ -160,7 +160,10 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mPaymentLeft = intent.getDoubleExtra("paymentLeft", 0.0d);
-		
+	}
+
+	@Override
+	protected void onStart() {
 		// start magnetic reader thread
 		try {
 			mMsrReader = new WintecMagneticReader();
@@ -176,6 +179,15 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 					e.getMessage());
 		}
 		//test();
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		closeMsrThread();
+		mIsRead = false;
+		mMsrReader.close();
+		super.onStop();
 	}
 
 	@Override
@@ -505,9 +517,6 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	
 	@Override
 	protected void onDestroy() {
-		closeMsrThread();
-		mIsRead = false;
-		mMsrReader.close();
 		super.onDestroy();
 	}
 	

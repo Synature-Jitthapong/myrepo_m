@@ -31,9 +31,10 @@
     <uses-feature
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
 
     <application
         android:name="com.synature.mpos.MPOSApplication"
@@ -60,7 +61,8 @@
         <activity
             android:name="com.synature.mpos.DiscountActivity"
             android:label="@string/discount"
-            android:screenOrientation="landscape" android:windowSoftInputMode="stateHidden">
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.mpos.MainActivity" />
@@ -122,11 +124,10 @@
             android:label="@string/set_menu"
             android:screenOrientation="landscape" >
         </activity>
-        <provider 
-            android:name="com.synature.mpos.provider.MPOSProvider"
-            android:authorities="com.synature.mpos.provider"
-            android:exported="false"
-            android:syncable="true"></provider>
+        <activity
+            android:name="com.synature.mpos.FoodCourtCardPayActivity"
+            android:label="@string/payment" android:windowSoftInputMode="stateHidden|adjustPan" android:screenOrientation="landscape" android:theme="@style/ActivityDialogTheme">
+        </activity>
         <receiver
             android:name="com.synature.mpos.BootUpReceiver"
             android:enabled="true"
@@ -137,26 +138,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-        <service 
-            	android:name="com.synature.mpos.account.AuthenticatorService">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
-            </intent-filter>
-            <meta-data 
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator"/>
-        </service>
-        <service 
-            	android:name="com.synature.mpos.sync.SyncService"
-                android:exported="true"
-                android:process=":sync">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
-            </intent-filter>
-            <meta-data 
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter">
-            </meta-data>
+
+        <service android:name="com.synature.mpos.SendSaleService" >
         </service>
     </application>
 

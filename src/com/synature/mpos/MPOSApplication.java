@@ -1,11 +1,7 @@
 package com.synature.mpos;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import com.synature.mpos.seconddisplay.ClientSocket;
-import com.synature.mpos.sync.SyncUtils;
 
 import android.app.Application;
 import android.content.Context;
@@ -123,8 +119,6 @@ public class MPOSApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
-		SyncUtils.createSync(getApplicationContext());
 		// show customer display
 		showCustomerDisplay();
 	}

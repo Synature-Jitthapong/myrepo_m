@@ -2,12 +2,12 @@ package com.synature.mpos;
 
 import java.util.Calendar;
 
-import com.synature.mpos.provider.Computer;
-import com.synature.mpos.provider.Formater;
-import com.synature.mpos.provider.Session;
-import com.synature.mpos.provider.Shop;
-import com.synature.mpos.provider.UserVerification;
-import com.synature.mpos.provider.Util;
+import com.synature.mpos.database.Computer;
+import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.Session;
+import com.synature.mpos.database.Shop;
+import com.synature.mpos.database.UserVerification;
+import com.synature.mpos.database.Util;
 import com.synature.pos.ShopData;
 
 import android.os.Bundle;

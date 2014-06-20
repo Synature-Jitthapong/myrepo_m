@@ -1,7 +1,6 @@
 package com.synature.mpos;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
@@ -16,19 +15,19 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.synature.mpos.MPOSWebServiceClient.SendSaleTransaction;
-import com.synature.mpos.provider.Formater;
-import com.synature.mpos.provider.MPOSDatabase;
-import com.synature.mpos.provider.SaleTransaction;
-import com.synature.mpos.provider.Session;
-import com.synature.mpos.provider.Transaction;
-import com.synature.mpos.provider.PaymentDetail.PaymentDetailTable;
-import com.synature.mpos.provider.SaleTransaction.POSData_SaleTransaction;
-import com.synature.mpos.provider.Session.SessionDetailTable;
-import com.synature.mpos.provider.Session.SessionTable;
-import com.synature.mpos.provider.Transaction.OrderCommentTable;
-import com.synature.mpos.provider.Transaction.OrderDetailTable;
-import com.synature.mpos.provider.Transaction.OrderSetTable;
-import com.synature.mpos.provider.Transaction.OrderTransactionTable;
+import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.MPOSDatabase;
+import com.synature.mpos.database.SaleTransaction;
+import com.synature.mpos.database.Session;
+import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
+import com.synature.mpos.database.table.OrderCommentTable;
+import com.synature.mpos.database.table.OrderDetailTable;
+import com.synature.mpos.database.table.OrderSetTable;
+import com.synature.mpos.database.table.OrderTransactionTable;
+import com.synature.mpos.database.table.PaymentDetailTable;
+import com.synature.mpos.database.table.SessionDetailTable;
+import com.synature.mpos.database.table.SessionTable;
 import com.synature.util.Logger;
 
 public class MPOSUtil {
@@ -45,9 +44,9 @@ public class MPOSUtil {
 			final int shopId, final int computerId, 
 			final int staffId, boolean sendAll, final ProgressListener listener) {
 		
-		Session session = new Session(context.getApplicationContext());
+		Session session = new Session(context);
 		final String sessionDate = session.getSessionDate();
-		new LoadSaleTransaction(context.getApplicationContext(), sessionDate,
+		new LoadSaleTransaction(context, sessionDate,
 				sendAll, new LoadSaleTransactionListener() {
 
 			@Override
@@ -61,7 +60,7 @@ public class MPOSUtil {
 				final String jsonSale = generateJSONSale(context, saleTrans);
 				
 				if(jsonSale != null && !jsonSale.isEmpty()){
-					new MPOSWebServiceClient.SendPartialSaleTransaction(context.getApplicationContext(), 
+					new MPOSWebServiceClient.SendPartialSaleTransaction(context, 
 							staffId, shopId, computerId, jsonSale, new ProgressListener() {
 						@Override
 						public void onPre() {
@@ -70,7 +69,7 @@ public class MPOSUtil {
 						@Override
 						public void onPost() {
 							// do update transaction already send
-							Transaction trans = new Transaction(context.getApplicationContext());
+							Transaction trans = new Transaction(context);
 							trans.updateTransactionSendStatus(sessionDate);
 							listener.onPost();
 						}
@@ -113,8 +112,8 @@ public class MPOSUtil {
 			final int staffId, final double closeAmount,
 			final boolean isEndday, final ProgressListener listener) {
 		
-		final Session sess = new Session(context.getApplicationContext());
-		final Transaction trans = new Transaction(context.getApplicationContext());
+		final Session sess = new Session(context);
+		final Transaction trans = new Transaction(context);
 		final String currentSaleDate = sess.getSessionDate();
 		
 		try {
@@ -130,8 +129,7 @@ public class MPOSUtil {
 		// close session
 		sess.closeSession(sessionId,
 			staffId, closeAmount, isEndday);
-
-		// list session that is not send
+		
 		List<String> sessLst = sess.listSessionEnddayNotSend();
 		for(final String sessionDate : sessLst){
 			/* 
@@ -196,9 +194,10 @@ public class MPOSUtil {
 				}
 
 			}).execute();
-		}
+		}	
 	}
 
+	
 	/**
 	 * @param context
 	 * @param saleTrans
@@ -209,8 +208,7 @@ public class MPOSUtil {
 		String jsonSale = null;
 		try {
 			Gson gson = new Gson();
-			Type type = new TypeToken<POSData_SaleTransaction>() {
-			}.getType();
+			Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
 			jsonSale = gson.toJson(saleTrans, type);
 			Logger.appendLog(context, MPOSApplication.LOG_DIR,
 					MPOSApplication.LOG_FILE_NAME,
@@ -326,7 +324,7 @@ public class MPOSUtil {
 	
 	public static void clearSale(Context context){
 		MPOSDatabase.MPOSOpenHelper mSqliteHelper = 
-				MPOSDatabase.MPOSOpenHelper.getInstance(context.getApplicationContext());
+				MPOSDatabase.MPOSOpenHelper.getInstance(context);
 		SQLiteDatabase sqlite = mSqliteHelper.getWritableDatabase();
 		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
 		sqlite.delete(OrderDetailTable.TABLE_ORDER_TMP, null, null);

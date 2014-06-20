@@ -16,11 +16,12 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <LinearLayout
+        android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/tvShopName"
+        android:layout_marginTop="29dp"
         android:minWidth="390dip"
         android:orientation="vertical"
         android:padding="8dp" >
@@ -61,7 +62,6 @@
 
                 <requestFocus />
             </EditText>
-
         </LinearLayout>
 
         <LinearLayout
@@ -101,26 +101,25 @@
             android:drawableLeft="@drawable/ic_action_not_secure"
             android:text="@string/login"
             android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvShopName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="51dp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="32sp" />
 
     <TextView
         android:id="@+id/tvSaleDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/tvShopName"
         android:layout_below="@+id/tvShopName"
-        android:layout_marginLeft="26dp"
+        android:layout_centerHorizontal="true"
+        android:text="Sale date"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvShopName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/linearLayout1"
+        android:layout_centerHorizontal="true"
+        android:text="Shop Name"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="32sp" />
 
 </RelativeLayout>

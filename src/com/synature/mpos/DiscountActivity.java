@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.exceptionhandler.ExceptionHandler;
-import com.synature.mpos.provider.Formater;
-import com.synature.mpos.provider.MPOSOrderTransaction;
-import com.synature.mpos.provider.Products;
-import com.synature.mpos.provider.Shop;
-import com.synature.mpos.provider.Transaction;
+import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.MPOSOrderTransaction;
+import com.synature.mpos.database.Products;
+import com.synature.mpos.database.Shop;
+import com.synature.mpos.database.Transaction;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -331,6 +331,7 @@ public class DiscountActivity extends Activity{
 						discount.show(getFragmentManager(), DISCOUNT_FRAGMENT_TAG);
 					}else{
 						new AlertDialog.Builder(getActivity())
+						.setTitle(R.string.discount)
 						.setMessage(R.string.not_allow_discount)
 						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 							
@@ -397,42 +398,49 @@ public class DiscountActivity extends Activity{
 				      Context.INPUT_METHOD_SERVICE);
 				imm.hideSoftInputFromWindow(mTxtDisAll.getWindowToken(), 0);
 			try {
+				Products product = new Products(this);
 				double discountAll = MPOSUtil.stringToDouble(mTxtDisAll.getText().toString());
 				double maxTotalRetailPrice = mTrans.getMaxTotalRetailPrice(mTransactionId);
 				double totalDiscount = 0.0d;
 				if(discountAll <= maxTotalRetailPrice){
 					mTxtDisAll.setText(null);
 					for(MPOSOrderTransaction.MPOSOrderDetail order : mOrderLst){
-						double totalRetailPrice = order.getTotalRetailPrice();
-						if(mDisAllType == PRICE_DISCOUNT_TYPE){
-							if(totalRetailPrice < maxTotalRetailPrice){
-								double discount = Math.floor((totalRetailPrice / maxTotalRetailPrice) * discountAll);
+						if(product.getProduct(order.getProductId()).getDiscountAllow() == 1){
+							double totalRetailPrice = order.getTotalRetailPrice();
+							if(mDisAllType == PRICE_DISCOUNT_TYPE){
+								if(totalRetailPrice < maxTotalRetailPrice){
+									double discount = Math.floor((totalRetailPrice / maxTotalRetailPrice) * discountAll);
+									double totalPriceAfterDiscount = totalRetailPrice - discount;
+									totalDiscount += discount;
+									mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
+											order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
+											discount, PRICE_DISCOUNT_TYPE);
+								}
+							}else if(mDisAllType == PERCENT_DISCOUNT_TYPE){
+								double discount = calculateDiscount(order.getTotalRetailPrice(), discountAll, PERCENT_DISCOUNT_TYPE);
 								double totalPriceAfterDiscount = totalRetailPrice - discount;
-								totalDiscount += discount;
-								mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
-										order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
-										discount, PRICE_DISCOUNT_TYPE);
-							}
-						}else if(mDisAllType == PERCENT_DISCOUNT_TYPE){
-							double discount = calculateDiscount(order.getTotalRetailPrice(), discountAll, PERCENT_DISCOUNT_TYPE);
-							double totalPriceAfterDiscount = totalRetailPrice - discount;
-							if(discount >= 0){
-								mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
-										order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
-										discount, PERCENT_DISCOUNT_TYPE);
+								if(discount >= 0){
+									mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
+											order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
+											discount, PERCENT_DISCOUNT_TYPE);
+								}
 							}
 						}
 					}
 					for(MPOSOrderTransaction.MPOSOrderDetail order : mOrderLst){
 						if(mDisAllType == PRICE_DISCOUNT_TYPE){
-							double totalRetailPrice = order.getTotalRetailPrice();
-							if(totalRetailPrice == maxTotalRetailPrice){
-								double discount = discountAll - totalDiscount;
-								double totalPriceAfterDiscount = totalRetailPrice - discount;
-								mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
-										order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
-										discount, PRICE_DISCOUNT_TYPE);
-								break;
+							if(product.getProduct(order.getProductId()).getDiscountAllow() == 1){
+								double totalRetailPrice = order.getTotalRetailPrice();
+								if(totalRetailPrice == maxTotalRetailPrice){
+									if(totalDiscount <= discountAll){
+										double discount = discountAll - totalDiscount;
+										double totalPriceAfterDiscount = totalRetailPrice - discount;
+										mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
+												order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
+												discount, PRICE_DISCOUNT_TYPE);
+										break;
+									}
+								}
 							}
 						}
 					}

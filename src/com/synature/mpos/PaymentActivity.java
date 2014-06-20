@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.exceptionhandler.ExceptionHandler;
-import com.synature.mpos.provider.Formater;
-import com.synature.mpos.provider.MPOSOrderTransaction;
-import com.synature.mpos.provider.PaymentAmountButton;
-import com.synature.mpos.provider.PaymentDetail;
-import com.synature.mpos.provider.Shop;
-import com.synature.mpos.provider.Transaction;
+import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.MPOSOrderTransaction;
+import com.synature.mpos.database.PaymentAmountButton;
+import com.synature.mpos.database.PaymentDetail;
+import com.synature.mpos.database.Shop;
+import com.synature.mpos.database.Transaction;
 import com.synature.pos.Payment;
 
 import android.os.Bundle;
@@ -50,7 +50,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	private WintecCashDrawer mDrw;
 	
 	private PaymentDetail mPayment;
-	private Transaction mOrders;
+	private Transaction mTrans;
 	private Formater mFormat;
 	
 	private List<Payment.PaymentDetail> mPayLst;
@@ -108,7 +108,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
-		mOrders = new Transaction(getApplicationContext());
+		mTrans = new Transaction(getApplicationContext());
 		mPayment = new PaymentDetail(getApplicationContext());
 		mFormat = new Formater(getApplicationContext());
 		
@@ -132,7 +132,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	
 	@Override
 	protected void onResume() {
-		if(mOrders.getTransaction(mTransactionId).getTransactionStatusId() == 
+		if(mTrans.getTransaction(mTransactionId).getTransactionStatusId() == 
 				Transaction.TRANS_STATUS_SUCCESS){
 			finish();
 		}else{
@@ -172,7 +172,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	
 	private void summary(){ 
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
-				mOrders.getSummaryOrder(mTransactionId);
+				mTrans.getSummaryOrder(mTransactionId);
 		mTotalSalePrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
 		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));
 	}
@@ -288,10 +288,10 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			// open cash drawer
 			mDrw.openCashDrawer();
 			
-			mOrders.closeTransaction(mTransactionId, mStaffId);
+			mTrans.closeTransaction(mTransactionId, mStaffId);
 			
 			Shop shop = new Shop(this);
-			mOrders.updateTransactionVatable(mTransactionId, mTotalSalePrice, 
+			mTrans.updateTransactionVatable(mTransactionId, mTotalSalePrice, 
 					shop.getCompanyVatRate(), shop.getCompanyVatType());
 			
 			mChange = mTotalPaid - mTotalSalePrice;

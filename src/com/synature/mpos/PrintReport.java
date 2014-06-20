@@ -5,17 +5,17 @@ import java.util.List;
 
 import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
-import com.synature.mpos.provider.Formater;
-import com.synature.mpos.provider.MPOSOrderTransaction;
-import com.synature.mpos.provider.PaymentDetail;
-import com.synature.mpos.provider.Products;
-import com.synature.mpos.provider.Reporting;
-import com.synature.mpos.provider.Session;
-import com.synature.mpos.provider.Shop;
-import com.synature.mpos.provider.Staffs;
-import com.synature.mpos.provider.Transaction;
-import com.synature.mpos.provider.Util;
-import com.synature.mpos.provider.Reporting.SimpleProductData;
+import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.MPOSOrderTransaction;
+import com.synature.mpos.database.PaymentDetail;
+import com.synature.mpos.database.Products;
+import com.synature.mpos.database.Reporting;
+import com.synature.mpos.database.Session;
+import com.synature.mpos.database.Shop;
+import com.synature.mpos.database.Staffs;
+import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.Util;
+import com.synature.mpos.database.Reporting.SimpleProductData;
 import com.synature.pos.Payment;
 import com.synature.pos.Report;
 
