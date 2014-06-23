@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.exceptionhandler.ExceptionHandler;
+import com.synature.mpos.PartialSaleService.LocalBinder;
 import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
@@ -28,12 +29,15 @@ import com.synature.util.ImageLoader;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -79,6 +83,9 @@ public class MainActivity extends FragmentActivity
 	
 	private WintecCustomerDisplay mDsp;
 	
+	private PartialSaleService mPartService;
+	private boolean mBound = false;
+	
 	private Thread mSockThread;
 	private ISocketConnection mSockConn;
 	
@@ -117,12 +124,12 @@ public class MainActivity extends FragmentActivity
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
-		mSession = new Session(getApplicationContext());
-		mTrans = new Transaction(getApplicationContext());
-		mProducts = new Products(getApplicationContext());
-		mShop = new Shop(getApplicationContext());
-		mComputer = new Computer(getApplicationContext());
-		mFormat = new Formater(getApplicationContext());
+		mSession = new Session(this);
+		mTrans = new Transaction(this);
+		mProducts = new Products(this);
+		mShop = new Shop(this);
+		mComputer = new Computer(this);
+		mFormat = new Formater(this);
 		
 		/**
 		 * Image Loader
@@ -130,15 +137,7 @@ public class MainActivity extends FragmentActivity
 		mImageLoader = new ImageLoader(this, 0,
 					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		 
-		mDsp = new WintecCustomerDisplay(getApplicationContext());
-		
-		/**
-		 * if enabled second display
-		 */
-		if(MPOSApplication.isEnableSecondDisplay(this)){
-			mSockThread = new Thread(mSockRunnable);
-			mSockThread.start();
-		}
+		mDsp = new WintecCustomerDisplay(this);
 		
 		/**
 		 * For create pager by productDept
@@ -157,6 +156,32 @@ public class MainActivity extends FragmentActivity
 		}
 	}
 	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		Intent intent = new Intent(this, PartialSaleService.class);
+		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);		
+		
+		/**
+		 * if enabled second display
+		 */
+		if(MPOSApplication.isEnableSecondDisplay(this)){
+			mSockThread = new Thread(mSockRunnable);
+			mSockThread.start();
+		}
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if(mBound){
+			unbindService(mServiceConnection);
+			mBound = false;
+		}
+		
+		stopSocketThread();
+	}
+
 	@Override
 	protected void onResume() {
 		if(mSession.getCurrentSessionId() > 0){
@@ -185,7 +210,6 @@ public class MainActivity extends FragmentActivity
 	@Override
 	protected void onDestroy() {
 		clearTransaction();
-		stopSocketThread();
 		super.onDestroy();
 	}
 
@@ -271,7 +295,6 @@ public class MainActivity extends FragmentActivity
 			setHasOptionsMenu(true);
 		}
 
-		
 		@Override
 		public void onViewCreated(View view, Bundle savedInstanceState) {
 			mTxtBarCode = (EditText) view.findViewById(R.id.txtBarCode);
@@ -446,8 +469,8 @@ public class MainActivity extends FragmentActivity
 			public void onPrepare() {
 			}
 		}).execute();
-		
-		MPOSUtil.sendSale(MainActivity.this, mShop.getShopId(), 
+
+		mPartService.sendSale(mShop.getShopId(), 
 				mComputer.getComputerId(), mStaffId, false, new ProgressListener(){
 
 					@Override
@@ -463,10 +486,9 @@ public class MainActivity extends FragmentActivity
 
 					@Override
 					public void onError(String msg) {
-						MPOSUtil.makeToask(MainActivity.this, msg);
 					}
 		});
-
+		
 		mDsp.displayTotalPay(
 				mFormat.currencyFormat(totalPaid), mFormat.currencyFormat(change));
 		
@@ -630,6 +652,8 @@ public class MainActivity extends FragmentActivity
 					holder.tvComment.append("\n");
 				}
 			}
+			if(orderDetail.getOrderComment() != null)
+				holder.tvComment.append(orderDetail.getOrderComment());
 			holder.menuInfoContent.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -649,7 +673,8 @@ public class MainActivity extends FragmentActivity
 				public void onClick(View v) {
 					MenuCommentFragment commentDialog = 
 							MenuCommentFragment.newInstance(groupPosition, mTransactionId, 
-									orderDetail.getOrderDetailId(), orderDetail.getProductName());
+									orderDetail.getOrderDetailId(), 
+									orderDetail.getProductName(), orderDetail.getOrderComment());
 					commentDialog.show(getFragmentManager(), "CommentDialog");
 				}
 				
@@ -1192,7 +1217,7 @@ public class MainActivity extends FragmentActivity
 					
 					if(!txtPassword.getText().toString().isEmpty()){
 						pass = txtPassword.getText().toString();
-						UserVerification login = new UserVerification(MainActivity.this.getApplicationContext(), user, pass);
+						UserVerification login = new UserVerification(MainActivity.this, user, pass);
 						
 						if(login.checkUser()){
 							ShopData.Staff s = login.checkLogin();
@@ -1266,7 +1291,7 @@ public class MainActivity extends FragmentActivity
 	 * Logout
 	 */
 	public void logout() {
-		Staffs staff = new Staffs(getApplicationContext());
+		Staffs staff = new Staffs(this);
 		ShopData.Staff s = staff.getStaff(mStaffId);
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.logout)
@@ -1794,12 +1819,30 @@ public class MainActivity extends FragmentActivity
 				mSockConn = new ClientSocket("10.59.0.99", 6600);
 				String msg;
 				while((msg = mSockConn.receive()) != null){
-					
 				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+	};
+	
+	/**
+	 * PartialSaleService Connection
+	 */
+	private ServiceConnection mServiceConnection = new ServiceConnection(){
+
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			LocalBinder binder = (LocalBinder) service;
+			mPartService = binder.getService();
+			mBound = true;
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			mBound = false;
+		}
+		
 	};
 }

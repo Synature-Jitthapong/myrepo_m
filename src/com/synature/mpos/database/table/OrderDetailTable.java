@@ -2,7 +2,7 @@ package com.synature.mpos.database.table;
 
 import android.database.sqlite.SQLiteDatabase;
 
-public class OrderDetailTable {
+public class OrderDetailTable extends BaseColumn{
 
 	public static final String TABLE_ORDER = "OrderDetail";
 	public static final String TABLE_ORDER_TMP = "OrderDetailTmp";
@@ -33,6 +33,7 @@ public class OrderDetailTable {
 			+ COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, "
 			+ COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, "
 			+ ProductTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, "
+			+ COLUMN_REMARK + " TEXT, " 
 			+ "PRIMARY KEY (" + COLUMN_ORDER_ID + ", "
 			+ OrderTransactionTable.COLUMN_TRANSACTION_ID + ") );";
 

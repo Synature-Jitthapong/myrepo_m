@@ -1,5 +1,6 @@
 package com.synature.mpos;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -400,22 +401,22 @@ public class DiscountActivity extends Activity{
 			try {
 				Products product = new Products(this);
 				double discountAll = MPOSUtil.stringToDouble(mTxtDisAll.getText().toString());
-				double maxTotalRetailPrice = mTrans.getMaxTotalRetailPrice(mTransactionId);
-				double totalDiscount = 0.0d;
-				if(discountAll <= maxTotalRetailPrice){
+				MPOSOrderTransaction.MPOSOrderDetail summOrder = 
+						mTrans.getSummaryOrderForDiscount(mTransactionId);
+				if(discountAll <= summOrder.getTotalRetailPrice()){
 					mTxtDisAll.setText(null);
 					for(MPOSOrderTransaction.MPOSOrderDetail order : mOrderLst){
 						if(product.getProduct(order.getProductId()).getDiscountAllow() == 1){
 							double totalRetailPrice = order.getTotalRetailPrice();
 							if(mDisAllType == PRICE_DISCOUNT_TYPE){
-								if(totalRetailPrice < maxTotalRetailPrice){
-									double discount = Math.floor((totalRetailPrice / maxTotalRetailPrice) * discountAll);
-									double totalPriceAfterDiscount = totalRetailPrice - discount;
-									totalDiscount += discount;
-									mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
-											order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
-											discount, PRICE_DISCOUNT_TYPE);
-								}
+								double discount = (totalRetailPrice / summOrder.getTotalRetailPrice()) * discountAll;
+								BigDecimal big = new BigDecimal(discount);
+								big = big.setScale(0, BigDecimal.ROUND_FLOOR);
+								discount = big.doubleValue();
+								double totalPriceAfterDiscount = totalRetailPrice - discount;
+								mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
+										order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
+										discount, PRICE_DISCOUNT_TYPE);
 							}else if(mDisAllType == PERCENT_DISCOUNT_TYPE){
 								double discount = calculateDiscount(order.getTotalRetailPrice(), discountAll, PERCENT_DISCOUNT_TYPE);
 								double totalPriceAfterDiscount = totalRetailPrice - discount;
@@ -423,23 +424,6 @@ public class DiscountActivity extends Activity{
 									mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
 											order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
 											discount, PERCENT_DISCOUNT_TYPE);
-								}
-							}
-						}
-					}
-					for(MPOSOrderTransaction.MPOSOrderDetail order : mOrderLst){
-						if(mDisAllType == PRICE_DISCOUNT_TYPE){
-							if(product.getProduct(order.getProductId()).getDiscountAllow() == 1){
-								double totalRetailPrice = order.getTotalRetailPrice();
-								if(totalRetailPrice == maxTotalRetailPrice){
-									if(totalDiscount <= discountAll){
-										double discount = discountAll - totalDiscount;
-										double totalPriceAfterDiscount = totalRetailPrice - discount;
-										mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
-												order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
-												discount, PRICE_DISCOUNT_TYPE);
-										break;
-									}
 								}
 							}
 						}
@@ -495,7 +479,9 @@ public class DiscountActivity extends Activity{
 			else
 				totalDiscount = totalRetailPrice * discount / 100;
 		}
-		return Math.round(totalDiscount);
+		BigDecimal big = new BigDecimal(totalDiscount);
+		big = big.setScale(0, BigDecimal.ROUND_FLOOR);
+		return big.doubleValue();
 	}
 	
 	private void cancel(){

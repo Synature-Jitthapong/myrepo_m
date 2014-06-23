@@ -6,17 +6,21 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.synature.exceptionhandler.ExceptionHandler;
+import com.synature.mpos.PartialSaleService.LocalBinder;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.PrintReceiptLog;
 import com.synature.mpos.database.Transaction;
 
 import android.os.Bundle;
+import android.os.IBinder;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
@@ -36,6 +40,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
+	
+	private PartialSaleService mPartService;
+	private boolean mBound = false;
 	
 	private Transaction mTrans;
 	private Formater mFormat;
@@ -133,6 +140,22 @@ public class VoidBillActivity extends Activity {
 	    Intent intent = getIntent();
 	    mStaffId = intent.getIntExtra("staffId", 0);
 	    mShopId = intent.getIntExtra("shopId", 0);
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		Intent intent = new Intent(this, PartialSaleService.class);
+		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if(mBound){
+			unbindService(mServiceConnection);
+			mBound = false;
+		}
 	}
 
 	@Override
@@ -386,7 +409,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void sendSale(){
-		MPOSUtil.sendSale(VoidBillActivity.this, mShopId, mComputerId, mStaffId, 
+		mPartService.sendSale(mShopId, mComputerId, mStaffId, 
 				false, new ProgressListener(){
 
 			@Override
@@ -408,4 +431,23 @@ public class VoidBillActivity extends Activity {
 	private void cancel() {
 		finish();
 	}
+	
+	/**
+	 * PartialSaleService Connection
+	 */
+	private ServiceConnection mServiceConnection = new ServiceConnection(){
+
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			LocalBinder binder = (LocalBinder) service;
+			mPartService = binder.getService();
+			mBound = true;
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			mBound = false;
+		}
+		
+	};
 }

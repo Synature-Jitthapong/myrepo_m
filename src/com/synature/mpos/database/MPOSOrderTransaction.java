@@ -20,6 +20,7 @@ public class MPOSOrderTransaction extends OrderTransaction{
 				new ArrayList<MenuComment.Comment>();
 		private double vatExclude;
 		private int productTypeId;
+		private String orderComment;
 
 		public List<MenuComment.Comment> getOrderCommentLst() {
 			return orderCommentLst;
@@ -35,6 +36,14 @@ public class MPOSOrderTransaction extends OrderTransaction{
 
 		public void setOrderSetDetailLst(List<OrderSet.OrderSetDetail> orderSetDetailLst) {
 			this.orderSetDetailLst = orderSetDetailLst;
+		}
+
+		public String getOrderComment() {
+			return orderComment;
+		}
+
+		public void setOrderComment(String orderComment) {
+			this.orderComment = orderComment;
 		}
 
 		public int getProductTypeId() {

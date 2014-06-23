@@ -13,6 +13,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,10 +37,10 @@ public class MenuCommentFragment extends DialogFragment{
 	 */
 	private int mPosition;
 	
-	
 	private int mTransactionId;
 	private int mOrderDetailId;
 	private String mMenuName;
+	private String mOrderComment;
 	
 	private Formater mFormat;
 	private Transaction mTrans;
@@ -53,15 +54,17 @@ public class MenuCommentFragment extends DialogFragment{
 	
 	private Spinner mSpCommentGroup;
 	private ListView mLvComment;
+	private EditText mTxtComment;
 	
 	public static MenuCommentFragment newInstance(int position, int transactionId, 
-			int orderDetailId, String menuName){
+			int orderDetailId, String menuName, String orderComment){
 		MenuCommentFragment f = new MenuCommentFragment();
 		Bundle b = new Bundle();
 		b.putInt("position", position);
 		b.putInt("transactionId", transactionId);
 		b.putInt("orderDetailId", orderDetailId);
 		b.putString("menuName", menuName);
+		b.putString("orderComment", orderComment);
 		f.setArguments(b);
 		return f;
 	}
@@ -73,6 +76,7 @@ public class MenuCommentFragment extends DialogFragment{
 		mTransactionId = getArguments().getInt("transactionId");
 		mOrderDetailId = getArguments().getInt("orderDetailId");
 		mMenuName = getArguments().getString("menuName");
+		mOrderComment = getArguments().getString("orderComment");
 		
 		mFormat = new Formater(getActivity());
 		mTrans = new Transaction(getActivity());
@@ -104,6 +108,8 @@ public class MenuCommentFragment extends DialogFragment{
 		View view = inflater.inflate(R.layout.menu_comment, null, false);
 		mSpCommentGroup = (Spinner) view.findViewById(R.id.spCommentGroup);
 		mLvComment = (ListView) view.findViewById(R.id.lvComment);
+		mTxtComment = (EditText) view.findViewById(R.id.txtComment);
+		mTxtComment.setText(mOrderComment);
 		setupCommentGroupAdapter();
 		setupCommentAdapter();
 		mSpCommentGroup.setOnItemSelectedListener(new OnItemSelectedListener(){
@@ -134,6 +140,10 @@ public class MenuCommentFragment extends DialogFragment{
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				if(!TextUtils.isEmpty(mTxtComment.getText())){
+					mTrans.updateOrderComment(mTransactionId, mOrderDetailId, 
+							mTxtComment.getText().toString());
+				}
 				mTrans.confirmOrderComment(mTransactionId, mOrderDetailId);
 				mListener.onDismiss(mPosition, mOrderDetailId);
 			}

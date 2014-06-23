@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.exceptionhandler.ExceptionHandler;
+import com.synature.mpos.PartialSaleService.LocalBinder;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.table.BaseColumn;
@@ -12,10 +13,13 @@ import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.pos.OrderTransaction;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,7 +35,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class SyncSaleActivity extends Activity{
-
+	
+	private PartialSaleService mPartService;
+	private boolean mBound = false;
+	
 	private boolean mIsOnSync;
 	private int mShopId;
 	private int mComputerId;
@@ -72,6 +79,22 @@ public class SyncSaleActivity extends Activity{
 		loadTransNotSend();
 	}
 	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		Intent intent = new Intent(this, PartialSaleService.class);
+		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if(mBound){
+			unbindService(mServiceConnection);
+			mBound = false;
+		}
+	}
+
 	private void loadTransNotSend(){
 		mTransLst = listNotSendTransaction();
 		mSyncAdapter = new SyncItemAdapter(this, mTransLst);
@@ -102,8 +125,7 @@ public class SyncSaleActivity extends Activity{
 	}
 
 	private void sendSale(){
-		MPOSUtil.sendSale(SyncSaleActivity.this,
-				mShopId, mComputerId, mStaffId, true, new ProgressListener(){
+		mPartService.sendSale(mShopId, mComputerId, mStaffId, true, new ProgressListener(){
 
 			@Override
 			public void onPre() {
@@ -124,7 +146,6 @@ public class SyncSaleActivity extends Activity{
 			public void onError(String msg) {
 				mIsOnSync = false;
 				loadTransNotSend();
-				MPOSUtil.makeToask(SyncSaleActivity.this, msg);
 				mItemProgress.setVisible(false);
 				mItemSendAll.setVisible(true);
 			}
@@ -229,6 +250,25 @@ public class SyncSaleActivity extends Activity{
 			return convertView;
 		}
 	}
+	
+	/**
+	 * PartialSaleService Connection
+	 */
+	private ServiceConnection mServiceConnection = new ServiceConnection(){
+
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			LocalBinder binder = (LocalBinder) service;
+			mPartService = binder.getService();
+			mBound = true;
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			mBound = false;
+		}
+		
+	};
 	
 	private class SendTransaction extends OrderTransaction{
 		private boolean onSend = false;

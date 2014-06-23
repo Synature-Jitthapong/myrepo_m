@@ -30,7 +30,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/horizontalScrollView1"
+            android:layout_below="@+id/lineSection"
             android:horizontalSpacing="@dimen/medium_space"
             android:numColumns="5"
             android:padding="@dimen/medium_space"
@@ -54,6 +54,16 @@
                 android:orientation="horizontal" >
             </LinearLayout>
         </HorizontalScrollView>
+
+        <include
+            android:id="@+id/lineSection"
+            android:layout_width="wrap_content"
+            android:layout_height="4dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/horizontalScrollView1"
+            layout="@android:layout/preference_category" />
+
     </RelativeLayout>
 
 </LinearLayout>

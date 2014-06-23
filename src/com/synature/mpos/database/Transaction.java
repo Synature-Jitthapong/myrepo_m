@@ -12,6 +12,7 @@ import android.database.SQLException;
 
 import com.synature.mpos.database.MPOSOrderTransaction.OrderSet;
 import com.synature.mpos.database.StockDocument.DocumentTypeTable;
+import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.MenuCommentTable;
 import com.synature.mpos.database.table.OrderCommentTable;
@@ -507,6 +508,7 @@ public class Transaction extends MPOSDatabase {
 						+ " a." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ", "
 						+ " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
 						+ " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE + ", "
+						+ " a." + BaseColumn.COLUMN_REMARK + ", "
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME 
 						+ " FROM " + OrderDetailTable.TABLE_ORDER_TMP + " a "
 						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
@@ -549,6 +551,7 @@ public class Transaction extends MPOSDatabase {
 						+ " SUM(a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
 						+ " AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
 						+ " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE + ", "
+						+ " a." + BaseColumn.COLUMN_REMARK + ", "
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME
 						+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
 						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
@@ -588,6 +591,7 @@ public class Transaction extends MPOSDatabase {
 						+ " a." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ", "
 						+ " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
 						+ " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE + ", "
+						+ " a." + BaseColumn.COLUMN_REMARK + ", "
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME 
 						+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
 						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
@@ -625,6 +629,7 @@ public class Transaction extends MPOSDatabase {
 						+ " a." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ", "
 						+ " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
 						+ " a." + OrderDetailTable.COLUMN_DISCOUNT_TYPE + ", "
+						+ " a." + BaseColumn.COLUMN_REMARK + ", "
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME 
 						+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
 						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
@@ -670,7 +675,8 @@ public class Transaction extends MPOSDatabase {
 				.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
 		orderDetail.setDiscountType(cursor.getInt(cursor
 				.getColumnIndex(OrderDetailTable.COLUMN_DISCOUNT_TYPE)));
-
+		orderDetail.setOrderComment(cursor.getString(cursor
+				.getColumnIndex(BaseColumn.COLUMN_REMARK)));
 		// generate order set detail
 		List<MPOSOrderTransaction.OrderSet.OrderSetDetail> orderSetDetailLst = listOrderSetDetailGroupByProduct(
 				orderDetail.getTransactionId(), orderDetail.getOrderDetailId());
@@ -712,6 +718,8 @@ public class Transaction extends MPOSDatabase {
 				.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
 		orderDetail.setDiscountType(cursor.getInt(cursor
 				.getColumnIndex(OrderDetailTable.COLUMN_DISCOUNT_TYPE)));
+		orderDetail.setOrderComment(cursor.getString(cursor
+				.getColumnIndex(BaseColumn.COLUMN_REMARK)));
 
 		// generate order set detail
 		List<MPOSOrderTransaction.OrderSet.OrderSetDetail> orderSetDetailLst = listOrderSetDetail(
@@ -1221,24 +1229,6 @@ public class Transaction extends MPOSDatabase {
 		}
 		return isSuccess;
 	}
-
-	/**
-	 * @param transactionId
-	 * @return max total retail price
-	 */
-	public double getMaxTotalRetailPrice(int transactionId){
-		Cursor cursor = getReadableDatabase().rawQuery(
-				"SELECT MAX(" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ")"
-						+ " FROM " + OrderDetailTable.TABLE_ORDER_TMP 
-						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
-				new String[]{String.valueOf(transactionId)});
-		double maxRetailPrice = 0.0d;
-		if(cursor.moveToFirst()){
-			maxRetailPrice = cursor.getDouble(0);
-		}
-		cursor.close();
-		return maxRetailPrice;
-	}
 	
 	/**
 	 * @param transactionId
@@ -1323,6 +1313,23 @@ public class Transaction extends MPOSDatabase {
 		return getWritableDatabase().delete(OrderDetailTable.TABLE_ORDER_TMP,
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
 				new String[] { String.valueOf(transactionId) });
+	}
+	
+	/**
+	 * @param transactionId
+	 * @param orderDetailId
+	 * @param orderComment
+	 */
+	public void updateOrderComment(int transactionId, int orderDetailId, String orderComment){
+		ContentValues cv = new ContentValues();
+		cv.put(BaseColumn.COLUMN_REMARK, orderComment);
+		getWritableDatabase().update(OrderDetailTable.TABLE_ORDER, cv, 
+				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
+				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId), 
+					String.valueOf(orderDetailId)
+				});
 	}
 	
 	/**

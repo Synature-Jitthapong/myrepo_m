@@ -3,10 +3,10 @@ package com.synature.mpos;
 import java.lang.reflect.Type;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.synature.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.SaleTransaction;
@@ -31,71 +30,6 @@ import com.synature.mpos.database.table.SessionTable;
 import com.synature.util.Logger;
 
 public class MPOSUtil {
-	
-	/**
-	 * @param context
-	 * @param shopId
-	 * @param computerId
-	 * @param staffId
-	 * @param sendAll
-	 * @param listener
-	 */
-	public static void sendSale(final Context context, 
-			final int shopId, final int computerId, 
-			final int staffId, boolean sendAll, final ProgressListener listener) {
-		
-		Session session = new Session(context);
-		final String sessionDate = session.getSessionDate();
-		new LoadSaleTransaction(context, sessionDate,
-				sendAll, new LoadSaleTransactionListener() {
-
-			@Override
-			public void onPre() {
-				listener.onPre();
-			}
-
-			@Override
-			public void onPost(POSData_SaleTransaction saleTrans) {
-
-				final String jsonSale = generateJSONSale(context, saleTrans);
-				
-				if(jsonSale != null && !jsonSale.isEmpty()){
-					new MPOSWebServiceClient.SendPartialSaleTransaction(context, 
-							staffId, shopId, computerId, jsonSale, new ProgressListener() {
-						@Override
-						public void onPre() {
-						}
-
-						@Override
-						public void onPost() {
-							// do update transaction already send
-							Transaction trans = new Transaction(context);
-							trans.updateTransactionSendStatus(sessionDate);
-							listener.onPost();
-						}
-
-						@Override
-						public void onError(String msg) {
-							logServerResponse(context, msg);
-							listener.onError(msg);
-						}
-					}).execute(MPOSApplication.getFullUrl(context));
-				}else{
-					listener.onError("Wrong json sale data");
-				}
-			}
-
-			@Override
-			public void onError(String msg) {
-				listener.onError(msg);
-			}
-
-			@Override
-			public void onPost() {
-			}
-
-		}).execute();
-	}
 
 	/**
 	 * @param context
@@ -130,71 +64,13 @@ public class MPOSUtil {
 		sess.closeSession(sessionId,
 			staffId, closeAmount, isEndday);
 		
-		List<String> sessLst = sess.listSessionEnddayNotSend();
-		for(final String sessionDate : sessLst){
-			/* 
-			 * execute load transaction json task
-			 * and send to hq 
-			 */
-			new LoadSaleTransaction(context, sessionDate, 
-					true, new LoadSaleTransactionListener() {
-
-				@Override
-				public void onPost(POSData_SaleTransaction saleTrans) {
-
-					final String jsonSale = generateJSONSale(context, saleTrans);
-					if(jsonSale != null && !jsonSale.isEmpty()){
-						new MPOSWebServiceClient.SendSaleTransaction(context,
-								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-								staffId, shopId, computerId, jsonSale, new ProgressListener() {
+		Intent intent = new Intent(context, SendEnddaySaleService.class);
+		intent.putExtra("staffId", staffId);
+		intent.putExtra("shopId", shopId);
+		intent.putExtra("computerId", computerId);
+		context.startService(intent);
 		
-									@Override
-									public void onError(String mesg) {
-										logServerResponse(context, mesg);
-										listener.onError(mesg);
-									}
-		
-									@Override
-									public void onPre() {
-									}
-		
-									@Override
-									public void onPost() {
-										try {
-											sess.updateSessionEnddayDetail(sessionDate, 
-													Session.ALREADY_ENDDAY_STATUS);
-											listener.onPost();
-										} catch (SQLException e) {
-											Logger.appendLog(context, MPOSApplication.LOG_DIR, 
-													MPOSApplication.LOG_FILE_NAME, 
-													" Error when update " 
-													+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + " : "
-													+ e.getMessage());
-											listener.onError(e.getMessage());
-										}
-									}
-								}).execute(MPOSApplication.getFullUrl(context));
-					}else{
-						listener.onError("Wrong json sale data");
-					}
-				}
-
-				@Override
-				public void onError(String mesg) {
-					listener.onError(mesg);
-				}
-
-				@Override
-				public void onPre() {
-					listener.onPre();
-				}
-
-				@Override
-				public void onPost() {
-				}
-
-			}).execute();
-		}	
+		listener.onPost();
 	}
 
 	
@@ -203,7 +79,7 @@ public class MPOSUtil {
 	 * @param saleTrans
 	 * @return String JSON Sale
 	 */
-	private static String generateJSONSale(Context context,
+	public static String generateJSONSale(Context context,
 			POSData_SaleTransaction saleTrans) {
 		String jsonSale = null;
 		try {
