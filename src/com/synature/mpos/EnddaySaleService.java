@@ -6,8 +6,10 @@ import java.util.List;
 import com.synature.mpos.MPOSUtil.LoadSaleTransaction;
 import com.synature.mpos.MPOSUtil.LoadSaleTransactionListener;
 import com.synature.mpos.MPOSWebServiceClient.SendSaleTransaction;
+import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.Session;
 import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
+import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.util.Logger;
 
@@ -17,8 +19,9 @@ import android.database.SQLException;
 import android.os.IBinder;
 import android.util.Log;
 
-public class SendEnddaySaleService extends Service{
-	public static final String TAG = SendEnddaySaleService.class.getSimpleName();
+public class EnddaySaleService extends Service{
+	
+	public static final String TAG = EnddaySaleService.class.getSimpleName();
 	
 	private String mStatMsg; 
 	
@@ -65,6 +68,11 @@ public class SendEnddaySaleService extends Service{
 									@Override
 									public void onError(String mesg) {
 										MPOSUtil.logServerResponse(getApplicationContext(), mesg);
+
+										sess.updateSessionEnddayDetail(sessionDate, 
+												MPOSDatabase.NOT_SEND);
+										Transaction trans = new Transaction(getApplicationContext());
+										trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
 									}
 		
 									@Override
@@ -75,7 +83,9 @@ public class SendEnddaySaleService extends Service{
 									public void onPost() {
 										try {
 											sess.updateSessionEnddayDetail(sessionDate, 
-													Session.ALREADY_ENDDAY_STATUS);
+													MPOSDatabase.ALREADY_SEND);
+											Transaction trans = new Transaction(getApplicationContext());
+											trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 											if(!it.hasNext()){
 												mStatMsg = getApplication().getString(R.string.send_sale_data_success);
 												stopSelf();

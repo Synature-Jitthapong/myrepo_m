@@ -206,7 +206,7 @@ public class Session extends MPOSDatabase{
 	
 	/**
 	 * @param sessionDate
-	 * @return number of session endday
+	 * @return 0 if not endday
 	 */
 	public int checkEndday(String sessionDate){
 		int session = 0;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.exceptionhandler.ExceptionHandler;
-import com.synature.mpos.PartialSaleService.LocalBinder;
+import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.table.BaseColumn;
@@ -20,6 +20,7 @@ import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,9 +35,9 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class SyncSaleActivity extends Activity{
+public class SendSaleActivity extends Activity{
 	
-	private PartialSaleService mPartService;
+	private SaleService mPartService;
 	private boolean mBound = false;
 	
 	private boolean mIsOnSync;
@@ -68,6 +69,7 @@ public class SyncSaleActivity extends Activity{
 	    params.dimAmount = 0.5f;
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+	    setFinishOnTouchOutside(false);
 		setContentView(R.layout.activity_sync_sale);
 		
 		mLvSyncItem = (ListView) findViewById(R.id.lvSync);
@@ -82,7 +84,7 @@ public class SyncSaleActivity extends Activity{
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Intent intent = new Intent(this, PartialSaleService.class);
+		Intent intent = new Intent(this, SaleService.class);
 		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
 	}
 
@@ -108,7 +110,16 @@ public class SyncSaleActivity extends Activity{
 		mItemSendAll = menu.findItem(R.id.itemSendAll);
 		return true;
 	}
-	
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if(keyCode == KeyEvent.KEYCODE_BACK){
+			return false;
+		}else{
+			return super.onKeyDown(keyCode, event);
+		}
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){

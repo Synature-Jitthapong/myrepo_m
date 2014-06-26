@@ -467,7 +467,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		}
 		
 	}
-
+	
 	@Override
 	protected void onPostExecute(Void result) {
 		mPrintListener.onPrintSuccess();

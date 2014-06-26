@@ -5,6 +5,7 @@ import java.net.URL;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
@@ -119,6 +120,12 @@ public class MPOSApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
+		// Start load master data service
+//		Intent intent = new Intent(getApplicationContext(), MasterDataService.class);
+//		startService(intent);
+		
+		
 		// show customer display
 		showCustomerDisplay();
 	}

@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.exceptionhandler.ExceptionHandler;
-import com.synature.mpos.PartialSaleService.LocalBinder;
+import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
@@ -26,7 +26,6 @@ import com.synature.mpos.seconddisplay.ISocketConnection;
 import com.synature.pos.ShopData;
 import com.synature.util.ImageLoader;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -83,7 +82,7 @@ public class MainActivity extends FragmentActivity
 	
 	private WintecCustomerDisplay mDsp;
 	
-	private PartialSaleService mPartService;
+	private SaleService mPartService;
 	private boolean mBound = false;
 	
 	private Thread mSockThread;
@@ -159,7 +158,7 @@ public class MainActivity extends FragmentActivity
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Intent intent = new Intent(this, PartialSaleService.class);
+		Intent intent = new Intent(this, SaleService.class);
 		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);		
 		
 		/**
@@ -184,6 +183,9 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	protected void onResume() {
+		/*
+		 * Not endday but system date has already changed
+		 */
 		if(mSession.getCurrentSessionId() > 0){
 			/*
 			 * If resume when system date > session date || 
@@ -196,8 +198,12 @@ public class MainActivity extends FragmentActivity
 			sessionCal.setTimeInMillis(Long.parseLong(sessionDate));
 			if(Util.getDate().getTime().compareTo(sessionCal.getTime()) > 0 || 
 					sessionCal.getTime().compareTo(Util.getDate().getTime()) > 0){
-				startActivity(new Intent(MainActivity.this, LoginActivity.class));
-				finish();
+				if(mSession.checkEndday(sessionDate) == 0){
+					startActivity(new Intent(MainActivity.this, LoginActivity.class));
+					finish();
+				}else{
+					openTransaction();
+				}
 			}else{
 				openTransaction();
 			}
@@ -223,6 +229,7 @@ public class MainActivity extends FragmentActivity
 		private MenuItem mItemHoldBill;
 		private MenuItem mItemSendSale;
 		
+		private MainActivity mHost;
 		private SlidingTabLayout mTabs;
 		private ViewPager mPager;
 		
@@ -233,41 +240,47 @@ public class MainActivity extends FragmentActivity
 		
 		@Override
 		public boolean onOptionsItemSelected(MenuItem item) {
-			MainActivity activity = (MainActivity) getActivity();
 			Intent intent = null;
 			switch (item.getItemId()) {
 			case R.id.itemHoldBill:
-				activity.showHoldBill();
+				mHost.showHoldBill();
 				return true;
 			case R.id.itemSwUser:
-				activity.switchUser();
+				mHost.switchUser();
 				return true;
 			case R.id.itemLogout:
-				activity.logout();
+				mHost.logout();
 				return true;
 			case R.id.itemReport:
 				intent = new Intent(getActivity(), SaleReportActivity.class);
-				intent.putExtra("staffId", activity.mStaffId);
+				intent.putExtra("staffId", mHost.mStaffId);
 				startActivity(intent);
 				return true;
 			case R.id.itemVoid:
-				activity.voidBill();
+				mHost.voidBill();
 				return true;
 			case R.id.itemCloseShift:
-				activity.closeShift();
+				mHost.closeShift();
 				return true;
 			case R.id.itemEndday:
-				activity.endday();
+				mHost.endday();
+				return true;
+			case R.id.itemSendEndday:
+				intent = new Intent(getActivity(), SendEnddayActivity.class);
+				intent.putExtra("staffId", mHost.mStaffId);
+				intent.putExtra("shopId", mHost.mShop.getShopId());
+				intent.putExtra("computerId", mHost.mComputer.getComputerId());
+				startActivity(intent);
 				return true;
 			case R.id.itemReprint:
 				intent = new Intent(getActivity(), ReprintActivity.class);
 				startActivity(intent);
 				return true;
 			case R.id.itemSendSale:
-				intent = new Intent(getActivity(), SyncSaleActivity.class);
-				intent.putExtra("staffId", activity.mStaffId);
-				intent.putExtra("shopId", activity.mShop.getShopId());
-				intent.putExtra("computerId", activity.mComputer.getComputerId());
+				intent = new Intent(getActivity(), SendSaleActivity.class);
+				intent.putExtra("staffId", mHost.mStaffId);
+				intent.putExtra("shopId", mHost.mShop.getShopId());
+				intent.putExtra("computerId", mHost.mComputer.getComputerId());
 				startActivity(intent);
 				return true;
 			case R.id.itemSetting:
@@ -304,15 +317,16 @@ public class MainActivity extends FragmentActivity
 			mPager = (ViewPager) view.findViewById(R.id.pager);
 			mBtnClearBarCode = (ImageButton) view.findViewById(R.id.imgBtnClearBarcode);
 
-			final MainActivity activity = (MainActivity) getActivity();
-			mPager.setAdapter(activity.mPageAdapter);
+			mHost = (MainActivity) getActivity();
+			mPager.setOffscreenPageLimit(8);
+			mPager.setAdapter(mHost.mPageAdapter);
 			final int pageMargin = (int) TypedValue.applyDimension(
 					TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
 							.getDisplayMetrics());
 			mPager.setPageMargin(pageMargin);
 			mTabs.setViewPager(mPager);
 			
-			mLvOrderDetail.setAdapter(activity.mOrderDetailAdapter);
+			mLvOrderDetail.setAdapter(mHost.mOrderDetailAdapter);
 			mLvOrderDetail.setGroupIndicator(null);
 			
 			mTxtBarCode.setOnKeyListener(new OnKeyListener(){
@@ -325,9 +339,9 @@ public class MainActivity extends FragmentActivity
 					if(keyCode == KeyEvent.KEYCODE_ENTER){
 						String barCode = ((EditText) v).getText().toString();
 						if(!barCode.isEmpty()){
-							Products.Product p = activity.mProducts.getProduct(barCode);
+							Products.Product p = mHost.mProducts.getProduct(barCode);
 							if(p != null){
-								activity.addOrder(p.getProductId(), p.getProductName(), 
+								mHost.addOrder(p.getProductId(), p.getProductName(), 
 										p.getProductTypeId(), p.getVatType(), p.getVatRate(), 
 										1, p.getProductPrice());
 							}else{
@@ -371,39 +385,38 @@ public class MainActivity extends FragmentActivity
 		 * summary transaction 
 		 */
 		public void summary(){
-			MainActivity activity = (MainActivity) getActivity();
 			mTbSummary.removeAllViews();
 			
-			activity.mTrans.summary(activity.mTransactionId);
+			mHost.mTrans.summary(mHost.mTransactionId);
 			
 			MPOSOrderTransaction.MPOSOrderDetail sumOrder = 
-					activity.mTrans.getSummaryOrder(activity.mTransactionId);
+					mHost.mTrans.getSummaryOrder(mHost.mTransactionId);
 			
 			mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
-					activity.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
+					mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
 					android.R.style.TextAppearance_Holo_Medium, 0));
 			
 			if(sumOrder.getPriceDiscount() > 0){
 				mTbSummary.addView(createTableRowSummary(getString(R.string.discount), 
-						"-" + activity.mFormat.currencyFormat(sumOrder.getPriceDiscount()), 
+						"-" + mHost.mFormat.currencyFormat(sumOrder.getPriceDiscount()), 
 								android.R.style.TextAppearance_Holo_Medium, 0));
 			}
 			if(sumOrder.getVatExclude() > 0){
 				mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
-						" " + NumberFormat.getInstance().format(activity.mShop.getCompanyVatRate()) + "%",
-						activity.mFormat.currencyFormat(sumOrder.getVatExclude()),
+						" " + NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate()) + "%",
+						mHost.mFormat.currencyFormat(sumOrder.getVatExclude()),
 						android.R.style.TextAppearance_Holo_Medium, 0));
 			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.total),
-					activity.mFormat.currencyFormat(sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()),
+					mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()),
 					android.R.style.TextAppearance_Holo_Large, 32));
 			
 			// display summary to customer display
 			if(sumOrder.getQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
-				activity.mDsp.setOrderTotalQty(activity.mFormat.qtyFormat(sumOrder.getQty()));
-				activity.mDsp.setOrderTotalPrice(activity.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
+				mHost.mDsp.setOrderTotalQty(mHost.mFormat.qtyFormat(sumOrder.getQty()));
+				mHost.mDsp.setOrderTotalPrice(mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
 				try {
-					activity.mDsp.displayOrder();
+					mHost.mDsp.displayOrder();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -772,22 +785,27 @@ public class MainActivity extends FragmentActivity
 		@Override
 		public View getChildView(int groupPosition, int childPosition,
 				boolean isLastChild, View convertView, ViewGroup parent) {
+			ChildViewHolder holder;
 			if(convertView == null){
 				LayoutInflater inflater = (LayoutInflater) 
 						getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				convertView = inflater.inflate(R.layout.order_detail_set_item, parent, false);
+				convertView = inflater.inflate(R.layout.order_detail_set_item, null);
+				holder = new ChildViewHolder();
+				holder.tvSetNo = (TextView) convertView.findViewById(R.id.tvSetNo);
+				holder.tvSetName = (TextView) convertView.findViewById(R.id.tvSetName);
+				holder.txtSetQty = (EditText) convertView.findViewById(R.id.editText1);
+				holder.tvSetNo.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
+				holder.tvSetName.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
+				holder.txtSetQty.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
+				convertView.setTag(holder);
+			}else{
+				holder = (ChildViewHolder) convertView.getTag();
 			}
-			TextView tvSetNo = (TextView) convertView.findViewById(R.id.tvSetNo);
-			TextView tvSetName = (TextView) convertView.findViewById(R.id.tvSetName);
-			TextView txtSetQty = (EditText) convertView.findViewById(R.id.editText1);
-			tvSetNo.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
-			tvSetName.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
-			txtSetQty.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
 			final MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail = 
 						mOrderDetailLst.get(groupPosition).getOrderSetDetailLst().get(childPosition);
-			tvSetNo.setText("-");
-			tvSetName.setText(setDetail.getProductName());
-			txtSetQty.setText(mFormat.qtyFormat(setDetail.getOrderSetQty()));
+			holder.tvSetNo.setText("-");
+			holder.tvSetName.setText(setDetail.getProductName());
+			holder.txtSetQty.setText(mFormat.qtyFormat(setDetail.getOrderSetQty()));
 			return convertView;
 		}
 
@@ -804,6 +822,12 @@ public class MainActivity extends FragmentActivity
 				((PlaceholderFragment) f).summary();
 			}
 			super.notifyDataSetChanged();
+		}
+		
+		private class ChildViewHolder{
+			TextView tvSetNo;
+			TextView tvSetName;
+			EditText txtSetQty;
 		}
 		
 		private class ViewHolder{
@@ -917,11 +941,16 @@ public class MainActivity extends FragmentActivity
 			super.onCreate(savedInstanceState);
 			
 			mDeptId = getArguments().getInt("deptId");
-			mInflater =
-					(LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			mMenuItemAdapter = new MenuItemAdapter();
+			mInflater = (LayoutInflater) 
+					getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
+		@Override
+		public void onActivityCreated(Bundle savedInstanceState) {
+			super.onActivityCreated(savedInstanceState);
+			loadMenuItem();
+		}
+		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
@@ -953,29 +982,15 @@ public class MainActivity extends FragmentActivity
 				}
 				
 			});
-			new LoadMenuItemTask().execute();
 			return mGvItem;
 		}
 		
-		private class LoadMenuItemTask extends AsyncTask<Void, Void, Void>{
-
-			@Override
-			protected void onPreExecute() {
-			}
-
-			@Override
-			protected void onPostExecute(Void result) {
-				mGvItem.setAdapter(mMenuItemAdapter);
-			}
-
-			@Override
-			protected Void doInBackground(Void... params) {
-				mProductLst = ((MainActivity) getActivity()).mProducts.listProduct(mDeptId);
-				return null;
-			}
-			
+		private void loadMenuItem(){
+			mProductLst = ((MainActivity) getActivity()).mProducts.listProduct(mDeptId);
+			mMenuItemAdapter = new MenuItemAdapter();
+			mGvItem.setAdapter(mMenuItemAdapter);
 		}
-		
+
 		/**
 		 * @author j1tth4
 		 * MenuItemAdapter
@@ -1525,7 +1540,33 @@ public class MainActivity extends FragmentActivity
 								
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
-									finish();
+									new AlertDialog.Builder(MainActivity.this)
+									.setTitle(R.string.send_endday_data)
+									.setMessage(R.string.confirm_send_endday_now)
+									.setCancelable(false)
+									.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											Intent intent = new Intent(MainActivity.this, EnddaySaleService.class);
+											intent.putExtra("staffId", mStaffId);
+											intent.putExtra("shopId", mShop.getShopId());
+											intent.putExtra("computerId", mComputer.getComputerId());
+											startService(intent);
+											finish();
+										}
+									}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											Intent intent = new Intent(MainActivity.this, SendEnddayActivity.class);
+											intent.putExtra("staffId", mStaffId);
+											intent.putExtra("shopId", mShop.getShopId());
+											intent.putExtra("computerId", mComputer.getComputerId());
+											startActivity(intent);
+											finish();
+										}
+									}).show();
 								}
 							}).show();
 						}

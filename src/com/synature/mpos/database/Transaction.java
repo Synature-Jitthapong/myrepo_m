@@ -405,6 +405,26 @@ public class Transaction extends MPOSDatabase {
 		cursor.close();
 		return orderDetail;
 	}
+	
+	/**
+	 * @param transactionId
+	 * @return max total retail price
+	 */
+	public double getMaxTotalRetailPrice(int transactionId){
+		double maxTotalRetailPrice = 0.0d;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT MAX(" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ")"
+				+ " FROM " + OrderDetailTable.TABLE_ORDER
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+				new String[]{
+						String.valueOf(transactionId)
+				});
+		if(cursor.moveToFirst()){
+			maxTotalRetailPrice = cursor.getDouble(0);
+		}
+		cursor.close();
+		return maxTotalRetailPrice;
+	}
 
 	public String getMaxReceiptNo(String saleDate){
 		String receiptNo = "";
@@ -1135,9 +1155,9 @@ public class Transaction extends MPOSDatabase {
 	 * @param transactionId
 	 * @return row affected
 	 */
-	public int updateTransactionSendStatus(int transactionId) {
+	public int updateTransactionSendStatus(int transactionId, int status) {
 		ContentValues cv = new ContentValues();
-		cv.put(COLUMN_SEND_STATUS, MPOSDatabase.ALREADY_SEND);
+		cv.put(COLUMN_SEND_STATUS, status);
 		return getWritableDatabase().update(
 				OrderTransactionTable.TABLE_ORDER_TRANS,
 				cv,
@@ -1152,9 +1172,9 @@ public class Transaction extends MPOSDatabase {
 	 * @param saleDate
 	 * @return row affected
 	 */
-	public int updateTransactionSendStatus(String saleDate) {
+	public int updateTransactionSendStatus(String saleDate, int status) {
 		ContentValues cv = new ContentValues();
-		cv.put(COLUMN_SEND_STATUS, MPOSDatabase.ALREADY_SEND);
+		cv.put(COLUMN_SEND_STATUS, status);
 		return getWritableDatabase().update(
 				OrderTransactionTable.TABLE_ORDER_TRANS,
 				cv,
@@ -1290,6 +1310,7 @@ public class Transaction extends MPOSDatabase {
 	 */
 	public boolean prepareDiscount(int transactionId) {
 		boolean isSuccess = false;
+		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + OrderDetailTable.TABLE_ORDER_TMP);
 			getWritableDatabase().execSQL(
@@ -1299,12 +1320,14 @@ public class Transaction extends MPOSDatabase {
 							+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "="
 							+ transactionId);
 			isSuccess = true;
-		} catch (SQLException e) {
-			e.printStackTrace();
+			getWritableDatabase().setTransactionSuccessful();
+		} finally{
+			isSuccess = false;
+			getWritableDatabase().endTransaction();
 		}
 		return isSuccess;
 	}
-
+	
 	/**
 	 * @param transactionId
 	 * @return row affected

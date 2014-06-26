@@ -64,12 +64,6 @@ public class MPOSUtil {
 		sess.closeSession(sessionId,
 			staffId, closeAmount, isEndday);
 		
-		Intent intent = new Intent(context, SendEnddaySaleService.class);
-		intent.putExtra("staffId", staffId);
-		intent.putExtra("shopId", shopId);
-		intent.putExtra("computerId", computerId);
-		context.startService(intent);
-		
 		listener.onPost();
 	}
 
@@ -203,7 +197,6 @@ public class MPOSUtil {
 				MPOSDatabase.MPOSOpenHelper.getInstance(context);
 		SQLiteDatabase sqlite = mSqliteHelper.getWritableDatabase();
 		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
-		sqlite.delete(OrderDetailTable.TABLE_ORDER_TMP, null, null);
 		sqlite.delete(OrderSetTable.TABLE_ORDER_SET, null, null);
 		sqlite.delete(OrderCommentTable.TABLE_ORDER_COMMENT, null, null);
 		sqlite.delete(OrderTransactionTable.TABLE_ORDER_TRANS, null, null);

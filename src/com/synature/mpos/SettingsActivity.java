@@ -2,6 +2,7 @@ package com.synature.mpos;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -61,6 +62,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
+			setResult(RESULT_OK);
 			finish();
 			return true;
 		default :

@@ -169,4 +169,8 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="staff">พนักงาน</string>
     <string name="balance">จำนวนคงเหลือ</string>
     <string name="card_no">หมายเลขบัตร</string>
+    <string name="reset">เริ่มใหม่</string>
+    <string name="send_endday_data">ส่งข้อมูลการปิดสิ้นวัน</string>
+    <string name="confirm_send_endday_now">ต้องการส่งข้อมูลการปิดสิ้นวันตอนนี้เลยไหม?</string>
+    <string name="send_endday_data_success">ส่องข้อมูลการปิดสิ้นวันสำเร็จ</string>
 </resources>

@@ -6,7 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.synature.exceptionhandler.ExceptionHandler;
-import com.synature.mpos.PartialSaleService.LocalBinder;
+import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.PrintReceiptLog;
@@ -41,7 +41,7 @@ import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
 	
-	private PartialSaleService mPartService;
+	private SaleService mPartService;
 	private boolean mBound = false;
 	
 	private Transaction mTrans;
@@ -145,7 +145,7 @@ public class VoidBillActivity extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Intent intent = new Intent(this, PartialSaleService.class);
+		Intent intent = new Intent(this, SaleService.class);
 		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
 	}
 

@@ -109,7 +109,7 @@
             android:theme="@style/ActivityDialogTheme" >
         </activity>
         <activity
-            android:name="com.synature.mpos.SyncSaleActivity"
+            android:name="com.synature.mpos.SendSaleActivity"
             android:label="@string/send_sale_data"
             android:screenOrientation="landscape"
             android:theme="@style/ActivityDialogTheme" >
@@ -126,8 +126,12 @@
         </activity>
         <activity
             android:name="com.synature.mpos.FoodCourtCardPayActivity"
-            android:label="@string/payment" android:windowSoftInputMode="stateHidden|adjustPan" android:screenOrientation="landscape" android:theme="@style/ActivityDialogTheme">
+            android:label="@string/payment"
+            android:screenOrientation="landscape"
+            android:theme="@style/ActivityDialogTheme"
+            android:windowSoftInputMode="stateHidden|adjustPan" >
         </activity>
+
         <receiver
             android:name="com.synature.mpos.BootUpReceiver"
             android:enabled="true"
@@ -139,10 +143,17 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="com.synature.mpos.SendEnddaySaleService" >
+        <service android:name="com.synature.mpos.MasterDataService" >
         </service>
-        <service android:name="com.synature.mpos.PartialSaleService" >
+        <service android:name="com.synature.mpos.EnddaySaleService" >
         </service>
+        <service android:name="com.synature.mpos.SaleService" >
+        </service>
+
+        <activity
+            android:name="com.synature.mpos.SendEnddayActivity"
+            android:label="@string/send_endday_data" android:theme="@style/ActivityDialogTheme">
+        </activity>
     </application>
 
 </manifest>

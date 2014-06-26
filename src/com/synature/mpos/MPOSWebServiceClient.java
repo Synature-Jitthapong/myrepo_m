@@ -18,6 +18,7 @@ import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Staffs;
+import com.synature.mpos.database.SyncMasterLog;
 import com.synature.pos.MenuGroups;
 import com.synature.pos.ProductGroups;
 import com.synature.pos.ShopData;
@@ -56,16 +57,17 @@ public class MPOSWebServiceClient {
 
 			@Override
 			public void onPost(ShopData sd) {
-				Shop shop = new Shop(context.getApplicationContext());
-				Computer computer = new Computer(context.getApplicationContext());
-				Formater format = new Formater(context.getApplicationContext());
-				Staffs staff = new Staffs(context.getApplicationContext());
-				Language lang = new Language(context.getApplicationContext());
-				HeaderFooterReceipt hf = new HeaderFooterReceipt(context.getApplicationContext());
-				Bank bank = new Bank(context.getApplicationContext());
-				CreditCard cd = new CreditCard(context.getApplicationContext());
-				PaymentDetail pd = new PaymentDetail(context.getApplicationContext());
-				PaymentAmountButton pb = new PaymentAmountButton(context.getApplicationContext());
+				SyncMasterLog sync = new SyncMasterLog(context);
+				Shop shop = new Shop(context);
+				Computer computer = new Computer(context);
+				Formater format = new Formater(context);
+				Staffs staff = new Staffs(context);
+				Language lang = new Language(context);
+				HeaderFooterReceipt hf = new HeaderFooterReceipt(context);
+				Bank bank = new Bank(context);
+				CreditCard cd = new CreditCard(context);
+				PaymentDetail pd = new PaymentDetail(context);
+				PaymentAmountButton pb = new PaymentAmountButton(context);
 				try {
 					shop.insertShopProperty(sd.getShopProperty());
 					computer.insertComputer(sd.getComputerProperty());
@@ -77,8 +79,17 @@ public class MPOSWebServiceClient {
 					cd.insertCreditCardType(sd.getCreditCardType());
 					pd.insertPaytype(sd.getPayType());
 					pb.insertPaymentAmountButton(sd.getPaymentAmountButton());
+
+					// log to SyncMasterLogTable
+					sync.insertSyncLog(SyncMasterLog.SYNC_SHOP_TYPE, 
+							SyncMasterLog.SYNC_STATUS_SUCCESS);
+					
 					listener.onPost();
 				} catch (Exception e) {
+					// log to SyncMasterLogTable
+					sync.insertSyncLog(SyncMasterLog.SYNC_SHOP_TYPE, 
+							SyncMasterLog.SYNC_STATUS_FAIL);
+					
 					Logger.appendLog(context, MPOSApplication.LOG_DIR, 
 							MPOSApplication.LOG_FILE_NAME, 
 							"Error when add shop data : " + e.getMessage());
@@ -129,8 +140,9 @@ public class MPOSWebServiceClient {
 
 					@Override
 					public void onPost(ProductGroups pgs) {
-						Products pd = new Products(context.getApplicationContext());
-						MenuComment mc = new MenuComment(context.getApplicationContext());
+						Products pd = new Products(context);
+						MenuComment mc = new MenuComment(context);
+						SyncMasterLog sync = new SyncMasterLog(context);
 						try {
 							pd.insertProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
 							pd.insertProductDept(pgs.getProductDept(), mgs.getMenuDept());
@@ -140,13 +152,22 @@ public class MPOSWebServiceClient {
 							mc.insertMenuComment(mgs.getMenuComment());
 							mc.insertMenuCommentGroup(mgs.getMenuCommentGroup());
 							mc.insertMenuFixComment(mgs.getMenuFixComment());
+							
+							// log to SyncMasterLogTable
+							sync.insertSyncLog(SyncMasterLog.SYNC_PRODUCT_TYPE, 
+									SyncMasterLog.SYNC_STATUS_SUCCESS);
+							
 							// clear all menu picture
-							FileManager fm = new FileManager(context.getApplicationContext(), MPOSApplication.IMG_DIR);
+							FileManager fm = new FileManager(context, MPOSApplication.IMG_DIR);
 							fm.clear();
 
 							progressListener.onPost();
 						} catch (Exception e) {
-							Logger.appendLog(context.getApplicationContext(), MPOSApplication.LOG_DIR, 
+							// log to SyncMasterLogTable
+							sync.insertSyncLog(SyncMasterLog.SYNC_PRODUCT_TYPE, 
+									SyncMasterLog.SYNC_STATUS_FAIL);
+							
+							Logger.appendLog(context, MPOSApplication.LOG_DIR, 
 								MPOSApplication.LOG_FILE_NAME, 
 								"Error when add product data : " + e.getMessage());
 							progressListener.onError(e.getMessage());
