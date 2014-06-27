@@ -49,7 +49,7 @@ public class MPOSApplication extends Application {
 	public static boolean getInternalPrinterSetting(Context context){
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_PRINTER_INTERNAL, false);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_PRINTER_INTERNAL, true);
 	}
 	
 	public static String getEPSONPrinterFont(Context context) {

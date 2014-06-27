@@ -123,7 +123,7 @@ public class ProductSetActivity extends Activity{
 					public void onClick(DialogInterface dialog, int which) {
 						double openPrice = 0.0f;
 						try {
-							openPrice = MPOSUtil.stringToDouble(txtProductPrice.getText().toString());
+							openPrice = Utils.stringToDouble(txtProductPrice.getText().toString());
 							mOrderDetailId = mTrans.addOrderDetail(mTransactionId, 
 									mComputerId, p.getProductId(), p.getProductTypeId(), 
 									p.getVatType(), p.getVatRate(), 1, openPrice);

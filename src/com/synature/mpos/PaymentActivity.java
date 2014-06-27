@@ -261,7 +261,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	
 	private void calculateInputPrice(){
 		try {
-			mTotalPay = MPOSUtil.stringToDouble(mStrTotalPay.toString());
+			mTotalPay = Utils.stringToDouble(mStrTotalPay.toString());
 		} catch (ParseException e) {
 			mTotalPay = 0.0d;
 		}
@@ -418,7 +418,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			public void onClick(View v) {
 				double paid = 0;
 				try {
-					paid = MPOSUtil.stringToDouble(txtAmount.getText().toString());
+					paid = Utils.stringToDouble(txtAmount.getText().toString());
 					if(paid > 0){
 						mStrTotalPay = new StringBuilder();
 						mStrTotalPay.append(mFormat.currencyFormat(paid));

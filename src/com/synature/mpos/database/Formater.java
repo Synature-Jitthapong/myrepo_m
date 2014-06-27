@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.synature.mpos.Utils;
 import com.synature.mpos.database.table.GlobalPropertyTable;
 import com.synature.pos.ShopData;
 
@@ -59,7 +60,7 @@ public class Formater extends MPOSDatabase{
 	 * @return String format date
 	 */
 	public String dateFormat(String date){
-		Calendar calendar = Util.convertStringToCalendar(date);
+		Calendar calendar = Utils.convertStringToCalendar(date);
 		SimpleDateFormat dateFormat = getSimpleDateFormat();
 		if(!getGlobalProperty().getDateFormat().equals(""))
 			dateFormat.applyPattern(getGlobalProperty().getDateFormat());
@@ -71,7 +72,7 @@ public class Formater extends MPOSDatabase{
 	 * @return String format date time
 	 */
 	public String dateTimeFormat(String dateTime){
-		Calendar calendar = Util.convertStringToCalendar(dateTime);
+		Calendar calendar = Utils.convertStringToCalendar(dateTime);
 		SimpleDateFormat dateTimeFormat = getSimpleDateTimeFormat();
 		if(!getGlobalProperty().getDateFormat().equals("") && 
 				!getGlobalProperty().getTimeFormat().equals(""))
@@ -85,7 +86,7 @@ public class Formater extends MPOSDatabase{
 	 * @return String time format
 	 */
 	public String timeFormat(String time){
-		Calendar calendar = Util.convertStringToCalendar(time);
+		Calendar calendar = Utils.convertStringToCalendar(time);
 		SimpleDateFormat timeFormat = getSimpleTimeFormat();
 		if(!getGlobalProperty().getTimeFormat().equals(""))
 			timeFormat.applyPattern(getGlobalProperty().getTimeFormat());
@@ -98,7 +99,7 @@ public class Formater extends MPOSDatabase{
 	 * @return String format date time
 	 */
 	public String dateTimeFormat(String dateTime, String pattern){
-		Calendar calendar = Util.convertStringToCalendar(dateTime);
+		Calendar calendar = Utils.convertStringToCalendar(dateTime);
 		SimpleDateFormat dateTimeFormat = getSimpleDateTimeFormat();
 		dateTimeFormat.applyPattern(pattern);
 		return dateTimeFormat.format(calendar.getTime());

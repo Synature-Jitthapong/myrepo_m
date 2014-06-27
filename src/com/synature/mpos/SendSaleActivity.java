@@ -70,7 +70,7 @@ public class SendSaleActivity extends Activity{
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 	    setFinishOnTouchOutside(false);
-		setContentView(R.layout.activity_sync_sale);
+		setContentView(R.layout.activity_send_sale);
 		
 		mLvSyncItem = (ListView) findViewById(R.id.lvSync);
 		Intent intent = getIntent();
@@ -105,7 +105,7 @@ public class SendSaleActivity extends Activity{
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.action_sync_sale, menu);
+		getMenuInflater().inflate(R.menu.action_send_sale, menu);
 		mItemProgress = menu.findItem(R.id.itemProgress);
 		mItemSendAll = menu.findItem(R.id.itemSendAll);
 		return true;
@@ -175,11 +175,10 @@ public class SendSaleActivity extends Activity{
 					OrderTransactionTable.COLUMN_CLOSE_TIME,
 					BaseColumn.COLUMN_SEND_STATUS
 				}, OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " +
-					BaseColumn.COLUMN_SEND_STATUS + " IN(?,?) ", 
+					BaseColumn.COLUMN_SEND_STATUS + " =? ", 
 				new String[]{
 					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-				 	String.valueOf(MPOSDatabase.NOT_SEND),
-				 	String.valueOf(MPOSDatabase.ALREADY_SEND)
+				 	String.valueOf(MPOSDatabase.NOT_SEND)
 				}, null, null, OrderTransactionTable.COLUMN_TRANSACTION_ID);
 		if(cursor.moveToFirst()){
 			do{

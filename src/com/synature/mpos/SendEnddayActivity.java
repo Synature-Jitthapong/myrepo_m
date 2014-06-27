@@ -10,9 +10,11 @@ import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.Session;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -40,6 +42,7 @@ public class SendEnddayActivity extends Activity {
 	private int mStaffId;
 	private int mShopId;
 	private int mComputerId;
+	private boolean mAutoClose = false;
 	
 	private MenuItem mItemSend;
 	private MenuItem mItemProgress;
@@ -70,6 +73,7 @@ public class SendEnddayActivity extends Activity {
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mShopId = intent.getIntExtra("shopId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
+		mAutoClose = intent.getBooleanExtra("autoClose", false);
 		
 		mFormat = new Formater(this);
 		
@@ -116,6 +120,7 @@ public class SendEnddayActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 			case android.R.id.home:
+				setResult(RESULT_OK);
 				finish();
 			return true;
 			case R.id.itemSendAll:
@@ -138,10 +143,26 @@ public class SendEnddayActivity extends Activity {
 		public void onPost() {
 			mItemSend.setVisible(true);
 			mItemProgress.setVisible(false);
-			MPOSUtil.makeToask(SendEnddayActivity.this, getString(R.string.send_sale_data_success));
 			PlaceholderFragment f = (PlaceholderFragment) getFragmentManager().findFragmentById(R.id.container);
 			if(f != null){
 				f.setupAdapter();
+			}
+			if(mAutoClose){
+				new AlertDialog.Builder(SendEnddayActivity.this)
+				.setCancelable(false)
+				.setTitle(R.string.send_endday_data)
+				.setMessage(R.string.send_endday_data_success)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						setResult(RESULT_OK);
+						finish();
+					}
+				})
+				.show();
+			}else{
+				Utils.makeToask(SendEnddayActivity.this, getString(R.string.send_sale_data_success));
 			}
 		}
 
@@ -149,7 +170,7 @@ public class SendEnddayActivity extends Activity {
 		public void onError(String msg) {
 			mItemSend.setVisible(true);
 			mItemProgress.setVisible(false);
-			MPOSUtil.makeToask(SendEnddayActivity.this, msg);
+			Utils.makeToask(SendEnddayActivity.this, msg);
 		}
 		
 	};

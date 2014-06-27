@@ -3,8 +3,8 @@ package com.synature.mpos;
 import java.util.Iterator;
 import java.util.List;
 
-import com.synature.mpos.MPOSUtil.LoadSaleTransaction;
-import com.synature.mpos.MPOSUtil.LoadSaleTransactionListener;
+import com.synature.mpos.Utils.LoadSaleTransaction;
+import com.synature.mpos.Utils.LoadSaleTransactionListener;
 import com.synature.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.Session;
@@ -59,7 +59,7 @@ public class EnddaySaleService extends Service{
 				@Override
 				public void onPost(POSData_SaleTransaction saleTrans) {
 
-					final String jsonSale = MPOSUtil.generateJSONSale(getApplicationContext(), saleTrans);
+					final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
 					if(jsonSale != null && !jsonSale.isEmpty()){
 						new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
@@ -67,7 +67,7 @@ public class EnddaySaleService extends Service{
 		
 									@Override
 									public void onError(String mesg) {
-										MPOSUtil.logServerResponse(getApplicationContext(), mesg);
+										Utils.logServerResponse(getApplicationContext(), mesg);
 
 										sess.updateSessionEnddayDetail(sessionDate, 
 												MPOSDatabase.NOT_SEND);
@@ -125,7 +125,7 @@ public class EnddaySaleService extends Service{
 		Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_DIR, 
 				MPOSApplication.LOG_FILE_NAME, 
 				TAG + ": Send Endday Complete");
-		MPOSUtil.makeToask(getApplicationContext(), mStatMsg);
+		Utils.makeToask(getApplicationContext(), mStatMsg);
 		super.onDestroy();
 	}
 

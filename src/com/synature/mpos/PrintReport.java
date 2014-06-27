@@ -14,7 +14,6 @@ import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.Transaction;
-import com.synature.mpos.database.Util;
 import com.synature.mpos.database.Reporting.SimpleProductData;
 import com.synature.pos.Payment;
 import com.synature.pos.Report;
@@ -97,7 +96,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				mBuilder.addText(mContext.getString(R.string.sale_by_bill_report) + "\n");
 				mBuilder.addText(date + "\n");
 				mBuilder.addText(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
-				mBuilder.addText(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n");
+				mBuilder.addText(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n");
 
 				String receiptHeader = mContext.getString(R.string.receipt);
 				String totalSaleHeader = mContext.getString(R.string.total);
@@ -154,7 +153,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			mBuilder.append("<c>" + mContext.getString(R.string.sale_by_bill_report) + "\n");
 			mBuilder.append("<c>" + date + "\n");
 			mBuilder.append("<c>" + mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
-			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n");
+			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n");
 			
 			String receiptHeader = mContext.getString(R.string.receipt);
 			String totalSaleHeader = mContext.getString(R.string.total);
@@ -231,7 +230,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				mBuilder.addText(mContext.getString(R.string.sale_by_product_report) + "\n");
 				mBuilder.addText( date + "\n");
 				mBuilder.addText(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
-				mBuilder.addText(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n\n");
+				mBuilder.addText(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n\n");
 
 				// Product Summary
 				Reporting reporting = new Reporting(mContext, mDateFrom, mDateTo);
@@ -324,7 +323,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			mBuilder.append("<c>" + mContext.getString(R.string.sale_by_product_report) + "\n");
 			mBuilder.append("<c>" + date + "\n");
 			mBuilder.append("<c>" + mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
-			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n\n");
+			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n\n");
 			
 			// Product Summary
 			Reporting reporting = new Reporting(mContext, mDateFrom, mDateTo);
@@ -426,7 +425,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				mBuilder.addText(mFormat.dateFormat(session.getSessionDate()) + "\n");
 				mBuilder.addText(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 				mBuilder.addText(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(mStaffId).getStaffName() + "\n");
-				mBuilder.addText(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n");
+				mBuilder.addText(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n");
 				
 				// ReceiptNo.
 				String receiptNo = mContext.getString(R.string.receipt_no);
@@ -578,7 +577,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			mBuilder.append("<c>" + mFormat.dateFormat(session.getSessionDate()) + "\n");
 			mBuilder.append("<c>" + mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 			mBuilder.append(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(mStaffId).getStaffName() + "\n");
-			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Util.getCalendar().getTime()) + "\n");
+			mBuilder.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n");
 			
 			// ReceiptNo.
 			mBuilder.append("<u>" + mContext.getString(R.string.receipt_no) + "\n");

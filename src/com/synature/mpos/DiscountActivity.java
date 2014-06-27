@@ -190,7 +190,7 @@ public class DiscountActivity extends Activity{
 		private void enterDiscount(EditText editText){
 			double discount = mDiscount;
 			try {
-				discount = MPOSUtil.stringToDouble(editText.getText().toString());
+				discount = Utils.stringToDouble(editText.getText().toString());
 				((DiscountActivity)getActivity()).doPositiveClick(discount, mDiscountType);
 				getDialog().dismiss();
 			} catch (ParseException e) {
@@ -409,7 +409,7 @@ public class DiscountActivity extends Activity{
 			clearDiscount();
 			try {
 				Products product = new Products(this);
-				double discountAll = MPOSUtil.stringToDouble(mTxtDisAll.getText().toString());
+				double discountAll = Utils.stringToDouble(mTxtDisAll.getText().toString());
 				double maxTotalRetailPrice = mTrans.getMaxTotalRetailPrice(mTransactionId);
 				double totalDiscount = 0.0d;
 				MPOSOrderTransaction.MPOSOrderDetail summOrder = 

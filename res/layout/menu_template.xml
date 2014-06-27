@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true"
-    android:background="@drawable/button_selector"
+    android:background="@drawable/menu_selector"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="8dp" >

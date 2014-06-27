@@ -222,10 +222,10 @@ public class SettingsActivity extends PreferenceActivity {
 			} catch (EposException e) {
 				switch(e.getErrorStatus()){
 				case EposException.ERR_CONNECT:
-					MPOSUtil.makeToask(mContext, e.getMessage());
+					Utils.makeToask(mContext, e.getMessage());
 					break;
 				default :
-					MPOSUtil.makeToask(mContext, mContext.getString(R.string.not_found_printer));
+					Utils.makeToask(mContext, mContext.getString(R.string.not_found_printer));
 				}
 			}
 		}

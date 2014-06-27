@@ -20,12 +20,14 @@ public abstract class WintecPrinter extends PrinterUtility{
 	
 	public WintecPrinter(){
 		mPrinter = new Printer(DEV_PATH, BAUD_RATE);
+		mPrinter.PRN_DisableChinese();
 		mBuilder = new StringBuilder();
 	}
 
 	protected void print(){
 		String[] subElement = mBuilder.toString().split("\n");
     	for(String data : subElement){
+    		data = unicodeToASCII(data);
 //    		if(!data.contains("<b>")){
 //	    		mPrinter.PRN_EnableBoldFont(0);
 //    		}
@@ -57,6 +59,25 @@ public abstract class WintecPrinter extends PrinterUtility{
 			empText.append(" ");
 		}
 		return empText.toString() + text + empText.toString();
+	}
+	
+	public static String unicodeToASCII(String unicode) {
+		// initial temporary space of ascii.
+		StringBuffer ascii = new StringBuffer(unicode);
+		int code;
+
+		// continue loop based on number of character.
+		for (int i = 0; i < unicode.length(); i++) {
+			// reading a value of each character in the unicode (as String).
+			code = (int) unicode.charAt(i);
+
+			// check the value is Thai language in Unicode scope or not.
+			if ((0xE01 <= code) && (code <= 0xE5B)) {
+				// if yes, it will be converted to Thai language in ASCII scope.
+				ascii.setCharAt(i, (char) (code - 0xD60));
+			}
+		}
+		return ascii.toString();
 	}
 	
 	public abstract void prepareDataToPrint(int transactionId);

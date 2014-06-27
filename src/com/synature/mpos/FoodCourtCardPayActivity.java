@@ -13,7 +13,6 @@ import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.Transaction;
-import com.synature.mpos.database.Util;
 import com.synature.pos.PrepaidCardInfo;
 import com.synature.pos.ShopData;
 import com.synature.util.CreditCardParser;
@@ -509,7 +508,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				}
 				
 				String saleDate = FoodCourtCardPayActivity.this.getString(R.string.date) + " " +
-						mFormat.dateTimeFormat(Util.getCalendar().getTime());
+						mFormat.dateTimeFormat(Utils.getCalendar().getTime());
 				String receiptNo = FoodCourtCardPayActivity.this.getString(R.string.receipt_no) + " " +
 						trans.getReceiptNo();
 				String cashCheer = FoodCourtCardPayActivity.this.getString(R.string.cashier) + " " +

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.synature.mpos.Utils;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.SessionDetailTable;
@@ -55,7 +56,7 @@ public class Session extends MPOSDatabase{
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_IS_ENDDAY, ALREADY_ENDDAY_STATUS);
 		cv.put(OrderTransactionTable.COLUMN_CLOSE_STAFF, closeStaffId);
-		cv.put(SessionTable.COLUMN_CLOSE_DATE, Util.getCalendar().getTimeInMillis());
+		cv.put(SessionTable.COLUMN_CLOSE_DATE, Utils.getCalendar().getTimeInMillis());
 		
 		getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, cv, 
 				SessionTable.COLUMN_IS_ENDDAY + "=? " +
@@ -130,8 +131,8 @@ public class Session extends MPOSDatabase{
 	public int openSession(int shopId, int computerId, int openStaffId,
 			double openAmount){
 		int sessionId = getMaxSessionId();
-		Calendar date = Util.getDate();
-		Calendar dateTime = Util.getCalendar();
+		Calendar date = Utils.getDate();
+		Calendar dateTime = Utils.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_SESS_ID, sessionId);
 		cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
@@ -172,7 +173,7 @@ public class Session extends MPOSDatabase{
 	 */
 	public long addSessionEnddayDetail(String sessionDate, double totalQtyReceipt, 
 			double totalAmountReceipt) throws SQLException {
-		Calendar dateTime = Util.getCalendar();
+		Calendar dateTime = Utils.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_SESS_DATE, sessionDate);
 		cv.put(SessionDetailTable.COLUMN_ENDDAY_DATE, dateTime.getTimeInMillis());
@@ -190,7 +191,7 @@ public class Session extends MPOSDatabase{
 	 */
 	public int closeSession(int sessionId, int closeStaffId, 
 			double closeAmount, boolean isEndday){
-		Calendar dateTime = Util.getCalendar();
+		Calendar dateTime = Utils.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_CLOSE_STAFF, closeStaffId);
 		cv.put(SessionTable.COLUMN_CLOSE_DATE, dateTime.getTimeInMillis());

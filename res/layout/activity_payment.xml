@@ -45,9 +45,9 @@
                 android:focusableInTouchMode="false"
                 android:gravity="right|center_vertical"
                 android:inputType="numberSigned"
-                android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                android:textAppearance="@style/HeaderText"
                 android:textColor="@android:color/black"
-                android:textSize="48sp"
+                android:textSize="@dimen/larger_text_size"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -81,7 +81,6 @@
                     android:layout_marginLeft="1dp"
                     android:layout_marginTop="1dp"
                     android:layout_weight="0.8"
-                    android:gravity="left"
                     android:text="@string/pay_type"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -92,7 +91,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:layout_weight="1"
-                    android:gravity="left"
                     android:text="@string/detail"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 

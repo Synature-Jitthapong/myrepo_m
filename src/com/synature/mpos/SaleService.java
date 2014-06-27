@@ -3,8 +3,8 @@ package com.synature.mpos;
 import java.util.Iterator;
 import java.util.List;
 
-import com.synature.mpos.MPOSUtil.LoadSaleTransaction;
-import com.synature.mpos.MPOSUtil.LoadSaleTransactionListener;
+import com.synature.mpos.Utils.LoadSaleTransaction;
+import com.synature.mpos.Utils.LoadSaleTransactionListener;
 import com.synature.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.Session;
@@ -53,7 +53,7 @@ public class SaleService extends Service{
 				@Override
 				public void onPost(POSData_SaleTransaction saleTrans) {
 
-					final String jsonSale = MPOSUtil.generateJSONSale(getApplicationContext(), saleTrans);
+					final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
 					if(jsonSale != null && !jsonSale.isEmpty()){
 						new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
@@ -65,7 +65,7 @@ public class SaleService extends Service{
 												MPOSDatabase.NOT_SEND);
 										Transaction trans = new Transaction(getApplicationContext());
 										trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
-										MPOSUtil.logServerResponse(getApplicationContext(), mesg);
+										Utils.logServerResponse(getApplicationContext(), mesg);
 										listener.onError(mesg);
 									}
 		
@@ -135,7 +135,7 @@ public class SaleService extends Service{
 			@Override
 			public void onPost(POSData_SaleTransaction saleTrans) {
 
-				final String jsonSale = MPOSUtil.generateJSONSale(getApplicationContext(), saleTrans);
+				final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
 				
 				if(jsonSale != null && !jsonSale.isEmpty()){
 					new MPOSWebServiceClient.SendPartialSaleTransaction(getApplicationContext(), 
@@ -160,7 +160,7 @@ public class SaleService extends Service{
 						public void onError(String msg) {
 							Transaction trans = new Transaction(getApplicationContext());
 							trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
-							MPOSUtil.logServerResponse(getApplicationContext(), msg);
+							Utils.logServerResponse(getApplicationContext(), msg);
 							listener.onError(msg);
 						}
 					}).execute(MPOSApplication.getFullUrl(getApplicationContext()));

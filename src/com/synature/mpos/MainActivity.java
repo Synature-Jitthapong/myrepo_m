@@ -20,7 +20,6 @@ import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.UserVerification;
-import com.synature.mpos.database.Util;
 import com.synature.mpos.seconddisplay.ClientSocket;
 import com.synature.mpos.seconddisplay.ISocketConnection;
 import com.synature.pos.ShopData;
@@ -76,9 +75,18 @@ import android.widget.TextView.OnEditorActionListener;
 public class MainActivity extends FragmentActivity 
 	implements MenuCommentFragment.OnCommentDismissListener{
 	
-	// send sale request code from payment activity
+	/**
+	 * send sale request code from payment activity
+	 */
 	public static final int PAYMENT_REQUEST = 1;
+	/**
+	 * food court payment request
+	 */
 	public static final int FOOD_COURT_PAYMENT_REQUEST = 2;
+	/**
+	 * send end day sale data request
+	 */
+	public static final int SEND_ENDDAY_REQUEST = 3;
 	
 	private WintecCustomerDisplay mDsp;
 	
@@ -177,45 +185,50 @@ public class MainActivity extends FragmentActivity
 			unbindService(mServiceConnection);
 			mBound = false;
 		}
-		
 		stopSocketThread();
 	}
 
 	@Override
 	protected void onResume() {
-		/*
-		 * Not endday but system date has already changed
-		 */
-		if(mSession.getCurrentSessionId() > 0){
+		String curDateMillisec = String.valueOf(Utils.getDate().getTimeInMillis());
+		// check current day is already end day ?
+		if(mSession.checkEndday(curDateMillisec) == 0){
 			/*
 			 * If resume when system date > session date || 
 			 * session date > system date. It means the system date
 			 * is not valid.
 			 * It will be return to LoginActivity for new initial
 			 */
-			Calendar sessionCal = Calendar.getInstance();
-			String sessionDate = mSession.getSessionDate();
-			sessionCal.setTimeInMillis(Long.parseLong(sessionDate));
-			if(Util.getDate().getTime().compareTo(sessionCal.getTime()) > 0 || 
-					sessionCal.getTime().compareTo(Util.getDate().getTime()) > 0){
-				if(mSession.checkEndday(sessionDate) == 0){
-					startActivity(new Intent(MainActivity.this, LoginActivity.class));
-					finish();
+			String sessDate = mSession.getSessionDate();
+			if(!sessDate.equals("")){
+				Calendar sessCal = Calendar.getInstance();
+				sessCal.setTimeInMillis(Long.parseLong(sessDate));
+				if(Utils.getDate().getTime().compareTo(sessCal.getTime()) > 0 || 
+					sessCal.getTime().compareTo(Utils.getDate().getTime()) > 0){
+					// check last session is already end day ?
+					if(mSession.checkEndday(mSession.getSessionDate()) == 0){
+						startActivity(new Intent(MainActivity.this, LoginActivity.class));
+						finish();
+					}else{
+						openTransaction();
+					}
 				}else{
 					openTransaction();
 				}
 			}else{
+				// not have any session
 				openTransaction();
 			}
 		}else{
-			openTransaction();
+			startActivity(new Intent(MainActivity.this, LoginActivity.class));
+			finish();
 		}
 		super.onResume();
 	}
 
 	@Override
 	protected void onDestroy() {
-		clearTransaction();
+		mTrans.cancelTransaction(mTransactionId);
 		super.onDestroy();
 	}
 
@@ -318,7 +331,7 @@ public class MainActivity extends FragmentActivity
 			mBtnClearBarCode = (ImageButton) view.findViewById(R.id.imgBtnClearBarcode);
 
 			mHost = (MainActivity) getActivity();
-			mPager.setOffscreenPageLimit(8);
+			mPager.setOffscreenPageLimit(mHost.mProductDeptLst != null ? mHost.mProductDeptLst.size() : 8);
 			mPager.setAdapter(mHost.mPageAdapter);
 			final int pageMargin = (int) TypedValue.applyDimension(
 					TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
@@ -394,22 +407,22 @@ public class MainActivity extends FragmentActivity
 			
 			mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
 					mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
-					android.R.style.TextAppearance_Holo_Medium, 0));
+					0, 0, 0, 0));
 			
 			if(sumOrder.getPriceDiscount() > 0){
 				mTbSummary.addView(createTableRowSummary(getString(R.string.discount), 
 						"-" + mHost.mFormat.currencyFormat(sumOrder.getPriceDiscount()), 
-								android.R.style.TextAppearance_Holo_Medium, 0));
+								0, 0, 0, 0));
 			}
 			if(sumOrder.getVatExclude() > 0){
 				mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
 						" " + NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate()) + "%",
 						mHost.mFormat.currencyFormat(sumOrder.getVatExclude()),
-						android.R.style.TextAppearance_Holo_Medium, 0));
+						0, 0, 0, 0));
 			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.total),
 					mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()),
-					android.R.style.TextAppearance_Holo_Large, 32));
+					0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size)));
 			
 			// display summary to customer display
 			if(sumOrder.getQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
@@ -425,16 +438,22 @@ public class MainActivity extends FragmentActivity
 		}
 		
 		private TableRow createTableRowSummary(String label, String value,
-				int textAppearance, float textSize){
+				int labelAppear, int valAppear, float labelSize, float valSize){
 			TextView tvLabel = new TextView(getActivity());
 			TextView tvValue = new TextView(getActivity());
-			tvLabel.setTextAppearance(getActivity(), textAppearance);
+			tvLabel.setTextAppearance(getActivity(), android.R.style.TextAppearance_Holo_Medium);
+			tvValue.setTextAppearance(getActivity(), android.R.style.TextAppearance_Holo_Medium);
+			if(labelAppear != 0)
+				tvLabel.setTextAppearance(getActivity(), labelAppear);
+			if(valAppear != 0)
+				tvValue.setTextAppearance(getActivity(), valAppear);
 			tvLabel.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 
 					TableRow.LayoutParams.WRAP_CONTENT, 1f));
-			tvValue.setTextAppearance(getActivity(), textAppearance);
 			tvValue.setGravity(Gravity.RIGHT);
-			if(textSize != 0)
-				tvValue.setTextSize(textSize);
+			if(labelSize != 0)
+				tvLabel.setTextSize(labelSize);
+			if(valSize != 0)
+				tvValue.setTextSize(valSize);
 			tvLabel.setText(label);
 			tvValue.setText(value);
 
@@ -457,6 +476,10 @@ public class MainActivity extends FragmentActivity
 				int staffId = intent.getIntExtra("staffId", 0);
 				afterPaid(transactionId, staffId, totalPaid, change);
 			}
+		}else if(requestCode == SEND_ENDDAY_REQUEST){
+			if(resultCode == RESULT_OK){
+				finish();
+			}
 		}
 	}
 
@@ -475,7 +498,6 @@ public class MainActivity extends FragmentActivity
 			
 			@Override
 			public void onPrintFail(String msg) {
-				MPOSUtil.makeToask(MainActivity.this, msg);
 			}
 			
 			@Override
@@ -493,7 +515,7 @@ public class MainActivity extends FragmentActivity
 					@Override
 					public void onPost() {
 						countTransNotSend(MainActivity.this);
-						MPOSUtil.makeToask(MainActivity.this, 
+						Utils.makeToask(MainActivity.this, 
 								MainActivity.this.getString(R.string.send_sale_data_success));
 					}
 
@@ -1518,7 +1540,7 @@ public class MainActivity extends FragmentActivity
 					mProgress.setMessage(MainActivity.this.getString(R.string.endday_progress));
 					// execute print summary sale task
 					new PrintReport(MainActivity.this, mStaffId, PrintReport.WhatPrint.SUMMARY_SALE).execute();
-					MPOSUtil.endday(MainActivity.this, mShop.getShopId(), 
+					Utils.endday(MainActivity.this, mShop.getShopId(), 
 							mComputer.getComputerId(), mSessionId, mStaffId, 0, true,
 							new ProgressListener() {
 						
@@ -1548,11 +1570,6 @@ public class MainActivity extends FragmentActivity
 										
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
-											Intent intent = new Intent(MainActivity.this, EnddaySaleService.class);
-											intent.putExtra("staffId", mStaffId);
-											intent.putExtra("shopId", mShop.getShopId());
-											intent.putExtra("computerId", mComputer.getComputerId());
-											startService(intent);
 											finish();
 										}
 									}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -1563,8 +1580,8 @@ public class MainActivity extends FragmentActivity
 											intent.putExtra("staffId", mStaffId);
 											intent.putExtra("shopId", mShop.getShopId());
 											intent.putExtra("computerId", mComputer.getComputerId());
-											startActivity(intent);
-											finish();
+											intent.putExtra("autoClose", true);
+											startActivityForResult(intent, SEND_ENDDAY_REQUEST);
 										}
 									}).show();
 								}
@@ -1594,6 +1611,7 @@ public class MainActivity extends FragmentActivity
 			}).show();
 		}else{
 			new AlertDialog.Builder(MainActivity.this)
+			.setTitle(R.string.endday)
 			.setMessage(R.string.cannot_endday_have_order)
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
@@ -1742,7 +1760,7 @@ public class MainActivity extends FragmentActivity
 				public void onClick(DialogInterface dialog, int which) {
 					double openPrice = 0.0f;
 					try {
-						openPrice = MPOSUtil.stringToDouble(txtProductPrice.getText().toString());
+						openPrice = Utils.stringToDouble(txtProductPrice.getText().toString());
 						mTrans.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
 								productId, productTypeId, vatType, vatRate, qty, openPrice);
 

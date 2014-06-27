@@ -3,10 +3,11 @@ package com.synature.mpos;
 import java.lang.reflect.Type;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -16,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSDatabase;
+import com.synature.mpos.database.Products;
 import com.synature.mpos.database.SaleTransaction;
 import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Transaction;
@@ -29,8 +31,11 @@ import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.util.Logger;
 
-public class MPOSUtil {
-
+public class Utils {
+	public static final int MINIMUM_YEAR = 1900;
+	public static final int MINIMUM_MONTH = 0;
+	public static final int MINIMUM_DAY = 1;
+	
 	/**
 	 * @param context
 	 * @param shopId
@@ -122,10 +127,46 @@ public class MPOSUtil {
 		}
 	}
 	
-	public static interface LoadSaleTransactionListener extends ProgressListener{
-		void onPost(POSData_SaleTransaction saleTrans);
+	public static Calendar getCalendar(){
+		return Calendar.getInstance(Locale.US);
 	}
-
+	
+	public static Calendar getMinimum(){
+		return new GregorianCalendar(MINIMUM_YEAR, MINIMUM_MONTH, MINIMUM_DAY);
+	}
+	
+	public static Calendar getDate(){
+		Calendar c = getCalendar();
+		return new GregorianCalendar(c.get(Calendar.YEAR), 
+				c.get(Calendar.MONTH), 
+				c.get(Calendar.DAY_OF_MONTH));
+	}
+	
+	public static Calendar convertStringToCalendar(String dateTime){
+		Calendar calendar = Calendar.getInstance(Locale.US);
+		if(dateTime == null || dateTime.isEmpty()){
+			dateTime = String.valueOf(getMinimum().getTimeInMillis());
+		}
+		calendar.setTimeInMillis(Long.parseLong(dateTime));
+		return calendar;
+	}
+	
+	public static double calculateVatPrice(double totalPrice, double vatRate, int vatType){
+		if(vatType == Products.VAT_TYPE_EXCLUDE)
+			return totalPrice * (100 + vatRate) / 100;
+		else
+			return totalPrice;
+	}
+	
+	public static double calculateVatAmount(double totalPrice, double vatRate, int vatType){
+		if(vatType == Products.VAT_TYPE_INCLUDED)
+			return totalPrice * vatRate / (100 + vatRate);
+		else if(vatType == Products.VAT_TYPE_EXCLUDE)
+			return totalPrice * vatRate / 100;
+		else
+			return 0;
+	}
+	
 	public static void makeToask(Context c, String msg){
 		Toast toast = Toast.makeText(c, 
 				msg, Toast.LENGTH_LONG);
@@ -203,5 +244,9 @@ public class MPOSUtil {
 		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
 		sqlite.delete(SessionTable.TABLE_SESSION, null, null);
 		sqlite.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, null);
+	}
+
+	public static interface LoadSaleTransactionListener extends ProgressListener{
+		void onPost(POSData_SaleTransaction saleTrans);
 	}
 }

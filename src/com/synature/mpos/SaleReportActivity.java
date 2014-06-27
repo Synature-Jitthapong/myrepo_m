@@ -204,12 +204,13 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	}
 	
 	private static TextView createTextViewHeader(Context context, 
-			String content, LinearLayout.LayoutParams params){
+			String content, LinearLayout.LayoutParams params, int gravity){
 		TextView tvHeader = new TextView(context);
 		tvHeader.setText(content);
 		tvHeader.setLayoutParams(params);
-		tvHeader.setGravity(Gravity.CENTER);
+		tvHeader.setGravity(gravity == 0 ? Gravity.CENTER : gravity);
 		tvHeader.setTextAppearance(context, R.style.HeaderText);
+		tvHeader.setPadding(4, 4, 4, 4);
 		return tvHeader;
 	}
 	
@@ -220,6 +221,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		tvSummary.setLayoutParams(params);
 		tvSummary.setGravity(Gravity.RIGHT);
 		tvSummary.setTextAppearance(context, R.style.HeaderText);
+		tvSummary.setPadding(4, 4, 4, 4);
 		return tvSummary;
 	}
 
@@ -661,17 +663,17 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			mBillHeader.removeAllViews();
 			TextView[] tvHeaders = {
 					createTextViewHeader(getActivity(), "", new 
-							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.2f)),
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.2f), 0),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.receipt_no), new 
-							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)),
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f), Gravity.LEFT),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.total), new 
-							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f), Gravity.RIGHT),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.discount), new 
-							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f), Gravity.RIGHT),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.sub_total), new 
-							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f), Gravity.RIGHT),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.vatable), new 
-							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f), Gravity.RIGHT)
 			};
 			for(TextView tv : tvHeaders){
 				mBillHeader.addView(tv);
@@ -679,9 +681,9 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			if(((SaleReportActivity) getActivity()).mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
 				tvHeaders = new TextView[]{
 						createTextViewHeader(getActivity(), getString(R.string.before_vat), new 
-								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f)),
+								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f), Gravity.RIGHT),
 						createTextViewHeader(getActivity(), getString(R.string.total_vat), new 
-								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
+								LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f), Gravity.RIGHT)
 				};
 				for(TextView tv : tvHeaders){
 					mBillHeader.addView(tv);
@@ -689,7 +691,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			}
 			tvHeaders = new TextView[]{
 					createTextViewHeader(getActivity(), getString(R.string.total_payment), new 
-							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f))
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.7f), Gravity.RIGHT)
 			};
 			for(TextView tv : tvHeaders){
 				mBillHeader.addView(tv);

@@ -285,7 +285,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 		//if (checkCardNoSeq()) {
 			//if (!mTxtCVV2.getText().toString().isEmpty()) {
 				try {
-					mTotalCreditPay = MPOSUtil.stringToDouble(
+					mTotalCreditPay = Utils.stringToDouble(
 							mTxtTotalPay.getText().toString());
 				} catch (ParseException e) {
 					Logger.appendLog(this, MPOSApplication.LOG_DIR, 

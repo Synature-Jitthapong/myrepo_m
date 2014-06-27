@@ -1,5 +1,6 @@
 package com.synature.mpos.database;
 
+import com.synature.mpos.Utils;
 import com.synature.mpos.database.table.SyncMasterLogTable;
 
 import android.content.ContentValues;
@@ -31,7 +32,7 @@ public class SyncMasterLog extends MPOSDatabase{
 				+ " FROM " + SyncMasterLogTable.TABLE_SYNC_MASTER
 				+ " WHERE " + SyncMasterLogTable.COLUMN_SYNC_DATE + "=?",
 				new String[]{
-						String.valueOf(Util.getDate().getTimeInMillis())
+						String.valueOf(Utils.getDate().getTimeInMillis())
 				});
 		if(cursor.moveToFirst()){
 			if(cursor.getInt(cursor.getColumnIndex(
@@ -49,7 +50,7 @@ public class SyncMasterLog extends MPOSDatabase{
 		ContentValues cv = new ContentValues();
 		cv.put(SyncMasterLogTable.COLUMN_SYNC_TYPE, type);
 		cv.put(SyncMasterLogTable.COLUMN_SYNC_STATUS, status);
-		cv.put(SyncMasterLogTable.COLUMN_SYNC_DATE, Util.getDate().getTimeInMillis());
+		cv.put(SyncMasterLogTable.COLUMN_SYNC_DATE, Utils.getDate().getTimeInMillis());
 		getWritableDatabase().insert(SyncMasterLogTable.TABLE_SYNC_MASTER, null, cv);
 	}
 	

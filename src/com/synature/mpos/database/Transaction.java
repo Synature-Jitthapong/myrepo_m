@@ -10,6 +10,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
+import com.synature.mpos.Utils;
 import com.synature.mpos.database.MPOSOrderTransaction.OrderSet;
 import com.synature.mpos.database.StockDocument.DocumentTypeTable;
 import com.synature.mpos.database.table.BaseColumn;
@@ -756,12 +757,12 @@ public class Transaction extends MPOSDatabase {
 		return orderDetail;
 	}
 
-	public static String formatReceiptNo(String header, int year, int month,
-			int id) {
+	public static String formatReceiptNo(int year, int month, int day, int id) {
 		String receiptYear = String.format(Locale.US, "%04d", year);
 		String receiptMonth = String.format(Locale.US, "%02d", month);
-		String receiptId = String.format(Locale.US, "%06d", id);
-		return header + receiptMonth + receiptYear + "/" + receiptId;
+		String receiptDay = String.format(Locale.US, "%02d", day);
+		String receiptId = String.format(Locale.US, "%04d", id);
+		return receiptDay + receiptMonth + receiptYear + "/" + receiptId;
 	}
 
 	/**
@@ -916,15 +917,15 @@ public class Transaction extends MPOSDatabase {
 	 * @param month
 	 * @return max receiptId
 	 */
-	public int getMaxReceiptId(int year, int month) {
+	public int getMaxReceiptId(String saleDate) {
 		int maxReceiptId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + OrderTransactionTable.COLUMN_RECEIPT_ID + ") "
 						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-						+ " WHERE " + OrderTransactionTable.COLUMN_RECEIPT_YEAR
-						+ "=?" + " AND "
-						+ OrderTransactionTable.COLUMN_RECEIPT_MONTH + "=?",
-				new String[] { String.valueOf(year), String.valueOf(month) });
+						+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?",
+				new String[] { 
+					saleDate 
+				});
 		if (cursor.moveToFirst()) {
 			maxReceiptId = cursor.getInt(0);
 			cursor.moveToNext();
@@ -972,7 +973,7 @@ public class Transaction extends MPOSDatabase {
 		int transactionId = getMaxTransaction();
 		Calendar date = Calendar.getInstance();
 		date.setTimeInMillis(Long.parseLong(saleDate));
-		Calendar dateTime = Util.getCalendar();
+		Calendar dateTime = Utils.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_UUID, getUUID());
 		cv.put(OrderTransactionTable.COLUMN_TRANSACTION_ID, transactionId);
@@ -1002,10 +1003,9 @@ public class Transaction extends MPOSDatabase {
 	 * @return row affected
 	 */
 	public int closeTransaction(int transactionId, int staffId) {
-		Calendar date = Util.getDate();
-		Calendar dateTime = Util.getCalendar();
-		int receiptId = getMaxReceiptId(date.get(Calendar.YEAR),
-				date.get(Calendar.MONTH) + 1);
+		Calendar date = Utils.getDate();
+		Calendar dateTime = Utils.getCalendar();
+		int receiptId = getMaxReceiptId(String.valueOf(date.getTimeInMillis()));
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_STATUS_ID, TRANS_STATUS_SUCCESS);
 		cv.put(OrderTransactionTable.COLUMN_RECEIPT_ID, receiptId);
@@ -1016,8 +1016,8 @@ public class Transaction extends MPOSDatabase {
 		cv.put(OrderTransactionTable.COLUMN_PAID_STAFF_ID, staffId);
 		cv.put(OrderTransactionTable.COLUMN_CLOSE_STAFF, staffId);
 		cv.put(OrderTransactionTable.COLUMN_RECEIPT_NO,
-				formatReceiptNo("", date.get(Calendar.YEAR),
-						date.get(Calendar.MONTH) + 1, receiptId));
+				formatReceiptNo(date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1, 
+						date.get(Calendar.DAY_OF_MONTH), receiptId));
 		return getWritableDatabase().update(
 				OrderTransactionTable.TABLE_ORDER_TRANS, cv,
 				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
@@ -1192,7 +1192,7 @@ public class Transaction extends MPOSDatabase {
 	 * @return rows affected
 	 */
 	public int updateTransactionVatable(int transactionId, double totalPayment, double vatRate, int vatType){
-		double vatable = Util.calculateVatPrice(totalPayment, vatRate, vatType); 
+		double vatable = Utils.calculateVatPrice(totalPayment, vatRate, vatType); 
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_TRANS_VATABLE, vatable);
 		return getWritableDatabase().update(OrderTransactionTable.TABLE_ORDER_TRANS, cv, 
@@ -1263,7 +1263,7 @@ public class Transaction extends MPOSDatabase {
 	public int discountEatchProduct(int transactionId, int orderDetailId,
 			int vatType, double vatRate, double salePrice, double discount,
 			int discountType) {
-		double vat = Util.calculateVatAmount(salePrice, vatRate, vatType);
+		double vat = Utils.calculateVatAmount(salePrice, vatRate, vatType);
 		ContentValues cv = new ContentValues();
 		cv.put(OrderDetailTable.COLUMN_PRICE_DISCOUNT, discount);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE, salePrice);
@@ -1365,7 +1365,7 @@ public class Transaction extends MPOSDatabase {
 	 */
 	public int updateOrderDetail(int transactionId, int orderDetailId, 
 			double vatRate, int vatType, double totalPrice){
-		double vat = Util.calculateVatAmount(totalPrice, vatRate, vatType);
+		double vat = Utils.calculateVatAmount(totalPrice, vatRate, vatType);
 		ContentValues cv = new ContentValues();
 		cv.put(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE, totalPrice);
 		cv.put(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE, totalPrice);
@@ -1393,7 +1393,7 @@ public class Transaction extends MPOSDatabase {
 	public int updateOrderDetail(int transactionId, int orderDetailId,
 			int vatType, double vatRate, double orderQty, double pricePerUnit) {
 		double totalRetailPrice = pricePerUnit * orderQty;
-		double vat = Util
+		double vat = Utils
 				.calculateVatAmount(totalRetailPrice, vatRate, vatType);
 		ContentValues cv = new ContentValues();
 		cv.put(OrderDetailTable.COLUMN_ORDER_QTY, orderQty);
@@ -1437,7 +1437,7 @@ public class Transaction extends MPOSDatabase {
 //					vatType, vatRate, totalAdded, pricePerUnit);
 //		}else{
 		double totalRetailPrice = pricePerUnit * orderQty;
-		double vat = Util
+		double vat = Utils
 				.calculateVatAmount(totalRetailPrice, vatRate, vatType);
 		int orderDetailId = getMaxOrderDetail(transactionId);
 		ContentValues cv = new ContentValues();
@@ -1522,7 +1522,7 @@ public class Transaction extends MPOSDatabase {
 		cv.put(OrderTransactionTable.COLUMN_VOID_STAFF_ID, staffId);
 		cv.put(OrderTransactionTable.COLUMN_VOID_REASON, reason);
 		cv.put(COLUMN_SEND_STATUS, MPOSDatabase.NOT_SEND);
-		cv.put(OrderTransactionTable.COLUMN_VOID_TIME, Util.getCalendar()
+		cv.put(OrderTransactionTable.COLUMN_VOID_TIME, Utils.getCalendar()
 				.getTimeInMillis());
 		return getWritableDatabase().update(
 				OrderTransactionTable.TABLE_ORDER_TRANS, cv,

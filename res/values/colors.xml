@@ -5,7 +5,8 @@
     <color name="dark_gray">#FFBBBBBB</color>
 	<color name="smoke_white">#FFFCFCFC</color>
 	<color name="dark_green">#0F7F0F</color>
-	<color name="text_shadow">#AFFFFFFF</color>
-	<color name="blue_green">#0f92bd</color>
+	<color name="dark_orange">#b35900</color>
+	<color name="blue">#003366</color>
+	<color name="blue_green">#0b8db3</color>
 	<color name="light_red">#ff3016</color>
 </resources>

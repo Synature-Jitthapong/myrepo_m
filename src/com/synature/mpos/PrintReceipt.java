@@ -19,7 +19,6 @@ import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.Transaction;
-import com.synature.mpos.database.Util;
 import com.synature.pos.Payment;
 import com.synature.pos.ShopData;
 import com.synature.util.Logger;
@@ -102,7 +101,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 				}
 				
 				String saleDate = mContext.getString(R.string.date) + " " +
-						mFormat.dateTimeFormat(Util.getCalendar().getTime());
+						mFormat.dateTimeFormat(Utils.getCalendar().getTime());
 				String receiptNo = mContext.getString(R.string.receipt_no) + " " +
 						trans.getReceiptNo();
 				String cashCheer = mContext.getString(R.string.cashier) + " " +
@@ -307,7 +306,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 			}
 			
 			String saleDate = mContext.getString(R.string.date) + " " +
-					mFormat.dateTimeFormat(Util.getCalendar().getTime());
+					mFormat.dateTimeFormat(Utils.getCalendar().getTime());
 			String receiptNo = mContext.getString(R.string.receipt_no) + " " +
 					trans.getReceiptNo();
 			String cashCheer = mContext.getString(R.string.cashier) + " " +
@@ -503,25 +502,6 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 			}
 		}
 		return null;
-	}
-	
-	public static String unicodeToASCII(String unicode) {
-		// initial temporary space of ascii.
-		StringBuffer ascii = new StringBuffer(unicode);
-		int code;
-
-		// continue loop based on number of character.
-		for (int i = 0; i < unicode.length(); i++) {
-			// reading a value of each character in the unicode (as String).
-			code = (int) unicode.charAt(i);
-
-			// check the value is Thai language in Unicode scope or not.
-			if ((0xE01 <= code) && (code <= 0xE5B)) {
-				// if yes, it will be converted to Thai language in ASCII scope.
-				ascii.setCharAt(i, (char) (code - 0xD60));
-			}
-		}
-		return ascii.toString();
 	}
 		
 	public static OPOSThaiText parsingThaiCodePage21(String prntTxt) {

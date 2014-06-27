@@ -32,7 +32,7 @@ public class WintecCustomerDisplay extends WintecUtils{
 		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - totalPay.length());
 		mDsp.DSP_Dispay(totalPay);
 		try {
-			if(MPOSUtil.stringToDouble(change) > 0){
+			if(Utils.stringToDouble(change) > 0){
 				mDsp.DSP_MoveCursorDown();
 				mDsp.DSP_MoveCursorEndLeft();
 				mDsp.DSP_Dispay(mContext.getString(R.string.change));

@@ -8,7 +8,6 @@ import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.SyncMasterLog;
 import com.synature.mpos.database.UserVerification;
-import com.synature.mpos.database.Util;
 import com.synature.pos.ShopData;
 
 import android.os.Bundle;
@@ -35,7 +34,13 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends Activity{
 	
+	/**
+	 * Request code for set system date
+	 */
 	public static final int REQUEST_FOR_SETTING_DATE = 1;
+	/**
+	 * Request code for setting
+	 */
 	public static final int REQUEST_FOR_SETTING = 2;
 	
 	private int mStaffId;
@@ -93,7 +98,7 @@ public class LoginActivity extends Activity{
 			 *  mPOS will force to go to date & time Settings
 			 *  for setting correct date.
 			 */
-			if(sessionDate.getTime().compareTo(Util.getDate().getTime()) > 0){
+			if(sessionDate.getTime().compareTo(Utils.getDate().getTime()) > 0){
 				new AlertDialog.Builder(this)
 				.setCancelable(false)
 				.setTitle(R.string.system_date)
@@ -119,7 +124,8 @@ public class LoginActivity extends Activity{
 			 * Current date > Session date
 			 * mPOS will force to end day.
 			 */
-			else if(Util.getDate().getTime().compareTo(sessionDate.getTime()) > 0){
+			else if(Utils.getDate().getTime().compareTo(sessionDate.getTime()) > 0){
+				// check last session has already enddday ?
 				if(mSession.checkEndday(mSession.getSessionDate()) == 0){
 					// force end previous sale date
 					new AlertDialog.Builder(this)
@@ -140,7 +146,7 @@ public class LoginActivity extends Activity{
 							final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
 							progress.setMessage(LoginActivity.this.getString(R.string.endday_progress));
 							progress.setCancelable(false);
-							MPOSUtil.endday(LoginActivity.this, mShop.getShopId(), 
+							Utils.endday(LoginActivity.this, mShop.getShopId(), 
 									mComputer.getComputerId(), mSession.getCurrentSessionId(), 
 									mStaffId, 0, true,
 									new ProgressListener(){
@@ -220,7 +226,7 @@ public class LoginActivity extends Activity{
 			startActivity(intent);
 			return true;
 		case R.id.itemClearSale:
-			MPOSUtil.clearSale(LoginActivity.this);
+			Utils.clearSale(LoginActivity.this);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
@@ -359,7 +365,7 @@ public class LoginActivity extends Activity{
 				getFragmentManager().findFragmentById(R.id.loginContent);
 		placeHolder.mTxtUser.setText(null);
 		placeHolder.mTxtPass.setText(null);
-		if(mSession.checkEndday(String.valueOf(Util.getDate().getTimeInMillis())) > 0){
+		if(mSession.checkEndday(String.valueOf(Utils.getDate().getTimeInMillis())) > 0){
 			new AlertDialog.Builder(this)
 			.setCancelable(false)
 			.setTitle(R.string.endday)
@@ -374,6 +380,13 @@ public class LoginActivity extends Activity{
 			final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 			intent.putExtra("staffId", mStaffId);
 			if(!mSync.IsAlreadySync()){
+				// start endday service for send endday sale
+				Intent enddayIntent = new Intent(LoginActivity.this, EnddaySaleService.class);
+				enddayIntent.putExtra("staffId", mStaffId);
+				enddayIntent.putExtra("shopId", mShop.getShopId());
+				enddayIntent.putExtra("computerId", mComputer.getComputerId());
+				startService(enddayIntent);
+				
 				final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
 				progress.setCancelable(false);
 				progress.setTitle(R.string.update_data);
@@ -467,65 +480,26 @@ public class LoginActivity extends Activity{
 				
 				if(login.checkUser()){
 					ShopData.Staff s = login.checkLogin();
-					
 					if(s != null){
 						mStaffId = s.getStaffID();
 						checkSessionDate();
+						placeHolder.mTxtUser.setError(null);
+						placeHolder.mTxtPass.setError(null);
 					}else{
-						new AlertDialog.Builder(LoginActivity.this)
-						.setIcon(android.R.drawable.ic_dialog_alert)
-						.setTitle(R.string.login)
-						.setMessage(R.string.incorrect_password)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								
-							}
-						})
-						.show();
+						placeHolder.mTxtUser.setError(null);
+						placeHolder.mTxtPass.setError(getString(R.string.incorrect_password));
 					}
 				}else{
-					new AlertDialog.Builder(LoginActivity.this)
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setTitle(R.string.login)
-					.setMessage(R.string.incorrect_user)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							
-						}
-					})
-					.show();
+					placeHolder.mTxtUser.setError(getString(R.string.incorrect_user));
+					placeHolder.mTxtPass.setError(null);
 				}
 			}else{
-				new AlertDialog.Builder(LoginActivity.this)
-				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setTitle(R.string.login)
-				.setMessage(R.string.enter_password)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						
-					}
-				})
-				.show();
+				placeHolder.mTxtUser.setError(null);
+				placeHolder.mTxtPass.setError(getString(R.string.enter_password));
 			}
 		}else{
-			new AlertDialog.Builder(LoginActivity.this)
-			.setIcon(android.R.drawable.ic_dialog_alert)
-			.setTitle(R.string.login)
-			.setMessage(R.string.enter_username)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					
-				}
-			})
-			.show();
+			placeHolder.mTxtUser.setError(getString(R.string.enter_username));
+			placeHolder.mTxtPass.setError(null);
 		}
 	}
 	
@@ -536,6 +510,7 @@ public class LoginActivity extends Activity{
 		private EditText mTxtPass;
 		private TextView mTvShopName;
 		private TextView mTvSaleDate;
+		private TextView mTvLastSession;
 
 		public PlaceholderFragment(){
 		}
@@ -555,6 +530,7 @@ public class LoginActivity extends Activity{
 			mTxtPass = (EditText) rootView.findViewById(R.id.txtPass);
 			mTvShopName = (TextView) rootView.findViewById(R.id.tvShopName);
 			mTvSaleDate = (TextView) rootView.findViewById(R.id.tvSaleDate);
+			mTvLastSession = (TextView) rootView.findViewById(R.id.tvLastSession);
 			
 			mTxtUser.setSelectAllOnFocus(true);
 			mTxtPass.setSelectAllOnFocus(true);
@@ -590,13 +566,15 @@ public class LoginActivity extends Activity{
 				Formater format = ((LoginActivity) getActivity()).mFormat;
 				
 				if(shop.getShopName() != null)
-					mTvShopName.setText(getString(R.string.shop) + " : " + shop.getShopName());
+					mTvShopName.setText(shop.getShopName());
 				
 				if(session.getSessionDate() != null && 
 						!session.getSessionDate().isEmpty())
-					mTvSaleDate.setText(getString(R.string.sale_date) + " : " + format.dateFormat(session.getSessionDate()));
+					mTvLastSession.setText(format.dateFormat(session.getSessionDate()));
 				else
-					mTvSaleDate.setText(getString(R.string.sale_date) + " :- ");
+					mTvLastSession.setText(" :- ");
+
+				mTvSaleDate.setText(format.dateFormat(Utils.getDate().getTime()));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
