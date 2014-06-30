@@ -81,6 +81,26 @@ public class Session extends MPOSDatabase{
 	}
 
 	/**
+	 * @param sessionId
+	 * @return session date specific by sessionId
+	 */
+	public String getSessionDate(int sessionId){
+		String sessionDate = "";
+		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_SESSION, 
+				new String[]{SessionTable.COLUMN_SESS_DATE}, 
+				SessionTable.COLUMN_SESS_ID + "=?", 
+				new String[]{
+					String.valueOf(sessionId)
+				}, null, null, null);
+		
+		if(cursor.moveToFirst()){
+			sessionDate = cursor.getString(0);
+		}
+		cursor.close();
+		return sessionDate;
+	}
+	
+	/**
 	 * @return session date
 	 */
 	public String getSessionDate(){
@@ -121,17 +141,9 @@ public class Session extends MPOSDatabase{
 		return sessionId + 1;
 	}
 
-	/**
-	 * @param shopId
-	 * @param computerId
-	 * @param openStaffId
-	 * @param openAmount
-	 * @return sessionId
-	 */
-	public int openSession(int shopId, int computerId, int openStaffId,
-			double openAmount){
+	public int openSession(Calendar date, int shopId, int computerId, 
+			int openStaffId, double openAmount){
 		int sessionId = getMaxSessionId();
-		Calendar date = Utils.getDate();
 		Calendar dateTime = Utils.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_SESS_ID, sessionId);
@@ -207,21 +219,25 @@ public class Session extends MPOSDatabase{
 	
 	/**
 	 * @param sessionDate
-	 * @return 0 if not endday
+	 * @return true if already end day
 	 */
-	public int checkEndday(String sessionDate){
-		int session = 0;
+	public boolean checkEndday(String sessionDate){
+		boolean isEndday = false;
 		Cursor cursor = getReadableDatabase().rawQuery(
-				"SELECT COUNT(*) " +
-				" FROM " + SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL +
-				" WHERE " + SessionTable.COLUMN_SESS_DATE + "=?", 
+				"SELECT COUNT(*) " 
+				+ " FROM " + SessionTable.TABLE_SESSION
+				+ " WHERE " + SessionTable.COLUMN_SESS_DATE + "=?"
+				+ " AND " + SessionTable.COLUMN_IS_ENDDAY + "=?", 
 				new String[]{
-				sessionDate});
+						sessionDate,
+						String.valueOf(ALREADY_ENDDAY_STATUS)
+				});
 		if(cursor.moveToFirst()){
-			session = cursor.getInt(0);
+			if(cursor.getInt(0) > 0)
+				isEndday = true;
 		}
 		cursor.close();
-		return session;
+		return isEndday;
 	}
 	
 	/**

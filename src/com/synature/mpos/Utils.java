@@ -46,32 +46,86 @@ public class Utils {
 	 * @param isEndday
 	 * @param listener
 	 */
-	public static void endday(final Context context, final int shopId, 
-			final int computerId, final int sessionId,
-			final int staffId, final double closeAmount,
-			final boolean isEndday, final ProgressListener listener) {
-		
-		final Session sess = new Session(context);
-		final Transaction trans = new Transaction(context);
-		final String currentSaleDate = sess.getSessionDate();
-		
+	public static boolean endday(Context context, int shopId, int computerId, 
+			int sessionId, int staffId, double closeAmount, boolean isEndday) {
+		Session sess = new Session(context);
+		Transaction trans = new Transaction(context);
+		String currentSaleDate = sess.getSessionDate(sessionId);
 		try {
-			// add session endday
-			sess.addSessionEnddayDetail(currentSaleDate,
-					trans.getTotalReceipt(currentSaleDate),
-					trans.getTotalReceiptAmount(currentSaleDate));
-		} catch (SQLException e1) {
+			try {
+				// add session endday
+				sess.addSessionEnddayDetail(currentSaleDate,
+						trans.getTotalReceipt(currentSaleDate),
+						trans.getTotalReceiptAmount(currentSaleDate));
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			// close session
+			sess.closeSession(sessionId,
+				staffId, closeAmount, isEndday);
+			return true;
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			e.printStackTrace();
 		}
-		
-		// close session
-		sess.closeSession(sessionId,
-			staffId, closeAmount, isEndday);
-		
-		listener.onPost();
+		return false;
 	}
 
+	/**
+	 * @param context
+	 * @param shopId
+	 * @param computerId
+	 * @param staffId
+	 * @param lastSessCal
+	 * @return true if success endday
+	 */
+	public static boolean endingMultipleDay(Context context, int shopId, 
+			int computerId, int staffId, Calendar lastSessCal){
+		int diffDay = getDiffDay(lastSessCal);
+		try {
+			Session sess = new Session(context);
+			Calendar sessCal = (Calendar) lastSessCal.clone();
+			for(int i = 1; i < diffDay; i++){
+				sessCal.add(Calendar.DAY_OF_MONTH, 1);
+				int sessId = sess.openSession(getDate(sessCal.get(Calendar.YEAR), 
+						sessCal.get(Calendar.MONTH), sessCal.get(Calendar.DAY_OF_MONTH)), 
+						shopId, computerId, staffId, 0);
+				sess.addSessionEnddayDetail(String.valueOf(
+						sessCal.getTimeInMillis()), 0, 0);
+				sess.closeSession(sessId, staffId, 0, true);
+			}
+			try {
+				Formater format = new Formater(context);
+				Logger.appendLog(context, MPOSApplication.LOG_DIR,
+						MPOSApplication.LOG_FILE_NAME,
+						"Success ending multiple day : " 
+						+ " from : " + format.dateFormat(lastSessCal.getTime())
+						+ " to : " + format.dateFormat(Calendar.getInstance().getTime()));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			Logger.appendLog(context, MPOSApplication.LOG_DIR,
+					MPOSApplication.LOG_FILE_NAME,
+					"Error ending multiple day : " + e.getMessage());
+		}
+		return false;
+	}
+	
+	public static int getDiffDay(Calendar lastSessCal){
+		Calendar currCalendar = Calendar.getInstance();
+		int diffDay = 0;
+		if(lastSessCal.get(Calendar.YEAR) == currCalendar.get(Calendar.YEAR)){
+			diffDay = currCalendar.get(Calendar.DAY_OF_YEAR) - lastSessCal.get(Calendar.DAY_OF_YEAR);
+		}else if(lastSessCal.get(Calendar.YEAR) < currCalendar.get(Calendar.YEAR)){
+			diffDay = (lastSessCal.getActualMaximum(Calendar.DAY_OF_YEAR) 
+					- lastSessCal.get(Calendar.DAY_OF_YEAR)) + currCalendar.get(Calendar.DAY_OF_YEAR);
+		}	
+		return diffDay;
+	}
 	
 	/**
 	 * @param context
@@ -128,11 +182,15 @@ public class Utils {
 	}
 	
 	public static Calendar getCalendar(){
-		return Calendar.getInstance(Locale.US);
+		return Calendar.getInstance();
 	}
 	
 	public static Calendar getMinimum(){
 		return new GregorianCalendar(MINIMUM_YEAR, MINIMUM_MONTH, MINIMUM_DAY);
+	}
+	
+	public static Calendar getDate(int year, int month, int day){
+		return new GregorianCalendar(year, month, day);
 	}
 	
 	public static Calendar getDate(){
@@ -143,7 +201,7 @@ public class Utils {
 	}
 	
 	public static Calendar convertStringToCalendar(String dateTime){
-		Calendar calendar = Calendar.getInstance(Locale.US);
+		Calendar calendar = Calendar.getInstance();
 		if(dateTime == null || dateTime.isEmpty()){
 			dateTime = String.valueOf(getMinimum().getTimeInMillis());
 		}

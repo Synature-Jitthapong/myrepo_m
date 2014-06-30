@@ -30,7 +30,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -111,8 +110,6 @@ public class MainActivity extends FragmentActivity
 
 	private ImageLoader mImageLoader;
 	
-	private ProgressDialog mProgress;
-	
 	private int mSessionId;
 	private int mTransactionId;
 	private int mStaffId;
@@ -152,8 +149,6 @@ public class MainActivity extends FragmentActivity
 		mProductDeptLst = mProducts.listProductDept();
 		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
 
-		mProgress = new ProgressDialog(this);
-		mProgress.setCancelable(false);
 		mOrderDetailLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
 		mOrderDetailAdapter = new OrderDetailAdapter();
 
@@ -192,7 +187,7 @@ public class MainActivity extends FragmentActivity
 	protected void onResume() {
 		String curDateMillisec = String.valueOf(Utils.getDate().getTimeInMillis());
 		// check current day is already end day ?
-		if(mSession.checkEndday(curDateMillisec) == 0){
+		if(!mSession.checkEndday(curDateMillisec)){
 			/*
 			 * If resume when system date > session date || 
 			 * session date > system date. It means the system date
@@ -206,7 +201,7 @@ public class MainActivity extends FragmentActivity
 				if(Utils.getDate().getTime().compareTo(sessCal.getTime()) > 0 || 
 					sessCal.getTime().compareTo(Utils.getDate().getTime()) > 0){
 					// check last session is already end day ?
-					if(mSession.checkEndday(mSession.getSessionDate()) == 0){
+					if(!mSession.checkEndday(mSession.getSessionDate())){
 						startActivity(new Intent(MainActivity.this, LoginActivity.class));
 						finish();
 					}else{
@@ -1393,7 +1388,7 @@ public class MainActivity extends FragmentActivity
 	private void openSession(){
 		mSessionId = mSession.getCurrentSessionId(mStaffId); 
 		if(mSessionId == 0){
-			mSessionId = mSession.openSession(mShop.getShopId(), 
+			mSessionId = mSession.openSession(Utils.getDate(), mShop.getShopId(), 
 					mComputer.getComputerId(), mStaffId, 0);
 		}
 	}
@@ -1536,77 +1531,44 @@ public class MainActivity extends FragmentActivity
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					mProgress.setTitle(MainActivity.this.getString(R.string.endday));
-					mProgress.setMessage(MainActivity.this.getString(R.string.endday_progress));
 					// execute print summary sale task
 					new PrintReport(MainActivity.this, mStaffId, PrintReport.WhatPrint.SUMMARY_SALE).execute();
-					Utils.endday(MainActivity.this, mShop.getShopId(), 
-							mComputer.getComputerId(), mSessionId, mStaffId, 0, true,
-							new ProgressListener() {
-						
-						@Override
-						public void onPre() {
-							mProgress.show();
-						}
-
-						@Override
-						public void onPost() {
-							if(mProgress.isShowing())
-								mProgress.dismiss();
+					boolean endday = Utils.endday(MainActivity.this, mShop.getShopId(), 
+							mComputer.getComputerId(), mSessionId, mStaffId, 0, true);
+					if(endday){
+						new AlertDialog.Builder(MainActivity.this)
+						.setCancelable(false)
+						.setTitle(R.string.endday)
+						.setMessage(R.string.endday_success)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 							
-							new AlertDialog.Builder(MainActivity.this)
-							.setCancelable(false)
-							.setTitle(R.string.endday)
-							.setMessage(R.string.endday_success)
-							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									new AlertDialog.Builder(MainActivity.this)
-									.setTitle(R.string.send_endday_data)
-									.setMessage(R.string.confirm_send_endday_now)
-									.setCancelable(false)
-									.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-										
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											finish();
-										}
-									}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-										
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											Intent intent = new Intent(MainActivity.this, SendEnddayActivity.class);
-											intent.putExtra("staffId", mStaffId);
-											intent.putExtra("shopId", mShop.getShopId());
-											intent.putExtra("computerId", mComputer.getComputerId());
-											intent.putExtra("autoClose", true);
-											startActivityForResult(intent, SEND_ENDDAY_REQUEST);
-										}
-									}).show();
-								}
-							}).show();
-						}
-
-						@Override
-						public void onError(String msg) {
-							if(mProgress.isShowing())
-								mProgress.dismiss();
-							new AlertDialog.Builder(MainActivity.this)
-							.setTitle(R.string.endday)
-							.setMessage(R.string.endday_success)
-							.setCancelable(false)
-							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									if(mSession.checkEndday(mSession.getSessionDate()) > 0){
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								new AlertDialog.Builder(MainActivity.this)
+								.setTitle(R.string.send_endday_data)
+								.setMessage(R.string.confirm_send_endday_now)
+								.setCancelable(false)
+								.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
 										finish();
 									}
-								}
-							}).show();
-						}
-					});
+								}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										Intent intent = new Intent(MainActivity.this, SendEnddayActivity.class);
+										intent.putExtra("staffId", mStaffId);
+										intent.putExtra("shopId", mShop.getShopId());
+										intent.putExtra("computerId", mComputer.getComputerId());
+										intent.putExtra("autoClose", true);
+										startActivityForResult(intent, SEND_ENDDAY_REQUEST);
+									}
+								}).show();
+							}
+						}).show();
+					}
 				}
 			}).show();
 		}else{
@@ -1875,7 +1837,8 @@ public class MainActivity extends FragmentActivity
 		@Override
 		public void run() {
 			try {
-				mSockConn = new ClientSocket("10.59.0.99", 6600);
+				mSockConn = new ClientSocket(MPOSApplication.getSecondDisplayIp(MainActivity.this), 
+						MPOSApplication.getSecondDisplayPort(MainActivity.this));
 				String msg;
 				while((msg = mSockConn.receive()) != null){
 				}

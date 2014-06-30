@@ -91,7 +91,7 @@ public class LoginActivity extends Activity{
 	 */
 	private void checkSessionDate(){
 		if(mSession.getCurrentSessionId() > 0){
-			Calendar sessionDate = Calendar.getInstance();
+			final Calendar sessionDate = Calendar.getInstance();
 			sessionDate.setTimeInMillis(Long.parseLong(mSession.getSessionDate()));
 			/*
 			 *  sessionDate > currentDate
@@ -126,7 +126,7 @@ public class LoginActivity extends Activity{
 			 */
 			else if(Utils.getDate().getTime().compareTo(sessionDate.getTime()) > 0){
 				// check last session has already enddday ?
-				if(mSession.checkEndday(mSession.getSessionDate()) == 0){
+				if(!mSession.checkEndday(mSession.getSessionDate())){
 					// force end previous sale date
 					new AlertDialog.Builder(this)
 					.setCancelable(false)
@@ -142,55 +142,22 @@ public class LoginActivity extends Activity{
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							// endday process
-							final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
-							progress.setMessage(LoginActivity.this.getString(R.string.endday_progress));
-							progress.setCancelable(false);
-							Utils.endday(LoginActivity.this, mShop.getShopId(), 
+							boolean endday = Utils.endday(LoginActivity.this, mShop.getShopId(), 
 									mComputer.getComputerId(), mSession.getCurrentSessionId(), 
-									mStaffId, 0, true,
-									new ProgressListener(){
-	
-										@Override
-										public void onPre() {
-											progress.show();
-										}
-	
-										@Override
-										public void onPost() {
-											if(progress.isShowing())
-												progress.dismiss();
-											new AlertDialog.Builder(LoginActivity.this)
-											.setCancelable(false)
-											.setTitle(R.string.endday)
-											.setMessage(R.string.endday_success)
-											.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-												
-												@Override
-												public void onClick(DialogInterface dialog, int which) {
-													gotoMainActivity();
-												}
-											}).show();
-										}
-	
-										@Override
-										public void onError(String msg) {
-											if(progress.isShowing())
-												progress.dismiss();
-											new AlertDialog.Builder(LoginActivity.this)
-											.setCancelable(false)
-											.setTitle(R.string.endday)
-											.setMessage(R.string.endday_success)
-											.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-												
-												@Override
-												public void onClick(DialogInterface dialog, int which) {
-													gotoMainActivity();
-												}
-											}).show();
-										}
-								
-								});
+									mStaffId, 0, true);
+							if(endday){
+								new AlertDialog.Builder(LoginActivity.this)
+								.setCancelable(false)
+								.setTitle(R.string.endday)
+								.setMessage(R.string.endday_success)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										gotoMainActivity();
+									}
+								}).show();
+							}
 						}
 					}).show();
 				}else{
@@ -365,11 +332,14 @@ public class LoginActivity extends Activity{
 				getFragmentManager().findFragmentById(R.id.loginContent);
 		placeHolder.mTxtUser.setText(null);
 		placeHolder.mTxtPass.setText(null);
-		if(mSession.checkEndday(String.valueOf(Utils.getDate().getTimeInMillis())) > 0){
+		if(mSession.checkEndday(String.valueOf(Utils.getDate().getTimeInMillis()))){
+			String enddayMsg = getString(R.string.sale_date) 
+					+ " " + mFormat.dateFormat(Utils.getDate().getTime()) 
+					+ " " + getString(R.string.alredy_endday);
 			new AlertDialog.Builder(this)
 			.setCancelable(false)
 			.setTitle(R.string.endday)
-			.setMessage(R.string.alredy_endday)
+			.setMessage(enddayMsg)
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
 				@Override
@@ -377,16 +347,11 @@ public class LoginActivity extends Activity{
 				}
 			}).show();
 		}else{
+			enddingMultipleDay();
+			startEnddayService();
 			final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 			intent.putExtra("staffId", mStaffId);
 			if(!mSync.IsAlreadySync()){
-				// start endday service for send endday sale
-				Intent enddayIntent = new Intent(LoginActivity.this, EnddaySaleService.class);
-				enddayIntent.putExtra("staffId", mStaffId);
-				enddayIntent.putExtra("shopId", mShop.getShopId());
-				enddayIntent.putExtra("computerId", mComputer.getComputerId());
-				startService(enddayIntent);
-				
 				final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
 				progress.setCancelable(false);
 				progress.setTitle(R.string.update_data);
@@ -460,6 +425,27 @@ public class LoginActivity extends Activity{
 			}else{
 				startActivity(intent);
 				finish();
+			}
+		}
+	}
+	
+	private void startEnddayService(){
+		// start endday service for send endday sale
+		Intent enddayIntent = new Intent(LoginActivity.this, EnddaySaleService.class);
+		enddayIntent.putExtra("staffId", mStaffId);
+		enddayIntent.putExtra("shopId", mShop.getShopId());
+		enddayIntent.putExtra("computerId", mComputer.getComputerId());
+		startService(enddayIntent);
+	}
+	
+	private void enddingMultipleDay(){
+		String sessionDate = mSession.getSessionDate();
+		if(!sessionDate.equals("")){
+			Calendar sessCal = Calendar.getInstance();
+			sessCal.setTimeInMillis(Long.parseLong(sessionDate));
+			if(Utils.getDiffDay(sessCal) > 0){
+				Utils.endingMultipleDay(LoginActivity.this, mShop.getShopId(), 
+						mComputer.getComputerId(), mStaffId, sessCal);
 			}
 		}
 	}

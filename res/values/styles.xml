@@ -20,9 +20,6 @@
 		<item name="android:textColor">@color/blue</item>
 		<item name="android:padding">@dimen/medium_space</item>
     </style>
-    <style name="ActiveText" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/blue</item>
-    </style>
     <style name="ButtonStyle" parent="@android:Widget.Button">
         <!-- <item name="android:layout_marginLeft">@dimen/min_space</item>
         <item name="android:layout_marginTop">@dimen/min_space</item>

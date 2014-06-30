@@ -14,7 +14,6 @@
 
         <TextView
             android:id="@+id/textView4"
-            style="@style/ActiveText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -27,7 +26,6 @@
 
         <TextView
             android:id="@+id/textView6"
-            style="@style/ActiveText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -49,7 +47,6 @@
 
         <TextView
             android:id="@+id/textView5"
-            style="@style/ActiveText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -157,7 +154,6 @@
 
         <TextView
             android:id="@+id/textView1"
-            style="@style/ActiveText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/txtUser"

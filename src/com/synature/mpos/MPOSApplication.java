@@ -76,10 +76,20 @@ public class MPOSApplication extends Application {
 		return sharedPref.getString(SettingsActivity.KEY_PREF_SECOND_DISPLAY_IP, "");
 	}
 	
-	public static String getSecondDisplay(Context context) {
+	public static int getSecondDisplayPort(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		return sharedPref.getString(SettingsActivity.KEY_PREF_SECOND_DISPLAY_PORT, "");
+		int port = Integer.parseInt(context.getString(R.string.default_second_display_port));
+		try {
+			String prefPort = sharedPref.getString(SettingsActivity.KEY_PREF_SECOND_DISPLAY_PORT, "");
+			if(!prefPort.equals("")){
+				port = Integer.parseInt(prefPort);
+			}
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return port;
 	}
 	
 	public static boolean isEnableSecondDisplay(Context context){
