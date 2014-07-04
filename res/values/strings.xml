@@ -173,7 +173,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="hold_current_order">Please hold current order first.</string>
     <string name="select_item">Please selecte item first.</string>
     <string name="detail">Detail</string>
-    <string name="ip_address">ip address</string>
+    <string name="ip_address">IP Address</string>
     <string name="apply">Apply</string>
     <string name="balance">Balance</string>
     <string name="card_no">Card No.</string>
@@ -185,5 +185,14 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="send_endday_data_success">Send endday data successfully.</string>
     <string name="last_session">Last Session</string>
     <string name="current_sale_date">Current Sale Date</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="epson_printer">Epson Printer</string>
+    <string name="baud_rate">Baud Rate</string>
+    <string name="wintec_dev_path">Wintec device path</string>
+    <string name="wintec_magnetic_reader_settings">Wintec Magnetic Reader Settings</string>
+    <string name="wintec_cash_drawer_settings">Wintec Cash Drawer Settings</string>
+    <string name="wintec_customer_display_settings">Wintec Customer Display Settings</string>
+    <string name="enable_wintec_customer_display">Enable Wintec Customer Display</string>
+    <string name="connection_time_out">Connection time out</string>
 
 </resources>

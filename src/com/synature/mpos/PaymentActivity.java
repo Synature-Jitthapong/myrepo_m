@@ -82,7 +82,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
@@ -95,6 +95,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
 		setContentView(R.layout.activity_payment);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+	    setFinishOnTouchOutside(false);
 		mLvPayment = (ListView) findViewById(R.id.lvPayDetail);
 		mTxtEnterPrice = (EditText) findViewById(R.id.txtEnterPrice);
 		mTxtTotalPaid = (EditText) findViewById(R.id.txtTotalPaid);

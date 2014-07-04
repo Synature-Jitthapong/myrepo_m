@@ -8,26 +8,45 @@ import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.pos.SecondDisplayProperty;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplayItemData;
+import com.synature.pos.SecondDisplayProperty.clsSecDisplay_ChangePayment;
+import com.synature.pos.SecondDisplayProperty.clsSecDisplay_ClearScreen;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplay_DetailItem;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
+import com.synature.pos.SecondDisplayProperty.clsSecDisplay_Transaction;
 
 public class SecondDisplayJSON {
+	
+	public static String genClearDisplay(){
+		Gson gson = new Gson();
+		return gson.toJson(new clsSecDisplay_ClearScreen());
+	}
+	
+	/**
+	 * @param totalPay
+	 * @param change
+	 * @return
+	 */
+	public static String genChangePayment(String totalPay, String change){
+		Gson gson = new Gson();
+		clsSecDisplay_ChangePayment changePayment = new clsSecDisplay_ChangePayment();
+		changePayment.szPayAmount = totalPay;
+		changePayment.szCashChangeAmount = change;
+		return gson.toJson(changePayment);
+	}
+
 	/**
 	 * @param format
-	 * @param trans
 	 * @param orderDetailLst
 	 * @param transSummLst
 	 * @param grandTotal
-	 * @return JSON String
+	 * @return
 	 */
-	public static String genDisplayItem(Formater format, MPOSOrderTransaction trans, 
+	public static String genDisplayItem(Formater format,
 			List<MPOSOrderTransaction.MPOSOrderDetail> orderDetailLst, 
 			List<clsSecDisplay_TransSummary> transSummLst, String grandTotal){
 		Gson gson = new Gson();
-		clsSecDisplayItemData displayData = 
-				new clsSecDisplayItemData();
-		List<clsSecDisplay_DetailItem> itemLst = 
-				new ArrayList<clsSecDisplay_DetailItem>();
+		clsSecDisplayItemData displayData = new clsSecDisplayItemData();
+		List<clsSecDisplay_DetailItem> itemLst = new ArrayList<clsSecDisplay_DetailItem>();
 		for(MPOSOrderTransaction.MPOSOrderDetail orderDetail : orderDetailLst){
 			clsSecDisplay_DetailItem item = new clsSecDisplay_DetailItem();
 			item.szItemName = orderDetail.getProductName();
@@ -36,9 +55,14 @@ public class SecondDisplayJSON {
 			item.szImageUrl = "";
 			itemLst.add(item);
 		}
-		displayData.szGrandTotalPrice = grandTotal;
 		displayData.xListDetailItems = itemLst;
 		displayData.xListTransSummarys = transSummLst;
+		clsSecDisplay_Transaction trans = new clsSecDisplay_Transaction();
+		trans.iNoCustomer = 0;
+		trans.szCustName = "";
+		trans.szTransName = "";
+		displayData.xTransaction = trans;
+		displayData.szGrandTotalPrice = grandTotal;
 		return gson.toJson(displayData);
 	}
 	

@@ -31,7 +31,7 @@
 
     <include
         android:layout_width="match_parent"
-        android:layout_height="4dp"
+        android:layout_height="8dp"
         layout="@android:layout/preference_category" />
 
     <EditText

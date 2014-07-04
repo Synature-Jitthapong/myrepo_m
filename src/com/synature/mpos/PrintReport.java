@@ -101,13 +101,15 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				String receiptHeader = mContext.getString(R.string.receipt);
 				String totalSaleHeader = mContext.getString(R.string.total);
 				String closeTimeHeader = mContext.getString(R.string.time) + 
-						createQtySpace(totalSaleHeader.length());
+						createQtySpace(calculateLength(totalSaleHeader));
 				
 				// line
 				mBuilder.addText(createLine("-") + "\n");
 				mBuilder.addText(receiptHeader);
-				mBuilder.addText(createHorizontalSpace(receiptHeader.length() 
-						+ closeTimeHeader.length() + totalSaleHeader.length()));
+				mBuilder.addText(createHorizontalSpace(
+						calculateLength(receiptHeader) 
+						+ calculateLength(closeTimeHeader) 
+						+ calculateLength(totalSaleHeader)));
 				mBuilder.addText(closeTimeHeader);
 				mBuilder.addText(totalSaleHeader + "\n");
 				mBuilder.addText(createLine("-") + "\n");
@@ -118,15 +120,16 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				for(Reporting.SaleTransactionReport report : saleReportLst){
 					String saleDate = mFormat.dateFormat(report.getSaleDate());
 					mBuilder.addText(saleDate);
-					mBuilder.addText(createHorizontalSpace(saleDate.length()) + "\n");
+					mBuilder.addText(createHorizontalSpace(calculateLength(saleDate)) + "\n");
 					for(MPOSOrderTransaction trans : report.getTransLst()){
 						String receiptNo = trans.getReceiptNo();
 						String totalSale = mFormat.currencyFormat(trans.getTransactionVatable());
 						String closeTime = mFormat.timeFormat(trans.getCloseTime()) + 
-								createQtySpace(totalSale.length());
+								createQtySpace(calculateLength(totalSale));
 						mBuilder.addText(receiptNo);
-						mBuilder.addText(createHorizontalSpace(receiptNo.length() + 
-								totalSale.length() + closeTime.length()));
+						mBuilder.addText(createHorizontalSpace(calculateLength(receiptNo) + 
+								calculateLength(totalSale) 
+								+ calculateLength(closeTime)));
 						mBuilder.addText(closeTime);
 						mBuilder.addText(totalSale + "\n");
 					}
@@ -158,13 +161,15 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			String receiptHeader = mContext.getString(R.string.receipt);
 			String totalSaleHeader = mContext.getString(R.string.total);
 			String closeTimeHeader = mContext.getString(R.string.time) + 
-					createQtySpace(totalSaleHeader.length());
+					createQtySpace(calculateLength(totalSaleHeader));
 			
 			// line
 			mBuilder.append(createLine("-") + "\n");
 			mBuilder.append(receiptHeader);
-			mBuilder.append(createHorizontalSpace(receiptHeader.length() 
-					+ closeTimeHeader.length() + totalSaleHeader.length()));
+			mBuilder.append(createHorizontalSpace(
+					calculateLength(receiptHeader) 
+					+ calculateLength(closeTimeHeader) 
+					+ calculateLength(totalSaleHeader)));
 			mBuilder.append(closeTimeHeader);
 			mBuilder.append(totalSaleHeader + "\n");
 			mBuilder.append(createLine("-") + "\n");
@@ -178,10 +183,11 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 					String receiptNo = trans.getReceiptNo();
 					String totalSale = mFormat.currencyFormat(trans.getTransactionVatable());
 					String closeTime = mFormat.timeFormat(trans.getCloseTime()) + 
-							createQtySpace(totalSale.length());
+							createQtySpace(calculateLength(totalSale));
 					mBuilder.append(receiptNo);
-					mBuilder.append(createHorizontalSpace(receiptNo.length() + 
-							totalSale.length() + closeTime.length()));
+					mBuilder.append(createHorizontalSpace(calculateLength(receiptNo) + 
+							calculateLength(totalSale) 
+							+ calculateLength(closeTime)));
 					mBuilder.append(closeTime);
 					mBuilder.append(totalSale + "\n");
 				}
@@ -238,7 +244,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				for(Report.GroupOfProduct group : reportData.getGroupOfProductLst()){
 					String groupDept = group.getProductGroupName() + ": " + group.getProductDeptName();
 					mBuilder.addText(groupDept);
-					mBuilder.addText(createHorizontalSpace(groupDept.length()) + "\n");
+					mBuilder.addText(createHorizontalSpace(calculateLength(groupDept)) + "\n");
 					for(Report.ReportDetail detail : group.getReportDetail()){
 						String itemName = detail.getProductName();
 						if(detail.getProductName() == Reporting.SUMM_DEPT){
@@ -254,9 +260,10 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 						}
 						String itemTotalPrice = mFormat.currencyFormat(detail.getSubTotal());
 						String itemTotalQty = mFormat.qtyFormat(detail.getQty()) + 
-								createQtySpace(itemTotalPrice.length());
-						mBuilder.addText(createHorizontalSpace(itemName.length() + 
-								itemTotalQty.length() + itemTotalPrice.length()));
+								createQtySpace(calculateLength(itemTotalPrice));
+						mBuilder.addText(createHorizontalSpace(calculateLength(itemName) + 
+								calculateLength(itemTotalQty) 
+								+ calculateLength(itemTotalPrice)));
 						mBuilder.addText(itemTotalQty);
 						mBuilder.addText(itemTotalPrice + "\n");
 						if(detail.getProductName() == Reporting.SUMM_GROUP){
@@ -272,10 +279,12 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				String subTotal = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
 				
 				mBuilder.addText(subTotalText);
-				mBuilder.addText(createHorizontalSpace(subTotalText.length() + subTotal.length()));
+				mBuilder.addText(createHorizontalSpace(calculateLength(subTotalText) 
+						+ calculateLength(subTotal)));
 				mBuilder.addText(subTotal + "\n");
 				mBuilder.addText(discountText);
-				mBuilder.addText(createHorizontalSpace(discountText.length() + discount.length()));
+				mBuilder.addText(createHorizontalSpace(calculateLength(discountText) 
+						+ calculateLength(discount)));
 				mBuilder.addText(discount + "\n");
 				
 				// Vat Exclude
@@ -284,7 +293,9 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 							NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 					String vatExclude = mFormat.currencyFormat(summOrder.getVatExclude());
 					mBuilder.addText(vatExcludeText);
-					mBuilder.addText(createHorizontalSpace(vatExcludeText.length() + vatExclude.length()));
+					mBuilder.addText(createHorizontalSpace(
+							calculateLength(vatExcludeText) 
+							+ calculateLength(vatExclude)));
 					mBuilder.addText(vatExclude + "\n\n");
 				}else{
 					mBuilder.addText("\n");
@@ -293,7 +304,9 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				String grandTotalText = mContext.getString(R.string.grand_total);
 				String grandTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
 				mBuilder.addText(grandTotalText);
-				mBuilder.addText(createHorizontalSpace(grandTotalText.length() + grandTotal.length()));
+				mBuilder.addText(createHorizontalSpace(
+						calculateLength(grandTotalText) 
+						+ calculateLength(grandTotal)));
 				mBuilder.addText(grandTotal + "\n");
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -345,9 +358,10 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 					}
 					String itemTotalPrice = mFormat.currencyFormat(detail.getSubTotal());
 					String itemTotalQty = mFormat.qtyFormat(detail.getQty()) + 
-							createQtySpace(itemTotalPrice.length());
-					mBuilder.append(createHorizontalSpace(itemName.length() + 
-							itemTotalQty.length() + itemTotalPrice.length()));
+							createQtySpace(calculateLength(itemTotalPrice));
+					mBuilder.append(createHorizontalSpace(calculateLength(itemName) + 
+							calculateLength(itemTotalQty) + 
+							calculateLength(itemTotalPrice)));
 					mBuilder.append(itemTotalQty);
 					mBuilder.append(itemTotalPrice + "\n");
 					if(detail.getProductName() == Reporting.SUMM_GROUP){
@@ -363,10 +377,13 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			String subTotal = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
 			
 			mBuilder.append(subTotalText);
-			mBuilder.append(createHorizontalSpace(subTotalText.length() + subTotal.length()));
+			mBuilder.append(createHorizontalSpace(
+					calculateLength(subTotalText) 
+					+ calculateLength(subTotal)));
 			mBuilder.append(subTotal + "\n");
 			mBuilder.append(discountText);
-			mBuilder.append(createHorizontalSpace(discountText.length() + discount.length()));
+			mBuilder.append(createHorizontalSpace(calculateLength(discountText) 
+					+ calculateLength(discount)));
 			mBuilder.append(discount + "\n");
 			
 			// Vat Exclude
@@ -375,7 +392,8 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 						NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 				String vatExclude = mFormat.currencyFormat(summOrder.getVatExclude());
 				mBuilder.append(vatExcludeText);
-				mBuilder.append(createHorizontalSpace(vatExcludeText.length() + vatExclude.length()));
+				mBuilder.append(createHorizontalSpace(calculateLength(vatExcludeText) 
+						+ calculateLength(vatExclude)));
 				mBuilder.append(vatExclude + "\n\n");
 			}else{
 				mBuilder.append("\n");
@@ -384,7 +402,8 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			String grandTotalText = mContext.getString(R.string.grand_total);
 			String grandTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
 			mBuilder.append(grandTotalText);
-			mBuilder.append(createHorizontalSpace(grandTotalText.length() + grandTotal.length()));
+			mBuilder.append(createHorizontalSpace(calculateLength(grandTotalText) 
+					+ calculateLength(grandTotal)));
 			mBuilder.append(grandTotal + "\n");
 		}
 
@@ -432,11 +451,11 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				String from = mTrans.getMinReceiptNo(session.getSessionDate()) + " - ";
 				String to = mTrans.getMaxReceiptNo(session.getSessionDate());
 				mBuilder.addText(receiptNo);
-				mBuilder.addText(createHorizontalSpace(receiptNo.length()) + "\n");
+				mBuilder.addText(createHorizontalSpace(calculateLength(receiptNo)) + "\n");
 				mBuilder.addText(from);
-				mBuilder.addText(createHorizontalSpace(from.length()) + "\n");
+				mBuilder.addText(createHorizontalSpace(calculateLength(from)) + "\n");
 				mBuilder.addText(to);
-				mBuilder.addText(createHorizontalSpace(to.length()) + "\n\n");
+				mBuilder.addText(createHorizontalSpace(calculateLength(to)) + "\n\n");
 				
 				// Product Summary
 				Reporting report = new Reporting(mContext, session.getSessionDate(), session.getSessionDate());
@@ -446,10 +465,11 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 						String groupName = sp.getDeptName();
 						String groupTotalPrice = mFormat.currencyFormat(sp.getDeptTotalPrice());
 						String groupTotalQty = mFormat.qtyFormat(sp.getDeptTotalQty()) + 
-								createQtySpace(groupTotalPrice.length());
+								createQtySpace(calculateLength(groupTotalPrice));
 						mBuilder.addText(groupName);
-						mBuilder.addText(createHorizontalSpace(groupName.length() + 
-								groupTotalQty.length() + groupTotalPrice.length()));
+						mBuilder.addText(createHorizontalSpace(calculateLength(groupName) + 
+								calculateLength(groupTotalQty) 
+								+ calculateLength(groupTotalPrice)));
 						mBuilder.addText(groupTotalQty);
 						mBuilder.addText(groupTotalPrice + "\n");
 						if(sp.getItemLst() != null){
@@ -457,10 +477,11 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 								String itemName = "-" + item.getItemName();
 								String itemTotalPrice = mFormat.currencyFormat(item.getTotalPrice());
 								String itemTotalQty = mFormat.qtyFormat(item.getTotalQty()) + 
-										createQtySpace(itemTotalPrice.length());
+										createQtySpace(calculateLength(itemTotalPrice));
 								mBuilder.addText(itemName);
-								mBuilder.addText(createHorizontalSpace(itemName.length() + 
-										itemTotalQty.length() + itemTotalPrice.length()));
+								mBuilder.addText(createHorizontalSpace(calculateLength(itemName) + 
+										calculateLength(itemTotalQty) 
+										+ calculateLength(itemTotalPrice)));
 								mBuilder.addText(itemTotalQty);
 								mBuilder.addText(itemTotalPrice + "\n");
 							}
@@ -471,10 +492,11 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 					String subTotalText = mContext.getString(R.string.sub_total);
 					String subTotalPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
 					String subTotalQty = mFormat.qtyFormat(summOrder.getQty()) + 
-							createQtySpace(subTotalPrice.length());
+							createQtySpace(calculateLength(subTotalPrice));
 					mBuilder.addText(subTotalText);
-					mBuilder.addText(createHorizontalSpace(subTotalText.length() + subTotalQty.length() 
-							+ subTotalPrice.length()));
+					mBuilder.addText(createHorizontalSpace(calculateLength(subTotalText) 
+							+ calculateLength(subTotalQty) 
+							+ calculateLength(subTotalPrice)));
 					mBuilder.addText(subTotalQty);
 					mBuilder.addText(subTotalPrice + "\n\n");
 				}
@@ -485,10 +507,12 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				String subTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice());
 				
 				mBuilder.addText(discountText);
-				mBuilder.addText(createHorizontalSpace(discountText.length() + discount.length()));
+				mBuilder.addText(createHorizontalSpace(calculateLength(discountText) 
+						+ calculateLength(discount)));
 				mBuilder.addText(discount + "\n");
 				mBuilder.addText(subTotalText);
-				mBuilder.addText(createHorizontalSpace(subTotalText.length() + subTotal.length()));
+				mBuilder.addText(createHorizontalSpace(calculateLength(subTotalText) 
+						+ calculateLength(subTotal)));
 				mBuilder.addText(subTotal + "\n");
 				
 				// Vat Exclude
@@ -497,14 +521,18 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 							NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 					String vatExclude = mFormat.currencyFormat(summOrder.getVatExclude());
 					mBuilder.addText(vatExcludeText);
-					mBuilder.addText(createHorizontalSpace(vatExcludeText.length() + vatExclude.length()));
+					mBuilder.addText(createHorizontalSpace(
+							calculateLength(vatExcludeText) 
+							+ calculateLength(vatExclude)));
 					mBuilder.addText(vatExclude + "\n\n");
 				}
 				
 				String totalSaleText = mContext.getString(R.string.total_sale);
 				String totalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
 				mBuilder.addText(totalSaleText);
-				mBuilder.addText(createHorizontalSpace(totalSaleText.length() + totalSale.length()));
+				mBuilder.addText(createHorizontalSpace(
+						calculateLength(totalSaleText) 
+						+ calculateLength(totalSale)));
 				mBuilder.addText(totalSale + "\n");
 				
 				if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
@@ -513,10 +541,14 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 					String totalVatText = mContext.getString(R.string.total_vat);
 					String totalVat = mFormat.currencyFormat(trans.getTransactionVat());
 					mBuilder.addText(beforeVatText);
-					mBuilder.addText(createHorizontalSpace(beforeVatText.length() + beforeVat.length()));
+					mBuilder.addText(createHorizontalSpace(
+							calculateLength(beforeVatText) 
+							+ calculateLength(beforeVat)));
 					mBuilder.addText(beforeVat + "\n");
 					mBuilder.addText(totalVatText);
-					mBuilder.addText(createHorizontalSpace(totalVatText.length() + totalVat.length()));
+					mBuilder.addText(createHorizontalSpace(
+							calculateLength(totalVatText) 
+							+ calculateLength(totalVat)));
 					mBuilder.addText(totalVat + "\n\n");
 				}
 				
@@ -526,33 +558,40 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				if(summaryPaymentLst != null){
 					String paymentDetailText = mContext.getString(R.string.payment_detail);
 					mBuilder.addText(paymentDetailText);
-					mBuilder.addText(createHorizontalSpace(paymentDetailText.length()) + "\n");
+					mBuilder.addText(createHorizontalSpace(
+							calculateLength(paymentDetailText)) + "\n");
 					for(Payment.PaymentDetail payment : summaryPaymentLst){
 						String payTypeName = payment.getPayTypeName();
 						String payAmount = mFormat.currencyFormat(payment.getPayAmount());
 						mBuilder.addText(payTypeName);
-						mBuilder.addText(createHorizontalSpace(payTypeName.length() + payAmount.length()));
+						mBuilder.addText(createHorizontalSpace(
+								calculateLength(payTypeName) 
+								+ calculateLength(payAmount)));
 						mBuilder.addText(payAmount + "\n\n");
 					}
 				}
 				String totalReceiptInDay = mContext.getString(R.string.total_receipt_in_day);
 				String totalReceipt = String.valueOf(mTrans.getTotalReceipt(session.getSessionDate()));
 				mBuilder.addText(totalReceiptInDay);
-				mBuilder.addText(createHorizontalSpace(totalReceiptInDay.length() + totalReceipt.length()));
+				mBuilder.addText(createHorizontalSpace(
+						calculateLength(totalReceiptInDay) 
+						+ calculateLength(totalReceipt)));
 				mBuilder.addText(totalReceipt + "\n\n");
 				
 				MPOSOrderTransaction.MPOSOrderDetail summVoidOrder = 
 						mTrans.getSummaryVoidOrderInDay(session.getSessionDate());
 				String voidBillText = mContext.getString(R.string.void_bill);
 				mBuilder.addText(voidBillText);
-				mBuilder.addText(createHorizontalSpace(voidBillText.length()) + "\n");
+				mBuilder.addText(createHorizontalSpace(calculateLength(voidBillText)) + "\n");
 				String voidBill = mContext.getString(R.string.void_bill_after_paid);
 				String totalVoidPrice = mFormat.currencyFormat(summVoidOrder.getTotalSalePrice());
 				String totalVoidQty = mFormat.qtyFormat(summVoidOrder.getQty()) +
-						createQtySpace(totalVoidPrice.length());
+						createQtySpace(calculateLength(totalVoidPrice));
 				mBuilder.addText(voidBill);
-				mBuilder.addText(createHorizontalSpace(voidBill.length() + totalVoidQty.length() + 
-						totalVoidPrice.length()));
+				mBuilder.addText(createHorizontalSpace(
+						calculateLength(voidBill) 
+						+ calculateLength(totalVoidQty) 
+						+ calculateLength(totalVoidPrice)));
 				mBuilder.addText(totalVoidQty);
 				mBuilder.addText(totalVoidPrice);
 			} catch (EposException e) {
@@ -592,10 +631,12 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 					String groupName = sp.getDeptName();
 					String groupTotalPrice = mFormat.currencyFormat(sp.getDeptTotalPrice());
 					String groupTotalQty = mFormat.qtyFormat(sp.getDeptTotalQty()) + 
-							createQtySpace(groupTotalPrice.length());
+							createQtySpace(calculateLength(groupTotalPrice));
 					mBuilder.append("<b>" + groupName);
-					mBuilder.append(createHorizontalSpace(groupName.length() + 
-							groupTotalQty.length() + groupTotalPrice.length()));
+					mBuilder.append(createHorizontalSpace(
+							calculateLength(groupName) 
+							+ calculateLength(groupTotalQty) 
+							+ calculateLength(groupTotalPrice)));
 					mBuilder.append("<b>" + groupTotalQty);
 					mBuilder.append("<b>" + groupTotalPrice + "\n");
 					if(sp.getItemLst() != null){
@@ -603,10 +644,12 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 							String itemName = "-" + item.getItemName();
 							String itemTotalPrice = mFormat.currencyFormat(item.getTotalPrice());
 							String itemTotalQty = mFormat.qtyFormat(item.getTotalQty()) + 
-									createQtySpace(itemTotalPrice.length());
+									createQtySpace(calculateLength(itemTotalPrice));
 							mBuilder.append(itemName);
-							mBuilder.append(createHorizontalSpace(itemName.length() + 
-									itemTotalQty.length() + itemTotalPrice.length()));
+							mBuilder.append(createHorizontalSpace(
+									calculateLength(itemName) 
+									+ calculateLength(itemTotalQty) 
+									+ calculateLength(itemTotalPrice)));
 							mBuilder.append(itemTotalQty);
 							mBuilder.append(itemTotalPrice + "\n");
 						}
@@ -617,10 +660,12 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				String subTotalText = mContext.getString(R.string.sub_total);
 				String subTotalPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
 				String subTotalQty = mFormat.qtyFormat(summOrder.getQty()) + 
-						createQtySpace(subTotalPrice.length());
+						createQtySpace(calculateLength(subTotalPrice));
 				mBuilder.append(subTotalText);
-				mBuilder.append(createHorizontalSpace(subTotalText.length() + subTotalQty.length() 
-						+ subTotalPrice.length()));
+				mBuilder.append(createHorizontalSpace(
+						calculateLength(subTotalText) 
+						+ calculateLength(subTotalQty) 
+						+ calculateLength(subTotalPrice)));
 				mBuilder.append(subTotalQty);
 				mBuilder.append(subTotalPrice + "\n\n");
 			}
@@ -631,10 +676,14 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			String subTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice());
 			
 			mBuilder.append(discountText);
-			mBuilder.append(createHorizontalSpace(discountText.length() + discount.length()));
+			mBuilder.append(createHorizontalSpace(
+					calculateLength(discountText) 
+					+ calculateLength(discount)));
 			mBuilder.append(discount + "\n");
 			mBuilder.append(subTotalText);
-			mBuilder.append(createHorizontalSpace(subTotalText.length() + subTotal.length()));
+			mBuilder.append(createHorizontalSpace(
+					calculateLength(subTotalText) 
+					+ calculateLength(subTotal)));
 			mBuilder.append(subTotal + "\n");
 			
 			// Vat Exclude
@@ -643,14 +692,18 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 						NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 				String vatExclude = mFormat.currencyFormat(summOrder.getVatExclude());
 				mBuilder.append(vatExcludeText);
-				mBuilder.append(createHorizontalSpace(vatExcludeText.length() + vatExclude.length()));
+				mBuilder.append(createHorizontalSpace(
+						calculateLength(vatExcludeText) 
+						+ calculateLength(vatExclude)));
 				mBuilder.append(vatExclude + "\n\n");
 			}
 			
 			String totalSaleText = mContext.getString(R.string.total_sale);
 			String totalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
 			mBuilder.append(totalSaleText);
-			mBuilder.append(createHorizontalSpace(totalSaleText.length() + totalSale.length()));
+			mBuilder.append(createHorizontalSpace(
+					calculateLength(totalSaleText) 
+					+ calculateLength(totalSale)));
 			mBuilder.append(totalSale + "\n");
 			
 			if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
@@ -659,10 +712,14 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				String totalVatText = mContext.getString(R.string.total_vat);
 				String totalVat = mFormat.currencyFormat(trans.getTransactionVat());
 				mBuilder.append(beforeVatText);
-				mBuilder.append(createHorizontalSpace(beforeVatText.length() + beforeVat.length()));
+				mBuilder.append(createHorizontalSpace(
+						calculateLength(beforeVatText) 
+						+ calculateLength(beforeVat)));
 				mBuilder.append(beforeVat + "\n");
 				mBuilder.append(totalVatText);
-				mBuilder.append(createHorizontalSpace(totalVatText.length() + totalVat.length()));
+				mBuilder.append(createHorizontalSpace(
+						calculateLength(totalVatText) 
+						+ calculateLength(totalVat)));
 				mBuilder.append(totalVat + "\n\n");
 			}
 			
@@ -675,14 +732,18 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 					String payTypeName = payment.getPayTypeName();
 					String payAmount = mFormat.currencyFormat(payment.getPayAmount());
 					mBuilder.append(payTypeName);
-					mBuilder.append(createHorizontalSpace(payTypeName.length() + payAmount.length()));
+					mBuilder.append(createHorizontalSpace(
+							calculateLength(payTypeName) 
+							+ calculateLength(payAmount)));
 					mBuilder.append(payAmount + "\n\n");
 				}
 			}
 			String totalReceiptInDay = mContext.getString(R.string.total_receipt_in_day);
 			String totalReceipt = String.valueOf(mTrans.getTotalReceipt(session.getSessionDate()));
 			mBuilder.append(totalReceiptInDay);
-			mBuilder.append(createHorizontalSpace(totalReceiptInDay.length() + totalReceipt.length()));
+			mBuilder.append(createHorizontalSpace(
+					calculateLength(totalReceiptInDay) 
+					+ calculateLength(totalReceipt)));
 			mBuilder.append(totalReceipt + "\n\n");
 			
 			MPOSOrderTransaction.MPOSOrderDetail summVoidOrder = 
@@ -691,10 +752,12 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			String voidBill = mContext.getString(R.string.void_bill_after_paid);
 			String totalVoidPrice = mFormat.currencyFormat(summVoidOrder.getTotalSalePrice());
 			String totalVoidQty = mFormat.qtyFormat(summVoidOrder.getQty()) +
-					createQtySpace(totalVoidPrice.length());
+					createQtySpace(calculateLength(totalVoidPrice));
 			mBuilder.append(voidBill);
-			mBuilder.append(createHorizontalSpace(voidBill.length() + totalVoidQty.length() + 
-					totalVoidPrice.length()));
+			mBuilder.append(createHorizontalSpace(
+					calculateLength(voidBill) 
+					+ calculateLength(totalVoidQty) 
+					+ calculateLength(totalVoidPrice)));
 			mBuilder.append(totalVoidQty);
 			mBuilder.append(totalVoidPrice);
 		}
@@ -706,7 +769,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 	
 	@Override
 	protected Void doInBackground(Void... params) {
-		if(MPOSApplication.getInternalPrinterSetting(mContext)){
+		if(Utils.isInternalPrinterSetting(mContext)){
 			switch(mWhatPrint){
 			case SUMMARY_SALE:
 				WintecPrintSummarySale wtPrinter = new WintecPrintSummarySale();

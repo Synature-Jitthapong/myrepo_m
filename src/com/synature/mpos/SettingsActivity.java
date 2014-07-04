@@ -2,7 +2,6 @@ package com.synature.mpos;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,13 +20,23 @@ import com.epson.eposprint.EposException;
 public class SettingsActivity extends PreferenceActivity {
 
 	public static final String KEY_PREF_SERVER_URL = "server_url";
+	public static final String KEY_PREF_CONN_TIME_OUT_LIST = "connection_time_out";
 	public static final String KEY_PREF_PRINTER_IP = "printer_ip";
 	public static final String KEY_PREF_PRINTER_LIST = "printer_list";
 	public static final String KEY_PREF_PRINTER_FONT_LIST = "printer_font_list";
 	public static final String KEY_PREF_PRINTER_INTERNAL = "printer_internal";
+	public static final String KEY_PREF_PRINTER_DEV_PATH = "printer_wintec_dev_path";
+	public static final String KEY_PREF_PRINTER_BAUD_RATE = "printer_wintec_baud_rate";
+	public static final String KEY_PREF_MSR_DEV_PATH = "msr_wintec_dev_path";
+	public static final String KEY_PREF_MSR_BAUD_RATE = "msr_wintec_baud_rate";
+	public static final String KEY_PREF_DSP_DEV_PATH = "dsp_wintec_dev_path";
+	public static final String KEY_PREF_DSP_BAUD_RATE = "dsp_wintec_baud_rate";
+	public static final String KEY_PREF_DRW_DEV_PATH = "drw_wintec_dev_path";
+	public static final String KEY_PREF_DRW_BAUD_RATE = "drw_wintec_baud_rate";
 	public static final String KEY_PREF_SHOW_MENU_IMG = "show_menu_image";
 	public static final String KEY_PREF_SECOND_DISPLAY_IP = "second_display_ip";
 	public static final String KEY_PREF_SECOND_DISPLAY_PORT = "second_display_port";
+	public static final String KEY_PREF_ENABLE_DSP = "enable_dsp";
 	public static final String KEY_PREF_ENABLE_SECOND_DISPLAY = "enable_second_display";
 	
 	private static final boolean ALWAYS_SIMPLE_PREFS = false;
@@ -49,10 +58,22 @@ public class SettingsActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.pref_connection);
 		addPreferencesFromResource(R.xml.pref_general);
 		addPreferencesFromResource(R.xml.pref_printer);
+		addPreferencesFromResource(R.xml.pref_drw);
+		addPreferencesFromResource(R.xml.pref_magnetic_reader);
+		addPreferencesFromResource(R.xml.pref_dsp);
 		addPreferencesFromResource(R.xml.pref_second_display);
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONN_TIME_OUT_LIST));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_DEV_PATH));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_BAUD_RATE));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_DEV_PATH));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_BAUD_RATE));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_DEV_PATH));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_BAUD_RATE));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_DEV_PATH));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_BAUD_RATE));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_FONT_LIST));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_IP));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
@@ -130,7 +151,29 @@ public class SettingsActivity extends PreferenceActivity {
 			addPreferencesFromResource(R.xml.pref_printer);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_DEV_PATH));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_BAUD_RATE));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_FONT_LIST));
+		}
+	}
+	
+	public static class DrwPreferenceFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_drw);
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_DEV_PATH));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_BAUD_RATE));
+		}
+	}
+	
+	public static class MsrPreferenceFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_magnetic_reader);
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_DEV_PATH));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_BAUD_RATE));
 		}
 	}
 	
@@ -140,6 +183,7 @@ public class SettingsActivity extends PreferenceActivity {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_connection);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONN_TIME_OUT_LIST));
 		}
 	}
 	
@@ -151,6 +195,16 @@ public class SettingsActivity extends PreferenceActivity {
 			addPreferencesFromResource(R.xml.pref_general);
 		}
 		
+	}
+	
+	public static class DspPreferenceFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_dsp);
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_DEV_PATH));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_BAUD_RATE));
+		}
 	}
 	
 	public static class SecondDisplayPreferenceFragment extends PreferenceFragment{
@@ -166,7 +220,7 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 	
 	public void printTestClick(final View v){
-		if(MPOSApplication.getInternalPrinterSetting(getApplicationContext())){
+		if(Utils.isInternalPrinterSetting(getApplicationContext())){
 			WinTecTestPrint wt = new WinTecTestPrint(getApplicationContext());
 			wt.prepareDataToPrint();
 			wt.print();

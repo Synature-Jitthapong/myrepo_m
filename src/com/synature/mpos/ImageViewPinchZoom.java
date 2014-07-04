@@ -54,7 +54,7 @@ public class ImageViewPinchZoom extends DialogFragment{
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		mImgLoader = new ImageLoader(getActivity(), 0,
-				MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.LARGE);
+				Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.LARGE);
 		
 		mImgName = getArguments().getString("imgName");
 		mMenuName = getArguments().getString("menuName");
@@ -82,7 +82,7 @@ public class ImageViewPinchZoom extends DialogFragment{
 
 			@Override
 			public void run() {
-				mImgLoader.displayImage(MPOSApplication.getImageUrl(getActivity()) + mImgName, imgMenu);
+				mImgLoader.displayImage(Utils.getImageUrl(getActivity()) + mImgName, imgMenu);
 				imgMenu.setVisibility(View.VISIBLE);
 				tvMenuName.setText(mMenuName + "\n" + mMenuPrice);
 				progress.setVisibility(View.GONE);

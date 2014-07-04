@@ -6,7 +6,7 @@ import android.content.Context;
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.DspPos;
 
-public class WintecCustomerDisplay extends WintecUtils{
+public class WintecCustomerDisplay{
 	public static final int MAX_TEXT_LENGTH = 20;
 	public static final int LIMIT_LENGTH = 10;
 	
@@ -21,8 +21,8 @@ public class WintecCustomerDisplay extends WintecUtils{
 	private String orderTotalPrice;
 	
 	public WintecCustomerDisplay(Context context){
-		mDsp = new DspPos(DEFAULT_DEV_PATH, 
-				ComIO.Baudrate.valueOf(DEFAULT_BAUD_RATE));
+		mDsp = new DspPos(Utils.getWintecDspPath(context), 
+				ComIO.Baudrate.valueOf(Utils.getWintecDspBaudRate(context)));
 		mContext = context;
 	}
 	

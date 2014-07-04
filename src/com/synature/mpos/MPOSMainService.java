@@ -16,6 +16,7 @@ import com.synature.util.Ksoap2WebServiceTask;
 public class MPOSMainService extends Ksoap2WebServiceTask{
 	
 	public static final String NAME_SPACE = "http://tempuri.org/";
+	
 	// webservice method
 	public static final String CHECK_DEVICE_METHOD = "WSmPOS_CheckAuthenShopDevice";
 	public static final String LOAD_MENU_METHOD = "WSmPOS_JSON_LoadMenuDataV2";
@@ -40,11 +41,12 @@ public class MPOSMainService extends Ksoap2WebServiceTask{
 	
 	
 	public MPOSMainService(Context context, String method) {
-		super(context.getApplicationContext(), NAME_SPACE, method);
+		super(context.getApplicationContext(), NAME_SPACE, 
+				method, Utils.getConnectionTimeOut(context));
 		
 		mProperty = new PropertyInfo();
 		mProperty.setName(DEVICE_CODE_PARAM);
-		mProperty.setValue(MPOSApplication.getDeviceCode(context));
+		mProperty.setValue(Utils.getDeviceCode(context));
 		mProperty.setType(String.class);
 		mSoapRequest.addProperty(mProperty);
 	}

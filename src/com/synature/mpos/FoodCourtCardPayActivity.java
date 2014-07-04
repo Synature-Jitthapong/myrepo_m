@@ -81,7 +81,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
@@ -124,15 +124,15 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		super.onStart();
 		// start magnetic reader thread
 		try {
-			mMsrReader = new WintecMagneticReader();
+			mMsrReader = new WintecMagneticReader(this);
 			mMsrThread = new Thread(this);
 			mMsrThread.start();
 			mIsRead = true;
-			Logger.appendLog(this, MPOSApplication.LOG_DIR, 
-					MPOSApplication.LOG_FILE_NAME, "Start magnetic reader thread");
+			Logger.appendLog(this, Utils.LOG_DIR, 
+					Utils.LOG_FILE_NAME, "Start magnetic reader thread");
 		} catch (Exception e) {
-			Logger.appendLog(this, MPOSApplication.LOG_DIR, 
-					MPOSApplication.LOG_FILE_NAME, 
+			Logger.appendLog(this, Utils.LOG_DIR, 
+					Utils.LOG_FILE_NAME, 
 					"Error start magnetic reader thread " + 
 					e.getMessage());
 		}
@@ -169,7 +169,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				final String content = mMsrReader.getTrackData();
 				if(content.length() > 0){
 					Logger.appendLog(getApplicationContext(), 
-						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME,
+						Utils.LOG_DIR, Utils.LOG_FILE_NAME,
 						"Content : " + content);
 					runOnUiThread(new Runnable(){
 
@@ -187,7 +187,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 								}
 							} catch (Exception e) {
 								Logger.appendLog(getApplicationContext(), 
-										MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+										Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
 										"Error parser card : " + e.getMessage());
 							}
 						}
@@ -196,7 +196,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				}
 			} catch (Exception e) {
 				Logger.appendLog(getApplicationContext(), 
-						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+						Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
 						" Error when read data from magnetic card : " + e.getMessage());
 			}
 		}
@@ -316,7 +316,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 						((FoodCourtCardPayActivity) getActivity()).mComputerId,
 						((FoodCourtCardPayActivity) getActivity()).mStaffId, 
 						mTxtCardNo.getText().toString(), 
-						((FoodCourtCardPayActivity) getActivity()).mCardBalanceListener).execute(MPOSApplication.getFullUrl(getActivity()));
+						((FoodCourtCardPayActivity) getActivity()).mCardBalanceListener).execute(Utils.getFullUrl(getActivity()));
 			}else{
 				mTxtCardNo.requestFocus();
 			}
@@ -331,7 +331,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 							((FoodCourtCardPayActivity) getActivity()).mComputerId,
 							((FoodCourtCardPayActivity) getActivity()).mStaffId, mTxtCardNo.getText().toString(),
 							((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice), 
-							((FoodCourtCardPayActivity) getActivity()).mCardPayListener).execute(MPOSApplication.getFullUrl(getActivity()));
+							((FoodCourtCardPayActivity) getActivity()).mCardPayListener).execute(Utils.getFullUrl(getActivity()));
 				}else{
 					new AlertDialog.Builder(getActivity())
 					.setTitle(R.string.payment)

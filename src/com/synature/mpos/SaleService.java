@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.database.SQLException;
 import android.os.Binder;
 import android.os.IBinder;
+import android.text.TextUtils;
 
 public class SaleService extends Service{
 	
@@ -54,7 +55,10 @@ public class SaleService extends Service{
 				public void onPost(POSData_SaleTransaction saleTrans) {
 
 					final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
-					if(jsonSale != null && !jsonSale.isEmpty()){
+					if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
+						
+						JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
+						
 						new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
 								staffId, shopId, computerId, jsonSale, new ProgressListener() {
@@ -84,14 +88,14 @@ public class SaleService extends Service{
 												listener.onPost();
 											}
 										} catch (SQLException e) {
-											Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_DIR, 
-													MPOSApplication.LOG_FILE_NAME, 
+											Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+													Utils.LOG_FILE_NAME, 
 													" Error when update " 
 													+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + " : "
 													+ e.getMessage());
 										}
 									}
-								}).execute(MPOSApplication.getFullUrl(getApplicationContext()));
+								}).execute(Utils.getFullUrl(getApplicationContext()));
 					}
 				}
 
@@ -115,8 +119,8 @@ public class SaleService extends Service{
 	
 	public void sendSale(final int shopId, final int computerId, 
 			final int staffId, boolean sendAll, final ProgressListener listener) {
-		Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_DIR, 
-				MPOSApplication.LOG_FILE_NAME, 
+		Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+				Utils.LOG_FILE_NAME, 
 				TAG + ": Start Send PartialSale \n"
 				+ "staffId=" + staffId + "\n"
 				+ "shopId=" + shopId + "\n"
@@ -137,7 +141,10 @@ public class SaleService extends Service{
 
 				final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
 				
-				if(jsonSale != null && !jsonSale.isEmpty()){
+				if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
+					
+					JSONSaleLogFile.appendSale(getApplicationContext(), jsonSale);
+					
 					new MPOSWebServiceClient.SendPartialSaleTransaction(getApplicationContext(), 
 							staffId, shopId, computerId, jsonSale, new ProgressListener() {
 						@Override
@@ -149,8 +156,8 @@ public class SaleService extends Service{
 							// do update transaction already send
 							Transaction trans = new Transaction(getApplicationContext());
 							trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
-							Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_DIR, 
-									MPOSApplication.LOG_FILE_NAME, 
+							Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+									Utils.LOG_FILE_NAME, 
 									TAG + ": Send PartialSale Complete");
 							
 							listener.onPost();
@@ -163,7 +170,7 @@ public class SaleService extends Service{
 							Utils.logServerResponse(getApplicationContext(), msg);
 							listener.onError(msg);
 						}
-					}).execute(MPOSApplication.getFullUrl(getApplicationContext()));
+					}).execute(Utils.getFullUrl(getApplicationContext()));
 				}else{
 					listener.onError("Wrong json sale data");
 				}

@@ -1,6 +1,9 @@
 package com.synature.mpos;
 
+import java.io.File;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -8,9 +11,13 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
+import android.provider.Settings.Secure;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -32,6 +39,50 @@ import com.synature.mpos.database.table.SessionTable;
 import com.synature.util.Logger;
 
 public class Utils {
+	/**
+	 * WebService file name
+	 */
+	public static final String WS_NAME = "ws_mpos.asmx";
+
+	/**
+	 * Menu image dir
+	 */
+	public static final String IMG_DIR = "mPOSImg";
+	
+	/**
+	 * Log file name
+	 */
+	public static final String LOG_FILE_NAME = "mpos_";
+	
+	/**
+	 * Log dir
+	 */
+	public static final String LOG_DIR = "mPOSLog";
+
+
+	/**
+	 * Sale dir store partial sale json file
+	 */
+	public static final String LOG_SALE_DIR = LOG_DIR + File.separator + "Sale";
+	
+	/**
+	 * Endday sale dir store endday sale json file
+	 */
+	public static final String LOG_ENDDAY_DIR = LOG_DIR + File.separator + "EnddaySale";
+	
+	/**
+	 * Image path on server
+	 */
+	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
+	
+	/**
+	 * Android Device Code
+	 */
+	public static String sDeviceCode;
+	
+	/**
+	 * The minimum date
+	 */
 	public static final int MINIMUM_YEAR = 1900;
 	public static final int MINIMUM_MONTH = 0;
 	public static final int MINIMUM_DAY = 1;
@@ -97,8 +148,8 @@ public class Utils {
 			}
 			try {
 				Formater format = new Formater(context);
-				Logger.appendLog(context, MPOSApplication.LOG_DIR,
-						MPOSApplication.LOG_FILE_NAME,
+				Logger.appendLog(context, LOG_DIR,
+						LOG_FILE_NAME,
 						"Success ending multiple day : " 
 						+ " from : " + format.dateFormat(lastSessCal.getTime())
 						+ " to : " + format.dateFormat(Calendar.getInstance().getTime()));
@@ -108,8 +159,8 @@ public class Utils {
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			Logger.appendLog(context, MPOSApplication.LOG_DIR,
-					MPOSApplication.LOG_FILE_NAME,
+			Logger.appendLog(context, LOG_DIR,
+					LOG_FILE_NAME,
 					"Error ending multiple day : " + e.getMessage());
 		}
 		return false;
@@ -139,12 +190,9 @@ public class Utils {
 			Gson gson = new Gson();
 			Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
 			jsonSale = gson.toJson(saleTrans, type);
-			Logger.appendLog(context, MPOSApplication.LOG_DIR,
-					MPOSApplication.LOG_FILE_NAME,
-					" JSON that send to the server : " + jsonSale);
 		} catch (Exception e) {
-			Logger.appendLog(context, MPOSApplication.LOG_DIR,
-					MPOSApplication.LOG_FILE_NAME,
+			Logger.appendLog(context, LOG_DIR,
+					LOG_FILE_NAME,
 					" Error when generate json sale : " + e.getMessage());
 		}
 		return jsonSale;
@@ -286,8 +334,8 @@ public class Utils {
 	}
 
 	public static void logServerResponse(Context context, String msg){
-		Logger.appendLog(context, MPOSApplication.LOG_DIR,
-				MPOSApplication.LOG_FILE_NAME,
+		Logger.appendLog(context, LOG_DIR,
+				LOG_FILE_NAME,
 				" Server Response : " + msg);
 	}
 	
@@ -304,6 +352,241 @@ public class Utils {
 		sqlite.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, null);
 	}
 
+	/**
+	 * @param context
+	 * @return android device id
+	 */
+	public static String getDeviceCode(Context context) {
+		return Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
+	}
+	
+	/**
+	 * @param context
+	 * @return drawer baud rate
+	 */
+	public static String getWintecDrwBaudRate(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DRW_BAUD_RATE, "BAUD_38400");
+	}
+	
+	/**
+	 * @param context
+	 * @return drawer dev path
+	 */
+	public static String getWintecDrwDevPath(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DRW_DEV_PATH, "/dev/ttySAC3");
+	}
+	
+	/**
+	 * @param context
+	 * @return magnetic reader baud rate
+	 */
+	public static String getWintecMsrBaudRate(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_MSR_BAUD_RATE, "BAUD_38400");
+	}
+	
+	/**
+	 * @param context
+	 * @return magnetic reader dev path
+	 */
+	public static String getWintecMsrDevPath(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_MSR_DEV_PATH, "/dev/ttySAC3");
+	}
+	
+	/**
+	 * @param context
+	 * @return true if enable internal printer
+	 */
+	public static boolean isInternalPrinterSetting(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_PRINTER_INTERNAL, true);
+	}
+	
+	/**
+	 * @param context
+	 * @return epson printer font
+	 */
+	public static String getEPSONPrinterFont(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_FONT_LIST, "");
+	}
+	
+	/**
+	 * @param context
+	 * @return printer baud rate
+	 */
+	public static String getWintecPrinterBaudRate(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_BAUD_RATE, "BAUD_38400");
+	}
+	
+	/**
+	 * @param context
+	 * @return printer dev path
+	 */
+	public static String getWintecDevPath(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_DEV_PATH, "/dev/ttySAC1");
+	}
+	
+	/**
+	 * @param context
+	 * @return epson model name
+	 */
+	public static String getEPSONModelName(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_LIST, "");
+	}
+	
+	/**
+	 * @param context
+	 * @return epson printer ip
+	 */
+	public static String getPrinterIp(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_IP, "");
+	}
+	
+	/**
+	 * @param context
+	 * @return true if enable wintec customer display
+	 */
+	public static boolean isEnableWintecCustomerDisplay(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_ENABLE_DSP, true);
+	}
+	
+	/**
+	 * @param context
+	 * @return dsp baud rate
+	 */
+	public static String getWintecDspBaudRate(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_BAUD_RATE, "BAUD_9600");
+	}
+	
+	/**
+	 * @param context
+	 * @return dsp dev path
+	 */
+	public static String getWintecDspPath(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_DEV_PATH, "/dev/ttySAC3");
+	}
+	
+	/**
+	 * @param context
+	 * @return second display ip
+	 */
+	public static String getSecondDisplayIp(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_SECOND_DISPLAY_IP, "");
+	}
+	
+	/**
+	 * @param context
+	 * @return second display port
+	 */
+	public static int getSecondDisplayPort(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		int port = Integer.parseInt(context.getString(R.string.default_second_display_port));
+		try {
+			String prefPort = sharedPref.getString(SettingsActivity.KEY_PREF_SECOND_DISPLAY_PORT, "");
+			if(!prefPort.equals("")){
+				port = Integer.parseInt(prefPort);
+			}
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return port;
+	}
+	
+	/**
+	 * @param context
+	 * @return true if enable second display
+	 */
+	public static boolean isEnableSecondDisplay(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_ENABLE_SECOND_DISPLAY, false);
+	}
+
+	/**
+	 * @param context
+	 * @return menu image url
+	 */
+	public static String getImageUrl(Context context) {
+		return getUrl(context) + "/" + SERVER_IMG_PATH;
+	}
+
+	/**
+	 * @param context
+	 * @return full webservice url
+	 */
+	public static String getFullUrl(Context context) {
+		return getUrl(context) + "/" + WS_NAME;
+	}
+
+	/**
+	 * @param context
+	 * @return connection time out millisecond
+	 */
+	public static int getConnectionTimeOut(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		String strTimeOut = sharedPref.getString(SettingsActivity.KEY_PREF_CONN_TIME_OUT_LIST, "30");
+		int timeOut = Integer.parseInt(strTimeOut);
+		return timeOut * 1000;
+	}
+	
+	public static String getUrl(Context context) {
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL,
+				"");
+		try {
+			new URL(url);
+		} catch (MalformedURLException e) {
+			// not found protocal
+			url = "http://" + url;
+			//e.printStackTrace();
+		}
+		return url;
+	}
+	
+	/**
+	 * @param context
+	 * @return true if enable show menu image
+	 */
+	public static boolean isShowMenuImage(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_SHOW_MENU_IMG, true);
+	}
+	
+	public static LinearLayout.LayoutParams getLinHorParams(float weight){
+		return new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight);
+	}
+	
 	public static interface LoadSaleTransactionListener extends ProgressListener{
 		void onPost(POSData_SaleTransaction saleTrans);
 	}

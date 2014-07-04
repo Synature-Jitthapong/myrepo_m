@@ -18,8 +18,8 @@ public class MasterDataService extends Service{
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_DIR, 
-				MPOSApplication.LOG_FILE_NAME, 
+		Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+				Utils.LOG_FILE_NAME, 
 				TAG + ": Service Start Command");
 		SyncMasterLog sync = new SyncMasterLog(getApplicationContext());
 		if(!sync.IsAlreadySync()){
@@ -57,8 +57,8 @@ public class MasterDataService extends Service{
 	
 								@Override
 								public void onPost() {
-									Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_DIR, 
-											MPOSApplication.LOG_FILE_NAME, 
+									Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+											Utils.LOG_FILE_NAME, 
 											TAG + ": Service Success.");
 									stopSelf();
 								}

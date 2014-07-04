@@ -1,10 +1,25 @@
 package com.synature.mpos;
 
+import android.text.TextUtils;
+
+import com.synature.util.ThaiLevelText;
+import com.synature.util.ThaiLevelText.OPOSThaiText;
+
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Printer;
 
 public abstract class WintecPrinter extends PrinterUtility{
 	
+	/**
+	 * ISO8859-11 character
+	 */
+	public static final String ISO_8859_11 = "x-iso-8859-11";
+	
+	/**
+	 * IBM 874
+	 */
+	public static final String CP_874 = "Cp874";
+
 	/**
 	 * fixes device path for wintec printer
 	 */
@@ -21,13 +36,13 @@ public abstract class WintecPrinter extends PrinterUtility{
 	public WintecPrinter(){
 		mPrinter = new Printer(DEV_PATH, BAUD_RATE);
 		mPrinter.PRN_DisableChinese();
+		//mPrinter.PRN_SetCodePage(255);
 		mBuilder = new StringBuilder();
 	}
 
 	protected void print(){
 		String[] subElement = mBuilder.toString().split("\n");
     	for(String data : subElement){
-    		data = unicodeToASCII(data);
 //    		if(!data.contains("<b>")){
 //	    		mPrinter.PRN_EnableBoldFont(0);
 //    		}
@@ -45,7 +60,13 @@ public abstract class WintecPrinter extends PrinterUtility{
 				//mPrinter.PRN_EnableFontUnderline();
 				data = data.replace("<u>", "");
 			}
-    		mPrinter.PRN_Print(data);
+
+    		OPOSThaiText supportThai = ThaiLevelText.parsingThaiLevel(data);
+    		if(!TextUtils.isEmpty(supportThai.TextLine1))
+    			mPrinter.PRN_Print(supportThai.TextLine1, CP_874);
+    		mPrinter.PRN_Print(supportThai.TextLine2, CP_874);
+    		if(!TextUtils.isEmpty(supportThai.TextLine3))
+    			mPrinter.PRN_Print(supportThai.TextLine3, CP_874);
 		}
     	mPrinter.PRN_PrintAndFeedLine(6);		
     	mPrinter.PRN_HalfCutPaper();	
@@ -59,25 +80,6 @@ public abstract class WintecPrinter extends PrinterUtility{
 			empText.append(" ");
 		}
 		return empText.toString() + text + empText.toString();
-	}
-	
-	public static String unicodeToASCII(String unicode) {
-		// initial temporary space of ascii.
-		StringBuffer ascii = new StringBuffer(unicode);
-		int code;
-
-		// continue loop based on number of character.
-		for (int i = 0; i < unicode.length(); i++) {
-			// reading a value of each character in the unicode (as String).
-			code = (int) unicode.charAt(i);
-
-			// check the value is Thai language in Unicode scope or not.
-			if ((0xE01 <= code) && (code <= 0xE5B)) {
-				// if yes, it will be converted to Thai language in ASCII scope.
-				ascii.setCharAt(i, (char) (code - 0xD60));
-			}
-		}
-		return ascii.toString();
 	}
 	
 	public abstract void prepareDataToPrint(int transactionId);

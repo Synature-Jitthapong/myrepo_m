@@ -86,11 +86,11 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 					String voidReason = mContext.getString(R.string.reason) + " " + trans.getVoidReason();
 					mBuilder.addText(voidReceipt + "\n");
 					mBuilder.addText(voidTime);
-					mBuilder.addText(createHorizontalSpace(voidTime.length()) + "\n");
+					mBuilder.addText(createHorizontalSpace(calculateLength(voidTime)) + "\n");
 					mBuilder.addText(voidBy);
-					mBuilder.addText(createHorizontalSpace(voidBy.length()) + "\n");
+					mBuilder.addText(createHorizontalSpace(calculateLength(voidBy)) + "\n");
 					mBuilder.addText(voidReason);
-					mBuilder.addText(createHorizontalSpace(voidReason.length()) +"\n\n");
+					mBuilder.addText(createHorizontalSpace(calculateLength(voidReason)) +"\n\n");
 				}
 				
 				// add header
@@ -106,9 +106,9 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 						trans.getReceiptNo();
 				String cashCheer = mContext.getString(R.string.cashier) + " " +
 						mStaff.getStaff(trans.getOpenStaffId()).getStaffName();
-				mBuilder.addText(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
-				mBuilder.addText(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
-				mBuilder.addText(cashCheer + createHorizontalSpace(cashCheer.length()));
+				mBuilder.addText(saleDate + createHorizontalSpace(calculateLength(saleDate)) + "\n");
+				mBuilder.addText(receiptNo + createHorizontalSpace(calculateLength(receiptNo)) + "\n");
+				mBuilder.addText(cashCheer + createHorizontalSpace(calculateLength(cashCheer)));
 				mBuilder.addText("\n" + createLine("=") + "\n");
 				
 				List<MPOSOrderTransaction.MPOSOrderDetail> orderLst = 
@@ -123,8 +123,8 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		    		
 		    		mBuilder.addText(productQty);
 		    		mBuilder.addText(productName);
-		    		mBuilder.addText(createHorizontalSpace(productQty.length() + 
-		    				productName.length() + productPrice.length()));
+		    		mBuilder.addText(createHorizontalSpace(calculateLength(productQty) + 
+		    				calculateLength(productName) + calculateLength(productPrice)));
 		    		mBuilder.addText(productPrice);
 		    		mBuilder.addText("\n");
 		    		
@@ -137,7 +137,10 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
 		    				mBuilder.addText(setQty);
 		    				mBuilder.addText(setName);
-		    				mBuilder.addText(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
+		    				mBuilder.addText(createHorizontalSpace(
+		    						calculateLength(setQty) + 
+		    						calculateLength(setName) + 
+		    						calculateLength(setPrice)));
 		    				mBuilder.addText(setPrice);
 		    				mBuilder.addText("\n");
 		    			}
@@ -164,13 +167,18 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
 		    	mBuilder.addText(itemText);
 		    	mBuilder.addText(strTotalQty);
-		    	mBuilder.addText(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
+		    	mBuilder.addText(createHorizontalSpace(
+		    			calculateLength(itemText) + 
+		    			calculateLength(strTotalQty) + 
+		    			calculateLength(strTotalRetailPrice)));
 		    	mBuilder.addText(strTotalRetailPrice + "\n");
 		    	
 		    	// total discount
 		    	if(summOrder.getPriceDiscount() > 0){
 			    	mBuilder.addText(discountText);
-			    	mBuilder.addText(createHorizontalSpace(discountText.length() + strTotalDiscount.length()));
+			    	mBuilder.addText(createHorizontalSpace(
+			    			calculateLength(discountText) + 
+			    			calculateLength(strTotalDiscount)));
 			    	mBuilder.addText(strTotalDiscount + "\n");
 		    	}
 		    	
@@ -180,13 +188,17 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 		    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
 		    		mBuilder.addText(vatExcludeText);
-		    		mBuilder.addText(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
+		    		mBuilder.addText(createHorizontalSpace(
+		    				calculateLength(vatExcludeText) + 
+		    				calculateLength(strVatExclude)));
 		    		mBuilder.addText(strVatExclude + "\n");
 		    	}
 		    	
 		    	// total price
 		    	mBuilder.addText(totalText);
-		    	mBuilder.addText(createHorizontalSpace(totalText.length() + strTotalSale.length()));
+		    	mBuilder.addText(createHorizontalSpace(
+		    			calculateLength(totalText) + 
+		    			calculateLength(strTotalSale)));
 		    	mBuilder.addText(strTotalSale + "\n");
 
 		    	// total payment
@@ -203,31 +215,42 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		    					mCreditCard.getCreditCardType(payment.getCreditCardType());
 			    			cardNoText += payment.getCreaditCardNo().substring(12, 16);
 			    		} catch (Exception e) {
-			    			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
-			    					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
+			    			Logger.appendLog(mContext, Utils.LOG_DIR, 
+			    					Utils.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
 			    		}
 			    		mBuilder.addText(paymentText);
-			    		mBuilder.addText(createHorizontalSpace(paymentText.length()));
+			    		mBuilder.addText(createHorizontalSpace(
+			    				calculateLength(paymentText)));
 			    		mBuilder.addText("\n");
 		    			mBuilder.addText(cardNoText);
-		    			mBuilder.addText(createHorizontalSpace(cardNoText.length() + strTotalPaid.length()));
+		    			mBuilder.addText(createHorizontalSpace(
+		    					calculateLength(cardNoText) + 
+		    					calculateLength(strTotalPaid)));
 		    			mBuilder.addText(strTotalPaid);
 			    	}else{
 			    		String paymentText = payment.getPayTypeName() + " ";
 				    	if(i < paymentLst.size() - 1){
 					    	mBuilder.addText(paymentText);
-				    		mBuilder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
+				    		mBuilder.addText(createHorizontalSpace(
+				    				calculateLength(paymentText) + 
+				    				calculateLength(strTotalPaid)));
 					    	mBuilder.addText(strTotalPaid);
 				    	}else if(i == paymentLst.size() - 1){
 					    	if(change > 0){
 						    	mBuilder.addText(paymentText);
 						    	mBuilder.addText(strTotalPaid);
-					    		mBuilder.addText(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
+					    		mBuilder.addText(createHorizontalSpace(
+					    				calculateLength(changeText) + 
+					    				calculateLength(strTotalChange) + 
+					    				calculateLength(paymentText) + 
+					    				calculateLength(strTotalPaid)));
 						    	mBuilder.addText(changeText);
 						    	mBuilder.addText(strTotalChange);
 						    }else{
 						    	mBuilder.addText(paymentText);
-					    		mBuilder.addText(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
+					    		mBuilder.addText(createHorizontalSpace(
+					    				calculateLength(paymentText) + 
+					    				calculateLength(strTotalPaid)));
 						    	mBuilder.addText(strTotalPaid);
 						    }
 				    	}
@@ -239,12 +262,16 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 			    if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
 				    // before vat
 				    mBuilder.addText(beforeVatText);
-				    mBuilder.addText(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
+				    mBuilder.addText(createHorizontalSpace(
+				    		calculateLength(beforeVatText) + 
+				    		calculateLength(strBeforeVat)));
 				    mBuilder.addText(strBeforeVat + "\n");
 				    
 				    // transaction vat
 			    	mBuilder.addText(vatRateText);
-			    	mBuilder.addText(createHorizontalSpace(vatRateText.length() + strTransactionVat.length()));
+			    	mBuilder.addText(createHorizontalSpace(
+			    			calculateLength(vatRateText) + 
+			    			calculateLength(strTransactionVat)));
 			    	mBuilder.addText(strTransactionVat + "\n");
 			    }
 		    	// add footer
@@ -311,9 +338,9 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 					trans.getReceiptNo();
 			String cashCheer = mContext.getString(R.string.cashier) + " " +
 					mStaff.getStaff(trans.getOpenStaffId()).getStaffName();
-			mBuilder.append(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
-			mBuilder.append(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
-			mBuilder.append(cashCheer + createHorizontalSpace(cashCheer.length()) + "\n");
+			mBuilder.append(saleDate + createHorizontalSpace(calculateLength(saleDate)) + "\n");
+			mBuilder.append(receiptNo + createHorizontalSpace(calculateLength(receiptNo)) + "\n");
+			mBuilder.append(cashCheer + createHorizontalSpace(calculateLength(cashCheer)) + "\n");
 			mBuilder.append(createLine("=") + "\n");
 			
 			List<MPOSOrderTransaction.MPOSOrderDetail> orderLst = 
@@ -327,8 +354,10 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	    		
 	    		mBuilder.append(productQty);
 	    		mBuilder.append(productName);
-	    		mBuilder.append(createHorizontalSpace(productQty.length() + 
-	    				productName.length() + productPrice.length()));
+	    		mBuilder.append(createHorizontalSpace(
+	    				calculateLength(productQty) + 
+	    				calculateLength(productName) + 
+	    				calculateLength(productPrice)));
 	    		mBuilder.append(productPrice);
 	    		mBuilder.append("\n");
 	    		
@@ -341,7 +370,10 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
 	    				mBuilder.append(setQty);
 	    				mBuilder.append(setName);
-	    				mBuilder.append(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
+	    				mBuilder.append(createHorizontalSpace(
+	    						calculateLength(setQty) + 
+	    						calculateLength(setName) + 
+	    						calculateLength(setPrice)));
 	    				mBuilder.append(setPrice);
 	    				mBuilder.append("\n");
 	    			}
@@ -368,13 +400,18 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
 	    	mBuilder.append(itemText);
 	    	mBuilder.append(strTotalQty);
-	    	mBuilder.append(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
+	    	mBuilder.append(createHorizontalSpace(
+	    			calculateLength(itemText) + 
+	    			calculateLength(strTotalQty) + 
+	    			calculateLength(strTotalRetailPrice)));
 	    	mBuilder.append(strTotalRetailPrice + "\n");
 	    	
 	    	// total discount
 	    	if(summOrder.getPriceDiscount() > 0){
 		    	mBuilder.append(discountText);
-		    	mBuilder.append(createHorizontalSpace(discountText.length() + strTotalDiscount.length()));
+		    	mBuilder.append(createHorizontalSpace(
+		    			calculateLength(discountText) + 
+		    			calculateLength(strTotalDiscount)));
 		    	mBuilder.append(strTotalDiscount + "\n");
 	    	}
 	    	
@@ -384,13 +421,17 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 	    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
 	    		mBuilder.append(vatExcludeText);
-	    		mBuilder.append(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
+	    		mBuilder.append(createHorizontalSpace(
+	    				calculateLength(vatExcludeText) + 
+	    				calculateLength(strVatExclude)));
 	    		mBuilder.append(strVatExclude + "\n");
 	    	}
 	    	
 	    	// total price
 	    	mBuilder.append(totalText);
-	    	mBuilder.append(createHorizontalSpace(totalText.length() + strTotalSale.length()));
+	    	mBuilder.append(createHorizontalSpace(
+	    			calculateLength(totalText) + 
+	    			calculateLength(strTotalSale)));
 	    	mBuilder.append(strTotalSale + "\n");
 
 	    	// total payment
@@ -407,31 +448,41 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	    					mCreditCard.getCreditCardType(payment.getCreditCardType());
 		    			cardNoText += payment.getCreaditCardNo().substring(12, 16);
 		    		} catch (Exception e) {
-		    			Logger.appendLog(mContext, MPOSApplication.LOG_DIR, 
-		    					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
+		    			Logger.appendLog(mContext, Utils.LOG_DIR, 
+		    					Utils.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
 		    		}
 		    		mBuilder.append(paymentText);
-		    		mBuilder.append(createHorizontalSpace(paymentText.length()));
+		    		mBuilder.append(createHorizontalSpace(calculateLength(paymentText)));
 		    		mBuilder.append("\n");
 	    			mBuilder.append(cardNoText);
-	    			mBuilder.append(createHorizontalSpace(cardNoText.length() + strTotalPaid.length()));
+	    			mBuilder.append(createHorizontalSpace(
+	    					calculateLength(cardNoText) + 
+	    					calculateLength(strTotalPaid)));
 	    			mBuilder.append(strTotalPaid);
 		    	}else{
 		    		String paymentText = payment.getPayTypeName() + " ";
 			    	if(i < paymentLst.size() - 1){
 				    	mBuilder.append(paymentText);
-			    		mBuilder.append(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
+			    		mBuilder.append(createHorizontalSpace(
+			    				calculateLength(paymentText) + 
+			    				calculateLength(strTotalPaid)));
 				    	mBuilder.append(strTotalPaid);
 			    	}else if(i == paymentLst.size() - 1){
 				    	if(change > 0){
 					    	mBuilder.append(paymentText);
 					    	mBuilder.append(strTotalPaid);
-				    		mBuilder.append(createHorizontalSpace(changeText.length() + strTotalChange.length() + paymentText.length() + strTotalPaid.length()));
+				    		mBuilder.append(createHorizontalSpace(
+				    				calculateLength(changeText) + 
+				    				calculateLength(strTotalChange) + 
+				    				calculateLength(paymentText) + 
+				    				calculateLength(strTotalPaid)));
 					    	mBuilder.append(changeText);
 					    	mBuilder.append(strTotalChange);
 					    }else{
 					    	mBuilder.append(paymentText);
-				    		mBuilder.append(createHorizontalSpace(paymentText.length() + strTotalPaid.length()));
+				    		mBuilder.append(createHorizontalSpace(
+				    				calculateLength(paymentText) + 
+				    				calculateLength(strTotalPaid)));
 					    	mBuilder.append(strTotalPaid);
 					    }
 			    	}
@@ -443,12 +494,16 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		    if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
 			    // before vat
 			    mBuilder.append(beforeVatText);
-			    mBuilder.append(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
+			    mBuilder.append(createHorizontalSpace(
+			    		calculateLength(beforeVatText) + 
+			    		calculateLength(strBeforeVat)));
 			    mBuilder.append(strBeforeVat + "\n");
 			    
 			    // transaction vat
 		    	mBuilder.append(vatRateText);
-		    	mBuilder.append(createHorizontalSpace(vatRateText.length() + strTransactionVat.length()));
+		    	mBuilder.append(createHorizontalSpace(
+		    			calculateLength(vatRateText) + 
+		    			calculateLength(strTransactionVat)));
 		    	mBuilder.append(strTransactionVat + "\n");
 		    }
 		    
@@ -482,7 +537,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		PrintReceiptLog printLog = new PrintReceiptLog(mContext.getApplicationContext());
 		for(PrintReceiptLog.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
 			try {
-				if(MPOSApplication.getInternalPrinterSetting(mContext)){
+				if(Utils.isInternalPrinterSetting(mContext)){
 					WintecPrintReceipt wt = new WintecPrintReceipt();
 					wt.prepareDataToPrint(printReceipt.getTransactionId());
 					wt.print();
@@ -496,7 +551,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 			} catch (Exception e) {
 				printLog.updatePrintStatus(printReceipt.getPriceReceiptLogId(), PrintReceiptLog.PRINT_NOT_SUCCESS);
 				Logger.appendLog(mContext, 
-						MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME, 
+						Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
 						" Print receipt fail : " + e.getMessage());
 				mPrintListener.onPrintFail(e.getMessage());
 			}

@@ -44,6 +44,7 @@ public class SendEnddayActivity extends Activity {
 	private int mComputerId;
 	private boolean mAutoClose = false;
 	
+	private MenuItem mItemClose;
 	private MenuItem mItemSend;
 	private MenuItem mItemProgress;
 	
@@ -54,7 +55,7 @@ public class SendEnddayActivity extends Activity {
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
@@ -111,6 +112,7 @@ public class SendEnddayActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.send_endday, menu);
+		mItemClose = menu.findItem(R.id.itemClose);
 		mItemSend = menu.findItem(R.id.itemSendAll);
 		mItemProgress = menu.findItem(R.id.itemProgress);
 		return true;
@@ -123,6 +125,10 @@ public class SendEnddayActivity extends Activity {
 				setResult(RESULT_OK);
 				finish();
 			return true;
+			case R.id.itemClose:
+				setResult(RESULT_OK);
+				finish();
+				return true;
 			case R.id.itemSendAll:
 				mPartService.sendEnddaySale(mStaffId, mShopId, mComputerId, mSendListener);
 				return true;
@@ -135,12 +141,14 @@ public class SendEnddayActivity extends Activity {
 
 		@Override
 		public void onPre() {
+			mItemClose.setEnabled(false);
 			mItemSend.setVisible(false);
 			mItemProgress.setVisible(true);
 		}
 
 		@Override
 		public void onPost() {
+			mItemClose.setEnabled(true);
 			mItemSend.setVisible(true);
 			mItemProgress.setVisible(false);
 			PlaceholderFragment f = (PlaceholderFragment) getFragmentManager().findFragmentById(R.id.container);
@@ -168,6 +176,7 @@ public class SendEnddayActivity extends Activity {
 
 		@Override
 		public void onError(String msg) {
+			mItemClose.setEnabled(true);
 			mItemSend.setVisible(true);
 			mItemProgress.setVisible(false);
 			Utils.makeToask(SendEnddayActivity.this, msg);

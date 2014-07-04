@@ -17,6 +17,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.database.SQLException;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class EnddaySaleService extends Service{
@@ -37,8 +38,8 @@ public class EnddaySaleService extends Service{
 		final int shopId = intent.getIntExtra("shopId", 0);
 		final int computerId = intent.getIntExtra("computerId", 0);
 		
-		Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_DIR, 
-				MPOSApplication.LOG_FILE_NAME, 
+		Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+				Utils.LOG_FILE_NAME, 
 				TAG + ": Service Start Command \n"
 				+ "staffId=" + staffId + "\n"
 				+ "shopId=" + shopId + "\n"
@@ -60,7 +61,11 @@ public class EnddaySaleService extends Service{
 				public void onPost(POSData_SaleTransaction saleTrans) {
 
 					final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
-					if(jsonSale != null && !jsonSale.isEmpty()){
+					
+					if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
+						
+						JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
+						
 						new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
 								staffId, shopId, computerId, jsonSale, new ProgressListener() {
@@ -91,14 +96,14 @@ public class EnddaySaleService extends Service{
 												stopSelf();
 											}
 										} catch (SQLException e) {
-											Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_DIR, 
-													MPOSApplication.LOG_FILE_NAME, 
+											Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+													Utils.LOG_FILE_NAME, 
 													" Error when update " 
 													+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + " : "
 													+ e.getMessage());
 										}
 									}
-								}).execute(MPOSApplication.getFullUrl(getApplicationContext()));
+								}).execute(Utils.getFullUrl(getApplicationContext()));
 					}
 				}
 
@@ -122,8 +127,8 @@ public class EnddaySaleService extends Service{
 
 	@Override
 	public void onDestroy() {
-		Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_DIR, 
-				MPOSApplication.LOG_FILE_NAME, 
+		Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+				Utils.LOG_FILE_NAME, 
 				TAG + ": Send Endday Complete");
 		Utils.makeToask(getApplicationContext(), mStatMsg);
 		super.onDestroy();

@@ -1,9 +1,10 @@
 package com.synature.mpos;
 
+import android.content.Context;
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Msr;
 
-public class WintecMagneticReader extends WintecUtils{
+public class WintecMagneticReader{
 
 	private byte mEnterTrack1;
 	private byte mEnterTrack2;
@@ -11,9 +12,9 @@ public class WintecMagneticReader extends WintecUtils{
 	
 	private Msr mMsr;
 	
-	public WintecMagneticReader(){
-		mMsr = new Msr(DEFAULT_DEV_PATH, 
-				ComIO.Baudrate.valueOf(DEFAULT_BAUD_RATE));
+	public WintecMagneticReader(Context context){
+		mMsr = new Msr(Utils.getWintecMsrDevPath(context), 
+				ComIO.Baudrate.valueOf(Utils.getWintecMsrBaudRate(context)));
 	}
 	
 	public String getTrackData(){

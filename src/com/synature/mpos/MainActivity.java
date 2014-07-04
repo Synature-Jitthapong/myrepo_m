@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.j1tth4.slidinglibs.SlidingTabLayout;
+import com.synature.connection.ClientSocket;
+import com.synature.connection.ISocketConnection;
 import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.Computer;
@@ -20,9 +22,9 @@ import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.UserVerification;
-import com.synature.mpos.seconddisplay.ClientSocket;
-import com.synature.mpos.seconddisplay.ISocketConnection;
+import com.synature.mpos.seconddisplay.SecondDisplayJSON;
 import com.synature.pos.ShopData;
+import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
 import com.synature.util.ImageLoader;
 
 import android.os.Bundle;
@@ -121,7 +123,7 @@ public class MainActivity extends FragmentActivity
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
 		
 		setContentView(R.layout.activity_main);
 		
@@ -139,7 +141,7 @@ public class MainActivity extends FragmentActivity
 		 * Image Loader
 		 */
 		mImageLoader = new ImageLoader(this, 0,
-					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		 
 		mDsp = new WintecCustomerDisplay(this);
 		
@@ -164,13 +166,8 @@ public class MainActivity extends FragmentActivity
 		Intent intent = new Intent(this, SaleService.class);
 		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);		
 		
-		/**
-		 * if enabled second display
-		 */
-		if(MPOSApplication.isEnableSecondDisplay(this)){
-			mSockThread = new Thread(mSockRunnable);
-			mSockThread.start();
-		}
+		// start the second display socket thread
+		startSecondDisplayThread();
 	}
 
 	@Override
@@ -180,7 +177,7 @@ public class MainActivity extends FragmentActivity
 			unbindService(mServiceConnection);
 			mBound = false;
 		}
-		stopSocketThread();
+		stopSecondDisplayThread();
 	}
 
 	@Override
@@ -421,6 +418,29 @@ public class MainActivity extends FragmentActivity
 			
 			// display summary to customer display
 			if(sumOrder.getQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
+				if(Utils.isEnableSecondDisplay(getActivity())){
+					List<clsSecDisplay_TransSummary> transSummLst = new ArrayList<clsSecDisplay_TransSummary>();
+					clsSecDisplay_TransSummary transSumm = new clsSecDisplay_TransSummary();
+					transSumm.szSumName = getString(R.string.sub_total); 
+					transSumm.szSumAmount = mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
+					transSummLst.add(transSumm);
+					if(sumOrder.getPriceDiscount() > 0){
+						transSumm = new clsSecDisplay_TransSummary();
+						transSumm.szSumName = getString(R.string.discount);
+						transSumm.szSumAmount = "-" + mHost.mFormat.currencyFormat(sumOrder.getPriceDiscount());
+						transSummLst.add(transSumm);
+					}
+					if(sumOrder.getVatExclude() > 0){
+						transSumm = new clsSecDisplay_TransSummary();
+						transSumm.szSumName = getString(R.string.vat_exclude) + 
+								" " + NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate()) + "%";
+						transSumm.szSumAmount = mHost.mFormat.currencyFormat(sumOrder.getVatExclude());
+						transSummLst.add(transSumm);
+					}
+					mHost.secondDisplayItem(transSummLst, mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice() 
+							+ sumOrder.getVatExclude()));
+				}
+				
 				mHost.mDsp.setOrderTotalQty(mHost.mFormat.qtyFormat(sumOrder.getQty()));
 				mHost.mDsp.setOrderTotalPrice(mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
 				try {
@@ -519,25 +539,6 @@ public class MainActivity extends FragmentActivity
 					}
 		});
 		
-		mDsp.displayTotalPay(
-				mFormat.currencyFormat(totalPaid), mFormat.currencyFormat(change));
-		
-		new Handler().postDelayed(
-				new Runnable(){
-
-					@Override
-					public void run() {
-						runOnUiThread(new Runnable(){
-
-							@Override
-							public void run() {
-								mDsp.displayWelcome();
-							}
-							
-						});
-					}
-		}, 10000);
-		
 		if(change > 0){
 			LayoutInflater inflater = (LayoutInflater) 
 					MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -556,6 +557,30 @@ public class MainActivity extends FragmentActivity
 			})
 			.show();
 		}	
+		
+		if(Utils.isEnableSecondDisplay(this))
+			secondDisplayChangePayment(mFormat.currencyFormat(totalPaid), 
+					mFormat.currencyFormat(change));
+		
+		// Wintec DSP
+		mDsp.displayTotalPay(
+				mFormat.currencyFormat(totalPaid), mFormat.currencyFormat(change));
+		
+		new Handler().postDelayed(
+				new Runnable(){
+
+					@Override
+					public void run() {
+						runOnUiThread(new Runnable(){
+
+							@Override
+							public void run() {
+								mDsp.displayWelcome();
+							}
+							
+						});
+					}
+		}, 10000);
 	}
 	
 	/**
@@ -1051,9 +1076,9 @@ public class MainActivity extends FragmentActivity
 					holder.tvPrice.setText(((MainActivity) 
 							getActivity()).mFormat.currencyFormat(p.getProductPrice()));
 
-				if(MPOSApplication.isShowMenuImage(getActivity())){
+				if(Utils.isShowMenuImage(getActivity())){
 					((MainActivity) getActivity()).mImageLoader.displayImage(
-							MPOSApplication.getImageUrl(getActivity()) + 
+							Utils.getImageUrl(getActivity()) + 
 							p.getImgUrl(), holder.imgMenu);
 				}
 				return convertView;
@@ -1138,11 +1163,6 @@ public class MainActivity extends FragmentActivity
 			intent.putExtra("computerId", mComputer.getComputerId());
 			intent.putExtra("productId", productId);
 			startActivity(intent);
-		}
-		
-		if(MPOSApplication.isEnableSecondDisplay(MainActivity.this)){
-			// test send socket
-			mSockConn.send("{\"iCommandTypeID\":1,\"szGrandTotalPrice\":\"0.00\",\"xTransaction\":{\"szTransName\":\"พีรพัฒน์ (เชอร์รี่) ทรงถาวรทวี\",\"iNoCustomer\":1,\"szCustName\":\"พีรพัฒน์ (เชอร์รี่) ทรงถาวรทวี\"},\"xListDetailItems\":[],\"xListTransSummarys\":[{\"szSumName\":\"Sub Total\",\"szSumAmount\":\"0.00\"},{\"szSumName\":\"Grand Total\",\"szSumAmount\":\"0.00\"},{\"szSumName\":\"Total Qty.\",\"szSumAmount\":\"0.00\"}]}");
 		}
 	}
 
@@ -1537,35 +1557,26 @@ public class MainActivity extends FragmentActivity
 							mComputer.getComputerId(), mSessionId, mStaffId, 0, true);
 					if(endday){
 						new AlertDialog.Builder(MainActivity.this)
-						.setCancelable(false)
 						.setTitle(R.string.endday)
-						.setMessage(R.string.endday_success)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						.setMessage(getString(R.string.endday_success) + "\n"
+								+ getString(R.string.confirm_send_endday_now))
+						.setCancelable(false)
+						.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								new AlertDialog.Builder(MainActivity.this)
-								.setTitle(R.string.send_endday_data)
-								.setMessage(R.string.confirm_send_endday_now)
-								.setCancelable(false)
-								.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										finish();
-									}
-								}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										Intent intent = new Intent(MainActivity.this, SendEnddayActivity.class);
-										intent.putExtra("staffId", mStaffId);
-										intent.putExtra("shopId", mShop.getShopId());
-										intent.putExtra("computerId", mComputer.getComputerId());
-										intent.putExtra("autoClose", true);
-										startActivityForResult(intent, SEND_ENDDAY_REQUEST);
-									}
-								}).show();
+								finish();
+							}
+						}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								Intent intent = new Intent(MainActivity.this, SendEnddayActivity.class);
+								intent.putExtra("staffId", mStaffId);
+								intent.putExtra("shopId", mShop.getShopId());
+								intent.putExtra("computerId", mComputer.getComputerId());
+								intent.putExtra("autoClose", true);
+								startActivityForResult(intent, SEND_ENDDAY_REQUEST);
 							}
 						}).show();
 					}
@@ -1825,29 +1836,85 @@ public class MainActivity extends FragmentActivity
 	/**
 	 * stop socket thread
 	 */
-	private void stopSocketThread(){
+	private void stopSecondDisplayThread(){
 		if(mSockThread != null){
 			mSockThread.interrupt();
 			mSockThread = null;
 		}
 	}
 	
-	private Runnable mSockRunnable = new Runnable(){
+	private void secondDisplayChangePayment(String totalPay, String change){
+		String paymentJson = SecondDisplayJSON.genChangePayment(totalPay, change);
+		try {
+			mSockConn.send(paymentJson);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void secondDisplayItem(List<clsSecDisplay_TransSummary> transSummLst, String grandTotal){
+		String itemJson = SecondDisplayJSON.genDisplayItem(mFormat, mOrderDetailLst, 
+				transSummLst, grandTotal);
+		try {
+			mSockConn.send(itemJson);
+		} catch (Exception e) {
+			startSecondDisplayThread();
+		}
+	}
+	
+	private void initSecondDisplay(){
+		Staffs s = new Staffs(this);
+		String initJson = SecondDisplayJSON.genInitDisplay(mShop.getShopName(), 
+				s.getStaff(mStaffId).getStaffName());
+		try {
+			mSockConn.send(initJson);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void clearSecondDisplay(){
+		try {
+			mSockConn.send(SecondDisplayJSON.genClearDisplay());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void startSecondDisplayThread(){
+		// stop if mSockThread is not null
+		stopSecondDisplayThread();
+		/**
+		 * if enabled second display
+		 */
+		if(Utils.isEnableSecondDisplay(this)){
+			mSockThread = new Thread(new SecondDisplayThread());
+			mSockThread.start();
+		}
+	}
+	
+	class SecondDisplayThread implements Runnable{
 
 		@Override
 		public void run() {
 			try {
-				mSockConn = new ClientSocket(MPOSApplication.getSecondDisplayIp(MainActivity.this), 
-						MPOSApplication.getSecondDisplayPort(MainActivity.this));
-				String msg;
-				while((msg = mSockConn.receive()) != null){
-				}
+				mSockConn = new ClientSocket(
+						Utils.getSecondDisplayIp(MainActivity.this), 
+						Utils.getSecondDisplayPort(MainActivity.this));
+				clearSecondDisplay();
+				initSecondDisplay();
+//				String msg = null;
+//				while((msg = mSockConn.receive()) != null){
+//				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-	};
+	}
 	
 	/**
 	 * PartialSaleService Connection

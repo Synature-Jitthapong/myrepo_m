@@ -27,7 +27,7 @@ public abstract class EPSONPrinter extends PrinterUtility implements
 	
 	protected boolean open(){
 		try {
-			mPrinter.openPrinter(Print.DEVTYPE_TCP, MPOSApplication.getPrinterIp(mContext), 0, 1000);
+			mPrinter.openPrinter(Print.DEVTYPE_TCP, Utils.getPrinterIp(mContext), 0, 1000);
 			return true;
 		} catch (EposException e) {
 			e.printStackTrace();
@@ -37,13 +37,13 @@ public abstract class EPSONPrinter extends PrinterUtility implements
 	
 	protected boolean createBuilder(){
 		try {
-			mBuilder = new Builder(MPOSApplication.getEPSONModelName(mContext), Builder.MODEL_ANK, 
+			mBuilder = new Builder(Utils.getEPSONModelName(mContext), Builder.MODEL_ANK, 
 					mContext);
 			mBuilder.addTextSize(1, 1);
 			
-			if(MPOSApplication.getEPSONPrinterFont(mContext).equals("a")){
+			if(Utils.getEPSONPrinterFont(mContext).equals("a")){
 				mBuilder.addTextFont(Builder.FONT_A);
-			}else if(MPOSApplication.getEPSONPrinterFont(mContext).equals("b")){
+			}else if(Utils.getEPSONPrinterFont(mContext).equals("b")){
 				mBuilder.addTextFont(Builder.FONT_B);
 			}
 

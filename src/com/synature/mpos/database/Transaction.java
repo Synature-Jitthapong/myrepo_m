@@ -928,7 +928,6 @@ public class Transaction extends MPOSDatabase {
 				});
 		if (cursor.moveToFirst()) {
 			maxReceiptId = cursor.getInt(0);
-			cursor.moveToNext();
 		}
 		cursor.close();
 		return maxReceiptId + 1;

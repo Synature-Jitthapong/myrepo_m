@@ -38,7 +38,7 @@ public class ReprintActivity extends Activity {
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
@@ -150,7 +150,7 @@ public class ReprintActivity extends Activity {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			if(MPOSApplication.getInternalPrinterSetting(ReprintActivity.this)){
+			if(Utils.isInternalPrinterSetting(ReprintActivity.this)){
 				WintecPrintReceipt wt = new WintecPrintReceipt();
 				wt.prepareDataToPrint(mTransactionId);
 				wt.print();

@@ -31,13 +31,13 @@ import android.content.Context;
 public class MPOSWebServiceClient {
 
 	public static void authenDevice(final Context context, final AuthenDeviceListener listener){
-		final String url = MPOSApplication.getFullUrl(context);
+		final String url = Utils.getFullUrl(context);
 		new AuthenDevice(context, listener).execute(url);
 	}
 	
 	public static void loadShopData(final Context context, final int shopId, final ProgressListener listener){
 		
-		final String url = MPOSApplication.getFullUrl(context);
+		final String url = Utils.getFullUrl(context);
 
 		new LoadShop(context, shopId, new LoadShopListener() {
 
@@ -90,8 +90,8 @@ public class MPOSWebServiceClient {
 					sync.insertSyncLog(SyncMasterLog.SYNC_SHOP_TYPE, 
 							SyncMasterLog.SYNC_STATUS_FAIL);
 					
-					Logger.appendLog(context, MPOSApplication.LOG_DIR, 
-							MPOSApplication.LOG_FILE_NAME, 
+					Logger.appendLog(context, Utils.LOG_DIR, 
+							Utils.LOG_FILE_NAME, 
 							"Error when add shop data : " + e.getMessage());
 					listener.onError(e.getMessage());
 				}
@@ -103,7 +103,7 @@ public class MPOSWebServiceClient {
 	public static void loadProductData(final Context context, final int shopId,
 			final ProgressListener progressListener){
 		
-		final String url = MPOSApplication.getFullUrl(context);
+		final String url = Utils.getFullUrl(context);
 
 		new LoadMenu(context, shopId, new LoadMenuListener() {
 
@@ -158,7 +158,7 @@ public class MPOSWebServiceClient {
 									SyncMasterLog.SYNC_STATUS_SUCCESS);
 							
 							// clear all menu picture
-							FileManager fm = new FileManager(context, MPOSApplication.IMG_DIR);
+							FileManager fm = new FileManager(context, Utils.IMG_DIR);
 							fm.clear();
 
 							progressListener.onPost();
@@ -167,8 +167,8 @@ public class MPOSWebServiceClient {
 							sync.insertSyncLog(SyncMasterLog.SYNC_PRODUCT_TYPE, 
 									SyncMasterLog.SYNC_STATUS_FAIL);
 							
-							Logger.appendLog(context, MPOSApplication.LOG_DIR, 
-								MPOSApplication.LOG_FILE_NAME, 
+							Logger.appendLog(context, Utils.LOG_DIR, 
+								Utils.LOG_FILE_NAME, 
 								"Error when add product data : " + e.getMessage());
 							progressListener.onError(e.getMessage());
 						}

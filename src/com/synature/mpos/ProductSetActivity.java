@@ -66,7 +66,7 @@ public class ProductSetActivity extends Activity{
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				MPOSApplication.LOG_DIR, MPOSApplication.LOG_FILE_NAME));
+				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
 		
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
@@ -609,7 +609,7 @@ public class ProductSetActivity extends Activity{
 				mRequireAmount = requireAmount;
 				
 				mImgLoader = new ImageLoader(getActivity(), 0,
-						MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.SMALL);
+						Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.SMALL);
 			}
 
 			@Override
@@ -651,8 +651,8 @@ public class ProductSetActivity extends Activity{
 				else
 					holder.tvPrice.setVisibility(View.GONE);
 
-				if(MPOSApplication.isShowMenuImage(getActivity())){
-					mImgLoader.displayImage(MPOSApplication.getImageUrl(
+				if(Utils.isShowMenuImage(getActivity())){
+					mImgLoader.displayImage(Utils.getImageUrl(
 							getActivity().getApplicationContext()) + pComp.getImgUrl(), holder.imgMenu);
 				}
 				
