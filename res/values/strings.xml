@@ -194,5 +194,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="wintec_customer_display_settings">Wintec Customer Display Settings</string>
     <string name="enable_wintec_customer_display">Enable Wintec Customer Display</string>
     <string name="connection_time_out">Connection time out</string>
+    <string name="exit">Exit</string>
 
 </resources>

@@ -233,10 +233,8 @@ public class SettingsActivity extends PreferenceActivity {
 	
 	public static class WinTecTestPrint extends WintecPrinter{
 		
-		private Context mContext;
-		
 		public WinTecTestPrint(Context context){
-			mContext = context;
+			super(context);
 		}
 		
 		@Override

@@ -164,6 +164,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 
 	@Override
 	protected void onStart() {
+		super.onStart();
 		// start magnetic reader thread
 		try {
 			mMsrReader = new WintecMagneticReader(this);
@@ -179,15 +180,14 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 					e.getMessage());
 		}
 		//test();
-		super.onStart();
 	}
 
 	@Override
 	protected void onStop() {
-		closeMsrThread();
-		mIsRead = false;
-		mMsrReader.close();
 		super.onStop();
+		mMsrReader.close();
+		mIsRead = false;
+		closeMsrThread();
 	}
 
 	@Override
@@ -508,18 +508,13 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	/*
 	 * Close magnetic reader thread
 	 */
-	private synchronized void closeMsrThread(){
+	private void closeMsrThread(){
 		if(mMsrThread != null){
 			mMsrThread.interrupt();
 			mMsrThread = null;
 		}
 	}
-	
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-	}
-	
+
 	/*
 	 * Listener for magnetic reader
 	 */
@@ -555,6 +550,18 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 									mTxtCardNoSeq3.setText(cardNo.substring(8, 12));
 									mTxtCardNoSeq4.setText(cardNo.substring(12, 16));
 									mTxtCardHolderName.setText(cardHolderName);
+									
+									try {
+										ArrayAdapter yearAdapter = (ArrayAdapter) mSpExpYear.getAdapter();
+										ArrayAdapter monthAdapter = (ArrayAdapter) mSpExpMonth.getAdapter();
+										int yearPosition = yearAdapter.getPosition("20" + expDate.substring(0, 2));
+										int monthPosition = monthAdapter.getPosition(expDate.substring(2, 4));
+										mSpExpYear.setSelection(yearPosition);
+										mSpExpMonth.setSelection(monthPosition);
+									} catch (Exception e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
 									
 									try {
 										VerifyCardType.CardType cardType = VerifyCardType.checkCardType(cardNo); 

@@ -38,99 +38,104 @@ public class EnddaySaleService extends Service{
 		final int shopId = intent.getIntExtra("shopId", 0);
 		final int computerId = intent.getIntExtra("computerId", 0);
 		
-		Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+		final Session sess = new Session(getApplicationContext());
+		List<String> sessLst = sess.listSessionEnddayNotSend();
+		if(sessLst.size() > 0){
+			Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
 				Utils.LOG_FILE_NAME, 
 				TAG + ": Service Start Command \n"
 				+ "staffId=" + staffId + "\n"
 				+ "shopId=" + shopId + "\n"
 				+ "computerId=" + computerId);
-		
-		final Session sess = new Session(getApplicationContext());
-		List<String> sessLst = sess.listSessionEnddayNotSend();
-		final Iterator<String> it = sessLst.iterator();
-		while(it.hasNext()){
-			final String sessionDate = it.next();
-			/* 
-			 * execute load transaction json task
-			 * and send to hq 
-			 */
-			new LoadSaleTransaction(getApplicationContext(), sessionDate, 
-					true, new LoadSaleTransactionListener() {
-
-				@Override
-				public void onPost(POSData_SaleTransaction saleTrans) {
-
-					final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
-					
-					if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
+			final Iterator<String> it = sessLst.iterator();
+			while(it.hasNext()){
+				final String sessionDate = it.next();
+				/* 
+				 * execute load transaction json task
+				 * and send to hq 
+				 */
+				new LoadSaleTransaction(getApplicationContext(), sessionDate, 
+						true, new LoadSaleTransactionListener() {
+	
+					@Override
+					public void onPost(POSData_SaleTransaction saleTrans) {
+	
+						final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
 						
-						JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
-						
-						new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
-								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-								staffId, shopId, computerId, jsonSale, new ProgressListener() {
-		
-									@Override
-									public void onError(String mesg) {
-										Utils.logServerResponse(getApplicationContext(), mesg);
-
-										sess.updateSessionEnddayDetail(sessionDate, 
-												MPOSDatabase.NOT_SEND);
-										Transaction trans = new Transaction(getApplicationContext());
-										trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
-									}
-		
-									@Override
-									public void onPre() {
-									}
-		
-									@Override
-									public void onPost() {
-										try {
+						if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
+							
+							JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
+							
+							new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
+									SendSaleTransaction.SEND_SALE_TRANS_METHOD,
+									staffId, shopId, computerId, jsonSale, new ProgressListener() {
+			
+										@Override
+										public void onError(String mesg) {
+											Utils.logServerResponse(getApplicationContext(), mesg);
+	
 											sess.updateSessionEnddayDetail(sessionDate, 
-													MPOSDatabase.ALREADY_SEND);
+													MPOSDatabase.NOT_SEND);
 											Transaction trans = new Transaction(getApplicationContext());
-											trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
-											if(!it.hasNext()){
-												mStatMsg = getApplication().getString(R.string.send_sale_data_success);
-												stopSelf();
-											}
-										} catch (SQLException e) {
-											Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
-													Utils.LOG_FILE_NAME, 
-													" Error when update " 
-													+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + " : "
-													+ e.getMessage());
+											trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
 										}
-									}
-								}).execute(Utils.getFullUrl(getApplicationContext()));
+			
+										@Override
+										public void onPre() {
+										}
+			
+										@Override
+										public void onPost() {
+											try {
+												sess.updateSessionEnddayDetail(sessionDate, 
+														MPOSDatabase.ALREADY_SEND);
+												Transaction trans = new Transaction(getApplicationContext());
+												trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+												if(!it.hasNext()){
+													mStatMsg = getApplication().getString(R.string.send_sale_data_success);
+													stopSelf();
+												}
+											} catch (SQLException e) {
+												Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+														Utils.LOG_FILE_NAME, 
+														" Error when update " 
+														+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + " : "
+														+ e.getMessage());
+											}
+										}
+									}).execute(Utils.getFullUrl(getApplicationContext()));
+						}
 					}
-				}
-
-				@Override
-				public void onError(String mesg) {
-					mStatMsg = mesg;
-				}
-
-				@Override
-				public void onPre() {
-				}
-
-				@Override
-				public void onPost() {
-				}
-
-			}).execute();
+	
+					@Override
+					public void onError(String mesg) {
+						mStatMsg = mesg;
+					}
+	
+					@Override
+					public void onPre() {
+					}
+	
+					@Override
+					public void onPost() {
+					}
+	
+				}).execute();
+			}
+		}else{
+			stopSelf();
 		}
 		return START_REDELIVER_INTENT;
 	}
 
 	@Override
 	public void onDestroy() {
-		Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
-				Utils.LOG_FILE_NAME, 
-				TAG + ": Send Endday Complete");
-		Utils.makeToask(getApplicationContext(), mStatMsg);
+		if(!TextUtils.isEmpty(mStatMsg)){
+			Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+					Utils.LOG_FILE_NAME, 
+					TAG + ": Send Endday Complete");
+			Utils.makeToask(getApplicationContext(), mStatMsg);
+		}
 		super.onDestroy();
 	}
 

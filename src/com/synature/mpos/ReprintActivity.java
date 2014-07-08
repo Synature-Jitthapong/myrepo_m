@@ -151,7 +151,7 @@ public class ReprintActivity extends Activity {
 		@Override
 		protected Void doInBackground(Void... params) {
 			if(Utils.isInternalPrinterSetting(ReprintActivity.this)){
-				WintecPrintReceipt wt = new WintecPrintReceipt();
+				WintecPrintReceipt wt = new WintecPrintReceipt(ReprintActivity.this);
 				wt.prepareDataToPrint(mTransactionId);
 				wt.print();
 			}else{

@@ -84,10 +84,6 @@ public class MainActivity extends FragmentActivity
 	 * food court payment request
 	 */
 	public static final int FOOD_COURT_PAYMENT_REQUEST = 2;
-	/**
-	 * send end day sale data request
-	 */
-	public static final int SEND_ENDDAY_REQUEST = 3;
 	
 	private WintecCustomerDisplay mDsp;
 	
@@ -443,11 +439,13 @@ public class MainActivity extends FragmentActivity
 				
 				mHost.mDsp.setOrderTotalQty(mHost.mFormat.qtyFormat(sumOrder.getQty()));
 				mHost.mDsp.setOrderTotalPrice(mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
-				try {
-					mHost.mDsp.displayOrder();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				if(Utils.isEnableWintecCustomerDisplay(getActivity())){
+					try {
+						mHost.mDsp.displayOrder();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -491,10 +489,6 @@ public class MainActivity extends FragmentActivity
 				int staffId = intent.getIntExtra("staffId", 0);
 				afterPaid(transactionId, staffId, totalPaid, change);
 			}
-		}else if(requestCode == SEND_ENDDAY_REQUEST){
-			if(resultCode == RESULT_OK){
-				finish();
-			}
 		}
 	}
 
@@ -519,7 +513,50 @@ public class MainActivity extends FragmentActivity
 			public void onPrepare() {
 			}
 		}).execute();
-
+		
+		if(change > 0){
+			LayoutInflater inflater = (LayoutInflater) 
+					MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
+			tvChange.setText(mFormat.currencyFormat(change));
+			
+			new AlertDialog.Builder(MainActivity.this)
+			.setTitle(R.string.change)
+			.setCancelable(false)
+			.setView(tvChange)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			}).show();
+			if(Utils.isEnableSecondDisplay(this))
+				secondDisplayChangePayment(mFormat.currencyFormat(totalPaid), 
+						mFormat.currencyFormat(change));
+		}
+		
+		// Wintec DSP
+		if(Utils.isEnableWintecCustomerDisplay(this)){
+			mDsp.displayTotalPay(mFormat.currencyFormat(totalPaid), 
+					mFormat.currencyFormat(change));
+//			new Handler().postDelayed(
+//					new Runnable(){
+//
+//						@Override
+//						public void run() {
+//							runOnUiThread(new Runnable(){
+//
+//								@Override
+//								public void run() {
+//									mDsp.displayWelcome();
+//								}
+//								
+//							});
+//						}
+//			}, 10000);
+		}
+		
+		// send sale data service
 		mPartService.sendSale(mShop.getShopId(), 
 				mComputer.getComputerId(), mStaffId, false, new ProgressListener(){
 
@@ -538,49 +575,6 @@ public class MainActivity extends FragmentActivity
 					public void onError(String msg) {
 					}
 		});
-		
-		if(change > 0){
-			LayoutInflater inflater = (LayoutInflater) 
-					MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
-			tvChange.setText(mFormat.currencyFormat(change));
-			
-			new AlertDialog.Builder(MainActivity.this)
-			.setTitle(R.string.change)
-			.setCancelable(false)
-			.setView(tvChange)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-				}
-			})
-			.show();
-		}	
-		
-		if(Utils.isEnableSecondDisplay(this))
-			secondDisplayChangePayment(mFormat.currencyFormat(totalPaid), 
-					mFormat.currencyFormat(change));
-		
-		// Wintec DSP
-		mDsp.displayTotalPay(
-				mFormat.currencyFormat(totalPaid), mFormat.currencyFormat(change));
-		
-		new Handler().postDelayed(
-				new Runnable(){
-
-					@Override
-					public void run() {
-						runOnUiThread(new Runnable(){
-
-							@Override
-							public void run() {
-								mDsp.displayWelcome();
-							}
-							
-						});
-					}
-		}, 10000);
 	}
 	
 	/**
@@ -1561,24 +1555,20 @@ public class MainActivity extends FragmentActivity
 						.setMessage(getString(R.string.endday_success) + "\n"
 								+ getString(R.string.confirm_send_endday_now))
 						.setCancelable(false)
-						.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-							
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener(){
+
 							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								finish();
+							public void onClick(DialogInterface dialog,
+									int which) {
+								Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
+								enddayIntent.putExtra("staffId", mStaffId);
+								enddayIntent.putExtra("shopId", mShop.getShopId());
+								enddayIntent.putExtra("computerId", mComputer.getComputerId());
+								startService(enddayIntent);
 							}
-						}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								Intent intent = new Intent(MainActivity.this, SendEnddayActivity.class);
-								intent.putExtra("staffId", mStaffId);
-								intent.putExtra("shopId", mShop.getShopId());
-								intent.putExtra("computerId", mComputer.getComputerId());
-								intent.putExtra("autoClose", true);
-								startActivityForResult(intent, SEND_ENDDAY_REQUEST);
-							}
-						}).show();
+						})
+						.show();
 					}
 				}
 			}).show();

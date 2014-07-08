@@ -43,7 +43,6 @@ public class WintecCustomerDisplay{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		close();
 	}
 	
 	public void displayOrder() throws Exception{
@@ -60,7 +59,6 @@ public class WintecCustomerDisplay{
 		mDsp.DSP_Dispay(mContext.getString(R.string.total));
 		mDsp.DSP_MoveCursor(2, MAX_TEXT_LENGTH - orderTotalPrice.length());
 		mDsp.DSP_Dispay(orderTotalPrice);
-		close();
 	}
 	
 	public void displayWelcome(){
@@ -69,7 +67,6 @@ public class WintecCustomerDisplay{
 		mDsp.DSP_MoveCursorDown();
 		mDsp.DSP_MoveCursorEndLeft();
 		mDsp.DSP_Dispay(mContext.getString(R.string.promise_system));
-		close();
 	}
 	
 	private String limitString(String text){

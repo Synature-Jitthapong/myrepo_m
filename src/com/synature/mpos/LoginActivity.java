@@ -8,6 +8,7 @@ import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.SyncMasterLog;
 import com.synature.mpos.database.UserVerification;
+import com.synature.mpos.ui.SystemUiHider;
 import com.synature.pos.ShopData;
 
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -42,6 +44,8 @@ public class LoginActivity extends Activity{
 	 * Request code for setting
 	 */
 	public static final int REQUEST_FOR_SETTING = 2;
+	
+	public static final int CLICK_TIMES_TO_SETTING = 5;
 	
 	private int mStaffId;
 	
@@ -61,7 +65,7 @@ public class LoginActivity extends Activity{
 		mComputer = new Computer(this);
 		mFormat = new Formater(this);
 		mSync = new SyncMasterLog(this);
-		
+
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction()
 				.add(R.id.loginContent, new PlaceholderFragment()).commit();
@@ -127,39 +131,42 @@ public class LoginActivity extends Activity{
 			else if(Utils.getDate().getTime().compareTo(sessionDate.getTime()) > 0){
 				// check last session has already enddday ?
 				if(!mSession.checkEndday(mSession.getSessionDate())){
+					Utils.endday(LoginActivity.this, mShop.getShopId(), 
+							mComputer.getComputerId(), mSession.getCurrentSessionId(), 
+							mStaffId, 0, true);
 					// force end previous sale date
-					new AlertDialog.Builder(this)
-					.setCancelable(false)
-					.setTitle(R.string.system_date)
-					.setMessage(R.string.system_date_more_than_session)
-					.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-						}
-					})
-					.setPositiveButton(R.string.endday, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							boolean endday = Utils.endday(LoginActivity.this, mShop.getShopId(), 
-									mComputer.getComputerId(), mSession.getCurrentSessionId(), 
-									mStaffId, 0, true);
-							if(endday){
-								new AlertDialog.Builder(LoginActivity.this)
-								.setCancelable(false)
-								.setTitle(R.string.endday)
-								.setMessage(R.string.endday_success)
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										gotoMainActivity();
-									}
-								}).show();
-							}
-						}
-					}).show();
+//					new AlertDialog.Builder(this)
+//					.setCancelable(false)
+//					.setTitle(R.string.system_date)
+//					.setMessage(R.string.system_date_more_than_session)
+//					.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+//						
+//						@Override
+//						public void onClick(DialogInterface dialog, int which) {
+//						}
+//					})
+//					.setPositiveButton(R.string.endday, new DialogInterface.OnClickListener() {
+//						
+//						@Override
+//						public void onClick(DialogInterface dialog, int which) {
+//							boolean endday = Utils.endday(LoginActivity.this, mShop.getShopId(), 
+//									mComputer.getComputerId(), mSession.getCurrentSessionId(), 
+//									mStaffId, 0, true);
+//							if(endday){
+//								new AlertDialog.Builder(LoginActivity.this)
+//								.setCancelable(false)
+//								.setTitle(R.string.endday)
+//								.setMessage(R.string.endday_success)
+//								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+//									
+//									@Override
+//									public void onClick(DialogInterface dialog, int which) {
+//										gotoMainActivity();
+//									}
+//								}).show();
+//							}
+//						}
+//					}).show();
 				}else{
 					gotoMainActivity();
 				}
@@ -194,6 +201,9 @@ public class LoginActivity extends Activity{
 			return true;
 		case R.id.itemClearSale:
 			Utils.clearSale(LoginActivity.this);
+			return true;
+		case R.id.itemExit:
+			finish();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
@@ -492,11 +502,14 @@ public class LoginActivity extends Activity{
 	public static class PlaceholderFragment extends Fragment{
 
 		private Button mBtnLogin;
+		private ImageButton mBtnSetting;
 		private EditText mTxtUser;
 		private EditText mTxtPass;
 		private TextView mTvShopName;
 		private TextView mTvSaleDate;
 		private TextView mTvLastSession;
+		
+		private int mNumClick = 0;
 
 		public PlaceholderFragment(){
 		}
@@ -517,6 +530,7 @@ public class LoginActivity extends Activity{
 			mTvShopName = (TextView) rootView.findViewById(R.id.tvShopName);
 			mTvSaleDate = (TextView) rootView.findViewById(R.id.tvSaleDate);
 			mTvLastSession = (TextView) rootView.findViewById(R.id.tvLastSession);
+			mBtnSetting = (ImageButton) rootView.findViewById(R.id.btnSetting);
 			
 			mTxtUser.setSelectAllOnFocus(true);
 			mTxtPass.setSelectAllOnFocus(true);
@@ -525,6 +539,17 @@ public class LoginActivity extends Activity{
 				@Override
 				public void onClick(View v) {
 					((LoginActivity) getActivity()).checkLogin();
+				}
+				
+			});
+			mBtnSetting.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					if(++mNumClick == CLICK_TIMES_TO_SETTING){
+						mNumClick = 0;
+						startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
+					}
 				}
 				
 			});

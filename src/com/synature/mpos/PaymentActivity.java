@@ -120,12 +120,11 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mLvPayment.setAdapter(mPaymentAdapter);
 		mGvPaymentButton.setAdapter(mPaymentButtonAdapter);
 		loadPayType();
-		mDrw = new WintecCashDrawer();
+		mDrw = new WintecCashDrawer(this);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
 		if(requestCode == REQUEST_CREDIT_PAY){
 			mResultCreditCode = resultCode;
 		}

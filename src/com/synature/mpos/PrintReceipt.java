@@ -307,6 +307,11 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 
 	protected class WintecPrintReceipt extends WintecPrinter{
 
+		public WintecPrintReceipt(Context context) {
+			super(context);
+			// TODO Auto-generated constructor stub
+		}
+
 		@Override
 		public void prepareDataToPrint(int transactionId) {
 			MPOSOrderTransaction trans = mOrders.getTransaction(transactionId);
@@ -538,7 +543,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		for(PrintReceiptLog.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
 			try {
 				if(Utils.isInternalPrinterSetting(mContext)){
-					WintecPrintReceipt wt = new WintecPrintReceipt();
+					WintecPrintReceipt wt = new WintecPrintReceipt(mContext);
 					wt.prepareDataToPrint(printReceipt.getTransactionId());
 					wt.print();
 				}else{

@@ -145,6 +145,10 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 	
 	protected class WintecPrintBillReport extends WintecPrinter{
 
+		public WintecPrintBillReport(Context context) {
+			super(context);
+		}
+
 		@Override
 		public void prepareDataToPrint() {
 			String date = mFormat.dateFormat(mDateTo);
@@ -320,6 +324,10 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 	}
 	
 	protected class WintecPrintSaleByProduct extends WintecPrinter{
+
+		public WintecPrintSaleByProduct(Context context) {
+			super(context);
+		}
 
 		@Override
 		public void prepareDataToPrint() {
@@ -604,6 +612,10 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 	
 	protected class WintecPrintSummarySale extends WintecPrinter{
 		
+		public WintecPrintSummarySale(Context context) {
+			super(context);
+		}
+
 		@Override
 		public void prepareDataToPrint() {
 			Session session = new Session(mContext.getApplicationContext());
@@ -772,17 +784,17 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 		if(Utils.isInternalPrinterSetting(mContext)){
 			switch(mWhatPrint){
 			case SUMMARY_SALE:
-				WintecPrintSummarySale wtPrinter = new WintecPrintSummarySale();
+				WintecPrintSummarySale wtPrinter = new WintecPrintSummarySale(mContext);
 				wtPrinter.prepareDataToPrint();
 				wtPrinter.print();
 				break;
 			case PRODUCT_REPORT:
-				WintecPrintSaleByProduct wtPrintProduct = new WintecPrintSaleByProduct();
+				WintecPrintSaleByProduct wtPrintProduct = new WintecPrintSaleByProduct(mContext);
 				wtPrintProduct.prepareDataToPrint();
 				wtPrintProduct.print();
 				break;
 			case BILL_REPORT:
-				WintecPrintBillReport wtPrintBill = new WintecPrintBillReport();
+				WintecPrintBillReport wtPrintBill = new WintecPrintBillReport(mContext);
 				wtPrintBill.prepareDataToPrint();
 				wtPrintBill.print();
 				break;

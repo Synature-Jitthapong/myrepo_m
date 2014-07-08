@@ -1,5 +1,6 @@
 package com.synature.mpos;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.synature.util.ThaiLevelText;
@@ -19,24 +20,17 @@ public abstract class WintecPrinter extends PrinterUtility{
 	 * IBM 874
 	 */
 	public static final String CP_874 = "Cp874";
-
-	/**
-	 * fixes device path for wintec printer
-	 */
-	public static final String DEV_PATH = "/dev/ttySAC1";
 	
-	/**
-	 * baud rate for this printer is BAUD_38400
-	 */
-	public static final ComIO.Baudrate BAUD_RATE = ComIO.Baudrate.valueOf("BAUD_38400");
-	
+	protected Context mContext;
 	protected StringBuilder mBuilder;
 	protected Printer mPrinter;
 	
-	public WintecPrinter(){
-		mPrinter = new Printer(DEV_PATH, BAUD_RATE);
+	public WintecPrinter(Context context){
+		mContext = context;
+		mPrinter = new Printer(Utils.getWintecPrinterDevPath(mContext), 
+				ComIO.Baudrate.valueOf(Utils.getWintecPrinterBaudRate(mContext)));
 		mPrinter.PRN_DisableChinese();
-		//mPrinter.PRN_SetCodePage(255);
+		mPrinter.PRN_SetCodePage(70);
 		mBuilder = new StringBuilder();
 	}
 
@@ -69,7 +63,11 @@ public abstract class WintecPrinter extends PrinterUtility{
     			mPrinter.PRN_Print(supportThai.TextLine3, CP_874);
 		}
     	mPrinter.PRN_PrintAndFeedLine(6);		
-    	mPrinter.PRN_HalfCutPaper();	
+    	mPrinter.PRN_HalfCutPaper();
+    	close();
+	}
+	
+	private void close(){
     	mPrinter.PRN_Close();
 	}
 	

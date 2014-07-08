@@ -1,17 +1,16 @@
 package com.synature.mpos;
 
+import android.content.Context;
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Drw;
 
 public class WintecCashDrawer{
 	
-	public static final String DEV_PATH = "/dev/ttySAC1";
-	public static final ComIO.Baudrate BAUD_RATE = ComIO.Baudrate.valueOf("BAUD_38400");
-	
 	private Drw mDrw;
 	
-	public WintecCashDrawer(){
-		mDrw = new Drw(DEV_PATH, BAUD_RATE);
+	public WintecCashDrawer(Context context){
+		mDrw = new Drw(Utils.getWintecDrwDevPath(context), 
+				ComIO.Baudrate.valueOf(Utils.getWintecDrwBaudRate(context)));
 	}
 	
 	public void openCashDrawer(){

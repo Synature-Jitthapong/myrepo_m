@@ -475,7 +475,8 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 			private Shop mShop;
 			private HeaderFooterReceipt mHeaderFooter;
 			
-			public WintecPrintReceiptFoodCourt(){
+			public WintecPrintReceiptFoodCourt(Context context){
+				super(context);
 				mPayment = new PaymentDetail(FoodCourtCardPayActivity.this);
 				mStaff = new Staffs(FoodCourtCardPayActivity.this);
 				mShop = new Shop(FoodCourtCardPayActivity.this);
@@ -638,7 +639,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		}
 		@Override
 		protected Void doInBackground(Void... params) {
-			WintecPrintReceiptFoodCourt print = new WintecPrintReceiptFoodCourt();
+			WintecPrintReceiptFoodCourt print = new WintecPrintReceiptFoodCourt(FoodCourtCardPayActivity.this);
 			print.prepareDataToPrint(mTransactionId);
 			print.print();
 			return null;

@@ -377,7 +377,7 @@ public class Utils {
 	public static String getWintecDrwDevPath(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		return sharedPref.getString(SettingsActivity.KEY_PREF_DRW_DEV_PATH, "/dev/ttySAC3");
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DRW_DEV_PATH, "/dev/ttySAC1");
 	}
 	
 	/**
@@ -434,7 +434,7 @@ public class Utils {
 	 * @param context
 	 * @return printer dev path
 	 */
-	public static String getWintecDevPath(Context context) {
+	public static String getWintecPrinterDevPath(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_DEV_PATH, "/dev/ttySAC1");
@@ -467,7 +467,7 @@ public class Utils {
 	public static boolean isEnableWintecCustomerDisplay(Context context){
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_ENABLE_DSP, true);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_ENABLE_DSP, false);
 	}
 	
 	/**
@@ -487,7 +487,7 @@ public class Utils {
 	public static String getWintecDspPath(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_DEV_PATH, "/dev/ttySAC3");
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_DEV_PATH, "/dev/ttySAC3");
 	}
 	
 	/**
