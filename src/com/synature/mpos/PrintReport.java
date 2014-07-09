@@ -20,9 +20,8 @@ import com.synature.pos.Report;
 
 import android.content.Context;
 import android.database.SQLException;
-import android.os.AsyncTask;
 
-public class PrintReport extends AsyncTask<Void, Void, Void> {
+public class PrintReport implements Runnable{
 
 	public static enum WhatPrint{
 		SUMMARY_SALE,
@@ -198,11 +197,6 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				mBuilder.append("\n");
 			}
 		}
-
-		@Override
-		public void prepareDataToPrint(int transactionId) {
-		}
-		
 	}
 	
 	protected class EPSONPrintSaleByProduct extends EPSONPrinter{
@@ -413,10 +407,6 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			mBuilder.append(createHorizontalSpace(calculateLength(grandTotalText) 
 					+ calculateLength(grandTotal)));
 			mBuilder.append(grandTotal + "\n");
-		}
-
-		@Override
-		public void prepareDataToPrint(int transactionId) {
 		}
 	}
 	
@@ -773,14 +763,10 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 			mBuilder.append(totalVoidQty);
 			mBuilder.append(totalVoidPrice);
 		}
-
-		@Override
-		public void prepareDataToPrint(int transactionId) {
-		}
 	}
-	
+
 	@Override
-	protected Void doInBackground(Void... params) {
+	public void run() {
 		if(Utils.isInternalPrinterSetting(mContext)){
 			switch(mWhatPrint){
 			case SUMMARY_SALE:
@@ -818,6 +804,5 @@ public class PrintReport extends AsyncTask<Void, Void, Void> {
 				break;
 			}
 		}
-		return null;
 	}
 }

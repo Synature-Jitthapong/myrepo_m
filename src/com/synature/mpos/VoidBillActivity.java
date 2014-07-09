@@ -386,26 +386,7 @@ public class VoidBillActivity extends Activity {
 				new PrintReceiptLog(getApplicationContext());
 		printLog.insertLog(mTransactionId, mStaffId);
 		
-		new PrintReceipt(VoidBillActivity.this, new PrintReceipt.PrintStatusListener() {
-			
-			@Override
-			public void onPrintSuccess() {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onPrintFail(String msg) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onPrepare() {
-				// TODO Auto-generated method stub
-				
-			}
-		}).execute();
+		new Thread(new PrintReceipt(VoidBillActivity.this)).start();
 	}
 	
 	private void sendSale(){
@@ -422,7 +403,6 @@ public class VoidBillActivity extends Activity {
 
 			@Override
 			public void onError(String msg) {
-				
 			}
 			
 		});

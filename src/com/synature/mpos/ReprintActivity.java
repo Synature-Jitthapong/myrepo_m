@@ -20,14 +20,12 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class ReprintActivity extends Activity {
 	
 	private Transaction mOrders;
 	
-	private boolean mIsOnPrint;
 	private ReprintTransAdapter mTransAdapter;
 	private ListView mLvTrans;
 	
@@ -66,8 +64,7 @@ public class ReprintActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
-			if(!mIsOnPrint)
-				finish();
+			finish();
 			return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -89,7 +86,6 @@ public class ReprintActivity extends Activity {
 				holder = new ViewHolder();
 				holder.tvNo = (TextView) convertView.findViewById(R.id.textView2);
 				holder.tvItem = (TextView) convertView.findViewById(R.id.textView1);
-				holder.progress = (ProgressBar) convertView.findViewById(R.id.progressBar1);
 				holder.btnPrint = (Button) convertView.findViewById(R.id.btnCommentMinus);
 				convertView.setTag(holder);
 			}else{
@@ -101,29 +97,7 @@ public class ReprintActivity extends Activity {
 
 				@Override
 				public void onClick(View v) {
-					new Reprint(trans.getTransactionId(), new Reprint.PrintStatusListener() {
-						
-						@Override
-						public void onPrintSuccess() {
-							mIsOnPrint = false;
-							holder.progress.setVisibility(View.GONE);
-							holder.btnPrint.setVisibility(View.VISIBLE);
-						}
-						
-						@Override
-						public void onPrintFail(String msg) {
-							mIsOnPrint = false;
-							holder.progress.setVisibility(View.GONE);
-							holder.btnPrint.setVisibility(View.VISIBLE);
-						}
-						
-						@Override
-						public void onPrepare() {
-							mIsOnPrint = true;
-							holder.progress.setVisibility(View.VISIBLE);
-							holder.btnPrint.setVisibility(View.GONE);
-						}
-					}).execute();
+					new Thread(new Reprint(trans.getTransactionId())).start();
 				}
 				
 			});
@@ -133,23 +107,21 @@ public class ReprintActivity extends Activity {
 		public class ViewHolder {
 			TextView tvNo;
 			TextView tvItem;
-			ProgressBar progress;
 			Button btnPrint;
 		}
 	}
 
-	
 	public class Reprint extends PrintReceipt{
 		
 		public int mTransactionId;
 		
-		public Reprint(int transactionId, PrintStatusListener listener) {
-			super(ReprintActivity.this, listener);
+		public Reprint(int transactionId) {
+			super(ReprintActivity.this);
 			mTransactionId = transactionId;
 		}
 
 		@Override
-		protected Void doInBackground(Void... params) {
+		public void run() {
 			if(Utils.isInternalPrinterSetting(ReprintActivity.this)){
 				WintecPrintReceipt wt = new WintecPrintReceipt(ReprintActivity.this);
 				wt.prepareDataToPrint(mTransactionId);
@@ -159,7 +131,7 @@ public class ReprintActivity extends Activity {
 				ep.prepareDataToPrint(mTransactionId);
 				ep.print();
 			}
-			return null;
 		}
+		
 	}
 }

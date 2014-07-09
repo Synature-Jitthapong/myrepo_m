@@ -496,22 +496,6 @@ public class MainActivity extends FragmentActivity
 			}
 		}
 	}
-
-	private PrintReceipt.PrintStatusListener mPrintStatusListener = new PrintReceipt.PrintStatusListener(){
-
-		@Override
-		public void onPrepare() {
-		}
-
-		@Override
-		public void onPrintSuccess() {
-		}
-
-		@Override
-		public void onPrintFail(String msg) {
-		}
-		
-	};
 	
 	private void afterPaid(int transactionId, int staffId, double totalPaid, 
 			double change){
@@ -520,11 +504,10 @@ public class MainActivity extends FragmentActivity
 				new PrintReceiptLog(MainActivity.this);
 		printLog.insertLog(transactionId, staffId);
 
-		new PrintReceipt(this, mPrintStatusListener).execute();
+		new Thread(new PrintReceipt(this)).start();
 		
 		if(change > 0){
-			LayoutInflater inflater = (LayoutInflater) 
-					MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			LayoutInflater inflater = getLayoutInflater();
 			TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
 			tvChange.setText(mFormat.currencyFormat(change));
 			
@@ -547,26 +530,26 @@ public class MainActivity extends FragmentActivity
 		if(Utils.isEnableWintecCustomerDisplay(this)){
 			mDsp.displayTotalPay(mFormat.currencyFormat(totalPaid), 
 					mFormat.currencyFormat(change));
-//			new Handler().postDelayed(
-//					new Runnable(){
-//
-//						@Override
-//						public void run() {
-//							runOnUiThread(new Runnable(){
-//
-//								@Override
-//								public void run() {
-//									mDsp.displayWelcome();
-//								}
-//								
-//							});
-//						}
-//			}, 10000);
+			new Handler().postDelayed(
+					new Runnable(){
+
+						@Override
+						public void run() {
+							runOnUiThread(new Runnable(){
+
+								@Override
+								public void run() {
+									mDsp.displayWelcome();
+								}
+								
+							});
+						}
+			}, 10000);
 		}
 		
 		// send sale data service
-		mPartService.sendSale(mShop.getShopId(), 
-				mComputer.getComputerId(), mStaffId, false, new ProgressListener(){
+		mPartService.sendSale(mShop.getShopId(), mComputer.getComputerId(),
+				mStaffId, false, new ProgressListener() {
 
 					@Override
 					public void onPre() {
@@ -575,8 +558,8 @@ public class MainActivity extends FragmentActivity
 					@Override
 					public void onPost() {
 						countTransNotSend(MainActivity.this);
-						Utils.makeToask(MainActivity.this, 
-								MainActivity.this.getString(R.string.send_sale_data_success));
+						Utils.makeToask(MainActivity.this, MainActivity.this
+								.getString(R.string.send_sale_data_success));
 					}
 
 					@Override
@@ -672,8 +655,7 @@ public class MainActivity extends FragmentActivity
 				View convertView, ViewGroup parent) {
 			ViewHolder holder;		
 			if(convertView == null){
-				LayoutInflater inflater = (LayoutInflater)
-						MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				LayoutInflater inflater = MainActivity.this.getLayoutInflater();
 				convertView = inflater.inflate(R.layout.order_list_template, null);
 				holder = new ViewHolder();
 				holder.menuInfoContent = (LinearLayout) convertView.findViewById(R.id.menuInfoContent);
@@ -831,8 +813,7 @@ public class MainActivity extends FragmentActivity
 				boolean isLastChild, View convertView, ViewGroup parent) {
 			ChildViewHolder holder;
 			if(convertView == null){
-				LayoutInflater inflater = (LayoutInflater) 
-						getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				LayoutInflater inflater = getLayoutInflater();
 				convertView = inflater.inflate(R.layout.order_detail_set_item, null);
 				holder = new ChildViewHolder();
 				holder.tvSetNo = (TextView) convertView.findViewById(R.id.tvSetNo);
@@ -895,7 +876,7 @@ public class MainActivity extends FragmentActivity
 		Calendar c;
 		
 		public HoldBillAdapter(List<MPOSOrderTransaction> transLst){
-			inflater = LayoutInflater.from(MainActivity.this);
+			inflater = getLayoutInflater();
 			this.transLst = transLst;
 			c = Calendar.getInstance();
 		}
@@ -985,8 +966,7 @@ public class MainActivity extends FragmentActivity
 			super.onCreate(savedInstanceState);
 			
 			mDeptId = getArguments().getInt("deptId");
-			mInflater = (LayoutInflater) 
-					getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			mInflater = getActivity().getLayoutInflater();
 		}
 
 		@Override
@@ -1098,7 +1078,7 @@ public class MainActivity extends FragmentActivity
 		private List<Products.Product> mProLst;
 		
 		public ProductSizeAdapter(List<Products.Product> proLst){
-			mInflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			mInflater = getLayoutInflater();
 			mProLst = proLst;
 		}
 		
@@ -1245,7 +1225,7 @@ public class MainActivity extends FragmentActivity
 	}
 
 	public void switchUser() {
-		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+		LayoutInflater inflater = getLayoutInflater();
 		View swUserView = inflater.inflate(R.layout.switch_user_popup, null);
 		final EditText txtUser = (EditText) swUserView.findViewById(R.id.txtUser);
 		final EditText txtPassword = (EditText) swUserView.findViewById(R.id.txtPassword);
@@ -1417,7 +1397,7 @@ public class MainActivity extends FragmentActivity
 
 	private void showHoldBill() {
 		final MPOSOrderTransaction holdTrans = new MPOSOrderTransaction();
-		LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+		LayoutInflater inflater = getLayoutInflater();
 		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
 		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
 		List<MPOSOrderTransaction> billLst = 
@@ -1553,8 +1533,7 @@ public class MainActivity extends FragmentActivity
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					// execute print summary sale task
-					new PrintReport(MainActivity.this, mStaffId, PrintReport.WhatPrint.SUMMARY_SALE).execute();
+					new Thread(new PrintReport(MainActivity.this, mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
 					boolean endday = Utils.endday(MainActivity.this, mShop.getShopId(), 
 							mComputer.getComputerId(), mSessionId, mStaffId, 0, true);
 					if(endday){
@@ -1764,8 +1743,7 @@ public class MainActivity extends FragmentActivity
 	 */
 	private void productSizeDialog(int proId){
 		List<Products.Product> pSizeLst = mProducts.listProductSize(proId);
-		LayoutInflater inflater = (LayoutInflater)
-				this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = getLayoutInflater();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		View sizeView = inflater.inflate(R.layout.product_size, null);
 		ListView lvProSize = (ListView) sizeView.findViewById(R.id.lvProSize);

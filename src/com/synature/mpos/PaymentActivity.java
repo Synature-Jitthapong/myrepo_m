@@ -123,8 +123,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(requestCode == REQUEST_CREDIT_PAY){
-			if(resultCode != 0)
-				mResultCreditCode = resultCode;
+			mResultCreditCode = resultCode;
 		}
 	}
 	
@@ -179,8 +178,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		private LayoutInflater inflater;
 		
 		public PaymentAdapter(){
-			inflater = (LayoutInflater)
-					PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			inflater = getLayoutInflater();
 		}
 
 		@Override
@@ -201,13 +199,11 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			final Payment.PaymentDetail payment = mPayLst.get(position);
-			View rowView = convertView;
-			
-			rowView = inflater.inflate(R.layout.payment_detail_template, null);
-			TextView tvPayType = (TextView) rowView.findViewById(R.id.tvPayType);
-			TextView tvPayDetail = (TextView) rowView.findViewById(R.id.tvPayDetail);
-			TextView tvPayAmount = (TextView) rowView.findViewById(R.id.tvPayAmount);
-			Button imgDel = (Button) rowView.findViewById(R.id.btnDelete);
+			convertView = inflater.inflate(R.layout.payment_detail_template, null);
+			TextView tvPayType = (TextView) convertView.findViewById(R.id.tvPayType);
+			TextView tvPayDetail = (TextView) convertView.findViewById(R.id.tvPayDetail);
+			TextView tvPayAmount = (TextView) convertView.findViewById(R.id.tvPayAmount);
+			Button imgDel = (Button) convertView.findViewById(R.id.btnDelete);
 			
 			tvPayType.setText(payment.getPayTypeName());
 			tvPayDetail.setText(payment.getRemark());
@@ -221,7 +217,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 				
 			});
 			
-			return rowView;
+			return convertView;
 		}
 	}
 	

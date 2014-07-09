@@ -408,8 +408,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				createReport();
 				return true;
 			case R.id.itemPrint:
-				new PrintReport(getActivity(), activity.mDateTo, activity.mDateTo, 
-						activity.mStaffId, PrintReport.WhatPrint.SUMMARY_SALE).execute();
+				new Thread(new PrintReport(getActivity(), activity.mDateTo, activity.mDateTo, 
+						activity.mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -628,8 +628,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				new LoadBillReportTask().execute();
 				return true;
 			case R.id.itemPrint:
-				new PrintReport(getActivity(), mHost.mDateFrom, mHost.mDateTo,
-						PrintReport.WhatPrint.BILL_REPORT).execute();
+				new Thread(new PrintReport(getActivity(), mHost.mDateFrom, mHost.mDateTo,
+						PrintReport.WhatPrint.BILL_REPORT)).start();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -944,9 +944,9 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				new LoadProductReportTask().execute();
 				return true;
 			case R.id.itemPrint:
-				new PrintReport(getActivity(), 
+				new Thread(new PrintReport(getActivity(), 
 						mHost.mDateFrom, mHost.mDateTo,
-						PrintReport.WhatPrint.PRODUCT_REPORT).execute();
+						PrintReport.WhatPrint.PRODUCT_REPORT)).start();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -982,8 +982,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			private LayoutInflater mInflater;
 			
 			public ProductReportAdapter(){
-				mInflater = (LayoutInflater)
-						getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				mInflater = getActivity().getLayoutInflater();
 			}
 			
 			@Override
@@ -1137,14 +1136,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			@Override
 			public View getGroupView(int groupPosition, boolean isExpanded,
 					View convertView, ViewGroup parent) {
-				
-				try {
-					if(!isExpanded)
-						((ExpandableListView) parent).expandGroup(groupPosition);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				ProductReportHeaderHolder groupHolder;
 				if(convertView == null){
 					groupHolder = new ProductReportHeaderHolder();
@@ -1159,6 +1150,13 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				}
 				groupHolder.tvHeader.setText(mReportProduct.getGroupOfProductLst().get(groupPosition).getProductGroupName() + ":" +
 						mReportProduct.getGroupOfProductLst().get(groupPosition).getProductDeptName());
+				try {
+					if(!isExpanded)
+						((ExpandableListView) parent).expandGroup(groupPosition);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				return convertView;
 			}
 

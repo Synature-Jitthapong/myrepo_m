@@ -37,6 +37,12 @@ public class SaleService extends Service{
 		return mBinder;
 	}
 
+	/**
+	 * @param staffId
+	 * @param shopId
+	 * @param computerId
+	 * @param listener
+	 */
 	public void sendEnddaySale(final int staffId, final int shopId, final int computerId, 
 			final ProgressListener listener){
 		final Session sess = new Session(getApplicationContext());
@@ -117,6 +123,13 @@ public class SaleService extends Service{
 		}	
 	}
 	
+	/**
+	 * @param shopId
+	 * @param computerId
+	 * @param staffId
+	 * @param sendAll
+	 * @param listener
+	 */
 	public void sendSale(final int shopId, final int computerId, 
 			final int staffId, boolean sendAll, final ProgressListener listener) {
 		Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
