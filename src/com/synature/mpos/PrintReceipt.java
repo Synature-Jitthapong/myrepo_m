@@ -5,8 +5,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import android.content.Context;
-import android.os.AsyncTask;
-
 import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
 import com.synature.mpos.database.CreditCard;
@@ -23,7 +21,7 @@ import com.synature.pos.Payment;
 import com.synature.pos.ShopData;
 import com.synature.util.Logger;
 
-public class PrintReceipt extends AsyncTask<Void, Void, Void>{
+public class PrintReceipt implements Runnable{
 	
 	public static final String TAG = "PrintReceipt";
 	private Transaction mOrders;
@@ -34,14 +32,12 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	private Staffs mStaff;
 	private CreditCard mCreditCard;
 	private PrintReceiptLog mPrintLog;
-	private PrintStatusListener mPrintListener;
 	private Context mContext;
 	
 	/**
 	 * @param context
-	 * @param listener
 	 */
-	public PrintReceipt(Context context, PrintStatusListener listener){
+	public PrintReceipt(Context context){
 		mContext = context;
 		mOrders = new Transaction(context);
 		mPayment = new PaymentDetail(context);
@@ -51,7 +47,6 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		mStaff = new Staffs(context);
 		mCreditCard = new CreditCard(context);
 		mPrintLog = new PrintReceiptLog(context);
-		mPrintListener = listener;
 	}
 	
 	protected class EPSONPrintReceipt extends EPSONPrinter{
@@ -523,19 +518,9 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		}
 		
 	}
-	
-	@Override
-	protected void onPostExecute(Void result) {
-		mPrintListener.onPrintSuccess();
-	}
 
 	@Override
-	protected void onPreExecute() {
-		mPrintListener.onPrepare();
-	}
-
-	@Override
-	protected Void doInBackground(Void... params) {
+	public void run() {
 		for(PrintReceiptLog.PrintReceipt printReceipt : mPrintLog.listPrintReceiptLog()){
 			try {
 				if(Utils.isInternalPrinterSetting(mContext)){
@@ -554,15 +539,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 				Logger.appendLog(mContext, 
 						Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
 						" Print receipt fail : " + e.getMessage());
-				mPrintListener.onPrintFail(e.getMessage());
 			}
 		}
-		return null;
-	}
-	
-	public static interface PrintStatusListener{
-		void onPrepare();
-		void onPrintSuccess();
-		void onPrintFail(String msg);
 	}
 }
