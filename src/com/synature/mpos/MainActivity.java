@@ -90,7 +90,7 @@ public class MainActivity extends FragmentActivity
 	private SaleService mPartService;
 	private boolean mBound = false;
 	
-	private Thread mSockThread;
+	private Thread mSockThread = null;
 	private ISocketConnection mSockConn;
 	
 	private Products mProducts;
@@ -161,9 +161,14 @@ public class MainActivity extends FragmentActivity
 		super.onStart();
 		Intent intent = new Intent(this, SaleService.class);
 		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);		
-		
-		// start the second display socket thread
-		startSecondDisplayThread();
+
+		/**
+		 * if enabled second display
+		 */
+		if(Utils.isEnableSecondDisplay(this)){
+			// start the second display socket thread
+			startSecondDisplayThread();
+		}
 	}
 
 	@Override
@@ -492,27 +497,30 @@ public class MainActivity extends FragmentActivity
 		}
 	}
 
+	private PrintReceipt.PrintStatusListener mPrintStatusListener = new PrintReceipt.PrintStatusListener(){
+
+		@Override
+		public void onPrepare() {
+		}
+
+		@Override
+		public void onPrintSuccess() {
+		}
+
+		@Override
+		public void onPrintFail(String msg) {
+		}
+		
+	};
+	
 	private void afterPaid(int transactionId, int staffId, double totalPaid, 
 			double change){
-		
+
 		PrintReceiptLog printLog = 
 				new PrintReceiptLog(MainActivity.this);
 		printLog.insertLog(transactionId, staffId);
-		
-		new PrintReceipt(MainActivity.this, new PrintReceipt.PrintStatusListener() {
-			
-			@Override
-			public void onPrintSuccess() {
-			}
-			
-			@Override
-			public void onPrintFail(String msg) {
-			}
-			
-			@Override
-			public void onPrepare() {
-			}
-		}).execute();
+
+		new PrintReceipt(this, mPrintStatusListener).execute();
 		
 		if(change > 0){
 			LayoutInflater inflater = (LayoutInflater) 
@@ -1877,13 +1885,8 @@ public class MainActivity extends FragmentActivity
 	private void startSecondDisplayThread(){
 		// stop if mSockThread is not null
 		stopSecondDisplayThread();
-		/**
-		 * if enabled second display
-		 */
-		if(Utils.isEnableSecondDisplay(this)){
-			mSockThread = new Thread(new SecondDisplayThread());
-			mSockThread.start();
-		}
+		mSockThread = new Thread(new SecondDisplayThread());
+		mSockThread.start();
 	}
 	
 	class SecondDisplayThread implements Runnable{

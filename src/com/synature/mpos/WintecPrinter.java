@@ -4,7 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.synature.util.ThaiLevelText;
-import com.synature.util.ThaiLevelText.OPOSThaiText;
+import com.synature.util.ThaiLevelText.ThaiTextThreeLine;
 
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Printer;
@@ -55,7 +55,7 @@ public abstract class WintecPrinter extends PrinterUtility{
 				data = data.replace("<u>", "");
 			}
 
-    		OPOSThaiText supportThai = ThaiLevelText.parsingThaiLevel(data);
+    		ThaiTextThreeLine supportThai = ThaiLevelText.parsingThaiLevel(data);
     		if(!TextUtils.isEmpty(supportThai.TextLine1))
     			mPrinter.PRN_Print(supportThai.TextLine1, CP_874);
     		mPrinter.PRN_Print(supportThai.TextLine2, CP_874);
@@ -80,6 +80,6 @@ public abstract class WintecPrinter extends PrinterUtility{
 		return empText.toString() + text + empText.toString();
 	}
 	
-	public abstract void prepareDataToPrint(int transactionId);
-	public abstract void prepareDataToPrint();
+	public void prepareDataToPrint(int transactionId){};
+	public void prepareDataToPrint(){};
 }

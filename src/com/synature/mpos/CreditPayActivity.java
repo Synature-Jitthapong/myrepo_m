@@ -37,8 +37,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
-public class CreditPayActivity extends Activity implements TextWatcher, 
-	Runnable{
+public class CreditPayActivity extends Activity implements TextWatcher{
 	
 	public static final String TAG = "CreditPayActivity";
 	
@@ -50,7 +49,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	/*
 	 * Thread for run magnetic reader listener 
 	 */
-	private Thread mMsrThread;
+	private Thread mMsrThread = null;
 
 	private WintecMagneticReader mMsrReader;
 	
@@ -160,6 +159,9 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mPaymentLeft = intent.getDoubleExtra("paymentLeft", 0.0d);
+		
+		mMsrReader = new WintecMagneticReader(this);
+		mMsrThread = new Thread(new MagneticReaderThread());
 	}
 
 	@Override
@@ -167,8 +169,6 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 		super.onStart();
 		// start magnetic reader thread
 		try {
-			mMsrReader = new WintecMagneticReader(this);
-			mMsrThread = new Thread(this);
 			mMsrThread.start();
 			mIsRead = true;
 			Logger.appendLog(this, Utils.LOG_DIR, 
@@ -185,9 +185,14 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	@Override
 	protected void onStop() {
 		super.onStop();
-		mMsrReader.close();
 		mIsRead = false;
 		closeMsrThread();
+	}
+
+	@Override
+	protected void onDestroy() {
+		mMsrReader.close();
+		super.onDestroy();
 	}
 
 	@Override
@@ -340,7 +345,7 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
 										mExpYear, mBankId, mCardTypeId, "");
 								//d.dismiss();
-								Intent intent = new Intent();
+								Intent intent = new Intent(CreditPayActivity.this, PaymentActivity.class);
 								if(mTotalCreditPay >= mPaymentLeft)
 									setResult(PaymentActivity.RESULT_ENOUGH, intent);
 								else
@@ -508,9 +513,14 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	/*
 	 * Close magnetic reader thread
 	 */
-	private void closeMsrThread(){
+	private synchronized void closeMsrThread(){
 		if(mMsrThread != null){
-			mMsrThread.interrupt();
+			try {
+				mMsrThread.interrupt();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			mMsrThread = null;
 		}
 	}
@@ -518,101 +528,104 @@ public class CreditPayActivity extends Activity implements TextWatcher,
 	/*
 	 * Listener for magnetic reader
 	 */
-	@Override
-	public void run() {
-		while(mIsRead){
-			try {
-				final String content = mMsrReader.getTrackData();
-				
-				if(content.length() > 0){
-					Logger.appendLog(getApplicationContext(), 
-						Utils.LOG_DIR, Utils.LOG_FILE_NAME,
-						"Content : " + content);
-					runOnUiThread(new Runnable(){
+	private class MagneticReaderThread implements Runnable{
 
-						@Override
-						public void run() {
-							try {
-								CreditCardParser parser = new CreditCardParser();
-								if(parser.parser(content)){
-									String cardNo = parser.getCardNo();
-									String cardHolderName = parser.getCardHolderName();
-									String expDate = parser.getExpDate();
-									
-									mTxtCardNoSeq1.setText(null);
-									mTxtCardNoSeq2.setText(null);
-									mTxtCardNoSeq3.setText(null);
-									mTxtCardNoSeq4.setText(null);
-									mTxtCardHolderName.setText(null);
-									
-									mTxtCardNoSeq1.setText(cardNo.substring(0, 4));
-									mTxtCardNoSeq2.setText(cardNo.substring(4, 8));
-									mTxtCardNoSeq3.setText(cardNo.substring(8, 12));
-									mTxtCardNoSeq4.setText(cardNo.substring(12, 16));
-									mTxtCardHolderName.setText(cardHolderName);
-									
-									try {
-										ArrayAdapter yearAdapter = (ArrayAdapter) mSpExpYear.getAdapter();
-										ArrayAdapter monthAdapter = (ArrayAdapter) mSpExpMonth.getAdapter();
-										int yearPosition = yearAdapter.getPosition("20" + expDate.substring(0, 2));
-										int monthPosition = monthAdapter.getPosition(expDate.substring(2, 4));
-										mSpExpYear.setSelection(yearPosition);
-										mSpExpMonth.setSelection(monthPosition);
-									} catch (Exception e1) {
-										// TODO Auto-generated catch block
-										e1.printStackTrace();
-									}
-									
-									try {
-										VerifyCardType.CardType cardType = VerifyCardType.checkCardType(cardNo); 
-										switch(cardType){
-										case VISA:
-											mSpCardType.setSelection(1);
-											break;
-										case MASTER:
-											mSpCardType.setSelection(2);
-											break;
-										default:
-											mSpCardType.setSelection(0);
+		@Override
+		public void run() {
+			while(mIsRead){
+				try {
+					final String content = mMsrReader.getTrackData();
+					
+					if(content.length() > 0){
+						Logger.appendLog(getApplicationContext(), 
+							Utils.LOG_DIR, Utils.LOG_FILE_NAME,
+							"Content : " + content);
+						runOnUiThread(new Runnable(){
+
+							@Override
+							public void run() {
+								try {
+									CreditCardParser parser = new CreditCardParser();
+									if(parser.parser(content)){
+										String cardNo = parser.getCardNo();
+										String cardHolderName = parser.getCardHolderName();
+										String expDate = parser.getExpDate();
+										
+										mTxtCardNoSeq1.setText(null);
+										mTxtCardNoSeq2.setText(null);
+										mTxtCardNoSeq3.setText(null);
+										mTxtCardNoSeq4.setText(null);
+										mTxtCardHolderName.setText(null);
+										
+										mTxtCardNoSeq1.setText(cardNo.substring(0, 4));
+										mTxtCardNoSeq2.setText(cardNo.substring(4, 8));
+										mTxtCardNoSeq3.setText(cardNo.substring(8, 12));
+										mTxtCardNoSeq4.setText(cardNo.substring(12, 16));
+										mTxtCardHolderName.setText(cardHolderName);
+										
+										try {
+											ArrayAdapter yearAdapter = (ArrayAdapter) mSpExpYear.getAdapter();
+											ArrayAdapter monthAdapter = (ArrayAdapter) mSpExpMonth.getAdapter();
+											int yearPosition = yearAdapter.getPosition("20" + expDate.substring(0, 2));
+											int monthPosition = monthAdapter.getPosition(expDate.substring(2, 4));
+											mSpExpYear.setSelection(yearPosition);
+											mSpExpMonth.setSelection(monthPosition);
+										} catch (Exception e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
 										}
-									} catch (Exception e) {
+										
+										try {
+											VerifyCardType.CardType cardType = VerifyCardType.checkCardType(cardNo); 
+											switch(cardType){
+											case VISA:
+												mSpCardType.setSelection(1);
+												break;
+											case MASTER:
+												mSpCardType.setSelection(2);
+												break;
+											default:
+												mSpCardType.setSelection(0);
+											}
+										} catch (Exception e) {
+											Logger.appendLog(getApplicationContext(), 
+													Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
+													"Error set selected spinner card type");
+										}
+										
 										Logger.appendLog(getApplicationContext(), 
 												Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
-												"Error set selected spinner card type");
+												"CARD NO : " + cardNo + " \n " +
+												"CARD HOLDER NAME : " + cardHolderName + "\n" +
+												"EXP DATE : " + expDate);	
 									}
-									
+								} catch (Exception e) {
+									new AlertDialog.Builder(CreditPayActivity.this)
+									.setTitle(R.string.credit_card)
+									.setMessage("Error parser card data " + e.getMessage())
+									.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+										}
+									})
+									.show();
 									Logger.appendLog(getApplicationContext(), 
 											Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
-											"CARD NO : " + cardNo + " \n " +
-											"CARD HOLDER NAME : " + cardHolderName + "\n" +
-											"EXP DATE : " + expDate);	
+											"Error " + e.getMessage());
 								}
-							} catch (Exception e) {
-								new AlertDialog.Builder(CreditPayActivity.this)
-								.setTitle(R.string.credit_card)
-								.setMessage("Error parser card data " + e.getMessage())
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-									}
-								})
-								.show();
-								Logger.appendLog(getApplicationContext(), 
-										Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
-										"Error " + e.getMessage());
 							}
-						}
-						
-					});
+							
+						});
+					}
+				} catch (Exception e) {
+					Logger.appendLog(getApplicationContext(), 
+							Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
+							" Error when read data from magnetic card : " + e.getMessage());
 				}
-			} catch (Exception e) {
-				Logger.appendLog(getApplicationContext(), 
-						Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
-						" Error when read data from magnetic card : " + e.getMessage());
 			}
 		}
-	}
+	};
 
 	// debug test
 	private void test(){

@@ -40,14 +40,12 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	
 	public static final int REQUEST_CREDIT_PAY = 1;
 	public static final int RESULT_ENOUGH = 2;
-	public static final int RESULT_NOT_ENOUGH = -1;
+	public static final int RESULT_NOT_ENOUGH = 3;
 
 	/*
 	 * credit pay not enough result code
 	 */
 	private int mResultCreditCode = RESULT_NOT_ENOUGH;
-	
-	private WintecCashDrawer mDrw;
 	
 	private PaymentDetail mPayment;
 	private Transaction mTrans;
@@ -120,13 +118,13 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mLvPayment.setAdapter(mPaymentAdapter);
 		mGvPaymentButton.setAdapter(mPaymentButtonAdapter);
 		loadPayType();
-		mDrw = new WintecCashDrawer(this);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(requestCode == REQUEST_CREDIT_PAY){
-			mResultCreditCode = resultCode;
+			if(resultCode != 0)
+				mResultCreditCode = resultCode;
 		}
 	}
 	
@@ -146,7 +144,6 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 
 	@Override
 	protected void onDestroy() {
-		mDrw.close();
 		super.onDestroy();
 	}
 
@@ -278,7 +275,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			intent.putExtra("transactionId", mTransactionId);
 			intent.putExtra("computerId", mComputerId);
 			intent.putExtra("paymentLeft", mPaymentLeft);
-			startActivityForResult(intent, 1);
+			startActivityForResult(intent, REQUEST_CREDIT_PAY);
 		}
 	}
 
@@ -286,7 +283,9 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		if(mTotalPaid >=mTotalSalePrice){
 
 			// open cash drawer
-			mDrw.openCashDrawer();
+			WintecCashDrawer drw = new WintecCashDrawer(this);
+			drw.openCashDrawer();
+			drw.close();
 			
 			mTrans.closeTransaction(mTransactionId, mStaffId);
 			
@@ -296,7 +295,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			
 			mChange = mTotalPaid - mTotalSalePrice;
 			
-			Intent intent = new Intent();
+			Intent intent = new Intent(this, MainActivity.class);
 			intent.putExtra("totalPaid", mTotalPaid);
 			intent.putExtra("change", mChange);
 			intent.putExtra("transactionId", mTransactionId);

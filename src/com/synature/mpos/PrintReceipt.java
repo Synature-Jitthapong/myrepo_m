@@ -33,6 +33,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	private Formater mFormat;
 	private Staffs mStaff;
 	private CreditCard mCreditCard;
+	private PrintReceiptLog mPrintLog;
 	private PrintStatusListener mPrintListener;
 	private Context mContext;
 	
@@ -49,6 +50,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		mHeaderFooter = new HeaderFooterReceipt(context);
 		mStaff = new Staffs(context);
 		mCreditCard = new CreditCard(context);
+		mPrintLog = new PrintReceiptLog(context);
 		mPrintListener = listener;
 	}
 	
@@ -309,7 +311,6 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 
 		public WintecPrintReceipt(Context context) {
 			super(context);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
@@ -520,10 +521,6 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 				mBuilder.append("\n");
 			}
 		}
-
-		@Override
-		public void prepareDataToPrint() {
-		}
 		
 	}
 	
@@ -539,8 +536,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		PrintReceiptLog printLog = new PrintReceiptLog(mContext.getApplicationContext());
-		for(PrintReceiptLog.PrintReceipt printReceipt : printLog.listPrintReceiptLog()){
+		for(PrintReceiptLog.PrintReceipt printReceipt : mPrintLog.listPrintReceiptLog()){
 			try {
 				if(Utils.isInternalPrinterSetting(mContext)){
 					WintecPrintReceipt wt = new WintecPrintReceipt(mContext);
@@ -551,10 +547,10 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 					ep.prepareDataToPrint(printReceipt.getTransactionId());
 					ep.print();
 				}
-				printLog.deletePrintStatus(printReceipt.getPriceReceiptLogId());
+				mPrintLog.deletePrintStatus(printReceipt.getPriceReceiptLogId());
 				
 			} catch (Exception e) {
-				printLog.updatePrintStatus(printReceipt.getPriceReceiptLogId(), PrintReceiptLog.PRINT_NOT_SUCCESS);
+				mPrintLog.updatePrintStatus(printReceipt.getPriceReceiptLogId(), PrintReceiptLog.PRINT_NOT_SUCCESS);
 				Logger.appendLog(mContext, 
 						Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
 						" Print receipt fail : " + e.getMessage());
