@@ -508,6 +508,7 @@ public class LoginActivity extends Activity{
 		private TextView mTvShopName;
 		private TextView mTvSaleDate;
 		private TextView mTvLastSession;
+		private TextView mTvDeviceCode;
 		
 		private int mNumClick = 0;
 
@@ -530,6 +531,7 @@ public class LoginActivity extends Activity{
 			mTvShopName = (TextView) rootView.findViewById(R.id.tvShopName);
 			mTvSaleDate = (TextView) rootView.findViewById(R.id.tvSaleDate);
 			mTvLastSession = (TextView) rootView.findViewById(R.id.tvLastSession);
+			mTvDeviceCode = (TextView) rootView.findViewById(R.id.tvDeviceCode);
 			mBtnSetting = (ImageButton) rootView.findViewById(R.id.btnSetting);
 			
 			mTxtUser.setSelectAllOnFocus(true);
@@ -567,9 +569,7 @@ public class LoginActivity extends Activity{
 				
 			});
 
-			((TextView) rootView.findViewById(R.id.tvDeviceCode))
-				.setText(getString(R.string.device_code) + ":" +
-						Utils.getDeviceCode(getActivity()));
+			mTvDeviceCode.setText(Utils.getDeviceCode(getActivity()));
 			
 			try {
 				Shop shop = ((LoginActivity) getActivity()).mShop;

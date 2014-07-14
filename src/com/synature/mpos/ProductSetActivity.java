@@ -220,7 +220,7 @@ public class ProductSetActivity extends Activity{
 	
 	private void cancelOrderSet(){
 		if(getIntent().getStringExtra("mode").equals(ADD_MODE)){
-			mTrans.cancelOrder(mTransactionId);
+			mTrans.deleteOrder(mTransactionId, mOrderDetailId);
 			mTrans.getWritableDatabase().setTransactionSuccessful();
 		}
 		mTrans.getWritableDatabase().endTransaction();

@@ -180,10 +180,18 @@ public class MPOSWebServiceClient {
 	
 	public static class SendPartialSaleTransaction extends SendSaleTransaction{
 
-		public SendPartialSaleTransaction(Context context, int staffId, int shopId, int computerId,
-				String jsonSale, ProgressListener listener) {
+		/**
+		 * @param context
+		 * @param shopId
+		 * @param computerId
+		 * @param staffId
+		 * @param jsonSale
+		 * @param listener
+		 */
+		public SendPartialSaleTransaction(Context context, int shopId, int computerId,
+				int staffId, String jsonSale, ProgressListener listener) {
 			super(context, MPOSMainService.SEND_PARTIAL_SALE_TRANS_METHOD, 
-					staffId, shopId, computerId, jsonSale, listener);
+					shopId, computerId, staffId, jsonSale, listener);
 		}
 	}
 	
@@ -192,6 +200,15 @@ public class MPOSWebServiceClient {
 		
 		private ProgressListener mListener;
 		
+		/**
+		 * @param context
+		 * @param method
+		 * @param shopId
+		 * @param computerId
+		 * @param staffId
+		 * @param jsonSale
+		 * @param listener
+		 */
 		public SendSaleTransaction(Context context, String method, int shopId, int computerId,
 				int staffId, String jsonSale, ProgressListener listener) {
 			super(context, method);

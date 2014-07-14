@@ -5,12 +5,14 @@ import java.util.Calendar;
 import java.util.List;
 
 import android.content.Context;
+
 import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
 import com.synature.mpos.database.CreditCard;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.HeaderFooterReceipt;
 import com.synature.mpos.database.MPOSOrderTransaction;
+import com.synature.mpos.database.MenuComment;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.PrintReceiptLog;
 import com.synature.mpos.database.Products;
@@ -124,6 +126,25 @@ public class PrintReceipt implements Runnable{
 		    				calculateLength(productName) + calculateLength(productPrice)));
 		    		mBuilder.addText(productPrice);
 		    		mBuilder.addText("\n");
+		    		
+		    		// order comment
+		    		if(order.getOrderCommentLst() != null){
+		    			for(MenuComment.Comment comment : order.getOrderCommentLst()){
+		    				if(comment.getCommentPrice() > 0){
+			    				String commentName = comment.getCommentName();
+			    				String commentQty = "   " + mFormat.qtyFormat(comment.getCommentQty()) + "x ";
+			    				String commentPrice = mFormat.currencyFormat(comment.getCommentPrice());
+			    				mBuilder.addText(commentQty);
+			    				mBuilder.addText(commentName);
+			    				mBuilder.addText(createHorizontalSpace(
+			    						calculateLength(commentQty) + 
+			    						calculateLength(commentName) + 
+			    						calculateLength(commentPrice)));
+			    				mBuilder.addText(commentPrice);
+			    				mBuilder.addText("\n");
+		    				}
+		    			}
+		    		}
 		    		
 		    		// orderSet
 		    		if(order.getOrderSetDetailLst() != null){
@@ -362,6 +383,25 @@ public class PrintReceipt implements Runnable{
 	    		mBuilder.append(productPrice);
 	    		mBuilder.append("\n");
 	    		
+	    		// order comment
+	    		if(order.getOrderCommentLst() != null){
+	    			for(MenuComment.Comment comment : order.getOrderCommentLst()){
+	    				if(comment.getCommentPrice() > 0){
+		    				String commentName = comment.getCommentName();
+		    				String commentQty = "   " + mFormat.qtyFormat(comment.getCommentQty()) + "x ";
+		    				String commentPrice = mFormat.currencyFormat(comment.getCommentPrice());
+		    				mBuilder.append(commentQty);
+		    				mBuilder.append(commentName);
+		    				mBuilder.append(createHorizontalSpace(
+		    						calculateLength(commentQty) + 
+		    						calculateLength(commentName) + 
+		    						calculateLength(commentPrice)));
+		    				mBuilder.append(commentPrice);
+		    				mBuilder.append("\n");
+	    				}
+	    			}
+	    		}
+	    			
 	    		// orderSet
 	    		if(order.getOrderSetDetailLst() != null){
 	    			for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail :

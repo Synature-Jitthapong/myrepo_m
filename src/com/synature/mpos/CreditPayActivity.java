@@ -159,15 +159,14 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mPaymentLeft = intent.getDoubleExtra("paymentLeft", 0.0d);
-		
-		mMsrReader = new WintecMagneticReader(this);
-		mMsrThread = new Thread(new MagneticReaderThread());
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
 		// start magnetic reader thread
+		mMsrReader = new WintecMagneticReader(getApplicationContext());
+		mMsrThread = new Thread(new MagneticReaderThread());
 		try {
 			mMsrThread.start();
 			mIsRead = true;
@@ -191,7 +190,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 
 	@Override
 	protected void onDestroy() {
-		mMsrReader.close();
+		//mMsrReader.close();
 		super.onDestroy();
 	}
 
@@ -515,12 +514,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	 */
 	private synchronized void closeMsrThread(){
 		if(mMsrThread != null){
-			try {
-				mMsrThread.interrupt();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			mMsrThread.interrupt();
 			mMsrThread = null;
 		}
 	}

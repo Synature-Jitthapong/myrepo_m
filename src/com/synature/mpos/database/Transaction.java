@@ -226,10 +226,10 @@ public class Transaction extends MPOSDatabase {
 						+ " AS " + OrderDetailTable.COLUMN_TOTAL_VAT + ", "
 						+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") "
 						+ " AS " + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ","
-						+ "(SELECT SUM(" + ProductTable.COLUMN_PRODUCT_PRICE + "*" + OrderSetTable.COLUMN_ORDER_SET_QTY + ")"
+						+ "(SELECT SUM(" + OrderSetTable.COLUMN_ORDER_SET_PRICE + "*" + OrderSetTable.COLUMN_ORDER_SET_QTY + ")"
 						+ " FROM " + OrderSetTable.TABLE_ORDER_SET
 						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?) AS TotalSetPrice,"
-						+ "( SELECT SUM(" + ProductTable.COLUMN_PRODUCT_PRICE + "*" + OrderDetailTable.COLUMN_ORDER_QTY + ")"
+						+ "( SELECT SUM(" + OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE + "*" + OrderCommentTable.COLUMN_ORDER_COMMENT_QTY + ")"
 						+ " FROM " + OrderCommentTable.TABLE_ORDER_COMMENT
 						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?) AS TotalCommentPrice"
 						+ " FROM " + OrderDetailTable.TABLE_ORDER_TMP
@@ -241,9 +241,11 @@ public class Transaction extends MPOSDatabase {
 		if (cursor.moveToFirst()) {
 			double totalSetPrice = cursor.getDouble(cursor.getColumnIndex("TotalSetPrice"));
 			double totalCommentPrice = cursor.getDouble(cursor.getColumnIndex("TotalCommentPrice"));
+			double vatExclude = cursor.getDouble(cursor
+					.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE));
 			double totalSalePrice = 
 					cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)) 
-					+ totalSetPrice + totalCommentPrice;
+					+ totalSetPrice + totalCommentPrice + vatExclude;
 			double totalRetailPrice = 
 					cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE))
 					+ totalSetPrice + totalCommentPrice;
@@ -255,9 +257,7 @@ public class Transaction extends MPOSDatabase {
 			orderDetail.setTotalSalePrice(totalSalePrice);
 			orderDetail.setVat(cursor.getDouble(cursor
 					.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT)));
-			orderDetail
-					.setVatExclude(cursor.getDouble(cursor
-							.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE)));
+			orderDetail.setVatExclude(vatExclude);
 		}
 		cursor.close();
 		return orderDetail;
@@ -370,10 +370,10 @@ public class Transaction extends MPOSDatabase {
 						+ " AS " + OrderDetailTable.COLUMN_TOTAL_VAT + ", "
 						+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") "
 						+ " AS " + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ","
-						+ "(SELECT SUM(" + ProductTable.COLUMN_PRODUCT_PRICE + "*" + OrderSetTable.COLUMN_ORDER_SET_QTY + ")"
+						+ "(SELECT SUM(" + OrderSetTable.COLUMN_ORDER_SET_PRICE + "*" + OrderSetTable.COLUMN_ORDER_SET_QTY + ")"
 						+ " FROM " + OrderSetTable.TABLE_ORDER_SET
 						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?) AS TotalSetPrice,"
-						+ "( SELECT SUM(" + ProductTable.COLUMN_PRODUCT_PRICE + "*" + OrderDetailTable.COLUMN_ORDER_QTY + ")"
+						+ "( SELECT SUM(" + OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE + "*" + OrderCommentTable.COLUMN_ORDER_COMMENT_QTY + ")"
 						+ " FROM " + OrderCommentTable.TABLE_ORDER_COMMENT
 						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?) AS TotalCommentPrice"
 						+ " FROM " + OrderDetailTable.TABLE_ORDER 
@@ -698,11 +698,18 @@ public class Transaction extends MPOSDatabase {
 				.getColumnIndex(OrderDetailTable.COLUMN_DISCOUNT_TYPE)));
 		orderDetail.setOrderComment(cursor.getString(cursor
 				.getColumnIndex(BaseColumn.COLUMN_REMARK)));
+		
 		// generate order set detail
 		List<MPOSOrderTransaction.OrderSet.OrderSetDetail> orderSetDetailLst = listOrderSetDetailGroupByProduct(
 				orderDetail.getTransactionId(), orderDetail.getOrderDetailId());
 		if (orderSetDetailLst.size() > 0) {
 			orderDetail.setOrderSetDetailLst(orderSetDetailLst);
+		}
+		// list order comment
+		List<MenuComment.Comment> commentLst = listOrderComment(
+				orderDetail.getTransactionId(), orderDetail.getOrderDetailId());
+		if(commentLst.size() > 0){
+			orderDetail.setOrderCommentLst(commentLst);
 		}
 		return orderDetail;
 	}
@@ -1177,10 +1184,13 @@ public class Transaction extends MPOSDatabase {
 		return getWritableDatabase().update(
 				OrderTransactionTable.TABLE_ORDER_TRANS,
 				cv,
-				OrderTransactionTable.COLUMN_SALE_DATE + "=?" + " AND "
-						+ OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ",
-				new String[] { saleDate, String.valueOf(TRANS_STATUS_SUCCESS),
-						String.valueOf(TRANS_STATUS_VOID) });
+				OrderTransactionTable.COLUMN_SALE_DATE + "=?" 
+				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) "
+				+ " AND " + COLUMN_SEND_STATUS + "=?",
+				new String[] { 
+						saleDate, String.valueOf(TRANS_STATUS_SUCCESS),
+						String.valueOf(TRANS_STATUS_VOID),
+						String.valueOf(NOT_SEND)});
 	}
 
 	/**

@@ -67,7 +67,7 @@ public class MPOSDatabase extends BaseColumn{
 	public static class MPOSOpenHelper extends SQLiteOpenHelper {
 		
 		private static final String DB_NAME = "mpos.db";
-		private static final int DB_VERSION = 7;
+		private static final int DB_VERSION = 8;
 
 		private static MPOSOpenHelper sHelper;
 

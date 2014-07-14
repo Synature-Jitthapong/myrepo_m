@@ -22,6 +22,7 @@ public class WintecMagneticReader{
 	}
 	
 	public void close(){
-		mMsr.MSR_Close();
+		if(mMsr != null)
+			mMsr.MSR_Close();
 	}
 }

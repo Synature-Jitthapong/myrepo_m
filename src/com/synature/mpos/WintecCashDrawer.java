@@ -18,6 +18,7 @@ public class WintecCashDrawer{
 	}
 	
 	public void close(){
-		mDrw.DRW_Close();
+		if(mDrw != null)
+			mDrw.DRW_Close();
 	}
 }

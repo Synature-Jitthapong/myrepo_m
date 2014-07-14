@@ -67,7 +67,7 @@ public class SaleService extends Service{
 						
 						new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-								staffId, shopId, computerId, jsonSale, new ProgressListener() {
+								shopId, computerId, staffId, jsonSale, new ProgressListener() {
 		
 									@Override
 									public void onError(String mesg) {
@@ -159,7 +159,7 @@ public class SaleService extends Service{
 					JSONSaleLogFile.appendSale(getApplicationContext(), jsonSale);
 					
 					new MPOSWebServiceClient.SendPartialSaleTransaction(getApplicationContext(), 
-							staffId, shopId, computerId, jsonSale, new ProgressListener() {
+							shopId, computerId, staffId, jsonSale, new ProgressListener() {
 						@Override
 						public void onPre() {
 						}

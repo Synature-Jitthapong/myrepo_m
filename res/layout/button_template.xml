@@ -4,13 +4,15 @@
     android:layout_height="match_parent" >
 
     <Button
-        android:id="@+id/btnCommentMinus"
+        android:id="@+id/btnPayment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_margin="@dimen/medium_space" />
+        android:layout_margin="4dp"
+        android:textAppearance="?android:attr/textAppearanceLargeInverse"
+        android:textStyle="bold" />
 
 </RelativeLayout>

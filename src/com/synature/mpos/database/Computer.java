@@ -37,6 +37,7 @@ public class Computer extends MPOSDatabase{
 			computer.setDeviceCode(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_DEVICE_CODE)));
 			computer.setIsMainComputer(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_IS_MAIN_COMPUTER)));
 			computer.setRegistrationNumber(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_REGISTER_NUMBER)));
+			computer.setDocumentTypeHeader(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_DOC_TYPE_HEADER)));
 			cursor.moveToNext();
 		}
 		cursor.close();
@@ -54,6 +55,7 @@ public class Computer extends MPOSDatabase{
 				cv.put(ComputerTable.COLUMN_DEVICE_CODE, comp.getDeviceCode());
 				cv.put(ComputerTable.COLUMN_REGISTER_NUMBER, comp.getRegistrationNumber());
 				cv.put(ComputerTable.COLUMN_IS_MAIN_COMPUTER, comp.getIsMainComputer());
+				cv.put(ComputerTable.COLUMN_DOC_TYPE_HEADER, comp.getDocumentTypeHeader());
 				getWritableDatabase().insertOrThrow(ComputerTable.TABLE_COMPUTER, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();

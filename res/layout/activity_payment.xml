@@ -39,14 +39,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:clickable="false"
                 android:ems="5"
-                android:enabled="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:gravity="right|center_vertical"
                 android:inputType="numberSigned"
-                android:textAppearance="@style/HeaderText"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/holo_blue_dark"
                 android:textSize="@dimen/larger_text_size"
                 android:textStyle="bold" />
 
@@ -160,6 +159,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
                     android:layout_toRightOf="@+id/textView8"
+                    android:clickable="false"
                     android:ems="5"
                     android:enabled="false"
                     android:focusable="false"
@@ -180,6 +180,7 @@
                     android:layout_alignLeft="@+id/txtTotalPaid"
                     android:layout_alignParentRight="true"
                     android:layout_below="@+id/txtTotalPaid"
+                    android:clickable="false"
                     android:ems="5"
                     android:enabled="false"
                     android:focusable="false"
@@ -197,12 +198,11 @@
                     android:layout_alignLeft="@+id/txtPaymentLeft"
                     android:layout_alignParentRight="true"
                     android:layout_below="@+id/txtPaymentLeft"
+                    android:clickable="false"
                     android:ems="5"
-                    android:enabled="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:textAppearance="?android:attr/textAppearanceLargeInverse"
-                    android:textColor="@android:color/black"
                     android:textStyle="bold" />
 
                 <TextView
@@ -225,13 +225,16 @@
             android:layout_height="match_parent"
             android:layout_margin="2dp"
             android:layout_weight="1"
+            android:divider="@android:drawable/divider_horizontal_bright"
             android:gravity="center"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:showDividers="middle" >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
+                android:layout_weight="1"
                 android:baselineAligned="false" >
 
                 <TableLayout
@@ -460,6 +463,24 @@
                     </GridView>
                 </LinearLayout>
             </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <Button
+                    android:id="@+id/btnConfirm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginRight="8dp"
+                    android:minHeight="96dp"
+                    android:minWidth="128dp"
+                    android:text="@string/confirm"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
 
         </LinearLayout>
 

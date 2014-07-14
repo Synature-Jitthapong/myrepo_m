@@ -23,6 +23,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:text="@string/total_price"
+                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
@@ -34,8 +35,8 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/black"
-                android:textSize="32sp"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="@dimen/larger_text_size"
                 android:textStyle="bold" >
 
                 <requestFocus />
@@ -54,6 +55,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:text="@string/amount"
+                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
@@ -65,7 +67,7 @@
                 android:inputType="numberSigned|numberDecimal"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@android:color/black"
-                android:textSize="32sp"
+                android:textSize="@dimen/large_text_size"
                 android:textStyle="bold" />
         </TableRow>
 
@@ -81,6 +83,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right|center_vertical"
                 android:text="@string/credit_card_no"
+                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <LinearLayout
@@ -98,7 +101,7 @@
                     android:inputType="number"
                     android:lines="1"
                     android:maxLength="4"
-                    android:textSize="32sp" />
+                    android:textSize="@dimen/large_text_size" />
 
                 <EditText
                     android:id="@+id/txtCardNoSeq2"
@@ -109,7 +112,7 @@
                     android:inputType="number"
                     android:lines="1"
                     android:maxLength="4"
-                    android:textSize="32sp" />
+                    android:textSize="@dimen/large_text_size" />
 
                 <EditText
                     android:id="@+id/txtCardNoSeq3"
@@ -120,7 +123,7 @@
                     android:inputType="number"
                     android:lines="1"
                     android:maxLength="4"
-                    android:textSize="32sp" />
+                    android:textSize="@dimen/large_text_size" />
 
                 <EditText
                     android:id="@+id/txtCardNoSeq4"
@@ -131,7 +134,7 @@
                     android:inputType="number"
                     android:lines="1"
                     android:maxLength="4"
-                    android:textSize="32sp" />
+                    android:textSize="@dimen/large_text_size" />
             </LinearLayout>
         </TableRow>
 
@@ -147,6 +150,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right|center_vertical"
                 android:text="@string/card_type"
+                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <LinearLayout
@@ -173,6 +177,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right|center_vertical"
                 android:text="@string/card_holder_name"
+                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
@@ -180,7 +185,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="5"
-                android:textSize="32sp" />
+                android:textSize="@dimen/large_text_size" />
 
         </TableRow>
 
@@ -196,6 +201,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right|center_vertical"
                 android:text="@string/bank"
+                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <LinearLayout
@@ -222,6 +228,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right|center_vertical"
                 android:text="@string/expire_date"
+                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <LinearLayout

@@ -16,11 +16,6 @@ public abstract class WintecPrinter extends PrinterUtility{
 	 */
 	public static final String ISO_8859_11 = "x-iso-8859-11";
 	
-	/**
-	 * IBM 874
-	 */
-	public static final String CP_874 = "Cp874";
-	
 	protected Context mContext;
 	protected StringBuilder mBuilder;
 	protected Printer mPrinter;
@@ -57,10 +52,10 @@ public abstract class WintecPrinter extends PrinterUtility{
 
     		ThaiTextThreeLine supportThai = ThaiLevelText.parsingThaiLevel(data);
     		if(!TextUtils.isEmpty(supportThai.TextLine1))
-    			mPrinter.PRN_Print(supportThai.TextLine1, CP_874);
-    		mPrinter.PRN_Print(supportThai.TextLine2, CP_874);
+    			mPrinter.PRN_Print(supportThai.TextLine1, ISO_8859_11);
+    		mPrinter.PRN_Print(supportThai.TextLine2, ISO_8859_11);
     		if(!TextUtils.isEmpty(supportThai.TextLine3))
-    			mPrinter.PRN_Print(supportThai.TextLine3, CP_874);
+    			mPrinter.PRN_Print(supportThai.TextLine3, ISO_8859_11);
 		}
     	mPrinter.PRN_PrintAndFeedLine(6);		
     	mPrinter.PRN_HalfCutPaper();
@@ -68,7 +63,8 @@ public abstract class WintecPrinter extends PrinterUtility{
 	}
 	
 	private void close(){
-    	mPrinter.PRN_Close();
+		if(mPrinter != null)
+			mPrinter.PRN_Close();
 	}
 	
 	private static String adjustAlignCenter(String text){

@@ -1,6 +1,7 @@
 package com.synature.mpos.database;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.Utils;
@@ -324,9 +325,9 @@ public class SaleTransaction extends MPOSDatabase{
 				} while (cursor.moveToNext());
 			} else {
 				saleSessEnd.setDtSessionDate(mGlobal.dateTimeFormat(
-						"", "yyyy-MM-dd"));
+						mSessionDate, "yyyy-MM-dd"));
 				saleSessEnd.setDtEndDayDateTime(mGlobal.dateTimeFormat(
-						"", "yyyy-MM-dd HH:mm:ss"));
+						mSessionDate, "yyyy-MM-dd HH:mm:ss"));
 				saleSessEnd.setfTotalAmountReceipt(Utils.fixesDigitLength(mGlobal, 4, 0.0d));
 				saleSessEnd.setiTotalQtyReceipt(0);
 			}

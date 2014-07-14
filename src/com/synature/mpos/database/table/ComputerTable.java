@@ -10,6 +10,7 @@ public class ComputerTable{
 	public static final String COLUMN_DEVICE_CODE = "device_code";
 	public static final String COLUMN_REGISTER_NUMBER = "register_number";
 	public static final String COLUMN_IS_MAIN_COMPUTER = "ismain_computer";
+	public static final String COLUMN_DOC_TYPE_HEADER = "document_type_header";
 	
 	private static final String SQL_CREATE =
 			"CREATE TABLE " + TABLE_COMPUTER
@@ -18,6 +19,7 @@ public class ComputerTable{
 			+ COLUMN_DEVICE_CODE + " TEXT, "
 			+ COLUMN_REGISTER_NUMBER + " TEXT, " 
 			+ COLUMN_IS_MAIN_COMPUTER + " INTEGER DEFAULT 0, " 
+			+ COLUMN_DOC_TYPE_HEADER + " TEXT, "
 			+ "PRIMARY KEY (" + COLUMN_COMPUTER_ID + ") );";
 	
 	public static void onCreate(SQLiteDatabase db) {

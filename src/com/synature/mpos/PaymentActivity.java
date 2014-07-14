@@ -34,6 +34,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class PaymentActivity extends Activity  implements OnClickListener{
@@ -72,6 +73,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	private EditText mTxtTotalPrice;
 	private EditText mTxtChange;
 	private GridView mGvPaymentButton;
+	private Button mBtnConfirm;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -86,7 +88,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 	    LayoutParams params = getWindow().getAttributes();
-	    params.width = WindowManager.LayoutParams.MATCH_PARENT;
+	    params.width = getResources().getInteger(R.integer.activity_dialog_width);
 	    params.height= getResources().getInteger(R.integer.activity_dialog_height);
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
@@ -101,6 +103,8 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
 		mTxtChange = (EditText) findViewById(R.id.txtChange);
 		mGvPaymentButton = (GridView) findViewById(R.id.gridView1);
+		mBtnConfirm = (Button) findViewById(R.id.btnConfirm);
+		mBtnConfirm.setOnClickListener(mOnConfirmClick);
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -152,6 +156,15 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		return true;
 	}
 
+	OnClickListener mOnConfirmClick = new OnClickListener(){
+
+		@Override
+		public void onClick(View arg0) {
+			confirm();
+		}
+		
+	};
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
@@ -279,7 +292,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		if(mTotalPaid >=mTotalSalePrice){
 
 			// open cash drawer
-			WintecCashDrawer drw = new WintecCashDrawer(this);
+			WintecCashDrawer drw = new WintecCashDrawer(getApplicationContext());
 			drw.openCashDrawer();
 			drw.close();
 			
@@ -493,7 +506,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			if(convertView == null){
 				holder = new ViewHolder();
 				convertView = mInflater.inflate(R.layout.button_template, null);
-				holder.btnPayment = (Button) convertView.findViewById(R.id.btnCommentMinus);
+				holder.btnPayment = (Button) convertView.findViewById(R.id.btnPayment);
 				holder.btnPayment.setMinWidth(128);
 				holder.btnPayment.setMinHeight(96);
 				convertView.setTag(holder);

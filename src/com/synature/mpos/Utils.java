@@ -1,6 +1,8 @@
 package com.synature.mpos;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,6 +19,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -581,6 +584,24 @@ public class Utils {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_SHOW_MENU_IMG, true);
+	}
+	
+	public static void shutdown(){
+		Process chperm;
+		try {
+			chperm = Runtime.getRuntime().exec("su");
+			DataOutputStream os = new DataOutputStream(chperm.getOutputStream());
+
+			os.writeBytes("shutdown\n");
+			os.flush();
+
+			chperm.waitFor();
+
+		} catch (IOException e) {
+			Log.d("Shutdown", e.getMessage());
+		} catch (InterruptedException e) {
+			Log.d("Shutdown", e.getMessage());
+		}
 	}
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){

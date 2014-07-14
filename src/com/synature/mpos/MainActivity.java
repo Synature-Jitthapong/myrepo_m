@@ -1,5 +1,13 @@
 package com.synature.mpos;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -26,6 +34,7 @@ import com.synature.mpos.seconddisplay.SecondDisplayJSON;
 import com.synature.pos.ShopData;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
 import com.synature.util.ImageLoader;
+import com.synature.util.Logger;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,6 +51,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -71,10 +81,13 @@ import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends FragmentActivity 
 	implements MenuCommentFragment.OnCommentDismissListener{
+	
+	public static final String TAG = MainActivity.class.getSimpleName();
 	
 	/**
 	 * send sale request code from payment activity
@@ -89,9 +102,6 @@ public class MainActivity extends FragmentActivity
 	
 	private SaleService mPartService;
 	private boolean mBound = false;
-	
-	private Thread mSockThread = null;
-	private ISocketConnection mSockConn;
 	
 	private Products mProducts;
 	private Shop mShop;
@@ -139,7 +149,7 @@ public class MainActivity extends FragmentActivity
 		mImageLoader = new ImageLoader(this, 0,
 					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		 
-		mDsp = new WintecCustomerDisplay(this);
+		mDsp = new WintecCustomerDisplay(getApplicationContext());
 		
 		/**
 		 * For create pager by productDept
@@ -160,15 +170,7 @@ public class MainActivity extends FragmentActivity
 	protected void onStart() {
 		super.onStart();
 		Intent intent = new Intent(this, SaleService.class);
-		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);		
-
-		/**
-		 * if enabled second display
-		 */
-		if(Utils.isEnableSecondDisplay(this)){
-			// start the second display socket thread
-			startSecondDisplayThread();
-		}
+		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
 	}
 
 	@Override
@@ -178,7 +180,6 @@ public class MainActivity extends FragmentActivity
 			unbindService(mServiceConnection);
 			mBound = false;
 		}
-		stopSecondDisplayThread();
 	}
 
 	@Override
@@ -203,26 +204,20 @@ public class MainActivity extends FragmentActivity
 						startActivity(new Intent(MainActivity.this, LoginActivity.class));
 						finish();
 					}else{
-						openTransaction();
+						init();
 					}
 				}else{
-					openTransaction();
+					init();
 				}
 			}else{
 				// not have any session
-				openTransaction();
+				init();
 			}
 		}else{
 			startActivity(new Intent(MainActivity.this, LoginActivity.class));
 			finish();
 		}
 		super.onResume();
-	}
-
-	@Override
-	protected void onDestroy() {
-		mTrans.cancelTransaction(mTransactionId);
-		super.onDestroy();
 	}
 
 	public static class PlaceholderFragment extends Fragment{
@@ -504,17 +499,23 @@ public class MainActivity extends FragmentActivity
 				new PrintReceiptLog(MainActivity.this);
 		printLog.insertLog(transactionId, staffId);
 
-		new Thread(new PrintReceipt(this)).start();
+		new Thread(new PrintReceipt(getApplicationContext())).start();
 		
 		if(change > 0){
-			LayoutInflater inflater = getLayoutInflater();
-			TextView tvChange = (TextView) inflater.inflate(R.layout.tv_large, null);
+			LinearLayout changeView = new LinearLayout(MainActivity.this);
+			TextView tvChange = new TextView(MainActivity.this);
+			tvChange.setTextSize(getResources().getDimension(R.dimen.larger_text_size));
+			tvChange.setGravity(Gravity.CENTER);
 			tvChange.setText(mFormat.currencyFormat(change));
+			LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, 
+					LayoutParams.WRAP_CONTENT);
+			params.gravity = Gravity.CENTER;
+			changeView.addView(tvChange, params);
 			
 			new AlertDialog.Builder(MainActivity.this)
 			.setTitle(R.string.change)
 			.setCancelable(false)
-			.setView(tvChange)
+			.setView(changeView)
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
 				@Override
@@ -1204,8 +1205,7 @@ public class MainActivity extends FragmentActivity
 				public void onClick(DialogInterface dialog, int which) {
 					String note = txtRemark.getText().toString();
 					mTrans.holdTransaction(mTransactionId, note);
-					
-					openTransaction();
+					init();
 				}
 			});
 			final AlertDialog dialog = builder.create();
@@ -1257,8 +1257,7 @@ public class MainActivity extends FragmentActivity
 							ShopData.Staff s = login.checkLogin();
 							if(s != null){
 								mStaffId = s.getStaffID();
-								openSession();
-								openTransaction();
+								init();
 								d.dismiss();
 							}else{
 								new AlertDialog.Builder(MainActivity.this)
@@ -1343,6 +1342,7 @@ public class MainActivity extends FragmentActivity
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				mTrans.cancelTransaction(mTransactionId);
 				startActivity(new Intent(MainActivity.this, LoginActivity.class));
 				finish();
 			}
@@ -1380,11 +1380,6 @@ public class MainActivity extends FragmentActivity
 					mShop.getShopId(), mComputer.getComputerId(),
 					mSessionId, mStaffId, mShop.getCompanyVatRate());
 		}
-		// update when changed user
-		mTrans.updateTransaction(mTransactionId, mStaffId);
-		countHoldOrder(MainActivity.this);
-		countTransNotSend(MainActivity.this);
-		loadOrder();
 	}
 
 	private void openSession(){
@@ -1395,6 +1390,21 @@ public class MainActivity extends FragmentActivity
 		}
 	}
 
+	private void init(){
+		openTransaction();
+		// update when changed user
+		mTrans.updateTransaction(mTransactionId, mStaffId);
+		countHoldOrder(MainActivity.this);
+		countTransNotSend(MainActivity.this);
+		loadOrder();
+		
+		// init second display
+		if(Utils.isEnableSecondDisplay(this)){
+			clearSecondDisplay();
+			initSecondDisplay();
+		}
+	}
+	
 	private void showHoldBill() {
 		final MPOSOrderTransaction holdTrans = new MPOSOrderTransaction();
 		LayoutInflater inflater = getLayoutInflater();
@@ -1453,7 +1463,7 @@ public class MainActivity extends FragmentActivity
 						mTrans.prepareTransaction(holdTrans.getTransactionId());
 						// Delete current transaction because not have any orders.
 						mTrans.deleteTransaction(mTransactionId);
-						openTransaction();
+						init();
 						dialog.dismiss();
 					}else{
 						new AlertDialog.Builder(MainActivity.this)
@@ -1476,7 +1486,7 @@ public class MainActivity extends FragmentActivity
 	 */
 	private void clearTransaction(){
 		mTrans.cancelTransaction(mTransactionId);
-		openTransaction();
+		init();
 	}
 
 	/**
@@ -1537,23 +1547,25 @@ public class MainActivity extends FragmentActivity
 					boolean endday = Utils.endday(MainActivity.this, mShop.getShopId(), 
 							mComputer.getComputerId(), mSessionId, mStaffId, 0, true);
 					if(endday){
+						// start the service 
+						Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
+						enddayIntent.putExtra("staffId", mStaffId);
+						enddayIntent.putExtra("shopId", mShop.getShopId());
+						enddayIntent.putExtra("computerId", mComputer.getComputerId());
+						startService(enddayIntent);
+						
 						new AlertDialog.Builder(MainActivity.this)
 						.setTitle(R.string.endday)
-						.setMessage(getString(R.string.endday_success) + "\n"
-								+ getString(R.string.confirm_send_endday_now))
+						.setMessage(R.string.endday_success)
 						.setCancelable(false)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener(){
+						.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener(){
 
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
-								Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
-								enddayIntent.putExtra("staffId", mStaffId);
-								enddayIntent.putExtra("shopId", mShop.getShopId());
-								enddayIntent.putExtra("computerId", mComputer.getComputerId());
-								startService(enddayIntent);
+								//Utils.shutdown();
+								finish();
 							}
-							
 						})
 						.show();
 					}
@@ -1808,85 +1820,110 @@ public class MainActivity extends FragmentActivity
 	public void onDismiss(int position, int orderDetailId) {
 		updateOrderDetailLst(position, orderDetailId);
 	}
-
-	/**
-	 * stop socket thread
-	 */
-	private void stopSecondDisplayThread(){
-		if(mSockThread != null){
-			mSockThread.interrupt();
-			mSockThread = null;
-		}
-	}
 	
 	private void secondDisplayChangePayment(String totalPay, String change){
-		String paymentJson = SecondDisplayJSON.genChangePayment(totalPay, change);
-		try {
-			mSockConn.send(paymentJson);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		final String paymentJson = SecondDisplayJSON.genChangePayment(totalPay, change);
+		new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					InetAddress iNetAddr = InetAddress.getByName(Utils.getSecondDisplayIp(MainActivity.this));
+					Socket socket = new Socket(iNetAddr, Utils.getSecondDisplayPort(MainActivity.this));
+					PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+					BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//					while(reader.readLine() != null){
+//					}
+					writer.println(paymentJson);
+					writer.flush();
+				} catch (UnknownHostException e) {
+					Log.d(TAG, e.getMessage());
+				} catch (IOException e) {
+					Log.d(TAG, e.getMessage());
+				}
+			}
+			
+		}).start();
 	}
 	
 	private void secondDisplayItem(List<clsSecDisplay_TransSummary> transSummLst, String grandTotal){
-		String itemJson = SecondDisplayJSON.genDisplayItem(mFormat, mOrderDetailLst, 
+		final String itemJson = SecondDisplayJSON.genDisplayItem(mFormat, mOrderDetailLst, 
 				transSummLst, grandTotal);
-		try {
-			mSockConn.send(itemJson);
-		} catch (Exception e) {
-			startSecondDisplayThread();
-		}
+		Logger.appendLog(this, Utils.LOG_DIR, Utils.LOG_FILE_NAME, itemJson);
+		new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					InetAddress iNetAddr = InetAddress.getByName(Utils.getSecondDisplayIp(MainActivity.this));
+					Socket socket = new Socket(iNetAddr, Utils.getSecondDisplayPort(MainActivity.this));
+					PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+					BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					writer.println(itemJson);
+					writer.flush();
+//					while(reader.readLine() != null){
+//					}
+				} catch (UnknownHostException e) {
+					Log.d(TAG, e.getMessage());
+				} catch (IOException e) {
+					Log.d(TAG, e.getMessage());
+				}
+			}
+			
+		}).start();
 	}
 	
 	private void initSecondDisplay(){
 		Staffs s = new Staffs(this);
-		String initJson = SecondDisplayJSON.genInitDisplay(mShop.getShopName(), 
+		final String initJson = SecondDisplayJSON.genInitDisplay(mShop.getShopName(), 
 				s.getStaff(mStaffId).getStaffName());
-		try {
-			mSockConn.send(initJson);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					InetAddress iNetAddr = InetAddress.getByName(Utils.getSecondDisplayIp(MainActivity.this));
+					Socket socket = new Socket(iNetAddr, Utils.getSecondDisplayPort(MainActivity.this));
+					PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+					BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//					while(reader.readLine() != null){
+//					}
+					writer.println(initJson);
+					writer.flush();
+				} catch (UnknownHostException e) {
+					Log.d(TAG, e.getMessage());
+				} catch (IOException e) {
+					Log.d(TAG, e.getMessage());
+				}
+			}
+			
+		}).start();
 	}
 	
 	private void clearSecondDisplay(){
-		try {
-			mSockConn.send(SecondDisplayJSON.genClearDisplay());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	private void startSecondDisplayThread(){
-		// stop if mSockThread is not null
-		stopSecondDisplayThread();
-		mSockThread = new Thread(new SecondDisplayThread());
-		mSockThread.start();
-	}
-	
-	class SecondDisplayThread implements Runnable{
+		new Thread(new Runnable(){
 
-		@Override
-		public void run() {
-			try {
-				mSockConn = new ClientSocket(
-						Utils.getSecondDisplayIp(MainActivity.this), 
-						Utils.getSecondDisplayPort(MainActivity.this));
-				clearSecondDisplay();
-				initSecondDisplay();
-//				String msg = null;
-//				while((msg = mSockConn.receive()) != null){
-//				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			@Override
+			public void run() {
+				try {
+					InetAddress iNetAddr = InetAddress.getByName(Utils.getSecondDisplayIp(MainActivity.this));
+					Socket socket = new Socket(iNetAddr, Utils.getSecondDisplayPort(MainActivity.this));
+					PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+					BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//					while(reader.readLine() != null){
+//					}
+					writer.println(SecondDisplayJSON.genClearDisplay());
+					writer.flush();
+				} catch (UnknownHostException e) {
+					Log.d(TAG, e.getMessage());
+				} catch (IOException e) {
+					Log.d(TAG, e.getMessage());
+				}
 			}
-		}
+			
+		}).start();
 	}
-	
+
 	/**
 	 * PartialSaleService Connection
 	 */

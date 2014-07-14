@@ -19,7 +19,10 @@
 		<item name="android:padding">@dimen/medium_space</item>
     </style>
     <style name="HeaderText" parent="@android:style/TextAppearance">
-		<item name="android:textColor">@color/blue</item>
+		<item name="android:textColor">@android:color/holo_blue_dark</item>
+		<item name="android:textAllCaps">true</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:lines">1</item>
 		<item name="android:padding">@dimen/medium_space</item>
     </style>
     <style name="ImageButtonStyle" parent="ButtonStyle">
@@ -28,6 +31,7 @@
         <item name="android:background">@drawable/button_selector</item>
     </style>
     <style name="AppTheme" parent="AppBaseTheme">
+        <item name="android:textColor">@color/dark_gray_text</item>
         <item name="android:buttonStyle">@style/ButtonStyle</item>
         <item name="android:imageButtonStyle">@style/ImageButtonStyle</item>
     </style>

@@ -68,7 +68,7 @@ public class EnddaySaleService extends Service{
 							
 							new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 									SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-									staffId, shopId, computerId, jsonSale, new ProgressListener() {
+									shopId, computerId, staffId, jsonSale, new ProgressListener() {
 			
 										@Override
 										public void onError(String mesg) {
