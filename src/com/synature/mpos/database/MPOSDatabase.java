@@ -46,10 +46,16 @@ public class MPOSDatabase extends BaseColumn{
 	public static final int NOT_SEND = 0;
 	public static final int ALREADY_SEND = 1;
 	
+	private Context mContext;
 	private MPOSOpenHelper mHelper;
 	
 	public MPOSDatabase(Context context){
+		mContext = context;
 		mHelper = MPOSOpenHelper.getInstance(context); 
+	}
+	
+	public Context getContext(){
+		return mContext;
 	}
 	
 	public String getUUID(){

@@ -74,6 +74,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="endday">End Day</string>
     <string name="info_cat">Information</string>
     <string name="shop_info">Shop Info</string>
+    <string name="open_shift">Open Shift</string>
     <string name="close_shift">Close Shift</string>
     <string name="search">Search</string>
     <string name="paid_time">Paid Time</string>
@@ -106,7 +107,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="alredy_endday">Already endday.</string>
     <string name="credit_card">Credit Card</string>
     <string name="before_vat">Before VAT</string>
-    <string name="cannot_endday_have_order">Clear current order first!</string>
+    <string name="clear_order_first">Clear current order first!</string>
     <string name="barcode">Barcode</string>
     <string name="font">Font</string>
     <string name="device_code">Device Code</string>
@@ -195,5 +196,10 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="enable_wintec_customer_display">Enable Wintec Customer Display</string>
     <string name="connection_time_out">Connection time out</string>
     <string name="exit">Exit</string>
-
+    <string name="other_discount_short">Other Dist.</string>
+    <string name="cash_paid">Cash Paid</string>
+    <string name="promotion_short">Promotion</string>
+    <string name="confirm_fast_payment">Do you want to confirm fast payment.</string>
+    <string name="edit_cash">Edit Cash</string>
+    <string name="send_data">Send Data</string>
 </resources>

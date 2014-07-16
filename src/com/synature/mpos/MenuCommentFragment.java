@@ -15,9 +15,13 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -72,6 +76,7 @@ public class MenuCommentFragment extends DialogFragment{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		super.setCancelable(false);
 		mPosition = getArguments().getInt("position");
 		mTransactionId = getArguments().getInt("transactionId");
 		mOrderDetailId = getArguments().getInt("orderDetailId");
@@ -99,6 +104,13 @@ public class MenuCommentFragment extends DialogFragment{
 		if(activity instanceof OnCommentDismissListener){
 			mListener = (OnCommentDismissListener) activity;
 		}
+	}
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		getDialog().getWindow().setSoftInputMode(
+				WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 	}
 
 	@Override
@@ -132,6 +144,21 @@ public class MenuCommentFragment extends DialogFragment{
 			
 		});
 		
+		view.setOnTouchListener(new OnTouchListener(){
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if(event.getAction() == MotionEvent.ACTION_DOWN || 
+						event.getAction() == MotionEvent.ACTION_OUTSIDE){
+					InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+						      Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(mTxtComment.getWindowToken(), 0);
+					return true;
+				}
+				return false;
+			}
+
+		});
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(getActivity().getString(R.string.menu_comment) + ": " + mMenuName);
 		builder.setView(view);
@@ -262,23 +289,37 @@ public class MenuCommentFragment extends DialogFragment{
 				}
 				
 			});
-			holder.commentInfoContent.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					if(comment.isSelected()){
-						comment.setSelected(false);
-						mTrans.deleteOrderCommentTemp(mTransactionId, mOrderDetailId, comment.getCommentId());
-					}else{
-						comment.setSelected(true);
-						mTrans.addOrderComment(mTransactionId, mOrderDetailId, comment.getCommentId(), 
-								1, comment.getCommentPrice());
-					}
-					mCommentAdapter.notifyDataSetChanged();
-				}
-				
-			});
+			holder.commentInfoContent.setOnClickListener(new OnCommentClickListener(comment));
+			holder.chkComment.setOnClickListener(new OnCommentClickListener(comment));
 			return convertView;
+		}
+		
+		/**
+		 * @author j1tth4
+		 * listener for add delete comment
+		 */
+		private class OnCommentClickListener implements OnClickListener{
+
+			private MenuComment.Comment mComment;
+			
+			public OnCommentClickListener(MenuComment.Comment comment){
+				mComment = comment;
+			}
+			
+			@Override
+			public void onClick(View v) {
+				if(mComment.isSelected()){
+					mComment.setSelected(false);
+					mTrans.deleteOrderCommentTemp(mTransactionId, mOrderDetailId, mComment.getCommentId());
+				}else{
+					double price = mComment.getCommentPrice() < 0 ? 0 : mComment.getCommentPrice();
+					mComment.setSelected(true);
+					mTrans.addOrderComment(mTransactionId, mOrderDetailId, mComment.getCommentId(), 
+							1, price);
+				}
+				mCommentAdapter.notifyDataSetChanged();	
+			}
+			
 		}
 		
 		private class ViewHolder{

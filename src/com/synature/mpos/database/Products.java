@@ -553,7 +553,7 @@ public class Products extends MPOSDatabase {
 	 * @throws SQLException
 	 */
 	public void insertProducts(List<ProductGroups.Products> pLst,
-		List<MenuGroups.MenuItem> mLst) throws SQLException{
+		List<MenuGroups.MenuItem> mLst, List<MenuGroups.MenuComment> mcLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ProductTable.TABLE_PRODUCT, null, null);
@@ -573,7 +573,6 @@ public class Products extends MPOSDatabase {
 				cv.put(ProductTable.COLUMN_ISOUTOF_STOCK, p.getIsOutOfStock());
 				getWritableDatabase().insertOrThrow(ProductTable.TABLE_PRODUCT, null, cv);
 			}
-			
 			for(MenuGroups.MenuItem m : mLst){
 				ContentValues cv = new ContentValues();
 				cv.put(ProductTable.COLUMN_PRODUCT_NAME, m.getMenuName_0());
@@ -582,6 +581,12 @@ public class Products extends MPOSDatabase {
 				cv.put(ProductTable.COLUMN_ACTIVATE, m.getMenuActivate());
 				getWritableDatabase().update(ProductTable.TABLE_PRODUCT, cv, ProductTable.COLUMN_PRODUCT_ID + "=?", 
 						new String[]{String.valueOf(m.getProductID())});
+			}
+			for(MenuGroups.MenuComment mc : mcLst){
+				ContentValues cv = new ContentValues();
+				cv.put(ProductTable.COLUMN_PRODUCT_NAME, mc.getMenuCommentName_0());
+				getWritableDatabase().update(ProductTable.TABLE_PRODUCT, cv, ProductTable.COLUMN_PRODUCT_ID + "=?", 
+						new String[]{String.valueOf(mc.getMenuCommentID())});
 			}
 			getWritableDatabase().setTransactionSuccessful();
 		} finally {

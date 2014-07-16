@@ -299,7 +299,7 @@ public class ProductSetActivity extends Activity{
 					tvGroupName.setText(pCompGroup.getGroupName());
 					
 					if(pCompGroup.getGroupNo() == 0){
-						setGroupView.setEnabled(false);
+						setGroupView.setVisibility(View.GONE);
 						if(((ProductSetActivity) getActivity()).mTrans.checkAddedOrderSet(mTransactionId, 
 								mOrderDetailId, pCompGroup.getProductGroupId()) == 0){
 							List<Products.ProductComponent> pCompLst = 
@@ -501,7 +501,8 @@ public class ProductSetActivity extends Activity{
 				holder.tvSetNo.setText(String.valueOf(childPosition + 1) + ".");
 				holder.tvSetName.setText(detail.getProductName());
 				holder.txtSetQty.setText(((ProductSetActivity) getActivity()).mFormat.qtyFormat(detail.getOrderSetQty()));
-				holder.tvSetPrice.setText(((ProductSetActivity) getActivity()).mFormat.currencyFormat(detail.getProductPrice()));
+				holder.tvSetPrice.setText(detail.getProductPrice() > 0 ? 
+						((ProductSetActivity) getActivity()).mFormat.currencyFormat(detail.getProductPrice()) : null);
 				holder.btnSetMinus.setOnClickListener(new OnClickListener(){
 
 					@Override
@@ -649,7 +650,7 @@ public class ProductSetActivity extends Activity{
 				if(pComp.getFlexibleProductPrice() > 0)
 					holder.tvPrice.setVisibility(View.VISIBLE);
 				else
-					holder.tvPrice.setVisibility(View.GONE);
+					holder.tvPrice.setVisibility(View.INVISIBLE);
 
 				if(Utils.isShowMenuImage(getActivity())){
 					mImgLoader.displayImage(Utils.getImageUrl(

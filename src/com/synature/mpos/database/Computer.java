@@ -27,6 +27,11 @@ public class Computer extends MPOSDatabase{
 		return isMainComputer;
 	}
 	
+	public String getReceiptHeader(){
+		String receiptHeader = getComputerProperty().getDocumentTypeHeader();
+		return receiptHeader == null ? "" : receiptHeader;
+	}
+	
 	public ShopData.ComputerProperty getComputerProperty() {
 		ShopData.ComputerProperty computer = 
 				new ShopData.ComputerProperty();

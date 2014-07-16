@@ -34,7 +34,6 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class PaymentActivity extends Activity  implements OnClickListener{
@@ -88,7 +87,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 	    LayoutParams params = getWindow().getAttributes();
-	    params.width = getResources().getInteger(R.integer.activity_dialog_width);
+	    params.width = WindowManager.LayoutParams.MATCH_PARENT;
 	    params.height= getResources().getInteger(R.integer.activity_dialog_height);
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
@@ -97,12 +96,12 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 	    setFinishOnTouchOutside(false);
 		mLvPayment = (ListView) findViewById(R.id.lvPayDetail);
-		mTxtEnterPrice = (EditText) findViewById(R.id.txtEnterPrice);
+		mTxtEnterPrice = (EditText) findViewById(R.id.txtDisplay);
 		mTxtTotalPaid = (EditText) findViewById(R.id.txtTotalPaid);
 		mTxtPaymentLeft = (EditText) findViewById(R.id.txtPaymentLeft);
 		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
 		mTxtChange = (EditText) findViewById(R.id.txtChange);
-		mGvPaymentButton = (GridView) findViewById(R.id.gridView1);
+		mGvPaymentButton = (GridView) findViewById(R.id.gvPaymentButton);
 		mBtnConfirm = (Button) findViewById(R.id.btnConfirm);
 		mBtnConfirm.setOnClickListener(mOnConfirmClick);
 		
@@ -336,51 +335,51 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()){
-		case R.id.btnPay0:
+		case R.id.btn0:
 			mStrTotalPay.append("0");
 			displayEnterPrice();
 			break;
-		case R.id.btnPay1:
+		case R.id.btn1:
 			mStrTotalPay.append("1");
 			displayEnterPrice();
 			break;
-		case R.id.btnPay2:
+		case R.id.btn2:
 			mStrTotalPay.append("2");
 			displayEnterPrice();
 			break;
-		case R.id.btnPay3:
+		case R.id.btn3:
 			mStrTotalPay.append("3");
 			displayEnterPrice();
 			break;
-		case R.id.btnPay4:
+		case R.id.btn4:
 			mStrTotalPay.append("4");
 			displayEnterPrice();
 			break;
-		case R.id.btnPay5:
+		case R.id.btn5:
 			mStrTotalPay.append("5");
 			displayEnterPrice();
 			break;
-		case R.id.btnPay6:
+		case R.id.btn6:
 			mStrTotalPay.append("6");
 			displayEnterPrice();
 			break;
-		case R.id.btnPay7:
+		case R.id.btn7:
 			mStrTotalPay.append("7");
 			displayEnterPrice();
 			break;
-		case R.id.btnPay8:
+		case R.id.btn8:
 			mStrTotalPay.append("8");
 			displayEnterPrice();
 			break;
-		case R.id.btnPay9:
+		case R.id.btn9:
 			mStrTotalPay.append("9");
 			displayEnterPrice();
 			break;
-		case R.id.btnPayC:
+		case R.id.btnClear:
 			mStrTotalPay = new StringBuilder();
 			displayEnterPrice();
 			break;
-		case R.id.btnPayDel:
+		case R.id.btnDel:
 			try {
 				mStrTotalPay.deleteCharAt(mStrTotalPay.length() - 1);
 			} catch (Exception e) {
@@ -388,11 +387,11 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			}
 			displayEnterPrice();
 			break;
-		case R.id.btnPayDot:
+		case R.id.btnDot:
 			mStrTotalPay.append(".");
 			displayEnterPrice();
 			break;
-		case R.id.btnPayEnter:
+		case R.id.btnEnter:
 			if(!mStrTotalPay.toString().isEmpty()){
 				addPayment(PaymentDetail.PAY_TYPE_CASH, "");
 			}
@@ -506,7 +505,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			if(convertView == null){
 				holder = new ViewHolder();
 				convertView = mInflater.inflate(R.layout.button_template, null);
-				holder.btnPayment = (Button) convertView.findViewById(R.id.btnPayment);
+				holder.btnPayment = (Button) convertView;
 				holder.btnPayment.setMinWidth(128);
 				holder.btnPayment.setMinHeight(96);
 				convertView.setTag(holder);

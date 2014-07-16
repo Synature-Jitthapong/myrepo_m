@@ -146,7 +146,7 @@ public class MPOSWebServiceClient {
 						try {
 							pd.insertProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
 							pd.insertProductDept(pgs.getProductDept(), mgs.getMenuDept());
-							pd.insertProducts(pgs.getProduct(), mgs.getMenuItem());
+							pd.insertProducts(pgs.getProduct(), mgs.getMenuItem(), mgs.getMenuComment());
 							pd.insertPComponentGroup(pgs.getPComponentGroup());
 							pd.insertProductComponent(pgs.getPComponentSet());
 							mc.insertMenuComment(mgs.getMenuComment());

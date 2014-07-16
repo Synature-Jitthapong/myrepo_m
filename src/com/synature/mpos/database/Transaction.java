@@ -297,6 +297,7 @@ public class Transaction extends MPOSDatabase {
 	
 	/**
 	 * Get summary order by sale date
+	 * for print summary sale
 	 * @param dateFrom
 	 * @return MPOSOrderTransaction.MPOSOrderDetail
 	 */
@@ -383,11 +384,13 @@ public class Transaction extends MPOSDatabase {
 							String.valueOf(transactionId), 
 							String.valueOf(transactionId)});
 		if (cursor.moveToFirst()) {
+			double vatExclude = cursor.getDouble(cursor
+					.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE));
 			double totalSetPrice = cursor.getDouble(cursor.getColumnIndex("TotalSetPrice"));
 			double totalCommentPrice = cursor.getDouble(cursor.getColumnIndex("TotalCommentPrice"));
 			double totalSalePrice = 
 					cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)) 
-					+ totalSetPrice + totalCommentPrice;
+					+ totalSetPrice + totalCommentPrice + vatExclude;
 			double totalRetailPrice = 
 					cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE))
 					+ totalSetPrice + totalCommentPrice;
@@ -399,9 +402,7 @@ public class Transaction extends MPOSDatabase {
 			orderDetail.setTotalSalePrice(totalSalePrice);
 			orderDetail.setVat(cursor.getDouble(cursor
 					.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT)));
-			orderDetail
-					.setVatExclude(cursor.getDouble(cursor
-							.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE)));
+			orderDetail.setVatExclude(vatExclude);
 		}
 		cursor.close();
 		return orderDetail;
@@ -764,12 +765,14 @@ public class Transaction extends MPOSDatabase {
 		return orderDetail;
 	}
 
-	public static String formatReceiptNo(int year, int month, int day, int id) {
+	public String formatReceiptNo(int year, int month, int day, int id) {
+		Computer computer = new Computer(getContext());
+		String receiptHeader = computer.getReceiptHeader();
 		String receiptYear = String.format(Locale.US, "%04d", year);
 		String receiptMonth = String.format(Locale.US, "%02d", month);
 		String receiptDay = String.format(Locale.US, "%02d", day);
 		String receiptId = String.format(Locale.US, "%04d", id);
-		return receiptDay + receiptMonth + receiptYear + "/" + receiptId;
+		return receiptHeader + receiptDay + receiptMonth + receiptYear + "/" + receiptId;
 	}
 
 	/**
@@ -1645,7 +1648,8 @@ public class Transaction extends MPOSDatabase {
 
 				if (detailCursor.moveToFirst()) {
 					do {
-						MPOSOrderTransaction.OrderSet.OrderSetDetail detail = new MPOSOrderTransaction.OrderSet.OrderSetDetail();
+						MPOSOrderTransaction.OrderSet.OrderSetDetail detail 
+							= new MPOSOrderTransaction.OrderSet.OrderSetDetail();
 						detail.setOrderSetId(detailCursor.getInt(
 								detailCursor.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_ID)));
 						detail.setProductId(detailCursor.getInt(
@@ -1654,8 +1658,8 @@ public class Transaction extends MPOSDatabase {
 								detailCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
 						detail.setOrderSetQty(detailCursor.getDouble(
 								detailCursor.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_QTY)));
-						detail.setProductPrice(detailCursor.getColumnIndex(
-								OrderSetTable.COLUMN_ORDER_SET_PRICE));
+						detail.setProductPrice(detailCursor.getDouble(
+								detailCursor.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE)));
 						group.getOrderSetDetailLst().add(detail);
 					} while (detailCursor.moveToNext());
 				}

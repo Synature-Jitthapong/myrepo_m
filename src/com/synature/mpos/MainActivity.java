@@ -15,14 +15,13 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.j1tth4.slidinglibs.SlidingTabLayout;
-import com.synature.connection.ClientSocket;
-import com.synature.connection.ISocketConnection;
 import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.MenuComment;
+import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.PrintReceiptLog;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Session;
@@ -85,7 +84,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends FragmentActivity 
-	implements MenuCommentFragment.OnCommentDismissListener{
+	implements MenuCommentFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener{
 	
 	public static final String TAG = MainActivity.class.getSimpleName();
 	
@@ -229,6 +228,7 @@ public class MainActivity extends FragmentActivity
 		
 		private MenuItem mItemHoldBill;
 		private MenuItem mItemSendSale;
+		private MenuItem mItemSendData;
 		
 		private MainActivity mHost;
 		private SlidingTabLayout mTabs;
@@ -259,6 +259,9 @@ public class MainActivity extends FragmentActivity
 				return true;
 			case R.id.itemVoid:
 				mHost.voidBill();
+				return true;
+			case R.id.itemEditCash:
+				mHost.editCash();
 				return true;
 			case R.id.itemCloseShift:
 				mHost.closeShift();
@@ -298,6 +301,7 @@ public class MainActivity extends FragmentActivity
 			inflater.inflate(R.menu.activity_main, menu);
 			mItemHoldBill = menu.findItem(R.id.itemHoldBill);
 			mItemSendSale = menu.findItem(R.id.itemSendSale);
+			mItemSendData = menu.findItem(R.id.itemSendData);
 			
 			((MainActivity) getActivity()).countHoldOrder(getActivity());
 			((MainActivity) getActivity()).countTransNotSend(getActivity());
@@ -319,7 +323,7 @@ public class MainActivity extends FragmentActivity
 			mBtnClearBarCode = (ImageButton) view.findViewById(R.id.imgBtnClearBarcode);
 
 			mHost = (MainActivity) getActivity();
-			mPager.setOffscreenPageLimit(mHost.mProductDeptLst != null ? mHost.mProductDeptLst.size() : 8);
+			mPager.setOffscreenPageLimit(8);
 			mPager.setAdapter(mHost.mPageAdapter);
 			final int pageMargin = (int) TypedValue.applyDimension(
 					TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
@@ -409,7 +413,7 @@ public class MainActivity extends FragmentActivity
 						0, 0, 0, 0));
 			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.total),
-					mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()),
+					mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice()),
 					0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size)));
 			
 			// display summary to customer display
@@ -571,6 +575,50 @@ public class MainActivity extends FragmentActivity
 	
 	/**
 	 * @param v
+	 * Paid equal total price
+	 */
+	public void cashPaidClicked(final View v){
+		if(mOrderDetailLst.size() > 0){
+			new AlertDialog.Builder(this)
+			.setTitle(R.string.cash_paid)
+			.setMessage(R.string.confirm_fast_payment)
+			.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			})
+			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					MPOSOrderTransaction.MPOSOrderDetail sumOrder = 
+							mTrans.getSummaryOrder(mTransactionId);
+					PaymentDetail payment = new PaymentDetail(MainActivity.this);
+					double totalSalePrice = sumOrder.getTotalSalePrice();
+					
+					payment.addPaymentDetail(mTransactionId, mComputer.getComputerId(), PaymentDetail.PAY_TYPE_CASH, 
+							totalSalePrice, totalSalePrice, "", 0, 0, 0, 0, "");
+					
+					// open cash drawer
+					WintecCashDrawer drw = new WintecCashDrawer(getApplicationContext());
+					drw.openCashDrawer();
+					drw.close();
+					
+					mTrans.closeTransaction(mTransactionId, mStaffId);
+					mTrans.updateTransactionVatable(mTransactionId, totalSalePrice, 
+							mShop.getCompanyVatRate(), mShop.getCompanyVatType());
+					
+					afterPaid(mTransactionId, mStaffId, totalSalePrice, 0);
+					
+					init();
+				}
+			}).show();
+		}
+	}
+	
+	/**
+	 * @param v
 	 * Go to PaymentActivity
 	 */
 	public void paymentClicked(final View v){
@@ -593,6 +641,15 @@ public class MainActivity extends FragmentActivity
 		}
 	}
 
+	/**
+	 * @param v
+	 */
+	public void promotionClicked(final View v) {
+		if (mOrderDetailLst.size() > 0) {
+
+		}
+	}
+	
 	/**
 	 * @param v
 	 * Go to DiscountActivity
@@ -819,9 +876,11 @@ public class MainActivity extends FragmentActivity
 				holder = new ChildViewHolder();
 				holder.tvSetNo = (TextView) convertView.findViewById(R.id.tvSetNo);
 				holder.tvSetName = (TextView) convertView.findViewById(R.id.tvSetName);
+				holder.tvSetPrice = (TextView) convertView.findViewById(R.id.tvSetPrice);
 				holder.txtSetQty = (EditText) convertView.findViewById(R.id.editText1);
 				holder.tvSetNo.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
 				holder.tvSetName.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
+				holder.tvSetPrice.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
 				holder.txtSetQty.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
 				convertView.setTag(holder);
 			}else{
@@ -831,6 +890,7 @@ public class MainActivity extends FragmentActivity
 						mOrderDetailLst.get(groupPosition).getOrderSetDetailLst().get(childPosition);
 			holder.tvSetNo.setText("-");
 			holder.tvSetName.setText(setDetail.getProductName());
+			holder.tvSetPrice.setText(setDetail.getProductPrice() > 0 ? mFormat.currencyFormat(setDetail.getProductPrice()) : null);
 			holder.txtSetQty.setText(mFormat.qtyFormat(setDetail.getOrderSetQty()));
 			return convertView;
 		}
@@ -853,6 +913,7 @@ public class MainActivity extends FragmentActivity
 		private class ChildViewHolder{
 			TextView tvSetNo;
 			TextView tvSetName;
+			TextView tvSetPrice;
 			EditText txtSetQty;
 		}
 		
@@ -1387,6 +1448,11 @@ public class MainActivity extends FragmentActivity
 		if(mSessionId == 0){
 			mSessionId = mSession.openSession(Utils.getDate(), mShop.getShopId(), 
 					mComputer.getComputerId(), mStaffId, 0);
+			
+			ManageCashAmountFragment mf = ManageCashAmountFragment
+					.newInstance(getString(R.string.open_shift), 0,
+							ManageCashAmountFragment.OPEN_SHIFT_MODE);
+			mf.show(getSupportFragmentManager(), "ManageCashAmount");
 		}
 	}
 
@@ -1500,28 +1566,52 @@ public class MainActivity extends FragmentActivity
 	}
 
 	/**
+	 * edit cash in drawer
+	 */
+	private void editCash(){
+		ManageCashAmountFragment mf = ManageCashAmountFragment
+				.newInstance(getString(R.string.close_shift), mSession.getOpenAmount(mSessionId), 
+						ManageCashAmountFragment.EDIT_CASH_MODE);
+		mf.show(getSupportFragmentManager(), "ManageCashAmount");
+	}
+	
+	/**
 	 * close shift
 	 */
 	private void closeShift(){
-		new AlertDialog.Builder(MainActivity.this)
-		.setCancelable(false)
-		.setTitle(R.string.close_shift)
-		.setMessage(R.string.confirm_close_shift)
-		.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			}
-		})
-		.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				mSession.closeSession(mSessionId, mStaffId, 0, false);
-				startActivity(new Intent(MainActivity.this, LoginActivity.class));
-				finish();
-			}
-		}).show();
+		if(mOrderDetailLst.size() == 0){
+			new AlertDialog.Builder(MainActivity.this)
+			.setCancelable(false)
+			.setTitle(R.string.close_shift)
+			.setMessage(R.string.confirm_close_shift)
+			.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			})
+			.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					ManageCashAmountFragment mf = ManageCashAmountFragment
+							.newInstance(getString(R.string.close_shift), 0, 
+									ManageCashAmountFragment.CLOSE_SHIFT_MODE);
+					mf.show(getSupportFragmentManager(), "ManageCashAmount");
+				}
+			}).show();
+		}else{
+			new AlertDialog.Builder(MainActivity.this)
+			.setTitle(R.string.close_shift)
+			.setMessage(R.string.clear_order_first)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			})
+			.show();
+		}
 	}
 
 	/**
@@ -1543,38 +1633,16 @@ public class MainActivity extends FragmentActivity
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					new Thread(new PrintReport(MainActivity.this, mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
-					boolean endday = Utils.endday(MainActivity.this, mShop.getShopId(), 
-							mComputer.getComputerId(), mSessionId, mStaffId, 0, true);
-					if(endday){
-						// start the service 
-						Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
-						enddayIntent.putExtra("staffId", mStaffId);
-						enddayIntent.putExtra("shopId", mShop.getShopId());
-						enddayIntent.putExtra("computerId", mComputer.getComputerId());
-						startService(enddayIntent);
-						
-						new AlertDialog.Builder(MainActivity.this)
-						.setTitle(R.string.endday)
-						.setMessage(R.string.endday_success)
-						.setCancelable(false)
-						.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener(){
-
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								//Utils.shutdown();
-								finish();
-							}
-						})
-						.show();
-					}
+					ManageCashAmountFragment mf = ManageCashAmountFragment
+							.newInstance(getString(R.string.close_shift), 0, 
+									ManageCashAmountFragment.END_DAY_MODE);
+					mf.show(getSupportFragmentManager(), "ManageCashAmount");
 				}
 			}).show();
 		}else{
 			new AlertDialog.Builder(MainActivity.this)
 			.setTitle(R.string.endday)
-			.setMessage(R.string.cannot_endday_have_order)
+			.setMessage(R.string.clear_order_first)
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
 				@Override
@@ -1787,8 +1855,10 @@ public class MainActivity extends FragmentActivity
 			if(((PlaceholderFragment) f).mItemSendSale != null){
 				int total = mTrans.countTransNotSend();
 				if(total > 0){
+					((PlaceholderFragment) f).mItemSendData.setTitle(context.getString(R.string.send_sale_data) + "(" + total + ")");
 					((PlaceholderFragment) f).mItemSendSale.setTitle(context.getString(R.string.send_sale_data) + "(" + total + ")");
 				}else{
+					((PlaceholderFragment) f).mItemSendData.setTitle(context.getString(R.string.send_sale_data));
 					((PlaceholderFragment) f).mItemSendSale.setTitle(context.getString(R.string.send_sale_data));
 				}
 			}
@@ -1942,4 +2012,51 @@ public class MainActivity extends FragmentActivity
 		}
 		
 	};
+
+	@Override
+	public void onOpenShift(double cashAmount) {
+		mSession.updateOpenAmount(mSessionId, cashAmount);
+	}
+
+	@Override
+	public void onCloseShift(double cashAmount) {
+		mSession.closeSession(mSessionId, mStaffId, cashAmount, false);
+		startActivity(new Intent(MainActivity.this, LoginActivity.class));
+		finish();
+	}
+
+	@Override
+	public void onEditCashAmount(double cashAmount) {
+		mSession.updateOpenAmount(mSessionId, cashAmount);
+	}
+
+	@Override
+	public void onEndday(double cashAmount) {
+		new Thread(new PrintReport(MainActivity.this, mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
+		boolean endday = Utils.endday(MainActivity.this, mShop.getShopId(), 
+				mComputer.getComputerId(), mSessionId, mStaffId, cashAmount, true);
+		if(endday){
+			// start the service 
+			Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
+			enddayIntent.putExtra("staffId", mStaffId);
+			enddayIntent.putExtra("shopId", mShop.getShopId());
+			enddayIntent.putExtra("computerId", mComputer.getComputerId());
+			startService(enddayIntent);
+			
+			new AlertDialog.Builder(MainActivity.this)
+			.setTitle(R.string.endday)
+			.setMessage(R.string.endday_success)
+			.setCancelable(false)
+			.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface dialog,
+						int which) {
+					//Utils.shutdown();
+					finish();
+				}
+			})
+			.show();
+		}
+	}
 }

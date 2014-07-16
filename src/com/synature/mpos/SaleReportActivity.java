@@ -1004,6 +1004,9 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			public void notifyDataSetChanged() {
 				super.notifyDataSetChanged();
 				
+				for(int i = 0; i < mProductReportAdapter.getGroupCount(); i++){
+					mLvReportProduct.expandGroup(i);
+				}
 				summaryProduct();
 			}
 
@@ -1150,13 +1153,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				}
 				groupHolder.tvHeader.setText(mReportProduct.getGroupOfProductLst().get(groupPosition).getProductGroupName() + ":" +
 						mReportProduct.getGroupOfProductLst().get(groupPosition).getProductDeptName());
-				try {
-					if(!isExpanded)
-						((ExpandableListView) parent).expandGroup(groupPosition);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				return convertView;
 			}
 

@@ -206,8 +206,9 @@ public class SaleTransaction extends MPOSDatabase{
 						promotion.setfPriceAfterDiscount(
 								Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
 									.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE))));
-						promotion.setiDiscountTypeID(6);
+						promotion.setiDiscountTypeID(6); // 6 = other discount
 						promotion.setiPromotionID(0);
+						promotion.setSzCouponHeader("Test Coupon Header");
 						orderPromotionLst.add(promotion);
 					}
 				}while(cursor.moveToNext());
@@ -1134,6 +1135,15 @@ public class SaleTransaction extends MPOSDatabase{
 		private int iPromotionID;
 		private String fDiscountPrice;
 		private String fPriceAfterDiscount;
+		private String szCouponHeader;
+
+		public String getSzCouponHeader() {
+			return szCouponHeader;
+		}
+
+		public void setSzCouponHeader(String szCouponHeader) {
+			this.szCouponHeader = szCouponHeader;
+		}
 
 		public int getiOrderDetailID() {
 			return iOrderDetailID;

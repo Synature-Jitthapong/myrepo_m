@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.mpos.database.table.ComputerTable;
+import com.synature.mpos.database.table.MenuCommentTable;
+import com.synature.mpos.database.table.OrderCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
+import com.synature.mpos.database.table.OrderSetTable;
 import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.mpos.database.table.ProductDeptTable;
@@ -347,56 +350,47 @@ public class Reporting extends MPOSDatabase{
 					groupSection.setProductGroupName(group.getProductGroupName());
 
 					// product
-					Cursor cursor = getReadableDatabase().rawQuery("SELECT a."
-							+ COLUMN_PRODUCT_QTY + ", " + " a."
-							+ COLUMN_PRODUCT_QTY_PERCENT + ", " + " a."
-							+ COLUMN_PRODUCT_SUB_TOTAL + ", " + " a."
-							+ COLUMN_PRODUCT_SUB_TOTAL_PERCENT + ", " + " a."
-							+ COLUMN_PRODUCT_DISCOUNT + ", " + " a."
-							+ COLUMN_PRODUCT_TOTAL_PRICE + ", " + " a."
-							+ COLUMN_PRODUCT_TOTAL_PRICE_PERCENT + ", " + " b."
-							+ ProductTable.COLUMN_PRODUCT_CODE + ", " + " b."
-							+ ProductTable.COLUMN_PRODUCT_NAME + ", " + " b."
-							+ ProductTable.COLUMN_PRODUCT_PRICE + ", " + " b."
-							+ ProductTable.COLUMN_VAT_TYPE + " FROM "
-							+ TEMP_PRODUCT_REPORT + " a " + " INNER JOIN "
-							+ ProductTable.TABLE_PRODUCT + " b " + " ON a."
-							+ ProductTable.COLUMN_PRODUCT_ID + "=b."
-							+ ProductTable.COLUMN_PRODUCT_ID + " WHERE b."
-							+ ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?"
-							+ " ORDER BY b." + COLUMN_ORDERING,
+					String sql = "SELECT a." + COLUMN_PRODUCT_QTY + ", " 
+							+ " a." + COLUMN_PRODUCT_QTY_PERCENT + ", " 
+							+ " a." + COLUMN_PRODUCT_SUB_TOTAL + ", " 
+							+ " a." + COLUMN_PRODUCT_SUB_TOTAL_PERCENT + ", " 
+							+ " a." + COLUMN_PRODUCT_DISCOUNT + ", " 
+							+ " a." + COLUMN_PRODUCT_TOTAL_PRICE + ", " 
+							+ " a." + COLUMN_PRODUCT_TOTAL_PRICE_PERCENT + ", " 
+							+ " b." + ProductTable.COLUMN_PRODUCT_CODE + ", " 
+							+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", " 
+							+ " b." + ProductTable.COLUMN_PRODUCT_PRICE + ", " 
+							+ " b." + ProductTable.COLUMN_VAT_TYPE 
+							+ " FROM " + TEMP_PRODUCT_REPORT + " a " 
+							+ " INNER JOIN " + ProductTable.TABLE_PRODUCT + " b " 
+							+ " ON a." + ProductTable.COLUMN_PRODUCT_ID 
+							+ "=b." + ProductTable.COLUMN_PRODUCT_ID 
+							+ " WHERE b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?"
+							+ " ORDER BY b." + COLUMN_ORDERING;
+					Cursor cursor = getReadableDatabase().rawQuery(
+							sql, 
 							new String[] { 
 									String.valueOf(group.getProductDeptId()) 
 							});
 
 					if (cursor.moveToFirst()) {
 						do {
-							Report.ReportDetail reportDetail = new Report.ReportDetail();
-							reportDetail
-									.setProductCode(cursor.getString(cursor
-											.getColumnIndex(ProductTable.COLUMN_PRODUCT_CODE)));
-							reportDetail
-									.setProductName(cursor.getString(cursor
-											.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
-							reportDetail
-									.setPricePerUnit(cursor.getDouble(cursor
-											.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
-							reportDetail.setQty(cursor.getDouble(cursor
-									.getColumnIndex(COLUMN_PRODUCT_QTY)));
-							reportDetail.setQtyPercent(cursor.getDouble(cursor
-									.getColumnIndex(COLUMN_PRODUCT_QTY_PERCENT)));
-							reportDetail.setSubTotal(cursor.getDouble(cursor
-									.getColumnIndex(COLUMN_PRODUCT_SUB_TOTAL)));
-							reportDetail
-									.setSubTotalPercent(cursor.getDouble(cursor
-											.getColumnIndex(COLUMN_PRODUCT_SUB_TOTAL_PERCENT)));
-							reportDetail.setDiscount(cursor.getDouble(cursor
-									.getColumnIndex(COLUMN_PRODUCT_DISCOUNT)));
-							reportDetail.setTotalPrice(cursor.getDouble(cursor
-									.getColumnIndex(COLUMN_PRODUCT_TOTAL_PRICE)));
-							reportDetail
-									.setTotalPricePercent(cursor.getDouble(cursor
-											.getColumnIndex(COLUMN_PRODUCT_TOTAL_PRICE_PERCENT)));
+							Report.ReportDetail detail = new Report.ReportDetail();
+							String productName = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME));
+							if(productName == null)
+								productName = "";
+							if(productName.equals("null"))
+								productName = "";
+							detail.setProductCode(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_CODE)));
+							detail.setProductName(productName);
+							detail.setPricePerUnit(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
+							detail.setQty(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_QTY)));
+							detail.setQtyPercent(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_QTY_PERCENT)));
+							detail.setSubTotal(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_SUB_TOTAL)));
+							detail.setSubTotalPercent(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_SUB_TOTAL_PERCENT)));
+							detail.setDiscount(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_DISCOUNT)));
+							detail.setTotalPrice(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_TOTAL_PRICE)));
+							detail.setTotalPricePercent(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_TOTAL_PRICE_PERCENT)));
 							int vatType = cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_VAT_TYPE));
 							String vatTypeText = "N";
 							switch(vatType){
@@ -410,8 +404,8 @@ public class Reporting extends MPOSDatabase{
 								vatTypeText = "E";
 								break;
 							}
-							reportDetail.setVat(vatTypeText);
-							groupSection.getReportDetail().add(reportDetail);
+							detail.setVat(vatTypeText);
+							groupSection.getReportDetail().add(detail);
 						} while (cursor.moveToNext());
 					}
 					
@@ -477,39 +471,55 @@ public class Reporting extends MPOSDatabase{
 	}
 	
 	public Report.ReportDetail getSummaryByDept(int deptId){
+		String transIds = getTransactionIds();
 		Report.ReportDetail report = null;
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT SUM(o." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS TotalQty, " +
-				" SUM(o." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
-				" SUM(o." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, " +
-				" SUM(o." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice " +
-				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t " + 
-				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o " +
-				" ON t." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=o." + OrderTransactionTable.COLUMN_TRANSACTION_ID +
-				" INNER JOIN " + ProductTable.TABLE_PRODUCT + " p " +
-				" ON o." + ProductTable.COLUMN_PRODUCT_ID + "=p." + ProductTable.COLUMN_PRODUCT_ID +
-				" WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
-				" AND t." + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)" +
-				" AND p." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?" +
-				" GROUP BY p." + ProductTable.COLUMN_PRODUCT_DEPT_ID,
+				" SELECT SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ")"
+				+ " AS " + OrderDetailTable.COLUMN_ORDER_QTY + "," 
+				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
+				+ " AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", " 
+				+ " SUM(a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
+				+ " AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
+				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") "
+				+ " AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ","
+				+ "(SELECT SUM(s." + OrderSetTable.COLUMN_ORDER_SET_PRICE + " * s." + OrderSetTable.COLUMN_ORDER_SET_QTY + ") "
+				+ "FROM " + OrderSetTable.TABLE_ORDER_SET + " s "
+				+ "LEFT JOIN " + ProductTable.TABLE_PRODUCT + " p "
+				+ " ON s." + ProductTable.COLUMN_PRODUCT_ID + "=p." + ProductTable.COLUMN_PRODUCT_ID
+				+ " WHERE s." + OrderTransactionTable.COLUMN_TRANSACTION_ID + " IN (" + transIds + ") "
+				+ " AND p." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?) AS TotalSetPrice,"
+				+ "(SELECT SUM(c." + OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE + " * c." + OrderCommentTable.COLUMN_ORDER_COMMENT_QTY + ") "
+				+ "FROM " + OrderCommentTable.TABLE_ORDER_COMMENT + " c "
+				+ "LEFT JOIN " + ProductTable.TABLE_PRODUCT + " p "
+				+ " ON c." + MenuCommentTable.COLUMN_COMMENT_ID + "=p." + ProductTable.COLUMN_PRODUCT_ID
+				+ " WHERE c." + OrderTransactionTable.COLUMN_TRANSACTION_ID + " IN (" + transIds + " )"
+				+ " AND p." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?) AS TotalCommentPrice"
+				+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
+				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b " 
+				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID
+				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + " IN (" + transIds + ")"
+				+ " AND b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?"
+				+ " GROUP BY b." + ProductTable.COLUMN_PRODUCT_DEPT_ID,
 				new String[]{
-						String.valueOf(mDateFrom),
-						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(Transaction.TRANS_STATUS_VOID),
+						String.valueOf(deptId),
+						String.valueOf(deptId),
 						String.valueOf(deptId)
 				});
 		
 		if(cursor.moveToFirst()){
+			double totalSetPrice = cursor.getDouble(cursor.getColumnIndex("TotalSetPrice"));
+			double totalCommentPrice = cursor.getDouble(cursor.getColumnIndex("TotalCommentPrice"));
 			Report.ReportDetail summReport = getProductSummary();
 			report = new Report.ReportDetail();
 			report.setProductName(SUMM_DEPT);
-			report.setQty(cursor.getDouble(cursor.getColumnIndex("TotalQty")));
+			report.setQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
 			report.setQtyPercent(report.getQty() / summReport.getQty() * 100);
-			report.setSubTotal(cursor.getDouble(cursor.getColumnIndex("TotalRetailPrice")));
+			report.setSubTotal(totalSetPrice + totalCommentPrice + 
+					cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
 			report.setSubTotalPercent(report.getSubTotal() / summReport.getSubTotal() * 100);
-			report.setDiscount(cursor.getDouble(cursor.getColumnIndex("TotalDiscount")));
-			report.setTotalPrice(cursor.getDouble(cursor.getColumnIndex("TotalSalePrice")));
+			report.setDiscount(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
+			report.setTotalPrice(totalSetPrice + totalCommentPrice +
+					cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
 			report.setTotalPricePercent(report.getTotalPrice() / summReport.getTotalPrice() * 100);
 		}
 		cursor.close();
@@ -537,85 +547,68 @@ public class Reporting extends MPOSDatabase{
 		return report;
 	}
 	
-	private void createProductDataTmp() throws SQLException{
-		Cursor cursor = getWritableDatabase().rawQuery(
-				" SELECT b." + ProductTable.COLUMN_PRODUCT_ID + ", "
-				+ " SUM(b." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS TotalQty, "
-				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, "
-				+ " SUM(b." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, "
-				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice, "
-				// total qty
-				+ " (SELECT SUM(o." + OrderDetailTable.COLUMN_ORDER_QTY + ") "
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t "
-				+ " INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o "
-				+ " ON t." + OrderTransactionTable.COLUMN_TRANSACTION_ID
-				+ " =o." + OrderTransactionTable.COLUMN_TRANSACTION_ID
-				+ " AND t." + ComputerTable.COLUMN_COMPUTER_ID
-				+ " =o." + ComputerTable.COLUMN_COMPUTER_ID
-				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE
-				+ " BETWEEN " + mDateFrom + " AND " + mDateTo
-				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
-				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalQty, "
-				// total retail price
-				+ " (SELECT SUM(o." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t "
-				+ " INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o "
-				+ " ON t." + OrderTransactionTable.COLUMN_TRANSACTION_ID
-				+ " =o." + OrderTransactionTable.COLUMN_TRANSACTION_ID
-				+ " AND t." + ComputerTable.COLUMN_COMPUTER_ID
-				+ " =o." + ComputerTable.COLUMN_COMPUTER_ID
-				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE
-				+ " BETWEEN " + mDateFrom + " AND " + mDateTo
-				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
-				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalRetailPrice, "
-				// total discount
-				+ " (SELECT SUM(o." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t "
-				+ " INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o "
-				+ " ON t." + OrderTransactionTable.COLUMN_TRANSACTION_ID
-				+ " =o." + OrderTransactionTable.COLUMN_TRANSACTION_ID
-				+ " AND t." + ComputerTable.COLUMN_COMPUTER_ID
-				+ " =o." + ComputerTable.COLUMN_COMPUTER_ID
-				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE
-				+ " BETWEEN " + mDateFrom + " AND "
-				+ mDateTo + " AND t." + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
-				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalDiscount, " 
-				// total sale price
-				+ " (SELECT SUM(o." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + " + o."
-				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") "
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t " 
-				+ " INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o " 
-				+ " ON t." + OrderTransactionTable.COLUMN_TRANSACTION_ID 
-				+ " =o." + OrderTransactionTable.COLUMN_TRANSACTION_ID
-				+ " AND t." + ComputerTable.COLUMN_COMPUTER_ID 
-				+ " =o." + ComputerTable.COLUMN_COMPUTER_ID 
-				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE 
-				+ " BETWEEN " + mDateFrom + " AND " + mDateTo 
-				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID 
-				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
-				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalSalePrice " 
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
-				+ " INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b "
-				+ " ON a." + OrderTransactionTable.COLUMN_TRANSACTION_ID 
-				+ " =b." + OrderTransactionTable.COLUMN_TRANSACTION_ID
-				+ " AND a." + ComputerTable.COLUMN_COMPUTER_ID 
-				+ " =b." + ComputerTable.COLUMN_COMPUTER_ID 
-				+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE
-				+ " BETWEEN ? AND ?" 
-				+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)"
-				+ " GROUP BY b." + ProductTable.COLUMN_PRODUCT_ID,
+	public String getTransactionIds(){
+		String transIds = "";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE
+				+ " BETWEEN ? AND ? AND " + OrderTransactionTable.COLUMN_STATUS_ID
+				+ " IN (?, ?) ", 
 				new String[]{
-						String.valueOf(mDateFrom),
-						String.valueOf(mDateTo),
+						mDateFrom,
+						mDateTo,
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 						String.valueOf(Transaction.TRANS_STATUS_VOID)
 				});
+		if(cursor.moveToFirst()){
+			do{
+				transIds += cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID));
+				if(!cursor.isLast())
+					transIds += ",";
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return transIds;
+	}
+	
+	private void createProductDataTmp() throws SQLException{
+		String transIds = getTransactionIds();
+		Cursor cursor = getWritableDatabase().rawQuery(
+				" SELECT " + OrderDetailTable.COLUMN_ORDER_ID + ", "
+				+ ProductTable.COLUMN_PRODUCT_ID + ", "
+				+ " SUM(" + OrderDetailTable.COLUMN_ORDER_QTY + ") AS TotalQty, "
+				+ " SUM(" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, "
+				+ " SUM(" + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, "
+				+ " SUM(" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice, "
+				// total qty
+				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_ORDER_QTY + ") "
+				+ " FROM " + OrderDetailTable.TABLE_ORDER
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID
+				+ " IN (" + transIds + ")) AS SummTotalQty, "
+				// total retail price
+				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
+				+ " FROM " + OrderDetailTable.TABLE_ORDER
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID 
+				+ " IN (" + transIds + ")) AS SummTotalRetailPrice, "
+				// total discount
+				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
+				+ " FROM " + OrderDetailTable.TABLE_ORDER
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID 
+				+ " IN (" + transIds + ")) AS SummTotalDiscount, "
+				// total sale price
+				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") "
+				+ " FROM " + OrderDetailTable.TABLE_ORDER
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID 
+				+ " IN (" + transIds + ")) AS SummTotalSalePrice " 
+				+ " FROM " + OrderDetailTable.TABLE_ORDER
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID
+				+ " IN (" + transIds + ")"
+				+ " GROUP BY " + ProductTable.COLUMN_PRODUCT_ID, null);
 		
 		if(cursor.moveToFirst()){
 			do{
+				int productId = cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID));
 				double qty = cursor.getDouble(cursor.getColumnIndex("TotalQty"));
 				double summQty = cursor.getDouble(cursor.getColumnIndex("SummTotalQty"));
 				double qtyPercent = (qty / summQty) * 100;
@@ -628,57 +621,156 @@ public class Reporting extends MPOSDatabase{
 				double summSalePrice = cursor.getDouble(cursor.getColumnIndex("SummTotalSalePrice"));
 				double salePricePercent = (salePrice / summSalePrice) * 100;
 				
-				ContentValues cv = new ContentValues();
-				cv.put(ProductTable.COLUMN_PRODUCT_ID, cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-				cv.put(COLUMN_PRODUCT_QTY, qty);
-				cv.put(COLUMN_PRODUCT_SUMM_QTY, summQty);
-				cv.put(COLUMN_PRODUCT_QTY_PERCENT, qtyPercent);
-				cv.put(COLUMN_PRODUCT_SUB_TOTAL, retailPrice);
-				cv.put(COLUMN_PRODUCT_SUMM_SUB_TOTAL, summRetailPrice);
-				cv.put(COLUMN_PRODUCT_SUB_TOTAL_PERCENT, retailPricePercent);
-				cv.put(COLUMN_PRODUCT_DISCOUNT, discount);
-				cv.put(COLUMN_PRODUCT_SUMM_DISCOUNT, summDiscount);
-				cv.put(COLUMN_PRODUCT_TOTAL_PRICE, salePrice);
-				cv.put(COLUMN_PRODUCT_SUMM_TOTAL_PRICE, summSalePrice);
-				cv.put(COLUMN_PRODUCT_TOTAL_PRICE_PERCENT, salePricePercent);
-				
-				try {
-					getWritableDatabase().insertOrThrow(TEMP_PRODUCT_REPORT, null, cv);
-				} catch (Exception e) {
-					e.printStackTrace();
-					return;
-				}
+				insertProductDataTemp(productId, qty, summQty, qtyPercent, retailPrice, 
+						summRetailPrice, retailPricePercent, discount, summDiscount, salePrice,
+						summSalePrice, salePricePercent);
 				
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
+		
+		createProductDataCommentTemp(transIds);
+		createProductDataSetTemp(transIds);
+	}
+	
+	private void createProductDataCommentTemp(String transIds){
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + MenuCommentTable.COLUMN_COMMENT_ID + ", "
+				+ " SUM(" + OrderCommentTable.COLUMN_ORDER_COMMENT_QTY + ") AS TotalCommentQty, "
+				+ " SUM(" + OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE + " * " 
+				+ OrderCommentTable.COLUMN_ORDER_COMMENT_QTY + ") AS TotalCommentPrice, "
+				+ " (SELECT SUM(" + OrderCommentTable.COLUMN_ORDER_COMMENT_QTY + ") "
+				+ " FROM " + OrderCommentTable.TABLE_ORDER_COMMENT
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + " IN (" + transIds + ")"
+				+ " ) AS SumTotalCommentQty,"
+				+ " (SELECT SUM(" + OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE + " * " 
+				+ OrderCommentTable.COLUMN_ORDER_COMMENT_QTY + ") "
+				+ " FROM " + OrderCommentTable.TABLE_ORDER_COMMENT
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + " IN (" + transIds + ")"
+				+ " ) AS SumTotalCommentPrice"
+				+ " FROM " + OrderCommentTable.TABLE_ORDER_COMMENT
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + " IN (" + transIds + ")"
+				+ " GROUP BY " + MenuCommentTable.COLUMN_COMMENT_ID, null);
+		if(cursor.moveToFirst()){
+			do{
+				int commentId = cursor.getInt(cursor.getColumnIndex(MenuCommentTable.COLUMN_COMMENT_ID));
+				double qty = cursor.getDouble(cursor.getColumnIndex("TotalCommentQty"));
+				double summQty = cursor.getDouble(cursor.getColumnIndex("SumTotalCommentQty"));
+				double qtyPercent = (qty / summQty) * 100;
+				double commentPrice = cursor.getDouble(cursor.getColumnIndex("TotalCommentPrice"));
+				double summCommentPrice = cursor.getDouble(cursor.getColumnIndex("SumTotalCommentPrice"));
+				double commentPricePercent = (commentPrice / summCommentPrice) * 100;
+				double discount = 0.0d;
+				double summDiscount = 0.0d;
+				
+				insertProductDataTemp(commentId, qty, summQty, qtyPercent, commentPrice, 
+						summCommentPrice, commentPricePercent, discount, summDiscount, commentPrice,
+						summCommentPrice, commentPricePercent);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+	}
+	
+	private void createProductDataSetTemp(String transIds){
+		String sql = "SELECT " + ProductTable.COLUMN_PRODUCT_ID + ", "
+				+ " SUM(" + OrderSetTable.COLUMN_ORDER_SET_QTY + ") AS TotalSetQty, "
+				+ " SUM(" + OrderSetTable.COLUMN_ORDER_SET_PRICE + " * " 
+				+ OrderSetTable.COLUMN_ORDER_SET_QTY + ") AS TotalSetPrice, "
+				+ " (SELECT SUM(" + OrderSetTable.COLUMN_ORDER_SET_QTY + ") "
+				+ " FROM " + OrderSetTable.TABLE_ORDER_SET
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + " IN (" + transIds + ")"
+				+ " ) AS SumTotalSetQty,"
+				+ " (SELECT SUM(" + OrderSetTable.COLUMN_ORDER_SET_PRICE + " * " 
+				+ OrderSetTable.COLUMN_ORDER_SET_QTY + ") "
+				+ " FROM " + OrderSetTable.TABLE_ORDER_SET
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + " IN (" + transIds + ")"
+				+ " ) AS SumTotalSetPrice"
+				+ " FROM " + OrderSetTable.TABLE_ORDER_SET
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + " IN (" + transIds + ")"
+				+ " GROUP BY " + ProductTable.COLUMN_PRODUCT_ID;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				sql, null);
+		if(cursor.moveToFirst()){
+			do{
+				int productId = cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID));
+				double qty = cursor.getDouble(cursor.getColumnIndex("TotalSetQty"));
+				double summQty = cursor.getDouble(cursor.getColumnIndex("SumTotalSetQty"));
+				double qtyPercent = (qty / summQty) * 100;
+				double setPrice = cursor.getDouble(cursor.getColumnIndex("TotalSetPrice"));
+				double summSetPrice = cursor.getDouble(cursor.getColumnIndex("SumTotalSetPrice"));
+				double summSetPricePercent = (setPrice / summSetPrice) * 100;
+				double discount = 0.0d;
+				double summDiscount = 0.0d;
+				
+				insertProductDataTemp(productId, qty, summQty, qtyPercent, setPrice, 
+						summSetPrice, summSetPricePercent, discount, summDiscount, setPrice,
+						summSetPrice, summSetPricePercent);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+	}
+	
+	/**
+	 * @param productId
+	 * @param qty
+	 * @param summQty
+	 * @param qtyPercent
+	 * @param retailPrice
+	 * @param summRetailPrice
+	 * @param retailPricePercent
+	 * @param discount
+	 * @param summDiscount
+	 * @param salePrice
+	 * @param summSalePrice
+	 * @param salePricePercent
+	 */
+	private void insertProductDataTemp(int productId, double qty, double summQty, 
+			double qtyPercent, double retailPrice, double summRetailPrice,
+			double retailPricePercent, double discount, double summDiscount,
+			double salePrice, double summSalePrice, double salePricePercent){
+		ContentValues cv = new ContentValues();
+		cv.put(ProductTable.COLUMN_PRODUCT_ID, productId);
+		cv.put(COLUMN_PRODUCT_QTY, qty);
+		cv.put(COLUMN_PRODUCT_SUMM_QTY, summQty);
+		cv.put(COLUMN_PRODUCT_QTY_PERCENT, qtyPercent);
+		cv.put(COLUMN_PRODUCT_SUB_TOTAL, retailPrice);
+		cv.put(COLUMN_PRODUCT_SUMM_SUB_TOTAL, summRetailPrice);
+		cv.put(COLUMN_PRODUCT_SUB_TOTAL_PERCENT, retailPricePercent);
+		cv.put(COLUMN_PRODUCT_DISCOUNT, discount);
+		cv.put(COLUMN_PRODUCT_SUMM_DISCOUNT, summDiscount);
+		cv.put(COLUMN_PRODUCT_TOTAL_PRICE, salePrice);
+		cv.put(COLUMN_PRODUCT_SUMM_TOTAL_PRICE, summSalePrice);
+		cv.put(COLUMN_PRODUCT_TOTAL_PRICE_PERCENT, salePricePercent);
+		
+		getWritableDatabase().insertOrThrow(TEMP_PRODUCT_REPORT, null, cv);
 	}
 	
 	public List<Report.GroupOfProduct> listProductGroup(){
 		List<Report.GroupOfProduct> reportLst = new ArrayList<Report.GroupOfProduct>();
 		
 		Cursor cursor = getReadableDatabase().rawQuery(
-					" SELECT c." + ProductTable.COLUMN_PRODUCT_DEPT_ID + ", " + 
-					" c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ", " + 
-					" d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", " +
-					" d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME + 
-					" FROM " + TEMP_PRODUCT_REPORT + " a " +
-					" INNER JOIN " + ProductTable.TABLE_PRODUCT + " b " +
-					" ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID +
-					" INNER JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " c " +
-					" ON b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=c." + ProductTable.COLUMN_PRODUCT_DEPT_ID +
-					" INNER JOIN " + ProductGroupTable.TABLE_PRODUCT_GROUP + " d " +
-					" ON c." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + 
-					" GROUP BY d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", " +
-					" c." + ProductTable.COLUMN_PRODUCT_DEPT_ID +
-					" ORDER BY d." + COLUMN_ORDERING + "," +
-					" c." + COLUMN_ORDERING, null);
+				" SELECT c." + ProductTable.COLUMN_PRODUCT_DEPT_ID + ", "
+						+ " c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ", " 
+						+ " d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", "
+						+ " d." + ProductGroupTable.COLUMN_IS_COMMENT + ", "
+						+ " d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME
+						+ " FROM " + TEMP_PRODUCT_REPORT + " a "
+						+ " INNER JOIN " + ProductTable.TABLE_PRODUCT + " b "
+						+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID 
+						+ " INNER JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " c "
+						+ " ON b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=c." + ProductTable.COLUMN_PRODUCT_DEPT_ID
+						+ " INNER JOIN " + ProductGroupTable.TABLE_PRODUCT_GROUP + " d "
+						+ " ON c." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=d." + ProductTable.COLUMN_PRODUCT_GROUP_ID
+						+ " GROUP BY d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", " 
+						+ " c." + ProductTable.COLUMN_PRODUCT_DEPT_ID
+						+ " ORDER BY d." + COLUMN_ORDERING + "," + " c." + COLUMN_ORDERING, null);
 		
 		if(cursor.moveToFirst()){
 			do{
 				Report.GroupOfProduct report = new Report.GroupOfProduct();
 				report.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_DEPT_ID)));
 				report.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_GROUP_ID)));
+				report.setIsComment(cursor.getInt(cursor.getColumnIndex(ProductGroupTable.COLUMN_IS_COMMENT)));
 				report.setProductGroupName(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME)));
 				report.setProductDeptName(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME)));
 				reportLst.add(report);

@@ -141,6 +141,50 @@ public class Session extends MPOSDatabase{
 		return sessionId + 1;
 	}
 
+	/**
+	 * @param sessionId
+	 * @return open open cash amount
+	 */
+	public double getOpenAmount(int sessionId){
+		double openAmount = 0.0d;
+		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_SESSION, 
+				new String[]{
+					SessionTable.COLUMN_OPEN_AMOUNT
+				}, SessionTable.COLUMN_SESS_ID + "=?", 
+				new String[]{
+					String.valueOf(sessionId)
+				}, null, null, null);
+		if(cursor.moveToFirst()){
+			openAmount = cursor.getDouble(0);
+		}
+		cursor.close();
+		return openAmount;
+	}
+	
+	/**
+	 * @param sessionId
+	 * @param cashAmount
+	 * @return rows affected
+	 */
+	public int updateOpenAmount(int sessionId, double cashAmount){
+		ContentValues cv = new ContentValues();
+		cv.put(SessionTable.COLUMN_OPEN_AMOUNT, cashAmount);
+		return getWritableDatabase().update(SessionTable.TABLE_SESSION, cv, 
+				SessionTable.COLUMN_SESS_ID + "=?", 
+				new String[]{
+					String.valueOf(sessionId)
+				}
+		);
+	}
+	
+	/**
+	 * @param date
+	 * @param shopId
+	 * @param computerId
+	 * @param openStaffId
+	 * @param openAmount
+	 * @return
+	 */
 	public int openSession(Calendar date, int shopId, int computerId, 
 			int openStaffId, double openAmount){
 		int sessionId = getMaxSessionId();
