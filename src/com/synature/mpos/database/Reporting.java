@@ -629,8 +629,8 @@ public class Reporting extends MPOSDatabase{
 		}
 		cursor.close();
 		
-		createProductDataCommentTemp(transIds);
-		createProductDataSetTemp(transIds);
+//		createProductDataCommentTemp(transIds);
+//		createProductDataSetTemp(transIds);
 	}
 	
 	private void createProductDataCommentTemp(String transIds){
