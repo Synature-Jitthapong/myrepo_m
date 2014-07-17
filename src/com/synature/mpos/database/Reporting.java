@@ -211,8 +211,7 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE
 				+ " BETWEEN " + mDateFrom + " AND " + mDateTo
 				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
-				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalRetailPrice, "
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS  + ")) AS SummTotalRetailPrice, "
 				// total discount
 				+ " (SELECT SUM(o." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t "
@@ -222,8 +221,7 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE
 				+ " BETWEEN " + mDateFrom + " AND "
 				+ mDateTo + " AND t." + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
-				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalDiscount, " 
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ")) AS SummTotalDiscount, " 
 				// total sale price
 				+ " (SELECT SUM(o." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + " + o."
 				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") "
@@ -234,8 +232,7 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE 
 				+ " BETWEEN " + mDateFrom + " AND " + mDateTo 
 				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID 
-				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
-				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalSalePrice, "
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ")) AS SummTotalSalePrice, "
 				// total payment
 				+ " (SELECT SUM(p." + PaymentDetailTable.COLUMN_PAY_AMOUNT +  ") "
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t " 
@@ -245,20 +242,18 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE 
 				+ " BETWEEN " + mDateFrom + " AND " + mDateTo 
 				+ " AND t." + OrderTransactionTable.COLUMN_STATUS_ID 
-				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ", "
-				+ Transaction.TRANS_STATUS_VOID + ")) AS SummTotalPayment "
+				+ " IN (" + Transaction.TRANS_STATUS_SUCCESS + ")) AS SummTotalPayment "
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
 				+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE
 				+ " BETWEEN ? AND ? "
 				+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN(?,?)";
+				+ " =?";
 		Cursor cursor = getReadableDatabase().rawQuery(
 				sql, 
 				new String[]{
 						mDateFrom, 
 						mDateTo, 
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(Transaction.TRANS_STATUS_VOID),
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
 		});
 		if(cursor.moveToFirst()){
 			report.setVatable(cursor.getDouble(cursor.getColumnIndex("TransVatable")));
@@ -436,15 +431,14 @@ public class Reporting extends MPOSDatabase{
 				" ON o." + ProductTable.COLUMN_PRODUCT_ID + "=p." + ProductTable.COLUMN_PRODUCT_ID +
 				" INNER JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " pd " +
 				" ON p." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=pd." + ProductTable.COLUMN_PRODUCT_DEPT_ID +
-				" WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ?" +
-				" AND t." + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)" +
+				" WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ?"  +
+				" AND t." + OrderTransactionTable.COLUMN_STATUS_ID + " =?" +
 				" AND pd." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=?" +
 				" GROUP BY pd." + ProductTable.COLUMN_PRODUCT_GROUP_ID,
 				new String[]{
 						String.valueOf(mDateFrom),
 						String.valueOf(mDateTo),
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(Transaction.TRANS_STATUS_VOID),
 						String.valueOf(groupId)
 				});
 		
@@ -547,13 +541,12 @@ public class Reporting extends MPOSDatabase{
 				"SELECT " + OrderTransactionTable.COLUMN_TRANSACTION_ID
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
 				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE
-				+ " BETWEEN ? AND ? AND " + OrderTransactionTable.COLUMN_STATUS_ID
-				+ " IN (?, ?) ", 
+				+ " BETWEEN ? AND ? "
+				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " =? ", 
 				new String[]{
 						mDateFrom,
 						mDateTo,
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(Transaction.TRANS_STATUS_VOID)
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
 				});
 		if(cursor.moveToFirst()){
 			do{
