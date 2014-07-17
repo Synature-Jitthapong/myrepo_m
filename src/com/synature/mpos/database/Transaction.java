@@ -561,7 +561,7 @@ public class Transaction extends MPOSDatabase {
 						+ " a." + ProductTable.COLUMN_PRODUCT_ID + ", " 
 						+ " SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ") "
 						+ " AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", " 
-						+ " SUM(a." + ProductTable.COLUMN_PRODUCT_PRICE + ") "
+						+ " SUM(a." + ProductTable.COLUMN_PRODUCT_PRICE + " * " + OrderDetailTable.COLUMN_ORDER_QTY + ") "
 						+ " AS " + ProductTable.COLUMN_PRODUCT_PRICE + ", " 
 						+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
 						+ " AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
