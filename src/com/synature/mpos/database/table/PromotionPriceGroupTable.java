@@ -33,7 +33,10 @@ public class PromotionPriceGroupTable {
 			+ COLUMN_PRICE_FROM_TIME + " TEXT, "
 			+ COLUMN_PRICE_TO_DATE + " TEXT, "
 			+ COLUMN_PRICE_TO_TIME + " TEXT, "
-			+ COLUMN_PROMOTION_WEEKLY + " "
+			+ COLUMN_PROMOTION_WEEKLY + " TEXT, "
+			+ COLUMN_PROMOTION_MONTHLY + " TEXT, "
+			COLUMN_IS_ALLOW_USE_OTHER_PROMOTION + " INTEGER, "
+			COLUMN_VOUCHER_AMOUNT + " REAL"
 			+ ");";
 	
 	public static void onCreate(SQLiteDatabase db) {
