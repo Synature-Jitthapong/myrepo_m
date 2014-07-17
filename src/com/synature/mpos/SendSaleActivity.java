@@ -136,32 +136,52 @@ public class SendSaleActivity extends Activity{
 	}
 
 	private void sendSale(){
-		mPartService.sendSale(mShopId, mComputerId, mStaffId, false, new ProgressListener(){
+		for(int i = 0; i < mTransLst.size(); i++){
+			SendTransaction trans = mTransLst.get(i);
+			mPartService.sendSale(mShopId, trans.getTransactionId(), 
+					mComputerId, mStaffId, new SendSaleProgress(trans, i));
+		}
+	}
+	
+	class SendSaleProgress implements ProgressListener{
 
-			@Override
-			public void onPre() {
-				mIsOnSync = true;
-				mItemProgress.setVisible(true);
-				mItemSendAll.setVisible(false);
-			}
+		private SendTransaction mTrans;
+		private int mPosition;
+		
+		public SendSaleProgress(SendTransaction trans, int position){
+			mTrans = trans;
+			mPosition = position;
+		}
+		
+		@Override
+		public void onPre() {
+			if(mPosition == 0)
+				mItemSendAll.setEnabled(false);
+			mTrans.onSend = true;
+			mTransLst.set(mPosition, mTrans);
+			mSyncAdapter.notifyDataSetChanged();
+		}
 
-			@Override
-			public void onPost() {
-				mIsOnSync = false;
-				loadTransNotSend();
-				mItemProgress.setVisible(false);
-				mItemSendAll.setVisible(true);
-			}
+		@Override
+		public void onPost() {
+			mTrans.setSendStatus(MPOSDatabase.ALREADY_SEND);
+			mTrans.onSend = false;
+			mTransLst.set(mPosition, mTrans);
+			mSyncAdapter.notifyDataSetChanged();
+			if(mPosition == mTransLst.size() - 1)
+				mItemSendAll.setEnabled(true);
+		}
 
-			@Override
-			public void onError(String msg) {
-				mIsOnSync = false;
-				loadTransNotSend();
-				mItemProgress.setVisible(false);
-				mItemSendAll.setVisible(true);
-			}
-			
-		});
+		@Override
+		public void onError(String msg) {
+			mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
+			mTransLst.set(mPosition, mTrans);
+			mTrans.onSend = false;
+			mSyncAdapter.notifyDataSetChanged();
+			if(mPosition == mTransLst.size() - 1)
+				mItemSendAll.setEnabled(true);
+		}
+		
 	}
 	
 	private List<SendTransaction> listNotSendTransaction(){
@@ -282,9 +302,5 @@ public class SendSaleActivity extends Activity{
 	
 	private class SendTransaction extends OrderTransaction{
 		private boolean onSend = false;
-
-		public void setOnSend(boolean onSend) {
-			this.onSend = onSend;
-		}
 	}
 }

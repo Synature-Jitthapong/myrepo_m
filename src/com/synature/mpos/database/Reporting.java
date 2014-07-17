@@ -377,10 +377,6 @@ public class Reporting extends MPOSDatabase{
 						do {
 							Report.ReportDetail detail = new Report.ReportDetail();
 							String productName = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME));
-							if(productName == null)
-								productName = "";
-							if(productName.equals("null"))
-								productName = "";
 							detail.setProductCode(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_CODE)));
 							detail.setProductName(productName);
 							detail.setPricePerUnit(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));

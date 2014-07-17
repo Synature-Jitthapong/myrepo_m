@@ -550,6 +550,7 @@ public class PrintReport implements Runnable{
 					mBuilder.addText(totalVat + "\n\n");
 				}
 				
+				
 				List<Payment.PaymentDetail> summaryPaymentLst = 
 						mPayment.listSummaryPayment(
 								mTrans.getSeperateTransactionId(session.getSessionDate()));

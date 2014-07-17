@@ -1090,6 +1090,30 @@ public class Transaction extends MPOSDatabase {
 	}
 
 	/**
+	 * @return list of transaction not send
+	 */
+	public List<Integer> listTransactionIdNotSend(){
+		List<Integer> transLst = new ArrayList<Integer>();
+		Cursor cursor = getReadableDatabase().query(OrderTransactionTable.TABLE_ORDER_TRANS, 
+				new String[]{
+					OrderTransactionTable.COLUMN_TRANSACTION_ID
+				}, OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " +
+					BaseColumn.COLUMN_SEND_STATUS + " =? ", 
+				new String[]{
+					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+				 	String.valueOf(MPOSDatabase.NOT_SEND)
+				}, null, null, null);
+		if(cursor.moveToFirst()){
+			do{
+				int transactionId = cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID));
+				transLst.add(transactionId);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return transLst;
+	}
+	
+	/**
 	 * @return total transaction that not sent
 	 */
 	public int countTransNotSend() {

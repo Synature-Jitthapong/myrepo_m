@@ -1,7 +1,6 @@
 package com.synature.mpos.database;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.Utils;
@@ -38,12 +37,17 @@ public class SaleTransaction extends MPOSDatabase{
 	
 	private Shop mShop;
 	
-	/*
+	/**
+	 * for specific by transaction
+	 */
+	private int mTransactionId;
+	
+	/**
 	 * session date for query transaction
 	 */
 	private String mSessionDate;
 	
-	/*
+	/**
 	 * List all transaction in session date?
 	 */
 	private boolean mIsAllTrans = false;
@@ -55,6 +59,11 @@ public class SaleTransaction extends MPOSDatabase{
 		mGlobal = new Formater(context);
 		mSessionDate = sessionDate;
 		mIsAllTrans = isAllTrans;
+	}
+	
+	public SaleTransaction(Context context, String sessionDate, int transactionId){
+		this(context, sessionDate, false);
+		mTransactionId = transactionId;
 	}
 	
 	public POSData_SaleTransaction listSaleTransaction() {
@@ -72,7 +81,9 @@ public class SaleTransaction extends MPOSDatabase{
 		List<SaleData_SaleTransaction> saleTransLst = new ArrayList<SaleData_SaleTransaction>();
 		Cursor cursor = queryTransactionNotSend();
 
-		if(mIsAllTrans)
+		if(mTransactionId != 0)
+			cursor = queryTransaction();
+		else if(mIsAllTrans)
 			cursor = queryAllTransactionInSessionDate();
 		else
 			cursor = queryTransactionNotSend();
@@ -452,6 +463,20 @@ public class SaleTransaction extends MPOSDatabase{
 				" AND " + COLUMN_SEND_STATUS + "=?",
 				new String[] {
 						mSessionDate,
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID),
+						String.valueOf(MPOSDatabase.NOT_SEND) });
+	}
+	
+	public Cursor queryTransaction() {
+		return getReadableDatabase().rawQuery(
+				"SELECT * " + 
+				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + 
+				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" + 
+				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) " + 
+				" AND " + COLUMN_SEND_STATUS + "=?",
+				new String[] {
+						String.valueOf(mTransactionId),
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 						String.valueOf(Transaction.TRANS_STATUS_VOID),
 						String.valueOf(MPOSDatabase.NOT_SEND) });

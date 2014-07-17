@@ -130,19 +130,20 @@ public class SaleService extends Service{
 	 * @param sendAll
 	 * @param listener
 	 */
-	public void sendSale(final int shopId, final int computerId, 
-			final int staffId, boolean sendAll, final ProgressListener listener) {
+	public void sendSale(final int shopId, final int transactionId, final int computerId, 
+			final int staffId, final ProgressListener listener) {
 		Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
 				Utils.LOG_FILE_NAME, 
 				TAG + ": Start Send PartialSale \n"
 				+ "staffId=" + staffId + "\n"
 				+ "shopId=" + shopId + "\n"
+				+ "transactionId=" + transactionId + "\n"
 				+ "computerId=" + computerId);
 		
 		Session session = new Session(getApplicationContext());
 		final String sessionDate = session.getSessionDate();
 		new LoadSaleTransaction(getApplicationContext(), sessionDate,
-				sendAll, new LoadSaleTransactionListener() {
+				transactionId, new LoadSaleTransactionListener() {
 
 			@Override
 			public void onPre() {
@@ -168,7 +169,7 @@ public class SaleService extends Service{
 						public void onPost() {
 							// do update transaction already send
 							Transaction trans = new Transaction(getApplicationContext());
-							trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+							trans.updateTransactionSendStatus(transactionId, MPOSDatabase.ALREADY_SEND);
 							Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
 									Utils.LOG_FILE_NAME, 
 									TAG + ": Send PartialSale Complete");
@@ -179,7 +180,7 @@ public class SaleService extends Service{
 						@Override
 						public void onError(String msg) {
 							Transaction trans = new Transaction(getApplicationContext());
-							trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
+							trans.updateTransactionSendStatus(transactionId, MPOSDatabase.NOT_SEND);
 							Utils.logServerResponse(getApplicationContext(), msg);
 							listener.onError(msg);
 						}

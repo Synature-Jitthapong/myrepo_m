@@ -216,6 +216,12 @@ public class Utils {
 			mSaleTrans = new SaleTransaction(context, sessionDate, isListAll);
 		}
 		
+		public LoadSaleTransaction(Context context, String sessionDate, int transactionId, 
+				LoadSaleTransactionListener listener){
+			mListener = listener;
+			mSaleTrans = new SaleTransaction(context, sessionDate, transactionId);
+		}
+		
 		@Override
 		protected void onPreExecute() {
 			mListener.onPre();

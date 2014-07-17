@@ -552,25 +552,28 @@ public class MainActivity extends FragmentActivity
 			}, 10000);
 		}
 		
-		// send sale data service
-		mPartService.sendSale(mShop.getShopId(), mComputer.getComputerId(),
-				mStaffId, false, new ProgressListener() {
-
-					@Override
-					public void onPre() {
-					}
-
-					@Override
-					public void onPost() {
-						countTransNotSend(MainActivity.this);
-						Utils.makeToask(MainActivity.this, MainActivity.this
-								.getString(R.string.send_sale_data_success));
-					}
-
-					@Override
-					public void onError(String msg) {
-					}
-		});
+		List<Integer> transIdLst = mTrans.listTransactionIdNotSend();
+		for(int transId : transIdLst){
+			// send sale data service
+			mPartService.sendSale(mShop.getShopId(), transId, mComputer.getComputerId(),
+					staffId, new ProgressListener() {
+	
+						@Override
+						public void onPre() {
+						}
+	
+						@Override
+						public void onPost() {
+							countTransNotSend(MainActivity.this);
+							Utils.makeToask(MainActivity.this, MainActivity.this
+									.getString(R.string.send_sale_data_success));
+						}
+	
+						@Override
+						public void onError(String msg) {
+						}
+			});
+		}
 	}
 	
 	/**

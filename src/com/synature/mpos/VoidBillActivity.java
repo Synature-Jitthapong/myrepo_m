@@ -390,8 +390,7 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void sendSale(){
-		mPartService.sendSale(mShopId, mComputerId, mStaffId, 
-				false, new ProgressListener(){
+		mPartService.sendSale(mShopId, mTransactionId, mComputerId, mStaffId, new ProgressListener(){
 
 			@Override
 			public void onPre() {

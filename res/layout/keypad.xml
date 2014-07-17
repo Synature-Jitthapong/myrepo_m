@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical" >
 
     <EditText
         android:id="@+id/txtDisplay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
         android:clickable="false"
         android:ems="10"
         android:focusable="false"
@@ -23,18 +26,22 @@
     </EditText>
 
     <TableLayout
+        android:id="@+id/TableLayout1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/txtDisplay" >
 
         <TableRow
             android:id="@+id/tableRow1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="0dp"
+            android:layout_weight="1" >
 
             <Button
                 android:id="@+id/btn7"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
@@ -45,7 +52,7 @@
             <Button
                 android:id="@+id/btn8"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
@@ -56,7 +63,7 @@
             <Button
                 android:id="@+id/btn9"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
@@ -67,25 +74,25 @@
             <Button
                 android:id="@+id/btnDel"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
                 android:text="&lt;&lt;"
                 android:textAppearance="?android:attr/textAppearanceLargeInverse"
                 android:textSize="@dimen/large_text_size" />
-
         </TableRow>
 
         <TableRow
             android:id="@+id/tableRow2"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="0dp"
+            android:layout_weight="1" >
 
             <Button
                 android:id="@+id/btn4"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
@@ -96,7 +103,7 @@
             <Button
                 android:id="@+id/btn5"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
@@ -107,7 +114,7 @@
             <Button
                 android:id="@+id/btn6"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
@@ -118,25 +125,25 @@
             <Button
                 android:id="@+id/btnClear"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
                 android:text="C"
                 android:textAppearance="?android:attr/textAppearanceLargeInverse"
                 android:textSize="@dimen/large_text_size" />
-
         </TableRow>
 
         <TableRow
             android:id="@+id/tableRow3"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="0dp"
+            android:layout_weight="1" >
 
             <Button
                 android:id="@+id/btn1"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
@@ -147,7 +154,7 @@
             <Button
                 android:id="@+id/btn2"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
@@ -158,7 +165,7 @@
             <Button
                 android:id="@+id/btn3"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
@@ -169,25 +176,25 @@
             <Button
                 android:id="@+id/btnDot"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
                 android:text="."
                 android:textAppearance="?android:attr/textAppearanceLargeInverse"
                 android:textSize="@dimen/large_text_size" />
-
         </TableRow>
 
         <TableRow
             android:id="@+id/tableRow4"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="0dp"
+            android:layout_weight="1" >
 
             <Button
                 android:id="@+id/btn0"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
@@ -198,15 +205,14 @@
             <Button
                 android:id="@+id/btnEnter"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:onClick="onClick"
                 android:text="@string/enter"
                 android:textAppearance="?android:attr/textAppearanceLargeInverse"
                 android:textSize="@dimen/large_text_size" />
-
         </TableRow>
     </TableLayout>
 
-</LinearLayout>
+</RelativeLayout>
