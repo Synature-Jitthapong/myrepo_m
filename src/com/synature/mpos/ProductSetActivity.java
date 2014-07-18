@@ -11,7 +11,9 @@ import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.MPOSOrderTransaction.OrderSet;
 import com.synature.mpos.database.Products.Product;
+import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.util.ImageLoader;
 
 import android.annotation.SuppressLint;
@@ -204,6 +206,14 @@ public class ProductSetActivity extends Activity{
 		if(canDone){
 			mTrans.getWritableDatabase().setTransactionSuccessful();
 			mTrans.getWritableDatabase().endTransaction();
+			mTrans.deleteOrderDetailNotNormalType(mTransactionId, mOrderDetailId, Products.CHILD_OF_SET_HAVE_PRICE);
+			List<OrderSet.OrderSetDetail> setDetailLst = mTrans.listOrderSetDetailHavePrice(mTransactionId, mOrderDetailId);
+			for(OrderSet.OrderSetDetail setDetail : setDetailLst){
+				mTrans.addOrderDetail(mTransactionId, mComputerId, setDetail.getProductId(), 
+						Products.CHILD_OF_SET_HAVE_PRICE, setDetail.getVatType(), 
+						setDetail.getVatRate(), setDetail.getOrderSetQty(), 
+						setDetail.getProductPrice(), mOrderDetailId);
+			}
 			finish();
 		}else{
 			new AlertDialog.Builder(ProductSetActivity.this)

@@ -43,6 +43,9 @@ public class MenuCommentFragment extends DialogFragment{
 	
 	private int mTransactionId;
 	private int mOrderDetailId;
+	private int mComputerId;
+	private int mVatType;
+	private double mVatRate;
 	private String mMenuName;
 	private String mOrderComment;
 	
@@ -61,12 +64,16 @@ public class MenuCommentFragment extends DialogFragment{
 	private EditText mTxtComment;
 	
 	public static MenuCommentFragment newInstance(int position, int transactionId, 
-			int orderDetailId, String menuName, String orderComment){
+			int computerId, int orderDetailId, int vatType, double vatRate, 
+			String menuName, String orderComment){
 		MenuCommentFragment f = new MenuCommentFragment();
 		Bundle b = new Bundle();
 		b.putInt("position", position);
 		b.putInt("transactionId", transactionId);
+		b.putInt("computerId", computerId);
 		b.putInt("orderDetailId", orderDetailId);
+		b.putInt("vatType", vatType);
+		b.putDouble("vatRate", vatRate);
 		b.putString("menuName", menuName);
 		b.putString("orderComment", orderComment);
 		f.setArguments(b);
@@ -79,7 +86,10 @@ public class MenuCommentFragment extends DialogFragment{
 		super.setCancelable(false);
 		mPosition = getArguments().getInt("position");
 		mTransactionId = getArguments().getInt("transactionId");
+		mComputerId = getArguments().getInt("computerId");
 		mOrderDetailId = getArguments().getInt("orderDetailId");
+		mVatType = getArguments().getInt("vatType");
+		mVatRate = getArguments().getDouble("vatRate");
 		mMenuName = getArguments().getString("menuName");
 		mOrderComment = getArguments().getString("orderComment");
 		
@@ -171,7 +181,7 @@ public class MenuCommentFragment extends DialogFragment{
 					mTrans.updateOrderComment(mTransactionId, mOrderDetailId, 
 							mTxtComment.getText().toString());
 				}
-				mTrans.confirmOrderComment(mTransactionId, mOrderDetailId);
+				mTrans.confirmOrderComment(mTransactionId, mComputerId, mOrderDetailId, mVatType, mVatRate);
 				mListener.onDismiss(mPosition, mOrderDetailId);
 			}
 		});

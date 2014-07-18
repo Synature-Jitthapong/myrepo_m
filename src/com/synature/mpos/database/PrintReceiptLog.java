@@ -29,11 +29,12 @@ public class PrintReceiptLog extends MPOSDatabase{
 		List<PrintReceipt> printLst = new ArrayList<PrintReceipt>();
 		Cursor cursor = getReadableDatabase().query(PrintReceiptLogTable.TABLE_PRINT_LOG, 
 				new String[]{
-					OrderTransactionTable.COLUMN_TRANSACTION_ID,
+					OrderTransactionTable.COLUMN_TRANS_ID,
 					StaffTable.COLUMN_STAFF_ID,
 					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID,
 					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME,
-					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS	
+					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS,
+					PrintReceiptLogTable.COLUMN_IS_COPY
 				}, PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS + "=?", 
 				new String[]{
 					String.valueOf(PRINT_NOT_SUCCESS)
@@ -41,11 +42,11 @@ public class PrintReceiptLog extends MPOSDatabase{
 		if(cursor.moveToFirst()){
 			do{
 				PrintReceipt print = new PrintReceipt();
-				print.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
+				print.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
 				print.setStaffId(cursor.getInt(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_ID)));
 				print.setPriceReceiptLogId(cursor.getInt(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID)));
 				print.setPrintReceiptLogTime(cursor.getString(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME)));
-				print.setPrintReceiptLogStatus(cursor.getInt(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS)));
+				print.setCopy(cursor.getInt(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_IS_COPY)) == 0 ? false : true);
 				printLst.add(print);
 			}while(cursor.moveToNext());
 		}
@@ -80,14 +81,16 @@ public class PrintReceiptLog extends MPOSDatabase{
 	/**
 	 * @param transactionId
 	 * @param staffId
+	 * @param isCopy
 	 * @throws SQLException
 	 */
-	public void insertLog(int transactionId, int staffId) throws SQLException{
+	public void insertLog(int transactionId, int staffId, int isCopy) throws SQLException{
 		ContentValues cv = new ContentValues();
-		cv.put(OrderTransactionTable.COLUMN_TRANSACTION_ID, transactionId);
+		cv.put(OrderTransactionTable.COLUMN_TRANS_ID, transactionId);
 		cv.put(StaffTable.COLUMN_STAFF_ID, staffId);
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME, Utils.getCalendar().getTimeInMillis());
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS, PRINT_NOT_SUCCESS);
+		cv.put(PrintReceiptLogTable.COLUMN_IS_COPY, isCopy);
 		getWritableDatabase().insertOrThrow(PrintReceiptLogTable.TABLE_PRINT_LOG, null, cv);
 	}
 	
@@ -98,7 +101,14 @@ public class PrintReceiptLog extends MPOSDatabase{
 		private int staffId;
 		private String printReceiptLogTime;
 		private int printReceiptLogStatus;
+		private boolean isCopy;
 		
+		public boolean isCopy() {
+			return isCopy;
+		}
+		public void setCopy(boolean isCopy) {
+			this.isCopy = isCopy;
+		}
 		public int getStaffId() {
 			return staffId;
 		}

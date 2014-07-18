@@ -6,7 +6,7 @@ import com.synature.mpos.database.StockDocument.DocumentTypeTable;
 
 public class OrderTransactionTable extends BaseColumn {
 	public static final String TABLE_ORDER_TRANS = "OrderTransaction";
-	public static final String COLUMN_TRANSACTION_ID = "transaction_id";
+	public static final String COLUMN_TRANS_ID = "transaction_id";
 	public static final String COLUMN_RECEIPT_YEAR = "receipt_year";
 	public static final String COLUMN_RECEIPT_MONTH = "receipt_month";
 	public static final String COLUMN_RECEIPT_ID = "receipt_id";
@@ -31,7 +31,7 @@ public class OrderTransactionTable extends BaseColumn {
 
 	private static final String SQL_CREATE = "CREATE TABLE "
 			+ TABLE_ORDER_TRANS + " ( " + COLUMN_UUID
-			+ " TEXT, " + COLUMN_TRANSACTION_ID + " INTEGER, "
+			+ " TEXT, " + COLUMN_TRANS_ID + " INTEGER, "
 			+ ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, "
 			+ ShopTable.COLUMN_SHOP_ID + " INTEGER, " + COLUMN_OPEN_TIME
 			+ " TEXT, " + COLUMN_OPEN_STAFF + " INTEGER, "
@@ -53,7 +53,7 @@ public class OrderTransactionTable extends BaseColumn {
 			+ COLUMN_SEND_STATUS + " INTEGER DEFAULT 0, "
 			+ ProductTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, "
 			+ ProductTable.COLUMN_VAT_RATE + " REAL DEFAULT 0, "
-			+ "PRIMARY KEY (" + COLUMN_TRANSACTION_ID + ") ); ";
+			+ "PRIMARY KEY (" + COLUMN_TRANS_ID + ") ); ";
 
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);

@@ -502,8 +502,12 @@ public class MainActivity extends FragmentActivity
 
 		PrintReceiptLog printLog = 
 				new PrintReceiptLog(MainActivity.this);
-		printLog.insertLog(transactionId, staffId);
-
+		int isCopy = 0;
+		for(int i = 0; i < mComputer.getReceiptHasCopy(); i++){
+			if(i > 0)
+				isCopy = 1;
+			printLog.insertLog(transactionId, staffId, isCopy);
+		}
 		new Thread(new PrintReceipt(getApplicationContext())).start();
 		
 		if(change > 0){
@@ -609,10 +613,8 @@ public class MainActivity extends FragmentActivity
 					drw.openCashDrawer();
 					drw.close();
 					
-					mTrans.closeTransaction(mTransactionId, mStaffId);
-					mTrans.updateTransactionVatable(mTransactionId, totalSalePrice, 
-							mShop.getCompanyVatRate(), mShop.getCompanyVatType());
-					
+					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice, 
+							mShop.getCompanyVatType(), mShop.getCompanyVatRate());
 					afterPaid(mTransactionId, mStaffId, totalSalePrice, 0);
 					
 					init();
@@ -774,7 +776,8 @@ public class MainActivity extends FragmentActivity
 				public void onClick(View v) {
 					MenuCommentFragment commentDialog = 
 							MenuCommentFragment.newInstance(groupPosition, mTransactionId, 
-									orderDetail.getOrderDetailId(), 
+									mComputer.getComputerId(), orderDetail.getOrderDetailId(), 
+									orderDetail.getVatType(), mProducts.getVatRate(orderDetail.getProductId()),
 									orderDetail.getProductName(), orderDetail.getOrderComment());
 					commentDialog.show(getFragmentManager(), "CommentDialog");
 				}
@@ -848,7 +851,7 @@ public class MainActivity extends FragmentActivity
 				
 			});
 			
-			if(orderDetail.getProductTypeId() == Products.SET_TYPE_CAN_SELECT){
+			if(orderDetail.getProductTypeId() == Products.SET_CAN_SELECT){
 				holder.btnSetMod.setVisibility(View.VISIBLE);
 				holder.btnComment.setVisibility(View.GONE);
 			}else{
@@ -1199,12 +1202,12 @@ public class MainActivity extends FragmentActivity
 	public void onMenuClick(int productId, String productName, 
 			int productTypeId, int vatType, double vatRate, double productPrice) {
 		if(productTypeId == Products.NORMAL_TYPE || 
-				productTypeId == Products.SET_TYPE){
+				productTypeId == Products.SET){
 			addOrder(productId, productName, productTypeId, 
 					vatType, vatRate, 1, productPrice);
-		}else if(productTypeId == Products.SIZE_TYPE){
+		}else if(productTypeId == Products.SIZE){
 			productSizeDialog(productId);
-		}else if(productTypeId == Products.SET_TYPE_CAN_SELECT){
+		}else if(productTypeId == Products.SET_CAN_SELECT){
 			Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
 			intent.putExtra("mode", ProductSetActivity.ADD_MODE);
 			intent.putExtra("transactionId", mTransactionId);
@@ -2053,6 +2056,7 @@ public class MainActivity extends FragmentActivity
 	private void sendEnddayData(){
 		final ProgressDialog progress = new ProgressDialog(MainActivity.this);
 		progress.setTitle(getString(R.string.endday_success));
+		progress.setCancelable(false);
 		mPartService.sendEnddaySale(mStaffId, mShop.getShopId(), mComputer.getComputerId(), 
 				new ProgressListener(){
 

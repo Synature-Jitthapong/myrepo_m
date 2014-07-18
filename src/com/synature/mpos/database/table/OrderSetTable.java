@@ -12,7 +12,7 @@ public class OrderSetTable {
 	private static final String SQL_CREATE = "CREATE TABLE "
 			+ TABLE_ORDER_SET + "( " + COLUMN_ORDER_SET_ID + " INTEGER NOT NULL," 
 			+ OrderDetailTable.COLUMN_ORDER_ID + " INTEGER NOT NULL, "
-			+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER NOT NULL, "
+			+ OrderTransactionTable.COLUMN_TRANS_ID + " INTEGER NOT NULL, "
 			+ ProductComponentTable.COLUMN_PGROUP_ID + " INTEGER NOT NULL, " 
 			+ ProductTable.COLUMN_PRODUCT_ID + " INTEGER NOT NULL, " 
 			+ ProductComponentGroupTable.COLUMN_REQ_AMOUNT + " REAL NOT NULL DEFAULT 0, " 
@@ -20,7 +20,7 @@ public class OrderSetTable {
 			+ COLUMN_ORDER_SET_PRICE + " REAL DEFAULT 0, "
 			+ "PRIMARY KEY ("
 			+ COLUMN_ORDER_SET_ID + ", " + OrderDetailTable.COLUMN_ORDER_ID
-			+ ", " + OrderTransactionTable.COLUMN_TRANSACTION_ID + ")"
+			+ ", " + OrderTransactionTable.COLUMN_TRANS_ID + ")"
 			+ ");";
 
 	public static void onCreate(SQLiteDatabase db) {

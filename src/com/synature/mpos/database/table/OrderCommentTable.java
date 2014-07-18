@@ -10,13 +10,15 @@ public class OrderCommentTable{
 	
 	public static final String COLUMN_ORDER_COMMENT_QTY = "order_comment_qty";
 	public static final String COLUMN_ORDER_COMMENT_PRICE = "order_comment_price";
+	public static final String COLUMN_ORDER_COMMENT_PRICE_DISCOUNT = "order_comment_price_discount";
 	
 	private static final String SQL_CREATE = "CREATE TABLE " + TABLE_ORDER_COMMENT + " ( "
-			+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER NOT NULL, "
+			+ OrderTransactionTable.COLUMN_TRANS_ID + " INTEGER NOT NULL, "
 			+ OrderDetailTable.COLUMN_ORDER_ID + " INTEGER NOT NULL, "
 			+ MenuCommentTable.COLUMN_COMMENT_ID + " INTEGER NOT NULL, "
-			+ COLUMN_ORDER_COMMENT_QTY + " REAL NOT NULL DEFAULT 0, "
-			+ COLUMN_ORDER_COMMENT_PRICE + " REAL NOT NULL DEFAULT 0 );";
+			+ COLUMN_ORDER_COMMENT_QTY + " REAL DEFAULT 0, "
+			+ COLUMN_ORDER_COMMENT_PRICE + " REAL DEFAULT 0, "
+			+ COLUMN_ORDER_COMMENT_PRICE_DISCOUNT + " REAL DEFAULT 0 );";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);

@@ -19,10 +19,12 @@ import android.database.SQLException;
 public class Products extends MPOSDatabase {
 	
 	public static final int NORMAL_TYPE = 0;
-	public static final int SET_TYPE = 1;
-	public static final int SIZE_TYPE = 2;
-	public static final int OPEN_PRICE_TYPE = 5;
-	public static final int SET_TYPE_CAN_SELECT = 7;
+	public static final int SET = 1;
+	public static final int SIZE = 2;
+	public static final int OPEN_PRICE = 5;
+	public static final int SET_CAN_SELECT = 7;
+	public static final int COMMENT_HAVE_PRICE = 15;
+	public static final int CHILD_OF_SET_HAVE_PRICE = -6;
 	public static final int VAT_TYPE_INCLUDED = 1;
 	public static final int VAT_TYPE_EXCLUDE = 2;
 	public static final int NO_VAT = 0;
@@ -241,11 +243,11 @@ public class Products extends MPOSDatabase {
 						.getColumnIndex(ProductTable.COLUMN_PRODUCT_BAR_CODE)));
 				p.setProductName(cursor.getString(cursor
 						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
-				p.setProductPrice(cursor.getFloat(cursor
+				p.setProductPrice(cursor.getDouble(cursor
 						.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 				p.setVatType(cursor.getInt(cursor
 						.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
-				p.setVatRate(cursor.getFloat(cursor
+				p.setVatRate(cursor.getDouble(cursor
 						.getColumnIndex(ProductTable.COLUMN_VAT_RATE)));
 				pLst.add(p);
 			}while(cursor.moveToNext());
@@ -300,6 +302,23 @@ public class Products extends MPOSDatabase {
 
 	/**
 	 * @param productId
+	 * @return vatType include or exclude
+ 	 */
+	public int getVatType(int productId){
+		int vatType = VAT_TYPE_INCLUDED;
+		Cursor cursor = queryProduct(
+				new String[] { ProductTable.COLUMN_VAT_TYPE },
+				ProductTable.COLUMN_PRODUCT_ID + "=?",
+				new String[] { String.valueOf(productId) });
+		if(cursor.moveToFirst()){
+			vatType = cursor.getInt(0);
+		}
+		cursor.close();
+		return vatType;
+	}
+	
+	/**
+	 * @param productId
 	 * @return product vat rate
 	 */
 	public double getVatRate(int productId){
@@ -309,7 +328,7 @@ public class Products extends MPOSDatabase {
 				ProductTable.COLUMN_PRODUCT_ID + "=?",
 				new String[] { String.valueOf(productId) });
 		if(cursor.moveToFirst()){
-			vatRate = cursor.getFloat(0);
+			vatRate = cursor.getDouble(0);
 		}
 		cursor.close();
 		return vatRate;
@@ -393,11 +412,11 @@ public class Products extends MPOSDatabase {
 				.getColumnIndex(ProductTable.COLUMN_PRODUCT_DESC)));
 		p.setProductUnitName(cursor.getString(cursor
 				.getColumnIndex(ProductTable.COLUMN_PRODUCT_UNIT_NAME)));
-		p.setProductPrice(cursor.getFloat(cursor
+		p.setProductPrice(cursor.getDouble(cursor
 				.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 		p.setVatType(cursor.getInt(cursor
 				.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
-		p.setVatRate(cursor.getFloat(cursor
+		p.setVatRate(cursor.getDouble(cursor
 				.getColumnIndex(ProductTable.COLUMN_VAT_RATE)));
 		p.setDiscountAllow(cursor.getInt(cursor
 				.getColumnIndex(ProductTable.COLUMN_DISCOUNT_ALLOW)));

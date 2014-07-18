@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.SaleService.LocalBinder;
+import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.PrintReceiptLog;
@@ -383,9 +384,14 @@ public class VoidBillActivity extends Activity {
 	
 	private void printReceipt(){
 		PrintReceiptLog printLog = 
-				new PrintReceiptLog(getApplicationContext());
-		printLog.insertLog(mTransactionId, mStaffId);
-		
+				new PrintReceiptLog(this);
+		Computer comp = new Computer(this);
+		int isCopy = 0;
+		for(int i = 0; i < comp.getReceiptHasCopy(); i++){
+			if(i > 0)
+				isCopy = 1;
+			printLog.insertLog(mTransactionId, mStaffId, isCopy);
+		}
 		new Thread(new PrintReceipt(VoidBillActivity.this)).start();
 	}
 	

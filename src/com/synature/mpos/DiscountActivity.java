@@ -500,7 +500,7 @@ public class DiscountActivity extends Activity{
 	 * @param totalRetailPrice
 	 * @param discount
 	 * @param discountType
-	 * @return -1 if not success
+	 * @return 0 if not success
 	 */
 	private double calculateDiscount(double totalRetailPrice, double discount, int discountType){
 		if(discount < 0)
@@ -509,10 +509,10 @@ public class DiscountActivity extends Activity{
 		double totalDiscount = discount;
 		if(discountType == PRICE_DISCOUNT_TYPE){
 			if(totalRetailPrice < discount)
-				totalDiscount = -1;
+				totalDiscount = 0;
 		}else if(discountType == PERCENT_DISCOUNT_TYPE){
 			if(discount > 100)
-				totalDiscount = -1;
+				totalDiscount = 0;
 			else
 				totalDiscount = totalRetailPrice * discount / 100;
 		}

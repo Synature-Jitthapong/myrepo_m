@@ -294,12 +294,10 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			WintecCashDrawer drw = new WintecCashDrawer(getApplicationContext());
 			drw.openCashDrawer();
 			drw.close();
-			
-			mTrans.closeTransaction(mTransactionId, mStaffId);
-			
+
 			Shop shop = new Shop(this);
-			mTrans.updateTransactionVatable(mTransactionId, mTotalSalePrice, 
-					shop.getCompanyVatRate(), shop.getCompanyVatType());
+			mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice, 
+					shop.getCompanyVatType(), shop.getCompanyVatRate());
 			
 			mChange = mTotalPaid - mTotalSalePrice;
 			

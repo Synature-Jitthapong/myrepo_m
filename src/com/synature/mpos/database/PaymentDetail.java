@@ -40,7 +40,7 @@ public class PaymentDetail extends MPOSDatabase {
 				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " a "
 				+ " LEFT JOIN " + PayTypeTable.TABLE_PAY_TYPE + " b "
 				+ " ON a." + PayTypeTable.COLUMN_PAY_TYPE_ID + "=b." + PayTypeTable.COLUMN_PAY_TYPE_ID
-				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + " IN (" + transactionIds + ")"
+				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transactionIds + ")"
 				+ " GROUP BY b." + PayTypeTable.COLUMN_PAY_TYPE_ID, null);
 		if(cursor.moveToFirst()){
 			do{
@@ -101,7 +101,7 @@ public class PaymentDetail extends MPOSDatabase {
 						+ PayTypeTable.TABLE_PAY_TYPE + " b " + " ON a."
 						+ PayTypeTable.COLUMN_PAY_TYPE_ID + "=b."
 						+ PayTypeTable.COLUMN_PAY_TYPE_ID + " WHERE a."
-						+ OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
+						+ OrderTransactionTable.COLUMN_TRANS_ID + "=?"
 						+ " GROUP BY a." + PayTypeTable.COLUMN_PAY_TYPE_ID
 						+ " ORDER BY a." + PaymentDetailTable.COLUMN_PAY_ID,
 				new String[]{
@@ -132,7 +132,7 @@ public class PaymentDetail extends MPOSDatabase {
 	 */
 	public int deleteAllPaymentDetail(int transactionId){
 		return getWritableDatabase().delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, 
-					OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?", 
+					OrderTransactionTable.COLUMN_TRANS_ID + "=?", 
 					new String[]{String.valueOf(transactionId)});
 	}
 	
@@ -145,7 +145,7 @@ public class PaymentDetail extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + PaymentDetailTable.COLUMN_PAY_ID + ") "
 						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
-						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+						+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?",
 				new String[]{String.valueOf(transactionId)});
 		if(cursor.moveToFirst()){
 			maxPaymentId = cursor.getInt(0);
@@ -182,7 +182,7 @@ public class PaymentDetail extends MPOSDatabase {
 			int paymentId = getMaxPaymentDetailId(transactionId);
 			ContentValues cv = new ContentValues();
 			cv.put(PaymentDetailTable.COLUMN_PAY_ID, paymentId);
-			cv.put(OrderTransactionTable.COLUMN_TRANSACTION_ID, transactionId);
+			cv.put(OrderTransactionTable.COLUMN_TRANS_ID, transactionId);
 			cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
 			cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payTypeId);
 			cv.put(PaymentDetailTable.COLUMN_PAID, paid);
@@ -207,7 +207,7 @@ public class PaymentDetail extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT COUNT(" + PaymentDetailTable.COLUMN_PAY_ID + ")"
 				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?"
 				+ " AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(transactionId), String.valueOf(payTypeId)});
 		if(cursor.moveToFirst()){
@@ -231,7 +231,7 @@ public class PaymentDetail extends MPOSDatabase {
 		cv.put(PaymentDetailTable.COLUMN_PAID, paid);
 		cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, amount);
 		return getWritableDatabase().update(PaymentDetailTable.TABLE_PAYMENT_DETAIL, cv, 
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? "
+				OrderTransactionTable.COLUMN_TRANS_ID + "=? "
 								+ " AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{
 					String.valueOf(transactionId),
@@ -247,7 +247,7 @@ public class PaymentDetail extends MPOSDatabase {
 	 */
 	public int deletePaymentDetail(int transactionId, int payTypeId){
 		return getWritableDatabase().delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL,
-				OrderTransactionTable.COLUMN_TRANSACTION_ID + "=? AND "
+				OrderTransactionTable.COLUMN_TRANS_ID + "=? AND "
 				+ PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{
 					String.valueOf(transactionId),
@@ -263,7 +263,7 @@ public class PaymentDetail extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
 						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
-						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+						+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?",
 				new String[]{
 						String.valueOf(transactionId)
 				});
@@ -283,7 +283,7 @@ public class PaymentDetail extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAID + ") "
 						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
-						+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+						+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?",
 				new String[]{
 						String.valueOf(transactionId)
 				});
@@ -312,7 +312,7 @@ public class PaymentDetail extends MPOSDatabase {
 						+ " INNER JOIN " + PayTypeTable.TABLE_PAY_TYPE + " b "
 						+ " ON a." + PayTypeTable.COLUMN_PAY_TYPE_ID 
 						+ "=b." + PayTypeTable.COLUMN_PAY_TYPE_ID 
-						+ " WHERE a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
+						+ " WHERE a." + OrderTransactionTable.COLUMN_TRANS_ID + "=?"
 						+ " GROUP BY a." + PayTypeTable.COLUMN_PAY_TYPE_ID,
 				new String[]{
 						String.valueOf(transactionId)});

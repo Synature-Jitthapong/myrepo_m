@@ -47,6 +47,7 @@
 
     <TextView
         android:id="@+id/tvDeviceCode"
+        style="@style/ActiveText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -55,6 +56,7 @@
 
     <TextView
         android:id="@+id/tvLastSession"
+        style="@style/ActiveText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/textView6"
@@ -64,6 +66,7 @@
 
     <TextView
         android:id="@+id/tvSaleDate"
+        style="@style/ActiveText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/textView5"
@@ -88,7 +91,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/ic_action_settings" />
+        android:src="@drawable/ic_action_settings"
+        android:visibility="gone" />
 
     <android.widget.TextView
         android:id="@+id/textView6"

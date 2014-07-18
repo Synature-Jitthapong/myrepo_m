@@ -12,7 +12,6 @@ import com.synature.mpos.database.CreditCard;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.HeaderFooterReceipt;
 import com.synature.mpos.database.MPOSOrderTransaction;
-import com.synature.mpos.database.MenuComment;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.PrintReceiptLog;
 import com.synature.mpos.database.Products;
@@ -115,54 +114,18 @@ public class PrintReceipt implements Runnable{
 		    	for(int i = 0; i < orderLst.size(); i++){
 		    		MPOSOrderTransaction.MPOSOrderDetail order = 
 		    				orderLst.get(i);
-		    		
 		    		String productName = order.getProductName();
 		    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
 		    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
-		    		
+		    		if(order.getProductTypeId() == Products.CHILD_OF_SET_HAVE_PRICE || 
+		    				order.getProductTypeId() == Products.COMMENT_HAVE_PRICE)
+		    			productQty = "   " + productQty;
 		    		mBuilder.addText(productQty);
 		    		mBuilder.addText(productName);
 		    		mBuilder.addText(createHorizontalSpace(calculateLength(productQty) + 
 		    				calculateLength(productName) + calculateLength(productPrice)));
 		    		mBuilder.addText(productPrice);
 		    		mBuilder.addText("\n");
-		    		
-		    		// order comment
-		    		if(order.getOrderCommentLst() != null){
-		    			for(MenuComment.Comment comment : order.getOrderCommentLst()){
-		    				if(comment.getCommentPrice() > 0){
-			    				String commentName = comment.getCommentName();
-			    				String commentQty = "   " + mFormat.qtyFormat(comment.getCommentQty()) + "x ";
-			    				String commentPrice = mFormat.currencyFormat(comment.getCommentPrice());
-			    				mBuilder.addText(commentQty);
-			    				mBuilder.addText(commentName);
-			    				mBuilder.addText(createHorizontalSpace(
-			    						calculateLength(commentQty) + 
-			    						calculateLength(commentName) + 
-			    						calculateLength(commentPrice)));
-			    				mBuilder.addText(commentPrice);
-			    				mBuilder.addText("\n");
-		    				}
-		    			}
-		    		}
-		    		
-		    		// orderSet
-		    		if(order.getOrderSetDetailLst() != null){
-		    			for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail :
-		    				order.getOrderSetDetailLst()){
-		    				String setName = setDetail.getProductName();
-		    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
-		    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
-		    				mBuilder.addText(setQty);
-		    				mBuilder.addText(setName);
-		    				mBuilder.addText(createHorizontalSpace(
-		    						calculateLength(setQty) + 
-		    						calculateLength(setName) + 
-		    						calculateLength(setPrice)));
-		    				mBuilder.addText(setPrice);
-		    				mBuilder.addText("\n");
-		    			}
-		    		}
 		    	}
 		    	mBuilder.addText(createLine("-") + "\n");
 		    	
@@ -325,8 +288,11 @@ public class PrintReceipt implements Runnable{
 
 	protected class WintecPrintReceipt extends WintecPrinter{
 
-		public WintecPrintReceipt(Context context) {
+		private boolean mIsCopy = false;
+		
+		public WintecPrintReceipt(Context context, boolean isCopy) {
 			super(context);
+			mIsCopy = isCopy;
 		}
 
 		@Override
@@ -336,6 +302,13 @@ public class PrintReceipt implements Runnable{
 			double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
 			double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice() + summOrder.getVatExclude());
 			
+			// have copy
+			if(mIsCopy){
+				String copyText = mContext.getString(R.string.copy);
+				mBuilder.append(createLine("-") + "\n");
+				mBuilder.append("<c>" + copyText + "\n");
+				mBuilder.append(createLine("-") + "\n\n");
+			}
 			// add void header
 			if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
 				mBuilder.append("<c>" + mContext.getString(R.string.void_bill) + "\n");
@@ -345,7 +318,6 @@ public class PrintReceipt implements Runnable{
 				mBuilder.append(mContext.getString(R.string.void_by) + " " + mStaff.getStaff(trans.getVoidStaffId()).getStaffName() + "\n");
 				mBuilder.append(mContext.getString(R.string.reason) + " " + trans.getVoidReason() + "\n\n");
 			}
-			
 			// add header
 			for(ShopData.HeaderFooterReceipt hf : 
 				mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
@@ -373,7 +345,9 @@ public class PrintReceipt implements Runnable{
 	    		String productName = order.getProductName();
 	    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
 	    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
-	    		
+	    		if(order.getProductTypeId() == Products.CHILD_OF_SET_HAVE_PRICE || 
+	    				order.getProductTypeId() == Products.COMMENT_HAVE_PRICE)
+	    			productQty = "   " + productQty;
 	    		mBuilder.append(productQty);
 	    		mBuilder.append(productName);
 	    		mBuilder.append(createHorizontalSpace(
@@ -382,43 +356,6 @@ public class PrintReceipt implements Runnable{
 	    				calculateLength(productPrice)));
 	    		mBuilder.append(productPrice);
 	    		mBuilder.append("\n");
-	    		
-	    		// order comment
-	    		if(order.getOrderCommentLst() != null){
-	    			for(MenuComment.Comment comment : order.getOrderCommentLst()){
-	    				if(comment.getCommentPrice() > 0){
-		    				String commentName = comment.getCommentName();
-		    				String commentQty = "   " + mFormat.qtyFormat(comment.getCommentQty()) + "x ";
-		    				String commentPrice = mFormat.currencyFormat(comment.getCommentPrice());
-		    				mBuilder.append(commentQty);
-		    				mBuilder.append(commentName);
-		    				mBuilder.append(createHorizontalSpace(
-		    						calculateLength(commentQty) + 
-		    						calculateLength(commentName) + 
-		    						calculateLength(commentPrice)));
-		    				mBuilder.append(commentPrice);
-		    				mBuilder.append("\n");
-	    				}
-	    			}
-	    		}
-	    			
-	    		// orderSet
-	    		if(order.getOrderSetDetailLst() != null){
-	    			for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail :
-	    				order.getOrderSetDetailLst()){
-	    				String setName = setDetail.getProductName();
-	    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
-	    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
-	    				mBuilder.append(setQty);
-	    				mBuilder.append(setName);
-	    				mBuilder.append(createHorizontalSpace(
-	    						calculateLength(setQty) + 
-	    						calculateLength(setName) + 
-	    						calculateLength(setPrice)));
-	    				mBuilder.append(setPrice);
-	    				mBuilder.append("\n");
-	    			}
-	    		}
 	    	}
 	    	mBuilder.append(createLine("-") + "\n");
 	    	
@@ -561,10 +498,12 @@ public class PrintReceipt implements Runnable{
 
 	@Override
 	public void run() {
-		for(PrintReceiptLog.PrintReceipt printReceipt : mPrintLog.listPrintReceiptLog()){
+		List<PrintReceiptLog.PrintReceipt> printLogLst = mPrintLog.listPrintReceiptLog(); 
+		for(int i = 0; i < printLogLst.size(); i++){
+			PrintReceiptLog.PrintReceipt printReceipt = printLogLst.get(i);
 			try {
 				if(Utils.isInternalPrinterSetting(mContext)){
-					WintecPrintReceipt wt = new WintecPrintReceipt(mContext);
+					WintecPrintReceipt wt = new WintecPrintReceipt(mContext, printReceipt.isCopy());
 					wt.prepareDataToPrint(printReceipt.getTransactionId());
 					wt.print();
 				}else{

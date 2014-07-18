@@ -13,7 +13,7 @@ public class PaymentDetailTable{
 	private static final String SQL_CREATE =
 			"CREATE TABLE " + TABLE_PAYMENT_DETAIL + " ( " 
 			+ COLUMN_PAY_ID + " INTEGER, "
-			+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " INTEGER, "
+			+ OrderTransactionTable.COLUMN_TRANS_ID + " INTEGER, "
 			+ ComputerTable.COLUMN_COMPUTER_ID + " INTEGER, "
 			+ PayTypeTable.COLUMN_PAY_TYPE_ID + " INTEGER DEFAULT 1, "
 			+ COLUMN_PAY_AMOUNT + " REAL DEFAULT 0, " 
@@ -25,7 +25,7 @@ public class PaymentDetailTable{
 			+ CreditCardTable.COLUMN_CREDITCARD_TYPE_ID + " INTEGER, "
 			+ COLUMN_REMARK + " TEXT, " 
 			+ "PRIMARY KEY (" + COLUMN_PAY_ID + " ASC, " 
-			+ OrderTransactionTable.COLUMN_TRANSACTION_ID + " ASC, "
+			+ OrderTransactionTable.COLUMN_TRANS_ID + " ASC, "
 			+ ComputerTable.COLUMN_COMPUTER_ID + " ASC) );";
 	
 	public static void onCreate(SQLiteDatabase db) {

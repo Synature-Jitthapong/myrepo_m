@@ -189,7 +189,7 @@ public class SendSaleActivity extends Activity{
 		MPOSDatabase.MPOSOpenHelper helper = MPOSDatabase.MPOSOpenHelper.getInstance(getApplicationContext());
 		Cursor cursor = helper.getReadableDatabase().query(OrderTransactionTable.TABLE_ORDER_TRANS, 
 				new String[]{
-					OrderTransactionTable.COLUMN_TRANSACTION_ID,
+					OrderTransactionTable.COLUMN_TRANS_ID,
 					ComputerTable.COLUMN_COMPUTER_ID,
 					OrderTransactionTable.COLUMN_RECEIPT_NO,
 					OrderTransactionTable.COLUMN_CLOSE_TIME,
@@ -199,11 +199,11 @@ public class SendSaleActivity extends Activity{
 				new String[]{
 					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
-				}, null, null, OrderTransactionTable.COLUMN_TRANSACTION_ID);
+				}, null, null, OrderTransactionTable.COLUMN_TRANS_ID);
 		if(cursor.moveToFirst()){
 			do{
 				SendTransaction trans = new SendTransaction();
-				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
 				trans.setSendStatus(cursor.getInt(cursor.getColumnIndex(BaseColumn.COLUMN_SEND_STATUS)));

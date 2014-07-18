@@ -54,8 +54,8 @@ public abstract class EPSONPrinter extends PrinterUtility implements
 		}
 	}
 	
-	public abstract void prepareDataToPrint(int transactionId);
-	public abstract void prepareDataToPrint();
+	public void prepareDataToPrint(int transactionId){};
+	public void prepareDataToPrint(){};
 	
 	protected void print(){
 		// send mBuilder data

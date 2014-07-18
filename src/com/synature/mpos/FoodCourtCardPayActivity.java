@@ -388,12 +388,9 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				PayResultFragment fragment = PayResultFragment.newInstance(mCardBalance);
 				getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
 				
-				mTrans.closeTransaction(mTransactionId, mStaffId);
-
 				Shop shop = new Shop(FoodCourtCardPayActivity.this);
-				mTrans.updateTransactionVatable(mTransactionId, mTotalSalePrice, 
-						shop.getCompanyVatRate(), shop.getCompanyVatType());
-				
+				mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice, 
+						shop.getCompanyVatType(), shop.getCompanyVatRate());
 				new PrintReceiptFoodCourtTask().execute();
 			}
 		}

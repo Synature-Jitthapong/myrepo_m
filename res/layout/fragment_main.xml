@@ -170,17 +170,6 @@
             android:visibility="gone" />
 
         <Button
-            android:id="@+id/buttonDiscount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:drawableLeft="@drawable/ic_action_labels"
-            android:minWidth="64dip"
-            android:onClick="discountClicked"
-            android:text="@string/other_discount_short"
-            android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-
-        <Button
             android:id="@+id/btnPromotion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -188,7 +177,8 @@
             android:layout_toRightOf="@+id/buttonDiscount"
             android:drawableLeft="@drawable/ic_action_labels"
             android:onClick="promotionClicked"
-            android:text="@string/promotion_short" />
+            android:text="@string/promotion_short"
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/buttonHold"
@@ -200,6 +190,18 @@
             android:minWidth="64dp"
             android:onClick="holdOrderClicked"
             android:text="@string/hold"
+            android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+
+        <Button
+            android:id="@+id/buttonDiscount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:drawableLeft="@drawable/ic_action_labels"
+            android:minWidth="64dip"
+            android:onClick="discountClicked"
+            android:text="@string/other_discount_short"
             android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
     </RelativeLayout>

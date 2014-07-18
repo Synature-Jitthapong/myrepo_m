@@ -97,7 +97,7 @@ public class SaleTransaction extends MPOSDatabase{
 					orderTrans.setSzUDID(
 							cursor.getString(cursor.getColumnIndex(COLUMN_UUID)));
 					orderTrans.setiTransactionID(
-							cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
+							cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
 					orderTrans.setiComputerID(cursor.getInt(
 							cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 					orderTrans.setiShopID(cursor.getInt(
@@ -205,7 +205,7 @@ public class SaleTransaction extends MPOSDatabase{
 
 						SaleTable_OrderPromotion promotion = new SaleTable_OrderPromotion();
 						promotion.setiTransactionID(cursor.getInt(cursor
-							.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
+							.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
 						promotion.setiComputerID(cursor.getInt(cursor
 							.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 						promotion.setiShopID(mShop.getShopId());
@@ -238,7 +238,7 @@ public class SaleTransaction extends MPOSDatabase{
 					order.setiOrderDetailID(cursor.getInt(cursor
 							.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
 					order.setiTransactionID(cursor.getInt(cursor
-							.getColumnIndex(OrderTransactionTable.COLUMN_TRANSACTION_ID)));
+							.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
 					order.setiComputerID(cursor.getInt(cursor
 							.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 					order.setiShopID(mShop.getShopId());
@@ -281,6 +281,8 @@ public class SaleTransaction extends MPOSDatabase{
 									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_QTY)));
 							comment.setfCommentPrice(curOrderComm.getDouble(
 									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE)));
+							comment.setfDiscountPrice(curOrderComm.getDouble(
+									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE_DISCOUNT)));
 							order.getxListCommentInfo().add(comment);
 						}while(curOrderComm.moveToNext());
 					}
@@ -404,7 +406,7 @@ public class SaleTransaction extends MPOSDatabase{
 				PaymentDetailTable.COLUMN_REMARK + ", " +
 				PaymentDetailTable.COLUMN_PAY_AMOUNT +
 				" FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + 
-				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
+				" WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?",
 				new String[] { String.valueOf(transId) });
 	}
 
@@ -415,7 +417,7 @@ public class SaleTransaction extends MPOSDatabase{
 				+ " LEFT JOIN " + ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP + " b "
 				+ " ON a." + ProductComponentTable.COLUMN_PGROUP_ID 
 				+ "=b." +  ProductComponentTable.COLUMN_PGROUP_ID
-				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
+				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANS_ID + "=?"
 				+ " AND a." + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
 				new String[]{
 					String.valueOf(transactionId),
@@ -426,7 +428,7 @@ public class SaleTransaction extends MPOSDatabase{
 	public Cursor queryOrderComment(int transactionId, int orderDetailId){
 		return getReadableDatabase().rawQuery(
 				"SELECT * FROM " + OrderCommentTable.TABLE_ORDER_COMMENT
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?"
+				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?"
 				+ " AND " + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
 				new String[]{
 					String.valueOf(transactionId),
@@ -438,8 +440,13 @@ public class SaleTransaction extends MPOSDatabase{
 		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + OrderDetailTable.TABLE_ORDER + 
-				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?",
-				new String[] { String.valueOf(transId) });
+				" WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=? "
+				+ " AND " + ProductTable.COLUMN_PRODUCT_TYPE_ID + " NOT IN (?, ?)",
+				new String[] { 
+						String.valueOf(transId),
+						String.valueOf(Products.COMMENT_HAVE_PRICE),
+						String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE)
+				});
 	}
 	
 	public Cursor queryAllTransactionInSessionDate() {
@@ -472,7 +479,7 @@ public class SaleTransaction extends MPOSDatabase{
 		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + 
-				" WHERE " + OrderTransactionTable.COLUMN_TRANSACTION_ID + "=?" + 
+				" WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?" + 
 				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) " + 
 				" AND " + COLUMN_SEND_STATUS + "=?",
 				new String[] {

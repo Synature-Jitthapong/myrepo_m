@@ -35,8 +35,10 @@ public class PromotionPriceGroupTable {
 			+ COLUMN_PRICE_TO_TIME + " TEXT, "
 			+ COLUMN_PROMOTION_WEEKLY + " TEXT, "
 			+ COLUMN_PROMOTION_MONTHLY + " TEXT, "
-			COLUMN_IS_ALLOW_USE_OTHER_PROMOTION + " INTEGER, "
-			COLUMN_VOUCHER_AMOUNT + " REAL"
+			+ COLUMN_IS_ALLOW_USE_OTHER_PROMOTION + " INTEGER, "
+			+ COLUMN_VOUCHER_AMOUNT + " REAL, "
+			+ COLUMN_OVER_PRICE + " REAL, "
+			+ COLUMN_PROMOTION_AMOUNT_TYPE + " INTEGER "
 			+ ");";
 	
 	public static void onCreate(SQLiteDatabase db) {
@@ -44,7 +46,7 @@ public class PromotionPriceGroupTable {
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCT);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROMOTION_PRICE_GROUP);
 		onCreate(db);
 	}
 }
