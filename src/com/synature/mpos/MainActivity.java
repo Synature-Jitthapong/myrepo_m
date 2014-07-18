@@ -40,6 +40,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -2035,31 +2036,77 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public void onEndday(double cashAmount) {
-		new Thread(new PrintReport(MainActivity.this, mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
 		boolean endday = Utils.endday(MainActivity.this, mShop.getShopId(), 
 				mComputer.getComputerId(), mSessionId, mStaffId, cashAmount, true);
 		if(endday){
+			new Thread(new PrintReport(MainActivity.this, mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
 			// start the service 
-			Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
-			enddayIntent.putExtra("staffId", mStaffId);
-			enddayIntent.putExtra("shopId", mShop.getShopId());
-			enddayIntent.putExtra("computerId", mComputer.getComputerId());
-			startService(enddayIntent);
-			
-			new AlertDialog.Builder(MainActivity.this)
-			.setTitle(R.string.endday)
-			.setMessage(R.string.endday_success)
-			.setCancelable(false)
-			.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener(){
-
-				@Override
-				public void onClick(DialogInterface dialog,
-						int which) {
-					//Utils.shutdown();
-					finish();
-				}
-			})
-			.show();
+//			Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
+//			enddayIntent.putExtra("staffId", mStaffId);
+//			enddayIntent.putExtra("shopId", mShop.getShopId());
+//			enddayIntent.putExtra("computerId", mComputer.getComputerId());
+//			startService(enddayIntent);
+			sendEnddayData();
 		}
+	}
+	
+	private void sendEnddayData(){
+		final ProgressDialog progress = new ProgressDialog(MainActivity.this);
+		progress.setTitle(getString(R.string.endday_success));
+		mPartService.sendEnddaySale(mStaffId, mShop.getShopId(), mComputer.getComputerId(), 
+				new ProgressListener(){
+
+					@Override
+					public void onPre() {
+						progress.setMessage(getString(R.string.send_endday_data_progress));
+						progress.show();
+					}
+
+					@Override
+					public void onPost() {
+						if(progress.isShowing())
+							progress.dismiss();
+
+						new AlertDialog.Builder(MainActivity.this)
+						.setTitle(R.string.endday)
+						.setMessage(R.string.send_endday_data_success)
+						.setCancelable(false)
+						.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								//Utils.shutdown();
+								finish();
+							}
+						})
+						.show();
+					}
+
+					@Override
+					public void onError(String msg) {
+						if(progress.isShowing())
+							progress.dismiss();
+						new AlertDialog.Builder(MainActivity.this)
+							.setTitle(R.string.endday)
+							.setMessage(R.string.cannot_send_endday_data_on_this_time)
+							.setCancelable(false)
+							.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface arg0, int arg1) {
+									finish();
+								}
+							})
+							.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									sendEnddayData();
+								}
+							}).show();
+					}
+		});
 	}
 }
