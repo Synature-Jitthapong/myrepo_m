@@ -81,6 +81,7 @@ public class SaleService extends Service{
 		
 									@Override
 									public void onPre() {
+										listener.onPre();
 									}
 		
 									@Override

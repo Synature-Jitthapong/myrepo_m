@@ -200,6 +200,8 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="cash_paid">Cash Paid</string>
     <string name="promotion_short">Promotion</string>
     <string name="confirm_fast_payment">Do you want to confirm fast payment.</string>
-    <string name="edit_cash">Edit Cash</string>
+    <string name="edit_open_shift">Edit Open Shift</string>
     <string name="send_data">Send Data</string>
+    <string name="send_endday_data_progress">Sending endday data to server&#8230;</string>
+    <string name="cannot_send_endday_data_on_this_time">Cannot send endday data on this time.\n Do you want to try again?</string>
 </resources>
