@@ -17,12 +17,10 @@ import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.mpos.database.table.ProductComponentGroupTable;
 import com.synature.mpos.database.table.ProductComponentTable;
 import com.synature.mpos.database.table.ProductTable;
+import com.synature.mpos.database.table.PromotionPriceGroupTable;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
-import com.synature.pos.POSData_OrderTransInfo;
-import com.synature.pos.POSData_OrderTransInfo.POSData_ChildOrderSetLinkType7Info;
-import com.synature.pos.POSData_OrderTransInfo.POSData_CommentInfo;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -200,26 +198,20 @@ public class SaleTransaction extends MPOSDatabase{
 			if(cursor.moveToFirst()){
 				do{
 					// order promotion
-					if(cursor.getDouble(cursor
-							.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)) > 0){
+					if(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)) > 0){
 
 						SaleTable_OrderPromotion promotion = new SaleTable_OrderPromotion();
-						promotion.setiTransactionID(cursor.getInt(cursor
-							.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
-						promotion.setiComputerID(cursor.getInt(cursor
-							.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+						promotion.setiTransactionID(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
+						promotion.setiComputerID(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 						promotion.setiShopID(mShop.getShopId());
-						promotion.setiOrderDetailID(cursor.getInt(cursor
-							.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
-						promotion.setfDiscountPrice(
-								Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
+						promotion.setiOrderDetailID(cursor.getInt(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
+						promotion.setfDiscountPrice(Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
 									.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT))));
-						promotion.setfPriceAfterDiscount(
-								Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
+						promotion.setfPriceAfterDiscount(Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
 									.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE))));
-						promotion.setiDiscountTypeID(6); // 6 = other discount
-						promotion.setiPromotionID(0);
-						promotion.setSzCouponHeader("Test Coupon Header");
+						promotion.setiDiscountTypeID(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID))); // 6 = other discount
+						promotion.setiPromotionID(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID)));
+						promotion.setSzCouponHeader(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_COUPON_HEADER)));
 						orderPromotionLst.add(promotion);
 					}
 				}while(cursor.moveToNext());
@@ -274,15 +266,15 @@ public class SaleTransaction extends MPOSDatabase{
 					Cursor curOrderComm = queryOrderComment(order.getiTransactionID(), order.getiOrderDetailID());
 					if(curOrderComm.moveToFirst()){
 						do{
-							POSData_CommentInfo comment = new POSData_CommentInfo();
-							comment.setiCommentID(curOrderComm.getInt(
-									curOrderComm.getColumnIndex(MenuCommentTable.COLUMN_COMMENT_ID)));
-							comment.setfCommentQty(curOrderComm.getDouble(
-									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_QTY)));
-							comment.setfCommentPrice(curOrderComm.getDouble(
-									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE)));
-							comment.setfDiscountPrice(curOrderComm.getDouble(
-									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE_DISCOUNT)));
+							SaleTable_CommentInfo comment = new SaleTable_CommentInfo();
+							comment.setiOrderDetailID(curOrderComm.getInt(curOrderComm.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
+							comment.setiCommentID(curOrderComm.getInt(curOrderComm.getColumnIndex(MenuCommentTable.COLUMN_COMMENT_ID)));
+							comment.setfCommentQty(Utils.fixesDigitLength(mGlobal, 4, curOrderComm.getDouble(
+									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_QTY))));
+							comment.setfCommentPrice(Utils.fixesDigitLength(mGlobal, 4, curOrderComm.getDouble(
+									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE))));
+							comment.setfDiscountPrice(Utils.fixesDigitLength(mGlobal, 4, curOrderComm.getDouble(
+									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE_DISCOUNT))));
 							order.getxListCommentInfo().add(comment);
 						}while(curOrderComm.moveToNext());
 					}
@@ -291,18 +283,16 @@ public class SaleTransaction extends MPOSDatabase{
 					Cursor curOrderSet = queryOrderSet(order.getiTransactionID(), order.getiOrderDetailID());
 					if(curOrderSet.moveToFirst()){
 						do{
-							POSData_ChildOrderSetLinkType7Info orderSet = 
-									new POSData_ChildOrderSetLinkType7Info();
-							orderSet.setiPGroupID(curOrderSet.getInt(
-									curOrderSet.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
-							orderSet.setiSetGroupNo(curOrderSet.getInt(
-									curOrderSet.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
-							orderSet.setiProductID(curOrderSet.getInt(
-									curOrderSet.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-							orderSet.setfProductQty(curOrderSet.getDouble(
-									curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_QTY)));
-							orderSet.setfProductPrice(curOrderSet.getDouble(
-									curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE)));
+							SaleTable_ChildOrderType7 orderSet = 
+									new SaleTable_ChildOrderType7();
+							orderSet.setiOrderDetailID(curOrderSet.getInt(curOrderSet.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
+							orderSet.setiPGroupID(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
+							orderSet.setiSetGroupNo(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
+							orderSet.setiProductID(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
+							orderSet.setfProductQty(Utils.fixesDigitLength(mGlobal, 4, curOrderSet.getDouble(
+									curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_QTY))));
+							orderSet.setfProductPrice(Utils.fixesDigitLength(mGlobal, 4, curOrderSet.getDouble(
+									curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE))));
 							order.getxListChildOrderSetLinkType7().add(orderSet);
 						}while(curOrderSet.moveToNext());
 					}
@@ -999,10 +989,10 @@ public class SaleTransaction extends MPOSDatabase{
 	}
 
 	public static class SaleTable_OrderDetail {
-		private List<POSData_ChildOrderSetLinkType7Info> xListChildOrderSetLinkType7 
-			= new ArrayList<POSData_ChildOrderSetLinkType7Info>();
-		private List<POSData_CommentInfo> xListCommentInfo = 
-				new ArrayList<POSData_CommentInfo>();
+		private List<SaleTable_ChildOrderType7> xListChildOrderSetLinkType7 
+			= new ArrayList<SaleTable_ChildOrderType7>();
+		private List<SaleTable_CommentInfo> xListCommentInfo = 
+				new ArrayList<SaleTable_CommentInfo>();
 		private int iOrderDetailID;
 		private int iTransactionID;
 		private int iComputerID;
@@ -1020,11 +1010,11 @@ public class SaleTransaction extends MPOSDatabase{
 		private int iParentOrderDetailID;
         private int iVatType;
 
-		public List<POSData_OrderTransInfo.POSData_ChildOrderSetLinkType7Info> getxListChildOrderSetLinkType7() {
+		public List<SaleTable_ChildOrderType7> getxListChildOrderSetLinkType7() {
 			return xListChildOrderSetLinkType7;
 		}
 
-		public List<POSData_OrderTransInfo.POSData_CommentInfo> getxListCommentInfo() {
+		public List<SaleTable_CommentInfo> getxListCommentInfo() {
 			return xListCommentInfo;
 		}
 
@@ -1158,6 +1148,103 @@ public class SaleTransaction extends MPOSDatabase{
 		
 	}
 
+	public static class SaleTable_ChildOrderType7 {
+		private int iOrderDetailID;
+		private int iProductID;
+		private String fProductPrice;
+		private String fDiscountPrice;
+		private String fProductQty;
+		private String szOrderComment;
+		private int iPGroupID; // For child type 7
+		private int iSetGroupNo;
+		public int getiOrderDetailID() {
+			return iOrderDetailID;
+		}
+		public void setiOrderDetailID(int iOrderDetailID) {
+			this.iOrderDetailID = iOrderDetailID;
+		}
+		public int getiProductID() {
+			return iProductID;
+		}
+		public void setiProductID(int iProductID) {
+			this.iProductID = iProductID;
+		}
+		public String getfProductPrice() {
+			return fProductPrice;
+		}
+		public void setfProductPrice(String fProductPrice) {
+			this.fProductPrice = fProductPrice;
+		}
+		public String getfDiscountPrice() {
+			return fDiscountPrice;
+		}
+		public void setfDiscountPrice(String fDiscountPrice) {
+			this.fDiscountPrice = fDiscountPrice;
+		}
+		public String getfProductQty() {
+			return fProductQty;
+		}
+		public void setfProductQty(String fProductQty) {
+			this.fProductQty = fProductQty;
+		}
+		public String getSzOrderComment() {
+			return szOrderComment;
+		}
+		public void setSzOrderComment(String szOrderComment) {
+			this.szOrderComment = szOrderComment;
+		}
+		public int getiPGroupID() {
+			return iPGroupID;
+		}
+		public void setiPGroupID(int iPGroupID) {
+			this.iPGroupID = iPGroupID;
+		}
+		public int getiSetGroupNo() {
+			return iSetGroupNo;
+		}
+		public void setiSetGroupNo(int iSetGroupNo) {
+			this.iSetGroupNo = iSetGroupNo;
+		}
+	}
+	
+	public static class SaleTable_CommentInfo{
+		private int iCommentID;
+		private int iOrderDetailID;
+		private String fCommentQty;
+		private String fCommentPrice;
+		private String fDiscountPrice;
+		public int getiCommentID() {
+			return iCommentID;
+		}
+		public void setiCommentID(int iCommentID) {
+			this.iCommentID = iCommentID;
+		}
+		public int getiOrderDetailID() {
+			return iOrderDetailID;
+		}
+		public void setiOrderDetailID(int iOrderDetailID) {
+			this.iOrderDetailID = iOrderDetailID;
+		}
+		public String getfCommentQty() {
+			return fCommentQty;
+		}
+		public void setfCommentQty(String fCommentQty) {
+			this.fCommentQty = fCommentQty;
+		}
+		public String getfCommentPrice() {
+			return fCommentPrice;
+		}
+		public void setfCommentPrice(String fCommentPrice) {
+			this.fCommentPrice = fCommentPrice;
+		}
+		public String getfDiscountPrice() {
+			return fDiscountPrice;
+		}
+		public void setfDiscountPrice(String fDiscountPrice) {
+			this.fDiscountPrice = fDiscountPrice;
+		}
+	}
+	
 	public static class SaleTable_OrderPromotion {
 		private int iOrderDetailID;
 		private int iTransactionID;

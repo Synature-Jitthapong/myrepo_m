@@ -20,6 +20,10 @@ public class MPOSOrderTransaction extends OrderTransaction{
 				new ArrayList<MenuComment.Comment>();
 		private double vatExclude;
 		private int productTypeId;
+		private int priceOrPercent;
+		private int promotionPriceGroupId;
+		private int promotionTypeId;
+		private String promotionName;
 		private String orderComment;
 
 		public List<MenuComment.Comment> getOrderCommentLst() {
@@ -36,6 +40,38 @@ public class MPOSOrderTransaction extends OrderTransaction{
 
 		public void setOrderSetDetailLst(List<OrderSet.OrderSetDetail> orderSetDetailLst) {
 			this.orderSetDetailLst = orderSetDetailLst;
+		}
+
+		public int getPromotionPriceGroupId() {
+			return promotionPriceGroupId;
+		}
+
+		public void setPromotionPriceGroupId(int promotionPriceGroupId) {
+			this.promotionPriceGroupId = promotionPriceGroupId;
+		}
+
+		public int getPriceOrPercent() {
+			return priceOrPercent;
+		}
+
+		public void setPriceOrPercent(int priceOrPercent) {
+			this.priceOrPercent = priceOrPercent;
+		}
+
+		public int getPromotionTypeId() {
+			return promotionTypeId;
+		}
+
+		public void setPromotionTypeId(int promotionTypeId) {
+			this.promotionTypeId = promotionTypeId;
+		}
+
+		public String getPromotionName() {
+			return promotionName;
+		}
+
+		public void setPromotionName(String promotionName) {
+			this.promotionName = promotionName;
 		}
 
 		public String getOrderComment() {

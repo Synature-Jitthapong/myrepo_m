@@ -106,7 +106,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
-                android:minWidth="64dp"
+                android:minWidth="128dp"
                 android:onClick="paymentClicked"
                 android:text="@string/payment"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
@@ -117,6 +117,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_toLeftOf="@+id/btnPayment"
+                android:minWidth="128dp"
                 android:onClick="cashPaidClicked"
                 android:text="@string/cash_paid" />
 
@@ -155,7 +156,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:drawableLeft="@drawable/ic_action_cancel"
-            android:minWidth="64dp"
+            android:minWidth="128dp"
             android:onClick="clearBillClicked"
             android:text="@string/cancel_bill"
             android:textAppearance="?android:attr/textAppearanceMediumInverse" />
@@ -176,9 +177,9 @@
             android:layout_alignParentBottom="true"
             android:layout_toRightOf="@+id/buttonDiscount"
             android:drawableLeft="@drawable/ic_action_labels"
+            android:minWidth="128dp"
             android:onClick="promotionClicked"
-            android:text="@string/promotion_short"
-            android:visibility="invisible" />
+            android:text="@string/promotion_short" />
 
         <Button
             android:id="@+id/buttonHold"
@@ -187,7 +188,7 @@
             android:layout_alignParentBottom="true"
             android:layout_toLeftOf="@+id/buttonClearBill"
             android:drawableLeft="@drawable/ic_action_save"
-            android:minWidth="64dp"
+            android:minWidth="128dp"
             android:onClick="holdOrderClicked"
             android:text="@string/hold"
             android:textAppearance="?android:attr/textAppearanceMediumInverse" />
@@ -199,7 +200,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:drawableLeft="@drawable/ic_action_labels"
-            android:minWidth="64dip"
+            android:minWidth="128dp"
             android:onClick="discountClicked"
             android:text="@string/other_discount_short"
             android:textAppearance="?android:attr/textAppearanceMediumInverse" />

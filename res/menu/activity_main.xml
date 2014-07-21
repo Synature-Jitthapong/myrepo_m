@@ -53,6 +53,9 @@
             <item
                 android:id="@+id/itemEndday"
                 android:title="@string/endday"/>
+            <item
+                android:id="@+id/itemBackupDb"
+                android:title="@string/backup_db"/>
         </menu>
     </item>
     <item

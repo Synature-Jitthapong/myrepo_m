@@ -13,7 +13,6 @@ import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.MPOSOrderTransaction.OrderSet;
 import com.synature.mpos.database.Products.Product;
-import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.util.ImageLoader;
 
 import android.annotation.SuppressLint;

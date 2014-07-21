@@ -250,7 +250,6 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginRight="8dp"
-                android:drawableLeft="@drawable/ic_action_accept"
                 android:minHeight="96dp"
                 android:minWidth="256dp"
                 android:text="@string/confirm"

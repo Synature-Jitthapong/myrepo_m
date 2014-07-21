@@ -23,6 +23,7 @@ import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.ProductComponentGroupTable;
 import com.synature.mpos.database.table.ProductComponentTable;
 import com.synature.mpos.database.table.ProductTable;
+import com.synature.mpos.database.table.PromotionPriceGroupTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
 import com.synature.mpos.database.table.StaffTable;
@@ -216,6 +217,8 @@ public class Transaction extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT SUM (" + OrderDetailTable.COLUMN_ORDER_QTY + ") "
 						+ " AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
+						+ " SUM (" + ProductTable.COLUMN_PRODUCT_PRICE + ") "
+						+ " AS " + ProductTable.COLUMN_PRODUCT_PRICE + ", "
 						+ " SUM (" + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
 						+ " AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
 						+ " SUM (" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
@@ -238,6 +241,7 @@ public class Transaction extends MPOSDatabase {
 					cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)) + vatExclude;
 			orderDetail.setQty(cursor.getDouble(cursor
 					.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+			orderDetail.setPricePerUnit(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 			orderDetail.setPriceDiscount(cursor.getDouble(cursor
 					.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
 			orderDetail.setTotalRetailPrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
@@ -346,7 +350,8 @@ public class Transaction extends MPOSDatabase {
 		MPOSOrderTransaction.MPOSOrderDetail orderDetail = 
 				new MPOSOrderTransaction.MPOSOrderDetail();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				"SELECT SUM (" + OrderDetailTable.COLUMN_ORDER_QTY + ") "
+				"SELECT " + PromotionPriceGroupTable.COLUMN_PROMOTION_NAME + ","
+						+ "SUM (" + OrderDetailTable.COLUMN_ORDER_QTY + ") "
 						+ " AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
 						+ " SUM (" + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
 						+ " AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
@@ -368,6 +373,7 @@ public class Transaction extends MPOSDatabase {
 					.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE));
 			double totalSalePrice = 
 					cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)) + vatExclude;
+			orderDetail.setPromotionName(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_NAME)));
 			orderDetail.setQty(cursor.getDouble(cursor
 					.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
 			orderDetail.setPriceDiscount(cursor.getDouble(cursor
@@ -503,7 +509,10 @@ public class Transaction extends MPOSDatabase {
 						+ " a." + ProductTable.COLUMN_VAT_TYPE + ", "
 						+ " a." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ", "
 						+ " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
-						+ " a." + OrderDetailTable.COLUMN_OTHER_DISCOUNT_TYPE + ", "
+						+ " a." + OrderDetailTable.COLUMN_PRICE_OR_PERCENT + ", "
+						+ " a." + PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID + ", "
+						+ " a." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + ", "
+						+ " a." + PromotionPriceGroupTable.COLUMN_PROMOTION_NAME + ", "
 						+ " a." + BaseColumn.COLUMN_REMARK + ", "
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME 
 						+ " FROM " + OrderDetailTable.TABLE_ORDER_TMP + " a "
@@ -546,7 +555,7 @@ public class Transaction extends MPOSDatabase {
 						+ " AS " + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ", "
 						+ " SUM(a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
 						+ " AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
-						+ " a." + OrderDetailTable.COLUMN_OTHER_DISCOUNT_TYPE + ", "
+						+ " a." + OrderDetailTable.COLUMN_PRICE_OR_PERCENT + ", "
 						+ " a." + BaseColumn.COLUMN_REMARK + ", "
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME
 						+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
@@ -586,7 +595,10 @@ public class Transaction extends MPOSDatabase {
 						+ " a." + ProductTable.COLUMN_VAT_TYPE + ", "
 						+ " a." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ", "
 						+ " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
-						+ " a." + OrderDetailTable.COLUMN_OTHER_DISCOUNT_TYPE + ", "
+						+ " a." + OrderDetailTable.COLUMN_PRICE_OR_PERCENT + ", "
+						+ " a." + PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID + ", "
+						+ " a." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + ", "
+						+ " a." + PromotionPriceGroupTable.COLUMN_PROMOTION_NAME + ", "
 						+ " a." + BaseColumn.COLUMN_REMARK + ", "
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME 
 						+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
@@ -629,7 +641,10 @@ public class Transaction extends MPOSDatabase {
 						+ " a." + ProductTable.COLUMN_VAT_TYPE + ", "
 						+ " a." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ", "
 						+ " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
-						+ " a." + OrderDetailTable.COLUMN_OTHER_DISCOUNT_TYPE + ", "
+						+ " a." + OrderDetailTable.COLUMN_PRICE_OR_PERCENT + ", "
+						+ " a." + PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID + ", "
+						+ " a." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + ", "
+						+ " a." + PromotionPriceGroupTable.COLUMN_PROMOTION_NAME + ", "
 						+ " a." + BaseColumn.COLUMN_REMARK + ", "
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME 
 						+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
@@ -664,7 +679,7 @@ public class Transaction extends MPOSDatabase {
 		orderDetail.setVatType(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
 		orderDetail.setMemberDiscount(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_MEMBER_DISCOUNT)));
 		orderDetail.setPriceDiscount(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
-		orderDetail.setDiscountType(cursor.getInt(cursor.getColumnIndex(OrderDetailTable.COLUMN_OTHER_DISCOUNT_TYPE)));
+		orderDetail.setDiscountType(cursor.getInt(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_OR_PERCENT)));
 		orderDetail.setOrderComment(cursor.getString(cursor.getColumnIndex(BaseColumn.COLUMN_REMARK)));
 		
 		// generate order set detail
@@ -700,7 +715,10 @@ public class Transaction extends MPOSDatabase {
 		orderDetail.setVatType(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
 		orderDetail.setMemberDiscount(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_MEMBER_DISCOUNT)));
 		orderDetail.setPriceDiscount(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
-		orderDetail.setDiscountType(cursor.getInt(cursor.getColumnIndex(OrderDetailTable.COLUMN_OTHER_DISCOUNT_TYPE)));
+		orderDetail.setPriceOrPercent(cursor.getInt(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_OR_PERCENT)));
+		orderDetail.setPromotionPriceGroupId(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID)));
+		orderDetail.setPromotionTypeId(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID)));
+		orderDetail.setPromotionName(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_NAME)));
 		orderDetail.setOrderComment(cursor.getString(cursor.getColumnIndex(BaseColumn.COLUMN_REMARK)));
 
 		// generate order set detail
@@ -1271,12 +1289,17 @@ public class Transaction extends MPOSDatabase {
 	 * @param vatRate
 	 * @param salePrice
 	 * @param discount
-	 * @param discountType
+	 * @param priceOrPercent
+	 * @param priceGroupId
+	 * @param promotionTypeId
+	 * @param couponHeader
+	 * @param promotionName
 	 * @return row affected
 	 */
 	public int discountEatchProduct(int transactionId, int orderDetailId,
 			int vatType, double vatRate, double salePrice, double discount,
-			int discountType) {
+			int priceOrPercent, int priceGroupId, int promotionTypeId, 
+			String couponHeader, String promotionName){
 		double vat = Utils.calculateVatAmount(salePrice, vatRate, vatType);
 		ContentValues cv = new ContentValues();
 		cv.put(OrderDetailTable.COLUMN_PRICE_DISCOUNT, discount);
@@ -1284,7 +1307,11 @@ public class Transaction extends MPOSDatabase {
 		cv.put(OrderDetailTable.COLUMN_TOTAL_VAT, vat);
 		if (vatType == Products.VAT_TYPE_EXCLUDE)
 			cv.put(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE, vat);
-		cv.put(OrderDetailTable.COLUMN_OTHER_DISCOUNT_TYPE, discountType);
+		cv.put(OrderDetailTable.COLUMN_PRICE_OR_PERCENT, priceOrPercent);
+		cv.put(PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID,  promotionTypeId);
+		cv.put(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID, priceGroupId);
+		cv.put(PromotionPriceGroupTable.COLUMN_COUPON_HEADER, couponHeader);
+		cv.put(PromotionPriceGroupTable.COLUMN_PROMOTION_NAME, promotionName);
 		return getWritableDatabase().update(
 				OrderDetailTable.TABLE_ORDER_TMP,
 				cv,
@@ -1307,15 +1334,24 @@ public class Transaction extends MPOSDatabase {
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
-	 * @return row affected
 	 */
-	private int deleteOrderDetail(int transactionId, int orderDetailId) {
-		return getWritableDatabase().delete(
+	private void deleteOrderDetail(int transactionId, int orderDetailId) {
+		getWritableDatabase().delete(
 				OrderDetailTable.TABLE_ORDER,
 				OrderTransactionTable.COLUMN_TRANS_ID + "=? AND "
 						+ OrderDetailTable.COLUMN_ORDER_ID + "=?",
-				new String[] { String.valueOf(transactionId),
-						String.valueOf(orderDetailId) });
+				new String[] { 
+						String.valueOf(transactionId),
+						String.valueOf(orderDetailId)
+				});
+		getWritableDatabase().delete(
+				OrderDetailTable.TABLE_ORDER,
+				OrderTransactionTable.COLUMN_TRANS_ID + "=? AND "
+						+ OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?",
+				new String[] { 
+						String.valueOf(transactionId),
+						String.valueOf(orderDetailId)
+				});
 	}
 
 	/**

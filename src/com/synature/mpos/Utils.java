@@ -2,12 +2,16 @@ package com.synature.mpos;
 
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -17,6 +21,7 @@ import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.util.Log;
@@ -39,6 +44,7 @@ import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
+import com.synature.util.FileManager;
 import com.synature.util.Logger;
 
 public class Utils {
@@ -58,20 +64,30 @@ public class Utils {
 	public static final String LOG_FILE_NAME = "mpos_";
 	
 	/**
+	 * Resource dir
+	 */
+	public static final String RESOURCE_DIR = "mpos";
+	
+	/**
+	 * Backup db dir
+	 */
+	public static final String BACKUP_DB_DIR = RESOURCE_DIR + File.separator + "backup";
+	
+	/**
 	 * Log dir
 	 */
-	public static final String LOG_DIR = "mPOSLog";
+	public static final String LOG_DIR = RESOURCE_DIR + File.separator + "log";
 
 
 	/**
 	 * Sale dir store partial sale json file
 	 */
-	public static final String LOG_SALE_DIR = LOG_DIR + File.separator + "Sale";
+	public static final String SALE_DIR = RESOURCE_DIR + File.separator + "Sale";
 	
 	/**
 	 * Endday sale dir store endday sale json file
 	 */
-	public static final String LOG_ENDDAY_DIR = LOG_DIR + File.separator + "EnddaySale";
+	public static final String ENDDAY_DIR = RESOURCE_DIR + File.separator + "EnddaySale";
 	
 	/**
 	 * Image path on server
@@ -608,6 +624,26 @@ public class Utils {
 		} catch (InterruptedException e) {
 			Log.d("Shutdown", e.getMessage());
 		}
+	}
+	
+	public static void exportDatabase(Context context) throws IOException{
+		String dbName = MPOSDatabase.MPOSOpenHelper.DB_NAME;
+		Calendar calendar = Calendar.getInstance();
+		String dateFormat = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+		String timeFormat = new SimpleDateFormat("HH:mm:ss").format(calendar.getTime());
+		File dbPath = context.getDatabasePath(dbName);
+		FileManager fm = new FileManager(context, BACKUP_DB_DIR + "_" + dateFormat);
+        FileInputStream fis = new FileInputStream(dbPath);
+        OutputStream output = new FileOutputStream(fm.getFile(dbName + "_" + timeFormat));
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = fis.read(buffer))>0){
+            output.write(buffer, 0, length);
+        }
+        output.flush();
+        output.close();
+        fis.close();
+        makeToask(context, context.getString(R.string.backup_db_success));
 	}
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){

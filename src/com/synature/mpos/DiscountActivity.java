@@ -53,6 +53,7 @@ public class DiscountActivity extends Activity{
 	
 	public static final int PRICE_DISCOUNT_TYPE = 1;
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
+	public static final int OTHER_DISCOUNT_TYPE = 6;
 	public static final String DISCOUNT_FRAGMENT_TAG = "DiscountDialog";
 
 	private Formater mFormat;
@@ -155,8 +156,8 @@ public class DiscountActivity extends Activity{
 		}
 	}
 	
-	public void doPositiveClick(double discount, int discountType){
-		if(updateDiscount(discount, discountType)){
+	public void doPositiveClick(double discount, int priceOrPercent){
+		if(updateDiscount(discount, priceOrPercent)){
 			mItemConfirm.setVisible(true);
 		}
 	}
@@ -169,16 +170,16 @@ public class DiscountActivity extends Activity{
 		private String mProductName;
 		private double mDiscount;
 		private double mTotalRetailPrice;
-		private int mDiscountType;
+		private int mPriceOrPercent;
 		
 		public static DiscountDialogFragment newInstance(String productName, 
-				double discount, double totalRetailPrice, int discountType){
+				double discount, double totalRetailPrice, int priceOrPercent){
 			DiscountDialogFragment f = new DiscountDialogFragment();
 			Bundle b = new Bundle();
 			b.putString("title", productName);
 			b.putDouble("discount", discount);
 			b.putDouble("totalRetailPrice", totalRetailPrice);
-			b.putInt("discountType", discountType);
+			b.putInt("priceOrPercent", priceOrPercent);
 			f.setArguments(b);
 			return f;
 		}
@@ -187,7 +188,7 @@ public class DiscountActivity extends Activity{
 			double discount = mDiscount;
 			try {
 				discount = Utils.stringToDouble(editText.getText().toString());
-				((DiscountActivity)getActivity()).doPositiveClick(discount, mDiscountType);
+				((DiscountActivity)getActivity()).doPositiveClick(discount, mPriceOrPercent);
 				getDialog().dismiss();
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
@@ -200,20 +201,20 @@ public class DiscountActivity extends Activity{
 			mProductName = getArguments().getString("title");
 			mDiscount = getArguments().getDouble("discount");
 			mTotalRetailPrice = getArguments().getDouble("totalRetailPrice");
-			mDiscountType = getArguments().getInt("discountType");
-			if(mDiscountType == 0)
-				mDiscountType = PERCENT_DISCOUNT_TYPE;
+			mPriceOrPercent = getArguments().getInt("priceOrPercent");
+			if(mPriceOrPercent == 0)
+				mPriceOrPercent = PERCENT_DISCOUNT_TYPE;
 			
 			LayoutInflater inflater = (LayoutInflater)
 					getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			View v = inflater.inflate(R.layout.input_discount_layout, null);
 			final EditText txtDiscount = (EditText) v.findViewById(R.id.txtDiscount);
 			final RadioGroup rdoDiscountType = (RadioGroup) v.findViewById(R.id.rdoDiscountType);
-			if(mDiscountType == PERCENT_DISCOUNT_TYPE)
+			if(mPriceOrPercent == PERCENT_DISCOUNT_TYPE)
 				((RadioButton)rdoDiscountType.findViewById(R.id.rdoPercent)).setChecked(true);
-			else if(mDiscountType == PRICE_DISCOUNT_TYPE)
+			else if(mPriceOrPercent == PRICE_DISCOUNT_TYPE)
 				((RadioButton)rdoDiscountType.findViewById(R.id.rdoPrice)).setChecked(true);
-			if(mDiscountType == PERCENT_DISCOUNT_TYPE)
+			if(mPriceOrPercent == PERCENT_DISCOUNT_TYPE)
 				txtDiscount.setText(((DiscountActivity) getActivity()).mFormat.currencyFormat(mDiscount * 100 / mTotalRetailPrice));
 			else
 				txtDiscount.setText(((DiscountActivity) getActivity()).mFormat.currencyFormat(mDiscount));
@@ -240,11 +241,11 @@ public class DiscountActivity extends Activity{
 					switch(checkedId){
 					case R.id.rdoPrice:
 						if(rdo.isChecked())
-							mDiscountType = PRICE_DISCOUNT_TYPE;
+							mPriceOrPercent = PRICE_DISCOUNT_TYPE;
 						break;
 					case R.id.rdoPercent:
 						if(rdo.isChecked())
-							mDiscountType = PERCENT_DISCOUNT_TYPE;
+							mPriceOrPercent = PERCENT_DISCOUNT_TYPE;
 						break;
 					}
 				}
@@ -253,12 +254,16 @@ public class DiscountActivity extends Activity{
 		
 			return new AlertDialog.Builder(getActivity())
 				.setTitle(mProductName)
+				.setCancelable(false)
 				.setView(v)
 				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						enterDiscount(txtDiscount);
+						InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+							      Context.INPUT_METHOD_SERVICE);
+						imm.hideSoftInputFromWindow(txtDiscount.getWindowToken(), 0);
 					}
 				})
 				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -266,6 +271,9 @@ public class DiscountActivity extends Activity{
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						((DiscountActivity)getActivity()).doNegativeClick();
+						InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+							      Context.INPUT_METHOD_SERVICE);
+						imm.hideSoftInputFromWindow(txtDiscount.getWindowToken(), 0);
 					}
 				}).create();
 		}
@@ -283,12 +291,8 @@ public class DiscountActivity extends Activity{
 	
 	public static class PlaceholderFragment extends Fragment{
 
-		private LinearLayout mLayoutVat;
+		private LinearLayout mSummaryContainer;
 		private ListView mLvDiscount;
-		private EditText mTxtTotalVatExc;
-		private EditText mTxtSubTotal;
-		private EditText mTxtTotalDiscount;
-		private EditText mTxtTotalPrice;
 		
 		public static PlaceholderFragment newInstance(){
 			PlaceholderFragment f = new PlaceholderFragment();
@@ -327,7 +331,7 @@ public class DiscountActivity extends Activity{
 										((DiscountActivity) getActivity()).mOrder.getProductName(), 
 										((DiscountActivity) getActivity()).mOrder.getPriceDiscount(), 
 										((DiscountActivity) getActivity()).mOrder.getTotalRetailPrice(), 
-										((DiscountActivity) getActivity()).mOrder.getDiscountType());
+										((DiscountActivity) getActivity()).mOrder.getPriceOrPercent());
 						discount.show(getFragmentManager(), DISCOUNT_FRAGMENT_TAG);
 					}else{
 						new AlertDialog.Builder(getActivity())
@@ -349,15 +353,8 @@ public class DiscountActivity extends Activity{
 
 		@Override
 		public void onViewCreated(View view, Bundle savedInstanceState) {
-			mLayoutVat = (LinearLayout) view.findViewById(R.id.layoutVat);
-			mTxtTotalVatExc = (EditText) view.findViewById(R.id.txtTotalVatExclude);
 			mLvDiscount = (ListView) view.findViewById(R.id.lvOrder);
-			mTxtSubTotal = (EditText) view.findViewById(R.id.txtSubTotal);
-			mTxtTotalDiscount = (EditText) view.findViewById(R.id.txtTotalDiscount);
-			mTxtTotalPrice = (EditText) view.findViewById(R.id.txtTotalPrice);
-			Shop shop = new Shop(getActivity());
-			((TextView) view.findViewById(R.id.textView12)).append(" " + 
-					NumberFormat.getInstance().format(shop.getCompanyVatRate()) + getString(R.string.percent));
+			mSummaryContainer = (LinearLayout) view.findViewById(R.id.summaryContainer);
 		}
 	}
 	
@@ -366,10 +363,6 @@ public class DiscountActivity extends Activity{
 		switch(item.getItemId()){
 		case android.R.id.home:
 			cancel();
-			return true;
-		case R.id.itemReset:
-			clearDiscount();
-			loadOrder();
 			return true;
 		case R.id.itemConfirm:
 			mTrans.confirmDiscount(mTransactionId);
@@ -428,15 +421,17 @@ public class DiscountActivity extends Activity{
 									double totalPriceAfterDiscount = totalRetailPrice - discount;
 									mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
 											order.getVatType(), mProduct.getVatRate(order.getProductId()), 
-											totalPriceAfterDiscount, discount, PRICE_DISCOUNT_TYPE);
+											totalPriceAfterDiscount, discount, PRICE_DISCOUNT_TYPE, 0, 
+											OTHER_DISCOUNT_TYPE, "", "");
 								}
 							}else if(mDisAllType == PERCENT_DISCOUNT_TYPE){
 								double discount = calculateDiscount(order.getTotalRetailPrice(), 
 										discountAll, PERCENT_DISCOUNT_TYPE);
 								double totalPriceAfterDiscount = totalRetailPrice - discount;
 								mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
-										order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
-										discount, PERCENT_DISCOUNT_TYPE);
+										order.getVatType(), mProduct.getVatRate(order.getProductId()), 
+										totalPriceAfterDiscount, discount, PERCENT_DISCOUNT_TYPE, 0, 
+										OTHER_DISCOUNT_TYPE, "", "");
 							}
 						}
 					}
@@ -455,8 +450,9 @@ public class DiscountActivity extends Activity{
 								totalDiscount += discount;
 								double totalPriceAfterDiscount = totalRetailPrice - discount;
 								mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
-										order.getVatType(), mProduct.getVatRate(order.getProductId()), totalPriceAfterDiscount, 
-										discount, PRICE_DISCOUNT_TYPE);
+										order.getVatType(), mProduct.getVatRate(order.getProductId()), 
+										totalPriceAfterDiscount, discount, PRICE_DISCOUNT_TYPE, 0, 
+										OTHER_DISCOUNT_TYPE, "", "");
 							}
 						}
 					}
@@ -474,19 +470,20 @@ public class DiscountActivity extends Activity{
 		mTrans.prepareDiscount(mTransactionId);
 	}
 	
-	private boolean updateDiscount(double discount, int discountType) {
-		discount = calculateDiscount(mOrder.getTotalRetailPrice(), discount, discountType);
+	private boolean updateDiscount(double discount, int priceOrPercent) {
+		discount = calculateDiscount(mOrder.getTotalRetailPrice(), discount, priceOrPercent);
 		if(discount >= 0){
 			double totalPriceAfterDiscount = mOrder.getTotalRetailPrice() - discount;
 			mTrans.discountEatchProduct(mTransactionId, 
 					mOrder.getOrderDetailId(), mOrder.getVatType(),
 					mProduct.getVatRate(mOrder.getProductId()), 
-					totalPriceAfterDiscount, discount, discountType);
+					totalPriceAfterDiscount, discount, priceOrPercent, 0, 
+					OTHER_DISCOUNT_TYPE, "", "");
 			
 			MPOSOrderTransaction.MPOSOrderDetail order = mOrderLst.get(mPosition);
 			order.setPriceDiscount(discount);
 			order.setTotalSalePrice(totalPriceAfterDiscount);
-			order.setDiscountType(discountType);
+			order.setPriceOrPercent(priceOrPercent);
 			
 			mOrderLst.set(mPosition, order);
 			mDisAdapter.notifyDataSetChanged();
@@ -499,18 +496,18 @@ public class DiscountActivity extends Activity{
 	/**
 	 * @param totalRetailPrice
 	 * @param discount
-	 * @param discountType
+	 * @param priceOrPercent
 	 * @return 0 if not success
 	 */
-	private double calculateDiscount(double totalRetailPrice, double discount, int discountType){
+	public static double calculateDiscount(double totalRetailPrice, double discount, int priceOrPercent){
 		if(discount < 0)
 			return 0;
 		
 		double totalDiscount = discount;
-		if(discountType == PRICE_DISCOUNT_TYPE){
+		if(priceOrPercent == PRICE_DISCOUNT_TYPE){
 			if(totalRetailPrice < discount)
 				totalDiscount = 0;
-		}else if(discountType == PERCENT_DISCOUNT_TYPE){
+		}else if(priceOrPercent == PERCENT_DISCOUNT_TYPE){
 			if(discount > 100)
 				totalDiscount = 0;
 			else
@@ -554,19 +551,24 @@ public class DiscountActivity extends Activity{
 		Fragment f = getFragmentManager().findFragmentById(R.id.discountContainer);
 		if(f != null){
 			if(f instanceof PlaceholderFragment){
-				MPOSOrderTransaction.MPOSOrderDetail summOrder = 
+				MPOSOrderTransaction.MPOSOrderDetail summ = 
 						mTrans.getSummaryOrderForDiscount(mTransactionId);
-				double totalVatExcluded = summOrder.getVatExclude();
-				if(totalVatExcluded > 0){
-					((PlaceholderFragment) f).mLayoutVat.setVisibility(View.VISIBLE);
-				}else{
-					((PlaceholderFragment) f).mLayoutVat.setVisibility(View.GONE);
-				}
-				mTotalPrice = summOrder.getTotalSalePrice();
-				((PlaceholderFragment) f).mTxtTotalVatExc.setText(mFormat.currencyFormat(totalVatExcluded));
-				((PlaceholderFragment) f).mTxtSubTotal.setText(mFormat.currencyFormat(summOrder.getTotalRetailPrice()));
-				((PlaceholderFragment) f).mTxtTotalDiscount.setText(mFormat.currencyFormat(summOrder.getPriceDiscount()));
-				((PlaceholderFragment) f).mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalPrice));
+				PlaceholderFragment fragment = (PlaceholderFragment) f;
+				TextView[] tvs = {
+						SaleReportActivity.createTextViewSummary(this, getString(R.string.summary), Utils.getLinHorParams(1.2f)),
+						SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(summ.getQty()), Utils.getLinHorParams(0.5f)),
+						SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPricePerUnit()), Utils.getLinHorParams(0.7f)),
+						SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalRetailPrice()), Utils.getLinHorParams(0.7f)),
+						SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPriceDiscount()), Utils.getLinHorParams(0.7f)),
+						SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalSalePrice()), Utils.getLinHorParams(0.7f))
+				};
+				if(fragment.mSummaryContainer.getChildCount() > 0)
+					fragment.mSummaryContainer.removeAllViews();
+
+				LinearLayout rowSummary = SaleReportActivity.createRowSummary(this, tvs);
+				rowSummary.setDividerDrawable(getResources().getDrawable(android.R.drawable.divider_horizontal_bright));
+				rowSummary.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
+				fragment.mSummaryContainer.addView(rowSummary);
 			}
 		}
 	}

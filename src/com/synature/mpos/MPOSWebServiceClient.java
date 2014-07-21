@@ -16,6 +16,7 @@ import com.synature.mpos.database.MenuComment;
 import com.synature.mpos.database.PaymentAmountButton;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.Products;
+import com.synature.mpos.database.PromotionDiscount;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.SyncMasterLog;
@@ -143,6 +144,7 @@ public class MPOSWebServiceClient {
 						Products pd = new Products(context);
 						MenuComment mc = new MenuComment(context);
 						SyncMasterLog sync = new SyncMasterLog(context);
+						PromotionDiscount promo = new PromotionDiscount(context);
 						try {
 							pd.insertProductGroup(pgs.getProductGroup(), mgs.getMenuGroup());
 							pd.insertProductDept(pgs.getProductDept(), mgs.getMenuDept());
@@ -152,6 +154,8 @@ public class MPOSWebServiceClient {
 							mc.insertMenuComment(mgs.getMenuComment());
 							mc.insertMenuCommentGroup(mgs.getMenuCommentGroup());
 							mc.insertMenuFixComment(mgs.getMenuFixComment());
+							promo.insertPromotionPriceGroup(pgs.getPromotionPriceGroup());
+							promo.insertPromotionProductDiscount(pgs.getPromotionProductDiscount());
 							
 							// log to SyncMasterLogTable
 							sync.insertSyncLog(SyncMasterLog.SYNC_PRODUCT_TYPE, 

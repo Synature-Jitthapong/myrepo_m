@@ -8,7 +8,6 @@ import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.SyncMasterLog;
 import com.synature.mpos.database.UserVerification;
-import com.synature.mpos.ui.SystemUiHider;
 import com.synature.pos.ShopData;
 
 import android.os.Bundle;
@@ -232,7 +231,6 @@ public class LoginActivity extends Activity{
 				if(progress.isShowing())
 					progress.dismiss();
 				new AlertDialog.Builder(LoginActivity.this)
-				.setCancelable(false)
 				.setTitle(R.string.update_data)
 				.setMessage(msg)
 				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -240,7 +238,8 @@ public class LoginActivity extends Activity{
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 					}
-				}).show();
+				})
+				.show();
 			}
 			
 			@Override
@@ -267,18 +266,8 @@ public class LoginActivity extends Activity{
 							public void onPost() {
 								if(progress.isShowing())
 									progress.dismiss();
-								new AlertDialog.Builder(LoginActivity.this)
-								.setCancelable(false)
-								.setTitle(R.string.update_data)
-								.setMessage(R.string.update_data_success)
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										startActivity(new Intent(LoginActivity.this, LoginActivity.class));
-										finish();
-									}
-								}).show();
+								startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+								finish();
 							}
 
 							@Override
@@ -286,7 +275,6 @@ public class LoginActivity extends Activity{
 								if(progress.isShowing())
 									progress.dismiss();
 								new AlertDialog.Builder(LoginActivity.this)
-								.setCancelable(false)
 								.setTitle(R.string.update_data)
 								.setMessage(msg)
 								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -294,7 +282,8 @@ public class LoginActivity extends Activity{
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
 									}
-								}).show();
+								})
+								.show();
 							}
 							
 						});
@@ -305,7 +294,6 @@ public class LoginActivity extends Activity{
 						if(progress.isShowing())
 							progress.dismiss();
 						new AlertDialog.Builder(LoginActivity.this)
-						.setCancelable(false)
 						.setTitle(R.string.update_data)
 						.setMessage(msg)
 						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -313,7 +301,8 @@ public class LoginActivity extends Activity{
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 							}
-						}).show();
+						})
+						.show();
 					}
 					
 				});
@@ -396,18 +385,8 @@ public class LoginActivity extends Activity{
 							public void onError(String msg) {
 								if(progress.isShowing())
 									progress.dismiss();
-								new AlertDialog.Builder(LoginActivity.this)
-								.setCancelable(false)
-								.setTitle(R.string.update_data)
-								.setMessage(getString(R.string.cannot_update_data) + "\n" + msg)
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										startActivity(intent);
-										finish();
-									}
-								}).show();
+								startActivity(intent);
+								finish();
 							}
 							
 						});
@@ -417,18 +396,8 @@ public class LoginActivity extends Activity{
 					public void onError(String msg) {
 						if(progress.isShowing())
 							progress.dismiss();
-						new AlertDialog.Builder(LoginActivity.this)
-						.setCancelable(false)
-						.setTitle(R.string.update_data)
-						.setMessage(getString(R.string.cannot_update_data) + "\n" + msg)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								startActivity(intent);
-								finish();
-							}
-						}).show();
+						startActivity(intent);
+						finish();
 					}
 					
 				});

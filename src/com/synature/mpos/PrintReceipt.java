@@ -363,7 +363,7 @@ public class PrintReceipt implements Runnable{
 	    	String totalText = mContext.getString(R.string.total) + "...............";
 	    	String changeText = mContext.getString(R.string.change) + " ";
 	    	String beforeVatText = mContext.getString(R.string.before_vat);
-	    	String discountText = mContext.getString(R.string.discount);
+	    	String discountText = summOrder.getPromotionName() != null ? summOrder.getPromotionName() : mContext.getString(R.string.discount);
 	    	String vatRateText = mContext.getString(R.string.vat) + " " +
 	    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 	    	

@@ -14,8 +14,7 @@ public class OrderDetailTable extends BaseColumn{
 	public static final String COLUMN_TOTAL_VAT_EXCLUDE = "total_vat_amount_exclude";
 	public static final String COLUMN_MEMBER_DISCOUNT = "member_discount_amount";
 	public static final String COLUMN_PRICE_DISCOUNT = "price_discount_amount";
-	public static final String COLUMN_OTHER_DISCOUNT_TYPE = "other_discount_type";
-	public static final String COLUMN_DISCOUNT_TYPE = "discount_type";
+	public static final String COLUMN_PRICE_OR_PERCENT = "price_or_percent";
 	public static final String COLUMN_PARENT_ORDER_ID = "parent_order_id";
 
 	private static final String ORDER_SQL_CREATE = "CREATE TABLE "
@@ -26,7 +25,7 @@ public class OrderDetailTable extends BaseColumn{
 			+ ProductTable.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 0, "
 			+ COLUMN_ORDER_QTY + " REAL DEFAULT 1, "
 			+ ProductTable.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, "
-			+ COLUMN_OTHER_DISCOUNT_TYPE + " INTEGER DEFAULT 2, "
+			+ COLUMN_PRICE_OR_PERCENT + " INTEGER DEFAULT 2, "
 			+ ProductTable.COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, "
 			+ COLUMN_TOTAL_VAT + " REAL DEFAULT 0, "
 			+ COLUMN_TOTAL_VAT_EXCLUDE + " REAL DEFAULT 0, "
@@ -35,8 +34,11 @@ public class OrderDetailTable extends BaseColumn{
 			+ COLUMN_TOTAL_RETAIL_PRICE + " REAL DEFAULT 0, "
 			+ COLUMN_TOTAL_SALE_PRICE + " REAL DEFAULT 0, "
 			+ ProductTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 1, "
-			+ COLUMN_DISCOUNT_TYPE + " INTEGER DEFAULT 6, "
 			+ COLUMN_PARENT_ORDER_ID + " INTEGER DEFAULT 0, "
+			+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + " INTEGER DEFAULT 0, "
+			+ PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID + " INTEGER DEFAULT 6, "
+			+ PromotionPriceGroupTable.COLUMN_COUPON_HEADER + " TEXT, "
+			+ PromotionPriceGroupTable.COLUMN_PROMOTION_NAME + " TEXT, "
 			+ COLUMN_REMARK + " TEXT, " 
 			+ "PRIMARY KEY (" + COLUMN_ORDER_ID + ", "
 			+ OrderTransactionTable.COLUMN_TRANS_ID + ") );";

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/list_selector"
     android:orientation="horizontal"
-    android:padding="4dp" >
+    android:padding="@dimen/medium_space" >
 
     <TextView
         android:id="@+id/tvProductName"

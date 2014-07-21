@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:title="@string/general_setting">
-        <CheckBoxPreference android:title="@string/show_menu_image" android:key="show_menu_image" android:defaultValue="true"/>
+
+    <PreferenceCategory android:title="@string/general_setting" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="show_menu_image"
+            android:title="@string/show_menu_image" />
+        
     </PreferenceCategory>
-    
 
 </PreferenceScreen>

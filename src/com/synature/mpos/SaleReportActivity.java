@@ -186,7 +186,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		}
 	}
 
-	private static LinearLayout createRowSummary(Context context, TextView[] tvs){
+	public static LinearLayout createRowSummary(Context context, TextView[] tvs){
 		LinearLayout row = new LinearLayout(context);
 		for(TextView tvSummary : tvs){
 			row.addView(tvSummary);
@@ -215,7 +215,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		return tvHeader;
 	}
 	
-	private static TextView createTextViewSummary(Context context, 
+	public static TextView createTextViewSummary(Context context, 
 			String content, LinearLayout.LayoutParams params){
 		TextView tvSummary = new TextView(context);
 		tvSummary.setText(content);

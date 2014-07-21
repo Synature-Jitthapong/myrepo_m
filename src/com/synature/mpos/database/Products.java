@@ -301,6 +301,28 @@ public class Products extends MPOSDatabase {
 	}
 
 	/**
+	 * Check allow discount
+	 * @param productId
+	 * @return true if allow discount
+	 */
+	public boolean isAllowDiscount(int productId){
+		boolean isAllowDiscount = false;
+		Cursor cursor = getReadableDatabase().query(ProductTable.TABLE_PRODUCT, 
+				new String[]{
+					ProductTable.COLUMN_DISCOUNT_ALLOW,
+				}, ProductTable.COLUMN_PRODUCT_ID + "=?", 
+				new String[]{
+					String.valueOf(productId)
+				}, null, null, null);
+		if(cursor.moveToFirst()){
+			if(cursor.getInt(0) == 1)
+				isAllowDiscount = true;
+		}
+		cursor.close();
+		return isAllowDiscount;
+	}
+	
+	/**
 	 * @param productId
 	 * @return vatType include or exclude
  	 */

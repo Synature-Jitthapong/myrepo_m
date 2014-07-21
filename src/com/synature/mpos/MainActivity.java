@@ -270,6 +270,14 @@ public class MainActivity extends FragmentActivity
 			case R.id.itemEndday:
 				mHost.endday();
 				return true;
+			case R.id.itemBackupDb:
+				try {
+					Utils.exportDatabase(getActivity());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return true;
 			case R.id.itemSendEndday:
 				intent = new Intent(getActivity(), SendEnddayActivity.class);
 				intent.putExtra("staffId", mHost.mStaffId);
@@ -403,7 +411,8 @@ public class MainActivity extends FragmentActivity
 					0, 0, 0, 0));
 			
 			if(sumOrder.getPriceDiscount() > 0){
-				mTbSummary.addView(createTableRowSummary(getString(R.string.discount), 
+				String discountText = sumOrder.getPromotionName() == null ? getString(R.string.discount) : sumOrder.getPromotionName();
+				mTbSummary.addView(createTableRowSummary(discountText, 
 						"-" + mHost.mFormat.currencyFormat(sumOrder.getPriceDiscount()), 
 								0, 0, 0, 0));
 			}
@@ -652,7 +661,9 @@ public class MainActivity extends FragmentActivity
 	 */
 	public void promotionClicked(final View v) {
 		if (mOrderDetailLst.size() > 0) {
-
+			Intent intent = new Intent(MainActivity.this, PromotionActivity.class);
+			intent.putExtra("transactionId", mTransactionId);
+			startActivity(intent);
 		}
 	}
 	
