@@ -37,9 +37,9 @@ public class OrderDetailTable extends BaseColumn{
 			+ COLUMN_PARENT_ORDER_ID + " INTEGER DEFAULT 0, "
 			+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + " INTEGER DEFAULT 0, "
 			+ PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID + " INTEGER DEFAULT 6, "
-			+ PromotionPriceGroupTable.COLUMN_COUPON_HEADER + " TEXT, "
-			+ PromotionPriceGroupTable.COLUMN_PROMOTION_NAME + " TEXT, "
-			+ COLUMN_REMARK + " TEXT, " 
+			+ PromotionPriceGroupTable.COLUMN_COUPON_HEADER + " TEXT NOT NULL, "
+			+ PromotionPriceGroupTable.COLUMN_PROMOTION_NAME + " TEXT NOT NULL, "
+			+ COLUMN_REMARK + " TEXT NOT NULL, " 
 			+ "PRIMARY KEY (" + COLUMN_ORDER_ID + ", "
 			+ OrderTransactionTable.COLUMN_TRANS_ID + ") );";
 

@@ -127,28 +127,35 @@ public class PromotionActivity extends Activity {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// reset discount
-				Products p = new Products(PromotionActivity.this);
-				for(MPOSOrderDetail detail : mOrderLst){
-					double totalRetailPrice = detail.getTotalRetailPrice();
-					double discount = DiscountActivity.calculateDiscount(totalRetailPrice, 
-							0, DiscountActivity.PRICE_DISCOUNT_TYPE);
-					double priceAfterDiscount = totalRetailPrice - discount;
-					
-					mTrans.discountEatchProduct(mTransactionId, detail.getOrderDetailId(), 
-							p.getVatType(detail.getProductId()), p.getVatRate(detail.getProductId()), 
-							priceAfterDiscount, discount, DiscountActivity.PRICE_DISCOUNT_TYPE, 
-							0, 0, "", "");
-				}
-				loadOrderDetail();
-				summary();
-				for(int i = 0; i < mPromoLst.size(); i++){
-					View child = mPromoButtonContainer.getChildAt(i);
-					if(child.isSelected())
-						child.setSelected(false);
-				}
+				resetDiscount();
 			}
 		}).show();
+	}
+	
+	/**
+	 * Reset discount set discount to 0
+	 */
+	private void resetDiscount(){
+		// reset discount
+		Products p = new Products(PromotionActivity.this);
+		for(MPOSOrderDetail detail : mOrderLst){
+			double totalRetailPrice = detail.getTotalRetailPrice();
+			double discount = DiscountActivity.calculateDiscount(totalRetailPrice, 
+					0, DiscountActivity.PRICE_DISCOUNT_TYPE);
+			double priceAfterDiscount = totalRetailPrice - discount;
+			
+			mTrans.discountEatchProduct(mTransactionId, detail.getOrderDetailId(), 
+					p.getVatType(detail.getProductId()), p.getVatRate(detail.getProductId()), 
+					priceAfterDiscount, discount, DiscountActivity.PRICE_DISCOUNT_TYPE, 
+					0, 0, "", "");
+		}
+		loadOrderDetail();
+		summary();
+		for(int i = 0; i < mPromoLst.size(); i++){
+			View child = mPromoButtonContainer.getChildAt(i);
+			if(child.isSelected())
+				child.setSelected(false);
+		}
 	}
 	
 	private void summary(){
@@ -193,20 +200,23 @@ public class PromotionActivity extends Activity {
 		@Override
 		public void onClick(View view) {
 			if(view.isSelected()){
-				clearDiscount();
+				resetDiscount();
 			}else{
+				// clear selected promotion
+				for(int i = 0; i < mPromoLst.size(); i++){
+					View child = mPromoButtonContainer.getChildAt(i);
+					if(child.getId() != view.getId()){
+						if(child.isSelected()){
+							child.setSelected(false);
+							resetDiscount();
+						}
+					}
+				}
 				List<ProductGroups.PromotionProduct> productLst = 
 						mPromotion.listPromotionProduct(mPriceGroupId);
 				if(productLst.size() > 0){
 					if(discount(productLst)){
 						view.setSelected(true);
-						for(int i = 0; i < mPromoLst.size(); i++){
-							View child = mPromoButtonContainer.getChildAt(i);
-							if(child.getId() != view.getId()){
-								if(child.isSelected())
-									child.setSelected(false);
-							}
-						}
 					}
 				}
 			}

@@ -41,7 +41,7 @@ public class EnddaySaleService extends Service{
 		final Session sess = new Session(getApplicationContext());
 		List<String> sessLst = sess.listSessionEnddayNotSend();
 		if(sessLst.size() > 0){
-			Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+			Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
 				Utils.LOG_FILE_NAME, 
 				TAG + ": Service Start Command \n"
 				+ "staffId=" + staffId + "\n"
@@ -63,8 +63,6 @@ public class EnddaySaleService extends Service{
 						final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
 						
 						if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
-							
-							JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
 							
 							new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 									SendSaleTransaction.SEND_SALE_TRANS_METHOD,
@@ -91,12 +89,16 @@ public class EnddaySaleService extends Service{
 														MPOSDatabase.ALREADY_SEND);
 												Transaction trans = new Transaction(getApplicationContext());
 												trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+
+												// log endday sale json when send to server success
+												JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
+												
 												if(!it.hasNext()){
 													mStatMsg = getApplication().getString(R.string.send_sale_data_success);
 													stopSelf();
 												}
 											} catch (SQLException e) {
-												Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+												Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
 														Utils.LOG_FILE_NAME, 
 														" Error when update " 
 														+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + " : "
@@ -131,7 +133,7 @@ public class EnddaySaleService extends Service{
 	@Override
 	public void onDestroy() {
 		if(!TextUtils.isEmpty(mStatMsg)){
-			Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+			Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, 
 					TAG + ": Send Endday Complete");
 			Utils.makeToask(getApplicationContext(), mStatMsg);

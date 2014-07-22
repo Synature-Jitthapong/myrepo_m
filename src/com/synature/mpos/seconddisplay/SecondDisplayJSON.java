@@ -26,9 +26,10 @@ public class SecondDisplayJSON {
 	 * @param change
 	 * @return
 	 */
-	public static String genChangePayment(String totalPay, String change){
+	public static String genChangePayment(String grandTotal, String totalPay, String change){
 		Gson gson = new Gson();
 		clsSecDisplay_ChangePayment changePayment = new clsSecDisplay_ChangePayment();
+		changePayment.szGrandTotalAmount = grandTotal;
 		changePayment.szPayAmount = totalPay;
 		changePayment.szCashChangeAmount = change;
 		return gson.toJson(changePayment);
@@ -55,14 +56,14 @@ public class SecondDisplayJSON {
 			item.szImageUrl = "";
 			itemLst.add(item);
 		}
-		displayData.xListDetailItems = itemLst;
-		displayData.xListTransSummarys = transSummLst;
 		clsSecDisplay_Transaction trans = new clsSecDisplay_Transaction();
 		trans.iNoCustomer = 0;
 		trans.szCustName = "";
 		trans.szTransName = "";
 		displayData.xTransaction = trans;
 		displayData.szGrandTotalPrice = grandTotal;
+		displayData.xListDetailItems = itemLst;
+		displayData.xListTransSummarys = transSummLst;
 		return gson.toJson(displayData);
 	}
 	

@@ -63,8 +63,6 @@ public class SaleService extends Service{
 					final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
 					if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
 						
-						JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
-						
 						new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
 								shopId, computerId, staffId, jsonSale, new ProgressListener() {
@@ -91,13 +89,15 @@ public class SaleService extends Service{
 													MPOSDatabase.ALREADY_SEND);
 											Transaction trans = new Transaction(getApplicationContext());
 											trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+											// log json sale if send to server success
+											JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
 											if(!it.hasNext()){
 												listener.onPost();
 											}
 										} catch (SQLException e) {
-											Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+											Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
 													Utils.LOG_FILE_NAME, 
-													" Error when update " 
+													" Send endday sale error " 
 													+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL + " : "
 													+ e.getMessage());
 										}
@@ -133,7 +133,7 @@ public class SaleService extends Service{
 	 */
 	public void sendSale(final int shopId, final int transactionId, final int computerId, 
 			final int staffId, final ProgressListener listener) {
-		Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+		Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
 				Utils.LOG_FILE_NAME, 
 				TAG + ": Start Send PartialSale \n"
 				+ "staffId=" + staffId + "\n"
@@ -158,8 +158,6 @@ public class SaleService extends Service{
 				
 				if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
 					
-					JSONSaleLogFile.appendSale(getApplicationContext(), jsonSale);
-					
 					new MPOSWebServiceClient.SendPartialSaleTransaction(getApplicationContext(), 
 							shopId, computerId, staffId, jsonSale, new ProgressListener() {
 						@Override
@@ -171,7 +169,11 @@ public class SaleService extends Service{
 							// do update transaction already send
 							Transaction trans = new Transaction(getApplicationContext());
 							trans.updateTransactionSendStatus(transactionId, MPOSDatabase.ALREADY_SEND);
-							Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+							
+							// log partial sale json when send to server success
+							JSONSaleLogFile.appendSale(getApplicationContext(), jsonSale);
+							
+							Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
 									Utils.LOG_FILE_NAME, 
 									TAG + ": Send PartialSale Complete");
 							

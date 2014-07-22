@@ -10,6 +10,7 @@ import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.pos.Payment;
+import com.synature.pos.Payment.PayType;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -256,10 +257,32 @@ public class PaymentDetail extends MPOSDatabase {
 	
 	/**
 	 * @param transactionId
+	 * @return total cash amount
+	 */
+	public double getTotalCash(int transactionId){
+		double totalCash = 0.0d;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
+						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
+						+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?"
+						+ " AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?",
+				new String[]{
+						String.valueOf(transactionId),
+						String.valueOf(PAY_TYPE_CASH)
+				});
+		if(cursor.moveToFirst()){
+			totalCash = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalCash;
+	}
+	
+	/**
+	 * @param transactionId
 	 * @return total paid
 	 */
 	public double getTotalPay(int transactionId){
-		double totalPaid = 0.0f;
+		double totalPaid = 0.0d;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
 						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
@@ -279,7 +302,7 @@ public class PaymentDetail extends MPOSDatabase {
 	 * @return total paid
 	 */
 	public double getTotalPaid(int transactionId){
-		double totalPaid = 0.0f;
+		double totalPaid = 0.0d;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAID + ") "
 						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 

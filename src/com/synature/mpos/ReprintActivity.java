@@ -36,7 +36,7 @@ public class ReprintActivity extends Activity {
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
+				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
@@ -97,7 +97,8 @@ public class ReprintActivity extends Activity {
 
 				@Override
 				public void onClick(View v) {
-					new Thread(new Reprint(trans.getTransactionId())).start();
+					holder.btnPrint.setEnabled(false);
+					new Thread(new Reprint(trans.getTransactionId(), holder.btnPrint)).start();
 				}
 				
 			});
@@ -114,10 +115,12 @@ public class ReprintActivity extends Activity {
 	public class Reprint extends PrintReceipt{
 		
 		public int mTransactionId;
+		private Button mBtnPrint;
 		
-		public Reprint(int transactionId) {
+		public Reprint(int transactionId, Button refBtnPrint) {
 			super(ReprintActivity.this);
 			mTransactionId = transactionId;
+			mBtnPrint = refBtnPrint;
 		}
 
 		@Override
@@ -127,10 +130,18 @@ public class ReprintActivity extends Activity {
 				wt.prepareDataToPrint(mTransactionId);
 				wt.print();
 			}else{
-				EPSONPrintReceipt ep = new EPSONPrintReceipt(ReprintActivity.this);	
+				EPSONPrintReceipt ep = new EPSONPrintReceipt(ReprintActivity.this, true);	
 				ep.prepareDataToPrint(mTransactionId);
 				ep.print();
 			}
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mBtnPrint.setEnabled(true);
+				}
+				
+			});
 		}
 		
 	}

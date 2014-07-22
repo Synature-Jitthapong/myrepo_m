@@ -129,7 +129,7 @@ public class MainActivity extends FragmentActivity
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
+				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
 		
 		setContentView(R.layout.activity_main);
 		
@@ -244,62 +244,57 @@ public class MainActivity extends FragmentActivity
 		public boolean onOptionsItemSelected(MenuItem item) {
 			Intent intent = null;
 			switch (item.getItemId()) {
-			case R.id.itemHoldBill:
-				mHost.showHoldBill();
-				return true;
-			case R.id.itemSwUser:
-				mHost.switchUser();
-				return true;
-			case R.id.itemLogout:
-				mHost.logout();
-				return true;
-			case R.id.itemReport:
-				intent = new Intent(getActivity(), SaleReportActivity.class);
-				intent.putExtra("staffId", mHost.mStaffId);
-				startActivity(intent);
-				return true;
-			case R.id.itemVoid:
-				mHost.voidBill();
-				return true;
-			case R.id.itemEditCash:
-				mHost.editCash();
-				return true;
-			case R.id.itemCloseShift:
-				mHost.closeShift();
-				return true;
-			case R.id.itemEndday:
-				mHost.endday();
-				return true;
-			case R.id.itemBackupDb:
-				try {
+				case R.id.itemHoldBill:
+					mHost.showHoldBill();
+					return true;
+				case R.id.itemSwUser:
+					mHost.switchUser();
+					return true;
+				case R.id.itemLogout:
+					mHost.logout();
+					return true;
+				case R.id.itemReport:
+					intent = new Intent(getActivity(), SaleReportActivity.class);
+					intent.putExtra("staffId", mHost.mStaffId);
+					startActivity(intent);
+					return true;
+				case R.id.itemVoid:
+					mHost.voidBill();
+					return true;
+				case R.id.itemEditCash:
+					mHost.editCash();
+					return true;
+				case R.id.itemCloseShift:
+					mHost.closeShift();
+					return true;
+				case R.id.itemEndday:
+					mHost.endday();
+					return true;
+				case R.id.itemBackupDb:
 					Utils.exportDatabase(getActivity());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return true;
-			case R.id.itemSendEndday:
-				intent = new Intent(getActivity(), SendEnddayActivity.class);
-				intent.putExtra("staffId", mHost.mStaffId);
-				intent.putExtra("shopId", mHost.mShop.getShopId());
-				intent.putExtra("computerId", mHost.mComputer.getComputerId());
-				startActivity(intent);
-				return true;
-			case R.id.itemReprint:
-				intent = new Intent(getActivity(), ReprintActivity.class);
-				startActivity(intent);
-				return true;
-			case R.id.itemSendSale:
-				intent = new Intent(getActivity(), SendSaleActivity.class);
-				intent.putExtra("staffId", mHost.mStaffId);
-				intent.putExtra("shopId", mHost.mShop.getShopId());
-				intent.putExtra("computerId", mHost.mComputer.getComputerId());
-				startActivity(intent);
-				return true;
-			case R.id.itemSetting:
-				intent = new Intent(getActivity(), SettingsActivity.class);
-				startActivity(intent);
-				return true;
+					return true;
+				case R.id.itemSendEndday:
+					intent = new Intent(getActivity(), SendEnddayActivity.class);
+					intent.putExtra("staffId", mHost.mStaffId);
+					intent.putExtra("shopId", mHost.mShop.getShopId());
+					intent.putExtra("computerId", mHost.mComputer.getComputerId());
+					startActivity(intent);
+					return true;
+				case R.id.itemReprint:
+					intent = new Intent(getActivity(), ReprintActivity.class);
+					startActivity(intent);
+					return true;
+				case R.id.itemSendSale:
+					intent = new Intent(getActivity(), SendSaleActivity.class);
+					intent.putExtra("staffId", mHost.mStaffId);
+					intent.putExtra("shopId", mHost.mShop.getShopId());
+					intent.putExtra("computerId", mHost.mComputer.getComputerId());
+					startActivity(intent);
+					return true;
+				case R.id.itemSetting:
+					intent = new Intent(getActivity(), SettingsActivity.class);
+					startActivity(intent);
+					return true;
 			default:
 				return super.onOptionsItemSelected(item);
 			}
@@ -411,7 +406,7 @@ public class MainActivity extends FragmentActivity
 					0, 0, 0, 0));
 			
 			if(sumOrder.getPriceDiscount() > 0){
-				String discountText = sumOrder.getPromotionName() == null ? getString(R.string.discount) : sumOrder.getPromotionName();
+				String discountText = sumOrder.getPromotionName().equals("") ? getString(R.string.discount) : sumOrder.getPromotionName();
 				mTbSummary.addView(createTableRowSummary(discountText, 
 						"-" + mHost.mFormat.currencyFormat(sumOrder.getPriceDiscount()), 
 								0, 0, 0, 0));
@@ -427,7 +422,7 @@ public class MainActivity extends FragmentActivity
 					0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size)));
 			
 			// display summary to customer display
-			if(sumOrder.getQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
+			//if(sumOrder.getQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
 				if(Utils.isEnableSecondDisplay(getActivity())){
 					List<clsSecDisplay_TransSummary> transSummLst = new ArrayList<clsSecDisplay_TransSummary>();
 					clsSecDisplay_TransSummary transSumm = new clsSecDisplay_TransSummary();
@@ -435,8 +430,9 @@ public class MainActivity extends FragmentActivity
 					transSumm.szSumAmount = mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
 					transSummLst.add(transSumm);
 					if(sumOrder.getPriceDiscount() > 0){
+						String discountText = sumOrder.getPromotionName().equals("") ? getString(R.string.discount) : sumOrder.getPromotionName();
 						transSumm = new clsSecDisplay_TransSummary();
-						transSumm.szSumName = getString(R.string.discount);
+						transSumm.szSumName = discountText;
 						transSumm.szSumAmount = "-" + mHost.mFormat.currencyFormat(sumOrder.getPriceDiscount());
 						transSummLst.add(transSumm);
 					}
@@ -447,8 +443,16 @@ public class MainActivity extends FragmentActivity
 						transSumm.szSumAmount = mHost.mFormat.currencyFormat(sumOrder.getVatExclude());
 						transSummLst.add(transSumm);
 					}
-					mHost.secondDisplayItem(transSummLst, mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice() 
-							+ sumOrder.getVatExclude()));
+					transSumm = new clsSecDisplay_TransSummary();
+					transSumm.szSumName = getString(R.string.total_qty); 
+					transSumm.szSumAmount = mHost.mFormat.qtyFormat(sumOrder.getQty());
+					transSummLst.add(transSumm);
+					
+					transSumm = new clsSecDisplay_TransSummary();
+					transSumm.szSumName = getString(R.string.total); 
+					transSumm.szSumAmount = mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+					transSummLst.add(transSumm);
+					mHost.secondDisplayItem(transSummLst, mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
 				}
 				
 				mHost.mDsp.setOrderTotalQty(mHost.mFormat.qtyFormat(sumOrder.getQty()));
@@ -461,7 +465,7 @@ public class MainActivity extends FragmentActivity
 						e.printStackTrace();
 					}
 				}
-			}
+			//}
 		}
 		
 		private TableRow createTableRowSummary(String label, String value,
@@ -469,6 +473,7 @@ public class MainActivity extends FragmentActivity
 			TextView tvLabel = new TextView(getActivity());
 			TextView tvValue = new TextView(getActivity());
 			tvLabel.setTextAppearance(getActivity(), android.R.style.TextAppearance_Holo_Medium);
+			tvLabel.setAllCaps(true);
 			tvValue.setTextAppearance(getActivity(), android.R.style.TextAppearance_Holo_Medium);
 			if(labelAppear != 0)
 				tvLabel.setTextAppearance(getActivity(), labelAppear);
@@ -497,17 +502,18 @@ public class MainActivity extends FragmentActivity
 			if(resultCode == RESULT_OK){
 				// request param from PaymentActivity for log to 
 				// PrintReceiptLog
+				double totalSalePrice = intent.getDoubleExtra("totalSalePrice", 0);
 				double totalPaid = intent.getDoubleExtra("totalPaid", 0);
 				double change = intent.getDoubleExtra("change", 0);
 				int transactionId = intent.getIntExtra("transactionId", 0);
 				int staffId = intent.getIntExtra("staffId", 0);
-				afterPaid(transactionId, staffId, totalPaid, change);
+				afterPaid(transactionId, staffId, totalSalePrice, totalPaid, change);
 			}
 		}
 	}
 	
-	private void afterPaid(int transactionId, int staffId, double totalPaid, 
-			double change){
+	private void afterPaid(int transactionId, int staffId, double totalSalePrice, 
+			double totalPaid, double change){
 
 		PrintReceiptLog printLog = 
 				new PrintReceiptLog(MainActivity.this);
@@ -538,11 +544,23 @@ public class MainActivity extends FragmentActivity
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
+					if(Utils.isEnableSecondDisplay(MainActivity.this)){
+						clearSecondDisplay();
+					}
 				}
 			}).show();
-			if(Utils.isEnableSecondDisplay(this))
-				secondDisplayChangePayment(mFormat.currencyFormat(totalPaid), 
-						mFormat.currencyFormat(change));
+			if(Utils.isEnableSecondDisplay(this)){
+				secondDisplayChangePayment(mFormat.currencyFormat(totalSalePrice), 
+						mFormat.currencyFormat(totalPaid), mFormat.currencyFormat(change));
+				new Handler().postDelayed(new Runnable(){
+
+					@Override
+					public void run() {
+						clearSecondDisplay();
+					}
+					
+				}, 10000);
+			}
 		}
 		
 		// Wintec DSP
@@ -624,7 +642,7 @@ public class MainActivity extends FragmentActivity
 					
 					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice, 
 							mShop.getCompanyVatType(), mShop.getCompanyVatRate());
-					afterPaid(mTransactionId, mStaffId, totalSalePrice, 0);
+					afterPaid(mTransactionId, mStaffId, totalSalePrice, totalSalePrice, 0);
 					
 					init();
 				}
@@ -1484,7 +1502,6 @@ public class MainActivity extends FragmentActivity
 		
 		// init second display
 		if(Utils.isEnableSecondDisplay(this)){
-			clearSecondDisplay();
 			initSecondDisplay();
 		}
 	}
@@ -1588,7 +1605,7 @@ public class MainActivity extends FragmentActivity
 	 */
 	private void editCash(){
 		ManageCashAmountFragment mf = ManageCashAmountFragment
-				.newInstance(getString(R.string.close_shift), mSession.getOpenAmount(mSessionId), 
+				.newInstance(getString(R.string.edit_open_shift), mSession.getOpenAmount(mSessionId), 
 						ManageCashAmountFragment.EDIT_CASH_MODE);
 		mf.show(getSupportFragmentManager(), "ManageCashAmount");
 	}
@@ -1909,8 +1926,9 @@ public class MainActivity extends FragmentActivity
 		updateOrderDetailLst(position, orderDetailId);
 	}
 	
-	private void secondDisplayChangePayment(String totalPay, String change){
-		final String paymentJson = SecondDisplayJSON.genChangePayment(totalPay, change);
+	private void secondDisplayChangePayment(String grandTotal, String totalPay, String change){
+		final String paymentJson = SecondDisplayJSON.genChangePayment(grandTotal, totalPay, change);
+		Logger.appendLog(this, Utils.LOG_PATH, Utils.LOG_FILE_NAME, paymentJson);
 		new Thread(new Runnable(){
 
 			@Override
@@ -1937,7 +1955,7 @@ public class MainActivity extends FragmentActivity
 	private void secondDisplayItem(List<clsSecDisplay_TransSummary> transSummLst, String grandTotal){
 		final String itemJson = SecondDisplayJSON.genDisplayItem(mFormat, mOrderDetailLst, 
 				transSummLst, grandTotal);
-		Logger.appendLog(this, Utils.LOG_DIR, Utils.LOG_FILE_NAME, itemJson);
+		Logger.appendLog(this, Utils.LOG_PATH, Utils.LOG_FILE_NAME, itemJson);
 		new Thread(new Runnable(){
 
 			@Override
@@ -2053,7 +2071,8 @@ public class MainActivity extends FragmentActivity
 		boolean endday = Utils.endday(MainActivity.this, mShop.getShopId(), 
 				mComputer.getComputerId(), mSessionId, mStaffId, cashAmount, true);
 		if(endday){
-			new Thread(new PrintReport(MainActivity.this, mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
+			new Thread(new PrintReport(MainActivity.this, mTransactionId, mSessionId, 
+					mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
 			// start the service 
 //			Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
 //			enddayIntent.putExtra("staffId", mStaffId);

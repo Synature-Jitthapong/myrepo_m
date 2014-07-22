@@ -75,7 +75,7 @@ public class MPOSDatabase extends BaseColumn{
 	public static class MPOSOpenHelper extends SQLiteOpenHelper {
 		
 		public static final String DB_NAME = "mpos.db";
-		private static final int DB_VERSION = 9;
+		private static final int DB_VERSION = 10;
 
 		private static MPOSOpenHelper sHelper;
 
@@ -160,7 +160,7 @@ public class MPOSDatabase extends BaseColumn{
 			StaffTable.onUpgrade(db, oldVersion, newVersion);
 			SyncMasterLogTable.onUpgrade(db, oldVersion, newVersion);
 			PromotionPriceGroupTable.onUpgrade(db, oldVersion, newVersion);
-			PromotionProductDiscountTable.onCreate(db);
+			PromotionProductDiscountTable.onUpgrade(db, oldVersion, newVersion);
 		}
 	}
 }

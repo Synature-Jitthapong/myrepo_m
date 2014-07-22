@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -69,6 +70,25 @@ public class LoginActivity extends Activity{
 			getFragmentManager().beginTransaction()
 				.add(R.id.loginContent, new PlaceholderFragment()).commit();
 		}
+
+//		final View activityRootView = findViewById(R.id.container);
+//		activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+//		    @Override
+//		    public void onGlobalLayout() {
+//	        	PlaceholderFragment placeHolder = (PlaceholderFragment) 
+//	    				getFragmentManager().findFragmentById(R.id.loginContent);
+//		    	int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
+//		        if (heightDiff > 100) { // if more than 100 pixels, its probably a keyboard...
+//		        	if(placeHolder != null){
+//		        		placeHolder.mTvShopName.setVisibility(View.GONE);
+//		        	}
+//		        }else{
+//		        	if(placeHolder != null){
+//		        		placeHolder.mTvShopName.setVisibility(View.VISIBLE);
+//		        	}
+//		        }
+//		     }
+//		});
 	}
 
 	@Override
@@ -85,7 +105,7 @@ public class LoginActivity extends Activity{
 			}
 		}
 	}
-
+	
 	/**
 	 * Compare system date with session date
 	 * if system date less than session date 
@@ -197,9 +217,6 @@ public class LoginActivity extends Activity{
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
 			startActivity(intent);
-			return true;
-		case R.id.itemClearSale:
-			Utils.clearSale(LoginActivity.this);
 			return true;
 		case R.id.itemExit:
 			finish();

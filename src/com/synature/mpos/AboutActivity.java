@@ -4,10 +4,17 @@ import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.app.Activity;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class AboutActivity extends Activity {
-
+	
+	public static final int TOTAL_CLICK = 5;
+	
+	private int mCountClick = 0;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -18,6 +25,17 @@ public class AboutActivity extends Activity {
 		 ((TextView) findViewById(R.id.textView2)).setText(this.getString(R.string.device_code) +
 				 Secure.getString(this.getContentResolver(),
 					Secure.ANDROID_ID));
+		((ImageView) findViewById(R.id.imageView1))
+				.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View arg0) {
+						if(mCountClick == TOTAL_CLICK){
+							Utils.clearSale(AboutActivity.this);
+						}
+						mCountClick++;
+					}
+				});
 	}
 
 	@Override

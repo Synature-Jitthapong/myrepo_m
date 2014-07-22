@@ -87,7 +87,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
+				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
@@ -170,10 +170,10 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 		try {
 			mMsrThread.start();
 			mIsRead = true;
-			Logger.appendLog(this, Utils.LOG_DIR, 
+			Logger.appendLog(this, Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, "Start magnetic reader thread");
 		} catch (Exception e) {
-			Logger.appendLog(this, Utils.LOG_DIR, 
+			Logger.appendLog(this, Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, 
 					"Error start magnetic reader thread " + 
 					e.getMessage());
@@ -292,7 +292,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 					mTotalCreditPay = Utils.stringToDouble(
 							mTxtTotalPay.getText().toString());
 				} catch (ParseException e) {
-					Logger.appendLog(this, Utils.LOG_DIR, 
+					Logger.appendLog(this, Utils.LOG_PATH, 
 							Utils.LOG_FILE_NAME, e.getMessage());
 				}
 				
@@ -532,7 +532,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 					
 					if(content.length() > 0){
 						Logger.appendLog(getApplicationContext(), 
-							Utils.LOG_DIR, Utils.LOG_FILE_NAME,
+							Utils.LOG_PATH, Utils.LOG_FILE_NAME,
 							"Content : " + content);
 						runOnUiThread(new Runnable(){
 
@@ -583,12 +583,12 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 											}
 										} catch (Exception e) {
 											Logger.appendLog(getApplicationContext(), 
-													Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
+													Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 													"Error set selected spinner card type");
 										}
 										
 										Logger.appendLog(getApplicationContext(), 
-												Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
+												Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 												"CARD NO : " + cardNo + " \n " +
 												"CARD HOLDER NAME : " + cardHolderName + "\n" +
 												"EXP DATE : " + expDate);	
@@ -605,7 +605,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 									})
 									.show();
 									Logger.appendLog(getApplicationContext(), 
-											Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
+											Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 											"Error " + e.getMessage());
 								}
 							}
@@ -614,7 +614,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 					}
 				} catch (Exception e) {
 					Logger.appendLog(getApplicationContext(), 
-							Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
+							Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 							" Error when read data from magnetic card : " + e.getMessage());
 				}
 			}
@@ -661,7 +661,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 					}
 				} catch (Exception e) {
 					Logger.appendLog(getApplicationContext(), 
-							Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
+							Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 							"Error set selected spinner card type");
 				}
 			}
@@ -677,7 +677,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 			})
 			.show();
 			Logger.appendLog(getApplicationContext(), 
-					Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
+					Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 					"Error " + e.getMessage());
 		}
 	}

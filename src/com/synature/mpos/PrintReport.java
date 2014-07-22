@@ -31,6 +31,7 @@ public class PrintReport implements Runnable{
 	
 	private Context mContext;
 	private Transaction mTrans;
+	private Session mSession;
 	private PaymentDetail mPayment;
 	private Shop mShop;
 	private Staffs mStaff;
@@ -39,16 +40,19 @@ public class PrintReport implements Runnable{
 	private String mDateFrom;
 	private String mDateTo;
 	
+	private int mTransactionId;
+	private int mSessionId;
 	private int mStaffId;
 	
 	public PrintReport(Context context, String dateFrom, String dateTo, 
 			int staffId, WhatPrint whatPrint){
 		mContext = context;
-		mTrans = new Transaction(context.getApplicationContext());
-		mPayment = new PaymentDetail(context.getApplicationContext());
-		mShop = new Shop(context.getApplicationContext());
-		mStaff = new Staffs(context.getApplicationContext());
-		mFormat = new Formater(context.getApplicationContext());
+		mTrans = new Transaction(context);
+		mSession = new Session(context);
+		mPayment = new PaymentDetail(context);
+		mShop = new Shop(context);
+		mStaff = new Staffs(context);
+		mFormat = new Formater(context);
 		mWhatPrint = whatPrint;
 		
 		mDateFrom = dateFrom;
@@ -62,6 +66,13 @@ public class PrintReport implements Runnable{
 	
 	public PrintReport(Context context, int staffId, WhatPrint whatPrint){
 		this(context, "", "", staffId, whatPrint);
+	}
+	
+	public PrintReport(Context context, int transactionId, int sessionId, 
+			int staffId, WhatPrint whatPrint){
+		this(context, "", "", staffId, whatPrint);
+		mTransactionId = transactionId;
+		mSessionId = sessionId;
 	}
 	
 	protected class EPSONPrintBillReport extends EPSONPrinter{
@@ -300,7 +311,7 @@ public class PrintReport implements Runnable{
 				}
 				
 				String grandTotalText = mContext.getString(R.string.grand_total);
-				String grandTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+				String grandTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice());
 				mBuilder.addText(grandTotalText);
 				mBuilder.addText(createHorizontalSpace(
 						calculateLength(grandTotalText) 
@@ -402,7 +413,7 @@ public class PrintReport implements Runnable{
 			}
 			
 			String grandTotalText = mContext.getString(R.string.grand_total);
-			String grandTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+			String grandTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice());
 			mBuilder.append(grandTotalText);
 			mBuilder.append(createHorizontalSpace(calculateLength(grandTotalText) 
 					+ calculateLength(grandTotal)));
@@ -526,7 +537,7 @@ public class PrintReport implements Runnable{
 				}
 				
 				String totalSaleText = mContext.getString(R.string.total_sale);
-				String totalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+				String totalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
 				mBuilder.addText(totalSaleText);
 				mBuilder.addText(createHorizontalSpace(
 						calculateLength(totalSaleText) 
@@ -550,6 +561,36 @@ public class PrintReport implements Runnable{
 					mBuilder.addText(totalVat + "\n\n");
 				}
 				
+				if(mTransactionId != 0){
+					// open/close shift
+					String floatInText = mContext.getString(R.string.float_in);
+					String totalCashText = mContext.getString(R.string.total_cash);
+					String cashInDrawerText = mContext.getString(R.string.cash_in_drawer);
+					String overShotText = mContext.getString(R.string.over_or_shot);
+					double floatInAmount = mSession.getCloseAmount(mSessionId);
+					double cashInDrawerAmount = mSession.getCloseAmount(mSessionId);
+					String floatIn = mFormat.currencyFormat(floatInAmount);
+					String cashInDrawer = mFormat.currencyFormat(cashInDrawerAmount);
+					String totalCash = mFormat.currencyFormat(mPayment.getTotalCash(mTransactionId));
+					String overShot = mFormat.currencyFormat(cashInDrawerAmount - floatInAmount);
+					
+					mBuilder.addText(floatInText);
+					mBuilder.addText(createHorizontalSpace(calculateLength(floatInText) + 
+							calculateLength(floatIn)));
+					mBuilder.addText(floatIn + "\n");
+					mBuilder.addText(totalCashText);
+					mBuilder.addText(createHorizontalSpace(calculateLength(totalCashText) + 
+							calculateLength(totalCash)));
+					mBuilder.addText(totalCash + "\n");
+					mBuilder.addText(cashInDrawerText);
+					mBuilder.addText(createHorizontalSpace(calculateLength(cashInDrawerText) + 
+							calculateLength(cashInDrawer)));
+					mBuilder.addText(cashInDrawer + "\n");
+					mBuilder.addText(overShotText);
+					mBuilder.addText(createHorizontalSpace(calculateLength(overShotText) + 
+							calculateLength(overShot)));
+					mBuilder.addText(overShot + "\n\n");
+				}
 				
 				List<Payment.PaymentDetail> summaryPaymentLst = 
 						mPayment.listSummaryPayment(
@@ -702,7 +743,7 @@ public class PrintReport implements Runnable{
 			}
 			
 			String totalSaleText = mContext.getString(R.string.total_sale);
-			String totalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+			String totalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
 			mBuilder.append(totalSaleText);
 			mBuilder.append(createHorizontalSpace(
 					calculateLength(totalSaleText) 
@@ -724,6 +765,37 @@ public class PrintReport implements Runnable{
 						calculateLength(totalVatText) 
 						+ calculateLength(totalVat)));
 				mBuilder.append(totalVat + "\n\n");
+			}
+			
+			if(mTransactionId != 0){
+				// open/close shift
+				String floatInText = mContext.getString(R.string.float_in);
+				String totalCashText = mContext.getString(R.string.total_cash);
+				String cashInDrawerText = mContext.getString(R.string.cash_in_drawer);
+				String overShotText = mContext.getString(R.string.over_or_shot);
+				double floatInAmount = mSession.getCloseAmount(mSessionId);
+				double cashInDrawerAmount = mSession.getCloseAmount(mSessionId);
+				String floatIn = mFormat.currencyFormat(floatInAmount);
+				String cashInDrawer = mFormat.currencyFormat(cashInDrawerAmount);
+				String totalCash = mFormat.currencyFormat(mPayment.getTotalCash(mTransactionId));
+				String overShot = mFormat.currencyFormat(cashInDrawerAmount - floatInAmount);
+				
+				mBuilder.append(floatInText);
+				mBuilder.append(createHorizontalSpace(calculateLength(floatInText) + 
+						calculateLength(floatIn)));
+				mBuilder.append(floatIn + "\n");
+				mBuilder.append(totalCashText);
+				mBuilder.append(createHorizontalSpace(calculateLength(totalCashText) + 
+						calculateLength(totalCash)));
+				mBuilder.append(totalCash + "\n");
+				mBuilder.append(cashInDrawerText);
+				mBuilder.append(createHorizontalSpace(calculateLength(cashInDrawerText) + 
+						calculateLength(cashInDrawer)));
+				mBuilder.append(cashInDrawer + "\n");
+				mBuilder.append(overShotText);
+				mBuilder.append(createHorizontalSpace(calculateLength(overShotText) + 
+						calculateLength(overShot)));
+				mBuilder.append(overShot + "\n\n");
 			}
 			
 			List<Payment.PaymentDetail> summaryPaymentLst = 

@@ -91,7 +91,7 @@ public class MPOSWebServiceClient {
 					sync.insertSyncLog(SyncMasterLog.SYNC_SHOP_TYPE, 
 							SyncMasterLog.SYNC_STATUS_FAIL);
 					
-					Logger.appendLog(context, Utils.LOG_DIR, 
+					Logger.appendLog(context, Utils.LOG_PATH, 
 							Utils.LOG_FILE_NAME, 
 							"Error when add shop data : " + e.getMessage());
 					listener.onError(e.getMessage());
@@ -171,7 +171,7 @@ public class MPOSWebServiceClient {
 							sync.insertSyncLog(SyncMasterLog.SYNC_PRODUCT_TYPE, 
 									SyncMasterLog.SYNC_STATUS_FAIL);
 							
-							Logger.appendLog(context, Utils.LOG_DIR, 
+							Logger.appendLog(context, Utils.LOG_PATH, 
 								Utils.LOG_FILE_NAME, 
 								"Error when add product data : " + e.getMessage());
 							progressListener.onError(e.getMessage());

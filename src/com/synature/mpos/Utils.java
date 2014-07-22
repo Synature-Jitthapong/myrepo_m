@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -71,23 +72,23 @@ public class Utils {
 	/**
 	 * Backup db dir
 	 */
-	public static final String BACKUP_DB_DIR = RESOURCE_DIR + File.separator + "backup";
+	public static final String BACKUP_DB_PATH = RESOURCE_DIR + File.separator + "backup";
 	
 	/**
 	 * Log dir
 	 */
-	public static final String LOG_DIR = RESOURCE_DIR + File.separator + "log";
+	public static final String LOG_PATH = RESOURCE_DIR + File.separator + "log";
 
 
 	/**
 	 * Sale dir store partial sale json file
 	 */
-	public static final String SALE_DIR = RESOURCE_DIR + File.separator + "Sale";
+	public static final String SALE_PATH = RESOURCE_DIR + File.separator + "Sale";
 	
 	/**
 	 * Endday sale dir store endday sale json file
 	 */
-	public static final String ENDDAY_DIR = RESOURCE_DIR + File.separator + "EnddaySale";
+	public static final String ENDDAY_PATH = RESOURCE_DIR + File.separator + "EnddaySale";
 	
 	/**
 	 * Image path on server
@@ -167,7 +168,7 @@ public class Utils {
 			}
 			try {
 				Formater format = new Formater(context);
-				Logger.appendLog(context, LOG_DIR,
+				Logger.appendLog(context, LOG_PATH,
 						LOG_FILE_NAME,
 						"Success ending multiple day : " 
 						+ " from : " + format.dateFormat(lastSessCal.getTime())
@@ -178,7 +179,7 @@ public class Utils {
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			Logger.appendLog(context, LOG_DIR,
+			Logger.appendLog(context, LOG_PATH,
 					LOG_FILE_NAME,
 					"Error ending multiple day : " + e.getMessage());
 		}
@@ -210,7 +211,7 @@ public class Utils {
 			Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
 			jsonSale = gson.toJson(saleTrans, type);
 		} catch (Exception e) {
-			Logger.appendLog(context, LOG_DIR,
+			Logger.appendLog(context, LOG_PATH,
 					LOG_FILE_NAME,
 					" Error when generate json sale : " + e.getMessage());
 		}
@@ -359,7 +360,7 @@ public class Utils {
 	}
 
 	public static void logServerResponse(Context context, String msg){
-		Logger.appendLog(context, LOG_DIR,
+		Logger.appendLog(context, LOG_PATH,
 				LOG_FILE_NAME,
 				" Server Response : " + msg);
 	}
@@ -375,6 +376,7 @@ public class Utils {
 		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
 		sqlite.delete(SessionTable.TABLE_SESSION, null, null);
 		sqlite.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, null);
+		makeToask(context, "Clear sale data successfully.");
 	}
 
 	/**
@@ -626,24 +628,29 @@ public class Utils {
 		}
 	}
 	
-	public static void exportDatabase(Context context) throws IOException{
-		String dbName = MPOSDatabase.MPOSOpenHelper.DB_NAME;
+	public static void exportDatabase(Context context){
 		Calendar calendar = Calendar.getInstance();
-		String dateFormat = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
-		String timeFormat = new SimpleDateFormat("HH:mm:ss").format(calendar.getTime());
+		String dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.getTime());
+		//String timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.US).format(calendar.getTime());
+		String dbName = MPOSDatabase.MPOSOpenHelper.DB_NAME;
+		String backupPath = BACKUP_DB_PATH + "_" + dateFormat;
+		File sd = Environment.getExternalStorageDirectory();
+		FileChannel source = null;
+		FileChannel destination = null;
 		File dbPath = context.getDatabasePath(dbName);
-		FileManager fm = new FileManager(context, BACKUP_DB_DIR + "_" + dateFormat);
-        FileInputStream fis = new FileInputStream(dbPath);
-        OutputStream output = new FileOutputStream(fm.getFile(dbName + "_" + timeFormat));
-        byte[] buffer = new byte[1024];
-        int length;
-        while ((length = fis.read(buffer))>0){
-            output.write(buffer, 0, length);
-        }
-        output.flush();
-        output.close();
-        fis.close();
-        makeToask(context, context.getString(R.string.backup_db_success));
+		File sdPath = new File(sd, backupPath);
+		if(!sdPath.exists())
+			sdPath.mkdirs();
+		try {
+			source = new FileInputStream(dbPath).getChannel();
+			destination = new FileOutputStream(sdPath + File.separator + dbName).getChannel();
+			destination.transferFrom(source, 0, source.size());
+			source.close();
+			destination.close();
+			makeToask(context, context.getString(R.string.backup_db_success));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){

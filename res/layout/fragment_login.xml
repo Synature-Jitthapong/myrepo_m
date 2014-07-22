@@ -74,17 +74,6 @@
         android:layout_toRightOf="@+id/textView5"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginRight="4dp"
-        android:text="@string/current_sale_date"
-        android:textAllCaps="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
     <ImageButton
         android:id="@+id/btnSetting"
         android:layout_width="wrap_content"
@@ -93,17 +82,6 @@
         android:layout_alignParentTop="true"
         android:src="@drawable/ic_action_settings"
         android:visibility="gone" />
-
-    <android.widget.TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/textView5"
-        android:layout_alignParentLeft="true"
-        android:layout_marginRight="4dp"
-        android:text="@string/last_session"
-        android:textAllCaps="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <android.widget.TextView
         android:id="@+id/textView2"
@@ -122,8 +100,30 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/txtUser"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="16dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="@dimen/large_text_size" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="4dp"
+        android:text="@string/last_session"
+        android:textAllCaps="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/textView6"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="4dp"
+        android:text="@string/current_sale_date"
+        android:textAllCaps="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

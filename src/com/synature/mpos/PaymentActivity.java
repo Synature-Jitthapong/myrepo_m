@@ -81,7 +81,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
+				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
@@ -302,6 +302,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 			mChange = mTotalPaid - mTotalSalePrice;
 			
 			Intent intent = new Intent(this, MainActivity.class);
+			intent.putExtra("totalSalePrice", mTotalSalePrice);
 			intent.putExtra("totalPaid", mTotalPaid);
 			intent.putExtra("change", mChange);
 			intent.putExtra("transactionId", mTransactionId);

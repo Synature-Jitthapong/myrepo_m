@@ -18,7 +18,7 @@ public class JSONSaleLogFile {
 		Calendar calendar = Calendar.getInstance();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String fileName = dateFormat.format(calendar.getTime()) + JSON_EXTENSION;
-		FileManager fileManager = new FileManager(c, Utils.SALE_DIR);
+		FileManager fileManager = new FileManager(c, Utils.SALE_PATH);
 		String logFile = fileManager.getFile(fileName).getPath();
 		try {
 			BufferedWriter buf = new BufferedWriter(
@@ -36,7 +36,7 @@ public class JSONSaleLogFile {
 		calendar.setTimeInMillis(Long.parseLong(sessDate));
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String fileName = dateFormat.format(calendar.getTime()) + JSON_EXTENSION;
-		FileManager fileManager = new FileManager(c, Utils.ENDDAY_DIR);
+		FileManager fileManager = new FileManager(c, Utils.ENDDAY_PATH);
 		String logFile = fileManager.getFile(fileName).getPath();
 		try {
 			BufferedWriter buf = new BufferedWriter(

@@ -573,8 +573,7 @@ public class Reporting extends MPOSDatabase{
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
 				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID
 				+ " IN (" + transIds + ")"
-				+ " GROUP BY " + OrderDetailTable.COLUMN_ORDER_ID + ", "
-				+ ProductTable.COLUMN_PRODUCT_ID, null);
+				+ " GROUP BY " + ProductTable.COLUMN_PRODUCT_ID, null);
 		
 		if(cursor.moveToFirst()){
 			do{

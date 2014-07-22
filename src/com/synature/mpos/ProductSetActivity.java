@@ -67,7 +67,7 @@ public class ProductSetActivity extends Activity{
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
+				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
 		
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);

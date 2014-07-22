@@ -55,7 +55,7 @@ public class SendEnddayActivity extends Activity {
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
+				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,

@@ -25,6 +25,7 @@ import com.synature.util.Logger;
 public class PrintReceipt implements Runnable{
 	
 	public static final String TAG = "PrintReceipt";
+	
 	private Transaction mOrders;
 	private PaymentDetail mPayment;
 	private Shop mShop;
@@ -52,9 +53,11 @@ public class PrintReceipt implements Runnable{
 	
 	protected class EPSONPrintReceipt extends EPSONPrinter{
 
+		private boolean mIsCopy = false;
 		
-		public EPSONPrintReceipt(Context context) {
+		public EPSONPrintReceipt(Context context, boolean isCopy) {
 			super(context);
+			mIsCopy = isCopy;
 		}
 
 		@Override
@@ -70,10 +73,19 @@ public class PrintReceipt implements Runnable{
 			MPOSOrderTransaction trans = mOrders.getTransaction(transactionId);
 			MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrder(transactionId);
 			double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-			double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+			double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice());
 
 			try {
 				mBuilder.addTextAlign(Builder.ALIGN_CENTER);
+				
+				// have copy
+				if(mIsCopy){
+					String copyText = mContext.getString(R.string.copy);
+					mBuilder.addText(createLine("-") + "\n");
+					mBuilder.addText(copyText + "\n");
+					mBuilder.addText(createLine("-") + "\n\n");
+				}
+				
 				// add void header
 				if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
 					String voidReceipt = mContext.getString(R.string.void_receipt);
@@ -133,12 +145,12 @@ public class PrintReceipt implements Runnable{
 		    	String totalText = mContext.getString(R.string.total) + "...............";
 		    	String changeText = mContext.getString(R.string.change) + " ";
 		    	String beforeVatText = mContext.getString(R.string.before_vat);
-		    	String discountText = mContext.getString(R.string.discount);
+		    	String discountText = summOrder.getPromotionName().equals("") ? mContext.getString(R.string.discount) : summOrder.getPromotionName();
 		    	String vatRateText = mContext.getString(R.string.vat) + " " +
-		    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+		    			NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 		    	
 		    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
-		    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+		    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
 		    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
 		    	String strTotalChange = mFormat.currencyFormat(change);
 		    	String strBeforeVat = mFormat.currencyFormat(beforVat);
@@ -166,7 +178,7 @@ public class PrintReceipt implements Runnable{
 		    	// transaction exclude vat
 		    	if(trans.getTransactionVatExclude() > 0){
 		    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
-		    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+		    				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 		    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
 		    		mBuilder.addText(vatExcludeText);
 		    		mBuilder.addText(createHorizontalSpace(
@@ -196,7 +208,7 @@ public class PrintReceipt implements Runnable{
 		    					mCreditCard.getCreditCardType(payment.getCreditCardType());
 			    			cardNoText += payment.getCreaditCardNo().substring(12, 16);
 			    		} catch (Exception e) {
-			    			Logger.appendLog(mContext, Utils.LOG_DIR, 
+			    			Logger.appendLog(mContext, Utils.LOG_PATH, 
 			    					Utils.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
 			    		}
 			    		mBuilder.addText(paymentText);
@@ -300,7 +312,7 @@ public class PrintReceipt implements Runnable{
 			MPOSOrderTransaction trans = mOrders.getTransaction(transactionId);
 			MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrder(transactionId);
 			double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-			double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+			double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice());
 			
 			// have copy
 			if(mIsCopy){
@@ -363,12 +375,12 @@ public class PrintReceipt implements Runnable{
 	    	String totalText = mContext.getString(R.string.total) + "...............";
 	    	String changeText = mContext.getString(R.string.change) + " ";
 	    	String beforeVatText = mContext.getString(R.string.before_vat);
-	    	String discountText = summOrder.getPromotionName() != null ? summOrder.getPromotionName() : mContext.getString(R.string.discount);
+	    	String discountText = summOrder.getPromotionName().equals("") ? mContext.getString(R.string.discount) : summOrder.getPromotionName();
 	    	String vatRateText = mContext.getString(R.string.vat) + " " +
-	    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+	    			NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 	    	
 	    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
-	    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+	    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
 	    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
 	    	String strTotalChange = mFormat.currencyFormat(change);
 	    	String strBeforeVat = mFormat.currencyFormat(beforVat);
@@ -396,7 +408,7 @@ public class PrintReceipt implements Runnable{
 	    	// transaction exclude vat
 	    	if(trans.getTransactionVatExclude() > 0){
 	    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
-	    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+	    				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
 	    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
 	    		mBuilder.append(vatExcludeText);
 	    		mBuilder.append(createHorizontalSpace(
@@ -426,7 +438,7 @@ public class PrintReceipt implements Runnable{
 	    					mCreditCard.getCreditCardType(payment.getCreditCardType());
 		    			cardNoText += payment.getCreaditCardNo().substring(12, 16);
 		    		} catch (Exception e) {
-		    			Logger.appendLog(mContext, Utils.LOG_DIR, 
+		    			Logger.appendLog(mContext, Utils.LOG_PATH, 
 		    					Utils.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
 		    		}
 		    		mBuilder.append(paymentText);
@@ -507,7 +519,7 @@ public class PrintReceipt implements Runnable{
 					wt.prepareDataToPrint(printReceipt.getTransactionId());
 					wt.print();
 				}else{
-					EPSONPrintReceipt ep = new EPSONPrintReceipt(mContext);
+					EPSONPrintReceipt ep = new EPSONPrintReceipt(mContext, printReceipt.isCopy());
 					ep.prepareDataToPrint(printReceipt.getTransactionId());
 					ep.print();
 				}
@@ -516,7 +528,7 @@ public class PrintReceipt implements Runnable{
 			} catch (Exception e) {
 				mPrintLog.updatePrintStatus(printReceipt.getPriceReceiptLogId(), PrintReceiptLog.PRINT_NOT_SUCCESS);
 				Logger.appendLog(mContext, 
-						Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
+						Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 						" Print receipt fail : " + e.getMessage());
 			}
 		}

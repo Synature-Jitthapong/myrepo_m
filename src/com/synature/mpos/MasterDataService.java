@@ -18,7 +18,7 @@ public class MasterDataService extends Service{
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+		Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
 				Utils.LOG_FILE_NAME, 
 				TAG + ": Service Start Command");
 		SyncMasterLog sync = new SyncMasterLog(getApplicationContext());
@@ -57,7 +57,7 @@ public class MasterDataService extends Service{
 	
 								@Override
 								public void onPost() {
-									Logger.appendLog(getApplicationContext(), Utils.LOG_DIR, 
+									Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
 											Utils.LOG_FILE_NAME, 
 											TAG + ": Service Success.");
 									stopSelf();

@@ -10,6 +10,7 @@ import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
+import com.synature.mpos.database.table.StaffTable;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -141,6 +142,26 @@ public class Session extends MPOSDatabase{
 		return sessionId + 1;
 	}
 
+	/**
+	 * @param sessionId
+	 * @return close cash amount
+	 */
+	public double getCloseAmount(int sessionId){
+		double closeAmount = 0.0d;
+		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_SESSION, 
+				new String[]{
+					SessionTable.COLUMN_CLOSE_AMOUNT
+				}, SessionTable.COLUMN_SESS_ID + "=?", 
+				new String[]{
+					String.valueOf(sessionId)
+				}, null, null, null);
+		if(cursor.moveToFirst()){
+			closeAmount = cursor.getDouble(0);
+		}
+		cursor.close();
+		return closeAmount;
+	}
+	
 	/**
 	 * @param sessionId
 	 * @return open open cash amount
@@ -300,6 +321,31 @@ public class Session extends MPOSDatabase{
 				new String[] { String.valueOf(staffId), saleDate,
 						String.valueOf(NOT_ENDDAY_STATUS) }, null, null, null);
 		if (cursor.moveToFirst()) {
+			sessionId = cursor.getInt(0);
+		}
+		cursor.close();
+		return sessionId;
+	}
+	
+	/**
+	 * Get sessionId by sessionDate and staffId
+	 * @param sessionDate
+	 * @param staffId
+	 * @return sessionId
+	 */
+	public int getSessionId(String sessionDate, int staffId){
+		int sessionId = 0;
+		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_SESSION, 
+				new String[]{
+					SessionTable.COLUMN_SESS_ID
+				}, 
+				SessionTable.COLUMN_SESS_DATE + "=?"
+				+ " AND " + StaffTable.COLUMN_STAFF_ID + "=?", 
+				new String[]{
+					sessionDate,
+					String.valueOf(staffId)
+				}, null, null, SessionTable.COLUMN_SESS_ID + " DESC ", "1");
+		if(cursor.moveToFirst()){
 			sessionId = cursor.getInt(0);
 		}
 		cursor.close();

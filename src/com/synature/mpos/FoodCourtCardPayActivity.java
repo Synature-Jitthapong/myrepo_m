@@ -81,7 +81,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_DIR, Utils.LOG_FILE_NAME));
+				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
@@ -128,10 +128,10 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 			mMsrThread = new Thread(this);
 			mMsrThread.start();
 			mIsRead = true;
-			Logger.appendLog(this, Utils.LOG_DIR, 
+			Logger.appendLog(this, Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, "Start magnetic reader thread");
 		} catch (Exception e) {
-			Logger.appendLog(this, Utils.LOG_DIR, 
+			Logger.appendLog(this, Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, 
 					"Error start magnetic reader thread " + 
 					e.getMessage());
@@ -169,7 +169,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				final String content = mMsrReader.getTrackData();
 				if(content.length() > 0){
 					Logger.appendLog(getApplicationContext(), 
-						Utils.LOG_DIR, Utils.LOG_FILE_NAME,
+						Utils.LOG_PATH, Utils.LOG_FILE_NAME,
 						"Content : " + content);
 					runOnUiThread(new Runnable(){
 
@@ -187,7 +187,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 								}
 							} catch (Exception e) {
 								Logger.appendLog(getApplicationContext(), 
-										Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
+										Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 										"Error parser card : " + e.getMessage());
 							}
 						}
@@ -196,7 +196,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				}
 			} catch (Exception e) {
 				Logger.appendLog(getApplicationContext(), 
-						Utils.LOG_DIR, Utils.LOG_FILE_NAME, 
+						Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 						" Error when read data from magnetic card : " + e.getMessage());
 			}
 		}
