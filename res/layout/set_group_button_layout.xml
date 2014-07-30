@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/medium_space" >
+    android:padding="@dimen/default_margin" >
 
     <LinearLayout
         android:id="@+id/content"
@@ -15,13 +15,12 @@
         android:gravity="center"
         android:minHeight="72dip"
         android:minWidth="128dip"
-        android:padding="@dimen/medium_space" >
+        android:padding="@dimen/default_margin" >
 
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Large Text"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </LinearLayout>
@@ -36,7 +35,6 @@
         android:layout_marginTop="-8dp"
         android:background="@drawable/badge_text"
         android:gravity="center"
-        android:text="1"
         android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
 </RelativeLayout>

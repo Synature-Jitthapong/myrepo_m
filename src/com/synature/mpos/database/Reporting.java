@@ -160,7 +160,25 @@ public class Reporting extends MPOSDatabase{
 				sp.setDeptTotalPrice(groupCursor.getDouble(groupCursor.getColumnIndex(COLUMN_PRODUCT_SUB_TOTAL)));
 				
 				// product
+//				String proSql = "SELECT a." + ProductTable.COLUMN_PRODUCT_ID + ", "
+//						+ " a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + ", "
+//						+ " a." + ProductTable.COLUMN_PRODUCT_NAME + ", "
+//						+ " d." + COLUMN_PRODUCT_QTY + ", "
+//						+ " d." + COLUMN_PRODUCT_SUB_TOTAL
+//						+ " FROM " + ProductTable.TABLE_PRODUCT + " a "
+//						+ " LEFT JOIN " + OrderCommentTable.TABLE_ORDER_COMMENT + " b "
+//						+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + MenuCommentTable.COLUMN_COMMENT_ID
+//						+ " LEFT JOIN " + OrderSetTable.TABLE_ORDER_SET + " c "
+//						+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=c." + ProductTable.COLUMN_PRODUCT_ID
+//						+ " LEFT JOIN " + TEMP_PRODUCT_REPORT + " d "
+//						+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=d." + ProductTable.COLUMN_PRODUCT_ID 
+//						+ " LEFT JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " e "
+//						+ " ON a." + ProductTable.COLUMN_PRODUCT_DEPT_ID + " =e." + ProductTable.COLUMN_PRODUCT_DEPT_ID
+//						+ " WHERE e." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=?" 
+//						+ " ORDER BY a." + COLUMN_ORDERING;
+				
 				Cursor cursor = getReadableDatabase().rawQuery(
+						//proSql,
 						"SELECT a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + ", "
 						+ " a." + COLUMN_PRODUCT_QTY + ", "
 						+ " a." + COLUMN_PRODUCT_SUB_TOTAL + ", "

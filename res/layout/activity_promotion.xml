@@ -21,8 +21,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:minHeight="64dip"
-            android:paddingBottom="@dimen/medium_space"
-            android:paddingTop="@dimen/medium_space" >
+            android:paddingBottom="@dimen/default_margin"
+            android:paddingTop="@dimen/default_margin" >
 
             <LinearLayout
                 android:id="@+id/promoButtonContainer"

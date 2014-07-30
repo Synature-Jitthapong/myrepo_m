@@ -12,21 +12,21 @@ public class ProductComponentTable{
 	public static final String COLUMN_FLEXIBLE_INCLUDE_PRICE = "flexible_include_price";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_PCOMPONENT + " ( " 
-			+ COLUMN_PGROUP_ID + " INTEGER, " 
-			+ ProductTable.COLUMN_PRODUCT_ID + " INTEGER, "
-			+ ProductTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 0, "
-			+ COLUMN_CHILD_PRODUCT_ID + " INTEGER, "
-			+ COLUMN_CHILD_PRODUCT_AMOUNT + " REAL, "
-			+ COLUMN_FLEXIBLE_PRODUCT_PRICE + " REAL DEFAULT 0, "
-			+ COLUMN_FLEXIBLE_INCLUDE_PRICE + " INTEGER DEFAULT 0 " + ");";
+			" create table " + TABLE_PCOMPONENT + " ( " 
+			+ COLUMN_PGROUP_ID + " integer not null, " 
+			+ ProductTable.COLUMN_PRODUCT_ID + " integer not null, "
+			+ ProductTable.COLUMN_SALE_MODE + " integer default 0, "
+			+ COLUMN_CHILD_PRODUCT_ID + " integer not null, "
+			+ COLUMN_CHILD_PRODUCT_AMOUNT + " real default 0, "
+			+ COLUMN_FLEXIBLE_PRODUCT_PRICE + " real default 0, "
+			+ COLUMN_FLEXIBLE_INCLUDE_PRICE + " integer default 0 );";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PCOMPONENT);
+		db.execSQL("drop table if exists " + TABLE_PCOMPONENT);
 		onCreate(db);
 	}
 }

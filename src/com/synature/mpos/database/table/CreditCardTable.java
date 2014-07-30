@@ -12,17 +12,17 @@ public class CreditCardTable{
 	public static final String COLUMN_EXP_YEAR = "exp_year";
 
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_CREDIT_CARD_TYPE + " ( " 
-			+ COLUMN_CREDITCARD_TYPE_ID
-			+ " INTEGER, " + COLUMN_CREDITCARD_TYPE_NAME + " TEXT, "
-			+ " PRIMARY KEY (" + COLUMN_CREDITCARD_TYPE_ID + ") );";
+			" create table " + TABLE_CREDIT_CARD_TYPE + " ( " 
+			+ COLUMN_CREDITCARD_TYPE_ID + " integer not null, " 
+			+ COLUMN_CREDITCARD_TYPE_NAME + " text not null, "
+			+ " primary key (" + COLUMN_CREDITCARD_TYPE_ID + ") );";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_CREDIT_CARD_TYPE);
+		db.execSQL("drop table if exists " + TABLE_CREDIT_CARD_TYPE);
 		onCreate(db);
 	}
 }

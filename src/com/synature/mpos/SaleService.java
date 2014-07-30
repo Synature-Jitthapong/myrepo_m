@@ -156,6 +156,8 @@ public class SaleService extends Service{
 
 				final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
 				
+				Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, jsonSale);
+				
 				if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
 					
 					new MPOSWebServiceClient.SendPartialSaleTransaction(getApplicationContext(), 

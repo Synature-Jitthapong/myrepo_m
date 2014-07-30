@@ -11,9 +11,9 @@ public class MenuFixCommentTable{
 	public static final String TABLE_MENU_FIX_COMMENT = "MenuFixComment";
 	
 	private static final String SQL_CREATE = 
-			"CREATE TABLE " + TABLE_MENU_FIX_COMMENT + " ( "
-			+ ProductTable.COLUMN_PRODUCT_ID + " INTEGER NOT NULL, "
-			+ MenuCommentTable.COLUMN_COMMENT_ID + " INTEGER NOT NULL);";
+			" create table " + TABLE_MENU_FIX_COMMENT + " ( "
+			+ ProductTable.COLUMN_PRODUCT_ID + " integer not null, "
+			+ MenuCommentTable.COLUMN_COMMENT_ID + " integer not null);";
 	
 	public static void onCreate(SQLiteDatabase db){
 		db.execSQL(SQL_CREATE);

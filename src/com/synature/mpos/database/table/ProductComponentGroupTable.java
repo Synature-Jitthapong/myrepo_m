@@ -10,19 +10,19 @@ public class ProductComponentGroupTable {
 	public static final String COLUMN_REQ_AMOUNT = "req_amount";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_PCOMPONENT_GROUP + " ( "
-			+ ProductComponentTable.COLUMN_PGROUP_ID + " INTEGER, "
-			+ ProductTable.COLUMN_PRODUCT_ID + " INTEGER, "
-			+ ProductTable.COLUMN_SALE_MODE + " INTEGER DEFAULT 0, "
-			+ COLUMN_SET_GROUP_NO + " TEXT, " 
-			+ COLUMN_SET_GROUP_NAME + " TEXT, " 
-			+ COLUMN_REQ_AMOUNT + " REAL DEFAULT 0 " + ");";
+			" create table " + TABLE_PCOMPONENT_GROUP + " ( "
+			+ ProductComponentTable.COLUMN_PGROUP_ID + " integer not null, "
+			+ ProductTable.COLUMN_PRODUCT_ID + " integer not null, "
+			+ ProductTable.COLUMN_SALE_MODE + " integer default 0, "
+			+ COLUMN_SET_GROUP_NO + " text not null, " 
+			+ COLUMN_SET_GROUP_NAME + " text not null, " 
+			+ COLUMN_REQ_AMOUNT + " real default 0 );";
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PCOMPONENT_GROUP);
+		db.execSQL("drop table if exists " + TABLE_PCOMPONENT_GROUP);
 		onCreate(db);
 	}
 }

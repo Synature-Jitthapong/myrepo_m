@@ -8,20 +8,20 @@ public class OrderSetTable {
 	public static final String COLUMN_ORDER_SET_ID = "order_set_id";
 	public static final String COLUMN_ORDER_SET_QTY = "order_set_qty";
 	public static final String COLUMN_ORDER_SET_PRICE = "order_set_price";
+	public static final String COLUMN_ORDER_SET_PRICE_DISCOUNT = "order_set_price_discount";
 
-	private static final String SQL_CREATE = "CREATE TABLE "
-			+ TABLE_ORDER_SET + "( " + COLUMN_ORDER_SET_ID + " INTEGER NOT NULL," 
-			+ OrderDetailTable.COLUMN_ORDER_ID + " INTEGER NOT NULL, "
-			+ OrderTransactionTable.COLUMN_TRANS_ID + " INTEGER NOT NULL, "
-			+ ProductComponentTable.COLUMN_PGROUP_ID + " INTEGER NOT NULL, " 
-			+ ProductTable.COLUMN_PRODUCT_ID + " INTEGER NOT NULL, " 
-			+ ProductComponentGroupTable.COLUMN_REQ_AMOUNT + " REAL NOT NULL DEFAULT 0, " 
-			+ COLUMN_ORDER_SET_QTY + " REAL NOT NULL DEFAULT 0, " 
-			+ COLUMN_ORDER_SET_PRICE + " REAL DEFAULT 0, "
-			+ "PRIMARY KEY ("
-			+ COLUMN_ORDER_SET_ID + ", " + OrderDetailTable.COLUMN_ORDER_ID
-			+ ", " + OrderTransactionTable.COLUMN_TRANS_ID + ")"
-			+ ");";
+	private static final String SQL_CREATE = 
+			" create table " + TABLE_ORDER_SET + "( " 
+			+ COLUMN_ORDER_SET_ID + " integer not null," 
+			+ OrderDetailTable.COLUMN_ORDER_ID + " integer not null, "
+			+ ProductComponentTable.COLUMN_PGROUP_ID + " integer not null, " 
+			+ ProductTable.COLUMN_PRODUCT_ID + " integer not null, " 
+			+ ProductComponentGroupTable.COLUMN_REQ_AMOUNT + " real default 0, " 
+			+ COLUMN_ORDER_SET_QTY + " real default 0, " 
+			+ COLUMN_ORDER_SET_PRICE + " real default 0, "
+			+ COLUMN_ORDER_SET_PRICE_DISCOUNT + " real default 0, "
+			+ OrderCommentTable.COLUMN_SELF_ORDER_ID + " integer default 0, "
+			+ " primary key (" + COLUMN_ORDER_SET_ID + "));";
 
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);

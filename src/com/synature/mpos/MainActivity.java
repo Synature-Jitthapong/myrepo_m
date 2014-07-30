@@ -39,7 +39,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -57,7 +56,6 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnKeyListener;
@@ -85,7 +83,8 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends FragmentActivity 
-	implements MenuCommentFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener{
+	implements MenuCommentFragment.OnCommentDismissListener, 
+	ManageCashAmountFragment.OnManageCashAmountDismissListener{
 	
 	public static final String TAG = MainActivity.class.getSimpleName();
 	
@@ -93,13 +92,20 @@ public class MainActivity extends FragmentActivity
 	 * send sale request code from payment activity
 	 */
 	public static final int PAYMENT_REQUEST = 1;
+	
 	/**
 	 * food court payment request
 	 */
 	public static final int FOOD_COURT_PAYMENT_REQUEST = 2;
 	
+	/**
+	 * Wintec customer display
+	 */
 	private WintecCustomerDisplay mDsp;
 	
+	/**
+	 * Sale Service
+	 */
 	private SaleService mPartService;
 	private boolean mBound = false;
 	
@@ -122,9 +128,22 @@ public class MainActivity extends FragmentActivity
 	private int mTransactionId;
 	private int mStaffId;
 	
+	private ExpandableListView mLvOrderDetail;
+	private EditText mTxtBarCode;
+	private TableLayout mTbSummary;
+	private ImageButton mBtnClearBarCode;
+	
+	private MenuItem mItemHoldBill;
+	private MenuItem mItemSendSale;
+	private MenuItem mItemSendData;
+	
+	private SlidingTabLayout mTabs;
+	private ViewPager mPager;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		/**
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
@@ -132,6 +151,13 @@ public class MainActivity extends FragmentActivity
 				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
 		
 		setContentView(R.layout.activity_main);
+		
+		mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
+		mTbSummary = (TableLayout) findViewById(R.id.tbLayoutSummary);
+		mLvOrderDetail = (ExpandableListView) findViewById(R.id.lvOrder);
+		mTabs = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
+		mPager = (ViewPager) findViewById(R.id.pager);
+		mBtnClearBarCode = (ImageButton) findViewById(R.id.imgBtnClearBarcode);
 		
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
@@ -149,23 +175,155 @@ public class MainActivity extends FragmentActivity
 		mImageLoader = new ImageLoader(this, 0,
 					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		 
-		mDsp = new WintecCustomerDisplay(getApplicationContext());
-		
 		/**
-		 * For create pager by productDept
+		 * Wintec Customer Display
 		 */
-		mProductDeptLst = mProducts.listProductDept();
-		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
+		mDsp = new WintecCustomerDisplay(getApplicationContext());
 
-		mOrderDetailLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
-		mOrderDetailAdapter = new OrderDetailAdapter();
-
-		if(savedInstanceState == null){
-			getFragmentManager().beginTransaction().
-				add(R.id.container, PlaceholderFragment.newInstance()).commit();
-		}
+		setupBarCodeEvent();
+		setupMenuDeptPager();
+		setupOrderListView();
 	}
 	
+	private void setupOrderListView(){
+		mOrderDetailLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
+		mOrderDetailAdapter = new OrderDetailAdapter();
+		mLvOrderDetail.setAdapter(mOrderDetailAdapter);
+		mLvOrderDetail.setGroupIndicator(null);
+	}
+	
+	private void setupMenuDeptPager(){
+		mProductDeptLst = mProducts.listProductDept();
+		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
+		mPager.setOffscreenPageLimit(8);
+		mPager.setAdapter(mPageAdapter);
+		final int pageMargin = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
+						.getDisplayMetrics());
+		mPager.setPageMargin(pageMargin);
+		mTabs.setViewPager(mPager);
+	}
+	
+	private void setupBarCodeEvent(){
+		mTxtBarCode.setOnKeyListener(barCodeOnKeyListener);
+		mBtnClearBarCode.setOnClickListener(clearBarCodeListener);
+	}
+	
+	private OnClickListener clearBarCodeListener = new OnClickListener(){
+
+		@Override
+		public void onClick(View view) {
+			mTxtBarCode.setText(null);
+		}
+		
+	};
+	
+	private OnKeyListener barCodeOnKeyListener = new OnKeyListener(){
+
+		@Override
+		public boolean onKey(View view, int keyCode, KeyEvent event) {
+			if(event.getAction() != KeyEvent.ACTION_DOWN)
+				return true;
+			
+			if(keyCode == KeyEvent.KEYCODE_ENTER){
+				String barCode = ((EditText) view).getText().toString();
+				if(!barCode.isEmpty()){
+					Products.Product p = mProducts.getProduct(barCode);
+					if(p != null){
+						addOrder(p.getProductId(), p.getProductName(), 
+								p.getProductTypeId(), p.getVatType(), p.getVatRate(), 
+								1, p.getProductPrice());
+					}else{
+						new AlertDialog.Builder(MainActivity.this)
+						.setTitle(R.string.search)
+						.setMessage(R.string.not_found_item)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						}).show();
+					}
+				}
+				((EditText) view).setText(null);
+			}
+			return false;
+		}
+		
+	};
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.activity_main, menu);
+		mItemHoldBill = menu.findItem(R.id.itemHoldBill);
+		mItemSendSale = menu.findItem(R.id.itemSendSale);
+		mItemSendData = menu.findItem(R.id.itemSendData);
+		
+		countHoldOrder(this);
+		countTransNotSend(this);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent = null;
+		switch (item.getItemId()) {
+			case R.id.itemHoldBill:
+				showHoldBill();
+				return true;
+			case R.id.itemSwUser:
+				switchUser();
+				return true;
+			case R.id.itemLogout:
+				logout();
+				return true;
+			case R.id.itemReport:
+				intent = new Intent(this, SaleReportActivity.class);
+				intent.putExtra("staffId", mStaffId);
+				startActivity(intent);
+				return true;
+			case R.id.itemVoid:
+				voidBill();
+				return true;
+			case R.id.itemEditCash:
+				editCash();
+				return true;
+			case R.id.itemCloseShift:
+				closeShift();
+				return true;
+			case R.id.itemEndday:
+				endday();
+				return true;
+			case R.id.itemBackupDb:
+				Utils.exportDatabase(this);
+				return true;
+			case R.id.itemSendEndday:
+				intent = new Intent(this, SendEnddayActivity.class);
+				intent.putExtra("staffId", mStaffId);
+				intent.putExtra("shopId", mShop.getShopId());
+				intent.putExtra("computerId", mComputer.getComputerId());
+				startActivity(intent);
+				return true;
+			case R.id.itemReprint:
+				intent = new Intent(this, ReprintActivity.class);
+				startActivity(intent);
+				return true;
+			case R.id.itemSendSale:
+				intent = new Intent(this, SendSaleActivity.class);
+				intent.putExtra("staffId", mStaffId);
+				intent.putExtra("shopId", mShop.getShopId());
+				intent.putExtra("computerId", mComputer.getComputerId());
+				startActivity(intent);
+				return true;
+			case R.id.itemSetting:
+				intent = new Intent(this, SettingsActivity.class);
+				startActivity(intent);
+				return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -220,282 +378,111 @@ public class MainActivity extends FragmentActivity
 		super.onResume();
 	}
 
-	public static class PlaceholderFragment extends Fragment{
-
-		private ExpandableListView mLvOrderDetail;
-		private EditText mTxtBarCode;
-		private TableLayout mTbSummary;
-		private ImageButton mBtnClearBarCode;
+	/**
+	 * summary transaction 
+	 */
+	public void summary(){
+		mTbSummary.removeAllViews();
 		
-		private MenuItem mItemHoldBill;
-		private MenuItem mItemSendSale;
-		private MenuItem mItemSendData;
+		mTrans.summary(mTransactionId);
 		
-		private MainActivity mHost;
-		private SlidingTabLayout mTabs;
-		private ViewPager mPager;
+		MPOSOrderTransaction.MPOSOrderDetail sumOrder = 
+				mTrans.getSummaryOrder(mTransactionId);
 		
-		public static PlaceholderFragment newInstance(){
-			PlaceholderFragment f = new PlaceholderFragment();
-			return f;
-		}
+		mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
+				mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
+				0, 0, 0, 0));
 		
-		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
-			Intent intent = null;
-			switch (item.getItemId()) {
-				case R.id.itemHoldBill:
-					mHost.showHoldBill();
-					return true;
-				case R.id.itemSwUser:
-					mHost.switchUser();
-					return true;
-				case R.id.itemLogout:
-					mHost.logout();
-					return true;
-				case R.id.itemReport:
-					intent = new Intent(getActivity(), SaleReportActivity.class);
-					intent.putExtra("staffId", mHost.mStaffId);
-					startActivity(intent);
-					return true;
-				case R.id.itemVoid:
-					mHost.voidBill();
-					return true;
-				case R.id.itemEditCash:
-					mHost.editCash();
-					return true;
-				case R.id.itemCloseShift:
-					mHost.closeShift();
-					return true;
-				case R.id.itemEndday:
-					mHost.endday();
-					return true;
-				case R.id.itemBackupDb:
-					Utils.exportDatabase(getActivity());
-					return true;
-				case R.id.itemSendEndday:
-					intent = new Intent(getActivity(), SendEnddayActivity.class);
-					intent.putExtra("staffId", mHost.mStaffId);
-					intent.putExtra("shopId", mHost.mShop.getShopId());
-					intent.putExtra("computerId", mHost.mComputer.getComputerId());
-					startActivity(intent);
-					return true;
-				case R.id.itemReprint:
-					intent = new Intent(getActivity(), ReprintActivity.class);
-					startActivity(intent);
-					return true;
-				case R.id.itemSendSale:
-					intent = new Intent(getActivity(), SendSaleActivity.class);
-					intent.putExtra("staffId", mHost.mStaffId);
-					intent.putExtra("shopId", mHost.mShop.getShopId());
-					intent.putExtra("computerId", mHost.mComputer.getComputerId());
-					startActivity(intent);
-					return true;
-				case R.id.itemSetting:
-					intent = new Intent(getActivity(), SettingsActivity.class);
-					startActivity(intent);
-					return true;
-			default:
-				return super.onOptionsItemSelected(item);
-			}
+		if(sumOrder.getPriceDiscount() > 0){
+			String discountText = sumOrder.getPromotionName().equals("") ? getString(R.string.discount) : sumOrder.getPromotionName();
+			mTbSummary.addView(createTableRowSummary(discountText, 
+					"-" + mFormat.currencyFormat(sumOrder.getPriceDiscount()), 
+							0, 0, 0, 0));
 		}
-		
-		@Override
-		public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-			inflater.inflate(R.menu.activity_main, menu);
-			mItemHoldBill = menu.findItem(R.id.itemHoldBill);
-			mItemSendSale = menu.findItem(R.id.itemSendSale);
-			mItemSendData = menu.findItem(R.id.itemSendData);
-			
-			((MainActivity) getActivity()).countHoldOrder(getActivity());
-			((MainActivity) getActivity()).countTransNotSend(getActivity());
-		}
-
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			setHasOptionsMenu(true);
-		}
-
-		@Override
-		public void onViewCreated(View view, Bundle savedInstanceState) {
-			mTxtBarCode = (EditText) view.findViewById(R.id.txtBarCode);
-			mTbSummary = (TableLayout) view.findViewById(R.id.tbLayoutSummary);
-			mLvOrderDetail = (ExpandableListView) view.findViewById(R.id.lvOrder);
-			mTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-			mPager = (ViewPager) view.findViewById(R.id.pager);
-			mBtnClearBarCode = (ImageButton) view.findViewById(R.id.imgBtnClearBarcode);
-
-			mHost = (MainActivity) getActivity();
-			mPager.setOffscreenPageLimit(8);
-			mPager.setAdapter(mHost.mPageAdapter);
-			final int pageMargin = (int) TypedValue.applyDimension(
-					TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
-							.getDisplayMetrics());
-			mPager.setPageMargin(pageMargin);
-			mTabs.setViewPager(mPager);
-			
-			mLvOrderDetail.setAdapter(mHost.mOrderDetailAdapter);
-			mLvOrderDetail.setGroupIndicator(null);
-			
-			mTxtBarCode.setOnKeyListener(new OnKeyListener(){
-
-				@Override
-				public boolean onKey(View v, int keyCode, KeyEvent event) {
-					if(event.getAction() != KeyEvent.ACTION_DOWN)
-						return true;
-					
-					if(keyCode == KeyEvent.KEYCODE_ENTER){
-						String barCode = ((EditText) v).getText().toString();
-						if(!barCode.isEmpty()){
-							Products.Product p = mHost.mProducts.getProduct(barCode);
-							if(p != null){
-								mHost.addOrder(p.getProductId(), p.getProductName(), 
-										p.getProductTypeId(), p.getVatType(), p.getVatRate(), 
-										1, p.getProductPrice());
-							}else{
-								new AlertDialog.Builder(getActivity())
-								.setTitle(R.string.search)
-								.setMessage(R.string.not_found_item)
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-									}
-								}).show();
-							}
-						}
-						((EditText) v).setText(null);
-					}
-					return false;
-				}
-			});
-			mBtnClearBarCode.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					mTxtBarCode.setText(null);
-				}
-				
-			});
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			return inflater.inflate(R.layout.fragment_main, container, false);
-		}
-		
-		public void onClearBarCode(final View v){
-			mTxtBarCode.setText(null);
-		}
-		
-		/**
-		 * summary transaction 
-		 */
-		public void summary(){
-			mTbSummary.removeAllViews();
-			
-			mHost.mTrans.summary(mHost.mTransactionId);
-			
-			MPOSOrderTransaction.MPOSOrderDetail sumOrder = 
-					mHost.mTrans.getSummaryOrder(mHost.mTransactionId);
-			
-			mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
-					mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
+		if(sumOrder.getVatExclude() > 0){
+			mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
+					" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%",
+					mFormat.currencyFormat(sumOrder.getVatExclude()),
 					0, 0, 0, 0));
-			
+		}
+		mTbSummary.addView(createTableRowSummary(getString(R.string.total),
+				mFormat.currencyFormat(sumOrder.getTotalSalePrice()),
+				0, R.style.HeaderText, 0, android.R.attr.textAppearanceLarge));
+		
+		if(Utils.isEnableSecondDisplay(this)){
+			List<clsSecDisplay_TransSummary> transSummLst = new ArrayList<clsSecDisplay_TransSummary>();
+			clsSecDisplay_TransSummary transSumm = new clsSecDisplay_TransSummary();
+			transSumm.szSumName = getString(R.string.sub_total); 
+			transSumm.szSumAmount = mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
+			transSummLst.add(transSumm);
 			if(sumOrder.getPriceDiscount() > 0){
 				String discountText = sumOrder.getPromotionName().equals("") ? getString(R.string.discount) : sumOrder.getPromotionName();
-				mTbSummary.addView(createTableRowSummary(discountText, 
-						"-" + mHost.mFormat.currencyFormat(sumOrder.getPriceDiscount()), 
-								0, 0, 0, 0));
+				transSumm = new clsSecDisplay_TransSummary();
+				transSumm.szSumName = discountText;
+				transSumm.szSumAmount = "-" + mFormat.currencyFormat(sumOrder.getPriceDiscount());
+				transSummLst.add(transSumm);
 			}
 			if(sumOrder.getVatExclude() > 0){
-				mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
-						" " + NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate()) + "%",
-						mHost.mFormat.currencyFormat(sumOrder.getVatExclude()),
-						0, 0, 0, 0));
+				transSumm = new clsSecDisplay_TransSummary();
+				transSumm.szSumName = getString(R.string.vat_exclude) + 
+						" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
+				transSumm.szSumAmount = mFormat.currencyFormat(sumOrder.getVatExclude());
+				transSummLst.add(transSumm);
 			}
-			mTbSummary.addView(createTableRowSummary(getString(R.string.total),
-					mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice()),
-					0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size)));
+			transSumm = new clsSecDisplay_TransSummary();
+			transSumm.szSumName = getString(R.string.total_qty); 
+			transSumm.szSumAmount = mFormat.qtyFormat(sumOrder.getQty());
+			transSummLst.add(transSumm);
 			
-			// display summary to customer display
-			//if(sumOrder.getQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
-				if(Utils.isEnableSecondDisplay(getActivity())){
-					List<clsSecDisplay_TransSummary> transSummLst = new ArrayList<clsSecDisplay_TransSummary>();
-					clsSecDisplay_TransSummary transSumm = new clsSecDisplay_TransSummary();
-					transSumm.szSumName = getString(R.string.sub_total); 
-					transSumm.szSumAmount = mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
-					transSummLst.add(transSumm);
-					if(sumOrder.getPriceDiscount() > 0){
-						String discountText = sumOrder.getPromotionName().equals("") ? getString(R.string.discount) : sumOrder.getPromotionName();
-						transSumm = new clsSecDisplay_TransSummary();
-						transSumm.szSumName = discountText;
-						transSumm.szSumAmount = "-" + mHost.mFormat.currencyFormat(sumOrder.getPriceDiscount());
-						transSummLst.add(transSumm);
-					}
-					if(sumOrder.getVatExclude() > 0){
-						transSumm = new clsSecDisplay_TransSummary();
-						transSumm.szSumName = getString(R.string.vat_exclude) + 
-								" " + NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate()) + "%";
-						transSumm.szSumAmount = mHost.mFormat.currencyFormat(sumOrder.getVatExclude());
-						transSummLst.add(transSumm);
-					}
-					transSumm = new clsSecDisplay_TransSummary();
-					transSumm.szSumName = getString(R.string.total_qty); 
-					transSumm.szSumAmount = mHost.mFormat.qtyFormat(sumOrder.getQty());
-					transSummLst.add(transSumm);
-					
-					transSumm = new clsSecDisplay_TransSummary();
-					transSumm.szSumName = getString(R.string.total); 
-					transSumm.szSumAmount = mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice());
-					transSummLst.add(transSumm);
-					mHost.secondDisplayItem(transSummLst, mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
-				}
-				
-				mHost.mDsp.setOrderTotalQty(mHost.mFormat.qtyFormat(sumOrder.getQty()));
-				mHost.mDsp.setOrderTotalPrice(mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
-				if(Utils.isEnableWintecCustomerDisplay(getActivity())){
-					try {
-						mHost.mDsp.displayOrder();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			//}
+			transSumm = new clsSecDisplay_TransSummary();
+			transSumm.szSumName = getString(R.string.total); 
+			transSumm.szSumAmount = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+			transSummLst.add(transSumm);
+			secondDisplayItem(transSummLst, mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
 		}
 		
-		private TableRow createTableRowSummary(String label, String value,
-				int labelAppear, int valAppear, float labelSize, float valSize){
-			TextView tvLabel = new TextView(getActivity());
-			TextView tvValue = new TextView(getActivity());
-			tvLabel.setTextAppearance(getActivity(), android.R.style.TextAppearance_Holo_Medium);
-			tvLabel.setAllCaps(true);
-			tvValue.setTextAppearance(getActivity(), android.R.style.TextAppearance_Holo_Medium);
-			if(labelAppear != 0)
-				tvLabel.setTextAppearance(getActivity(), labelAppear);
-			if(valAppear != 0)
-				tvValue.setTextAppearance(getActivity(), valAppear);
-			tvLabel.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 
-					TableRow.LayoutParams.WRAP_CONTENT, 1f));
-			tvValue.setGravity(Gravity.RIGHT);
-			if(labelSize != 0)
-				tvLabel.setTextSize(labelSize);
-			if(valSize != 0)
-				tvValue.setTextSize(valSize);
-			tvLabel.setText(label);
-			tvValue.setText(value);
-
-			TableRow rowSummary = new TableRow(getActivity());
-			rowSummary.addView(tvLabel);
-			rowSummary.addView(tvValue);
-			return rowSummary;
+		mDsp.setOrderTotalQty(mFormat.qtyFormat(sumOrder.getQty()));
+		mDsp.setOrderTotalPrice(mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
+		if(Utils.isEnableWintecCustomerDisplay(this)){
+			// display order if qty and retail price > 0
+			if(sumOrder.getQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
+				try {
+					mDsp.displayOrder();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	
+	private TableRow createTableRowSummary(String label, String value,
+			int labelAppear, int valAppear, float labelSize, float valSize){
+		TextView tvLabel = new TextView(this);
+		TextView tvValue = new TextView(this);
+		tvLabel.setTextAppearance(this, android.R.style.TextAppearance_Holo_Medium);
+		tvLabel.setAllCaps(true);
+		tvValue.setTextAppearance(this, android.R.style.TextAppearance_Holo_Medium);
+		if(labelAppear != 0)
+			tvLabel.setTextAppearance(this, labelAppear);
+		if(valAppear != 0)
+			tvValue.setTextAppearance(this, valAppear);
+		tvLabel.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 
+				TableRow.LayoutParams.WRAP_CONTENT, 1f));
+		tvValue.setGravity(Gravity.RIGHT);
+		if(labelSize != 0)
+			tvLabel.setTextSize(labelSize);
+		if(valSize != 0)
+			tvValue.setTextSize(valSize);
+		tvLabel.setText(label);
+		tvValue.setText(value);
+
+		TableRow rowSummary = new TableRow(this);
+		rowSummary.addView(tvLabel);
+		rowSummary.addView(tvValue);
+		return rowSummary;
+	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if(requestCode == PAYMENT_REQUEST){
@@ -939,10 +926,7 @@ public class MainActivity extends FragmentActivity
 
 		@Override
 		public void notifyDataSetChanged() {
-			Fragment f = getFragmentManager().findFragmentById(R.id.container);
-			if(f instanceof PlaceholderFragment){
-				((PlaceholderFragment) f).summary();
-			}
+			summary();
 			super.notifyDataSetChanged();
 		}
 		
@@ -1450,10 +1434,7 @@ public class MainActivity extends FragmentActivity
 	private void updateOrderDetailLst(int position, int orderDetailId){
 		mOrderDetailLst.set(position, mTrans.getOrder(mTransactionId, orderDetailId));
 		mOrderDetailAdapter.notifyDataSetChanged();
-		Fragment f = getFragmentManager().findFragmentById(R.id.container);
-		if(f instanceof PlaceholderFragment){
-			((PlaceholderFragment) f).mLvOrderDetail.setSelectedGroup(position);
-		}
+		mLvOrderDetail.setSelectedGroup(position);
 	}
 	
 	/**
@@ -1462,11 +1443,7 @@ public class MainActivity extends FragmentActivity
 	private void loadOrder(){
 		mOrderDetailLst = mTrans.listAllOrder(mTransactionId);
 		mOrderDetailAdapter.notifyDataSetChanged();
-		Fragment f = getFragmentManager().findFragmentById(R.id.container);
-		if (f instanceof PlaceholderFragment) {
-			((PlaceholderFragment) f).mLvOrderDetail
-					.setSelectedGroup(mOrderDetailAdapter.getGroupCount());
-		}
+		mLvOrderDetail.setSelectedGroup(mOrderDetailAdapter.getGroupCount());
 	}
 
 	private void openTransaction(){
@@ -1509,7 +1486,7 @@ public class MainActivity extends FragmentActivity
 	private void showHoldBill() {
 		final MPOSOrderTransaction holdTrans = new MPOSOrderTransaction();
 		LayoutInflater inflater = getLayoutInflater();
-		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null);
+		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null, false);
 		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
 		List<MPOSOrderTransaction> billLst = 
 				mTrans.listHoldOrder(mSession.getSessionDate());
@@ -1860,7 +1837,7 @@ public class MainActivity extends FragmentActivity
 		List<Products.Product> pSizeLst = mProducts.listProductSize(proId);
 		LayoutInflater inflater = getLayoutInflater();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		View sizeView = inflater.inflate(R.layout.product_size, null);
+		View sizeView = inflater.inflate(R.layout.product_size, null, false);
 		ListView lvProSize = (ListView) sizeView.findViewById(R.id.lvProSize);
 		builder.setView(sizeView);
 		builder.setTitle(R.string.product_size);
@@ -1885,17 +1862,14 @@ public class MainActivity extends FragmentActivity
 	 * count transaction that not send to server
 	 */
 	private void countTransNotSend(Context context){
-		Fragment f = getFragmentManager().findFragmentById(R.id.container);
-		if(f instanceof PlaceholderFragment){
-			if(((PlaceholderFragment) f).mItemSendSale != null){
-				int total = mTrans.countTransNotSend();
-				if(total > 0){
-					((PlaceholderFragment) f).mItemSendData.setTitle(context.getString(R.string.send_sale_data) + "(" + total + ")");
-					((PlaceholderFragment) f).mItemSendSale.setTitle(context.getString(R.string.send_sale_data) + "(" + total + ")");
-				}else{
-					((PlaceholderFragment) f).mItemSendData.setTitle(context.getString(R.string.send_sale_data));
-					((PlaceholderFragment) f).mItemSendSale.setTitle(context.getString(R.string.send_sale_data));
-				}
+		if(mItemSendData != null){
+			int total = mTrans.countTransNotSend();
+			if(total > 0){
+				mItemSendData.setTitle(context.getString(R.string.send_sale_data) + "(" + total + ")");
+				mItemSendSale.setTitle(context.getString(R.string.send_sale_data) + "(" + total + ")");
+			}else{
+				mItemSendData.setTitle(context.getString(R.string.send_sale_data));
+				mItemSendSale.setTitle(context.getString(R.string.send_sale_data));
 			}
 		}
 	}
@@ -1904,15 +1878,12 @@ public class MainActivity extends FragmentActivity
 	 * count order that hold
 	 */
 	private void countHoldOrder(Context context){
-		Fragment f = getFragmentManager().findFragmentById(R.id.container);
-		if(f instanceof PlaceholderFragment){
-			if(((PlaceholderFragment) f).mItemHoldBill != null){
-				int totalHold = mTrans.countHoldOrder(mSession.getSessionDate());
-				if(totalHold > 0){
-					((PlaceholderFragment) f).mItemHoldBill.setTitle(context.getString(R.string.hold_bill) + "(" + totalHold + ")");
-				}else{
-					((PlaceholderFragment) f).mItemHoldBill.setTitle(context.getString(R.string.hold_bill));
-				}
+		if(mItemHoldBill != null){
+			int totalHold = mTrans.countHoldOrder(mSession.getSessionDate());
+			if(totalHold > 0){
+				mItemHoldBill.setTitle(context.getString(R.string.hold_bill) + "(" + totalHold + ")");
+			}else{
+				mItemHoldBill.setTitle(context.getString(R.string.hold_bill));
 			}
 		}
 	}
@@ -2071,7 +2042,7 @@ public class MainActivity extends FragmentActivity
 		boolean endday = Utils.endday(MainActivity.this, mShop.getShopId(), 
 				mComputer.getComputerId(), mSessionId, mStaffId, cashAmount, true);
 		if(endday){
-			new Thread(new PrintReport(MainActivity.this, mTransactionId, mSessionId, 
+			new Thread(new PrintReport(MainActivity.this, mSessionId, 
 					mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
 			// start the service 
 //			Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);

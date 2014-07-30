@@ -3,12 +3,12 @@
 
     <PreferenceCategory android:title="@string/wintec_customer_display_settings" >
         <CheckBoxPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="enable_dsp"
             android:title="@string/enable_wintec_customer_display" />
 
         <ListPreference
-            android:defaultValue="/dev/ttySAC3"
+            android:defaultValue="/dev/ttySAC1"
             android:dependency="enable_dsp"
             android:entries="@array/devices_path_name"
             android:entryValues="@array/devices_path_value"

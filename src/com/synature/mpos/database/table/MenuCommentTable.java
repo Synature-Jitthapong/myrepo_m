@@ -14,19 +14,19 @@ public class MenuCommentTable extends BaseColumn{
 	public static final String COLUMN_COMMENT_NAME = "menu_comment_name";
 	
 	private static final String SQL_CREATE = 
-			"CREATE TABLE " + TABLE_MENU_COMMENT + " ( "
-			+ COLUMN_COMMENT_ID + " INTEGER NOT NULL, "
-			+ COLUMN_COMMENT_GROUP_ID + " INTEGER NOT NULL, "
-			+ COLUMN_COMMENT_NAME + " TEXT, "
-			+ COLUMN_ORDERING + " INTEGER DEFAULT 0, "
-			+ " PRIMARY KEY (" + COLUMN_COMMENT_ID + "));";
+			" create table " + TABLE_MENU_COMMENT + " ( "
+			+ COLUMN_COMMENT_ID + " integer not null, "
+			+ COLUMN_COMMENT_GROUP_ID + " integer not null, "
+			+ COLUMN_COMMENT_NAME + " text not null, "
+			+ COLUMN_ORDERING + " integer default 0, "
+			+ " primary key (" + COLUMN_COMMENT_ID + "));";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_MENU_COMMENT);
+		db.execSQL("drop table if exists " + TABLE_MENU_COMMENT);
 		onCreate(db);
 	}
 	

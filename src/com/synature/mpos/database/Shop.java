@@ -13,7 +13,29 @@ import android.database.SQLException;
 public class Shop extends MPOSDatabase{
 	
 	public static final int SHOP_TYPE_FOOD_COURT = 3;
-			
+	
+	public static final String[] ALL_SHOP_COLUMNS = {
+		ShopTable.COLUMN_SHOP_ID,
+		ShopTable.COLUMN_SHOP_CODE,
+		ShopTable.COLUMN_SHOP_NAME,
+		ShopTable.COLUMN_SHOP_TYPE,
+		ShopTable.COLUMN_FAST_FOOD_TYPE,
+		ShopTable.COLUMN_OPEN_HOUR,
+		ShopTable.COLUMN_CLOSE_HOUR,
+		ShopTable.COLUMN_COMPANY_VAT_TYPE,
+		ShopTable.COLUMN_COMPANY_NAME,
+		ShopTable.COLUMN_ADDR1,
+		ShopTable.COLUMN_ADDR2,
+		ShopTable.COLUMN_CITY,
+		ShopTable.COLUMN_PROVINCE_ID,
+		ShopTable.COLUMN_ZIPCODE,
+		ShopTable.COLUMN_TELEPHONE,
+		ShopTable.COLUMN_FAX,
+		ShopTable.COLUMN_TAX_ID,
+		ShopTable.COLUMN_REGISTER_ID,
+		ShopTable.COLUMN_COMPANY_VAT_RATE
+	};
+	
 	public Shop(Context context){
 		super(context);
 	}
@@ -66,7 +88,8 @@ public class Shop extends MPOSDatabase{
 	public ShopData.ShopProperty getShopProperty(){
 		ShopData.ShopProperty sp = 
 				new ShopData.ShopProperty();
-		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + ShopTable.TABLE_SHOP, null);
+		Cursor cursor = getReadableDatabase().query(ShopTable.TABLE_SHOP, 
+				ALL_SHOP_COLUMNS, null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			sp.setShopID(cursor.getInt(cursor.getColumnIndex(ShopTable.COLUMN_SHOP_ID)));
 			sp.setShopCode(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_SHOP_CODE)));
@@ -75,8 +98,8 @@ public class Shop extends MPOSDatabase{
 			sp.setFastFoodType(cursor.getInt(cursor.getColumnIndex(ShopTable.COLUMN_FAST_FOOD_TYPE)));
 			sp.setOpenHour(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_OPEN_HOUR)));
 			sp.setCloseHour(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_CLOSE_HOUR)));
-			sp.setVatType(cursor.getInt(cursor.getColumnIndex(ShopTable.COLUMN_VAT_TYPE)));
-			sp.setCompanyName(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_COMPANY)));
+			sp.setVatType(cursor.getInt(cursor.getColumnIndex(ShopTable.COLUMN_COMPANY_VAT_TYPE)));
+			sp.setCompanyName(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_COMPANY_NAME)));
 			sp.setCompanyAddress1(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_ADDR1)));
 			sp.setCompanyAddress2(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_ADDR2)));
 			sp.setCompanyCity(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_CITY)));
@@ -86,7 +109,7 @@ public class Shop extends MPOSDatabase{
 			sp.setCompanyFax(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_FAX)));
 			sp.setCompanyTaxID(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_TAX_ID)));
 			sp.setCompanyRegisterID(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_REGISTER_ID)));
-			sp.setCompanyVat(cursor.getFloat(cursor.getColumnIndex(ShopTable.COLUMN_VAT)));
+			sp.setCompanyVat(cursor.getFloat(cursor.getColumnIndex(ShopTable.COLUMN_COMPANY_VAT_RATE)));
 			cursor.moveToNext();
 		}
 		cursor.close();		
@@ -108,10 +131,10 @@ public class Shop extends MPOSDatabase{
 				cv.put(ShopTable.COLUMN_SHOP_NAME, shop.getShopName());
 				cv.put(ShopTable.COLUMN_SHOP_TYPE, shop.getShopType());
 				cv.put(ShopTable.COLUMN_FAST_FOOD_TYPE, shop.getFastFoodType());
-				cv.put(ShopTable.COLUMN_VAT_TYPE, shop.getVatType());
+				cv.put(ShopTable.COLUMN_COMPANY_VAT_TYPE, shop.getVatType());
 				cv.put(ShopTable.COLUMN_OPEN_HOUR, shop.getOpenHour());
 				cv.put(ShopTable.COLUMN_CLOSE_HOUR, shop.getCloseHour());
-				cv.put(ShopTable.COLUMN_COMPANY, shop.getCompanyName());
+				cv.put(ShopTable.COLUMN_COMPANY_NAME, shop.getCompanyName());
 				cv.put(ShopTable.COLUMN_ADDR1, shop.getCompanyAddress1());
 				cv.put(ShopTable.COLUMN_ADDR2, shop.getCompanyAddress2());
 				cv.put(ShopTable.COLUMN_CITY, shop.getCompanyCity());
@@ -121,7 +144,7 @@ public class Shop extends MPOSDatabase{
 				cv.put(ShopTable.COLUMN_FAX, shop.getCompanyFax());
 				cv.put(ShopTable.COLUMN_TAX_ID, shop.getCompanyTaxID());
 				cv.put(ShopTable.COLUMN_REGISTER_ID, shop.getCompanyRegisterID());
-				cv.put(ShopTable.COLUMN_VAT, shop.getCompanyVat());
+				cv.put(ShopTable.COLUMN_COMPANY_VAT_RATE, shop.getCompanyVat());
 				getWritableDatabase().insertOrThrow(ShopTable.TABLE_SHOP, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();

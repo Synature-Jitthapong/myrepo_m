@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.mpos.Utils;
-import com.synature.mpos.database.StockDocument.DocumentTypeTable;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.CreditCardTable;
 import com.synature.mpos.database.table.MenuCommentTable;
@@ -31,7 +30,7 @@ import android.database.Cursor;
  */
 public class SaleTransaction extends MPOSDatabase{
 
-	private Formater mGlobal;
+	private Formater mFormat;
 	
 	private Shop mShop;
 	
@@ -54,7 +53,7 @@ public class SaleTransaction extends MPOSDatabase{
 			String sessionDate, boolean isAllTrans) {
 		super(context);
 		mShop = new Shop(context);
-		mGlobal = new Formater(context);
+		mFormat = new Formater(context);
 		mSessionDate = sessionDate;
 		mIsAllTrans = isAllTrans;
 	}
@@ -102,12 +101,12 @@ public class SaleTransaction extends MPOSDatabase{
 							cursor.getColumnIndex(ShopTable.COLUMN_SHOP_ID)));
 					orderTrans.setiOpenStaffID(cursor.getInt(
 							cursor.getColumnIndex(OrderTransactionTable.COLUMN_OPEN_STAFF)));
-					orderTrans.setDtOpenTime(mGlobal.dateTimeFormat(
+					orderTrans.setDtOpenTime(mFormat.dateTimeFormat(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_OPEN_TIME)), "yyyy-MM-dd HH:mm:ss"));
-					orderTrans.setDtCloseTime(mGlobal.dateTimeFormat(
+					orderTrans.setDtCloseTime(mFormat.dateTimeFormat(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_CLOSE_TIME)), "yyyy-MM-dd HH:mm:ss"));
 					orderTrans.setiDocType(
-							cursor.getInt(cursor.getColumnIndex(DocumentTypeTable.COLUMN_DOC_TYPE)));
+							cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_DOC_TYPE_ID)));
 					orderTrans.setiTransactionStatusID(
 							cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_STATUS_ID)));
 					orderTrans.setiReceiptYear(
@@ -118,27 +117,27 @@ public class SaleTransaction extends MPOSDatabase{
 							cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_ID)));
 					orderTrans.setSzReceiptNo(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
-					orderTrans.setDtSaleDate(mGlobal.dateTimeFormat(
+					orderTrans.setDtSaleDate(mFormat.dateTimeFormat(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_SALE_DATE)),"yyyy-MM-dd"));
 					orderTrans.setfTransVAT(
-							Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT))));
+							Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT))));
 					orderTrans.setfTransactionVatable(
-							Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE))));
+							Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE))));
 					orderTrans.setiSessionID(
 							cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
 					orderTrans.setiVoidStaffID(cursor.getInt(cursor
 							.getColumnIndex(OrderTransactionTable.COLUMN_VOID_STAFF_ID)));
 					orderTrans.setSzVoidReason(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_VOID_REASON)));
-					orderTrans.setDtVoidTime(mGlobal.dateTimeFormat(
+					orderTrans.setDtVoidTime(mFormat.dateTimeFormat(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_VOID_TIME)), "yyyy-MM-dd HH:mm:ss"));
 					orderTrans.setSzTransactionNote(
 							cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_NOTE)));
 					orderTrans.setiSaleMode(cursor.getInt(
 							cursor.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));
-					orderTrans.setfVatPercent(Utils.fixesDigitLength(mGlobal, 4,  cursor.getDouble(
+					orderTrans.setfVatPercent(Utils.fixesDigitLength(mFormat, 4,  cursor.getDouble(
 							cursor.getColumnIndex(ProductTable.COLUMN_VAT_RATE))));
-					orderTrans.setfTransactionExcludeVAT(Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(
+					orderTrans.setfTransactionExcludeVAT(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(
 							cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT))));
 					orderTrans.setiNoCust(1);
 					
@@ -173,7 +172,7 @@ public class SaleTransaction extends MPOSDatabase{
 					payment.setiPayTypeID(cursor.getInt(cursor
 							.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
 					payment.setfPayAmount(
-							Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
+							Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor
 									.getColumnIndex(PaymentDetailTable.COLUMN_PAY_AMOUNT))));
 					payment.setSzCreditCardNo(cursor.getString(cursor
 							.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_NO)));
@@ -205,9 +204,9 @@ public class SaleTransaction extends MPOSDatabase{
 						promotion.setiComputerID(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 						promotion.setiShopID(mShop.getShopId());
 						promotion.setiOrderDetailID(cursor.getInt(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
-						promotion.setfDiscountPrice(Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
+						promotion.setfDiscountPrice(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor
 									.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT))));
-						promotion.setfPriceAfterDiscount(Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
+						promotion.setfPriceAfterDiscount(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor
 									.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE))));
 						promotion.setiDiscountTypeID(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID))); // 6 = other discount
 						promotion.setiPromotionID(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID)));
@@ -226,78 +225,102 @@ public class SaleTransaction extends MPOSDatabase{
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				do {
-					SaleTable_OrderDetail order = new SaleTable_OrderDetail();
-					order.setiOrderDetailID(cursor.getInt(cursor
-							.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
-					order.setiTransactionID(cursor.getInt(cursor
-							.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
-					order.setiComputerID(cursor.getInt(cursor
-							.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
-					order.setiShopID(mShop.getShopId());
-					order.setiVatType(cursor.getInt(
-							cursor.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
-					order.setiProductID(cursor.getInt(cursor
-							.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-					order.setiProductTypeID(cursor.getInt(cursor
-							.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID)));
-					order.setfQty(
-							Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(cursor
-									.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY))));
-					order.setfPricePerUnit(
-							Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(
-									cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE))));
-					order.setfRetailPrice(
-							Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(
-									cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE))));
-					order.setfSalePrice(
-							Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(
-									cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE))));
-					order.setfTotalVatAmount(
-							Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(
-									cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT))));
-					order.setfPriceDiscountAmount(
-							Utils.fixesDigitLength(mGlobal, 4, cursor.getDouble(
-									cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT))));
-					order.setiSaleMode(cursor.getInt(
-							cursor.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));
-					order.setiProductTypeID(cursor.getInt(
-							cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID)));
-					// order comment
-					Cursor curOrderComm = queryOrderComment(order.getiTransactionID(), order.getiOrderDetailID());
-					if(curOrderComm.moveToFirst()){
-						do{
-							SaleTable_CommentInfo comment = new SaleTable_CommentInfo();
-							comment.setiOrderDetailID(curOrderComm.getInt(curOrderComm.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
-							comment.setiCommentID(curOrderComm.getInt(curOrderComm.getColumnIndex(MenuCommentTable.COLUMN_COMMENT_ID)));
-							comment.setfCommentQty(Utils.fixesDigitLength(mGlobal, 4, curOrderComm.getDouble(
-									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_QTY))));
-							comment.setfCommentPrice(Utils.fixesDigitLength(mGlobal, 4, curOrderComm.getDouble(
-									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE))));
-							comment.setfDiscountPrice(Utils.fixesDigitLength(mGlobal, 4, curOrderComm.getDouble(
-									curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE_DISCOUNT))));
-							order.getxListCommentInfo().add(comment);
-						}while(curOrderComm.moveToNext());
+					int productTypeId = cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID));
+					if(productTypeId != Products.COMMENT_HAVE_PRICE && 
+							productTypeId != Products.CHILD_OF_SET_HAVE_PRICE){
+						SaleTable_OrderDetail order = new SaleTable_OrderDetail();
+						order.setiOrderDetailID(cursor.getInt(cursor
+								.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
+						order.setiTransactionID(cursor.getInt(cursor
+								.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
+						order.setiComputerID(cursor.getInt(cursor
+								.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+						order.setiShopID(mShop.getShopId());
+						order.setiVatType(cursor.getInt(
+								cursor.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
+						order.setiProductID(cursor.getInt(cursor
+								.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
+						order.setiProductTypeID(cursor.getInt(cursor
+								.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID)));
+						order.setfQty(
+								Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor
+										.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY))));
+						order.setfPricePerUnit(
+								Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(
+										cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE))));
+						order.setfRetailPrice(
+								Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(
+										cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE))));
+						order.setfSalePrice(
+								Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(
+										cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE))));
+						order.setfTotalVatAmount(
+								Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(
+										cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT))));
+						order.setfPriceDiscountAmount(
+								Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(
+										cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT))));
+						order.setiSaleMode(cursor.getInt(
+								cursor.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));
+						order.setiProductTypeID(cursor.getInt(
+								cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID)));
+						// order comment
+						Cursor curOrderComm = queryOrderComment(order.getiTransactionID(), order.getiOrderDetailID());
+						if(curOrderComm.moveToFirst()){
+							do{
+								SaleTable_CommentInfo comment = new SaleTable_CommentInfo();
+								/**
+								 * use parent_order_id of OrderCommentTable if have discount
+								 * because discount of comment stored in OrderDetail
+								 */
+								int orderId = curOrderComm.getInt(curOrderComm.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID));
+								double orderCommentDiscount = curOrderComm.getDouble(
+										curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE_DISCOUNT));
+								if(orderCommentDiscount > 0)
+									orderId = curOrderComm.getInt(curOrderComm.getColumnIndex(OrderDetailTable.COLUMN_PARENT_ORDER_ID));
+								comment.setiOrderID(orderId);
+								comment.setiCommentID(curOrderComm.getInt(curOrderComm.getColumnIndex(MenuCommentTable.COLUMN_COMMENT_ID)));
+								comment.setfCommentQty(Utils.fixesDigitLength(mFormat, 4, curOrderComm.getDouble(
+										curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_QTY))));
+								comment.setfCommentPrice(Utils.fixesDigitLength(mFormat, 4, curOrderComm.getDouble(
+										curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE))));
+								comment.setfDiscountPrice(Utils.fixesDigitLength(mFormat, 4, curOrderComm.getDouble(
+										curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE_DISCOUNT))));
+								order.getxListCommentInfo().add(comment);
+							}while(curOrderComm.moveToNext());
+						}
+						curOrderComm.close();
+						// order set
+						Cursor curOrderSet = queryOrderSet(order.getiTransactionID(), order.getiOrderDetailID());
+						if(curOrderSet.moveToFirst()){
+							do{
+								SaleTable_ChildOrderType7 orderSet = 
+										new SaleTable_ChildOrderType7();
+								/**
+								 * use parent_order_id of OrderSetTable if have discount
+								 * because discount of OrderSet stored in OrderDetail
+								 */
+								int orderId = curOrderSet.getInt(curOrderSet.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID));
+								double orderSetDiscount = curOrderSet.getDouble(
+										curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE_DISCOUNT));
+								if(orderSetDiscount > 0)
+									orderId = curOrderSet.getInt(curOrderSet.getColumnIndex(OrderDetailTable.COLUMN_PARENT_ORDER_ID));
+								orderSet.setiOrderID(orderId);
+								orderSet.setiPGroupID(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
+								orderSet.setiSetGroupNo(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
+								orderSet.setiProductID(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
+								orderSet.setfProductQty(Utils.fixesDigitLength(mFormat, 4, curOrderSet.getDouble(
+										curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_QTY))));
+								orderSet.setfProductPrice(Utils.fixesDigitLength(mFormat, 4, curOrderSet.getDouble(
+										curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE))));
+								orderSet.setfDiscountPrice(Utils.fixesDigitLength(mFormat, 4, curOrderSet.getDouble(
+										curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE_DISCOUNT))));
+								order.getxListChildOrderSetLinkType7().add(orderSet);
+							}while(curOrderSet.moveToNext());
+						}
+						curOrderSet.close();
+						orderDetailLst.add(order);
 					}
-					curOrderComm.close();
-					// order set
-					Cursor curOrderSet = queryOrderSet(order.getiTransactionID(), order.getiOrderDetailID());
-					if(curOrderSet.moveToFirst()){
-						do{
-							SaleTable_ChildOrderType7 orderSet = 
-									new SaleTable_ChildOrderType7();
-							orderSet.setiOrderDetailID(curOrderSet.getInt(curOrderSet.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
-							orderSet.setiPGroupID(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
-							orderSet.setiSetGroupNo(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
-							orderSet.setiProductID(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-							orderSet.setfProductQty(Utils.fixesDigitLength(mGlobal, 4, curOrderSet.getDouble(
-									curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_QTY))));
-							orderSet.setfProductPrice(Utils.fixesDigitLength(mGlobal, 4, curOrderSet.getDouble(
-									curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE))));
-							order.getxListChildOrderSetLinkType7().add(orderSet);
-						}while(curOrderSet.moveToNext());
-					}
-					curOrderSet.close();
-					orderDetailLst.add(order);
 				} while (cursor.moveToNext());
 			}
 		}
@@ -310,29 +333,29 @@ public class SaleTransaction extends MPOSDatabase{
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				do {
-					saleSessEnd.setDtSessionDate(mGlobal.dateTimeFormat(cursor
+					saleSessEnd.setDtSessionDate(mFormat.dateTimeFormat(cursor
 							.getString(cursor
 									.getColumnIndex(SessionTable.COLUMN_SESS_DATE)),
 							"yyyy-MM-dd"));
 					saleSessEnd
-							.setDtEndDayDateTime(mGlobal.dateTimeFormat(
+							.setDtEndDayDateTime(mFormat.dateTimeFormat(
 									cursor.getString(cursor
 											.getColumnIndex(SessionDetailTable.COLUMN_ENDDAY_DATE)),
 									"yyyy-MM-dd HH:mm:ss"));
 					saleSessEnd
 							.setfTotalAmountReceipt(Utils.fixesDigitLength(
-									mGlobal, 4,
+									mFormat, 4,
 									cursor.getDouble(cursor
 											.getColumnIndex(SessionDetailTable.COLUMN_TOTAL_AMOUNT_RECEIPT))));
 					saleSessEnd.setiTotalQtyReceipt(cursor.getInt(cursor
 							.getColumnIndex(SessionDetailTable.COLUMN_TOTAL_QTY_RECEIPT)));
 				} while (cursor.moveToNext());
 			} else {
-				saleSessEnd.setDtSessionDate(mGlobal.dateTimeFormat(
+				saleSessEnd.setDtSessionDate(mFormat.dateTimeFormat(
 						mSessionDate, "yyyy-MM-dd"));
-				saleSessEnd.setDtEndDayDateTime(mGlobal.dateTimeFormat(
+				saleSessEnd.setDtEndDayDateTime(mFormat.dateTimeFormat(
 						mSessionDate, "yyyy-MM-dd HH:mm:ss"));
-				saleSessEnd.setfTotalAmountReceipt(Utils.fixesDigitLength(mGlobal, 4, 0.0d));
+				saleSessEnd.setfTotalAmountReceipt(Utils.fixesDigitLength(mFormat, 4, 0.0d));
 				saleSessEnd.setiTotalQtyReceipt(0);
 			}
 			cursor.close();
@@ -352,28 +375,28 @@ public class SaleTransaction extends MPOSDatabase{
 							.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 					saleSess.setiShopID(cursor.getInt(cursor
 							.getColumnIndex(ShopTable.COLUMN_SHOP_ID)));
-					saleSess.setDtCloseSessionDateTime(mGlobal.dateTimeFormat(
+					saleSess.setDtCloseSessionDateTime(mFormat.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(SessionTable.COLUMN_SESS_DATE)),
 							"yyyy-MM-dd HH:mm:ss"));
-					saleSess.setDtOpenSessionDateTime(mGlobal.dateTimeFormat(
+					saleSess.setDtOpenSessionDateTime(mFormat.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(SessionTable.COLUMN_OPEN_DATE)),
 							"yyyy-MM-dd HH:mm:ss"));
-					saleSess.setDtCloseSessionDateTime(mGlobal.dateTimeFormat(
+					saleSess.setDtCloseSessionDateTime(mFormat.dateTimeFormat(
 							cursor.getString(cursor
 									.getColumnIndex(SessionTable.COLUMN_CLOSE_DATE)),
 							"yyyy-MM-dd HH:mm:ss"));
-					saleSess.setDtSessionDate(mGlobal.dateTimeFormat(cursor
+					saleSess.setDtSessionDate(mFormat.dateTimeFormat(cursor
 							.getString(cursor
 									.getColumnIndex(SessionTable.COLUMN_SESS_DATE)),
 							"yyyy-MM-dd"));
 					saleSess.setfOpenSessionAmount(Utils.fixesDigitLength(
-							mGlobal, 4,
+							mFormat, 4,
 							cursor.getDouble(cursor
 									.getColumnIndex(SessionTable.COLUMN_OPEN_AMOUNT))));
 					saleSess.setfCloseSessionAmount(Utils.fixesDigitLength(
-							mGlobal, 4,
+							mFormat, 4,
 							cursor.getDouble(cursor
 									.getColumnIndex(SessionTable.COLUMN_CLOSE_AMOUNT))));
 					saleSess.setiIsEndDaySession(cursor.getInt(cursor
@@ -430,12 +453,9 @@ public class SaleTransaction extends MPOSDatabase{
 		return getReadableDatabase().rawQuery(
 				"SELECT * " + 
 				" FROM " + OrderDetailTable.TABLE_ORDER + 
-				" WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=? "
-				+ " AND " + ProductTable.COLUMN_PRODUCT_TYPE_ID + " NOT IN (?, ?)",
+				" WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?",
 				new String[] { 
-						String.valueOf(transId),
-						String.valueOf(Products.COMMENT_HAVE_PRICE),
-						String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE)
+						String.valueOf(transId)
 				});
 	}
 	
@@ -1149,7 +1169,7 @@ public class SaleTransaction extends MPOSDatabase{
 	}
 
 	public static class SaleTable_ChildOrderType7 {
-		private int iOrderDetailID;
+		private int iOrderID;
 		private int iProductID;
 		private String fProductPrice;
 		private String fDiscountPrice;
@@ -1157,11 +1177,11 @@ public class SaleTransaction extends MPOSDatabase{
 		private String szOrderComment;
 		private int iPGroupID; // For child type 7
 		private int iSetGroupNo;
-		public int getiOrderDetailID() {
-			return iOrderDetailID;
+		public int getiOrderID() {
+			return iOrderID;
 		}
-		public void setiOrderDetailID(int iOrderDetailID) {
-			this.iOrderDetailID = iOrderDetailID;
+		public void setiOrderID(int iOrderID) {
+			this.iOrderID = iOrderID;
 		}
 		public int getiProductID() {
 			return iProductID;
@@ -1209,7 +1229,7 @@ public class SaleTransaction extends MPOSDatabase{
 	
 	public static class SaleTable_CommentInfo{
 		private int iCommentID;
-		private int iOrderDetailID;
+		private int iOrderID;
 		private String fCommentQty;
 		private String fCommentPrice;
 		private String fDiscountPrice;
@@ -1219,11 +1239,11 @@ public class SaleTransaction extends MPOSDatabase{
 		public void setiCommentID(int iCommentID) {
 			this.iCommentID = iCommentID;
 		}
-		public int getiOrderDetailID() {
-			return iOrderDetailID;
+		public int getiOrderID() {
+			return iOrderID;
 		}
-		public void setiOrderDetailID(int iOrderDetailID) {
-			this.iOrderDetailID = iOrderDetailID;
+		public void setiOrderID(int iOrderID) {
+			this.iOrderID = iOrderID;
 		}
 		public String getfCommentQty() {
 			return fCommentQty;

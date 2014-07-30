@@ -625,7 +625,10 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		public boolean onOptionsItemSelected(MenuItem item) {
 			switch(item.getItemId()){
 			case R.id.itemCreateReport:
-				new LoadBillReportTask().execute();
+				//new LoadBillReportTask().execute();
+
+				mBillReport = mHost.mReporting.getSaleReportByBill();
+				mBillReportAdapter.notifyDataSetChanged();
 				return true;
 			case R.id.itemPrint:
 				new Thread(new PrintReport(getActivity(), mHost.mDateFrom, mHost.mDateTo,
@@ -941,7 +944,10 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		public boolean onOptionsItemSelected(MenuItem item) {
 			switch(item.getItemId()){
 			case R.id.itemCreateReport:
-				new LoadProductReportTask().execute();
+				//new LoadProductReportTask().execute();
+
+				mReportProduct = mHost.mReporting.getProductDataReport();
+				mProductReportAdapter.notifyDataSetChanged();
 				return true;
 			case R.id.itemPrint:
 				new Thread(new PrintReport(getActivity(), 

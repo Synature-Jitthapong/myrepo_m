@@ -62,7 +62,7 @@
             android:name=".DiscountActivity"
             android:label="@string/discount"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateAlwaysHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.syn.mpos.MainActivity" />

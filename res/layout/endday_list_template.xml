@@ -4,14 +4,13 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="@dimen/medium_space" >
+    android:padding="@dimen/default_margin" >
 
     <TextView
         android:id="@+id/tvSaleDate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="SaleDate"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ImageView

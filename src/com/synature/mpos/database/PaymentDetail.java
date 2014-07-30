@@ -10,7 +10,6 @@ import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.pos.Payment;
-import com.synature.pos.Payment.PayType;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -66,7 +65,7 @@ public class PaymentDetail extends MPOSDatabase {
 				PayTypeTable.COLUMN_PAY_TYPE_ID,
 				PayTypeTable.COLUMN_PAY_TYPE_CODE,
 				PayTypeTable.COLUMN_PAY_TYPE_NAME
-				}, null, null, null, null, PayTypeTable.COLUMN_ORDERING);
+				}, null, null, null, null, COLUMN_ORDERING);
 		if(cursor.moveToFirst()){
 			do{
 				Payment.PayType payType = 
@@ -92,8 +91,8 @@ public class PaymentDetail extends MPOSDatabase {
 				"SELECT a." + PayTypeTable.COLUMN_PAY_TYPE_ID + ", " + " a."
 						+ CreditCardTable.COLUMN_CREDITCARD_TYPE_ID + ", "
 						+ " a." + CreditCardTable.COLUMN_CREDITCARD_NO + ", "
-						+ " SUM(a." + PaymentDetailTable.COLUMN_PAID + ") AS "
-						+ PaymentDetailTable.COLUMN_PAID + ", " + " SUM(a."
+						+ " SUM(a." + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ") AS "
+						+ PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ", " + " SUM(a."
 						+ PaymentDetailTable.COLUMN_PAY_AMOUNT + ") AS "
 						+ PaymentDetailTable.COLUMN_PAY_AMOUNT + ", " + " b."
 						+ PayTypeTable.COLUMN_PAY_TYPE_CODE + ", " + " b."
@@ -116,7 +115,7 @@ public class PaymentDetail extends MPOSDatabase {
 				payment.setPayTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
 				payment.setCreditCardType(cursor.getInt(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID)));
 				payment.setCreaditCardNo(cursor.getString(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_NO)));
-				payment.setPaid(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAID)));
+				payment.setPaid(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT)));
 				payment.setPayAmount(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAY_AMOUNT)));
 				payment.setPayTypeCode(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)));
 				payment.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
@@ -138,16 +137,13 @@ public class PaymentDetail extends MPOSDatabase {
 	}
 	
 	/**
-	 * @param transactionId
 	 * @return max paymentDetailId
 	 */
-	public int getMaxPaymentDetailId(int transactionId) {
+	public int getMaxPaymentDetailId() {
 		int maxPaymentId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + PaymentDetailTable.COLUMN_PAY_ID + ") "
-						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
-						+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?",
-				new String[]{String.valueOf(transactionId)});
+						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL, null);
 		if(cursor.moveToFirst()){
 			maxPaymentId = cursor.getInt(0);
 		}
@@ -180,13 +176,13 @@ public class PaymentDetail extends MPOSDatabase {
 			updatePaymentDetail(transactionId, payTypeId, totalPaid, totalPay);
 		}else{
 			// add new payment
-			int paymentId = getMaxPaymentDetailId(transactionId);
+			int paymentId = getMaxPaymentDetailId();
 			ContentValues cv = new ContentValues();
 			cv.put(PaymentDetailTable.COLUMN_PAY_ID, paymentId);
 			cv.put(OrderTransactionTable.COLUMN_TRANS_ID, transactionId);
 			cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
 			cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payTypeId);
-			cv.put(PaymentDetailTable.COLUMN_PAID, paid);
+			cv.put(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT, paid);
 			cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, pay);
 			cv.put(CreditCardTable.COLUMN_CREDITCARD_NO, creditCardNo);
 			cv.put(CreditCardTable.COLUMN_EXP_MONTH, expireMonth);
@@ -229,7 +225,7 @@ public class PaymentDetail extends MPOSDatabase {
 	public int updatePaymentDetail(int transactionId, int payTypeId,
 			double paid, double amount){
 		ContentValues cv = new ContentValues();
-		cv.put(PaymentDetailTable.COLUMN_PAID, paid);
+		cv.put(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT, paid);
 		cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, amount);
 		return getWritableDatabase().update(PaymentDetailTable.TABLE_PAYMENT_DETAIL, cv, 
 				OrderTransactionTable.COLUMN_TRANS_ID + "=? "
@@ -259,15 +255,14 @@ public class PaymentDetail extends MPOSDatabase {
 	 * @param transactionId
 	 * @return total cash amount
 	 */
-	public double getTotalCash(int transactionId){
+	public double getTotalCash(String transIds){
 		double totalCash = 0.0d;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
 						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
-						+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?"
+						+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + " IN(" + transIds + ")"
 						+ " AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?",
 				new String[]{
-						String.valueOf(transactionId),
 						String.valueOf(PAY_TYPE_CASH)
 				});
 		if(cursor.moveToFirst()){
@@ -304,7 +299,7 @@ public class PaymentDetail extends MPOSDatabase {
 	public double getTotalPaid(int transactionId){
 		double totalPaid = 0.0d;
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAID + ") "
+				" SELECT SUM(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ") "
 						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
 						+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + "=?",
 				new String[]{
@@ -327,7 +322,7 @@ public class PaymentDetail extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT a." + PaymentDetailTable.COLUMN_PAY_ID + ", " 
 						+ " a." + PayTypeTable.COLUMN_PAY_TYPE_ID + ", " 
-						+ " a." + PaymentDetailTable.COLUMN_PAID + ", " 
+						+ " a." + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ", " 
 						+ " a." + PaymentDetailTable.COLUMN_REMARK + ", " 
 						+ " b." + PayTypeTable.COLUMN_PAY_TYPE_CODE + ", " 
 						+ " b." + PayTypeTable.COLUMN_PAY_TYPE_NAME 
@@ -348,7 +343,7 @@ public class PaymentDetail extends MPOSDatabase {
 				payDetail.setPayTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
 				payDetail.setPayTypeCode(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)));
 				payDetail.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
-				payDetail.setPaid(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAID)));
+				payDetail.setPaid(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT)));
 				payDetail.setRemark(cursor.getString(cursor.getColumnIndex(PaymentDetailTable.COLUMN_REMARK)));
 				paymentLst.add(payDetail);
 			}while(cursor.moveToNext());

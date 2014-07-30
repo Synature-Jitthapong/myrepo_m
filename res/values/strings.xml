@@ -5,7 +5,7 @@
     <string name="login">Login</string>
     <string name="user_name">Username</string>
     <string name="pass_word">Password</string>
-    <string name="hold_bill">Hold bill</string>
+    <string name="hold_bill">Show Hold Bill</string>
     <string name="report">Reports</string>
     <string name="utility">Utility</string>
     <string name="switch_user">Switch user</string>

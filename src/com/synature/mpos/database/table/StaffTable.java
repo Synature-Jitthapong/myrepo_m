@@ -11,19 +11,19 @@ public class StaffTable {
 	public static final String COLUMN_STAFF_PASS = "staff_password";
 
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_STAFF + " ( " 
-			+ COLUMN_STAFF_ID + " INTEGER, " 
-			+ COLUMN_STAFF_CODE + " TEXT, " 
-			+ COLUMN_STAFF_NAME + " TEXT, " 
-			+ COLUMN_STAFF_PASS + " TEXT, " 
-			+ "PRIMARY KEY (" + COLUMN_STAFF_ID + "));";
+			" create table " + TABLE_STAFF + " ( " 
+			+ COLUMN_STAFF_ID + " integer not null, " 
+			+ COLUMN_STAFF_CODE + " text not null, " 
+			+ COLUMN_STAFF_NAME + " text not null, " 
+			+ COLUMN_STAFF_PASS + " text not null, " 
+			+ " primary key (" + COLUMN_STAFF_ID + "));";
 
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_STAFF);
+		db.execSQL("drop table if exists " + TABLE_STAFF);
 		onCreate(db);
 	}
 }

@@ -14,22 +14,22 @@ public class ComputerTable{
 	public static final String COLUMN_PRINT_RECEIPT_HAS_COPY = "print_receipt_has_copy";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_COMPUTER
-			+ " ( " + COLUMN_COMPUTER_ID + " INTEGER, " 
-			+ COLUMN_COMPUTER_NAME + " TEXT, " 
-			+ COLUMN_DEVICE_CODE + " TEXT, "
-			+ COLUMN_REGISTER_NUMBER + " TEXT, " 
-			+ COLUMN_IS_MAIN_COMPUTER + " INTEGER DEFAULT 0, " 
-			+ COLUMN_DOC_TYPE_HEADER + " TEXT, "
-			+ COLUMN_PRINT_RECEIPT_HAS_COPY + " INTEGER DEFAULT 1, "
-			+ "PRIMARY KEY (" + COLUMN_COMPUTER_ID + ") );";
+			" create table " + TABLE_COMPUTER + " ( " 
+			+ COLUMN_COMPUTER_ID + " integer not null, " 
+			+ COLUMN_COMPUTER_NAME + " text, " 
+			+ COLUMN_DEVICE_CODE + " text, "
+			+ COLUMN_REGISTER_NUMBER + " text, " 
+			+ COLUMN_IS_MAIN_COMPUTER + " integer default 0, " 
+			+ COLUMN_DOC_TYPE_HEADER + " text not null, "
+			+ COLUMN_PRINT_RECEIPT_HAS_COPY + " integer default 1, "
+			+ "primary key (" + COLUMN_COMPUTER_ID + ") );";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMPUTER);
+		db.execSQL("drop table if exists " + TABLE_COMPUTER);
 		onCreate(db);
 	}
 }

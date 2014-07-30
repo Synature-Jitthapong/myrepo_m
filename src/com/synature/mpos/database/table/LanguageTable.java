@@ -10,18 +10,18 @@ public class LanguageTable{
 	public static final String COLUMN_LANG_CODE = "lang_code";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_LANGUAGE + " ( " 
-			+ COLUMN_LANG_ID + " INTEGER DEFAULT 1, "
-			+ COLUMN_LANG_NAME + " TEXT, " 
-			+ COLUMN_LANG_CODE + " TEXT DEFAULT 'en', " 
-			+ "PRIMARY KEY (" + COLUMN_LANG_ID + ") );";
+			" create table " + TABLE_LANGUAGE + " ( " 
+			+ COLUMN_LANG_ID + " integer default 1, "
+			+ COLUMN_LANG_NAME + " text, " 
+			+ COLUMN_LANG_CODE + " text default 'en', " 
+			+ " primary key (" + COLUMN_LANG_ID + ") );";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_LANGUAGE);
+		db.execSQL("drop table if exists " + TABLE_LANGUAGE);
 		onCreate(db);
 	}
 }

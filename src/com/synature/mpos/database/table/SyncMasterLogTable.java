@@ -10,18 +10,18 @@ public class SyncMasterLogTable {
 	public static final String COLUMN_SYNC_DATE = "sync_date";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_SYNC_MASTER + " ( " 
-			+ COLUMN_SYNC_TYPE + " INTEGER NOT NULL DEFAULT 0, " 
-			+ COLUMN_SYNC_STATUS + " INTEGER NOT NULL DEFAULT 0, "
-			+ COLUMN_SYNC_DATE + " TEXT, "
-			+ " PRIMARY KEY (" + COLUMN_SYNC_TYPE + "));";
+			" create table " + TABLE_SYNC_MASTER + " ( " 
+			+ COLUMN_SYNC_TYPE + " integer not null, " 
+			+ COLUMN_SYNC_STATUS + " integer default 0, "
+			+ COLUMN_SYNC_DATE + " text not null, "
+			+ " primary key (" + COLUMN_SYNC_TYPE + "));";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_SYNC_MASTER);
+		db.execSQL("drop table if exists " + TABLE_SYNC_MASTER);
 		onCreate(db);
 	}
 	

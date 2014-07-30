@@ -12,17 +12,17 @@ public class MenuCommentGroupTable{
 	public static final String COLUMN_COMMENT_GROUP_NAME = "menu_comment_group_name";
 	
 	private static final String SQL_CREATE = 
-			"CREATE TABLE " + TABLE_MENU_COMMENT_GROUP + " ( "
-			+ MenuCommentTable.COLUMN_COMMENT_GROUP_ID + " INTEGER NOT NULL, "
-			+ COLUMN_COMMENT_GROUP_NAME + " TEXT, "
-			+ " PRIMARY KEY (" + MenuCommentTable.COLUMN_COMMENT_GROUP_ID + "));";
+			" create table " + TABLE_MENU_COMMENT_GROUP + " ( "
+			+ MenuCommentTable.COLUMN_COMMENT_GROUP_ID + " integer not null, "
+			+ COLUMN_COMMENT_GROUP_NAME + " text not null, "
+			+ " primary key (" + MenuCommentTable.COLUMN_COMMENT_GROUP_ID + "));";
 	
 	public static void onCreate(SQLiteDatabase db){
 		db.execSQL(SQL_CREATE);
 	}
 	
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_MENU_COMMENT_GROUP);
+		db.execSQL("drop table if exists " + TABLE_MENU_COMMENT_GROUP);
 		onCreate(db);
 	}
 }

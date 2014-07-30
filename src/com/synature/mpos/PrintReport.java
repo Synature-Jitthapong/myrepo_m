@@ -40,7 +40,6 @@ public class PrintReport implements Runnable{
 	private String mDateFrom;
 	private String mDateTo;
 	
-	private int mTransactionId;
 	private int mSessionId;
 	private int mStaffId;
 	
@@ -68,10 +67,9 @@ public class PrintReport implements Runnable{
 		this(context, "", "", staffId, whatPrint);
 	}
 	
-	public PrintReport(Context context, int transactionId, int sessionId, 
+	public PrintReport(Context context, int sessionId, 
 			int staffId, WhatPrint whatPrint){
 		this(context, "", "", staffId, whatPrint);
-		mTransactionId = transactionId;
 		mSessionId = sessionId;
 	}
 	
@@ -561,7 +559,8 @@ public class PrintReport implements Runnable{
 					mBuilder.addText(totalVat + "\n\n");
 				}
 				
-				if(mTransactionId != 0){
+				String seperateTransIds = mTrans.getSeperateTransactionId(session.getSessionDate());
+				if(mSessionId != 0){
 					// open/close shift
 					String floatInText = mContext.getString(R.string.float_in);
 					String totalCashText = mContext.getString(R.string.total_cash);
@@ -571,7 +570,7 @@ public class PrintReport implements Runnable{
 					double cashInDrawerAmount = mSession.getCloseAmount(mSessionId);
 					String floatIn = mFormat.currencyFormat(floatInAmount);
 					String cashInDrawer = mFormat.currencyFormat(cashInDrawerAmount);
-					String totalCash = mFormat.currencyFormat(mPayment.getTotalCash(mTransactionId));
+					String totalCash = mFormat.currencyFormat(mPayment.getTotalCash(seperateTransIds));
 					String overShot = mFormat.currencyFormat(cashInDrawerAmount - floatInAmount);
 					
 					mBuilder.addText(floatInText);
@@ -593,8 +592,7 @@ public class PrintReport implements Runnable{
 				}
 				
 				List<Payment.PaymentDetail> summaryPaymentLst = 
-						mPayment.listSummaryPayment(
-								mTrans.getSeperateTransactionId(session.getSessionDate()));
+						mPayment.listSummaryPayment(seperateTransIds);
 				if(summaryPaymentLst != null){
 					String paymentDetailText = mContext.getString(R.string.payment_detail);
 					mBuilder.addText(paymentDetailText);
@@ -767,17 +765,18 @@ public class PrintReport implements Runnable{
 				mBuilder.append(totalVat + "\n\n");
 			}
 			
-			if(mTransactionId != 0){
+			String seperateTransIds = mTrans.getSeperateTransactionId(session.getSessionDate());
+			if(mSessionId != 0){
 				// open/close shift
 				String floatInText = mContext.getString(R.string.float_in);
 				String totalCashText = mContext.getString(R.string.total_cash);
 				String cashInDrawerText = mContext.getString(R.string.cash_in_drawer);
 				String overShotText = mContext.getString(R.string.over_or_shot);
-				double floatInAmount = mSession.getCloseAmount(mSessionId);
+				double floatInAmount = mSession.getOpenAmount(mSessionId);
 				double cashInDrawerAmount = mSession.getCloseAmount(mSessionId);
 				String floatIn = mFormat.currencyFormat(floatInAmount);
 				String cashInDrawer = mFormat.currencyFormat(cashInDrawerAmount);
-				String totalCash = mFormat.currencyFormat(mPayment.getTotalCash(mTransactionId));
+				String totalCash = mFormat.currencyFormat(mPayment.getTotalCash(seperateTransIds));
 				String overShot = mFormat.currencyFormat(cashInDrawerAmount - floatInAmount);
 				
 				mBuilder.append(floatInText);
@@ -799,8 +798,7 @@ public class PrintReport implements Runnable{
 			}
 			
 			List<Payment.PaymentDetail> summaryPaymentLst = 
-					mPayment.listSummaryPayment(
-							mTrans.getSeperateTransactionId(session.getSessionDate()));
+					mPayment.listSummaryPayment(seperateTransIds);
 			if(summaryPaymentLst != null){
 				mBuilder.append(mContext.getString(R.string.payment_detail) + "\n");
 				for(Payment.PaymentDetail payment : summaryPaymentLst){

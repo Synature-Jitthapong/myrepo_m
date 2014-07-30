@@ -9,7 +9,7 @@
             android:key="msr_wintec_dev_path"
             android:title="@string/wintec_dev_path" />
         <ListPreference
-            android:defaultValue='BAUD_38400'
+            android:defaultValue="BAUD_9600"
             android:entries="@array/baudrates_name"
             android:entryValues="@array/baudrates_value"
             android:key="msr_wintec_baud_rate"

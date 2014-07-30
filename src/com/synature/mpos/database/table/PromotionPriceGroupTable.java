@@ -22,31 +22,31 @@ public class PromotionPriceGroupTable {
 	public static final String COLUMN_OVER_PRICE = "over_price";
 	public static final String COLUMN_PROMOTION_AMOUNT_TYPE = "promotion_amount_type";
 	
-	public static final String SQL_CREATE = "CREATE TABLE " + TABLE_PROMOTION_PRICE_GROUP + "("
-			+ COLUMN_PRICE_GROUP_ID + " INTEGER NOT NULL DEFAULT 0, "
-			+ COLUMN_PROMOTION_TYPE_ID + " INTEGER NOT NULL DEFAULT 0, "
-			+ COLUMN_PROMOTION_CODE + " TEXT, "
-			+ COLUMN_PROMOTION_NAME + " TEXT, "
-			+ COLUMN_BUTTON_NAME + " TEXT, "
-			+ COLUMN_COUPON_HEADER + " TEXT, "
-			+ COLUMN_PRICE_FROM_DATE + " TEXT, "
-			+ COLUMN_PRICE_FROM_TIME + " TEXT, "
-			+ COLUMN_PRICE_TO_DATE + " TEXT, "
-			+ COLUMN_PRICE_TO_TIME + " TEXT, "
-			+ COLUMN_PROMOTION_WEEKLY + " TEXT, "
-			+ COLUMN_PROMOTION_MONTHLY + " TEXT, "
-			+ COLUMN_IS_ALLOW_USE_OTHER_PROMOTION + " INTEGER, "
-			+ COLUMN_VOUCHER_AMOUNT + " REAL, "
-			+ COLUMN_OVER_PRICE + " REAL, "
-			+ COLUMN_PROMOTION_AMOUNT_TYPE + " INTEGER "
-			+ ");";
+	public static final String SQL_CREATE = 
+			" create table " + TABLE_PROMOTION_PRICE_GROUP + "("
+			+ COLUMN_PRICE_GROUP_ID + " integer not null, "
+			+ COLUMN_PROMOTION_TYPE_ID + " integer not null, "
+			+ COLUMN_PROMOTION_CODE + " text, "
+			+ COLUMN_PROMOTION_NAME + " text, "
+			+ COLUMN_BUTTON_NAME + " text, "
+			+ COLUMN_COUPON_HEADER + " text, "
+			+ COLUMN_PRICE_FROM_DATE + " text, "
+			+ COLUMN_PRICE_FROM_TIME + " text, "
+			+ COLUMN_PRICE_TO_DATE + " text, "
+			+ COLUMN_PRICE_TO_TIME + " text, "
+			+ COLUMN_PROMOTION_WEEKLY + " text, "
+			+ COLUMN_PROMOTION_MONTHLY + " text, "
+			+ COLUMN_IS_ALLOW_USE_OTHER_PROMOTION + " integer, "
+			+ COLUMN_VOUCHER_AMOUNT + " real, "
+			+ COLUMN_OVER_PRICE + " real, "
+			+ COLUMN_PROMOTION_AMOUNT_TYPE + " integer);";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROMOTION_PRICE_GROUP);
+		db.execSQL("drop table if exists " + TABLE_PROMOTION_PRICE_GROUP);
 		onCreate(db);
 	}
 }

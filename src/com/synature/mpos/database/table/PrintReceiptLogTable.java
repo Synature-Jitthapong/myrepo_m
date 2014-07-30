@@ -11,21 +11,21 @@ public class PrintReceiptLogTable{
 	public static final String COLUMN_IS_COPY = "is_copy";
 	
 	private static final String SQL_CREATE = 
-			"CREATE TABLE " + TABLE_PRINT_LOG + "( " 
-			+ COLUMN_PRINT_RECEIPT_LOG_ID + " INTEGER, "
-			+ OrderTransactionTable.COLUMN_TRANS_ID + " INTEGER, "
-			+ StaffTable.COLUMN_STAFF_ID + " INTEGER, "
-			+ COLUMN_PRINT_RECEIPT_LOG_TIME + " TEXT, "
-			+ COLUMN_PRINT_RECEIPT_LOG_STATUS + " INTEGER DEFAULT 0, "
-			+ COLUMN_IS_COPY + " INTEGER DEFAULT 0, "
-			+ "PRIMARY KEY (" + COLUMN_PRINT_RECEIPT_LOG_ID + ") );";
+			" create table " + TABLE_PRINT_LOG + "( " 
+			+ COLUMN_PRINT_RECEIPT_LOG_ID + " integer not null, "
+			+ OrderTransactionTable.COLUMN_TRANS_ID + " integer not null, "
+			+ StaffTable.COLUMN_STAFF_ID + " integer not null, "
+			+ COLUMN_PRINT_RECEIPT_LOG_TIME + " text, "
+			+ COLUMN_PRINT_RECEIPT_LOG_STATUS + " integer default 0, "
+			+ COLUMN_IS_COPY + " integer default 0, "
+			+ " primary key (" + COLUMN_PRINT_RECEIPT_LOG_ID + ") );";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRINT_LOG);
+		db.execSQL("drop table if exists " + TABLE_PRINT_LOG);
 		onCreate(db);
 	}
 }

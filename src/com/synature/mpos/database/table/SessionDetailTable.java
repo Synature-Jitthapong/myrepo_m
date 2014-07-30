@@ -9,14 +9,14 @@ public class SessionDetailTable extends BaseColumn{
 	public static final String COLUMN_TOTAL_QTY_RECEIPT = "total_qty_receipt";
 	public static final String COLUMN_TOTAL_AMOUNT_RECEIPT = "total_amount_receipt";
 
-	private static final String SQL_CREATE = "CREATE TABLE "
-			+ TABLE_SESSION_ENDDAY_DETAIL + " ( "
-			+ SessionTable.COLUMN_SESS_DATE + " TEXT, " 
-			+ COLUMN_ENDDAY_DATE + " TEXT, " 
-			+ COLUMN_TOTAL_QTY_RECEIPT + " INTEGER NOT NULL DEFAULT 0, "
-			+ COLUMN_TOTAL_AMOUNT_RECEIPT + " REAL NOT NULL DEFAULT 0, "
-			+ COLUMN_SEND_STATUS + " INTEGER NOT NULL DEFAULT 0, " 
-			+ "PRIMARY KEY (" + SessionTable.COLUMN_SESS_DATE + "));";
+	private static final String SQL_CREATE = 
+			" create table " + TABLE_SESSION_ENDDAY_DETAIL + " ( "
+			+ SessionTable.COLUMN_SESS_DATE + " text not null, " 
+			+ COLUMN_ENDDAY_DATE + " text, " 
+			+ COLUMN_TOTAL_QTY_RECEIPT + " integer default 0, "
+			+ COLUMN_TOTAL_AMOUNT_RECEIPT + " real default 0, "
+			+ COLUMN_SEND_STATUS + " integer default 0, " 
+			+ " primary key (" + SessionTable.COLUMN_SESS_DATE + "));";
 
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
@@ -24,7 +24,7 @@ public class SessionDetailTable extends BaseColumn{
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion,
 			int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSION_ENDDAY_DETAIL);
+		db.execSQL("drop table if exists " + TABLE_SESSION_ENDDAY_DETAIL);
 		onCreate(db);
 	}
 }

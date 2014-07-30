@@ -11,6 +11,9 @@ public class ProductTable extends BaseColumn{
 	public static final String COLUMN_PRODUCT_CODE = "product_code";
 	public static final String COLUMN_PRODUCT_BAR_CODE = "product_barcode";
 	public static final String COLUMN_PRODUCT_NAME = "product_name";
+	public static final String COLUMN_PRODUCT_NAME1 = "product_name_1";
+	public static final String COLUMN_PRODUCT_NAME2 = "product_name_2";
+	public static final String COLUMN_PRODUCT_NAME3 = "product_name_3";
 	public static final String COLUMN_PRODUCT_DESC = "product_desc";
 	public static final String COLUMN_PRODUCT_TYPE_ID = "product_type_id";
 	public static final String COLUMN_PRODUCT_PRICE = "product_price";
@@ -18,37 +21,40 @@ public class ProductTable extends BaseColumn{
 	public static final String COLUMN_DISCOUNT_ALLOW = "discount_allow";
 	public static final String COLUMN_VAT_TYPE = "vat_type";
 	public static final String COLUMN_VAT_RATE = "vat_rate";
-	public static final String COLUMN_ISOUTOF_STOCK = "isoutof_stock";
-	public static final String COLUMN_IMG_URL = "image_url";
+	public static final String COLUMN_IS_OUTOF_STOCK = "is_outof_stock";
+	public static final String COLUMN_IMG_FILE_NAME = "image_file_name";
 	public static final String COLUMN_ACTIVATE = "activate";
 	public static final String COLUMN_SALE_MODE = "sale_mode";
 	
 	private static final String SQL_CREATE =
-			"CREATE TABLE " + TABLE_PRODUCT + " ( " 
-			+ COLUMN_PRODUCT_ID + " INTEGER, " 
-			+ COLUMN_PRODUCT_DEPT_ID + " INTEGER, " 
-			+ COLUMN_PRODUCT_CODE + " TEXT, "
-			+ COLUMN_PRODUCT_BAR_CODE + " TEXT, " 
-			+ COLUMN_PRODUCT_NAME + " TEXT, " 
-			+ COLUMN_PRODUCT_DESC + " TEXT, "
-			+ COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 0, "
-			+ COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, "
-			+ COLUMN_PRODUCT_UNIT_NAME + " TEXT, " 
-			+ COLUMN_DISCOUNT_ALLOW + " INTEGER DEFAULT 1, " 
-			+ COLUMN_VAT_TYPE + " INTEGER DEFAULT 1, "
-			+ COLUMN_VAT_RATE + " REAL DEFAULT 0, " 
-			+ COLUMN_ISOUTOF_STOCK + " INTEGER DEFAULT 0, " 
-			+ COLUMN_IMG_URL + " TEXT, " 
-			+ COLUMN_ACTIVATE + " INTEGER DEFAULT 0, " 
-			+ COLUMN_ORDERING + " INTEGER DEFAULT 0, " 
-			+ "PRIMARY KEY (" + COLUMN_PRODUCT_ID + " ASC));";
+			" create table " + TABLE_PRODUCT + " ( " 
+			+ COLUMN_PRODUCT_ID + " integer not null, " 
+			+ COLUMN_PRODUCT_DEPT_ID + " integer not null, " 
+			+ COLUMN_PRODUCT_CODE + " text, "
+			+ COLUMN_PRODUCT_BAR_CODE + " text, " 
+			+ COLUMN_PRODUCT_NAME + " text, " 
+			+ COLUMN_PRODUCT_NAME1 + " text, "
+			+ COLUMN_PRODUCT_NAME2 + " text, "
+			+ COLUMN_PRODUCT_NAME3 + " text, " 
+			+ COLUMN_PRODUCT_DESC + " text, "
+			+ COLUMN_PRODUCT_TYPE_ID + " integer default 0, "
+			+ COLUMN_PRODUCT_PRICE + " real default 0, "
+			+ COLUMN_PRODUCT_UNIT_NAME + " text, " 
+			+ COLUMN_DISCOUNT_ALLOW + " integer default 1, " 
+			+ COLUMN_VAT_TYPE + " integer not null default 1, "
+			+ COLUMN_VAT_RATE + " real not null default 0, " 
+			+ COLUMN_IS_OUTOF_STOCK + " integer default 0, " 
+			+ COLUMN_IMG_FILE_NAME + " text, " 
+			+ COLUMN_ACTIVATE + " integer default 0, " 
+			+ COLUMN_ORDERING + " integer default 0, " 
+			+ " primary key (" + COLUMN_PRODUCT_ID + " ASC));";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCT);
+		db.execSQL("drop table if exists " + TABLE_PRODUCT);
 		onCreate(db);
 	}
 }
