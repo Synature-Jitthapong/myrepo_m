@@ -20,6 +20,7 @@ import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
+import com.synature.mpos.database.MPOSOrderTransaction.MPOSOrderDetail;
 import com.synature.mpos.database.MenuComment;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.PrintReceiptLog;
@@ -61,6 +62,7 @@ import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -68,7 +70,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.GridView;
@@ -82,8 +84,7 @@ import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MainActivity extends FragmentActivity 
-	implements MenuCommentFragment.OnCommentDismissListener, 
+public class MainActivity extends FragmentActivity implements MenuCommentFragment.OnCommentDismissListener, 
 	ManageCashAmountFragment.OnManageCashAmountDismissListener{
 	
 	public static final String TAG = MainActivity.class.getSimpleName();
@@ -136,6 +137,7 @@ public class MainActivity extends FragmentActivity
 	private MenuItem mItemHoldBill;
 	private MenuItem mItemSendSale;
 	private MenuItem mItemSendData;
+	private MenuItem mItemSendEndday;
 	
 	private SlidingTabLayout mTabs;
 	private ViewPager mPager;
@@ -195,7 +197,7 @@ public class MainActivity extends FragmentActivity
 	private void setupMenuDeptPager(){
 		mProductDeptLst = mProducts.listProductDept();
 		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
-		mPager.setOffscreenPageLimit(8);
+		//mPager.setOffscreenPageLimit(8);
 		mPager.setAdapter(mPageAdapter);
 		final int pageMargin = (int) TypedValue.applyDimension(
 				TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
@@ -258,9 +260,10 @@ public class MainActivity extends FragmentActivity
 		mItemHoldBill = menu.findItem(R.id.itemHoldBill);
 		mItemSendSale = menu.findItem(R.id.itemSendSale);
 		mItemSendData = menu.findItem(R.id.itemSendData);
+		mItemSendEndday = menu.findItem(R.id.itemSendEndday);
 		
-		countHoldOrder(this);
-		countTransNotSend(this);
+		countHoldOrder();
+		countSaleDataNotSend();
 		return true;
 	}
 
@@ -317,7 +320,7 @@ public class MainActivity extends FragmentActivity
 				return true;
 			case R.id.itemSetting:
 				intent = new Intent(this, SettingsActivity.class);
-				startActivity(intent);
+				startActivityForResult(intent, LoginActivity.REQUEST_FOR_SETTING);
 				return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -407,7 +410,7 @@ public class MainActivity extends FragmentActivity
 		}
 		mTbSummary.addView(createTableRowSummary(getString(R.string.total),
 				mFormat.currencyFormat(sumOrder.getTotalSalePrice()),
-				0, R.style.HeaderText, 0, android.R.attr.textAppearanceLarge));
+				0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size)));
 		
 		if(Utils.isEnableSecondDisplay(this)){
 			List<clsSecDisplay_TransSummary> transSummLst = new ArrayList<clsSecDisplay_TransSummary>();
@@ -497,6 +500,12 @@ public class MainActivity extends FragmentActivity
 				afterPaid(transactionId, staffId, totalSalePrice, totalPaid, change);
 			}
 		}
+		if(requestCode == LoginActivity.REQUEST_FOR_SETTING){
+			if(resultCode == SettingsActivity.REFRESH_PARENT_ACTIVITY){
+				startActivity(getIntent());
+				finish();
+			}
+		}
 	}
 	
 	private void afterPaid(int transactionId, int staffId, double totalSalePrice, 
@@ -583,7 +592,7 @@ public class MainActivity extends FragmentActivity
 	
 						@Override
 						public void onPost() {
-							countTransNotSend(MainActivity.this);
+							countSaleDataNotSend();
 							Utils.makeToask(MainActivity.this, MainActivity.this
 									.getString(R.string.send_sale_data_success));
 						}
@@ -695,6 +704,12 @@ public class MainActivity extends FragmentActivity
 
 	private class OrderDetailAdapter extends BaseExpandableListAdapter{
 
+		private LayoutInflater mInflater;
+		
+		public OrderDetailAdapter(){
+			mInflater = getLayoutInflater();
+		}
+		
 		@Override
 		public int getGroupCount() {
 			return mOrderDetailLst.size();
@@ -735,13 +750,10 @@ public class MainActivity extends FragmentActivity
 				View convertView, ViewGroup parent) {
 			ViewHolder holder;		
 			if(convertView == null){
-				LayoutInflater inflater = MainActivity.this.getLayoutInflater();
-				convertView = inflater.inflate(R.layout.order_list_template, null);
+				convertView = mInflater.inflate(R.layout.order_list_template, parent, false);
 				holder = new ViewHolder();
-				holder.menuInfoContent = (LinearLayout) convertView.findViewById(R.id.menuInfoContent);
-				holder.chk = (CheckBox) convertView.findViewById(R.id.checkBox1);
 				holder.tvOrderNo = (TextView) convertView.findViewById(R.id.tvOrderNo);
-				holder.tvOrderName = (TextView) convertView.findViewById(R.id.tvOrderName);
+				holder.tvOrderName = (CheckedTextView) convertView.findViewById(R.id.chkOrderName);
 				holder.tvOrderPrice = (TextView) convertView.findViewById(R.id.tvOrderPrice);
 				holder.tvComment = (TextView) convertView.findViewById(R.id.tvComment);
 				holder.txtOrderAmount = (EditText) convertView.findViewById(R.id.txtOrderQty);
@@ -754,38 +766,33 @@ public class MainActivity extends FragmentActivity
 				holder = (ViewHolder) convertView.getTag();
 			}
 			final MPOSOrderTransaction.MPOSOrderDetail orderDetail = mOrderDetailLst.get(groupPosition);
-			holder.chk.setChecked(orderDetail.isChecked());
+			holder.tvOrderName.setChecked(orderDetail.isChecked());
 			holder.tvOrderNo.setText(Integer.toString(groupPosition + 1) + ".");
 			holder.tvOrderName.setText(orderDetail.getProductName());
 			holder.tvOrderPrice.setText(mFormat.currencyFormat(orderDetail.getPricePerUnit()));
 			holder.txtOrderAmount.setText(mFormat.qtyFormat(orderDetail.getQty()));
 			holder.tvComment.setText(null);
 			if(orderDetail.getOrderCommentLst() != null){
+				holder.tvComment.setVisibility(View.VISIBLE);
 				for(int i = 0; i < orderDetail.getOrderCommentLst().size(); i++){
 					final MenuComment.Comment comment = orderDetail.getOrderCommentLst().get(i);
 					holder.tvComment.append("-" + comment.getCommentName());
 					if(comment.getCommentPrice() > 0){
-						holder.tvComment.append(" " + mFormat.qtyFormat(comment.getCommentQty()));
-						holder.tvComment.append("@" + mFormat.currencyFormat(comment.getCommentPrice()));
+						double commentQty = comment.getCommentQty();
+						double commentPrice = comment.getCommentPrice();
+						double commentTotalPrice = commentPrice * commentQty;
+						holder.tvComment.append(" " + mFormat.qtyFormat(commentQty));
+						holder.tvComment.append("x" + mFormat.currencyFormat(commentPrice));
+						holder.tvComment.append("=" + mFormat.currencyFormat(commentTotalPrice));
 					}
 					holder.tvComment.append("\n");
 				}
+			}else{
+				holder.tvComment.setVisibility(View.GONE);
 			}
 			if(orderDetail.getOrderComment() != null)
 				holder.tvComment.append(orderDetail.getOrderComment());
-			holder.menuInfoContent.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					if(orderDetail.isChecked()){
-						orderDetail.setChecked(false);
-					}else{
-						orderDetail.setChecked(true);
-					}
-					mOrderDetailAdapter.notifyDataSetChanged();
-				}
-				
-			});
+			holder.tvOrderName.setOnClickListener(new OnOrderClickListener(orderDetail));
 			holder.btnComment.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -874,18 +881,6 @@ public class MainActivity extends FragmentActivity
 				holder.btnSetMod.setVisibility(View.GONE);
 				holder.btnComment.setVisibility(View.VISIBLE);
 			}
-			if(orderDetail.isChecked()){
-				holder.chk.setVisibility(View.VISIBLE);
-			}else{
-				holder.chk.setVisibility(View.GONE);
-			}
-			// expand if order has set detail
-			if(orderDetail.getOrderSetDetailLst().size() > 0){
-				if(!isExpanded){
-					ExpandableListView lv = (ExpandableListView) parent;
-					lv.expandGroup(groupPosition);
-				}
-			}
 			return convertView;
 		}
 
@@ -894,8 +889,7 @@ public class MainActivity extends FragmentActivity
 				boolean isLastChild, View convertView, ViewGroup parent) {
 			ChildViewHolder holder;
 			if(convertView == null){
-				LayoutInflater inflater = getLayoutInflater();
-				convertView = inflater.inflate(R.layout.order_detail_set_item, null);
+				convertView = mInflater.inflate(R.layout.order_detail_set_item, parent, false);
 				holder = new ChildViewHolder();
 				holder.tvSetNo = (TextView) convertView.findViewById(R.id.tvSetNo);
 				holder.tvSetName = (TextView) convertView.findViewById(R.id.tvSetName);
@@ -927,31 +921,71 @@ public class MainActivity extends FragmentActivity
 		@Override
 		public void notifyDataSetChanged() {
 			summary();
+			countSelectedOrder();
 			super.notifyDataSetChanged();
-		}
-		
-		private class ChildViewHolder{
-			TextView tvSetNo;
-			TextView tvSetName;
-			TextView tvSetPrice;
-			EditText txtSetQty;
-		}
-		
-		private class ViewHolder{
-			LinearLayout menuInfoContent;
-			CheckBox chk;
-			TextView tvOrderNo;
-			TextView tvOrderName;
-			TextView tvOrderPrice;
-			TextView tvComment;
-			EditText txtOrderAmount;
-			ImageButton btnSetMod;
-			ImageButton btnComment;
-			Button btnMinus;
-			Button btnPlus;
 		}
 	}
 	
+	/**
+	 * @author j1tth4
+	 * OrderDetail selected event
+	 */
+	private class OnOrderClickListener implements OnClickListener{
+
+		private MPOSOrderDetail mOrder;
+		
+		public OnOrderClickListener(MPOSOrderDetail order){
+			mOrder = order;
+		}
+		
+		@Override
+		public void onClick(View v) {
+			if(mOrder.isChecked()){
+				mOrder.setChecked(false);
+			}else{
+				mOrder.setChecked(true);
+			}
+			mOrderDetailAdapter.notifyDataSetChanged();
+		}
+	}
+	
+	/**
+	 * Count selected orderitem
+	 */
+	private void countSelectedOrder(){
+		int totalSelected = 0;
+		TextView tvOrderSelected = (TextView) findViewById(R.id.tvOrderSelected);
+		for(MPOSOrderDetail order : mOrderDetailLst){
+			if(order.isChecked()){
+				totalSelected ++;
+			}
+		}
+		if(totalSelected > 0){
+			tvOrderSelected.setText(getString(R.string.item_selection) + "(" + totalSelected + " )");
+		}else{
+			tvOrderSelected.setText(null);
+		}
+	}
+		
+	private class ChildViewHolder {
+		TextView tvSetNo;
+		TextView tvSetName;
+		TextView tvSetPrice;
+		EditText txtSetQty;
+	}
+		
+	private class ViewHolder{
+		TextView tvOrderNo;
+		CheckedTextView tvOrderName;
+		TextView tvOrderPrice;
+		TextView tvComment;
+		EditText txtOrderAmount;
+		ImageButton btnSetMod;
+		ImageButton btnComment;
+		Button btnMinus;
+		Button btnPlus;
+	}
+		
 	private class HoldBillAdapter extends BaseAdapter{
 		LayoutInflater inflater;
 		List<MPOSOrderTransaction> transLst;
@@ -1081,7 +1115,7 @@ public class MainActivity extends FragmentActivity
 				public boolean onItemLongClick(AdapterView<?> parent, View v,
 						int position, long id) {
 					Products.Product p = (Products.Product) parent.getItemAtPosition(position);
-					ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgUrl(), p.getProductName(), 
+					ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgName(), p.getProductName(), 
 							((MainActivity) getActivity()).mFormat.currencyFormat(p.getProductPrice()));
 					imgZoom.show(getFragmentManager(), "MenuImage");
 					return true;
@@ -1143,7 +1177,7 @@ public class MainActivity extends FragmentActivity
 				if(Utils.isShowMenuImage(getActivity())){
 					((MainActivity) getActivity()).mImageLoader.displayImage(
 							Utils.getImageUrl(getActivity()) + 
-							p.getImgUrl(), holder.imgMenu);
+							p.getImgName(), holder.imgMenu);
 				}
 				return convertView;
 			}
@@ -1181,25 +1215,30 @@ public class MainActivity extends FragmentActivity
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
+			MenuItemViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.product_size_template, null);
-				holder = new ViewHolder();
-				holder.tvProductName = (TextView) convertView.findViewById(R.id.tvProductName);
-				holder.tvProductPrice = (TextView) convertView.findViewById(R.id.tvProductPrice);
+				convertView = mInflater.inflate(R.layout.menu_template, parent, false);
+				holder = new MenuItemViewHolder();
+				holder.tvMenu = (TextView) convertView.findViewById(R.id.textViewMenuName);
+				holder.tvPrice = (TextView) convertView.findViewById(R.id.textViewMenuPrice);
+				holder.imgMenu = (ImageView) convertView.findViewById(R.id.imageViewMenu);
 				convertView.setTag(holder);
 			}else{
-				holder = (ViewHolder) convertView.getTag();
+				holder = (MenuItemViewHolder) convertView.getTag();
 			}
 			Products.Product p = mProLst.get(position);
-			holder.tvProductName.setText(p.getProductName());
-			holder.tvProductPrice.setText(mFormat.currencyFormat(p.getProductPrice()));
-			return convertView;
-		}
+			holder.tvMenu.setText(p.getProductName());
+			if(p.getProductPrice() < 0)
+				holder.tvPrice.setVisibility(View.INVISIBLE);
+			else
+				holder.tvPrice.setText(mFormat.currencyFormat(p.getProductPrice()));
 
-		class ViewHolder{
-			public TextView tvProductName;
-			public TextView tvProductPrice;
+			if(Utils.isShowMenuImage(MainActivity.this)){
+				mImageLoader.displayImage(
+						Utils.getImageUrl(MainActivity.this) + 
+						p.getImgName(), holder.imgMenu);
+			}
+			return convertView;
 		}
 	}
 	
@@ -1219,13 +1258,14 @@ public class MainActivity extends FragmentActivity
 			addOrder(productId, productName, productTypeId, 
 					vatType, vatRate, 1, productPrice);
 		}else if(productTypeId == Products.SIZE){
-			productSizeDialog(productId);
+			productSizeDialog(productId, productName);
 		}else if(productTypeId == Products.SET_CAN_SELECT){
 			Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
 			intent.putExtra("mode", ProductSetActivity.ADD_MODE);
 			intent.putExtra("transactionId", mTransactionId);
 			intent.putExtra("computerId", mComputer.getComputerId());
 			intent.putExtra("productId", productId);
+			intent.putExtra("setGroupName", productName);
 			startActivity(intent);
 		}
 	}
@@ -1241,26 +1281,27 @@ public class MainActivity extends FragmentActivity
 		}
 	}
 	
-	public void clearBillClicked(final View v){
-		new AlertDialog.Builder(MainActivity.this)
-		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setTitle(R.string.cancel_bill)
-		.setMessage(R.string.confirm_cancel_bill)
-		.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			
-			}
-		})
-		.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				clearTransaction();
-			}
-		})
-		.show();
+	public void cancelOrderClicked(final View v){
+		if(mOrderDetailLst.size() > 0){
+			new AlertDialog.Builder(MainActivity.this)
+			.setTitle(android.R.string.cancel)
+			.setMessage(R.string.confirm_cancel_order)
+			.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				
+				}
+			})
+			.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					clearTransaction();
+				}
+			})
+			.show();
+		}
 	}
 
 	/**
@@ -1271,6 +1312,7 @@ public class MainActivity extends FragmentActivity
 		if(mOrderDetailLst.size() > 0){
 			final EditText txtRemark = new EditText(MainActivity.this);
 			txtRemark.setHint(R.string.remark);
+			txtRemark.setTextSize(getResources().getInteger(R.integer.large_text_size));
 			AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 			builder.setTitle(R.string.hold);
 			builder.setView(txtRemark);
@@ -1342,7 +1384,6 @@ public class MainActivity extends FragmentActivity
 								d.dismiss();
 							}else{
 								new AlertDialog.Builder(MainActivity.this)
-								.setIcon(android.R.drawable.ic_dialog_alert)
 								.setTitle(R.string.login)
 								.setMessage(R.string.incorrect_password)
 								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -1356,7 +1397,6 @@ public class MainActivity extends FragmentActivity
 							}
 						}else{
 							new AlertDialog.Builder(MainActivity.this)
-							.setIcon(android.R.drawable.ic_dialog_alert)
 							.setTitle(R.string.login)
 							.setMessage(R.string.incorrect_user)
 							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -1370,7 +1410,6 @@ public class MainActivity extends FragmentActivity
 						}
 					}else{
 						new AlertDialog.Builder(MainActivity.this)
-						.setIcon(android.R.drawable.ic_dialog_alert)
 						.setTitle(R.string.login)
 						.setMessage(R.string.enter_password)
 						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -1384,7 +1423,6 @@ public class MainActivity extends FragmentActivity
 					}
 				}else{
 					new AlertDialog.Builder(MainActivity.this)
-					.setIcon(android.R.drawable.ic_dialog_alert)
 					.setTitle(R.string.login)
 					.setMessage(R.string.enter_username)
 					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -1409,7 +1447,6 @@ public class MainActivity extends FragmentActivity
 		ShopData.Staff s = staff.getStaff(mStaffId);
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.logout)
-		.setIcon(android.R.drawable.ic_dialog_info)
 		.setMessage(s.getStaffName() + "\n" + getString(R.string.confirm_logout))
 		.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 			
@@ -1443,6 +1480,9 @@ public class MainActivity extends FragmentActivity
 	private void loadOrder(){
 		mOrderDetailLst = mTrans.listAllOrder(mTransactionId);
 		mOrderDetailAdapter.notifyDataSetChanged();
+		for(int i = 0; i < mOrderDetailLst.size(); i++){
+			mLvOrderDetail.expandGroup(i);
+		}
 		mLvOrderDetail.setSelectedGroup(mOrderDetailAdapter.getGroupCount());
 	}
 
@@ -1473,8 +1513,8 @@ public class MainActivity extends FragmentActivity
 		openTransaction();
 		// update when changed user
 		mTrans.updateTransaction(mTransactionId, mStaffId);
-		countHoldOrder(MainActivity.this);
-		countTransNotSend(MainActivity.this);
+		countHoldOrder();
+		countSaleDataNotSend();
 		loadOrder();
 		
 		// init second display
@@ -1687,7 +1727,6 @@ public class MainActivity extends FragmentActivity
 		if (selectedOrderLst.size() > 0) {
 			new AlertDialog.Builder(MainActivity.this)
 					.setTitle(R.string.delete)
-					.setIcon(android.R.drawable.ic_dialog_alert)
 					.setMessage(
 							this.getString(R.string.confirm_delete) + " ("
 									+ selectedOrderLst.size() + ")")
@@ -1776,12 +1815,15 @@ public class MainActivity extends FragmentActivity
 		}else{
 			final EditText txtProductPrice = new EditText(this);
 			txtProductPrice.setInputType(InputType.TYPE_CLASS_NUMBER);
+			txtProductPrice.setTextSize(getResources().getInteger(R.integer.large_text_size));
 			txtProductPrice.setOnEditorActionListener(new OnEditorActionListener(){
 		
 				@Override
 				public boolean onEditorAction(TextView v, int actionId,
 						KeyEvent event) {
-					// TODO Auto-generated method stub
+					if(actionId == EditorInfo.IME_ACTION_DONE){
+						return true;
+					}
 					return false;
 				}
 				
@@ -1809,6 +1851,7 @@ public class MainActivity extends FragmentActivity
 						mDsp.setOrderName(productName);
 						mDsp.setOrderQty(mFormat.qtyFormat(qty));
 						mDsp.setOrderPrice(mFormat.currencyFormat(openPrice));
+						loadOrder();
 					} catch (ParseException e) {
 						new AlertDialog.Builder(MainActivity.this)
 						.setTitle(R.string.enter_price)
@@ -1833,17 +1876,17 @@ public class MainActivity extends FragmentActivity
 	 * create product size dialog
 	 * @param proId
 	 */
-	private void productSizeDialog(int proId){
+	private void productSizeDialog(int proId, String productName){
 		List<Products.Product> pSizeLst = mProducts.listProductSize(proId);
 		LayoutInflater inflater = getLayoutInflater();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		View sizeView = inflater.inflate(R.layout.product_size, null, false);
-		ListView lvProSize = (ListView) sizeView.findViewById(R.id.lvProSize);
+		GridView gvMenuSize = (GridView) sizeView.findViewById(R.id.gvMenuSize);
 		builder.setView(sizeView);
-		builder.setTitle(R.string.product_size);
+		builder.setTitle(productName);
 		final AlertDialog dialog = builder.create();
-		lvProSize.setAdapter(new ProductSizeAdapter(pSizeLst));
-		lvProSize.setOnItemClickListener(new OnItemClickListener(){
+		gvMenuSize.setAdapter(new ProductSizeAdapter(pSizeLst));
+		gvMenuSize.setOnItemClickListener(new OnItemClickListener(){
 	
 			@Override
 			public void onItemClick(AdapterView<?> parent, View v, int position,
@@ -1861,15 +1904,25 @@ public class MainActivity extends FragmentActivity
 	/**
 	 * count transaction that not send to server
 	 */
-	private void countTransNotSend(Context context){
+	private void countSaleDataNotSend(){
 		if(mItemSendData != null){
-			int total = mTrans.countTransNotSend();
-			if(total > 0){
-				mItemSendData.setTitle(context.getString(R.string.send_sale_data) + "(" + total + ")");
-				mItemSendSale.setTitle(context.getString(R.string.send_sale_data) + "(" + total + ")");
+			int totalTrans = mTrans.countTransNotSend();
+			int totalSess = mSession.countSessionEnddayNotSend();
+			int totalData = totalTrans + totalSess;
+			if(totalData > 0){
+				mItemSendData.setTitle(getString(R.string.send_sale_data) + "(" + totalData + ")");
 			}else{
-				mItemSendData.setTitle(context.getString(R.string.send_sale_data));
-				mItemSendSale.setTitle(context.getString(R.string.send_sale_data));
+				mItemSendData.setTitle(getString(R.string.send_sale_data));
+			}
+			if(totalTrans > 0){
+				mItemSendSale.setTitle(getString(R.string.send_sale_data) + "(" + totalTrans + ")");
+			}else{
+				mItemSendSale.setTitle(getString(R.string.send_sale_data));
+			}
+			if(totalSess > 0){
+				mItemSendEndday.setTitle(getString(R.string.send_endday_data) + "(" + totalSess + ")");
+			}else{
+				mItemSendEndday.setTitle(getString(R.string.send_endday_data));
 			}
 		}
 	}
@@ -1877,13 +1930,13 @@ public class MainActivity extends FragmentActivity
 	/**
 	 * count order that hold
 	 */
-	private void countHoldOrder(Context context){
+	private void countHoldOrder(){
 		if(mItemHoldBill != null){
 			int totalHold = mTrans.countHoldOrder(mSession.getSessionDate());
 			if(totalHold > 0){
-				mItemHoldBill.setTitle(context.getString(R.string.hold_bill) + "(" + totalHold + ")");
+				mItemHoldBill.setTitle(getString(R.string.hold_bill) + "(" + totalHold + ")");
 			}else{
-				mItemHoldBill.setTitle(context.getString(R.string.hold_bill));
+				mItemHoldBill.setTitle(getString(R.string.hold_bill));
 			}
 		}
 	}

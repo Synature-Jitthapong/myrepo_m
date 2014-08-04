@@ -2,16 +2,17 @@
 <resources>
 
     <string name="app_name">mPOS</string>
+    <string name="lang_eng">English</string>
+    <string name="lang_thai">Thailand</string>
     <string name="login">Login</string>
-    <string name="user_name">Username</string>
-    <string name="pass_word">Password</string>
+    <string name="staff_code">StaffCode</string>
+    <string name="password">Password</string>
     <string name="hold_bill">Show Hold Bill</string>
     <string name="report">Reports</string>
     <string name="utility">Utility</string>
     <string name="switch_user">Switch user</string>
     <string name="discount">Discount</string>
     <string name="cash">Cash</string>
-    <string name="cancel_bill">Cancel bill</string>
     <string name="logout">Logout</string>
     <string name="sub_total">Sub total</string>
     <string name="vat">Vat</string>
@@ -34,7 +35,6 @@
     <string name="sale_price">Sale price</string>
     <string name="vat_exclude">VAT exclude</string>
     <string name="confirm_cancel">Are you sure to cancel?</string>
-    <string name="confirm_cancel_bill">Are you sure you want to cancel bill?</string>
     <string name="enter_enough_money">Please enter enough money.</string>
     <string name="close">Close</string>
     <string name="payment">Payment</string>
@@ -48,7 +48,7 @@
     <string name="update_shop_progress">Update shop data&#8230;</string>
     <string name="update_menu_progress">Update menu data&#8230;</string>
     <string name="hold">Hold</string>
-    <string name="create_report">Create report</string>
+    <string name="display">Display</string>
     <string name="code">Code</string>
     <string name="product_name">Product Name</string>
     <string name="unit_price">Unit Price</string>
@@ -101,7 +101,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="printer_ip_summary">ip address of printer</string>
     <string name="about">About MPOS</string>
     <string name="endday_success">Endday successfully.</string>
-    <string name="product_size">Product Size</string>
     <string name="enter_valid_numeric">Please enter valid numeric.</string>
     <string name="endday_progress">Ending day please wait&#8230;</string>
     <string name="alredy_endday">Already endday.</string>
@@ -110,7 +109,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="clear_order_first">Clear current order first!</string>
     <string name="barcode">Barcode</string>
     <string name="font">Font</string>
-    <string name="device_code">Device Code</string>
+    <string name="device_code">Device Code: </string>
     <string name="reprint_receipt">Reprint Receipt</string>
     <string name="plus">+</string>
     <string name="minus">-</string>
@@ -151,7 +150,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="endday_report">End Day Report</string>
     <string name="cannot_update_data">Cannot update data.</string>
     <string name="cannot_connect_to_network">Cannot connect to network.</string>
-    <string name="welcome_to">Welcome to</string>
     <string name="promise_system">pRoMiSe System</string>
     <string name="show_menu_image">Show menu image</string>
     <string name="general_setting">General Settings</string>
@@ -184,8 +182,8 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="send_endday_data">Send endday data</string>
     <string name="confirm_send_endday_now">Do you want to send endday data now?</string>
     <string name="send_endday_data_success">Send endday data successfully.</string>
-    <string name="last_session">Last Session</string>
-    <string name="current_sale_date">Current Sale Date</string>
+    <string name="last_session">Last Session: </string>
+    <string name="current_sale_date">Current Sale Date: </string>
     <string name="loading">Loading&#8230;</string>
     <string name="epson_printer">Epson Printer</string>
     <string name="baud_rate">Baud Rate</string>
@@ -213,5 +211,13 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="float_in">Float In</string>
 	<string name="total_cash">Total Cash</string>
 	<string name="cash_in_drawer">Cash In Drawer</string>
-	<string name="over_or_shot">Over/-Shot</string>
+	<string name="over_or_short">Over/-Short</string>
+	<string name="cash_count">Cash Count</string>
+	<string name="wintec_setting">Wintec Settings</string>
+	<string name="confirm_cancel_order">Are you sure you want to cancel orders?</string>
+	<string name="text_line1">Text Line 1</string>
+	<string name="text_line2">Text Line 2</string>
+	<string name="item_selection">Selected item</string>
+	<string name="confirm_exit">Are you sure you want to exit program?</string>
+	<string name="language">Language</string>
 </resources>

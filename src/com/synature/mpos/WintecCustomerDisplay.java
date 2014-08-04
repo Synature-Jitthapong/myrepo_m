@@ -65,10 +65,12 @@ public class WintecCustomerDisplay{
 	
 	public void displayWelcome(){
 		clearScreen();
-		mDsp.DSP_Dispay(mContext.getString(R.string.welcome_to));
+		String line1 = Utils.getWintecDspTextLine1(mContext);
+		String line2 = Utils.getWintecDspTextLine2(mContext);
+		mDsp.DSP_Dispay(line1);
 		mDsp.DSP_MoveCursorDown();
 		mDsp.DSP_MoveCursorEndLeft();
-		mDsp.DSP_Dispay(mContext.getString(R.string.promise_system));
+		mDsp.DSP_Dispay(line2);
 		close();
 	}
 	

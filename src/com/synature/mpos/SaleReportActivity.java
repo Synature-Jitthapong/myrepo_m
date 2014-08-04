@@ -12,6 +12,7 @@ import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Reporting;
+import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.Reporting.SimpleProductData;
@@ -265,13 +266,12 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			View v = mInflater.inflate(R.layout.listview, null);
-			final ListView lv = (ListView) v;
+			final ListView lv = new ListView(getActivity());
 			lv.setAdapter(mPaymentAdapter);
 			
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			builder.setTitle(R.string.payment);
-			builder.setView(v);
+			builder.setView(lv);
 			builder.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
 				@Override
@@ -408,7 +408,9 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				createReport();
 				return true;
 			case R.id.itemPrint:
-				new Thread(new PrintReport(getActivity(), activity.mDateTo, activity.mDateTo, 
+				Session session = new Session(getActivity());
+				int sessionId = session.getSessionId(activity.mStaffId, activity.mDateTo);
+				new Thread(new PrintReport(getActivity(), sessionId,
 						activity.mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
 				return true;
 			default:
@@ -427,8 +429,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			mEnddayReportFooterContainer.removeAllViews();
 			// add footer
 			View totalView = inflater.inflate(R.layout.left_mid_right_template, null);
-			((TextView) totalView.findViewById(R.id.tvMid)).setText(getString(R.string.total));
-			((TextView) totalView.findViewById(R.id.tvMid)).append(" " +
+			((TextView) totalView.findViewById(R.id.tvMid)).setText(getString(R.string.sub_total));
+			((TextView) totalView.findViewById(R.id.tvMid)).append("  " +
 					mHost.mFormat.qtyFormat(sumOrder.getQty()));
 			((TextView) totalView.findViewById(R.id.tvRight)).setText(
 					mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
@@ -442,15 +444,16 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				mEnddayReportFooterContainer.addView(discountView);
 			}
 			
-			View subTotalView2 = inflater.inflate(R.layout.left_mid_right_template, null);
-			((TextView) subTotalView2.findViewById(R.id.tvMid)).setText(getString(R.string.sub_total));
-			((TextView) subTotalView2.findViewById(R.id.tvRight)).setText(
-					mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
-			mEnddayReportFooterContainer.addView(subTotalView2);
+//			View subTotalView2 = inflater.inflate(R.layout.left_mid_right_template, null);
+//			((TextView) subTotalView2.findViewById(R.id.tvMid)).setText(getString(R.string.sub_total));
+//			((TextView) subTotalView2.findViewById(R.id.tvRight)).setText(
+//					mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
+//			mEnddayReportFooterContainer.addView(subTotalView2);
 			
 			if(sumOrder.getVatExclude() > 0){
 				View vatExcludeView = inflater.inflate(R.layout.left_mid_right_template, null);
-				((TextView) vatExcludeView.findViewById(R.id.tvMid)).setText(getString(R.string.vat_exclude));
+				((TextView) vatExcludeView.findViewById(R.id.tvMid)).setText(getString(R.string.vat_exclude) 
+						+ " " + NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate()) + "%");
 				((TextView) vatExcludeView.findViewById(R.id.tvRight)).setText(
 						mHost.mFormat.currencyFormat(sumOrder.getVatExclude()));
 				mEnddayReportFooterContainer.addView(vatExcludeView);
@@ -458,6 +461,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			
 			View totalSaleView = inflater.inflate(R.layout.left_mid_right_template, null);
 			((TextView) totalSaleView.findViewById(R.id.tvMid)).setText(getString(R.string.total_sale));
+			((TextView) totalSaleView.findViewById(R.id.tvMid)).setPaintFlags(
+					((TextView) totalSaleView.findViewById(R.id.tvMid)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
 			((TextView) totalSaleView.findViewById(R.id.tvRight)).setText(
 					mHost.mFormat.currencyFormat(
 							sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()));
@@ -471,7 +476,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 								trans.getTransactionVatable() - trans.getTransactionVat()));
 				mEnddayReportFooterContainer.addView(vatView);
 				vatView = inflater.inflate(R.layout.left_mid_right_template, null);
-				((TextView) vatView.findViewById(R.id.tvMid)).setText(getString(R.string.total_vat));
+				((TextView) vatView.findViewById(R.id.tvMid)).setText(getString(R.string.total_vat)
+						+ " " + NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate()) + "%");
 				((TextView) vatView.findViewById(R.id.tvRight)).setText(
 						mHost.mFormat.currencyFormat(trans.getTransactionVat()));
 				mEnddayReportFooterContainer.addView(vatView);
@@ -632,7 +638,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				return true;
 			case R.id.itemPrint:
 				new Thread(new PrintReport(getActivity(), mHost.mDateFrom, mHost.mDateTo,
-						PrintReport.WhatPrint.BILL_REPORT)).start();
+						0, PrintReport.WhatPrint.BILL_REPORT)).start();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -950,9 +956,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				mProductReportAdapter.notifyDataSetChanged();
 				return true;
 			case R.id.itemPrint:
-				new Thread(new PrintReport(getActivity(), 
-						mHost.mDateFrom, mHost.mDateTo,
-						PrintReport.WhatPrint.PRODUCT_REPORT)).start();
+				new Thread(new PrintReport(getActivity(), mHost.mDateFrom, mHost.mDateTo,
+						0, PrintReport.WhatPrint.PRODUCT_REPORT)).start();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

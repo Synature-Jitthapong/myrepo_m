@@ -10,7 +10,6 @@ import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
-import com.synature.mpos.database.table.StaffTable;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -21,6 +20,26 @@ public class Session extends MPOSDatabase{
 	
 	public static final int NOT_ENDDAY_STATUS = 0;
 	public static final int ALREADY_ENDDAY_STATUS = 1;
+	
+	public static final String[] ALL_SESS_COLUMNS = {
+		SessionTable.COLUMN_SESS_ID,
+		ComputerTable.COLUMN_COMPUTER_ID,
+		ShopTable.COLUMN_SHOP_ID,
+		SessionTable.COLUMN_SESS_DATE,
+		SessionTable.COLUMN_OPEN_DATE,
+		SessionTable.COLUMN_CLOSE_DATE,
+		SessionTable.COLUMN_SESS_DATE,
+		SessionTable.COLUMN_OPEN_AMOUNT,
+		SessionTable.COLUMN_CLOSE_AMOUNT,
+		SessionTable.COLUMN_IS_ENDDAY
+	};
+	
+	public static final String[] ALL_SESS_ENDDAY_COLUMNS = {
+		SessionTable.COLUMN_SESS_DATE,
+		SessionDetailTable.COLUMN_ENDDAY_DATE,
+		SessionDetailTable.COLUMN_TOTAL_AMOUNT_RECEIPT,
+		SessionDetailTable.COLUMN_TOTAL_QTY_RECEIPT	
+	};
 	
 	public Session(Context context) {
 		super(context);
@@ -47,6 +66,26 @@ public class Session extends MPOSDatabase{
 		}
 		cursor.close();
 		return sessLst;
+	}
+	
+	/**
+	 * @return total session that not send
+	 */
+	public int countSessionEnddayNotSend(){
+		int totalSess = 0;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT COUNT(" + SessionTable.COLUMN_SESS_DATE +")"
+				+ " FROM " + SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL
+				+ " WHERE " + COLUMN_SEND_STATUS + "=?", 
+				new String[]{
+					String.valueOf(NOT_SEND)
+				}
+		);
+		if(cursor.moveToFirst()){
+			totalSess = cursor.getInt(0);
+		}
+		cursor.close();
+		return totalSess;
 	}
 	
 	/**
@@ -328,24 +367,22 @@ public class Session extends MPOSDatabase{
 	}
 	
 	/**
-	 * Get sessionId by sessionDate and staffId
-	 * @param sessionDate
 	 * @param staffId
+	 * @param sessionDate
 	 * @return sessionId
 	 */
-	public int getSessionId(String sessionDate, int staffId){
+	public int getSessionId(int staffId, String sessionDate) {
 		int sessionId = 0;
-		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_SESSION, 
-				new String[]{
-					SessionTable.COLUMN_SESS_ID
-				}, 
-				SessionTable.COLUMN_SESS_DATE + "=?"
-				+ " AND " + StaffTable.COLUMN_STAFF_ID + "=?", 
-				new String[]{
-					sessionDate,
-					String.valueOf(staffId)
-				}, null, null, SessionTable.COLUMN_SESS_ID + " DESC ", "1");
-		if(cursor.moveToFirst()){
+		Cursor cursor = getReadableDatabase().query(
+				SessionTable.TABLE_SESSION,
+				new String[] { SessionTable.COLUMN_SESS_ID },
+				OrderTransactionTable.COLUMN_OPEN_STAFF + " =? " + " AND "
+						+ SessionTable.COLUMN_SESS_DATE + " =? ",
+				new String[] { 
+						String.valueOf(staffId), 
+						sessionDate
+				}, null, null, null);
+		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}
 		cursor.close();

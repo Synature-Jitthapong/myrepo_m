@@ -8,7 +8,16 @@ import com.synature.mpos.database.Products.ProductComponentGroup;
 import com.synature.pos.OrderTransaction;
 
 public class MPOSOrderTransaction extends OrderTransaction{
+	private int promotionPriceGroupId;
 	
+	public int getPromotionPriceGroupId() {
+		return promotionPriceGroupId;
+	}
+
+	public void setPromotionPriceGroupId(int promotionPriceGroupId) {
+		this.promotionPriceGroupId = promotionPriceGroupId;
+	}
+
 	/**
 	 * @author j1tth4
 	 * for display order with order set detail

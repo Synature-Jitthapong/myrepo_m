@@ -1,12 +1,15 @@
 package com.synature.mpos;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -19,6 +22,9 @@ import com.epson.eposprint.EposException;
 
 public class SettingsActivity extends PreferenceActivity {
 
+	public static final int UPDATE_NEW_DATA = 2;
+	public static final int REFRESH_PARENT_ACTIVITY = 3;
+	
 	public static final String KEY_PREF_SERVER_URL = "server_url";
 	public static final String KEY_PREF_CONN_TIME_OUT_LIST = "connection_time_out";
 	public static final String KEY_PREF_PRINTER_IP = "printer_ip";
@@ -37,7 +43,10 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_SECOND_DISPLAY_IP = "second_display_ip";
 	public static final String KEY_PREF_SECOND_DISPLAY_PORT = "second_display_port";
 	public static final String KEY_PREF_ENABLE_DSP = "enable_dsp";
+	public static final String KEY_PREF_DSP_TEXT_LINE1 = "dsp_wintec_line1";
+	public static final String KEY_PREF_DSP_TEXT_LINE2 = "dsp_wintec_line2";
 	public static final String KEY_PREF_ENABLE_SECOND_DISPLAY = "enable_second_display";
+	public static final String KEY_PREF_LANGUAGE_LIST = "language_list";
 	
 	private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
@@ -58,9 +67,7 @@ public class SettingsActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.pref_connection);
 		addPreferencesFromResource(R.xml.pref_general);
 		addPreferencesFromResource(R.xml.pref_printer);
-		addPreferencesFromResource(R.xml.pref_drw);
-		addPreferencesFromResource(R.xml.pref_magnetic_reader);
-		addPreferencesFromResource(R.xml.pref_dsp);
+		addPreferencesFromResource(R.xml.pref_wintec);
 		addPreferencesFromResource(R.xml.pref_second_display);
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONN_TIME_OUT_LIST));
@@ -72,18 +79,20 @@ public class SettingsActivity extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_BAUD_RATE));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_DEV_PATH));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_BAUD_RATE));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_TEXT_LINE1));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_TEXT_LINE2));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_DEV_PATH));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_BAUD_RATE));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_FONT_LIST));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_IP));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
+		bindPreferenceSummaryToValue(findPreference(KEY_PREF_LANGUAGE_LIST));
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
-			setResult(RESULT_OK);
 			finish();
 			return true;
 		default :
@@ -114,7 +123,9 @@ public class SettingsActivity extends PreferenceActivity {
 		}
 	}
 
-	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = 
+			new Preference.OnPreferenceChangeListener() {
+		
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object value) {
 			String stringValue = value.toString();
@@ -151,29 +162,25 @@ public class SettingsActivity extends PreferenceActivity {
 			addPreferencesFromResource(R.xml.pref_printer);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_FONT_LIST));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_DEV_PATH));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_BAUD_RATE));
-			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_FONT_LIST));
 		}
 	}
 	
-	public static class DrwPreferenceFragment extends PreferenceFragment {
+	public static class WintecSettingFragment extends PreferenceFragment {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_drw);
+			addPreferencesFromResource(R.xml.pref_wintec);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_DEV_PATH));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_BAUD_RATE));
-		}
-	}
-	
-	public static class MsrPreferenceFragment extends PreferenceFragment {
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_magnetic_reader);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_DEV_PATH));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_BAUD_RATE));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_DEV_PATH));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_BAUD_RATE));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_TEXT_LINE1));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_TEXT_LINE2));
 		}
 	}
 	
@@ -182,8 +189,19 @@ public class SettingsActivity extends PreferenceActivity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_connection);
-			bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
+			Preference prefUrl = findPreference(KEY_PREF_SERVER_URL);
+			bindPreferenceSummaryToValue(prefUrl);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONN_TIME_OUT_LIST));
+			prefUrl.setOnPreferenceChangeListener(new OnPreferenceChangeListener(){
+
+				@Override
+				public boolean onPreferenceChange(Preference preference,
+						Object newValue) {
+					getActivity().setResult(UPDATE_NEW_DATA);
+					return true;
+				}
+				
+			});
 		}
 	}
 	
@@ -193,18 +211,23 @@ public class SettingsActivity extends PreferenceActivity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_general);
+			Preference langPref = findPreference(KEY_PREF_LANGUAGE_LIST);
+			bindPreferenceSummaryToValue(langPref);
+			
+			langPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener(){
+
+				@Override
+				public boolean onPreferenceChange(Preference pref, Object value) {
+					String langCode = value.toString();
+					Utils.switchLanguage(getActivity(), langCode);
+					getActivity().setResult(REFRESH_PARENT_ACTIVITY);
+					getActivity().startActivity(getActivity().getIntent());
+					getActivity().finish();
+					return true;
+				}
+			});
 		}
 		
-	}
-	
-	public static class DspPreferenceFragment extends PreferenceFragment {
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_dsp);
-			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_DEV_PATH));
-			bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_BAUD_RATE));
-		}
 	}
 	
 	public static class SecondDisplayPreferenceFragment extends PreferenceFragment{
@@ -243,7 +266,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 		@Override
 		public void prepareDataToPrint() {
-			mBuilder.append(mContext.getString(R.string.print_test_text));
+			mBuilder.append(mContext.getString(R.string.print_test_text).replaceAll("\\*", " "));
 		}
 		
 	}

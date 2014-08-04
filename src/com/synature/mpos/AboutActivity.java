@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 public class AboutActivity extends Activity {
 	
-	public static final int TOTAL_CLICK = 5;
+	public static final int TOTAL_CLICK = 4;
 	
 	private int mCountClick = 0;
 	

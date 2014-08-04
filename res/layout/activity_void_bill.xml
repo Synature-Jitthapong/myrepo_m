@@ -14,7 +14,9 @@
         android:layout_marginRight="4dp"
         android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:orientation="vertical" >
+        android:divider="@android:drawable/divider_horizontal_bright"
+        android:orientation="vertical"
+        android:showDividers="middle" >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -96,7 +98,9 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:orientation="vertical" >
+        android:divider="@android:drawable/divider_horizontal_bright"
+        android:orientation="vertical"
+        android:showDividers="middle" >
 
         <TableLayout
             android:layout_width="match_parent"

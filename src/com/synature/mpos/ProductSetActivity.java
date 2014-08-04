@@ -58,6 +58,7 @@ public class ProductSetActivity extends Activity{
 	private int mComputerId;
 	private int mProductId;
 	private int mOrderDetailId;
+	private String mSetGroupName;
 	
 	private List<Products.ProductComponent> mProductCompLst;
 	private List<MPOSOrderTransaction.OrderSet> mOrderSetLst;
@@ -92,6 +93,9 @@ public class ProductSetActivity extends Activity{
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mProductId = intent.getIntExtra("productId", 0);
+		mSetGroupName = intent.getStringExtra("setGroupName");
+		if(mSetGroupName != null)
+			setTitle(mSetGroupName);
 		
 		if(intent.getStringExtra("mode").equals(ADD_MODE)){
 			final Product p = mProduct.getProduct(mProductId);
@@ -188,21 +192,22 @@ public class ProductSetActivity extends Activity{
 		}
 	}
 
-	private void updateBadge(int groupId, double requireAmount){
-		double totalQty = mTrans.getOrderSetTotalQty(
-			mTransactionId, mOrderDetailId, groupId);
-		final LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
+	private double updateBadge(int groupId, double requireAmount){
+		double totalQty = mTrans.getOrderSetTotalQty(mTransactionId, mOrderDetailId, groupId);
+		LinearLayout scrollContent = getScrollContainer();
 		View groupBtn = scrollContent.findViewById(groupId);
 		TextView tvBadge = (TextView) groupBtn.findViewById(R.id.textView1);
 		tvBadge.setText(NumberFormat.getInstance().format(requireAmount - totalQty));
+		return totalQty;
 	}
 	
 	@SuppressLint("NewApi")
 	private void setupSetGroupButton(){
+		boolean isHasGroup0 = false;
 		List<Products.ProductComponentGroup> productCompGroupLst;
 		productCompGroupLst = mProduct.listProductComponentGroup(mProductId);
 		if(productCompGroupLst != null){
-			final LinearLayout scrollContent = (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
+			final LinearLayout scrollContent = getScrollContainer();
 			for(int i = 0; i < productCompGroupLst.size(); i++){
 				final Products.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
 				LayoutInflater inflater = (LayoutInflater)
@@ -214,6 +219,7 @@ public class ProductSetActivity extends Activity{
 				tvGroupName.setText(pCompGroup.getGroupName());
 				
 				if(pCompGroup.getGroupNo() == 0){
+					isHasGroup0 = true;
 					setGroupView.setVisibility(View.GONE);
 					if(mTrans.checkAddedOrderSet(mTransactionId, 
 							mOrderDetailId, pCompGroup.getProductGroupId()) == 0){
@@ -221,10 +227,10 @@ public class ProductSetActivity extends Activity{
 								mProduct.listProductComponent(pCompGroup.getProductGroupId());
 						if(pCompLst != null){
 							for(Products.ProductComponent pComp : pCompLst){
-								mTrans.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
-										pCompGroup.getChildProductAmount() > 0 ? pCompGroup.getChildProductAmount() : 1,
-												pComp.getFlexibleProductPrice() > 0 ? pComp.getFlexibleProductPrice() : 0.0d,
-														pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
+								double qty = pCompGroup.getChildProductAmount() > 0 ? pCompGroup.getChildProductAmount() : 1;
+								double price = pComp.getFlexibleProductPrice() > 0 ? pComp.getFlexibleProductPrice() : 0.0d;
+								mTrans.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), qty, price,
+										pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
 							}
 						}
 					}
@@ -250,7 +256,8 @@ public class ProductSetActivity extends Activity{
 						}
 						
 					});	
-					if(i == 0){
+					if(i == 0 || isHasGroup0){
+						isHasGroup0 = false;
 						try {
 							setGroupView.callOnClick();
 						} catch (Exception e) {
@@ -265,14 +272,17 @@ public class ProductSetActivity extends Activity{
 					tvBadge.setVisibility(View.GONE);
 				}
 				scrollContent.addView(setGroupView, 
-						new LinearLayout.LayoutParams(
-								LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+						new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 				
 				if(pCompGroup.getRequireAmount() > 0){
 					updateBadge(pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
 				}
 			}
 		}
+	}
+	
+	private LinearLayout getScrollContainer(){
+		return (LinearLayout) mScroll.findViewById(R.id.LinearLayout1);
 	}
 	
 	/**
@@ -318,7 +328,7 @@ public class ProductSetActivity extends Activity{
 						Products.CHILD_OF_SET_HAVE_PRICE, setDetail.getVatType(), 
 						setDetail.getVatRate(), setDetail.getOrderSetQty(), 
 						setDetail.getProductPrice(), mOrderDetailId);
-				mTrans.updateOrderSetParentOrderId(mTransactionId, mOrderDetailId, 
+				mTrans.updateOrderSetSelfOrderId(mTransactionId, mOrderDetailId, 
 						setDetail.getProductId(), parentOrderId);
 			}
 			finish();
@@ -439,7 +449,7 @@ public class ProductSetActivity extends Activity{
 			if(convertView == null){
 				LayoutInflater inflater = (LayoutInflater)
 					getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				convertView = inflater.inflate(R.layout.order_set_detail_template, null, false);
+				convertView = inflater.inflate(R.layout.order_set_detail_template, parent, false);
 				holder = new ViewSetDetailHolder();
 				holder.tvSetNo = (TextView) convertView.findViewById(R.id.tvSetNo);
 				holder.tvSetName = (TextView) convertView.findViewById(R.id.tvSetName);
@@ -566,7 +576,7 @@ public class ProductSetActivity extends Activity{
 			mRequireAmount = requireAmount;
 			
 			mImgLoader = new ImageLoader(ProductSetActivity.this, 0,
-					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.SMALL);
+					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		}
 
 		@Override
@@ -609,7 +619,7 @@ public class ProductSetActivity extends Activity{
 				holder.tvPrice.setVisibility(View.INVISIBLE);
 
 			if(Utils.isShowMenuImage(ProductSetActivity.this)){
-				mImgLoader.displayImage(Utils.getImageUrl(ProductSetActivity.this) + pComp.getImgUrl(), holder.imgMenu);
+				mImgLoader.displayImage(Utils.getImageUrl(ProductSetActivity.this) + pComp.getImgName(), holder.imgMenu);
 			}
 			
 			convertView.setOnClickListener(new OnClickListener(){
@@ -620,13 +630,15 @@ public class ProductSetActivity extends Activity{
 							pComp.getFlexibleProductPrice() : 0;
 					if(mRequireAmount > 0){
 						// count total group qty from db
-						double totalQty = mTrans.getOrderSetTotalQty(
-								mTransactionId, mOrderDetailId, mPcompGroupId);
+						double totalQty = mTrans.getOrderSetTotalQty(mTransactionId, mOrderDetailId, mPcompGroupId);
 						
 						if(totalQty < mRequireAmount){
 							mTrans.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
 									1, price, mPcompGroupId, mRequireAmount);
-							updateBadge(mPcompGroupId, mRequireAmount);
+							totalQty = updateBadge(mPcompGroupId, mRequireAmount);
+							if(totalQty >= mRequireAmount)
+								// select next group
+								selectNextGroup();
 						}
 					}else{
 						mTrans.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
@@ -637,6 +649,21 @@ public class ProductSetActivity extends Activity{
 				
 			});
 			return convertView;
+		}
+	}
+	
+	@SuppressLint("NewApi")
+	private void selectNextGroup(){
+		LinearLayout scroll = getScrollContainer();
+		for(int i = 0; i < scroll.getChildCount(); i++){
+			View child = scroll.getChildAt(i);
+			if(child.isSelected()){
+				if(i < scroll.getChildCount() - 1){
+					child = scroll.getChildAt(i + 1);
+					child.callOnClick();
+				}
+				return;
+			}
 		}
 	}
 }

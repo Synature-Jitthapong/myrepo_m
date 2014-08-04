@@ -36,6 +36,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 	 * Request code for set system date
 	 */
 	public static final int REQUEST_FOR_SETTING_DATE = 1;
+	
 	/**
 	 * Request code for setting
 	 */
@@ -62,6 +63,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.activity_login);
 		
 		mBtnLogin = (Button) findViewById(R.id.btnLogin);
@@ -93,7 +95,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 					!mSession.getSessionDate().isEmpty())
 				mTvLastSession.setText(mFormat.dateFormat(mSession.getSessionDate()));
 			else
-				mTvLastSession.setText(" :- ");
+				mTvLastSession.setText("- ");
 
 			mTvSaleDate.setText(mFormat.dateFormat(Utils.getDate().getTime()));
 		} catch (Exception e) {
@@ -109,9 +111,13 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 			}
 		}
 		if(requestCode == REQUEST_FOR_SETTING){
-			if(resultCode == RESULT_OK){
+			if(resultCode == SettingsActivity.UPDATE_NEW_DATA){
 				if(!mSync.IsAlreadySync())
 					updateData();
+			}
+			if(resultCode == SettingsActivity.REFRESH_PARENT_ACTIVITY){
+				startActivity(getIntent());
+				finish();
 			}
 		}
 	}
@@ -209,6 +215,15 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 	}
 	
 	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if(keyCode == KeyEvent.KEYCODE_BACK){
+			return false;
+		}else{
+			return super.onKeyDown(keyCode, event);
+		}
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_login, menu);
 		return true;
@@ -230,13 +245,32 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 			startActivity(intent);
 			return true;
 		case R.id.itemExit:
-			finish();
+			exit();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
 		}
 	}
 
+	private void exit(){
+		new AlertDialog.Builder(this)
+		.setTitle(R.string.exit)
+		.setMessage(R.string.confirm_exit)
+		.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		})
+		.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+		}).show();
+	}
+	
 	private void updateData(){
 		final ProgressDialog progress = new ProgressDialog(this);
 		progress.setCancelable(false);

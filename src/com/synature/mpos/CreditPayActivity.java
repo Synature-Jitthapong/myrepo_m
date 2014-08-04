@@ -50,8 +50,6 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	 * Thread for run magnetic reader listener 
 	 */
 	private Thread mMsrThread = null;
-
-	private WintecMagneticReader mMsrReader;
 	
 	private PaymentDetail mPayment;
 	private Formater mFormat;
@@ -165,7 +163,6 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	protected void onStart() {
 		super.onStart();
 		// start magnetic reader thread
-		mMsrReader = new WintecMagneticReader(getApplicationContext());
 		mMsrThread = new Thread(new MagneticReaderThread());
 		try {
 			mMsrThread.start();
@@ -190,7 +187,6 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 
 	@Override
 	protected void onDestroy() {
-		//mMsrReader.close();
 		super.onDestroy();
 	}
 
@@ -523,7 +519,12 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	 * Listener for magnetic reader
 	 */
 	private class MagneticReaderThread implements Runnable{
-
+		private WintecMagneticReader mMsrReader;
+		
+		public MagneticReaderThread(){
+			mMsrReader = new WintecMagneticReader(getApplicationContext());
+		}
+		
 		@Override
 		public void run() {
 			while(mIsRead){
@@ -618,6 +619,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 							" Error when read data from magnetic card : " + e.getMessage());
 				}
 			}
+			mMsrReader.close();
 		}
 	};
 

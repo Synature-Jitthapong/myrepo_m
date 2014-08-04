@@ -35,6 +35,9 @@ public class OrderDetailTable extends BaseColumn{
 			+ COLUMN_TOTAL_RETAIL_PRICE + " real default 0, "
 			+ COLUMN_TOTAL_SALE_PRICE + " real default 0, "
 			+ ProductTable.COLUMN_SALE_MODE + " integer default 1, "
+			+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + " integer default 0,"
+			+ PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID + " integer default 0,"
+			+ PromotionPriceGroupTable.COLUMN_COUPON_HEADER + " text,"
 			+ COLUMN_PARENT_ORDER_ID + " integer default 0, "
 			+ COLUMN_REMARK + " text, " 
 			+ " primary key (" + COLUMN_ORDER_ID + ") );";

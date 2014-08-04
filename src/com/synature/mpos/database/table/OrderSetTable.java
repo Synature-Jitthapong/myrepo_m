@@ -14,6 +14,7 @@ public class OrderSetTable {
 			" create table " + TABLE_ORDER_SET + "( " 
 			+ COLUMN_ORDER_SET_ID + " integer not null," 
 			+ OrderDetailTable.COLUMN_ORDER_ID + " integer not null, "
+			+ OrderTransactionTable.COLUMN_TRANS_ID + " integer not null, "
 			+ ProductComponentTable.COLUMN_PGROUP_ID + " integer not null, " 
 			+ ProductTable.COLUMN_PRODUCT_ID + " integer not null, " 
 			+ ProductComponentGroupTable.COLUMN_REQ_AMOUNT + " real default 0, " 

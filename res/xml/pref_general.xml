@@ -6,6 +6,7 @@
             android:defaultValue="true"
             android:key="show_menu_image"
             android:title="@string/show_menu_image" />
+        <ListPreference android:title="@string/language" android:key="language_list" android:entryValues="@array/language_value" android:entries="@array/language_name" android:defaultValue="en_US"/>
         
     </PreferenceCategory>
 

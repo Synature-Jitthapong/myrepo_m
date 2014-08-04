@@ -3,6 +3,7 @@ package com.synature.mpos;
 import java.util.List;
 
 import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.MPOSOrderTransaction.MPOSOrderDetail;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.PromotionDiscount;
@@ -40,6 +41,7 @@ public class PromotionActivity extends Activity {
 	private OrderDiscountAdapter mOrderAdapter;
 	
 	private int mTransactionId;
+	private int mSelectedProPriceGroupId;
 	
 	private EditText mTxtTotalPrice;
 	private LinearLayout mPromoButtonContainer;
@@ -74,23 +76,23 @@ public class PromotionActivity extends Activity {
 		mPromoLst = mPromotion.listPromotionPriceGroup();
 		for(ProductGroups.PromotionPrice promo : mPromoLst){
 			LayoutInflater inflater = (LayoutInflater) getLayoutInflater();
-			Button btn = (Button) inflater.inflate(R.layout.button_template, null);
+			Button btn = (Button) inflater.inflate(R.layout.button_template, null, false);
 			btn.setId(promo.getPriceGroupID());
 			btn.setText(promo.getPromotionName().equals("") ? promo.getButtonName() : promo.getPromotionName());
 			btn.setMinWidth(128);
 			btn.setMinHeight(64);
 			btn.setOnClickListener(new OnPromotionButtonClickListener(promo.getPriceGroupID(), 
-					promo.getPromotionTypeID(), promo.getCouponHeader(), promo.getPromotionName()));
+					promo.getPromotionTypeID(), promo.getCouponHeader()));
 			mPromoButtonContainer.addView(btn, getHorizontalParams());
 		}
 
 		try {
-			for(MPOSOrderDetail detail : mOrderLst){
-				for(int i = 0; i < mPromoButtonContainer.getChildCount(); i++){
-					View child = mPromoButtonContainer.getChildAt(i);
-					if(detail.getPromotionPriceGroupId() == child.getId()){
-						child.setSelected(true);
-					}
+			MPOSOrderTransaction trans = mTrans.getTransaction(mTransactionId);
+			for(int i = 0; i < mPromoButtonContainer.getChildCount(); i++){
+				View child = mPromoButtonContainer.getChildAt(i);
+				if(trans.getPromotionPriceGroupId() == child.getId()){
+					child.setSelected(true);
+					return;
 				}
 			}
 		} catch (Exception e) {
@@ -111,6 +113,7 @@ public class PromotionActivity extends Activity {
 	
 	private void confirmDiscount(){
 		mTrans.confirmDiscount(mTransactionId);
+		mTrans.updateTransactionPromotion(mTransactionId, mSelectedProPriceGroupId);
 	}
 	
 	private void clearDiscount(){
@@ -146,16 +149,10 @@ public class PromotionActivity extends Activity {
 			
 			mTrans.discountEatchProduct(mTransactionId, detail.getOrderDetailId(), 
 					p.getVatType(detail.getProductId()), p.getVatRate(detail.getProductId()), 
-					priceAfterDiscount, discount, DiscountActivity.PRICE_DISCOUNT_TYPE, 
-					0, 0, "", "");
+					priceAfterDiscount, discount, 0, 0, 0, "");
 		}
 		loadOrderDetail();
 		summary();
-		for(int i = 0; i < mPromoLst.size(); i++){
-			View child = mPromoButtonContainer.getChildAt(i);
-			if(child.isSelected())
-				child.setSelected(false);
-		}
 	}
 	
 	private void summary(){
@@ -174,7 +171,7 @@ public class PromotionActivity extends Activity {
 		};
 		LinearLayout rowSummary = SaleReportActivity.createRowSummary(this, tvs);
 		rowSummary.setDividerDrawable(getResources().getDrawable(android.R.drawable.divider_horizontal_bright));
-		rowSummary.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
+		rowSummary.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE | LinearLayout.SHOW_DIVIDER_BEGINNING | LinearLayout.SHOW_DIVIDER_END);
 		mSummaryContainer.addView(rowSummary);
 	}
 	
@@ -187,20 +184,23 @@ public class PromotionActivity extends Activity {
 		private int mPriceGroupId;
 		private int mPromotionTypeId;
 		private String mCouponHeader;
-		private String mPromotionName;
 		
-		public OnPromotionButtonClickListener(int priceGroupId, int promotionTypeId, 
-				String couponHeader, String promotionName){
+		public OnPromotionButtonClickListener(int priceGroupId, 
+				int promotionTypeId, String couponHeader){
 			mPriceGroupId = priceGroupId;
 			mPromotionTypeId = promotionTypeId;
 			mCouponHeader = couponHeader;
-			mPromotionName = promotionName;
 		}
 		
 		@Override
 		public void onClick(View view) {
+			resetDiscount();
 			if(view.isSelected()){
-				resetDiscount();
+				for(int i = 0; i < mPromoLst.size(); i++){
+					View child = mPromoButtonContainer.getChildAt(i);
+					if(child.isSelected())
+						child.setSelected(false);
+				}
 			}else{
 				// clear selected promotion
 				for(int i = 0; i < mPromoLst.size(); i++){
@@ -208,7 +208,6 @@ public class PromotionActivity extends Activity {
 					if(child.getId() != view.getId()){
 						if(child.isSelected()){
 							child.setSelected(false);
-							resetDiscount();
 						}
 					}
 				}
@@ -217,6 +216,9 @@ public class PromotionActivity extends Activity {
 				if(productLst.size() > 0){
 					if(discount(productLst)){
 						view.setSelected(true);
+						mSelectedProPriceGroupId = mPriceGroupId;
+					}else{
+						mSelectedProPriceGroupId = 0;
 					}
 				}
 			}
@@ -250,7 +252,7 @@ public class PromotionActivity extends Activity {
 								
 								mTrans.discountEatchProduct(mTransactionId, orderDetailId, vatType, vatRate, 
 										priceAfterDiscount, discount, DiscountActivity.PRICE_DISCOUNT_TYPE, 
-										mPriceGroupId, mPromotionTypeId, mCouponHeader, mPromotionName);
+										mPriceGroupId, mPromotionTypeId, mCouponHeader);
 							}else if(product.getDiscountPercent() > 0){
 								// discount percent
 								discount = DiscountActivity.calculateDiscount(totalRetailPrice, 
@@ -259,7 +261,7 @@ public class PromotionActivity extends Activity {
 								
 								mTrans.discountEatchProduct(mTransactionId, orderDetailId, vatType, vatRate, 
 										priceAfterDiscount, discount, DiscountActivity.PERCENT_DISCOUNT_TYPE, 
-										mPriceGroupId, mPromotionTypeId, mCouponHeader, mPromotionName);
+										mPriceGroupId, mPromotionTypeId, mCouponHeader);
 							}
 						}else{
 							Log.d(TAG, "ProductID:" + detail.getProductId() + " Not allow discount");

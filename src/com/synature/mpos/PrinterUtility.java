@@ -4,11 +4,12 @@ public abstract class PrinterUtility {
 	
 	public static final int HORIZONTAL_MAX_SPACE = 45;
 	public static final int QTY_MAX_SPACE = 12;
+	public static final int MAX_TEXT_LENGTH = 25;
 	
 	protected static String createHorizontalSpace(int usedSpace){
 		StringBuilder space = new StringBuilder();
 		if(usedSpace > HORIZONTAL_MAX_SPACE){
-			usedSpace = usedSpace - 2;
+			usedSpace = HORIZONTAL_MAX_SPACE - 2;
 		}
 		for(int i = usedSpace; i <= HORIZONTAL_MAX_SPACE; i++){
 			space.append(" ");
@@ -16,7 +17,17 @@ public abstract class PrinterUtility {
 		return space.toString();
 	}
 	
+	protected static String limitTextLength(String text){
+		if(text == null)
+			return "";
+		if(text.length() > MAX_TEXT_LENGTH)
+			text = text.substring(0, MAX_TEXT_LENGTH) + "...";
+		return text;
+	}
+	
 	protected static int calculateLength(String text){
+		if(text == null)
+			return 0;
 		int length = 0;
 		for(int i = 0; i < text.length(); i++){
 			int code = (int) text.charAt(i);
@@ -45,7 +56,7 @@ public abstract class PrinterUtility {
 	protected static String createQtySpace(int usedSpace){
 		StringBuilder space = new StringBuilder();
 		if(usedSpace > QTY_MAX_SPACE){
-			usedSpace = usedSpace - 2;
+			usedSpace = QTY_MAX_SPACE - 2;
 		}
 		for(int i = usedSpace; i <= QTY_MAX_SPACE; i++){
 			space.append(" ");

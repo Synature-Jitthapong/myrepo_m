@@ -258,6 +258,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 			return true;
 		case R.id.itemConfirm:
 			mTrans.confirmDiscount(mTransactionId);
+			mTrans.updateTransactionPromotion(mTransactionId, 0);
 			finish();
 			return true;
 		default:
@@ -314,7 +315,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 									mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
 											order.getVatType(), mProduct.getVatRate(order.getProductId()), 
 											totalPriceAfterDiscount, discount, PRICE_DISCOUNT_TYPE, 0, 
-											OTHER_DISCOUNT_TYPE, "", "");
+											OTHER_DISCOUNT_TYPE, "");
 								}
 							}else if(mDisAllType == PERCENT_DISCOUNT_TYPE){
 								double discount = calculateDiscount(order.getTotalRetailPrice(), 
@@ -323,7 +324,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 								mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
 										order.getVatType(), mProduct.getVatRate(order.getProductId()), 
 										totalPriceAfterDiscount, discount, PERCENT_DISCOUNT_TYPE, 0, 
-										OTHER_DISCOUNT_TYPE, "", "");
+										OTHER_DISCOUNT_TYPE, "");
 							}
 						}
 					}
@@ -344,7 +345,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 								mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
 										order.getVatType(), mProduct.getVatRate(order.getProductId()), 
 										totalPriceAfterDiscount, discount, PRICE_DISCOUNT_TYPE, 0, 
-										OTHER_DISCOUNT_TYPE, "", "");
+										OTHER_DISCOUNT_TYPE, "");
 							}
 						}
 					}
@@ -369,7 +370,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 				mOrder.getOrderDetailId(), mOrder.getVatType(),
 				mProduct.getVatRate(mOrder.getProductId()), 
 				totalPriceAfterDiscount, discount, priceOrPercent, 0, 
-				OTHER_DISCOUNT_TYPE, "", "");
+				OTHER_DISCOUNT_TYPE, "");
 		
 		MPOSOrderTransaction.MPOSOrderDetail order = mOrderLst.get(mPosition);
 		order.setPriceDiscount(discount);

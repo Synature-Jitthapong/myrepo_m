@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,6 +18,7 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -45,7 +45,6 @@ import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
-import com.synature.util.FileManager;
 import com.synature.util.Logger;
 
 public class Utils {
@@ -94,11 +93,6 @@ public class Utils {
 	 * Image path on server
 	 */
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
-	
-	/**
-	 * Android Device Code
-	 */
-	public static String sDeviceCode;
 	
 	/**
 	 * The minimum date
@@ -186,6 +180,10 @@ public class Utils {
 		return false;
 	}
 	
+	/**
+	 * @param lastSessCal
+	 * @return get day number
+	 */
 	public static int getDiffDay(Calendar lastSessCal){
 		Calendar currCalendar = Calendar.getInstance();
 		int diffDay = 0;
@@ -256,7 +254,7 @@ public class Utils {
 	}
 	
 	public static Calendar getCalendar(){
-		return Calendar.getInstance(Locale.getDefault());
+		return Calendar.getInstance(Locale.US);
 	}
 	
 	public static Calendar getMinimum(){
@@ -275,7 +273,7 @@ public class Utils {
 	}
 	
 	public static Calendar convertStringToCalendar(String dateTime){
-		Calendar calendar = Calendar.getInstance();
+		Calendar calendar = getCalendar();
 		if(dateTime == null || dateTime.isEmpty()){
 			dateTime = String.valueOf(getMinimum().getTimeInMillis());
 		}
@@ -509,6 +507,24 @@ public class Utils {
 	
 	/**
 	 * @param context
+	 * @return text line 2
+	 */
+	public static String getWintecDspTextLine2(Context context){
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE2, "");
+	}
+	
+	/**
+	 * @param context
+	 * @return text line 1
+	 */
+	public static String getWintecDspTextLine1(Context context){
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE1, "");
+	}
+	
+	/**
+	 * @param context
 	 * @return dsp dev path
 	 */
 	public static String getWintecDspPath(Context context) {
@@ -602,12 +618,36 @@ public class Utils {
 	
 	/**
 	 * @param context
+	 * @return language code en_US, th_TH
+	 */
+	public static String getLangCode(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getString(SettingsActivity.KEY_PREF_LANGUAGE_LIST, "en_US");
+	}
+	
+	/**
+	 * @param context
 	 * @return true if enable show menu image
 	 */
 	public static boolean isShowMenuImage(Context context){
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_SHOW_MENU_IMG, true);
+	}
+	
+	/**
+	 * Switch language
+	 * @param context
+	 * @param langCode
+	 */
+	public static void switchLanguage(Context context, String langCode){
+		Locale locale = new Locale(langCode);  
+		Locale.setDefault(locale); 
+		Configuration config = new Configuration(); 
+		config.locale = locale; 
+		context.getResources().updateConfiguration(config,  
+		context.getResources().getDisplayMetrics());
 	}
 	
 	public static void shutdown(){

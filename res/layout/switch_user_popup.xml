@@ -16,7 +16,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:ems="10"
-        android:hint="@string/user_name" />
+        android:hint="@string/staff_code" />
 
     <EditText
         android:id="@+id/txtPassword"
@@ -25,7 +25,7 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/txtUser"
         android:ems="10"
-        android:hint="@string/pass_word"
+        android:hint="@string/password"
         android:inputType="textPassword" />
 
 </RelativeLayout>

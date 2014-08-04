@@ -27,9 +27,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -232,11 +231,8 @@ public class MenuCommentFragment extends DialogFragment{
 				LayoutInflater inflater = (LayoutInflater)
 						getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				convertView = inflater.inflate(R.layout.comment_list_template, parent, false);
-				holder.chkComment = (CheckBox) convertView.findViewById(R.id.chkComment);
-				holder.tvCommentNo = (TextView) convertView.findViewById(R.id.tvCommentNo);
-				holder.tvCommentName = (TextView) convertView.findViewById(R.id.tvCommentName);
+				holder.tvCommentName = (CheckedTextView) convertView.findViewById(R.id.chkCommentName);
 				holder.tvCommentPrice = (TextView) convertView.findViewById(R.id.tvCommentPrice);
-				holder.commentInfoContent = (LinearLayout) convertView.findViewById(R.id.commentInfoContent);
 				holder.txtCommentQty = (EditText) convertView.findViewById(R.id.txtCommentQty);
 				holder.btnCommentMinus = (Button) convertView.findViewById(R.id.btnCommentMinus);
 				holder.btnCommentPlus = (Button) convertView.findViewById(R.id.btnCommentPlus);
@@ -259,8 +255,8 @@ public class MenuCommentFragment extends DialogFragment{
 				holder.btnCommentMinus.setEnabled(false);
 				holder.btnCommentPlus.setEnabled(false);
 			}
-			holder.chkComment.setChecked(comment.isSelected());
-			holder.tvCommentNo.setText(String.valueOf((position + 1)) + ".");
+			holder.tvCommentName.setChecked(comment.isSelected());
+			holder.tvCommentName.setText(String.valueOf((position + 1)) + ". ");
 			holder.tvCommentName.setText(comment.getCommentName());
 			holder.tvCommentPrice.setText(mFormat.currencyFormat(comment.getCommentPrice()));
 			holder.txtCommentQty.setText(mFormat.qtyFormat(comment.getCommentQty() == 0 ? 1 : comment.getCommentQty()));
@@ -299,8 +295,7 @@ public class MenuCommentFragment extends DialogFragment{
 				}
 				
 			});
-			holder.commentInfoContent.setOnClickListener(new OnCommentClickListener(comment));
-			holder.chkComment.setOnClickListener(new OnCommentClickListener(comment));
+			convertView.setOnClickListener(new OnCommentClickListener(comment));
 			return convertView;
 		}
 		
@@ -333,11 +328,8 @@ public class MenuCommentFragment extends DialogFragment{
 		}
 		
 		private class ViewHolder{
-			CheckBox chkComment;
-			TextView tvCommentNo;
-			TextView tvCommentName;
+			CheckedTextView tvCommentName;
 			TextView tvCommentPrice;
-			LinearLayout commentInfoContent;
 			EditText txtCommentQty;
 			Button btnCommentMinus;
 			Button btnCommentPlus;

@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:baselineAligned="false"
+    android:divider="@android:drawable/divider_horizontal_bright"
+    android:showDividers="middle"
     tools:context=".MainActivity" >
 
     <LinearLayout
@@ -29,9 +31,10 @@
                 android:inputType="number"
                 android:lines="1"
                 android:maxLines="1"
+                android:minHeight="48dp"
                 android:paddingRight="48dp"
                 android:singleLine="true"
-                android:textSize="22sp" >
+                android:textAppearance="?android:attr/textAppearanceLargeInverse" >
 
                 <requestFocus />
             </EditText>
@@ -45,7 +48,6 @@
                 android:layout_centerVertical="true"
                 android:minWidth="48dip"
                 android:src="@drawable/ic_action_cancel" />
-
         </RelativeLayout>
 
         <ExpandableListView
@@ -53,7 +55,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@color/smoke_white" >
+            android:background="@color/smoke_white"
+            android:childDivider="@android:color/transparent" >
+
         </ExpandableListView>
 
         <LinearLayout
@@ -61,8 +65,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/smoke_white"
-            android:gravity="right"
+            android:gravity="center_vertical"
             android:padding="8dp" >
+
+            <TextView
+                android:id="@+id/tvOrderSelected"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
 
             <ImageButton
                 android:id="@+id/btnClearSelOrder"
@@ -91,31 +101,35 @@
             android:padding="4dp" >
         </TableLayout>
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
             <Button
-                android:id="@+id/btnPayment"
-                android:layout_width="wrap_content"
+                android:id="@+id/btnCashPaid"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
+                android:layout_weight="1"
+                android:minHeight="64dip"
+                android:minWidth="128dp"
+                android:onClick="cashPaidClicked"
+                android:text="@string/cash_paid"
+                android:textSize="22sp" />
+
+            <Button
+                android:id="@+id/btnPayment"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="64dip"
                 android:minWidth="128dp"
                 android:onClick="paymentClicked"
                 android:text="@string/payment"
-                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+                android:textAppearance="?android:attr/textAppearanceMediumInverse"
+                android:textColor="@android:color/holo_green_dark"
+                android:textSize="22sp" />
 
-            <Button
-                android:id="@+id/btnCashPaid"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@+id/btnPayment"
-                android:minWidth="128dp"
-                android:onClick="cashPaidClicked"
-                android:text="@string/cash_paid" />
-        </RelativeLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <RelativeLayout
@@ -127,7 +141,6 @@
             android:id="@+id/sliding_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
-
         </com.j1tth4.slidinglibs.SlidingTabLayout>
 
         <android.support.v4.view.ViewPager
@@ -138,20 +151,21 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/sliding_tabs"
-            android:layout_margin="@dimen/default_margin">
+            android:layout_margin="@dimen/default_margin" >
         </android.support.v4.view.ViewPager>
 
         <Button
-            android:id="@+id/buttonClearBill"
+            android:id="@+id/btnCancelOrder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:drawableLeft="@drawable/ic_action_cancel"
             android:minWidth="128dp"
-            android:onClick="clearBillClicked"
-            android:text="@string/cancel_bill"
-            android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+            android:onClick="cancelOrderClicked"
+            android:text="@android:string/cancel"
+            android:textAppearance="?android:attr/textAppearanceMediumInverse"
+            android:textColor="@android:color/holo_red_dark" />
 
         <Button
             android:id="@+id/btnPromotion"
@@ -159,7 +173,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_toRightOf="@+id/buttonDiscount"
-            android:drawableLeft="@drawable/ic_action_labels"
             android:minWidth="128dp"
             android:onClick="promotionClicked"
             android:text="@string/promotion_short" />
@@ -169,8 +182,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_toLeftOf="@+id/buttonClearBill"
-            android:drawableLeft="@drawable/ic_action_save"
+            android:layout_toLeftOf="@+id/btnCancelOrder"
             android:minWidth="128dp"
             android:onClick="holdOrderClicked"
             android:text="@string/hold"
@@ -182,7 +194,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:drawableLeft="@drawable/ic_action_labels"
             android:minWidth="128dp"
             android:onClick="discountClicked"
             android:text="@string/other_discount_short"

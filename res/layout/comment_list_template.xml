@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:divider="?android:dividerVertical"
@@ -9,70 +9,63 @@
     android:orientation="horizontal"
     android:padding="@dimen/default_margin" >
 
-    <CheckBox
-        android:id="@+id/chkComment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="false" />
-
-    <TextView
-        android:id="@+id/tvCommentNo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <LinearLayout
-        android:id="@+id/commentInfoContent"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="?android:selectableItemBackground"
-        android:focusable="true"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:paddingLeft="?android:listPreferredItemPaddingLeft"
-        android:paddingRight="?android:listPreferredItemPaddingRight" >
-
-        <TextView
-            android:id="@+id/tvCommentName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView
-            android:id="@+id/tvCommentPrice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-
     <Button
-        android:id="@+id/btnCommentMinus"
+        android:id="@+id/btnCommentPlus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="48dip"
-        android:text="@string/minus" />
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/chkCommentName"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:minWidth="48dp"
+        android:text="@string/plus" />
 
     <EditText
         android:id="@+id/txtCommentQty"
         android:layout_width="48dp"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/btnCommentPlus"
+        android:layout_alignBottom="@+id/btnCommentPlus"
+        android:layout_toLeftOf="@+id/btnCommentPlus"
         android:ems="10"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:gravity="center"
-        android:text="1" >
-
-        <requestFocus />
-    </EditText>
+        android:text="1" />
 
     <Button
-        android:id="@+id/btnCommentPlus"
+        android:id="@+id/btnCommentMinus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="48dp"
-        android:text="@string/plus" />
+        android:layout_below="@+id/chkCommentName"
+        android:layout_toLeftOf="@+id/txtCommentQty"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:minWidth="48dip"
+        android:text="@string/minus" />
 
-</LinearLayout>
+    <CheckedTextView
+        android:id="@+id/chkCommentName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:drawableLeft="?android:attr/listChoiceIndicatorMultiple"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:gravity="center_vertical" />
+
+    <TextView
+        android:id="@+id/tvCommentPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/chkCommentName"
+        android:layout_below="@+id/chkCommentName"
+        android:layout_marginLeft="8dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
+
+</RelativeLayout>

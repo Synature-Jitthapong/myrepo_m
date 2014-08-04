@@ -21,8 +21,51 @@ public class PaymentDetail extends MPOSDatabase {
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
 
+	/**
+	 * All payment columns
+	 */
+	public static final String[] ALL_PAYMENT_DETAIL_COLUMNS = {
+		PaymentDetailTable.COLUMN_PAY_ID,
+		ComputerTable.COLUMN_COMPUTER_ID,
+		BankTable.COLUMN_BANK_ID,
+		PayTypeTable.COLUMN_PAY_TYPE_ID,
+		CreditCardTable.COLUMN_CREDITCARD_TYPE_ID,
+		CreditCardTable.COLUMN_CREDITCARD_NO,
+		CreditCardTable.COLUMN_EXP_MONTH,
+		CreditCardTable.COLUMN_EXP_YEAR,
+		PaymentDetailTable.COLUMN_REMARK,
+		PaymentDetailTable.COLUMN_PAY_AMOUNT
+	};
+	
 	public PaymentDetail(Context context) {
 		super(context);
+	}
+	
+	/**
+	 * Get total bill that pay by cash
+	 * @param saleDate
+	 * @return total transaction pay by cash
+	 */
+	public int getTotalTransPayByCash(String saleDate){
+		int totalTrans = 0;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"select count(a." + OrderTransactionTable.COLUMN_TRANS_ID + ")"
+				+ " from " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
+				+ " left join " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " b "
+				+ " on a." + OrderTransactionTable.COLUMN_TRANS_ID + "=b." + OrderTransactionTable.COLUMN_TRANS_ID
+				+ " where a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?"
+				+ " and b." + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?"
+				+ " group by a." + OrderTransactionTable.COLUMN_SALE_DATE, 
+				new String[]{
+					saleDate,
+					String.valueOf(PaymentDetail.PAY_TYPE_CASH)
+				}
+		);
+		if(cursor.moveToFirst()){
+			totalTrans = cursor.getInt(0);
+		}
+		cursor.close();
+		return totalTrans;
 	}
 	
 	/**

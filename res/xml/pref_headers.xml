@@ -12,14 +12,8 @@
         android:fragment="com.synature.mpos.SettingsActivity$PrinterPreferenceFragment"
         android:title="@string/printer_setting"/>
 	<header
-        android:fragment="com.synature.mpos.SettingsActivity$DrwPreferenceFragment"
-        android:title="@string/wintec_cash_drawer_settings"/>
-	<header
-        android:fragment="com.synature.mpos.SettingsActivity$MsrPreferenceFragment"
-        android:title="@string/wintec_magnetic_reader_settings"/>
-	<header
-        android:fragment="com.synature.mpos.SettingsActivity$DspPreferenceFragment"
-        android:title="@string/wintec_customer_display_settings"/>
+        android:fragment="com.synature.mpos.SettingsActivity$WintecSettingFragment"
+        android:title="@string/wintec_setting"/>
     <header
         android:fragment="com.synature.mpos.SettingsActivity$SecondDisplayPreferenceFragment"
         android:title="@string/second_display_setting"/>

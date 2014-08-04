@@ -238,27 +238,31 @@ public class Formater extends MPOSDatabase{
 	}
 	
 	private SimpleDateFormat getSimpleDateFormat(){
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", getLocale());
 		return dateFormat;
 	}
 	
 	private SimpleDateFormat getSimpleDateTimeFormat(){
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", getLocale());
 		return dateFormat;
 	}
 	
 	private SimpleDateFormat getSimpleTimeFormat(){
-		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", getLocale());
 		return dateFormat;
 	}
 	
 	private NumberFormat getNumberFormat(){
-		NumberFormat numFormat = NumberFormat.getInstance(Locale.US);
+		NumberFormat numFormat = NumberFormat.getInstance(getLocale());
 		return numFormat;
 	}
 	
 	private DecimalFormat getDecimalFormat(){
 		DecimalFormat decFormat = new DecimalFormat();
 		return decFormat;
+	}
+	
+	private Locale getLocale(){
+		return new Locale(Utils.getLangCode(mContext));
 	}
 }

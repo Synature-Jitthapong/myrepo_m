@@ -27,7 +27,7 @@
         android:visibility="gone" />
 
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/imgMenuSize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_action_accept" />

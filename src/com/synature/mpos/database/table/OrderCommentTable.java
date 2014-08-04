@@ -15,8 +15,8 @@ public class OrderCommentTable{
 	
 	private static final String SQL_CREATE = 
 			" create table " + TABLE_ORDER_COMMENT + " ( "
-			+ OrderTransactionTable.COLUMN_TRANS_ID + " integer not null, "
 			+ OrderDetailTable.COLUMN_ORDER_ID + " integer not null, "
+			+ OrderTransactionTable.COLUMN_TRANS_ID + " integer not null, "
 			+ MenuCommentTable.COLUMN_COMMENT_ID + " integer not null, "
 			+ COLUMN_SELF_ORDER_ID + " integer default 0, "
 			+ COLUMN_ORDER_COMMENT_QTY + " real default 0, "

@@ -34,6 +34,7 @@ public class OrderTransactionTable extends BaseColumn {
 			+ COLUMN_TRANS_ID + " integer not null, "
 			+ ComputerTable.COLUMN_COMPUTER_ID + " integer not null, "
 			+ ShopTable.COLUMN_SHOP_ID + " integer not null, " 
+			+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + " integer default 0, "
 			+ COLUMN_OPEN_TIME + " text not null, " 
 			+ COLUMN_OPEN_STAFF + " integer not null, "
 			+ COLUMN_PAID_TIME + " text, " 

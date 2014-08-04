@@ -135,6 +135,9 @@ public class Products extends MPOSDatabase {
 						+ " a." + ProductComponentGroupTable.COLUMN_REQ_AMOUNT + ","
 						+ " a." + ProductTable.COLUMN_SALE_MODE + ","
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ","
+						+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ","
+						+ " b." + ProductTable.COLUMN_PRODUCT_NAME2 + ","
+						+ " b." + ProductTable.COLUMN_PRODUCT_NAME3 + ","
 						+ " b." + ProductTable.COLUMN_IMG_FILE_NAME 
 						+ " FROM " + ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP + " a "
 						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
@@ -166,7 +169,13 @@ public class Products extends MPOSDatabase {
 						.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));
 				pCompGroup.setProductName(cursor.getString(cursor
 						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
-				pCompGroup.setImgUrl(cursor.getString(cursor
+				pCompGroup.setProductName1(cursor.getString(cursor
+						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
+				pCompGroup.setProductName2(cursor.getString(cursor
+						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
+				pCompGroup.setProductName3(cursor.getString(cursor
+						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
+				pCompGroup.setImgName(cursor.getString(cursor
 						.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
 				pCompGroupLst.add(pCompGroup);
 			}while(cursor.moveToNext());
@@ -226,7 +235,7 @@ public class Products extends MPOSDatabase {
 						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
 				pComp.setProductName3(cursor.getString(cursor
 						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
-				pComp.setImgUrl(cursor.getString(cursor
+				pComp.setImgName(cursor.getString(cursor
 						.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
 				pComp.setProductPrice(cursor.getDouble(cursor
 						.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
@@ -292,7 +301,8 @@ public class Products extends MPOSDatabase {
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME3 + ", " 
 						+ " b." + ProductTable.COLUMN_PRODUCT_PRICE + ", " 
 						+ " b." + ProductTable.COLUMN_VAT_TYPE + ", " 
-						+ " b." + ProductTable.COLUMN_VAT_RATE 
+						+ " b." + ProductTable.COLUMN_VAT_RATE + ", "
+						+ " b." + ProductTable.COLUMN_IMG_FILE_NAME
 						+ " FROM " + ProductComponentTable.TABLE_PCOMPONENT + " a "
 						+ " INNER JOIN " + ProductTable.TABLE_PRODUCT + " b "
 						+ " ON a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_ID + "=b."
@@ -327,6 +337,7 @@ public class Products extends MPOSDatabase {
 						.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
 				p.setVatRate(cursor.getDouble(cursor
 						.getColumnIndex(ProductTable.COLUMN_VAT_RATE)));
+				p.setImgName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
 				pLst.add(p);
 			}while(cursor.moveToNext());
 		}
@@ -542,7 +553,7 @@ public class Products extends MPOSDatabase {
 				.getColumnIndex(ProductTable.COLUMN_VAT_RATE)));
 		p.setDiscountAllow(cursor.getInt(cursor
 				.getColumnIndex(ProductTable.COLUMN_DISCOUNT_ALLOW)));
-		p.setImgUrl(cursor.getString(cursor
+		p.setImgName(cursor.getString(cursor
 				.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
 		return p;
 	}
@@ -640,6 +651,7 @@ public class Products extends MPOSDatabase {
 				ContentValues cv = new ContentValues();
 				cv.put(ProductTable.COLUMN_PRODUCT_GROUP_ID, pg.getProductGroupId());
 				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_CODE, pg.getProductGroupCode());
+				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME, pg.getProductGroupName());
 				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_TYPE, pg.getProductGroupType());
 				cv.put(ProductGroupTable.COLUMN_IS_COMMENT, pg.getIsComment());
 				cv.put(COLUMN_ORDERING, pg.getProductGroupOrdering());
@@ -683,6 +695,7 @@ public class Products extends MPOSDatabase {
 				cv.put(ProductTable.COLUMN_PRODUCT_DEPT_ID, pd.getProductDeptID());
 				cv.put(ProductTable.COLUMN_PRODUCT_GROUP_ID, pd.getProductGroupID());
 				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE, pd.getProductDeptCode());
+				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME, pd.getProductDeptName());
 				cv.put(COLUMN_ORDERING, pd.getProductDeptOrdering());
 				cv.put(ProductTable.COLUMN_ACTIVATE, 0);
 				getWritableDatabase().insertOrThrow(ProductDeptTable.TABLE_PRODUCT_DEPT, null, cv);
@@ -844,7 +857,7 @@ public class Products extends MPOSDatabase {
 		private int vatType;
 		private double vatRate;
 		private int hasServiceCharge;
-		private String imgUrl;
+		private String imgName;
 		private int saleMode;
 		
 		public int getSaleMode() {
@@ -955,11 +968,11 @@ public class Products extends MPOSDatabase {
 		public void setHasServiceCharge(int hasServiceCharge) {
 			this.hasServiceCharge = hasServiceCharge;
 		}
-		public String getImgUrl() {
-			return imgUrl;
+		public String getImgName() {
+			return imgName;
 		}
-		public void setImgUrl(String imgUrl) {
-			this.imgUrl = imgUrl;
+		public void setImgName(String imgName) {
+			this.imgName = imgName;
 		}
 		@Override
 		public String toString() {
