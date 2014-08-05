@@ -646,8 +646,7 @@ public class Utils {
 		Locale.setDefault(locale); 
 		Configuration config = new Configuration(); 
 		config.locale = locale; 
-		context.getResources().updateConfiguration(config,  
-		context.getResources().getDisplayMetrics());
+		context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
 	}
 	
 	public static void shutdown(){

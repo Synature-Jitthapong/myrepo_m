@@ -93,11 +93,11 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 			
 			if(mSession.getSessionDate() != null && 
 					!mSession.getSessionDate().isEmpty())
-				mTvLastSession.setText(mFormat.dateFormat(mSession.getSessionDate()));
+				mTvLastSession.setText(getString(R.string.last_session) + mFormat.dateFormat(mSession.getSessionDate()));
 			else
-				mTvLastSession.setText("- ");
+				mTvLastSession.setText(getString(R.string.last_session) + "-");
 
-			mTvSaleDate.setText(mFormat.dateFormat(Utils.getDate().getTime()));
+			mTvSaleDate.setText(getString(R.string.current_sale_date) + mFormat.dateFormat(Utils.getDate().getTime()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

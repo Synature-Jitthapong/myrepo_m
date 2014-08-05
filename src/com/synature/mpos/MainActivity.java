@@ -39,6 +39,9 @@ import com.synature.util.Logger;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -46,6 +49,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -78,6 +83,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -182,9 +188,45 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		 */
 		mDsp = new WintecCustomerDisplay(getApplicationContext());
 
+		setupCustomSwLang();
 		setupBarCodeEvent();
 		setupMenuDeptPager();
 		setupOrderListView();
+	}
+	
+	private void setupCustomSwLang(){
+		final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		LayoutInflater inflater = getLayoutInflater();
+		View swView = inflater.inflate(R.layout.sw_layout, null, false);
+		final Switch swLang = (Switch) swView.findViewById(R.id.switch1);
+		swLang.setText(getString(R.string.language));
+		swLang.setTextOff(getString(R.string.lang_eng_short));
+		swLang.setTextOn(getString(R.string.lang_thai_short));
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayShowCustomEnabled(true);
+		actionBar.setCustomView(swView);
+		if(Utils.getLangCode(this).equals("th_TH"))
+			swLang.setChecked(true);
+		swLang.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				if(swLang.isChecked()){
+					SharedPreferences.Editor editor = sharedPref.edit();
+					editor.putString(SettingsActivity.KEY_PREF_LANGUAGE_LIST, "th_TH");
+					editor.commit();
+					Utils.switchLanguage(MainActivity.this, "th_TH");
+				}else{
+					SharedPreferences.Editor editor = sharedPref.edit();
+					editor.putString(SettingsActivity.KEY_PREF_LANGUAGE_LIST, "en_US");
+					editor.commit();
+					Utils.switchLanguage(MainActivity.this, "en_US");
+				}
+				startActivity(getIntent());
+				finish();
+			}
+			
+		});
 	}
 	
 	private void setupOrderListView(){

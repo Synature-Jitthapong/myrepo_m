@@ -160,7 +160,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:drawableLeft="@drawable/ic_action_cancel"
             android:minWidth="128dp"
             android:onClick="cancelOrderClicked"
             android:text="@android:string/cancel"

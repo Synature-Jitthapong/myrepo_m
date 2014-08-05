@@ -4,6 +4,8 @@
     <string name="app_name">mPOS</string>
     <string name="lang_eng">English</string>
     <string name="lang_thai">Thailand</string>
+    <string name="lang_eng_short">En</string>
+    <string name="lang_thai_short">Th</string>
     <string name="login">Login</string>
     <string name="staff_code">StaffCode</string>
     <string name="password">Password</string>
