@@ -409,7 +409,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				return true;
 			case R.id.itemPrint:
 				Session session = new Session(getActivity());
-				int sessionId = session.getSessionId(activity.mStaffId, activity.mDateTo);
+				int sessionId = session.getSessionId(activity.mDateTo);
 				new Thread(new PrintReport(getActivity(), sessionId,
 						activity.mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
 				return true;

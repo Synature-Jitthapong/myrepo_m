@@ -59,6 +59,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 	private TextView mTvSaleDate;
 	private TextView mTvLastSession;
 	private TextView mTvDeviceCode;
+	private TextView mTvLastSyncTime;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		mTvSaleDate = (TextView) findViewById(R.id.tvSaleDate);
 		mTvLastSession = (TextView) findViewById(R.id.tvLastSession);
 		mTvDeviceCode = (TextView) findViewById(R.id.tvDeviceCode);
+		mTvLastSyncTime = (TextView) findViewById(R.id.tvLastSyncTime);
 		
 		mTxtUser.setSelectAllOnFocus(true);
 		mTxtPass.setSelectAllOnFocus(true);
@@ -86,21 +88,17 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		mComputer = new Computer(this);
 		mFormat = new Formater(this);
 		mSync = new SyncMasterLog(this);
-		
-		try {
-			if(mShop.getShopName() != null)
-				mTvShopName.setText(mShop.getShopName());
-			
-			if(mSession.getSessionDate() != null && 
-					!mSession.getSessionDate().isEmpty())
-				mTvLastSession.setText(getString(R.string.last_session) + mFormat.dateFormat(mSession.getSessionDate()));
-			else
-				mTvLastSession.setText(getString(R.string.last_session) + "-");
 
-			mTvSaleDate.setText(getString(R.string.current_sale_date) + mFormat.dateFormat(Utils.getDate().getTime()));
-		} catch (Exception e) {
-			e.printStackTrace();
+		if(mShop.getShopName() != null){
+			mTvShopName.setText(mShop.getShopName());
 		}
+		if(mSession.getCurrentSessionDate() != null && !mSession.getCurrentSessionDate().isEmpty()){
+			mTvLastSession.setText(getString(R.string.last_session) + " " + mFormat.dateFormat(mSession.getCurrentSessionDate()));
+		}else{
+			mTvLastSession.setText(getString(R.string.last_session) + "-");
+		}
+		mTvSaleDate.setText(getString(R.string.current_sale_date) + " " + mFormat.dateFormat(Utils.getDate().getTime()));
+		mTvLastSyncTime.setText(getString(R.string.last_update) + " " + mFormat.dateTimeFormat(mSync.getLastSyncTime()));
 	}
 
 	@Override
@@ -129,9 +127,9 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 	 * force to date & time setting.
 	 */
 	private void checkSessionDate(){
-		if(mSession.getCurrentSessionId() > 0){
+		if(mSession.getLastSessionId() > 0){
 			final Calendar sessionDate = Calendar.getInstance();
-			sessionDate.setTimeInMillis(Long.parseLong(mSession.getSessionDate()));
+			sessionDate.setTimeInMillis(Long.parseLong(mSession.getCurrentSessionDate()));
 			/*
 			 *  sessionDate > currentDate
 			 *  mPOS will force to go to date & time Settings
@@ -165,9 +163,9 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 			 */
 			else if(Utils.getDate().getTime().compareTo(sessionDate.getTime()) > 0){
 				// check last session has already enddday ?
-				if(!mSession.checkEndday(mSession.getSessionDate())){
+				if(!mSession.checkEndday(mSession.getCurrentSessionDate())){
 					Utils.endday(LoginActivity.this, mShop.getShopId(), 
-							mComputer.getComputerId(), mSession.getCurrentSessionId(), 
+							mComputer.getComputerId(), mSession.getLastSessionId(), 
 							mStaffId, 0, true);
 					gotoMainActivity();
 					// force end previous sale date
@@ -476,7 +474,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 	}
 	
 	private void enddingMultipleDay(){
-		String sessionDate = mSession.getSessionDate();
+		String sessionDate = mSession.getCurrentSessionDate();
 		if(!sessionDate.equals("")){
 			Calendar sessCal = Calendar.getInstance();
 			sessCal.setTimeInMillis(Long.parseLong(sessionDate));

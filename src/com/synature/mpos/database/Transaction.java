@@ -157,6 +157,32 @@ public class Transaction extends MPOSDatabase {
 	}
 	
 	/**
+	 * Count order that not confirm
+	 * @param saleDate
+	 * @return total order that not confirm
+	 */
+	public int countOrderStatusNotSuccess(String saleDate){
+		int total = 0;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"select count(b." + OrderDetailTable.COLUMN_ORDER_ID + ")"
+				+ " from " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
+				+ " left join " + OrderDetailTable.TABLE_ORDER + " b "
+				+ " on a." + OrderTransactionTable.COLUMN_TRANS_ID + "=b." + OrderTransactionTable.COLUMN_TRANS_ID
+				+ " where a." + OrderTransactionTable.COLUMN_STATUS_ID + " in (?, ?)"
+				+ " and a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?", 
+				new String[]{
+					String.valueOf(Transaction.TRANS_STATUS_NEW),
+					String.valueOf(Transaction.TRANS_STATUS_HOLD),
+					saleDate
+				});
+		if(cursor.moveToFirst()){
+			total = cursor.getInt(0);
+		}
+		cursor.close();
+		return total;
+	}
+	
+	/**
 	 * @param saleDate
 	 * @return MPOSOrderTransaction
 	 */

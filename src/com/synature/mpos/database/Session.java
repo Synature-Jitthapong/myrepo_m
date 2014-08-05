@@ -46,6 +46,7 @@ public class Session extends MPOSDatabase{
 	}
 
 	/**
+	 * List session that not send to server
 	 * @return List<String> sessionDate 
 	 */
 	public List<String> listSessionEnddayNotSend(){
@@ -69,10 +70,11 @@ public class Session extends MPOSDatabase{
 	}
 	
 	/**
+	 * Count session that not send
 	 * @return total session that not send
 	 */
 	public int countSessionEnddayNotSend(){
-		int totalSess = 0;
+		int total = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT COUNT(" + SessionTable.COLUMN_SESS_DATE +")"
 				+ " FROM " + SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL
@@ -82,13 +84,14 @@ public class Session extends MPOSDatabase{
 				}
 		);
 		if(cursor.moveToFirst()){
-			totalSess = cursor.getInt(0);
+			total = cursor.getInt(0);
 		}
 		cursor.close();
-		return totalSess;
+		return total;
 	}
 	
 	/**
+	 * Ending multiple session
 	 * @param currentSaleDate
 	 * @param closeStaffId
 	 */
@@ -108,6 +111,7 @@ public class Session extends MPOSDatabase{
 	}
 	
 	/**
+	 * Close shift
 	 * @param sessionId
 	 * @param closeStaffId
 	 * @param closeAmount
@@ -121,14 +125,17 @@ public class Session extends MPOSDatabase{
 	}
 
 	/**
+	 * Get session date by sessionId
 	 * @param sessionId
 	 * @return session date specific by sessionId
 	 */
 	public String getSessionDate(int sessionId){
 		String sessionDate = "";
-		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_SESSION, 
-				new String[]{SessionTable.COLUMN_SESS_DATE}, 
-				SessionTable.COLUMN_SESS_ID + "=?", 
+		Cursor cursor = getReadableDatabase().query(
+				SessionTable.TABLE_SESSION, 
+				new String[]{
+					SessionTable.COLUMN_SESS_DATE
+				}, SessionTable.COLUMN_SESS_ID + "=?", 
 				new String[]{
 					String.valueOf(sessionId)
 				}, null, null, null);
@@ -141,13 +148,16 @@ public class Session extends MPOSDatabase{
 	}
 	
 	/**
+	 * Get current session date
 	 * @return session date
 	 */
-	public String getSessionDate(){
+	public String getCurrentSessionDate(){
 		String sessionDate = "";
-		Cursor cursor = getReadableDatabase().query(SessionTable.TABLE_SESSION, 
-				new String[]{SessionTable.COLUMN_SESS_DATE}, 
-				null, null, null, null, SessionTable.COLUMN_SESS_DATE + " DESC ", "1");
+		Cursor cursor = getReadableDatabase().query(
+				SessionTable.TABLE_SESSION, 
+				new String[]{
+					SessionTable.COLUMN_SESS_DATE
+				}, null, null, null, null, SessionTable.COLUMN_SESS_DATE + " DESC ", "1");
 		
 		if(cursor.moveToFirst()){
 			sessionDate = cursor.getString(0);
@@ -157,19 +167,23 @@ public class Session extends MPOSDatabase{
 	}
 	
 	/**
+	 * Delete session by sessionId
 	 * @param sessionId
 	 * @return row affected
 	 */
 	public int deleteSession(int sessionId){
-		return getWritableDatabase().delete(SessionTable.TABLE_SESSION, 
+		return getWritableDatabase().delete(
+				SessionTable.TABLE_SESSION, 
 				SessionTable.COLUMN_SESS_ID + "=?", 
-				new String[]{String.valueOf(sessionId)});
+				new String[]{
+					String.valueOf(sessionId)
+				});
 	}
 	
 	/**
 	 * @return max sessionId
 	 */
-	public int getMaxSessionId() {
+	private int getMaxSessionId() {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + SessionTable.COLUMN_SESS_ID + ") " + 
@@ -182,6 +196,7 @@ public class Session extends MPOSDatabase{
 	}
 
 	/**
+	 * Get close shift amount
 	 * @param sessionId
 	 * @return close cash amount
 	 */
@@ -202,6 +217,7 @@ public class Session extends MPOSDatabase{
 	}
 	
 	/**
+	 * Get open shift amount
 	 * @param sessionId
 	 * @return open open cash amount
 	 */
@@ -222,6 +238,7 @@ public class Session extends MPOSDatabase{
 	}
 	
 	/**
+	 * Update open shift amount
 	 * @param sessionId
 	 * @param cashAmount
 	 * @return rows affected
@@ -238,6 +255,7 @@ public class Session extends MPOSDatabase{
 	}
 	
 	/**
+	 * Open session
 	 * @param date
 	 * @param shopId
 	 * @param computerId
@@ -276,11 +294,17 @@ public class Session extends MPOSDatabase{
 	public int updateSessionEnddayDetail(String sessionDate, int status){
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_SEND_STATUS, status);
-		return getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL,
-				cv, SessionTable.COLUMN_SESS_DATE + "=?", new String[]{sessionDate});
+		return getWritableDatabase().update(
+				SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL,
+				cv, SessionTable.COLUMN_SESS_DATE + "=?", 
+				new String[]{
+					sessionDate
+				});
 	}
 	
 	/**
+	 * Add session endday detail.
+	 * Do this once when endday process.  
 	 * @param sessionDate
 	 * @param totalQtyReceipt
 	 * @param totalAmountReceipt
@@ -299,6 +323,7 @@ public class Session extends MPOSDatabase{
 	}
 
 	/**
+	 * Close session (close shift)
 	 * @param sessionId
 	 * @param closeStaffId
 	 * @param closeAmount
@@ -320,8 +345,8 @@ public class Session extends MPOSDatabase{
 				});
 	}
 
-	
 	/**
+	 * Check endday
 	 * @param sessionDate
 	 * @return true if already end day
 	 */
@@ -345,42 +370,19 @@ public class Session extends MPOSDatabase{
 	}
 	
 	/**
-	 * @param staffId
-	 * @param saleDate
-	 * @return sessionId
-	 */
-	public int getCurrentSession(int staffId, String saleDate) {
-		int sessionId = 0;
-		Cursor cursor = getReadableDatabase().query(
-				SessionTable.TABLE_SESSION,
-				new String[] { SessionTable.COLUMN_SESS_ID },
-				OrderTransactionTable.COLUMN_OPEN_STAFF + " =? " + " AND "
-						+ SessionTable.COLUMN_SESS_DATE + " =? " + " AND "
-						+ SessionTable.COLUMN_IS_ENDDAY + " =? ",
-				new String[] { String.valueOf(staffId), saleDate,
-						String.valueOf(NOT_ENDDAY_STATUS) }, null, null, null);
-		if (cursor.moveToFirst()) {
-			sessionId = cursor.getInt(0);
-		}
-		cursor.close();
-		return sessionId;
-	}
-	
-	/**
-	 * @param staffId
+	 * Get sessionId by sessionDate
 	 * @param sessionDate
 	 * @return sessionId
 	 */
-	public int getSessionId(int staffId, String sessionDate) {
+	public int getSessionId(String sessionDate) {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().query(
 				SessionTable.TABLE_SESSION,
-				new String[] { SessionTable.COLUMN_SESS_ID },
-				OrderTransactionTable.COLUMN_OPEN_STAFF + " =? " + " AND "
-						+ SessionTable.COLUMN_SESS_DATE + " =? ",
 				new String[] { 
-						String.valueOf(staffId), 
-						sessionDate
+					SessionTable.COLUMN_SESS_ID },
+				SessionTable.COLUMN_SESS_DATE + " =? ",
+				new String[] {
+					sessionDate
 				}, null, null, null);
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
@@ -392,35 +394,41 @@ public class Session extends MPOSDatabase{
 	/**
 	 * @return current sessionId
 	 */
-	public int getCurrentSessionId() {
+	public int getLastSessionId() {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().query(
 				SessionTable.TABLE_SESSION,
-				new String[] { SessionTable.COLUMN_SESS_ID },
+				new String[] { 
+					SessionTable.COLUMN_SESS_ID 
+				},
 				SessionTable.COLUMN_IS_ENDDAY + "=?",
 				new String[] {
-						String.valueOf(NOT_ENDDAY_STATUS) }, null, null, 
-						SessionTable.COLUMN_SESS_ID + " DESC ", "1");
+					String.valueOf(NOT_ENDDAY_STATUS) 
+				}, null, null, SessionTable.COLUMN_SESS_ID + " DESC ", "1");
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}
 		cursor.close();
 		return sessionId;
 	}
-	
+
 	/**
-	 * @param staffId
-	 * @return current sessionId by staff
+	 * Get current sessionId 
+	 * @return current sessionId
 	 */
-	public int getCurrentSessionId(int staffId) {
+	public int getCurrentSessionId() {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().query(
 				SessionTable.TABLE_SESSION,
-				new String[] { SessionTable.COLUMN_SESS_ID },
-				OrderTransactionTable.COLUMN_OPEN_STAFF + "=?" + " AND "
-						+ SessionTable.COLUMN_IS_ENDDAY + "=?",
-				new String[] { String.valueOf(staffId),
-						String.valueOf(NOT_ENDDAY_STATUS) }, null, null, null);
+				new String[] { 
+					SessionTable.COLUMN_SESS_ID 
+				},
+				OrderTransactionTable.COLUMN_CLOSE_STAFF + "=? AND "
+				+ SessionTable.COLUMN_IS_ENDDAY + "=?",
+				new String[] { 
+					"0",
+					String.valueOf(NOT_ENDDAY_STATUS) 
+				}, null, null, null);
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}

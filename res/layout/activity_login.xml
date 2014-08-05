@@ -19,22 +19,18 @@
 
         <TextView
             android:id="@+id/tvSaleDate"
-            style="@style/ActiveText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="xxxxxxxxxxxxxxxx"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/tvLastSession"
-            style="@style/ActiveText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tvSaleDate"
             android:layout_centerHorizontal="true"
-            android:text="xxxxxxxxxxxxxx"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
@@ -44,9 +40,16 @@
             android:layout_above="@+id/tvSaleDate"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="8dp"
-            android:text="xxxxxxxxxxx"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textSize="@dimen/large_text_size" />
+            android:textSize="@dimen/larger_text_size" />
+
+        <TextView
+            android:id="@+id/tvLastSyncTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvLastSession"
+            android:layout_centerHorizontal="true"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </RelativeLayout>
 
@@ -113,12 +116,10 @@
 
         <TextView
             android:id="@+id/tvDeviceCode"
-            style="@style/ActiveText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:text="xxxxxxxxxxxx"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
@@ -130,6 +131,16 @@
             android:layout_toLeftOf="@+id/tvDeviceCode"
             android:text="@string/device_code"
             android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/txtUser"
+            android:layout_alignRight="@+id/textView1"
+            android:text="@string/login"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="@dimen/large_text_size" />
 
     </RelativeLayout>
 

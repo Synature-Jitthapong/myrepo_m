@@ -56,7 +56,7 @@ public class ReprintActivity extends Activity {
 		
 		Session sess = new Session(getApplicationContext());
 		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, 
-				mOrders.listSuccessTransaction(sess.getSessionDate()));
+				mOrders.listSuccessTransaction(sess.getCurrentSessionDate()));
 		mLvTrans.setAdapter(mTransAdapter);
 	}
 	

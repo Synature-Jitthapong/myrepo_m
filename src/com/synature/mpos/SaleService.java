@@ -142,7 +142,7 @@ public class SaleService extends Service{
 				+ "computerId=" + computerId);
 		
 		Session session = new Session(getApplicationContext());
-		final String sessionDate = session.getSessionDate();
+		final String sessionDate = session.getCurrentSessionDate();
 		new LoadSaleTransaction(getApplicationContext(), sessionDate,
 				transactionId, new LoadSaleTransactionListener() {
 

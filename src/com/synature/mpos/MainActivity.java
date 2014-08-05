@@ -396,14 +396,14 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			 * is not valid.
 			 * It will be return to LoginActivity for new initial
 			 */
-			String sessDate = mSession.getSessionDate();
+			String sessDate = mSession.getCurrentSessionDate();
 			if(!sessDate.equals("")){
 				Calendar sessCal = Calendar.getInstance();
 				sessCal.setTimeInMillis(Long.parseLong(sessDate));
 				if(Utils.getDate().getTime().compareTo(sessCal.getTime()) > 0 || 
 					sessCal.getTime().compareTo(Utils.getDate().getTime()) > 0){
 					// check last session is already end day ?
-					if(!mSession.checkEndday(mSession.getSessionDate())){
+					if(!mSession.checkEndday(mSession.getCurrentSessionDate())){
 						startActivity(new Intent(MainActivity.this, LoginActivity.class));
 						finish();
 					}else{
@@ -1530,16 +1530,16 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 
 	private void openTransaction(){
 		openSession();	
-		mTransactionId = mTrans.getCurrTransactionId(mSession.getSessionDate());
+		mTransactionId = mTrans.getCurrTransactionId(mSession.getCurrentSessionDate());
 		if(mTransactionId == 0){
-			mTransactionId = mTrans.openTransaction(mSession.getSessionDate(), 
+			mTransactionId = mTrans.openTransaction(mSession.getCurrentSessionDate(), 
 					mShop.getShopId(), mComputer.getComputerId(),
 					mSessionId, mStaffId, mShop.getCompanyVatRate());
 		}
 	}
 
 	private void openSession(){
-		mSessionId = mSession.getCurrentSessionId(mStaffId); 
+		mSessionId = mSession.getCurrentSessionId(); 
 		if(mSessionId == 0){
 			mSessionId = mSession.openSession(Utils.getDate(), mShop.getShopId(), 
 					mComputer.getComputerId(), mStaffId, 0);
@@ -1571,7 +1571,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null, false);
 		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
 		List<MPOSOrderTransaction> billLst = 
-				mTrans.listHoldOrder(mSession.getSessionDate());
+				mTrans.listHoldOrder(mSession.getCurrentSessionDate());
 		HoldBillAdapter billAdapter = new HoldBillAdapter(billLst);
 		lvHoldBill.setAdapter(billAdapter);
 		lvHoldBill.setOnItemClickListener(new OnItemClickListener(){
@@ -1673,7 +1673,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 * close shift
 	 */
 	private void closeShift(){
-		if(mOrderDetailLst.size() == 0){
+		if(mTrans.countOrderStatusNotSuccess(mSession.getCurrentSessionDate()) == 0){
 			new AlertDialog.Builder(MainActivity.this)
 			.setCancelable(false)
 			.setTitle(R.string.close_shift)
@@ -1712,7 +1712,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 * endday
 	 */
 	private void endday(){
-		if(mOrderDetailLst.size() == 0){
+		if(mTrans.countOrderStatusNotSuccess(mSession.getCurrentSessionDate()) == 0){
 			new AlertDialog.Builder(MainActivity.this)
 			.setCancelable(false)
 			.setTitle(R.string.endday)
@@ -1974,7 +1974,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 */
 	private void countHoldOrder(){
 		if(mItemHoldBill != null){
-			int totalHold = mTrans.countHoldOrder(mSession.getSessionDate());
+			int totalHold = mTrans.countHoldOrder(mSession.getCurrentSessionDate());
 			if(totalHold > 0){
 				mItemHoldBill.setTitle(getString(R.string.hold_bill) + "(" + totalHold + ")");
 			}else{

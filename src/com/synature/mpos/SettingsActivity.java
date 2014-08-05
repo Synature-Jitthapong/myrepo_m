@@ -1,6 +1,7 @@
 package com.synature.mpos;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -85,6 +86,11 @@ public class SettingsActivity extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_IP));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_LANGUAGE_LIST));
+		
+		Preference prefConn = findPreference(KEY_PREF_SERVER_URL);
+		Preference prefLang = findPreference(KEY_PREF_LANGUAGE_LIST);
+		prefConn.setOnPreferenceChangeListener(new ConnectionChangeListener(this));
+		prefLang.setOnPreferenceChangeListener(new LanguageChangeListener(this));
 	}
 
 	@Override
@@ -153,6 +159,42 @@ public class SettingsActivity extends PreferenceActivity {
 						""));
 	}
 	
+	private static class LanguageChangeListener implements OnPreferenceChangeListener{
+
+		private Activity mActivity;
+		
+		public LanguageChangeListener(Activity activity){
+			mActivity = activity;
+		}
+		
+		@Override
+		public boolean onPreferenceChange(Preference preference, Object value) {
+			String langCode = value.toString();
+			Utils.switchLanguage(mActivity, langCode);
+			mActivity.setResult(REFRESH_PARENT_ACTIVITY);
+			mActivity.startActivity(mActivity.getIntent());
+			mActivity.finish();
+			return true;
+		}
+		
+	}
+	
+	private static class ConnectionChangeListener implements OnPreferenceChangeListener{
+
+		private Activity mActivity;
+		
+		public ConnectionChangeListener(Activity activity){
+			mActivity = activity;
+		}
+		
+		@Override
+		public boolean onPreferenceChange(Preference arg0, Object arg1) {
+			mActivity.setResult(UPDATE_NEW_DATA);
+			return true;
+		}
+		
+	}
+	
 	public static class PrinterPreferenceFragment extends PreferenceFragment {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
@@ -190,16 +232,7 @@ public class SettingsActivity extends PreferenceActivity {
 			Preference prefUrl = findPreference(KEY_PREF_SERVER_URL);
 			bindPreferenceSummaryToValue(prefUrl);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONN_TIME_OUT_LIST));
-			prefUrl.setOnPreferenceChangeListener(new OnPreferenceChangeListener(){
-
-				@Override
-				public boolean onPreferenceChange(Preference preference,
-						Object newValue) {
-					getActivity().setResult(UPDATE_NEW_DATA);
-					return true;
-				}
-				
-			});
+			prefUrl.setOnPreferenceChangeListener(new ConnectionChangeListener(getActivity()));
 		}
 	}
 	
@@ -211,19 +244,7 @@ public class SettingsActivity extends PreferenceActivity {
 			addPreferencesFromResource(R.xml.pref_general);
 			Preference langPref = findPreference(KEY_PREF_LANGUAGE_LIST);
 			bindPreferenceSummaryToValue(langPref);
-			
-			langPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener(){
-
-				@Override
-				public boolean onPreferenceChange(Preference pref, Object value) {
-					String langCode = value.toString();
-					Utils.switchLanguage(getActivity(), langCode);
-					getActivity().setResult(REFRESH_PARENT_ACTIVITY);
-					getActivity().startActivity(getActivity().getIntent());
-					getActivity().finish();
-					return true;
-				}
-			});
+			langPref.setOnPreferenceChangeListener(new LanguageChangeListener(getActivity()));
 		}
 		
 	}
@@ -238,6 +259,10 @@ public class SettingsActivity extends PreferenceActivity {
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
 		}
 		
+	}
+	
+	public void backupDbClick(final View v){
+		Utils.exportDatabase(getApplicationContext());
 	}
 	
 	public void printTestClick(final View v){

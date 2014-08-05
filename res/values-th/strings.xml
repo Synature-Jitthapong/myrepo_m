@@ -171,6 +171,7 @@
     <string name="reset">เริ่มใหม่</string>
     <string name="send_endday_data">ส่งข้อมูลการปิดสิ้นวัน</string>
     <string name="confirm_send_endday_now">ต้องการส่งข้อมูลการปิดสิ้นวันตอนนี้เลยไหม?</string>
+    <string name="send_endday_data_progress">กำลังส่งข้อมูลการขาย&#8230;</string>
     <string name="send_endday_data_success">ส่งข้อมูลการปิดสิ้นวันสำเร็จ</string>
     <string name="last_session">วันขายล่าสุด: </string>
     <string name="sale_date">วันขาย</string>
@@ -180,4 +181,5 @@
 	<string name="exit">ออกจากโปรแกรม</string>
 	<string name="confirm_exit">ต้องการออกจากโปรแกรมใช่ไหม?</string>
 	<string name="language">ภาษา</string>
+	<string name="last_update">อัพเดตข้อมูลล่าสุด: </string>
 </resources>
