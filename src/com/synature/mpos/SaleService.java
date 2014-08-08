@@ -5,8 +5,11 @@ import java.util.List;
 
 import com.synature.mpos.Utils.LoadSaleTransaction;
 import com.synature.mpos.Utils.LoadSaleTransactionListener;
+import com.synature.mpos.Utils.LoadEndDayTransaction;
+import com.synature.mpos.Utils.LoadEndDaySaleTransactionListener;
 import com.synature.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.synature.mpos.database.MPOSDatabase;
+import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
@@ -37,14 +40,8 @@ public class SaleService extends Service{
 		return mBinder;
 	}
 
-	/**
-	 * @param staffId
-	 * @param shopId
-	 * @param computerId
-	 * @param listener
-	 */
-	public void sendEnddaySale(final int staffId, final int shopId, final int computerId, 
-			final ProgressListener listener){
+	public void sendEnddaySale(final int shopId, final int computerId, 
+			final int staffId, final ProgressListener listener){
 		final Session sess = new Session(getApplicationContext());
 		List<String> sessLst = sess.listSessionEnddayNotSend();
 		final Iterator<String> it = sessLst.iterator();
@@ -54,18 +51,20 @@ public class SaleService extends Service{
 			 * execute load transaction json task
 			 * and send to hq 
 			 */
-			new LoadSaleTransaction(getApplicationContext(), sessionDate, 
-					true, new LoadSaleTransactionListener() {
+			new LoadEndDayTransaction(getApplicationContext(), sessionDate, new LoadEndDaySaleTransactionListener() {
 
 				@Override
-				public void onPost(POSData_SaleTransaction saleTrans) {
+				public void onPost(POSData_EndDaySaleTransaction enddaySale) {
 
-					final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
-					if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
+					final String jsonEndDaySale = Utils.generateJSONEndDaySale(getApplicationContext(), enddaySale);
+
+					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, jsonEndDaySale);
+					
+					if(jsonEndDaySale != null && !TextUtils.isEmpty(jsonEndDaySale)){
 						
 						new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-								shopId, computerId, staffId, jsonSale, new ProgressListener() {
+								shopId, computerId, staffId, jsonEndDaySale, new ProgressListener() {
 		
 									@Override
 									public void onError(String mesg) {
@@ -90,7 +89,7 @@ public class SaleService extends Service{
 											Transaction trans = new Transaction(getApplicationContext());
 											trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 											// log json sale if send to server success
-											JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
+											JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonEndDaySale);
 											if(!it.hasNext()){
 												listener.onPost();
 											}
@@ -126,25 +125,24 @@ public class SaleService extends Service{
 	
 	/**
 	 * @param shopId
+	 * @param sessionId
+	 * @param transactionId
 	 * @param computerId
 	 * @param staffId
-	 * @param sendAll
 	 * @param listener
 	 */
-	public void sendSale(final int shopId, final int transactionId, final int computerId, 
-			final int staffId, final ProgressListener listener) {
+	public void sendSale(final int shopId, final int sessionId, final int transactionId, 
+			final int computerId, final int staffId, final ProgressListener listener) {
 		Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
 				Utils.LOG_FILE_NAME, 
 				TAG + ": Start Send PartialSale \n"
 				+ "staffId=" + staffId + "\n"
 				+ "shopId=" + shopId + "\n"
+				+ "sessionId=" + sessionId + "\n"
 				+ "transactionId=" + transactionId + "\n"
 				+ "computerId=" + computerId);
 		
-		Session session = new Session(getApplicationContext());
-		final String sessionDate = session.getCurrentSessionDate();
-		new LoadSaleTransaction(getApplicationContext(), sessionDate,
-				transactionId, new LoadSaleTransactionListener() {
+		new LoadSaleTransaction(getApplicationContext(), sessionId, transactionId, new LoadSaleTransactionListener() {
 
 			@Override
 			public void onPre() {

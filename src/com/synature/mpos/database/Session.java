@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.Utils;
+import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.SessionDetailTable;
@@ -23,6 +24,7 @@ public class Session extends MPOSDatabase{
 	
 	public static final String[] ALL_SESS_COLUMNS = {
 		SessionTable.COLUMN_SESS_ID,
+		BaseColumn.COLUMN_UUID,
 		ComputerTable.COLUMN_COMPUTER_ID,
 		ShopTable.COLUMN_SHOP_ID,
 		SessionTable.COLUMN_SESS_DATE,
@@ -269,6 +271,7 @@ public class Session extends MPOSDatabase{
 		Calendar dateTime = Utils.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_SESS_ID, sessionId);
+		cv.put(BaseColumn.COLUMN_UUID, getUUID());
 		cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
 		cv.put(ShopTable.COLUMN_SHOP_ID, shopId);
 		cv.put(SessionTable.COLUMN_SESS_DATE, date.getTimeInMillis());

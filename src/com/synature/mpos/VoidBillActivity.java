@@ -2,7 +2,6 @@ package com.synature.mpos;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.synature.exceptionhandler.ExceptionHandler;
@@ -55,11 +54,10 @@ public class VoidBillActivity extends Activity {
 	
 	private int mTransactionId;
 	private int mComputerId;
+	private int mSessionId;
 	private int mShopId;
 	private int mStaffId;
 	
-	private Calendar mCalendar;
-	private String mDate;
 	private String mReceiptNo;
 	private String mReceiptDate;
 	
@@ -84,11 +82,6 @@ public class VoidBillActivity extends Activity {
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
         
-		Calendar c = Calendar.getInstance();
-		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
-				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-		mDate = String.valueOf(mCalendar.getTimeInMillis());
-		
 		txtReceiptNo = (EditText) findViewById(R.id.txtReceiptNo);
 		txtReceiptDate = (EditText) findViewById(R.id.txtSaleDate);
 		mLvBill = (ListView) findViewById(R.id.lvBill);
@@ -105,7 +98,7 @@ public class VoidBillActivity extends Activity {
 		mLvBill.setAdapter(mBillAdapter);
 		mLvBillDetail.setAdapter(mBillDetailAdapter);
 		
-		tvSaleDate.setText(mFormat.dateFormat(mCalendar.getTime()));
+		tvSaleDate.setText(mFormat.dateFormat(Utils.getCalendar().getTime()));
 	    
 	    btnSearch.setOnClickListener(new OnClickListener(){
 
@@ -127,6 +120,7 @@ public class VoidBillActivity extends Activity {
 				
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
+				mSessionId = trans.getSessionId();
 				mReceiptNo = trans.getReceiptNo();
 				mReceiptDate = mFormat.dateTimeFormat(c.getTime());
 				
@@ -308,7 +302,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText("");
 		txtReceiptDate.setText("");
 		
-		mTransLst = mTrans.listTransaction(mDate);
+		mTransLst = mTrans.listTransaction(String.valueOf(Utils.getDate()));
 		if(mTransLst.size() == 0){
 			new AlertDialog.Builder(VoidBillActivity.this)
 			.setTitle(R.string.void_bill)
@@ -396,7 +390,8 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void sendSale(){
-		mPartService.sendSale(mShopId, mTransactionId, mComputerId, mStaffId, new ProgressListener(){
+		mPartService.sendSale(mShopId, mSessionId, mTransactionId, mComputerId, 
+				mStaffId, new ProgressListener(){
 
 			@Override
 			public void onPre() {

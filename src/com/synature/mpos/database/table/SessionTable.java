@@ -15,6 +15,7 @@ public class SessionTable{
 	
 	private static final String SQL_CREATE =
 			" create table " + TABLE_SESSION + " ( " 
+			+ BaseColumn.COLUMN_UUID + " text not null, "
 			+ COLUMN_SESS_ID + " integer not null, "
 			+ ComputerTable.COLUMN_COMPUTER_ID + " integer not null, "
 			+ ShopTable.COLUMN_SHOP_ID + " integer not null, "

@@ -11,7 +11,6 @@ import com.synature.mpos.database.Session;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -44,6 +43,12 @@ public class SendEnddayActivity extends Activity {
 	private int mComputerId;
 	private boolean mAutoClose = false;
 	
+	private Session mSession;
+	private List<String> mSessLst;
+	private EnddayListAdapter mEnddayAdapter;
+	
+	private ListView mLvEndday;
+	
 	private MenuItem mItemClose;
 	private MenuItem mItemSend;
 	private MenuItem mItemProgress;
@@ -69,6 +74,8 @@ public class SendEnddayActivity extends Activity {
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 	    setFinishOnTouchOutside(false);
 		setContentView(R.layout.activity_send_endday);
+		
+		mLvEndday = (ListView) findViewById(R.id.lvEndday);
 
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
@@ -77,11 +84,10 @@ public class SendEnddayActivity extends Activity {
 		mAutoClose = intent.getBooleanExtra("autoClose", false);
 		
 		mFormat = new Formater(this);
-		
-		if (savedInstanceState == null) {
-			getFragmentManager().beginTransaction()
-					.add(R.id.container, new PlaceholderFragment()).commit();
-		}
+		mSession = new Session(this);
+		mSessLst = new ArrayList<String>();
+
+		setupAdapter();
 	}
 	
 	@Override
@@ -130,13 +136,23 @@ public class SendEnddayActivity extends Activity {
 				finish();
 				return true;
 			case R.id.itemSendAll:
-				mPartService.sendEnddaySale(mStaffId, mShopId, mComputerId, mSendListener);
+				mPartService.sendEnddaySale(mShopId, mComputerId, mStaffId, mSendListener);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
 	}
-
+	
+	private void setupAdapter(){
+		mSessLst = mSession.listSessionEnddayNotSend();
+		if(mEnddayAdapter == null){
+			mEnddayAdapter = new EnddayListAdapter();
+			mLvEndday.setAdapter(mEnddayAdapter);
+		}else{
+			mEnddayAdapter.notifyDataSetChanged();
+		}
+	}
+	
 	private ProgressListener mSendListener = new ProgressListener(){
 
 		@Override
@@ -151,10 +167,9 @@ public class SendEnddayActivity extends Activity {
 			mItemClose.setEnabled(true);
 			mItemSend.setVisible(true);
 			mItemProgress.setVisible(false);
-			PlaceholderFragment f = (PlaceholderFragment) getFragmentManager().findFragmentById(R.id.container);
-			if(f != null){
-				f.setupAdapter();
-			}
+			
+			setupAdapter();
+			
 			if(mAutoClose){
 				new AlertDialog.Builder(SendEnddayActivity.this)
 				.setCancelable(false)
@@ -184,93 +199,38 @@ public class SendEnddayActivity extends Activity {
 		
 	};
 	
-	/**
-	 * A placeholder fragment containing a simple view.
-	 */
-	public static class PlaceholderFragment extends Fragment {
-
-		private SendEnddayActivity mHost;
+	private class EnddayListAdapter extends BaseAdapter{
 		
-		private Session mSession;
-		private List<String> mSessLst;
-		private EnddayListAdapter mEnddayAdapter;
-		
-		private ListView mLvEndday;
-		
-		public PlaceholderFragment() {
-		}
-
+		private LayoutInflater mInflater = getLayoutInflater();
 		
 		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			mHost = (SendEnddayActivity) getActivity();
-			mSession = new Session(getActivity());
-			mSessLst = new ArrayList<String>();
-		}
-
-
-		private void setupAdapter(){
-			mSessLst = mSession.listSessionEnddayNotSend();
-			if(mEnddayAdapter == null){
-				mEnddayAdapter = new EnddayListAdapter();
-				mLvEndday.setAdapter(mEnddayAdapter);
-			}else{
-				mEnddayAdapter.notifyDataSetChanged();
-			}
-		}
-		
-		@Override
-		public void onViewCreated(View view, Bundle savedInstanceState) {
-			mLvEndday = (ListView) view.findViewById(R.id.lvEndday);
+		public int getCount() {
+			return mSessLst != null ? mSessLst.size() : 0;
 		}
 
 		@Override
-		public void onActivityCreated(Bundle savedInstanceState) {
-			super.onActivityCreated(savedInstanceState);
-			setupAdapter();
+		public Object getItem(int position) {
+			return mSessLst.get(position);
 		}
 
 		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			return inflater.inflate(R.layout.fragment_send_endday,
-					container, false);
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if(convertView == null){
+				convertView = mInflater.inflate(R.layout.endday_list_template, parent, false);
+			}
+			String sessionDate = mSessLst.get(position);
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(Long.parseLong(sessionDate));
+			TextView tvSaleDate = (TextView) convertView.findViewById(R.id.tvSaleDate);
+			tvSaleDate.setText(mFormat.dateFormat(cal.getTime()));
+			return convertView;
 		}
 		
-		private class EnddayListAdapter extends BaseAdapter{
-
-			@Override
-			public int getCount() {
-				return mSessLst != null ? mSessLst.size() : 0;
-			}
-
-			@Override
-			public Object getItem(int position) {
-				return mSessLst.get(position);
-			}
-
-			@Override
-			public long getItemId(int position) {
-				return position;
-			}
-
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent) {
-				if(convertView == null){
-					LayoutInflater inflater = (LayoutInflater)
-							getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					convertView = inflater.inflate(R.layout.endday_list_template, null);
-				}
-				String sessionDate = mSessLst.get(position);
-				Calendar cal = Calendar.getInstance();
-				cal.setTimeInMillis(Long.parseLong(sessionDate));
-				TextView tvSaleDate = (TextView) convertView.findViewById(R.id.tvSaleDate);
-				tvSaleDate.setText(mHost.mFormat.dateFormat(cal.getTime()));
-				return convertView;
-			}
-			
-		}
 	}
 	
 	/**

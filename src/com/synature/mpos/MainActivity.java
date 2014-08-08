@@ -620,11 +620,11 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			}, 10000);
 		}
 		
-		List<Integer> transIdLst = mTrans.listTransactionIdNotSend();
-		for(int transId : transIdLst){
+		List<MPOSOrderTransaction> transIdLst = mTrans.listTransactionNotSend();
+		for(MPOSOrderTransaction trans : transIdLst){
 			// send sale data service
-			mPartService.sendSale(mShop.getShopId(), transId, mComputer.getComputerId(),
-					staffId, new ProgressListener() {
+			mPartService.sendSale(mShop.getShopId(), trans.getSessionId(), trans.getTransactionId(), 
+					trans.getComputerId(), mStaffId, new ProgressListener() {
 	
 						@Override
 						public void onPre() {
@@ -2151,8 +2151,8 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		final ProgressDialog progress = new ProgressDialog(MainActivity.this);
 		progress.setTitle(getString(R.string.endday_success));
 		progress.setCancelable(false);
-		mPartService.sendEnddaySale(mStaffId, mShop.getShopId(), mComputer.getComputerId(), 
-				new ProgressListener(){
+		mPartService.sendEnddaySale(mShop.getShopId(), mComputer.getComputerId(), 
+				mStaffId, new ProgressListener(){
 
 					@Override
 					public void onPre() {

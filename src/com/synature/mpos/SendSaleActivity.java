@@ -10,6 +10,7 @@ import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.OrderTransactionTable;
+import com.synature.mpos.database.table.SessionTable;
 import com.synature.pos.OrderTransaction;
 
 import android.app.Activity;
@@ -138,7 +139,7 @@ public class SendSaleActivity extends Activity{
 	private void sendSale(){
 		for(int i = 0; i < mTransLst.size(); i++){
 			SendTransaction trans = mTransLst.get(i);
-			mPartService.sendSale(mShopId, trans.getTransactionId(), 
+			mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
 					mComputerId, mStaffId, new SendSaleProgress(trans, i));
 		}
 	}
@@ -191,6 +192,7 @@ public class SendSaleActivity extends Activity{
 				new String[]{
 					OrderTransactionTable.COLUMN_TRANS_ID,
 					ComputerTable.COLUMN_COMPUTER_ID,
+					SessionTable.COLUMN_SESS_ID,
 					OrderTransactionTable.COLUMN_RECEIPT_NO,
 					OrderTransactionTable.COLUMN_CLOSE_TIME,
 					BaseColumn.COLUMN_SEND_STATUS
@@ -205,6 +207,7 @@ public class SendSaleActivity extends Activity{
 				SendTransaction trans = new SendTransaction();
 				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+				trans.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
 				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
 				trans.setSendStatus(cursor.getInt(cursor.getColumnIndex(BaseColumn.COLUMN_SEND_STATUS)));
 				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_CLOSE_TIME)));

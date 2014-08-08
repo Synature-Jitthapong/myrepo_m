@@ -37,6 +37,7 @@ import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.SaleTransaction;
+import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
@@ -200,6 +201,25 @@ public class Utils {
 	
 	/**
 	 * @param context
+	 * @param enddaySale
+	 * @return String JSON endday
+	 */
+	public static String generateJSONEndDaySale(Context context,
+			POSData_EndDaySaleTransaction enddaySale) {
+		String jsonSale = null;
+		try {
+			Gson gson = new Gson();
+			Type type = new TypeToken<POSData_EndDaySaleTransaction>() {}.getType();
+			jsonSale = gson.toJson(enddaySale, type);
+		} catch (Exception e) {
+			Logger.appendLog(context, LOG_PATH, LOG_FILE_NAME,
+					" Error when generate json end day : " + e.getMessage());
+		}
+		return jsonSale;
+	}
+	
+	/**
+	 * @param context
 	 * @param saleTrans
 	 * @return String JSON Sale
 	 */
@@ -220,23 +240,64 @@ public class Utils {
 	
 	/**
 	 * @author j1tth4
-	 * task for load OrderTransaction 
+	 * task for load end day transaction data
+	 */
+	public static class LoadEndDayTransaction extends AsyncTask<Void, Void, POSData_EndDaySaleTransaction>{
+
+		protected String mSessionDate;
+		protected SaleTransaction mSaleTrans;
+		protected LoadEndDaySaleTransactionListener mListener;
+		
+		/**
+		 * @param context
+		 * @param sessionDate
+		 * @param listener
+		 */
+		public LoadEndDayTransaction(Context context, String sessionDate, LoadEndDaySaleTransactionListener listener){
+			mSessionDate = sessionDate;
+			mSaleTrans = new SaleTransaction(context);
+			mListener = listener;
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			mListener.onPre();
+		}
+
+		@Override
+		protected void onPostExecute(POSData_EndDaySaleTransaction enddayTrans) {
+			mListener.onPost(enddayTrans);
+		}
+		
+		@Override
+		protected POSData_EndDaySaleTransaction doInBackground(Void... params) {
+			return mSaleTrans.getEndDayTransaction(mSessionDate);
+		}
+	}
+	
+	/**
+	 * @author j1tth4
+	 * task for load partial sale transaction 
 	 */
 	public static class LoadSaleTransaction extends AsyncTask<Void, Void, POSData_SaleTransaction>{
 
-		protected LoadSaleTransactionListener mListener;
+		protected int mTransactionId;
+		protected int mSessionId;
 		protected SaleTransaction mSaleTrans;
-			
-		public LoadSaleTransaction(Context context, String sessionDate,
-				boolean isListAll, LoadSaleTransactionListener listener){
-			mListener = listener;
-			mSaleTrans = new SaleTransaction(context, sessionDate, isListAll);
-		}
+		protected LoadSaleTransactionListener mListener;
 		
-		public LoadSaleTransaction(Context context, String sessionDate, int transactionId, 
+		/**
+		 * @param context
+		 * @param sessionId
+		 * @param transactionId
+		 * @param listener
+		 */
+		public LoadSaleTransaction(Context context, int sessionId, int transactionId,
 				LoadSaleTransactionListener listener){
+			mTransactionId = transactionId;
+			mSessionId = sessionId;
+			mSaleTrans = new SaleTransaction(context);
 			mListener = listener;
-			mSaleTrans = new SaleTransaction(context, sessionDate, transactionId);
 		}
 		
 		@Override
@@ -251,7 +312,7 @@ public class Utils {
 		
 		@Override
 		protected POSData_SaleTransaction doInBackground(Void... params) {
-			return mSaleTrans.listSaleTransaction();
+			return mSaleTrans.getTransaction(mTransactionId, mSessionId);
 		}
 	}
 	
@@ -714,6 +775,10 @@ public class Utils {
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){
 		return new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight);
+	}
+	
+	public static interface LoadEndDaySaleTransactionListener extends ProgressListener{
+		void onPost(POSData_EndDaySaleTransaction enddayTrans);
 	}
 	
 	public static interface LoadSaleTransactionListener extends ProgressListener{

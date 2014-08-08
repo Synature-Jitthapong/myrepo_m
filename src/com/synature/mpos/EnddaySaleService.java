@@ -3,12 +3,12 @@ package com.synature.mpos;
 import java.util.Iterator;
 import java.util.List;
 
-import com.synature.mpos.Utils.LoadSaleTransaction;
-import com.synature.mpos.Utils.LoadSaleTransactionListener;
+import com.synature.mpos.Utils.LoadEndDayTransaction;
+import com.synature.mpos.Utils.LoadEndDaySaleTransactionListener;
 import com.synature.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.synature.mpos.database.MPOSDatabase;
+import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.Session;
-import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.util.Logger;
@@ -54,19 +54,19 @@ public class EnddaySaleService extends Service{
 				 * execute load transaction json task
 				 * and send to hq 
 				 */
-				new LoadSaleTransaction(getApplicationContext(), sessionDate, 
-						true, new LoadSaleTransactionListener() {
+				new LoadEndDayTransaction(getApplicationContext(), sessionDate, 
+						new LoadEndDaySaleTransactionListener() {
 	
 					@Override
-					public void onPost(POSData_SaleTransaction saleTrans) {
+					public void onPost(POSData_EndDaySaleTransaction enddaySale) {
 	
-						final String jsonSale = Utils.generateJSONSale(getApplicationContext(), saleTrans);
+						final String jsonEndDaySale = Utils.generateJSONEndDaySale(getApplicationContext(), enddaySale);
 						
-						if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
+						if(jsonEndDaySale != null && !TextUtils.isEmpty(jsonEndDaySale)){
 							
 							new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 									SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-									shopId, computerId, staffId, jsonSale, new ProgressListener() {
+									shopId, computerId, staffId, jsonEndDaySale, new ProgressListener() {
 			
 										@Override
 										public void onError(String mesg) {
@@ -91,7 +91,7 @@ public class EnddaySaleService extends Service{
 												trans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 
 												// log endday sale json when send to server success
-												JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
+												JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonEndDaySale);
 												
 												if(!it.hasNext()){
 													mStatMsg = getApplication().getString(R.string.send_sale_data_success);
