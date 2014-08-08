@@ -18,6 +18,8 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -377,6 +379,24 @@ public class Utils {
 		makeToask(context, "Clear sale data successfully.");
 	}
 
+	/**
+	 * Get software version
+	 * @param context
+	 * @return version name
+	 */
+	public static String getSoftWareVersion(Context context){
+		String ver = "";
+		PackageInfo pInfo;
+		try {
+			pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			ver = pInfo.versionName;
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ver;
+	}
+	
 	/**
 	 * @param context
 	 * @return android device id

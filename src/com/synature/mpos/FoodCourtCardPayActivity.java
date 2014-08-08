@@ -351,7 +351,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		private void summary(){ 
 			MPOSOrderTransaction.MPOSOrderDetail summOrder = 
 					((FoodCourtCardPayActivity) getActivity()).mTrans.getSummaryOrder(((FoodCourtCardPayActivity) getActivity()).mTransactionId);
-			((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
+			((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice = summOrder.getTotalSalePrice();
 			mTxtTotalPrice.setText(((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice));		
 		}
 	}
@@ -485,7 +485,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				MPOSOrderTransaction trans = mTrans.getTransaction(transactionId);
 				MPOSOrderTransaction.MPOSOrderDetail summOrder = mTrans.getSummaryOrder(transactionId);
 				double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-				double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+				double change = mPayment.getTotalPayAmount(transactionId) - (summOrder.getTotalSalePrice());
 				
 				// add void header
 				if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
@@ -558,7 +558,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
 		    	
 		    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
-		    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() + summOrder.getVatExclude());
+		    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
 		    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
 		    	String strTotalChange = mFormat.currencyFormat(change);
 		    	String strBeforeVat = mFormat.currencyFormat(beforVat);

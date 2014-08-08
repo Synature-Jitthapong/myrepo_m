@@ -39,7 +39,6 @@ import com.synature.util.Logger;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -50,7 +49,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -188,7 +186,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		 */
 		mDsp = new WintecCustomerDisplay(getApplicationContext());
 
-		setupCustomSwLang();
+		//setupCustomSwLang();
 		setupBarCodeEvent();
 		setupMenuDeptPager();
 		setupOrderListView();

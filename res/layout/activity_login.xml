@@ -18,7 +18,7 @@
         android:padding="@dimen/default_margin" >
 
         <TextView
-            android:id="@+id/tvSaleDate"
+            android:id="@+id/tvLastSyncTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -26,10 +26,18 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
+            android:id="@+id/tvSaleDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/tvLastSyncTime"
+            android:layout_centerHorizontal="true"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
             android:id="@+id/tvLastSession"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tvSaleDate"
+            android:layout_above="@+id/tvSaleDate"
             android:layout_centerHorizontal="true"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -37,19 +45,10 @@
             android:id="@+id/tvShopName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/tvSaleDate"
+            android:layout_above="@+id/tvLastSession"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="8dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textSize="@dimen/larger_text_size" />
-
-        <TextView
-            android:id="@+id/tvLastSyncTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tvLastSession"
-            android:layout_centerHorizontal="true"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textSize="@dimen/large_text_size" />
 
     </RelativeLayout>
 
@@ -141,6 +140,14 @@
             android:text="@string/login"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="@dimen/large_text_size" />
+
+        <TextView
+            android:id="@+id/tvVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/btnLogin"
+            android:layout_below="@+id/btnLogin"
+            android:text="version" />
 
     </RelativeLayout>
 

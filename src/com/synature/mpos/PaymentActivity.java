@@ -181,7 +181,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	private void summary(){ 
 		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
 				mTrans.getSummaryOrder(mTransactionId);
-		mTotalSalePrice = summOrder.getTotalSalePrice() + summOrder.getVatExclude();
+		mTotalSalePrice = summOrder.getTotalSalePrice();
 		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));
 	}
 	
@@ -236,7 +236,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	private void loadPayDetail(){
 		mPayLst = mPayment.listPayment(mTransactionId);
 		mPaymentAdapter.notifyDataSetChanged();
-		mTotalPaid = mPayment.getTotalPaid(mTransactionId);
+		mTotalPaid = mPayment.getTotalPayAmount(mTransactionId);
 		mPaymentLeft = mTotalSalePrice - mTotalPaid;
 		mChange = mTotalPaid - mTotalSalePrice;
 		mTxtTotalPaid.setText(mFormat.currencyFormat(mTotalPaid));

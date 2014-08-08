@@ -465,7 +465,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 					((TextView) totalSaleView.findViewById(R.id.tvMid)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
 			((TextView) totalSaleView.findViewById(R.id.tvRight)).setText(
 					mHost.mFormat.currencyFormat(
-							sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()));
+							sumOrder.getTotalSalePrice()));
 			mEnddayReportFooterContainer.addView(totalSaleView);
 			
 			if(shop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){

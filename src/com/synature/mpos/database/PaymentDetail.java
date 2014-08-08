@@ -198,7 +198,7 @@ public class PaymentDetail extends MPOSDatabase {
 	 * @param transactionId
 	 * @param computerId
 	 * @param payTypeId
-	 * @param paid
+	 * @param totalPay
 	 * @param pay
 	 * @param creditCardNo
 	 * @param expireMonth
@@ -210,13 +210,13 @@ public class PaymentDetail extends MPOSDatabase {
 	 * @throws SQLException
 	 */
 	public void addPaymentDetail(int transactionId, int computerId, 
-			int payTypeId, double paid, double pay , String creditCardNo, int expireMonth, 
+			int payTypeId, double totalPay, double pay , String creditCardNo, int expireMonth, 
 			int expireYear, int bankId,int creditCardTypeId, String remark) throws SQLException {
 		if(checkThisPayTypeIsAdded(transactionId, payTypeId)){
 			// update payment
-			double totalPaid = getTotalPaid(transactionId) + paid;
-			double totalPay = getTotalPay(transactionId) + pay;
-			updatePaymentDetail(transactionId, payTypeId, totalPaid, totalPay);
+			double totalPayment = getTotalPayAmount(transactionId) + totalPay;
+			double totalPayed = getTotalPayedAmount(transactionId) + pay;
+			updatePaymentDetail(transactionId, payTypeId, totalPayment, totalPayed);
 		}else{
 			// add new payment
 			int paymentId = getMaxPaymentDetailId();
@@ -225,7 +225,7 @@ public class PaymentDetail extends MPOSDatabase {
 			cv.put(OrderTransactionTable.COLUMN_TRANS_ID, transactionId);
 			cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
 			cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payTypeId);
-			cv.put(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT, paid);
+			cv.put(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT, totalPay);
 			cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, pay);
 			cv.put(CreditCardTable.COLUMN_CREDITCARD_NO, creditCardNo);
 			cv.put(CreditCardTable.COLUMN_EXP_MONTH, expireMonth);
@@ -316,10 +316,11 @@ public class PaymentDetail extends MPOSDatabase {
 	}
 	
 	/**
+	 * Get total payed
 	 * @param transactionId
-	 * @return total paid
+	 * @return total payed amount
 	 */
-	public double getTotalPay(int transactionId){
+	public double getTotalPayedAmount(int transactionId){
 		double totalPaid = 0.0d;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
@@ -336,10 +337,11 @@ public class PaymentDetail extends MPOSDatabase {
 	}
 	
 	/**
+	 * Get total pay
 	 * @param transactionId
-	 * @return total paid
+	 * @return total pay amount
 	 */
-	public double getTotalPaid(int transactionId){
+	public double getTotalPayAmount(int transactionId){
 		double totalPaid = 0.0d;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ") "

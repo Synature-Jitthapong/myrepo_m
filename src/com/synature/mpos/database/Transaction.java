@@ -666,9 +666,14 @@ public class Transaction extends MPOSDatabase {
 						+ " ON a." + ProductTable.COLUMN_PRODUCT_ID
 						+ " =b." + ProductTable.COLUMN_PRODUCT_ID
 						+ " WHERE a." + OrderTransactionTable.COLUMN_TRANS_ID + "=?"
+						+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " NOT IN(?, ?)"
 						+ " GROUP BY a." + ProductTable.COLUMN_PRODUCT_ID
 						+ " ORDER BY a." + OrderDetailTable.COLUMN_ORDER_ID,
-				new String[] { String.valueOf(transactionId) });
+				new String[] { 
+					String.valueOf(transactionId),
+					String.valueOf(Products.COMMENT_HAVE_PRICE),
+					String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE)
+				});
 		if (cursor.moveToFirst()) {
 			do {
 				orderDetailLst.add(toOrderDetailGroupByProduct(cursor));
@@ -780,17 +785,16 @@ public class Transaction extends MPOSDatabase {
 		orderDetail.setOrderComment(cursor.getString(cursor.getColumnIndex(BaseColumn.COLUMN_REMARK)));
 		
 		// generate order set detail
-//		List<MPOSOrderTransaction.OrderSet.OrderSetDetail> orderSetDetailLst = listOrderSetDetailGroupByProduct(
-//				orderDetail.getTransactionId(), orderDetail.getOrderDetailId());
-//		if (orderSetDetailLst.size() > 0) {
-//			orderDetail.setOrderSetDetailLst(orderSetDetailLst);
-//		}
-//		// list order comment
-//		List<MenuComment.Comment> commentLst = listOrderComment(
-//				orderDetail.getTransactionId(), orderDetail.getOrderDetailId());
-//		if(commentLst.size() > 0){
-//			orderDetail.setOrderCommentLst(commentLst);
-//		}
+		List<MPOSOrderTransaction.OrderSet.OrderSetDetail> orderSetDetailLst = listOrderSetDetailGroupByProduct(
+				orderDetail.getTransactionId(), orderDetail.getOrderDetailId());
+		if (orderSetDetailLst.size() > 0) {
+			orderDetail.setOrderSetDetailLst(orderSetDetailLst);
+		}
+		// list order comment
+		List<MenuComment.Comment> commentLst = listOrderComment(orderDetail.getOrderDetailId());
+		if(commentLst.size() > 0){
+			orderDetail.setOrderCommentLst(commentLst);
+		}
 		return orderDetail;
 	}
 	
@@ -969,23 +973,23 @@ public class Transaction extends MPOSDatabase {
 	}
 
 	/**
+	 * Get max transactionId
 	 * @return max transactionId
 	 */
 	public int getMaxTransaction() {
 		int transactionId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT MAX(" + OrderTransactionTable.COLUMN_TRANS_ID
-						+ ") " + " FROM "
-						+ OrderTransactionTable.TABLE_ORDER_TRANS, null);
+				" SELECT MAX(" + OrderTransactionTable.COLUMN_TRANS_ID + ") " 
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS, null);
 		if (cursor.moveToFirst()) {
 			transactionId = cursor.getInt(0);
-			cursor.moveToNext();
 		}
 		cursor.close();
 		return transactionId + 1;
 	}
 
 	/**
+	 * Get max receiptId
 	 * @param year
 	 * @param month
 	 * @return max receiptId
@@ -994,8 +998,8 @@ public class Transaction extends MPOSDatabase {
 		int maxReceiptId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT MAX(" + OrderTransactionTable.COLUMN_RECEIPT_ID + ") "
-						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-						+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?",
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?",
 				new String[] { 
 					saleDate 
 				});
@@ -1016,15 +1020,16 @@ public class Transaction extends MPOSDatabase {
 		int transactionId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT " + OrderTransactionTable.COLUMN_TRANS_ID
-						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-						+ " WHERE " + OrderTransactionTable.COLUMN_STATUS_ID
-						+ "=?" + " AND "
-						+ OrderTransactionTable.COLUMN_SALE_DATE + "=?",
-				new String[] { String.valueOf(TRANS_STATUS_NEW), saleDate });
+				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransactionTable.COLUMN_STATUS_ID + "=?" 
+				+ " AND " + OrderTransactionTable.COLUMN_SALE_DATE + "=?",
+				new String[] { 
+					String.valueOf(TRANS_STATUS_NEW), 
+					saleDate 
+				});
 		if (cursor.moveToFirst()) {
 			if (cursor.getLong(0) != 0)
 				transactionId = cursor.getInt(0);
-			cursor.moveToNext();
 		}
 		cursor.close();
 		return transactionId;

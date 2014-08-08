@@ -48,7 +48,7 @@
                 android:title="@string/edit_open_shift"/>
             <item
                 android:id="@+id/itemCloseShift"
-                android:title="@string/close_shift"/>
+                android:title="@string/close_shift" android:visible="false"/>
             <item
                 android:id="@+id/itemEndday"
                 android:title="@string/endday"/>

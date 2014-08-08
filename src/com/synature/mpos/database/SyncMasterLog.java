@@ -30,11 +30,11 @@ public class SyncMasterLog extends MPOSDatabase{
 		Cursor cursor = getReadableDatabase().query(
 				SyncMasterLogTable.TABLE_SYNC_MASTER, 
 				new String[]{
-					SyncMasterLogTable.COLUMN_SYNC_DATE	
+					SyncMasterLogTable.COLUMN_SYNC_TIME	
 				}, SyncMasterLogTable.COLUMN_SYNC_STATUS + "=?", 
 				new String[]{
 					String.valueOf(SYNC_STATUS_SUCCESS)
-				}, null, null, SyncMasterLogTable.COLUMN_SYNC_DATE + " desc ", "1");
+				}, null, null, SyncMasterLogTable.COLUMN_SYNC_TIME + " desc ", "1");
 		if(cursor.moveToFirst()){
 			time = cursor.getString(0);
 		}
@@ -71,7 +71,8 @@ public class SyncMasterLog extends MPOSDatabase{
 		ContentValues cv = new ContentValues();
 		cv.put(SyncMasterLogTable.COLUMN_SYNC_TYPE, type);
 		cv.put(SyncMasterLogTable.COLUMN_SYNC_STATUS, status);
-		cv.put(SyncMasterLogTable.COLUMN_SYNC_DATE, Utils.getCalendar().getTimeInMillis());
+		cv.put(SyncMasterLogTable.COLUMN_SYNC_DATE, Utils.getDate().getTimeInMillis());
+		cv.put(SyncMasterLogTable.COLUMN_SYNC_TIME, Utils.getCalendar().getTimeInMillis());
 		getWritableDatabase().insert(SyncMasterLogTable.TABLE_SYNC_MASTER, null, cv);
 	}
 	

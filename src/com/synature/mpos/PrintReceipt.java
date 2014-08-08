@@ -12,6 +12,9 @@ import com.synature.mpos.database.CreditCard;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.HeaderFooterReceipt;
 import com.synature.mpos.database.MPOSOrderTransaction;
+import com.synature.mpos.database.MPOSOrderTransaction.MPOSOrderDetail;
+import com.synature.mpos.database.MPOSOrderTransaction.OrderSet.OrderSetDetail;
+import com.synature.mpos.database.MenuComment.Comment;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.PrintReceiptLog;
 import com.synature.mpos.database.Products;
@@ -73,7 +76,7 @@ public class PrintReceipt implements Runnable{
 			MPOSOrderTransaction trans = mOrders.getTransaction(transactionId);
 			MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrder(transactionId);
 			double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-			double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice());
+			double change = mPayment.getTotalPayAmount(transactionId) - (summOrder.getTotalSalePrice());
 
 			try {
 				mBuilder.addTextAlign(Builder.ALIGN_CENTER);
@@ -129,15 +132,44 @@ public class PrintReceipt implements Runnable{
 		    		String productName = order.getProductName();
 		    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
 		    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
-		    		if(order.getProductTypeId() == Products.CHILD_OF_SET_HAVE_PRICE || 
-		    				order.getProductTypeId() == Products.COMMENT_HAVE_PRICE)
-		    			productQty = "   " + productQty;
 		    		mBuilder.addText(productQty);
 		    		mBuilder.addText(productName);
 		    		mBuilder.addText(createHorizontalSpace(calculateLength(productQty) + 
 		    				calculateLength(productName) + calculateLength(productPrice)));
 		    		mBuilder.addText(productPrice);
 		    		mBuilder.addText("\n");
+		    		if(order.getOrderCommentLst().size() > 0){
+		    			for(Comment comm : order.getOrderCommentLst()){
+		    				if(comm.getCommentPrice() > 0){
+			    				String commName = comm.getCommentName();
+			    				String commQty = "   " + mFormat.qtyFormat(comm.getCommentQty()) + "x ";
+			    				String commPrice = mFormat.currencyFormat(comm.getCommentPrice());
+			    				mBuilder.addText(commQty);
+			    				mBuilder.addText(commName);
+			    				mBuilder.addText(createHorizontalSpace(
+			    						calculateLength(commQty) +
+			    						calculateLength(commName) + 
+			    						calculateLength(commPrice)));
+			    				mBuilder.addText(commPrice);
+			    				mBuilder.addText("\n");
+		    				}
+		    			}
+		    		}
+		    		if(order.getOrderSetDetailLst().size() > 0){
+		    			for(OrderSetDetail setDetail : order.getOrderSetDetailLst()){
+		    				String setName = setDetail.getProductName();
+		    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
+		    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
+		    				mBuilder.addText(setQty);
+		    				mBuilder.addText(setName);
+		    				mBuilder.addText(createHorizontalSpace(
+		    						calculateLength(setQty) + 
+		    						calculateLength(setName) +
+		    						calculateLength(setPrice)));
+		    				mBuilder.addText(setPrice);
+		    				mBuilder.addText("\n");
+		    			}
+		    		}
 		    	}
 		    	mBuilder.addText(createLine("-") + "\n");
 		    	
@@ -312,7 +344,7 @@ public class PrintReceipt implements Runnable{
 			MPOSOrderTransaction trans = mOrders.getTransaction(transactionId);
 			MPOSOrderTransaction.MPOSOrderDetail summOrder = mOrders.getSummaryOrder(transactionId);
 			double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-			double change = mPayment.getTotalPaid(transactionId) - (summOrder.getTotalSalePrice());
+			double change = mPayment.getTotalPayAmount(transactionId) - (summOrder.getTotalSalePrice());
 			
 			// have copy
 			if(mIsCopy){
@@ -357,9 +389,6 @@ public class PrintReceipt implements Runnable{
 	    		String productName = order.getProductName();
 	    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
 	    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
-	    		if(order.getProductTypeId() == Products.CHILD_OF_SET_HAVE_PRICE || 
-	    				order.getProductTypeId() == Products.COMMENT_HAVE_PRICE)
-	    			productQty = "   " + productQty;
 	    		mBuilder.append(productQty);
 	    		mBuilder.append(productName);
 	    		mBuilder.append(createHorizontalSpace(
@@ -368,6 +397,38 @@ public class PrintReceipt implements Runnable{
 	    				calculateLength(productPrice)));
 	    		mBuilder.append(productPrice);
 	    		mBuilder.append("\n");
+	    		if(order.getOrderCommentLst().size() > 0){
+	    			for(Comment comm : order.getOrderCommentLst()){
+	    				if(comm.getCommentPrice() > 0){
+		    				String commName = comm.getCommentName();
+		    				String commQty = "   " + mFormat.qtyFormat(comm.getCommentQty()) + "x ";
+		    				String commPrice = mFormat.currencyFormat(comm.getCommentPrice());
+		    				mBuilder.append(commQty);
+		    				mBuilder.append(commName);
+		    				mBuilder.append(createHorizontalSpace(
+		    						calculateLength(commQty) +
+		    						calculateLength(commName) + 
+		    						calculateLength(commPrice)));
+		    				mBuilder.append(commPrice);
+		    				mBuilder.append("\n");
+	    				}
+	    			}
+	    		}
+	    		if(order.getOrderSetDetailLst().size() > 0){
+	    			for(OrderSetDetail setDetail : order.getOrderSetDetailLst()){
+	    				String setName = setDetail.getProductName();
+	    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
+	    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
+	    				mBuilder.append(setQty);
+	    				mBuilder.append(setName);
+	    				mBuilder.append(createHorizontalSpace(
+	    						calculateLength(setQty) + 
+	    						calculateLength(setName) +
+	    						calculateLength(setPrice)));
+	    				mBuilder.append(setPrice);
+	    				mBuilder.append("\n");
+	    			}
+	    		}
 	    	}
 	    	mBuilder.append(createLine("-") + "\n");
 	    	

@@ -99,7 +99,7 @@ public class SendSaleActivity extends Activity{
 
 	private void loadTransNotSend(){
 		mTransLst = listNotSendTransaction();
-		mSyncAdapter = new SyncItemAdapter(this, mTransLst);
+		mSyncAdapter = new SyncItemAdapter(mTransLst);
 		mLvSyncItem.setAdapter(mSyncAdapter);
 	}
 	
@@ -219,9 +219,8 @@ public class SendSaleActivity extends Activity{
 		private List<SendTransaction> mSendTransLst;
 		private LayoutInflater mInflater;
 		
-		public SyncItemAdapter(Context c, List<SendTransaction> sendTransLst){
-			mInflater = (LayoutInflater) 
-					c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		public SyncItemAdapter(List<SendTransaction> sendTransLst){
+			mInflater = getLayoutInflater();
 			mSendTransLst = sendTransLst;
 		}
 		

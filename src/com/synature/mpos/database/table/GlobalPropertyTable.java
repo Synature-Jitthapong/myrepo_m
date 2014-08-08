@@ -15,13 +15,13 @@ public class GlobalPropertyTable{
 	
 	private static final String SQL_CREATE =
 			" create table " + TABLE_GLOBAL_PROPERTY + " ( " 
-			+ COLUMN_CURRENCY_SYMBOL + " text default '$', " 
-			+ COLUMN_CURRENCY_CODE + " text default 'USD', " 
+			+ COLUMN_CURRENCY_SYMBOL + " text, " 
+			+ COLUMN_CURRENCY_CODE + " text, " 
 			+ COLUMN_CURRENCY_NAME + " text, "
-			+ COLUMN_CURRENCY_FORMAT + " text not null default '#,##0.00', "
-			+ COLUMN_QTY_FORMAT + " text not null default '#,##0', "
-			+ COLUMN_DATE_FORMAT + " text not null default 'd MMMM yyyy', "
-			+ COLUMN_TIME_FORMAT + " text not null default 'HH:mm:ss' );";
+			+ COLUMN_CURRENCY_FORMAT + " text default '#,##0.00', "
+			+ COLUMN_QTY_FORMAT + " text default '#,##0', "
+			+ COLUMN_DATE_FORMAT + " text default 'd MMMM yyyy', "
+			+ COLUMN_TIME_FORMAT + " text default 'HH:mm:ss' );";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);

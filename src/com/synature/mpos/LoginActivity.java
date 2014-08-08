@@ -60,6 +60,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 	private TextView mTvLastSession;
 	private TextView mTvDeviceCode;
 	private TextView mTvLastSyncTime;
+	private TextView mTvVersion;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		mTvLastSession = (TextView) findViewById(R.id.tvLastSession);
 		mTvDeviceCode = (TextView) findViewById(R.id.tvDeviceCode);
 		mTvLastSyncTime = (TextView) findViewById(R.id.tvLastSyncTime);
+		mTvVersion = (TextView) findViewById(R.id.tvVersion);
 		
 		mTxtUser.setSelectAllOnFocus(true);
 		mTxtPass.setSelectAllOnFocus(true);
@@ -82,6 +84,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		mTxtPass.setOnEditorActionListener(this);
 
 		mTvDeviceCode.setText(Utils.getDeviceCode(this));
+		mTvVersion.setText(getString(R.string.version) + " " + Utils.getSoftWareVersion(this));
 
 		mSession = new Session(this);
 		mShop = new Shop(this);
@@ -89,16 +92,19 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		mFormat = new Formater(this);
 		mSync = new SyncMasterLog(this);
 
-		if(mShop.getShopName() != null){
-			mTvShopName.setText(mShop.getShopName());
+		try {
+			if(mShop.getShopName() != null){
+				mTvShopName.setText(mShop.getShopName());
+			}
+			if(mSession.getCurrentSessionDate() != null && !mSession.getCurrentSessionDate().isEmpty()){
+				mTvLastSession.setText(getString(R.string.last_session) + " " + mFormat.dateFormat(mSession.getCurrentSessionDate()));
+			}
+			mTvSaleDate.setText(getString(R.string.current_sale_date) + " " + mFormat.dateFormat(Utils.getDate().getTime()));
+			mTvLastSyncTime.setText(getString(R.string.last_update) + " " + mFormat.dateTimeFormat(mSync.getLastSyncTime()));
+		} catch (Exception e) {
+			// mFormat may be null if first initial
+			e.printStackTrace();
 		}
-		if(mSession.getCurrentSessionDate() != null && !mSession.getCurrentSessionDate().isEmpty()){
-			mTvLastSession.setText(getString(R.string.last_session) + " " + mFormat.dateFormat(mSession.getCurrentSessionDate()));
-		}else{
-			mTvLastSession.setText(getString(R.string.last_session) + "-");
-		}
-		mTvSaleDate.setText(getString(R.string.current_sale_date) + " " + mFormat.dateFormat(Utils.getDate().getTime()));
-		mTvLastSyncTime.setText(getString(R.string.last_update) + " " + mFormat.dateTimeFormat(mSync.getLastSyncTime()));
 	}
 
 	@Override
@@ -114,7 +120,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 					updateData();
 			}
 			if(resultCode == SettingsActivity.REFRESH_PARENT_ACTIVITY){
-				startActivity(getIntent());
+				startActivity(new Intent(this, LoginActivity.class));
 				finish();
 			}
 		}

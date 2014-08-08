@@ -273,7 +273,7 @@ public class Products extends MPOSDatabase {
 				ProductTable.COLUMN_ACTIVATE + "=?", 
 				new String[]{
 					String.valueOf(ACTIVATED)
-				}, null, null, COLUMN_ORDERING);
+				}, null, null, COLUMN_ORDERING + ", " + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME);
 		if(cursor.moveToFirst()){
 			do{
 				ProductDept pd = toProductDept(cursor);
@@ -356,7 +356,7 @@ public class Products extends MPOSDatabase {
 				ALL_PRODUCT_COLS,
 				"(" + ProductTable.COLUMN_PRODUCT_CODE + " LIKE '%" + query
 						+ "%' " + " OR " + ProductTable.COLUMN_PRODUCT_NAME
-						+ " LIKE '%" + query + "%')", null, null, null, COLUMN_ORDERING);
+						+ " LIKE '%" + query + "%')", null, null, null, COLUMN_ORDERING + ", " + ProductTable.COLUMN_PRODUCT_NAME);
 		if(cursor.moveToFirst()){
 			do{
 				Product p = toProduct(cursor);
@@ -381,7 +381,7 @@ public class Products extends MPOSDatabase {
 				new String[] { 
 					String.valueOf(deptId), 
 					String.valueOf(ACTIVATED)
-				}, null, null, COLUMN_ORDERING);
+				}, null, null, COLUMN_ORDERING + ", " + ProductTable.COLUMN_PRODUCT_NAME);
 		if(cursor.moveToFirst()){
 			do{
 				Product p = toProduct(cursor);
