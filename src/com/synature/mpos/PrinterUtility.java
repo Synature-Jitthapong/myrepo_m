@@ -5,7 +5,7 @@ public abstract class PrinterUtility {
 	public static final int HORIZONTAL_MAX_SPACE = 45;
 	public static final int QTY_MAX_SPACE = 12;
 	public static final int MAX_TEXT_LENGTH = 25;
-	
+	 
 	protected static String createHorizontalSpace(int usedSpace){
 		StringBuilder space = new StringBuilder();
 		if(usedSpace > HORIZONTAL_MAX_SPACE){

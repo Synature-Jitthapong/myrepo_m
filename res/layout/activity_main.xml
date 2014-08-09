@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:baselineAligned="false"
     android:divider="@android:drawable/divider_horizontal_bright"
+    android:dividerPadding="4dp"
     android:showDividers="middle"
     tools:context=".MainActivity" >
 
@@ -12,6 +13,7 @@
         android:layout_height="match_parent"
         android:layout_weight="0.6"
         android:divider="@android:drawable/divider_horizontal_bright"
+        android:dividerPadding="8dp"
         android:orientation="vertical"
         android:showDividers="middle" >
 
@@ -57,7 +59,6 @@
             android:layout_weight="1"
             android:background="@color/smoke_white"
             android:childDivider="@android:color/transparent" >
-
         </ExpandableListView>
 
         <LinearLayout
@@ -66,7 +67,7 @@
             android:layout_height="wrap_content"
             android:background="@color/smoke_white"
             android:gravity="center_vertical"
-            android:padding="8dp" >
+            android:padding="4dp" >
 
             <TextView
                 android:id="@+id/tvOrderSelected"
@@ -107,6 +108,7 @@
 
             <Button
                 android:id="@+id/btnCashPaid"
+                style="@style/GreenButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -118,6 +120,7 @@
 
             <Button
                 android:id="@+id/btnPayment"
+                style="@style/GreenButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -126,16 +129,19 @@
                 android:onClick="paymentClicked"
                 android:text="@string/payment"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse"
-                android:textColor="@android:color/holo_green_dark"
                 android:textSize="22sp" />
 
         </LinearLayout>
     </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:divider="@android:drawable/divider_horizontal_bright"
+        android:dividerPadding="8dp"
+        android:orientation="vertical"
+        android:showDividers="middle" >
 
         <com.j1tth4.slidinglibs.SlidingTabLayout
             android:id="@+id/sliding_tabs"
@@ -146,57 +152,62 @@
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/buttonDiscount"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/sliding_tabs"
-            android:layout_margin="@dimen/default_margin" >
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+
         </android.support.v4.view.ViewPager>
 
-        <Button
-            android:id="@+id/btnCancelOrder"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:minWidth="128dp"
-            android:onClick="cancelOrderClicked"
-            android:text="@android:string/cancel"
-            android:textAppearance="?android:attr/textAppearanceMediumInverse"
-            android:textColor="@android:color/holo_red_dark" />
+            android:paddingTop="4dp" >
 
-        <Button
-            android:id="@+id/btnPromotion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@+id/buttonDiscount"
-            android:minWidth="128dp"
-            android:onClick="promotionClicked"
-            android:text="@string/promotion_short" />
+            <Button
+                android:id="@+id/btnCancelOrder"
+                style="@style/RedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:minWidth="128dp"
+                android:onClick="cancelOrderClicked"
+                android:text="@android:string/cancel"
+                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
-        <Button
-            android:id="@+id/buttonHold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_toLeftOf="@+id/btnCancelOrder"
-            android:minWidth="128dp"
-            android:onClick="holdOrderClicked"
-            android:text="@string/hold"
-            android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+            <Button
+                android:id="@+id/buttonDiscount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:minWidth="128dp"
+                android:onClick="discountClicked"
+                android:text="@string/other_discount_short"
+                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
-        <Button
-            android:id="@+id/buttonDiscount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:minWidth="128dp"
-            android:onClick="discountClicked"
-            android:text="@string/other_discount_short"
-            android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-    </RelativeLayout>
+            <Button
+                android:id="@+id/btnPromotion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/buttonDiscount"
+                android:minWidth="128dp"
+                android:onClick="promotionClicked"
+                android:text="@string/promotion_short" />
+
+            <Button
+                android:id="@+id/buttonHold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/btnCancelOrder"
+                android:minWidth="128dp"
+                android:onClick="holdOrderClicked"
+                android:text="@string/hold"
+                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
 
 </LinearLayout>
