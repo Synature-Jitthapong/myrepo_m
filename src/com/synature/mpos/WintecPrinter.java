@@ -1,11 +1,10 @@
 package com.synature.mpos;
 
+import com.synature.util.LevelTextPrint;
+import com.synature.util.LevelTextPrint.ThreeLevelPrint;
+
 import android.content.Context;
 import android.text.TextUtils;
-
-import com.synature.util.ThaiLevelText;
-import com.synature.util.ThaiLevelText.ThaiTextThreeLine;
-
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Printer;
 
@@ -49,12 +48,12 @@ public class WintecPrinter extends PrinterUtility{
 				data = data.replace("<u>", "");
 			}
 
-    		ThaiTextThreeLine supportThai = ThaiLevelText.parsingThaiLevel(data);
-    		if(!TextUtils.isEmpty(supportThai.TextLine1))
-    			mPrinter.PRN_Print(supportThai.TextLine1, ISO_8859_11);
-    		mPrinter.PRN_Print(supportThai.TextLine2, ISO_8859_11);
-    		if(!TextUtils.isEmpty(supportThai.TextLine3))
-    			mPrinter.PRN_Print(supportThai.TextLine3, ISO_8859_11);
+    		ThreeLevelPrint supportThai = LevelTextPrint.parsingThaiLevel(data);
+    		if(!TextUtils.isEmpty(supportThai.getLine1()))
+    			mPrinter.PRN_Print(supportThai.getLine1(), ISO_8859_11);
+    		mPrinter.PRN_Print(supportThai.getLine2(), ISO_8859_11);
+    		if(!TextUtils.isEmpty(supportThai.getLine3()))
+    			mPrinter.PRN_Print(supportThai.getLine3(), ISO_8859_11);
 		}
     	mPrinter.PRN_PrintAndFeedLine(6);		
     	mPrinter.PRN_HalfCutPaper();
