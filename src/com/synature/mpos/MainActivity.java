@@ -2135,8 +2135,8 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		boolean endday = Utils.endday(MainActivity.this, mShop.getShopId(), 
 				mComputer.getComputerId(), mSessionId, mStaffId, cashAmount, true);
 		if(endday){
-			new Thread(new PrintReport(MainActivity.this, mSessionId, 
-					mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
+			new PrintReport(MainActivity.this, 
+					PrintReport.WhatPrint.SUMMARY_SALE,mSessionId,mStaffId).run();
 			// start the service 
 //			Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
 //			enddayIntent.putExtra("staffId", mStaffId);

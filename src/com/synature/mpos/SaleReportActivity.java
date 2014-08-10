@@ -410,8 +410,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			case R.id.itemPrint:
 				Session session = new Session(getActivity());
 				int sessionId = session.getSessionId(activity.mDateTo);
-				new Thread(new PrintReport(getActivity(), sessionId,
-						activity.mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
+				new PrintReport(getActivity(), 
+						PrintReport.WhatPrint.SUMMARY_SALE, sessionId, activity.mStaffId).run();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -637,8 +637,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				mBillReportAdapter.notifyDataSetChanged();
 				return true;
 			case R.id.itemPrint:
-				new Thread(new PrintReport(getActivity(), mHost.mDateFrom, mHost.mDateTo,
-						0, PrintReport.WhatPrint.BILL_REPORT)).start();
+				new PrintReport(getActivity(), PrintReport.WhatPrint.BILL_REPORT, 
+					mHost.mDateFrom, mHost.mDateTo).run();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -956,8 +956,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				mProductReportAdapter.notifyDataSetChanged();
 				return true;
 			case R.id.itemPrint:
-				new Thread(new PrintReport(getActivity(), mHost.mDateFrom, mHost.mDateTo,
-						0, PrintReport.WhatPrint.PRODUCT_REPORT)).start();
+				new PrintReport(getActivity(), PrintReport.WhatPrint.PRODUCT_REPORT, 
+						mHost.mDateFrom, mHost.mDateTo).run();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

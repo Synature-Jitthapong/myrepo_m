@@ -9,7 +9,7 @@ import com.synature.util.ThaiLevelText.ThaiTextThreeLine;
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Printer;
 
-public abstract class WintecPrinter extends PrinterUtility{
+public class WintecPrinter extends PrinterUtility{
 	
 	/**
 	 * ISO8859-11 character
@@ -17,20 +17,19 @@ public abstract class WintecPrinter extends PrinterUtility{
 	public static final String ISO_8859_11 = "x-iso-8859-11";
 	
 	protected Context mContext;
-	protected StringBuilder mBuilder;
 	protected Printer mPrinter;
 	
 	public WintecPrinter(Context context){
+		super(context);
 		mContext = context;
 		mPrinter = new Printer(Utils.getWintecPrinterDevPath(mContext), 
 				ComIO.Baudrate.valueOf(Utils.getWintecPrinterBaudRate(mContext)));
 		mPrinter.PRN_DisableChinese();
 		mPrinter.PRN_SetCodePage(70);
-		mBuilder = new StringBuilder();
 	}
 
 	protected void print(){
-		String[] subElement = mBuilder.toString().split("\n");
+		String[] subElement = mTextToPrint.toString().split("\n");
     	for(String data : subElement){
 //    		if(!data.contains("<b>")){
 //	    		mPrinter.PRN_EnableBoldFont(0);
@@ -75,7 +74,4 @@ public abstract class WintecPrinter extends PrinterUtility{
 		}
 		return empText.toString() + text + empText.toString();
 	}
-	
-	public void prepareDataToPrint(int transactionId){};
-	public void prepareDataToPrint(){};
 }
