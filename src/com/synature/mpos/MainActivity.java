@@ -1001,7 +1001,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			}
 		}
 		if(totalSelected > 0){
-			tvOrderSelected.setText(getString(R.string.item_selection) + "(" + totalSelected + " )");
+			tvOrderSelected.setText(getString(R.string.item_selection) + "(" + totalSelected + ")");
 		}else{
 			tvOrderSelected.setText(null);
 		}
