@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.Printer;
 
-public class WintecPrinter extends PrinterUtility{
+public class WintecPrinter extends PrinterBase{
 	
 	/**
 	 * ISO8859-11 character

@@ -25,7 +25,7 @@ import com.synature.pos.Report;
 import com.synature.pos.ShopData;
 import com.synature.util.Logger;
 
-public abstract class PrinterUtility {
+public abstract class PrinterBase {
 	
 	public static final int HORIZONTAL_MAX_SPACE = 45;
 	public static final int QTY_MAX_SPACE = 12;
@@ -42,7 +42,7 @@ public abstract class PrinterUtility {
 	
 	protected StringBuilder mTextToPrint;
 	
-	public PrinterUtility(Context context){
+	public PrinterBase(Context context){
 		mContext = context;
 		mTrans = new Transaction(context);
 		mPayment = new PaymentDetail(context);

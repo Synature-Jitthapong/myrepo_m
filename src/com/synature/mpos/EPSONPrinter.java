@@ -1,15 +1,24 @@
 package com.synature.mpos;
 
+import java.io.UnsupportedEncodingException;
+
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.epson.eposprint.BatteryStatusChangeEventListener;
 import com.epson.eposprint.Builder;
 import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
+import com.synature.util.LevelTextPrint;
+import com.synature.util.LevelTextPrint.ThreeLevelPrint;
 
-public class EPSONPrinter extends PrinterUtility implements 
+public class EPSONPrinter extends PrinterBase implements 
 	BatteryStatusChangeEventListener, StatusChangeEventListener{
+	
+	public static final int PRINT_NORMAL = 0;
+	public static final int PRINT_THAI_LEVEL = 1;
+	public static final int PRINT_LAO_LEVEL = 2;
 	
 	protected Context mContext;
 	protected Print mPrinter;
@@ -37,25 +46,58 @@ public class EPSONPrinter extends PrinterUtility implements
 	}
 	
 	protected void print(){
+		int[] status = new int[1];
+		int[] battery = new int[1];
 		try {
-			mBuilder.addText(mTextToPrint.toString());
-			// send mBuilder data
-			int[] status = new int[1];
-			int[] battery = new int[1];
-			try {
-				mBuilder.addFeedUnit(30);
-				mBuilder.addCut(Builder.CUT_FEED);
-				mPrinter.sendData(mBuilder, 10000, status, battery);
-			} catch (EposException e) {
-				e.printStackTrace();
-			}
-			if (mBuilder != null) {
-				mBuilder.clearCommandBuffer();
-			}
+			createBuilderCommand();
+			mBuilder.addFeedUnit(30);
+			mBuilder.addCut(Builder.CUT_FEED);
+			mPrinter.sendData(mBuilder, 10000, status, battery);
 		} catch (EposException e) {
 			e.printStackTrace();
 		}
+		if (mBuilder != null) {
+			mBuilder.clearCommandBuffer();
+		}
 		close();
+	}
+	
+	private void createBuilderCommand() throws EposException{
+		for(String data : getSubElement()){
+			data = data.replace("\n", "");
+			try {
+				if(data.contains("<c>")){
+					data = data.replace("<c>", "");
+					mBuilder.addTextAlign(Builder.ALIGN_CENTER);
+				}
+				ThreeLevelPrint level = LevelTextPrint.parsingLaoLevel(data);
+				if(!TextUtils.isEmpty(level.getLine1())){
+					mBuilder.addCommand((level.getLine1() + "\n").getBytes("x-iso-8859-11"));
+				}
+				if(!TextUtils.isEmpty(level.getLine2())){
+					mBuilder.addCommand((level.getLine2() + "\n").getBytes("x-iso-8859-11"));
+				}
+				if(!TextUtils.isEmpty(level.getLine3())){
+					mBuilder.addCommand((level.getLine3() + "\n").getBytes("x-iso-8859-11"));
+				}
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void createBuilder() throws EposException{
+		for(String data : getSubElement()){
+			if(data.contains("<c>")){
+				data = data.replace("<c>", "");
+				mBuilder.addTextAlign(Builder.ALIGN_CENTER);
+			}
+			mBuilder.addText(data);
+		}
+	}
+	
+	private String[] getSubElement(){
+		return mTextToPrint.toString().split("\n");
 	}
 	
 	private void open(){
