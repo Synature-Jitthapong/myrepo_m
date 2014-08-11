@@ -110,8 +110,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:minHeight="64dip"
-                android:minWidth="128dp"
                 android:onClick="cashPaidClicked"
                 android:text="@string/cash_paid"
                 android:textSize="22sp" />
@@ -122,8 +120,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:minHeight="64dip"
-                android:minWidth="128dp"
                 android:onClick="paymentClicked"
                 android:text="@string/payment"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse"
