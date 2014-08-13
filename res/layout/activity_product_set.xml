@@ -18,7 +18,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.6"
-        android:background="@color/smoke_white" >
+        android:background="@android:color/white" >
     </ExpandableListView>
 
     <RelativeLayout

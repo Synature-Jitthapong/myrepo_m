@@ -18,6 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.2"
+            android:gravity="right"
             android:text="@string/item_no"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 

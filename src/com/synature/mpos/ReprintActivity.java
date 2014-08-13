@@ -126,12 +126,12 @@ public class ReprintActivity extends Activity {
 		@Override
 		public void run() {
 			if(Utils.isInternalPrinterSetting(ReprintActivity.this)){
-				WintecPrintReceipt wt = new WintecPrintReceipt(ReprintActivity.this, true);
-				wt.prepareDataToPrint(mTransactionId);
+				WintecPrintReceipt wt = new WintecPrintReceipt(ReprintActivity.this,);
+				wt.prepareDataToPrint(mTransactionId, true);
 				wt.print();
 			}else{
-				EPSONPrintReceipt ep = new EPSONPrintReceipt(ReprintActivity.this, true);	
-				ep.prepareDataToPrint(mTransactionId);
+				EPSONPrintReceipt ep = new EPSONPrintReceipt(ReprintActivity.this);	
+				ep.prepareDataToPrint(mTransactionId, true);
 				ep.print();
 			}
 			runOnUiThread(new Runnable(){

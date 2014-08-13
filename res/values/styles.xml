@@ -1,48 +1,52 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- ActivityDialogTheme -->
     <style name="ActivityDialogTheme" parent="BaseActivityDialogTheme">
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowSoftInputMode">stateAlwaysHidden</item>
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:windowIsTranslucent">true</item>
-        <item name="android:buttonStyle">@style/ButtonStyle</item>
+        <item name="android:buttonStyle">@style/GrayButton</item>
     </style>
+    <!-- Row Style -->
     <style name="HeaderRow">
         <item name="android:divider">@android:drawable/divider_horizontal_bright</item>
         <item name="android:showDividers">middle|beginning|end</item>
     </style>
+    <!-- Text Style -->
  	<style name="BodyText" parent="@android:style/TextAppearance.Holo">
-		<item name="android:lines">1</item>
 		<item name="android:gravity">right|center_vertical</item>
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:padding">@dimen/default_margin</item>
     </style>
     <style name="HeaderText" parent="@android:style/TextAppearance.Holo">
-		<!-- <item name="android:textColor">@android:color/holo_blue_dark</item> -->
 		<item name="android:textAllCaps">true</item>
-		<item name="android:textStyle">bold</item>
-		<item name="android:lines">1</item>
 		<item name="android:padding">@dimen/default_margin</item>
     </style>
-    <style name="TextLabel" parent="@android:style/TextAppearance.Holo">
-        <item name="android:width">120dp</item>
+    <!-- Button Style -->
+    <style name="RedButton" parent="BaseButton.Light">
+        <item name="android:background">@drawable/btn_holo_red</item>
     </style>
-    <style name="ImageButtonStyle" parent="ButtonStyle">
+    <style name="GreenButton" parent="BaseButton.Light">
+        <item name="android:background">@drawable/btn_holo_green</item>
     </style>
-    <style name="ButtonStyle" parent="@android:Widget.Holo.Light.Button">
-        <item name="android:background">@drawable/button_selector</item>
+    <style name="BlueButton" parent="BaseButton.Light">
+        <item name="android:background">@drawable/btn_holo_blue</item>
     </style>
-    <style name="EditTextStyle" parent="@android:Widget.EditText">
-        <item name="android:background">@drawable/white_flat_bg</item>
-        <item name="android:minHeight">48dip</item>
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
+    <style name="GrayButton" parent="BaseButton">
+        <item name="android:background">@drawable/btn_holo_gray</item>
     </style>
+    <style name="BaseButton.Light" parent="BaseButton">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    <style name="BaseButton" parent="@android:style/Widget.Holo.Light.Button">
+        <item name="android:textAllCaps">true</item>
+    </style>
+    <!-- AppTheme -->
     <style name="AppTheme" parent="AppBaseTheme">
+        <item name="android:buttonStyle">@style/GrayButton</item>
+        <item name="android:imageButtonStyle">@style/GrayButton</item>
         <item name="android:textColor">@color/dark_gray_text</item>
-        <item name="android:buttonStyle">@style/ButtonStyle</item>
-        <item name="android:imageButtonStyle">@style/ImageButtonStyle</item>
-        <!-- <item name="android:editTextStyle">@style/EditTextStyle</item>-->
     </style>
 </resources>

@@ -1,27 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <item>
         <shape>
-            <solid 
-                android:color="@color/light_gray"/>
-        </shape>
-    </item>
-    <item
-        android:left="1dp"
-        android:top="1dp"
-        android:right="1dp"
-        android:bottom="2dp">
-        <shape>
-            <solid 
-                android:color="@color/gray"/>
+           <gradient
+                android:angle="0"
+                android:centerColor="@color/gray"
+                android:endColor="@color/light_gray"
+                android:startColor="@color/light_gray" />
         </shape>
     </item>
     <item
         android:right="1dp"
-        android:bottom="2dp">
+        android:bottom="1dp">
         <shape>
-            <solid 
-                android:color="@color/smoke_white"/>
+            <solid android:color="@android:color/white" />
         </shape>
     </item>
 
