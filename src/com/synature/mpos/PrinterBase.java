@@ -65,8 +65,8 @@ public abstract class PrinterBase {
 		return space.toString();
 	}
 
-	protected static String adjustAlignCenter(String text){
-		int rimSpace = (HORIZONTAL_MAX_SPACE - text.length()) / 2;
+	protected String adjustAlignCenter(String text){
+		int rimSpace = (HORIZONTAL_MAX_SPACE - calculateLength(text)) / 2;
 		StringBuilder empText = new StringBuilder();
 		for(int i = 0; i < rimSpace; i++){
 			empText.append(" ");
@@ -515,7 +515,7 @@ public abstract class PrinterBase {
 		if(isCopy){
 			String copyText = mContext.getString(R.string.copy);
 			mTextToPrint.append(createLine("-") + "\n");
-			mTextToPrint.append(copyText + "\n");
+			mTextToPrint.append(adjustAlignCenter(copyText) + "\n");
 			mTextToPrint.append(createLine("-") + "\n\n");
 		}
 		// add void header
@@ -642,6 +642,14 @@ public abstract class PrinterBase {
     	}
     	
     	// total price
+    	mTextToPrint.append(totalText);
+    	mTextToPrint.append(createHorizontalSpace(
+    			calculateLength(totalText) + 
+    			calculateLength(strTotalSale)));
+    	mTextToPrint.append(strTotalSale + "\n");
+    	
+    	totalText = "THB.................";
+    	strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() / 300);
     	mTextToPrint.append(totalText);
     	mTextToPrint.append(createHorizontalSpace(
     			calculateLength(totalText) + 

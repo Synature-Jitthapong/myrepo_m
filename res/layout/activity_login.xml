@@ -96,6 +96,7 @@
         android:layout_alignTop="@+id/imageView3"
         android:layout_toRightOf="@+id/imageView3"
         android:gravity="center_vertical"
+        android:text="-"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ImageView
