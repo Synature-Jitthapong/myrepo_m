@@ -222,11 +222,9 @@ public class SettingsActivity extends PreferenceActivity {
 	public void printTestClick(final View v){
 		if(Utils.isInternalPrinterSetting(getApplicationContext())){
 			WinTecTestPrint wt = new WinTecTestPrint(getApplicationContext());
-			wt.prepareDataToPrint();
 			wt.print();
 		}else{
 			EPSONTestPrint ep = new EPSONTestPrint(getApplicationContext());
-			ep.prepareDataToPrint();
 			ep.print();
 		}
 	}
@@ -235,52 +233,15 @@ public class SettingsActivity extends PreferenceActivity {
 		
 		public WinTecTestPrint(Context context){
 			super(context);
+			mTextToPrint.append(mContext.getString(R.string.print_test_text).replaceAll("\\*", " "));
 		}
-		
-		@Override
-		public void prepareDataToPrint(int transactionId) {
-		}
-
-		@Override
-		public void prepareDataToPrint() {
-			mBuilder.append(mContext.getString(R.string.print_test_text).replaceAll("\\*", " "));
-		}
-		
 	}
 	
 	public static class EPSONTestPrint extends EPSONPrinter{
 
 		public EPSONTestPrint(Context context) {
 			super(context);
+			mTextToPrint.append(mContext.getString(R.string.print_test_text).replaceAll("\\*", " "));
 		}
-
-		@Override
-		public void onBatteryStatusChangeEvent(String arg0, int arg1) {
-		}
-
-		@Override
-		public void onStatusChangeEvent(String arg0, int arg1) {
-		}
-
-		@Override
-		public void prepareDataToPrint(int transactionId) {
-		}
-
-		@Override
-		public void prepareDataToPrint() {
-			String printText = mContext.getString(R.string.print_test_text).replaceAll("\\*", " ");
-			try {
-				mBuilder.addText(printText);
-			} catch (EposException e) {
-				switch(e.getErrorStatus()){
-				case EposException.ERR_CONNECT:
-					Utils.makeToask(mContext, e.getMessage());
-					break;
-				default :
-					Utils.makeToask(mContext, mContext.getString(R.string.not_found_printer));
-				}
-			}
-		}
-		
 	}
 }

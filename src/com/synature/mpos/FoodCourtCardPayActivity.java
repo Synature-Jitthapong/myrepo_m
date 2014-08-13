@@ -391,7 +391,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				Shop shop = new Shop(FoodCourtCardPayActivity.this);
 				mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice, 
 						shop.getCompanyVatType(), shop.getCompanyVatRate());
-				new PrintReceiptFoodCourtTask().execute();
+				//new PrintReceiptFoodCourtTask().execute();
 			}
 		}
 
@@ -463,184 +463,184 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		
 	};
 	
-	private class PrintReceiptFoodCourtTask extends AsyncTask<Void, Void, Void>{
-		
-		protected class WintecPrintReceiptFoodCourt extends WintecPrinter{
-			
-			private PaymentDetail mPayment;
-			private Staffs mStaff;
-			private Shop mShop;
-			private HeaderFooterReceipt mHeaderFooter;
-			
-			public WintecPrintReceiptFoodCourt(Context context){
-				super(context);
-				mPayment = new PaymentDetail(FoodCourtCardPayActivity.this);
-				mStaff = new Staffs(FoodCourtCardPayActivity.this);
-				mShop = new Shop(FoodCourtCardPayActivity.this);
-				mHeaderFooter = new HeaderFooterReceipt(FoodCourtCardPayActivity.this);
-			}
-			
-			@Override
-			public void prepareDataToPrint(int transactionId) {
-				MPOSOrderTransaction trans = mTrans.getTransaction(transactionId);
-				MPOSOrderTransaction.MPOSOrderDetail summOrder = mTrans.getSummaryOrder(transactionId);
-				double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-				double change = mPayment.getTotalPayAmount(transactionId) - (summOrder.getTotalSalePrice());
-				
-				// add void header
-				if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
-					mBuilder.append("<c>" + FoodCourtCardPayActivity.this.getString(R.string.void_bill) + "\n");
-					Calendar voidTime = Calendar.getInstance();
-					voidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
-					mBuilder.append(FoodCourtCardPayActivity.this.getString(R.string.void_time) + " " + mFormat.dateTimeFormat(voidTime.getTime()) + "\n");
-					mBuilder.append(FoodCourtCardPayActivity.this.getString(R.string.void_by) + " " + mStaff.getStaff(trans.getVoidStaffId()).getStaffName() + "\n");
-					mBuilder.append(FoodCourtCardPayActivity.this.getString(R.string.reason) + " " + trans.getVoidReason() + "\n\n");
-				}
-				
-				// add header
-				for(ShopData.HeaderFooterReceipt hf : 
-					mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
-					mBuilder.append("<c>");
-					mBuilder.append(hf.getTextInLine());
-					mBuilder.append("\n");
-				}
-				
-				String saleDate = FoodCourtCardPayActivity.this.getString(R.string.date) + " " +
-						mFormat.dateTimeFormat(Utils.getCalendar().getTime());
-				String receiptNo = FoodCourtCardPayActivity.this.getString(R.string.receipt_no) + " " +
-						trans.getReceiptNo();
-				String cashCheer = FoodCourtCardPayActivity.this.getString(R.string.cashier) + " " +
-						mStaff.getStaff(trans.getOpenStaffId()).getStaffName();
-				mBuilder.append(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
-				mBuilder.append(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
-				mBuilder.append(cashCheer + createHorizontalSpace(cashCheer.length()) + "\n");
-				mBuilder.append(createLine("=") + "\n");
-				
-				List<MPOSOrderTransaction.MPOSOrderDetail> orderLst = 
-						mTrans.listAllOrderGroupByProduct(transactionId);
-		    	for(int i = 0; i < orderLst.size(); i++){
-		    		MPOSOrderTransaction.MPOSOrderDetail order = 
-		    				orderLst.get(i);
-		    		String productName = order.getProductName();
-		    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
-		    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
-		    		
-		    		mBuilder.append(productQty);
-		    		mBuilder.append(productName);
-		    		mBuilder.append(createHorizontalSpace(productQty.length() + 
-		    				productName.length() + productPrice.length()));
-		    		mBuilder.append(productPrice);
-		    		mBuilder.append("\n");
-		    		
-		    		// orderSet
-		    		if(order.getOrderSetDetailLst() != null){
-		    			for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail :
-		    				order.getOrderSetDetailLst()){
-		    				String setName = setDetail.getProductName();
-		    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
-		    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
-		    				mBuilder.append(setQty);
-		    				mBuilder.append(setName);
-		    				mBuilder.append(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
-		    				mBuilder.append(setPrice);
-		    				mBuilder.append("\n");
-		    			}
-		    		}
-		    	}
-		    	mBuilder.append(createLine("-") + "\n");
-		    	
-		    	String itemText = FoodCourtCardPayActivity.this.getString(R.string.items) + ": ";
-		    	String totalText = FoodCourtCardPayActivity.this.getString(R.string.total) + "...............";
-		    	String changeText = FoodCourtCardPayActivity.this.getString(R.string.change) + " ";
-		    	String beforeVatText = FoodCourtCardPayActivity.this.getString(R.string.before_vat);
-		    	String discountText = FoodCourtCardPayActivity.this.getString(R.string.discount);
-		    	String vatRateText = FoodCourtCardPayActivity.this.getString(R.string.vat) + " " +
-		    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
-		    	
-		    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
-		    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
-		    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
-		    	String strTotalChange = mFormat.currencyFormat(change);
-		    	String strBeforeVat = mFormat.currencyFormat(beforVat);
-		    	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
-		    	
-		    	// total item
-		    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
-		    	mBuilder.append(itemText);
-		    	mBuilder.append(strTotalQty);
-		    	mBuilder.append(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
-		    	mBuilder.append(strTotalRetailPrice + "\n");
-		    	
-		    	// total discount
-		    	if(summOrder.getPriceDiscount() > 0){
-			    	mBuilder.append(discountText);
-			    	mBuilder.append(createHorizontalSpace(discountText.length() + strTotalDiscount.length()));
-			    	mBuilder.append(strTotalDiscount + "\n");
-		    	}
-		    	
-		    	// transaction exclude vat
-		    	if(trans.getTransactionVatExclude() > 0){
-		    		String vatExcludeText = FoodCourtCardPayActivity.this.getString(R.string.vat) + " " +
-		    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
-		    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
-		    		mBuilder.append(vatExcludeText);
-		    		mBuilder.append(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
-		    		mBuilder.append(strVatExclude + "\n");
-		    	}
-		    	
-		    	// total price
-		    	mBuilder.append(totalText);
-		    	mBuilder.append(createHorizontalSpace(totalText.length() + strTotalSale.length()));
-		    	mBuilder.append(strTotalSale + "\n");
-
-		    	String balanceBeforeText = "Balance before paid";
-		    	String balanceBefore = mFormat.currencyFormat(mCardBalanceBefore);
-		    	mBuilder.append(balanceBeforeText);
-	    		mBuilder.append(createHorizontalSpace(balanceBeforeText.length() + balanceBefore.length()));
-		    	mBuilder.append(balanceBefore + "\n");
-		    	
-		    	String balanceText = "Balance after paid";
-		    	String balance = mFormat.currencyFormat(mCardBalance);
-		    	mBuilder.append(balanceText);
-	    		mBuilder.append(createHorizontalSpace(balanceText.length() + balance.length()));
-		    	mBuilder.append(balance + "\n");
-			    mBuilder.append(createLine("=") + "\n");
-			    
-			    if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
-				    // before vat
-				    mBuilder.append(beforeVatText);
-				    mBuilder.append(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
-				    mBuilder.append(strBeforeVat + "\n");
-				    
-				    // transaction vat
-			    	mBuilder.append(vatRateText);
-			    	mBuilder.append(createHorizontalSpace(vatRateText.length() + strTransactionVat.length()));
-			    	mBuilder.append(strTransactionVat + "\n");
-			    }
-			    
-		    	// add footer
-		    	for(ShopData.HeaderFooterReceipt hf : 
-					mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
-		    		mBuilder.append("<c>");
-					mBuilder.append(hf.getTextInLine());
-					mBuilder.append("\n");
-				}
-			}
-
-			@Override
-			public void prepareDataToPrint() {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		}
-		@Override
-		protected Void doInBackground(Void... params) {
-			WintecPrintReceiptFoodCourt print = new WintecPrintReceiptFoodCourt(FoodCourtCardPayActivity.this);
-			print.prepareDataToPrint(mTransactionId);
-			print.print();
-			return null;
-		}
-		
-	}
+//	private class PrintReceiptFoodCourtTask extends AsyncTask<Void, Void, Void>{
+//		
+//		protected class WintecPrintReceiptFoodCourt extends WintecPrinter{
+//			
+//			private PaymentDetail mPayment;
+//			private Staffs mStaff;
+//			private Shop mShop;
+//			private HeaderFooterReceipt mHeaderFooter;
+//			
+//			public WintecPrintReceiptFoodCourt(Context context){
+//				super(context);
+//				mPayment = new PaymentDetail(FoodCourtCardPayActivity.this);
+//				mStaff = new Staffs(FoodCourtCardPayActivity.this);
+//				mShop = new Shop(FoodCourtCardPayActivity.this);
+//				mHeaderFooter = new HeaderFooterReceipt(FoodCourtCardPayActivity.this);
+//			}
+//			
+//			@Override
+//			public void prepareDataToPrint(int transactionId) {
+//				MPOSOrderTransaction trans = mTrans.getTransaction(transactionId);
+//				MPOSOrderTransaction.MPOSOrderDetail summOrder = mTrans.getSummaryOrder(transactionId);
+//				double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
+//				double change = mPayment.getTotalPayAmount(transactionId) - (summOrder.getTotalSalePrice());
+//				
+//				// add void header
+//				if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
+//					mBuilder.append("<c>" + FoodCourtCardPayActivity.this.getString(R.string.void_bill) + "\n");
+//					Calendar voidTime = Calendar.getInstance();
+//					voidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
+//					mBuilder.append(FoodCourtCardPayActivity.this.getString(R.string.void_time) + " " + mFormat.dateTimeFormat(voidTime.getTime()) + "\n");
+//					mBuilder.append(FoodCourtCardPayActivity.this.getString(R.string.void_by) + " " + mStaff.getStaff(trans.getVoidStaffId()).getStaffName() + "\n");
+//					mBuilder.append(FoodCourtCardPayActivity.this.getString(R.string.reason) + " " + trans.getVoidReason() + "\n\n");
+//				}
+//				
+//				// add header
+//				for(ShopData.HeaderFooterReceipt hf : 
+//					mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
+//					mBuilder.append("<c>");
+//					mBuilder.append(hf.getTextInLine());
+//					mBuilder.append("\n");
+//				}
+//				
+//				String saleDate = FoodCourtCardPayActivity.this.getString(R.string.date) + " " +
+//						mFormat.dateTimeFormat(Utils.getCalendar().getTime());
+//				String receiptNo = FoodCourtCardPayActivity.this.getString(R.string.receipt_no) + " " +
+//						trans.getReceiptNo();
+//				String cashCheer = FoodCourtCardPayActivity.this.getString(R.string.cashier) + " " +
+//						mStaff.getStaff(trans.getOpenStaffId()).getStaffName();
+//				mBuilder.append(saleDate + createHorizontalSpace(saleDate.length()) + "\n");
+//				mBuilder.append(receiptNo + createHorizontalSpace(receiptNo.length()) + "\n");
+//				mBuilder.append(cashCheer + createHorizontalSpace(cashCheer.length()) + "\n");
+//				mBuilder.append(createLine("=") + "\n");
+//				
+//				List<MPOSOrderTransaction.MPOSOrderDetail> orderLst = 
+//						mTrans.listAllOrderGroupByProduct(transactionId);
+//		    	for(int i = 0; i < orderLst.size(); i++){
+//		    		MPOSOrderTransaction.MPOSOrderDetail order = 
+//		    				orderLst.get(i);
+//		    		String productName = order.getProductName();
+//		    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
+//		    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
+//		    		
+//		    		mBuilder.append(productQty);
+//		    		mBuilder.append(productName);
+//		    		mBuilder.append(createHorizontalSpace(productQty.length() + 
+//		    				productName.length() + productPrice.length()));
+//		    		mBuilder.append(productPrice);
+//		    		mBuilder.append("\n");
+//		    		
+//		    		// orderSet
+//		    		if(order.getOrderSetDetailLst() != null){
+//		    			for(MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail :
+//		    				order.getOrderSetDetailLst()){
+//		    				String setName = setDetail.getProductName();
+//		    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
+//		    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
+//		    				mBuilder.append(setQty);
+//		    				mBuilder.append(setName);
+//		    				mBuilder.append(createHorizontalSpace(setQty.length() + setName.length() + setPrice.length()));
+//		    				mBuilder.append(setPrice);
+//		    				mBuilder.append("\n");
+//		    			}
+//		    		}
+//		    	}
+//		    	mBuilder.append(createLine("-") + "\n");
+//		    	
+//		    	String itemText = FoodCourtCardPayActivity.this.getString(R.string.items) + ": ";
+//		    	String totalText = FoodCourtCardPayActivity.this.getString(R.string.total) + "...............";
+//		    	String changeText = FoodCourtCardPayActivity.this.getString(R.string.change) + " ";
+//		    	String beforeVatText = FoodCourtCardPayActivity.this.getString(R.string.before_vat);
+//		    	String discountText = FoodCourtCardPayActivity.this.getString(R.string.discount);
+//		    	String vatRateText = FoodCourtCardPayActivity.this.getString(R.string.vat) + " " +
+//		    			mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+//		    	
+//		    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
+//		    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
+//		    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
+//		    	String strTotalChange = mFormat.currencyFormat(change);
+//		    	String strBeforeVat = mFormat.currencyFormat(beforVat);
+//		    	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
+//		    	
+//		    	// total item
+//		    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
+//		    	mBuilder.append(itemText);
+//		    	mBuilder.append(strTotalQty);
+//		    	mBuilder.append(createHorizontalSpace(itemText.length() + strTotalQty.length() + strTotalRetailPrice.length()));
+//		    	mBuilder.append(strTotalRetailPrice + "\n");
+//		    	
+//		    	// total discount
+//		    	if(summOrder.getPriceDiscount() > 0){
+//			    	mBuilder.append(discountText);
+//			    	mBuilder.append(createHorizontalSpace(discountText.length() + strTotalDiscount.length()));
+//			    	mBuilder.append(strTotalDiscount + "\n");
+//		    	}
+//		    	
+//		    	// transaction exclude vat
+//		    	if(trans.getTransactionVatExclude() > 0){
+//		    		String vatExcludeText = FoodCourtCardPayActivity.this.getString(R.string.vat) + " " +
+//		    				mFormat.currencyFormat(mShop.getCompanyVatRate(), "#,###.##") + "%";
+//		    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
+//		    		mBuilder.append(vatExcludeText);
+//		    		mBuilder.append(createHorizontalSpace(vatExcludeText.length() + strVatExclude.length()));
+//		    		mBuilder.append(strVatExclude + "\n");
+//		    	}
+//		    	
+//		    	// total price
+//		    	mBuilder.append(totalText);
+//		    	mBuilder.append(createHorizontalSpace(totalText.length() + strTotalSale.length()));
+//		    	mBuilder.append(strTotalSale + "\n");
+//
+//		    	String balanceBeforeText = "Balance before paid";
+//		    	String balanceBefore = mFormat.currencyFormat(mCardBalanceBefore);
+//		    	mBuilder.append(balanceBeforeText);
+//	    		mBuilder.append(createHorizontalSpace(balanceBeforeText.length() + balanceBefore.length()));
+//		    	mBuilder.append(balanceBefore + "\n");
+//		    	
+//		    	String balanceText = "Balance after paid";
+//		    	String balance = mFormat.currencyFormat(mCardBalance);
+//		    	mBuilder.append(balanceText);
+//	    		mBuilder.append(createHorizontalSpace(balanceText.length() + balance.length()));
+//		    	mBuilder.append(balance + "\n");
+//			    mBuilder.append(createLine("=") + "\n");
+//			    
+//			    if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
+//				    // before vat
+//				    mBuilder.append(beforeVatText);
+//				    mBuilder.append(createHorizontalSpace(beforeVatText.length() + strBeforeVat.length()));
+//				    mBuilder.append(strBeforeVat + "\n");
+//				    
+//				    // transaction vat
+//			    	mBuilder.append(vatRateText);
+//			    	mBuilder.append(createHorizontalSpace(vatRateText.length() + strTransactionVat.length()));
+//			    	mBuilder.append(strTransactionVat + "\n");
+//			    }
+//			    
+//		    	// add footer
+//		    	for(ShopData.HeaderFooterReceipt hf : 
+//					mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
+//		    		mBuilder.append("<c>");
+//					mBuilder.append(hf.getTextInLine());
+//					mBuilder.append("\n");
+//				}
+//			}
+//
+//			@Override
+//			public void prepareDataToPrint() {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//			
+//		}
+//		@Override
+//		protected Void doInBackground(Void... params) {
+//			WintecPrintReceiptFoodCourt print = new WintecPrintReceiptFoodCourt(FoodCourtCardPayActivity.this);
+//			print.prepareDataToPrint(mTransactionId);
+//			print.print();
+//			return null;
+//		}
+//		
+//	}
 }
