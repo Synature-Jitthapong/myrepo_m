@@ -410,8 +410,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			case R.id.itemPrint:
 				Session session = new Session(getActivity());
 				int sessionId = session.getSessionId(activity.mDateTo);
-				new Thread(new PrintReport(getActivity(), sessionId,
-						activity.mStaffId, PrintReport.WhatPrint.SUMMARY_SALE)).start();
+				new PrintReport(getActivity(), 
+						PrintReport.WhatPrint.SUMMARY_SALE, sessionId, activity.mStaffId).run();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -637,8 +637,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				mBillReportAdapter.notifyDataSetChanged();
 				return true;
 			case R.id.itemPrint:
-				new Thread(new PrintReport(getActivity(), mHost.mDateFrom, mHost.mDateTo,
-						0, PrintReport.WhatPrint.BILL_REPORT)).start();
+				new PrintReport(getActivity(), PrintReport.WhatPrint.BILL_REPORT, 
+					mHost.mDateFrom, mHost.mDateTo).run();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -956,8 +956,8 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				mProductReportAdapter.notifyDataSetChanged();
 				return true;
 			case R.id.itemPrint:
-				new Thread(new PrintReport(getActivity(), mHost.mDateFrom, mHost.mDateTo,
-						0, PrintReport.WhatPrint.PRODUCT_REPORT)).start();
+				new PrintReport(getActivity(), PrintReport.WhatPrint.PRODUCT_REPORT, 
+						mHost.mDateFrom, mHost.mDateTo).run();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -1047,32 +1047,39 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 
 				Report.ReportDetail reportDetail = 
 						mReportProduct.getGroupOfProductLst().get(groupPosition).getReportDetail().get(childPosition);
-				setText(holder, childPosition, reportDetail);
+				setText(convertView, holder, childPosition, reportDetail);
 				
 				if(reportDetail.getProductName().equals(Reporting.SUMM_DEPT)){
-					setSummary(holder, mReportProduct.getGroupOfProductLst().get(groupPosition).getProductDeptName());
+					setSummary(convertView, holder, mReportProduct.getGroupOfProductLst().get(groupPosition).getProductDeptName());
 				}else if(reportDetail.getProductName().equals(Reporting.SUMM_GROUP)){
-					setSummary(holder, mReportProduct.getGroupOfProductLst().get(groupPosition).getProductGroupName());
+					setSummary(convertView, holder, mReportProduct.getGroupOfProductLst().get(groupPosition).getProductGroupName());
 				}
 				return convertView;
 			}
 			
-			private void setSummary(ProductReportViewHolder holder, String text){
+			private void setSummary(View convertView, ProductReportViewHolder holder, String text){
 				holder.tvNo.setVisibility(View.GONE);
 				holder.tvProductName.setVisibility(View.GONE);
 				holder.tvProductCode.setVisibility(View.GONE);
+				holder.tvProductPrice.setTextAppearance(getActivity(), R.style.HeaderText);
 				holder.tvProductPrice.setText(getActivity().getString(R.string.summary) + 
 						" " + text);
 				holder.tvProductPrice.setLayoutParams(
 						new LinearLayout.LayoutParams(0, 
 								LayoutParams.WRAP_CONTENT, 2.8f));
+				LinearLayout row = (LinearLayout) convertView;
+				for(int i = 0; i < row.getChildCount(); i++){
+					View v = row.getChildAt(i);
+					v.setBackgroundResource(R.color.lighter_gray);
+				}
 			}
 			
-			private void setText(ProductReportViewHolder holder, int position, 
+			private void setText(View convertView, ProductReportViewHolder holder, int position, 
 					Report.ReportDetail reportDetail){
 				holder.tvNo.setVisibility(View.VISIBLE);
 				holder.tvProductCode.setVisibility(View.VISIBLE);
 				holder.tvProductPrice.setVisibility(View.VISIBLE);
+				holder.tvProductPrice.setTextAppearance(getActivity(), android.R.style.TextAppearance_Holo);
 				holder.tvProductName.setVisibility(View.VISIBLE);
 				holder.tvNo.setLayoutParams(
 						new LinearLayout.LayoutParams(0, 
@@ -1106,6 +1113,12 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				holder.tvTotalPricePercent.setText(mHost.mFormat.currencyFormat(
 						reportDetail.getTotalPricePercent()));
 				holder.tvVatType.setText(reportDetail.getVat());
+				
+				LinearLayout row = (LinearLayout) convertView;
+				for(int i = 0; i < row.getChildCount(); i++){
+					View v = row.getChildAt(i);
+					v.setBackgroundResource(android.R.color.transparent);
+				}
 			}
 			
 			@Override
