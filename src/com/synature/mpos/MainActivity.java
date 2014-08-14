@@ -452,6 +452,11 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				mFormat.currencyFormat(sumOrder.getTotalSalePrice()),
 				0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size)));
 		
+		// lao
+		mTbSummary.addView(createTableRowSummary("THB",
+				mFormat.currencyFormat(sumOrder.getTotalSalePrice() / 300),
+				0, 0, 0, 0));
+		
 		if(Utils.isEnableSecondDisplay(this)){
 			List<clsSecDisplay_TransSummary> transSummLst = new ArrayList<clsSecDisplay_TransSummary>();
 			clsSecDisplay_TransSummary transSumm = new clsSecDisplay_TransSummary();
@@ -2137,7 +2142,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				mComputer.getComputerId(), mSessionId, mStaffId, cashAmount, true);
 		if(endday){
 			new PrintReport(MainActivity.this, 
-					PrintReport.WhatPrint.SUMMARY_SALE,mSessionId,mStaffId).run();
+					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).run();
 			// start the service 
 //			Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
 //			enddayIntent.putExtra("staffId", mStaffId);
