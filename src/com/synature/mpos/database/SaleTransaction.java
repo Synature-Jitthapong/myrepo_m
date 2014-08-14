@@ -382,13 +382,11 @@ public class SaleTransaction extends MPOSDatabase{
 				OrderTransactionTable.TABLE_ORDER_TRANS, 
 				Transaction.ALL_TRANS_COLUMNS, 
 				OrderTransactionTable.COLUMN_SALE_DATE + "=?" + 
-				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) " + 
-				" AND " + COLUMN_SEND_STATUS + "=?", 
+				" AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?) ", 
 				new String[] {
 						sessionDate,
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(Transaction.TRANS_STATUS_VOID),
-						String.valueOf(MPOSDatabase.NOT_SEND) 
+						String.valueOf(Transaction.TRANS_STATUS_VOID)
 				}, 
 				null, null, null);
 	}
