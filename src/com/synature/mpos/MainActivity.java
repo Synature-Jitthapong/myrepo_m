@@ -559,7 +559,8 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				isCopy = 1;
 			printLog.insertLog(transactionId, staffId, isCopy);
 		}
-		new Thread(new PrintReceipt(getApplicationContext())).start();
+		// print receipt
+		new PrintReceipt(getApplicationContext()).run();
 		
 		if(change > 0){
 			LinearLayout changeView = new LinearLayout(MainActivity.this);

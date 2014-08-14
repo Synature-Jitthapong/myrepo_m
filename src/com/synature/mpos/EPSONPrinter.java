@@ -14,13 +14,12 @@ public class EPSONPrinter extends PrinterBase implements
 	BatteryStatusChangeEventListener, StatusChangeEventListener{
 	
 	public static final int PRINT_NORMAL = 0;
-	public static final int PRINT_THAI_LEVEL = 1;
-	public static final int PRINT_LAO_LEVEL = 2;
+	public static final int PRINT_THAI_LEVEL = 2;
+	public static final int PRINT_LAO_LEVEL = 3;
 	
 	protected Context mContext;
 	protected Print mPrinter;
 	protected Builder mBuilder;
-	protected int mLangToPrint;
 	
 	/**
 	 * @param context
@@ -45,20 +44,11 @@ public class EPSONPrinter extends PrinterBase implements
 		}
 	}
 	
-	/**
-	 * @param context
-	 * @param langToPrint
-	 */
-	public EPSONPrinter(Context context, int langToPrint){
-		this(context);
-		mLangToPrint = langToPrint;
-	}
-	
 	protected void print(){
 		int[] status = new int[1];
 		int[] battery = new int[1];
 		try {
-			if(mLangToPrint == PRINT_LAO_LEVEL){
+			if(Utils.getPrintLang() == PRINT_LAO_LEVEL){
 				createLaoBuilderCommand();
 			}else{
 				createBuilder();

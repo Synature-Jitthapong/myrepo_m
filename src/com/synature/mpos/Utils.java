@@ -546,6 +546,10 @@ public class Utils {
 		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_DEV_PATH, "/dev/ttySAC1");
 	}
 	
+	public static int getPrintLang(){
+		return 3;
+	}
+	
 	/**
 	 * @param context
 	 * @return epson model name
