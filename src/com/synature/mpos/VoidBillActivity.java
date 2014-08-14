@@ -302,7 +302,7 @@ public class VoidBillActivity extends Activity {
 		txtReceiptNo.setText("");
 		txtReceiptDate.setText("");
 		
-		mTransLst = mTrans.listTransaction(String.valueOf(Utils.getDate()));
+		mTransLst = mTrans.listTransaction(String.valueOf(Utils.getDate().getTimeInMillis()));
 		if(mTransLst.size() == 0){
 			new AlertDialog.Builder(VoidBillActivity.this)
 			.setTitle(R.string.void_bill)
