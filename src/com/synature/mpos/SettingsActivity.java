@@ -1,15 +1,12 @@
 package com.synature.mpos;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -17,8 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.util.List;
-
-import com.epson.eposprint.EposException;
 
 public class SettingsActivity extends PreferenceActivity {
 
@@ -29,7 +24,6 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_CONN_TIME_OUT_LIST = "connection_time_out";
 	public static final String KEY_PREF_PRINTER_IP = "printer_ip";
 	public static final String KEY_PREF_PRINTER_LIST = "printer_list";
-	public static final String KEY_PREF_PRINTER_FONT_LIST = "printer_font_list";
 	public static final String KEY_PREF_PRINTER_INTERNAL = "printer_internal";
 	public static final String KEY_PREF_PRINTER_DEV_PATH = "printer_wintec_dev_path";
 	public static final String KEY_PREF_PRINTER_BAUD_RATE = "printer_wintec_baud_rate";
@@ -83,7 +77,6 @@ public class SettingsActivity extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_TEXT_LINE2));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_DEV_PATH));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_BAUD_RATE));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_FONT_LIST));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_IP));
 		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
 	}
@@ -161,7 +154,6 @@ public class SettingsActivity extends PreferenceActivity {
 			addPreferencesFromResource(R.xml.pref_printer);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
-			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_FONT_LIST));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_DEV_PATH));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_BAUD_RATE));
 		}

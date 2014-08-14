@@ -34,11 +34,7 @@ public class EPSONPrinter extends PrinterBase implements
 		try {
 			mBuilder = new Builder(Utils.getEPSONModelName(mContext), Builder.MODEL_ANK, mContext);
 			mBuilder.addTextSize(1, 1);
-			if(Utils.getEPSONPrinterFont(mContext).equals("a")){
-				mBuilder.addTextFont(Builder.FONT_A);
-			}else if(Utils.getEPSONPrinterFont(mContext).equals("b")){
-				mBuilder.addTextFont(Builder.FONT_B);
-			}
+			mBuilder.addTextFont(Builder.FONT_B);
 			open();
 		} catch (EposException e) {
 			e.printStackTrace();

@@ -30,24 +30,6 @@ public class WintecPrinter extends PrinterBase{
 	protected void print(){
 		String[] subElement = mTextToPrint.toString().split("\n");
     	for(String data : subElement){
-//    		if(!data.contains("<b>")){
-//	    		mPrinter.PRN_EnableBoldFont(0);
-//    		}
-//    		if(!data.contains("<u>")){
-//	    		mPrinter.PRN_DisableFontUnderline();
-//    		}
-			if(data.contains("<c>")){
-				data = adjustAlignCenter(data.replace("<c>", ""));
-			}
-			if(data.contains("<b>")){
-				//mPrinter.PRN_EnableBoldFont(1);
-				data = data.replace("<b>", "");
-			}
-			if(data.contains("<u>")){
-				//mPrinter.PRN_EnableFontUnderline();
-				data = data.replace("<u>", "");
-			}
-
     		ThreeLevelPrint supportThai = LevelTextPrint.parsingThaiLevel(data);
     		if(!TextUtils.isEmpty(supportThai.getLine1()))
     			mPrinter.PRN_Print(supportThai.getLine1(), ISO_8859_11);
@@ -63,14 +45,5 @@ public class WintecPrinter extends PrinterBase{
 	private void close(){
 		if(mPrinter != null)
 			mPrinter.PRN_Close();
-	}
-	
-	private static String adjustAlignCenter(String text){
-		int rimSpace = (HORIZONTAL_MAX_SPACE - text.length()) / 2;
-		StringBuilder empText = new StringBuilder();
-		for(int i = 0; i < rimSpace; i++){
-			empText.append(" ");
-		}
-		return empText.toString() + text + empText.toString();
 	}
 }
