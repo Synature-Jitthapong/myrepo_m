@@ -107,14 +107,14 @@ public abstract class PrinterBase {
 					&& code != 3662
 					// lao 
 					&& code != 3761
-					&& code != 3762
-					&& code != 3763
 					&& code != 3764
 					&& code != 3765
 					&& code != 3766
 					&& code != 3767
 					&& code != 3768
 					&& code != 3769
+					&& code != 3771
+					&& code != 3772
 					&& code != 3784
 					&& code != 3785
 					&& code != 3786
