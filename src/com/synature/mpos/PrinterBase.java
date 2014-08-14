@@ -64,6 +64,15 @@ public abstract class PrinterBase {
 		}
 		return space.toString();
 	}
+
+	protected String adjustAlignCenter(String text){
+		int rimSpace = (HORIZONTAL_MAX_SPACE - calculateLength(text)) / 2;
+		StringBuilder empText = new StringBuilder();
+		for(int i = 0; i < rimSpace; i++){
+			empText.append(" ");
+		}
+		return empText.toString() + text + empText.toString();
+	}
 	
 	protected String limitTextLength(String text){
 		if(text == null)
@@ -80,6 +89,7 @@ public abstract class PrinterBase {
 		for(int i = 0; i < text.length(); i++){
 			int code = (int) text.charAt(i);
 			if(code != 3633 
+					// thai
 					&& code != 3636
 					&& code != 3637
 					&& code != 3638
@@ -148,9 +158,9 @@ public abstract class PrinterBase {
 					mFormat.dateFormat(dateTo);
 		}
 		// header
-		mTextToPrint.append("<c>" + mContext.getString(R.string.sale_by_bill_report) + "\n");
-		mTextToPrint.append("<c>" + date + "\n");
-		mTextToPrint.append("<c>" + mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
+		mTextToPrint.append(mContext.getString(R.string.sale_by_bill_report) + "\n");
+		mTextToPrint.append(date + "\n");
+		mTextToPrint.append(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 		mTextToPrint.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n");
 		
 		String receiptHeader = mContext.getString(R.string.receipt);
@@ -205,16 +215,16 @@ public abstract class PrinterBase {
 		}
 		
 		// header
-		mTextToPrint.append("<c>" + mContext.getString(R.string.sale_by_product_report) + "\n");
-		mTextToPrint.append("<c>" + date + "\n");
-		mTextToPrint.append("<c>" + mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
+		mTextToPrint.append(mContext.getString(R.string.sale_by_product_report) + "\n");
+		mTextToPrint.append(date + "\n");
+		mTextToPrint.append(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 		mTextToPrint.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n\n");
 		
 		// Product Summary
 		Reporting reporting = new Reporting(mContext, dateFrom, dateTo);
 		Report reportData = reporting.getProductDataReport();
 		for(Report.GroupOfProduct group : reportData.getGroupOfProductLst()){
-			mTextToPrint.append("<b>" + group.getProductGroupName() + ": " + group.getProductDeptName()+ "\n");
+			mTextToPrint.append(group.getProductGroupName() + ": " + group.getProductDeptName()+ "\n");
 			for(Report.ReportDetail detail : group.getReportDetail()){
 				String itemName = detail.getProductName();
 				if(detail.getProductName() == Reporting.SUMM_DEPT){
@@ -224,7 +234,7 @@ public abstract class PrinterBase {
 				}else if(detail.getProductName() == Reporting.SUMM_GROUP){
 					itemName = group.getProductGroupName() + " " +
 							mContext.getString(R.string.summary);
-					mTextToPrint.append("<b>" + itemName);
+					mTextToPrint.append(itemName);
 				}else{
 					mTextToPrint.append(itemName);
 				}
@@ -292,14 +302,14 @@ public abstract class PrinterBase {
 			= mTrans.getSummaryOrderInDay(sessionDate, sessionDate);
 
 		// header
-		mTextToPrint.append("<c>" + mContext.getString(R.string.endday_report) + "\n");
-		mTextToPrint.append("<c>" + mFormat.dateFormat(sessionDate) + "\n");
-		mTextToPrint.append("<c>" + mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
+		mTextToPrint.append(mContext.getString(R.string.endday_report) + "\n");
+		mTextToPrint.append(mFormat.dateFormat(sessionDate) + "\n");
+		mTextToPrint.append(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 		mTextToPrint.append(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(staffId).getStaffName() + "\n");
 		mTextToPrint.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n");
 		
 		// ReceiptNo.
-		mTextToPrint.append("<u>" + mContext.getString(R.string.receipt_no) + "\n");
+		mTextToPrint.append(mContext.getString(R.string.receipt_no) + "\n");
 		mTextToPrint.append(mTrans.getMinReceiptNo(sessionDate) + " -\n");
 		mTextToPrint.append(mTrans.getMaxReceiptNo(sessionDate) + "\n\n");
 		
@@ -312,13 +322,13 @@ public abstract class PrinterBase {
 				String groupTotalPrice = mFormat.currencyFormat(sp.getDeptTotalPrice());
 				String groupTotalQty = mFormat.qtyFormat(sp.getDeptTotalQty()) + 
 						createQtySpace(calculateLength(groupTotalPrice));
-				mTextToPrint.append("<b>" + groupName);
+				mTextToPrint.append(groupName);
 				mTextToPrint.append(createHorizontalSpace(
 						calculateLength(groupName) 
 						+ calculateLength(groupTotalQty) 
 						+ calculateLength(groupTotalPrice)));
-				mTextToPrint.append("<b>" + groupTotalQty);
-				mTextToPrint.append("<b>" + groupTotalPrice + "\n");
+				mTextToPrint.append(groupTotalQty);
+				mTextToPrint.append(groupTotalPrice + "\n");
 				if(sp.getItemLst() != null){
 					for(SimpleProductData.Item item : sp.getItemLst()){
 						String itemName = limitTextLength("-" + item.getItemName());
@@ -505,12 +515,12 @@ public abstract class PrinterBase {
 		if(isCopy){
 			String copyText = mContext.getString(R.string.copy);
 			mTextToPrint.append(createLine("-") + "\n");
-			mTextToPrint.append("<c>" + copyText + "\n");
+			mTextToPrint.append(adjustAlignCenter(copyText) + "\n");
 			mTextToPrint.append(createLine("-") + "\n\n");
 		}
 		// add void header
 		if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
-			mTextToPrint.append("<c>" + mContext.getString(R.string.void_bill) + "\n");
+			mTextToPrint.append(mContext.getString(R.string.void_bill) + "\n");
 			Calendar voidTime = Calendar.getInstance();
 			voidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
 			mTextToPrint.append(mContext.getString(R.string.void_time) + " " + mFormat.dateTimeFormat(voidTime.getTime()) + "\n");
@@ -520,9 +530,7 @@ public abstract class PrinterBase {
 		// add header
 		for(ShopData.HeaderFooterReceipt hf : 
 			mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
-			mTextToPrint.append("<c>");
-			mTextToPrint.append(hf.getTextInLine());
-			mTextToPrint.append("\n");
+			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
 		}
 		
 		String saleDate = mContext.getString(R.string.date) + " " +
@@ -639,6 +647,14 @@ public abstract class PrinterBase {
     			calculateLength(totalText) + 
     			calculateLength(strTotalSale)));
     	mTextToPrint.append(strTotalSale + "\n");
+    	
+    	totalText = "THB.................";
+    	strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() / 300);
+    	mTextToPrint.append(totalText);
+    	mTextToPrint.append(createHorizontalSpace(
+    			calculateLength(totalText) + 
+    			calculateLength(strTotalSale)));
+    	mTextToPrint.append(strTotalSale + "\n");
 
     	// total payment
     	List<Payment.PaymentDetail> paymentLst = 
@@ -716,9 +732,7 @@ public abstract class PrinterBase {
     	// add footer
     	for(ShopData.HeaderFooterReceipt hf : 
 			mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
-    		mTextToPrint.append("<c>");
-			mTextToPrint.append(hf.getTextInLine());
-			mTextToPrint.append("\n");
+			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
 		}
 	}
 }

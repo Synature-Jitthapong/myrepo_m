@@ -64,13 +64,4 @@ public class WintecPrinter extends PrinterBase{
 		if(mPrinter != null)
 			mPrinter.PRN_Close();
 	}
-	
-	private static String adjustAlignCenter(String text){
-		int rimSpace = (HORIZONTAL_MAX_SPACE - text.length()) / 2;
-		StringBuilder empText = new StringBuilder();
-		for(int i = 0; i < rimSpace; i++){
-			empText.append(" ");
-		}
-		return empText.toString() + text + empText.toString();
-	}
 }
