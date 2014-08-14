@@ -35,12 +35,6 @@
             android:entryValues="@array/pref_printer_value"
             android:key="printer_list"
             android:title="@string/printer_name" android:dependency="printer_internal"/>
-        <ListPreference
-            android:defaultValue="b"
-            android:entries="@array/pref_printer_font_name"
-            android:entryValues="@array/pref_printer_font_value"
-            android:key="printer_font_list"
-            android:title="@string/font" android:dependency="printer_internal"/>
     </PreferenceCategory>
 
     <Preference

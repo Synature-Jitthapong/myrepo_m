@@ -39,11 +39,11 @@
 
     <ImageView
         android:id="@+id/imageViewMenu"
-        android:layout_width="72dp"
+        android:layout_width="match_parent"
         android:layout_height="72dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_margin="4dp"
-        android:scaleType="matrix" />
+        android:scaleType="fitCenter" />
 
 </RelativeLayout>

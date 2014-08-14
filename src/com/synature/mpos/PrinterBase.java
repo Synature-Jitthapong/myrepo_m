@@ -158,7 +158,7 @@ public abstract class PrinterBase {
 					mFormat.dateFormat(dateTo);
 		}
 		// header
-		mTextToPrint.append(mContext.getString(R.string.sale_by_bill_report) + "\n");
+		mTextToPrint.append(adjustAlignCenter(mContext.getString(R.string.sale_by_bill_report)) + "\n");
 		mTextToPrint.append(date + "\n");
 		mTextToPrint.append(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 		mTextToPrint.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n");
@@ -215,7 +215,7 @@ public abstract class PrinterBase {
 		}
 		
 		// header
-		mTextToPrint.append(mContext.getString(R.string.sale_by_product_report) + "\n");
+		mTextToPrint.append(adjustAlignCenter(mContext.getString(R.string.sale_by_product_report)) + "\n");
 		mTextToPrint.append(date + "\n");
 		mTextToPrint.append(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 		mTextToPrint.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n\n");
@@ -247,7 +247,7 @@ public abstract class PrinterBase {
 				mTextToPrint.append(itemTotalQty);
 				mTextToPrint.append(itemTotalPrice + "\n");
 				if(detail.getProductName() == Reporting.SUMM_GROUP){
-					mTextToPrint.append(createLine("-") + "\n");
+					mTextToPrint.append(createLine("-"));
 				}
 			}
 			mTextToPrint.append("\n");
@@ -302,7 +302,7 @@ public abstract class PrinterBase {
 			= mTrans.getSummaryOrderInDay(sessionDate, sessionDate);
 
 		// header
-		mTextToPrint.append(mContext.getString(R.string.endday_report) + "\n");
+		mTextToPrint.append(adjustAlignCenter(mContext.getString(R.string.endday_report)) + "\n");
 		mTextToPrint.append(mFormat.dateFormat(sessionDate) + "\n");
 		mTextToPrint.append(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 		mTextToPrint.append(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(staffId).getStaffName() + "\n");

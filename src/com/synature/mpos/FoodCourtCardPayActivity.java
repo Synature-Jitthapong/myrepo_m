@@ -462,14 +462,9 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 			}
 		
 	};
-	
-<<<<<<< HEAD
-	private class PrintReceiptFoodCourtTask extends AsyncTask<Void, Void, Void>{
-		
-=======
+
 //	private class PrintReceiptFoodCourtTask extends AsyncTask<Void, Void, Void>{
 //		
->>>>>>> lao
 //		protected class WintecPrintReceiptFoodCourt extends WintecPrinter{
 //			
 //			private PaymentDetail mPayment;
@@ -639,17 +634,6 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 //			}
 //			
 //		}
-<<<<<<< HEAD
-		@Override
-		protected Void doInBackground(Void... params) {
-//			WintecPrintReceiptFoodCourt print = new WintecPrintReceiptFoodCourt(FoodCourtCardPayActivity.this);
-//			print.prepareDataToPrint(mTransactionId);
-//			print.print();
-			return null;
-		}
-		
-	}
-=======
 //		@Override
 //		protected Void doInBackground(Void... params) {
 //			WintecPrintReceiptFoodCourt print = new WintecPrintReceiptFoodCourt(FoodCourtCardPayActivity.this);
@@ -659,5 +643,4 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 //		}
 //		
 //	}
->>>>>>> lao
 }

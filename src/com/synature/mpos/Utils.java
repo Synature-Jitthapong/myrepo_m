@@ -518,16 +518,6 @@ public class Utils {
 	
 	/**
 	 * @param context
-	 * @return epson printer font
-	 */
-	public static String getEPSONPrinterFont(Context context) {
-		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sharedPref.getString(SettingsActivity.KEY_PREF_PRINTER_FONT_LIST, "");
-	}
-	
-	/**
-	 * @param context
 	 * @return printer baud rate
 	 */
 	public static String getWintecPrinterBaudRate(Context context) {

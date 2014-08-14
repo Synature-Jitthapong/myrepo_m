@@ -97,9 +97,13 @@
         android:layout_toRightOf="@+id/imageView3"
         android:gravity="center_vertical"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         android:text="-"
 >>>>>>> lao
+=======
+        android:text="@string/last_update"
+>>>>>>> multi-session
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ImageView
