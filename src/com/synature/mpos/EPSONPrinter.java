@@ -1,9 +1,6 @@
 package com.synature.mpos;
 
-import java.io.UnsupportedEncodingException;
-
 import android.content.Context;
-import android.text.TextUtils;
 
 import com.epson.eposprint.BatteryStatusChangeEventListener;
 import com.epson.eposprint.Builder;
@@ -11,7 +8,7 @@ import com.epson.eposprint.EposException;
 import com.epson.eposprint.Print;
 import com.epson.eposprint.StatusChangeEventListener;
 import com.synature.util.LevelTextPrint;
-import com.synature.util.LevelTextPrint.ThreeLevelPrint;
+import com.synature.util.LevelTextPrint.ThreeLevelByteCode;
 
 public class EPSONPrinter extends PrinterBase implements 
 	BatteryStatusChangeEventListener, StatusChangeEventListener{
@@ -23,14 +20,17 @@ public class EPSONPrinter extends PrinterBase implements
 	protected Context mContext;
 	protected Print mPrinter;
 	protected Builder mBuilder;
+	protected int mLangToPrint;
 	
+	/**
+	 * @param context
+	 */
 	public EPSONPrinter(Context context){
 		super(context);
 		mContext = context;
 		mPrinter = new Print(context.getApplicationContext());
 		mPrinter.setStatusChangeEventCallback(this);
 		mPrinter.setBatteryStatusChangeEventCallback(this);
-		
 		try {
 			mBuilder = new Builder(Utils.getEPSONModelName(mContext), Builder.MODEL_ANK, mContext);
 			mBuilder.addTextSize(1, 1);
@@ -45,11 +45,24 @@ public class EPSONPrinter extends PrinterBase implements
 		}
 	}
 	
+	/**
+	 * @param context
+	 * @param langToPrint
+	 */
+	public EPSONPrinter(Context context, int langToPrint){
+		this(context);
+		mLangToPrint = langToPrint;
+	}
+	
 	protected void print(){
 		int[] status = new int[1];
 		int[] battery = new int[1];
 		try {
-			createBuilderCommand();
+			if(mLangToPrint == PRINT_LAO_LEVEL){
+				createLaoBuilderCommand();
+			}else{
+				createBuilder();
+			}
 			mBuilder.addFeedUnit(30);
 			mBuilder.addCut(Builder.CUT_FEED);
 			mPrinter.sendData(mBuilder, 10000, status, battery);
@@ -62,42 +75,13 @@ public class EPSONPrinter extends PrinterBase implements
 		close();
 	}
 	
-	private void createBuilderCommand() throws EposException{
-		for(String data : getSubElement()){
-			data = data.replace("\n", "");
-			try {
-				if(data.contains("<c>")){
-					data = data.replace("<c>", "");
-					mBuilder.addTextAlign(Builder.ALIGN_CENTER);
-				}
-				ThreeLevelPrint level = LevelTextPrint.parsingLaoLevel(data);
-				if(!TextUtils.isEmpty(level.getLine1())){
-					mBuilder.addCommand((level.getLine1() + "\n").getBytes("x-iso-8859-11"));
-				}
-				if(!TextUtils.isEmpty(level.getLine2())){
-					mBuilder.addCommand((level.getLine2() + "\n").getBytes("x-iso-8859-11"));
-				}
-				if(!TextUtils.isEmpty(level.getLine3())){
-					mBuilder.addCommand((level.getLine3() + "\n").getBytes("x-iso-8859-11"));
-				}
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
-		}
+	private void createLaoBuilderCommand() throws EposException{
+		ThreeLevelByteCode level = LevelTextPrint.parsingLaoLevel(mTextToPrint.toString());
+		mBuilder.addCommand(level.getLine2());
 	}
 	
 	private void createBuilder() throws EposException{
-		for(String data : getSubElement()){
-			if(data.contains("<c>")){
-				data = data.replace("<c>", "");
-				mBuilder.addTextAlign(Builder.ALIGN_CENTER);
-			}
-			mBuilder.addText(data);
-		}
-	}
-	
-	private String[] getSubElement(){
-		return mTextToPrint.toString().split("\n");
+		mBuilder.addText(mTextToPrint.toString());
 	}
 	
 	private void open(){
