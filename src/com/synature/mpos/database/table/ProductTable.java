@@ -46,6 +46,7 @@ public class ProductTable extends BaseColumn{
 			+ COLUMN_IS_OUTOF_STOCK + " integer default 0, " 
 			+ COLUMN_IMG_FILE_NAME + " text, " 
 			+ COLUMN_ACTIVATE + " integer default 0, " 
+			+ COLUMN_DELETED + " integer default 0, "
 			+ COLUMN_ORDERING + " integer default 0, " 
 			+ " primary key (" + COLUMN_PRODUCT_ID + " ASC));";
 	

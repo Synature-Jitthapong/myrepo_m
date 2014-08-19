@@ -25,6 +25,7 @@ public class ProductGroupTable extends BaseColumn{
 			+ COLUMN_IS_COMMENT + " integer default 0, "
 			+ ProductTable.COLUMN_ACTIVATE + " integer default 0, "
 			+ COLUMN_ORDERING + " integer default 0, " 
+			+ COLUMN_DELETED + " integer default 0, "
 			+ " primary key (" + ProductTable.COLUMN_PRODUCT_GROUP_ID + "));";
 	
 	public static void onCreate(SQLiteDatabase db) {

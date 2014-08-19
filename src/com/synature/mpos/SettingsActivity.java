@@ -18,7 +18,6 @@ import java.util.List;
 public class SettingsActivity extends PreferenceActivity {
 
 	public static final int UPDATE_NEW_DATA = 2;
-	public static final int REFRESH_PARENT_ACTIVITY = 3;
 	
 	public static final String KEY_PREF_SERVER_URL = "server_url";
 	public static final String KEY_PREF_CONN_TIME_OUT_LIST = "connection_time_out";
@@ -85,6 +84,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
+			setResult(UPDATE_NEW_DATA);
 			finish();
 			return true;
 		default :

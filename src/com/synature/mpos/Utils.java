@@ -266,7 +266,7 @@ public class Utils {
 		
 		@Override
 		protected void onPreExecute() {
-			mListener.onPre();
+			mListener.onPreExecute();
 		}
 
 		@Override
@@ -307,7 +307,7 @@ public class Utils {
 		
 		@Override
 		protected void onPreExecute() {
-			mListener.onPre();
+			mListener.onPreExecute();
 		}
 
 		@Override
@@ -776,11 +776,11 @@ public class Utils {
 		return new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight);
 	}
 	
-	public static interface LoadEndDaySaleTransactionListener extends ProgressListener{
+	public static interface LoadEndDaySaleTransactionListener extends WebServiceWorkingListener{
 		void onPost(POSData_EndDaySaleTransaction enddayTrans);
 	}
 	
-	public static interface LoadSaleTransactionListener extends ProgressListener{
+	public static interface LoadSaleTransactionListener extends WebServiceWorkingListener{
 		void onPost(POSData_SaleTransaction saleTrans);
 	}
 }

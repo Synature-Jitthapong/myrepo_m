@@ -41,7 +41,7 @@ public class SaleService extends Service{
 	}
 
 	public void sendEnddaySale(final int shopId, final int computerId, 
-			final int staffId, final ProgressListener listener){
+			final int staffId, final WebServiceWorkingListener listener){
 		final Session sess = new Session(getApplicationContext());
 		List<String> sessLst = sess.listSessionEnddayNotSend();
 		final Iterator<String> it = sessLst.iterator();
@@ -64,7 +64,7 @@ public class SaleService extends Service{
 						
 						new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-								shopId, computerId, staffId, jsonEndDaySale, new ProgressListener() {
+								shopId, computerId, staffId, jsonEndDaySale, new WebServiceWorkingListener() {
 		
 									@Override
 									public void onError(String mesg) {
@@ -77,12 +77,12 @@ public class SaleService extends Service{
 									}
 		
 									@Override
-									public void onPre() {
-										listener.onPre();
+									public void onPreExecute() {
+										listener.onPreExecute();
 									}
 		
 									@Override
-									public void onPost() {
+									public void onPostExecute() {
 										try {
 											sess.updateSessionEnddayDetail(sessionDate, 
 													MPOSDatabase.ALREADY_SEND);
@@ -91,7 +91,7 @@ public class SaleService extends Service{
 											// log json sale if send to server success
 											JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonEndDaySale);
 											if(!it.hasNext()){
-												listener.onPost();
+												listener.onPostExecute();
 											}
 										} catch (SQLException e) {
 											Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
@@ -111,12 +111,12 @@ public class SaleService extends Service{
 				}
 
 				@Override
-				public void onPre() {
-					listener.onPre();
+				public void onPreExecute() {
+					listener.onPreExecute();
 				}
 
 				@Override
-				public void onPost() {
+				public void onPostExecute() {
 				}
 
 			}).execute();
@@ -132,7 +132,7 @@ public class SaleService extends Service{
 	 * @param listener
 	 */
 	public void sendSale(final int shopId, final int sessionId, final int transactionId, 
-			final int computerId, final int staffId, final ProgressListener listener) {
+			final int computerId, final int staffId, final WebServiceWorkingListener listener) {
 		Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
 				Utils.LOG_FILE_NAME, 
 				TAG + ": Start Send PartialSale \n"
@@ -145,8 +145,8 @@ public class SaleService extends Service{
 		new LoadSaleTransaction(getApplicationContext(), sessionId, transactionId, new LoadSaleTransactionListener() {
 
 			@Override
-			public void onPre() {
-				listener.onPre();
+			public void onPreExecute() {
+				listener.onPreExecute();
 			}
 
 			@Override
@@ -159,13 +159,13 @@ public class SaleService extends Service{
 				if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
 					
 					new MPOSWebServiceClient.SendPartialSaleTransaction(getApplicationContext(), 
-							shopId, computerId, staffId, jsonSale, new ProgressListener() {
+							shopId, computerId, staffId, jsonSale, new WebServiceWorkingListener() {
 						@Override
-						public void onPre() {
+						public void onPreExecute() {
 						}
 
 						@Override
-						public void onPost() {
+						public void onPostExecute() {
 							// do update transaction already send
 							Transaction trans = new Transaction(getApplicationContext());
 							trans.updateTransactionSendStatus(transactionId, MPOSDatabase.ALREADY_SEND);
@@ -177,7 +177,7 @@ public class SaleService extends Service{
 									Utils.LOG_FILE_NAME, 
 									TAG + ": Send PartialSale Complete");
 							
-							listener.onPost();
+							listener.onPostExecute();
 						}
 
 						@Override
@@ -199,7 +199,7 @@ public class SaleService extends Service{
 			}
 
 			@Override
-			public void onPost() {
+			public void onPostExecute() {
 			}
 
 		}).execute();

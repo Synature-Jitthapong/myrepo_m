@@ -152,17 +152,17 @@ public class SendEnddayActivity extends Activity {
 		}
 	}
 	
-	private ProgressListener mSendListener = new ProgressListener(){
+	private WebServiceWorkingListener mSendListener = new WebServiceWorkingListener(){
 
 		@Override
-		public void onPre() {
+		public void onPreExecute() {
 			mItemClose.setEnabled(false);
 			mItemSend.setVisible(false);
 			mItemProgress.setVisible(true);
 		}
 
 		@Override
-		public void onPost() {
+		public void onPostExecute() {
 			mItemClose.setEnabled(true);
 			mItemSend.setVisible(true);
 			mItemProgress.setVisible(false);

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.mpos.database.table.HeaderFooterReceiptTable;
-import com.synature.pos.ShopData;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,9 +19,9 @@ public class HeaderFooterReceipt extends MPOSDatabase{
 		super(context);
 	}
 	
-	public List<ShopData.HeaderFooterReceipt> listHeaderFooter(int lineType){
-		List<ShopData.HeaderFooterReceipt> hfLst = 
-				new ArrayList<ShopData.HeaderFooterReceipt>();
+	public List<com.synature.pos.HeaderFooterReceipt> listHeaderFooter(int lineType){
+		List<com.synature.pos.HeaderFooterReceipt> hfLst = 
+				new ArrayList<com.synature.pos.HeaderFooterReceipt>();
 
 		Cursor cursor = getReadableDatabase().query(HeaderFooterReceiptTable.TABLE_HEADER_FOOTER_RECEIPT, 
 				new String[]{HeaderFooterReceiptTable.COLUMN_TEXT_IN_LINE, 
@@ -33,7 +32,7 @@ public class HeaderFooterReceipt extends MPOSDatabase{
 				HeaderFooterReceiptTable.COLUMN_LINE_ORDER);
 		if(cursor.moveToFirst()){
 			do{
-				ShopData.HeaderFooterReceipt hf = new ShopData.HeaderFooterReceipt();
+				com.synature.pos.HeaderFooterReceipt hf = new com.synature.pos.HeaderFooterReceipt();
 				hf.setTextInLine(cursor.getString(cursor.getColumnIndex(HeaderFooterReceiptTable.COLUMN_TEXT_IN_LINE)));
 				hf.setLineType(cursor.getInt(cursor.getColumnIndex(HeaderFooterReceiptTable.COLUMN_LINE_TYPE)));
 				hf.setLineOrder(cursor.getInt(cursor.getColumnIndex(HeaderFooterReceiptTable.COLUMN_LINE_ORDER)));
@@ -46,11 +45,11 @@ public class HeaderFooterReceipt extends MPOSDatabase{
 	}
 	
 	public void insertHeaderFooterReceipt(
-		List<ShopData.HeaderFooterReceipt> headerFooterLst) throws SQLException{
+		List<com.synature.pos.HeaderFooterReceipt> headerFooterLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(HeaderFooterReceiptTable.TABLE_HEADER_FOOTER_RECEIPT, null, null);
-			for(ShopData.HeaderFooterReceipt hf : headerFooterLst){
+			for(com.synature.pos.HeaderFooterReceipt hf : headerFooterLst){
 				ContentValues cv = new ContentValues();
 				cv.put(HeaderFooterReceiptTable.COLUMN_TEXT_IN_LINE, hf.getTextInLine());
 				cv.put(HeaderFooterReceiptTable.COLUMN_LINE_TYPE, hf.getLineType());

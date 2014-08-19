@@ -48,6 +48,9 @@ public class MPOSDatabase extends BaseColumn{
 	public static final int NOT_SEND = 0;
 	public static final int ALREADY_SEND = 1;
 	
+	public static final int NOT_DELETE = 0;
+	public static final int DELETED = 1;
+	
 	protected Context mContext;
 	private MPOSOpenHelper mHelper;
 	

@@ -928,43 +928,38 @@ public class Transaction extends MPOSDatabase {
 	}
 
 	/**
-	 * @param saleDate
+	 * List hold transaction
+	 * @param sessionDate
 	 * @return List<MPOSOrderTransaction>
 	 */
-	public List<MPOSOrderTransaction> listHoldOrder(String saleDate) {
+	public List<MPOSOrderTransaction> listHoldOrder(String sessionDate) {
 		List<MPOSOrderTransaction> transLst = new ArrayList<MPOSOrderTransaction>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT a." + OrderTransactionTable.COLUMN_TRANS_ID
-						+ ", " + " a." + ComputerTable.COLUMN_COMPUTER_ID
-						+ ", " + " a." + OrderTransactionTable.COLUMN_OPEN_TIME
-						+ ", " + " a."
-						+ OrderTransactionTable.COLUMN_TRANS_NOTE + ", "
-						+ " b." + StaffTable.COLUMN_STAFF_CODE + ", " + " b."
-						+ StaffTable.COLUMN_STAFF_NAME + " FROM "
-						+ OrderTransactionTable.TABLE_ORDER_TRANS + " a "
+				" SELECT a." + OrderTransactionTable.COLUMN_TRANS_ID + ", " 
+						+ " a." + ComputerTable.COLUMN_COMPUTER_ID + ", " 
+						+ " a." + OrderTransactionTable.COLUMN_OPEN_TIME + ", " 
+						+ " a." + OrderTransactionTable.COLUMN_TRANS_NOTE + ", "
+						+ " b." + StaffTable.COLUMN_STAFF_CODE + ", " 
+						+ " b." + StaffTable.COLUMN_STAFF_NAME 
+						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
 						+ " LEFT JOIN " + StaffTable.TABLE_STAFF + " b "
-						+ " ON a." + OrderTransactionTable.COLUMN_OPEN_STAFF
-						+ "=" + " b." + StaffTable.COLUMN_STAFF_ID
-						+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE
-						+ "=?" + " AND a."
-						+ OrderTransactionTable.COLUMN_STATUS_ID + "=?",
-				new String[] { saleDate, String.valueOf(TRANS_STATUS_HOLD) });
+						+ " ON a." + OrderTransactionTable.COLUMN_OPEN_STAFF + "=b." + StaffTable.COLUMN_STAFF_ID
+						+ " WHERE a." + OrderTransactionTable.COLUMN_SALE_DATE + "=?" 
+						+ " AND a." + OrderTransactionTable.COLUMN_STATUS_ID + "=?",
+				new String[] { 
+						sessionDate, 
+						String.valueOf(TRANS_STATUS_HOLD) 
+				});
 		if (cursor.moveToFirst()) {
 			do {
 				MPOSOrderTransaction trans = new MPOSOrderTransaction();
-				trans.setTransactionId(cursor.getInt(cursor
-						.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
-				trans.setComputerId(cursor.getInt(cursor
-						.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
-				trans.setTransactionNote(cursor.getString(cursor
-						.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_NOTE)));
-				trans.setOpenTime(cursor.getString(cursor
-						.getColumnIndex(OrderTransactionTable.COLUMN_OPEN_TIME)));
-				trans.setStaffName(cursor.getString(cursor
-						.getColumnIndex(StaffTable.COLUMN_STAFF_CODE))
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
+				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+				trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_NOTE)));
+				trans.setOpenTime(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_OPEN_TIME)));
+				trans.setStaffName(cursor.getString(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_CODE))
 						+ ":"
-						+ cursor.getString(cursor
-								.getColumnIndex(StaffTable.COLUMN_STAFF_NAME)));
+						+ cursor.getString(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_NAME)));
 				transLst.add(trans);
 			} while (cursor.moveToNext());
 		}
@@ -1012,24 +1007,24 @@ public class Transaction extends MPOSDatabase {
 
 	/**
 	 * Get current transactionId
-	 * 
-	 * @param saleDate
-	 * @return transactionId
+	 * @param sessionId
+	 * @return 0 if not have opened transaction
 	 */
-	public int getCurrTransactionId(String saleDate) {
+	public int getCurrentTransactionId(int sessionId) {
 		int transactionId = 0;
-		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT " + OrderTransactionTable.COLUMN_TRANS_ID
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-				+ " WHERE " + OrderTransactionTable.COLUMN_STATUS_ID + "=?" 
-				+ " AND " + OrderTransactionTable.COLUMN_SALE_DATE + "=?",
-				new String[] { 
-					String.valueOf(TRANS_STATUS_NEW), 
-					saleDate 
-				});
+		Cursor cursor = getReadableDatabase()
+				.query(OrderTransactionTable.TABLE_ORDER_TRANS, 
+					new String[]{
+						OrderTransactionTable.COLUMN_TRANS_ID
+					}, 
+					OrderTransactionTable.COLUMN_STATUS_ID + "=?" 
+					+ " AND " + SessionTable.COLUMN_SESS_ID + "=?", 
+					new String[] { 
+						String.valueOf(TRANS_STATUS_NEW),
+						String.valueOf(sessionId)
+					}, null, null, null);
 		if (cursor.moveToFirst()) {
-			if (cursor.getLong(0) != 0)
-				transactionId = cursor.getInt(0);
+			transactionId = cursor.getInt(0);
 		}
 		cursor.close();
 		return transactionId;

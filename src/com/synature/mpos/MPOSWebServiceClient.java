@@ -36,19 +36,19 @@ public class MPOSWebServiceClient {
 		new AuthenDevice(context, listener).execute(url);
 	}
 	
-	public static void loadShopData(final Context context, final int shopId, final ProgressListener listener){
+	public static void loadShopData(final Context context, final int shopId, final WebServiceWorkingListener listener){
 		
 		final String url = Utils.getFullUrl(context);
 
 		new LoadShop(context, shopId, new LoadShopListener() {
 
 			@Override
-			public void onPre() {
-				listener.onPre();
+			public void onPreExecute() {
+				listener.onPreExecute();
 			}
 
 			@Override
-			public void onPost() {
+			public void onPostExecute() {
 			}
 
 			@Override
@@ -85,7 +85,7 @@ public class MPOSWebServiceClient {
 					sync.insertSyncLog(SyncMasterLog.SYNC_SHOP_TYPE, 
 							SyncMasterLog.SYNC_STATUS_SUCCESS);
 					
-					listener.onPost();
+					listener.onPostExecute();
 				} catch (Exception e) {
 					// log to SyncMasterLogTable
 					sync.insertSyncLog(SyncMasterLog.SYNC_SHOP_TYPE, 
@@ -102,19 +102,19 @@ public class MPOSWebServiceClient {
 	
 	// load product
 	public static void loadProductData(final Context context, final int shopId,
-			final ProgressListener progressListener){
+			final WebServiceWorkingListener progressListener){
 		
 		final String url = Utils.getFullUrl(context);
 
 		new LoadMenu(context, shopId, new LoadMenuListener() {
 
 			@Override
-			public void onPre() {
-				progressListener.onPre();
+			public void onPreExecute() {
+				progressListener.onPreExecute();
 			}
 
 			@Override
-			public void onPost() {
+			public void onPostExecute() {
 			}
 
 			@Override
@@ -127,11 +127,11 @@ public class MPOSWebServiceClient {
 				new LoadProduct(context, shopId, new LoadProductListener() {
 
 					@Override
-					public void onPre() {
+					public void onPreExecute() {
 					}
 
 					@Override
-					public void onPost() {
+					public void onPostExecute() {
 					}
 
 					@Override
@@ -165,7 +165,7 @@ public class MPOSWebServiceClient {
 							FileManager fm = new FileManager(context, Utils.IMG_DIR);
 							fm.clear();
 
-							progressListener.onPost();
+							progressListener.onPostExecute();
 						} catch (Exception e) {
 							// log to SyncMasterLogTable
 							sync.insertSyncLog(SyncMasterLog.SYNC_PRODUCT_TYPE, 
@@ -193,7 +193,7 @@ public class MPOSWebServiceClient {
 		 * @param listener
 		 */
 		public SendPartialSaleTransaction(Context context, int shopId, int computerId,
-				int staffId, String jsonSale, ProgressListener listener) {
+				int staffId, String jsonSale, WebServiceWorkingListener listener) {
 			super(context, MPOSMainService.SEND_PARTIAL_SALE_TRANS_METHOD, 
 					shopId, computerId, staffId, jsonSale, listener);
 		}
@@ -202,7 +202,7 @@ public class MPOSWebServiceClient {
 	// send sale transaction
 	public static class SendSaleTransaction extends MPOSMainService{
 		
-		private ProgressListener mListener;
+		private WebServiceWorkingListener mListener;
 		
 		/**
 		 * @param context
@@ -214,7 +214,7 @@ public class MPOSWebServiceClient {
 		 * @param listener
 		 */
 		public SendSaleTransaction(Context context, String method, int shopId, int computerId,
-				int staffId, String jsonSale, ProgressListener listener) {
+				int staffId, String jsonSale, WebServiceWorkingListener listener) {
 			super(context, method);
 			mListener = listener;
 
@@ -249,7 +249,7 @@ public class MPOSWebServiceClient {
 			try {
 				WebServiceResult ws = (WebServiceResult) super.toServiceObject(result);
 				if(ws.getiResultID() == WebServiceResult.SUCCESS_STATUS){
-					mListener.onPost();
+					mListener.onPostExecute();
 				}else{
 					mListener.onError(ws.getSzResultData().equals("") ? result :
 						ws.getSzResultData());
@@ -262,7 +262,7 @@ public class MPOSWebServiceClient {
 
 		@Override
 		protected void onPreExecute() {
-			mListener.onPre();
+			mListener.onPreExecute();
 		}
 	}
 	
@@ -296,7 +296,7 @@ public class MPOSWebServiceClient {
 
 		@Override
 		protected void onPreExecute() {
-			mListener.onPre();
+			mListener.onPreExecute();
 		}
 	}
 	
@@ -333,7 +333,7 @@ public class MPOSWebServiceClient {
 
 		@Override
 		protected void onPreExecute() {
-			mListener.onPre();
+			mListener.onPreExecute();
 		}
 	}
 	
@@ -368,7 +368,7 @@ public class MPOSWebServiceClient {
 
 		@Override
 		protected void onPreExecute() {
-			mListener.onPre();
+			mListener.onPreExecute();
 		}
 	}
 
@@ -398,23 +398,23 @@ public class MPOSWebServiceClient {
 
 		@Override
 		protected void onPreExecute() {
-			mListener.onPre();
+			mListener.onPreExecute();
 		}
 	}	
 	
-	public static interface LoadMenuListener extends ProgressListener{
+	public static interface LoadMenuListener extends WebServiceWorkingListener{
 		void onPost(MenuGroups mgs);
 	}
 	
-	public static interface LoadProductListener extends ProgressListener{
+	public static interface LoadProductListener extends WebServiceWorkingListener{
 		void onPost(ProductGroups pgs);
 	}
 	
-	public static interface LoadShopListener extends ProgressListener{
+	public static interface LoadShopListener extends WebServiceWorkingListener{
 		void onPost(ShopData sd);
 	}
 	
-	public static interface AuthenDeviceListener extends ProgressListener{
+	public static interface AuthenDeviceListener extends WebServiceWorkingListener{
 		void onPost(int shopId);
 	}
 }

@@ -7,7 +7,6 @@ import com.synature.mpos.database.table.MenuCommentGroupTable;
 import com.synature.mpos.database.table.MenuCommentTable;
 import com.synature.mpos.database.table.MenuFixCommentTable;
 import com.synature.mpos.database.table.ProductTable;
-import com.synature.pos.MenuGroups;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -114,14 +113,14 @@ public class MenuComment extends MPOSDatabase{
 	/**
 	 * @param commentFixLst
 	 */
-	public void insertMenuFixComment(List<MenuGroups.MenuFixComment> commentFixLst){
+	public void insertMenuFixComment(List<com.synature.pos.MenuFixComment> commentFixLst){
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(MenuFixCommentTable.TABLE_MENU_FIX_COMMENT, null, null);
-			for(MenuGroups.MenuFixComment commentFix : commentFixLst){
+			for(com.synature.pos.MenuFixComment cf : commentFixLst){
 				ContentValues cv = new ContentValues();
-				cv.put(ProductTable.COLUMN_PRODUCT_ID, commentFix.getMenuItemID());
-				cv.put(MenuCommentTable.COLUMN_COMMENT_ID, commentFix.getMenuCommentID());
+				cv.put(ProductTable.COLUMN_PRODUCT_ID, cf.getMID());
+				cv.put(MenuCommentTable.COLUMN_COMMENT_ID, cf.getMCOMID());
 				getWritableDatabase().insertOrThrow(MenuFixCommentTable.TABLE_MENU_FIX_COMMENT, 
 						null, cv);
 			}
@@ -135,16 +134,14 @@ public class MenuComment extends MPOSDatabase{
 	 * @param commentGroupLst
 	 * @throws SQLException
 	 */
-	public void insertMenuCommentGroup(List<MenuGroups.MenuCommentGroup> commentGroupLst) throws SQLException{
+	public void insertMenuCommentGroup(List<com.synature.pos.MenuCommentGroup> commentGroupLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(MenuCommentGroupTable.TABLE_MENU_COMMENT_GROUP, null, null);
-			for(MenuGroups.MenuCommentGroup commentGroup : commentGroupLst){
+			for(com.synature.pos.MenuCommentGroup cg : commentGroupLst){
 				ContentValues cv = new ContentValues();
-				cv.put(MenuCommentTable.COLUMN_COMMENT_GROUP_ID, 
-						commentGroup.getMenuCommentGroupID());
-				cv.put(MenuCommentGroupTable.COLUMN_COMMENT_GROUP_NAME, 
-						commentGroup.getMenuCommentGroupName_0());
+				cv.put(MenuCommentTable.COLUMN_COMMENT_GROUP_ID, cg.getMCGRID());
+				cv.put(MenuCommentGroupTable.COLUMN_COMMENT_GROUP_NAME, cg.getMCGRNAM());
 				getWritableDatabase().insertOrThrow(MenuCommentGroupTable.TABLE_MENU_COMMENT_GROUP, 
 						null, cv);
 			}
@@ -158,16 +155,19 @@ public class MenuComment extends MPOSDatabase{
 	 * @param commentLst
 	 * @throws SQLException
 	 */
-	public void insertMenuComment(List<MenuGroups.MenuComment> commentLst) throws SQLException{
+	public void insertMenuComment(List<com.synature.pos.MenuComment> commentLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(MenuCommentTable.TABLE_MENU_COMMENT, null, null);
-			for(MenuGroups.MenuComment comment : commentLst){
+			for(com.synature.pos.MenuComment cm : commentLst){
 				ContentValues cv = new ContentValues();
-				cv.put(MenuCommentTable.COLUMN_COMMENT_ID, comment.getMenuCommentID());
-				cv.put(MenuCommentTable.COLUMN_COMMENT_GROUP_ID, comment.getMenuCommentGroupID());
-				cv.put(MenuCommentTable.COLUMN_COMMENT_NAME, comment.getMenuCommentName_0());
-				cv.put(COLUMN_ORDERING, comment.getMenuCommentOrdering());
+				cv.put(MenuCommentTable.COLUMN_COMMENT_ID, cm.getMCID());
+				cv.put(MenuCommentTable.COLUMN_COMMENT_GROUP_ID, cm.getMCGRID());
+				cv.put(MenuCommentTable.COLUMN_COMMENT_NAME, cm.getMCNAM0());
+				cv.put(MenuCommentTable.COLUMN_COMMENT_NAME1, cm.getMCNAM1());
+				cv.put(MenuCommentTable.COLUMN_COMMENT_NAME2, cm.getMCNAM2());
+				cv.put(MenuCommentTable.COLUMN_COMMENT_NAME3, cm.getMCNAM3());
+				cv.put(COLUMN_ORDERING, cm.getMCORD());
 				getWritableDatabase().insertOrThrow(MenuCommentTable.TABLE_MENU_COMMENT, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();

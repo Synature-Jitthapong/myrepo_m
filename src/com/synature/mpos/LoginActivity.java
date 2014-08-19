@@ -109,10 +109,6 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 				if(!mSync.IsAlreadySync())
 					updateData();
 			}
-			if(resultCode == SettingsActivity.REFRESH_PARENT_ACTIVITY){
-				startActivity(new Intent(this, LoginActivity.class));
-				finish();
-			}
 		}
 	}
 	
@@ -123,15 +119,17 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 	 * force to date & time setting.
 	 */
 	private void checkSessionDate(){
+		// check if have session
 		if(mSession.getLastSessionId() > 0){
-			final Calendar sessionDate = Calendar.getInstance();
-			sessionDate.setTimeInMillis(Long.parseLong(mSession.getCurrentSessionDate()));
+			// get last session date
+			final Calendar lastSessDate = Calendar.getInstance();
+			lastSessDate.setTimeInMillis(Long.parseLong(mSession.getLastSessionDate()));
 			/*
 			 *  sessionDate > currentDate
 			 *  mPOS will force to go to date & time Settings
 			 *  for setting correct date.
 			 */
-			if(sessionDate.getTime().compareTo(Utils.getDate().getTime()) > 0){
+			if(lastSessDate.getTime().compareTo(Utils.getDate().getTime()) > 0){
 				new AlertDialog.Builder(this)
 				.setCancelable(false)
 				.setTitle(R.string.system_date)
@@ -157,9 +155,9 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 			 * Current date > Session date
 			 * mPOS will force to end day.
 			 */
-			else if(Utils.getDate().getTime().compareTo(sessionDate.getTime()) > 0){
+			else if(Utils.getDate().getTime().compareTo(lastSessDate.getTime()) > 0){
 				// check last session has already enddday ?
-				if(!mSession.checkEndday(mSession.getCurrentSessionDate())){
+				if(!mSession.checkEndday(mSession.getLastSessionDate())){
 					Utils.endday(LoginActivity.this, mShop.getShopId(), 
 							mComputer.getComputerId(), mSession.getLastSessionId(), 
 							mStaffId, 0, true);
@@ -273,13 +271,13 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		MPOSWebServiceClient.authenDevice(this, new MPOSWebServiceClient.AuthenDeviceListener() {
 			
 			@Override
-			public void onPre() {
+			public void onPreExecute() {
 				progress.setMessage(getString(R.string.check_device_progress));
 				progress.show();
 			}
 			
 			@Override
-			public void onPost() {
+			public void onPostExecute() {
 			}
 			
 			@Override
@@ -301,25 +299,25 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 			@Override
 			public void onPost(final int shopId) {
 				// load shop data
-				MPOSWebServiceClient.loadShopData(LoginActivity.this, shopId, new ProgressListener(){
+				MPOSWebServiceClient.loadShopData(LoginActivity.this, shopId, new WebServiceWorkingListener(){
 
 					@Override
-					public void onPre() {
+					public void onPreExecute() {
 						progress.setMessage(getString(R.string.update_shop_progress));
 					}
 
 					@Override
-					public void onPost() {
+					public void onPostExecute() {
 						// load product datat
-						MPOSWebServiceClient.loadProductData(LoginActivity.this, shopId, new ProgressListener(){
+						MPOSWebServiceClient.loadProductData(LoginActivity.this, shopId, new WebServiceWorkingListener(){
 
 							@Override
-							public void onPre() {
+							public void onPreExecute() {
 								progress.setMessage(getString(R.string.update_product_progress));
 							}
 
 							@Override
-							public void onPost() {
+							public void onPostExecute() {
 								if(progress.isShowing())
 									progress.dismiss();
 								startActivity(new Intent(LoginActivity.this, LoginActivity.class));
@@ -407,26 +405,26 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 				progress.setCancelable(false);
 				progress.setTitle(R.string.update_data);
 				// load shop data
-				MPOSWebServiceClient.loadShopData(LoginActivity.this, mShop.getShopId(), new ProgressListener(){
+				MPOSWebServiceClient.loadShopData(LoginActivity.this, mShop.getShopId(), new WebServiceWorkingListener(){
 	
 					@Override
-					public void onPre() {
+					public void onPreExecute() {
 						progress.setMessage(getString(R.string.update_shop_progress));
 						progress.show();
 					}
 	
 					@Override
-					public void onPost() {
+					public void onPostExecute() {
 						// load product data
-						MPOSWebServiceClient.loadProductData(LoginActivity.this, mShop.getShopId(), new ProgressListener(){
+						MPOSWebServiceClient.loadProductData(LoginActivity.this, mShop.getShopId(), new WebServiceWorkingListener(){
 	
 							@Override
-							public void onPre() {
+							public void onPreExecute() {
 								progress.setMessage(getString(R.string.update_product_progress));
 							}
 	
 							@Override
-							public void onPost() {
+							public void onPostExecute() {
 								if(progress.isShowing())
 									progress.dismiss();
 								startActivity(intent);
@@ -460,8 +458,10 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		}
 	}
 	
+	/**
+	 * Start endday service for send endday sale
+	 */
 	private void startEnddayService(){
-		// start endday service for send endday sale
 		Intent enddayIntent = new Intent(LoginActivity.this, EnddaySaleService.class);
 		enddayIntent.putExtra("staffId", mStaffId);
 		enddayIntent.putExtra("shopId", mShop.getShopId());
@@ -469,14 +469,17 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		startService(enddayIntent);
 	}
 	
+	/**
+	 * ending multiple day
+	 */
 	private void enddingMultipleDay(){
-		String sessionDate = mSession.getCurrentSessionDate();
-		if(!sessionDate.equals("")){
-			Calendar sessCal = Calendar.getInstance();
-			sessCal.setTimeInMillis(Long.parseLong(sessionDate));
-			if(Utils.getDiffDay(sessCal) > 0){
+		String lastSessDate = mSession.getLastSessionDate();
+		if(!lastSessDate.equals("")){
+			Calendar lastSessCal = Calendar.getInstance();
+			lastSessCal.setTimeInMillis(Long.parseLong(lastSessDate));
+			if(Utils.getDiffDay(lastSessCal) > 0){
 				Utils.endingMultipleDay(LoginActivity.this, mShop.getShopId(), 
-						mComputer.getComputerId(), mStaffId, sessCal);
+						mComputer.getComputerId(), mStaffId, lastSessCal);
 			}
 		}
 	}

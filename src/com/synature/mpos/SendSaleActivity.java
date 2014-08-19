@@ -143,7 +143,7 @@ public class SendSaleActivity extends Activity{
 		}
 	}
 	
-	class SendSaleProgress implements ProgressListener{
+	class SendSaleProgress implements WebServiceWorkingListener{
 
 		private SendTransaction mTrans;
 		private int mPosition;
@@ -154,7 +154,7 @@ public class SendSaleActivity extends Activity{
 		}
 		
 		@Override
-		public void onPre() {
+		public void onPreExecute() {
 			if(mPosition == 0)
 				mItemSendAll.setEnabled(false);
 			mTrans.onSend = true;
@@ -163,7 +163,7 @@ public class SendSaleActivity extends Activity{
 		}
 
 		@Override
-		public void onPost() {
+		public void onPostExecute() {
 			mTrans.setSendStatus(MPOSDatabase.ALREADY_SEND);
 			mTrans.onSend = false;
 			mTransLst.set(mPosition, mTrans);

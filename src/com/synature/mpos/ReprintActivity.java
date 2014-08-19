@@ -51,11 +51,12 @@ public class ReprintActivity extends Activity {
 		
 		mLvTrans = (ListView) findViewById(R.id.listView1);
 
-		mOrders = new Transaction(getApplicationContext());
-		
-		Session sess = new Session(getApplicationContext());
+		mOrders = new Transaction(this);
+		Session sess = new Session(this);
+
+		int sessionId = getIntent().getIntExtra("sessionId", 0);
 		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, 
-				mOrders.listSuccessTransaction(sess.getCurrentSessionDate()));
+				mOrders.listSuccessTransaction(sess.getSessionDate(sessionId)));
 		mLvTrans.setAdapter(mTransAdapter);
 	}
 	

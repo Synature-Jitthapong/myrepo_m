@@ -390,14 +390,14 @@ public class VoidBillActivity extends Activity {
 	
 	private void sendSale(){
 		mPartService.sendSale(mShopId, mSessionId, mTransactionId, mComputerId, 
-				mStaffId, new ProgressListener(){
+				mStaffId, new WebServiceWorkingListener(){
 
 			@Override
-			public void onPre() {
+			public void onPreExecute() {
 			}
 
 			@Override
-			public void onPost() {
+			public void onPostExecute() {
 			}
 
 			@Override

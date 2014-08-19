@@ -8,8 +8,6 @@ import com.synature.mpos.database.table.ProductComponentTable;
 import com.synature.mpos.database.table.ProductDeptTable;
 import com.synature.mpos.database.table.ProductGroupTable;
 import com.synature.mpos.database.table.ProductTable;
-import com.synature.pos.MenuGroups;
-import com.synature.pos.ProductGroups;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -122,6 +120,7 @@ public class Products extends MPOSDatabase {
 	}
 	
 	/**
+	 * List PComponetGroup for create SetGroup
 	 * @param productId
 	 * @return List<ProductComponentGroup>
 	 */
@@ -144,9 +143,13 @@ public class Products extends MPOSDatabase {
 						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
 						+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b."
 						+ ProductTable.COLUMN_PRODUCT_ID 
-						+ " WHERE a." + ProductTable.COLUMN_PRODUCT_ID + "=?",
+						+ " WHERE a." + ProductTable.COLUMN_PRODUCT_ID + "=?"
+						+ " AND b." + ProductTable.COLUMN_ACTIVATE + "=?"
+						+ " AND b." + COLUMN_DELETED + "=?",
 				new String[]{
-					String.valueOf(productId)
+					String.valueOf(productId),
+					String.valueOf(ACTIVATED),
+					String.valueOf(NOT_DELETE)
 				}
 		);
 		if(cursor.moveToFirst()){
@@ -194,9 +197,13 @@ public class Products extends MPOSDatabase {
 						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
 						+ " ON a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_ID + "=b."
 						+ ProductTable.COLUMN_PRODUCT_ID 
-						+ " WHERE a." + ProductComponentTable.COLUMN_PGROUP_ID + "=?",
+						+ " WHERE a." + ProductComponentTable.COLUMN_PGROUP_ID + "=?"
+						+ " AND b." + ProductTable.COLUMN_ACTIVATE + "=?"
+						+ " AND b." + COLUMN_DELETED + "=?",
 				new String[]{
-						String.valueOf(groupId)
+						String.valueOf(groupId),
+						String.valueOf(ACTIVATED),
+						String.valueOf(NOT_DELETE)
 				}
 		);
 		if(cursor.moveToFirst()){
@@ -226,8 +233,15 @@ public class Products extends MPOSDatabase {
 	 */
 	public List<ProductGroup> listProductGroup(){
 		List<ProductGroup> pgLst = new ArrayList<ProductGroup>();
-		Cursor cursor = getReadableDatabase().query(ProductGroupTable.TABLE_PRODUCT_GROUP, 
-				ALL_PRODUCT_GROUP_COLS, null, null, null, null, null);
+		Cursor cursor = getReadableDatabase().query(
+				ProductGroupTable.TABLE_PRODUCT_GROUP, 
+				ALL_PRODUCT_GROUP_COLS, 
+				ProductTable.COLUMN_ACTIVATE + "=?"
+				+ " AND " + COLUMN_DELETED + "=?", 
+				new String[]{
+					String.valueOf(ACTIVATED),
+					String.valueOf(NOT_DELETE)
+				}, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
 				ProductGroup pg = toProductGroup(cursor);
@@ -243,11 +257,14 @@ public class Products extends MPOSDatabase {
 	 */
 	public List<ProductDept> listProductDept(){
 		List<ProductDept> pdLst = new ArrayList<ProductDept>();
-		Cursor cursor = getReadableDatabase().query(ProductDeptTable.TABLE_PRODUCT_DEPT, 
+		Cursor cursor = getReadableDatabase().query(
+				ProductDeptTable.TABLE_PRODUCT_DEPT, 
 				ALL_PRODUCT_DEPT_COLS,
-				ProductTable.COLUMN_ACTIVATE + "=?", 
+				ProductTable.COLUMN_ACTIVATE + "=?"
+				+ " AND " + COLUMN_DELETED + "=?", 
 				new String[]{
-					String.valueOf(ACTIVATED)
+					String.valueOf(ACTIVATED),
+					String.valueOf(NOT_DELETE)
 				}, null, null, COLUMN_ORDERING + ", " + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME);
 		if(cursor.moveToFirst()){
 			do{
@@ -267,51 +284,44 @@ public class Products extends MPOSDatabase {
 		List<Product> pLst = new ArrayList<Product>();
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT b." + ProductTable.COLUMN_PRODUCT_ID + ", " 
-						+ " b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + ", " 
-						+ " b." + ProductTable.COLUMN_PRODUCT_CODE + ", " 
-						+ " b." + ProductTable.COLUMN_PRODUCT_BAR_CODE + ", " 
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", "  
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "  
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME2 + ", "  
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME3 + ", " 
-						+ " b." + ProductTable.COLUMN_PRODUCT_PRICE + ", " 
-						+ " b." + ProductTable.COLUMN_VAT_TYPE + ", " 
-						+ " b." + ProductTable.COLUMN_VAT_RATE + ", "
-						+ " b." + ProductTable.COLUMN_IMG_FILE_NAME
-						+ " FROM " + ProductComponentTable.TABLE_PCOMPONENT + " a "
-						+ " INNER JOIN " + ProductTable.TABLE_PRODUCT + " b "
-						+ " ON a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_ID + "=b."
-						+ ProductTable.COLUMN_PRODUCT_ID 
-						+ " WHERE a."+ ProductTable.COLUMN_PRODUCT_ID + "=?",
+				+ " b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + ", " 
+				+ " b." + ProductTable.COLUMN_PRODUCT_CODE + ", " 
+				+ " b." + ProductTable.COLUMN_PRODUCT_BAR_CODE + ", " 
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", "  
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "  
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME2 + ", "  
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME3 + ", " 
+				+ " b." + ProductTable.COLUMN_PRODUCT_PRICE + ", " 
+				+ " b." + ProductTable.COLUMN_VAT_TYPE + ", " 
+				+ " b." + ProductTable.COLUMN_VAT_RATE + ", "
+				+ " b." + ProductTable.COLUMN_IMG_FILE_NAME
+				+ " FROM " + ProductComponentTable.TABLE_PCOMPONENT + " a "
+				+ " INNER JOIN " + ProductTable.TABLE_PRODUCT + " b "
+				+ " ON a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_ID + "=b."
+				+ ProductTable.COLUMN_PRODUCT_ID 
+				+ " WHERE a."+ ProductTable.COLUMN_PRODUCT_ID + "=?"
+				+ " AND b." + ProductTable.COLUMN_ACTIVATE + "=?"
+				+ " AND b." + COLUMN_DELETED + "=?",
 				new String[] { 
-						String.valueOf(proId) 
+					String.valueOf(proId),
+					String.valueOf(ACTIVATED),
+					String.valueOf(NOT_DELETE)
 				}
 		);
 		if(cursor.moveToFirst()){
 			do{
 				Product p = new Product();
-				p.setProductId(cursor.getInt(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-				p.setProductTypeId(cursor.getInt(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID)));
-				p.setProductCode(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_CODE)));
-				p.setProductBarCode(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_BAR_CODE)));
-				p.setProductName(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
-				p.setProductName1(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
-				p.setProductName2(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
-				p.setProductName3(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
-				p.setProductPrice(cursor.getDouble(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
-				p.setVatType(cursor.getInt(cursor
-						.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
-				p.setVatRate(cursor.getDouble(cursor
-						.getColumnIndex(ProductTable.COLUMN_VAT_RATE)));
+				p.setProductId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
+				p.setProductTypeId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID)));
+				p.setProductCode(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_CODE)));
+				p.setProductBarCode(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_BAR_CODE)));
+				p.setProductName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
+				p.setProductName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
+				p.setProductName2(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
+				p.setProductName3(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
+				p.setProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
+				p.setVatType(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
+				p.setVatRate(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_VAT_RATE)));
 				p.setImgName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
 				pLst.add(p);
 			}while(cursor.moveToNext());
@@ -329,9 +339,15 @@ public class Products extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().query(
 				ProductTable.TABLE_PRODUCT,
 				ALL_PRODUCT_COLS,
-				"(" + ProductTable.COLUMN_PRODUCT_CODE + " LIKE '%" + query
-						+ "%' " + " OR " + ProductTable.COLUMN_PRODUCT_NAME
-						+ " LIKE '%" + query + "%')", null, null, null, COLUMN_ORDERING + ", " + ProductTable.COLUMN_PRODUCT_NAME);
+				"(" + ProductTable.COLUMN_PRODUCT_CODE + " LIKE '%?" 
+				+ "%?' " + " OR " + ProductTable.COLUMN_PRODUCT_NAME
+				+ " LIKE '%" + query + "%')"
+				+ " AND " + COLUMN_DELETED + "=?", 
+				new String[]{
+					query,
+					query,
+					String.valueOf(NOT_DELETE)
+				}, null, null, COLUMN_ORDERING + ", " + ProductTable.COLUMN_PRODUCT_NAME);
 		if(cursor.moveToFirst()){
 			do{
 				Product p = toProduct(cursor);
@@ -351,11 +367,13 @@ public class Products extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().query(
 				ProductTable.TABLE_PRODUCT,
 				ALL_PRODUCT_COLS,
-				ProductTable.COLUMN_PRODUCT_DEPT_ID + "=? " + " AND "
-						+ ProductTable.COLUMN_ACTIVATE + "=?",
+				ProductTable.COLUMN_PRODUCT_DEPT_ID + "=? " 
+				+ " AND " + ProductTable.COLUMN_ACTIVATE + "=?"
+				+ " AND " + COLUMN_DELETED + "=?",
 				new String[] { 
 					String.valueOf(deptId), 
-					String.valueOf(ACTIVATED)
+					String.valueOf(ACTIVATED),
+					String.valueOf(NOT_DELETE)
 				}, null, null, COLUMN_ORDERING + ", " + ProductTable.COLUMN_PRODUCT_NAME);
 		if(cursor.moveToFirst()){
 			do{
@@ -435,11 +453,15 @@ public class Products extends MPOSDatabase {
 	 * @return Product
 	 */
 	public Product getProduct(String barCode){
-		Product p = new Product();
-		Cursor cursor = getReadableDatabase().query(ProductTable.TABLE_PRODUCT,
-				ALL_PRODUCT_COLS, ProductTable.COLUMN_PRODUCT_BAR_CODE + "=?",
+		Product p = null;
+		Cursor cursor = getReadableDatabase().query(
+				ProductTable.TABLE_PRODUCT,
+				ALL_PRODUCT_COLS, 
+				ProductTable.COLUMN_PRODUCT_CODE + "=?"
+				+ " AND " + COLUMN_DELETED + "=?",
 				new String[] { 
-					barCode 
+					barCode,
+					String.valueOf(NOT_DELETE)
 				}, null, null, null);
 		if(cursor.moveToFirst()){
 			p = toProduct(cursor);
@@ -454,8 +476,10 @@ public class Products extends MPOSDatabase {
 	 */
 	public Product getProduct(int proId){
 		Product p = new Product();
-		Cursor cursor = getReadableDatabase().query(ProductTable.TABLE_PRODUCT,
-				ALL_PRODUCT_COLS, ProductTable.COLUMN_PRODUCT_ID + "=?",
+		Cursor cursor = getReadableDatabase().query(
+				ProductTable.TABLE_PRODUCT,
+				ALL_PRODUCT_COLS, 
+				ProductTable.COLUMN_PRODUCT_ID + "=?",
 				new String[] { 
 					String.valueOf(proId) 
 				}, null, null, null);
@@ -473,7 +497,8 @@ public class Products extends MPOSDatabase {
 	public ProductDept getProductDept(int deptId){
 		ProductDept pd = new ProductDept();
 		Cursor cursor = getReadableDatabase().query(
-				ProductDeptTable.TABLE_PRODUCT_DEPT, ALL_PRODUCT_DEPT_COLS,
+				ProductDeptTable.TABLE_PRODUCT_DEPT, 
+				ALL_PRODUCT_DEPT_COLS,
 				ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?",
 				new String[] { 
 					String.valueOf(deptId) 
@@ -498,74 +523,45 @@ public class Products extends MPOSDatabase {
 	
 	public Product toProduct(Cursor cursor){
 		Product p = new Product();
-		p.setProductId(cursor.getInt(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-		p.setProductDeptId(cursor.getInt(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_DEPT_ID)));
-		p.setProductTypeId(cursor.getInt(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID)));
-		p.setProductCode(cursor.getString(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_CODE)));
-		p.setProductBarCode(cursor.getString(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_BAR_CODE)));
-		p.setProductName(cursor.getString(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
-		p.setProductName1(cursor.getString(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
-		p.setProductName2(cursor.getString(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
-		p.setProductName3(cursor.getString(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
-		p.setProductDesc(cursor.getString(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_DESC)));
-		p.setProductUnitName(cursor.getString(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_UNIT_NAME)));
-		p.setProductPrice(cursor.getDouble(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
-		p.setVatType(cursor.getInt(cursor
-				.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
-		p.setVatRate(cursor.getDouble(cursor
-				.getColumnIndex(ProductTable.COLUMN_VAT_RATE)));
-		p.setDiscountAllow(cursor.getInt(cursor
-				.getColumnIndex(ProductTable.COLUMN_DISCOUNT_ALLOW)));
-		p.setImgName(cursor.getString(cursor
-				.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
+		p.setProductId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
+		p.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_DEPT_ID)));
+		p.setProductTypeId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID)));
+		p.setProductCode(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_CODE)));
+		p.setProductBarCode(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_BAR_CODE)));
+		p.setProductName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
+		p.setProductName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
+		p.setProductName2(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
+		p.setProductName3(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
+		p.setProductDesc(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_DESC)));
+		p.setProductUnitName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_UNIT_NAME)));
+		p.setProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
+		p.setVatType(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
+		p.setVatRate(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_VAT_RATE)));
+		p.setDiscountAllow(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_DISCOUNT_ALLOW)));
+		p.setImgName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
 		return p;
 	}
 
 	public ProductDept toProductDept(Cursor cursor){
 		ProductDept pd = new ProductDept();
-		pd.setProductDeptId(cursor.getInt(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_DEPT_ID)));
-		pd.setProductGroupId(cursor.getInt(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_GROUP_ID)));
-		pd.setProductDeptCode(cursor.getString(cursor
-				.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE)));
-		pd.setProductDeptName(cursor.getString(cursor
-				.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME)));
-		pd.setProductDeptName1(cursor.getString(cursor
-				.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1)));
-		pd.setProductDeptName2(cursor.getString(cursor
-				.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME2)));
-		pd.setProductDeptName3(cursor.getString(cursor
-				.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME3)));
+		pd.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_DEPT_ID)));
+		pd.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_GROUP_ID)));
+		pd.setProductDeptCode(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE)));
+		pd.setProductDeptName(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME)));
+		pd.setProductDeptName1(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1)));
+		pd.setProductDeptName2(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME2)));
+		pd.setProductDeptName3(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME3)));
 		return pd;
 	}
 
 	public ProductGroup toProductGroup(Cursor cursor){
 		ProductGroup pg = new ProductGroup();
-		pg.setProductGroupId(cursor.getInt(cursor
-				.getColumnIndex(ProductTable.COLUMN_PRODUCT_GROUP_ID)));
-		pg.setProductGroupCode(cursor.getString(cursor
-				.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_CODE)));
-		pg.setProductGroupName(cursor.getString(cursor
-				.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME)));
-		pg.setProductGroupName1(cursor.getString(cursor
-				.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME1)));
-		pg.setProductGroupName2(cursor.getString(cursor
-				.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME2)));
-		pg.setProductGroupName3(cursor.getString(cursor
-				.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME3)));
+		pg.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_GROUP_ID)));
+		pg.setProductGroupCode(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_CODE)));
+		pg.setProductGroupName(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME)));
+		pg.setProductGroupName1(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME1)));
+		pg.setProductGroupName2(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME2)));
+		pg.setProductGroupName3(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME3)));
 		return pg;
 	}
 	
@@ -573,17 +569,17 @@ public class Products extends MPOSDatabase {
 	 * @param pCompGroupLst
 	 * @throws SQLException
 	 */
-	public void insertPComponentGroup(List<ProductGroups.PComponentGroup> pCompGroupLst) throws SQLException{
+	public void insertPComponentGroup(List<com.synature.pos.PComponentGroup> pCompGroupLst) throws SQLException{
 		getWritableDatabase().delete(ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP, null, null);
-		for(ProductGroups.PComponentGroup pCompGroup : pCompGroupLst){
+		for(com.synature.pos.PComponentGroup pCompGroup : pCompGroupLst){
 			ContentValues cv = new ContentValues();
-			cv.put(ProductComponentTable.COLUMN_PGROUP_ID, pCompGroup.getPGroupID());
-			cv.put(ProductTable.COLUMN_PRODUCT_ID, pCompGroup.getProductID());
-			cv.put(ProductTable.COLUMN_SALE_MODE, pCompGroup.getSaleMode());
-			cv.put(ProductComponentGroupTable.COLUMN_SET_GROUP_NO, pCompGroup.getSetGroupNo());
-			cv.put(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME, pCompGroup.getSetGroupName());
-			cv.put(ProductComponentGroupTable.COLUMN_REQ_AMOUNT, pCompGroup.getRequireAmount());
-			cv.put(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT, pCompGroup.getRequireMinAmount());
+			cv.put(ProductComponentTable.COLUMN_PGROUP_ID, pCompGroup.getPGRID());
+			cv.put(ProductTable.COLUMN_PRODUCT_ID, pCompGroup.getPID());
+			cv.put(ProductTable.COLUMN_SALE_MODE, pCompGroup.getSMODE());
+			cv.put(ProductComponentGroupTable.COLUMN_SET_GROUP_NO, pCompGroup.getSGRPNO());
+			cv.put(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME, pCompGroup.getSGRPNAM());
+			cv.put(ProductComponentGroupTable.COLUMN_REQ_AMOUNT, pCompGroup.getRQAMT());
+			cv.put(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT, pCompGroup.getRQMINAMT());
 			getWritableDatabase().insertOrThrow(ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP, null, cv);
 		}
 	}
@@ -592,19 +588,19 @@ public class Products extends MPOSDatabase {
 	 * @param pCompLst
 	 * @throws SQLException
 	 */
-	public void insertProductComponent(List<ProductGroups.ProductComponent> pCompLst) throws SQLException{
+	public void insertProductComponent(List<com.synature.pos.ProductComponent> pCompLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ProductComponentTable.TABLE_PCOMPONENT, null, null);
-			for(ProductGroups.ProductComponent pCompSet : pCompLst){
+			for(com.synature.pos.ProductComponent pCompSet : pCompLst){
 				ContentValues cv = new ContentValues();
-				cv.put(ProductComponentTable.COLUMN_PGROUP_ID, pCompSet.getPGroupID());
-				cv.put(ProductTable.COLUMN_PRODUCT_ID, pCompSet.getProductID());
-				cv.put(ProductTable.COLUMN_SALE_MODE, pCompSet.getSaleMode());
-				cv.put(ProductComponentTable.COLUMN_CHILD_PRODUCT_ID, pCompSet.getChildProductID());
-				cv.put(ProductComponentTable.COLUMN_CHILD_PRODUCT_AMOUNT, pCompSet.getChildProductAmount());
-				cv.put(ProductComponentTable.COLUMN_FLEXIBLE_PRODUCT_PRICE, pCompSet.getFlexibleProductPrice());
-				cv.put(ProductComponentTable.COLUMN_FLEXIBLE_INCLUDE_PRICE, pCompSet.getFlexibleIncludePrice());
+				cv.put(ProductComponentTable.COLUMN_PGROUP_ID, pCompSet.getPGRID());
+				cv.put(ProductTable.COLUMN_PRODUCT_ID, pCompSet.getPID());
+				cv.put(ProductTable.COLUMN_SALE_MODE, pCompSet.getSMODE());
+				cv.put(ProductComponentTable.COLUMN_CHILD_PRODUCT_ID, pCompSet.getCHDPID());
+				cv.put(ProductComponentTable.COLUMN_CHILD_PRODUCT_AMOUNT, pCompSet.getCHDAMT());
+				cv.put(ProductComponentTable.COLUMN_FLEXIBLE_PRODUCT_PRICE, pCompSet.getFPRICE());
+				cv.put(ProductComponentTable.COLUMN_FLEXIBLE_INCLUDE_PRICE, pCompSet.getFINCPRICE());
 				getWritableDatabase().insertOrThrow(ProductComponentTable.TABLE_PCOMPONENT, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();
@@ -618,37 +614,21 @@ public class Products extends MPOSDatabase {
 	 * @param mgLst
 	 * @throws SQLException
 	 */
-	public void insertProductGroup(List<ProductGroups.ProductGroup> pgLst,
-		List<MenuGroups.MenuGroup> mgLst) throws SQLException{
+	public void insertProductGroup(List<com.synature.pos.ProductGroup> pgLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ProductGroupTable.TABLE_PRODUCT_GROUP, null, null);
-			for(ProductGroups.ProductGroup pg : pgLst){
+			for(com.synature.pos.ProductGroup pg : pgLst){
 				ContentValues cv = new ContentValues();
-				cv.put(ProductTable.COLUMN_PRODUCT_GROUP_ID, pg.getProductGroupId());
-				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_CODE, pg.getProductGroupCode());
-				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME, pg.getProductGroupName());
-				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_TYPE, pg.getProductGroupType());
-				cv.put(ProductGroupTable.COLUMN_IS_COMMENT, pg.getIsComment());
-				cv.put(COLUMN_ORDERING, pg.getProductGroupOrdering());
-				cv.put(ProductTable.COLUMN_ACTIVATE, 0);
+				cv.put(ProductTable.COLUMN_PRODUCT_GROUP_ID, pg.getPGID());
+				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_CODE, pg.getPGCOD());
+				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME, pg.getPGNAM());
+				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_TYPE, pg.getPGTY());
+				cv.put(ProductGroupTable.COLUMN_IS_COMMENT, pg.getISCOMM());
+				cv.put(COLUMN_ORDERING, pg.getPGORD());
+				cv.put(ProductTable.COLUMN_ACTIVATE, pg.getACTIVATE());
+				cv.put(COLUMN_DELETED, pg.getDEL());
 				getWritableDatabase().insertOrThrow(ProductGroupTable.TABLE_PRODUCT_GROUP, null, cv);
-			}
-			
-			for(MenuGroups.MenuGroup mg : mgLst){
-				ContentValues cv = new ContentValues();
-				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME, mg.getMenuGroupName_0());
-				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME1, mg.getMenuGroupName_1());
-				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME2, mg.getMenuGroupName_2());
-				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME3, mg.getMenuGroupName_3());
-				cv.put(ProductTable.COLUMN_ACTIVATE, mg.getActivate());
-				getWritableDatabase().update(ProductGroupTable.TABLE_PRODUCT_GROUP, 
-						cv, 
-						ProductTable.COLUMN_PRODUCT_GROUP_ID + "=?", 
-						new String[]{
-							String.valueOf(mg.getMenuGroupID())
-						}
-				);
 			}
 			getWritableDatabase().setTransactionSuccessful();
 		} finally {
@@ -661,35 +641,20 @@ public class Products extends MPOSDatabase {
 	 * @param mdLst
 	 * @throws SQLException
 	 */
-	public void insertProductDept(List<ProductGroups.ProductDept> pdLst,
-		List<MenuGroups.MenuDept> mdLst) throws SQLException{
+	public void insertProductDept(List<com.synature.pos.ProductDept> pdLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ProductDeptTable.TABLE_PRODUCT_DEPT, null, null);
-			for(ProductGroups.ProductDept pd : pdLst){
+			for(com.synature.pos.ProductDept pd : pdLst){
 				ContentValues cv = new ContentValues();
-				cv.put(ProductTable.COLUMN_PRODUCT_DEPT_ID, pd.getProductDeptID());
-				cv.put(ProductTable.COLUMN_PRODUCT_GROUP_ID, pd.getProductGroupID());
-				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE, pd.getProductDeptCode());
-				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME, pd.getProductDeptName());
-				cv.put(COLUMN_ORDERING, pd.getProductDeptOrdering());
-				cv.put(ProductTable.COLUMN_ACTIVATE, 0);
+				cv.put(ProductTable.COLUMN_PRODUCT_DEPT_ID, pd.getPDID());
+				cv.put(ProductTable.COLUMN_PRODUCT_GROUP_ID, pd.getPGID());
+				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE, pd.getPDCOD());
+				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME, pd.getPDNAM());
+				cv.put(ProductTable.COLUMN_ACTIVATE, pd.getACTIVATE());
+				cv.put(COLUMN_DELETED, pd.getDEL());
+				cv.put(COLUMN_ORDERING, pd.getPDORD());
 				getWritableDatabase().insertOrThrow(ProductDeptTable.TABLE_PRODUCT_DEPT, null, cv);
-			}
-			
-			for(MenuGroups.MenuDept md : mdLst){
-				ContentValues cv = new ContentValues();
-				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME, md.getMenuDeptName_0());
-				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1, md.getMenuDeptName_1());
-				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME2, md.getMenuDeptName_2());
-				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME3, md.getMenuDeptName_3());
-				cv.put(ProductTable.COLUMN_ACTIVATE, md.getActivate());
-				getWritableDatabase().update(ProductDeptTable.TABLE_PRODUCT_DEPT, cv, 
-						ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?",
-						new String[]{
-							String.valueOf(md.getMenuDeptID())
-						}
-				);
 			}
 			getWritableDatabase().setTransactionSuccessful();
 		} finally {
@@ -702,55 +667,31 @@ public class Products extends MPOSDatabase {
 	 * @param mLst
 	 * @throws SQLException
 	 */
-	public void insertProducts(List<ProductGroups.Products> pLst,
-		List<MenuGroups.MenuItem> mLst, List<MenuGroups.MenuComment> mcLst) throws SQLException{
+	public void insertProducts(List<com.synature.pos.Product> pLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ProductTable.TABLE_PRODUCT, null, null);
-			for(ProductGroups.Products p : pLst){
+			for(com.synature.pos.Product p : pLst){
 				ContentValues cv = new ContentValues();
-				cv.put(ProductTable.COLUMN_PRODUCT_ID, p.getProductID());
-				cv.put(ProductTable.COLUMN_PRODUCT_DEPT_ID, p.getProductDeptID());
-				cv.put(ProductTable.COLUMN_PRODUCT_CODE, p.getProductCode());
-				cv.put(ProductTable.COLUMN_PRODUCT_BAR_CODE, p.getProductBarCode());
-				cv.put(ProductTable.COLUMN_PRODUCT_TYPE_ID, p.getProductTypeID());
-				cv.put(ProductTable.COLUMN_PRODUCT_PRICE, p.getProductPricePerUnit());
-				cv.put(ProductTable.COLUMN_PRODUCT_UNIT_NAME, p.getProductUnitName());
-				cv.put(ProductTable.COLUMN_PRODUCT_DESC, p.getProductDesc());
-				cv.put(ProductTable.COLUMN_DISCOUNT_ALLOW, p.getDiscountAllow());
-				cv.put(ProductTable.COLUMN_VAT_TYPE, p.getVatType());
-				cv.put(ProductTable.COLUMN_VAT_RATE, p.getVatRate());
-				cv.put(ProductTable.COLUMN_IS_OUTOF_STOCK, p.getIsOutOfStock());
+				cv.put(ProductTable.COLUMN_PRODUCT_ID, p.getPID());
+				cv.put(ProductTable.COLUMN_PRODUCT_DEPT_ID, p.getPDID());
+				cv.put(ProductTable.COLUMN_PRODUCT_CODE, p.getPCODE());
+				cv.put(ProductTable.COLUMN_PRODUCT_BAR_CODE, p.getPBAR());
+				cv.put(ProductTable.COLUMN_PRODUCT_NAME, p.getPNAME0());
+				cv.put(ProductTable.COLUMN_PRODUCT_NAME1, p.getPNAME1());
+				cv.put(ProductTable.COLUMN_PRODUCT_NAME2, p.getPNAME2());
+				cv.put(ProductTable.COLUMN_PRODUCT_TYPE_ID, p.getPTYPE());
+				cv.put(ProductTable.COLUMN_PRODUCT_PRICE, p.getPRICE());
+				cv.put(ProductTable.COLUMN_PRODUCT_UNIT_NAME, p.getUNITNAME());
+				cv.put(ProductTable.COLUMN_PRODUCT_DESC, p.getPDESC());
+				cv.put(ProductTable.COLUMN_DISCOUNT_ALLOW, p.getDISALLOW());
+				cv.put(ProductTable.COLUMN_VAT_TYPE, p.getVATTYP());
+				cv.put(ProductTable.COLUMN_VAT_RATE, p.getVATRATE());
+				cv.put(ProductTable.COLUMN_IS_OUTOF_STOCK, p.getOOSTOC());
+				cv.put(ProductTable.COLUMN_ACTIVATE, p.getACTIVATE());
+				cv.put(COLUMN_DELETED, p.getDEL());
+				cv.put(ProductTable.COLUMN_IMG_FILE_NAME, p.getIMGLINK());
 				getWritableDatabase().insertOrThrow(ProductTable.TABLE_PRODUCT, null, cv);
-			}
-			for(MenuGroups.MenuItem m : mLst){
-				ContentValues cv = new ContentValues();
-				cv.put(ProductTable.COLUMN_PRODUCT_NAME, m.getMenuName_0());
-				cv.put(ProductTable.COLUMN_PRODUCT_NAME1, m.getMenuName_1());
-				cv.put(ProductTable.COLUMN_PRODUCT_NAME2, m.getMenuName_2());
-				cv.put(ProductTable.COLUMN_PRODUCT_NAME3, m.getMenuName_3());
-				cv.put(ProductTable.COLUMN_IMG_FILE_NAME, m.getMenuImageLink());
-				cv.put(COLUMN_ORDERING, m.getMenuItemOrdering());
-				cv.put(ProductTable.COLUMN_ACTIVATE, m.getMenuActivate());
-				getWritableDatabase().update(ProductTable.TABLE_PRODUCT, 
-						cv, ProductTable.COLUMN_PRODUCT_ID + "=?", 
-						new String[]{
-							String.valueOf(m.getProductID())
-						}
-				);
-			}
-			for(MenuGroups.MenuComment mc : mcLst){
-				ContentValues cv = new ContentValues();
-				cv.put(ProductTable.COLUMN_PRODUCT_NAME, mc.getMenuCommentName_0());
-				cv.put(ProductTable.COLUMN_PRODUCT_NAME1, mc.getMenuCommentName_1());
-				cv.put(ProductTable.COLUMN_PRODUCT_NAME2, mc.getMenuCommentName_2());
-				cv.put(ProductTable.COLUMN_PRODUCT_NAME3, mc.getMenuCommentName_3());
-				getWritableDatabase().update(ProductTable.TABLE_PRODUCT, 
-						cv, ProductTable.COLUMN_PRODUCT_ID + "=?", 
-						new String[]{
-							String.valueOf(mc.getMenuCommentID())
-						}
-				);
 			}
 			getWritableDatabase().setTransactionSuccessful();
 		} finally {

@@ -66,7 +66,7 @@ public class EnddaySaleService extends Service{
 							
 							new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
 									SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-									shopId, computerId, staffId, jsonEndDaySale, new ProgressListener() {
+									shopId, computerId, staffId, jsonEndDaySale, new WebServiceWorkingListener() {
 			
 										@Override
 										public void onError(String mesg) {
@@ -79,11 +79,11 @@ public class EnddaySaleService extends Service{
 										}
 			
 										@Override
-										public void onPre() {
+										public void onPreExecute() {
 										}
 			
 										@Override
-										public void onPost() {
+										public void onPostExecute() {
 											try {
 												sess.updateSessionEnddayDetail(sessionDate, 
 														MPOSDatabase.ALREADY_SEND);
@@ -115,11 +115,11 @@ public class EnddaySaleService extends Service{
 					}
 	
 					@Override
-					public void onPre() {
+					public void onPreExecute() {
 					}
 	
 					@Override
-					public void onPost() {
+					public void onPostExecute() {
 					}
 	
 				}).execute();

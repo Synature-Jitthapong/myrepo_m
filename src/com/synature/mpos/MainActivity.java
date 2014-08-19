@@ -348,6 +348,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				return true;
 			case R.id.itemReprint:
 				intent = new Intent(this, ReprintActivity.class);
+				intent.putExtra("sessionId", mSessionId);
 				startActivity(intent);
 				return true;
 			case R.id.itemSendSale:
@@ -393,14 +394,14 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			 * is not valid.
 			 * It will be return to LoginActivity for new initial
 			 */
-			String sessDate = mSession.getCurrentSessionDate();
-			if(!sessDate.equals("")){
+			String lastSessDate = mSession.getLastSessionDate();
+			if(!lastSessDate.equals("")){
 				Calendar sessCal = Calendar.getInstance();
-				sessCal.setTimeInMillis(Long.parseLong(sessDate));
+				sessCal.setTimeInMillis(Long.parseLong(lastSessDate));
 				if(Utils.getDate().getTime().compareTo(sessCal.getTime()) > 0 || 
 					sessCal.getTime().compareTo(Utils.getDate().getTime()) > 0){
 					// check last session is already end day ?
-					if(!mSession.checkEndday(mSession.getCurrentSessionDate())){
+					if(!mSession.checkEndday(mSession.getLastSessionDate())){
 						startActivity(new Intent(MainActivity.this, LoginActivity.class));
 						finish();
 					}else{
@@ -539,12 +540,6 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				afterPaid(transactionId, staffId, totalSalePrice, totalPaid, change);
 			}
 		}
-		if(requestCode == LoginActivity.REQUEST_FOR_SETTING){
-			if(resultCode == SettingsActivity.REFRESH_PARENT_ACTIVITY){
-				startActivity(getIntent());
-				finish();
-			}
-		}
 	}
 	
 	private void afterPaid(int transactionId, int staffId, double totalSalePrice, 
@@ -623,14 +618,14 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		for(MPOSOrderTransaction trans : transIdLst){
 			// send sale data service
 			mPartService.sendSale(mShop.getShopId(), trans.getSessionId(), trans.getTransactionId(), 
-					trans.getComputerId(), mStaffId, new ProgressListener() {
+					trans.getComputerId(), mStaffId, new WebServiceWorkingListener() {
 	
 						@Override
-						public void onPre() {
+						public void onPreExecute() {
 						}
 	
 						@Override
-						public void onPost() {
+						public void onPostExecute() {
 							countSaleDataNotSend();
 							Utils.makeToask(MainActivity.this, MainActivity.this
 									.getString(R.string.send_sale_data_success));
@@ -1527,16 +1522,16 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 
 	private void openTransaction(){
 		openSession();	
-		mTransactionId = mTrans.getCurrTransactionId(mSession.getCurrentSessionDate());
+		mTransactionId = mTrans.getCurrentTransactionId(mSessionId);
 		if(mTransactionId == 0){
-			mTransactionId = mTrans.openTransaction(mSession.getCurrentSessionDate(), 
+			mTransactionId = mTrans.openTransaction(mSession.getSessionDate(mSessionId), 
 					mShop.getShopId(), mComputer.getComputerId(),
 					mSessionId, mStaffId, mShop.getCompanyVatRate());
 		}
 	}
 
 	private void openSession(){
-		mSessionId = mSession.getCurrentSessionId(); 
+		mSessionId = mSession.getCurrentSessionId(mStaffId); 
 		if(mSessionId == 0){
 			mSessionId = mSession.openSession(Utils.getDate(), mShop.getShopId(), 
 					mComputer.getComputerId(), mStaffId, 0);
@@ -1567,8 +1562,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		LayoutInflater inflater = getLayoutInflater();
 		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null, false);
 		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
-		List<MPOSOrderTransaction> billLst = 
-				mTrans.listHoldOrder(mSession.getCurrentSessionDate());
+		List<MPOSOrderTransaction> billLst = mTrans.listHoldOrder(mSession.getSessionDate(mSessionId));
 		HoldBillAdapter billAdapter = new HoldBillAdapter(billLst);
 		lvHoldBill.setAdapter(billAdapter);
 		lvHoldBill.setOnItemClickListener(new OnItemClickListener(){
@@ -1670,7 +1664,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 * close shift
 	 */
 	private void closeShift(){
-		if(mTrans.countOrderStatusNotSuccess(mSession.getCurrentSessionDate()) == 0){
+		if(mTrans.countOrderStatusNotSuccess(mSession.getSessionDate(mSessionId)) == 0){
 			new AlertDialog.Builder(MainActivity.this)
 			.setCancelable(false)
 			.setTitle(R.string.close_shift)
@@ -1709,7 +1703,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 * endday
 	 */
 	private void endday(){
-		if(mTrans.countOrderStatusNotSuccess(mSession.getCurrentSessionDate()) == 0){
+		if(mTrans.countOrderStatusNotSuccess(mSession.getSessionDate(mSessionId)) == 0){
 			new AlertDialog.Builder(MainActivity.this)
 			.setCancelable(false)
 			.setTitle(R.string.endday)
@@ -1971,7 +1965,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 */
 	private void countHoldOrder(){
 		if(mItemHoldBill != null){
-			int totalHold = mTrans.countHoldOrder(mSession.getCurrentSessionDate());
+			int totalHold = mTrans.countHoldOrder(mSession.getSessionDate(mSessionId));
 			if(totalHold > 0){
 				mItemHoldBill.setTitle(getString(R.string.hold_bill) + "(" + totalHold + ")");
 			}else{
@@ -2151,16 +2145,16 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		progress.setTitle(getString(R.string.endday_success));
 		progress.setCancelable(false);
 		mPartService.sendEnddaySale(mShop.getShopId(), mComputer.getComputerId(), 
-				mStaffId, new ProgressListener(){
+				mStaffId, new WebServiceWorkingListener(){
 
 					@Override
-					public void onPre() {
+					public void onPreExecute() {
 						progress.setMessage(getString(R.string.send_endday_data_progress));
 						progress.show();
 					}
 
 					@Override
-					public void onPost() {
+					public void onPostExecute() {
 						if(progress.isShowing())
 							progress.dismiss();
 

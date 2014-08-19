@@ -26,11 +26,11 @@ public class MasterDataService extends Service{
 			MPOSWebServiceClient.authenDevice(getApplicationContext(), new MPOSWebServiceClient.AuthenDeviceListener() {
 				
 				@Override
-				public void onPre() {
+				public void onPreExecute() {
 				}
 				
 				@Override
-				public void onPost() {
+				public void onPostExecute() {
 				}
 				
 				@Override
@@ -40,23 +40,23 @@ public class MasterDataService extends Service{
 				@Override
 				public void onPost(final int shopId) {
 					// load shop data
-					MPOSWebServiceClient.loadShopData(getApplicationContext(), shopId, new ProgressListener(){
+					MPOSWebServiceClient.loadShopData(getApplicationContext(), shopId, new WebServiceWorkingListener(){
 	
 						@Override
-						public void onPre() {
+						public void onPreExecute() {
 						}
 	
 						@Override
-						public void onPost() {
+						public void onPostExecute() {
 							// load product datat
-							MPOSWebServiceClient.loadProductData(getApplicationContext(), shopId, new ProgressListener(){
+							MPOSWebServiceClient.loadProductData(getApplicationContext(), shopId, new WebServiceWorkingListener(){
 	
 								@Override
-								public void onPre() {
+								public void onPreExecute() {
 								}
 	
 								@Override
-								public void onPost() {
+								public void onPostExecute() {
 									Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, 
 											Utils.LOG_FILE_NAME, 
 											TAG + ": Service Success.");
