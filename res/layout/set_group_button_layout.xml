@@ -26,7 +26,7 @@
 
     <TextView
         android:id="@+id/textView1"
-        android:layout_width="32dp"
+        android:layout_width="wrap_content"
         android:layout_height="32dp"
         android:layout_alignRight="@+id/content"
         android:layout_alignTop="@+id/content"
@@ -34,6 +34,8 @@
         android:layout_marginTop="-8dp"
         android:background="@drawable/badge_text"
         android:gravity="center"
-        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+        android:minWidth="32dp"
+        android:textAppearance="?android:attr/textAppearanceMediumInverse"
+        android:textColor="@android:color/white" />
 
 </RelativeLayout>

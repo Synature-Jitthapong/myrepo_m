@@ -1848,8 +1848,7 @@ public class Transaction extends MPOSDatabase {
 	}
 
 	/**
-	 * Orders Set
-	 * 
+	 * List order set
 	 * @param transactionId
 	 * @param orderDetailId
 	 * @return List<MPOSOrderTransaction.OrderSet>
@@ -1861,7 +1860,8 @@ public class Transaction extends MPOSDatabase {
 				" SELECT b." + ProductComponentTable.COLUMN_PGROUP_ID + ", "
 						+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NO + ", "
 						+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NAME + ", " 
-						+ " b." + ProductComponentGroupTable.COLUMN_REQ_AMOUNT
+						+ " b." + ProductComponentGroupTable.COLUMN_REQ_AMOUNT + ", "
+						+ " b." + ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT
 						+ " FROM " + OrderSetTable.TABLE_ORDER_SET + " a "
 						+ " LEFT JOIN " + ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP + " b " 
 						+ " ON a." + ProductComponentTable.COLUMN_PGROUP_ID 
@@ -1881,17 +1881,16 @@ public class Transaction extends MPOSDatabase {
 				group.setTransactionId(transactionId);
 				group.setOrderDetailId(orderDetailId);
 				group.setProductGroupId(pcompGroupId);
-				group.setGroupNo(mainCursor.getInt(mainCursor
-						.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
-				group.setGroupName(mainCursor.getString(mainCursor
-						.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME)));
-				group.setRequireAmount(mainCursor.getDouble(mainCursor
-						.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
+				group.setGroupNo(mainCursor.getInt(mainCursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
+				group.setGroupName(mainCursor.getString(mainCursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME)));
+				group.setRequireAmount(mainCursor.getDouble(mainCursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
+				group.setRequireMinAmount(mainCursor.getDouble(mainCursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT)));
 				// query set detail
 				Cursor detailCursor = getReadableDatabase()
 						.rawQuery("SELECT a." + OrderSetTable.COLUMN_ORDER_SET_ID + ","
 								+ " a." + ProductTable.COLUMN_PRODUCT_ID + ","
 								+ " a." + OrderSetTable.COLUMN_ORDER_SET_PRICE + ", "
+								+ " a." + OrderSetTable.COLUMN_DEDUCT_AMOUNT + ", "
 								+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", "
 								+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "
 								+ " b." + ProductTable.COLUMN_PRODUCT_NAME2 + ", "
@@ -1912,22 +1911,15 @@ public class Transaction extends MPOSDatabase {
 					do {
 						MPOSOrderTransaction.OrderSet.OrderSetDetail detail 
 							= new MPOSOrderTransaction.OrderSet.OrderSetDetail();
-						detail.setOrderSetId(detailCursor.getInt(
-								detailCursor.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_ID)));
-						detail.setProductId(detailCursor.getInt(
-								detailCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-						detail.setProductName(detailCursor.getString(
-								detailCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
-						detail.setProductName1(detailCursor.getString(
-								detailCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
-						detail.setProductName2(detailCursor.getString(
-								detailCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
-						detail.setProductName3(detailCursor.getString(
-								detailCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
-						detail.setOrderSetQty(detailCursor.getDouble(
-								detailCursor.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_QTY)));
-						detail.setProductPrice(detailCursor.getDouble(
-								detailCursor.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE)));
+						detail.setOrderSetId(detailCursor.getInt(detailCursor.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_ID)));
+						detail.setProductId(detailCursor.getInt(detailCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
+						detail.setProductName(detailCursor.getString(detailCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
+						detail.setProductName1(detailCursor.getString(detailCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
+						detail.setProductName2(detailCursor.getString(detailCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
+						detail.setProductName3(detailCursor.getString(detailCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
+						detail.setOrderSetQty(detailCursor.getDouble(detailCursor.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_QTY)));
+						detail.setProductPrice(detailCursor.getDouble(detailCursor.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE)));
+						detail.setDeductAmount(detailCursor.getDouble(detailCursor.getColumnIndex(OrderSetTable.COLUMN_DEDUCT_AMOUNT)));
 						group.getOrderSetDetailLst().add(detail);
 					} while (detailCursor.moveToNext());
 				}
@@ -2237,10 +2229,11 @@ public class Transaction extends MPOSDatabase {
 	 * @param productName
 	 * @param pcompGroupId
 	 * @param reqAmount
+	 * @param reqMinAmount
 	 */
 	public void addOrderSet(int transactionId, int orderDetailId,
 			int productId, double orderSetQty, double productPrice, 
-			int pcompGroupId, double reqAmount) {
+			int pcompGroupId, double reqAmount, double reqMinAmount) {
 		int maxOrderSetId = getMaxOrderSetId();
 		ContentValues cv = new ContentValues();
 		cv.put(OrderSetTable.COLUMN_ORDER_SET_ID, maxOrderSetId);
@@ -2250,6 +2243,8 @@ public class Transaction extends MPOSDatabase {
 		cv.put(OrderSetTable.COLUMN_ORDER_SET_PRICE, productPrice);
 		cv.put(ProductComponentTable.COLUMN_PGROUP_ID, pcompGroupId);
 		cv.put(ProductComponentGroupTable.COLUMN_REQ_AMOUNT, reqAmount);
+		cv.put(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT, reqMinAmount);
+		cv.put(OrderSetTable.COLUMN_DEDUCT_AMOUNT, orderSetQty);
 		cv.put(OrderSetTable.COLUMN_ORDER_SET_QTY, orderSetQty);
 		getWritableDatabase().insertOrThrow(OrderSetTable.TABLE_ORDER_SET,
 				ProductTable.COLUMN_PRODUCT_NAME, cv);

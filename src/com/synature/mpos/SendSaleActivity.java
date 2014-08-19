@@ -3,7 +3,6 @@ package com.synature.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.Transaction;

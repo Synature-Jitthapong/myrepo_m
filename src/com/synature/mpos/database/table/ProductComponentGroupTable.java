@@ -8,6 +8,7 @@ public class ProductComponentGroupTable {
 	public static final String COLUMN_SET_GROUP_NO = "set_group_no";
 	public static final String COLUMN_SET_GROUP_NAME = "set_group_name";
 	public static final String COLUMN_REQ_AMOUNT = "req_amount";
+	public static final String COLUMN_REQ_MIN_AMOUNT = "req_min_amount";
 	
 	private static final String SQL_CREATE =
 			" create table " + TABLE_PCOMPONENT_GROUP + " ( "
@@ -16,7 +17,8 @@ public class ProductComponentGroupTable {
 			+ ProductTable.COLUMN_SALE_MODE + " integer default 0, "
 			+ COLUMN_SET_GROUP_NO + " text not null, " 
 			+ COLUMN_SET_GROUP_NAME + " text not null, " 
-			+ COLUMN_REQ_AMOUNT + " real default 0 );";
+			+ COLUMN_REQ_AMOUNT + " real default 0,"
+			+ COLUMN_REQ_MIN_AMOUNT + " real default 0 );";
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 	}

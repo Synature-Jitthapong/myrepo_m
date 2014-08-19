@@ -142,7 +142,14 @@ public class MPOSOrderTransaction extends OrderTransaction{
 		public static class OrderSetDetail extends Product{
 			private int orderSetId;
 			private double orderSetQty;
-			
+			private double deductAmount;
+
+			public double getDeductAmount() {
+				return deductAmount;
+			}
+			public void setDeductAmount(double deductAmount) {
+				this.deductAmount = deductAmount;
+			}
 			public double getOrderSetQty() {
 				return orderSetQty;
 			}

@@ -226,4 +226,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="backup">Backup</string>
 	<string name="last_update">Last data update: </string>
 	<string name="version">Version: </string>
+	<string name="cannot_add">Cannot add</string>
+	<string name="cannot_update">Cannot update</string>
+	<string name="because_deduct_at">because this item deducted at</string>
 </resources>

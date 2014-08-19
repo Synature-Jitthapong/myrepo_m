@@ -15,7 +15,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.j1tth4.slidinglibs.SlidingTabLayout;
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;

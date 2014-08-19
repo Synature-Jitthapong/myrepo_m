@@ -133,6 +133,7 @@ public class Products extends MPOSDatabase {
 						+ " a." + ProductComponentGroupTable.COLUMN_SET_GROUP_NO + ","
 						+ " a." + ProductComponentGroupTable.COLUMN_SET_GROUP_NAME + ","
 						+ " a." + ProductComponentGroupTable.COLUMN_REQ_AMOUNT + ","
+						+ " a." + ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT + ", "
 						+ " a." + ProductTable.COLUMN_SALE_MODE + ","
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ","
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ","
@@ -151,32 +152,18 @@ public class Products extends MPOSDatabase {
 		if(cursor.moveToFirst()){
 			do{
 				ProductComponentGroup pCompGroup = new ProductComponentGroup();
-				pCompGroup.setProductId(cursor.getInt(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-				pCompGroup
-						.setProductGroupId(cursor.getInt(cursor
-								.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
-				pCompGroup
-						.setGroupNo(cursor.getInt(cursor
-								.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
-				pCompGroup
-						.setGroupName(cursor.getString(cursor
-								.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME)));
-				pCompGroup
-						.setRequireAmount(cursor.getDouble(cursor
-								.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
-				pCompGroup.setSaleMode(cursor.getInt(cursor
-						.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));
-				pCompGroup.setProductName(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
-				pCompGroup.setProductName1(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
-				pCompGroup.setProductName2(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
-				pCompGroup.setProductName3(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
-				pCompGroup.setImgName(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
+				pCompGroup.setProductId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
+				pCompGroup.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
+				pCompGroup.setGroupNo(cursor.getInt(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
+				pCompGroup.setGroupName(cursor.getString(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME)));
+				pCompGroup.setRequireAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
+				pCompGroup.setRequireMinAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT)));
+				pCompGroup.setSaleMode(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));
+				pCompGroup.setProductName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
+				pCompGroup.setProductName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
+				pCompGroup.setProductName2(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
+				pCompGroup.setProductName3(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
+				pCompGroup.setImgName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
 				pCompGroupLst.add(pCompGroup);
 			}while(cursor.moveToNext());
 		}
@@ -215,30 +202,18 @@ public class Products extends MPOSDatabase {
 		if(cursor.moveToFirst()){
 			do{
 				ProductComponent pComp = new ProductComponent();
-				pComp.setProductGroupId(cursor.getInt(cursor
-						.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
-				pComp.setProductId(cursor.getInt(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-				pComp.setSaleMode(cursor.getInt(cursor
-						.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));
-				pComp.setChildProductAmount(cursor.getInt(cursor
-						.getColumnIndex(ProductComponentTable.COLUMN_CHILD_PRODUCT_AMOUNT)));
-				pComp.setFlexibleIncludePrice(cursor.getInt(cursor
-						.getColumnIndex(ProductComponentTable.COLUMN_FLEXIBLE_INCLUDE_PRICE)));
-				pComp.setFlexibleProductPrice(cursor.getInt(cursor
-						.getColumnIndex(ProductComponentTable.COLUMN_FLEXIBLE_PRODUCT_PRICE)));
-				pComp.setProductName(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
-				pComp.setProductName1(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
-				pComp.setProductName2(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
-				pComp.setProductName3(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
-				pComp.setImgName(cursor.getString(cursor
-						.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
-				pComp.setProductPrice(cursor.getDouble(cursor
-						.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
+				pComp.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
+				pComp.setProductId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
+				pComp.setSaleMode(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));
+				pComp.setChildProductAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentTable.COLUMN_CHILD_PRODUCT_AMOUNT)));
+				pComp.setFlexibleIncludePrice(cursor.getInt(cursor.getColumnIndex(ProductComponentTable.COLUMN_FLEXIBLE_INCLUDE_PRICE)));
+				pComp.setFlexibleProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductComponentTable.COLUMN_FLEXIBLE_PRODUCT_PRICE)));
+				pComp.setProductName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
+				pComp.setProductName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
+				pComp.setProductName2(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
+				pComp.setProductName3(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
+				pComp.setImgName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
+				pComp.setProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 				pCompLst.add(pComp);
 			}while(cursor.moveToNext());
 		}
@@ -608,6 +583,7 @@ public class Products extends MPOSDatabase {
 			cv.put(ProductComponentGroupTable.COLUMN_SET_GROUP_NO, pCompGroup.getSetGroupNo());
 			cv.put(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME, pCompGroup.getSetGroupName());
 			cv.put(ProductComponentGroupTable.COLUMN_REQ_AMOUNT, pCompGroup.getRequireAmount());
+			cv.put(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT, pCompGroup.getRequireMinAmount());
 			getWritableDatabase().insertOrThrow(ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP, null, cv);
 		}
 	}
@@ -626,7 +602,7 @@ public class Products extends MPOSDatabase {
 				cv.put(ProductTable.COLUMN_PRODUCT_ID, pCompSet.getProductID());
 				cv.put(ProductTable.COLUMN_SALE_MODE, pCompSet.getSaleMode());
 				cv.put(ProductComponentTable.COLUMN_CHILD_PRODUCT_ID, pCompSet.getChildProductID());
-				cv.put(ProductComponentTable.COLUMN_CHILD_PRODUCT_AMOUNT, pCompSet.getPGroupID());
+				cv.put(ProductComponentTable.COLUMN_CHILD_PRODUCT_AMOUNT, pCompSet.getChildProductAmount());
 				cv.put(ProductComponentTable.COLUMN_FLEXIBLE_PRODUCT_PRICE, pCompSet.getFlexibleProductPrice());
 				cv.put(ProductComponentTable.COLUMN_FLEXIBLE_INCLUDE_PRICE, pCompSet.getFlexibleIncludePrice());
 				getWritableDatabase().insertOrThrow(ProductComponentTable.TABLE_PCOMPONENT, null, cv);
@@ -786,7 +762,14 @@ public class Products extends MPOSDatabase {
 		private int groupNo;
 		private String groupName;
 		private double requireAmount;
+		private double requireMinAmount;
 		
+		public double getRequireMinAmount() {
+			return requireMinAmount;
+		}
+		public void setRequireMinAmount(double requireMinAmount) {
+			this.requireMinAmount = requireMinAmount;
+		}
 		public int getGroupNo() {
 			return groupNo;
 		}

@@ -8,7 +8,7 @@ public class MPOSApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 
-		Utils.switchLanguage(getApplicationContext(), Utils.getLangCode(getApplicationContext()));
+		//Utils.switchLanguage(getApplicationContext(), Utils.getLangCode(getApplicationContext()));
 		
 		if(Utils.isEnableWintecCustomerDisplay(getApplicationContext()))
 			showCustomerDisplay();

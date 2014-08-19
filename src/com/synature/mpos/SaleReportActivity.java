@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.MPOSOrderTransaction;

@@ -93,6 +93,11 @@ public class Utils {
 	public static final String ENDDAY_PATH = RESOURCE_DIR + File.separator + "EnddaySale";
 	
 	/**
+	 * EJ path
+	 */
+	public static final String EJ_PATH = RESOURCE_DIR + File.separator + "EJ";
+	
+	/**
 	 * Image path on server
 	 */
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
@@ -736,6 +741,10 @@ public class Utils {
 		} catch (InterruptedException e) {
 			Log.d("Shutdown", e.getMessage());
 		}
+	}
+	
+	public static void writeEJ(Context context){
+		
 	}
 	
 	public static void exportDatabase(Context context){

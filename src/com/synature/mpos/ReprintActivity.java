@@ -2,7 +2,6 @@ package com.synature.mpos;
 
 import java.util.List;
 
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Transaction;

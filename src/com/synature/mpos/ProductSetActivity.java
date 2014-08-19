@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.Products;
@@ -192,12 +191,17 @@ public class ProductSetActivity extends Activity{
 		}
 	}
 
-	private double updateBadge(int groupId, double requireAmount){
+	private double updateBadge(int groupId, double requireAmount, double requireMinAmount){
 		double totalQty = mTrans.getOrderSetTotalQty(mTransactionId, mOrderDetailId, groupId);
 		LinearLayout scrollContent = getScrollContainer();
 		View groupBtn = scrollContent.findViewById(groupId);
 		TextView tvBadge = (TextView) groupBtn.findViewById(R.id.textView1);
-		tvBadge.setText(NumberFormat.getInstance().format(requireAmount - totalQty));
+		double reductQty = requireAmount - totalQty;
+		tvBadge.setText(NumberFormat.getInstance().format(reductQty));
+		if(requireMinAmount > 0){
+			tvBadge.setText(NumberFormat.getInstance().format(requireMinAmount) + "-" + 
+					NumberFormat.getInstance().format(reductQty));
+		}
 		return totalQty;
 	}
 	
@@ -229,8 +233,9 @@ public class ProductSetActivity extends Activity{
 							for(Products.ProductComponent pComp : pCompLst){
 								double qty = pCompGroup.getChildProductAmount() > 0 ? pCompGroup.getChildProductAmount() : 1;
 								double price = pComp.getFlexibleProductPrice() > 0 ? pComp.getFlexibleProductPrice() : 0.0d;
-								mTrans.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), qty, price,
-										pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
+								addOrderSet(pCompGroup.getProductGroupId(), pComp.getProductId(), 
+										qty, price, pCompGroup.getRequireAmount(), 
+										pCompGroup.getRequireMinAmount(), pCompGroup.getGroupName(), pComp.getProductName());
 							}
 						}
 					}
@@ -241,9 +246,12 @@ public class ProductSetActivity extends Activity{
 						public void onClick(View v) {
 							mProductCompLst = mProduct.listProductComponent(pCompGroup.getProductGroupId());
 							
-							// i use Products.ProductGroupId instead ProductComponent.PGroupId
+							// I use Products.ProductGroupId instead ProductComponent.PGroupId
 							SetItemAdapter adapter = new SetItemAdapter(
-									pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
+									pCompGroup.getProductGroupId(), 
+									pCompGroup.getGroupName(),
+									pCompGroup.getRequireAmount(), 
+									pCompGroup.getRequireMinAmount());
 							mGvSetItem.setAdapter(adapter);
 
 							v.setSelected(true);
@@ -275,7 +283,7 @@ public class ProductSetActivity extends Activity{
 						new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 				
 				if(pCompGroup.getRequireAmount() > 0){
-					updateBadge(pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount());
+					updateBadge(pCompGroup.getProductGroupId(), pCompGroup.getRequireAmount(), pCompGroup.getRequireMinAmount());
 				}
 			}
 		}
@@ -297,22 +305,33 @@ public class ProductSetActivity extends Activity{
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	private void confirmOrderSet(){
 		List<Products.ProductComponentGroup> productCompGroupLst 
 			= mProduct.listProductComponentGroup(mProductId);
 		boolean canDone = true;
 		String selectGroup = "";
 		if(productCompGroupLst != null){
-			Iterator<Products.ProductComponentGroup> it = 
-					productCompGroupLst.iterator();
+			Iterator<Products.ProductComponentGroup> it = productCompGroupLst.iterator();
 			while(it.hasNext()){
 				Products.ProductComponentGroup pCompGroup = it.next();
 				if(pCompGroup.getRequireAmount() > 0){
-					if(pCompGroup.getRequireAmount() - mTrans.getOrderSetTotalQty(mTransactionId, mOrderDetailId, 
-							pCompGroup.getProductGroupId()) > 0){
-						canDone = false;
-						selectGroup = pCompGroup.getGroupName();
-						break;
+					double totalSetQty = mTrans.getOrderSetTotalQty(mTransactionId, mOrderDetailId, 
+							pCompGroup.getProductGroupId());
+					if(pCompGroup.getRequireMinAmount() == 0){
+						if(pCompGroup.getRequireAmount() - totalSetQty > 0){
+							canDone = false;
+							selectGroup = pCompGroup.getGroupName();
+							break;
+						}
+					}else{
+						if(totalSetQty < pCompGroup.getRequireMinAmount()){
+							canDone = false;
+							selectGroup = pCompGroup.getGroupName();
+							break;
+						}
 					}
 				}
 			}
@@ -402,7 +421,7 @@ public class ProductSetActivity extends Activity{
 			if(convertView == null){
 				LayoutInflater inflater = (LayoutInflater)
 					getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				convertView = inflater.inflate(R.layout.order_set_template, null, false);
+				convertView = inflater.inflate(R.layout.order_set_template, parent, false);
 				holder = new ViewSetGroupHolder();
 				holder.tvSetGroupName = (TextView) convertView.findViewById(R.id.tvSetGroupName);
 				holder.btnDel = (ImageButton) convertView.findViewById(R.id.btnSetGroupDel);
@@ -431,7 +450,7 @@ public class ProductSetActivity extends Activity{
 								int which) {
 							mTrans.deleteOrderSetByGroup(mTransactionId, 
 									mOrderDetailId, set.getProductGroupId());
-							updateBadge(set.getProductGroupId(), set.getRequireAmount());
+							updateBadge(set.getProductGroupId(), set.getRequireAmount(), set.getRequireMinAmount());
 							loadOrderSet();
 						}
 						
@@ -475,7 +494,11 @@ public class ProductSetActivity extends Activity{
 				public void onClick(View v) {
 					double qty = detail.getOrderSetQty();
 					if(qty > 0){
-						if(--qty == 0){
+						if(detail.getDeductAmount() > 1) 
+							qty -= detail.getDeductAmount();
+						else 
+							qty -= 1;
+						if(qty == 0){
 							new AlertDialog.Builder(ProductSetActivity.this)
 							.setTitle(R.string.delete)
 							.setMessage(R.string.confirm_delete_item)
@@ -490,7 +513,7 @@ public class ProductSetActivity extends Activity{
 								public void onClick(DialogInterface dialog, int which) {
 									mTrans.deleteOrderSet(
 											mTransactionId, mOrderDetailId, detail.getOrderSetId());
-									updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount());
+									updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount(), setGroup.getRequireMinAmount());
 									loadOrderSet();
 								}
 							}).show();
@@ -498,7 +521,7 @@ public class ProductSetActivity extends Activity{
 							detail.setOrderSetQty(qty);
 							mTrans.updateOrderSet(mTransactionId, 
 									mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
-							updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount());
+							updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount(), setGroup.getRequireMinAmount());
 							mOrderSetAdapter.notifyDataSetChanged();
 						}
 					}
@@ -515,17 +538,43 @@ public class ProductSetActivity extends Activity{
 						double totalQty = mTrans.getOrderSetTotalQty(
 								mTransactionId, mOrderDetailId, setGroup.getProductGroupId());
 						if(totalQty < setGroup.getRequireAmount()){
-							detail.setOrderSetQty(++qty);
-							mTrans.updateOrderSet(mTransactionId, 
-									mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
-							updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount());
+							if(detail.getDeductAmount() > 1){
+								qty += detail.getDeductAmount();
+								if(qty <= setGroup.getRequireAmount() - totalQty){
+									detail.setOrderSetQty(qty);
+									mTrans.updateOrderSet(mTransactionId, 
+											mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
+								}else{
+									new AlertDialog.Builder(ProductSetActivity.this)
+									.setTitle(setGroup.getGroupName())
+									.setMessage(getString(R.string.cannot_update) + " " 
+											+ detail.getProductName() + " " + getString(R.string.because_deduct_at) + " " 
+											+ NumberFormat.getInstance().format(detail.getDeductAmount()))
+									.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface arg0, int arg1) {
+										}
+									}).show();
+								}
+							}else{
+								qty += 1;
+								detail.setOrderSetQty(qty);
+								mTrans.updateOrderSet(mTransactionId, 
+										mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
+							}
+							updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount(), setGroup.getRequireMinAmount());
 							mOrderSetAdapter.notifyDataSetChanged();
 						}
 					}else{
-						detail.setOrderSetQty(++qty);
+						if(detail.getDeductAmount() > 1)
+							qty += detail.getDeductAmount();
+						else
+							qty += 1;
+						detail.setOrderSetQty(qty);
 						mTrans.updateOrderSet(mTransactionId, 
 								mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
-						updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount());
+						updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount(), setGroup.getRequireMinAmount());
 						mOrderSetAdapter.notifyDataSetChanged();
 					}
 				}
@@ -563,7 +612,11 @@ public class ProductSetActivity extends Activity{
 	public class SetItemAdapter extends BaseAdapter{
 		
 		private int mPcompGroupId;
+		private String mGroupName;
 		private double mRequireAmount;
+		private double mRequireMinAmount;
+		
+		private LayoutInflater mInflater;
 		
 		private ImageLoader mImgLoader;
 		
@@ -571,12 +624,17 @@ public class ProductSetActivity extends Activity{
 		 * @param pcompGroupId
 		 * @param requireAmount
 		 */
-		public SetItemAdapter(int pcompGroupId, double requireAmount){
+		public SetItemAdapter(int pcompGroupId, String groupName, double requireAmount, double requireMinAmount){
 			mPcompGroupId = pcompGroupId;
+			mGroupName = groupName;
 			mRequireAmount = requireAmount;
+			mRequireMinAmount = requireMinAmount;
 			
 			mImgLoader = new ImageLoader(ProductSetActivity.this, 0,
 					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+
+			mInflater = (LayoutInflater)
+					getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
 		@Override
@@ -598,9 +656,7 @@ public class ProductSetActivity extends Activity{
 		public View getView(int position, View convertView, ViewGroup parent) {
 			final MenuItemViewHolder holder;
 			if(convertView == null){
-				LayoutInflater inflater = (LayoutInflater)
-						getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				convertView = inflater.inflate(R.layout.menu_template, null, false);
+				convertView = mInflater.inflate(R.layout.menu_template, parent, false);
 				holder = new MenuItemViewHolder();
 				holder.tvMenu = (TextView) convertView.findViewById(R.id.textViewMenuName);
 				holder.tvPrice = (TextView) convertView.findViewById(R.id.textViewMenuPrice);
@@ -626,29 +682,61 @@ public class ProductSetActivity extends Activity{
 
 				@Override
 				public void onClick(View v) {
-					double price = pComp.getFlexibleIncludePrice() == 1 ? 
-							pComp.getFlexibleProductPrice() : 0;
-					if(mRequireAmount > 0){
-						// count total group qty from db
-						double totalQty = mTrans.getOrderSetTotalQty(mTransactionId, mOrderDetailId, mPcompGroupId);
-						
-						if(totalQty < mRequireAmount){
-							mTrans.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
-									1, price, mPcompGroupId, mRequireAmount);
-							totalQty = updateBadge(mPcompGroupId, mRequireAmount);
-							if(totalQty >= mRequireAmount)
-								// select next group
-								selectNextGroup();
-						}
-					}else{
-						mTrans.addOrderSet(mTransactionId, mOrderDetailId, pComp.getProductId(), 
-								1, price, mPcompGroupId, mRequireAmount);
-					}
+					// childProductAmount is weight amount of set
+					double qty = pComp.getChildProductAmount() > 0 ? pComp.getChildProductAmount() : 1;
+					double price = pComp.getFlexibleIncludePrice() == 1 ? pComp.getFlexibleProductPrice() : 0;
+					addOrderSet(mPcompGroupId, pComp.getProductId(), qty, price, mRequireAmount, mRequireMinAmount,
+							mGroupName, pComp.getProductName());
 					loadOrderSet();
 				}
 				
 			});
 			return convertView;
+		}
+	}
+	
+	/**
+	 * @param pCompGroupId
+	 * @param productId
+	 * @param deductQty
+	 * @param price
+	 * @param requireAmount
+	 * @param requireMinAmount
+	 * @param groupName
+	 * @param productName
+	 */
+	private void addOrderSet(int pCompGroupId, int productId, double deductQty, double price, double requireAmount,
+			 double requireMinAmount, String groupName, String productName){
+		if(requireAmount > 0){
+			// count total group qty from db
+			double totalQty = mTrans.getOrderSetTotalQty(mTransactionId, mOrderDetailId, pCompGroupId);
+			
+			if(totalQty < requireAmount){
+				if(deductQty <= requireAmount - totalQty){
+					mTrans.addOrderSet(mTransactionId, mOrderDetailId, productId, 
+							deductQty, price, pCompGroupId, requireAmount, requireMinAmount);
+				}else{
+					new AlertDialog.Builder(ProductSetActivity.this)
+					.setTitle(groupName)
+					.setMessage(getString(R.string.cannot_add) + " " 
+							+ productName + " " + getString(R.string.because_deduct_at) + " " 
+							+ NumberFormat.getInstance().format(deductQty))
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface arg0, int arg1) {
+						}
+					}).show();
+					
+				}
+				totalQty = updateBadge(pCompGroupId, requireAmount, requireMinAmount);
+				if(totalQty >= requireAmount)
+					// select next group
+					selectNextGroup();
+			}
+		}else{
+			mTrans.addOrderSet(mTransactionId, mOrderDetailId, productId, 
+					deductQty, price, pCompGroupId, requireAmount, requireMinAmount);
 		}
 	}
 	

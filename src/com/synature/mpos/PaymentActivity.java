@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.PaymentAmountButton;

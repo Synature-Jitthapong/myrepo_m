@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
