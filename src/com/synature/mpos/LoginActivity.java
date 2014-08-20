@@ -6,9 +6,9 @@ import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Shop;
-import com.synature.mpos.database.SyncMasterLog;
+import com.synature.mpos.database.SyncHistory;
 import com.synature.mpos.database.UserVerification;
-import com.synature.pos.ShopData;
+import com.synature.pos.Staff;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -50,7 +50,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 	private Session mSession;
 	private Computer mComputer;
 	private Formater mFormat;
-	private SyncMasterLog mSync;
+	private SyncHistory mSync;
 	
 	private Button mBtnLogin;
 	private EditText mTxtUser;
@@ -84,7 +84,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		mShop = new Shop(this);
 		mComputer = new Computer(this);
 		mFormat = new Formater(this);
-		mSync = new SyncMasterLog(this);
+		mSync = new SyncHistory(this);
 
 		try {
 			if(mShop.getShopName() != null){
@@ -107,9 +107,94 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		if(requestCode == REQUEST_FOR_SETTING){
 			if(resultCode == SettingsActivity.UPDATE_NEW_DATA){
 				if(!mSync.IsAlreadySync())
-					updateData();
+					new DeviceChecker(this, new DeviceCheckerListener()).execute(Utils.getFullUrl(this));
 			}
 		}
+	}
+	
+	private class DeviceCheckerListener implements DeviceChecker.AuthenDeviceListener{
+
+		private ProgressDialog mProgress;
+		
+		public DeviceCheckerListener(){
+			mProgress = new ProgressDialog(LoginActivity.this);
+			mProgress.setCancelable(false);
+			mProgress.setMessage(getString(R.string.check_device_progress));
+		}
+		
+		@Override
+		public void onPreExecute() {
+			mProgress.show();
+		}
+
+		@Override
+		public void onPostExecute() {
+		}
+
+		@Override
+		public void onError(String msg) {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			new AlertDialog.Builder(LoginActivity.this)
+			.setMessage(msg)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+				}
+			}).show();
+		}
+
+		@Override
+		public void onPostExecute(int shopId) {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			new MasterDataLoader(LoginActivity.this, shopId, new MasterLoaderListener()).execute(Utils.getFullUrl(LoginActivity.this));
+		}
+		
+	}
+	
+	/**
+	 * @author j1tth4
+	 * Listener for 
+	 */
+	private class MasterLoaderListener implements WebServiceWorkingListener{
+
+		private ProgressDialog mProgress;
+		
+		public MasterLoaderListener(){
+			mProgress = new ProgressDialog(LoginActivity.this);
+			mProgress.setMessage(getString(R.string.load_master_progress));
+			mProgress.setCancelable(false);
+		}
+		
+		@Override
+		public void onPreExecute() {
+			mProgress.show();
+		}
+
+		@Override
+		public void onPostExecute() {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+			finish();
+		}
+
+		@Override
+		public void onError(String msg) {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			new AlertDialog.Builder(LoginActivity.this)
+			.setMessage(msg)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+				}
+			}).show();
+		}
+		
 	}
 	
 	/**
@@ -118,7 +203,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 	 * this not allow to do anything and 
 	 * force to date & time setting.
 	 */
-	private void checkSessionDate(){
+	private boolean checkSessionDate(){
 		// check if have session
 		if(mSession.getLastSessionId() > 0){
 			// get last session date
@@ -149,61 +234,37 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 								REQUEST_FOR_SETTING_DATE);
 					}
 				}).show();
-			}
-			
-			/*
-			 * Current date > Session date
-			 * mPOS will force to end day.
-			 */
-			else if(Utils.getDate().getTime().compareTo(lastSessDate.getTime()) > 0){
-				// check last session has already enddday ?
+				return false;
+			}else if(Utils.getDate().getTime().compareTo(lastSessDate.getTime()) > 0){
+				/*
+				 * Current date > Session date
+				 * mPOS will force to end day.
+				 */
 				if(!mSession.checkEndday(mSession.getLastSessionDate())){
 					Utils.endday(LoginActivity.this, mShop.getShopId(), 
 							mComputer.getComputerId(), mSession.getLastSessionId(), 
 							mStaffId, 0, true);
-					gotoMainActivity();
-					// force end previous sale date
-//					new AlertDialog.Builder(this)
-//					.setCancelable(false)
-//					.setTitle(R.string.system_date)
-//					.setMessage(R.string.system_date_more_than_session)
-//					.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-//						
-//						@Override
-//						public void onClick(DialogInterface dialog, int which) {
-//						}
-//					})
-//					.setPositiveButton(R.string.endday, new DialogInterface.OnClickListener() {
-//						
-//						@Override
-//						public void onClick(DialogInterface dialog, int which) {
-//							boolean endday = Utils.endday(LoginActivity.this, mShop.getShopId(), 
-//									mComputer.getComputerId(), mSession.getCurrentSessionId(), 
-//									mStaffId, 0, true);
-//							if(endday){
-//								new AlertDialog.Builder(LoginActivity.this)
-//								.setCancelable(false)
-//								.setTitle(R.string.endday)
-//								.setMessage(R.string.endday_success)
-//								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-//									
-//									@Override
-//									public void onClick(DialogInterface dialog, int which) {
-//										gotoMainActivity();
-//									}
-//								}).show();
-//							}
-//						}
-//					}).show();
-				}else{
-					gotoMainActivity();
 				}
 			}else{
-				gotoMainActivity();
+				if(mSession.checkEndday(String.valueOf(Utils.getDate().getTimeInMillis()))){
+					String enddayMsg = getString(R.string.sale_date) 
+							+ " " + mFormat.dateFormat(Utils.getDate().getTime()) 
+							+ " " + getString(R.string.alredy_endday);
+					new AlertDialog.Builder(this)
+					.setCancelable(false)
+					.setTitle(R.string.endday)
+					.setMessage(enddayMsg)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					}).show();
+					return false;
+				}
 			}
-		}else{
-			gotoMainActivity();
 		}
+		return true;
 	}
 	
 	@Override
@@ -230,7 +291,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 			startActivityForResult(intent, REQUEST_FOR_SETTING);
 			return true;
 		case R.id.itemUpdate:
-			updateData();
+			new DeviceChecker(this, new DeviceCheckerListener()).execute(Utils.getFullUrl(this));
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
@@ -263,107 +324,6 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		}).show();
 	}
 	
-	private void updateData(){
-		final ProgressDialog progress = new ProgressDialog(this);
-		progress.setCancelable(false);
-		progress.setTitle(R.string.update_data);
-		// checking device
-		MPOSWebServiceClient.authenDevice(this, new MPOSWebServiceClient.AuthenDeviceListener() {
-			
-			@Override
-			public void onPreExecute() {
-				progress.setMessage(getString(R.string.check_device_progress));
-				progress.show();
-			}
-			
-			@Override
-			public void onPostExecute() {
-			}
-			
-			@Override
-			public void onError(String msg) {
-				if(progress.isShowing())
-					progress.dismiss();
-				new AlertDialog.Builder(LoginActivity.this)
-				.setTitle(R.string.update_data)
-				.setMessage(msg)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-					}
-				})
-				.show();
-			}
-			
-			@Override
-			public void onPost(final int shopId) {
-				// load shop data
-				MPOSWebServiceClient.loadShopData(LoginActivity.this, shopId, new WebServiceWorkingListener(){
-
-					@Override
-					public void onPreExecute() {
-						progress.setMessage(getString(R.string.update_shop_progress));
-					}
-
-					@Override
-					public void onPostExecute() {
-						// load product datat
-						MPOSWebServiceClient.loadProductData(LoginActivity.this, shopId, new WebServiceWorkingListener(){
-
-							@Override
-							public void onPreExecute() {
-								progress.setMessage(getString(R.string.update_product_progress));
-							}
-
-							@Override
-							public void onPostExecute() {
-								if(progress.isShowing())
-									progress.dismiss();
-								startActivity(new Intent(LoginActivity.this, LoginActivity.class));
-								finish();
-							}
-
-							@Override
-							public void onError(String msg) {
-								if(progress.isShowing())
-									progress.dismiss();
-								new AlertDialog.Builder(LoginActivity.this)
-								.setTitle(R.string.update_data)
-								.setMessage(msg)
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-									}
-								})
-								.show();
-							}
-							
-						});
-					}
-
-					@Override
-					public void onError(String msg) {
-						if(progress.isShowing())
-							progress.dismiss();
-						new AlertDialog.Builder(LoginActivity.this)
-						.setTitle(R.string.update_data)
-						.setMessage(msg)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-							}
-						})
-						.show();
-					}
-					
-				});
-			}
-		});
-	}
-	
 	@Override
 	protected void onResume() {
 		SharedPreferences sharedPref = PreferenceManager
@@ -373,89 +333,19 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivityForResult(intent, REQUEST_FOR_SETTING);
 		}else{
+			if(!mSync.IsAlreadySync())
+				new DeviceChecker(this, new DeviceCheckerListener()).execute(Utils.getFullUrl(this));
 			mTxtUser.requestFocus();
 		}
 		super.onResume();
 	}
 			
 	private void gotoMainActivity(){
-		mTxtUser.setText(null);
-		mTxtPass.setText(null);
-		if(mSession.checkEndday(String.valueOf(Utils.getDate().getTimeInMillis()))){
-			String enddayMsg = getString(R.string.sale_date) 
-					+ " " + mFormat.dateFormat(Utils.getDate().getTime()) 
-					+ " " + getString(R.string.alredy_endday);
-			new AlertDialog.Builder(this)
-			.setCancelable(false)
-			.setTitle(R.string.endday)
-			.setMessage(enddayMsg)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-				}
-			}).show();
-		}else{
-			enddingMultipleDay();
-			startEnddayService();
-			final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-			intent.putExtra("staffId", mStaffId);
-			if(!mSync.IsAlreadySync()){
-				final ProgressDialog progress = new ProgressDialog(LoginActivity.this);
-				progress.setCancelable(false);
-				progress.setTitle(R.string.update_data);
-				// load shop data
-				MPOSWebServiceClient.loadShopData(LoginActivity.this, mShop.getShopId(), new WebServiceWorkingListener(){
-	
-					@Override
-					public void onPreExecute() {
-						progress.setMessage(getString(R.string.update_shop_progress));
-						progress.show();
-					}
-	
-					@Override
-					public void onPostExecute() {
-						// load product data
-						MPOSWebServiceClient.loadProductData(LoginActivity.this, mShop.getShopId(), new WebServiceWorkingListener(){
-	
-							@Override
-							public void onPreExecute() {
-								progress.setMessage(getString(R.string.update_product_progress));
-							}
-	
-							@Override
-							public void onPostExecute() {
-								if(progress.isShowing())
-									progress.dismiss();
-								startActivity(intent);
-								finish();
-							}
-	
-							@Override
-							public void onError(String msg) {
-								if(progress.isShowing())
-									progress.dismiss();
-								startActivity(intent);
-								finish();
-							}
-							
-						});
-					}
-	
-					@Override
-					public void onError(String msg) {
-						if(progress.isShowing())
-							progress.dismiss();
-						startActivity(intent);
-						finish();
-					}
-					
-				});
-			}else{
-				startActivity(intent);
-				finish();
-			}
-		}
+		enddingMultipleDay();
+		startEnddayService();
+		final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+		intent.putExtra("staffId", mStaffId);
+		startActivity(intent);
 	}
 	
 	/**
@@ -496,18 +386,22 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 				UserVerification login = new UserVerification(getApplicationContext(), user, pass);
 				
 				if(login.checkUser()){
-					ShopData.Staff s = login.checkLogin();
+					Staff s = login.checkLogin();
 					if(s != null){
 						mStaffId = s.getStaffID();
-						checkSessionDate();
 						mTxtUser.setError(null);
 						mTxtPass.setError(null);
+						mTxtUser.setText(null);
+						mTxtPass.setText(null);
+						if(checkSessionDate()){
+							gotoMainActivity();
+						}
 					}else{
 						mTxtUser.setError(null);
 						mTxtPass.setError(getString(R.string.incorrect_password));
 					}
 				}else{
-					mTxtUser.setError(getString(R.string.incorrect_user));
+					mTxtUser.setError(getString(R.string.incorrect_staff_code));
 					mTxtPass.setError(null);
 				}
 			}else{
@@ -515,7 +409,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 				mTxtPass.setError(getString(R.string.enter_password));
 			}
 		}else{
-			mTxtUser.setError(getString(R.string.enter_username));
+			mTxtUser.setError(getString(R.string.enter_staff_code));
 			mTxtPass.setError(null);
 		}
 	}

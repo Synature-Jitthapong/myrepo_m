@@ -1,6 +1,5 @@
 package com.synature.mpos;
 
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -195,12 +194,12 @@ public class ProductSetActivity extends Activity{
 		double totalQty = mTrans.getOrderSetTotalQty(mTransactionId, mOrderDetailId, groupId);
 		LinearLayout scrollContent = getScrollContainer();
 		View groupBtn = scrollContent.findViewById(groupId);
-		TextView tvBadge = (TextView) groupBtn.findViewById(R.id.textView1);
+		TextView tvBadge = (TextView) groupBtn.findViewById(R.id.tvReqAmount);
 		double reductQty = requireAmount - totalQty;
-		tvBadge.setText(NumberFormat.getInstance().format(reductQty));
+		tvBadge.setText(mFormat.qtyFormat(reductQty));
 		if(requireMinAmount > 0){
-			tvBadge.setText(NumberFormat.getInstance().format(requireMinAmount) + "-" + 
-					NumberFormat.getInstance().format(reductQty));
+			tvBadge.setText(mFormat.qtyFormat(requireMinAmount) + "-" + 
+					mFormat.qtyFormat(reductQty));
 		}
 		return totalQty;
 	}
@@ -218,8 +217,8 @@ public class ProductSetActivity extends Activity{
 						getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				View setGroupView = inflater.inflate(R.layout.set_group_button_layout, null, false);
 				setGroupView.setId(pCompGroup.getProductGroupId());
-				TextView tvGroupName = (TextView) setGroupView.findViewById(R.id.textView2);
-				TextView tvBadge = (TextView) setGroupView.findViewById(R.id.textView1);
+				TextView tvGroupName = (TextView) setGroupView.findViewById(R.id.tvSetGName);
+				TextView tvBadge = (TextView) setGroupView.findViewById(R.id.tvReqAmount);
 				tvGroupName.setText(pCompGroup.getGroupName());
 				
 				if(pCompGroup.getGroupNo() == 0){
@@ -473,7 +472,7 @@ public class ProductSetActivity extends Activity{
 				holder.tvSetNo = (TextView) convertView.findViewById(R.id.tvSetNo);
 				holder.tvSetName = (TextView) convertView.findViewById(R.id.tvSetName);
 				holder.tvSetPrice = (TextView) convertView.findViewById(R.id.tvSetPrice);
-				holder.txtSetQty = (EditText) convertView.findViewById(R.id.txtSetQty);
+				holder.tvSetQty = (TextView) convertView.findViewById(R.id.tvSetQty);
 				holder.btnSetMinus = (Button) convertView.findViewById(R.id.btnSetMinus);
 				holder.btnSetPlus = (Button) convertView.findViewById(R.id.btnSetPlus);
 				convertView.setTag(holder);
@@ -485,7 +484,7 @@ public class ProductSetActivity extends Activity{
 					mOrderSetLst.get(groupPosition).getOrderSetDetailLst().get(childPosition);
 			holder.tvSetNo.setText(String.valueOf(childPosition + 1) + ".");
 			holder.tvSetName.setText(detail.getProductName());
-			holder.txtSetQty.setText(mFormat.qtyFormat(detail.getOrderSetQty()));
+			holder.tvSetQty.setText(mFormat.qtyFormat(detail.getOrderSetQty()));
 			holder.tvSetPrice.setText(detail.getProductPrice() > 0 ? 
 					mFormat.currencyFormat(detail.getProductPrice()) : null);
 			holder.btnSetMinus.setOnClickListener(new OnClickListener(){
@@ -493,11 +492,9 @@ public class ProductSetActivity extends Activity{
 				@Override
 				public void onClick(View v) {
 					double qty = detail.getOrderSetQty();
+					double deductAmount = detail.getDeductAmount();
 					if(qty > 0){
-						if(detail.getDeductAmount() > 1) 
-							qty -= detail.getDeductAmount();
-						else 
-							qty -= 1;
+						qty -= deductAmount;
 						if(qty == 0){
 							new AlertDialog.Builder(ProductSetActivity.this)
 							.setTitle(R.string.delete)
@@ -533,44 +530,35 @@ public class ProductSetActivity extends Activity{
 				@Override
 				public void onClick(View v) {
 					double qty = detail.getOrderSetQty();
+					double deductAmount = detail.getDeductAmount();
 					if(setGroup.getRequireAmount() > 0){
 						// count total group qty from db
 						double totalQty = mTrans.getOrderSetTotalQty(
 								mTransactionId, mOrderDetailId, setGroup.getProductGroupId());
 						if(totalQty < setGroup.getRequireAmount()){
-							if(detail.getDeductAmount() > 1){
-								qty += detail.getDeductAmount();
-								if(qty <= setGroup.getRequireAmount() - totalQty){
-									detail.setOrderSetQty(qty);
-									mTrans.updateOrderSet(mTransactionId, 
-											mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
-								}else{
-									new AlertDialog.Builder(ProductSetActivity.this)
-									.setTitle(setGroup.getGroupName())
-									.setMessage(getString(R.string.cannot_update) + " " 
-											+ detail.getProductName() + " " + getString(R.string.because_deduct_at) + " " 
-											+ NumberFormat.getInstance().format(detail.getDeductAmount()))
-									.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-										
-										@Override
-										public void onClick(DialogInterface arg0, int arg1) {
-										}
-									}).show();
-								}
-							}else{
-								qty += 1;
+							qty += deductAmount;
+							if(deductAmount <= setGroup.getRequireAmount() - totalQty){
 								detail.setOrderSetQty(qty);
 								mTrans.updateOrderSet(mTransactionId, 
 										mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
+								updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount(), setGroup.getRequireMinAmount());
+								mOrderSetAdapter.notifyDataSetChanged();
+							}else{
+								new AlertDialog.Builder(ProductSetActivity.this)
+								.setTitle(setGroup.getGroupName())
+								.setMessage(getString(R.string.cannot_update) + " " 
+										+ detail.getProductName() + " " + getString(R.string.because_deduct_at) + " " 
+										+ mFormat.qtyFormat(detail.getDeductAmount()))
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface arg0, int arg1) {
+									}
+								}).show();
 							}
-							updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount(), setGroup.getRequireMinAmount());
-							mOrderSetAdapter.notifyDataSetChanged();
 						}
 					}else{
-						if(detail.getDeductAmount() > 1)
-							qty += detail.getDeductAmount();
-						else
-							qty += 1;
+						qty += deductAmount;
 						detail.setOrderSetQty(qty);
 						mTrans.updateOrderSet(mTransactionId, 
 								mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
@@ -599,7 +587,7 @@ public class ProductSetActivity extends Activity{
 			TextView tvSetNo;
 			TextView tvSetName;
 			TextView tvSetPrice;
-			EditText txtSetQty;
+			TextView tvSetQty;
 			Button btnSetMinus;
 			Button btnSetPlus;
 		}
@@ -654,26 +642,33 @@ public class ProductSetActivity extends Activity{
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			final MenuItemViewHolder holder;
+			final SetItemViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.menu_template, parent, false);
-				holder = new MenuItemViewHolder();
+				convertView = mInflater.inflate(R.layout.set_item_template, parent, false);
+				holder = new SetItemViewHolder();
 				holder.tvMenu = (TextView) convertView.findViewById(R.id.textViewMenuName);
+				holder.tvDeductAmount = (TextView) convertView.findViewById(R.id.tvDeAmount);
 				holder.tvPrice = (TextView) convertView.findViewById(R.id.textViewMenuPrice);
 				holder.imgMenu = (ImageView) convertView.findViewById(R.id.imageViewMenu);
 				convertView.setTag(holder);
 			}else{
-				holder = (MenuItemViewHolder) convertView.getTag();
+				holder = (SetItemViewHolder) convertView.getTag();
 			}
 			
 			final Products.ProductComponent pComp = mProductCompLst.get(position);
 			holder.tvMenu.setText(pComp.getProductName());
 			holder.tvPrice.setText(mFormat.currencyFormat(pComp.getFlexibleProductPrice()));
-			if(pComp.getFlexibleProductPrice() > 0)
+			if(pComp.getFlexibleProductPrice() > 0){
 				holder.tvPrice.setVisibility(View.VISIBLE);
-			else
+			}else{
 				holder.tvPrice.setVisibility(View.INVISIBLE);
-
+			}
+			if(pComp.getChildProductAmount() > 0 && pComp.getChildProductAmount() != 1){
+				holder.tvDeductAmount.setText(mFormat.qtyFormat(pComp.getChildProductAmount()));
+				holder.tvDeductAmount.setVisibility(View.VISIBLE);
+			}else{
+				holder.tvDeductAmount.setVisibility(View.INVISIBLE);
+			}
 			if(Utils.isShowMenuImage(ProductSetActivity.this)){
 				mImgLoader.displayImage(Utils.getImageUrl(ProductSetActivity.this) + pComp.getImgName(), holder.imgMenu);
 			}
@@ -692,6 +687,10 @@ public class ProductSetActivity extends Activity{
 				
 			});
 			return convertView;
+		}
+		
+		private class SetItemViewHolder extends MenuItemViewHolder{
+			TextView tvDeductAmount;
 		}
 	}
 	
@@ -720,7 +719,7 @@ public class ProductSetActivity extends Activity{
 					.setTitle(groupName)
 					.setMessage(getString(R.string.cannot_add) + " " 
 							+ productName + " " + getString(R.string.because_deduct_at) + " " 
-							+ NumberFormat.getInstance().format(deductQty))
+							+ mFormat.qtyFormat(deductQty))
 					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 						
 						@Override

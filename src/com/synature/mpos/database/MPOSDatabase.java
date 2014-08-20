@@ -32,7 +32,7 @@ import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
 import com.synature.mpos.database.table.StaffPermissionTable;
 import com.synature.mpos.database.table.StaffTable;
-import com.synature.mpos.database.table.SyncMasterLogTable;
+import com.synature.mpos.database.table.SyncHistoryTable;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -78,7 +78,7 @@ public class MPOSDatabase extends BaseColumn{
 	public static class MPOSOpenHelper extends SQLiteOpenHelper {
 		
 		public static final String DB_NAME = "mpos.db";
-		private static final int DB_VERSION = 2;
+		private static final int DB_VERSION = 1;
 
 		private static MPOSOpenHelper sHelper;
 
@@ -127,7 +127,7 @@ public class MPOSDatabase extends BaseColumn{
 			ShopTable.onCreate(db);
 			StaffPermissionTable.onCreate(db);
 			StaffTable.onCreate(db);
-			SyncMasterLogTable.onCreate(db);
+			SyncHistoryTable.onCreate(db);
 			PromotionPriceGroupTable.onCreate(db);
 			PromotionProductDiscountTable.onCreate(db);
 		}
@@ -161,7 +161,7 @@ public class MPOSDatabase extends BaseColumn{
 			ShopTable.onUpgrade(db, oldVersion, newVersion);
 			StaffPermissionTable.onUpgrade(db, oldVersion, newVersion);
 			StaffTable.onUpgrade(db, oldVersion, newVersion);
-			SyncMasterLogTable.onUpgrade(db, oldVersion, newVersion);
+			SyncHistoryTable.onUpgrade(db, oldVersion, newVersion);
 			PromotionPriceGroupTable.onUpgrade(db, oldVersion, newVersion);
 			PromotionProductDiscountTable.onUpgrade(db, oldVersion, newVersion);
 		}

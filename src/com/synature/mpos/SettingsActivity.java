@@ -41,7 +41,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_ENABLE_SECOND_DISPLAY = "enable_second_display";
 	public static final String KEY_PREF_LANGUAGE_LIST = "language_list";
 	
-	private static final boolean ALWAYS_SIMPLE_PREFS = false;
+	//private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -49,35 +49,35 @@ public class SettingsActivity extends PreferenceActivity {
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
         
-		setupSimplePreferencesScreen();
+		//setupSimplePreferencesScreen();
 	}
 
 	private void setupSimplePreferencesScreen() {
-		if (!isSimplePreferences(this)) {
-			return;
-		}
+//		if (!isSimplePreferences(this)) {
+//			return;
+//		}
 		
-		addPreferencesFromResource(R.xml.pref_connection);
-		addPreferencesFromResource(R.xml.pref_general);
-		addPreferencesFromResource(R.xml.pref_printer);
-		addPreferencesFromResource(R.xml.pref_wintec);
-		addPreferencesFromResource(R.xml.pref_second_display);
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONN_TIME_OUT_LIST));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_DEV_PATH));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_BAUD_RATE));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_DEV_PATH));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_BAUD_RATE));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_DEV_PATH));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_BAUD_RATE));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_TEXT_LINE1));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_TEXT_LINE2));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_DEV_PATH));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_BAUD_RATE));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_IP));
-		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
+//		addPreferencesFromResource(R.xml.pref_connection);
+//		addPreferencesFromResource(R.xml.pref_general);
+//		addPreferencesFromResource(R.xml.pref_printer);
+//		addPreferencesFromResource(R.xml.pref_wintec);
+//		addPreferencesFromResource(R.xml.pref_second_display);
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONN_TIME_OUT_LIST));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_DEV_PATH));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_BAUD_RATE));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_DEV_PATH));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_BAUD_RATE));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_DEV_PATH));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_BAUD_RATE));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_TEXT_LINE1));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_TEXT_LINE2));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_DEV_PATH));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_BAUD_RATE));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_IP));
+//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
 	}
 
 	@Override
@@ -94,25 +94,25 @@ public class SettingsActivity extends PreferenceActivity {
 
 	@Override
 	public boolean onIsMultiPane() {
-		return isXLargeTablet(this) && !isSimplePreferences(this);
+		return true;//isXLargeTablet(this) && !isSimplePreferences(this);
 	}
 
-	private static boolean isXLargeTablet(Context context) {
-		return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
-	}
-
-	private static boolean isSimplePreferences(Context context) {
-		return ALWAYS_SIMPLE_PREFS
-				|| Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
-				|| !isXLargeTablet(context);
-	}
+//	private static boolean isXLargeTablet(Context context) {
+//		return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+//	}
+//
+//	private static boolean isSimplePreferences(Context context) {
+//		return ALWAYS_SIMPLE_PREFS
+//				|| Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
+//				|| !isXLargeTablet(context);
+//	}
 
 	@Override
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void onBuildHeaders(List<Header> target) {
-		if (!isSimplePreferences(this)) {
+		//if (!isSimplePreferences(this)) {
 			loadHeadersFromResource(R.xml.pref_headers, target);
-		}
+		//}
 	}
 
 	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = 

@@ -198,11 +198,9 @@ public class Products extends MPOSDatabase {
 						+ " ON a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_ID + "=b."
 						+ ProductTable.COLUMN_PRODUCT_ID 
 						+ " WHERE a." + ProductComponentTable.COLUMN_PGROUP_ID + "=?"
-						+ " AND b." + ProductTable.COLUMN_ACTIVATE + "=?"
 						+ " AND b." + COLUMN_DELETED + "=?",
 				new String[]{
 						String.valueOf(groupId),
-						String.valueOf(ACTIVATED),
 						String.valueOf(NOT_DELETE)
 				}
 		);
@@ -257,15 +255,26 @@ public class Products extends MPOSDatabase {
 	 */
 	public List<ProductDept> listProductDept(){
 		List<ProductDept> pdLst = new ArrayList<ProductDept>();
-		Cursor cursor = getReadableDatabase().query(
-				ProductDeptTable.TABLE_PRODUCT_DEPT, 
-				ALL_PRODUCT_DEPT_COLS,
-				ProductTable.COLUMN_ACTIVATE + "=?"
-				+ " AND " + COLUMN_DELETED + "=?", 
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"select a." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", "
+				+ " a." + ProductTable.COLUMN_PRODUCT_DEPT_ID + ","
+				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE + ","
+				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ","
+				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1 + ","
+				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME2 + ","
+				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME3
+				+ " from " + ProductDeptTable.TABLE_PRODUCT_DEPT + " a "
+				+ " left join " + ProductGroupTable.TABLE_PRODUCT_GROUP + " b "
+				+ " on a." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=b." + ProductTable.COLUMN_PRODUCT_GROUP_ID
+				+ " where b." + ProductGroupTable.COLUMN_IS_COMMENT + "=?"
+				+ " and a." + ProductTable.COLUMN_ACTIVATE + "=?"
+				+ " and a." + COLUMN_DELETED + "=?"
+				+ " order by a." + COLUMN_ORDERING + ", a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME,
 				new String[]{
+					String.valueOf(0),
 					String.valueOf(ACTIVATED),
 					String.valueOf(NOT_DELETE)
-				}, null, null, COLUMN_ORDERING + ", " + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME);
+				});
 		if(cursor.moveToFirst()){
 			do{
 				ProductDept pd = toProductDept(cursor);
@@ -300,11 +309,9 @@ public class Products extends MPOSDatabase {
 				+ " ON a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_ID + "=b."
 				+ ProductTable.COLUMN_PRODUCT_ID 
 				+ " WHERE a."+ ProductTable.COLUMN_PRODUCT_ID + "=?"
-				+ " AND b." + ProductTable.COLUMN_ACTIVATE + "=?"
 				+ " AND b." + COLUMN_DELETED + "=?",
 				new String[] { 
 					String.valueOf(proId),
-					String.valueOf(ACTIVATED),
 					String.valueOf(NOT_DELETE)
 				}
 		);
@@ -592,15 +599,15 @@ public class Products extends MPOSDatabase {
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ProductComponentTable.TABLE_PCOMPONENT, null, null);
-			for(com.synature.pos.ProductComponent pCompSet : pCompLst){
+			for(com.synature.pos.ProductComponent pComp : pCompLst){
 				ContentValues cv = new ContentValues();
-				cv.put(ProductComponentTable.COLUMN_PGROUP_ID, pCompSet.getPGRID());
-				cv.put(ProductTable.COLUMN_PRODUCT_ID, pCompSet.getPID());
-				cv.put(ProductTable.COLUMN_SALE_MODE, pCompSet.getSMODE());
-				cv.put(ProductComponentTable.COLUMN_CHILD_PRODUCT_ID, pCompSet.getCHDPID());
-				cv.put(ProductComponentTable.COLUMN_CHILD_PRODUCT_AMOUNT, pCompSet.getCHDAMT());
-				cv.put(ProductComponentTable.COLUMN_FLEXIBLE_PRODUCT_PRICE, pCompSet.getFPRICE());
-				cv.put(ProductComponentTable.COLUMN_FLEXIBLE_INCLUDE_PRICE, pCompSet.getFINCPRICE());
+				cv.put(ProductComponentTable.COLUMN_PGROUP_ID, pComp.getPGRID());
+				cv.put(ProductTable.COLUMN_PRODUCT_ID, pComp.getPID());
+				cv.put(ProductTable.COLUMN_SALE_MODE, pComp.getSMODE());
+				cv.put(ProductComponentTable.COLUMN_CHILD_PRODUCT_ID, pComp.getCHDPID());
+				cv.put(ProductComponentTable.COLUMN_CHILD_PRODUCT_AMOUNT, pComp.getCHDAMT());
+				cv.put(ProductComponentTable.COLUMN_FLEXIBLE_PRODUCT_PRICE, pComp.getFPRICE());
+				cv.put(ProductComponentTable.COLUMN_FLEXIBLE_INCLUDE_PRICE, pComp.getFINCPRICE());
 				getWritableDatabase().insertOrThrow(ProductComponentTable.TABLE_PCOMPONENT, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();

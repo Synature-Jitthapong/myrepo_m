@@ -7,7 +7,6 @@ import com.synature.mpos.Utils.LoadSaleTransaction;
 import com.synature.mpos.Utils.LoadSaleTransactionListener;
 import com.synature.mpos.Utils.LoadEndDayTransaction;
 import com.synature.mpos.Utils.LoadEndDaySaleTransactionListener;
-import com.synature.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.Session;
@@ -62,8 +61,7 @@ public class SaleService extends Service{
 					
 					if(jsonEndDaySale != null && !TextUtils.isEmpty(jsonEndDaySale)){
 						
-						new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
-								SendSaleTransaction.SEND_SALE_TRANS_METHOD,
+						new EndDaySaleTransactionSender(getApplicationContext(),
 								shopId, computerId, staffId, jsonEndDaySale, new WebServiceWorkingListener() {
 		
 									@Override
@@ -158,7 +156,7 @@ public class SaleService extends Service{
 				
 				if(jsonSale != null && !TextUtils.isEmpty(jsonSale)){
 					
-					new MPOSWebServiceClient.SendPartialSaleTransaction(getApplicationContext(), 
+					new PartialSaleTransactionSender(getApplicationContext(), 
 							shopId, computerId, staffId, jsonSale, new WebServiceWorkingListener() {
 						@Override
 						public void onPreExecute() {

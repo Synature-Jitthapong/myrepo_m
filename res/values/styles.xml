@@ -8,6 +8,13 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:buttonStyle">@style/GrayButton</item>
     </style>
+    <!-- Text Qty -->
+    <style name="TextQty" parent="@android:style/TextAppearance.Holo.Medium">
+        <item name="android:background">@drawable/white_flat_bg</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
     <!-- Row Style -->
     <style name="HeaderRow">
         <item name="android:divider">@android:drawable/divider_horizontal_bright</item>

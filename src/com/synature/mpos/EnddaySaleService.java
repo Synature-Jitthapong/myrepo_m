@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.synature.mpos.Utils.LoadEndDayTransaction;
 import com.synature.mpos.Utils.LoadEndDaySaleTransactionListener;
-import com.synature.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.Session;
@@ -64,8 +63,7 @@ public class EnddaySaleService extends Service{
 						
 						if(jsonEndDaySale != null && !TextUtils.isEmpty(jsonEndDaySale)){
 							
-							new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
-									SendSaleTransaction.SEND_SALE_TRANS_METHOD,
+							new EndDaySaleTransactionSender(getApplicationContext(),
 									shopId, computerId, staffId, jsonEndDaySale, new WebServiceWorkingListener() {
 			
 										@Override

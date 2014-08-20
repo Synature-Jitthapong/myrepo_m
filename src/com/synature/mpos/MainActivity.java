@@ -30,7 +30,6 @@ import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.UserVerification;
 import com.synature.mpos.seconddisplay.SecondDisplayJSON;
-import com.synature.pos.ShopData;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
 import com.synature.util.ImageLoader;
 import com.synature.util.Logger;
@@ -131,6 +130,8 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	private int mSessionId;
 	private int mTransactionId;
 	private int mStaffId;
+	private int mShopId;
+	private int mComputerId;
 	
 	private ExpandableListView mLvOrderDetail;
 	private EditText mTxtBarCode;
@@ -174,6 +175,9 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		mComputer = new Computer(this);
 		mFormat = new Formater(this);
 		
+		mShopId = mShop.getShopId();
+		mComputerId = mComputer.getComputerId();
+		
 		/**
 		 * Image Loader
 		 */
@@ -189,6 +193,48 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		setupBarCodeEvent();
 		setupMenuDeptPager();
 		setupOrderListView();
+	}
+	
+	/**
+	 * @author j1tth4
+	 */
+	private class MasterLoaderListener implements WebServiceWorkingListener{
+
+		private ProgressDialog mProgress;
+		
+		public MasterLoaderListener(){
+			mProgress = new ProgressDialog(MainActivity.this);
+			mProgress.setMessage(getString(R.string.load_master_progress));
+			mProgress.setCancelable(false);
+		}
+		
+		@Override
+		public void onPreExecute() {
+			mProgress.show();
+		}
+
+		@Override
+		public void onPostExecute() {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			startActivity(getIntent());
+			finish();
+		}
+
+		@Override
+		public void onError(String msg) {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			new AlertDialog.Builder(MainActivity.this)
+			.setMessage(msg)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+				}
+			}).show();
+		}
+		
 	}
 	
 	private void setupCustomSwLang(){
@@ -342,8 +388,8 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			case R.id.itemSendEndday:
 				intent = new Intent(this, SendEnddayActivity.class);
 				intent.putExtra("staffId", mStaffId);
-				intent.putExtra("shopId", mShop.getShopId());
-				intent.putExtra("computerId", mComputer.getComputerId());
+				intent.putExtra("shopId", mShopId);
+				intent.putExtra("computerId", mComputerId);
 				startActivity(intent);
 				return true;
 			case R.id.itemReprint:
@@ -354,13 +400,16 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			case R.id.itemSendSale:
 				intent = new Intent(this, SendSaleActivity.class);
 				intent.putExtra("staffId", mStaffId);
-				intent.putExtra("shopId", mShop.getShopId());
-				intent.putExtra("computerId", mComputer.getComputerId());
+				intent.putExtra("shopId", mShopId);
+				intent.putExtra("computerId", mComputerId);
 				startActivity(intent);
 				return true;
 			case R.id.itemSetting:
 				intent = new Intent(this, SettingsActivity.class);
 				startActivityForResult(intent, LoginActivity.REQUEST_FOR_SETTING);
+				return true;
+			case R.id.itemUpdate:
+				new MasterDataLoader(this, mShopId, new MasterLoaderListener()).execute(Utils.getFullUrl(this));
 				return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -617,7 +666,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		List<MPOSOrderTransaction> transIdLst = mTrans.listTransactionNotSend();
 		for(MPOSOrderTransaction trans : transIdLst){
 			// send sale data service
-			mPartService.sendSale(mShop.getShopId(), trans.getSessionId(), trans.getTransactionId(), 
+			mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
 					trans.getComputerId(), mStaffId, new WebServiceWorkingListener() {
 	
 						@Override
@@ -662,7 +711,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 					PaymentDetail payment = new PaymentDetail(MainActivity.this);
 					double totalSalePrice = sumOrder.getTotalSalePrice();
 					
-					payment.addPaymentDetail(mTransactionId, mComputer.getComputerId(), PaymentDetail.PAY_TYPE_CASH, 
+					payment.addPaymentDetail(mTransactionId, mComputerId, PaymentDetail.PAY_TYPE_CASH, 
 							totalSalePrice, totalSalePrice, "", 0, 0, 0, 0, "");
 					
 					// open cash drawer
@@ -690,14 +739,14 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			if(mShop.getFastFoodType() == Shop.SHOP_TYPE_FOOD_COURT){
 				Intent intent = new Intent(MainActivity.this, FoodCourtCardPayActivity.class);
 				intent.putExtra("transactionId", mTransactionId);
-				intent.putExtra("shopId", mShop.getShopId());
-				intent.putExtra("computerId", mComputer.getComputerId());
+				intent.putExtra("shopId", mShopId);
+				intent.putExtra("computerId", mComputerId);
 				intent.putExtra("staffId", mStaffId);
 				startActivityForResult(intent, FOOD_COURT_PAYMENT_REQUEST);
 			}else{
 				Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
 				intent.putExtra("transactionId", mTransactionId);
-				intent.putExtra("computerId", mComputer.getComputerId());
+				intent.putExtra("computerId", mComputerId);
 				intent.putExtra("staffId", mStaffId);
 				startActivityForResult(intent, PAYMENT_REQUEST);
 			}
@@ -790,7 +839,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				holder.tvOrderName = (CheckedTextView) convertView.findViewById(R.id.chkOrderName);
 				holder.tvOrderPrice = (TextView) convertView.findViewById(R.id.tvOrderPrice);
 				holder.tvComment = (TextView) convertView.findViewById(R.id.tvComment);
-				holder.txtOrderAmount = (EditText) convertView.findViewById(R.id.txtOrderQty);
+				holder.tvOrderQty = (TextView) convertView.findViewById(R.id.tvOrderQty);
 				holder.btnComment = (ImageButton) convertView.findViewById(R.id.btnComment);
 				holder.btnSetMod = (ImageButton) convertView.findViewById(R.id.btnSetModify);
 				holder.btnMinus = (Button) convertView.findViewById(R.id.btnOrderMinus);
@@ -804,7 +853,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			holder.tvOrderNo.setText(Integer.toString(groupPosition + 1) + ".");
 			holder.tvOrderName.setText(orderDetail.getProductName());
 			holder.tvOrderPrice.setText(mFormat.currencyFormat(orderDetail.getPricePerUnit()));
-			holder.txtOrderAmount.setText(mFormat.qtyFormat(orderDetail.getQty()));
+			holder.tvOrderQty.setText(mFormat.qtyFormat(orderDetail.getQty()));
 			holder.tvComment.setText(null);
 			if(orderDetail.getOrderCommentLst() != null){
 				holder.tvComment.setVisibility(View.VISIBLE);
@@ -833,7 +882,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				public void onClick(View v) {
 					MenuCommentFragment commentDialog = 
 							MenuCommentFragment.newInstance(groupPosition, mTransactionId, 
-									mComputer.getComputerId(), orderDetail.getOrderDetailId(), 
+									mComputerId, orderDetail.getOrderDetailId(), 
 									orderDetail.getVatType(), mProducts.getVatRate(orderDetail.getProductId()),
 									orderDetail.getProductName(), orderDetail.getOrderComment());
 					commentDialog.show(getFragmentManager(), "CommentDialog");
@@ -847,7 +896,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 					Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
 					intent.putExtra("mode", ProductSetActivity.EDIT_MODE);
 					intent.putExtra("transactionId", mTransactionId);
-					intent.putExtra("computerId", mComputer.getComputerId());
+					intent.putExtra("computerId", mComputerId);
 					intent.putExtra("orderDetailId", orderDetail.getOrderDetailId());
 					intent.putExtra("productId", orderDetail.getProductId());
 					startActivity(intent);
@@ -928,11 +977,11 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				holder.tvSetNo = (TextView) convertView.findViewById(R.id.tvSetNo);
 				holder.tvSetName = (TextView) convertView.findViewById(R.id.tvSetName);
 				holder.tvSetPrice = (TextView) convertView.findViewById(R.id.tvSetPrice);
-				holder.txtSetQty = (EditText) convertView.findViewById(R.id.editText1);
+				holder.tvSetQty = (TextView) convertView.findViewById(R.id.tvSetQty);
 				holder.tvSetNo.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
 				holder.tvSetName.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
 				holder.tvSetPrice.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
-				holder.txtSetQty.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
+				holder.tvSetQty.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Holo_Small);
 				convertView.setTag(holder);
 			}else{
 				holder = (ChildViewHolder) convertView.getTag();
@@ -942,7 +991,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			holder.tvSetNo.setText("-");
 			holder.tvSetName.setText(setDetail.getProductName());
 			holder.tvSetPrice.setText(setDetail.getProductPrice() > 0 ? mFormat.currencyFormat(setDetail.getProductPrice()) : null);
-			holder.txtSetQty.setText(mFormat.qtyFormat(setDetail.getOrderSetQty()));
+			holder.tvSetQty.setText(mFormat.qtyFormat(setDetail.getOrderSetQty()));
 			return convertView;
 		}
 
@@ -1005,7 +1054,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		TextView tvSetNo;
 		TextView tvSetName;
 		TextView tvSetPrice;
-		EditText txtSetQty;
+		TextView tvSetQty;
 	}
 		
 	private class ViewHolder{
@@ -1013,7 +1062,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		CheckedTextView tvOrderName;
 		TextView tvOrderPrice;
 		TextView tvComment;
-		EditText txtOrderAmount;
+		TextView tvOrderQty;
 		ImageButton btnSetMod;
 		ImageButton btnComment;
 		Button btnMinus;
@@ -1297,7 +1346,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
 			intent.putExtra("mode", ProductSetActivity.ADD_MODE);
 			intent.putExtra("transactionId", mTransactionId);
-			intent.putExtra("computerId", mComputer.getComputerId());
+			intent.putExtra("computerId", mComputerId);
 			intent.putExtra("productId", productId);
 			intent.putExtra("setGroupName", productName);
 			startActivity(intent);
@@ -1411,7 +1460,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 						UserVerification login = new UserVerification(MainActivity.this, user, pass);
 						
 						if(login.checkUser()){
-							ShopData.Staff s = login.checkLogin();
+							com.synature.pos.Staff s = login.checkLogin();
 							if(s != null){
 								mStaffId = s.getStaffID();
 								init();
@@ -1432,7 +1481,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 						}else{
 							new AlertDialog.Builder(MainActivity.this)
 							.setTitle(R.string.login)
-							.setMessage(R.string.incorrect_user)
+							.setMessage(R.string.incorrect_staff_code)
 							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 								
 								@Override
@@ -1458,7 +1507,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				}else{
 					new AlertDialog.Builder(MainActivity.this)
 					.setTitle(R.string.login)
-					.setMessage(R.string.enter_username)
+					.setMessage(R.string.enter_staff_code)
 					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 						
 						@Override
@@ -1478,7 +1527,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 */
 	public void logout() {
 		Staffs staff = new Staffs(this);
-		ShopData.Staff s = staff.getStaff(mStaffId);
+		com.synature.pos.Staff s = staff.getStaff(mStaffId);
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.logout)
 		.setMessage(s.getStaffName() + "\n" + getString(R.string.confirm_logout))
@@ -1525,16 +1574,15 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		mTransactionId = mTrans.getCurrentTransactionId(mSessionId);
 		if(mTransactionId == 0){
 			mTransactionId = mTrans.openTransaction(mSession.getSessionDate(mSessionId), 
-					mShop.getShopId(), mComputer.getComputerId(),
-					mSessionId, mStaffId, mShop.getCompanyVatRate());
+					mShopId, mComputerId, mSessionId, mStaffId, mShop.getCompanyVatRate());
 		}
 	}
 
 	private void openSession(){
 		mSessionId = mSession.getCurrentSessionId(mStaffId); 
 		if(mSessionId == 0){
-			mSessionId = mSession.openSession(Utils.getDate(), mShop.getShopId(), 
-					mComputer.getComputerId(), mStaffId, 0);
+			mSessionId = mSession.openSession(Utils.getDate(), mShopId, 
+					mComputerId, mStaffId, 0);
 			
 			ManageCashAmountFragment mf = ManageCashAmountFragment
 					.newInstance(getString(R.string.open_shift), 0,
@@ -1646,7 +1694,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	private void voidBill(){
 		Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
 		intent.putExtra("staffId", mStaffId);
-		intent.putExtra("shopId", mShop.getShopId());
+		intent.putExtra("shopId", mShopId);
 		startActivity(intent);
 	}
 
@@ -1840,7 +1888,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	private void addOrder(final int productId, final String productName, 
 			final int productTypeId, final int vatType, final double vatRate, final double qty, double price){
 		if(price > -1){
-			mTrans.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
+			mTrans.addOrderDetail(mTransactionId, mComputerId, 
 					productId, productTypeId, vatType, vatRate, qty, price);
 			mDsp.setOrderName(productName);
 			mDsp.setOrderQty(mFormat.qtyFormat(qty));
@@ -1878,7 +1926,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 					double openPrice = 0.0f;
 					try {
 						openPrice = Utils.stringToDouble(txtProductPrice.getText().toString());
-						mTrans.addOrderDetail(mTransactionId, mComputer.getComputerId(), 
+						mTrans.addOrderDetail(mTransactionId, mComputerId, 
 								productId, productTypeId, vatType, vatRate, qty, openPrice);
 
 						mDsp.setOrderName(productName);
@@ -2125,16 +2173,16 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 
 	@Override
 	public void onEndday(double cashAmount) {
-		boolean endday = Utils.endday(MainActivity.this, mShop.getShopId(), 
-				mComputer.getComputerId(), mSessionId, mStaffId, cashAmount, true);
+		boolean endday = Utils.endday(MainActivity.this, mShopId, 
+				mComputerId, mSessionId, mStaffId, cashAmount, true);
 		if(endday){
 			new PrintReport(MainActivity.this, 
 					PrintReport.WhatPrint.SUMMARY_SALE,mSessionId,mStaffId).run();
 			// start the service 
 //			Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
 //			enddayIntent.putExtra("staffId", mStaffId);
-//			enddayIntent.putExtra("shopId", mShop.getShopId());
-//			enddayIntent.putExtra("computerId", mComputer.getComputerId());
+//			enddayIntent.putExtra("shopId", mShopId);
+//			enddayIntent.putExtra("computerId", mComputerId);
 //			startService(enddayIntent);
 			sendEnddayData();
 		}
@@ -2144,7 +2192,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		final ProgressDialog progress = new ProgressDialog(MainActivity.this);
 		progress.setTitle(getString(R.string.endday_success));
 		progress.setCancelable(false);
-		mPartService.sendEnddaySale(mShop.getShopId(), mComputer.getComputerId(), 
+		mPartService.sendEnddaySale(mShopId, mComputerId, 
 				mStaffId, new WebServiceWorkingListener(){
 
 					@Override

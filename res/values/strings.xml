@@ -44,11 +44,8 @@
     <string name="sale_report_by_bill">Sale By Bill</string>
     <string name="sale_report_by_product">Sale By Product</string>
     <string name="remark">Remark</string>
-    <string name="update_product_data">Update Product</string>
-    <string name="update_product_progress">Update product data&#8230;</string>
-    <string name="check_device_progress">Checking device please wait&#8230;</string>
-    <string name="update_shop_progress">Update shop data&#8230;</string>
-    <string name="update_menu_progress">Update menu data&#8230;</string>
+	<string name="load_master_progress">Loading master data&#8230;</string>
+    <string name="check_device_progress">Checking this device&#8230;</string>
     <string name="hold">Hold</string>
     <string name="display">Display</string>
     <string name="code">Code</string>
@@ -60,8 +57,8 @@
     <string name="connection">Connection</string>
     <string name="connection_summary">Setting server url.</string>
     <string name="incorrect_password">Incorrect password!</string>
-    <string name="incorrect_user">Incorrect user!</string>
-    <string name="enter_username">Please enter username</string>
+    <string name="incorrect_staff_code">Incorrect staff code!</string>
+    <string name="enter_staff_code">Please enter staff code</string>
     <string name="enter_password">Please enter password</string>
     <string name="update_data">Update Data</string>
     <string name="summary">Summary</string>
@@ -199,7 +196,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="other_discount_short">Other Dist.</string>
     <string name="cash_paid">Cash Paid</string>
     <string name="promotion_short">Promotion</string>
-    <string name="confirm_fast_payment">Do you want to confirm fast payment.</string>
+    <string name="confirm_fast_payment">Confirm fast payment?</string>
     <string name="edit_open_shift">Edit Open Shift</string>
     <string name="send_data">Send Data</string>
     <string name="send_endday_data_progress">Sending endday data to server&#8230;</string>
@@ -229,4 +226,5 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="cannot_add">Cannot add</string>
 	<string name="cannot_update">Cannot update</string>
 	<string name="because_deduct_at">because this item deducted at</string>
+	<string name="please_wait">Please wait&#8230;</string>
 </resources>

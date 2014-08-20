@@ -15,8 +15,8 @@ public class ProductComponentGroupTable {
 			+ ProductComponentTable.COLUMN_PGROUP_ID + " integer not null, "
 			+ ProductTable.COLUMN_PRODUCT_ID + " integer not null, "
 			+ ProductTable.COLUMN_SALE_MODE + " integer default 0, "
-			+ COLUMN_SET_GROUP_NO + " text not null, " 
-			+ COLUMN_SET_GROUP_NAME + " text not null, " 
+			+ COLUMN_SET_GROUP_NO + " integer, " 
+			+ COLUMN_SET_GROUP_NAME + " text, " 
 			+ COLUMN_REQ_AMOUNT + " real default 0,"
 			+ COLUMN_REQ_MIN_AMOUNT + " real default 0 );";
 	public static void onCreate(SQLiteDatabase db) {

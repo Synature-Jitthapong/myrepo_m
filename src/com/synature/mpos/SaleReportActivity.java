@@ -8,6 +8,7 @@ import java.util.List;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.MPOSOrderTransaction;
+import com.synature.mpos.database.MPOSPaymentDetail;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Reporting;
@@ -15,7 +16,6 @@ import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.Reporting.SimpleProductData;
-import com.synature.pos.Payment;
 import com.synature.pos.Report;
 
 import android.os.AsyncTask;
@@ -233,7 +233,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		
 		private SaleReportActivity mHost;
 		private PaymentDetail mPayment;
-		private List<Payment.PaymentDetail> mPaymentLst;
+		private List<MPOSPaymentDetail> mPaymentLst;
 		private PaymentDetailAdapter mPaymentAdapter;
 		
 		private int mTransactionId;
@@ -290,7 +290,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 			}
 
 			@Override
-			public Payment.PaymentDetail getItem(int position) {
+			public MPOSPaymentDetail getItem(int position) {
 				return mPaymentLst.get(position);
 			}
 
@@ -301,18 +301,17 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
-				convertView = mInflater.inflate(R.layout.template_flex_left_right, null);
+				convertView = mInflater.inflate(R.layout.template_flex_left_right, parent, false);
 				TextView tvLeft = (TextView) convertView.findViewById(R.id.textView1);
 				TextView tvRight = (TextView) convertView.findViewById(R.id.textView2);
 				
-				Payment.PaymentDetail payment = mPaymentLst.get(position);
+				MPOSPaymentDetail payment = mPaymentLst.get(position);
 				
 				tvLeft.setText(payment.getPayTypeName());
 				tvRight.setText(mHost.mFormat.currencyFormat(payment.getPayAmount()));
 				
 				return convertView;
 			}
-			
 		}
 	}
 	
@@ -482,7 +481,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 				mEnddayReportFooterContainer.addView(vatView);
 			}
 			
-			List<Payment.PaymentDetail> summaryPaymentLst = 
+			List<MPOSPaymentDetail> summaryPaymentLst = 
 					mPayment.listSummaryPayment(
 							mTrans.getSeperateTransactionId(mHost.mDateTo));
 			if(summaryPaymentLst != null){
@@ -492,7 +491,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 						((TextView) paymentView.findViewById(R.id.tvMid)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
 				((TextView) paymentView.findViewById(R.id.tvRight)).setText(null);
 				mEnddayReportFooterContainer.addView(paymentView);
-				for(Payment.PaymentDetail payment : summaryPaymentLst){
+				for(MPOSPaymentDetail payment : summaryPaymentLst){
 					paymentView = inflater.inflate(R.layout.left_mid_right_template, null);
 					((TextView) paymentView.findViewById(R.id.tvMid)).setText(payment.getPayTypeName());
 					((TextView) paymentView.findViewById(R.id.tvRight)).setText(

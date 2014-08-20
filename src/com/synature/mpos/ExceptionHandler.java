@@ -5,13 +5,9 @@ import java.io.StringWriter;
 
 import com.synature.util.Logger;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Build;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
+import android.util.Log;
 
 public class ExceptionHandler implements Thread.UncaughtExceptionHandler{
 	
@@ -61,20 +57,9 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler{
         errorReport.append("Incremental: ");
         errorReport.append(Build.VERSION.INCREMENTAL);
         errorReport.append(LINE_SEPARATOR);
-        
         Logger.appendLog(mContext, mLogDir, mFileName, errorReport.toString());
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View errView = inflater.inflate(R.layout.error_mesg_view, null);
-        ((TextView) errView.findViewById(R.id.textView1)).setText(errorReport.toString());
-        new AlertDialog.Builder(mContext)
-        .setView(errView)
-        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-		        System.exit(-1);
-			}
-		}).show();
+        Log.e("ExceptionHandler", errorReport.toString());
+        System.exit(0);
 	}
 
 }

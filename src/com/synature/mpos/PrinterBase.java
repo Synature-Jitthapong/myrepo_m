@@ -10,6 +10,7 @@ import com.synature.mpos.database.CreditCard;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.HeaderFooterReceipt;
 import com.synature.mpos.database.MPOSOrderTransaction;
+import com.synature.mpos.database.MPOSPaymentDetail;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Reporting;
@@ -20,9 +21,7 @@ import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.MPOSOrderTransaction.OrderSet.OrderSetDetail;
 import com.synature.mpos.database.MenuComment.Comment;
 import com.synature.mpos.database.Reporting.SimpleProductData;
-import com.synature.pos.Payment;
 import com.synature.pos.Report;
-import com.synature.pos.ShopData;
 import com.synature.util.Logger;
 
 public abstract class PrinterBase {
@@ -461,11 +460,11 @@ public abstract class PrinterBase {
 				calculateLength(overShot)));
 		mTextToPrint.append(overShot + "\n\n");
 		
-		List<Payment.PaymentDetail> summaryPaymentLst = 
+		List<MPOSPaymentDetail> summaryPaymentLst = 
 				mPayment.listSummaryPayment(seperateTransIds);
 		if(summaryPaymentLst != null){
 			mTextToPrint.append(mContext.getString(R.string.payment_detail) + "\n");
-			for(Payment.PaymentDetail payment : summaryPaymentLst){
+			for(MPOSPaymentDetail payment : summaryPaymentLst){
 				String payTypeName = payment.getPayTypeName();
 				String payAmount = mFormat.currencyFormat(payment.getPayAmount());
 				mTextToPrint.append(payTypeName);
@@ -528,7 +527,7 @@ public abstract class PrinterBase {
 			mTextToPrint.append(mContext.getString(R.string.reason) + " " + trans.getVoidReason() + "\n\n");
 		}
 		// add header
-		for(ShopData.HeaderFooterReceipt hf : 
+		for(com.synature.pos.HeaderFooterReceipt hf : 
 			mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
 			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
 		}
@@ -649,18 +648,18 @@ public abstract class PrinterBase {
     	mTextToPrint.append(strTotalSale + "\n");
 
     	// total payment
-    	List<Payment.PaymentDetail> paymentLst = 
+    	List<MPOSPaymentDetail> paymentLst = 
     			mPayment.listPaymentGroupByType(transactionId);
     	for(int i = 0; i < paymentLst.size(); i++){
-    		Payment.PaymentDetail payment = paymentLst.get(i);
-	    	String strTotalPaid = mFormat.currencyFormat(payment.getPaid());
-	    	if(payment.getPayTypeID() == PaymentDetail.PAY_TYPE_CREDIT){
+    		MPOSPaymentDetail payment = paymentLst.get(i);
+	    	String strTotalPaid = mFormat.currencyFormat(payment.getTotalPay());
+	    	if(payment.getPayTypeId() == PaymentDetail.PAY_TYPE_CREDIT){
 	    		String paymentText = payment.getPayTypeName();
 	    		String cardNoText = "xxxx xxxx xxxx ";
 	    		try {
 	    			paymentText = payment.getPayTypeName() + ":" + 
-    					mCreditCard.getCreditCardType(payment.getCreditCardType());
-	    			cardNoText += payment.getCreaditCardNo().substring(12, 16);
+    					mCreditCard.getCreditCardType(payment.getCreditCardTypeId());
+	    			cardNoText += payment.getCreditCardNo().substring(12, 16);
 	    		} catch (Exception e) {
 	    			Logger.appendLog(mContext, Utils.LOG_PATH, 
 	    					Utils.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
@@ -722,7 +721,7 @@ public abstract class PrinterBase {
 	    }
 	    
     	// add footer
-    	for(ShopData.HeaderFooterReceipt hf : 
+    	for(com.synature.pos.HeaderFooterReceipt hf : 
 			mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
 			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
 		}

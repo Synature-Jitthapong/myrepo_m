@@ -6,7 +6,6 @@ import java.util.List;
 import com.synature.mpos.database.table.ProductTable;
 import com.synature.mpos.database.table.PromotionPriceGroupTable;
 import com.synature.mpos.database.table.PromotionProductDiscountTable;
-import com.synature.pos.ProductGroups;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,11 +23,11 @@ public class PromotionDiscount extends MPOSDatabase{
 	/**
 	 * List product discount
 	 * @param priceGroupId
-	 * @return List<ProductGroups.PromotionProduct>
+	 * @return List<com.synature.pos.PromotionProduct>
 	 */
-	public List<ProductGroups.PromotionProduct> listPromotionProduct(int priceGroupId){
-		List<ProductGroups.PromotionProduct> productLst = 
-				new ArrayList<ProductGroups.PromotionProduct>();
+	public List<com.synature.pos.PromotionProduct> listPromotionProduct(int priceGroupId){
+		List<com.synature.pos.PromotionProduct> productLst = 
+				new ArrayList<com.synature.pos.PromotionProduct>();
 		Cursor cursor = getReadableDatabase().query(PromotionProductDiscountTable.TABLE_PROMOTION_PRODUCT_DISCOUNT, 
 				new String[]{
 					ProductTable.COLUMN_PRODUCT_ID,
@@ -41,7 +40,7 @@ public class PromotionDiscount extends MPOSDatabase{
 				}, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
-				ProductGroups.PromotionProduct product = new ProductGroups.PromotionProduct();
+				com.synature.pos.PromotionProduct product = new com.synature.pos.PromotionProduct();
 				product.setProductID(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
 				product.setDiscountAmount(cursor.getDouble(cursor.getColumnIndex(PromotionProductDiscountTable.COLUMN_DISCOUNT_AMOUNT)));
 				product.setDiscountPercent(cursor.getDouble(cursor.getColumnIndex(PromotionProductDiscountTable.COLUMN_DISCOUNT_PERCENT)));
@@ -55,11 +54,11 @@ public class PromotionDiscount extends MPOSDatabase{
 	
 	/**
 	 * List PromotionPriceGroup
-	 * @return t<ProductGroups.PromotionPrice>
+	 * @return t<com.synature.pos.PromotionPrice>
 	 */
-	public List<ProductGroups.PromotionPrice> listPromotionPriceGroup(){
-		List<ProductGroups.PromotionPrice> promoLst = 
-				new ArrayList<ProductGroups.PromotionPrice>();
+	public List<com.synature.pos.PromotionPrice> listPromotionPriceGroup(){
+		List<com.synature.pos.PromotionPrice> promoLst = 
+				new ArrayList<com.synature.pos.PromotionPrice>();
 		Cursor cursor = getReadableDatabase().query(PromotionPriceGroupTable.TABLE_PROMOTION_PRICE_GROUP, 
 				new String[]{
 				 	PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID,
@@ -85,7 +84,7 @@ public class PromotionDiscount extends MPOSDatabase{
 				}, null, null, PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID);
 		if(cursor.moveToFirst()){
 			do{
-				ProductGroups.PromotionPrice promo = new ProductGroups.PromotionPrice();
+				com.synature.pos.PromotionPrice promo = new com.synature.pos.PromotionPrice();
 				promo.setPriceGroupID(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID)));
 				promo.setPromotionTypeID(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID)));
 				promo.setPromotionCode(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_CODE)));
@@ -113,11 +112,11 @@ public class PromotionDiscount extends MPOSDatabase{
 	 * Insert PromotionProductDiscount
 	 * @param promoProductLst
 	 */
-	public void insertPromotionProductDiscount(List<ProductGroups.PromotionProduct> promoProductLst){
+	public void insertPromotionProductDiscount(List<com.synature.pos.PromotionProduct> promoProductLst){
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(PromotionProductDiscountTable.TABLE_PROMOTION_PRODUCT_DISCOUNT, null, null);
-			for(ProductGroups.PromotionProduct promoProduct : promoProductLst){
+			for(com.synature.pos.PromotionProduct promoProduct : promoProductLst){
 				ContentValues cv = new ContentValues();
 				cv.put(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID, promoProduct.getPriceGroupID());
 				cv.put(ProductTable.COLUMN_PRODUCT_ID, promoProduct.getProductID());
@@ -138,11 +137,11 @@ public class PromotionDiscount extends MPOSDatabase{
 	 * Insert PromotionPriceGroup
 	 * @param promoLst
 	 */
-	public void insertPromotionPriceGroup(List<ProductGroups.PromotionPrice> promoLst){
+	public void insertPromotionPriceGroup(List<com.synature.pos.PromotionPrice> promoLst){
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(PromotionPriceGroupTable.TABLE_PROMOTION_PRICE_GROUP, null, null);
-			for(ProductGroups.PromotionPrice promoPrice : promoLst){
+			for(com.synature.pos.PromotionPrice promoPrice : promoLst){
 				ContentValues cv = new ContentValues();
 				cv.put(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID, promoPrice.getPriceGroupID());
 				cv.put(PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID, promoPrice.getPromotionTypeID());

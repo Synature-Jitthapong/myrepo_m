@@ -9,7 +9,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_margin="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/menu_selector"
         android:gravity="center"
         android:minHeight="72dip"
@@ -17,22 +18,23 @@
         android:padding="@dimen/default_margin" >
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/tvSetGName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/tvReqAmount"
         android:layout_width="wrap_content"
         android:layout_height="32dp"
         android:layout_alignRight="@+id/content"
         android:layout_alignTop="@+id/content"
         android:layout_marginRight="-8dp"
         android:layout_marginTop="-8dp"
-        android:background="@drawable/badge_text"
+        android:background="@drawable/badge_text_holo_orange_dark"
         android:gravity="center"
         android:minWidth="32dp"
         android:textAppearance="?android:attr/textAppearanceMediumInverse"

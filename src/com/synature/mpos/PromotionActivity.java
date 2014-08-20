@@ -8,7 +8,6 @@ import com.synature.mpos.database.MPOSOrderTransaction.MPOSOrderDetail;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.PromotionDiscount;
 import com.synature.mpos.database.Transaction;
-import com.synature.pos.ProductGroups;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -37,7 +36,7 @@ public class PromotionActivity extends Activity {
 	private PromotionDiscount mPromotion;
 	private Formater mFormat;
 	private List<MPOSOrderDetail> mOrderLst;
-	private List<ProductGroups.PromotionPrice> mPromoLst;
+	private List<com.synature.pos.PromotionPrice> mPromoLst;
 	private OrderDiscountAdapter mOrderAdapter;
 	
 	private int mTransactionId;
@@ -74,7 +73,7 @@ public class PromotionActivity extends Activity {
 
 	private void setupPromotionButton(){
 		mPromoLst = mPromotion.listPromotionPriceGroup();
-		for(ProductGroups.PromotionPrice promo : mPromoLst){
+		for(com.synature.pos.PromotionPrice promo : mPromoLst){
 			LayoutInflater inflater = (LayoutInflater) getLayoutInflater();
 			Button btn = (Button) inflater.inflate(R.layout.button_template, null, false);
 			btn.setId(promo.getPriceGroupID());
@@ -211,7 +210,7 @@ public class PromotionActivity extends Activity {
 						}
 					}
 				}
-				List<ProductGroups.PromotionProduct> productLst = 
+				List<com.synature.pos.PromotionProduct> productLst = 
 						mPromotion.listPromotionProduct(mPriceGroupId);
 				if(productLst.size() > 0){
 					if(discount(productLst)){
@@ -228,11 +227,11 @@ public class PromotionActivity extends Activity {
 		 * @param productLst
 		 * @return true if can discount false is not
 		 */
-		private boolean discount(List<ProductGroups.PromotionProduct> productLst){
+		private boolean discount(List<com.synature.pos.PromotionProduct> productLst){
 			boolean canDiscount = false;
 			Products p = new Products(PromotionActivity.this);
 			for(MPOSOrderDetail detail : mOrderLst){
-				for(ProductGroups.PromotionProduct product : productLst){
+				for(com.synature.pos.PromotionProduct product : productLst){
 					if(detail.getProductId() == product.getProductID()){
 						if(p.isAllowDiscount(product.getProductID())){
 							canDiscount = true;
