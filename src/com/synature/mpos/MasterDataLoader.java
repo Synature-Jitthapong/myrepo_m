@@ -15,6 +15,7 @@ import com.synature.mpos.database.Language;
 import com.synature.mpos.database.MenuComment;
 import com.synature.mpos.database.PaymentAmountButton;
 import com.synature.mpos.database.PaymentDetail;
+import com.synature.mpos.database.ProductPrice;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.PromotionDiscount;
 import com.synature.mpos.database.Shop;
@@ -27,6 +28,11 @@ import com.synature.util.Logger;
 public class MasterDataLoader extends MPOSMainService{
 	
 	public static final String LOAD_MASTER_METHOD = "WSmPOS_JSON_LoadShopMasterData";
+	
+	/**
+	 * Total operation
+	 */
+	public static final int TOTAL_OPT = 21;
 	
 	private WebServiceWorkingListener mListener;
 
@@ -77,6 +83,7 @@ public class MasterDataLoader extends MPOSMainService{
 		PaymentDetail pd = new PaymentDetail(mContext);
 		PaymentAmountButton pb = new PaymentAmountButton(mContext);
 		Products p = new Products(mContext);
+		ProductPrice pp = new ProductPrice(mContext);
 		MenuComment mc = new MenuComment(mContext);
 		PromotionDiscount promo = new PromotionDiscount(mContext);
 		try {
@@ -93,13 +100,15 @@ public class MasterDataLoader extends MPOSMainService{
 			p.insertProductGroup(master.getProductGroup());
 			p.insertProductDept(master.getProductDept());
 			p.insertProducts(master.getProducts());
+			pp.insertProductPrice(master.getProductPrice());
 			p.insertPComponentGroup(master.getPComponentGroup());
 			p.insertProductComponent(master.getProductComponent());
 			mc.insertMenuComment(master.getMenuComment());
 			mc.insertMenuCommentGroup(master.getMenuCommentGroup());
 			mc.insertMenuFixComment(master.getMenuFixComment());
-//			promo.insertPromotionPriceGroup(master.getPromotionPriceGroup());
-//			promo.insertPromotionProductDiscount(master.getPromotionProductDiscount());
+			promo.insertPromotionPriceGroup(master.getPromotionPriceGroup());
+			promo.insertPromotionProductDiscount(master.getPromotionProductDiscount());
+			
 			// clear all menu picture
 			FileManager fm = new FileManager(mContext, Utils.IMG_DIR);
 			fm.clear();

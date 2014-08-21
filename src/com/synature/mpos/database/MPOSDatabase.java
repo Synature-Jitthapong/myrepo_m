@@ -24,6 +24,7 @@ import com.synature.mpos.database.table.ProductComponentGroupTable;
 import com.synature.mpos.database.table.ProductComponentTable;
 import com.synature.mpos.database.table.ProductDeptTable;
 import com.synature.mpos.database.table.ProductGroupTable;
+import com.synature.mpos.database.table.ProductPriceTable;
 import com.synature.mpos.database.table.ProductTable;
 import com.synature.mpos.database.table.PromotionPriceGroupTable;
 import com.synature.mpos.database.table.PromotionProductDiscountTable;
@@ -122,6 +123,7 @@ public class MPOSDatabase extends BaseColumn{
 			ProductComponentGroupTable.onCreate(db);
 			ProductComponentTable.onCreate(db);
 			ProductTable.onCreate(db);
+			ProductPriceTable.onCreate(db);
 			SessionTable.onCreate(db);
 			SessionDetailTable.onCreate(db);
 			ShopTable.onCreate(db);
@@ -158,6 +160,7 @@ public class MPOSDatabase extends BaseColumn{
 			ProductComponentGroupTable.onUpgrade(db, oldVersion, newVersion);
 			ProductComponentTable.onUpgrade(db, oldVersion, newVersion);
 			ProductTable.onUpgrade(db, oldVersion, newVersion);
+			ProductPriceTable.onUpgrade(db, oldVersion, newVersion);
 			ShopTable.onUpgrade(db, oldVersion, newVersion);
 			StaffPermissionTable.onUpgrade(db, oldVersion, newVersion);
 			StaffTable.onUpgrade(db, oldVersion, newVersion);

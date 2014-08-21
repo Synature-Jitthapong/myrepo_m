@@ -234,6 +234,10 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				}
 			}).show();
 		}
+
+		@Override
+		public void onProgressUpdate(int value) {
+		}
 		
 	}
 	
@@ -682,6 +686,10 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	
 						@Override
 						public void onError(String msg) {
+						}
+
+						@Override
+						public void onProgressUpdate(int value) {
 						}
 			});
 		}
@@ -2245,6 +2253,10 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 									sendEnddayData();
 								}
 							}).show();
+					}
+
+					@Override
+					public void onProgressUpdate(int value) {
 					}
 		});
 	}

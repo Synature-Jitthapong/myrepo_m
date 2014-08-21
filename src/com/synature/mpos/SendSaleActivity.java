@@ -181,6 +181,12 @@ public class SendSaleActivity extends Activity{
 			if(mPosition == mTransLst.size() - 1)
 				mItemSendAll.setEnabled(true);
 		}
+
+		@Override
+		public void onProgressUpdate(int value) {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	}
 	

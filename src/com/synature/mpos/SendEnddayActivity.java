@@ -195,6 +195,12 @@ public class SendEnddayActivity extends Activity {
 			mItemProgress.setVisible(false);
 			Utils.makeToask(SendEnddayActivity.this, msg);
 		}
+
+		@Override
+		public void onProgressUpdate(int value) {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	};
 	

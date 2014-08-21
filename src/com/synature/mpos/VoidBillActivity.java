@@ -403,6 +403,10 @@ public class VoidBillActivity extends Activity {
 			@Override
 			public void onError(String msg) {
 			}
+
+			@Override
+			public void onProgressUpdate(int value) {
+			}
 			
 		});
 	}

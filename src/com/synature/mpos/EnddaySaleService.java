@@ -103,6 +103,12 @@ public class EnddaySaleService extends Service{
 														+ e.getMessage());
 											}
 										}
+
+										@Override
+										public void onProgressUpdate(int value) {
+											// TODO Auto-generated method stub
+											
+										}
 									}).execute(Utils.getFullUrl(getApplicationContext()));
 						}
 					}
@@ -118,6 +124,12 @@ public class EnddaySaleService extends Service{
 	
 					@Override
 					public void onPostExecute() {
+					}
+
+					@Override
+					public void onProgressUpdate(int value) {
+						// TODO Auto-generated method stub
+						
 					}
 	
 				}).execute();

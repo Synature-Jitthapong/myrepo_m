@@ -95,6 +95,12 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 			// mFormat may be null if first initial
 			e.printStackTrace();
 		}
+		
+		// sync new master data every day
+		if(isAlreadySetUrl()){
+			if(!mSync.IsAlreadySync())
+				new DeviceChecker(this, new DeviceCheckerListener()).execute(Utils.getFullUrl(this));
+		}
 	}
 
 	@Override
@@ -112,6 +118,10 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		}
 	}
 	
+	/**
+	 * @author j1tth4
+	 * Listener for reference to checking device state
+	 */
 	private class DeviceCheckerListener implements DeviceChecker.AuthenDeviceListener{
 
 		private ProgressDialog mProgress;
@@ -119,7 +129,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		public DeviceCheckerListener(){
 			mProgress = new ProgressDialog(LoginActivity.this);
 			mProgress.setCancelable(false);
-			mProgress.setMessage(getString(R.string.check_device_progress));
+			mProgress.setMessage(getString(R.string.loading));
 		}
 		
 		@Override
@@ -151,6 +161,10 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 				mProgress.dismiss();
 			new MasterDataLoader(LoginActivity.this, shopId, new MasterLoaderListener()).execute(Utils.getFullUrl(LoginActivity.this));
 		}
+
+		@Override
+		public void onProgressUpdate(int value) {
+		}
 		
 	}
 	
@@ -165,6 +179,9 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		public MasterLoaderListener(){
 			mProgress = new ProgressDialog(LoginActivity.this);
 			mProgress.setMessage(getString(R.string.load_master_progress));
+//			mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+//			mProgress.setIndeterminate(false);
+//			mProgress.setMax(100);
 			mProgress.setCancelable(false);
 		}
 		
@@ -194,14 +211,16 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 				}
 			}).show();
 		}
+
+		@Override
+		public void onProgressUpdate(int value) {
+			//mProgress.setProgress(value);
+		}
 		
 	}
 	
 	/**
-	 * Compare system date with session date
-	 * if system date less than session date 
-	 * this not allow to do anything and 
-	 * force to date & time setting.
+	 * @return true if not have the session that is not end
 	 */
 	private boolean checkSessionDate(){
 		// check if have session
@@ -238,7 +257,7 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 			}else if(Utils.getDate().getTime().compareTo(lastSessDate.getTime()) > 0){
 				/*
 				 * Current date > Session date
-				 * mPOS will force to end day.
+				 * mPOS will force to end previous day.
 				 */
 				if(!mSession.checkEndday(mSession.getLastSessionDate())){
 					Utils.endday(LoginActivity.this, mShop.getShopId(), 
@@ -326,20 +345,25 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 	
 	@Override
 	protected void onResume() {
-		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
-		if(url.isEmpty()){
+		if(!isAlreadySetUrl()){
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivityForResult(intent, REQUEST_FOR_SETTING);
 		}else{
-			if(!mSync.IsAlreadySync())
-				new DeviceChecker(this, new DeviceCheckerListener()).execute(Utils.getFullUrl(this));
 			mTxtUser.requestFocus();
 		}
 		super.onResume();
 	}
 			
+	private boolean isAlreadySetUrl(){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
+		if(url.isEmpty()){
+			return false;
+		}	
+		return true;
+	}
+	
 	private void gotoMainActivity(){
 		enddingMultipleDay();
 		startEnddayService();
