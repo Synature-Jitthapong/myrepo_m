@@ -648,7 +648,7 @@ public abstract class PrinterBase {
     	mTextToPrint.append(strTotalSale + "\n");
     	
     	totalText = "THB.................";
-    	strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() / 300);
+    	strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() / 250);
     	mTextToPrint.append(totalText);
     	mTextToPrint.append(createHorizontalSpace(
     			calculateLength(totalText) + 
