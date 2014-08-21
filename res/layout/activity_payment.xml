@@ -239,7 +239,7 @@
 
         <Button
             android:id="@+id/btnConfirm"
-            style="@style/GreenButton"
+            style="@style/SmoothGreenButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="96dp"
