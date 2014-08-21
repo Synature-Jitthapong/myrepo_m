@@ -10,7 +10,6 @@ import java.util.Locale;
 
 import com.synature.mpos.Utils;
 import com.synature.mpos.database.table.GlobalPropertyTable;
-import com.synature.pos.ShopData;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -192,35 +191,28 @@ public class Formater extends MPOSDatabase{
 		}
 	}
 	
-	public ShopData.GlobalProperty getGlobalProperty() {
-		ShopData.GlobalProperty gb = new ShopData.GlobalProperty();
+	public com.synature.pos.GlobalProperty getGlobalProperty() {
+		com.synature.pos.GlobalProperty gb = new com.synature.pos.GlobalProperty();
 		Cursor cursor = getReadableDatabase().query(GlobalPropertyTable.TABLE_GLOBAL_PROPERTY, COLUMNS, 
 				null, null, null, null, null);
 		if (cursor.moveToFirst()) {
-			gb.setCurrencyCode(cursor.getString(cursor
-					.getColumnIndex(GlobalPropertyTable.COLUMN_CURRENCY_CODE)));
-			gb.setCurrencySymbol(cursor.getString(cursor
-					.getColumnIndex(GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL)));
-			gb.setCurrencyName(cursor.getString(cursor
-					.getColumnIndex(GlobalPropertyTable.COLUMN_CURRENCY_NAME)));
-			gb.setCurrencyFormat(cursor.getString(cursor
-					.getColumnIndex(GlobalPropertyTable.COLUMN_CURRENCY_FORMAT)));
-			gb.setDateFormat(cursor.getString(cursor
-					.getColumnIndex(GlobalPropertyTable.COLUMN_DATE_FORMAT)));
-			gb.setTimeFormat(cursor.getString(cursor
-					.getColumnIndex(GlobalPropertyTable.COLUMN_TIME_FORMAT)));
-			gb.setQtyFormat(cursor.getString(cursor
-					.getColumnIndex(GlobalPropertyTable.COLUMN_QTY_FORMAT)));
+			gb.setCurrencyCode(cursor.getString(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_CURRENCY_CODE)));
+			gb.setCurrencySymbol(cursor.getString(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL)));
+			gb.setCurrencyName(cursor.getString(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_CURRENCY_NAME)));
+			gb.setCurrencyFormat(cursor.getString(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_CURRENCY_FORMAT)));
+			gb.setDateFormat(cursor.getString(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_DATE_FORMAT)));
+			gb.setTimeFormat(cursor.getString(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_TIME_FORMAT)));
+			gb.setQtyFormat(cursor.getString(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_QTY_FORMAT)));
 			cursor.moveToNext();
 		}
 		return gb;
 	}
 
-	public void insertProperty(List<ShopData.GlobalProperty> globalLst) throws SQLException{
+	public void insertProperty(List<com.synature.pos.GlobalProperty> globalLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(GlobalPropertyTable.TABLE_GLOBAL_PROPERTY, null, null);
-			for (ShopData.GlobalProperty global : globalLst) {
+			for (com.synature.pos.GlobalProperty global : globalLst) {
 				ContentValues cv = new ContentValues();
 				cv.put(GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL, global.getCurrencySymbol());
 				cv.put(GlobalPropertyTable.COLUMN_CURRENCY_CODE, global.getCurrencyCode());

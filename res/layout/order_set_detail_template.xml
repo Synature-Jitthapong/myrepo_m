@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:divider="?android:dividerVertical"
@@ -9,43 +9,49 @@
     android:orientation="horizontal"
     android:padding="@dimen/default_margin" >
 
-    <include
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        layout="@layout/order_set_item" />
-
-    <Button
-        android:id="@+id/btnSetMinus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:minWidth="48dp"
-        android:text="@string/minus" />
-
-    <EditText
-        android:id="@+id/txtSetQty"
-        android:layout_width="48dp"
-        android:layout_height="wrap_content"
-        android:editable="false"
-        android:ems="10"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:gravity="center"
-        android:singleLine="true"
-        android:text="1" >
-
-        <requestFocus />
-    </EditText>
-
     <Button
         android:id="@+id/btnSetPlus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:minWidth="48dp"
         android:text="@string/plus" />
 
-</LinearLayout>
+    <include
+        android:id="@+id/include1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/btnSetMinus"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/btnSetMinus"
+        android:layout_toLeftOf="@+id/btnSetMinus"
+        android:layout_weight="1"
+        layout="@layout/order_set_item" />
+
+    <TextView
+        android:id="@+id/tvSetQty"
+        style="@style/TextQty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/btnSetPlus"
+        android:layout_alignBottom="@+id/btnSetPlus"
+        android:layout_toLeftOf="@+id/btnSetPlus"
+        android:text="1"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/btnSetMinus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvSetQty"
+        android:layout_alignBottom="@+id/tvSetQty"
+        android:layout_toLeftOf="@+id/tvSetQty"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:minWidth="48dp"
+        android:text="@string/minus" />
+
+</RelativeLayout>

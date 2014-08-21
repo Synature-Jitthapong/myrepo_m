@@ -43,9 +43,9 @@ public class CreditCard extends MPOSDatabase{
 				null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
-				CreditCardType credit = new CreditCardType(
-						cursor.getInt(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID)),
-						cursor.getString(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME)));
+				CreditCardType credit = new CreditCardType();
+				credit.setCreditCardTypeId(cursor.getInt(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID)));
+				credit.setCreditCardTypeName(cursor.getString(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_TYPE_NAME)));
 				creditCardLst.add(credit);
 			}while(cursor.moveToNext());
 		}

@@ -3,7 +3,6 @@ package com.synature.mpos.database;
 import java.util.List;
 
 import com.synature.mpos.database.table.ShopTable;
-import com.synature.pos.ShopData;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -85,9 +84,8 @@ public class Shop extends MPOSDatabase{
 	/**
 	 * @return ShopData.ShopProperty
 	 */
-	public ShopData.ShopProperty getShopProperty(){
-		ShopData.ShopProperty sp = 
-				new ShopData.ShopProperty();
+	public com.synature.pos.ShopProperty getShopProperty(){
+		com.synature.pos.ShopProperty sp = new com.synature.pos.ShopProperty();
 		Cursor cursor = getReadableDatabase().query(ShopTable.TABLE_SHOP, 
 				ALL_SHOP_COLUMNS, null, null, null, null, null);
 		if(cursor.moveToFirst()){
@@ -120,11 +118,11 @@ public class Shop extends MPOSDatabase{
 	 * @param shopPropLst
 	 * @throws SQLException
 	 */
-	public void insertShopProperty(List<ShopData.ShopProperty> shopPropLst) throws SQLException{
+	public void insertShopProperty(List<com.synature.pos.ShopProperty> shopPropLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ShopTable.TABLE_SHOP, null, null);
-			for(ShopData.ShopProperty shop : shopPropLst){
+			for(com.synature.pos.ShopProperty shop : shopPropLst){
 				ContentValues cv = new ContentValues();
 				cv.put(ShopTable.COLUMN_SHOP_ID, shop.getShopID());
 				cv.put(ShopTable.COLUMN_SHOP_CODE, shop.getShopCode());

@@ -21,6 +21,7 @@ public class ProductDeptTable extends BaseColumn{
 			+ COLUMN_PRODUCT_DEPT_NAME2 + " text, "
 			+ COLUMN_PRODUCT_DEPT_NAME3 + " text, "
 			+ ProductTable.COLUMN_ACTIVATE + " integer default 0, "
+			+ COLUMN_DELETED + " integer default 0, "
 			+ COLUMN_ORDERING + " integer default 0, " 
 			+ " primary key (" + ProductTable.COLUMN_PRODUCT_DEPT_ID + "));";
 	

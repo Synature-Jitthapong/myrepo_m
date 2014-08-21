@@ -3,7 +3,6 @@ package com.synature.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.Transaction;
@@ -144,7 +143,7 @@ public class SendSaleActivity extends Activity{
 		}
 	}
 	
-	class SendSaleProgress implements ProgressListener{
+	class SendSaleProgress implements WebServiceWorkingListener{
 
 		private SendTransaction mTrans;
 		private int mPosition;
@@ -155,7 +154,7 @@ public class SendSaleActivity extends Activity{
 		}
 		
 		@Override
-		public void onPre() {
+		public void onPreExecute() {
 			if(mPosition == 0)
 				mItemSendAll.setEnabled(false);
 			mTrans.onSend = true;
@@ -164,7 +163,7 @@ public class SendSaleActivity extends Activity{
 		}
 
 		@Override
-		public void onPost() {
+		public void onPostExecute() {
 			mTrans.setSendStatus(MPOSDatabase.ALREADY_SEND);
 			mTrans.onSend = false;
 			mTransLst.set(mPosition, mTrans);
@@ -181,6 +180,12 @@ public class SendSaleActivity extends Activity{
 			mSyncAdapter.notifyDataSetChanged();
 			if(mPosition == mTransLst.size() - 1)
 				mItemSendAll.setEnabled(true);
+		}
+
+		@Override
+		public void onProgressUpdate(int value) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 	}

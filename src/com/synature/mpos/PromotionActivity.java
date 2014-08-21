@@ -8,12 +8,12 @@ import com.synature.mpos.database.MPOSOrderTransaction.MPOSOrderDetail;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.PromotionDiscount;
 import com.synature.mpos.database.Transaction;
-import com.synature.pos.ProductGroups;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,7 +37,7 @@ public class PromotionActivity extends Activity {
 	private PromotionDiscount mPromotion;
 	private Formater mFormat;
 	private List<MPOSOrderDetail> mOrderLst;
-	private List<ProductGroups.PromotionPrice> mPromoLst;
+	private List<com.synature.pos.PromotionPriceGroup> mPromoPriceGroupLst;
 	private OrderDiscountAdapter mOrderAdapter;
 	
 	private int mTransactionId;
@@ -73,16 +73,18 @@ public class PromotionActivity extends Activity {
 	}
 
 	private void setupPromotionButton(){
-		mPromoLst = mPromotion.listPromotionPriceGroup();
-		for(ProductGroups.PromotionPrice promo : mPromoLst){
+		mPromoPriceGroupLst = mPromotion.listPromotionPriceGroup();
+		for(com.synature.pos.PromotionPriceGroup promoPriceGroup : mPromoPriceGroupLst){
 			LayoutInflater inflater = (LayoutInflater) getLayoutInflater();
 			Button btn = (Button) inflater.inflate(R.layout.button_template, null, false);
-			btn.setId(promo.getPriceGroupID());
-			btn.setText(promo.getPromotionName().equals("") ? promo.getButtonName() : promo.getPromotionName());
+			btn.setBackgroundResource(R.drawable.btn_holo_green);
+			btn.setTextColor(Color.WHITE);
+			btn.setId(promoPriceGroup.getPriceGroupID());
+			btn.setText(promoPriceGroup.getPromotionName().equals("") ? promoPriceGroup.getButtonName() : promoPriceGroup.getPromotionName());
 			btn.setMinWidth(128);
 			btn.setMinHeight(64);
-			btn.setOnClickListener(new OnPromotionButtonClickListener(promo.getPriceGroupID(), 
-					promo.getPromotionTypeID(), promo.getCouponHeader()));
+			btn.setOnClickListener(new OnPromotionButtonClickListener(promoPriceGroup.getPriceGroupID(), 
+					promoPriceGroup.getPromotionTypeID(), promoPriceGroup.getCouponHeader()));
 			mPromoButtonContainer.addView(btn, getHorizontalParams());
 		}
 
@@ -196,14 +198,14 @@ public class PromotionActivity extends Activity {
 		public void onClick(View view) {
 			resetDiscount();
 			if(view.isSelected()){
-				for(int i = 0; i < mPromoLst.size(); i++){
+				for(int i = 0; i < mPromoPriceGroupLst.size(); i++){
 					View child = mPromoButtonContainer.getChildAt(i);
 					if(child.isSelected())
 						child.setSelected(false);
 				}
 			}else{
 				// clear selected promotion
-				for(int i = 0; i < mPromoLst.size(); i++){
+				for(int i = 0; i < mPromoPriceGroupLst.size(); i++){
 					View child = mPromoButtonContainer.getChildAt(i);
 					if(child.getId() != view.getId()){
 						if(child.isSelected()){
@@ -211,8 +213,8 @@ public class PromotionActivity extends Activity {
 						}
 					}
 				}
-				List<ProductGroups.PromotionProduct> productLst = 
-						mPromotion.listPromotionProduct(mPriceGroupId);
+				List<com.synature.pos.PromotionProductDiscount> productLst = 
+						mPromotion.listPromotionProductDiscount(mPriceGroupId);
 				if(productLst.size() > 0){
 					if(discount(productLst)){
 						view.setSelected(true);
@@ -228,11 +230,11 @@ public class PromotionActivity extends Activity {
 		 * @param productLst
 		 * @return true if can discount false is not
 		 */
-		private boolean discount(List<ProductGroups.PromotionProduct> productLst){
+		private boolean discount(List<com.synature.pos.PromotionProductDiscount> productLst){
 			boolean canDiscount = false;
 			Products p = new Products(PromotionActivity.this);
 			for(MPOSOrderDetail detail : mOrderLst){
-				for(ProductGroups.PromotionProduct product : productLst){
+				for(com.synature.pos.PromotionProductDiscount product : productLst){
 					if(detail.getProductId() == product.getProductID()){
 						if(p.isAllowDiscount(product.getProductID())){
 							canDiscount = true;

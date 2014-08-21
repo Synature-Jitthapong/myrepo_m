@@ -52,10 +52,10 @@
 
         <EditTextPreference
             android:key="dsp_wintec_line1"
-            android:title="@string/text_line1"/>
+            android:title="@string/text_line1" android:defaultValue="Welcome to"/>
         <EditTextPreference
             android:key="dsp_wintec_line2"
-            android:title="@string/text_line2" />
+            android:title="@string/text_line2" android:defaultValue="pRoMiSe System"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

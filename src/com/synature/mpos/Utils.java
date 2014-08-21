@@ -93,6 +93,11 @@ public class Utils {
 	public static final String ENDDAY_PATH = RESOURCE_DIR + File.separator + "EnddaySale";
 	
 	/**
+	 * EJ path
+	 */
+	public static final String EJ_PATH = RESOURCE_DIR + File.separator + "EJ";
+	
+	/**
 	 * Image path on server
 	 */
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
@@ -261,7 +266,7 @@ public class Utils {
 		
 		@Override
 		protected void onPreExecute() {
-			mListener.onPre();
+			mListener.onPreExecute();
 		}
 
 		@Override
@@ -302,7 +307,7 @@ public class Utils {
 		
 		@Override
 		protected void onPreExecute() {
-			mListener.onPre();
+			mListener.onPreExecute();
 		}
 
 		@Override
@@ -742,6 +747,10 @@ public class Utils {
 		}
 	}
 	
+	public static void writeEJ(Context context){
+		
+	}
+	
 	public static void exportDatabase(Context context){
 		Calendar calendar = Calendar.getInstance();
 		String dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.getTime());
@@ -771,11 +780,11 @@ public class Utils {
 		return new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight);
 	}
 	
-	public static interface LoadEndDaySaleTransactionListener extends ProgressListener{
+	public static interface LoadEndDaySaleTransactionListener extends WebServiceWorkingListener{
 		void onPost(POSData_EndDaySaleTransaction enddayTrans);
 	}
 	
-	public static interface LoadSaleTransactionListener extends ProgressListener{
+	public static interface LoadSaleTransactionListener extends WebServiceWorkingListener{
 		void onPost(POSData_SaleTransaction saleTrans);
 	}
 }

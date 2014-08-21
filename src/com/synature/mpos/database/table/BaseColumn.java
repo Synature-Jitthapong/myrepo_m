@@ -5,4 +5,5 @@ public abstract class BaseColumn {
 	public static final String COLUMN_SEND_STATUS = "send_status";
 	public static final String COLUMN_ORDERING = "ordering";	
 	public static final String COLUMN_REMARK = "remark";
+	public static final String COLUMN_DELETED = "deleted";
 }

@@ -14,7 +14,7 @@ public class MenuCommentGroupTable{
 	private static final String SQL_CREATE = 
 			" create table " + TABLE_MENU_COMMENT_GROUP + " ( "
 			+ MenuCommentTable.COLUMN_COMMENT_GROUP_ID + " integer not null, "
-			+ COLUMN_COMMENT_GROUP_NAME + " text not null, "
+			+ COLUMN_COMMENT_GROUP_NAME + " text, "
 			+ " primary key (" + MenuCommentTable.COLUMN_COMMENT_GROUP_ID + "));";
 	
 	public static void onCreate(SQLiteDatabase db){

@@ -5,7 +5,7 @@
     android:baselineAligned="false"
     android:divider="@android:drawable/divider_horizontal_bright"
     android:dividerPadding="4dp"
-    android:paddingBottom="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
@@ -34,10 +34,9 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/horizontalScrollView1"
-            android:horizontalSpacing="@dimen/default_margin"
             android:numColumns="5"
-            android:padding="@dimen/default_margin"
-            android:verticalSpacing="@dimen/default_margin" >
+            android:padding="@dimen/default_margin" >
+
         </GridView>
 
         <HorizontalScrollView

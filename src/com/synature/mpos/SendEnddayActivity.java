@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.Session;
@@ -153,17 +152,17 @@ public class SendEnddayActivity extends Activity {
 		}
 	}
 	
-	private ProgressListener mSendListener = new ProgressListener(){
+	private WebServiceWorkingListener mSendListener = new WebServiceWorkingListener(){
 
 		@Override
-		public void onPre() {
+		public void onPreExecute() {
 			mItemClose.setEnabled(false);
 			mItemSend.setVisible(false);
 			mItemProgress.setVisible(true);
 		}
 
 		@Override
-		public void onPost() {
+		public void onPostExecute() {
 			mItemClose.setEnabled(true);
 			mItemSend.setVisible(true);
 			mItemProgress.setVisible(false);
@@ -195,6 +194,12 @@ public class SendEnddayActivity extends Activity {
 			mItemSend.setVisible(true);
 			mItemProgress.setVisible(false);
 			Utils.makeToask(SendEnddayActivity.this, msg);
+		}
+
+		@Override
+		public void onProgressUpdate(int value) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 	};

@@ -9,22 +9,13 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.synature.connection.Ksoap2WebServiceTask;
 import com.synature.pos.WebServiceResult;
-import com.synature.util.Ksoap2WebServiceTask;
 
 
 public class MPOSMainService extends Ksoap2WebServiceTask{
 	
 	public static final String NAME_SPACE = "http://tempuri.org/";
-	
-	// webservice method
-	public static final String CHECK_DEVICE_METHOD = "WSmPOS_CheckAuthenShopDevice";
-	public static final String LOAD_MENU_METHOD = "WSmPOS_JSON_LoadMenuDataV2";
-	public static final String LOAD_PRODUCT_METHOD = "WSmPOS_JSON_LoadProductDataV2";
-	public static final String LOAD_SHOP_METHOD = "WSmPOS_JSON_LoadShopData";
-	public static final String SEND_SALE_TRANS_METHOD = "WSmPOS_JSON_SendSaleAllTransactionDataWithEndDay";
-	public static final String SEND_PARTIAL_SALE_TRANS_METHOD = "WSmPOS_JSON_SendSalePartialTransactionData";
-	public static final String SEND_STOCK_METHOD = "WSmPOS_JSON_SendInventoryDocumentData";
 	
 	/**
 	 * The response of WebServiceResult

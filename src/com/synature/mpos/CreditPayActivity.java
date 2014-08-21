@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.database.Bank;
 import com.synature.mpos.database.CreditCard;
 import com.synature.mpos.database.Formater;

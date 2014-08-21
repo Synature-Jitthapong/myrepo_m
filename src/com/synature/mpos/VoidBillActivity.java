@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
@@ -391,18 +390,22 @@ public class VoidBillActivity extends Activity {
 	
 	private void sendSale(){
 		mPartService.sendSale(mShopId, mSessionId, mTransactionId, mComputerId, 
-				mStaffId, new ProgressListener(){
+				mStaffId, new WebServiceWorkingListener(){
 
 			@Override
-			public void onPre() {
+			public void onPreExecute() {
 			}
 
 			@Override
-			public void onPost() {
+			public void onPostExecute() {
 			}
 
 			@Override
 			public void onError(String msg) {
+			}
+
+			@Override
+			public void onProgressUpdate(int value) {
 			}
 			
 		});

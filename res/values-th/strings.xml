@@ -44,10 +44,8 @@
     <string name="sale_report_by_product">รายงานการขายตามสินค้า</string>
     <string name="remark">หมายเหตุ</string>
     <string name="update_product_data">อัพเดตข้อมูลสินค้า</string>
-    <string name="update_product_progress">กำลังอัพเดตข้อมูลสินค้า…</string>
     <string name="check_device_progress">กำลังตรวจสอบเครื่อง&#8230;</string>
-    <string name="update_shop_progress">กำลังอัพเดตข้อมูลร้าน&#8230;</string>
-    <string name="update_menu_progress">กำลังอัพเดตข้อมูลเมนูสินค้า&#8230;</string>
+	<string name="load_master_progress">กำลังโหลดข้อมูล master&#8230;</string>
     <string name="hold">พักบิล</string>
     <string name="display">แสดงรายงาน</string>
     <string name="code">รหัส</string>
@@ -59,8 +57,8 @@
     <string name="connection">การเชื่อมต่อ</string>
     <string name="connection_summary">ตั้งค่า url ของ server</string>
     <string name="incorrect_password">รหัสผ่านไม่ถูกต้อง</string>
-    <string name="incorrect_user">ชื่อผู้ใช้ไม่ถูกต้อง</string>
-    <string name="enter_username">กรุณาใส่ชื่อผู้ใช้</string>
+    <string name="incorrect_staff_code">รหัสพนักงานไม่ถูกต้อง</string>
+    <string name="enter_staff_code">กรุณาใส่รหัสพนักงาน</string>
     <string name="enter_password">กรุณาใส่รหัสผ่าน</string>
     <string name="update_data">อัพเดตข้อมูล</string>
     <string name="summary">สรุป</string>
@@ -182,4 +180,6 @@
 	<string name="confirm_exit">ต้องการออกจากโปรแกรมใช่ไหม?</string>
 	<string name="language">ภาษา</string>
 	<string name="last_update">อัพเดตข้อมูลล่าสุด: </string>
+	<string name="please_wait">กรุณารอสักครู่&#8230;</string>
+    <string name="confirm_fast_payment">ยืนยันการจ่ายเงินพอดี</string>
 </resources>

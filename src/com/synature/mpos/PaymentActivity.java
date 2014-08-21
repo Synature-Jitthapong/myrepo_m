@@ -4,14 +4,14 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
+import com.synature.mpos.database.MPOSPaymentDetail;
 import com.synature.mpos.database.PaymentAmountButton;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Transaction;
-import com.synature.pos.Payment;
+import com.synature.pos.PayType;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -51,7 +51,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	private Transaction mTrans;
 	private Formater mFormat;
 	
-	private List<Payment.PaymentDetail> mPayLst;
+	private List<MPOSPaymentDetail> mPayLst;
 	private PaymentAdapter mPaymentAdapter;
 	private PaymentButtonAdapter mPaymentButtonAdapter;
 
@@ -115,7 +115,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		mFormat = new Formater(getApplicationContext());
 		
 		mPaymentAdapter = new PaymentAdapter();
-		mPayLst = new ArrayList<Payment.PaymentDetail>();
+		mPayLst = new ArrayList<MPOSPaymentDetail>();
 		mPaymentButtonAdapter = new PaymentButtonAdapter();
 		mStrTotalPay = new StringBuilder();
 		mLvPayment.setAdapter(mPaymentAdapter);
@@ -187,10 +187,10 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	
 	private class PaymentAdapter extends BaseAdapter{
 		
-		private LayoutInflater inflater;
+		private LayoutInflater mInflater;
 		
 		public PaymentAdapter(){
-			inflater = getLayoutInflater();
+			mInflater = getLayoutInflater();
 		}
 
 		@Override
@@ -199,7 +199,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		}
 
 		@Override
-		public Payment.PaymentDetail getItem(int position) {
+		public MPOSPaymentDetail getItem(int position) {
 			return mPayLst.get(position);
 		}
 
@@ -210,26 +210,39 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			final Payment.PaymentDetail payment = mPayLst.get(position);
-			convertView = inflater.inflate(R.layout.payment_detail_template, null);
-			TextView tvPayType = (TextView) convertView.findViewById(R.id.tvPayType);
-			TextView tvPayDetail = (TextView) convertView.findViewById(R.id.tvPayDetail);
-			TextView tvPayAmount = (TextView) convertView.findViewById(R.id.tvPayAmount);
-			Button imgDel = (Button) convertView.findViewById(R.id.btnDelete);
-			
-			tvPayType.setText(payment.getPayTypeName());
-			tvPayDetail.setText(payment.getRemark());
-			tvPayAmount.setText(mFormat.currencyFormat(payment.getPaid()));
-			imgDel.setOnClickListener(new OnClickListener(){
+			PaymentDetailViewHolder holder;
+			if(convertView == null){
+				convertView = mInflater.inflate(R.layout.payment_detail_template, parent, false);
+				holder = new PaymentDetailViewHolder();
+				holder.tvPayType = (TextView) convertView.findViewById(R.id.tvPayType);
+				holder.tvPayDetail = (TextView) convertView.findViewById(R.id.tvPayDetail);
+				holder.tvPayAmount = (TextView) convertView.findViewById(R.id.tvPayAmount);
+				holder.btnDel = (Button) convertView.findViewById(R.id.btnDelete);
+				convertView.setTag(holder);
+			}else{
+				holder = (PaymentDetailViewHolder) convertView.getTag();
+			}
+			final MPOSPaymentDetail payment = mPayLst.get(position);
+			holder.tvPayType.setText(payment.getPayTypeName());
+			holder.tvPayDetail.setText(payment.getRemark());
+			holder.tvPayAmount.setText(mFormat.currencyFormat(payment.getTotalPay()));
+			holder.btnDel.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
-					deletePayment(payment.getTransactionID(), payment.getPayTypeID());
+					deletePayment(payment.getTransactionId(), payment.getPayTypeId());
 				}
 				
 			});
 			
 			return convertView;
+		}
+		
+		private class PaymentDetailViewHolder{
+			TextView tvPayType;
+			TextView tvPayDetail;
+			TextView tvPayAmount;
+			Button btnDel;
 		}
 	}
 	
@@ -288,7 +301,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	}
 
 	public void confirm() {
-		if(mTotalPaid >=mTotalSalePrice){
+		if(mTotalPaid >= mTotalSalePrice){
 
 			// open cash drawer
 			WintecCashDrawer drw = new WintecCashDrawer(getApplicationContext());
@@ -442,10 +455,10 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	}
 	
 	private void loadPayType(){
-		List<Payment.PayType> payTypeLst = mPayment.listPayType();
+		List<PayType> payTypeLst = mPayment.listPayType();
 		LinearLayout payTypeContent = (LinearLayout) findViewById(R.id.payTypeContent);
 		payTypeContent.removeAllViews();
-		for(final Payment.PayType payType : payTypeLst){
+		for(final PayType payType : payTypeLst){
 			final Button btnPayType = new Button(PaymentActivity.this);
 			btnPayType.setMinWidth(128);
 			btnPayType.setMinHeight(64);
@@ -471,7 +484,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	public class PaymentButtonAdapter extends BaseAdapter{
 		
 		private PaymentAmountButton mPaymentButton;
-		private List<Payment.PaymentAmountButton> mPaymentButtonLst;
+		private List<com.synature.pos.PaymentAmountButton> mPaymentButtonLst;
 		private LayoutInflater mInflater;
 		
 		public PaymentButtonAdapter(){
@@ -487,7 +500,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 		}
 
 		@Override
-		public Payment.PaymentAmountButton getItem(int position) {
+		public com.synature.pos.PaymentAmountButton getItem(int position) {
 			return mPaymentButtonLst.get(position);
 		}
 
@@ -498,7 +511,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			final Payment.PaymentAmountButton paymentButton = 
+			final com.synature.pos.PaymentAmountButton paymentButton = 
 					mPaymentButtonLst.get(position);
 			ViewHolder holder;
 			if(convertView == null){

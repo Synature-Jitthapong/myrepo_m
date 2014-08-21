@@ -15,7 +15,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@android:color/holo_blue_dark"
         android:textStyle="bold" />
 
     <ImageButton

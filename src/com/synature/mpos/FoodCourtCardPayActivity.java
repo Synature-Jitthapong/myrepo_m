@@ -1,20 +1,10 @@
 package com.synature.mpos;
 
-import java.text.NumberFormat;
-import java.util.Calendar;
-import java.util.List;
-
-import com.synature.exceptionhandler.ExceptionHandler;
 import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.HeaderFooterReceipt;
 import com.synature.mpos.database.MPOSOrderTransaction;
-import com.synature.mpos.database.PaymentDetail;
-import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Shop;
-import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.Transaction;
 import com.synature.pos.PrepaidCardInfo;
-import com.synature.pos.ShopData;
 import com.synature.util.CreditCardParser;
 import com.synature.util.Logger;
 

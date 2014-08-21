@@ -9,7 +9,6 @@ import com.synature.mpos.database.table.CreditCardTable;
 import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
-import com.synature.pos.Payment;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -72,10 +71,10 @@ public class PaymentDetail extends MPOSDatabase {
 	 * Get summary of payment in sale day
 	 * parameter is transactionId like "1,2,3,4"
 	 * @param transactionIds
-	 * @return List<Payment.PaymentDetail>
+	 * @return List<MPOSPaymentDetail>
 	 */
-	public List<Payment.PaymentDetail> listSummaryPayment(String transactionIds){
-		List<Payment.PaymentDetail> paymentLst = new ArrayList<Payment.PaymentDetail>();
+	public List<MPOSPaymentDetail> listSummaryPayment(String transactionIds){
+		List<MPOSPaymentDetail> paymentLst = new ArrayList<MPOSPaymentDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT b." + PayTypeTable.COLUMN_PAY_TYPE_NAME + ", "
 				+ " SUM(a." + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
@@ -87,7 +86,7 @@ public class PaymentDetail extends MPOSDatabase {
 				+ " GROUP BY b." + PayTypeTable.COLUMN_PAY_TYPE_ID, null);
 		if(cursor.moveToFirst()){
 			do{
-				Payment.PaymentDetail payment = new Payment.PaymentDetail();
+				MPOSPaymentDetail payment = new MPOSPaymentDetail();
 				payment.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
 				payment.setPayAmount(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAY_AMOUNT)));
 				paymentLst.add(payment);
@@ -100,9 +99,8 @@ public class PaymentDetail extends MPOSDatabase {
 	/**
 	 * @return List<Payment.PayType>
 	 */
-	public List<Payment.PayType> listPayType(){
-		List<Payment.PayType> payTypeLst = 
-				new ArrayList<Payment.PayType>();
+	public List<com.synature.pos.PayType> listPayType(){
+		List<com.synature.pos.PayType> payTypeLst = new ArrayList<com.synature.pos.PayType>();
 		Cursor cursor = getReadableDatabase().query(PayTypeTable.TABLE_PAY_TYPE,
 				new String[]{
 				PayTypeTable.COLUMN_PAY_TYPE_ID,
@@ -111,8 +109,7 @@ public class PaymentDetail extends MPOSDatabase {
 				}, null, null, null, null, COLUMN_ORDERING);
 		if(cursor.moveToFirst()){
 			do{
-				Payment.PayType payType = 
-						new Payment.PayType();
+				com.synature.pos.PayType payType = new com.synature.pos.PayType();
 				payType.setPayTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
 				payType.setPayTypeCode(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)));
 				payType.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
@@ -125,11 +122,10 @@ public class PaymentDetail extends MPOSDatabase {
 	
 	/**
 	 * @param transactionId
-	 * @return List<Payment.PaymentDetail>
+	 * @return List<MPOSPaymentDetail>
 	 */
-	public List<Payment.PaymentDetail> listPaymentGroupByType(int transactionId){
-		List<Payment.PaymentDetail> paymentLst = 
-				new ArrayList<Payment.PaymentDetail>();
+	public List<MPOSPaymentDetail> listPaymentGroupByType(int transactionId){
+		List<MPOSPaymentDetail> paymentLst = new ArrayList<MPOSPaymentDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT a." + PayTypeTable.COLUMN_PAY_TYPE_ID + ", " + " a."
 						+ CreditCardTable.COLUMN_CREDITCARD_TYPE_ID + ", "
@@ -153,12 +149,11 @@ public class PaymentDetail extends MPOSDatabase {
 		);
 		if(cursor.moveToFirst()){
 			do{
-				Payment.PaymentDetail payment = 
-						new Payment.PaymentDetail();
-				payment.setPayTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
-				payment.setCreditCardType(cursor.getInt(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID)));
-				payment.setCreaditCardNo(cursor.getString(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_NO)));
-				payment.setPaid(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT)));
+				MPOSPaymentDetail payment = new MPOSPaymentDetail();
+				payment.setPayTypeId(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
+				payment.setCreditCardTypeId(cursor.getInt(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID)));
+				payment.setCreditCardNo(cursor.getString(cursor.getColumnIndex(CreditCardTable.COLUMN_CREDITCARD_NO)));
+				payment.setTotalPay(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT)));
 				payment.setPayAmount(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAY_AMOUNT)));
 				payment.setPayTypeCode(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)));
 				payment.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
@@ -359,11 +354,10 @@ public class PaymentDetail extends MPOSDatabase {
 	
 	/**
 	 * @param transactionId
-	 * @return List<com.syn.pos.Payment.PaymentDetail>
+	 * @return List<MPOSPaymentDetail>
 	 */
-	public List<com.synature.pos.Payment.PaymentDetail> listPayment(int transactionId){
-		List<com.synature.pos.Payment.PaymentDetail> paymentLst = 
-				new ArrayList<com.synature.pos.Payment.PaymentDetail>();
+	public List<MPOSPaymentDetail> listPayment(int transactionId){
+		List<MPOSPaymentDetail> paymentLst = new ArrayList<MPOSPaymentDetail>();
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT a." + PaymentDetailTable.COLUMN_PAY_ID + ", " 
 						+ " a." + PayTypeTable.COLUMN_PAY_TYPE_ID + ", " 
@@ -381,14 +375,13 @@ public class PaymentDetail extends MPOSDatabase {
 						String.valueOf(transactionId)});
 		if(cursor.moveToFirst()){
 			do{
-				com.synature.pos.Payment.PaymentDetail payDetail
-					= new com.synature.pos.Payment.PaymentDetail();
-				payDetail.setTransactionID(transactionId);
-				payDetail.setPaymentDetailID(cursor.getInt(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAY_ID)));
-				payDetail.setPayTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
+				MPOSPaymentDetail payDetail = new MPOSPaymentDetail();
+				payDetail.setTransactionId(transactionId);
+				payDetail.setPaymentDetailId(cursor.getInt(cursor.getColumnIndex(PaymentDetailTable.COLUMN_PAY_ID)));
+				payDetail.setPayTypeId(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
 				payDetail.setPayTypeCode(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)));
 				payDetail.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
-				payDetail.setPaid(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT)));
+				payDetail.setTotalPay(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT)));
 				payDetail.setRemark(cursor.getString(cursor.getColumnIndex(PaymentDetailTable.COLUMN_REMARK)));
 				paymentLst.add(payDetail);
 			}while(cursor.moveToNext());
@@ -400,11 +393,11 @@ public class PaymentDetail extends MPOSDatabase {
 	/**
 	 * @param payTypeLst
 	 */
-	public void insertPaytype(List<Payment.PayType> payTypeLst){
+	public void insertPaytype(List<com.synature.pos.PayType> payTypeLst){
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(PayTypeTable.TABLE_PAY_TYPE, null, null);
-			for(Payment.PayType payType : payTypeLst){
+			for(com.synature.pos.PayType payType : payTypeLst){
 				ContentValues cv = new ContentValues();
 				cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payType.getPayTypeID());
 				cv.put(PayTypeTable.COLUMN_PAY_TYPE_CODE, payType.getPayTypeCode());

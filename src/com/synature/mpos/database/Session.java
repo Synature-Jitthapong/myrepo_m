@@ -150,25 +150,6 @@ public class Session extends MPOSDatabase{
 	}
 	
 	/**
-	 * Get current session date
-	 * @return session date
-	 */
-	public String getCurrentSessionDate(){
-		String sessionDate = "";
-		Cursor cursor = getReadableDatabase().query(
-				SessionTable.TABLE_SESSION, 
-				new String[]{
-					SessionTable.COLUMN_SESS_DATE
-				}, null, null, null, null, SessionTable.COLUMN_SESS_DATE + " DESC ", "1");
-		
-		if(cursor.moveToFirst()){
-			sessionDate = cursor.getString(0);
-		}
-		cursor.close();
-		return sessionDate;
-	}
-	
-	/**
 	 * Delete session by sessionId
 	 * @param sessionId
 	 * @return row affected
@@ -393,9 +374,30 @@ public class Session extends MPOSDatabase{
 		cursor.close();
 		return sessionId;
 	}
+
+	/**
+	 * Get last session date
+	 * @return "" if not have any session
+	 */
+	public String getLastSessionDate(){
+		String sessDate = "";
+		Cursor cursor = getReadableDatabase().query(
+				SessionTable.TABLE_SESSION, 
+				new String[]{
+					SessionTable.COLUMN_SESS_DATE
+				}, 
+				null, null, null, null, 
+				SessionTable.COLUMN_SESS_ID + " DESC", "1");
+		if(cursor.moveToFirst()){
+			sessDate = cursor.getString(0);
+		}
+		cursor.close();
+		return sessDate;
+	}
 	
 	/**
-	 * @return current sessionId
+	 * Get last sessionId
+	 * @return 0 if not have any session
 	 */
 	public int getLastSessionId() {
 		int sessionId = 0;
@@ -403,11 +405,7 @@ public class Session extends MPOSDatabase{
 				SessionTable.TABLE_SESSION,
 				new String[] { 
 					SessionTable.COLUMN_SESS_ID 
-				},
-				SessionTable.COLUMN_IS_ENDDAY + "=?",
-				new String[] {
-					String.valueOf(NOT_ENDDAY_STATUS) 
-				}, null, null, SessionTable.COLUMN_SESS_ID + " DESC ", "1");
+				},null, null, null, null, SessionTable.COLUMN_SESS_ID + " DESC ", "1");
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}
@@ -416,20 +414,21 @@ public class Session extends MPOSDatabase{
 	}
 
 	/**
-	 * Get current sessionId 
-	 * @return current sessionId
+	 * Get opened session by open staffId
+	 * @param staffId
+	 * @return 0 if not have opened session
 	 */
-	public int getCurrentSessionId() {
+	public int getCurrentSessionId(int staffId) {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().query(
 				SessionTable.TABLE_SESSION,
 				new String[] { 
 					SessionTable.COLUMN_SESS_ID 
 				},
-				OrderTransactionTable.COLUMN_CLOSE_STAFF + "=? AND "
+				OrderTransactionTable.COLUMN_OPEN_STAFF + "=? AND "
 				+ SessionTable.COLUMN_IS_ENDDAY + "=?",
 				new String[] { 
-					"0",
+					String.valueOf(staffId),
 					String.valueOf(NOT_ENDDAY_STATUS) 
 				}, null, null, null);
 		if (cursor.moveToFirst()) {

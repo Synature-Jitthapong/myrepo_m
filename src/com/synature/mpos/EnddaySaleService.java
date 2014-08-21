@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.synature.mpos.Utils.LoadEndDayTransaction;
 import com.synature.mpos.Utils.LoadEndDaySaleTransactionListener;
-import com.synature.mpos.MPOSWebServiceClient.SendSaleTransaction;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.Session;
@@ -64,9 +63,8 @@ public class EnddaySaleService extends Service{
 						
 						if(jsonEndDaySale != null && !TextUtils.isEmpty(jsonEndDaySale)){
 							
-							new MPOSWebServiceClient.SendSaleTransaction(getApplicationContext(),
-									SendSaleTransaction.SEND_SALE_TRANS_METHOD,
-									shopId, computerId, staffId, jsonEndDaySale, new ProgressListener() {
+							new EndDaySaleTransactionSender(getApplicationContext(),
+									shopId, computerId, staffId, jsonEndDaySale, new WebServiceWorkingListener() {
 			
 										@Override
 										public void onError(String mesg) {
@@ -79,11 +77,11 @@ public class EnddaySaleService extends Service{
 										}
 			
 										@Override
-										public void onPre() {
+										public void onPreExecute() {
 										}
 			
 										@Override
-										public void onPost() {
+										public void onPostExecute() {
 											try {
 												sess.updateSessionEnddayDetail(sessionDate, 
 														MPOSDatabase.ALREADY_SEND);
@@ -105,6 +103,12 @@ public class EnddaySaleService extends Service{
 														+ e.getMessage());
 											}
 										}
+
+										@Override
+										public void onProgressUpdate(int value) {
+											// TODO Auto-generated method stub
+											
+										}
 									}).execute(Utils.getFullUrl(getApplicationContext()));
 						}
 					}
@@ -115,11 +119,17 @@ public class EnddaySaleService extends Service{
 					}
 	
 					@Override
-					public void onPre() {
+					public void onPreExecute() {
 					}
 	
 					@Override
-					public void onPost() {
+					public void onPostExecute() {
+					}
+
+					@Override
+					public void onProgressUpdate(int value) {
+						// TODO Auto-generated method stub
+						
 					}
 	
 				}).execute();

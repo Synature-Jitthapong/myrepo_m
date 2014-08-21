@@ -3,7 +3,6 @@ package com.synature.mpos.database;
 import java.util.List;
 
 import com.synature.mpos.database.table.ComputerTable;
-import com.synature.pos.ShopData;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -36,9 +35,9 @@ public class Computer extends MPOSDatabase{
 		return receiptHeader == null ? "" : receiptHeader;
 	}
 	
-	public ShopData.ComputerProperty getComputerProperty() {
-		ShopData.ComputerProperty computer = 
-				new ShopData.ComputerProperty();
+	public com.synature.pos.ComputerProperty getComputerProperty() {
+		com.synature.pos.ComputerProperty computer = 
+				new com.synature.pos.ComputerProperty();
 		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + ComputerTable.TABLE_COMPUTER, null);
 		if (cursor.moveToFirst()) {
 			computer.setComputerID(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
@@ -54,11 +53,11 @@ public class Computer extends MPOSDatabase{
 		return computer;
 	}
 
-	public void insertComputer(List<ShopData.ComputerProperty> compLst) throws SQLException{
+	public void insertComputer(List<com.synature.pos.ComputerProperty> compLst) throws SQLException{
 		getWritableDatabase().beginTransaction();
 		try {
 			getWritableDatabase().delete(ComputerTable.TABLE_COMPUTER, null, null);
-			for (ShopData.ComputerProperty comp : compLst) {
+			for (com.synature.pos.ComputerProperty comp : compLst) {
 				ContentValues cv = new ContentValues();
 				cv.put(ComputerTable.COLUMN_COMPUTER_ID, comp.getComputerID());
 				cv.put(ComputerTable.COLUMN_COMPUTER_NAME, comp.getComputerName());

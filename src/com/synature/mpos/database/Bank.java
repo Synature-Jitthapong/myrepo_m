@@ -23,9 +23,9 @@ public class Bank extends MPOSDatabase{
 				new String[]{BankTable.COLUMN_BANK_ID, BankTable.COLUMN_BANK_NAME}, null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			do{
-				BankName bank = new BankName(
-						cursor.getInt(cursor.getColumnIndex(BankTable.COLUMN_BANK_ID)),
-						cursor.getString(cursor.getColumnIndex(BankTable.COLUMN_BANK_NAME)));
+				BankName bank = new BankName();
+				bank.setBankNameId(cursor.getInt(cursor.getColumnIndex(BankTable.COLUMN_BANK_ID)));
+				bank.setBankName(cursor.getString(cursor.getColumnIndex(BankTable.COLUMN_BANK_NAME)));
 				bankLst.add(bank);
 			}while(cursor.moveToNext());
 		}

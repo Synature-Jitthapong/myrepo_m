@@ -9,6 +9,7 @@ public class OrderSetTable {
 	public static final String COLUMN_ORDER_SET_QTY = "order_set_qty";
 	public static final String COLUMN_ORDER_SET_PRICE = "order_set_price";
 	public static final String COLUMN_ORDER_SET_PRICE_DISCOUNT = "order_set_price_discount";
+	public static final String COLUMN_DEDUCT_AMOUNT = "deduct_amount";
 
 	private static final String SQL_CREATE = 
 			" create table " + TABLE_ORDER_SET + "( " 
@@ -18,6 +19,8 @@ public class OrderSetTable {
 			+ ProductComponentTable.COLUMN_PGROUP_ID + " integer not null, " 
 			+ ProductTable.COLUMN_PRODUCT_ID + " integer not null, " 
 			+ ProductComponentGroupTable.COLUMN_REQ_AMOUNT + " real default 0, " 
+			+ ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT + " real default 0, "
+			+ COLUMN_DEDUCT_AMOUNT + " real default 0,"
 			+ COLUMN_ORDER_SET_QTY + " real default 0, " 
 			+ COLUMN_ORDER_SET_PRICE + " real default 0, "
 			+ COLUMN_ORDER_SET_PRICE_DISCOUNT + " real default 0, "

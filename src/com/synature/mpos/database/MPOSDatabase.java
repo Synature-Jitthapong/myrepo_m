@@ -24,6 +24,7 @@ import com.synature.mpos.database.table.ProductComponentGroupTable;
 import com.synature.mpos.database.table.ProductComponentTable;
 import com.synature.mpos.database.table.ProductDeptTable;
 import com.synature.mpos.database.table.ProductGroupTable;
+import com.synature.mpos.database.table.ProductPriceTable;
 import com.synature.mpos.database.table.ProductTable;
 import com.synature.mpos.database.table.PromotionPriceGroupTable;
 import com.synature.mpos.database.table.PromotionProductDiscountTable;
@@ -32,7 +33,7 @@ import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
 import com.synature.mpos.database.table.StaffPermissionTable;
 import com.synature.mpos.database.table.StaffTable;
-import com.synature.mpos.database.table.SyncMasterLogTable;
+import com.synature.mpos.database.table.SyncHistoryTable;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -47,6 +48,9 @@ public class MPOSDatabase extends BaseColumn{
 	
 	public static final int NOT_SEND = 0;
 	public static final int ALREADY_SEND = 1;
+	
+	public static final int NOT_DELETE = 0;
+	public static final int DELETED = 1;
 	
 	protected Context mContext;
 	private MPOSOpenHelper mHelper;
@@ -119,12 +123,13 @@ public class MPOSDatabase extends BaseColumn{
 			ProductComponentGroupTable.onCreate(db);
 			ProductComponentTable.onCreate(db);
 			ProductTable.onCreate(db);
+			ProductPriceTable.onCreate(db);
 			SessionTable.onCreate(db);
 			SessionDetailTable.onCreate(db);
 			ShopTable.onCreate(db);
 			StaffPermissionTable.onCreate(db);
 			StaffTable.onCreate(db);
-			SyncMasterLogTable.onCreate(db);
+			SyncHistoryTable.onCreate(db);
 			PromotionPriceGroupTable.onCreate(db);
 			PromotionProductDiscountTable.onCreate(db);
 		}
@@ -155,10 +160,11 @@ public class MPOSDatabase extends BaseColumn{
 			ProductComponentGroupTable.onUpgrade(db, oldVersion, newVersion);
 			ProductComponentTable.onUpgrade(db, oldVersion, newVersion);
 			ProductTable.onUpgrade(db, oldVersion, newVersion);
+			ProductPriceTable.onUpgrade(db, oldVersion, newVersion);
 			ShopTable.onUpgrade(db, oldVersion, newVersion);
 			StaffPermissionTable.onUpgrade(db, oldVersion, newVersion);
 			StaffTable.onUpgrade(db, oldVersion, newVersion);
-			SyncMasterLogTable.onUpgrade(db, oldVersion, newVersion);
+			SyncHistoryTable.onUpgrade(db, oldVersion, newVersion);
 			PromotionPriceGroupTable.onUpgrade(db, oldVersion, newVersion);
 			PromotionProductDiscountTable.onUpgrade(db, oldVersion, newVersion);
 		}

@@ -1,7 +1,6 @@
 package com.synature.mpos.database;
 
 import com.synature.mpos.database.table.StaffTable;
-import com.synature.pos.ShopData;
 import com.synature.util.EncryptSHA1;
 
 import android.content.Context;
@@ -32,15 +31,15 @@ public class UserVerification extends MPOSDatabase{
 		return isFound;
 	}
 	
-	public ShopData.Staff checkLogin() {
-		ShopData.Staff s = null;
+	public com.synature.pos.Staff checkLogin() {
+		com.synature.pos.Staff s = null;
 		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " 
 				+ StaffTable.TABLE_STAFF
 				+ " WHERE " + StaffTable.COLUMN_STAFF_CODE + "=?" 
 				+ " AND " + StaffTable.COLUMN_STAFF_PASS + "=?", 
 				new String[]{mUser, mPassEncrypt});
 		if(cursor.moveToFirst()){
-			s = new ShopData.Staff();
+			s = new com.synature.pos.Staff();
 			s.setStaffID(cursor.getInt(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_ID)));
 			s.setStaffCode(cursor.getString(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_CODE)));
 			s.setStaffName(cursor.getString(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_NAME)));
