@@ -12,9 +12,7 @@ import com.synature.mpos.database.table.LanguageTable;
 import com.synature.mpos.database.table.MenuCommentGroupTable;
 import com.synature.mpos.database.table.MenuCommentTable;
 import com.synature.mpos.database.table.MenuFixCommentTable;
-import com.synature.mpos.database.table.OrderCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
-import com.synature.mpos.database.table.OrderSetTable;
 import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentButtonTable;
@@ -112,8 +110,6 @@ public class MPOSDatabase extends BaseColumn{
 			MenuFixCommentTable.onCreate(db);
 			OrderDetailTable.onCreate(db);
 			OrderTransactionTable.onCreate(db);
-			OrderSetTable.onCreate(db);
-			OrderCommentTable.onCreate(db);
 			PrintReceiptLogTable.onCreate(db);
 			PaymentDetailTable.onCreate(db);
 			PaymentButtonTable.onCreate(db);

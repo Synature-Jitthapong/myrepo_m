@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MenuComment;
+import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Transaction;
 
 import android.app.Activity;
@@ -102,9 +103,6 @@ public class MenuCommentFragment extends DialogFragment{
 		commentGroup.setCommentGroupId(0);
 		commentGroup.setCommentGroupName("-- ALL --");
 		mCommentGroupLst.add(0, commentGroup);
-		
-		// create order comment temp
-		mTrans.createOrderCommentTemp(mTransactionId, mOrderDetailId);
 	}
 
 	@Override
@@ -180,7 +178,6 @@ public class MenuCommentFragment extends DialogFragment{
 					mTrans.updateOrderComment(mTransactionId, mOrderDetailId, 
 							mTxtComment.getText().toString());
 				}
-				mTrans.confirmOrderComment(mTransactionId, mComputerId, mOrderDetailId, mVatType, mVatRate);
 				mListener.onDismiss(mPosition, mOrderDetailId);
 			}
 		});
@@ -315,12 +312,12 @@ public class MenuCommentFragment extends DialogFragment{
 			public void onClick(View v) {
 				if(mComment.isSelected()){
 					mComment.setSelected(false);
-					mTrans.deleteOrderCommentTemp(mTransactionId, mOrderDetailId, mComment.getCommentId());
+					mTrans.deleteOrderComment(mTransactionId, mOrderDetailId, mComment.getCommentId());
 				}else{
 					double price = mComment.getCommentPrice() < 0 ? 0 : mComment.getCommentPrice();
 					mComment.setSelected(true);
-					mTrans.addOrderComment(mTransactionId, mOrderDetailId, mComment.getCommentId(), 
-							1, price);
+					mTrans.addOrderComment(mTransactionId, mComputerId, mOrderDetailId, mComment.getCommentId(), 
+							Products.COMMENT_NOT_HAVE_PRICE, 1, price);
 				}
 				mCommentAdapter.notifyDataSetChanged();	
 			}

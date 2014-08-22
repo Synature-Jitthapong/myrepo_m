@@ -12,7 +12,7 @@ import com.synature.util.FileManager;
 
 @SuppressLint("SimpleDateFormat")
 public class JSONSaleLogFile {
-	public static final String JSON_EXTENSION = ".json";
+	public static final String JSON_EXTENSION = ".txt";
 	
 	public static void appendSale(Context c, String json) {
 		Calendar calendar = Calendar.getInstance();

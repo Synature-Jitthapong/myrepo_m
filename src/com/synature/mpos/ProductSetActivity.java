@@ -339,16 +339,6 @@ public class ProductSetActivity extends Activity{
 		if(canDone){
 			mTrans.getWritableDatabase().setTransactionSuccessful();
 			mTrans.getWritableDatabase().endTransaction();
-			mTrans.deleteOrderDetailNotNormalType(mTransactionId, mOrderDetailId, Products.CHILD_OF_SET_HAVE_PRICE);
-			List<OrderSet.OrderSetDetail> setDetailLst = mTrans.listOrderSetDetailHavePrice(mTransactionId, mOrderDetailId);
-			for(OrderSet.OrderSetDetail setDetail : setDetailLst){
-				int parentOrderId = mTrans.addOrderDetail(mTransactionId, mComputerId, setDetail.getProductId(), 
-						Products.CHILD_OF_SET_HAVE_PRICE, setDetail.getVatType(), 
-						setDetail.getVatRate(), setDetail.getOrderSetQty(), 
-						setDetail.getProductPrice(), mOrderDetailId);
-				mTrans.updateOrderSetSelfOrderId(mTransactionId, mOrderDetailId, 
-						setDetail.getProductId(), parentOrderId);
-			}
 			finish();
 		}else{
 			new AlertDialog.Builder(ProductSetActivity.this)
@@ -712,8 +702,8 @@ public class ProductSetActivity extends Activity{
 			
 			if(totalQty < requireAmount){
 				if(deductQty <= requireAmount - totalQty){
-					mTrans.addOrderSet(mTransactionId, mOrderDetailId, productId, 
-							deductQty, price, pCompGroupId, requireAmount, requireMinAmount);
+					mTrans.addOrderSet(mTransactionId, mComputerId, mOrderDetailId, productId, 
+							Products.CHILD_OF_SET_HAVE_PRICE, deductQty, price, pCompGroupId, requireAmount, requireMinAmount);
 				}else{
 					new AlertDialog.Builder(ProductSetActivity.this)
 					.setTitle(groupName)
@@ -734,8 +724,8 @@ public class ProductSetActivity extends Activity{
 					selectNextGroup();
 			}
 		}else{
-			mTrans.addOrderSet(mTransactionId, mOrderDetailId, productId, 
-					deductQty, price, pCompGroupId, requireAmount, requireMinAmount);
+			mTrans.addOrderSet(mTransactionId, mComputerId, mOrderDetailId, productId, 
+					Products.CHILD_OF_SET_HAVE_PRICE, deductQty, price, pCompGroupId, requireAmount, requireMinAmount);
 		}
 	}
 	

@@ -9,9 +9,7 @@ import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.CreditCardTable;
 import com.synature.mpos.database.table.MenuCommentTable;
-import com.synature.mpos.database.table.OrderCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
-import com.synature.mpos.database.table.OrderSetTable;
 import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
@@ -176,6 +174,8 @@ public class SaleTransaction extends MPOSDatabase{
 	private List<SaleTable_OrderDetail> buildOrderDetailLst(Cursor cursor) {
 		List<SaleTable_OrderDetail> orderDetailLst = new ArrayList<SaleTable_OrderDetail>();
 		if (cursor != null) {
+			Cursor cursorComm = cursor;
+			Cursor cursorSet = cursor;
 			if (cursor.moveToFirst()) {
 				do {
 					int productTypeId = cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID));
@@ -196,63 +196,59 @@ public class SaleTransaction extends MPOSDatabase{
 						order.setfTotalVatAmount(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT))));
 						order.setfPriceDiscountAmount(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT))));
 						order.setiSaleMode(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));
-						// order comment
-						Cursor curOrderComm = queryOrderComment(order.getiTransactionID(), order.getiOrderDetailID());
-						if(curOrderComm.moveToFirst()){
-							do{
-								SaleTable_CommentInfo comment = new SaleTable_CommentInfo();
-								/**
-								 * use parent_order_id of OrderCommentTable if have discount
-								 * because discount of comment stored in OrderDetail
-								 */
-								int orderId = curOrderComm.getInt(curOrderComm.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID));
-								double orderCommentDiscount = curOrderComm.getDouble(curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE_DISCOUNT));
-								if(orderCommentDiscount > 0){
-									orderId = curOrderComm.getInt(curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_SELF_ORDER_ID));
-								}
-								comment.setiOrderID(orderId);
-								comment.setiCommentID(curOrderComm.getInt(curOrderComm.getColumnIndex(MenuCommentTable.COLUMN_COMMENT_ID)));
-								comment.setfCommentQty(Utils.fixesDigitLength(mFormat, 4, curOrderComm.getDouble(curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_QTY))));
-								comment.setfCommentPrice(Utils.fixesDigitLength(mFormat, 4, curOrderComm.getDouble(curOrderComm.getColumnIndex(OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE))));
-								comment.setfDiscountPrice(Utils.fixesDigitLength(mFormat, 4, orderCommentDiscount));
-								order.getxListCommentInfo().add(comment);
-							}while(curOrderComm.moveToNext());
-						}
-						curOrderComm.close();
-						// order set
-						Cursor curOrderSet = queryOrderSet(order.getiTransactionID(), order.getiOrderDetailID());
-						if(curOrderSet.moveToFirst()){
-							do{
-								SaleTable_ChildOrderType7 orderSet = 
-										new SaleTable_ChildOrderType7();
-								/**
-								 * use parent_order_id of OrderSetTable if have discount
-								 * because discount of OrderSet stored in OrderDetail
-								 */
-								int orderId = curOrderSet.getInt(curOrderSet.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID));
-								double orderSetDiscount = curOrderSet.getDouble(curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE_DISCOUNT));
-								if(orderSetDiscount > 0){
-									orderId = curOrderSet.getInt(curOrderSet.getColumnIndex(OrderCommentTable.COLUMN_SELF_ORDER_ID));
-								}
-								orderSet.setiOrderID(orderId);
-								orderSet.setiPGroupID(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
-								orderSet.setiSetGroupNo(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
-								orderSet.setiProductID(curOrderSet.getInt(curOrderSet.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-								orderSet.setfProductQty(Utils.fixesDigitLength(mFormat, 4, curOrderSet.getDouble(curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_QTY))));
-								orderSet.setfProductPrice(Utils.fixesDigitLength(mFormat, 4, curOrderSet.getDouble(curOrderSet.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE))));
-								orderSet.setfDiscountPrice(Utils.fixesDigitLength(mFormat, 4, orderSetDiscount));
-								order.getxListChildOrderSetLinkType7().add(orderSet);
-							}while(curOrderSet.moveToNext());
-						}
-						curOrderSet.close();
+						order.setxListChildOrderSetLinkType7(buildChildOfSet(cursorSet));
+						order.setxListCommentInfo(buildOrderComment(cursorComm));
 						orderDetailLst.add(order);
 					}
 				} while (cursor.moveToNext());
 			}
+			cursor.close();
 		}
 		return orderDetailLst;
 	}
 
+	private List<SaleTable_ChildOrderType7> buildChildOfSet(Cursor cursor){
+		List<SaleTable_ChildOrderType7> childSetLst = new ArrayList<SaleTable_ChildOrderType7>();
+		if(cursor.moveToFirst()){
+			do{
+				int productTypeId = cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID));
+				if(productTypeId == Products.CHILD_OF_SET_HAVE_PRICE){
+					SaleTable_ChildOrderType7 orderSet = new SaleTable_ChildOrderType7();
+					orderSet.setiOrderID(cursor.getInt(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
+					orderSet.setiPGroupID(cursor.getInt(cursor.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
+					orderSet.setiSetGroupNo(cursor.getInt(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
+					orderSet.setiProductID(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
+					orderSet.setfProductQty(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_SET_QTY))));
+					orderSet.setfProductPrice(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_SET_PRICE))));
+					orderSet.setfDiscountPrice(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_SET_PRICE_DISCOUNT))));
+					childSetLst.add(orderSet);
+				}
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return childSetLst;
+	}
+	
+	private List<SaleTable_CommentInfo> buildOrderComment(Cursor cursor){
+		List<SaleTable_CommentInfo> commLst = new ArrayList<SaleTable_CommentInfo>();
+		if(cursor.moveToFirst()){
+			do{
+				int productTypeId = cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID));
+				if(productTypeId == Products.COMMENT_HAVE_PRICE){
+					SaleTable_CommentInfo comment = new SaleTable_CommentInfo();
+					comment.setiOrderID(cursor.getInt(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
+					comment.setiCommentID(cursor.getInt(cursor.getColumnIndex(MenuCommentTable.COLUMN_COMMENT_ID)));
+					comment.setfCommentQty(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_COMMENT_QTY))));
+					comment.setfCommentPrice(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_COMMENT_PRICE))));
+					comment.setfDiscountPrice(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_COMMENT_PRICE_DISCOUNT))));
+					commLst.add(comment);
+				}
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return commLst;
+	}
+	
 	private SaleTable_SessionEndDay buildSessEnddayObj(String sessionDate) {
 		SaleTable_SessionEndDay saleSessEnd = new SaleTable_SessionEndDay();
 		Cursor cursor = querySessionEndday(sessionDate);
@@ -333,39 +329,38 @@ public class SaleTransaction extends MPOSDatabase{
 				}, null, null, null);
 	}
 
-	private Cursor queryOrderSet(int transactionId, int orderDetailId){
-		return getReadableDatabase().rawQuery(
-				"SELECT a." + OrderSetTable.COLUMN_ORDER_SET_ID + ","
-				+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", "
-				+ " a." + ProductTable.COLUMN_PRODUCT_ID + ", "
-				+ " a." + OrderSetTable.COLUMN_ORDER_SET_QTY + ", "
-				+ " a." + OrderSetTable.COLUMN_ORDER_SET_PRICE + ","
-				+ " a." + ProductComponentTable.COLUMN_PGROUP_ID + ", "
-				+ " a." + OrderSetTable.COLUMN_ORDER_SET_PRICE_DISCOUNT + ","
-				+ " a." + OrderCommentTable.COLUMN_SELF_ORDER_ID + ", "
-				+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NO
-				+ " FROM " + OrderSetTable.TABLE_ORDER_SET + " a "
-				+ " LEFT JOIN " + ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP + " b "
-				+ " ON a." + ProductComponentTable.COLUMN_PGROUP_ID + "=b." +  ProductComponentTable.COLUMN_PGROUP_ID
-				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANS_ID + "=?"
-				+ " AND a." + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
-				new String[]{
-					String.valueOf(transactionId),
-					String.valueOf(orderDetailId)
-				});
-	}
+//	private Cursor queryOrderSet(int transactionId, int orderDetailId){
+//		return getReadableDatabase().rawQuery(
+//				"SELECT a." + OrderSetTable.COLUMN_ORDER_SET_ID + ","
+//				+ " a." + OrderDetailTable.COLUMN_ORDER_ID + ", "
+//				+ " a." + ProductTable.COLUMN_PRODUCT_ID + ", "
+//				+ " a." + OrderSetTable.COLUMN_ORDER_SET_QTY + ", "
+//				+ " a." + OrderSetTable.COLUMN_ORDER_SET_PRICE + ","
+//				+ " a." + ProductComponentTable.COLUMN_PGROUP_ID + ", "
+//				+ " a." + OrderSetTable.COLUMN_ORDER_SET_PRICE_DISCOUNT + ","
+//				+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NO
+//				+ " FROM " + OrderSetTable.TABLE_ORDER_SET + " a "
+//				+ " LEFT JOIN " + ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP + " b "
+//				+ " ON a." + ProductComponentTable.COLUMN_PGROUP_ID + "=b." +  ProductComponentTable.COLUMN_PGROUP_ID
+//				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANS_ID + "=?"
+//				+ " AND a." + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
+//				new String[]{
+//					String.valueOf(transactionId),
+//					String.valueOf(orderDetailId)
+//				});
+//	}
 	
-	private Cursor queryOrderComment(int transactionId, int orderDetailId){
-		return getReadableDatabase().query(
-				OrderCommentTable.TABLE_ORDER_COMMENT, 
-				Transaction.ALL_ORDER_COMMENT_COLUMNS, 
-				OrderTransactionTable.COLUMN_TRANS_ID + "=?"
-				+ " and " + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
-				new String[]{
-					String.valueOf(transactionId),
-					String.valueOf(orderDetailId)
-				}, null, null, null);
-	}
+//	private Cursor queryOrderComment(int transactionId, int orderDetailId){
+//		return getReadableDatabase().query(
+//				OrderCommentTable.TABLE_ORDER_COMMENT, 
+//				Transaction.ALL_ORDER_COMMENT_COLUMNS, 
+//				OrderTransactionTable.COLUMN_TRANS_ID + "=?"
+//				+ " and " + OrderDetailTable.COLUMN_ORDER_ID + "=?", 
+//				new String[]{
+//					String.valueOf(transactionId),
+//					String.valueOf(orderDetailId)
+//				}, null, null, null);
+//	}
 	
 	private Cursor queryOrderDetail(int transId) {
 		return getReadableDatabase().query(
@@ -1003,6 +998,15 @@ public class SaleTransaction extends MPOSDatabase{
 
 		public List<SaleTable_ChildOrderType7> getxListChildOrderSetLinkType7() {
 			return xListChildOrderSetLinkType7;
+		}
+
+		public void setxListChildOrderSetLinkType7(
+				List<SaleTable_ChildOrderType7> xListChildOrderSetLinkType7) {
+			this.xListChildOrderSetLinkType7 = xListChildOrderSetLinkType7;
+		}
+
+		public void setxListCommentInfo(List<SaleTable_CommentInfo> xListCommentInfo) {
+			this.xListCommentInfo = xListCommentInfo;
 		}
 
 		public List<SaleTable_CommentInfo> getxListCommentInfo() {

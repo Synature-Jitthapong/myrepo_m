@@ -41,9 +41,7 @@ import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
-import com.synature.mpos.database.table.OrderCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
-import com.synature.mpos.database.table.OrderSetTable;
 import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.mpos.database.table.SessionDetailTable;
@@ -436,8 +434,6 @@ public class Utils {
 				MPOSDatabase.MPOSOpenHelper.getInstance(context);
 		SQLiteDatabase sqlite = mSqliteHelper.getWritableDatabase();
 		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
-		sqlite.delete(OrderSetTable.TABLE_ORDER_SET, null, null);
-		sqlite.delete(OrderCommentTable.TABLE_ORDER_COMMENT, null, null);
 		sqlite.delete(OrderTransactionTable.TABLE_ORDER_TRANS, null, null);
 		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
 		sqlite.delete(SessionTable.TABLE_SESSION, null, null);

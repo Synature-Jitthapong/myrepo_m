@@ -221,7 +221,7 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 		tvSummary.setText(content);
 		tvSummary.setLayoutParams(params);
 		tvSummary.setGravity(Gravity.RIGHT);
-		tvSummary.setTextAppearance(context, R.style.HeaderText);
+		tvSummary.setTextAppearance(context, R.style.SummaryText);
 		tvSummary.setPadding(4, 4, 4, 4);
 		return tvSummary;
 	}

@@ -5,9 +5,7 @@ import java.util.List;
 
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.MenuCommentTable;
-import com.synature.mpos.database.table.OrderCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
-import com.synature.mpos.database.table.OrderSetTable;
 import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.mpos.database.table.ProductDeptTable;
@@ -461,14 +459,14 @@ public class Reporting extends MPOSDatabase{
 				+ " AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
 				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") "
 				+ " AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ","
-				+ "(SELECT SUM(s." + OrderSetTable.COLUMN_ORDER_SET_PRICE + " * s." + OrderSetTable.COLUMN_ORDER_SET_QTY + ") "
-				+ "FROM " + OrderSetTable.TABLE_ORDER_SET + " s "
+				+ "(SELECT SUM(s." + OrderDetailTable.COLUMN_ORDER_SET_PRICE + " * s." + OrderDetailTable.COLUMN_ORDER_SET_QTY + ") "
+				+ "FROM " + OrderDetailTable.TABLE_ORDER + " s "
 				+ "LEFT JOIN " + ProductTable.TABLE_PRODUCT + " p "
 				+ " ON s." + ProductTable.COLUMN_PRODUCT_ID + "=p." + ProductTable.COLUMN_PRODUCT_ID
 				+ " WHERE s." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ") "
 				+ " AND p." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?) AS TotalSetPrice,"
-				+ "(SELECT SUM(c." + OrderCommentTable.COLUMN_ORDER_COMMENT_PRICE + " * c." + OrderCommentTable.COLUMN_ORDER_COMMENT_QTY + ") "
-				+ "FROM " + OrderCommentTable.TABLE_ORDER_COMMENT + " c "
+				+ "(SELECT SUM(c." + OrderDetailTable.COLUMN_ORDER_COMMENT_PRICE + " * c." + OrderDetailTable.COLUMN_ORDER_COMMENT_QTY + ") "
+				+ "FROM " + OrderDetailTable.TABLE_ORDER + " c "
 				+ "LEFT JOIN " + ProductTable.TABLE_PRODUCT + " p "
 				+ " ON c." + MenuCommentTable.COLUMN_COMMENT_ID + "=p." + ProductTable.COLUMN_PRODUCT_ID
 				+ " WHERE c." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + " )"

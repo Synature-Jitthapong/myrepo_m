@@ -15,6 +15,13 @@ public class OrderDetailTable extends BaseColumn{
 	public static final String COLUMN_MEMBER_DISCOUNT = "member_discount_amount";
 	public static final String COLUMN_PRICE_DISCOUNT = "price_discount_amount";
 	public static final String COLUMN_PRICE_OR_PERCENT = "price_or_percent";
+	public static final String COLUMN_ORDER_SET_QTY = "order_set_qty";
+	public static final String COLUMN_ORDER_SET_PRICE = "order_set_price";
+	public static final String COLUMN_ORDER_SET_PRICE_DISCOUNT = "order_set_price_discount";
+	public static final String COLUMN_DEDUCT_AMOUNT = "deduct_amount";
+	public static final String COLUMN_ORDER_COMMENT_QTY = "order_comment_qty";
+	public static final String COLUMN_ORDER_COMMENT_PRICE = "order_comment_price";
+	public static final String COLUMN_ORDER_COMMENT_PRICE_DISCOUNT = "order_comment_price_discount";
 	public static final String COLUMN_PARENT_ORDER_ID = "parent_order_id";
 
 	private static final String ORDER_SQL_CREATE = 
@@ -23,7 +30,7 @@ public class OrderDetailTable extends BaseColumn{
 			+ OrderTransactionTable.COLUMN_TRANS_ID + " integer not null, "
 			+ ComputerTable.COLUMN_COMPUTER_ID + " integer not null, "
 			+ ProductTable.COLUMN_PRODUCT_ID + " integer not null, "
-			+ ProductTable.COLUMN_PRODUCT_TYPE_ID + " integer not null, "
+			+ ProductTable.COLUMN_PRODUCT_TYPE_ID + " integer default 0, "
 			+ COLUMN_ORDER_QTY + " real default 1, "
 			+ ProductTable.COLUMN_PRODUCT_PRICE + " real default 0, "
 			+ COLUMN_PRICE_OR_PERCENT + " integer default 2, "
@@ -34,6 +41,15 @@ public class OrderDetailTable extends BaseColumn{
 			+ COLUMN_PRICE_DISCOUNT + " real default 0, "
 			+ COLUMN_TOTAL_RETAIL_PRICE + " real default 0, "
 			+ COLUMN_TOTAL_SALE_PRICE + " real default 0, "
+			+ ProductComponentTable.COLUMN_PGROUP_ID + " integer, "
+			+ ProductComponentGroupTable.COLUMN_REQ_AMOUNT + " real default 0, " 
+			+ ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT + " real default 0, "
+			+ COLUMN_DEDUCT_AMOUNT + " real default 0,"
+			+ COLUMN_ORDER_SET_QTY + " real default 0, " 
+			+ COLUMN_ORDER_SET_PRICE + " real default 0, "
+			+ COLUMN_ORDER_COMMENT_QTY + " real default 0, "
+			+ COLUMN_ORDER_COMMENT_PRICE + " real default 0, "
+			+ COLUMN_ORDER_COMMENT_PRICE_DISCOUNT + " real default 0,"
 			+ ProductTable.COLUMN_SALE_MODE + " integer default 1, "
 			+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + " integer default 0,"
 			+ PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID + " integer default 0,"

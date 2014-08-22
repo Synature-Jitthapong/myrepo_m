@@ -42,6 +42,11 @@ public class Products extends MPOSDatabase {
 	public static final int SET_CAN_SELECT = 7;
 	
 	/**
+	 * MenuComment not have price
+	 */
+	public static final int COMMENT_NOT_HAVE_PRICE = 14;
+	
+	/**
 	 * MenuComment have price
 	 */
 	public static final int COMMENT_HAVE_PRICE = 15;
