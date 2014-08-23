@@ -141,7 +141,7 @@ public class MenuComment extends MPOSDatabase{
 			for(com.synature.pos.MenuCommentGroup cg : commentGroupLst){
 				ContentValues cv = new ContentValues();
 				cv.put(MenuCommentTable.COLUMN_COMMENT_GROUP_ID, cg.getMCGRID());
-				cv.put(MenuCommentGroupTable.COLUMN_COMMENT_GROUP_NAME, cg.getMCGRNAM());
+				cv.put(MenuCommentGroupTable.COLUMN_COMMENT_GROUP_NAME, cg.getMCGRNAM0());
 				getWritableDatabase().insertOrThrow(MenuCommentGroupTable.TABLE_MENU_COMMENT_GROUP, 
 						null, cv);
 			}

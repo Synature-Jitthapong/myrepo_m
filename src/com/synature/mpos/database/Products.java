@@ -456,6 +456,7 @@ public class Products extends MPOSDatabase {
 	}
 	
 	/**
+	 * Get product by bar code
 	 * @param barCode
 	 * @return Product
 	 */
@@ -464,7 +465,7 @@ public class Products extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().query(
 				ProductTable.TABLE_PRODUCT,
 				ALL_PRODUCT_COLS, 
-				ProductTable.COLUMN_PRODUCT_CODE + "=?"
+				ProductTable.COLUMN_PRODUCT_BAR_CODE + "=?"
 				+ " AND " + COLUMN_DELETED + "=?",
 				new String[] { 
 					barCode,

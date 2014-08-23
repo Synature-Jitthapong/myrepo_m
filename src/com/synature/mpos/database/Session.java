@@ -414,7 +414,7 @@ public class Session extends MPOSDatabase{
 	}
 
 	/**
-	 * Get opened session by open staffId
+	 * Get opened session
 	 * @param staffId
 	 * @return 0 if not have opened session
 	 */
@@ -425,11 +425,11 @@ public class Session extends MPOSDatabase{
 				new String[] { 
 					SessionTable.COLUMN_SESS_ID 
 				},
-				OrderTransactionTable.COLUMN_OPEN_STAFF + "=? AND "
-				+ SessionTable.COLUMN_IS_ENDDAY + "=?",
-				new String[] { 
+				OrderTransactionTable.COLUMN_OPEN_STAFF + "=? "
+				+ " AND " + OrderTransactionTable.COLUMN_CLOSE_STAFF + "=?",
+				new String[] {
 					String.valueOf(staffId),
-					String.valueOf(NOT_ENDDAY_STATUS) 
+					String.valueOf(0) 
 				}, null, null, null);
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);

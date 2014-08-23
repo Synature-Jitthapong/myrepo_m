@@ -7,5 +7,5 @@
         android:state_selected="true"
         android:drawable="@drawable/holo_blue_light_shape"></item>
     <item
-        android:drawable="@drawable/holo_green_dark_shape"></item>
+        android:drawable="@drawable/smooth_green_shape"></item>
 </selector>

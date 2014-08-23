@@ -106,7 +106,7 @@
 
             <Button
                 android:id="@+id/btnCashPaid"
-                style="@style/GreenButton"
+                style="@style/SmoothGreenButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -116,7 +116,7 @@
 
             <Button
                 android:id="@+id/btnPayment"
-                style="@style/GreenButton"
+                style="@style/SmoothGreenButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

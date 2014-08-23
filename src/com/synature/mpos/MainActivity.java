@@ -677,29 +677,31 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		for(MPOSOrderTransaction trans : transIdLst){
 			// send sale data service
 			mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
-					trans.getComputerId(), mStaffId, new WebServiceWorkingListener() {
-	
-						@Override
-						public void onPreExecute() {
-						}
-	
-						@Override
-						public void onPostExecute() {
-							countSaleDataNotSend();
-							Utils.makeToask(MainActivity.this, MainActivity.this
-									.getString(R.string.send_sale_data_success));
-						}
-	
-						@Override
-						public void onError(String msg) {
-						}
-
-						@Override
-						public void onProgressUpdate(int value) {
-						}
-			});
+					trans.getComputerId(), mStaffId, mPartialSaleSenderListener);
 		}
 	}
+	
+	WebServiceWorkingListener mPartialSaleSenderListener = new WebServiceWorkingListener() {
+		
+		@Override
+		public void onPreExecute() {
+		}
+
+		@Override
+		public void onPostExecute() {
+			countSaleDataNotSend();
+			Utils.makeToask(MainActivity.this, MainActivity.this
+					.getString(R.string.send_sale_data_success));
+		}
+
+		@Override
+		public void onError(String msg) {
+		}
+
+		@Override
+		public void onProgressUpdate(int value) {
+		}
+	};
 	
 	/**
 	 * @param v
@@ -2176,6 +2178,11 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	@Override
 	public void onCloseShift(double cashAmount) {
 		mSession.closeSession(mSessionId, mStaffId, cashAmount, false);
+
+		// send sale data service
+		mPartService.sendSale(mShopId, mSessionId, mTransactionId, 
+				mComputerId, mStaffId, mPartialSaleSenderListener);
+		
 		startActivity(new Intent(MainActivity.this, LoginActivity.class));
 		finish();
 	}
@@ -2190,14 +2197,10 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		boolean endday = Utils.endday(MainActivity.this, mShopId, 
 				mComputerId, mSessionId, mStaffId, cashAmount, true);
 		if(endday){
+			// backup the database
+			Utils.exportDatabase(this);
 			new PrintReport(MainActivity.this, 
 					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).run();
-			// start the service 
-//			Intent enddayIntent = new Intent(MainActivity.this, EnddaySaleService.class);
-//			enddayIntent.putExtra("staffId", mStaffId);
-//			enddayIntent.putExtra("shopId", mShopId);
-//			enddayIntent.putExtra("computerId", mComputerId);
-//			startService(enddayIntent);
 			sendEnddayData();
 		}
 	}
