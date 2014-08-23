@@ -202,7 +202,6 @@ public class SaleTransaction extends MPOSDatabase{
 					}
 				} while (cursor.moveToNext());
 			}
-			cursor.close();
 		}
 		return orderDetailLst;
 	}
@@ -225,7 +224,6 @@ public class SaleTransaction extends MPOSDatabase{
 				}
 			}while(cursor.moveToNext());
 		}
-		cursor.close();
 		return childSetLst;
 	}
 	
@@ -237,7 +235,7 @@ public class SaleTransaction extends MPOSDatabase{
 				if(productTypeId == Products.COMMENT_HAVE_PRICE){
 					SaleTable_CommentInfo comment = new SaleTable_CommentInfo();
 					comment.setiOrderID(cursor.getInt(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
-					comment.setiCommentID(cursor.getInt(cursor.getColumnIndex(MenuCommentTable.COLUMN_COMMENT_ID)));
+					comment.setiCommentID(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
 					comment.setfCommentQty(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_COMMENT_QTY))));
 					comment.setfCommentPrice(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_COMMENT_PRICE))));
 					comment.setfDiscountPrice(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_COMMENT_PRICE_DISCOUNT))));
@@ -245,7 +243,6 @@ public class SaleTransaction extends MPOSDatabase{
 				}
 			}while(cursor.moveToNext());
 		}
-		cursor.close();
 		return commLst;
 	}
 	

@@ -1805,12 +1805,10 @@ public class Transaction extends MPOSDatabase {
 				+ " on a." + ProductComponentTable.COLUMN_PGROUP_ID + "=b." + ProductComponentTable.COLUMN_PGROUP_ID
 				+ " where a." + OrderTransactionTable.COLUMN_TRANS_ID + "=? "
 				+ " and a." + OrderDetailTable.COLUMN_ORDER_ID + "=?"
-				+ " and a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + "=?"
 				+ " group by b." + ProductComponentTable.COLUMN_PGROUP_ID,
 				new String[] { 
 					String.valueOf(transactionId),
-					String.valueOf(orderDetailId),
-					String.valueOf(Products.SET_CAN_SELECT)
+					String.valueOf(orderDetailId)
 				});
 
 		if (mainCursor.moveToFirst()) {
@@ -1889,7 +1887,7 @@ public class Transaction extends MPOSDatabase {
 						+ " a." + ProductTable.COLUMN_PRODUCT_ID + ", " 
 						+ " sum (a." + OrderDetailTable.COLUMN_ORDER_SET_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_SET_QTY + ", "
 						+ " sum (a." + OrderDetailTable.COLUMN_ORDER_SET_PRICE + ") AS " + OrderDetailTable.COLUMN_ORDER_SET_PRICE + ", "
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", "
+						+ " b." + ProductTable.COLUMN_PRODUCT_NAME
 						+ " from " + OrderDetailTable.TABLE_ORDER + " a "
 						+ " left join " + ProductTable.TABLE_PRODUCT + " b "
 						+ " on a." + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID
