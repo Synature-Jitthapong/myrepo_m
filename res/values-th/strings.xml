@@ -43,7 +43,6 @@
     <string name="sale_report_by_bill">รายงานการขายตามบิล</string>
     <string name="sale_report_by_product">รายงานการขายตามสินค้า</string>
     <string name="remark">หมายเหตุ</string>
-    <string name="update_product_data">อัพเดตข้อมูลสินค้า</string>
     <string name="check_device_progress">กำลังตรวจสอบเครื่อง&#8230;</string>
 	<string name="load_master_progress">กำลังโหลดข้อมูล master&#8230;</string>
     <string name="hold">พักบิล</string>
