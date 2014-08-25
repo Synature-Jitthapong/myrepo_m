@@ -25,7 +25,7 @@ import com.synature.pos.MasterData;
 import com.synature.util.FileManager;
 import com.synature.util.Logger;
 
-public class MasterDataLoader extends MPOSMainService{
+public class MasterDataLoader extends MPOSServiceBase{
 	
 	public static final String LOAD_MASTER_METHOD = "WSmPOS_JSON_LoadShopMasterData";
 	

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.mpos.SaleService.LocalBinder;
+import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.table.BaseColumn;
@@ -12,7 +13,6 @@ import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.pos.OrderTransaction;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -35,7 +35,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class SendSaleActivity extends Activity{
+public class SendSaleActivity extends MPOSActivityBase{
 	
 	private SaleService mPartService;
 	private boolean mBound = false;
@@ -53,12 +53,6 @@ public class SendSaleActivity extends Activity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);

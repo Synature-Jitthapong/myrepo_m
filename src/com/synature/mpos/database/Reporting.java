@@ -3,6 +3,7 @@ package com.synature.mpos.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.MenuCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
@@ -97,13 +98,10 @@ public class Reporting extends MPOSDatabase{
 						});
 				if(detailCursor.moveToFirst()){
 					do{
-						MPOSOrderTransaction detail = new MPOSOrderTransaction();
-						detail.setReceiptNo(detailCursor.getString(
-								detailCursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
-						detail.setCloseTime(detailCursor.getString(
-								detailCursor.getColumnIndex(OrderTransactionTable.COLUMN_CLOSE_TIME)));
-						detail.setTransactionVatable(detailCursor.getDouble(
-								detailCursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)));
+						OrderTransaction detail = new OrderTransaction();
+						detail.setReceiptNo(detailCursor.getString(detailCursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
+						detail.setCloseTime(detailCursor.getString(detailCursor.getColumnIndex(OrderTransactionTable.COLUMN_CLOSE_TIME)));
+						detail.setTransactionVatable(detailCursor.getDouble(detailCursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)));
 						trans.getTransLst().add(detail);
 					}while(detailCursor.moveToNext());
 				}
@@ -154,8 +152,7 @@ public class Reporting extends MPOSDatabase{
 						+ " a." + COLUMN_PRODUCT_SUB_TOTAL + ", "
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", "
 						+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME2 + ", "
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME3
+						+ " b." + ProductTable.COLUMN_PRODUCT_NAME2
 						+ " FROM " + TEMP_PRODUCT_REPORT + " a "
 						+ " INNER JOIN " + ProductTable.TABLE_PRODUCT + " b " 
 						+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID 
@@ -174,17 +171,14 @@ public class Reporting extends MPOSDatabase{
 						String itemName = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME));
 						String itemName1 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1));
 						String itemName2 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2));
-						String itemName3 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3));
 						if(productTypeId == Products.CHILD_OF_SET_HAVE_PRICE){
 							itemName += "***";
 							itemName1 += "***";
 							itemName2 += "***";
-							itemName3 += "***";
 						}
 						item.setItemName(itemName);
 						item.setItemName1(itemName1);
 						item.setItemName2(itemName2);
-						item.setItemName3(itemName3);
 						item.setTotalQty(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_QTY)));
 						item.setTotalPrice(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_SUB_TOTAL)));
 						sp.getItemLst().add(item);
@@ -327,8 +321,7 @@ public class Reporting extends MPOSDatabase{
 							+ " b." + ProductTable.COLUMN_PRODUCT_CODE + ", " 
 							+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", " 
 							+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", " 
-							+ " b." + ProductTable.COLUMN_PRODUCT_NAME2 + ", " 
-							+ " b." + ProductTable.COLUMN_PRODUCT_NAME3 + ", " 
+							+ " b." + ProductTable.COLUMN_PRODUCT_NAME2 + ", "
 							+ " b." + ProductTable.COLUMN_PRODUCT_PRICE + ", " 
 							+ " b." + ProductTable.COLUMN_VAT_TYPE 
 							+ " FROM " + TEMP_PRODUCT_REPORT + " a " 
@@ -349,18 +342,15 @@ public class Reporting extends MPOSDatabase{
 							String productName = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME));
 							String productName1 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1));
 							String productName2 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2));
-							String productName3 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3));
 							if(productTypeId == Products.CHILD_OF_SET_HAVE_PRICE){
 								productName += "***";
 								productName1 += "***";
 								productName2 += "***";
-								productName3 += "***";
 							}
 							detail.setProductCode(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_CODE)));
 							detail.setProductName(productName);
 							detail.setProductName1(productName1);
 							detail.setProductName2(productName2);
-							detail.setProductName3(productName3);
 							detail.setPricePerUnit(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 							detail.setQty(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_QTY)));
 							detail.setQtyPercent(cursor.getDouble(cursor.getColumnIndex(COLUMN_PRODUCT_QTY_PERCENT)));
@@ -679,15 +669,14 @@ public class Reporting extends MPOSDatabase{
 	public static class SaleTransactionReport{
 		private String saleDate;
 		
-		private List<MPOSOrderTransaction> transLst = 
-				new ArrayList<MPOSOrderTransaction>();
+		private List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
 		public String getSaleDate() {
 			return saleDate;
 		}
 		public void setSaleDate(String saleDate) {
 			this.saleDate = saleDate;
 		}
-		public List<MPOSOrderTransaction> getTransLst() {
+		public List<OrderTransaction> getTransLst() {
 			return transLst;
 		}
 	}

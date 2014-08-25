@@ -6,7 +6,7 @@ import android.content.Context;
 
 import com.synature.pos.WebServiceResult;
 
-public class PartialSaleTransactionSender extends MPOSMainService{
+public class PartialSaleTransactionSender extends MPOSServiceBase{
 
 	public static final String SEND_PARTIAL_SALE_TRANS_METHOD = "WSmPOS_JSON_SendSalePartialTransactionData";
 

@@ -11,7 +11,7 @@ import com.synature.pos.PrepaidCardInfo;
 
 import android.content.Context;
 
-public abstract class FoodCourtMainService extends MPOSMainService{
+public abstract class FoodCourtMainService extends MPOSServiceBase{
 
 	public static final String GET_BALANCE_METHOD = "WSiFoodCourt_JSON_GetBalanceAmountFromCardNo";
 	public static final String PAY_METHOD = "WSiFoodCourt_JSON_PayAmountOfCardNo";

@@ -9,7 +9,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
-public class ExceptionHandler implements Thread.UncaughtExceptionHandler{
+public class MyDefaultUncaughExceptionHandler implements Thread.UncaughtExceptionHandler{
 	
 	public static String LINE_SEPARATOR = "\n";
 	
@@ -17,7 +17,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler{
 	private String mLogDir;
 	private String mFileName;
 	
-	public ExceptionHandler(Context context, String logDir, String fileName){
+	public MyDefaultUncaughExceptionHandler(Context context, String logDir, String fileName){
 		mContext = context;
 		mLogDir = logDir;
 		mFileName = fileName;

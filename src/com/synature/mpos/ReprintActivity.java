@@ -2,13 +2,13 @@ package com.synature.mpos;
 
 import java.util.List;
 
+import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Transaction;
 import com.synature.pos.OrderTransaction;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.content.Context;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,7 +21,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ReprintActivity extends Activity {
+public class ReprintActivity extends MPOSActivityBase {
 	
 	private Transaction mOrders;
 	
@@ -31,12 +31,6 @@ public class ReprintActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);

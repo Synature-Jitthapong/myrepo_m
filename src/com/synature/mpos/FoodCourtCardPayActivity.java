@@ -1,9 +1,9 @@
 package com.synature.mpos;
 
 import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.model.OrderDetail;
 import com.synature.pos.PrepaidCardInfo;
 import com.synature.util.CreditCardParser;
 import com.synature.util.Logger;
@@ -70,7 +70,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		super.onCreate(savedInstanceState);/**
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+		Thread.setDefaultUncaughtExceptionHandler(new MyDefaultUncaughExceptionHandler(this, 
 				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
@@ -339,7 +339,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		}
 		
 		private void summary(){ 
-			MPOSOrderTransaction.MPOSOrderDetail summOrder = 
+			OrderDetail summOrder = 
 					((FoodCourtCardPayActivity) getActivity()).mTrans.getSummaryOrder(((FoodCourtCardPayActivity) getActivity()).mTransactionId);
 			((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice = summOrder.getTotalSalePrice();
 			mTxtTotalPrice.setText(((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice));		

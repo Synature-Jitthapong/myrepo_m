@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.MPOSOrderTransaction;
@@ -20,7 +21,6 @@ import com.synature.pos.Report;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -52,7 +52,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class SaleReportActivity extends Activity implements OnClickListener{
+public class SaleReportActivity extends MPOSActivityBase implements OnClickListener{
 
 	public static final int REPORT_BY_BILL = 0;
 	public static final int REPORT_BY_PRODUCT = 1;
@@ -78,12 +78,6 @@ public class SaleReportActivity extends Activity implements OnClickListener{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		setContentView(R.layout.activity_sale_report);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		

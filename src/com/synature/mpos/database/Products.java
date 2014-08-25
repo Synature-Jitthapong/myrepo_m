@@ -3,6 +3,11 @@ package com.synature.mpos.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.synature.mpos.database.model.Product;
+import com.synature.mpos.database.model.ProductComponent;
+import com.synature.mpos.database.model.ProductComponentGroup;
+import com.synature.mpos.database.model.ProductDept;
+import com.synature.mpos.database.model.ProductGroup;
 import com.synature.mpos.database.table.ProductComponentGroupTable;
 import com.synature.mpos.database.table.ProductComponentTable;
 import com.synature.mpos.database.table.ProductDeptTable;
@@ -89,7 +94,6 @@ public class Products extends MPOSDatabase {
 		ProductTable.COLUMN_PRODUCT_NAME,
 		ProductTable.COLUMN_PRODUCT_NAME1,
 		ProductTable.COLUMN_PRODUCT_NAME2,
-		ProductTable.COLUMN_PRODUCT_NAME3,
 		ProductTable.COLUMN_PRODUCT_DESC,
 		ProductTable.COLUMN_PRODUCT_TYPE_ID,
 		ProductTable.COLUMN_PRODUCT_PRICE,
@@ -107,7 +111,7 @@ public class Products extends MPOSDatabase {
 		ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME,
 		ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME1,
 		ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME2,
-		ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME3,
+		ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME3
 	};
 	
 	public static final String[] ALL_PRODUCT_DEPT_COLS = {
@@ -115,9 +119,7 @@ public class Products extends MPOSDatabase {
 		ProductTable.COLUMN_PRODUCT_DEPT_ID,
 		ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE,
 		ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME,
-		ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1,
-		ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME2,
-		ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME3
+		ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1
 	};
 
 	public Products(Context context){
@@ -133,24 +135,22 @@ public class Products extends MPOSDatabase {
 		List<ProductComponentGroup> pCompGroupLst = new ArrayList<ProductComponentGroup>();
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT a." + ProductTable.COLUMN_PRODUCT_ID + ","
-						+ " a." + ProductComponentTable.COLUMN_PGROUP_ID + ","
-						+ " a." + ProductComponentGroupTable.COLUMN_SET_GROUP_NO + ","
-						+ " a." + ProductComponentGroupTable.COLUMN_SET_GROUP_NAME + ","
-						+ " a." + ProductComponentGroupTable.COLUMN_REQ_AMOUNT + ","
-						+ " a." + ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT + ", "
-						+ " a." + ProductTable.COLUMN_SALE_MODE + ","
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ","
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ","
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME2 + ","
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME3 + ","
-						+ " b." + ProductTable.COLUMN_IMG_FILE_NAME 
-						+ " FROM " + ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP + " a "
-						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
-						+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b."
-						+ ProductTable.COLUMN_PRODUCT_ID 
-						+ " WHERE a." + ProductTable.COLUMN_PRODUCT_ID + "=?"
-						+ " AND b." + ProductTable.COLUMN_ACTIVATE + "=?"
-						+ " AND b." + COLUMN_DELETED + "=?",
+				+ " a." + ProductComponentTable.COLUMN_PGROUP_ID + ","
+				+ " a." + ProductComponentGroupTable.COLUMN_SET_GROUP_NO + ","
+				+ " a." + ProductComponentGroupTable.COLUMN_SET_GROUP_NAME + ","
+				+ " a." + ProductComponentGroupTable.COLUMN_REQ_AMOUNT + ","
+				+ " a." + ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT + ", "
+				+ " a." + ProductTable.COLUMN_SALE_MODE + ","
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ","
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ","
+				+ " b." + ProductTable.COLUMN_IMG_FILE_NAME 
+				+ " FROM " + ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP + " a "
+				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
+				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b."
+				+ ProductTable.COLUMN_PRODUCT_ID 
+				+ " WHERE a." + ProductTable.COLUMN_PRODUCT_ID + "=?"
+				+ " AND b." + ProductTable.COLUMN_ACTIVATE + "=?"
+				+ " AND b." + COLUMN_DELETED + "=?",
 				new String[]{
 					String.valueOf(productId),
 					String.valueOf(ACTIVATED),
@@ -169,8 +169,6 @@ public class Products extends MPOSDatabase {
 				pCompGroup.setSaleMode(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));
 				pCompGroup.setProductName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
 				pCompGroup.setProductName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
-				pCompGroup.setProductName2(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
-				pCompGroup.setProductName3(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
 				pCompGroup.setImgName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
 				pCompGroupLst.add(pCompGroup);
 			}while(cursor.moveToNext());
@@ -187,26 +185,24 @@ public class Products extends MPOSDatabase {
 		List<ProductComponent> pCompLst = new ArrayList<ProductComponent>();
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT a." + ProductComponentTable.COLUMN_PGROUP_ID + ","
-						+ " a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_AMOUNT + ","
-						+ " a." + ProductComponentTable.COLUMN_FLEXIBLE_INCLUDE_PRICE + ","
-						+ " a." + ProductComponentTable.COLUMN_FLEXIBLE_PRODUCT_PRICE + ","
-						+ " a." + ProductTable.COLUMN_SALE_MODE + ","
-						+ " b." + ProductTable.COLUMN_PRODUCT_ID + ","
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ","
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ","
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME2 + ","
-						+ " b." + ProductTable.COLUMN_PRODUCT_NAME3 + ","
-						+ " b." + ProductTable.COLUMN_PRODUCT_PRICE + ","
-						+ " b." + ProductTable.COLUMN_IMG_FILE_NAME 
-						+ " FROM " + ProductComponentTable.TABLE_PCOMPONENT + " a "
-						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
-						+ " ON a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_ID + "=b."
-						+ ProductTable.COLUMN_PRODUCT_ID 
-						+ " WHERE a." + ProductComponentTable.COLUMN_PGROUP_ID + "=?"
-						+ " AND b." + COLUMN_DELETED + "=?",
+				+ " a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_AMOUNT + ","
+				+ " a." + ProductComponentTable.COLUMN_FLEXIBLE_INCLUDE_PRICE + ","
+				+ " a." + ProductComponentTable.COLUMN_FLEXIBLE_PRODUCT_PRICE + ","
+				+ " a." + ProductTable.COLUMN_SALE_MODE + ","
+				+ " b." + ProductTable.COLUMN_PRODUCT_ID + ","
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ","
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ","
+				+ " b." + ProductTable.COLUMN_PRODUCT_PRICE + ","
+				+ " b." + ProductTable.COLUMN_IMG_FILE_NAME 
+				+ " FROM " + ProductComponentTable.TABLE_PCOMPONENT + " a "
+				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
+				+ " ON a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_ID + "=b."
+				+ ProductTable.COLUMN_PRODUCT_ID 
+				+ " WHERE a." + ProductComponentTable.COLUMN_PGROUP_ID + "=?"
+				+ " AND b." + COLUMN_DELETED + "=?",
 				new String[]{
-						String.valueOf(groupId),
-						String.valueOf(NOT_DELETE)
+					String.valueOf(groupId),
+					String.valueOf(NOT_DELETE)
 				}
 		);
 		if(cursor.moveToFirst()){
@@ -220,8 +216,6 @@ public class Products extends MPOSDatabase {
 				pComp.setFlexibleProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductComponentTable.COLUMN_FLEXIBLE_PRODUCT_PRICE)));
 				pComp.setProductName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
 				pComp.setProductName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
-				pComp.setProductName2(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
-				pComp.setProductName3(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
 				pComp.setImgName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_IMG_FILE_NAME)));
 				pComp.setProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 				pCompLst.add(pComp);
@@ -261,20 +255,18 @@ public class Products extends MPOSDatabase {
 	public List<ProductDept> listProductDept(){
 		List<ProductDept> pdLst = new ArrayList<ProductDept>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				"select a." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", "
+				"SELECT a." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", "
 				+ " a." + ProductTable.COLUMN_PRODUCT_DEPT_ID + ","
 				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE + ","
 				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ","
-				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1 + ","
-				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME2 + ","
-				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME3
-				+ " from " + ProductDeptTable.TABLE_PRODUCT_DEPT + " a "
-				+ " left join " + ProductGroupTable.TABLE_PRODUCT_GROUP + " b "
-				+ " on a." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=b." + ProductTable.COLUMN_PRODUCT_GROUP_ID
-				+ " where b." + ProductGroupTable.COLUMN_IS_COMMENT + "=?"
-				+ " and a." + ProductTable.COLUMN_ACTIVATE + "=?"
-				+ " and a." + COLUMN_DELETED + "=?"
-				+ " order by a." + COLUMN_ORDERING + ", a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME,
+				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1
+				+ " FROM " + ProductDeptTable.TABLE_PRODUCT_DEPT + " a "
+				+ " LEFT JOIN " + ProductGroupTable.TABLE_PRODUCT_GROUP + " b "
+				+ " ON a." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=b." + ProductTable.COLUMN_PRODUCT_GROUP_ID
+				+ " WHERE b." + ProductGroupTable.COLUMN_IS_COMMENT + "=?"
+				+ " AND a." + ProductTable.COLUMN_ACTIVATE + "=?"
+				+ " AND a." + COLUMN_DELETED + "=?"
+				+ " ORDER BY a." + COLUMN_ORDERING + ", a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME,
 				new String[]{
 					String.valueOf(0),
 					String.valueOf(ACTIVATED),
@@ -302,9 +294,8 @@ public class Products extends MPOSDatabase {
 				+ " b." + ProductTable.COLUMN_PRODUCT_CODE + ", " 
 				+ " b." + ProductTable.COLUMN_PRODUCT_BAR_CODE + ", " 
 				+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", "  
-				+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "  
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", " 
 				+ " b." + ProductTable.COLUMN_PRODUCT_NAME2 + ", "  
-				+ " b." + ProductTable.COLUMN_PRODUCT_NAME3 + ", " 
 				+ " b." + ProductTable.COLUMN_PRODUCT_PRICE + ", " 
 				+ " b." + ProductTable.COLUMN_VAT_TYPE + ", " 
 				+ " b." + ProductTable.COLUMN_VAT_RATE + ", "
@@ -329,8 +320,6 @@ public class Products extends MPOSDatabase {
 				p.setProductBarCode(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_BAR_CODE)));
 				p.setProductName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
 				p.setProductName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
-				p.setProductName2(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
-				p.setProductName3(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
 				p.setProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 				p.setVatType(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
 				p.setVatRate(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_VAT_RATE)));
@@ -544,7 +533,6 @@ public class Products extends MPOSDatabase {
 		p.setProductName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
 		p.setProductName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
 		p.setProductName2(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
-		p.setProductName3(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME3)));
 		p.setProductDesc(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_DESC)));
 		p.setProductUnitName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_UNIT_NAME)));
 		p.setProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
@@ -562,8 +550,6 @@ public class Products extends MPOSDatabase {
 		pd.setProductDeptCode(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE)));
 		pd.setProductDeptName(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME)));
 		pd.setProductDeptName1(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1)));
-		pd.setProductDeptName2(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME2)));
-		pd.setProductDeptName3(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME3)));
 		return pd;
 	}
 
@@ -709,314 +695,6 @@ public class Products extends MPOSDatabase {
 			getWritableDatabase().setTransactionSuccessful();
 		} finally {
 			getWritableDatabase().endTransaction();
-		}
-	}
-	
-	public static class ProductComponentGroup extends ProductComponent{
-		private int groupNo;
-		private String groupName;
-		private double requireAmount;
-		private double requireMinAmount;
-		
-		public double getRequireMinAmount() {
-			return requireMinAmount;
-		}
-		public void setRequireMinAmount(double requireMinAmount) {
-			this.requireMinAmount = requireMinAmount;
-		}
-		public int getGroupNo() {
-			return groupNo;
-		}
-		public void setGroupNo(int groupNo) {
-			this.groupNo = groupNo;
-		}
-		public String getGroupName() {
-			return groupName;
-		}
-		public void setGroupName(String groupName) {
-			this.groupName = groupName;
-		}
-		public double getRequireAmount() {
-			return requireAmount;
-		}
-		public void setRequireAmount(double requireAmount) {
-			this.requireAmount = requireAmount;
-		}
-	}
-	
-	public static class ProductComponent extends Product{
-        private int childProductId;
-        private double childProductAmount;
-        private double flexibleProductPrice;
-        private int flexibleIncludePrice;
-		
-        public int getChildProductId() {
-			return childProductId;
-		}
-		public void setChildProductId(int childProductId) {
-			this.childProductId = childProductId;
-		}
-		public double getChildProductAmount() {
-			return childProductAmount;
-		}
-		public void setChildProductAmount(double childProductAmount) {
-			this.childProductAmount = childProductAmount;
-		}
-		public double getFlexibleProductPrice() {
-			return flexibleProductPrice;
-		}
-		public void setFlexibleProductPrice(double flexibleProductPrice) {
-			this.flexibleProductPrice = flexibleProductPrice;
-		}
-		public int getFlexibleIncludePrice() {
-			return flexibleIncludePrice;
-		}
-		public void setFlexibleIncludePrice(int flexibleIncludePrice) {
-			this.flexibleIncludePrice = flexibleIncludePrice;
-		}
-	}
-	
-	public static class Product{
-		private int productId;
-		private int productGroupId;
-		private int productDeptId;
-		private String productCode;
-		private String productBarCode;
-		private String productName;
-		private String productName1;
-		private String productName2;
-		private String productName3;
-		private int productTypeId;
-		private double productPrice;
-		private String productUnitName;
-		private String productDesc;
-		private int discountAllow;
-		private int vatType;
-		private double vatRate;
-		private int hasServiceCharge;
-		private String imgName;
-		private int saleMode;
-		
-		public int getSaleMode() {
-			return saleMode;
-		}
-		public void setSaleMode(int saleMode) {
-			this.saleMode = saleMode;
-		}
-		public int getProductGroupId() {
-			return productGroupId;
-		}
-		public void setProductGroupId(int productGroupId) {
-			this.productGroupId = productGroupId;
-		}
-		public int getProductDeptId() {
-			return productDeptId;
-		}
-		public void setProductDeptId(int productDeptId) {
-			this.productDeptId = productDeptId;
-		}
-		public int getProductId() {
-			return productId;
-		}
-		public void setProductId(int productId) {
-			this.productId = productId;
-		}
-		public String getProductCode() {
-			return productCode;
-		}
-		public void setProductCode(String productCode) {
-			this.productCode = productCode;
-		}
-		public String getProductBarCode() {
-			return productBarCode;
-		}
-		public void setProductBarCode(String productBarCode) {
-			this.productBarCode = productBarCode;
-		}
-		public String getProductName() {
-			return productName;
-		}
-		public void setProductName(String productName) {
-			this.productName = productName;
-		}
-		public String getProductName1() {
-			return productName1;
-		}
-		public void setProductName1(String productName1) {
-			this.productName1 = productName1;
-		}
-		public String getProductName2() {
-			return productName2;
-		}
-		public void setProductName2(String productName2) {
-			this.productName2 = productName2;
-		}
-		public String getProductName3() {
-			return productName3;
-		}
-		public void setProductName3(String productName3) {
-			this.productName3 = productName3;
-		}
-		public int getProductTypeId() {
-			return productTypeId;
-		}
-		public void setProductTypeId(int productTypeId) {
-			this.productTypeId = productTypeId;
-		}
-		public double getProductPrice() {
-			return productPrice;
-		}
-		public void setProductPrice(double productPrice) {
-			this.productPrice = productPrice;
-		}
-		public String getProductUnitName() {
-			return productUnitName;
-		}
-		public void setProductUnitName(String productUnitName) {
-			this.productUnitName = productUnitName;
-		}
-		public String getProductDesc() {
-			return productDesc;
-		}
-		public void setProductDesc(String productDesc) {
-			this.productDesc = productDesc;
-		}
-		public int getDiscountAllow() {
-			return discountAllow;
-		}
-		public void setDiscountAllow(int discountAllow) {
-			this.discountAllow = discountAllow;
-		}
-		public int getVatType() {
-			return vatType;
-		}
-		public void setVatType(int vatType) {
-			this.vatType = vatType;
-		}
-		public double getVatRate() {
-			return vatRate;
-		}
-		public void setVatRate(double vatRate) {
-			this.vatRate = vatRate;
-		}
-		public int getHasServiceCharge() {
-			return hasServiceCharge;
-		}
-		public void setHasServiceCharge(int hasServiceCharge) {
-			this.hasServiceCharge = hasServiceCharge;
-		}
-		public String getImgName() {
-			return imgName;
-		}
-		public void setImgName(String imgName) {
-			this.imgName = imgName;
-		}
-		@Override
-		public String toString() {
-			return productName;
-		}
-	}
-	
-	public static class ProductDept{
-		private int productDeptId;
-		private int productGroupId;
-		private String productDeptCode;
-		private String productDeptName;
-		private String productDeptName1;
-		private String productDeptName2;
-		private String productDeptName3;
-		
-		public int getProductDeptId() {
-			return productDeptId;
-		}
-		public void setProductDeptId(int productDeptId) {
-			this.productDeptId = productDeptId;
-		}
-		public int getProductGroupId() {
-			return productGroupId;
-		}
-		public void setProductGroupId(int productGroupId) {
-			this.productGroupId = productGroupId;
-		}
-		public String getProductDeptCode() {
-			return productDeptCode;
-		}
-		public void setProductDeptCode(String productDeptCode) {
-			this.productDeptCode = productDeptCode;
-		}
-		public String getProductDeptName() {
-			return productDeptName;
-		}
-		public void setProductDeptName(String productDeptName) {
-			this.productDeptName = productDeptName;
-		}
-		public String getProductDeptName1() {
-			return productDeptName1;
-		}
-		public void setProductDeptName1(String productDeptName1) {
-			this.productDeptName1 = productDeptName1;
-		}
-		public String getProductDeptName2() {
-			return productDeptName2;
-		}
-		public void setProductDeptName2(String productDeptName2) {
-			this.productDeptName2 = productDeptName2;
-		}
-		public String getProductDeptName3() {
-			return productDeptName3;
-		}
-		public void setProductDeptName3(String productDeptName3) {
-			this.productDeptName3 = productDeptName3;
-		}
-		@Override
-		public String toString() {
-			return productDeptName;
-		}
-	}
-	
-	public static class ProductGroup{
-		private int productGroupId;
-		private String productGroupCode;
-		private String productGroupName;
-		private String productGroupName1;
-		private String productGroupName2;
-		private String productGroupName3;
-		
-		public int getProductGroupId() {
-			return productGroupId;
-		}
-		public void setProductGroupId(int productGroupId) {
-			this.productGroupId = productGroupId;
-		}
-		public String getProductGroupCode() {
-			return productGroupCode;
-		}
-		public void setProductGroupCode(String productGroupCode) {
-			this.productGroupCode = productGroupCode;
-		}
-		public String getProductGroupName() {
-			return productGroupName;
-		}
-		public void setProductGroupName(String productGroupName) {
-			this.productGroupName = productGroupName;
-		}
-		public String getProductGroupName1() {
-			return productGroupName1;
-		}
-		public void setProductGroupName1(String productGroupName1) {
-			this.productGroupName1 = productGroupName1;
-		}
-		public String getProductGroupName2() {
-			return productGroupName2;
-		}
-		public void setProductGroupName2(String productGroupName2) {
-			this.productGroupName2 = productGroupName2;
-		}
-		public String getProductGroupName3() {
-			return productGroupName3;
-		}
-		public void setProductGroupName3(String productGroupName3) {
-			this.productGroupName3 = productGroupName3;
 		}
 	}
 }

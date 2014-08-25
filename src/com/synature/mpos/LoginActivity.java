@@ -2,6 +2,7 @@ package com.synature.mpos;
 
 import java.util.Calendar;
 
+import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.Session;
@@ -12,7 +13,6 @@ import com.synature.pos.Staff;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -30,7 +30,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class LoginActivity extends Activity implements OnClickListener, OnEditorActionListener{
+public class LoginActivity extends MPOSActivityBase implements OnClickListener, OnEditorActionListener{
 	
 	/**
 	 * Request code for set system date

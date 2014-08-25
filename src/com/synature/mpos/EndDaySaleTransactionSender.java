@@ -6,7 +6,7 @@ import android.content.Context;
 
 import com.synature.pos.WebServiceResult;
 
-public class EndDaySaleTransactionSender extends MPOSMainService{
+public class EndDaySaleTransactionSender extends MPOSServiceBase{
 
 	public static final String SEND_SALE_TRANS_METHOD = "WSmPOS_JSON_SendSaleAllTransactionDataWithEndDay";
 	

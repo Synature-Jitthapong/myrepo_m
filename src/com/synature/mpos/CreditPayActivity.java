@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Bank;
 import com.synature.mpos.database.CreditCard;
 import com.synature.mpos.database.Formater;
@@ -15,7 +16,6 @@ import com.synature.util.CreditCardParser;
 import com.synature.util.Logger;
 import com.synature.util.VerifyCardType;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,7 +36,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
-public class CreditPayActivity extends Activity implements TextWatcher{
+public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 	
 	public static final String TAG = "CreditPayActivity";
 	
@@ -80,12 +80,6 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);

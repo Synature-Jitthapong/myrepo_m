@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.model.OrderDetail;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -36,7 +37,6 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.app.ActionBar.LayoutParams;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -44,7 +44,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
-public class DiscountActivity extends Activity implements OnItemClickListener, 
+public class DiscountActivity extends MPOSActivityBase implements OnItemClickListener, 
 	OnCheckedChangeListener, OnClickListener, OnEditorActionListener{
 	
 	public static final int PRICE_DISCOUNT_TYPE = 1;
@@ -54,9 +54,9 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 	private Formater mFormat;
 	private Transaction mTrans;
 	private Products mProduct;
-	private MPOSOrderTransaction.MPOSOrderDetail mOrder;
+	private OrderDetail mOrder;
 	private DiscountAdapter mDisAdapter;
-	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderLst;
+	private List<OrderDetail> mOrderLst;
 	
 	private int mTransactionId;
 	private int mPosition = -1;
@@ -72,12 +72,6 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		setContentView(R.layout.activity_discount);
@@ -89,7 +83,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 		mTrans = new Transaction(this);
 		mProduct = new Products(this);
 		mFormat = new Formater(this);
-		mOrder = new MPOSOrderTransaction.MPOSOrderDetail();
+		mOrder = new OrderDetail();
 
 		mTrans.prepareDiscount(mTransactionId);
 		setupCustomView();
@@ -98,7 +92,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 	}
 	
 	private void setupDiscountListView(){
-		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
+		mOrderLst = new ArrayList<OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
 		mLvDiscount.setAdapter(mDisAdapter);
 		mLvDiscount.setOnItemClickListener(this);	
@@ -294,13 +288,12 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 				double discountAll = Utils.stringToDouble(mTxtDisAll.getText().toString());
 				double maxTotalRetailPrice = mTrans.getMaxTotalRetailPrice(mTransactionId);
 				double totalDiscount = 0.0d;
-				MPOSOrderTransaction.MPOSOrderDetail summOrder = 
-						mTrans.getSummaryOrderForDiscount(mTransactionId);
+				OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId);
 				double totalPrice = summOrder.getTotalRetailPrice();
 				if(discountAll <= summOrder.getTotalRetailPrice()){
 					mTxtDisAll.setText(null);
-					List<MPOSOrderTransaction.MPOSOrderDetail> orderLst = mOrderLst;
-					for(MPOSOrderTransaction.MPOSOrderDetail order : orderLst){
+					List<OrderDetail> orderLst = mOrderLst;
+					for(OrderDetail order : orderLst){
 						if(product.getProduct(order.getProductId()).getDiscountAllow() == 1){
 							double totalRetailPrice = order.getTotalRetailPrice();
 							if(mDisAllType == PRICE_DISCOUNT_TYPE){
@@ -328,9 +321,9 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 						}
 					}
 					if(mDisAllType == PRICE_DISCOUNT_TYPE){
-						Iterator<MPOSOrderTransaction.MPOSOrderDetail> it = orderLst.iterator();
+						Iterator<OrderDetail> it = orderLst.iterator();
 						while(it.hasNext()){
-							MPOSOrderTransaction.MPOSOrderDetail order = it.next();
+							OrderDetail order = it.next();
 							if(order.getTotalRetailPrice() == maxTotalRetailPrice){
 								double totalRetailPrice = order.getTotalRetailPrice();
 								double discount = discountAll - totalDiscount;
@@ -371,7 +364,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 				totalPriceAfterDiscount, discount, priceOrPercent, 0, 
 				OTHER_DISCOUNT_TYPE, "");
 		
-		MPOSOrderTransaction.MPOSOrderDetail order = mOrderLst.get(mPosition);
+		OrderDetail order = mOrderLst.get(mPosition);
 		order.setPriceDiscount(discount);
 		order.setTotalSalePrice(totalPriceAfterDiscount);
 		order.setPriceOrPercent(priceOrPercent);
@@ -435,12 +428,11 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 	}
 	
 	private void summary() {
-		MPOSOrderTransaction.MPOSOrderDetail summ = 
-				mTrans.getSummaryOrderForDiscount(mTransactionId);
+		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId);
 		TextView[] tvs = {
 				SaleReportActivity.createTextViewSummary(this, getString(R.string.summary), Utils.getLinHorParams(1.2f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(summ.getQty()), Utils.getLinHorParams(0.5f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPricePerUnit()), Utils.getLinHorParams(0.7f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(summ.getOrderQty()), Utils.getLinHorParams(0.5f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getProductPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalRetailPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPriceDiscount()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalSalePrice()), Utils.getLinHorParams(0.7f))
@@ -455,7 +447,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 	}
 	
 	private void loadOrder() {
-		mOrderLst = mTrans.listAllOrderForDiscount(mTransactionId);
+		mOrderLst = mTrans.listAllOrder(mTransactionId);
 		mDisAdapter.notifyDataSetChanged();
 	}
 	
@@ -471,7 +463,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 		}
 
 		@Override
-		public MPOSOrderTransaction.MPOSOrderDetail getItem(int position) {
+		public OrderDetail getItem(int position) {
 			return mOrderLst.get(position);
 		}
 
@@ -491,7 +483,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 			LayoutInflater inflater = (LayoutInflater)
 					getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			View rowView = convertView;
-			rowView = inflater.inflate(R.layout.discount_template, null, false);
+			rowView = inflater.inflate(R.layout.discount_template, parent, false);
 			TextView tvNo = (TextView) rowView.findViewById(R.id.tvNo);
 			TextView tvName = (TextView) rowView.findViewById(R.id.tvName);
 			TextView tvQty = (TextView) rowView.findViewById(R.id.tvQty);
@@ -500,12 +492,11 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 			TextView tvDiscount = (TextView) rowView.findViewById(R.id.tvDiscount);
 			final TextView tvSalePrice = (TextView) rowView.findViewById(R.id.tvSalePrice);
 
-			final MPOSOrderTransaction.MPOSOrderDetail order =
-					mOrderLst.get(position);
+			final OrderDetail order = mOrderLst.get(position);
 			tvNo.setText(Integer.toString(position + 1) + ".");
 			tvName.setText(order.getProductName());
-			tvQty.setText(mFormat.qtyFormat(order.getQty()));
-			tvUnitPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
+			tvQty.setText(mFormat.qtyFormat(order.getOrderQty()));
+			tvUnitPrice.setText(mFormat.currencyFormat(order.getProductPrice()));
 			tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
 			tvDiscount.setText(mFormat.currencyFormat(order.getPriceDiscount()));
 			tvSalePrice.setText(mFormat.currencyFormat(order.getTotalSalePrice()));
@@ -531,8 +522,7 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		MPOSOrderTransaction.MPOSOrderDetail order = 
-				(MPOSOrderTransaction.MPOSOrderDetail) parent.getItemAtPosition(position);
+		OrderDetail order = (OrderDetail) parent.getItemAtPosition(position);
 		
 		Products p = new Products(this);
 		if(p.isAllowDiscount(order.getProductId())){

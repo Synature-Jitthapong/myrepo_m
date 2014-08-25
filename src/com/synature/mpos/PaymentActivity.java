@@ -4,17 +4,17 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.MPOSPaymentDetail;
 import com.synature.mpos.database.PaymentAmountButton;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.model.OrderDetail;
 import com.synature.pos.PayType;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -36,7 +36,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PaymentActivity extends Activity  implements OnClickListener{
+public class PaymentActivity extends MPOSActivityBase  implements OnClickListener{
 	
 	public static final int REQUEST_CREDIT_PAY = 1;
 	public static final int RESULT_ENOUGH = 2;
@@ -77,12 +77,6 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -179,8 +173,7 @@ public class PaymentActivity extends Activity  implements OnClickListener{
 	}
 	
 	private void summary(){ 
-		MPOSOrderTransaction.MPOSOrderDetail summOrder = 
-				mTrans.getSummaryOrder(mTransactionId);
+		OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId);
 		mTotalSalePrice = summOrder.getTotalSalePrice();
 		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));
 	}

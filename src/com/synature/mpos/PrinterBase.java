@@ -9,7 +9,6 @@ import android.content.Context;
 import com.synature.mpos.database.CreditCard;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.HeaderFooterReceipt;
-import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.MPOSPaymentDetail;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.Products;
@@ -18,9 +17,11 @@ import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.Transaction;
-import com.synature.mpos.database.MPOSOrderTransaction.OrderSet.OrderSetDetail;
-import com.synature.mpos.database.MenuComment.Comment;
 import com.synature.mpos.database.Reporting.SimpleProductData;
+import com.synature.mpos.database.model.Comment;
+import com.synature.mpos.database.model.OrderDetail;
+import com.synature.mpos.database.model.OrderSet.OrderSetDetail;
+import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.pos.Report;
 import com.synature.util.Logger;
 
@@ -183,7 +184,7 @@ public abstract class PrinterBase {
 				reporting.listTransactionReport();
 		for(Reporting.SaleTransactionReport report : saleReportLst){
 			mTextToPrint.append(mFormat.dateFormat(report.getSaleDate()) + "\n");
-			for(MPOSOrderTransaction trans : report.getTransLst()){
+			for(OrderTransaction trans : report.getTransLst()){
 				String receiptNo = trans.getReceiptNo();
 				String totalSale = mFormat.currencyFormat(trans.getTransactionVatable());
 				String closeTime = mFormat.timeFormat(trans.getCloseTime()) + 
@@ -205,7 +206,7 @@ public abstract class PrinterBase {
 	 * @param dateTo
 	 */
 	protected void createTextForPrintSaleByProductReport(String dateFrom, String dateTo){
-		MPOSOrderTransaction.MPOSOrderDetail summOrder = mTrans.getSummaryOrderInDay(dateFrom, dateTo);
+		OrderDetail summOrder = mTrans.getSummaryOrderInDay(dateFrom, dateTo);
 	
 		String date = mFormat.dateFormat(dateTo);
 		if(!dateFrom.equals(dateTo)){
@@ -296,9 +297,8 @@ public abstract class PrinterBase {
 	protected void createTextForPrintSummaryReport(int sessionId, int staffId){
 		Session session = new Session(mContext.getApplicationContext());
 		String sessionDate = session.getSessionDate(sessionId);
-		MPOSOrderTransaction trans = mTrans.getTransaction(sessionDate); 
-		MPOSOrderTransaction.MPOSOrderDetail summOrder 
-			= mTrans.getSummaryOrderInDay(sessionDate, sessionDate);
+		OrderTransaction trans = mTrans.getTransaction(sessionDate); 
+		OrderDetail summOrder = mTrans.getSummaryOrderInDay(sessionDate, sessionDate);
 
 		// header
 		mTextToPrint.append(adjustAlignCenter(mContext.getString(R.string.endday_report)) + "\n");
@@ -348,7 +348,7 @@ public abstract class PrinterBase {
 			mTextToPrint.append("\n");
 			String subTotalText = mContext.getString(R.string.sub_total);
 			String subTotalPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
-			String subTotalQty = mFormat.qtyFormat(summOrder.getQty()) + 
+			String subTotalQty = mFormat.qtyFormat(summOrder.getOrderQty()) + 
 					createQtySpace(calculateLength(subTotalPrice));
 			mTextToPrint.append(subTotalText);
 			mTextToPrint.append(createHorizontalSpace(
@@ -483,12 +483,11 @@ public abstract class PrinterBase {
 				+ calculateLength(totalReceipt)));
 		mTextToPrint.append(totalReceipt + "\n\n");
 		
-		MPOSOrderTransaction.MPOSOrderDetail summVoidOrder = 
-				mTrans.getSummaryVoidOrderInDay(sessionDate);
+		OrderDetail summVoidOrder = mTrans.getSummaryVoidOrderInDay(sessionDate);
 		mTextToPrint.append(mContext.getString(R.string.void_bill) + "\n");
 		String voidBill = mContext.getString(R.string.void_bill_after_paid);
 		String totalVoidPrice = mFormat.currencyFormat(summVoidOrder.getTotalSalePrice());
-		String totalVoidQty = mFormat.qtyFormat(summVoidOrder.getQty()) +
+		String totalVoidQty = mFormat.qtyFormat(summVoidOrder.getOrderQty()) +
 				createQtySpace(calculateLength(totalVoidPrice));
 		mTextToPrint.append(voidBill);
 		mTextToPrint.append(createHorizontalSpace(
@@ -505,8 +504,8 @@ public abstract class PrinterBase {
 	 * @param isCopy
 	 */
 	protected void createTextForPrintReceipt(int transactionId, boolean isCopy){
-		MPOSOrderTransaction trans = mTrans.getTransaction(transactionId);
-		MPOSOrderTransaction.MPOSOrderDetail summOrder = mTrans.getSummaryOrder(transactionId);
+		OrderTransaction trans = mTrans.getTransaction(transactionId);
+		OrderDetail summOrder = mTrans.getSummaryOrder(transactionId);
 		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
 		double change = mPayment.getTotalPayAmount(transactionId) - (summOrder.getTotalSalePrice());
 		
@@ -543,14 +542,12 @@ public abstract class PrinterBase {
 		mTextToPrint.append(cashCheer + createHorizontalSpace(calculateLength(cashCheer)) + "\n");
 		mTextToPrint.append(createLine("=") + "\n");
 		
-		List<MPOSOrderTransaction.MPOSOrderDetail> orderLst = 
-				mTrans.listAllOrderGroupByProduct(transactionId);
+		List<OrderDetail> orderLst = mTrans.listAllOrderGroupByProduct(transactionId);
     	for(int i = 0; i < orderLst.size(); i++){
-    		MPOSOrderTransaction.MPOSOrderDetail order = 
-    				orderLst.get(i);
+    		OrderDetail order = orderLst.get(i);
     		String productName = order.getProductName();
-    		String productQty = mFormat.qtyFormat(order.getQty()) + "x ";
-    		String productPrice = mFormat.currencyFormat(order.getPricePerUnit());
+    		String productQty = mFormat.qtyFormat(order.getOrderQty()) + "x ";
+    		String productPrice = mFormat.currencyFormat(order.getProductPrice());
     		mTextToPrint.append(productQty);
     		mTextToPrint.append(productName);
     		mTextToPrint.append(createHorizontalSpace(
@@ -576,8 +573,8 @@ public abstract class PrinterBase {
     				}
     			}
     		}
-    		if(order.getOrderSetDetailLst().size() > 0){
-    			for(OrderSetDetail setDetail : order.getOrderSetDetailLst()){
+    		if(order.getOrdSetDetailLst().size() > 0){
+    			for(OrderSetDetail setDetail : order.getOrdSetDetailLst()){
     				String setName = setDetail.getProductName();
     				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
     				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
@@ -610,7 +607,7 @@ public abstract class PrinterBase {
     	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
     	
     	// total item
-    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getQty());
+    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getOrderQty());
     	mTextToPrint.append(itemText);
     	mTextToPrint.append(strTotalQty);
     	mTextToPrint.append(createHorizontalSpace(

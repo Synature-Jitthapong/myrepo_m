@@ -8,8 +8,6 @@ public class ProductDeptTable extends BaseColumn{
 	public static final String COLUMN_PRODUCT_DEPT_CODE = "product_dept_code";
 	public static final String COLUMN_PRODUCT_DEPT_NAME = "product_dept_name";
 	public static final String COLUMN_PRODUCT_DEPT_NAME1 = "product_dept_name_1";
-	public static final String COLUMN_PRODUCT_DEPT_NAME2 = "product_dept_name_2";
-	public static final String COLUMN_PRODUCT_DEPT_NAME3 = "product_dept_name_3";
 	
 	private static final String SQL_CREATE =
 			" create table " + TABLE_PRODUCT_DEPT + " ( " 
@@ -18,8 +16,6 @@ public class ProductDeptTable extends BaseColumn{
 			+ COLUMN_PRODUCT_DEPT_CODE + " text, "
 			+ COLUMN_PRODUCT_DEPT_NAME + " text, "
 			+ COLUMN_PRODUCT_DEPT_NAME1 + " text, "
-			+ COLUMN_PRODUCT_DEPT_NAME2 + " text, "
-			+ COLUMN_PRODUCT_DEPT_NAME3 + " text, "
 			+ ProductTable.COLUMN_ACTIVATE + " integer default 0, "
 			+ COLUMN_DELETED + " integer default 0, "
 			+ COLUMN_ORDERING + " integer default 0, " 

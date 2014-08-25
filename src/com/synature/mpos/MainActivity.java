@@ -16,11 +16,9 @@ import java.util.List;
 
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SaleService.LocalBinder;
+import com.synature.mpos.common.MPOSFragmentActivityBase;
 import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.MPOSOrderTransaction;
-import com.synature.mpos.database.MPOSOrderTransaction.MPOSOrderDetail;
-import com.synature.mpos.database.MenuComment;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.PrintReceiptLog;
 import com.synature.mpos.database.Products;
@@ -29,6 +27,12 @@ import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.UserVerification;
+import com.synature.mpos.database.model.OrderComment;
+import com.synature.mpos.database.model.OrderDetail;
+import com.synature.mpos.database.model.OrderSet.OrderSetDetail;
+import com.synature.mpos.database.model.OrderTransaction;
+import com.synature.mpos.database.model.Product;
+import com.synature.mpos.database.model.ProductDept;
 import com.synature.mpos.seconddisplay.SecondDisplayJSON;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
 import com.synature.util.ImageLoader;
@@ -47,7 +51,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -86,7 +89,8 @@ import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MainActivity extends FragmentActivity implements MenuCommentFragment.OnCommentDismissListener, 
+public class MainActivity extends MPOSFragmentActivityBase implements 
+	MenuCommentFragment.OnCommentDismissListener, 
 	ManageCashAmountFragment.OnManageCashAmountDismissListener{
 	
 	public static final String TAG = MainActivity.class.getSimpleName();
@@ -120,9 +124,9 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	private Transaction mTrans;
 	private Computer mComputer;
 	
-	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderDetailLst;
+	private List<OrderDetail> mOrderDetailLst;
 	private OrderDetailAdapter mOrderDetailAdapter;
-	private List<Products.ProductDept> mProductDeptLst;
+	private List<ProductDept> mProductDeptLst;
 	private MenuItemPagerAdapter mPageAdapter;
 
 	private ImageLoader mImageLoader;
@@ -149,13 +153,6 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		setContentView(R.layout.activity_main);
 		
 		mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
@@ -277,7 +274,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	}
 	
 	private void setupOrderListView(){
-		mOrderDetailLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
+		mOrderDetailLst = new ArrayList<OrderDetail>();
 		mOrderDetailAdapter = new OrderDetailAdapter();
 		mLvOrderDetail.setAdapter(mOrderDetailAdapter);
 		mLvOrderDetail.setGroupIndicator(null);
@@ -319,7 +316,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			if(keyCode == KeyEvent.KEYCODE_ENTER){
 				String barCode = ((EditText) view).getText().toString();
 				if(!barCode.isEmpty()){
-					Products.Product p = mProducts.getProduct(barCode);
+					Product p = mProducts.getProduct(barCode);
 					if(p != null){
 						addOrder(p.getProductId(), p.getProductName(), 
 								p.getProductTypeId(), p.getVatType(), p.getVatRate(), 
@@ -482,8 +479,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		
 		mTrans.summary(mTransactionId);
 		
-		MPOSOrderTransaction.MPOSOrderDetail sumOrder = 
-				mTrans.getSummaryOrder(mTransactionId);
+		OrderDetail sumOrder =mTrans.getSummaryOrder(mTransactionId);
 		
 		mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
 				mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
@@ -527,7 +523,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			}
 			transSumm = new clsSecDisplay_TransSummary();
 			transSumm.szSumName = getString(R.string.total_qty); 
-			transSumm.szSumAmount = mFormat.qtyFormat(sumOrder.getQty());
+			transSumm.szSumAmount = mFormat.qtyFormat(sumOrder.getOrderQty());
 			transSummLst.add(transSumm);
 			
 			transSumm = new clsSecDisplay_TransSummary();
@@ -537,11 +533,11 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			secondDisplayItem(transSummLst, mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
 		}
 		
-		mDsp.setOrderTotalQty(mFormat.qtyFormat(sumOrder.getQty()));
+		mDsp.setOrderTotalQty(mFormat.qtyFormat(sumOrder.getOrderQty()));
 		mDsp.setOrderTotalPrice(mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
 		if(Utils.isEnableWintecCustomerDisplay(this)){
 			// display order if qty and retail price > 0
-			if(sumOrder.getQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
+			if(sumOrder.getOrderQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
 				try {
 					mDsp.displayOrder();
 				} catch (Exception e) {
@@ -667,9 +663,9 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			}, 10000);
 		}
 		
-		List<MPOSOrderTransaction> transIdLst = mTrans.listTransactionNotSend();
-		for(MPOSOrderTransaction trans : transIdLst){
-			// send sale data service
+		// send sale data service
+		List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
+		for(OrderTransaction trans : transIdLst){
 			mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
 					trans.getComputerId(), mStaffId, mPartialSaleSenderListener);
 		}
@@ -716,8 +712,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					MPOSOrderTransaction.MPOSOrderDetail sumOrder = 
-							mTrans.getSummaryOrder(mTransactionId);
+					OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId);
 					PaymentDetail payment = new PaymentDetail(MainActivity.this);
 					double totalSalePrice = sumOrder.getTotalSalePrice();
 					
@@ -810,17 +805,17 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 
 		@Override
 		public int getChildrenCount(int groupPosition) {
-			return mOrderDetailLst.get(groupPosition).getOrderSetDetailLst().size();
+			return mOrderDetailLst.get(groupPosition).getOrdSetDetailLst().size();
 		}
 
 		@Override
-		public MPOSOrderTransaction.MPOSOrderDetail getGroup(int groupPosition) {
+		public Object getGroup(int groupPosition) {
 			return mOrderDetailLst.get(groupPosition);
 		}
 
 		@Override
-		public MPOSOrderTransaction.OrderSet.OrderSetDetail getChild(int groupPosition, int childPosition) {
-			return mOrderDetailLst.get(groupPosition).getOrderSetDetailLst().get(childPosition);
+		public Object getChild(int groupPosition, int childPosition) {
+			return mOrderDetailLst.get(groupPosition).getOrdSetDetailLst().get(childPosition);
 		}
 
 		@Override
@@ -858,17 +853,17 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
-			final MPOSOrderTransaction.MPOSOrderDetail orderDetail = mOrderDetailLst.get(groupPosition);
+			final OrderDetail orderDetail = mOrderDetailLst.get(groupPosition);
 			holder.tvOrderName.setChecked(orderDetail.isChecked());
 			holder.tvOrderNo.setText(Integer.toString(groupPosition + 1) + ".");
 			holder.tvOrderName.setText(orderDetail.getProductName());
-			holder.tvOrderPrice.setText(mFormat.currencyFormat(orderDetail.getPricePerUnit()));
-			holder.tvOrderQty.setText(mFormat.qtyFormat(orderDetail.getQty()));
+			holder.tvOrderPrice.setText(mFormat.currencyFormat(orderDetail.getProductPrice()));
+			holder.tvOrderQty.setText(mFormat.qtyFormat(orderDetail.getOrderQty()));
 			holder.tvComment.setText(null);
 			if(orderDetail.getOrderCommentLst() != null){
 				holder.tvComment.setVisibility(View.VISIBLE);
 				for(int i = 0; i < orderDetail.getOrderCommentLst().size(); i++){
-					final MenuComment.Comment comment = orderDetail.getOrderCommentLst().get(i);
+					final OrderComment comment = orderDetail.getOrderCommentLst().get(i);
 					holder.tvComment.append("-" + comment.getCommentName());
 					if(comment.getCommentPrice() > 0){
 						double commentQty = comment.getCommentQty();
@@ -917,12 +912,12 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	
 				@Override
 				public synchronized void onClick(View v) {
-					double qty = orderDetail.getQty();
+					double qty = orderDetail.getOrderQty();
 					
 					if(--qty > 0){
-						orderDetail.setQty(qty);
+						orderDetail.setOrderQty(qty);
 						updateOrder(orderDetail.getOrderDetailId(),
-								qty, orderDetail.getPricePerUnit(), 
+								qty, orderDetail.getProductPrice(), 
 								orderDetail.getVatType(),
 								mProducts.getVatRate(orderDetail.getProductId()),
 								orderDetail.getProductName());
@@ -954,10 +949,10 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	
 				@Override
 				public void onClick(View v) {
-					double qty = orderDetail.getQty();
-					orderDetail.setQty(++qty);
+					double qty = orderDetail.getOrderQty();
+					orderDetail.setOrderQty(++qty);
 					updateOrder(orderDetail.getOrderDetailId(),
-							qty, orderDetail.getPricePerUnit(), 
+							qty, orderDetail.getProductPrice(), 
 							orderDetail.getVatType(),
 							mProducts.getVatRate(orderDetail.getProductId()),
 							orderDetail.getProductName());
@@ -996,8 +991,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			}else{
 				holder = (ChildViewHolder) convertView.getTag();
 			}
-			final MPOSOrderTransaction.OrderSet.OrderSetDetail setDetail = 
-						mOrderDetailLst.get(groupPosition).getOrderSetDetailLst().get(childPosition);
+			final OrderSetDetail setDetail = mOrderDetailLst.get(groupPosition).getOrdSetDetailLst().get(childPosition);
 			holder.tvSetNo.setText("-");
 			holder.tvSetName.setText(setDetail.getProductName());
 			holder.tvSetPrice.setText(setDetail.getProductPrice() > 0 ? mFormat.currencyFormat(setDetail.getProductPrice()) : null);
@@ -1025,9 +1019,9 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 */
 	private class OnOrderClickListener implements OnClickListener{
 
-		private MPOSOrderDetail mOrder;
+		private OrderDetail mOrder;
 		
-		public OnOrderClickListener(MPOSOrderDetail order){
+		public OnOrderClickListener(OrderDetail order){
 			mOrder = order;
 		}
 		
@@ -1048,7 +1042,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	private void countSelectedOrder(){
 		int totalSelected = 0;
 		TextView tvOrderSelected = (TextView) findViewById(R.id.tvOrderSelected);
-		for(MPOSOrderDetail order : mOrderDetailLst){
+		for(OrderDetail order : mOrderDetailLst){
 			if(order.isChecked()){
 				totalSelected ++;
 			}
@@ -1081,10 +1075,10 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		
 	private class HoldBillAdapter extends BaseAdapter{
 		LayoutInflater inflater;
-		List<MPOSOrderTransaction> transLst;
+		List<OrderTransaction> transLst;
 		Calendar c;
 		
-		public HoldBillAdapter(List<MPOSOrderTransaction> transLst){
+		public HoldBillAdapter(List<OrderTransaction> transLst){
 			inflater = getLayoutInflater();
 			this.transLst = transLst;
 			c = Calendar.getInstance();
@@ -1096,7 +1090,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		}
 
 		@Override
-		public MPOSOrderTransaction getItem(int position) {
+		public Object getItem(int position) {
 			return transLst.get(position);
 		}
 
@@ -1107,9 +1101,9 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			MPOSOrderTransaction trans = transLst.get(position);
+			OrderTransaction trans = transLst.get(position);
 
-			convertView = inflater.inflate(R.layout.hold_bill_template, null);
+			convertView = inflater.inflate(R.layout.hold_bill_template, parent, false);
 			TextView tvNo = (TextView) convertView.findViewById(R.id.tvNo);
 			TextView tvOpenTime = (TextView) convertView.findViewById(R.id.tvOpenTime);
 			TextView tvOpenStaff = (TextView) convertView.findViewById(R.id.tvOpenStaff);
@@ -1154,7 +1148,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	
 	public static class MenuPageFragment extends android.support.v4.app.Fragment {
 		
-		private List<Products.Product> mProductLst;
+		private List<Product> mProductLst;
 		private MenuItemAdapter mMenuItemAdapter;
 		
 		private int mDeptId;
@@ -1194,8 +1188,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				@Override
 				public void onItemClick(AdapterView<?> parent, View v, int position,
 						long id) {
-					Products.Product p = 
-							(Products.Product) parent.getItemAtPosition(position);
+					Product p = (Product) parent.getItemAtPosition(position);
 					((MainActivity) getActivity()).onMenuClick(p.getProductId(),
 							p.getProductName(), p.getProductTypeId(), 
 							p.getVatType(), p.getVatRate(), p.getProductPrice());
@@ -1207,7 +1200,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 				@Override
 				public boolean onItemLongClick(AdapterView<?> parent, View v,
 						int position, long id) {
-					Products.Product p = (Products.Product) parent.getItemAtPosition(position);
+					Product p = (Product) parent.getItemAtPosition(position);
 					ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgName(), p.getProductName(), 
 							((MainActivity) getActivity()).mFormat.currencyFormat(p.getProductPrice()));
 					imgZoom.show(getFragmentManager(), "MenuImage");
@@ -1236,7 +1229,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			}
 
 			@Override
-			public Products.Product getItem(int position) {
+			public Product getItem(int position) {
 				return mProductLst.get(position);
 			}
 
@@ -1247,10 +1240,10 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
-				final Products.Product p = mProductLst.get(position);
+				final Product p = mProductLst.get(position);
 				final MenuItemViewHolder holder;
 				if(convertView == null){
-					convertView = mInflater.inflate(R.layout.menu_template, null);
+					convertView = mInflater.inflate(R.layout.menu_template, parent, false);
 					holder = new MenuItemViewHolder();
 					holder.tvMenu = (TextView) convertView.findViewById(R.id.textViewMenuName);
 					holder.tvPrice = (TextView) convertView.findViewById(R.id.textViewMenuPrice);
@@ -1284,9 +1277,9 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	private class ProductSizeAdapter extends BaseAdapter{
 		
 		private LayoutInflater mInflater;
-		private List<Products.Product> mProLst;
+		private List<Product> mProLst;
 		
-		public ProductSizeAdapter(List<Products.Product> proLst){
+		public ProductSizeAdapter(List<Product> proLst){
 			mInflater = getLayoutInflater();
 			mProLst = proLst;
 		}
@@ -1297,7 +1290,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 		}
 
 		@Override
-		public Products.Product getItem(int position) {
+		public Object getItem(int position) {
 			return mProLst.get(position);
 		}
 
@@ -1319,7 +1312,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			}else{
 				holder = (MenuItemViewHolder) convertView.getTag();
 			}
-			Products.Product p = mProLst.get(position);
+			Product p = mProLst.get(position);
 			holder.tvMenu.setText(p.getProductName());
 			if(p.getProductPrice() < 0)
 				holder.tvPrice.setVisibility(View.INVISIBLE);
@@ -1616,11 +1609,11 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	}
 	
 	private void showHoldBill() {
-		final MPOSOrderTransaction holdTrans = new MPOSOrderTransaction();
+		final OrderTransaction holdTrans = new OrderTransaction();
 		LayoutInflater inflater = getLayoutInflater();
 		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null, false);
 		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
-		List<MPOSOrderTransaction> billLst = mTrans.listHoldOrder(mSession.getSessionDate(mSessionId));
+		List<OrderTransaction> billLst = mTrans.listHoldOrder(mSession.getSessionDate(mSessionId));
 		HoldBillAdapter billAdapter = new HoldBillAdapter(billLst);
 		lvHoldBill.setAdapter(billAdapter);
 		lvHoldBill.setOnItemClickListener(new OnItemClickListener(){
@@ -1628,7 +1621,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			@Override
 			public void onItemClick(AdapterView<?> parent, View v, int position,
 					long id) {
-				MPOSOrderTransaction trans = (MPOSOrderTransaction) parent.getItemAtPosition(position);
+				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
 				holdTrans.setTransactionId(trans.getTransactionId());
 			}
 			
@@ -1800,9 +1793,9 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 * clear selected order
 	 */
 	private void clearSelectedOrder(){
-		final List<MPOSOrderTransaction.MPOSOrderDetail> selectedOrderLst = listSelectedOrder();
+		final List<OrderDetail> selectedOrderLst = listSelectedOrder();
 		if(selectedOrderLst.size() > 0){
-			for(MPOSOrderTransaction.MPOSOrderDetail order : selectedOrderLst){
+			for(OrderDetail order : selectedOrderLst){
 				if(order.isChecked())
 					order.setChecked(false);
 			}
@@ -1814,7 +1807,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 * delete multiple selected order
 	 */
 	private void deleteSelectedOrder(){
-		final List<MPOSOrderTransaction.MPOSOrderDetail> selectedOrderLst = listSelectedOrder();
+		final List<OrderDetail> selectedOrderLst = listSelectedOrder();
 		if (selectedOrderLst.size() > 0) {
 			new AlertDialog.Builder(MainActivity.this)
 					.setTitle(R.string.delete)
@@ -1835,7 +1828,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									for (MPOSOrderTransaction.MPOSOrderDetail order : selectedOrderLst) {
+									for (OrderDetail order : selectedOrderLst) {
 										deleteOrder(order.getOrderDetailId());
 									}
 									loadOrder();
@@ -1848,10 +1841,9 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 * get selected order
 	 * @return
 	 */
-	private List<MPOSOrderTransaction.MPOSOrderDetail> listSelectedOrder(){
-		List<MPOSOrderTransaction.MPOSOrderDetail> orderSelectedLst = 
-				new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
-		for(MPOSOrderTransaction.MPOSOrderDetail order : mOrderDetailLst){
+	private List<OrderDetail> listSelectedOrder(){
+		List<OrderDetail> orderSelectedLst = new ArrayList<OrderDetail>();
+		for(OrderDetail order : mOrderDetailLst){
 			if(order.isChecked())
 				orderSelectedLst.add(order);
 		}
@@ -1968,7 +1960,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 	 * @param proId
 	 */
 	private void productSizeDialog(int proId, String productName){
-		List<Products.Product> pSizeLst = mProducts.listProductSize(proId);
+		List<Product> pSizeLst = mProducts.listProductSize(proId);
 		LayoutInflater inflater = getLayoutInflater();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		View sizeView = inflater.inflate(R.layout.product_size, null, false);
@@ -1982,7 +1974,7 @@ public class MainActivity extends FragmentActivity implements MenuCommentFragmen
 			@Override
 			public void onItemClick(AdapterView<?> parent, View v, int position,
 					long arg3) {
-				Products.Product p = (Products.Product) parent.getItemAtPosition(position);
+				Product p = (Product) parent.getItemAtPosition(position);
 				addOrder(p.getProductId(), p.getProductName(), 
 						p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
 				dialog.dismiss();

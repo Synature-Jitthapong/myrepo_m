@@ -13,7 +13,7 @@ import com.synature.connection.Ksoap2WebServiceTask;
 import com.synature.pos.WebServiceResult;
 
 
-public class MPOSMainService extends Ksoap2WebServiceTask{
+public abstract class MPOSServiceBase extends Ksoap2WebServiceTask{
 	
 	public static final String NAME_SPACE = "http://tempuri.org/";
 	
@@ -30,10 +30,8 @@ public class MPOSMainService extends Ksoap2WebServiceTask{
 	public static final String DEVICE_CODE_PARAM = "szDeviceCode";
 	public static final String JSON_SALE_PARAM = "szJsonSaleTransData";
 	
-	
-	public MPOSMainService(Context context, String method) {
-		super(context.getApplicationContext(), NAME_SPACE, 
-				method, Utils.getConnectionTimeOut(context));
+	public MPOSServiceBase(Context context, String method) {
+		super(context, NAME_SPACE, method, Utils.getConnectionTimeOut(context));
 		
 		mProperty = new PropertyInfo();
 		mProperty.setName(DEVICE_CODE_PARAM);

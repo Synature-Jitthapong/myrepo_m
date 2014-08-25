@@ -5,16 +5,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Transaction;
-import com.synature.mpos.database.MPOSOrderTransaction.OrderSet;
-import com.synature.mpos.database.Products.Product;
+import com.synature.mpos.database.model.OrderSet;
+import com.synature.mpos.database.model.OrderTransaction;
+import com.synature.mpos.database.model.ProductComponent;
 import com.synature.util.ImageLoader;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,7 +41,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class ProductSetActivity extends Activity{
+public class ProductSetActivity extends MPOSActivityBase{
 
 	public static final String EDIT_MODE = "edit";
 	
@@ -58,8 +58,8 @@ public class ProductSetActivity extends Activity{
 	private int mOrderDetailId;
 	private String mSetGroupName;
 	
-	private List<Products.ProductComponent> mProductCompLst;
-	private List<MPOSOrderTransaction.OrderSet> mOrderSetLst;
+	private List<ProductComponent> mProductCompLst;
+	private List<OrderSet> mOrderSetLst;
 	private OrderSetAdapter mOrderSetAdapter;
 	
 	private ExpandableListView mLvOrderSet;
@@ -69,12 +69,6 @@ public class ProductSetActivity extends Activity{
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
         getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_product_set);
 

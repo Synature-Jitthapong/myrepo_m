@@ -2,12 +2,11 @@ package com.synature.mpos;
 
 import java.util.List;
 
+import com.synature.mpos.database.model.OrderTransaction;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.widget.BaseAdapter;
-
-import com.synature.mpos.database.MPOSOrderTransaction;
-import com.synature.pos.OrderTransaction;
 
 /**
  * @author j1tth4
@@ -15,10 +14,10 @@ import com.synature.pos.OrderTransaction;
  */
 public abstract class OrderTransactionAdapter extends BaseAdapter {
 	
-	protected List<MPOSOrderTransaction> mTransLst;
+	protected List<OrderTransaction> mTransLst;
 	protected LayoutInflater mInflater;
 
-	public OrderTransactionAdapter(Context c, List<MPOSOrderTransaction> transLst) {
+	public OrderTransactionAdapter(Context c, List<OrderTransaction> transLst) {
 		mTransLst = transLst;
 		mInflater = (LayoutInflater) c
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

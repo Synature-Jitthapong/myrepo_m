@@ -6,6 +6,8 @@ import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MenuComment;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.model.Comment;
+import com.synature.mpos.database.model.CommentGroup;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -52,10 +54,10 @@ public class MenuCommentFragment extends DialogFragment{
 	private Formater mFormat;
 	private Transaction mTrans;
 	private MenuComment mComment;
-	private List<MenuComment.CommentGroup> mCommentGroupLst;
-	private List<MenuComment.Comment> mCommentLst;
+	private List<CommentGroup> mCommentGroupLst;
+	private List<Comment> mCommentLst;
 	private MenuCommentAdapter mCommentAdapter;
-	private ArrayAdapter<MenuComment.CommentGroup> mCommentGroupAdapter;
+	private ArrayAdapter<CommentGroup> mCommentGroupAdapter;
 
 	private OnCommentDismissListener mListener;
 	
@@ -98,8 +100,7 @@ public class MenuCommentFragment extends DialogFragment{
 		mComment = new MenuComment(getActivity());
 		mCommentLst = mComment.listMenuComment();
 		mCommentGroupLst = mComment.listMenuCommentGroup();
-		MenuComment.CommentGroup commentGroup = 
-				new MenuComment.CommentGroup();
+		CommentGroup commentGroup = new CommentGroup();
 		commentGroup.setCommentGroupId(0);
 		commentGroup.setCommentGroupName("-- ALL --");
 		mCommentGroupLst.add(0, commentGroup);
@@ -136,8 +137,7 @@ public class MenuCommentFragment extends DialogFragment{
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
-				MenuComment.CommentGroup commentGroup = 
-						(MenuComment.CommentGroup) parent.getItemAtPosition(position);
+				CommentGroup commentGroup = (CommentGroup) parent.getItemAtPosition(position);
 				if(commentGroup.getCommentGroupId() == 0)
 					mCommentLst = mComment.listMenuComment();
 				else
@@ -187,7 +187,7 @@ public class MenuCommentFragment extends DialogFragment{
 	private void setupCommentGroupAdapter(){
 		if(mCommentGroupAdapter == null){
 			mCommentGroupAdapter = 
-					new ArrayAdapter<MenuComment.CommentGroup>(getActivity(), 
+					new ArrayAdapter<CommentGroup>(getActivity(), 
 							android.R.layout.simple_spinner_dropdown_item, 
 							mCommentGroupLst);
 			mSpCommentGroup.setAdapter(mCommentGroupAdapter);
@@ -211,7 +211,7 @@ public class MenuCommentFragment extends DialogFragment{
 		}
 
 		@Override
-		public MenuComment.Comment getItem(int position) {
+		public Comment getItem(int position) {
 			return mCommentLst.get(position);
 		}
 
@@ -237,10 +237,10 @@ public class MenuCommentFragment extends DialogFragment{
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
-			final MenuComment.Comment comment = mCommentLst.get(position);
+			final Comment comment = mCommentLst.get(position);
 			// get order comment if this comment already add to db
 			// and update to view
-			MenuComment.Comment orderComment = mTrans.getOrderComment(
+			Comment orderComment = mTrans.getOrderComment(
 					mTransactionId, mOrderDetailId, comment.getCommentId());
 			// check added this comment
 			if(orderComment.getCommentId() != 0){
@@ -302,9 +302,9 @@ public class MenuCommentFragment extends DialogFragment{
 		 */
 		private class OnCommentClickListener implements OnClickListener{
 
-			private MenuComment.Comment mComment;
+			private Comment mComment;
 			
-			public OnCommentClickListener(MenuComment.Comment comment){
+			public OnCommentClickListener(Comment comment){
 				mComment = comment;
 			}
 			

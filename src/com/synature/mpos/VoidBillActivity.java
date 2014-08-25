@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.SaleService.LocalBinder;
+import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSOrderTransaction;
@@ -13,7 +14,6 @@ import com.synature.mpos.database.Transaction;
 
 import android.os.Bundle;
 import android.os.IBinder;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -38,7 +38,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class VoidBillActivity extends Activity {
+public class VoidBillActivity extends MPOSActivityBase {
 	
 	private SaleService mPartService;
 	private boolean mBound = false;
@@ -71,12 +71,6 @@ public class VoidBillActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		setContentView(R.layout.activity_void_bill);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);

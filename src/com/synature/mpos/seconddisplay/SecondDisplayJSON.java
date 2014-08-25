@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.MPOSOrderTransaction;
+import com.synature.mpos.database.model.OrderDetail;
 import com.synature.pos.SecondDisplayProperty;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplayItemData;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplay_ChangePayment;
@@ -42,16 +42,15 @@ public class SecondDisplayJSON {
 	 * @param grandTotal
 	 * @return
 	 */
-	public static String genDisplayItem(Formater format,
-			List<MPOSOrderTransaction.MPOSOrderDetail> orderDetailLst, 
+	public static String genDisplayItem(Formater format, List<OrderDetail> orderDetailLst, 
 			List<clsSecDisplay_TransSummary> transSummLst, String grandTotal){
 		Gson gson = new Gson();
 		clsSecDisplayItemData displayData = new clsSecDisplayItemData();
 		List<clsSecDisplay_DetailItem> itemLst = new ArrayList<clsSecDisplay_DetailItem>();
-		for(MPOSOrderTransaction.MPOSOrderDetail orderDetail : orderDetailLst){
+		for(OrderDetail orderDetail : orderDetailLst){
 			clsSecDisplay_DetailItem item = new clsSecDisplay_DetailItem();
 			item.szItemName = orderDetail.getProductName();
-			item.szItemQty = format.qtyFormat(orderDetail.getQty());
+			item.szItemQty = format.qtyFormat(orderDetail.getOrderQty());
 			item.szItemTotalPrice = format.currencyFormat(orderDetail.getTotalRetailPrice());
 			item.szImageUrl = "";
 			itemLst.add(item);

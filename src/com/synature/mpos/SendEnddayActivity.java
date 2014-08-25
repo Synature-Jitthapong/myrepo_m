@@ -5,10 +5,10 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.SaleService.LocalBinder;
+import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.Session;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,7 +30,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class SendEnddayActivity extends Activity {
+public class SendEnddayActivity extends MPOSActivityBase {
 
 	private SaleService mPartService;
 	private boolean mBound = false;
@@ -55,12 +55,6 @@ public class SendEnddayActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
