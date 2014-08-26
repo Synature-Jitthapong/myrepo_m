@@ -63,6 +63,7 @@ public class OrderSet{
 	public static class OrderSetDetail extends Product{
 		private int orderSetId;
 		private double orderSetQty;
+		private double deductAmount;
 		public int getOrderSetId() {
 			return orderSetId;
 		}
@@ -74,6 +75,12 @@ public class OrderSet{
 		}
 		public void setOrderSetQty(double orderSetQty) {
 			this.orderSetQty = orderSetQty;
+		}
+		public double getDeductAmount() {
+			return deductAmount;
+		}
+		public void setDeductAmount(double deductAmount) {
+			this.deductAmount = deductAmount;
 		}
 	}
 }

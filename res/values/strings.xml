@@ -139,7 +139,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="print_by">Print By</string>
     <string name="print_date">Print Date</string>
     <string name="payment_detail">Payment Detail</string>
-    <string name="total_receipt_in_day">Total Receipt In Day</string>
+    <string name="total_receipt">Total Receipt</string>
     <string name="void_bill_after_paid">Void Bill After Paid</string>
     <string name="grand_total">Grand Total</string>
     <string name="sale_by_product_report">Sale By Product Report</string>
@@ -227,4 +227,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="cannot_update">Cannot update</string>
 	<string name="because_deduct_at">because this item deducted at</string>
 	<string name="please_wait">Please wait&#8230;</string>
+	<string name="from">From</string>
+	<string name="all">--All--</string>
+	<string name="session_report">Session Report</string>
 </resources>

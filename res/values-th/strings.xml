@@ -43,7 +43,6 @@
     <string name="sale_report_by_bill">รายงานการขายตามบิล</string>
     <string name="sale_report_by_product">รายงานการขายตามสินค้า</string>
     <string name="remark">หมายเหตุ</string>
-    <string name="update_product_data">อัพเดตข้อมูลสินค้า</string>
     <string name="check_device_progress">กำลังตรวจสอบเครื่อง&#8230;</string>
 	<string name="load_master_progress">กำลังโหลดข้อมูล master&#8230;</string>
     <string name="hold">พักบิล</string>
@@ -51,6 +50,7 @@
     <string name="code">รหัส</string>
     <string name="product_name">ชื่อสินค้า</string>
     <string name="unit_price">ราคา/หน่วย</string>
+    <string name="from">จาก</string>
     <string name="to">ถึง</string>
     <string name="vatable">ราคาที่คิดภาษี</string>
     <string name="total_vat">ภาษีขาย</string>
@@ -135,7 +135,7 @@
     <string name="print_by">พิมพ์โดย</string>
     <string name="print_date">วันที่พิมพ์</string>
     <string name="payment_detail">รายละเอียดการชำระ</string>
-    <string name="total_receipt_in_day">จำนวนใบเสร็จของทั้งวัน</string>
+    <string name="total_receipt">จำนวนใบเสร็จ</string>
     <string name="void_bill_after_paid">จำนวนยกเลิกใบเสร็จ</string>
     <string name="grand_total">ยอดรวมทั้งหมด</string>
     <string name="sale_by_product_report">รายงานการขายตามสินค้า</string>

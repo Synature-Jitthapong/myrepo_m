@@ -89,6 +89,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		try {
 			if(mShop.getShopName() != null){
 				setTitle(mShop.getShopName());
+				getActionBar().setSubtitle(mComputer.getComputerProperty().getComputerName());
 			}
 			mTvLastSyncTime.setText(getString(R.string.last_update) + " " + mFormat.dateTimeFormat(mSync.getLastSyncTime()));
 		} catch (Exception e) {

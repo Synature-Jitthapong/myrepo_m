@@ -4,29 +4,31 @@
     android:layout_height="match_parent"
     android:background="@drawable/white_flat_bg"
     android:divider="@android:drawable/divider_horizontal_bright"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:showDividers="middle|end" >
 
     <ListView
         android:id="@+id/lvEnddayReport"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1" >
 
     </ListView>
 
     <ScrollView
         android:id="@+id/scrollView1"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" >
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5" >
 
         <LinearLayout
             android:id="@+id/enddayReportFooterContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:padding="@dimen/default_margin" >
+
         </LinearLayout>
 
     </ScrollView>

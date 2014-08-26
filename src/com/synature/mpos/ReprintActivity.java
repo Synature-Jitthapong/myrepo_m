@@ -3,10 +3,9 @@ package com.synature.mpos;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Transaction;
-import com.synature.pos.OrderTransaction;
+import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
 import android.content.Context;
@@ -48,9 +47,8 @@ public class ReprintActivity extends MPOSActivityBase {
 		mOrders = new Transaction(this);
 		Session sess = new Session(this);
 
-		int sessionId = getIntent().getIntExtra("sessionId", 0);
 		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, 
-				mOrders.listSuccessTransaction(sess.getSessionDate(sessionId)));
+				mOrders.listSuccessTransaction(sess.getLastSessionDate()));
 		mLvTrans.setAdapter(mTransAdapter);
 	}
 	
@@ -67,7 +65,7 @@ public class ReprintActivity extends MPOSActivityBase {
 	
 	public class ReprintTransAdapter extends OrderTransactionAdapter{
 
-		public ReprintTransAdapter(Context c, List<MPOSOrderTransaction> transLst) {
+		public ReprintTransAdapter(Context c, List<OrderTransaction> transLst) {
 			super(c, transLst);
 		}
 
@@ -76,7 +74,7 @@ public class ReprintActivity extends MPOSActivityBase {
 			final OrderTransaction trans = mTransLst.get(position);
 			final ViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.reprint_trans_template, null);
+				convertView = mInflater.inflate(R.layout.reprint_trans_template, parent, false);
 				holder = new ViewHolder();
 				holder.tvNo = (TextView) convertView.findViewById(R.id.textView2);
 				holder.tvItem = (TextView) convertView.findViewById(R.id.textView1);
@@ -92,7 +90,7 @@ public class ReprintActivity extends MPOSActivityBase {
 				@Override
 				public void onClick(View v) {
 					holder.btnPrint.setEnabled(false);
-					new Thread(new Reprint(trans.getTransactionId(), holder.btnPrint)).start();
+					new Reprint(trans.getTransactionId(), holder.btnPrint).run();
 				}
 				
 			});

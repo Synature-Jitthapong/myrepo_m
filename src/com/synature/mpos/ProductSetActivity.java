@@ -10,8 +10,10 @@ import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.model.OrderSet;
-import com.synature.mpos.database.model.OrderTransaction;
+import com.synature.mpos.database.model.OrderSet.OrderSetDetail;
+import com.synature.mpos.database.model.Product;
 import com.synature.mpos.database.model.ProductComponent;
+import com.synature.mpos.database.model.ProductComponentGroup;
 import com.synature.util.ImageLoader;
 
 import android.annotation.SuppressLint;
@@ -157,7 +159,7 @@ public class ProductSetActivity extends MPOSActivityBase{
 	}
 	
 	private void setupOrderSetListView(){
-		mOrderSetLst = new ArrayList<MPOSOrderTransaction.OrderSet>();
+		mOrderSetLst = new ArrayList<OrderSet>();
 		mOrderSetAdapter = new OrderSetAdapter();
 		mLvOrderSet.setGroupIndicator(null);
 		mLvOrderSet.setAdapter(mOrderSetAdapter);	
@@ -201,12 +203,12 @@ public class ProductSetActivity extends MPOSActivityBase{
 	@SuppressLint("NewApi")
 	private void setupSetGroupButton(){
 		boolean isHasGroup0 = false;
-		List<Products.ProductComponentGroup> productCompGroupLst;
+		List<ProductComponentGroup> productCompGroupLst;
 		productCompGroupLst = mProduct.listProductComponentGroup(mProductId);
 		if(productCompGroupLst != null){
 			final LinearLayout scrollContent = getScrollContainer();
 			for(int i = 0; i < productCompGroupLst.size(); i++){
-				final Products.ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
+				final ProductComponentGroup pCompGroup = productCompGroupLst.get(i);
 				LayoutInflater inflater = (LayoutInflater)
 						getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				View setGroupView = inflater.inflate(R.layout.set_group_button_layout, null, false);
@@ -220,10 +222,10 @@ public class ProductSetActivity extends MPOSActivityBase{
 					setGroupView.setVisibility(View.GONE);
 					if(mTrans.checkAddedOrderSet(mTransactionId, 
 							mOrderDetailId, pCompGroup.getProductGroupId()) == 0){
-						List<Products.ProductComponent> pCompLst = 
+						List<ProductComponent> pCompLst = 
 								mProduct.listProductComponent(pCompGroup.getProductGroupId());
 						if(pCompLst != null){
-							for(Products.ProductComponent pComp : pCompLst){
+							for(ProductComponent pComp : pCompLst){
 								double qty = pCompGroup.getChildProductAmount() > 0 ? pCompGroup.getChildProductAmount() : 1;
 								double price = pComp.getFlexibleProductPrice() > 0 ? pComp.getFlexibleProductPrice() : 0.0d;
 								addOrderSet(pCompGroup.getProductGroupId(), pComp.getProductId(), 
@@ -302,14 +304,14 @@ public class ProductSetActivity extends MPOSActivityBase{
 	 * 
 	 */
 	private void confirmOrderSet(){
-		List<Products.ProductComponentGroup> productCompGroupLst 
+		List<ProductComponentGroup> productCompGroupLst 
 			= mProduct.listProductComponentGroup(mProductId);
 		boolean canDone = true;
 		String selectGroup = "";
 		if(productCompGroupLst != null){
-			Iterator<Products.ProductComponentGroup> it = productCompGroupLst.iterator();
+			Iterator<ProductComponentGroup> it = productCompGroupLst.iterator();
 			while(it.hasNext()){
-				Products.ProductComponentGroup pCompGroup = it.next();
+				ProductComponentGroup pCompGroup = it.next();
 				if(pCompGroup.getRequireAmount() > 0){
 					double totalSetQty = mTrans.getOrderSetTotalQty(mTransactionId, mOrderDetailId, 
 							pCompGroup.getProductGroupId());
@@ -369,17 +371,17 @@ public class ProductSetActivity extends MPOSActivityBase{
 
 		@Override
 		public int getChildrenCount(int groupPosition) {
-			return mOrderSetLst.get(groupPosition).getOrderSetDetailLst().size();
+			return mOrderSetLst.get(groupPosition).getOrderSetDetail().size();
 		}
 
 		@Override
-		public MPOSOrderTransaction.OrderSet getGroup(int groupPosition) {
+		public OrderSet getGroup(int groupPosition) {
 			return mOrderSetLst.get(groupPosition);
 		}
 
 		@Override
-		public MPOSOrderTransaction.OrderSet.OrderSetDetail getChild(int groupPosition, int childPosition) {
-			return mOrderSetLst.get(groupPosition).getOrderSetDetailLst().get(childPosition);
+		public OrderSetDetail getChild(int groupPosition, int childPosition) {
+			return mOrderSetLst.get(groupPosition).getOrderSetDetail().get(childPosition);
 		}
 
 		@Override
@@ -412,8 +414,8 @@ public class ProductSetActivity extends MPOSActivityBase{
 			}else{
 				holder = (ViewSetGroupHolder) convertView.getTag();
 			}
-			final MPOSOrderTransaction.OrderSet set = mOrderSetLst.get(groupPosition);
-			holder.tvSetGroupName.setText(set.getGroupName());
+			final OrderSet set = mOrderSetLst.get(groupPosition);
+			holder.tvSetGroupName.setText(set.getSetGroupName());
 			holder.btnDel.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -432,8 +434,8 @@ public class ProductSetActivity extends MPOSActivityBase{
 						public void onClick(DialogInterface dialog,
 								int which) {
 							mTrans.deleteOrderSetByGroup(mTransactionId, 
-									mOrderDetailId, set.getProductGroupId());
-							updateBadge(set.getProductGroupId(), set.getRequireAmount(), set.getRequireMinAmount());
+									mOrderDetailId, set.getSetGroupId());
+							updateBadge(set.getSetGroupId(), set.getReqAmount(), set.getReqMinAmount());
 							loadOrderSet();
 						}
 						
@@ -463,9 +465,8 @@ public class ProductSetActivity extends MPOSActivityBase{
 			}else{
 				holder = (ViewSetDetailHolder) convertView.getTag();
 			}
-			final MPOSOrderTransaction.OrderSet setGroup = mOrderSetLst.get(groupPosition);
-			final MPOSOrderTransaction.OrderSet.OrderSetDetail detail = 
-					mOrderSetLst.get(groupPosition).getOrderSetDetailLst().get(childPosition);
+			final OrderSet setGroup = mOrderSetLst.get(groupPosition);
+			final OrderSetDetail detail = mOrderSetLst.get(groupPosition).getOrderSetDetail().get(childPosition);
 			holder.tvSetNo.setText(String.valueOf(childPosition + 1) + ".");
 			holder.tvSetName.setText(detail.getProductName());
 			holder.tvSetQty.setText(mFormat.qtyFormat(detail.getOrderSetQty()));
@@ -494,7 +495,8 @@ public class ProductSetActivity extends MPOSActivityBase{
 								public void onClick(DialogInterface dialog, int which) {
 									mTrans.deleteOrderSet(
 											mTransactionId, mOrderDetailId, detail.getOrderSetId());
-									updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount(), setGroup.getRequireMinAmount());
+									updateBadge(setGroup.getSetGroupId(), setGroup.getReqAmount(), 
+											setGroup.getReqMinAmount());
 									loadOrderSet();
 								}
 							}).show();
@@ -502,7 +504,7 @@ public class ProductSetActivity extends MPOSActivityBase{
 							detail.setOrderSetQty(qty);
 							mTrans.updateOrderSet(mTransactionId, 
 									mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
-							updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount(), setGroup.getRequireMinAmount());
+							updateBadge(setGroup.getSetGroupId(), setGroup.getReqAmount(), setGroup.getReqMinAmount());
 							mOrderSetAdapter.notifyDataSetChanged();
 						}
 					}
@@ -515,21 +517,21 @@ public class ProductSetActivity extends MPOSActivityBase{
 				public void onClick(View v) {
 					double qty = detail.getOrderSetQty();
 					double deductAmount = detail.getDeductAmount();
-					if(setGroup.getRequireAmount() > 0){
+					if(setGroup.getReqAmount() > 0){
 						// count total group qty from db
 						double totalQty = mTrans.getOrderSetTotalQty(
-								mTransactionId, mOrderDetailId, setGroup.getProductGroupId());
-						if(totalQty < setGroup.getRequireAmount()){
+								mTransactionId, mOrderDetailId, setGroup.getSetGroupId());
+						if(totalQty < setGroup.getReqAmount()){
 							qty += deductAmount;
-							if(deductAmount <= setGroup.getRequireAmount() - totalQty){
+							if(deductAmount <= setGroup.getReqAmount() - totalQty){
 								detail.setOrderSetQty(qty);
 								mTrans.updateOrderSet(mTransactionId, 
 										mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
-								updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount(), setGroup.getRequireMinAmount());
+								updateBadge(setGroup.getSetGroupId(), setGroup.getReqAmount(), setGroup.getReqMinAmount());
 								mOrderSetAdapter.notifyDataSetChanged();
 							}else{
 								new AlertDialog.Builder(ProductSetActivity.this)
-								.setTitle(setGroup.getGroupName())
+								.setTitle(setGroup.getSetGroupName())
 								.setMessage(getString(R.string.cannot_update) + " " 
 										+ detail.getProductName() + " " + getString(R.string.because_deduct_at) + " " 
 										+ mFormat.qtyFormat(detail.getDeductAmount()))
@@ -546,7 +548,7 @@ public class ProductSetActivity extends MPOSActivityBase{
 						detail.setOrderSetQty(qty);
 						mTrans.updateOrderSet(mTransactionId, 
 								mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
-						updateBadge(setGroup.getProductGroupId(), setGroup.getRequireAmount(), setGroup.getRequireMinAmount());
+						updateBadge(setGroup.getSetGroupId(), setGroup.getReqAmount(), setGroup.getReqMinAmount());
 						mOrderSetAdapter.notifyDataSetChanged();
 					}
 				}
@@ -615,7 +617,7 @@ public class ProductSetActivity extends MPOSActivityBase{
 		}
 
 		@Override
-		public Products.ProductComponent getItem(int position) {
+		public ProductComponent getItem(int position) {
 			return mProductCompLst.get(position);
 		}
 
@@ -639,7 +641,7 @@ public class ProductSetActivity extends MPOSActivityBase{
 				holder = (SetItemViewHolder) convertView.getTag();
 			}
 			
-			final Products.ProductComponent pComp = mProductCompLst.get(position);
+			final ProductComponent pComp = mProductCompLst.get(position);
 			holder.tvMenu.setText(pComp.getProductName());
 			holder.tvPrice.setText(mFormat.currencyFormat(pComp.getFlexibleProductPrice()));
 			if(pComp.getFlexibleProductPrice() > 0){

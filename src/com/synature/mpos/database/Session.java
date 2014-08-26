@@ -48,6 +48,35 @@ public class Session extends MPOSDatabase{
 	}
 
 	/**
+	 * list all session in day
+	 * @param sessDate
+	 * @return com.synature.mpos.database.model.Session 
+	 */
+	public List<com.synature.mpos.database.model.Session> listSession(String sessDate){
+		List<com.synature.mpos.database.model.Session> sl = 
+				new ArrayList<com.synature.mpos.database.model.Session>();
+		Cursor cursor = getReadableDatabase().query(
+				SessionTable.TABLE_SESSION, 
+				ALL_SESS_COLUMNS, 
+				SessionTable.COLUMN_SESS_DATE + "=?", 
+				new String[]{
+					sessDate
+				}, null, null, null);
+		if(cursor.moveToFirst()){
+			do{
+				com.synature.mpos.database.model.Session s = 
+						new com.synature.mpos.database.model.Session();
+				int sessId = cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID));
+				s.setSessionId(sessId);
+				s.setSessionDate(String.valueOf(sessId));
+				sl.add(s);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return sl;
+	}
+	
+	/**
 	 * List session that not send to server
 	 * @return List<String> sessionDate 
 	 */
@@ -69,6 +98,28 @@ public class Session extends MPOSDatabase{
 		}
 		cursor.close();
 		return sessLst;
+	}
+	
+	/**
+	 * Count session
+	 * @param sessDate
+	 * @return total session
+	 */
+	public int countSession(String sessDate){
+		int total = 0;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT COUNT(" + SessionTable.COLUMN_SESS_ID +")"
+				+ " FROM " + SessionTable.TABLE_SESSION
+				+ " WHERE " + SessionTable.COLUMN_SESS_DATE + "=?", 
+				new String[]{
+					sessDate
+				}
+		);
+		if(cursor.moveToFirst()){
+			total = cursor.getInt(0);
+		}
+		cursor.close();
+		return total;
 	}
 	
 	/**
@@ -124,29 +175,6 @@ public class Session extends MPOSDatabase{
 			double closeAmount, boolean isEndday) {
 		return closeSession(sessionId, closeStaffId,
 				closeAmount, isEndday);
-	}
-
-	/**
-	 * Get session date by sessionId
-	 * @param sessionId
-	 * @return session date specific by sessionId
-	 */
-	public String getSessionDate(int sessionId){
-		String sessionDate = "";
-		Cursor cursor = getReadableDatabase().query(
-				SessionTable.TABLE_SESSION, 
-				new String[]{
-					SessionTable.COLUMN_SESS_DATE
-				}, SessionTable.COLUMN_SESS_ID + "=?", 
-				new String[]{
-					String.valueOf(sessionId)
-				}, null, null, null);
-		
-		if(cursor.moveToFirst()){
-			sessionDate = cursor.getString(0);
-		}
-		cursor.close();
-		return sessionDate;
 	}
 	
 	/**
@@ -352,28 +380,6 @@ public class Session extends MPOSDatabase{
 		cursor.close();
 		return isEndday;
 	}
-	
-	/**
-	 * Get sessionId by sessionDate
-	 * @param sessionDate
-	 * @return sessionId
-	 */
-	public int getSessionId(String sessionDate) {
-		int sessionId = 0;
-		Cursor cursor = getReadableDatabase().query(
-				SessionTable.TABLE_SESSION,
-				new String[] { 
-					SessionTable.COLUMN_SESS_ID },
-				SessionTable.COLUMN_SESS_DATE + " =? ",
-				new String[] {
-					sessionDate
-				}, null, null, null);
-		if (cursor.moveToFirst()) {
-			sessionId = cursor.getInt(0);
-		}
-		cursor.close();
-		return sessionId;
-	}
 
 	/**
 	 * Get last session date
@@ -387,7 +393,7 @@ public class Session extends MPOSDatabase{
 					SessionTable.COLUMN_SESS_DATE
 				}, 
 				null, null, null, null, 
-				SessionTable.COLUMN_SESS_ID + " DESC", "1");
+				SessionTable.COLUMN_SESS_ID + " DESC ", "1");
 		if(cursor.moveToFirst()){
 			sessDate = cursor.getString(0);
 		}

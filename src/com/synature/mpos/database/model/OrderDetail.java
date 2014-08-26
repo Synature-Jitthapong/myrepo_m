@@ -11,7 +11,6 @@ public class OrderDetail extends Product{
 		private int promotionPriceGroupId;
 		private int promotionTypeId;
 		private double orderQty;
-		private double orderSetQty;
 		private double deductAmount;
 		private double totalRetailPrice;
 		private double totalSalePrice;
@@ -116,12 +115,6 @@ public class OrderDetail extends Product{
 		}
 		public void setOrderQty(double orderQty) {
 			this.orderQty = orderQty;
-		}
-		public double getOrderSetQty() {
-			return orderSetQty;
-		}
-		public void setOrderSetQty(double orderSetQty) {
-			this.orderSetQty = orderSetQty;
 		}
 		public double getDeductAmount() {
 			return deductAmount;

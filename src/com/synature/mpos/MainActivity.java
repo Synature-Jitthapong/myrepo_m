@@ -395,7 +395,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				return true;
 			case R.id.itemReprint:
 				intent = new Intent(this, ReprintActivity.class);
-				intent.putExtra("sessionId", mSessionId);
 				startActivity(intent);
 				return true;
 			case R.id.itemSendSale:
@@ -1254,11 +1253,16 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				}
 				
 				holder.tvMenu.setText(p.getProductName());
-				if(p.getProductPrice() < 0)
+				// open price fix price = -1
+				if(p.getProductPrice() < 0){
 					holder.tvPrice.setVisibility(View.INVISIBLE);
-				else
+				}else{
 					holder.tvPrice.setText(((MainActivity) 
 							getActivity()).mFormat.currencyFormat(p.getProductPrice()));
+				}
+				if(p.getProductTypeId() == Products.SIZE){
+					holder.tvPrice.setText("(size)");
+				}
 
 				if(Utils.isShowMenuImage(getActivity())){
 					((MainActivity) getActivity()).mImageLoader.displayImage(
@@ -1576,7 +1580,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		openSession();	
 		mTransactionId = mTrans.getCurrentTransactionId(mSessionId);
 		if(mTransactionId == 0){
-			mTransactionId = mTrans.openTransaction(mSession.getSessionDate(mSessionId), 
+			mTransactionId = mTrans.openTransaction(mSession.getLastSessionDate(), 
 					mShopId, mComputerId, mSessionId, mStaffId, mShop.getCompanyVatRate());
 		}
 	}
@@ -1613,7 +1617,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		LayoutInflater inflater = getLayoutInflater();
 		View holdBillView = inflater.inflate(R.layout.hold_bill_layout, null, false);
 		ListView lvHoldBill = (ListView) holdBillView.findViewById(R.id.listView1);
-		List<OrderTransaction> billLst = mTrans.listHoldOrder(mSession.getSessionDate(mSessionId));
+		List<OrderTransaction> billLst = mTrans.listHoldOrder(mSession.getLastSessionDate());
 		HoldBillAdapter billAdapter = new HoldBillAdapter(billLst);
 		lvHoldBill.setAdapter(billAdapter);
 		lvHoldBill.setOnItemClickListener(new OnItemClickListener(){
@@ -1715,7 +1719,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * close shift
 	 */
 	private void closeShift(){
-		if(mTrans.countOrderStatusNotSuccess(mSession.getSessionDate(mSessionId)) == 0){
+		if(mTrans.countOrderStatusNotSuccess(mSession.getLastSessionDate()) == 0){
 			new AlertDialog.Builder(MainActivity.this)
 			.setCancelable(false)
 			.setTitle(R.string.close_shift)
@@ -1754,7 +1758,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * endday
 	 */
 	private void endday(){
-		if(mTrans.countOrderStatusNotSuccess(mSession.getSessionDate(mSessionId)) == 0){
+		if(mTrans.countOrderStatusNotSuccess(mSession.getLastSessionDate()) == 0){
 			new AlertDialog.Builder(MainActivity.this)
 			.setCancelable(false)
 			.setTitle(R.string.endday)
@@ -2015,7 +2019,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	private void countHoldOrder(){
 		if(mItemHoldBill != null){
-			int totalHold = mTrans.countHoldOrder(mSession.getSessionDate(mSessionId));
+			int totalHold = mTrans.countHoldOrder(mSession.getLastSessionDate());
 			if(totalHold > 0){
 				mItemHoldBill.setTitle(getString(R.string.hold_bill) + "(" + totalHold + ")");
 			}else{
@@ -2183,10 +2187,17 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		boolean endday = Utils.endday(MainActivity.this, mShopId, 
 				mComputerId, mSessionId, mStaffId, cashAmount, true);
 		if(endday){
+			int totalSess = mSession.countSession(mSession.getLastSessionDate());
+			if(totalSess > 1){
+				new PrintReport(MainActivity.this, 
+					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).run();
+			}
+			// if parse sessionId = 0 will be print all summary in day
+			new PrintReport(MainActivity.this, 
+				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId).run();
+
 			// backup the database
 			Utils.exportDatabase(this);
-			new PrintReport(MainActivity.this, 
-					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).run();
 			sendEnddayData();
 		}
 	}

@@ -8,9 +8,10 @@ import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.PrintReceiptLog;
 import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.model.OrderDetail;
+import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
 import android.os.IBinder;
@@ -46,8 +47,8 @@ public class VoidBillActivity extends MPOSActivityBase {
 	private Transaction mTrans;
 	private Formater mFormat;
 	
-	private List<MPOSOrderTransaction> mTransLst;
-	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderLst;
+	private List<OrderTransaction> mTransLst;
+	private List<OrderDetail> mOrderLst;
 	private BillAdapter mBillAdapter;
 	private BillDetailAdapter mBillDetailAdapter;
 	
@@ -84,8 +85,8 @@ public class VoidBillActivity extends MPOSActivityBase {
 
 		mTrans = new Transaction(getApplicationContext());
 		mFormat = new Formater(getApplicationContext());
-		mTransLst = new ArrayList<MPOSOrderTransaction>();
-		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
+		mTransLst = new ArrayList<OrderTransaction>();
+		mOrderLst = new ArrayList<OrderDetail>();
 		mBillAdapter = new BillAdapter();
 		mBillDetailAdapter = new BillDetailAdapter();
 		mLvBill.setAdapter(mBillAdapter);
@@ -108,7 +109,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 			public void onItemClick(AdapterView<?> parent, View v, int position,
 					long id) {
 				Calendar c = Calendar.getInstance();
-				MPOSOrderTransaction trans = (MPOSOrderTransaction) parent.getItemAtPosition(position);
+				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
 				c.setTimeInMillis(Long.parseLong(trans.getPaidTime()));
 				
 				mTransactionId = trans.getTransactionId();
@@ -185,7 +186,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 		}
 
 		@Override
-		public MPOSOrderTransaction getItem(int position) {
+		public OrderTransaction getItem(int position) {
 			return mTransLst.get(position);
 		}
 
@@ -207,7 +208,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 				holder = (ViewHolder) convertView.getTag();
 			}
 			
-			final MPOSOrderTransaction trans = mTransLst.get(position);
+			final OrderTransaction trans = mTransLst.get(position);
 			Calendar c = Calendar.getInstance();
 			try {
 				c.setTimeInMillis(Long.parseLong(trans.getPaidTime()));
@@ -247,7 +248,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 		}
 
 		@Override
-		public MPOSOrderTransaction.OrderDetail getItem(int position) {
+		public OrderDetail getItem(int position) {
 			return mOrderLst.get(position);
 		}
 
@@ -258,11 +259,11 @@ public class VoidBillActivity extends MPOSActivityBase {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			MPOSOrderTransaction.OrderDetail order = mOrderLst.get(position);
+			OrderDetail order = mOrderLst.get(position);
 			ViewHolder holder;
 			
 			if(convertView == null){
-				convertView = inflater.inflate(R.layout.void_item_template, null);
+				convertView = inflater.inflate(R.layout.void_item_template, parent, false);
 				holder = new ViewHolder();
 				
 				holder.tvItem = (TextView) convertView.findViewById(R.id.tvItem);
@@ -276,8 +277,8 @@ public class VoidBillActivity extends MPOSActivityBase {
 			}
 		
 			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(mFormat.qtyFormat(order.getQty()));
-			holder.tvPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
+			holder.tvQty.setText(mFormat.qtyFormat(order.getOrderQty()));
+			holder.tvPrice.setText(mFormat.currencyFormat(order.getProductPrice()));
 			holder.tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
 			
 			return convertView;

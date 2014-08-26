@@ -2,13 +2,11 @@ package com.synature.mpos;
 
 import java.text.NumberFormat;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.MPOSDatabase;
-import com.synature.mpos.database.MPOSOrderTransaction;
 import com.synature.mpos.database.MPOSPaymentDetail;
 import com.synature.mpos.database.PaymentDetail;
 import com.synature.mpos.database.Products;
@@ -17,10 +15,13 @@ import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.Reporting.SimpleProductData;
+import com.synature.mpos.database.model.OrderDetail;
+import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.pos.Report;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -30,6 +31,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,6 +47,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -52,40 +55,32 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class SaleReportActivity extends MPOSActivityBase implements OnClickListener{
+public class SaleReportActivity extends MPOSActivityBase{
 
 	public static final int REPORT_BY_BILL = 0;
 	public static final int REPORT_BY_PRODUCT = 1;
 	public static final int REPORT_ENDDAY = 2;
 	
 	private Shop mShop;
-	
 	private Formater mFormat;
-
 	private Reporting mReporting;
-	
+
 	private int mStaffId;
 	
 	private Calendar mCalendar;
 	private String mDateFrom;
 	private String mDateTo;
 	
-	private TextView mTvTo;
-	private Button mBtnDateFrom;
-	private Button mBtnDateTo;
-	private Spinner mSpReportType;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sale_report);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+		setTitle(null);
 		
 		mShop = new Shop(this);
 		mFormat = new Formater(SaleReportActivity.this);
-		Calendar c = Calendar.getInstance();
-		mCalendar = new GregorianCalendar(c.get(Calendar.YEAR), 
-				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+		mCalendar = Utils.getDate();
 		mDateFrom = String.valueOf(mCalendar.getTimeInMillis());
 		mDateTo = String.valueOf(mCalendar.getTimeInMillis());
 
@@ -97,76 +92,104 @@ public class SaleReportActivity extends MPOSActivityBase implements OnClickListe
 			getFragmentManager().beginTransaction()
 				.add(R.id.reportContent, BillReportFragment.getInstance()).commit();
 		}
+		setupSpRpType();
 	}
 	
-	private void switchReportType(int type){
-		switch(type){
-		case REPORT_BY_BILL:
-			getFragmentManager().beginTransaction()
-			.replace(R.id.reportContent, BillReportFragment.getInstance()).commit();
-			if(mBtnDateFrom != null){
-				mBtnDateFrom.setVisibility(View.VISIBLE);
-				mTvTo.setVisibility(View.VISIBLE);
+	private void setupSpRpType(){
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayShowCustomEnabled(true);
+		LayoutInflater inflater = getLayoutInflater();
+		View rpTypeView = inflater.inflate(R.layout.spinner_view, null);
+		Spinner spRpType = (Spinner) rpTypeView.findViewById(R.id.spinner1);
+		spRpType.setAdapter(new ArrayAdapter<String>(this, 
+				android.R.layout.simple_spinner_dropdown_item, 
+				new String[] {
+					getString(R.string.sale_report_by_bill),
+					getString(R.string.sale_report_by_product),
+					getString(R.string.endday_report)
+				}
+		));
+		spRpType.setOnItemSelectedListener(new ReportTypeSwitcher());
+		spRpType.setSelection(0);
+		actionBar.setCustomView(rpTypeView);
+	}
+	
+	private class ReportTypeSwitcher implements OnItemSelectedListener{
+
+		@Override
+		public void onItemSelected(AdapterView<?> parent, View v, int position,
+				long id) {
+			switch(position){
+			case REPORT_BY_BILL:
+				getFragmentManager().beginTransaction()
+				.replace(R.id.reportContent, BillReportFragment.getInstance()).commit();
+				break;
+			case REPORT_BY_PRODUCT:
+				getFragmentManager().beginTransaction()
+				.replace(R.id.reportContent, ProductReportFragment.getInstance()).commit();
+				break;
+			case REPORT_ENDDAY:
+				getFragmentManager().beginTransaction()
+				.replace(R.id.reportContent, EnddayReportFragment.getInstance()).commit();
+				break;
 			}
-			setTitle(R.string.sale_report_by_bill);
-			break;
-		case REPORT_BY_PRODUCT:
-			getFragmentManager().beginTransaction()
-			.replace(R.id.reportContent, ProductReportFragment.getInstance()).commit();
-			if(mBtnDateFrom != null){
-				mBtnDateFrom.setVisibility(View.VISIBLE);
-				mTvTo.setVisibility(View.VISIBLE);
-			}
-			setTitle(R.string.sale_report_by_product);
-			break;
-		case REPORT_ENDDAY:
-			getFragmentManager().beginTransaction()
-			.replace(R.id.reportContent, EnddayReportFragment.getInstance()).commit();
-			if(mBtnDateFrom != null){
-				mBtnDateFrom.setVisibility(View.GONE);
-				mTvTo.setVisibility(View.GONE);
-			}
-			setTitle(R.string.endday_report);
-			break;
 		}
+
+		@Override
+		public void onNothingSelected(AdapterView<?> arg0) {
+		}
+		
 	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_sale_report, menu);
-		MenuItem itemReportType = (MenuItem) menu.findItem(R.id.itemReportType);
 		MenuItem itemCondition = (MenuItem) menu.findItem(R.id.itemDateCondition);
-		mSpReportType = (Spinner) itemReportType.getActionView().findViewById(R.id.spinner1);
-		mBtnDateFrom = (Button) itemCondition.getActionView().findViewById(R.id.btnDateFrom);
-		mBtnDateTo = (Button) itemCondition.getActionView().findViewById(R.id.btnDateTo);
-		mTvTo = (TextView) itemCondition.getActionView().findViewById(R.id.tvTo);
-		mBtnDateFrom.setText(mFormat.dateFormat(mCalendar.getTime()));
-		mBtnDateTo.setText(mFormat.dateFormat(mCalendar.getTime()));
-		mBtnDateFrom.setOnClickListener(this);
-		mBtnDateTo.setOnClickListener(this);
-		mSpReportType.setOnItemSelectedListener(new OnItemSelectedListener(){
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View v,
-					int position, long id) {
-				switchReportType(position);
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-			}
-			
-		});
-		String[] reportTypes = {
-				getString(R.string.sale_report_by_bill),
-				getString(R.string.sale_report_by_product),
-				getString(R.string.endday_report)
-		};
-		mSpReportType.setAdapter(new ArrayAdapter<String>(this, 
-				android.R.layout.simple_spinner_dropdown_item, reportTypes));
-		mSpReportType.setSelection(0);
-		
+		Button btnDateFrom = (Button) itemCondition.getActionView().findViewById(R.id.btnDateFrom);
+		Button btnDateTo = (Button) itemCondition.getActionView().findViewById(R.id.btnDateTo);
+		btnDateFrom.setText(mFormat.dateFormat(mCalendar.getTime()));
+		btnDateTo.setText(mFormat.dateFormat(mCalendar.getTime()));
+		btnDateFrom.setOnClickListener(new OnDateClickListener());
+		btnDateTo.setOnClickListener(new OnDateClickListener());
 		return super.onCreateOptionsMenu(menu);
+	}
+	
+	private class OnDateClickListener implements OnClickListener{
+		@Override
+		public void onClick(final View v) {
+			DialogFragment dialogFragment;
+			
+			switch(v.getId()){
+			case R.id.btnDateFrom:
+				dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
+					
+					@Override
+					public void onSetDate(long date) {
+						mCalendar.setTimeInMillis(date);
+						mDateFrom = String.valueOf(mCalendar.getTimeInMillis());
+						
+						((Button) v).setText(mFormat.dateFormat(mCalendar.getTime()));
+						mReporting.setDateFrom(mDateFrom);
+					}
+				});
+				dialogFragment.show(getFragmentManager(), "Condition");
+				break;
+			case R.id.btnDateTo:
+				dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
+					
+					@Override
+					public void onSetDate(long date) {
+						mCalendar.setTimeInMillis(date);
+						mDateTo = String.valueOf(mCalendar.getTimeInMillis());
+						
+						((Button) v).setText(mFormat.dateFormat(mCalendar.getTime()));
+						mReporting.setDateTo(mDateTo);
+					}
+				});
+				dialogFragment.show(getFragmentManager(), "Condition");
+				break;
+			}
+		}	
 	}
 	
 	@Override
@@ -309,42 +332,6 @@ public class SaleReportActivity extends MPOSActivityBase implements OnClickListe
 		}
 	}
 	
-	@Override
-	public void onClick(View v) {
-		DialogFragment dialogFragment;
-		
-		switch(v.getId()){
-		case R.id.btnDateFrom:
-			dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
-				
-				@Override
-				public void onSetDate(long date) {
-					mCalendar.setTimeInMillis(date);
-					mDateFrom = String.valueOf(mCalendar.getTimeInMillis());
-					
-					mBtnDateFrom.setText(mFormat.dateFormat(mCalendar.getTime()));
-					mReporting.setDateFrom(mDateFrom);
-				}
-			});
-			dialogFragment.show(getFragmentManager(), "Condition");
-			break;
-		case R.id.btnDateTo:
-			dialogFragment = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
-				
-				@Override
-				public void onSetDate(long date) {
-					mCalendar.setTimeInMillis(date);
-					mDateTo = String.valueOf(mCalendar.getTimeInMillis());
-					
-					mBtnDateTo.setText(mFormat.dateFormat(mCalendar.getTime()));
-					mReporting.setDateTo(mDateTo);
-				}
-			});
-			dialogFragment.show(getFragmentManager(), "Condition");
-			break;
-		}
-	}
-	
 	/**
 	 * @author j1tth4
 	 * Endday Report Fragment
@@ -357,9 +344,11 @@ public class SaleReportActivity extends MPOSActivityBase implements OnClickListe
 		
 		private Transaction mTrans;
 		private PaymentDetail mPayment;
+		private int mSessionId;
 	
 		private LinearLayout mEnddayReportFooterContainer;
 		private ListView mLvEnddayReport;
+		private Spinner mSpSession;
 		
 		public static EnddayReportFragment getInstance(){
 			if(sInstance == null){
@@ -367,7 +356,7 @@ public class SaleReportActivity extends MPOSActivityBase implements OnClickListe
 			}
 			return sInstance;
 		}
-		
+
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
@@ -389,6 +378,14 @@ public class SaleReportActivity extends MPOSActivityBase implements OnClickListe
 		@Override
 		public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 			inflater.inflate(R.menu.fragment_sale_report, menu);
+			MenuItem itemCondition = (MenuItem) menu.findItem(R.id.itemDateCondition);
+			MenuItem itemSession = (MenuItem) menu.findItem(R.id.itemSession);
+			itemSession.setVisible(true);
+			((Button) itemCondition.getActionView().findViewById(R.id.btnDateFrom)).setVisibility(View.GONE);
+			((TextView) itemCondition.getActionView().findViewById(R.id.tvFrom)).setVisibility(View.GONE);
+			((TextView) itemCondition.getActionView().findViewById(R.id.tvTo)).setText(R.string.sale_date);
+			mSpSession = (Spinner) itemSession.getActionView().findViewById(R.id.spinner1);
+			setupSpSession();
 			super.onCreateOptionsMenu(menu, inflater);
 		}
 
@@ -400,120 +397,195 @@ public class SaleReportActivity extends MPOSActivityBase implements OnClickListe
 				createReport();
 				return true;
 			case R.id.itemPrint:
-				Session session = new Session(getActivity());
-				int sessionId = session.getSessionId(activity.mDateTo);
-				new PrintReport(getActivity(), 
-						PrintReport.WhatPrint.SUMMARY_SALE, sessionId, activity.mStaffId).run();
+				new Thread(new PrintReport(getActivity(), 
+						PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, activity.mStaffId)).start();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 			}
 		}
 		
+		// setup spinner session
+		private void setupSpSession(){
+			Session sess = new Session(getActivity());
+			List<com.synature.mpos.database.model.Session> sl = 
+					sess.listSession(mHost.mDateTo);
+			com.synature.mpos.database.model.Session s = 
+					new com.synature.mpos.database.model.Session();
+			s.setSessionId(0);
+			s.setSessionDate(getString(R.string.all));
+			sl.add(0, s);
+			mSpSession.setAdapter(new SessionAdapter(sl));
+			mSpSession.setOnItemSelectedListener(new OnSessionSelectedListener());
+		}
+		
+		private class OnSessionSelectedListener implements OnItemSelectedListener{
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View v,
+					int position, long id) {
+				com.synature.mpos.database.model.Session sess = 
+						(com.synature.mpos.database.model.Session) parent.getItemAtPosition(position);
+				mSessionId = sess.getSessionId();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+			
+		}
+		
+		private class SessionAdapter extends BaseAdapter{
+
+			private List<com.synature.mpos.database.model.Session> mSl;
+			
+			public SessionAdapter(List<com.synature.mpos.database.model.Session> sl){
+				mSl = sl;
+			}
+			
+			@Override
+			public int getCount() {
+				return mSl != null ? mSl.size() : 0;
+			}
+
+			@Override
+			public Object getItem(int position) {
+				return mSl.get(position);
+			}
+
+			@Override
+			public long getItemId(int position) {
+				return position;
+			}
+
+			@Override
+			public View getView(int position, View convertView, ViewGroup parent) {
+				ViewHolder holder;
+				if(convertView == null){
+					holder = new ViewHolder();
+					convertView = getActivity().getLayoutInflater().inflate(android.R.layout.simple_spinner_dropdown_item, parent, false);
+					holder.tvSession = (CheckedTextView) convertView.findViewById(android.R.id.text1);
+					convertView.setTag(holder);
+				}else{
+					holder = (ViewHolder) convertView.getTag();
+				}
+				com.synature.mpos.database.model.Session sess = mSl.get(position);
+				holder.tvSession.setText(sess.getSessionDate());
+				return convertView;
+			}
+			
+			private class ViewHolder{
+				CheckedTextView tvSession;
+			}
+		}
+		
 		private void createReport(){
-			LayoutInflater inflater = (LayoutInflater)
-					getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			Shop shop = new Shop(getActivity());
-			MPOSOrderTransaction trans = mTrans.getTransaction(mHost.mDateTo);
-			MPOSOrderTransaction.MPOSOrderDetail sumOrder 
-				= mTrans.getSummaryOrderInDay(mHost.mDateTo, mHost.mDateTo);
+			OrderTransaction trans = null;
+			OrderDetail sumOrder = null;
+			if(mSessionId != 0){
+				trans = mTrans.getTransaction(mSessionId, mHost.mDateTo);
+				sumOrder = mTrans.getSummaryOrder(mSessionId, mHost.mDateFrom, mHost.mDateTo);
+			}else{
+				trans = mTrans.getTransaction(mHost.mDateTo);
+				sumOrder = mTrans.getSummaryOrder(mHost.mDateFrom, mHost.mDateTo);
+			}
 			
 			mEnddayReportFooterContainer.removeAllViews();
-			// add footer
-			View totalView = inflater.inflate(R.layout.left_mid_right_template, null);
-			((TextView) totalView.findViewById(R.id.tvMid)).setText(getString(R.string.sub_total));
-			((TextView) totalView.findViewById(R.id.tvMid)).append("  " +
-					mHost.mFormat.qtyFormat(sumOrder.getQty()));
-			((TextView) totalView.findViewById(R.id.tvRight)).setText(
-					mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
-			mEnddayReportFooterContainer.addView(totalView);
+			TextView tvSumTxt = new TextView(getActivity());
+			tvSumTxt.setText(R.string.summary);
+			tvSumTxt.setTextAppearance(getActivity(), R.style.HeaderText);
+			tvSumTxt.setGravity(Gravity.CENTER);
+			tvSumTxt.setPaintFlags(tvSumTxt.getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
+			mEnddayReportFooterContainer.addView(tvSumTxt);
+			
+			View lmrView = inflater.inflate(R.layout.left_mid_right_template, null);
+			((TextView) lmrView.findViewById(R.id.tvLeft)).setText(getString(R.string.sub_total));
+			((TextView) lmrView.findViewById(R.id.tvMid)).setText(mHost.mFormat.qtyFormat(sumOrder.getOrderQty()));
+			((TextView) lmrView.findViewById(R.id.tvMid)).setTypeface(null, Typeface.BOLD);
+			((TextView) lmrView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
+			((TextView) lmrView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
+			mEnddayReportFooterContainer.addView(lmrView);
 			
 			if(sumOrder.getPriceDiscount() > 0){
 				View discountView = inflater.inflate(R.layout.left_mid_right_template, null);
-				((TextView) discountView.findViewById(R.id.tvMid)).setText(getString(R.string.discount));
-				((TextView) discountView.findViewById(R.id.tvRight)).setText(
-						mHost.mFormat.currencyFormat(sumOrder.getPriceDiscount()));
+				((TextView) discountView.findViewById(R.id.tvLeft)).setText(getString(R.string.discount));
+				((TextView) discountView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumOrder.getPriceDiscount()));
+				((TextView) discountView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
 				mEnddayReportFooterContainer.addView(discountView);
 			}
 			
-//			View subTotalView2 = inflater.inflate(R.layout.left_mid_right_template, null);
-//			((TextView) subTotalView2.findViewById(R.id.tvMid)).setText(getString(R.string.sub_total));
-//			((TextView) subTotalView2.findViewById(R.id.tvRight)).setText(
-//					mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
-//			mEnddayReportFooterContainer.addView(subTotalView2);
-			
 			if(sumOrder.getVatExclude() > 0){
 				View vatExcludeView = inflater.inflate(R.layout.left_mid_right_template, null);
-				((TextView) vatExcludeView.findViewById(R.id.tvMid)).setText(getString(R.string.vat_exclude) 
+				((TextView) vatExcludeView.findViewById(R.id.tvLeft)).setText(getString(R.string.vat_exclude) 
 						+ " " + NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate()) + "%");
-				((TextView) vatExcludeView.findViewById(R.id.tvRight)).setText(
-						mHost.mFormat.currencyFormat(sumOrder.getVatExclude()));
+				((TextView) vatExcludeView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumOrder.getVatExclude()));
+				((TextView) vatExcludeView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
 				mEnddayReportFooterContainer.addView(vatExcludeView);
 			}
 			
 			View totalSaleView = inflater.inflate(R.layout.left_mid_right_template, null);
-			((TextView) totalSaleView.findViewById(R.id.tvMid)).setText(getString(R.string.total_sale));
-			((TextView) totalSaleView.findViewById(R.id.tvMid)).setPaintFlags(
-					((TextView) totalSaleView.findViewById(R.id.tvMid)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
-			((TextView) totalSaleView.findViewById(R.id.tvRight)).setText(
-					mHost.mFormat.currencyFormat(
-							sumOrder.getTotalSalePrice()));
+			((TextView) totalSaleView.findViewById(R.id.tvLeft)).setText(getString(R.string.total_sale));
+			((TextView) totalSaleView.findViewById(R.id.tvLeft)).setPaintFlags(
+					((TextView) totalSaleView.findViewById(R.id.tvLeft)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
+			((TextView) totalSaleView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
+			((TextView) totalSaleView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
 			mEnddayReportFooterContainer.addView(totalSaleView);
 			
 			if(shop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
 				View vatView = inflater.inflate(R.layout.left_mid_right_template, null);
-				((TextView) vatView.findViewById(R.id.tvMid)).setText(getString(R.string.before_vat));
-				((TextView) vatView.findViewById(R.id.tvRight)).setText(
-						mHost.mFormat.currencyFormat(
+				((TextView) vatView.findViewById(R.id.tvLeft)).setText(getString(R.string.before_vat));
+				((TextView) vatView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(
 								trans.getTransactionVatable() - trans.getTransactionVat()));
+				((TextView) vatView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
 				mEnddayReportFooterContainer.addView(vatView);
+				
 				vatView = inflater.inflate(R.layout.left_mid_right_template, null);
-				((TextView) vatView.findViewById(R.id.tvMid)).setText(getString(R.string.total_vat)
+				((TextView) vatView.findViewById(R.id.tvLeft)).setText(getString(R.string.total_vat)
 						+ " " + NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate()) + "%");
-				((TextView) vatView.findViewById(R.id.tvRight)).setText(
-						mHost.mFormat.currencyFormat(trans.getTransactionVat()));
+				((TextView) vatView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(trans.getTransactionVat()));
+				((TextView) vatView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
 				mEnddayReportFooterContainer.addView(vatView);
 			}
 			
 			List<MPOSPaymentDetail> summaryPaymentLst = 
-					mPayment.listSummaryPayment(
-							mTrans.getSeperateTransactionId(mHost.mDateTo));
+					mPayment.listSummaryPayment(mTrans.getSeperateTransactionId(mSessionId, mHost.mDateTo));
 			if(summaryPaymentLst != null){
 				View paymentView = inflater.inflate(R.layout.left_mid_right_template, null);
-				((TextView) paymentView.findViewById(R.id.tvMid)).setText(getString(R.string.payment_detail));
-				((TextView) paymentView.findViewById(R.id.tvMid)).setPaintFlags(
-						((TextView) paymentView.findViewById(R.id.tvMid)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
+				((TextView) paymentView.findViewById(R.id.tvLeft)).setText(getString(R.string.payment_detail));
+				((TextView) paymentView.findViewById(R.id.tvLeft)).setPaintFlags(
+						((TextView) paymentView.findViewById(R.id.tvLeft)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
 				((TextView) paymentView.findViewById(R.id.tvRight)).setText(null);
 				mEnddayReportFooterContainer.addView(paymentView);
 				for(MPOSPaymentDetail payment : summaryPaymentLst){
 					paymentView = inflater.inflate(R.layout.left_mid_right_template, null);
-					((TextView) paymentView.findViewById(R.id.tvMid)).setText(payment.getPayTypeName());
-					((TextView) paymentView.findViewById(R.id.tvRight)).setText(
-							mHost.mFormat.currencyFormat(payment.getPayAmount()));
+					((TextView) paymentView.findViewById(R.id.tvLeft)).setText(payment.getPayTypeName());
+					((TextView) paymentView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(payment.getPayAmount()));
+					((TextView) paymentView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
 					mEnddayReportFooterContainer.addView(paymentView);
 				}
 			}
 			
 			View totalReceiptView = inflater.inflate(R.layout.left_mid_right_template, null);
-			((TextView) totalReceiptView.findViewById(R.id.tvMid)).setText(getString(R.string.total_receipt_in_day));
-			((TextView) totalReceiptView.findViewById(R.id.tvRight)).setText(
-					String.valueOf(mTrans.getTotalReceipt(mHost.mDateTo)));
+			((TextView) totalReceiptView.findViewById(R.id.tvLeft)).setText(getString(R.string.total_receipt));
+			((TextView) totalReceiptView.findViewById(R.id.tvRight)).setText(String.valueOf(mTrans.getTotalReceipt(mSessionId, mHost.mDateTo)));
+			((TextView) totalReceiptView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
 			mEnddayReportFooterContainer.addView(totalReceiptView);
 			
-			MPOSOrderTransaction.MPOSOrderDetail sumVoidOrder = 
-					mTrans.getSummaryVoidOrderInDay(mHost.mDateTo);
+			OrderDetail sumVoidOrder = mTrans.getSummaryVoidOrderInDay(mSessionId, mHost.mDateTo);
 			View totalVoidView = inflater.inflate(R.layout.left_mid_right_template, null);
-			((TextView) totalVoidView.findViewById(R.id.tvMid)).setText(getString(R.string.void_bill));
-			((TextView) totalVoidView.findViewById(R.id.tvMid)).setPaintFlags(
-					((TextView) totalVoidView.findViewById(R.id.tvMid)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
+			((TextView) totalVoidView.findViewById(R.id.tvLeft)).setText(getString(R.string.void_bill));
+			((TextView) totalVoidView.findViewById(R.id.tvLeft)).setPaintFlags(
+					((TextView) totalVoidView.findViewById(R.id.tvLeft)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
 			((TextView) totalVoidView.findViewById(R.id.tvRight)).setText(null);
 			mEnddayReportFooterContainer.addView(totalVoidView);
 			totalVoidView = inflater.inflate(R.layout.left_mid_right_template, null);
-			((TextView) totalVoidView.findViewById(R.id.tvMid)).setText(getString(R.string.void_bill_after_paid));
-			((TextView) totalVoidView.findViewById(R.id.tvMid)).append(" " +
-					mHost.mFormat.qtyFormat(sumVoidOrder.getQty()));
-			((TextView) totalVoidView.findViewById(R.id.tvRight)).setText(
-					mHost.mFormat.currencyFormat(sumVoidOrder.getTotalSalePrice()));
+			((TextView) totalVoidView.findViewById(R.id.tvLeft)).setText(getString(R.string.void_bill_after_paid));
+			((TextView) totalVoidView.findViewById(R.id.tvMid)).setText(mHost.mFormat.qtyFormat(sumVoidOrder.getOrderQty()));
+			((TextView) totalVoidView.findViewById(R.id.tvMid)).setTypeface(null, Typeface.BOLD);
+			((TextView) totalVoidView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumVoidOrder.getTotalSalePrice()));
+			((TextView) totalVoidView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
 			mEnddayReportFooterContainer.addView(totalVoidView);
 			
 			loadReportDetail();
@@ -523,7 +595,7 @@ public class SaleReportActivity extends MPOSActivityBase implements OnClickListe
 			Reporting reporting = new Reporting(getActivity(), 
 					mHost.mDateTo, 
 					mHost.mDateTo);
-			List<SimpleProductData> simpleLst = reporting.listSummaryProductGroupInDay();
+			List<SimpleProductData> simpleLst = reporting.listSummaryProductGroupInDay(mSessionId);
 			mLvEnddayReport.setAdapter(new EnddayReportAdapter(simpleLst));
 		}
 		
@@ -640,6 +712,10 @@ public class SaleReportActivity extends MPOSActivityBase implements OnClickListe
 		@Override
 		public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 			inflater.inflate(R.menu.fragment_sale_report, menu);
+			MenuItem itemCondition = (MenuItem) menu.findItem(R.id.itemDateCondition);
+			((Button) itemCondition.getActionView().findViewById(R.id.btnDateFrom)).setVisibility(View.VISIBLE);
+			((TextView) itemCondition.getActionView().findViewById(R.id.tvFrom)).setVisibility(View.VISIBLE);
+			((TextView) itemCondition.getActionView().findViewById(R.id.tvTo)).setVisibility(View.VISIBLE);
 			super.onCreateOptionsMenu(menu, inflater);
 		}
 
@@ -935,6 +1011,10 @@ public class SaleReportActivity extends MPOSActivityBase implements OnClickListe
 		@Override
 		public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 			inflater.inflate(R.menu.fragment_sale_report, menu);
+			MenuItem itemCondition = (MenuItem) menu.findItem(R.id.itemDateCondition);
+			((Button) itemCondition.getActionView().findViewById(R.id.btnDateFrom)).setVisibility(View.VISIBLE);
+			((TextView) itemCondition.getActionView().findViewById(R.id.tvFrom)).setVisibility(View.VISIBLE);
+			((TextView) itemCondition.getActionView().findViewById(R.id.tvTo)).setVisibility(View.VISIBLE);
 			super.onCreateOptionsMenu(menu, inflater);
 		}
 
@@ -1062,7 +1142,7 @@ public class SaleReportActivity extends MPOSActivityBase implements OnClickListe
 				LinearLayout row = (LinearLayout) convertView;
 				for(int i = 0; i < row.getChildCount(); i++){
 					View v = row.getChildAt(i);
-					v.setBackgroundResource(R.color.lighter_gray);
+					v.setBackgroundResource(R.color.light_blue_gray);
 				}
 			}
 			
@@ -1229,9 +1309,7 @@ public class SaleReportActivity extends MPOSActivityBase implements OnClickListe
 			mProductSumContent.addView(createRowSummary(getActivity(), tvGrandTotal));
 			
 			Transaction trans = new Transaction(getActivity());
-			MPOSOrderTransaction.MPOSOrderDetail summOrder 
-				= trans.getSummaryOrderInDay(mHost.mDateFrom, 
-						mHost.mDateTo);	
+			OrderDetail summOrder = trans.getSummaryOrder(mHost.mDateFrom, mHost.mDateTo);	
 			
 			// total sale
 			TextView[] tvSubTotal = {

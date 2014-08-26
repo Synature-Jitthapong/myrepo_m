@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteDatabase;
 public class OrderDetailTable extends BaseColumn{
 
 	public static final String TABLE_ORDER = "OrderDetail";
-	public static final String TABLE_ORDER_TMP = "OrderDetailTmp";
 	public static final String COLUMN_ORDER_ID = "order_detail_id";
 	public static final String COLUMN_ORDER_QTY = "order_qty";
 	public static final String COLUMN_TOTAL_RETAIL_PRICE = "total_retail_price";
@@ -15,13 +14,7 @@ public class OrderDetailTable extends BaseColumn{
 	public static final String COLUMN_MEMBER_DISCOUNT = "member_discount_amount";
 	public static final String COLUMN_PRICE_DISCOUNT = "price_discount_amount";
 	public static final String COLUMN_PRICE_OR_PERCENT = "price_or_percent";
-	public static final String COLUMN_ORDER_SET_QTY = "order_set_qty";
-	public static final String COLUMN_ORDER_SET_PRICE = "order_set_price";
-	public static final String COLUMN_ORDER_SET_PRICE_DISCOUNT = "order_set_price_discount";
 	public static final String COLUMN_DEDUCT_AMOUNT = "deduct_amount";
-	public static final String COLUMN_ORDER_COMMENT_QTY = "order_comment_qty";
-	public static final String COLUMN_ORDER_COMMENT_PRICE = "order_comment_price";
-	public static final String COLUMN_ORDER_COMMENT_PRICE_DISCOUNT = "order_comment_price_discount";
 	public static final String COLUMN_PARENT_ORDER_ID = "parent_order_id";
 
 	private static final String ORDER_SQL_CREATE = 
@@ -45,11 +38,6 @@ public class OrderDetailTable extends BaseColumn{
 			+ ProductComponentGroupTable.COLUMN_REQ_AMOUNT + " real default 0, " 
 			+ ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT + " real default 0, "
 			+ COLUMN_DEDUCT_AMOUNT + " real default 0,"
-			+ COLUMN_ORDER_SET_QTY + " real default 0, " 
-			+ COLUMN_ORDER_SET_PRICE + " real default 0, "
-			+ COLUMN_ORDER_COMMENT_QTY + " real default 0, "
-			+ COLUMN_ORDER_COMMENT_PRICE + " real default 0, "
-			+ COLUMN_ORDER_COMMENT_PRICE_DISCOUNT + " real default 0,"
 			+ ProductTable.COLUMN_SALE_MODE + " integer default 1, "
 			+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + " integer default 0,"
 			+ PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID + " integer default 0,"

@@ -104,6 +104,8 @@ public class MenuCommentFragment extends DialogFragment{
 		commentGroup.setCommentGroupId(0);
 		commentGroup.setCommentGroupName("-- ALL --");
 		mCommentGroupLst.add(0, commentGroup);
+		
+		mTrans.getWritableDatabase().beginTransaction();
 	}
 
 	@Override
@@ -169,7 +171,13 @@ public class MenuCommentFragment extends DialogFragment{
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(getActivity().getString(R.string.menu_comment) + ": " + mMenuName);
 		builder.setView(view);
-		builder.setNegativeButton(android.R.string.cancel, null);
+		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {
+				mTrans.getWritableDatabase().endTransaction();
+			}
+		});
 		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			
 			@Override
@@ -178,6 +186,8 @@ public class MenuCommentFragment extends DialogFragment{
 					mTrans.updateOrderComment(mTransactionId, mOrderDetailId, 
 							mTxtComment.getText().toString());
 				}
+				mTrans.getWritableDatabase().setTransactionSuccessful();
+				mTrans.getWritableDatabase().endTransaction();
 				mListener.onDismiss(mPosition, mOrderDetailId);
 			}
 		});

@@ -121,12 +121,15 @@ public class Utils {
 			int sessionId, int staffId, double closeAmount, boolean isEndday) {
 		Session sess = new Session(context);
 		Transaction trans = new Transaction(context);
-		String currentSaleDate = sess.getSessionDate(sessionId);
+		String currentSaleDate = sess.getLastSessionDate();
 		try {
 			try {
-				// add session endday
+				/*
+				 * add session endday
+				 * get total receipt in day by parsing sessionId = 0 
+				 */
 				sess.addSessionEnddayDetail(currentSaleDate,
-						trans.getTotalReceipt(currentSaleDate),
+						trans.getTotalReceipt(0, currentSaleDate),
 						trans.getTotalReceiptAmount(currentSaleDate));
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block

@@ -31,11 +31,14 @@
 		<item name="android:gravity">right|center_vertical</item>
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
-		<item name="android:padding">@dimen/default_margin</item>
+		<item name="android:paddingLeft">2dp</item>
+		<item name="android:paddingTop">@dimen/default_margin</item>
+		<item name="android:paddingRight">2dp</item>
+		<item name="android:paddingBottom">@dimen/default_margin</item>
     </style>
     <style name="SummaryText" parent="HeaderText">
         <item name="android:textStyle">bold</item>
-        <item name="android:background">@color/lighter_gray</item>
+        <item name="android:background">@color/light_blue_gray</item>
     </style>
     <style name="HeaderText" parent="@android:style/TextAppearance.Holo">
 		<item name="android:textAllCaps">true</item>

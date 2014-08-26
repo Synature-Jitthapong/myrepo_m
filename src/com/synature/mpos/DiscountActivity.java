@@ -84,13 +84,13 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 		mProduct = new Products(this);
 		mFormat = new Formater(this);
 		mOrder = new OrderDetail();
-
-		mTrans.prepareDiscount(mTransactionId);
+		// begin transaction
+		mTrans.getWritableDatabase().beginTransaction();
 		setupCustomView();
 		setupDiscountListView();
 		loadOrder();
 	}
-	
+
 	private void setupDiscountListView(){
 		mOrderLst = new ArrayList<OrderDetail>();
 		mDisAdapter = new DiscountAdapter();
@@ -248,10 +248,10 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 		switch(item.getItemId()){
 		case android.R.id.home:
 			cancel();
+			finish();
 			return true;
 		case R.id.itemConfirm:
-			mTrans.confirmDiscount(mTransactionId);
-			mTrans.updateTransactionPromotion(mTransactionId, 0);
+			confirm();
 			finish();
 			return true;
 		default:
@@ -351,8 +351,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	}
 	
 	private void clearDiscount(){
-		mTrans.cancelDiscount(mTransactionId);
-		mTrans.prepareDiscount(mTransactionId);
+		
 	}
 	
 	private void updateDiscount(double discount, int priceOrPercent) {
@@ -393,38 +392,19 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 			else
 				totalDiscount = totalRetailPrice * discount / 100;
 		}
-		BigDecimal big = new BigDecimal(totalDiscount);
-		big = big.setScale(0, BigDecimal.ROUND_FLOOR);
-		return big.doubleValue();
+		BigDecimal bg = new BigDecimal(totalDiscount);
+		bg = bg.setScale(0, BigDecimal.ROUND_FLOOR);
+		return bg.doubleValue();
+	}
+	
+	private void confirm(){
+		mTrans.updateTransactionPromotion(mTransactionId, 0);
+		mTrans.getWritableDatabase().setTransactionSuccessful();
+		mTrans.getWritableDatabase().endTransaction();
 	}
 	
 	private void cancel(){
-//		if (mIsEdited) {
-//			new AlertDialog.Builder(this)
-//					.setTitle(R.string.discount)
-//					.setIcon(android.R.drawable.ic_dialog_info)
-//					.setMessage(R.string.confirm_cancel)
-//					.setNegativeButton(R.string.no,
-//							new DialogInterface.OnClickListener() {
-//
-//								@Override
-//								public void onClick(DialogInterface dialog,
-//										int which) {
-//								}
-//							})
-//					.setPositiveButton(R.string.yes,
-//							new DialogInterface.OnClickListener() {
-//
-//								@Override
-//								public void onClick(DialogInterface dialog,
-//										int which) {
-//									mTrans.cancelDiscount(mTransactionId);
-//									finish();
-//								}
-//							}).show();
-//		} else {
-			finish();
-//}	
+		mTrans.getWritableDatabase().endTransaction();
 	}
 	
 	private void summary() {
@@ -447,7 +427,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	}
 	
 	private void loadOrder() {
-		mOrderLst = mTrans.listAllOrder(mTransactionId);
+		mOrderLst = mTrans.listAllOrderForDiscount(mTransactionId);
 		mDisAdapter.notifyDataSetChanged();
 	}
 	

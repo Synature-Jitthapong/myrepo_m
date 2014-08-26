@@ -206,7 +206,7 @@ public abstract class PrinterBase {
 	 * @param dateTo
 	 */
 	protected void createTextForPrintSaleByProductReport(String dateFrom, String dateTo){
-		OrderDetail summOrder = mTrans.getSummaryOrderInDay(dateFrom, dateTo);
+		OrderDetail summOrder = mTrans.getSummaryOrder(dateFrom, dateTo);
 	
 		String date = mFormat.dateFormat(dateTo);
 		if(!dateFrom.equals(dateTo)){
@@ -296,12 +296,24 @@ public abstract class PrinterBase {
 	 */
 	protected void createTextForPrintSummaryReport(int sessionId, int staffId){
 		Session session = new Session(mContext.getApplicationContext());
-		String sessionDate = session.getSessionDate(sessionId);
-		OrderTransaction trans = mTrans.getTransaction(sessionDate); 
-		OrderDetail summOrder = mTrans.getSummaryOrderInDay(sessionDate, sessionDate);
+		String sessionDate = session.getLastSessionDate();
+		
+		OrderTransaction trans = null; 
+		OrderDetail summOrder = null;
 
+		if(sessionId != 0){
+			trans = mTrans.getTransaction(sessionId, sessionDate);
+			summOrder = mTrans.getSummaryOrder(sessionId, sessionDate, sessionDate);
+		}else{
+			trans = mTrans.getTransaction(sessionDate);
+			summOrder = mTrans.getSummaryOrder(sessionDate, sessionDate);
+		}
+			
 		// header
-		mTextToPrint.append(adjustAlignCenter(mContext.getString(R.string.endday_report)) + "\n");
+		String headerName = mContext.getString(R.string.endday_report);
+		if(sessionId != 0)
+			headerName = mContext.getString(R.string.session_report);
+		mTextToPrint.append(adjustAlignCenter(headerName) + "\n");
 		mTextToPrint.append(mFormat.dateFormat(sessionDate) + "\n");
 		mTextToPrint.append(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 		mTextToPrint.append(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(staffId).getStaffName() + "\n");
@@ -314,7 +326,7 @@ public abstract class PrinterBase {
 		
 		// Product Summary
 		Reporting report = new Reporting(mContext, sessionDate, sessionDate);
-		List<SimpleProductData> simpleLst = report.listSummaryProductGroupInDay();
+		List<SimpleProductData> simpleLst = report.listSummaryProductGroupInDay(0);
 		if(simpleLst != null){
 			for(SimpleProductData sp : simpleLst){
 				String groupName = sp.getDeptName();
@@ -413,7 +425,7 @@ public abstract class PrinterBase {
 			mTextToPrint.append(totalVat + "\n\n");
 		}
 		
-		String seperateTransIds = mTrans.getSeperateTransactionId(sessionDate);
+		String seperateTransIds = mTrans.getSeperateTransactionId(sessionId, sessionDate);
 		// open/close shift
 		String floatInText = mContext.getString(R.string.float_in);
 		String totalCashText = mContext.getString(R.string.total_cash);
@@ -475,15 +487,15 @@ public abstract class PrinterBase {
 			}
 			mTextToPrint.append("\n");
 		}
-		String totalReceiptInDay = mContext.getString(R.string.total_receipt_in_day);
-		String totalReceipt = String.valueOf(mTrans.getTotalReceipt(sessionDate));
+		String totalReceiptInDay = mContext.getString(R.string.total_receipt);
+		String totalReceipt = String.valueOf(mTrans.getTotalReceipt(sessionId, sessionDate));
 		mTextToPrint.append(totalReceiptInDay);
 		mTextToPrint.append(createHorizontalSpace(
 				calculateLength(totalReceiptInDay) 
 				+ calculateLength(totalReceipt)));
 		mTextToPrint.append(totalReceipt + "\n\n");
 		
-		OrderDetail summVoidOrder = mTrans.getSummaryVoidOrderInDay(sessionDate);
+		OrderDetail summVoidOrder = mTrans.getSummaryVoidOrderInDay(sessionId, sessionDate);
 		mTextToPrint.append(mContext.getString(R.string.void_bill) + "\n");
 		String voidBill = mContext.getString(R.string.void_bill_after_paid);
 		String totalVoidPrice = mFormat.currencyFormat(summVoidOrder.getTotalSalePrice());

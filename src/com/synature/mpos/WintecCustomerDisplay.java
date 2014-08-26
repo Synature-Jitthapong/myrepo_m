@@ -75,7 +75,7 @@ public class WintecCustomerDisplay{
 	}
 	
 	private String limitString(String text){
-		return text.substring(0, LIMIT_LENGTH - 3) + "...";
+		return text.substring(0, LIMIT_LENGTH);
 	}
 	
 	public void clearScreen(){

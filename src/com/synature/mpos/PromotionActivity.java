@@ -4,11 +4,11 @@ import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.MPOSOrderTransaction;
-import com.synature.mpos.database.MPOSOrderTransaction.MPOSOrderDetail;
 import com.synature.mpos.database.Products;
 import com.synature.mpos.database.PromotionDiscount;
 import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.model.OrderDetail;
+import com.synature.mpos.database.model.OrderTransaction;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -36,7 +36,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	private Transaction mTrans;
 	private PromotionDiscount mPromotion;
 	private Formater mFormat;
-	private List<MPOSOrderDetail> mOrderLst;
+	private List<OrderDetail> mOrderLst;
 	private List<com.synature.pos.PromotionPriceGroup> mPromoPriceGroupLst;
 	private OrderDiscountAdapter mOrderAdapter;
 	
@@ -66,7 +66,8 @@ public class PromotionActivity extends MPOSActivityBase {
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
 		
-		mTrans.prepareDiscount(mTransactionId);
+		// begin transaction
+		mTrans.getWritableDatabase().beginTransaction();
 		loadOrderDetail();
 		setupPromotionButton();
 		summary();
@@ -89,7 +90,7 @@ public class PromotionActivity extends MPOSActivityBase {
 		}
 
 		try {
-			MPOSOrderTransaction trans = mTrans.getTransaction(mTransactionId);
+			OrderTransaction trans = mTrans.getTransaction(mTransactionId);
 			for(int i = 0; i < mPromoButtonContainer.getChildCount(); i++){
 				View child = mPromoButtonContainer.getChildAt(i);
 				if(trans.getPromotionPriceGroupId() == child.getId()){
@@ -114,8 +115,13 @@ public class PromotionActivity extends MPOSActivityBase {
 	}
 	
 	private void confirmDiscount(){
-		mTrans.confirmDiscount(mTransactionId);
 		mTrans.updateTransactionPromotion(mTransactionId, mSelectedProPriceGroupId);
+		mTrans.getWritableDatabase().setTransactionSuccessful();
+		mTrans.getWritableDatabase().endTransaction();
+	}
+	
+	private void cancel(){
+		mTrans.getWritableDatabase().endTransaction();
 	}
 	
 	private void clearDiscount(){
@@ -143,7 +149,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	private void resetDiscount(){
 		// reset discount
 		Products p = new Products(PromotionActivity.this);
-		for(MPOSOrderDetail detail : mOrderLst){
+		for(OrderDetail detail : mOrderLst){
 			double totalRetailPrice = detail.getTotalRetailPrice();
 			double discount = DiscountActivity.calculateDiscount(totalRetailPrice, 
 					0, DiscountActivity.PRICE_DISCOUNT_TYPE);
@@ -158,15 +164,15 @@ public class PromotionActivity extends MPOSActivityBase {
 	}
 	
 	private void summary(){
-		MPOSOrderDetail summ = mTrans.getSummaryOrderForDiscount(mTransactionId);
+		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId);
 		mTxtTotalPrice.setText(mFormat.currencyFormat(summ.getTotalSalePrice()));
 
 		if(mSummaryContainer.getChildCount() > 0)
 			mSummaryContainer.removeAllViews();
 		TextView[] tvs = {
 				SaleReportActivity.createTextViewSummary(this, getString(R.string.summary), Utils.getLinHorParams(1.2f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(summ.getQty()), Utils.getLinHorParams(0.5f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPricePerUnit()), Utils.getLinHorParams(0.7f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(summ.getOrderQty()), Utils.getLinHorParams(0.5f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getProductPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalRetailPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPriceDiscount()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalSalePrice()), Utils.getLinHorParams(0.7f))
@@ -233,7 +239,7 @@ public class PromotionActivity extends MPOSActivityBase {
 		private boolean discount(List<com.synature.pos.PromotionProductDiscount> productLst){
 			boolean canDiscount = false;
 			Products p = new Products(PromotionActivity.this);
-			for(MPOSOrderDetail detail : mOrderLst){
+			for(OrderDetail detail : mOrderLst){
 				for(com.synature.pos.PromotionProductDiscount product : productLst){
 					if(detail.getProductId() == product.getProductID()){
 						if(p.isAllowDiscount(product.getProductID())){
@@ -247,7 +253,7 @@ public class PromotionActivity extends MPOSActivityBase {
 							double discountAmount = 0.0d;
 							if(product.getDiscountAmount() > 0){
 								// discount amount
-								discountAmount = product.getDiscountAmount() * detail.getQty();
+								discountAmount = product.getDiscountAmount() * detail.getOrderQty();
 								discount = DiscountActivity.calculateDiscount(totalRetailPrice, 
 										discountAmount, DiscountActivity.PRICE_DISCOUNT_TYPE);
 								priceAfterDiscount = totalRetailPrice - discount;
@@ -287,6 +293,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
+			cancel();
 			finish();
 			return true;
 		case R.id.itemConfirm:
@@ -333,11 +340,11 @@ public class PromotionActivity extends MPOSActivityBase {
 			}else{
 				holder = (DiscountViewHolder) convertView.getTag();
 			}
-			MPOSOrderDetail detail = mOrderLst.get(position);
+			OrderDetail detail = mOrderLst.get(position);
 			holder.tvNo.setText(Integer.toString(position + 1) + ".");
 			holder.tvName.setText(detail.getProductName());
-			holder.tvQty.setText(mFormat.qtyFormat(detail.getQty()));
-			holder.tvUnitPrice.setText(mFormat.currencyFormat(detail.getPricePerUnit()));
+			holder.tvQty.setText(mFormat.qtyFormat(detail.getOrderQty()));
+			holder.tvUnitPrice.setText(mFormat.currencyFormat(detail.getProductPrice()));
 			holder.tvTotalPrice.setText(mFormat.currencyFormat(detail.getTotalRetailPrice()));
 			holder.tvDiscount.setText(mFormat.currencyFormat(detail.getPriceDiscount()));
 			holder.tvSalePrice.setText(mFormat.currencyFormat(detail.getTotalSalePrice()));
