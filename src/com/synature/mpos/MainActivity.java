@@ -1916,6 +1916,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			});
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.enter_price)
+			.setCancelable(false)
 			.setView(txtProductPrice)
 			.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
 		

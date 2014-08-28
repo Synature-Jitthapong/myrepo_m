@@ -314,7 +314,7 @@ public abstract class PrinterBase {
 		String headerName = mContext.getString(R.string.summary_sale_report);
 		if(sessionId != 0)
 			headerName = mContext.getString(R.string.shift_close_report);
-		mTextToPrint.append(adjustAlignCenter(headerName) + "\n");
+		mTextToPrint.append(adjustAlignCenter(headerName) + "\n\n");
 		mTextToPrint.append(mFormat.dateFormat(sessionDate) + "\n");
 		mTextToPrint.append(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 		if(sessionId != 0){
@@ -323,7 +323,9 @@ public abstract class PrinterBase {
 			Staff std = st.getStaff(sess.getOpenStaff());
 			mTextToPrint.append(mContext.getString(R.string.open_by) + " " + std.getStaffName() + " " + mFormat.timeFormat(sess.getOpenDate()) + "\n");
 			std = st.getStaff(sess.getCloseStaff());
-			mTextToPrint.append(mContext.getString(R.string.close_by) + " " + std.getStaffName() + " " + mFormat.timeFormat(sess.getCloseDate()) + "\n");
+			String closeBy = std != null ? std.getStaffName() : "";
+			String closeTime = sess.getCloseDate() != null ? mFormat.timeFormat(sess.getCloseDate()) : "";
+			mTextToPrint.append(mContext.getString(R.string.close_by) + " " + closeBy + " " + closeTime + "\n");
 		}
 		mTextToPrint.append(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(staffId).getStaffName() + "\n");
 		mTextToPrint.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n");
@@ -435,7 +437,7 @@ public abstract class PrinterBase {
 		}
 		
 		String seperateTransIds = mTrans.getSeperateTransactionId(sessionId, sessionDate);
-		if(sessionId == 0){
+		if(sessionId != 0){
 			// open/close shift
 			String floatInText = mContext.getString(R.string.float_in);
 			String totalCashText = mContext.getString(R.string.total_cash);
