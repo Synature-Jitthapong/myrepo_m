@@ -189,7 +189,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		//setupCustomSwLang();
 		setupBarCodeEvent();
 		setupMenuDeptPager();
-		setupOrderListView();
 	}
 	
 	/**
@@ -271,13 +270,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			}
 			
 		});
-	}
-	
-	private void setupOrderListView(){
-		mOrderDetailLst = new ArrayList<OrderDetail>();
-		mOrderDetailAdapter = new OrderDetailAdapter();
-		mLvOrderDetail.setAdapter(mOrderDetailAdapter);
-		mLvOrderDetail.setGroupIndicator(null);
 	}
 	
 	private void setupMenuDeptPager(){
@@ -478,7 +470,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		
 		mTrans.summary(mTransactionId);
 		
-		OrderDetail sumOrder =mTrans.getSummaryOrder(mTransactionId);
+		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId);
 		
 		mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
 				mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
@@ -1008,6 +1000,15 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		public void notifyDataSetChanged() {
 			summary();
 			countSelectedOrder();
+			// scroll order list
+			mLvOrderDetail.post(new Runnable(){
+
+				@Override
+				public void run() {
+					mLvOrderDetail.setSelection(mOrderDetailAdapter.getGroupCount() - 1);
+				}
+				
+			});
 			super.notifyDataSetChanged();
 		}
 	}
@@ -1558,10 +1559,31 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		.show();
 	}
 
-	private void updateOrderDetailLst(int position, int orderDetailId){
-		mOrderDetailLst.set(position, mTrans.getOrder(mTransactionId, orderDetailId));
-		mOrderDetailAdapter.notifyDataSetChanged();
-		mLvOrderDetail.setSelectedGroup(position);
+	/**
+	 * Update order list
+	 * @param position
+	 * @param orderDetailId
+	 */
+	private void updateOrderLst(int position, int orderDetailId){
+		OrderDetail ord = mTrans.getOrder(mTransactionId, orderDetailId);
+		if(ord != null){
+			mOrderDetailLst.set(position, ord);
+			mOrderDetailAdapter.notifyDataSetChanged();
+			expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
+		}
+	}
+	
+	/**
+	 * Update order list
+	 * @param ordId
+	 */
+	private void updateOrderLst(int ordId){
+		OrderDetail ord = mTrans.getOrder(mTransactionId, ordId);
+		if(ord != null){
+			mOrderDetailLst.add(ord);
+			mOrderDetailAdapter.notifyDataSetChanged();
+			expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
+		}
 	}
 	
 	/**
@@ -1569,11 +1591,31 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	private void loadOrder(){
 		mOrderDetailLst = mTrans.listAllOrder(mTransactionId);
-		mOrderDetailAdapter.notifyDataSetChanged();
-		for(int i = 0; i < mOrderDetailLst.size(); i++){
-			mLvOrderDetail.expandGroup(i);
+		if(mOrderDetailAdapter == null){
+			mOrderDetailAdapter = new OrderDetailAdapter();
+			mLvOrderDetail.setAdapter(mOrderDetailAdapter);
+			mLvOrderDetail.setGroupIndicator(null);
 		}
-		mLvOrderDetail.setSelectedGroup(mOrderDetailAdapter.getGroupCount());
+		mOrderDetailAdapter.notifyDataSetChanged();
+		// expand all
+		expandOrderLv(0);
+	}
+	
+	private void expandOrderLv(int position){
+		try {
+			if(position == 0){
+				for(int i = 0; i < mOrderDetailAdapter.getGroupCount(); i++){
+					if(!mLvOrderDetail.isGroupExpanded(i))
+						mLvOrderDetail.expandGroup(i);
+				}
+			}else{
+				if(!mLvOrderDetail.isGroupExpanded(position))
+					mLvOrderDetail.expandGroup(position);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void openTransaction(){
@@ -1893,8 +1935,9 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private void addOrder(final int productId, final String productName, 
 			final int productTypeId, final int vatType, final double vatRate, final double qty, double price){
 		if(price > -1){
-			mTrans.addOrderDetail(mTransactionId, mComputerId, 
+			int ordId = mTrans.addOrderDetail(mTransactionId, mComputerId, 
 					productId, productTypeId, vatType, vatRate, qty, price);
+			updateOrderLst(ordId);
 			mDsp.setOrderName(productName);
 			mDsp.setOrderQty(mFormat.qtyFormat(qty));
 			mDsp.setOrderPrice(mFormat.currencyFormat(price));
@@ -1932,13 +1975,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					double openPrice = 0.0f;
 					try {
 						openPrice = Utils.stringToDouble(txtProductPrice.getText().toString());
-						mTrans.addOrderDetail(mTransactionId, mComputerId, 
+						int ordId = mTrans.addOrderDetail(mTransactionId, mComputerId, 
 								productId, productTypeId, vatType, vatRate, qty, openPrice);
 
 						mDsp.setOrderName(productName);
 						mDsp.setOrderQty(mFormat.qtyFormat(qty));
 						mDsp.setOrderPrice(mFormat.currencyFormat(openPrice));
-						loadOrder();
+						updateOrderLst(ordId);
 					} catch (ParseException e) {
 						new AlertDialog.Builder(MainActivity.this)
 						.setTitle(R.string.enter_price)
@@ -1956,7 +1999,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			})
 			.show();
 		}
-		loadOrder();
 	}
 
 	/**
@@ -2034,7 +2076,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	@Override
 	public void onDismiss(int position, int orderDetailId) {
-		updateOrderDetailLst(position, orderDetailId);
+		updateOrderLst(position, orderDetailId);
 	}
 	
 	private void secondDisplayChangePayment(String grandTotal, String totalPay, String change){

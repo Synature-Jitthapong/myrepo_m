@@ -23,6 +23,9 @@ public class OrderTransactionTable extends BaseColumn {
 	public static final String COLUMN_OTHER_DISCOUNT = "other_discount";
 	public static final String COLUMN_MEMBER_ID = "member_id";
 	public static final String COLUMN_DOC_TYPE_ID = "document_type_id";
+	public static final String COLUMN_OTHER_DISCOUNT_DESC = "other_discount_desc";
+	public static final String COLUMN_EJ = "ej";
+	public static final String COLUMN_EJ_VOID = "ej_void";
 
 	private static final String SQL_CREATE = 
 			" create table " + TABLE_ORDER_TRANS + " ( " 
@@ -57,7 +60,10 @@ public class OrderTransactionTable extends BaseColumn {
 			+ COLUMN_SEND_STATUS + " integer default 0, "
 			+ ProductTable.COLUMN_SALE_MODE + " integer default 1, "
 			+ ProductTable.COLUMN_VAT_RATE + " real default 0, "
-			+ " primary key (" + COLUMN_TRANS_ID + ") ); ";
+			+ COLUMN_OTHER_DISCOUNT_DESC + " text, "
+			+ COLUMN_EJ + " text, "
+			+ COLUMN_EJ_VOID + " text, "
+			+ " primary key (" + COLUMN_TRANS_ID + " desc) ); ";
 
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);

@@ -44,7 +44,7 @@ public class OrderDetailTable extends BaseColumn{
 			+ PromotionPriceGroupTable.COLUMN_COUPON_HEADER + " text,"
 			+ COLUMN_PARENT_ORDER_ID + " integer default 0, "
 			+ COLUMN_REMARK + " text, " 
-			+ " primary key (" + COLUMN_ORDER_ID + ") );";
+			+ " primary key (" + COLUMN_ORDER_ID + " desc));";
 
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(ORDER_SQL_CREATE);

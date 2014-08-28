@@ -507,10 +507,10 @@ public class SaleReportActivity extends MPOSActivityBase{
 			OrderTransaction trans = null;
 			OrderDetail sumOrder = null;
 			if(mSessionId != 0){
-				trans = mTrans.getTransaction(mSessionId, mHost.mDateTo);
+				trans = mTrans.getSummaryTransaction(mSessionId, mHost.mDateTo);
 				sumOrder = mTrans.getSummaryOrder(mSessionId, mHost.mDateTo, mHost.mDateTo);
 			}else{
-				trans = mTrans.getTransaction(mHost.mDateTo);
+				trans = mTrans.getSummaryTransaction(mHost.mDateTo);
 				sumOrder = mTrans.getSummaryOrder(mHost.mDateTo, mHost.mDateTo);
 			}
 			
@@ -527,15 +527,17 @@ public class SaleReportActivity extends MPOSActivityBase{
 				Staffs st = new Staffs(getActivity());
 				Staff std = st.getStaff(s.getOpenStaff());
 				View opStView = inflater.inflate(R.layout.left_mid_right_template, null);
-				((TextView) opStView.findViewById(R.id.tvLeft)).setText(getString(R.string.open_by));
-				((TextView) opStView.findViewById(R.id.tvMid)).setText(std.getStaffName());
+				((TextView) opStView.findViewById(R.id.tvLeft)).setText(getString(R.string.open_by) + ": ");
+				((TextView) opStView.findViewById(R.id.tvLeft)).append(std.getStaffName());
+				((TextView) opStView.findViewById(R.id.tvMid)).setVisibility(View.GONE);
 				((TextView) opStView.findViewById(R.id.tvRight)).setText(mHost.mFormat.timeFormat(s.getOpenDate()));
 				mEnddaySumContent.addView(opStView);
 
 				std = st.getStaff(s.getCloseStaff());
 				View clStView = inflater.inflate(R.layout.left_mid_right_template, null);
-				((TextView) clStView.findViewById(R.id.tvLeft)).setText(getString(R.string.close_by));
-				((TextView) clStView.findViewById(R.id.tvMid)).setText(std != null ? std.getStaffName(): "-");
+				((TextView) clStView.findViewById(R.id.tvLeft)).setText(getString(R.string.close_by) + ": ");
+				((TextView) clStView.findViewById(R.id.tvLeft)).append(std != null ? std.getStaffName(): "-");
+				((TextView) clStView.findViewById(R.id.tvMid)).setVisibility(View.GONE);
 				((TextView) clStView.findViewById(R.id.tvRight)).setText(s.getCloseDate() != null ? mHost.mFormat.timeFormat(s.getCloseDate()) : "-");
 				mEnddaySumContent.addView(clStView);
 			}

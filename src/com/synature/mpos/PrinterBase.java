@@ -147,6 +147,10 @@ public abstract class PrinterBase {
 		return line.toString();
 	}
 	
+	public String getTextToPrint(){
+		return mTextToPrint.toString();
+	}
+	
 	/**
 	 * Create text for print sale by bill report
 	 * @param dateFrom
@@ -303,10 +307,10 @@ public abstract class PrinterBase {
 		OrderDetail summOrder = null;
 
 		if(sessionId != 0){
-			trans = mTrans.getTransaction(sessionId, sessionDate);
+			trans = mTrans.getSummaryTransaction(sessionId, sessionDate);
 			summOrder = mTrans.getSummaryOrder(sessionId, sessionDate, sessionDate);
 		}else{
-			trans = mTrans.getTransaction(sessionDate);
+			trans = mTrans.getSummaryTransaction(sessionDate);
 			summOrder = mTrans.getSummaryOrder(sessionDate, sessionDate);
 		}
 			
@@ -525,14 +529,15 @@ public abstract class PrinterBase {
 	
 	/**
 	 * Create text for print receipt
-	 * @param transactionId
+	 * @param transId
 	 * @param isCopy
 	 */
-	protected void createTextForPrintReceipt(int transactionId, boolean isCopy){
-		OrderTransaction trans = mTrans.getTransaction(transactionId);
-		OrderDetail summOrder = mTrans.getSummaryOrder(transactionId);
+	protected void createTextForPrintReceipt(int transId, boolean isCopy){
+		OrderTransaction trans = mTrans.getTransaction(transId);
+		OrderDetail summOrder = mTrans.getSummaryOrder(transId);
 		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-		double change = mPayment.getTotalPayAmount(transactionId) - (summOrder.getTotalSalePrice());
+		double change = mPayment.getTotalPayAmount(transId) - (summOrder.getTotalSalePrice());
+		boolean isVoid = trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID;
 		
 		// have copy
 		if(isCopy){
@@ -542,7 +547,7 @@ public abstract class PrinterBase {
 			mTextToPrint.append(createLine("-") + "\n\n");
 		}
 		// add void header
-		if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
+		if(isVoid){
 			mTextToPrint.append(mContext.getString(R.string.void_bill) + "\n");
 			Calendar voidTime = Calendar.getInstance();
 			voidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
@@ -567,7 +572,7 @@ public abstract class PrinterBase {
 		mTextToPrint.append(cashCheer + createHorizontalSpace(calculateLength(cashCheer)) + "\n");
 		mTextToPrint.append(createLine("=") + "\n");
 		
-		List<OrderDetail> orderLst = mTrans.listAllOrderGroupByProduct(transactionId);
+		List<OrderDetail> orderLst = mTrans.listAllOrderGroupByProduct(transId);
     	for(int i = 0; i < orderLst.size(); i++){
     		OrderDetail order = orderLst.get(i);
     		String productName = order.getProductName();
@@ -671,7 +676,7 @@ public abstract class PrinterBase {
 
     	// total payment
     	List<MPOSPaymentDetail> paymentLst = 
-    			mPayment.listPaymentGroupByType(transactionId);
+    			mPayment.listPaymentGroupByType(transId);
     	for(int i = 0; i < paymentLst.size(); i++){
     		MPOSPaymentDetail payment = paymentLst.get(i);
 	    	String strTotalPaid = mFormat.currencyFormat(payment.getTotalPay());
@@ -747,5 +752,13 @@ public abstract class PrinterBase {
 			mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
 			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
 		}
+    	
+    	if(!isCopy){
+	    	// set e-journal to transaction
+	    	mTrans.updateTransactionEjournal(transId, mTextToPrint.toString());
+    	}
+    	if(isVoid){
+    		mTrans.updateTransactionVoidEjournal(transId, mTextToPrint.toString());
+    	}
 	}
 }

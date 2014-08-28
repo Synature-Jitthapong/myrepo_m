@@ -58,6 +58,8 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	private DiscountAdapter mDisAdapter;
 	private List<OrderDetail> mOrderLst;
 	
+	private String mDisName;
+	
 	private int mTransactionId;
 	private int mPosition = -1;
 	private int mDisAllType = PERCENT_DISCOUNT_TYPE;	// default is percent discount
@@ -319,6 +321,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 										OTHER_DISCOUNT_TYPE, "");
 							}
 						}
+						mDisName = getString(R.string.discount) + " " +  mFormat.currencyFormat(discountAll) + "%";
 					}
 					if(mDisAllType == PRICE_DISCOUNT_TYPE){
 						Iterator<OrderDetail> it = orderLst.iterator();
@@ -340,6 +343,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 										OTHER_DISCOUNT_TYPE, "");
 							}
 						}
+						mDisName = "";
 					}
 					loadOrder();
 				}
@@ -398,7 +402,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	}
 	
 	private void confirm(){
-		mTrans.updateTransactionPromotion(mTransactionId, 0);
+		mTrans.updateTransactionDiscountDesc(mTransactionId, mDisName);
 		mTrans.getWritableDatabase().setTransactionSuccessful();
 		mTrans.getWritableDatabase().endTransaction();
 	}

@@ -120,13 +120,11 @@ public class Reporting extends MPOSDatabase{
 	public List<SimpleProductData> listSummaryProductGroupInDay(int sessId){
 		List<SimpleProductData> simpleLst = new ArrayList<SimpleProductData>();
 		String selection = "a." + OrderTransactionTable.COLUMN_STATUS_ID + "=?"
-				+ " AND a." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
-				+ " AND b." + ProductTable.COLUMN_PRODUCT_PRICE + ">?";
+				+ " AND a." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? ";
 		String[] selectionArgs = new String[]{
 			String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 			mDateFrom,
-			mDateTo,
-			String.valueOf(0)
+			mDateTo
 		}; 
 		if(sessId != 0){
 			selection += " AND a." + SessionTable.COLUMN_SESS_ID + "=?";
@@ -134,7 +132,6 @@ public class Reporting extends MPOSDatabase{
 					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 					mDateFrom,
 					mDateTo,
-					String.valueOf(0),
 					String.valueOf(sessId),
 			}; 
 		}
@@ -168,13 +165,11 @@ public class Reporting extends MPOSDatabase{
 				
 				String selection2 = " a." + OrderTransactionTable.COLUMN_STATUS_ID + "=?"
 						+ " AND a." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
-						+ " AND b." + ProductTable.COLUMN_PRODUCT_PRICE + ">?"
 						+ " AND d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=?";
 				String[] selectionArgs2 = new String[]{
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 						mDateFrom,
 						mDateTo,
-						String.valueOf(0),
 						String.valueOf(pgId)
 				};
 				if(sessId != 0){
@@ -183,7 +178,6 @@ public class Reporting extends MPOSDatabase{
 							String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 							mDateFrom,
 							mDateTo,
-							String.valueOf(0),
 							String.valueOf(pgId),
 							String.valueOf(sessId)
 					};
@@ -287,8 +281,7 @@ public class Reporting extends MPOSDatabase{
 	public Report getSaleReportByBill(){
 		Report report = new Report();
 		String transIds = getTransactionIds();
-		String selection = " a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
-				+ " AND b." + ProductTable.COLUMN_PRODUCT_PRICE + " >? ";
+		String selection = " a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")";
 		String strSql = " SELECT a." + OrderTransactionTable.COLUMN_TRANS_ID + ", "
 				+ " a." + ComputerTable.COLUMN_COMPUTER_ID + ", " 
 				+ " a." + OrderTransactionTable.COLUMN_STATUS_ID + ", " 
@@ -311,11 +304,7 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE " + selection
 				+ " GROUP BY a." + OrderTransactionTable.COLUMN_TRANS_ID;
 
-		Cursor cursor = getReadableDatabase().rawQuery(
-				strSql, 
-				new String[]{
-					String.valueOf(0)
-				});
+		Cursor cursor = getReadableDatabase().rawQuery(strSql, null);
 		
 		if(cursor.moveToFirst()){
 			do{
@@ -451,7 +440,6 @@ public class Reporting extends MPOSDatabase{
 		Report.ReportDetail report = null;
 		String transIds = getTransactionIds();
 		String selection = " a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
-				+ " AND a." + ProductTable.COLUMN_PRODUCT_PRICE + " >? "
 				+ " AND c." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=?";
 		String sql = " SELECT SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
 				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
@@ -467,7 +455,6 @@ public class Reporting extends MPOSDatabase{
 		Cursor cursor = getReadableDatabase().rawQuery(
 				sql,
 				new String[]{
-					String.valueOf(0),
 					String.valueOf(groupId)
 				});
 		
@@ -496,7 +483,6 @@ public class Reporting extends MPOSDatabase{
 		Report.ReportDetail report = null;
 		String transIds = getTransactionIds();
 		String selection = " a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
-				+ " AND a." + ProductTable.COLUMN_PRODUCT_PRICE + " >? "
 				+ " AND b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?";
 		String sql = " SELECT SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + "," 
 				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", " 
@@ -510,7 +496,6 @@ public class Reporting extends MPOSDatabase{
 		Cursor cursor = getReadableDatabase().rawQuery(
 				sql,
 				new String[]{
-					String.valueOf(0),
 					String.valueOf(deptId)
 				});
 		
@@ -586,8 +571,7 @@ public class Reporting extends MPOSDatabase{
 	 */
 	private void createProductDataTmp() throws SQLException{
 		String transIds = getTransactionIds();
-		String selection = OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ") "
-				+ " AND " + ProductTable.COLUMN_PRODUCT_PRICE + " >0 ";
+		String selection = OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ") ";
 		String sql = " SELECT " + OrderDetailTable.COLUMN_ORDER_ID + ", "
 				+ ProductTable.COLUMN_PRODUCT_ID + ", "
 				+ ProductTable.COLUMN_PRODUCT_TYPE_ID + ", "

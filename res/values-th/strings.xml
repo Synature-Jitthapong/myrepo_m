@@ -115,8 +115,8 @@
     <string name="cashier">แคชเชียร์</string>
     <string name="computer_setting_not_valid">การตั้งค่าเครื่องไม่ถูกต้อง</string>
     <string name="send_all">ส่งข้อมูล</string>
-    <string name="internal_printer">ใช้เครื่องพิมพ์ภายใน</string>
-    <string name="internal_printer_wintec">WINTEC Printer</string>
+    <string name="internal_printer">ใช้เครื่องพิมพ์ mPOS</string>
+    <string name="internal_printer_wintec">เครื่องพิมพ์ mPOS</string>
     <string name="spinner_please_select">กรุณาเลือก</string>
     <string name="card_holder_name">ชื่อผู้ถือบัตร</string>
     <string name="please_select_card">กรุณาเลือกชนิดบัตร</string>
@@ -182,4 +182,5 @@
 	<string name="last_update">อัพเดตข้อมูลล่าสุด: </string>
 	<string name="please_wait">กรุณารอสักครู่&#8230;</string>
     <string name="confirm_fast_payment">ยืนยันการจ่ายเงินพอดี</string>
+	<string name="wintec_setting">ตั้งค่าเครื่อง mPOS</string>
 </resources>

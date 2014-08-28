@@ -120,7 +120,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="computer_setting_not_valid">Computer settings not valid!</string>
     <string name="send_all">Send All</string>
     <string name="internal_printer">Internal Printer</string>
-    <string name="internal_printer_wintec">WINTEC Printer</string>
+    <string name="internal_printer_wintec">mPOS Printer</string>
     <string name="spinner_please_select">Please select</string>
     <string name="card_holder_name">Card Holder Name</string>
     <string name="please_select_card">Please select card type.</string>
@@ -186,11 +186,11 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="loading">Loading&#8230;</string>
     <string name="epson_printer">Epson Printer</string>
     <string name="baud_rate">Baud Rate</string>
-    <string name="wintec_dev_path">Wintec device path</string>
-    <string name="wintec_magnetic_reader_settings">Wintec Magnetic Reader Settings</string>
-    <string name="wintec_cash_drawer_settings">Wintec Cash Drawer Settings</string>
-    <string name="wintec_customer_display_settings">Wintec Customer Display Settings</string>
-    <string name="enable_wintec_customer_display">Enable Wintec Customer Display</string>
+    <string name="wintec_dev_path">Device path</string>
+    <string name="wintec_magnetic_reader_settings">mPOS Magnetic Reader Settings</string>
+    <string name="wintec_cash_drawer_settings">mPOS Cash Drawer Settings</string>
+    <string name="wintec_customer_display_settings">mPOS Customer Display Settings</string>
+    <string name="enable_wintec_customer_display">Enable mPOS Customer Display</string>
     <string name="connection_time_out">Connection time out</string>
     <string name="exit">Exit</string>
     <string name="other_discount_short">Other Dist.</string>
@@ -212,7 +212,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="cash_in_drawer">Cash In Drawer</string>
 	<string name="over_or_short">Over/-Short</string>
 	<string name="cash_count">Cash Count</string>
-	<string name="wintec_setting">Wintec Settings</string>
+	<string name="wintec_setting">mPOS Settings</string>
 	<string name="confirm_cancel_order">Are you sure you want to cancel orders?</string>
 	<string name="text_line1">Text Line 1</string>
 	<string name="text_line2">Text Line 2</string>
