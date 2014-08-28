@@ -43,22 +43,29 @@ public class FoodCourtCardPay extends FoodCourtMainService{
 
 	@Override
 	protected void onPostExecute(String result) {
-		WebServiceResult ws;
-		try {
-			ws = toServiceObject(result);
-			if(ws.getiResultID() == RESPONSE_SUCCESS){
-				try {
-					PrepaidCardInfo cardInfo = toPrepaidCardInfoObject(ws.getSzResultData());
-					mListener.onPost(cardInfo);
-				} catch (Exception e) {
-					mListener.onError(e.getMessage());
-				}
-			}else{
-				mListener.onError(TextUtils.isEmpty(ws.getSzResultData()) ? result : ws.getSzResultData());
-			}
-		} catch (JsonSyntaxException e) {
-			mListener.onError(result);
-		}
+//		WebServiceResult ws;
+//		try {
+//			ws = toServiceObject(result);
+//			if(ws.getiResultID() == RESPONSE_SUCCESS){
+//				try {
+//					PrepaidCardInfo cardInfo = toPrepaidCardInfoObject(ws.getSzResultData());
+//					mListener.onPost(cardInfo);
+//				} catch (Exception e) {
+//					mListener.onError(e.getMessage());
+//				}
+//			}else{
+//				mListener.onError(TextUtils.isEmpty(ws.getSzResultData()) ? result : ws.getSzResultData());
+//			}
+//		} catch (JsonSyntaxException e) {
+//			mListener.onError(result);
+//		}
+		PrepaidCardInfo cardInfo = new PrepaidCardInfo();
+		cardInfo.setdExpireDate("");
+		cardInfo.setdExpireDate("");
+		cardInfo.setfCurrentAmount(10);
+		cardInfo.setiCardID(1);
+		cardInfo.setiCardStatus(1);
+		mListener.onPost(cardInfo);
 	}
 
 }
