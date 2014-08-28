@@ -111,8 +111,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="cashPaidClicked"
-                android:text="@string/cash_paid"
-                android:textSize="22sp" />
+                android:text="@string/cash_paid" />
 
             <Button
                 android:id="@+id/btnPayment"
@@ -122,8 +121,7 @@
                 android:layout_weight="1"
                 android:onClick="paymentClicked"
                 android:text="@string/payment"
-                android:textAppearance="?android:attr/textAppearanceMediumInverse"
-                android:textSize="22sp" />
+                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
         </LinearLayout>
     </LinearLayout>

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="light_gray">#ffe8e8e8</color>
-    <color name="light_gray_button">#ffE5E5E5</color>
-    <color name="light_blue_gray">#ffEFF4F4</color>
-    <color name="green_smooth">#ff1EAF98</color><!-- ff3fcd81</color>-->
+    <!-- <color name="light_gray">#ffe8e8e8</color> -->
+    <color name="gray_light">#ffE5E5E5</color>
+    <color name="blue_gray_light">#ffEFF4F4</color>
+    <color name="blue_green_light">#ffC6D1D9</color>
+    <color name="green_smooth">#ff59A395</color>
     <color name="white_gray">#fffafafa</color>
     <color name="dark_gray">#ff888888</color>
     <color name="gray">#ffcccccc</color>

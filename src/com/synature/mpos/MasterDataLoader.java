@@ -56,11 +56,11 @@ public class MasterDataLoader extends MPOSServiceBase{
 	protected void onPostExecute(String result) {
 		Gson gson = new Gson();
 		try {
-			MasterData master = (MasterData) gson.fromJson(result, MasterData.class);
+			MasterData master = gson.fromJson(result, MasterData.class);
 			updateMasterData(master);
 		} catch (JsonSyntaxException e) {
 			if(mListener != null)
-				mListener.onError(e.getMessage() + "\n" + result);
+				mListener.onError(result);
 		}
 	}
 

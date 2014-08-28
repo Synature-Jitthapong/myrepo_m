@@ -9,10 +9,6 @@ public class OrderTransactionTable extends BaseColumn {
 	public static final String COLUMN_RECEIPT_MONTH = "receipt_month";
 	public static final String COLUMN_RECEIPT_ID = "receipt_id";
 	public static final String COLUMN_RECEIPT_NO = "receipt_no";
-	public static final String COLUMN_OPEN_TIME = "open_time";
-	public static final String COLUMN_CLOSE_TIME = "close_time";
-	public static final String COLUMN_OPEN_STAFF = "open_staff_id";
-	public static final String COLUMN_CLOSE_STAFF = "close_staff_id";
 	public static final String COLUMN_STATUS_ID = "transaction_status_id";
 	public static final String COLUMN_PAID_TIME = "paid_time";
 	public static final String COLUMN_PAID_STAFF_ID = "paid_staff_id";

@@ -406,7 +406,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				return true;
 			case R.id.itemSetting:
 				intent = new Intent(this, SettingsActivity.class);
-				startActivityForResult(intent, LoginActivity.REQUEST_FOR_SETTING);
+				startActivity(intent);
 				return true;
 			case R.id.itemUpdate:
 				new MasterDataLoader(this, mShopId, new MasterLoaderListener()).execute(Utils.getFullUrl(this));
@@ -1588,8 +1588,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private void openSession(){
 		mSessionId = mSession.getCurrentSessionId(mStaffId); 
 		if(mSessionId == 0){
-			mSessionId = mSession.openSession(Utils.getDate(), mShopId, 
-					mComputerId, mStaffId, 0);
+			mSessionId = mSession.openSession(mShopId, mComputerId, mStaffId, 0);
 			
 			ManageCashAmountFragment mf = ManageCashAmountFragment
 					.newInstance(getString(R.string.open_shift), 0,
@@ -2172,6 +2171,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		// send sale data service
 		mPartService.sendSale(mShopId, mSessionId, mTransactionId, 
 				mComputerId, mStaffId, mPartialSaleSenderListener);
+
+		// print close shift
+		new PrintReport(MainActivity.this, 
+			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).run();
 		
 		startActivity(new Intent(MainActivity.this, LoginActivity.class));
 		finish();

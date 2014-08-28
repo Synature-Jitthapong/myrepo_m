@@ -49,6 +49,12 @@ import com.synature.mpos.database.table.SessionTable;
 import com.synature.util.Logger;
 
 public class Utils {
+	
+	/**
+	 * Main url 
+	 */
+	public static final String MAIN_URL = "http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
+	
 	/**
 	 * WebService file name
 	 */
@@ -162,11 +168,8 @@ public class Utils {
 			Calendar sessCal = (Calendar) lastSessCal.clone();
 			for(int i = 1; i < diffDay; i++){
 				sessCal.add(Calendar.DAY_OF_MONTH, 1);
-				int sessId = sess.openSession(getDate(sessCal.get(Calendar.YEAR), 
-						sessCal.get(Calendar.MONTH), sessCal.get(Calendar.DAY_OF_MONTH)), 
-						shopId, computerId, staffId, 0);
-				sess.addSessionEnddayDetail(String.valueOf(
-						sessCal.getTimeInMillis()), 0, 0);
+				int sessId = sess.openSession(shopId, computerId, staffId, 0);
+				sess.addSessionEnddayDetail(String.valueOf(sessCal.getTimeInMillis()), 0, 0);
 				sess.closeSession(sessId, staffId, 0, true);
 			}
 			try {
@@ -677,10 +680,8 @@ public class Utils {
 	}
 	
 	public static String getUrl(Context context) {
-		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL,
-				"");
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
 		try {
 			new URL(url);
 		} catch (MalformedURLException e) {

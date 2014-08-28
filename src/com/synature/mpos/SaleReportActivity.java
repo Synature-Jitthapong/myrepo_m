@@ -13,11 +13,13 @@ import com.synature.mpos.database.Products;
 import com.synature.mpos.database.Reporting;
 import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Shop;
+import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.Reporting.SimpleProductData;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.pos.Report;
+import com.synature.pos.Staff;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -67,7 +69,6 @@ public class SaleReportActivity extends MPOSActivityBase{
 
 	private int mStaffId;
 	
-	private Calendar mCalendar;
 	private String mDateFrom;
 	private String mDateTo;
 	
@@ -80,9 +81,8 @@ public class SaleReportActivity extends MPOSActivityBase{
 		
 		mShop = new Shop(this);
 		mFormat = new Formater(SaleReportActivity.this);
-		mCalendar = Utils.getDate();
-		mDateFrom = String.valueOf(mCalendar.getTimeInMillis());
-		mDateTo = String.valueOf(mCalendar.getTimeInMillis());
+		mDateFrom = String.valueOf(Utils.getDate().getTimeInMillis());
+		mDateTo = String.valueOf(Utils.getDate().getTimeInMillis());
 
 		mReporting = new Reporting(SaleReportActivity.this, mDateFrom, mDateTo);
 		
@@ -106,7 +106,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				new String[] {
 					getString(R.string.sale_report_by_bill),
 					getString(R.string.sale_report_by_product),
-					getString(R.string.endday_report)
+					getString(R.string.summary_sale_report)
 				}
 		));
 		spRpType.setOnItemSelectedListener(new ReportTypeSwitcher());
@@ -130,7 +130,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				break;
 			case REPORT_ENDDAY:
 				getFragmentManager().beginTransaction()
-				.replace(R.id.reportContent, EnddayReportFragment.getInstance()).commit();
+				.replace(R.id.reportContent, SummarySaleReportFragment.getInstance()).commit();
 				break;
 			}
 		}
@@ -147,14 +147,24 @@ public class SaleReportActivity extends MPOSActivityBase{
 		MenuItem itemCondition = (MenuItem) menu.findItem(R.id.itemDateCondition);
 		Button btnDateFrom = (Button) itemCondition.getActionView().findViewById(R.id.btnDateFrom);
 		Button btnDateTo = (Button) itemCondition.getActionView().findViewById(R.id.btnDateTo);
-		btnDateFrom.setText(mFormat.dateFormat(mCalendar.getTime()));
-		btnDateTo.setText(mFormat.dateFormat(mCalendar.getTime()));
+		btnDateFrom.setText(mFormat.dateFormat(Utils.getDate().getTime()));
+		btnDateTo.setText(mFormat.dateFormat(Utils.getDate().getTime()));
 		btnDateFrom.setOnClickListener(new OnDateClickListener());
 		btnDateTo.setOnClickListener(new OnDateClickListener());
 		return super.onCreateOptionsMenu(menu);
 	}
 	
 	private class OnDateClickListener implements OnClickListener{
+
+		private SummarySaleReportFragment mEdf = null;
+		
+		public OnDateClickListener(){
+			Fragment f = getFragmentManager().findFragmentById(R.id.reportContent);
+			if(f instanceof SummarySaleReportFragment){
+				mEdf = (SummarySaleReportFragment) f;
+			}
+		}
+		
 		@Override
 		public void onClick(final View v) {
 			DialogFragment dialogFragment;
@@ -165,11 +175,15 @@ public class SaleReportActivity extends MPOSActivityBase{
 					
 					@Override
 					public void onSetDate(long date) {
-						mCalendar.setTimeInMillis(date);
-						mDateFrom = String.valueOf(mCalendar.getTimeInMillis());
+						Calendar cal = Utils.getDate();
+						cal.setTimeInMillis(date);
+						mDateFrom = String.valueOf(cal.getTimeInMillis());
 						
-						((Button) v).setText(mFormat.dateFormat(mCalendar.getTime()));
+						((Button) v).setText(mFormat.dateFormat(cal.getTime()));
 						mReporting.setDateFrom(mDateFrom);
+						if(mEdf != null){
+							mEdf.setupSpSession();
+						}
 					}
 				});
 				dialogFragment.show(getFragmentManager(), "Condition");
@@ -179,11 +193,15 @@ public class SaleReportActivity extends MPOSActivityBase{
 					
 					@Override
 					public void onSetDate(long date) {
-						mCalendar.setTimeInMillis(date);
-						mDateTo = String.valueOf(mCalendar.getTimeInMillis());
+						Calendar cal = Utils.getDate();
+						cal.setTimeInMillis(date);
+						mDateTo = String.valueOf(cal.getTimeInMillis());
 						
-						((Button) v).setText(mFormat.dateFormat(mCalendar.getTime()));
+						((Button) v).setText(mFormat.dateFormat(cal.getTime()));
 						mReporting.setDateTo(mDateTo);
+						if(mEdf != null){
+							mEdf.setupSpSession();
+						}
 					}
 				});
 				dialogFragment.show(getFragmentManager(), "Condition");
@@ -334,25 +352,26 @@ public class SaleReportActivity extends MPOSActivityBase{
 	
 	/**
 	 * @author j1tth4
-	 * Endday Report Fragment
+	 * Summary Sale Report Fragment
 	 */
-	public static class EnddayReportFragment extends Fragment{
+	public static class SummarySaleReportFragment extends Fragment{
 
 		private SaleReportActivity mHost;
 		
-		private static EnddayReportFragment sInstance;
+		private static SummarySaleReportFragment sInstance;
 		
 		private Transaction mTrans;
+		private Session mSession;
 		private PaymentDetail mPayment;
 		private int mSessionId;
 	
-		private LinearLayout mEnddayReportFooterContainer;
+		private LinearLayout mEnddaySumContent;
 		private ListView mLvEnddayReport;
 		private Spinner mSpSession;
 		
-		public static EnddayReportFragment getInstance(){
+		public static SummarySaleReportFragment getInstance(){
 			if(sInstance == null){
-				sInstance = new EnddayReportFragment();
+				sInstance = new SummarySaleReportFragment();
 			}
 			return sInstance;
 		}
@@ -361,16 +380,17 @@ public class SaleReportActivity extends MPOSActivityBase{
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			mHost = (SaleReportActivity) getActivity();
-			setHasOptionsMenu(true);
 			mTrans = new Transaction(getActivity());
+			mSession = new Session(getActivity());
 			mPayment = new PaymentDetail(getActivity());
+			setHasOptionsMenu(true);
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_endday_report, container, false);
-			mEnddayReportFooterContainer = (LinearLayout) rootView.findViewById(R.id.enddayReportFooterContainer);
+			mEnddaySumContent = (LinearLayout) rootView.findViewById(R.id.enddayReportFooterContainer);
 			mLvEnddayReport = (ListView) rootView.findViewById(R.id.lvEnddayReport);
 			return rootView;
 		}
@@ -385,6 +405,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 			((TextView) itemCondition.getActionView().findViewById(R.id.tvFrom)).setVisibility(View.GONE);
 			((TextView) itemCondition.getActionView().findViewById(R.id.tvTo)).setText(R.string.sale_date);
 			mSpSession = (Spinner) itemSession.getActionView().findViewById(R.id.spinner1);
+			mSpSession.setOnItemSelectedListener(new OnSessionSelectedListener());
 			setupSpSession();
 			super.onCreateOptionsMenu(menu, inflater);
 		}
@@ -397,8 +418,8 @@ public class SaleReportActivity extends MPOSActivityBase{
 				createReport();
 				return true;
 			case R.id.itemPrint:
-				new Thread(new PrintReport(getActivity(), 
-						PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, activity.mStaffId)).start();
+				new PrintReport(getActivity(), 
+						PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, activity.mStaffId).run();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -407,16 +428,14 @@ public class SaleReportActivity extends MPOSActivityBase{
 		
 		// setup spinner session
 		private void setupSpSession(){
-			Session sess = new Session(getActivity());
 			List<com.synature.mpos.database.model.Session> sl = 
-					sess.listSession(mHost.mDateTo);
+					mSession.listSession(mHost.mDateTo);
 			com.synature.mpos.database.model.Session s = 
 					new com.synature.mpos.database.model.Session();
 			s.setSessionId(0);
-			s.setSessionDate(getString(R.string.all));
+			s.setSessNumber(getString(R.string.all));
 			sl.add(0, s);
 			mSpSession.setAdapter(new SessionAdapter(sl));
-			mSpSession.setOnItemSelectedListener(new OnSessionSelectedListener());
 		}
 		
 		private class OnSessionSelectedListener implements OnItemSelectedListener{
@@ -427,6 +446,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				com.synature.mpos.database.model.Session sess = 
 						(com.synature.mpos.database.model.Session) parent.getItemAtPosition(position);
 				mSessionId = sess.getSessionId();
+				createReport();
 			}
 
 			@Override
@@ -470,7 +490,9 @@ public class SaleReportActivity extends MPOSActivityBase{
 					holder = (ViewHolder) convertView.getTag();
 				}
 				com.synature.mpos.database.model.Session sess = mSl.get(position);
-				holder.tvSession.setText(sess.getSessionDate());
+				if(position > 0)
+					sess.setSessNumber(String.valueOf(position));
+				holder.tvSession.setText(sess.getSessNumber());
 				return convertView;
 			}
 			
@@ -486,19 +508,37 @@ public class SaleReportActivity extends MPOSActivityBase{
 			OrderDetail sumOrder = null;
 			if(mSessionId != 0){
 				trans = mTrans.getTransaction(mSessionId, mHost.mDateTo);
-				sumOrder = mTrans.getSummaryOrder(mSessionId, mHost.mDateFrom, mHost.mDateTo);
+				sumOrder = mTrans.getSummaryOrder(mSessionId, mHost.mDateTo, mHost.mDateTo);
 			}else{
 				trans = mTrans.getTransaction(mHost.mDateTo);
-				sumOrder = mTrans.getSummaryOrder(mHost.mDateFrom, mHost.mDateTo);
+				sumOrder = mTrans.getSummaryOrder(mHost.mDateTo, mHost.mDateTo);
 			}
 			
-			mEnddayReportFooterContainer.removeAllViews();
+			mEnddaySumContent.removeAllViews();
 			TextView tvSumTxt = new TextView(getActivity());
 			tvSumTxt.setText(R.string.summary);
 			tvSumTxt.setTextAppearance(getActivity(), R.style.HeaderText);
 			tvSumTxt.setGravity(Gravity.CENTER);
-			tvSumTxt.setPaintFlags(tvSumTxt.getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
-			mEnddayReportFooterContainer.addView(tvSumTxt);
+			tvSumTxt.setPaintFlags(tvSumTxt.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+			mEnddaySumContent.addView(tvSumTxt);
+			
+			if(mSessionId != 0){
+				com.synature.mpos.database.model.Session s = mSession.getSession(mSessionId);
+				Staffs st = new Staffs(getActivity());
+				Staff std = st.getStaff(s.getOpenStaff());
+				View opStView = inflater.inflate(R.layout.left_mid_right_template, null);
+				((TextView) opStView.findViewById(R.id.tvLeft)).setText(getString(R.string.open_by));
+				((TextView) opStView.findViewById(R.id.tvMid)).setText(std.getStaffName());
+				((TextView) opStView.findViewById(R.id.tvRight)).setText(mHost.mFormat.timeFormat(s.getOpenDate()));
+				mEnddaySumContent.addView(opStView);
+
+				std = st.getStaff(s.getCloseStaff());
+				View clStView = inflater.inflate(R.layout.left_mid_right_template, null);
+				((TextView) clStView.findViewById(R.id.tvLeft)).setText(getString(R.string.close_by));
+				((TextView) clStView.findViewById(R.id.tvMid)).setText(std != null ? std.getStaffName(): "-");
+				((TextView) clStView.findViewById(R.id.tvRight)).setText(s.getCloseDate() != null ? mHost.mFormat.timeFormat(s.getCloseDate()) : "-");
+				mEnddaySumContent.addView(clStView);
+			}
 			
 			View lmrView = inflater.inflate(R.layout.left_mid_right_template, null);
 			((TextView) lmrView.findViewById(R.id.tvLeft)).setText(getString(R.string.sub_total));
@@ -506,14 +546,14 @@ public class SaleReportActivity extends MPOSActivityBase{
 			((TextView) lmrView.findViewById(R.id.tvMid)).setTypeface(null, Typeface.BOLD);
 			((TextView) lmrView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
 			((TextView) lmrView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
-			mEnddayReportFooterContainer.addView(lmrView);
+			mEnddaySumContent.addView(lmrView);
 			
 			if(sumOrder.getPriceDiscount() > 0){
 				View discountView = inflater.inflate(R.layout.left_mid_right_template, null);
 				((TextView) discountView.findViewById(R.id.tvLeft)).setText(getString(R.string.discount));
 				((TextView) discountView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumOrder.getPriceDiscount()));
 				((TextView) discountView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
-				mEnddayReportFooterContainer.addView(discountView);
+				mEnddaySumContent.addView(discountView);
 			}
 			
 			if(sumOrder.getVatExclude() > 0){
@@ -522,7 +562,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 						+ " " + NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate()) + "%");
 				((TextView) vatExcludeView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumOrder.getVatExclude()));
 				((TextView) vatExcludeView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
-				mEnddayReportFooterContainer.addView(vatExcludeView);
+				mEnddaySumContent.addView(vatExcludeView);
 			}
 			
 			View totalSaleView = inflater.inflate(R.layout.left_mid_right_template, null);
@@ -531,7 +571,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 					((TextView) totalSaleView.findViewById(R.id.tvLeft)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
 			((TextView) totalSaleView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
 			((TextView) totalSaleView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
-			mEnddayReportFooterContainer.addView(totalSaleView);
+			mEnddaySumContent.addView(totalSaleView);
 			
 			if(shop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
 				View vatView = inflater.inflate(R.layout.left_mid_right_template, null);
@@ -539,14 +579,14 @@ public class SaleReportActivity extends MPOSActivityBase{
 				((TextView) vatView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(
 								trans.getTransactionVatable() - trans.getTransactionVat()));
 				((TextView) vatView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
-				mEnddayReportFooterContainer.addView(vatView);
+				mEnddaySumContent.addView(vatView);
 				
 				vatView = inflater.inflate(R.layout.left_mid_right_template, null);
 				((TextView) vatView.findViewById(R.id.tvLeft)).setText(getString(R.string.total_vat)
 						+ " " + NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate()) + "%");
 				((TextView) vatView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(trans.getTransactionVat()));
 				((TextView) vatView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
-				mEnddayReportFooterContainer.addView(vatView);
+				mEnddaySumContent.addView(vatView);
 			}
 			
 			List<MPOSPaymentDetail> summaryPaymentLst = 
@@ -557,13 +597,13 @@ public class SaleReportActivity extends MPOSActivityBase{
 				((TextView) paymentView.findViewById(R.id.tvLeft)).setPaintFlags(
 						((TextView) paymentView.findViewById(R.id.tvLeft)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
 				((TextView) paymentView.findViewById(R.id.tvRight)).setText(null);
-				mEnddayReportFooterContainer.addView(paymentView);
+				mEnddaySumContent.addView(paymentView);
 				for(MPOSPaymentDetail payment : summaryPaymentLst){
 					paymentView = inflater.inflate(R.layout.left_mid_right_template, null);
 					((TextView) paymentView.findViewById(R.id.tvLeft)).setText(payment.getPayTypeName());
 					((TextView) paymentView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(payment.getPayAmount()));
 					((TextView) paymentView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
-					mEnddayReportFooterContainer.addView(paymentView);
+					mEnddaySumContent.addView(paymentView);
 				}
 			}
 			
@@ -571,7 +611,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 			((TextView) totalReceiptView.findViewById(R.id.tvLeft)).setText(getString(R.string.total_receipt));
 			((TextView) totalReceiptView.findViewById(R.id.tvRight)).setText(String.valueOf(mTrans.getTotalReceipt(mSessionId, mHost.mDateTo)));
 			((TextView) totalReceiptView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
-			mEnddayReportFooterContainer.addView(totalReceiptView);
+			mEnddaySumContent.addView(totalReceiptView);
 			
 			OrderDetail sumVoidOrder = mTrans.getSummaryVoidOrderInDay(mSessionId, mHost.mDateTo);
 			View totalVoidView = inflater.inflate(R.layout.left_mid_right_template, null);
@@ -579,14 +619,14 @@ public class SaleReportActivity extends MPOSActivityBase{
 			((TextView) totalVoidView.findViewById(R.id.tvLeft)).setPaintFlags(
 					((TextView) totalVoidView.findViewById(R.id.tvLeft)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
 			((TextView) totalVoidView.findViewById(R.id.tvRight)).setText(null);
-			mEnddayReportFooterContainer.addView(totalVoidView);
+			mEnddaySumContent.addView(totalVoidView);
 			totalVoidView = inflater.inflate(R.layout.left_mid_right_template, null);
 			((TextView) totalVoidView.findViewById(R.id.tvLeft)).setText(getString(R.string.void_bill_after_paid));
 			((TextView) totalVoidView.findViewById(R.id.tvMid)).setText(mHost.mFormat.qtyFormat(sumVoidOrder.getOrderQty()));
 			((TextView) totalVoidView.findViewById(R.id.tvMid)).setTypeface(null, Typeface.BOLD);
 			((TextView) totalVoidView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumVoidOrder.getTotalSalePrice()));
 			((TextView) totalVoidView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
-			mEnddayReportFooterContainer.addView(totalVoidView);
+			mEnddaySumContent.addView(totalVoidView);
 			
 			loadReportDetail();
 		}
@@ -1142,7 +1182,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				LinearLayout row = (LinearLayout) convertView;
 				for(int i = 0; i < row.getChildCount(); i++){
 					View v = row.getChildAt(i);
-					v.setBackgroundResource(R.color.light_blue_gray);
+					v.setBackgroundResource(R.color.blue_gray_light);
 				}
 			}
 			

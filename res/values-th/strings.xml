@@ -142,7 +142,7 @@
     <string name="sale_by_bill_report">รายงานการขายตามบิล</string>
     <string name="receipt">ใบเสร็จ</string>
     <string name="time">เวลา</string>
-    <string name="endday_report">รายงานปิดสิ้นวัน</string>
+    <string name="summary_sale_report">รายงานสรุปสิ้นวัน</string>
     <string name="cannot_update_data">อัพเดตข้อมูลไม่ได้</string>
     <string name="cannot_connect_to_network">เชื่อมต่อเครือข่ายไม่ได้</string>
     <string name="show_menu_image">แสดงรูปเมนู</string>

@@ -23,6 +23,7 @@ import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderSet.OrderSetDetail;
 import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.pos.Report;
+import com.synature.pos.Staff;
 import com.synature.util.Logger;
 
 public abstract class PrinterBase {
@@ -310,23 +311,31 @@ public abstract class PrinterBase {
 		}
 			
 		// header
-		String headerName = mContext.getString(R.string.endday_report);
+		String headerName = mContext.getString(R.string.summary_sale_report);
 		if(sessionId != 0)
-			headerName = mContext.getString(R.string.session_report);
+			headerName = mContext.getString(R.string.shift_close_report);
 		mTextToPrint.append(adjustAlignCenter(headerName) + "\n");
 		mTextToPrint.append(mFormat.dateFormat(sessionDate) + "\n");
 		mTextToPrint.append(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
+		if(sessionId != 0){
+			com.synature.mpos.database.model.Session sess = session.getSession(sessionId);
+			Staffs st = new Staffs(mContext);
+			Staff std = st.getStaff(sess.getOpenStaff());
+			mTextToPrint.append(mContext.getString(R.string.open_by) + " " + std.getStaffName() + " " + mFormat.timeFormat(sess.getOpenDate()) + "\n");
+			std = st.getStaff(sess.getCloseStaff());
+			mTextToPrint.append(mContext.getString(R.string.close_by) + " " + std.getStaffName() + " " + mFormat.timeFormat(sess.getCloseDate()) + "\n");
+		}
 		mTextToPrint.append(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(staffId).getStaffName() + "\n");
 		mTextToPrint.append(mContext.getString(R.string.print_date) + " " + mFormat.dateTimeFormat(Utils.getCalendar().getTime()) + "\n");
 		
 		// ReceiptNo.
 		mTextToPrint.append(mContext.getString(R.string.receipt_no) + "\n");
-		mTextToPrint.append(mTrans.getMinReceiptNo(sessionDate) + " -\n");
-		mTextToPrint.append(mTrans.getMaxReceiptNo(sessionDate) + "\n\n");
+		mTextToPrint.append(mTrans.getMinReceiptNo(sessionId, sessionDate) + " -\n");
+		mTextToPrint.append(mTrans.getMaxReceiptNo(sessionId, sessionDate) + "\n\n");
 		
 		// Product Summary
 		Reporting report = new Reporting(mContext, sessionDate, sessionDate);
-		List<SimpleProductData> simpleLst = report.listSummaryProductGroupInDay(0);
+		List<SimpleProductData> simpleLst = report.listSummaryProductGroupInDay(sessionId);
 		if(simpleLst != null){
 			for(SimpleProductData sp : simpleLst){
 				String groupName = sp.getDeptName();
@@ -426,51 +435,53 @@ public abstract class PrinterBase {
 		}
 		
 		String seperateTransIds = mTrans.getSeperateTransactionId(sessionId, sessionDate);
-		// open/close shift
-		String floatInText = mContext.getString(R.string.float_in);
-		String totalCashText = mContext.getString(R.string.total_cash);
-		String cashInDrawerText = mContext.getString(R.string.cash_in_drawer);
-		String cashCountText = mContext.getString(R.string.cash_count);
-		String overShotText = mContext.getString(R.string.over_or_short);
-		//double totalBillPayByCashAmount = mPayment.getTotalTransPayByCash(session.getSessionDate());
-		double floatInAmount = session.getOpenAmount(sessionId);
-		double totalCashAmount = mPayment.getTotalCash(seperateTransIds);
-		double cashInDrawerAmount = floatInAmount + totalCashAmount;
-		double cashCountAmount = session.getCloseAmount(sessionId);
-		String floatIn = mFormat.currencyFormat(floatInAmount);
-		String cashInDrawer = mFormat.currencyFormat(cashInDrawerAmount);
-		String totalCash = mFormat.currencyFormat(totalCashAmount);
-		String cashCount = mFormat.currencyFormat(cashCountAmount);
-		String overShot = mFormat.currencyFormat(cashCountAmount - cashInDrawerAmount);
-//			String totalBillPayByCash = mFormat.qtyFormat(totalBillPayByCashAmount)
-//					+ createQtySpace(calculateLength(totalCash));
-
-//			mTextToPrint.append(totalCashText);
-//			mTextToPrint.append(createHorizontalSpace(calculateLength(totalCashText)
-//					+ calculateLength(totalBillPayByCash)
-//					+ calculateLength(totalCash)));
-//			mTextToPrint.append(totalBillPayByCash);
-//			mTextToPrint.append(totalCash + "\n");
-		mTextToPrint.append(floatInText);
-		mTextToPrint.append(createHorizontalSpace(calculateLength(floatInText) + 
-				calculateLength(floatIn)));
-		mTextToPrint.append(floatIn + "\n");
-		mTextToPrint.append(totalCashText);
-		mTextToPrint.append(createHorizontalSpace(calculateLength(totalCashText) + 
-				calculateLength(totalCash)));
-		mTextToPrint.append(totalCash + "\n");
-		mTextToPrint.append(cashInDrawerText);
-		mTextToPrint.append(createHorizontalSpace(calculateLength(cashInDrawerText) + 
-				calculateLength(cashInDrawer)));
-		mTextToPrint.append(cashInDrawer + "\n");
-		mTextToPrint.append(cashCountText);
-		mTextToPrint.append(createHorizontalSpace(calculateLength(cashCountText) + 
-				calculateLength(cashCount)));
-		mTextToPrint.append(cashCount + "\n");
-		mTextToPrint.append(overShotText);
-		mTextToPrint.append(createHorizontalSpace(calculateLength(overShotText) + 
-				calculateLength(overShot)));
-		mTextToPrint.append(overShot + "\n\n");
+		if(sessionId == 0){
+			// open/close shift
+			String floatInText = mContext.getString(R.string.float_in);
+			String totalCashText = mContext.getString(R.string.total_cash);
+			String cashInDrawerText = mContext.getString(R.string.cash_in_drawer);
+			String cashCountText = mContext.getString(R.string.cash_count);
+			String overShotText = mContext.getString(R.string.over_or_short);
+			//double totalBillPayByCashAmount = mPayment.getTotalTransPayByCash(session.getSessionDate());
+			double floatInAmount = session.getOpenAmount(sessionId);
+			double totalCashAmount = mPayment.getTotalCash(seperateTransIds);
+			double cashInDrawerAmount = floatInAmount + totalCashAmount;
+			double cashCountAmount = session.getCloseAmount(sessionId);
+			String floatIn = mFormat.currencyFormat(floatInAmount);
+			String cashInDrawer = mFormat.currencyFormat(cashInDrawerAmount);
+			String totalCash = mFormat.currencyFormat(totalCashAmount);
+			String cashCount = mFormat.currencyFormat(cashCountAmount);
+			String overShot = mFormat.currencyFormat(cashCountAmount - cashInDrawerAmount);
+	//			String totalBillPayByCash = mFormat.qtyFormat(totalBillPayByCashAmount)
+	//					+ createQtySpace(calculateLength(totalCash));
+	
+	//			mTextToPrint.append(totalCashText);
+	//			mTextToPrint.append(createHorizontalSpace(calculateLength(totalCashText)
+	//					+ calculateLength(totalBillPayByCash)
+	//					+ calculateLength(totalCash)));
+	//			mTextToPrint.append(totalBillPayByCash);
+	//			mTextToPrint.append(totalCash + "\n");
+			mTextToPrint.append(floatInText);
+			mTextToPrint.append(createHorizontalSpace(calculateLength(floatInText) + 
+					calculateLength(floatIn)));
+			mTextToPrint.append(floatIn + "\n");
+			mTextToPrint.append(totalCashText);
+			mTextToPrint.append(createHorizontalSpace(calculateLength(totalCashText) + 
+					calculateLength(totalCash)));
+			mTextToPrint.append(totalCash + "\n");
+			mTextToPrint.append(cashInDrawerText);
+			mTextToPrint.append(createHorizontalSpace(calculateLength(cashInDrawerText) + 
+					calculateLength(cashInDrawer)));
+			mTextToPrint.append(cashInDrawer + "\n");
+			mTextToPrint.append(cashCountText);
+			mTextToPrint.append(createHorizontalSpace(calculateLength(cashCountText) + 
+					calculateLength(cashCount)));
+			mTextToPrint.append(cashCount + "\n");
+			mTextToPrint.append(overShotText);
+			mTextToPrint.append(createHorizontalSpace(calculateLength(overShotText) + 
+					calculateLength(overShot)));
+			mTextToPrint.append(overShot + "\n\n");
+		}
 		
 		List<MPOSPaymentDetail> summaryPaymentLst = 
 				mPayment.listSummaryPayment(seperateTransIds);

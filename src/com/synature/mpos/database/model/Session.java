@@ -7,9 +7,12 @@ public class Session {
 	private String closeDate;
 	private double openAmount;
 	private double closeAmount;
+	private int openStaff;
+	private int closeStaff;
 	private int isEndday;
 	private int totalQtyReceipt;
 	private double totalAmountReceipt;
+	private String sessNumber;
 	public int getSessionId() {
 		return sessionId;
 	}
@@ -27,6 +30,18 @@ public class Session {
 	}
 	public void setOpenDate(String openDate) {
 		this.openDate = openDate;
+	}
+	public int getOpenStaff() {
+		return openStaff;
+	}
+	public void setOpenStaff(int openStaff) {
+		this.openStaff = openStaff;
+	}
+	public int getCloseStaff() {
+		return closeStaff;
+	}
+	public void setCloseStaff(int closeStaff) {
+		this.closeStaff = closeStaff;
 	}
 	public String getCloseDate() {
 		return closeDate;
@@ -63,5 +78,11 @@ public class Session {
 	}
 	public void setTotalAmountReceipt(double totalAmountReceipt) {
 		this.totalAmountReceipt = totalAmountReceipt;
+	}
+	public String getSessNumber() {
+		return sessNumber;
+	}
+	public void setSessNumber(String sessNumber) {
+		this.sessNumber = sessNumber;
 	}
 }

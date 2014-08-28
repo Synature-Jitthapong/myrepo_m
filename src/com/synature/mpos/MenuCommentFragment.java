@@ -285,7 +285,8 @@ public class MenuCommentFragment extends DialogFragment{
 					double qty = comment.getCommentQty() == 0 ? 1 : comment.getCommentQty();
 					if(--qty > 0){
 						comment.setCommentQty(qty);
-						mTrans.updateOrderComment(mTransactionId, mOrderDetailId, comment.getCommentId(), qty);
+						mTrans.updateOrderComment(mTransactionId, mOrderDetailId, 
+								comment.getCommentId(), qty, comment.getCommentPrice());
 						mCommentAdapter.notifyDataSetChanged();
 					}
 				}
@@ -297,7 +298,8 @@ public class MenuCommentFragment extends DialogFragment{
 				public void onClick(View v) {
 					double qty = comment.getCommentQty() == 0 ? 1 : comment.getCommentQty();
 					comment.setCommentQty(++qty);
-					mTrans.updateOrderComment(mTransactionId, mOrderDetailId, comment.getCommentId(), qty);
+					mTrans.updateOrderComment(mTransactionId, mOrderDetailId, 
+							comment.getCommentId(), qty, comment.getCommentPrice());
 					mCommentAdapter.notifyDataSetChanged();
 				}
 				
@@ -325,9 +327,10 @@ public class MenuCommentFragment extends DialogFragment{
 					mTrans.deleteOrderComment(mTransactionId, mOrderDetailId, mComment.getCommentId());
 				}else{
 					double price = mComment.getCommentPrice() < 0 ? 0 : mComment.getCommentPrice();
+					int proTypeId = price > 0 ? Products.COMMENT_HAVE_PRICE : Products.COMMENT_NOT_HAVE_PRICE;
 					mComment.setSelected(true);
 					mTrans.addOrderComment(mTransactionId, mComputerId, mOrderDetailId, mComment.getCommentId(), 
-							Products.COMMENT_NOT_HAVE_PRICE, 1, price);
+							proTypeId, 1, price);
 				}
 				mCommentAdapter.notifyDataSetChanged();	
 			}

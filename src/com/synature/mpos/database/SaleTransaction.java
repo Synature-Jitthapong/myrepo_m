@@ -361,11 +361,12 @@ public class SaleTransaction extends MPOSDatabase{
 				},  
 				OrderTransactionTable.COLUMN_TRANS_ID + "=?"
 				+ " AND " + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?"
-				+ " AND " + ProductTable.COLUMN_PRODUCT_TYPE_ID + "=?", 
+				+ " AND " + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?) ", 
 				new String[]{
 					String.valueOf(transId),
 					String.valueOf(ordId),
-					String.valueOf(Products.COMMENT_HAVE_PRICE)
+					String.valueOf(Products.COMMENT_HAVE_PRICE),
+					String.valueOf(Products.COMMENT_NOT_HAVE_PRICE)
 				}, null, null, null);
 	}
 	

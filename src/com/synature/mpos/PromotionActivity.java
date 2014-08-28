@@ -243,7 +243,6 @@ public class PromotionActivity extends MPOSActivityBase {
 				for(com.synature.pos.PromotionProductDiscount product : productLst){
 					if(detail.getProductId() == product.getProductID()){
 						if(p.isAllowDiscount(product.getProductID())){
-							canDiscount = true;
 							int orderDetailId = detail.getOrderDetailId();
 							int vatType = p.getVatType(product.getProductID());
 							double vatRate = p.getVatRate(product.getProductID());
@@ -271,6 +270,8 @@ public class PromotionActivity extends MPOSActivityBase {
 										priceAfterDiscount, discount, DiscountActivity.PERCENT_DISCOUNT_TYPE, 
 										mPriceGroupId, mPromotionTypeId, mCouponHeader);
 							}
+							if(discount > 0)
+								canDiscount = true;
 						}else{
 							Log.d(TAG, "ProductID:" + detail.getProductId() + " Not allow discount");
 						}

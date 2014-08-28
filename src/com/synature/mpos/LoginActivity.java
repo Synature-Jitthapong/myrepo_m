@@ -37,11 +37,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	 */
 	public static final int REQUEST_FOR_SETTING_DATE = 1;
 	
-	/**
-	 * Request code for setting
-	 */
-	public static final int REQUEST_FOR_SETTING = 2;
-	
 	public static final int CLICK_TIMES_TO_SETTING = 5;
 	
 	private int mStaffId;
@@ -100,7 +95,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		// sync new master data every day
 		if(isAlreadySetUrl()){
 			if(!mSync.IsAlreadySync())
-				new DeviceChecker(this, new DeviceCheckerListener()).execute(Utils.getFullUrl(this));
+				requestValidUrl();
 		}
 	}
 
@@ -109,12 +104,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		if(requestCode == REQUEST_FOR_SETTING_DATE){
 			if(resultCode == RESULT_OK){
 				gotoMainActivity();
-			}
-		}
-		if(requestCode == REQUEST_FOR_SETTING){
-			if(resultCode == SettingsActivity.UPDATE_NEW_DATA){
-				if(!mSync.IsAlreadySync())
-					new DeviceChecker(this, new DeviceCheckerListener()).execute(Utils.getFullUrl(this));
 			}
 		}
 	}
@@ -308,10 +297,10 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		switch(item.getItemId()){
 		case R.id.itemSetting:
 			intent = new Intent(LoginActivity.this, SettingsActivity.class);
-			startActivityForResult(intent, REQUEST_FOR_SETTING);
+			startActivity(intent);
 			return true;
 		case R.id.itemUpdate:
-			new DeviceChecker(this, new DeviceCheckerListener()).execute(Utils.getFullUrl(this));
+			requestValidUrl();
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
@@ -347,14 +336,67 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	@Override
 	protected void onResume() {
 		if(!isAlreadySetUrl()){
-			Intent intent = new Intent(this, SettingsActivity.class);
-			startActivityForResult(intent, REQUEST_FOR_SETTING);
+			requestValidUrl();
 		}else{
 			mTxtUser.requestFocus();
 		}
 		super.onResume();
 	}
 			
+	private void requestValidUrl(){
+		new MainUrlRegister(this, new RegisterValidUrlListener()).execute(Utils.MAIN_URL);
+	}
+	
+	private class RegisterValidUrlListener implements WebServiceWorkingListener{
+
+		private ProgressDialog mProgress;
+		
+		public RegisterValidUrlListener(){
+			mProgress = new ProgressDialog(LoginActivity.this);
+			mProgress.setCancelable(false);
+			mProgress.setMessage(getString(R.string.loading));
+		}
+		
+		@Override
+		public void onPreExecute() {
+			mProgress.show();
+		}
+
+		@Override
+		public void onProgressUpdate(int value) {
+		}
+
+		@Override
+		public void onPostExecute() {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			new DeviceChecker(LoginActivity.this, new DeviceCheckerListener()).execute(Utils.getFullUrl(LoginActivity.this));
+		}
+
+		@Override
+		public void onError(String msg) {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			new AlertDialog.Builder(LoginActivity.this)
+			.setCancelable(false)
+			.setMessage(msg)
+			.setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			})
+			.setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					requestValidUrl();
+				}
+			})
+			.show();
+		}
+	}
+	
 	private boolean isAlreadySetUrl(){
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);

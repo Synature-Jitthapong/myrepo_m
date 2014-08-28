@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.database.table.ComputerTable;
-import com.synature.mpos.database.table.MenuCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransactionTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
@@ -281,10 +280,16 @@ public class Reporting extends MPOSDatabase{
 		return report;
 	}
 	
+	/**
+	 * get sale report by bill
+	 * @return Report
+	 */
 	public Report getSaleReportByBill(){
 		Report report = new Report();
-		String strSql = 
-				" SELECT a." + OrderTransactionTable.COLUMN_TRANS_ID + ", "
+		String transIds = getTransactionIds();
+		String selection = " a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
+				+ " AND b." + ProductTable.COLUMN_PRODUCT_PRICE + " >? ";
+		String strSql = " SELECT a." + OrderTransactionTable.COLUMN_TRANS_ID + ", "
 				+ " a." + ComputerTable.COLUMN_COMPUTER_ID + ", " 
 				+ " a." + OrderTransactionTable.COLUMN_STATUS_ID + ", " 
 				+ " a." + OrderTransactionTable.COLUMN_RECEIPT_NO + "," 
@@ -303,17 +308,14 @@ public class Reporting extends MPOSDatabase{
 				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
 				+ " INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b "
 				+ " ON a." + OrderTransactionTable.COLUMN_TRANS_ID + "=b." + OrderTransactionTable.COLUMN_TRANS_ID
-				+ " WHERE a." + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?, ?) "
-				+ " AND a." + OrderTransactionTable.COLUMN_SALE_DATE
-				+ " BETWEEN ? AND ? " 
+				+ " WHERE " + selection
 				+ " GROUP BY a." + OrderTransactionTable.COLUMN_TRANS_ID;
 
-		Cursor cursor = getReadableDatabase().rawQuery(strSql, 
+		Cursor cursor = getReadableDatabase().rawQuery(
+				strSql, 
 				new String[]{
-				String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-				String.valueOf(Transaction.TRANS_STATUS_VOID),
-				String.valueOf(mDateFrom), 
-				String.valueOf(mDateTo)});
+					String.valueOf(0)
+				});
 		
 		if(cursor.moveToFirst()){
 			do{
@@ -355,7 +357,8 @@ public class Reporting extends MPOSDatabase{
 
 					// product
 					String sql = "SELECT a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + ", "
-							+ " a." + COLUMN_PRODUCT_QTY + ", " 
+							+ " a." + ProductTable.COLUMN_PRODUCT_PRICE + ", "
+							+ " a." + COLUMN_PRODUCT_QTY + ", "
 							+ " a." + COLUMN_PRODUCT_QTY_PERCENT + ", " 
 							+ " a." + COLUMN_PRODUCT_SUB_TOTAL + ", " 
 							+ " a." + COLUMN_PRODUCT_SUB_TOTAL_PERCENT + ", " 
@@ -366,10 +369,9 @@ public class Reporting extends MPOSDatabase{
 							+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", " 
 							+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", " 
 							+ " b." + ProductTable.COLUMN_PRODUCT_NAME2 + ", "
-							+ " b." + ProductTable.COLUMN_PRODUCT_PRICE + ", " 
 							+ " b." + ProductTable.COLUMN_VAT_TYPE 
 							+ " FROM " + TEMP_PRODUCT_REPORT + " a " 
-							+ " INNER JOIN " + ProductTable.TABLE_PRODUCT + " b " 
+							+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b " 
 							+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID 
 							+ " WHERE b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?"
 							+ " ORDER BY b." + COLUMN_ORDERING;
@@ -440,67 +442,76 @@ public class Reporting extends MPOSDatabase{
 		return report;
 	}
 	
+	/**
+	 * get group summary
+	 * @param groupId
+	 * @return Report.ReportDetail
+	 */
 	public Report.ReportDetail getSummaryByGroup(int groupId){
 		Report.ReportDetail report = null;
+		String transIds = getTransactionIds();
+		String selection = " a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
+				+ " AND a." + ProductTable.COLUMN_PRODUCT_PRICE + " >? "
+				+ " AND c." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=?";
+		String sql = " SELECT SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
+				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
+				+ " SUM(a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
+				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
+				+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
+				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
+				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID
+				+ " LEFT JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " c "
+				+ " ON b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=c." + ProductTable.COLUMN_PRODUCT_DEPT_ID
+				+ " WHERE " + selection
+				+ " GROUP BY c." + ProductTable.COLUMN_PRODUCT_GROUP_ID;
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT SUM(o." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS TotalQty, " +
-				" SUM(o." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, " +
-				" SUM(o." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, " +
-				" SUM(o." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice " +
-				" FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " t " + 
-				" INNER JOIN " + OrderDetailTable.TABLE_ORDER + " o " +
-				" ON t." + OrderTransactionTable.COLUMN_TRANS_ID + "=o." + OrderTransactionTable.COLUMN_TRANS_ID +
-				" INNER JOIN " + ProductTable.TABLE_PRODUCT + " p " +
-				" ON o." + ProductTable.COLUMN_PRODUCT_ID + "=p." + ProductTable.COLUMN_PRODUCT_ID +
-				" INNER JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " pd " +
-				" ON p." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=pd." + ProductTable.COLUMN_PRODUCT_DEPT_ID +
-				" WHERE t." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ?"  +
-				" AND t." + OrderTransactionTable.COLUMN_STATUS_ID + " =?" +
-				" AND pd." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=?" +
-				" GROUP BY pd." + ProductTable.COLUMN_PRODUCT_GROUP_ID,
+				sql,
 				new String[]{
-						String.valueOf(mDateFrom),
-						String.valueOf(mDateTo),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(groupId)
+					String.valueOf(0),
+					String.valueOf(groupId)
 				});
 		
 		if(cursor.moveToFirst()){
 			Report.ReportDetail summReport = getProductSummary();
 			report = new Report.ReportDetail();
 			report.setProductName(SUMM_GROUP);
-			report.setQty(cursor.getDouble(cursor.getColumnIndex("TotalQty")));
+			report.setQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
 			report.setQtyPercent(report.getQty() / summReport.getQty() * 100);
-			report.setSubTotal(cursor.getDouble(cursor.getColumnIndex("TotalRetailPrice")));
+			report.setSubTotal(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
 			report.setSubTotalPercent(report.getSubTotal() / summReport.getSubTotal() * 100);
-			report.setDiscount(cursor.getDouble(cursor.getColumnIndex("TotalDiscount")));
-			report.setTotalPrice(cursor.getDouble(cursor.getColumnIndex("TotalSalePrice")));
+			report.setDiscount(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
+			report.setTotalPrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
 			report.setTotalPricePercent(report.getTotalPrice() / summReport.getTotalPrice() * 100);
 		}
 		cursor.close();
 		return report;
 	}
 	
+	/**
+	 * get dept summary
+	 * @param deptId
+	 * @return Report.ReportDetail
+	 */
 	public Report.ReportDetail getSummaryByDept(int deptId){
-		String transIds = getTransactionIds();
 		Report.ReportDetail report = null;
-		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ")"
-				+ " AS " + OrderDetailTable.COLUMN_ORDER_QTY + "," 
-				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
-				+ " AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", " 
-				+ " SUM(a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
-				+ " AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
-				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") "
-				+ " AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
+		String transIds = getTransactionIds();
+		String selection = " a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
+				+ " AND a." + ProductTable.COLUMN_PRODUCT_PRICE + " >? "
+				+ " AND b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?";
+		String sql = " SELECT SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + "," 
+				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", " 
+				+ " SUM(a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
+				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
 				+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
 				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID
-				+ " WHERE a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
-				+ " AND b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?"
-				+ " GROUP BY b." + ProductTable.COLUMN_PRODUCT_DEPT_ID,
+				+ " WHERE " + selection
+				+ " GROUP BY b." + ProductTable.COLUMN_PRODUCT_DEPT_ID;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				sql,
 				new String[]{
-						String.valueOf(deptId)
+					String.valueOf(0),
+					String.valueOf(deptId)
 				});
 		
 		if(cursor.moveToFirst()){
@@ -519,9 +530,14 @@ public class Reporting extends MPOSDatabase{
 		return report;
 	}
 	
+	/**
+	 * get product report summary
+	 * @return Report.ReportDetail
+	 */
 	public Report.ReportDetail getProductSummary(){
 		Report.ReportDetail report = new Report.ReportDetail();
-		Cursor cursor = getReadableDatabase().query(TEMP_PRODUCT_REPORT, 
+		Cursor cursor = getReadableDatabase().query(
+				TEMP_PRODUCT_REPORT, 
 				new String[]{
 					COLUMN_PRODUCT_SUMM_QTY,
 					COLUMN_PRODUCT_SUMM_SUB_TOTAL,
@@ -564,12 +580,18 @@ public class Reporting extends MPOSDatabase{
 		return transIds;
 	}
 	
+	/**
+	 * Create product report temp
+	 * @throws SQLException
+	 */
 	private void createProductDataTmp() throws SQLException{
 		String transIds = getTransactionIds();
-		Cursor cursor = getWritableDatabase().rawQuery(
-				" SELECT " + OrderDetailTable.COLUMN_ORDER_ID + ", "
+		String selection = OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ") "
+				+ " AND " + ProductTable.COLUMN_PRODUCT_PRICE + " >0 ";
+		String sql = " SELECT " + OrderDetailTable.COLUMN_ORDER_ID + ", "
 				+ ProductTable.COLUMN_PRODUCT_ID + ", "
 				+ ProductTable.COLUMN_PRODUCT_TYPE_ID + ", "
+				+ ProductTable.COLUMN_PRODUCT_PRICE + ", "
 				+ " SUM(" + OrderDetailTable.COLUMN_ORDER_QTY + ") AS TotalQty, "
 				+ " SUM(" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, "
 				+ " SUM(" + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS TotalDiscount, "
@@ -577,33 +599,30 @@ public class Reporting extends MPOSDatabase{
 				// total qty
 				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_ORDER_QTY + ") "
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID
-				+ " IN (" + transIds + ")) AS SummTotalQty, "
+				+ " WHERE " + selection + ") AS SummTotalQty, "
 				// total retail price
 				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID 
-				+ " IN (" + transIds + ")) AS SummTotalRetailPrice, "
+				+ " WHERE " + selection + ") AS SummTotalRetailPrice, "
 				// total discount
 				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID 
-				+ " IN (" + transIds + ")) AS SummTotalDiscount, "
+				+ " WHERE " + selection + ") AS SummTotalDiscount, "
 				// total sale price
 				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") "
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID 
-				+ " IN (" + transIds + ")) AS SummTotalSalePrice " 
+				+ " WHERE " + selection + ") AS SummTotalSalePrice " 
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID
-				+ " IN (" + transIds + ")"
+				+ " WHERE " + selection
 				+ " GROUP BY " + ProductTable.COLUMN_PRODUCT_ID + ", "
-				+ ProductTable.COLUMN_PRODUCT_TYPE_ID, null);
+				+ ProductTable.COLUMN_PRODUCT_TYPE_ID;
+		Cursor cursor = getWritableDatabase().rawQuery(sql, null);
 		
 		if(cursor.moveToFirst()){
 			do{
 				int productId = cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID));
 				int productTypeId = cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID));
+				double productPrice = cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE));
 				double qty = cursor.getDouble(cursor.getColumnIndex("TotalQty"));
 				double summQty = cursor.getDouble(cursor.getColumnIndex("SummTotalQty"));
 				double qtyPercent = (qty / summQty) * 100;
@@ -619,6 +638,7 @@ public class Reporting extends MPOSDatabase{
 				ContentValues cv = new ContentValues();
 				cv.put(ProductTable.COLUMN_PRODUCT_ID, productId);
 				cv.put(ProductTable.COLUMN_PRODUCT_TYPE_ID, productTypeId);
+				cv.put(ProductTable.COLUMN_PRODUCT_PRICE, productPrice);
 				cv.put(COLUMN_PRODUCT_QTY, qty);
 				cv.put(COLUMN_PRODUCT_SUMM_QTY, summQty);
 				cv.put(COLUMN_PRODUCT_QTY_PERCENT, qtyPercent);
@@ -638,25 +658,29 @@ public class Reporting extends MPOSDatabase{
 		cursor.close();
 	}
 
+	/**
+	 * list group
+	 * @return List<Report.GroupOfProduct>
+	 */
 	public List<Report.GroupOfProduct> listProductGroup(){
 		List<Report.GroupOfProduct> reportLst = new ArrayList<Report.GroupOfProduct>();
-		
-		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT c." + ProductTable.COLUMN_PRODUCT_DEPT_ID + ", "
-						+ " c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ", " 
-						+ " d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", "
-						+ " d." + ProductGroupTable.COLUMN_IS_COMMENT + ", "
-						+ " d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME
-						+ " FROM " + TEMP_PRODUCT_REPORT + " a "
-						+ " INNER JOIN " + ProductTable.TABLE_PRODUCT + " b "
-						+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID 
-						+ " INNER JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " c "
-						+ " ON b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=c." + ProductTable.COLUMN_PRODUCT_DEPT_ID
-						+ " INNER JOIN " + ProductGroupTable.TABLE_PRODUCT_GROUP + " d "
-						+ " ON c." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=d." + ProductTable.COLUMN_PRODUCT_GROUP_ID
-						+ " GROUP BY d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", " 
-						+ " c." + ProductTable.COLUMN_PRODUCT_DEPT_ID
-						+ " ORDER BY d." + COLUMN_ORDERING + "," + " c." + COLUMN_ORDERING, null);
+		String sql = " SELECT c." + ProductTable.COLUMN_PRODUCT_DEPT_ID + ", "
+				+ " c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ", " 
+				+ " d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", "
+				+ " d." + ProductGroupTable.COLUMN_IS_COMMENT + ", "
+				+ " d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME
+				+ " FROM " + TEMP_PRODUCT_REPORT + " a "
+				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
+				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID
+				+ " LEFT JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " c " 
+				+ " ON b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=c." + ProductTable.COLUMN_PRODUCT_DEPT_ID
+				+ " LEFT JOIN " + ProductGroupTable.TABLE_PRODUCT_GROUP + " d "
+				+ " ON c." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=d." + ProductTable.COLUMN_PRODUCT_GROUP_ID
+				+ " GROUP BY d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", " + " c." + ProductTable.COLUMN_PRODUCT_DEPT_ID
+				+ " ORDER BY d." + COLUMN_ORDERING + ",d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME + ", "
+				+ " c." + COLUMN_ORDERING + ",c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ", "
+				+ " b." + COLUMN_ORDERING + ", b." + ProductTable.COLUMN_PRODUCT_NAME; 
+		Cursor cursor = getReadableDatabase().rawQuery(sql, null);
 		
 		if(cursor.moveToFirst()){
 			do{
@@ -677,19 +701,20 @@ public class Reporting extends MPOSDatabase{
 	private void createReportProductTmp() throws SQLException{
 		getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + TEMP_PRODUCT_REPORT);
 		getWritableDatabase().execSQL("CREATE TABLE " + TEMP_PRODUCT_REPORT + " ( " +
-				ProductTable.COLUMN_PRODUCT_ID + " INTEGER NOT NULL DEFAULT 0, " +
+				ProductTable.COLUMN_PRODUCT_ID + " INTEGER DEFAULT 0, " +
 				ProductTable.COLUMN_PRODUCT_TYPE_ID + " INTEGER DEFAULT 0, " +
-				COLUMN_PRODUCT_QTY + " REAL NOT NULL DEFAULT 0, " +
-				COLUMN_PRODUCT_QTY_PERCENT + " REAL NOT NULL DEFAULT 0, " +
-				COLUMN_PRODUCT_SUB_TOTAL + " REAL NOT NULL DEFAULT 0, " +
-				COLUMN_PRODUCT_SUB_TOTAL_PERCENT + " REAL NOT NULL DEFAULT 0, " +
-				COLUMN_PRODUCT_DISCOUNT + " REAL NOT NULL DEFAULT 0, " +
-				COLUMN_PRODUCT_TOTAL_PRICE + " REAL NOT NULL DEFAULT 0, " +
-				COLUMN_PRODUCT_TOTAL_PRICE_PERCENT + " REAL NOT NULL DEFAULT 0, " +
-				COLUMN_PRODUCT_SUMM_QTY + " REAL NOT NULL DEFAULT 0, " +
-				COLUMN_PRODUCT_SUMM_SUB_TOTAL + " REAL NOT NULL DEFAULT 0, " +
-				COLUMN_PRODUCT_SUMM_DISCOUNT + " REAL NOT NULL DEFAULT 0, " +
-				COLUMN_PRODUCT_SUMM_TOTAL_PRICE + " REAL NOT NULL DEFAULT 0);"); 
+				ProductTable.COLUMN_PRODUCT_PRICE + " REAL DEFAULT 0, " +
+				COLUMN_PRODUCT_QTY + " REAL DEFAULT 0, " +
+				COLUMN_PRODUCT_QTY_PERCENT + " REAL DEFAULT 0, " +
+				COLUMN_PRODUCT_SUB_TOTAL + " REAL DEFAULT 0, " +
+				COLUMN_PRODUCT_SUB_TOTAL_PERCENT + " REAL DEFAULT 0, " +
+				COLUMN_PRODUCT_DISCOUNT + " REAL DEFAULT 0, " +
+				COLUMN_PRODUCT_TOTAL_PRICE + " REAL DEFAULT 0, " +
+				COLUMN_PRODUCT_TOTAL_PRICE_PERCENT + " REAL DEFAULT 0, " +
+				COLUMN_PRODUCT_SUMM_QTY + " REAL DEFAULT 0, " +
+				COLUMN_PRODUCT_SUMM_SUB_TOTAL + " REAL DEFAULT 0, " +
+				COLUMN_PRODUCT_SUMM_DISCOUNT + " REAL DEFAULT 0, " +
+				COLUMN_PRODUCT_SUMM_TOTAL_PRICE + " REAL DEFAULT 0);"); 
 	}
 	
 	public static class SaleTransactionReport{

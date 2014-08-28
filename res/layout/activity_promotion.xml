@@ -32,14 +32,14 @@
 
         <EditText
             android:id="@+id/txtTotalPrice"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="0.5"
             android:clickable="false"
-            android:ems="5"
+            android:ems="10"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:gravity="right|center_vertical"
-            android:text="200"
             android:textColor="@android:color/holo_blue_dark"
             android:textSize="@dimen/larger_text_size"
             android:textStyle="bold" >

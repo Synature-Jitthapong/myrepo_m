@@ -134,9 +134,9 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="please_select">Please select</string>
     <string name="void_receipt">Void Receipt</string>
     <string name="void_time">Void Time </string>
-    <string name="void_by">Void By </string>
+    <string name="void_by">Voided By </string>
     <string name="shop">Shop</string>
-    <string name="print_by">Print By</string>
+    <string name="print_by">Printed By</string>
     <string name="print_date">Print Date</string>
     <string name="payment_detail">Payment Detail</string>
     <string name="total_receipt">Total Receipt</string>
@@ -146,7 +146,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="sale_by_bill_report">Sale By Bill Report</string>
     <string name="receipt">Receipt</string>
     <string name="time">Time</string>
-    <string name="endday_report">End Day Report</string>
+    <string name="summary_sale_report">Summary sale report</string>
     <string name="cannot_update_data">Cannot update data.</string>
     <string name="cannot_connect_to_network">Cannot connect to network.</string>
     <string name="promise_system">pRoMiSe System</string>
@@ -200,7 +200,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="edit_open_shift">Edit Open Shift</string>
     <string name="send_data">Send Data</string>
     <string name="send_endday_data_progress">Sending endday data to server&#8230;</string>
-    <string name="cannot_send_endday_data_on_this_time">Cannot send endday data on this time.\n Do you want to try again?</string>
+    <string name="cannot_send_endday_data_on_this_time">Cannot send endday data on this time.\nDo you want to try again?</string>
     <string name="copy">Copy</string>
     <string name="title_activity_promotion">Promotion</string>
 	<string name="confirm_clear_discount">Are you sure you want to clear discount?</string>
@@ -229,5 +229,9 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="please_wait">Please wait&#8230;</string>
 	<string name="from">From</string>
 	<string name="all">--All--</string>
-	<string name="session_report">Session Report</string>
+	<string name="shift_close_report">Shift close report</string>
+	<string name="try_again">Try again</string>
+	<string name="invalid_url">Invalid url!</string>
+	<string name="open_by">Opened by</string>
+	<string name="close_by">Closed by</string>
 </resources>

@@ -30,6 +30,8 @@ public class Session extends MPOSDatabase{
 		SessionTable.COLUMN_SESS_DATE,
 		SessionTable.COLUMN_OPEN_DATE,
 		SessionTable.COLUMN_CLOSE_DATE,
+		COLUMN_OPEN_STAFF,
+		COLUMN_CLOSE_STAFF,
 		SessionTable.COLUMN_SESS_DATE,
 		SessionTable.COLUMN_OPEN_AMOUNT,
 		SessionTable.COLUMN_CLOSE_AMOUNT,
@@ -66,9 +68,8 @@ public class Session extends MPOSDatabase{
 			do{
 				com.synature.mpos.database.model.Session s = 
 						new com.synature.mpos.database.model.Session();
-				int sessId = cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID));
-				s.setSessionId(sessId);
-				s.setSessionDate(String.valueOf(sessId));
+				s.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
+				s.setSessionDate(cursor.getString(cursor.getColumnIndex(SessionTable.COLUMN_SESS_DATE)));
 				sl.add(s);
 			}while(cursor.moveToNext());
 		}
@@ -267,24 +268,22 @@ public class Session extends MPOSDatabase{
 	
 	/**
 	 * Open session
-	 * @param date
 	 * @param shopId
 	 * @param computerId
 	 * @param openStaffId
 	 * @param openAmount
 	 * @return
 	 */
-	public int openSession(Calendar date, int shopId, int computerId, 
+	public int openSession(int shopId, int computerId, 
 			int openStaffId, double openAmount){
 		int sessionId = getMaxSessionId();
-		Calendar dateTime = Utils.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_SESS_ID, sessionId);
 		cv.put(BaseColumn.COLUMN_UUID, getUUID());
 		cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
 		cv.put(ShopTable.COLUMN_SHOP_ID, shopId);
-		cv.put(SessionTable.COLUMN_SESS_DATE, date.getTimeInMillis());
-		cv.put(SessionTable.COLUMN_OPEN_DATE, dateTime.getTimeInMillis());
+		cv.put(SessionTable.COLUMN_SESS_DATE, Utils.getDate().getTimeInMillis());
+		cv.put(SessionTable.COLUMN_OPEN_DATE, Utils.getCalendar().getTimeInMillis());
 		cv.put(OrderTransactionTable.COLUMN_OPEN_STAFF, openStaffId);
 		cv.put(SessionTable.COLUMN_OPEN_AMOUNT, openAmount);
 		cv.put(SessionTable.COLUMN_IS_ENDDAY, 0);
@@ -344,10 +343,9 @@ public class Session extends MPOSDatabase{
 	 */
 	public int closeSession(int sessionId, int closeStaffId, 
 			double closeAmount, boolean isEndday){
-		Calendar dateTime = Utils.getCalendar();
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransactionTable.COLUMN_CLOSE_STAFF, closeStaffId);
-		cv.put(SessionTable.COLUMN_CLOSE_DATE, dateTime.getTimeInMillis());
+		cv.put(SessionTable.COLUMN_CLOSE_DATE, Utils.getCalendar().getTimeInMillis());
 		cv.put(SessionTable.COLUMN_CLOSE_AMOUNT, closeAmount);
 		cv.put(SessionTable.COLUMN_IS_ENDDAY, isEndday == true ? 1 : 0);
 		return getWritableDatabase().update(SessionTable.TABLE_SESSION, cv, 
@@ -381,6 +379,45 @@ public class Session extends MPOSDatabase{
 		return isEndday;
 	}
 
+	/**
+	 * @param sId
+	 * @return com.synature.mpos.database.model.Session
+	 */
+	public com.synature.mpos.database.model.Session getSession(int sId){
+		com.synature.mpos.database.model.Session s = 
+				new com.synature.mpos.database.model.Session();
+		Cursor cursor = querySession(
+				SessionTable.COLUMN_SESS_ID + "=?", 
+				new String[]{
+					String.valueOf(sId)
+				});
+		if(cursor.moveToFirst()){
+			s = toSession(cursor);
+		}
+		cursor.close();
+		return s;
+	}
+	
+	private com.synature.mpos.database.model.Session toSession(Cursor cursor){
+		com.synature.mpos.database.model.Session s
+			= new com.synature.mpos.database.model.Session();
+		s.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
+		s.setSessionDate(cursor.getString(cursor.getColumnIndex(SessionTable.COLUMN_SESS_DATE)));
+		s.setOpenDate(cursor.getString(cursor.getColumnIndex(SessionTable.COLUMN_OPEN_DATE)));
+		s.setCloseDate(cursor.getString(cursor.getColumnIndex(SessionTable.COLUMN_CLOSE_DATE)));
+		s.setOpenStaff(cursor.getInt(cursor.getColumnIndex(COLUMN_OPEN_STAFF)));
+		s.setCloseStaff(cursor.getInt(cursor.getColumnIndex(COLUMN_CLOSE_STAFF)));
+		s.setOpenAmount(cursor.getDouble(cursor.getColumnIndex(SessionTable.COLUMN_OPEN_AMOUNT)));
+		s.setCloseAmount(cursor.getDouble(cursor.getColumnIndex(SessionTable.COLUMN_CLOSE_AMOUNT)));
+		s.setIsEndday(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_IS_ENDDAY)));
+		return s;
+	}
+	
+	private Cursor querySession(String selection, String[] selectionArgs){
+		return getReadableDatabase().query(SessionTable.TABLE_SESSION, 
+				ALL_SESS_COLUMNS, selection, selectionArgs, null, null, null);
+	}
+	
 	/**
 	 * Get last session date
 	 * @return "" if not have any session

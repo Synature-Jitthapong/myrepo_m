@@ -2,24 +2,64 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/white_flat_bg"
-    android:divider="@android:drawable/divider_horizontal_bright"
-    android:orientation="horizontal"
-    android:showDividers="middle|end" >
+    android:orientation="horizontal" >
 
-    <ListView
-        android:id="@+id/lvEnddayReport"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:orientation="vertical" >
 
-    </ListView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@android:drawable/divider_horizontal_bright"
+            android:showDividers="middle" >
+
+            <TextView
+                android:id="@+id/textView1"
+                style="@style/HeaderText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/items" />
+
+            <TextView
+                android:id="@+id/textView2"
+                style="@style/HeaderText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:gravity="right"
+                android:text="@string/qty" />
+
+            <TextView
+                android:id="@+id/textView3"
+                style="@style/HeaderText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:gravity="right"
+                android:text="@string/total_price" />
+
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/lvEnddayReport"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/white_flat_bg" >
+
+        </ListView>
+
+    </LinearLayout>
 
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="0.5" >
+        android:layout_weight="0.7"
+        android:background="@drawable/white_flat_bg" >
 
         <LinearLayout
             android:id="@+id/enddayReportFooterContainer"
