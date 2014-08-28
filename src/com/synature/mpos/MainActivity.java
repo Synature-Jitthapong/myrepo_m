@@ -740,20 +740,20 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	public void paymentClicked(final View v){
 		if(mOrderDetailLst.size() > 0){
 			// food court type
-			if(mShop.getFastFoodType() == Shop.SHOP_TYPE_FOOD_COURT){
+			//if(mShop.getFastFoodType() == Shop.SHOP_TYPE_FOOD_COURT){
 				Intent intent = new Intent(MainActivity.this, FoodCourtCardPayActivity.class);
 				intent.putExtra("transactionId", mTransactionId);
 				intent.putExtra("shopId", mShopId);
 				intent.putExtra("computerId", mComputerId);
 				intent.putExtra("staffId", mStaffId);
 				startActivityForResult(intent, FOOD_COURT_PAYMENT_REQUEST);
-			}else{
-				Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
-				intent.putExtra("transactionId", mTransactionId);
-				intent.putExtra("computerId", mComputerId);
-				intent.putExtra("staffId", mStaffId);
-				startActivityForResult(intent, PAYMENT_REQUEST);
-			}
+//			}else{
+//				Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
+//				intent.putExtra("transactionId", mTransactionId);
+//				intent.putExtra("computerId", mComputerId);
+//				intent.putExtra("staffId", mStaffId);
+//				startActivityForResult(intent, PAYMENT_REQUEST);
+//			}
 		}
 	}
 

@@ -1,5 +1,6 @@
 package com.synature.mpos;
 
+import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.Shop;
 import com.synature.mpos.database.Transaction;
@@ -8,7 +9,6 @@ import com.synature.pos.PrepaidCardInfo;
 import com.synature.util.CreditCardParser;
 import com.synature.util.Logger;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
@@ -35,7 +35,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class FoodCourtCardPayActivity extends Activity implements Runnable{
+public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnable{
 	public static final int STATUS_READY_TO_USE = 1; 	//Ready to Use ��� ���������������������������������������������������������
 	public static final int STATUS_INUSE = 2;			//In Use ��� ���������������������������������������������
 	public static final int STATUS_BLACK_LIST = 3;		//BlackList ��� ������������������������������������������ BlackList
@@ -67,12 +67,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new MyDefaultUncaughExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
+		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -133,7 +128,6 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 	protected void onStop() {
 		closeMsrThread();
 		mIsRead = false;
-		mMsrReader.close();
 		super.onStop();
 	}
 
@@ -190,6 +184,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 						" Error when read data from magnetic card : " + e.getMessage());
 			}
 		}
+		mMsrReader.close();
 	}
 	
 	public static class PayResultFragment extends Fragment{

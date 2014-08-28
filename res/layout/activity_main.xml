@@ -111,7 +111,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="cashPaidClicked"
-                android:text="@string/cash_paid" />
+                android:text="@string/cash_paid"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/btnPayment"
@@ -172,7 +173,8 @@
                 android:minWidth="128dp"
                 android:onClick="discountClicked"
                 android:text="@string/other_discount_short"
-                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+                android:textAppearance="?android:attr/textAppearanceMediumInverse"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/btnPromotion"
@@ -182,7 +184,8 @@
                 android:layout_toRightOf="@+id/buttonDiscount"
                 android:minWidth="128dp"
                 android:onClick="promotionClicked"
-                android:text="@string/promotion_short" />
+                android:text="@string/promotion_short"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/buttonHold"
