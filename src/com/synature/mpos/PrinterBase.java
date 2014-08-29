@@ -753,7 +753,7 @@ public abstract class PrinterBase {
 			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
 		}
     	
-    	if(!isCopy){
+    	if(!isCopy && !isVoid){
 	    	// set e-journal to transaction
 	    	mTrans.updateTransactionEjournal(transId, mTextToPrint.toString());
     	}

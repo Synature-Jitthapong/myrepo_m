@@ -10,7 +10,6 @@ import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.PrintReceiptLog;
 import com.synature.mpos.database.Transaction;
-import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
@@ -240,7 +239,10 @@ public class VoidBillActivity extends MPOSActivityBase {
 	private void searchVoidItem(){
 		OrderTransaction ordTrans = mTrans.getTransaction(mTransactionId);
 		if(ordTrans != null){
-			((TextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());
+			if(ordTrans.getTransactionStatusId() == Transaction.TRANS_STATUS_SUCCESS)
+				((TextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());
+			else if(ordTrans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID)
+				((TextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEjVoid());
 		}
 	}
 

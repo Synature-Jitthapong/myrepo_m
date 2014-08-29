@@ -77,7 +77,7 @@ public class MPOSDatabase extends BaseColumn{
 	public static class MPOSOpenHelper extends SQLiteOpenHelper {
 		
 		public static final String DB_NAME = "mpos.db";
-		private static final int DB_VERSION = 1;
+		private static final int DB_VERSION = 2;
 
 		private static MPOSOpenHelper sHelper;
 
@@ -138,6 +138,7 @@ public class MPOSDatabase extends BaseColumn{
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			OrderTransactionTable.onUpgrade(db, oldVersion, newVersion);
 			BankTable.onUpgrade(db, oldVersion, newVersion);
 			ComputerTable.onUpgrade(db, oldVersion, newVersion);
 			CreditCardTable.onUpgrade(db, oldVersion, newVersion);

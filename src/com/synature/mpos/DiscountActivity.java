@@ -1,6 +1,7 @@
 package com.synature.mpos;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -321,7 +322,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 										OTHER_DISCOUNT_TYPE, "");
 							}
 						}
-						mDisName = getString(R.string.discount) + " " +  mFormat.currencyFormat(discountAll) + "%";
+						mDisName = getString(R.string.discount) + " " +  NumberFormat.getInstance().format(discountAll) + "%";
 					}
 					if(mDisAllType == PRICE_DISCOUNT_TYPE){
 						Iterator<OrderDetail> it = orderLst.iterator();

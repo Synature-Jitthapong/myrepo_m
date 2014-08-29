@@ -1164,14 +1164,14 @@ public class SaleReportActivity extends MPOSActivityBase{
 				setText(convertView, holder, childPosition, reportDetail);
 				
 				if(reportDetail.getProductName().equals(Reporting.SUMM_DEPT)){
-					setSummary(convertView, holder, mReportProduct.getGroupOfProductLst().get(groupPosition).getProductDeptName());
+					setSummary(convertView, holder, mReportProduct.getGroupOfProductLst().get(groupPosition).getProductDeptName(), Reporting.SUMM_DEPT);
 				}else if(reportDetail.getProductName().equals(Reporting.SUMM_GROUP)){
-					setSummary(convertView, holder, mReportProduct.getGroupOfProductLst().get(groupPosition).getProductGroupName());
+					setSummary(convertView, holder, mReportProduct.getGroupOfProductLst().get(groupPosition).getProductGroupName(), Reporting.SUMM_GROUP);
 				}
 				return convertView;
 			}
 			
-			private void setSummary(View convertView, ProductReportViewHolder holder, String text){
+			private void setSummary(View convertView, ProductReportViewHolder holder, String text, String sumType){
 				holder.tvNo.setVisibility(View.GONE);
 				holder.tvProductName.setVisibility(View.GONE);
 				holder.tvProductCode.setVisibility(View.GONE);
@@ -1181,10 +1181,12 @@ public class SaleReportActivity extends MPOSActivityBase{
 				holder.tvProductPrice.setLayoutParams(
 						new LinearLayout.LayoutParams(0, 
 								LayoutParams.WRAP_CONTENT, 2.8f));
-				LinearLayout row = (LinearLayout) convertView;
-				for(int i = 0; i < row.getChildCount(); i++){
-					View v = row.getChildAt(i);
-					v.setBackgroundResource(R.color.blue_gray_light);
+				if(sumType.equals(Reporting.SUMM_GROUP)){
+					LinearLayout row = (LinearLayout) convertView;
+					for(int i = 0; i < row.getChildCount(); i++){
+						View v = row.getChildAt(i);
+						v.setBackgroundResource(R.color.blue_gray_light);
+					}
 				}
 			}
 			

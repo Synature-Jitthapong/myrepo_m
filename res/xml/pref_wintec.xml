@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <PreferenceCategory android:title="@string/wintec_magnetic_reader_settings" >
+    <PreferenceCategory android:title="@string/wintec_magnetic_reader_settings">
         <ListPreference
             android:defaultValue="/dev/ttySAC3"
             android:entries="@array/devices_path_name"
             android:entryValues="@array/devices_path_value"
             android:key="msr_wintec_dev_path"
-            android:title="@string/wintec_dev_path" />
+            android:title="@string/wintec_dev_path" android:enabled="false"/>
         <ListPreference
             android:defaultValue="BAUD_9600"
             android:entries="@array/baudrates_name"
             android:entryValues="@array/baudrates_value"
             android:key="msr_wintec_baud_rate"
-            android:title="@string/baud_rate" />
+            android:title="@string/baud_rate" android:enabled="false"/>
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/wintec_cash_drawer_settings" >
+    <PreferenceCategory android:title="@string/wintec_cash_drawer_settings">
         <ListPreference
             android:defaultValue="/dev/ttySAC1"
             android:entries="@array/devices_path_name"
             android:entryValues="@array/devices_path_value"
             android:key="drw_wintec_dev_path"
-            android:title="@string/wintec_dev_path" />
+            android:title="@string/wintec_dev_path" android:enabled="false"/>
         <ListPreference
             android:defaultValue="BAUD_38400"
             android:entries="@array/baudrates_name"
             android:entryValues="@array/baudrates_value"
             android:key="drw_wintec_baud_rate"
-            android:title="@string/baud_rate" />
+            android:title="@string/baud_rate" android:enabled="false"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/wintec_customer_display_settings" >
         <CheckBoxPreference
@@ -41,14 +41,14 @@
             android:entries="@array/devices_path_name"
             android:entryValues="@array/devices_path_value"
             android:key="dsp_wintec_dev_path"
-            android:title="@string/wintec_dev_path" />
+            android:title="@string/wintec_dev_path" android:enabled="false"/>
         <ListPreference
             android:defaultValue="BAUD_9600"
             android:dependency="enable_dsp"
             android:entries="@array/baudrates_name"
             android:entryValues="@array/baudrates_value"
             android:key="dsp_wintec_baud_rate"
-            android:title="@string/baud_rate" />
+            android:title="@string/baud_rate" android:enabled="false"/>
 
         <EditTextPreference
             android:key="dsp_wintec_line1"

@@ -100,6 +100,8 @@ public class SaleTransaction extends MPOSDatabase{
 					orderTrans.setfVatPercent(Utils.fixesDigitLength(mFormat, 4,  cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_VAT_RATE))));
 					orderTrans.setfTransactionExcludeVAT(Utils.fixesDigitLength(mFormat, 4, cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT))));
 					orderTrans.setiNoCust(1);
+					orderTrans.setSzEJ_SaleTransaction(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_EJ)));
+					orderTrans.setSzEJ_VoidTransaction(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_EJ_VOID)));
 					
 					saleTrans.setxOrderTransaction(orderTrans);
 					Cursor orderDetailCursor = queryOrderDetail(transId);
@@ -770,6 +772,8 @@ public class SaleTransaction extends MPOSDatabase{
 		private int iMemberID;
 		private String szTransactionNote;
         private String fTransactionExcludeVAT;
+	    private String szEJ_SaleTransaction;
+	    private String szEJ_VoidTransaction;
 
 		public String getSzUDID() {
 			return szUDID;
@@ -1017,6 +1021,22 @@ public class SaleTransaction extends MPOSDatabase{
 
 		public void setfTransactionExcludeVAT(String fTransactionExcludeVAT) {
 			this.fTransactionExcludeVAT = fTransactionExcludeVAT;
+		}
+
+		public String getSzEJ_SaleTransaction() {
+			return szEJ_SaleTransaction;
+		}
+
+		public void setSzEJ_SaleTransaction(String szEJ_SaleTransaction) {
+			this.szEJ_SaleTransaction = szEJ_SaleTransaction;
+		}
+
+		public String getSzEJ_VoidTransaction() {
+			return szEJ_VoidTransaction;
+		}
+
+		public void setSzEJ_VoidTransaction(String szEJ_VoidTransaction) {
+			this.szEJ_VoidTransaction = szEJ_VoidTransaction;
 		}
 		
 	}

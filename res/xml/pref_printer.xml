@@ -14,13 +14,13 @@
             android:entries="@array/devices_path_name"
             android:entryValues="@array/devices_path_value"
             android:key="printer_wintec_dev_path"
-            android:title="@string/wintec_dev_path" />
+            android:title="@string/wintec_dev_path" android:enabled="false"/>
         <ListPreference
             android:defaultValue="BAUD_38400"
             android:entries="@array/baudrates_name"
             android:entryValues="@array/baudrates_value"
             android:key="printer_wintec_baud_rate"
-            android:title="@string/baud_rate" />
+            android:title="@string/baud_rate" android:enabled="false"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/epson_printer" >
         <EditTextPreference

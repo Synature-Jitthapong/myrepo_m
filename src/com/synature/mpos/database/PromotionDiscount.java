@@ -1,8 +1,13 @@
 package com.synature.mpos.database;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
+import com.synature.mpos.Utils;
 import com.synature.mpos.database.table.ProductTable;
 import com.synature.mpos.database.table.PromotionPriceGroupTable;
 import com.synature.mpos.database.table.PromotionProductDiscountTable;
@@ -10,6 +15,7 @@ import com.synature.mpos.database.table.PromotionProductDiscountTable;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 
 public class PromotionDiscount extends MPOSDatabase{
 
@@ -34,7 +40,8 @@ public class PromotionDiscount extends MPOSDatabase{
 					PromotionProductDiscountTable.COLUMN_DISCOUNT_AMOUNT,
 					PromotionProductDiscountTable.COLUMN_DISCOUNT_PERCENT,
 					PromotionProductDiscountTable.COLUMN_AMOUNT_OR_PERCENT
-				}, PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + "=?", 
+				}, 
+				PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + "=?", 
 				new String[]{
 					String.valueOf(priceGroupId)
 				}, null, null, null);
@@ -84,24 +91,37 @@ public class PromotionDiscount extends MPOSDatabase{
 				}, null, null, PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID);
 		if(cursor.moveToFirst()){
 			do{
-				com.synature.pos.PromotionPriceGroup promoPriceGroup = new com.synature.pos.PromotionPriceGroup();
-				promoPriceGroup.setPriceGroupID(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID)));
-				promoPriceGroup.setPromotionTypeID(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID)));
-				promoPriceGroup.setPromotionCode(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_CODE)));
-				promoPriceGroup.setPromotionName(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_NAME)));
-				promoPriceGroup.setButtonName(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_BUTTON_NAME)));
-				promoPriceGroup.setCouponHeader(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_COUPON_HEADER)));
-				promoPriceGroup.setPriceFromDate(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_FROM_DATE)));
-				promoPriceGroup.setPriceFromTime(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_FROM_TIME)));
-				promoPriceGroup.setPriceToDate(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_TO_DATE)));
-				promoPriceGroup.setPriceToTime(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_TO_TIME)));
-				promoPriceGroup.setPromotionWeekly(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_WEEKLY)));
-				promoPriceGroup.setPromotionMonthly(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_MONTHLY)));
-				promoPriceGroup.setIsAllowUseOtherPromotion(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_IS_ALLOW_USE_OTHER_PROMOTION)));
-				promoPriceGroup.setVoucherAmount(cursor.getDouble(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_VOUCHER_AMOUNT)));
-				promoPriceGroup.setOverPrice(cursor.getDouble(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_OVER_PRICE)));
-				promoPriceGroup.setPromotionAmountType(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_AMOUNT_TYPE)));
-				promoLst.add(promoPriceGroup);
+				boolean isActive = false;
+				long now = Utils.getDate().getTimeInMillis();
+				String df = cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_FROM_DATE));
+				String dt = cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_TO_DATE));
+				if(!TextUtils.isEmpty(dt)){
+					if(now >= Long.parseLong(df) && now <= Long.parseLong(dt))
+						isActive = true;
+				}else{
+					if(now >= Long.parseLong(df))
+						isActive = true;
+				}
+				if(isActive){
+					com.synature.pos.PromotionPriceGroup promoPriceGroup = new com.synature.pos.PromotionPriceGroup();
+					promoPriceGroup.setPriceGroupID(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID)));
+					promoPriceGroup.setPromotionTypeID(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID)));
+					promoPriceGroup.setPromotionCode(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_CODE)));
+					promoPriceGroup.setPromotionName(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_NAME)));
+					promoPriceGroup.setButtonName(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_BUTTON_NAME)));
+					promoPriceGroup.setCouponHeader(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_COUPON_HEADER)));
+					promoPriceGroup.setPriceFromDate(df);
+					promoPriceGroup.setPriceFromTime(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_FROM_TIME)));
+					promoPriceGroup.setPriceToDate(dt);
+					promoPriceGroup.setPriceToTime(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_TO_TIME)));
+					promoPriceGroup.setPromotionWeekly(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_WEEKLY)));
+					promoPriceGroup.setPromotionMonthly(cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_MONTHLY)));
+					promoPriceGroup.setIsAllowUseOtherPromotion(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_IS_ALLOW_USE_OTHER_PROMOTION)));
+					promoPriceGroup.setVoucherAmount(cursor.getDouble(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_VOUCHER_AMOUNT)));
+					promoPriceGroup.setOverPrice(cursor.getDouble(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_OVER_PRICE)));
+					promoPriceGroup.setPromotionAmountType(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_AMOUNT_TYPE)));
+					promoLst.add(promoPriceGroup);
+				}
 			}while(cursor.moveToNext());
 		}
 		cursor.close();
@@ -142,6 +162,20 @@ public class PromotionDiscount extends MPOSDatabase{
 		try {
 			getWritableDatabase().delete(PromotionPriceGroupTable.TABLE_PROMOTION_PRICE_GROUP, null, null);
 			for(com.synature.pos.PromotionPriceGroup promoPriceGroup : promoLst){
+				String strDf = promoPriceGroup.getPriceFromDate();
+				String strDt = promoPriceGroup.getPriceToDate();
+				try {
+					Calendar c = Utils.getCalendar();
+					DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+					c.setTime(df.parse(promoPriceGroup.getPriceFromDate()));
+					strDf = String.valueOf(c.getTimeInMillis());
+					df = new SimpleDateFormat("yyyy-MM-dd");
+					c.setTime(df.parse(promoPriceGroup.getPriceToDate()));
+					strDt = String.valueOf(c.getTimeInMillis());
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				ContentValues cv = new ContentValues();
 				cv.put(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID, promoPriceGroup.getPriceGroupID());
 				cv.put(PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID, promoPriceGroup.getPromotionTypeID());
@@ -149,9 +183,9 @@ public class PromotionDiscount extends MPOSDatabase{
 				cv.put(PromotionPriceGroupTable.COLUMN_PROMOTION_NAME, promoPriceGroup.getPromotionName());
 				cv.put(PromotionPriceGroupTable.COLUMN_BUTTON_NAME, promoPriceGroup.getButtonName());
 				cv.put(PromotionPriceGroupTable.COLUMN_COUPON_HEADER, promoPriceGroup.getCouponHeader());
-				cv.put(PromotionPriceGroupTable.COLUMN_PRICE_FROM_DATE, promoPriceGroup.getPriceFromDate());
+				cv.put(PromotionPriceGroupTable.COLUMN_PRICE_FROM_DATE, strDf);
 				cv.put(PromotionPriceGroupTable.COLUMN_PRICE_FROM_TIME, promoPriceGroup.getPriceFromTime());
-				cv.put(PromotionPriceGroupTable.COLUMN_PRICE_TO_DATE, promoPriceGroup.getPriceToDate());
+				cv.put(PromotionPriceGroupTable.COLUMN_PRICE_TO_DATE, strDt);
 				cv.put(PromotionPriceGroupTable.COLUMN_PRICE_TO_TIME, promoPriceGroup.getPriceToTime());
 				cv.put(PromotionPriceGroupTable.COLUMN_PROMOTION_WEEKLY, promoPriceGroup.getPromotionWeekly());
 				cv.put(PromotionPriceGroupTable.COLUMN_PROMOTION_MONTHLY, promoPriceGroup.getPromotionMonthly());
