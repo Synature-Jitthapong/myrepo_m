@@ -9,7 +9,7 @@ import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
-import com.synature.mpos.database.table.OrderTransactionTable;
+import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.pos.OrderTransaction;
 
@@ -187,29 +187,30 @@ public class SendSaleActivity extends MPOSActivityBase{
 	private List<SendTransaction> listNotSendTransaction(){
 		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
 		MPOSDatabase.MPOSOpenHelper helper = MPOSDatabase.MPOSOpenHelper.getInstance(getApplicationContext());
-		Cursor cursor = helper.getReadableDatabase().query(OrderTransactionTable.TABLE_ORDER_TRANS, 
+		Cursor cursor = helper.getReadableDatabase().query(OrderTransTable.TABLE_ORDER_TRANS,
 				new String[]{
-					OrderTransactionTable.COLUMN_TRANS_ID,
+					OrderTransTable.COLUMN_TRANS_ID,
 					ComputerTable.COLUMN_COMPUTER_ID,
 					SessionTable.COLUMN_SESS_ID,
-					OrderTransactionTable.COLUMN_RECEIPT_NO,
-					OrderTransactionTable.COLUMN_CLOSE_TIME,
+					OrderTransTable.COLUMN_RECEIPT_NO,
+					OrderTransTable.COLUMN_CLOSE_TIME,
 					BaseColumn.COLUMN_SEND_STATUS
-				}, OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " +
-					BaseColumn.COLUMN_SEND_STATUS + " =? ", 
+				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+                    + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
 				new String[]{
+                    String.valueOf(Transaction.TRANS_STATUS_VOID),
 					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
-				}, null, null, OrderTransactionTable.COLUMN_TRANS_ID);
+				}, null, null, OrderTransTable.COLUMN_TRANS_ID);
 		if(cursor.moveToFirst()){
 			do{
 				SendTransaction trans = new SendTransaction();
-				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 				trans.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
-				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
+				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_RECEIPT_NO)));
 				trans.setSendStatus(cursor.getInt(cursor.getColumnIndex(BaseColumn.COLUMN_SEND_STATUS)));
-				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_CLOSE_TIME)));
+				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_CLOSE_TIME)));
 				transLst.add(trans);
 			}while(cursor.moveToNext());
 		}

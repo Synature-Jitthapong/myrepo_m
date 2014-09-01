@@ -439,8 +439,7 @@ public abstract class PrinterBase {
 					+ calculateLength(totalVat)));
 			mTextToPrint.append(totalVat + "\n\n");
 		}
-		
-		String seperateTransIds = mTrans.getSeperateTransactionId(sessionId, sessionDate);
+
 		if(sessionId != 0){
 			// open/close shift
 			String floatInText = mContext.getString(R.string.float_in);
@@ -450,7 +449,7 @@ public abstract class PrinterBase {
 			String overShotText = mContext.getString(R.string.over_or_short);
 			//double totalBillPayByCashAmount = mPayment.getTotalTransPayByCash(session.getSessionDate());
 			double floatInAmount = session.getOpenAmount(sessionId);
-			double totalCashAmount = mPayment.getTotalCash(seperateTransIds);
+			double totalCashAmount = mPayment.getTotalCash(sessionId, sessionDate);
 			double cashInDrawerAmount = floatInAmount + totalCashAmount;
 			double cashCountAmount = session.getCloseAmount(sessionId);
 			String floatIn = mFormat.currencyFormat(floatInAmount);
@@ -489,8 +488,7 @@ public abstract class PrinterBase {
 			mTextToPrint.append(overShot + "\n\n");
 		}
 		
-		List<MPOSPaymentDetail> summaryPaymentLst = 
-				mPayment.listSummaryPayment(seperateTransIds);
+		List<MPOSPaymentDetail> summaryPaymentLst = mPayment.listSummaryPayment(sessionId, sessionDate);
 		if(summaryPaymentLst != null){
 			mTextToPrint.append(mContext.getString(R.string.payment_detail) + "\n");
 			for(MPOSPaymentDetail payment : summaryPaymentLst){

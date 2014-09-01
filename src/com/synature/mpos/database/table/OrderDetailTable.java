@@ -20,7 +20,7 @@ public class OrderDetailTable extends BaseColumn{
 	private static final String ORDER_SQL_CREATE = 
 			" create table " + TABLE_ORDER + " ( " 
 			+ COLUMN_ORDER_ID + " integer not null, "
-			+ OrderTransactionTable.COLUMN_TRANS_ID + " integer not null, "
+			+ OrderTransTable.COLUMN_TRANS_ID + " integer not null, "
 			+ ComputerTable.COLUMN_COMPUTER_ID + " integer not null, "
 			+ ProductTable.COLUMN_PRODUCT_ID + " integer not null, "
 			+ ProductTable.COLUMN_PRODUCT_TYPE_ID + " integer default 0, "

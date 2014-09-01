@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.mpos.Utils;
-import com.synature.mpos.database.table.OrderTransactionTable;
+import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.PrintReceiptLogTable;
 import com.synature.mpos.database.table.StaffTable;
 
@@ -29,7 +29,7 @@ public class PrintReceiptLog extends MPOSDatabase{
 		List<PrintReceipt> printLst = new ArrayList<PrintReceipt>();
 		Cursor cursor = getReadableDatabase().query(PrintReceiptLogTable.TABLE_PRINT_LOG, 
 				new String[]{
-					OrderTransactionTable.COLUMN_TRANS_ID,
+					OrderTransTable.COLUMN_TRANS_ID,
 					StaffTable.COLUMN_STAFF_ID,
 					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID,
 					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME,
@@ -42,7 +42,7 @@ public class PrintReceiptLog extends MPOSDatabase{
 		if(cursor.moveToFirst()){
 			do{
 				PrintReceipt print = new PrintReceipt();
-				print.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
+				print.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
 				print.setStaffId(cursor.getInt(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_ID)));
 				print.setPriceReceiptLogId(cursor.getInt(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID)));
 				print.setPrintReceiptLogTime(cursor.getString(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME)));
@@ -86,7 +86,7 @@ public class PrintReceiptLog extends MPOSDatabase{
 	 */
 	public void insertLog(int transactionId, int staffId, int isCopy) throws SQLException{
 		ContentValues cv = new ContentValues();
-		cv.put(OrderTransactionTable.COLUMN_TRANS_ID, transactionId);
+		cv.put(OrderTransTable.COLUMN_TRANS_ID, transactionId);
 		cv.put(StaffTable.COLUMN_STAFF_ID, staffId);
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME, Utils.getCalendar().getTimeInMillis());
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS, PRINT_NOT_SUCCESS);

@@ -7,7 +7,7 @@ import java.util.List;
 import com.synature.mpos.Utils;
 import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
-import com.synature.mpos.database.table.OrderTransactionTable;
+import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
@@ -152,7 +152,7 @@ public class Session extends MPOSDatabase{
 	public void autoEnddaySession(String currentSaleDate, int closeStaffId){
 		ContentValues cv = new ContentValues();
 		cv.put(SessionTable.COLUMN_IS_ENDDAY, ALREADY_ENDDAY_STATUS);
-		cv.put(OrderTransactionTable.COLUMN_CLOSE_STAFF, closeStaffId);
+		cv.put(OrderTransTable.COLUMN_CLOSE_STAFF, closeStaffId);
 		cv.put(SessionTable.COLUMN_CLOSE_DATE, Utils.getCalendar().getTimeInMillis());
 		
 		getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, cv, 
@@ -284,7 +284,7 @@ public class Session extends MPOSDatabase{
 		cv.put(ShopTable.COLUMN_SHOP_ID, shopId);
 		cv.put(SessionTable.COLUMN_SESS_DATE, Utils.getDate().getTimeInMillis());
 		cv.put(SessionTable.COLUMN_OPEN_DATE, Utils.getCalendar().getTimeInMillis());
-		cv.put(OrderTransactionTable.COLUMN_OPEN_STAFF, openStaffId);
+		cv.put(OrderTransTable.COLUMN_OPEN_STAFF, openStaffId);
 		cv.put(SessionTable.COLUMN_OPEN_AMOUNT, openAmount);
 		cv.put(SessionTable.COLUMN_IS_ENDDAY, 0);
 		try {
@@ -344,7 +344,7 @@ public class Session extends MPOSDatabase{
 	public int closeSession(int sessionId, int closeStaffId, 
 			double closeAmount, boolean isEndday){
 		ContentValues cv = new ContentValues();
-		cv.put(OrderTransactionTable.COLUMN_CLOSE_STAFF, closeStaffId);
+		cv.put(OrderTransTable.COLUMN_CLOSE_STAFF, closeStaffId);
 		cv.put(SessionTable.COLUMN_CLOSE_DATE, Utils.getCalendar().getTimeInMillis());
 		cv.put(SessionTable.COLUMN_CLOSE_AMOUNT, closeAmount);
 		cv.put(SessionTable.COLUMN_IS_ENDDAY, isEndday == true ? 1 : 0);
@@ -468,8 +468,8 @@ public class Session extends MPOSDatabase{
 				new String[] { 
 					SessionTable.COLUMN_SESS_ID 
 				},
-				OrderTransactionTable.COLUMN_OPEN_STAFF + "=? "
-				+ " AND " + OrderTransactionTable.COLUMN_CLOSE_STAFF + "=?",
+				OrderTransTable.COLUMN_OPEN_STAFF + "=? "
+				+ " AND " + OrderTransTable.COLUMN_CLOSE_STAFF + "=?",
 				new String[] {
 					String.valueOf(staffId),
 					String.valueOf(0) 

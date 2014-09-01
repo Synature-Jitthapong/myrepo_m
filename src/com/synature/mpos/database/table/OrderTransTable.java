@@ -2,7 +2,7 @@ package com.synature.mpos.database.table;
 
 import android.database.sqlite.SQLiteDatabase;
 
-public class OrderTransactionTable extends BaseColumn {
+public class OrderTransTable extends BaseColumn {
 	public static final String TABLE_ORDER_TRANS = "OrderTransaction";
 	public static final String COLUMN_TRANS_ID = "transaction_id";
 	public static final String COLUMN_RECEIPT_YEAR = "receipt_year";
@@ -72,53 +72,53 @@ public class OrderTransactionTable extends BaseColumn {
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion,
 			int newVersion) {
 		// upgrade table structure from version 1 to 2
-		db.beginTransaction();
-		try {
-			String tbCopy = "OrderTransCopy";
-			db.execSQL("CREATE TABLE " + tbCopy + " AS SELECT * FROM " + TABLE_ORDER_TRANS);
-			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ORDER_TRANS);
-			db.execSQL(SQL_CREATE);
-			
-			String sqlInsert = "INSERT INTO " + TABLE_ORDER_TRANS + "("
-			+ COLUMN_UUID + ", " 
-			+ COLUMN_TRANS_ID + ", "
-			+ ComputerTable.COLUMN_COMPUTER_ID + ", "
-			+ ShopTable.COLUMN_SHOP_ID + ", " 
-			+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + ", "
-			+ COLUMN_OPEN_TIME + ", " 
-			+ COLUMN_OPEN_STAFF + ", "
-			+ COLUMN_PAID_TIME + ", " 
-			+ COLUMN_PAID_STAFF_ID + ", " 
-			+ COLUMN_CLOSE_TIME + ", "
-			+ COLUMN_CLOSE_STAFF + ", " 
-			+ COLUMN_STATUS_ID + ", " 
-			+ COLUMN_DOC_TYPE_ID + ", " 
-			+ COLUMN_RECEIPT_YEAR + ", "
-			+ COLUMN_RECEIPT_MONTH + ", " 
-			+ COLUMN_RECEIPT_ID + ", " 
-			+ COLUMN_RECEIPT_NO + ", "
-			+ COLUMN_SALE_DATE + ", " 
-			+ SessionTable.COLUMN_SESS_ID + ", " 
-			+ COLUMN_VOID_STAFF_ID + ", "
-			+ COLUMN_VOID_REASON + ", " 
-			+ COLUMN_VOID_TIME + ", "
-			+ COLUMN_MEMBER_ID + ", " 
-			+ COLUMN_TRANS_VAT + ", " 
-			+ COLUMN_TRANS_EXCLUDE_VAT + ", " 
-			+ COLUMN_TRANS_VATABLE + ", " 
-			+ COLUMN_TRANS_NOTE + ", "
-			+ COLUMN_OTHER_DISCOUNT + ", "
-			+ COLUMN_SEND_STATUS + ", "
-			+ ProductTable.COLUMN_SALE_MODE + ", "
-			+ ProductTable.COLUMN_VAT_RATE + ", "
-			+ COLUMN_OTHER_DISCOUNT_DESC + ", "
-			+ COLUMN_EJ + ")" 
-			+ " SELECT * FROM " + tbCopy;
-			db.execSQL(sqlInsert);
-			db.execSQL("DROP TABLE " + tbCopy);
-			db.setTransactionSuccessful();
-		} finally {
-			db.endTransaction();
-		}
+//		db.beginTransaction();
+//		try {
+//			String tbCopy = "OrderTransCopy";
+//			db.execSQL("CREATE TABLE " + tbCopy + " AS SELECT * FROM " + TABLE_ORDER_TRANS);
+//			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ORDER_TRANS);
+//			db.execSQL(SQL_CREATE);
+//
+//			String sqlInsert = "INSERT INTO " + TABLE_ORDER_TRANS + "("
+//			+ COLUMN_UUID + ", "
+//			+ COLUMN_TRANS_ID + ", "
+//			+ ComputerTable.COLUMN_COMPUTER_ID + ", "
+//			+ ShopTable.COLUMN_SHOP_ID + ", "
+//			+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + ", "
+//			+ COLUMN_OPEN_TIME + ", "
+//			+ COLUMN_OPEN_STAFF + ", "
+//			+ COLUMN_PAID_TIME + ", "
+//			+ COLUMN_PAID_STAFF_ID + ", "
+//			+ COLUMN_CLOSE_TIME + ", "
+//			+ COLUMN_CLOSE_STAFF + ", "
+//			+ COLUMN_STATUS_ID + ", "
+//			+ COLUMN_DOC_TYPE_ID + ", "
+//			+ COLUMN_RECEIPT_YEAR + ", "
+//			+ COLUMN_RECEIPT_MONTH + ", "
+//			+ COLUMN_RECEIPT_ID + ", "
+//			+ COLUMN_RECEIPT_NO + ", "
+//			+ COLUMN_SALE_DATE + ", "
+//			+ SessionTable.COLUMN_SESS_ID + ", "
+//			+ COLUMN_VOID_STAFF_ID + ", "
+//			+ COLUMN_VOID_REASON + ", "
+//			+ COLUMN_VOID_TIME + ", "
+//			+ COLUMN_MEMBER_ID + ", "
+//			+ COLUMN_TRANS_VAT + ", "
+//			+ COLUMN_TRANS_EXCLUDE_VAT + ", "
+//			+ COLUMN_TRANS_VATABLE + ", "
+//			+ COLUMN_TRANS_NOTE + ", "
+//			+ COLUMN_OTHER_DISCOUNT + ", "
+//			+ COLUMN_SEND_STATUS + ", "
+//			+ ProductTable.COLUMN_SALE_MODE + ", "
+//			+ ProductTable.COLUMN_VAT_RATE + ", "
+//			+ COLUMN_OTHER_DISCOUNT_DESC + ", "
+//			+ COLUMN_EJ + ")"
+//			+ " SELECT * FROM " + tbCopy;
+//			db.execSQL(sqlInsert);
+//			db.execSQL("DROP TABLE " + tbCopy);
+//			db.setTransactionSuccessful();
+//		} finally {
+//			db.endTransaction();
+//		}
 	}
 }

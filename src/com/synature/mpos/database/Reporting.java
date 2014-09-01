@@ -6,7 +6,7 @@ import java.util.List;
 import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.OrderDetailTable;
-import com.synature.mpos.database.table.OrderTransactionTable;
+import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.mpos.database.table.ProductDeptTable;
 import com.synature.mpos.database.table.ProductGroupTable;
@@ -65,13 +65,13 @@ public class Reporting extends MPOSDatabase{
 	public List<SaleTransactionReport> listTransactionReport(){
 		List<SaleTransactionReport> transLst = new ArrayList<SaleTransactionReport>();
 		Cursor mainCursor = getReadableDatabase().rawQuery(
-				"SELECT " + OrderTransactionTable.COLUMN_SALE_DATE
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE 
+				"SELECT " + OrderTransTable.COLUMN_SALE_DATE
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE
 				+ " BETWEEN ? AND ?"
-				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID
 				+ " IN (?,?)"
-				+ " GROUP BY " + OrderTransactionTable.COLUMN_SALE_DATE, 
+				+ " GROUP BY " + OrderTransTable.COLUMN_SALE_DATE,
 				new String[]{
 						mDateFrom,
 						mDateTo,
@@ -84,13 +84,13 @@ public class Reporting extends MPOSDatabase{
 				trans.setSaleDate(mainCursor.getString(0));
 				
 				Cursor detailCursor = getReadableDatabase().rawQuery(
-						"SELECT " + OrderTransactionTable.COLUMN_RECEIPT_NO + ", "
-						+ OrderTransactionTable.COLUMN_CLOSE_TIME + ", "
-						+ OrderTransactionTable.COLUMN_TRANS_VATABLE
-						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-						+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE + "=?" 
-						+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " IN(?,?)"
-						+ " GROUP BY " + OrderTransactionTable.COLUMN_TRANS_ID, 
+						"SELECT " + OrderTransTable.COLUMN_RECEIPT_NO + ", "
+						+ OrderTransTable.COLUMN_CLOSE_TIME + ", "
+						+ OrderTransTable.COLUMN_TRANS_VATABLE
+						+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
+						+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE + "=?"
+						+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?)"
+						+ " GROUP BY " + OrderTransTable.COLUMN_TRANS_ID,
 						new String[]{
 								mainCursor.getString(0),
 								String.valueOf(Transaction.TRANS_STATUS_HOLD),
@@ -99,9 +99,9 @@ public class Reporting extends MPOSDatabase{
 				if(detailCursor.moveToFirst()){
 					do{
 						OrderTransaction detail = new OrderTransaction();
-						detail.setReceiptNo(detailCursor.getString(detailCursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
-						detail.setCloseTime(detailCursor.getString(detailCursor.getColumnIndex(OrderTransactionTable.COLUMN_CLOSE_TIME)));
-						detail.setTransactionVatable(detailCursor.getDouble(detailCursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)));
+						detail.setReceiptNo(detailCursor.getString(detailCursor.getColumnIndex(OrderTransTable.COLUMN_RECEIPT_NO)));
+						detail.setCloseTime(detailCursor.getString(detailCursor.getColumnIndex(OrderTransTable.COLUMN_CLOSE_TIME)));
+						detail.setTransactionVatable(detailCursor.getDouble(detailCursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_VATABLE)));
 						trans.getTransLst().add(detail);
 					}while(detailCursor.moveToNext());
 				}
@@ -119,8 +119,8 @@ public class Reporting extends MPOSDatabase{
 	 */
 	public List<SimpleProductData> listSummaryProductGroupInDay(int sessId){
 		List<SimpleProductData> simpleLst = new ArrayList<SimpleProductData>();
-		String selection = "a." + OrderTransactionTable.COLUMN_STATUS_ID + "=?"
-				+ " AND a." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
+		String selection = "a." + OrderTransTable.COLUMN_STATUS_ID + "=?"
+				+ " AND a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
 				+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?,?,?,?) ";
 		String[] selectionArgs = new String[]{
 			String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
@@ -149,9 +149,9 @@ public class Reporting extends MPOSDatabase{
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
 				+ " e." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", "
 				+ " e." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
 				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
-				+ " ON a." + OrderTransactionTable.COLUMN_TRANS_ID + "=b." + OrderTransactionTable.COLUMN_TRANS_ID 
+				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " c "
 				+ " ON b." + ProductTable.COLUMN_PRODUCT_ID + "=c." + ProductTable.COLUMN_PRODUCT_ID
 				+ " LEFT JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " d "
@@ -172,8 +172,8 @@ public class Reporting extends MPOSDatabase{
 				sp.setDeptTotalQty(groupCursor.getInt(groupCursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
 				sp.setDeptTotalPrice(groupCursor.getDouble(groupCursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
 				
-				String selection2 = " a." + OrderTransactionTable.COLUMN_STATUS_ID + "=?"
-						+ " AND a." + OrderTransactionTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
+				String selection2 = " a." + OrderTransTable.COLUMN_STATUS_ID + "=?"
+						+ " AND a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
 						+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?,?,?,?) "
 						+ " AND d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=?";
 				String[] selectionArgs2 = new String[]{
@@ -208,9 +208,9 @@ public class Reporting extends MPOSDatabase{
 						+ " c." + ProductTable.COLUMN_PRODUCT_NAME + ", "
 						+ " c." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "
 						+ " c." + ProductTable.COLUMN_PRODUCT_NAME2
-						+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
+						+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
 						+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
-						+ " ON a." + OrderTransactionTable.COLUMN_TRANS_ID + "=b." + OrderTransactionTable.COLUMN_TRANS_ID 
+						+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " c "
 						+ " ON b." + ProductTable.COLUMN_PRODUCT_ID + "=c." + ProductTable.COLUMN_PRODUCT_ID
 						+ " LEFT JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " d "
@@ -251,29 +251,29 @@ public class Reporting extends MPOSDatabase{
 		String transIds = getTransactionIds();
 		Report.ReportDetail report = new Report.ReportDetail();
 		String sql = "SELECT "
-				+ " SUM(" + OrderTransactionTable.COLUMN_TRANS_VATABLE + ") AS TransVatable, "
-				+ " SUM(" + OrderTransactionTable.COLUMN_TRANS_VAT + ") AS TransVat, "
-				+ " SUM(" + OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT + ") AS TransExcludeVat, "
+				+ " SUM(" + OrderTransTable.COLUMN_TRANS_VATABLE + ") AS TransVatable, "
+				+ " SUM(" + OrderTransTable.COLUMN_TRANS_VAT + ") AS TransVat, "
+				+ " SUM(" + OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT + ") AS TransExcludeVat, "
 				// total retail price
 				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") "
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalRetailPrice, "
+				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalRetailPrice, "
 				// total discount
 				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") "
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalDiscount, " 
+				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalDiscount, "
 				// total sale price
 				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + " + "
 				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") "
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalSalePrice, "
+				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalSalePrice, "
 				// total payment
 				+ " (SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT +  ") "
 				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalPayment "
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS 
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
-				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " =?";
+				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalPayment "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " =?";
 		Cursor cursor = getReadableDatabase().rawQuery(
 				sql, 
 				new String[]{
@@ -298,46 +298,49 @@ public class Reporting extends MPOSDatabase{
 	 */
 	public Report getSaleReportByBill(){
 		Report report = new Report();
-		String transIds = getTransactionIds();
-		String selection = " a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")";
-		String strSql = " SELECT a." + OrderTransactionTable.COLUMN_TRANS_ID + ", "
+		String selection = " a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? ";
+		String strSql = " SELECT a." + OrderTransTable.COLUMN_TRANS_ID + ", "
 				+ " a." + ComputerTable.COLUMN_COMPUTER_ID + ", " 
-				+ " a." + OrderTransactionTable.COLUMN_STATUS_ID + ", " 
-				+ " a." + OrderTransactionTable.COLUMN_RECEIPT_NO + "," 
-				+ " a." + OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT + ", " 
-				+ " a." + OrderTransactionTable.COLUMN_TRANS_VAT + ", " 
-				+ " a." + OrderTransactionTable.COLUMN_TRANS_VATABLE + ", " 
+				+ " a." + OrderTransTable.COLUMN_STATUS_ID + ", "
+				+ " a." + OrderTransTable.COLUMN_RECEIPT_NO + ","
+				+ " a." + OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT + ", "
+				+ " a." + OrderTransTable.COLUMN_TRANS_VAT + ", "
+				+ " a." + OrderTransTable.COLUMN_TRANS_VATABLE + ", "
 				+ " a." + COLUMN_SEND_STATUS + ", " 
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, "
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice, " 
-				+ " a." + OrderTransactionTable.COLUMN_OTHER_DISCOUNT + " + "
+				+ " a." + OrderTransTable.COLUMN_OTHER_DISCOUNT + " + "
 				+ " SUM(b." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + " + "
 				+ " b." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ") AS TotalDiscount, "
 				+ " (SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") " 
 				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
-				+ " WHERE " + OrderTransactionTable.COLUMN_TRANS_ID + " =a." + OrderTransactionTable.COLUMN_TRANS_ID + ") AS TotalPayment "
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS + " a "
+				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " =a." + OrderTransTable.COLUMN_TRANS_ID + ") AS TotalPayment "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
 				+ " INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b "
-				+ " ON a." + OrderTransactionTable.COLUMN_TRANS_ID + "=b." + OrderTransactionTable.COLUMN_TRANS_ID
+				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 				+ " WHERE " + selection
-				+ " GROUP BY a." + OrderTransactionTable.COLUMN_TRANS_ID;
+				+ " GROUP BY a." + OrderTransTable.COLUMN_TRANS_ID;
 
-		Cursor cursor = getReadableDatabase().rawQuery(strSql, null);
+		Cursor cursor = getReadableDatabase().rawQuery(strSql,
+                new String[]{
+                        mDateFrom,
+                        mDateTo
+                });
 		
 		if(cursor.moveToFirst()){
 			do{
 				Report.ReportDetail reportDetail = 
 						new Report.ReportDetail();
-				reportDetail.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
+				reportDetail.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
 				reportDetail.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
-				reportDetail.setTransStatus(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_STATUS_ID)));
-				reportDetail.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
+				reportDetail.setTransStatus(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_STATUS_ID)));
+				reportDetail.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_RECEIPT_NO)));
 				reportDetail.setTotalPrice(cursor.getDouble(cursor.getColumnIndex("TotalRetailPrice")));
 				reportDetail.setSubTotal(cursor.getDouble(cursor.getColumnIndex("TotalSalePrice")));
-				reportDetail.setVatExclude(cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_EXCLUDE_VAT)));
+				reportDetail.setVatExclude(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT)));
 				reportDetail.setDiscount(cursor.getDouble(cursor.getColumnIndex("TotalDiscount")));
-				reportDetail.setVatable(cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VATABLE)));
-				reportDetail.setTotalVat(cursor.getDouble(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_VAT)));
+				reportDetail.setVatable(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_VATABLE)));
+				reportDetail.setTotalVat(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_VAT)));
 				reportDetail.setTotalPayment(cursor.getDouble(cursor.getColumnIndex("TotalPayment")));
 				reportDetail.setSendStatus(cursor.getInt(cursor.getColumnIndex(COLUMN_SEND_STATUS)));
 				report.getReportDetail().add(reportDetail);
@@ -457,7 +460,7 @@ public class Reporting extends MPOSDatabase{
 	public Report.ReportDetail getSummaryByGroup(int groupId){
 		Report.ReportDetail report = null;
 		String transIds = getTransactionIds();
-		String selection = " a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
+		String selection = " a." + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
 				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?,?,?,?) "
 				+ " AND c." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=?";
 		String sql = " SELECT SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
@@ -505,7 +508,7 @@ public class Reporting extends MPOSDatabase{
 	public Report.ReportDetail getSummaryByDept(int deptId){
 		Report.ReportDetail report = null;
 		String transIds = getTransactionIds();
-		String selection = " a." + OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
+		String selection = " a." + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
 				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?,?,?,?)"
 				+ " AND b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?";
 		String sql = " SELECT SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + "," 
@@ -568,15 +571,19 @@ public class Reporting extends MPOSDatabase{
 		cursor.close();
 		return report;
 	}
-	
+
+    /**
+     * Get transactionIds where status success
+     * @return
+     */
 	public String getTransactionIds(){
 		String transIds = "";
 		Cursor cursor = getReadableDatabase().rawQuery(
-				"SELECT " + OrderTransactionTable.COLUMN_TRANS_ID
-				+ " FROM " + OrderTransactionTable.TABLE_ORDER_TRANS
-				+ " WHERE " + OrderTransactionTable.COLUMN_SALE_DATE
+				"SELECT " + OrderTransTable.COLUMN_TRANS_ID
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE
 				+ " BETWEEN ? AND ? "
-				+ " AND " + OrderTransactionTable.COLUMN_STATUS_ID + " =? ", 
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " =? ",
 				new String[]{
 						mDateFrom,
 						mDateTo,
@@ -584,7 +591,7 @@ public class Reporting extends MPOSDatabase{
 				});
 		if(cursor.moveToFirst()){
 			do{
-				transIds += cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID));
+				transIds += cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID));
 				if(!cursor.isLast())
 					transIds += ",";
 			}while(cursor.moveToNext());
@@ -599,7 +606,7 @@ public class Reporting extends MPOSDatabase{
 	 */
 	private void createProductDataTmp() throws SQLException{
 		String transIds = getTransactionIds();
-		String selection = OrderTransactionTable.COLUMN_TRANS_ID + " IN (" + transIds + ") "
+		String selection = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ") "
 				+ " AND " + ProductTable.COLUMN_PRODUCT_TYPE_ID 
 				+ " IN(" + Products.NORMAL_TYPE + "," + Products.SET_CAN_SELECT + "," + Products.CHILD_OF_SET_HAVE_PRICE + "," + Products.COMMENT_HAVE_PRICE + ") ";
 		String sql = " SELECT " + OrderDetailTable.COLUMN_ORDER_ID + ", "

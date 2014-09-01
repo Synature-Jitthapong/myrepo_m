@@ -13,7 +13,7 @@ public class PaymentDetailTable{
 	private static final String SQL_CREATE =
 			" create table " + TABLE_PAYMENT_DETAIL + " ( " 
 			+ COLUMN_PAY_ID + " integer not null, "
-			+ OrderTransactionTable.COLUMN_TRANS_ID + " integer not null, "
+			+ OrderTransTable.COLUMN_TRANS_ID + " integer not null, "
 			+ ComputerTable.COLUMN_COMPUTER_ID + " integer not null, "
 			+ PayTypeTable.COLUMN_PAY_TYPE_ID + " integer not null, "
 			+ COLUMN_PAY_AMOUNT + " real not null, " 

@@ -13,7 +13,7 @@ public class PrintReceiptLogTable{
 	private static final String SQL_CREATE = 
 			" create table " + TABLE_PRINT_LOG + "( " 
 			+ COLUMN_PRINT_RECEIPT_LOG_ID + " integer not null, "
-			+ OrderTransactionTable.COLUMN_TRANS_ID + " integer not null, "
+			+ OrderTransTable.COLUMN_TRANS_ID + " integer not null, "
 			+ StaffTable.COLUMN_STAFF_ID + " integer not null, "
 			+ COLUMN_PRINT_RECEIPT_LOG_TIME + " text, "
 			+ COLUMN_PRINT_RECEIPT_LOG_STATUS + " integer default 0, "

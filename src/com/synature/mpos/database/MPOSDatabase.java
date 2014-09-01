@@ -13,7 +13,7 @@ import com.synature.mpos.database.table.MenuCommentGroupTable;
 import com.synature.mpos.database.table.MenuCommentTable;
 import com.synature.mpos.database.table.MenuFixCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
-import com.synature.mpos.database.table.OrderTransactionTable;
+import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentButtonTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
@@ -77,7 +77,7 @@ public class MPOSDatabase extends BaseColumn{
 	public static class MPOSOpenHelper extends SQLiteOpenHelper {
 		
 		public static final String DB_NAME = "mpos.db";
-		private static final int DB_VERSION = 2;
+		private static final int DB_VERSION = 1;
 
 		private static MPOSOpenHelper sHelper;
 
@@ -109,7 +109,7 @@ public class MPOSDatabase extends BaseColumn{
 			MenuCommentGroupTable.onCreate(db);
 			MenuFixCommentTable.onCreate(db);
 			OrderDetailTable.onCreate(db);
-			OrderTransactionTable.onCreate(db);
+			OrderTransTable.onCreate(db);
 			PrintReceiptLogTable.onCreate(db);
 			PaymentDetailTable.onCreate(db);
 			PaymentButtonTable.onCreate(db);
@@ -138,7 +138,7 @@ public class MPOSDatabase extends BaseColumn{
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			OrderTransactionTable.onUpgrade(db, oldVersion, newVersion);
+			//OrderTransTable.onUpgrade(db, oldVersion, newVersion);
 			BankTable.onUpgrade(db, oldVersion, newVersion);
 			ComputerTable.onUpgrade(db, oldVersion, newVersion);
 			CreditCardTable.onUpgrade(db, oldVersion, newVersion);

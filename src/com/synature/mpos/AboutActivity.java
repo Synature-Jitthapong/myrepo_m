@@ -1,5 +1,7 @@
 package com.synature.mpos;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.app.Activity;
@@ -31,9 +33,25 @@ public class AboutActivity extends Activity {
 					@Override
 					public void onClick(View arg0) {
 						if(mCountClick == TOTAL_CLICK){
-							Utils.clearSale(AboutActivity.this);
-						}
-						mCountClick++;
+                            mCountClick = 0;
+                            new AlertDialog.Builder(AboutActivity.this)
+                                .setTitle("Clear all sale data")
+                                .setCancelable(false)
+                                .setMessage("Are you sure you want to clear all sale data?")
+                                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                    }
+                                }).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Utils.clearSale(AboutActivity.this);
+                                    }
+                            }).show();
+
+						}else {
+                            mCountClick++;
+                        }
 					}
 				});
 	}

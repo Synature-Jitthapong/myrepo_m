@@ -413,6 +413,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 		intent.putExtra("staffId", mStaffId);
 		startActivity(intent);
+        finish();
 	}
 	
 	/**

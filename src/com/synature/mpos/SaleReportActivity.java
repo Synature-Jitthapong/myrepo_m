@@ -119,6 +119,8 @@ public class SaleReportActivity extends MPOSActivityBase{
 		@Override
 		public void onItemSelected(AdapterView<?> parent, View v, int position,
 				long id) {
+            mDateTo = String.valueOf(Utils.getDate().getTimeInMillis());
+            mReporting.setDateTo(mDateTo);
 			switch(position){
 			case REPORT_BY_BILL:
 				getFragmentManager().beginTransaction()
@@ -591,8 +593,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				mEnddaySumContent.addView(vatView);
 			}
 			
-			List<MPOSPaymentDetail> summaryPaymentLst = 
-					mPayment.listSummaryPayment(mTrans.getSeperateTransactionId(mSessionId, mHost.mDateTo));
+			List<MPOSPaymentDetail> summaryPaymentLst = mPayment.listSummaryPayment(mSessionId, mHost.mDateTo);
 			if(summaryPaymentLst != null){
 				View paymentView = inflater.inflate(R.layout.left_mid_right_template, null);
 				((TextView) paymentView.findViewById(R.id.tvLeft)).setText(getString(R.string.payment_detail));
