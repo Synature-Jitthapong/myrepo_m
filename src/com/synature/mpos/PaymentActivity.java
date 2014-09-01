@@ -307,6 +307,9 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 			
 			mChange = mTotalPaid - mTotalSalePrice;
 			
+			// auto backup db
+			//Utils.exportDatabase(this);
+			
 			Intent intent = new Intent(this, MainActivity.class);
 			intent.putExtra("totalSalePrice", mTotalSalePrice);
 			intent.putExtra("totalPaid", mTotalPaid);
