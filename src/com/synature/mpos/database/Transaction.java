@@ -1099,6 +1099,10 @@ public class Transaction extends MPOSDatabase {
 				new String[] { String.valueOf(transactionId) });
 	}
 
+	/** 
+	 * List transaction not send to server
+	 * @return List<OrderTransaction>
+	 */
 	public List<OrderTransaction> listTransactionNotSend(){
 		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
 		Cursor cursor = getReadableDatabase().query(OrderTransTable.TABLE_ORDER_TRANS,
@@ -1106,7 +1110,7 @@ public class Transaction extends MPOSDatabase {
 					OrderTransTable.COLUMN_TRANS_ID,
 					ComputerTable.COLUMN_COMPUTER_ID,
 					SessionTable.COLUMN_SESS_ID
-				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,) "
+				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
                     + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
 				new String[]{
 					String.valueOf(Transaction.TRANS_STATUS_VOID),
