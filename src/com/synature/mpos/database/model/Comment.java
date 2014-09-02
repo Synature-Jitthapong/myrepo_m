@@ -3,6 +3,8 @@ package com.synature.mpos.database.model;
 public class Comment{
 	private int commentId;
 	private String commentName;
+	private String commentName1;
+	private String commentName2;
 	private double commentQty;
 	private double commentPrice;
 	private boolean isSelected;
@@ -36,5 +38,17 @@ public class Comment{
 	}
 	public void setCommentName(String commentName) {
 		this.commentName = commentName;
+	}
+	public String getCommentName1() {
+		return commentName1;
+	}
+	public void setCommentName1(String commentName1) {
+		this.commentName1 = commentName1;
+	}
+	public String getCommentName2() {
+		return commentName2;
+	}
+	public void setCommentName2(String commentName2) {
+		this.commentName2 = commentName2;
 	}
 }

@@ -103,8 +103,6 @@ public class MasterDataLoader extends MPOSServiceBase{
 			pp.insertProductPrice(master.getProductPrice());
 			p.insertPComponentGroup(master.getPComponentGroup());
 			p.insertProductComponent(master.getProductComponent());
-			mc.insertMenuComment(master.getMenuComment());
-			mc.insertMenuCommentGroup(master.getMenuCommentGroup());
 			mc.insertMenuFixComment(master.getMenuFixComment());
 			promo.insertPromotionPriceGroup(master.getPromotionPriceGroup());
 			promo.insertPromotionProductDiscount(master.getPromotionProductDiscount());
