@@ -9,8 +9,6 @@ import com.synature.mpos.database.table.CreditCardTable;
 import com.synature.mpos.database.table.GlobalPropertyTable;
 import com.synature.mpos.database.table.HeaderFooterReceiptTable;
 import com.synature.mpos.database.table.LanguageTable;
-import com.synature.mpos.database.table.MenuCommentGroupTable;
-import com.synature.mpos.database.table.MenuCommentTable;
 import com.synature.mpos.database.table.MenuFixCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
@@ -105,8 +103,6 @@ public class MPOSDatabase extends BaseColumn{
 			GlobalPropertyTable.onCreate(db);
 			LanguageTable.onCreate(db);
 			HeaderFooterReceiptTable.onCreate(db);
-			MenuCommentTable.onCreate(db);
-			MenuCommentGroupTable.onCreate(db);
 			MenuFixCommentTable.onCreate(db);
 			OrderDetailTable.onCreate(db);
 			OrderTransTable.onCreate(db);
@@ -145,8 +141,6 @@ public class MPOSDatabase extends BaseColumn{
 			GlobalPropertyTable.onUpgrade(db, oldVersion, newVersion);
 			LanguageTable.onUpgrade(db, oldVersion, newVersion);
 			HeaderFooterReceiptTable.onUpgrade(db, oldVersion, newVersion);
-			MenuCommentTable.onUpgrade(db, oldVersion, newVersion);
-			MenuCommentGroupTable.onUpgrade(db, oldVersion, newVersion);
 			MenuFixCommentTable.onUpgrade(db, oldVersion, newVersion);
 			PrintReceiptLogTable.onUpgrade(db, oldVersion, newVersion);
 			PaymentDetailTable.onUpgrade(db, oldVersion, newVersion);

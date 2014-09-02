@@ -19,7 +19,6 @@ import com.synature.mpos.database.model.OrderSet;
 import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
-import com.synature.mpos.database.table.MenuCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.ProductComponentGroupTable;
@@ -2063,10 +2062,12 @@ public class Transaction extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT a." + OrderDetailTable.COLUMN_ORDER_QTY + ", "
 				+ " a." + ProductTable.COLUMN_PRODUCT_PRICE + ", "
-				+ " b." + MenuCommentTable.COLUMN_COMMENT_NAME
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", "
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME2
  				+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
-				+ " LEFT JOIN " + MenuCommentTable.TABLE_MENU_COMMENT + " b "
-				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + " =b." + MenuCommentTable.COLUMN_COMMENT_ID
+				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
+				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID
 				+ " WHERE a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " AND a." + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?"
 				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?,?) ",
@@ -2079,7 +2080,9 @@ public class Transaction extends MPOSDatabase {
 		if(cursor.moveToFirst()){
 			do{
 				OrderComment cm = new OrderComment();
-				cm.setCommentName(cursor.getString(cursor.getColumnIndex(MenuCommentTable.COLUMN_COMMENT_NAME)));
+				cm.setCommentName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
+				cm.setCommentName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
+				cm.setCommentName2(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
 				cm.setCommentQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
 				cm.setCommentPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 				ordCmLst.add(cm);
@@ -2101,10 +2104,12 @@ public class Transaction extends MPOSDatabase {
 				"SELECT a." + ProductTable.COLUMN_PRODUCT_ID + ", "
 				+ " a." + OrderDetailTable.COLUMN_ORDER_QTY + ", "
 				+ " a." + ProductTable.COLUMN_PRODUCT_PRICE + ", "
-				+ " b." + MenuCommentTable.COLUMN_COMMENT_NAME
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", "
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME2
 				+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
-				+ " LEFT JOIN " + MenuCommentTable.TABLE_MENU_COMMENT + " b "
-				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + " =b." + MenuCommentTable.COLUMN_COMMENT_ID
+				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
+				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID
 				+ " WHERE a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " AND a." + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?"
 				+ " AND a." + ProductTable.COLUMN_PRODUCT_ID + "=?"
@@ -2118,7 +2123,9 @@ public class Transaction extends MPOSDatabase {
 				});
 		if(cursor.moveToFirst()){
 			ordCm.setCommentId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-			ordCm.setCommentName(cursor.getString(cursor.getColumnIndex(MenuCommentTable.COLUMN_COMMENT_NAME)));
+			ordCm.setCommentName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
+			ordCm.setCommentName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
+			ordCm.setCommentName2(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
 			ordCm.setCommentQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
 			ordCm.setCommentPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 		}

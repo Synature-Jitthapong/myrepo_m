@@ -88,7 +88,7 @@ public class Products extends MPOSDatabase {
 	
 	public static final String[] ALL_PRODUCT_COLS = {
 		ProductTable.COLUMN_PRODUCT_ID, 
-		ProductTable.COLUMN_PRODUCT_DEPT_ID,
+		ProductDeptTable.COLUMN_PRODUCT_DEPT_ID,
 		ProductTable.COLUMN_PRODUCT_CODE,
 		ProductTable.COLUMN_PRODUCT_BAR_CODE,
 		ProductTable.COLUMN_PRODUCT_NAME,
@@ -106,17 +106,16 @@ public class Products extends MPOSDatabase {
 	};
 	
 	public static final String[] ALL_PRODUCT_GROUP_COLS = {
-		ProductTable.COLUMN_PRODUCT_GROUP_ID,
+		ProductGroupTable.COLUMN_PRODUCT_GROUP_ID,
 		ProductGroupTable.COLUMN_PRODUCT_GROUP_CODE,
 		ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME,
 		ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME1,
-		ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME2,
-		ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME3
+		ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME2
 	};
 	
 	public static final String[] ALL_PRODUCT_DEPT_COLS = {
-		ProductTable.COLUMN_PRODUCT_GROUP_ID,
-		ProductTable.COLUMN_PRODUCT_DEPT_ID,
+		ProductGroupTable.COLUMN_PRODUCT_GROUP_ID,
+		ProductDeptTable.COLUMN_PRODUCT_DEPT_ID,
 		ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE,
 		ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME,
 		ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1
@@ -255,14 +254,14 @@ public class Products extends MPOSDatabase {
 	public List<ProductDept> listProductDept(){
 		List<ProductDept> pdLst = new ArrayList<ProductDept>();
 		Cursor cursor = getReadableDatabase().rawQuery(
-				"SELECT a." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", "
-				+ " a." + ProductTable.COLUMN_PRODUCT_DEPT_ID + ","
+				"SELECT a." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + ", "
+				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + ","
 				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE + ","
 				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ","
 				+ " a." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1
 				+ " FROM " + ProductDeptTable.TABLE_PRODUCT_DEPT + " a "
 				+ " LEFT JOIN " + ProductGroupTable.TABLE_PRODUCT_GROUP + " b "
-				+ " ON a." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=b." + ProductTable.COLUMN_PRODUCT_GROUP_ID
+				+ " ON a." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=b." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID
 				+ " WHERE b." + ProductGroupTable.COLUMN_IS_COMMENT + "=?"
 				+ " AND a." + ProductTable.COLUMN_ACTIVATE + "=?"
 				+ " AND a." + COLUMN_DELETED + "=?"
@@ -368,7 +367,7 @@ public class Products extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().query(
 				ProductTable.TABLE_PRODUCT,
 				ALL_PRODUCT_COLS,
-				ProductTable.COLUMN_PRODUCT_DEPT_ID + "=? " 
+				ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + "=? " 
 				+ " AND " + ProductTable.COLUMN_ACTIVATE + "=?"
 				+ " AND " + COLUMN_DELETED + "=?",
 				new String[] { 
@@ -501,7 +500,7 @@ public class Products extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().query(
 				ProductDeptTable.TABLE_PRODUCT_DEPT, 
 				ALL_PRODUCT_DEPT_COLS,
-				ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?",
+				ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + "=?",
 				new String[] { 
 					String.valueOf(deptId) 
 				}, null, null, null);
@@ -526,7 +525,7 @@ public class Products extends MPOSDatabase {
 	public Product toProduct(Cursor cursor){
 		Product p = new Product();
 		p.setProductId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-		p.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_DEPT_ID)));
+		p.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_ID)));
 		p.setProductTypeId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID)));
 		p.setProductCode(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_CODE)));
 		p.setProductBarCode(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_BAR_CODE)));
@@ -545,8 +544,8 @@ public class Products extends MPOSDatabase {
 
 	public ProductDept toProductDept(Cursor cursor){
 		ProductDept pd = new ProductDept();
-		pd.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_DEPT_ID)));
-		pd.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_GROUP_ID)));
+		pd.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_ID)));
+		pd.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_ID)));
 		pd.setProductDeptCode(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE)));
 		pd.setProductDeptName(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME)));
 		pd.setProductDeptName1(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1)));
@@ -555,12 +554,11 @@ public class Products extends MPOSDatabase {
 
 	public ProductGroup toProductGroup(Cursor cursor){
 		ProductGroup pg = new ProductGroup();
-		pg.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_GROUP_ID)));
+		pg.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_ID)));
 		pg.setProductGroupCode(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_CODE)));
 		pg.setProductGroupName(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME)));
 		pg.setProductGroupName1(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME1)));
 		pg.setProductGroupName2(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME2)));
-		pg.setProductGroupName3(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME3)));
 		return pg;
 	}
 	
@@ -619,7 +617,7 @@ public class Products extends MPOSDatabase {
 			getWritableDatabase().delete(ProductGroupTable.TABLE_PRODUCT_GROUP, null, null);
 			for(com.synature.pos.ProductGroup pg : pgLst){
 				ContentValues cv = new ContentValues();
-				cv.put(ProductTable.COLUMN_PRODUCT_GROUP_ID, pg.getPGID());
+				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_ID, pg.getPGID());
 				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_CODE, pg.getPGCOD());
 				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME, pg.getPGNAM());
 				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_TYPE, pg.getPGTY());
@@ -646,8 +644,8 @@ public class Products extends MPOSDatabase {
 			getWritableDatabase().delete(ProductDeptTable.TABLE_PRODUCT_DEPT, null, null);
 			for(com.synature.pos.ProductDept pd : pdLst){
 				ContentValues cv = new ContentValues();
-				cv.put(ProductTable.COLUMN_PRODUCT_DEPT_ID, pd.getPDID());
-				cv.put(ProductTable.COLUMN_PRODUCT_GROUP_ID, pd.getPGID());
+				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_ID, pd.getPDID());
+				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_ID, pd.getPGID());
 				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_CODE, pd.getPDCOD());
 				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME, pd.getPDNAM());
 				cv.put(ProductTable.COLUMN_ACTIVATE, pd.getACTIVATE());
@@ -673,7 +671,7 @@ public class Products extends MPOSDatabase {
 			for(com.synature.pos.Product p : pLst){
 				ContentValues cv = new ContentValues();
 				cv.put(ProductTable.COLUMN_PRODUCT_ID, p.getPID());
-				cv.put(ProductTable.COLUMN_PRODUCT_DEPT_ID, p.getPDID());
+				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_ID, p.getPDID());
 				cv.put(ProductTable.COLUMN_PRODUCT_CODE, p.getPCODE());
 				cv.put(ProductTable.COLUMN_PRODUCT_BAR_CODE, p.getPBAR());
 				cv.put(ProductTable.COLUMN_PRODUCT_NAME, p.getPNAME0());

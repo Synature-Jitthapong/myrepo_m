@@ -147,7 +147,7 @@ public class Reporting extends MPOSDatabase{
 		Cursor groupCursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(b." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
-				+ " e." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", "
+				+ " e." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + ", "
 				+ " e." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME
 				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
 				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
@@ -155,11 +155,11 @@ public class Reporting extends MPOSDatabase{
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " c "
 				+ " ON b." + ProductTable.COLUMN_PRODUCT_ID + "=c." + ProductTable.COLUMN_PRODUCT_ID
 				+ " LEFT JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " d "
-				+ " ON c." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=d." + ProductTable.COLUMN_PRODUCT_DEPT_ID
+				+ " ON c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + "=d." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID
 				+ " LEFT JOIN " + ProductGroupTable.TABLE_PRODUCT_GROUP + " e "
-				+ " ON d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=e." + ProductTable.COLUMN_PRODUCT_GROUP_ID
+				+ " ON d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=e." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID
 				+ " WHERE " + selection
-				+ " GROUP BY e." + ProductTable.COLUMN_PRODUCT_GROUP_ID
+				+ " GROUP BY e." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID
 				+ " ORDER BY e." + COLUMN_ORDERING + ", e." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME + ","
 				+ " d." + COLUMN_ORDERING + ", d." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ", "
 				+ " c." + COLUMN_ORDERING + ", c." + ProductTable.COLUMN_PRODUCT_NAME, selectionArgs);
@@ -167,7 +167,7 @@ public class Reporting extends MPOSDatabase{
 		if(groupCursor.moveToFirst()){
 			do{
 				SimpleProductData sp = new SimpleProductData();
-				int pgId = groupCursor.getInt(groupCursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_GROUP_ID));
+				int pgId = groupCursor.getInt(groupCursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_ID));
 				sp.setDeptName(groupCursor.getString(groupCursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME)));
 				sp.setDeptTotalQty(groupCursor.getInt(groupCursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
 				sp.setDeptTotalPrice(groupCursor.getDouble(groupCursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
@@ -175,7 +175,7 @@ public class Reporting extends MPOSDatabase{
 				String selection2 = " a." + OrderTransTable.COLUMN_STATUS_ID + "=?"
 						+ " AND a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
 						+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?,?,?,?) "
-						+ " AND d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=?";
+						+ " AND d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=?";
 				String[] selectionArgs2 = new String[]{
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 						mDateFrom,
@@ -214,7 +214,7 @@ public class Reporting extends MPOSDatabase{
 						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " c "
 						+ " ON b." + ProductTable.COLUMN_PRODUCT_ID + "=c." + ProductTable.COLUMN_PRODUCT_ID
 						+ " LEFT JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " d "
-						+ " ON c." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=d." + ProductTable.COLUMN_PRODUCT_DEPT_ID
+						+ " ON c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + "=d." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID
 						+ " WHERE " + selection2
 						+ " GROUP BY c." + ProductTable.COLUMN_PRODUCT_ID
 						+ " ORDER BY d." + COLUMN_ORDERING + ", d." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ","
@@ -387,7 +387,7 @@ public class Reporting extends MPOSDatabase{
 							+ " FROM " + TEMP_PRODUCT_REPORT + " a " 
 							+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b " 
 							+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID 
-							+ " WHERE b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?"
+							+ " WHERE b." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + "=?"
 							+ " ORDER BY b." + COLUMN_ORDERING;
 					Cursor cursor = getReadableDatabase().rawQuery(
 							sql, 
@@ -466,7 +466,7 @@ public class Reporting extends MPOSDatabase{
 		String transIds = getTransactionIds();
 		String selection = " a." + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
 				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?,?,?,?) "
-				+ " AND c." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=?";
+				+ " AND c." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=?";
 		String sql = " SELECT SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
 				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
 				+ " SUM(a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
@@ -475,9 +475,9 @@ public class Reporting extends MPOSDatabase{
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
 				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID
 				+ " LEFT JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " c "
-				+ " ON b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=c." + ProductTable.COLUMN_PRODUCT_DEPT_ID
+				+ " ON b." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + "=c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID
 				+ " WHERE " + selection
-				+ " GROUP BY c." + ProductTable.COLUMN_PRODUCT_GROUP_ID;
+				+ " GROUP BY c." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				sql,
 				new String[]{
@@ -514,7 +514,7 @@ public class Reporting extends MPOSDatabase{
 		String transIds = getTransactionIds();
 		String selection = " a." + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
 				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?,?,?,?)"
-				+ " AND b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=?";
+				+ " AND b." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + "=?";
 		String sql = " SELECT SUM(a." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + "," 
 				+ " SUM(a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", " 
 				+ " SUM(a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", " 
@@ -523,7 +523,7 @@ public class Reporting extends MPOSDatabase{
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
 				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID
 				+ " WHERE " + selection
-				+ " GROUP BY b." + ProductTable.COLUMN_PRODUCT_DEPT_ID;
+				+ " GROUP BY b." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				sql,
 				new String[]{
@@ -689,29 +689,27 @@ public class Reporting extends MPOSDatabase{
 	 */
 	public List<Report.GroupOfProduct> listProductGroup(){
 		List<Report.GroupOfProduct> reportLst = new ArrayList<Report.GroupOfProduct>();
-		String sql = " SELECT c." + ProductTable.COLUMN_PRODUCT_DEPT_ID + ", "
+		String sql = " SELECT c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + ", "
 				+ " c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ", " 
-				+ " d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", "
+				+ " d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + ", "
 				+ " d." + ProductGroupTable.COLUMN_IS_COMMENT + ", "
 				+ " d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME
 				+ " FROM " + TEMP_PRODUCT_REPORT + " a "
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
 				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID
 				+ " LEFT JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " c " 
-				+ " ON b." + ProductTable.COLUMN_PRODUCT_DEPT_ID + "=c." + ProductTable.COLUMN_PRODUCT_DEPT_ID
+				+ " ON b." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + "=c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID
 				+ " LEFT JOIN " + ProductGroupTable.TABLE_PRODUCT_GROUP + " d "
-				+ " ON c." + ProductTable.COLUMN_PRODUCT_GROUP_ID + "=d." + ProductTable.COLUMN_PRODUCT_GROUP_ID
-				+ " GROUP BY d." + ProductTable.COLUMN_PRODUCT_GROUP_ID + ", " + " c." + ProductTable.COLUMN_PRODUCT_DEPT_ID
-				+ " ORDER BY d." + COLUMN_ORDERING + ",d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME + ", "
-				+ " c." + COLUMN_ORDERING + ",c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ", "
-				+ " b." + COLUMN_ORDERING + ", b." + ProductTable.COLUMN_PRODUCT_NAME; 
+				+ " ON c." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID
+				+ " GROUP BY d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + ", " + " c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID
+				+ " ORDER BY d." + COLUMN_ORDERING + ",d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME; 
 		Cursor cursor = getReadableDatabase().rawQuery(sql, null);
 		
 		if(cursor.moveToFirst()){
 			do{
 				Report.GroupOfProduct report = new Report.GroupOfProduct();
-				report.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_DEPT_ID)));
-				report.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_GROUP_ID)));
+				report.setProductDeptId(cursor.getInt(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_ID)));
+				report.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_ID)));
 				report.setIsComment(cursor.getInt(cursor.getColumnIndex(ProductGroupTable.COLUMN_IS_COMMENT)));
 				report.setProductGroupName(cursor.getString(cursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME)));
 				report.setProductDeptName(cursor.getString(cursor.getColumnIndex(ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME)));
