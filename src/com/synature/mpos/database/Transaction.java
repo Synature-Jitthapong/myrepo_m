@@ -1020,23 +1020,21 @@ public class Transaction extends MPOSDatabase {
 	 * @param vatType
 	 * @param vatRate
 	 */
-	public void closeTransaction(int transactionId, int staffId, double totalSalePrice, 
-			int vatType, double vatRate) {
+	public void closeTransaction(int transactionId, int staffId, 
+			double totalSalePrice, int vatType, double vatRate) {
 		Calendar date = Utils.getDate();
 		Calendar dateTime = Utils.getCalendar();
 		int receiptId = getMaxReceiptId(String.valueOf(date.getTimeInMillis()));
+		String receiptNo = formatReceiptNo(date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1, 
+				date.get(Calendar.DAY_OF_MONTH), receiptId);
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransTable.COLUMN_STATUS_ID, TRANS_STATUS_SUCCESS);
 		cv.put(OrderTransTable.COLUMN_RECEIPT_ID, receiptId);
-		cv.put(OrderTransTable.COLUMN_CLOSE_TIME,
-				dateTime.getTimeInMillis());
-		cv.put(OrderTransTable.COLUMN_PAID_TIME,
-				dateTime.getTimeInMillis());
+		cv.put(OrderTransTable.COLUMN_CLOSE_TIME, dateTime.getTimeInMillis());
+		cv.put(OrderTransTable.COLUMN_PAID_TIME, dateTime.getTimeInMillis());
 		cv.put(OrderTransTable.COLUMN_PAID_STAFF_ID, staffId);
 		cv.put(OrderTransTable.COLUMN_CLOSE_STAFF, staffId);
-		cv.put(OrderTransTable.COLUMN_RECEIPT_NO,
-				formatReceiptNo(date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1, 
-						date.get(Calendar.DAY_OF_MONTH), receiptId));
+		cv.put(OrderTransTable.COLUMN_RECEIPT_NO, receiptNo);
 		getWritableDatabase().update(
 				OrderTransTable.TABLE_ORDER_TRANS, cv,
 				OrderTransTable.COLUMN_TRANS_ID + "=?",
@@ -1312,8 +1310,12 @@ public class Transaction extends MPOSDatabase {
 		double vatable = Utils.calculateVatPrice(totalPayment, vatRate, vatType); 
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransTable.COLUMN_TRANS_VATABLE, vatable);
-		return getWritableDatabase().update(OrderTransTable.TABLE_ORDER_TRANS, cv,
-				OrderTransTable.COLUMN_TRANS_ID + "=?", new String[]{String.valueOf(transactionId)});
+		return getWritableDatabase().update(
+				OrderTransTable.TABLE_ORDER_TRANS, cv,
+				OrderTransTable.COLUMN_TRANS_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId)
+				});
 	}
 	
 	/**

@@ -4,7 +4,6 @@
         <!--<item name="android:actionBarStyle">@style/MyActionBar</item>-->
         <item name="android:buttonStyle">@style/GrayButton</item>
         <item name="android:imageButtonStyle">@style/GrayButton</item>
-        <item name="android:textColor">@color/dark_gray_text</item>
     </style>
     <!-- ActivityDialogTheme -->
     <style name="ActivityDialogTheme" parent="BaseActivityDialogTheme">
@@ -55,8 +54,8 @@
     <style name="RedButton" parent="BaseButton.Light">
         <item name="android:background">@drawable/btn_holo_red</item>
     </style>
-    <style name="SmoothGreenButton" parent="BaseButton.Light">
-        <item name="android:background">@drawable/btn_smooth_green</item>
+    <style name="GreenButton" parent="BaseButton.Light">
+        <item name="android:background">@drawable/btn_holo_green</item>
     </style>
     <style name="BlueButton" parent="BaseButton.Light">
         <item name="android:background">@drawable/btn_holo_blue</item>

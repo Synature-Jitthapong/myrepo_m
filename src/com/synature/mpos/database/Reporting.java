@@ -278,7 +278,7 @@ public class Reporting extends MPOSDatabase{
 				sql, 
 				new String[]{
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
-		});
+				});
 		if(cursor.moveToFirst()){
 			report.setVatable(cursor.getDouble(cursor.getColumnIndex("TransVatable")));
 			report.setTotalVat(cursor.getDouble(cursor.getColumnIndex("TransVat")));
@@ -298,7 +298,9 @@ public class Reporting extends MPOSDatabase{
 	 */
 	public Report getSaleReportByBill(){
 		Report report = new Report();
-		String selection = " a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? ";
+		String selection = " a." + OrderTransTable.COLUMN_SALE_DATE 
+				+ " BETWEEN ? AND ? "
+				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID + " IN (?, ?) ";
 		String strSql = " SELECT a." + OrderTransTable.COLUMN_TRANS_ID + ", "
 				+ " a." + ComputerTable.COLUMN_COMPUTER_ID + ", " 
 				+ " a." + OrderTransTable.COLUMN_STATUS_ID + ", "
@@ -307,14 +309,14 @@ public class Reporting extends MPOSDatabase{
 				+ " a." + OrderTransTable.COLUMN_TRANS_VAT + ", "
 				+ " a." + OrderTransTable.COLUMN_TRANS_VATABLE + ", "
 				+ " a." + COLUMN_SEND_STATUS + ", " 
-				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS TotalRetailPrice, "
-				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS TotalSalePrice, " 
+				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
+				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", " 
 				+ " a." + OrderTransTable.COLUMN_OTHER_DISCOUNT + " + "
 				+ " SUM(b." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + " + "
-				+ " b." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ") AS TotalDiscount, "
+				+ " b." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
 				+ " (SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") " 
 				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
-				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " =a." + OrderTransTable.COLUMN_TRANS_ID + ") AS TotalPayment "
+				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " =a." + OrderTransTable.COLUMN_TRANS_ID + ") AS " + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT
 				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
 				+ " INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b "
 				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
@@ -324,7 +326,9 @@ public class Reporting extends MPOSDatabase{
 		Cursor cursor = getReadableDatabase().rawQuery(strSql,
                 new String[]{
                         mDateFrom,
-                        mDateTo
+                        mDateTo,
+                        String.valueOf(Transaction.TRANS_STATUS_VOID),
+                        String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
                 });
 		
 		if(cursor.moveToFirst()){
@@ -335,13 +339,13 @@ public class Reporting extends MPOSDatabase{
 				reportDetail.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 				reportDetail.setTransStatus(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_STATUS_ID)));
 				reportDetail.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_RECEIPT_NO)));
-				reportDetail.setTotalPrice(cursor.getDouble(cursor.getColumnIndex("TotalRetailPrice")));
-				reportDetail.setSubTotal(cursor.getDouble(cursor.getColumnIndex("TotalSalePrice")));
+				reportDetail.setTotalPrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
+				reportDetail.setSubTotal(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
 				reportDetail.setVatExclude(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT)));
-				reportDetail.setDiscount(cursor.getDouble(cursor.getColumnIndex("TotalDiscount")));
+				reportDetail.setDiscount(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
 				reportDetail.setVatable(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_VATABLE)));
 				reportDetail.setTotalVat(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_VAT)));
-				reportDetail.setTotalPayment(cursor.getDouble(cursor.getColumnIndex("TotalPayment")));
+				reportDetail.setTotalPayment(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT)));
 				reportDetail.setSendStatus(cursor.getInt(cursor.getColumnIndex(COLUMN_SEND_STATUS)));
 				report.getReportDetail().add(reportDetail);
 				
@@ -576,7 +580,7 @@ public class Reporting extends MPOSDatabase{
      * Get transactionIds where status success
      * @return
      */
-	public String getTransactionIds(){
+	private String getTransactionIds(){
 		String transIds = "";
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT " + OrderTransTable.COLUMN_TRANS_ID

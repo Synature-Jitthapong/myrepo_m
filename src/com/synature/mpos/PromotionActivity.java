@@ -78,7 +78,7 @@ public class PromotionActivity extends MPOSActivityBase {
 		for(com.synature.pos.PromotionPriceGroup promoPriceGroup : mPromoPriceGroupLst){
 			LayoutInflater inflater = (LayoutInflater) getLayoutInflater();
 			Button btn = (Button) inflater.inflate(R.layout.button_template, null, false);
-			btn.setBackgroundResource(R.drawable.btn_smooth_green);
+			btn.setBackgroundResource(R.drawable.btn_holo_green);
 			btn.setTextColor(Color.WHITE);
 			btn.setId(promoPriceGroup.getPriceGroupID());
 			btn.setText(promoPriceGroup.getPromotionName().equals("") ? promoPriceGroup.getButtonName() : promoPriceGroup.getPromotionName());

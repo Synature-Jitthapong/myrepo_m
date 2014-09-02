@@ -5,7 +5,9 @@ import java.util.Calendar;
 import java.util.List;
 
 import android.content.Context;
+import android.text.TextUtils;
 
+import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.CreditCard;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.HeaderFooterReceipt;
@@ -185,8 +187,7 @@ public abstract class PrinterBase {
 		mTextToPrint.append(createLine("-") + "\n");
 		
 		Reporting reporting = new Reporting(mContext, dateFrom, dateTo);
-		List<Reporting.SaleTransactionReport> saleReportLst = 
-				reporting.listTransactionReport();
+		List<Reporting.SaleTransactionReport> saleReportLst = reporting.listTransactionReport();
 		for(Reporting.SaleTransactionReport report : saleReportLst){
 			mTextToPrint.append(mFormat.dateFormat(report.getSaleDate()) + "\n");
 			for(OrderTransaction trans : report.getTransLst()){
@@ -622,16 +623,12 @@ public abstract class PrinterBase {
     	String itemText = mContext.getString(R.string.items) + ": ";
     	String totalText = mContext.getString(R.string.total) + "...............";
     	String changeText = mContext.getString(R.string.change) + " ";
-    	String beforeVatText = mContext.getString(R.string.before_vat);
-    	String discountText = summOrder.getPromotionName().equals("") ? mContext.getString(R.string.discount) : summOrder.getPromotionName();
-    	String vatRateText = mContext.getString(R.string.vat) + " " +
-    			NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
+    	String discountText = TextUtils.isEmpty(summOrder.getPromotionName()) ? mContext.getString(R.string.discount) : summOrder.getPromotionName();
     	
     	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
     	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
     	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
     	String strTotalChange = mFormat.currencyFormat(change);
-    	String strBeforeVat = mFormat.currencyFormat(beforVat);
     	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
     	
     	// total item
@@ -729,20 +726,26 @@ public abstract class PrinterBase {
     	}
 	    mTextToPrint.append(createLine("=") + "\n");
 	    
-	    if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
-		    // before vat
-		    mTextToPrint.append(beforeVatText);
-		    mTextToPrint.append(createHorizontalSpace(
-		    		calculateLength(beforeVatText) + 
-		    		calculateLength(strBeforeVat)));
-		    mTextToPrint.append(strBeforeVat + "\n");
-		    
-		    // transaction vat
-	    	mTextToPrint.append(vatRateText);
-	    	mTextToPrint.append(createHorizontalSpace(
-	    			calculateLength(vatRateText) + 
-	    			calculateLength(strTransactionVat)));
-	    	mTextToPrint.append(strTransactionVat + "\n");
+	   if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
+//	    	Computer comp = new Computer(mContext);
+//	    	if(comp.getComputerProperty().getPrintVatInReceipt() == 1){
+	        	String beforeVatText = mContext.getString(R.string.before_vat);
+	        	String strBeforeVat = mFormat.currencyFormat(beforVat);
+	        	String vatRateText = mContext.getString(R.string.vat) + " " +
+	        			NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
+			    // before vat
+			    mTextToPrint.append(beforeVatText);
+			    mTextToPrint.append(createHorizontalSpace(
+			    		calculateLength(beforeVatText) + 
+			    		calculateLength(strBeforeVat)));
+			    mTextToPrint.append(strBeforeVat + "\n");
+			    // transaction vat
+		    	mTextToPrint.append(vatRateText);
+		    	mTextToPrint.append(createHorizontalSpace(
+		    			calculateLength(vatRateText) + 
+		    			calculateLength(strTransactionVat)));
+		    	mTextToPrint.append(strTransactionVat + "\n");
+//	    	}
 	    }
 	    
     	// add footer
@@ -750,9 +753,9 @@ public abstract class PrinterBase {
 			mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
 			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
 		}
-    	
+
+    	// set e-journal to transaction
     	if(!isCopy && !isVoid){
-	    	// set e-journal to transaction
 	    	mTrans.updateTransactionEjournal(transId, mTextToPrint.toString());
     	}
     	if(isVoid){

@@ -8,6 +8,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.text.TextUtils;
 
 public class Computer extends MPOSDatabase{
 
@@ -32,25 +33,26 @@ public class Computer extends MPOSDatabase{
 	
 	public String getReceiptHeader(){
 		String receiptHeader = getComputerProperty().getDocumentTypeHeader();
-		return receiptHeader == null ? "" : receiptHeader;
+		return TextUtils.isEmpty(receiptHeader) ? "" : receiptHeader;
 	}
 	
 	public com.synature.pos.ComputerProperty getComputerProperty() {
-		com.synature.pos.ComputerProperty computer = 
+		com.synature.pos.ComputerProperty comp = 
 				new com.synature.pos.ComputerProperty();
 		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + ComputerTable.TABLE_COMPUTER, null);
 		if (cursor.moveToFirst()) {
-			computer.setComputerID(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
-			computer.setComputerName(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_NAME)));
-			computer.setDeviceCode(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_DEVICE_CODE)));
-			computer.setIsMainComputer(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_IS_MAIN_COMPUTER)));
-			computer.setRegistrationNumber(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_REGISTER_NUMBER)));
-			computer.setDocumentTypeHeader(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_DOC_TYPE_HEADER)));
-			computer.setPrintReceiptHasCopy(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_PRINT_RECEIPT_HAS_COPY)));
+			comp.setComputerID(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+			comp.setComputerName(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_NAME)));
+			comp.setDeviceCode(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_DEVICE_CODE)));
+			comp.setIsMainComputer(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_IS_MAIN_COMPUTER)));
+			comp.setRegistrationNumber(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_REGISTER_NUMBER)));
+			comp.setDocumentTypeHeader(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_DOC_TYPE_HEADER)));
+			comp.setPrintReceiptHasCopy(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_PRINT_RECEIPT_HAS_COPY)));
+			comp.setPrintVatInReceipt(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_PRINT_VAT_IN_RECEIPT)));
 			cursor.moveToNext();
 		}
 		cursor.close();
-		return computer;
+		return comp;
 	}
 
 	public void insertComputer(List<com.synature.pos.ComputerProperty> compLst) throws SQLException{
@@ -66,6 +68,7 @@ public class Computer extends MPOSDatabase{
 				cv.put(ComputerTable.COLUMN_IS_MAIN_COMPUTER, comp.getIsMainComputer());
 				cv.put(ComputerTable.COLUMN_DOC_TYPE_HEADER, comp.getDocumentTypeHeader());
 				cv.put(ComputerTable.COLUMN_PRINT_RECEIPT_HAS_COPY, comp.getPrintReceiptHasCopy());
+				cv.put(ComputerTable.COLUMN_PRINT_VAT_IN_RECEIPT, comp.getPrintVatInReceipt());
 				getWritableDatabase().insertOrThrow(ComputerTable.TABLE_COMPUTER, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();

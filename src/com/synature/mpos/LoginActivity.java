@@ -410,7 +410,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	private void gotoMainActivity(){
 		enddingMultipleDay();
 		startEnddayService();
-		final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 		intent.putExtra("staffId", mStaffId);
 		startActivity(intent);
         finish();
