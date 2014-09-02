@@ -570,7 +570,7 @@ public class Utils {
 	public static boolean isEnableWintecCustomerDisplay(Context context){
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_ENABLE_DSP, false);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_ENABLE_DSP, true);
 	}
 	
 	/**
@@ -589,7 +589,7 @@ public class Utils {
 	 */
 	public static String getWintecDspTextLine2(Context context){
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE2, "");
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE2, "pRoMiSe System");
 	}
 	
 	/**
@@ -598,7 +598,7 @@ public class Utils {
 	 */
 	public static String getWintecDspTextLine1(Context context){
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE1, "");
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE1, "Welcome to");
 	}
 	
 	/**

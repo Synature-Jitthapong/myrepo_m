@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:onClick="printTestClick"
-        android:text="@string/print_test" />
+        android:onClick="dspTestClick"
+        android:text="@string/test" />
 
 </RelativeLayout>
