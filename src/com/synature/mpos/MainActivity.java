@@ -90,8 +90,8 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends MPOSFragmentActivityBase implements 
-	MenuCommentFragment.OnCommentDismissListener, 
-	ManageCashAmountFragment.OnManageCashAmountDismissListener{
+	MenuCommentFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
+	UserVerifyDialogFragment.OnCheckPermissionListener{
 	
 	public static final String TAG = MainActivity.class.getSimpleName();
 	
@@ -134,6 +134,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private int mSessionId;
 	private int mTransactionId;
 	private int mStaffId;
+	private int mStaffRoleId;
 	private int mShopId;
 	private int mComputerId;
 	
@@ -164,6 +165,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
+		mStaffRoleId = intent.getIntExtra("staffRoleId", 0);
 		
 		mSession = new Session(this);
 		mTrans = new Transaction(this);
@@ -766,9 +768,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	public void discountClicked(final View v){
 		if(mOrderDetailLst.size() > 0){
-			Intent intent = new Intent(MainActivity.this, DiscountActivity.class);
-			intent.putExtra("transactionId", mTransactionId);
-			startActivity(intent);
+			Staffs st = new Staffs(MainActivity.this);
+			if(!st.checkOtherDiscountPermission(mStaffRoleId)){
+				UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(Staffs.OTHER_DISCOUNT_PERMISSION);
+				uvf.show(getSupportFragmentManager(), "StaffPermissionDialog");
+			}
 		}
 	}
 	
@@ -1740,10 +1744,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * void bill
 	 */
 	private void voidBill(){
-		Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
-		intent.putExtra("staffId", mStaffId);
-		intent.putExtra("shopId", mShopId);
-		startActivity(intent);
+		Staffs st = new Staffs(MainActivity.this);
+		if(!st.checkVoidPermission(mStaffRoleId)){
+			UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(Staffs.VOID_PERMISSION);
+			uvf.show(getSupportFragmentManager(), "StaffPermissionDialog");
+		}
 	}
 
 	/**
@@ -2245,6 +2250,29 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			// backup the database
 			Utils.exportDatabase(this);
 			sendEnddayData();
+		}
+	}
+
+	/*
+	 * on allow permission
+	 * (non-Javadoc)
+	 * @see com.synature.mpos.UserVerifyDialogFragment.OnCheckPermissionListener#onAllow()
+	 */
+	@Override
+	public void onAllow(int permissionId) {
+		Intent intent = null;
+		switch(permissionId){
+		case Staffs.VOID_PERMISSION:
+			intent = new Intent(MainActivity.this, VoidBillActivity.class);
+			intent.putExtra("staffId", mStaffId);
+			intent.putExtra("shopId", mShopId);
+			startActivity(intent);
+			break;
+		case Staffs.OTHER_DISCOUNT_PERMISSION:
+			intent = new Intent(MainActivity.this, DiscountActivity.class);
+			intent.putExtra("transactionId", mTransactionId);
+			startActivity(intent);
+			break;
 		}
 	}
 	

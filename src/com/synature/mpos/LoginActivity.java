@@ -7,6 +7,7 @@ import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.Session;
 import com.synature.mpos.database.Shop;
+import com.synature.mpos.database.Staffs;
 import com.synature.mpos.database.SyncHistory;
 import com.synature.mpos.database.UserVerification;
 import com.synature.pos.Staff;
@@ -40,6 +41,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	public static final int CLICK_TIMES_TO_SETTING = 5;
 	
 	private int mStaffId;
+	private int mStaffRoleId;
 	
 	private Shop mShop;
 	private Session mSession;
@@ -412,6 +414,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		startEnddayService();
 		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 		intent.putExtra("staffId", mStaffId);
+		intent.putExtra("staffRoleId", mStaffRoleId);
 		startActivity(intent);
         finish();
 	}
@@ -451,18 +454,32 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 			
 			if(!TextUtils.isEmpty(mTxtPass.getText())){
 				pass = mTxtPass.getText().toString();
-				UserVerification login = new UserVerification(getApplicationContext(), user, pass);
+				UserVerification login = new UserVerification(LoginActivity.this, user, pass);
 				
 				if(login.checkUser()){
 					Staff s = login.checkLogin();
 					if(s != null){
 						mStaffId = s.getStaffID();
+						mStaffRoleId = s.getStaffRoleID();
 						mTxtUser.setError(null);
 						mTxtPass.setError(null);
 						mTxtUser.setText(null);
 						mTxtPass.setText(null);
 						if(checkSessionDate()){
-							gotoMainActivity();
+							Staffs st = new Staffs(LoginActivity.this);
+							if(!st.checkAccessPOSPermission(s.getStaffRoleID())){
+								gotoMainActivity();
+							}else{
+								new AlertDialog.Builder(LoginActivity.this)
+								.setTitle(R.string.permission_required)
+								.setMessage(R.string.not_have_permission_to_access_pos)
+								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+									}
+								}).show();
+							}
 						}
 					}else{
 						mTxtUser.setError(null);
