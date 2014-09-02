@@ -157,6 +157,16 @@ public class SettingsActivity extends PreferenceActivity {
 		
 	}
 	
+	public void dspTestClick(final View v){
+		WintecCustomerDisplay dsp = new WintecCustomerDisplay(getApplicationContext());
+		dsp.displayWelcome();
+	}
+	
+	public void drwTestClick(final View v){
+		WintecCashDrawer drw = new WintecCashDrawer(getApplicationContext());
+		drw.openCashDrawer();
+	}
+	
 	public void backupDbClick(final View v){
 		Utils.exportDatabase(getApplicationContext());
 	}
