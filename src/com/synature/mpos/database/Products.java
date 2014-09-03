@@ -672,6 +672,7 @@ public class Products extends MPOSDatabase {
 				ContentValues cv = new ContentValues();
 				cv.put(ProductTable.COLUMN_PRODUCT_ID, p.getPID());
 				cv.put(ProductDeptTable.COLUMN_PRODUCT_DEPT_ID, p.getPDID());
+				cv.put(ProductGroupTable.COLUMN_PRODUCT_GROUP_ID, p.getPGID());
 				cv.put(ProductTable.COLUMN_PRODUCT_CODE, p.getPCODE());
 				cv.put(ProductTable.COLUMN_PRODUCT_BAR_CODE, p.getPBAR());
 				cv.put(ProductTable.COLUMN_PRODUCT_NAME, p.getPNAME0());

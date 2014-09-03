@@ -61,7 +61,7 @@
     <string name="enter_staff_code">กรุณาใส่รหัสพนักงาน</string>
     <string name="enter_password">กรุณาใส่รหัสผ่าน</string>
     <string name="update_data">อัพเดตข้อมูล</string>
-    <string name="summary">สรุป</string>
+    <string name="summary">ยอดรวม</string>
     <string name="receipt_no">เลขที่ใบเสร็จ</string>
     <string name="printer_ip">ไอพีเครื่องพิมพ์</string>
     <string name="printer_name">ชื่อเครื่องพิมพ์</string>

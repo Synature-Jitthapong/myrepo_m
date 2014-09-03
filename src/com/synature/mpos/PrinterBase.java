@@ -7,7 +7,6 @@ import java.util.List;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.synature.mpos.database.Computer;
 import com.synature.mpos.database.CreditCard;
 import com.synature.mpos.database.Formater;
 import com.synature.mpos.database.HeaderFooterReceipt;
@@ -585,7 +584,7 @@ public abstract class PrinterBase {
     				calculateLength(productPrice)));
     		mTextToPrint.append(productPrice);
     		mTextToPrint.append("\n");
-    		if(order.getOrderCommentLst().size() > 0){
+    		if(order.getOrderCommentLst() != null && order.getOrderCommentLst().size() > 0){
     			for(Comment comm : order.getOrderCommentLst()){
     				if(comm.getCommentPrice() > 0){
 	    				String commName = comm.getCommentName();
@@ -602,7 +601,7 @@ public abstract class PrinterBase {
     				}
     			}
     		}
-    		if(order.getOrdSetDetailLst().size() > 0){
+    		if(order.getOrdSetDetailLst() != null && order.getOrdSetDetailLst().size() > 0){
     			for(OrderSetDetail setDetail : order.getOrdSetDetailLst()){
     				String setName = setDetail.getProductName();
     				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";

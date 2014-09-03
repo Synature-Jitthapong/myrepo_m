@@ -15,7 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 
 public class ManageCashAmountFragment extends DialogFragment implements OnClickListener{
 
@@ -31,7 +31,7 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 	private String mTitle;
 	private StringBuilder mStrCashAmount;
 	
-	private EditText mTxtCash;
+	private TextView mTvCash;
 	private OnManageCashAmountDismissListener mDismissListener;
 	
 	public static ManageCashAmountFragment newInstance(String title, double totalCash, int mode){
@@ -67,7 +67,7 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 	@Override
 	public void onActivityCreated(Bundle arg0) {
 		super.onActivityCreated(arg0);
-		mTxtCash.setText(mFormat.currencyFormat(mTotalCash));
+		mTvCash.setText(mFormat.currencyFormat(mTotalCash));
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 		btnDot.setOnClickListener(this);
 		btnDel.setOnClickListener(this);
 		
-		mTxtCash = (EditText) contentView.findViewById(R.id.txtDisplay);
+		mTvCash = (TextView) contentView.findViewById(R.id.tvDisplay);
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(mTitle);
 		builder.setView(contentView);
@@ -144,7 +144,7 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 			mTotalCash = 0;
 			Log.d(TAG, e.getMessage());
 		}
-		mTxtCash.setText(mFormat.currencyFormat(mTotalCash));
+		mTvCash.setText(mFormat.currencyFormat(mTotalCash));
 	}
 	
 	@Override

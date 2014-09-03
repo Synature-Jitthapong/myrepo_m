@@ -90,7 +90,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends MPOSFragmentActivityBase implements 
-	MenuCommentFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
+	MenuCommentActivity.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
 	UserVerifyDialogFragment.OnCheckPermissionListener{
 	
 	public static final String TAG = MainActivity.class.getSimpleName();
@@ -141,7 +141,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private ExpandableListView mLvOrderDetail;
 	private EditText mTxtBarCode;
 	private TableLayout mTbSummary;
-	private ImageButton mBtnClearBarCode;
 	
 	private MenuItem mItemHoldBill;
 	private MenuItem mItemSendSale;
@@ -161,7 +160,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		mLvOrderDetail = (ExpandableListView) findViewById(R.id.lvOrder);
 		mTabs = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
 		mPager = (ViewPager) findViewById(R.id.pager);
-		mBtnClearBarCode = (ImageButton) findViewById(R.id.imgBtnClearBarcode);
 		
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
@@ -177,16 +175,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		mShopId = mShop.getShopId();
 		mComputerId = mComputer.getComputerId();
 		
-		/**
-		 * Image Loader
-		 */
 		mImageLoader = new ImageLoader(this, 0,
 					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
-		 
-		/**
-		 * Wintec Customer Display
-		 */
-		mDsp = new WintecCustomerDisplay(getApplicationContext());
+		
+		mDsp = new WintecCustomerDisplay(this);
 
 		//setupCustomSwLang();
 		setupBarCodeEvent();
@@ -287,52 +279,44 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	}
 	
 	private void setupBarCodeEvent(){
-		mTxtBarCode.setOnKeyListener(barCodeOnKeyListener);
-		mBtnClearBarCode.setOnClickListener(clearBarCodeListener);
+		mTxtBarCode.setOnKeyListener(new OnKeyListener(){
+
+			@Override
+			public boolean onKey(View view, int keyCode, KeyEvent event) {
+				if(event.getAction() != KeyEvent.ACTION_DOWN)
+					return true;
+				
+				if(keyCode == KeyEvent.KEYCODE_ENTER){
+					String barCode = ((EditText) view).getText().toString();
+					if(!barCode.isEmpty()){
+						Product p = mProducts.getProduct(barCode);
+						if(p != null){
+							addOrder(p.getProductId(), p.getProductName(), 
+									p.getProductTypeId(), p.getVatType(), p.getVatRate(), 
+									1, p.getProductPrice());
+						}else{
+							new AlertDialog.Builder(MainActivity.this)
+							.setTitle(R.string.search)
+							.setMessage(R.string.not_found_item)
+							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+								}
+							}).show();
+						}
+					}
+					((EditText) view).setText(null);
+				}
+				return false;
+			}
+			
+		});
 	}
 	
-	private OnClickListener clearBarCodeListener = new OnClickListener(){
-
-		@Override
-		public void onClick(View view) {
-			mTxtBarCode.setText(null);
-		}
-		
-	};
-	
-	private OnKeyListener barCodeOnKeyListener = new OnKeyListener(){
-
-		@Override
-		public boolean onKey(View view, int keyCode, KeyEvent event) {
-			if(event.getAction() != KeyEvent.ACTION_DOWN)
-				return true;
-			
-			if(keyCode == KeyEvent.KEYCODE_ENTER){
-				String barCode = ((EditText) view).getText().toString();
-				if(!barCode.isEmpty()){
-					Product p = mProducts.getProduct(barCode);
-					if(p != null){
-						addOrder(p.getProductId(), p.getProductName(), 
-								p.getProductTypeId(), p.getVatType(), p.getVatRate(), 
-								1, p.getProductPrice());
-					}else{
-						new AlertDialog.Builder(MainActivity.this)
-						.setTitle(R.string.search)
-						.setMessage(R.string.not_found_item)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-							}
-						}).show();
-					}
-				}
-				((EditText) view).setText(null);
-			}
-			return false;
-		}
-		
-	};
+	public void clearBarCodeClicked(final View v){
+		mTxtBarCode.setText(null);
+	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -795,12 +779,12 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		
 		@Override
 		public int getGroupCount() {
-			return mOrderDetailLst.size();
+			return mOrderDetailLst != null ? mOrderDetailLst.size() : 0;
 		}
 
 		@Override
 		public int getChildrenCount(int groupPosition) {
-			return mOrderDetailLst.get(groupPosition).getOrdSetDetailLst().size();
+			return mOrderDetailLst.get(groupPosition).getOrdSetDetailLst() != null ? mOrderDetailLst.get(groupPosition).getOrdSetDetailLst().size() : 0;
 		}
 
 		@Override
@@ -833,7 +817,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				View convertView, ViewGroup parent) {
 			ViewHolder holder;		
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.order_list_template, parent, false);
+				convertView = mInflater.inflate(R.layout.order_list_item, parent, false);
 				holder = new ViewHolder();
 				holder.tvOrderNo = (TextView) convertView.findViewById(R.id.tvOrderNo);
 				holder.tvOrderName = (CheckedTextView) convertView.findViewById(R.id.chkOrderName);
@@ -880,8 +864,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 				@Override
 				public void onClick(View v) {
-					MenuCommentFragment commentDialog = 
-							MenuCommentFragment.newInstance(groupPosition, mTransactionId, 
+					MenuCommentActivity commentDialog = 
+							MenuCommentActivity.newInstance(groupPosition, mTransactionId, 
 									mComputerId, orderDetail.getOrderDetailId(), 
 									orderDetail.getVatType(), mProducts.getVatRate(orderDetail.getProductId()),
 									orderDetail.getProductName(), orderDetail.getOrderComment());
@@ -986,7 +970,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			}else{
 				holder = (ChildViewHolder) convertView.getTag();
 			}
-			final OrderSetDetail setDetail = mOrderDetailLst.get(groupPosition).getOrdSetDetailLst().get(childPosition);
+			OrderSetDetail setDetail = mOrderDetailLst.get(groupPosition).getOrdSetDetailLst().get(childPosition);
 			holder.tvSetNo.setText("-");
 			holder.tvSetName.setText(setDetail.getProductName());
 			holder.tvSetPrice.setText(setDetail.getProductPrice() > 0 ? mFormat.currencyFormat(setDetail.getProductPrice()) : null);
@@ -1004,15 +988,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		public void notifyDataSetChanged() {
 			summary();
 			countSelectedOrder();
-			// scroll order list
-			mLvOrderDetail.post(new Runnable(){
-
-				@Override
-				public void run() {
-					mLvOrderDetail.setSelection(mOrderDetailAdapter.getGroupCount() - 1);
-				}
-				
-			});
 			super.notifyDataSetChanged();
 		}
 	}
@@ -1569,24 +1544,25 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * @param orderDetailId
 	 */
 	private void updateOrderLst(int position, int orderDetailId){
-		OrderDetail ord = mTrans.getOrder(mTransactionId, orderDetailId);
-		if(ord != null){
-			mOrderDetailLst.set(position, ord);
+		OrderDetail orderDetail = mTrans.getOrder(mTransactionId, orderDetailId);
+		if(orderDetail != null){
+			mOrderDetailLst.set(position, orderDetail);
 			mOrderDetailAdapter.notifyDataSetChanged();
-			expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
+			expandOrderLv(position);
 		}
 	}
 	
 	/**
 	 * Update order list
-	 * @param ordId
+	 * @param orderDetailId
 	 */
-	private void updateOrderLst(int ordId){
-		OrderDetail ord = mTrans.getOrder(mTransactionId, ordId);
-		if(ord != null){
-			mOrderDetailLst.add(ord);
+	private void updateOrderLst(int orderDetailId){
+		OrderDetail orderDetail = mTrans.getOrder(mTransactionId, orderDetailId);
+		if(orderDetail != null){
+			mOrderDetailLst.add(orderDetail);
 			mOrderDetailAdapter.notifyDataSetChanged();
 			expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
+			scrollOrderLv(mOrderDetailAdapter.getGroupCount());
 		}
 	}
 	
@@ -1595,6 +1571,9 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	private void loadOrder(){
 		mOrderDetailLst = mTrans.listAllOrder(mTransactionId);
+		if(mOrderDetailLst == null){
+			mOrderDetailLst = new ArrayList<OrderDetail>();
+		}
 		if(mOrderDetailAdapter == null){
 			mOrderDetailAdapter = new OrderDetailAdapter();
 			mLvOrderDetail.setAdapter(mOrderDetailAdapter);
@@ -1603,22 +1582,29 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		mOrderDetailAdapter.notifyDataSetChanged();
 		// expand all
 		expandOrderLv(0);
+		scrollOrderLv(mOrderDetailAdapter.getGroupCount());
+	}
+	
+	private void scrollOrderLv(final int position){
+		mLvOrderDetail.post(new Runnable(){
+
+			@Override
+			public void run() {
+				mLvOrderDetail.setSelection(position);
+			}
+			
+		});
 	}
 	
 	private void expandOrderLv(int position){
-		try {
-			if(position == 0){
-				for(int i = 0; i < mOrderDetailAdapter.getGroupCount(); i++){
-					if(!mLvOrderDetail.isGroupExpanded(i))
-						mLvOrderDetail.expandGroup(i);
-				}
-			}else{
-				if(!mLvOrderDetail.isGroupExpanded(position))
-					mLvOrderDetail.expandGroup(position);
+		if(position == 0){
+			for(int i = 0; i < mOrderDetailAdapter.getGroupCount(); i++){
+				if(!mLvOrderDetail.isGroupExpanded(i))
+					mLvOrderDetail.expandGroup(i);
 			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}else{
+			if(!mLvOrderDetail.isGroupExpanded(position))
+				mLvOrderDetail.expandGroup(position);
 		}
 	}
 

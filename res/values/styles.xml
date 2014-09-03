@@ -4,6 +4,7 @@
         <!--<item name="android:actionBarStyle">@style/MyActionBar</item>-->
         <item name="android:buttonStyle">@style/GrayButton</item>
         <item name="android:imageButtonStyle">@style/GrayButton</item>
+        <item name="android:editTextStyle">@style/EditTextStyle</item>
     </style>
     <!-- ActivityDialogTheme -->
     <style name="ActivityDialogTheme" parent="BaseActivityDialogTheme">
@@ -13,17 +14,24 @@
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:buttonStyle">@style/GrayButton</item>
+        <item name="android:editTextStyle">@style/EditTextStyle</item>
     </style>
     <!-- ActionBar styles -->
     <style name="MyActionBar"
            parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
         <item name="android:background">@color/blue_green_light</item>
     </style>
-    <!-- Text Qty -->
+    <!-- Text Style -->
     <style name="TextQty" parent="@android:style/TextAppearance.Holo.Medium">
         <!-- <item name="android:background">@drawable/white_flat_bg</item> -->
         <item name="android:gravity">center</item>
         <item name="android:minWidth">32dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:padding">@dimen/default_margin</item>
+    </style>
+    <style name="TextPrice" parent="@android:style/TextAppearance.Holo.Large">
+        <item name="android:textColor">@android:color/holo_blue_dark</item>
+        <item name="android:gravity">right|center_vertical</item>
         <item name="android:minHeight">48dp</item>
         <item name="android:padding">@dimen/default_margin</item>
     </style>
@@ -74,5 +82,9 @@
     </style>
     <style name="BaseButton" parent="@android:style/Widget.Holo.Light.Button">
         <item name="android:textAllCaps">true</item>
+    </style>
+    <!-- EditText Style -->
+    <style name="EditTextStyle" parent="@android:style/Widget.Holo.EditText">
+        <item name="android:background">@drawable/white_shape</item>
     </style>
 </resources>

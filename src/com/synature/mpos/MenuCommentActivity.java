@@ -36,7 +36,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class MenuCommentFragment extends DialogFragment{
+public class MenuCommentActivity extends DialogFragment{
 	
 	/**
 	 * selected order position
@@ -65,10 +65,10 @@ public class MenuCommentFragment extends DialogFragment{
 	private ListView mLvComment;
 	private EditText mTxtComment;
 	
-	public static MenuCommentFragment newInstance(int position, int transactionId, 
+	public static MenuCommentActivity newInstance(int position, int transactionId, 
 			int computerId, int orderDetailId, int vatType, double vatRate, 
 			String menuName, String orderComment){
-		MenuCommentFragment f = new MenuCommentFragment();
+		MenuCommentActivity f = new MenuCommentActivity();
 		Bundle b = new Bundle();
 		b.putInt("position", position);
 		b.putInt("transactionId", transactionId);
@@ -114,13 +114,6 @@ public class MenuCommentFragment extends DialogFragment{
 		if(activity instanceof OnCommentDismissListener){
 			mListener = (OnCommentDismissListener) activity;
 		}
-	}
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		getDialog().getWindow().setSoftInputMode(
-				WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 	}
 
 	@Override
@@ -191,7 +184,11 @@ public class MenuCommentFragment extends DialogFragment{
 				mListener.onDismiss(mPosition, mOrderDetailId);
 			}
 		});
-		return builder.create();
+		final AlertDialog d = builder.create();
+		d.getWindow().setSoftInputMode(
+				WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+		d.show();
+		return d;
 	}
 
 	private void setupCommentGroupAdapter(){
@@ -237,10 +234,10 @@ public class MenuCommentFragment extends DialogFragment{
 				holder = new ViewHolder();
 				LayoutInflater inflater = (LayoutInflater)
 						getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				convertView = inflater.inflate(R.layout.comment_list_template, parent, false);
+				convertView = inflater.inflate(R.layout.comment_list_item, parent, false);
 				holder.tvCommentName = (CheckedTextView) convertView.findViewById(R.id.chkCommentName);
 				holder.tvCommentPrice = (TextView) convertView.findViewById(R.id.tvCommentPrice);
-				holder.txtCommentQty = (EditText) convertView.findViewById(R.id.txtCommentQty);
+				holder.tvCommentQty = (TextView) convertView.findViewById(R.id.tvCommentQty);
 				holder.btnCommentMinus = (Button) convertView.findViewById(R.id.btnCommentMinus);
 				holder.btnCommentPlus = (Button) convertView.findViewById(R.id.btnCommentPlus);
 				convertView.setTag(holder);
@@ -266,16 +263,16 @@ public class MenuCommentFragment extends DialogFragment{
 			holder.tvCommentName.setText(String.valueOf((position + 1)) + ". ");
 			holder.tvCommentName.setText(comment.getCommentName());
 			holder.tvCommentPrice.setText(mFormat.currencyFormat(comment.getCommentPrice()));
-			holder.txtCommentQty.setText(mFormat.qtyFormat(comment.getCommentQty() == 0 ? 1 : comment.getCommentQty()));
+			holder.tvCommentQty.setText(mFormat.qtyFormat(comment.getCommentQty() == 0 ? 1 : comment.getCommentQty()));
 			if(comment.getCommentPrice() > 0){
 				holder.btnCommentMinus.setVisibility(View.VISIBLE);
 				holder.btnCommentPlus.setVisibility(View.VISIBLE);
-				holder.txtCommentQty.setVisibility(View.VISIBLE);
+				holder.tvCommentQty.setVisibility(View.VISIBLE);
 				holder.tvCommentPrice.setVisibility(View.VISIBLE);
 			}else{
 				holder.btnCommentMinus.setVisibility(View.GONE);
 				holder.btnCommentPlus.setVisibility(View.GONE);
-				holder.txtCommentQty.setVisibility(View.GONE);
+				holder.tvCommentQty.setVisibility(View.GONE);
 				holder.tvCommentPrice.setVisibility(View.GONE);
 			}
 			holder.btnCommentMinus.setOnClickListener(new OnClickListener(){
@@ -340,7 +337,7 @@ public class MenuCommentFragment extends DialogFragment{
 		private class ViewHolder{
 			CheckedTextView tvCommentName;
 			TextView tvCommentPrice;
-			EditText txtCommentQty;
+			TextView tvCommentQty;
 			Button btnCommentMinus;
 			Button btnCommentPlus;
 		}	

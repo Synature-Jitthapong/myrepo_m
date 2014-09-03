@@ -27,6 +27,7 @@ public class ProductTable extends BaseColumn{
 			" create table " + TABLE_PRODUCT + " ( " 
 			+ COLUMN_PRODUCT_ID + " integer not null, " 
 			+ ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + " integer not null, " 
+			+ ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + " integer not null, "
 			+ COLUMN_PRODUCT_CODE + " text, "
 			+ COLUMN_PRODUCT_BAR_CODE + " text, " 
 			+ COLUMN_PRODUCT_NAME + " text, " 

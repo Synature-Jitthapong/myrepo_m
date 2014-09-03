@@ -11,6 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.6"
+        android:background="@color/white_gray"
         android:divider="@android:drawable/divider_horizontal_bright"
         android:orientation="vertical"
         android:showDividers="middle" >
@@ -47,7 +48,9 @@
                 android:layout_alignRight="@+id/txtBarCode"
                 android:layout_centerVertical="true"
                 android:minWidth="48dip"
+                android:onClick="clearBarCodeClicked"
                 android:src="@drawable/ic_action_cancel" />
+
         </RelativeLayout>
 
         <ExpandableListView
@@ -55,7 +58,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@android:color/white"
             android:childDivider="@android:color/transparent" >
         </ExpandableListView>
 
@@ -63,7 +65,6 @@
             android:id="@+id/orderCtrlContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
             android:gravity="center_vertical"
             android:padding="4dp" >
 
@@ -99,7 +100,6 @@
             android:id="@+id/tbLayoutSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
             android:padding="4dp" >
         </TableLayout>
 

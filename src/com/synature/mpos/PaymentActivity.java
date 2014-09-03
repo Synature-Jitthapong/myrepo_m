@@ -66,11 +66,11 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 	private double mChange;
 	
 	private ListView mLvPayment;
-	private EditText mTxtEnterPrice;
-	private EditText mTxtTotalPaid;
-	private EditText mTxtPaymentLeft;
-	private EditText mTxtTotalPrice;
-	private EditText mTxtChange;
+	private TextView mTvEnterPrice;
+	private TextView mTvTotalPaid;
+	private TextView mTvPaymentLeft;
+	private TextView mTvTotalPrice;
+	private TextView mTvChange;
 	private GridView mGvPaymentButton;
 	private Button mBtnConfirm;
 	
@@ -90,11 +90,11 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 	    setFinishOnTouchOutside(false);
 		mLvPayment = (ListView) findViewById(R.id.lvPayDetail);
-		mTxtEnterPrice = (EditText) findViewById(R.id.txtDisplay);
-		mTxtTotalPaid = (EditText) findViewById(R.id.txtTotalPaid);
-		mTxtPaymentLeft = (EditText) findViewById(R.id.txtPaymentLeft);
-		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
-		mTxtChange = (EditText) findViewById(R.id.txtChange);
+		mTvEnterPrice = (TextView) findViewById(R.id.tvDisplay);
+		mTvTotalPaid = (TextView) findViewById(R.id.tvTotalPaid);
+		mTvPaymentLeft = (TextView) findViewById(R.id.tvPaymentLeft);
+		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
+		mTvChange = (TextView) findViewById(R.id.tvChange);
 		mGvPaymentButton = (GridView) findViewById(R.id.gvPaymentButton);
 		mBtnConfirm = (Button) findViewById(R.id.btnConfirm);
 		mBtnConfirm.setOnClickListener(mOnConfirmClick);
@@ -115,6 +115,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 		mLvPayment.setAdapter(mPaymentAdapter);
 		mGvPaymentButton.setAdapter(mPaymentButtonAdapter);
 		loadPayType();
+		displayEnterPrice();
 	}
 
 	@Override
@@ -175,7 +176,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 	private void summary(){ 
 		OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId);
 		mTotalSalePrice = summOrder.getTotalSalePrice();
-		mTxtTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));
+		mTvTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));
 	}
 	
 	private class PaymentAdapter extends BaseAdapter{
@@ -245,13 +246,13 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 		mTotalPaid = mPayment.getTotalPayAmount(mTransactionId);
 		mPaymentLeft = mTotalSalePrice - mTotalPaid;
 		mChange = mTotalPaid - mTotalSalePrice;
-		mTxtTotalPaid.setText(mFormat.currencyFormat(mTotalPaid));
+		mTvTotalPaid.setText(mFormat.currencyFormat(mTotalPaid));
 		if(mPaymentLeft < 0)
 			mPaymentLeft = 0.0d;
 		if(mChange < 0)
 			mChange = 0.0d;
-		mTxtPaymentLeft.setText(mFormat.currencyFormat( mPaymentLeft));
-		mTxtChange.setText(mFormat.currencyFormat(mChange));
+		mTvPaymentLeft.setText(mFormat.currencyFormat( mPaymentLeft));
+		mTvChange.setText(mFormat.currencyFormat(mChange));
 	}
 	
 	private void deletePayment(int transactionId, int payTypeId){
@@ -280,7 +281,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 	
 	private void displayEnterPrice(){
 		calculateInputPrice();
-		mTxtEnterPrice.setText(mFormat.currencyFormat(mTotalPay));
+		mTvEnterPrice.setText(mFormat.currencyFormat(mTotalPay));
 	}
 	
 	public void creditPay(){

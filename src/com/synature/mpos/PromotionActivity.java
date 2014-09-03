@@ -24,7 +24,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -43,7 +42,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	private int mTransactionId;
 	private int mSelectedProPriceGroupId;
 	
-	private EditText mTxtTotalPrice;
+	private TextView mTvTotalPrice;
 	private LinearLayout mPromoButtonContainer;
 	private LinearLayout mSummaryContainer;
 	private ListView mLvOrderDiscount; 
@@ -56,7 +55,7 @@ public class PromotionActivity extends MPOSActivityBase {
 		
 		mPromoButtonContainer = (LinearLayout) findViewById(R.id.promoButtonContainer);
 		mLvOrderDiscount = (ListView) findViewById(R.id.lvOrderDiscount);
-		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
+		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 		mSummaryContainer = (LinearLayout) findViewById(R.id.summaryContainer);
 		
 		mTrans = new Transaction(this);
@@ -165,7 +164,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	
 	private void summary(){
 		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId);
-		mTxtTotalPrice.setText(mFormat.currencyFormat(summ.getTotalSalePrice()));
+		mTvTotalPrice.setText(mFormat.currencyFormat(summ.getTotalSalePrice()));
 
 		if(mSummaryContainer.getChildCount() > 0)
 			mSummaryContainer.removeAllViews();

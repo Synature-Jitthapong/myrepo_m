@@ -636,13 +636,14 @@ public class Transaction extends MPOSDatabase {
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
 				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID
 				+ " WHERE a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
-				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?) "
+				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?, ?) "
 				+ " GROUP BY a." + ProductTable.COLUMN_PRODUCT_ID
 				+ " ORDER BY a." + OrderDetailTable.COLUMN_ORDER_ID,
 				new String[] { 
 					String.valueOf(transactionId),
 					String.valueOf(Products.NORMAL_TYPE),
-					String.valueOf(Products.SET_CAN_SELECT)
+					String.valueOf(Products.SET_CAN_SELECT),
+					String.valueOf(Products.COMMENT_HAVE_PRICE)
 				});
 		if (cursor.moveToFirst()) {
 			do {
@@ -681,7 +682,7 @@ public class Transaction extends MPOSDatabase {
 	 * @return List<OrderDetail>
 	 */
 	public List<OrderDetail> listAllOrder(int transactionId) {
-		List<OrderDetail> ordLst = new ArrayList<OrderDetail>();
+		List<OrderDetail> ordLst = null;
 		Cursor cursor = queryOrderDetail(
 				"a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?, ?) ",
@@ -691,6 +692,7 @@ public class Transaction extends MPOSDatabase {
 					String.valueOf(Products.SET_CAN_SELECT)
 				});
 		if (cursor.moveToFirst()) {
+			ordLst = new ArrayList<OrderDetail>();
 			do {
 				ordLst.add(toOrderDetail(cursor));
 			} while (cursor.moveToNext());
@@ -711,6 +713,7 @@ public class Transaction extends MPOSDatabase {
 				+ " a." + ProductTable.COLUMN_PRODUCT_ID + ","
 				+ " a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + ","
 				+ " a." + OrderDetailTable.COLUMN_ORDER_QTY + ","
+				+ " a." + OrderDetailTable.COLUMN_DEDUCT_AMOUNT + ", "
 				+ " a." + ProductTable.COLUMN_PRODUCT_PRICE + ","
 				+ " a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + "," 
 				+ " a." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ","
@@ -1675,12 +1678,78 @@ public class Transaction extends MPOSDatabase {
 	}
 
 	/**
-	 * @param transId
-	 * @param ordId
+	 * @param transactionId
+	 * @param orderDetailId
+	 * @param orderSetId
+	 * @return OrderSet
+	 */
+	public OrderSet getOrderSet(int transactionId, int orderDetailId, int orderSetId) {
+		OrderSet orderSet = null;
+		String selection = " a." + OrderTransTable.COLUMN_TRANS_ID + "=? "
+				+ " AND a." + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?"
+				+ " AND a." + OrderDetailTable.COLUMN_ORDER_ID + "=?";
+		String[] selectionArgs = { 
+				String.valueOf(transactionId),
+				String.valueOf(orderDetailId),
+				String.valueOf(orderSetId)
+		};
+		Cursor cursor = queryOrderSet(selection, selectionArgs);
+		if (cursor.moveToFirst()) {
+			orderSet = new OrderSet();
+			int pgId = cursor.getInt(cursor.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID));
+			orderSet.setTransId(transactionId);
+			orderSet.setOrdId(orderDetailId);
+			orderSet.setSetGroupId(pgId);
+			orderSet.setSetGroupNo(cursor.getInt(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
+			orderSet.setSetGroupName(cursor.getString(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME)));
+			orderSet.setReqAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
+			orderSet.setReqMinAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT)));
+			orderSet.setOrderSetDetail(listOrderSetDetail(transactionId, orderDetailId, pgId));
+		}
+		cursor.close();
+		return orderSet;
+	}
+	
+	/**
+	 * @param transactionId
+	 * @param orderDetailId
 	 * @return List<OrderSet>
 	 */
-	public List<OrderSet> listOrderSet(int transId, int ordId) {
-		List<OrderSet> productSetLst = new ArrayList<OrderSet>();
+	public List<OrderSet> listOrderSet(int transactionId, int orderDetailId) {
+		List<OrderSet> orderSetLst = null;
+		String selection = " a." + OrderTransTable.COLUMN_TRANS_ID + "=? "
+				+ " AND a." + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?";
+		String[] selectionArgs = { 
+				String.valueOf(transactionId),
+				String.valueOf(orderDetailId)
+		};
+		Cursor cursor = queryOrderSet(selection, selectionArgs);
+		if (cursor.moveToFirst()) {
+			orderSetLst = new ArrayList<OrderSet>();
+			do {
+				int pgId = cursor.getInt(cursor.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID));
+				OrderSet orderSet = new OrderSet();
+				orderSet.setTransId(transactionId);
+				orderSet.setOrdId(orderDetailId);
+				orderSet.setSetGroupId(pgId);
+				orderSet.setSetGroupNo(cursor.getInt(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
+				orderSet.setSetGroupName(cursor.getString(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME)));
+				orderSet.setReqAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
+				orderSet.setReqMinAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT)));
+				orderSet.setOrderSetDetail(listOrderSetDetail(transactionId, orderDetailId, pgId));
+				orderSetLst.add(orderSet);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return orderSetLst;
+	}
+
+	/**
+	 * @param selection
+	 * @param selectionArgs
+	 * @return cursor
+	 */
+	private Cursor queryOrderSet(String selection, String[] selectionArgs){
 		String sql = " SELECT b." + ProductComponentTable.COLUMN_PGROUP_ID + ", "
 				+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NO + ", "
 				+ " b." + ProductComponentGroupTable.COLUMN_SET_GROUP_NAME + ", " 
@@ -1689,101 +1758,10 @@ public class Transaction extends MPOSDatabase {
 				+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
 				+ " LEFT JOIN " + ProductComponentGroupTable.TABLE_PCOMPONENT_GROUP + " b " 
 				+ " ON a." + ProductComponentTable.COLUMN_PGROUP_ID + "=b." + ProductComponentTable.COLUMN_PGROUP_ID
-				+ " WHERE a." + OrderTransTable.COLUMN_TRANS_ID + "=? "
-				+ " AND a." + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?"
-				+ " GROUP BY b." + ProductComponentTable.COLUMN_PGROUP_ID; 
-		Cursor cursor = getReadableDatabase().rawQuery(
-				sql,
-				new String[] { 
-					String.valueOf(transId),
-					String.valueOf(ordId)
-				});
-
-		if (cursor.moveToFirst()) {
-			do {
-				int pgId = cursor.getInt(cursor.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID));
-				OrderSet group = new OrderSet();
-				group.setTransId(transId);
-				group.setOrdId(ordId);
-				group.setSetGroupId(pgId);
-				group.setSetGroupNo(cursor.getInt(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
-				group.setSetGroupName(cursor.getString(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME)));
-				group.setReqAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
-				group.setReqMinAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT)));
-				group.setOrderSetDetail(listOrderSetDetail(transId, ordId, pgId));
-				productSetLst.add(group);
-			} while (cursor.moveToNext());
-		}
-		cursor.close();
-		return productSetLst;
+				+ " WHERE " + selection
+				+ " GROUP BY b." + ProductComponentTable.COLUMN_PGROUP_ID;
+		return getReadableDatabase().rawQuery(sql, selectionArgs);
 	}
-
-//	public List<OrderSet.OrderSetDetail> listOrderSetDetailGroupByProduct(int transId, int ordId) {
-//		List<OrderSet.OrderSetDetail> osdLst = new ArrayList<OrderSet.OrderSetDetail>();
-//		String sql = "SELECT a." + OrderDetailTable.COLUMN_ORDER_ID + ", "
-//				+ " a." + ProductTable.COLUMN_PRODUCT_ID + ", " 
-//				+ " SUM (a." + OrderDetailTable.COLUMN_ORDER_SET_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_SET_QTY + ", "
-//				+ " SUM (a." + OrderDetailTable.COLUMN_ORDER_SET_PRICE + ") AS " + OrderDetailTable.COLUMN_ORDER_SET_PRICE + ", "
-//				+ " b." + ProductTable.COLUMN_PRODUCT_NAME
-//				+ " FROM " + OrderDetailTable.TABLE_ORDER + " a "
-//				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
-//				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID
-//				+ " WHERE a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
-//				+ " AND a." + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?"
-//				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + "=?"
-//				+ " GROUP by a." + ProductTable.COLUMN_PRODUCT_ID;
-//		Cursor cursor = getReadableDatabase().rawQuery(
-//				sql,
-//				new String[] { 
-//					String.valueOf(transId),
-//					String.valueOf(ordId),
-//					String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE)
-//				});
-//		if (cursor.moveToFirst()) {
-//			do {
-//				OrderSet.OrderSetDetail detail = toOrderSetDetail(cursor);
-//				osdLst.add(detail);
-//			} while (cursor.moveToNext());
-//		}
-//		cursor.close();
-//		return osdLst;
-//	}
-	
-//	public List<OrderSet.OrderSetDetail> listOrderSetDetailHavePrice(int transactionId, int orderDetailId){
-//		List<OrderSet.OrderSetDetail> orderSetDetailLst = 
-//				new ArrayList<OrderSet.OrderSetDetail>();
-//		Cursor cursor = getReadableDatabase().rawQuery(
-//				"SELECT a. " + ProductTable.COLUMN_PRODUCT_ID + ","
-//				+ " a." + OrderSetTable.COLUMN_ORDER_SET_QTY + ","
-//				+ " a." + OrderSetTable.COLUMN_ORDER_SET_PRICE + ", "
-//				+ " b." + ProductTable.COLUMN_VAT_TYPE + ","
-//				+ " b." + ProductTable.COLUMN_VAT_RATE
-//				+ " FROM " + OrderSetTable.TABLE_ORDER_SET + " a "
-//				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
-//				+ " ON a." + ProductTable.COLUMN_PRODUCT_ID 
-//				+ "=b." + ProductTable.COLUMN_PRODUCT_ID
-//				+ " WHERE a." + OrderTransTable.COLUMN_TRANS_ID + "=? "
-//				+ " AND a." + OrderDetailTable.COLUMN_ORDER_ID + "=? "
-//				+ " AND a." + OrderSetTable.COLUMN_ORDER_SET_PRICE + ">?",
-//				new String[]{
-//					String.valueOf(transactionId),
-//					String.valueOf(orderDetailId),
-//					String.valueOf("0")
-//				});
-//		if(cursor.moveToFirst()){
-//			do{
-//				OrderSet.OrderSetDetail setDetail = new OrderSet.OrderSetDetail();
-//				setDetail.setProductId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
-//				setDetail.setOrderSetQty(cursor.getDouble(cursor.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_QTY)));
-//				setDetail.setProductPrice(cursor.getDouble(cursor.getColumnIndex(OrderSetTable.COLUMN_ORDER_SET_PRICE)));
-//				setDetail.setVatType(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
-//				setDetail.setVatRate(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_VAT_RATE)));
-//				orderSetDetailLst.add(setDetail);
-//			}while(cursor.moveToNext());
-//		}
-//		cursor.close();
-//		return orderSetDetailLst;
-//	}
 	
 	/**
 	 * @param transId
@@ -1792,7 +1770,7 @@ public class Transaction extends MPOSDatabase {
 	 * @return List<OrderSet.OrderSetDetail>
 	 */
 	public List<OrderSet.OrderSetDetail> listOrderSetDetail(int transId, int ordId, int pgId) {
-		List<OrderSet.OrderSetDetail> sdl = new ArrayList<OrderSet.OrderSetDetail>();
+		List<OrderSet.OrderSetDetail> sdl = null;
 		Cursor cursor = queryOrderDetail(
 				"a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " AND a." + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?"
@@ -1803,6 +1781,7 @@ public class Transaction extends MPOSDatabase {
 					String.valueOf(pgId),
 				});
 		if (cursor.moveToFirst()) {
+			sdl = new ArrayList<OrderSet.OrderSetDetail>();
 			do {
 				sdl.add(toOrderSetDetail(cursor));
 			} while (cursor.moveToNext());
@@ -1817,7 +1796,7 @@ public class Transaction extends MPOSDatabase {
 	 * @return List<OrderSet.OrderSetDetail>
 	 */
 	public List<OrderSet.OrderSetDetail> listOrderSetDetail(int transId, int ordId) {
-		List<OrderSet.OrderSetDetail> sdl = new ArrayList<OrderSet.OrderSetDetail>();
+		List<OrderSet.OrderSetDetail> sdl = null;
 		Cursor cursor = queryOrderDetail(
 				"a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " AND a." + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?"
@@ -1828,6 +1807,7 @@ public class Transaction extends MPOSDatabase {
 					String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE)
 				});
 		if (cursor.moveToFirst()) {
+			sdl = new ArrayList<OrderSet.OrderSetDetail>();
 			do {
 				sdl.add(toOrderSetDetail(cursor));
 			} while (cursor.moveToNext());
@@ -1847,6 +1827,7 @@ public class Transaction extends MPOSDatabase {
 		sd.setProductName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
 		sd.setProductName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
 		sd.setOrderSetQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+		sd.setDeductAmount(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_DEDUCT_AMOUNT)));
 		sd.setProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 		return sd;
 	}
@@ -2001,8 +1982,9 @@ public class Transaction extends MPOSDatabase {
 	 * @param pcompGroupId
 	 * @param reqAmount
 	 * @param reqMinAmount
+	 * @return maxOrderId
 	 */
-	public void addOrderSet(int transactionId, int computerId, int orderDetailId,
+	public int addOrderSet(int transactionId, int computerId, int orderDetailId,
 			int productId, int productTypeId, double orderSetQty, double productPrice, 
 			int pcompGroupId, double reqAmount, double reqMinAmount) {
 		int maxOrderId = getMaxOrderDetailId();
@@ -2023,7 +2005,12 @@ public class Transaction extends MPOSDatabase {
 		cv.put(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT, reqMinAmount);
 		cv.put(OrderDetailTable.COLUMN_REMARK, "");
 		cv.put(OrderDetailTable.COLUMN_PARENT_ORDER_ID, orderDetailId);
-		getWritableDatabase().insertOrThrow(OrderDetailTable.TABLE_ORDER, null, cv);
+		try {
+			getWritableDatabase().insertOrThrow(OrderDetailTable.TABLE_ORDER, null, cv);
+		} catch (SQLException e) {
+			maxOrderId = 0;
+		}
+		return maxOrderId;
 	}
 
 	/**

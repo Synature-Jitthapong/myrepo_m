@@ -24,17 +24,15 @@ public class MenuComment extends MPOSDatabase{
 	 */
 	public List<Comment> listMenuComment(){
 		List<Comment> mcl = new ArrayList<Comment>();
-		Cursor cursor = getReadableDatabase().query(
-				ProductTable.TABLE_PRODUCT, 
-				new String[]{
-						ProductTable.COLUMN_PRODUCT_ID,
-						ProductTable.COLUMN_PRODUCT_NAME,
-						ProductTable.COLUMN_PRODUCT_PRICE
-				}, 
-				COLUMN_DELETED + "=?", 
-				new String[]{
-						String.valueOf(NOT_DELETE)
-				}, null, null, COLUMN_ORDERING + ", " + ProductTable.COLUMN_PRODUCT_NAME);
+		String selection = "a." + ProductGroupTable.COLUMN_IS_COMMENT + "=?"
+				+ " AND a." + COLUMN_DELETED + "=?"
+				+ " AND b." + COLUMN_DELETED + "=?";
+		String[] selectionArgs = {
+				String.valueOf(1),
+				String.valueOf(NOT_DELETE),
+				String.valueOf(NOT_DELETE)
+		};
+		Cursor cursor = queryMenuComment(selection, selectionArgs);
 		if(cursor.moveToFirst()){
 			do{
 				Comment cm = new Comment();
@@ -54,19 +52,17 @@ public class MenuComment extends MPOSDatabase{
 	 */
 	public List<Comment> listMenuComment(int groupId){
 		List<Comment> mcl = new ArrayList<Comment>();
-		Cursor cursor = getReadableDatabase().query(
-				ProductTable.TABLE_PRODUCT, 
-				new String[]{
-						ProductTable.COLUMN_PRODUCT_ID,
-						ProductTable.COLUMN_PRODUCT_NAME,
-						ProductTable.COLUMN_PRODUCT_PRICE
-				}, 
-				ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=?"
-				+ " AND " + COLUMN_DELETED + "=?", 
-				new String[]{
-						String.valueOf(groupId),
-						String.valueOf(NOT_DELETE)
-				}, null, null, COLUMN_ORDERING + ", " + ProductTable.COLUMN_PRODUCT_NAME);
+		String selection = "a." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=?" 
+				+ " AND a." + ProductGroupTable.COLUMN_IS_COMMENT + "=?"
+				+ " AND a." + COLUMN_DELETED + "=?"
+				+ " AND b." + COLUMN_DELETED + "=?";
+		String[] selectionArgs = {
+				String.valueOf(groupId),
+				String.valueOf(1),
+				String.valueOf(NOT_DELETE),
+				String.valueOf(NOT_DELETE)
+		};
+		Cursor cursor = queryMenuComment(selection, selectionArgs);
 		if(cursor.moveToFirst()){
 			do{
 				Comment cm = new Comment();
@@ -78,6 +74,18 @@ public class MenuComment extends MPOSDatabase{
 		}
 		cursor.close();
 		return mcl;
+	}
+	
+	private Cursor queryMenuComment(String selection, String[] selectionArgs){
+		String sql = "SELECT b." + ProductTable.COLUMN_PRODUCT_ID + ", "
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", "
+				+ " b." + ProductTable.COLUMN_PRODUCT_PRICE
+				+ " FROM " + ProductGroupTable.TABLE_PRODUCT_GROUP + " a "
+				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
+				+ " ON a." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=b." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID
+				+ " WHERE " + selection
+				+ " ORDER BY b." + COLUMN_ORDERING + ", b." + ProductTable.COLUMN_PRODUCT_NAME;
+		return getReadableDatabase().rawQuery(sql, selectionArgs);
 	}
 	
 	/**

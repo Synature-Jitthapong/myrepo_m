@@ -74,17 +74,17 @@ public class ReprintActivity extends MPOSActivityBase {
 			final OrderTransaction trans = mTransLst.get(position);
 			final ViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.reprint_trans_template, parent, false);
+				convertView = mInflater.inflate(R.layout.reprint_trans_item, parent, false);
 				holder = new ViewHolder();
-				holder.tvNo = (TextView) convertView.findViewById(R.id.textView2);
-				holder.tvItem = (TextView) convertView.findViewById(R.id.textView1);
-				holder.btnPrint = (Button) convertView.findViewById(R.id.btnCommentMinus);
+				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
+				holder.tvReceiptNo = (TextView) convertView.findViewById(R.id.tvReceiptNo);
+				holder.btnPrint = (Button) convertView.findViewById(R.id.btnPrint);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
 			holder.tvNo.setText(String.valueOf(position + 1) + ".");
-			holder.tvItem.setText(trans.getReceiptNo());
+			holder.tvReceiptNo.setText(trans.getReceiptNo());
 			holder.btnPrint.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -99,7 +99,7 @@ public class ReprintActivity extends MPOSActivityBase {
 		
 		public class ViewHolder {
 			TextView tvNo;
-			TextView tvItem;
+			TextView tvReceiptNo;
 			Button btnPrint;
 		}
 	}
