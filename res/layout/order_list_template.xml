@@ -2,14 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:divider="?android:dividerVertical"
-    android:dividerPadding="8dp"
-    android:gravity="center_vertical"
-    android:orientation="vertical"
     android:padding="@dimen/default_margin" >
 
     <ImageButton
         android:id="@+id/btnComment"
+        style="@style/GrayButtonOval"
         android:layout_width="48dp"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/btnOrderMinus"
@@ -20,6 +17,7 @@
 
     <ImageButton
         android:id="@+id/btnSetModify"
+        style="@style/GrayButtonOval"
         android:layout_width="48dp"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/btnComment"
@@ -40,6 +38,7 @@
 
     <Button
         android:id="@+id/btnOrderPlus"
+        style="@style/GrayButtonOval"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -49,16 +48,6 @@
         android:minWidth="48dip"
         android:text="@string/plus"
         android:textAppearance="?android:attr/textAppearanceLargeInverse" />
-
-    <TextView
-        android:id="@+id/tvComment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/btnComment"
-        android:paddingLeft="8dp"
-        android:visibility="gone" />
 
     <TextView
         android:id="@+id/tvOrderPrice"
@@ -94,6 +83,7 @@
 
     <Button
         android:id="@+id/btnOrderMinus"
+        style="@style/GrayButtonOval"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/chkOrderName"
@@ -103,5 +93,13 @@
         android:minWidth="48dip"
         android:text="@string/minus"
         android:textAppearance="?android:attr/textAppearanceLargeInverse" />
+
+    <TextView
+        android:id="@+id/tvComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tvOrderPrice"
+        android:layout_below="@+id/tvOrderPrice"
+        android:layout_toLeftOf="@+id/btnSetModify" />
 
 </RelativeLayout>

@@ -68,7 +68,7 @@ public class Utils {
 	/**
 	 * Log file name
 	 */
-	public static final String LOG_FILE_NAME = "mpos_";
+	public static final String LOG_FILE_NAME = "log_";
 	
 	/**
 	 * Resource dir

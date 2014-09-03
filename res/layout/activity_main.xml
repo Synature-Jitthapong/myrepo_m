@@ -75,6 +75,7 @@
 
             <ImageButton
                 android:id="@+id/btnClearSelOrder"
+                style="@style/GrayButtonOval"
                 android:layout_width="48dp"
                 android:layout_height="wrap_content"
                 android:minHeight="48dip"
@@ -84,12 +85,14 @@
 
             <ImageButton
                 android:id="@+id/btnDelOrder"
+                style="@style/GrayButtonOval"
                 android:layout_width="48dp"
                 android:layout_height="wrap_content"
                 android:minHeight="48dip"
                 android:minWidth="48dip"
                 android:onClick="onClick"
                 android:src="@android:drawable/ic_menu_delete" />
+
         </LinearLayout>
 
         <TableLayout

@@ -21,9 +21,9 @@
     </style>
     <!-- Text Qty -->
     <style name="TextQty" parent="@android:style/TextAppearance.Holo.Medium">
-        <item name="android:background">@drawable/white_flat_bg</item>
+        <!-- <item name="android:background">@drawable/white_flat_bg</item> -->
         <item name="android:gravity">center</item>
-        <item name="android:minWidth">48dp</item>
+        <item name="android:minWidth">32dp</item>
         <item name="android:minHeight">48dp</item>
         <item name="android:padding">@dimen/default_margin</item>
     </style>
@@ -62,6 +62,9 @@
     </style>
     <style name="BlueGrayButton" parent="BaseButton">
         <item name="android:background">@drawable/btn_blue_gray_light</item>
+    </style>
+    <style name="GrayButtonOval" parent="BaseButton">
+        <item name="android:background">@drawable/btn_holo_gray_oval</item>
     </style>
     <style name="GrayButton" parent="BaseButton">
         <item name="android:background">@drawable/btn_holo_gray</item>
