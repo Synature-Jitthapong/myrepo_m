@@ -48,7 +48,6 @@ public class Computer extends MPOSDatabase{
 			comp.setRegistrationNumber(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_REGISTER_NUMBER)));
 			comp.setDocumentTypeHeader(cursor.getString(cursor.getColumnIndex(ComputerTable.COLUMN_DOC_TYPE_HEADER)));
 			comp.setPrintReceiptHasCopy(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_PRINT_RECEIPT_HAS_COPY)));
-			comp.setPrintVatInReceipt(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_PRINT_VAT_IN_RECEIPT)));
 			cursor.moveToNext();
 		}
 		cursor.close();
@@ -68,7 +67,6 @@ public class Computer extends MPOSDatabase{
 				cv.put(ComputerTable.COLUMN_IS_MAIN_COMPUTER, comp.getIsMainComputer());
 				cv.put(ComputerTable.COLUMN_DOC_TYPE_HEADER, comp.getDocumentTypeHeader());
 				cv.put(ComputerTable.COLUMN_PRINT_RECEIPT_HAS_COPY, comp.getPrintReceiptHasCopy());
-				cv.put(ComputerTable.COLUMN_PRINT_VAT_IN_RECEIPT, comp.getPrintVatInReceipt());
 				getWritableDatabase().insertOrThrow(ComputerTable.TABLE_COMPUTER, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();

@@ -6,9 +6,9 @@ import android.content.Context;
 
 import com.synature.pos.WebServiceResult;
 
-public class EndDaySaleTransactionSender extends MPOSServiceBase{
+public class EndDayUnSendSaleSender extends MPOSServiceBase{
 
-	public static final String SEND_SALE_TRANS_METHOD = "WSmPOS_JSON_SendSaleAllTransactionDataWithEndDay";
+	public static final String SEND_SALE_TRANS_METHOD = "WSmPOS_JSON_SendUnsendSaleTransactionDataWithEndDay";
 	
 	private WebServiceWorkingListener mListener;
 	
@@ -20,7 +20,7 @@ public class EndDaySaleTransactionSender extends MPOSServiceBase{
 	 * @param jsonSale
 	 * @param listener
 	 */
-	public EndDaySaleTransactionSender(Context context, int shopId, int computerId,
+	public EndDayUnSendSaleSender(Context context, int shopId, int computerId,
 			int staffId, String jsonSale, WebServiceWorkingListener listener) {
 		super(context, SEND_SALE_TRANS_METHOD);
 		mListener = listener;
@@ -54,7 +54,7 @@ public class EndDaySaleTransactionSender extends MPOSServiceBase{
 	@Override
 	protected void onPostExecute(String result) {
 		try {
-			WebServiceResult ws = (WebServiceResult) super.toServiceObject(result);
+			WebServiceResult ws = (WebServiceResult) toServiceObject(result);
 			if(ws.getiResultID() == WebServiceResult.SUCCESS_STATUS){
 				mListener.onPostExecute();
 			}else{

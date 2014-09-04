@@ -15,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -80,7 +81,7 @@ public class PromotionActivity extends MPOSActivityBase {
 			btn.setBackgroundResource(R.drawable.btn_holo_green);
 			btn.setTextColor(Color.WHITE);
 			btn.setId(promoPriceGroup.getPriceGroupID());
-			btn.setText(promoPriceGroup.getPromotionName().equals("") ? promoPriceGroup.getButtonName() : promoPriceGroup.getPromotionName());
+			btn.setText(TextUtils.isEmpty(promoPriceGroup.getPromotionName()) ? promoPriceGroup.getButtonName() : promoPriceGroup.getPromotionName());
 			btn.setMinWidth(128);
 			btn.setMinHeight(64);
 			btn.setOnClickListener(new OnPromotionButtonClickListener(promoPriceGroup.getPriceGroupID(), 

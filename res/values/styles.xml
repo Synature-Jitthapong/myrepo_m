@@ -29,18 +29,23 @@
         <item name="android:minHeight">48dp</item>
         <item name="android:padding">@dimen/default_margin</item>
     </style>
+    <style name="TextSummary" parent="@android:style/TextAppearance.Holo.Large">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:gravity">right|center_vertical</item>
+        <item name="android:padding">@dimen/default_margin</item>
+    </style>
     <style name="TextPrice" parent="@android:style/TextAppearance.Holo.Large">
         <item name="android:textColor">@android:color/holo_blue_dark</item>
         <item name="android:gravity">right|center_vertical</item>
         <item name="android:minHeight">48dp</item>
         <item name="android:padding">@dimen/default_margin</item>
     </style>
-    <!-- Row Style -->
-    <style name="HeaderRow">
-        <item name="android:divider">@android:drawable/divider_horizontal_bright</item>
-        <item name="android:showDividers">middle|beginning|end</item>
+    <style name="LabelText" parent="@android:style/TextAppearance.Holo">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:gravity">right</item>
+        <item name="android:minWidth">200dp</item>
+        <item name="android:layout_marginRight">4dp</item>
     </style>
-    <!-- Text Style -->
  	<style name="BodyText" parent="@android:style/TextAppearance.Holo">
 		<item name="android:gravity">right|center_vertical</item>
 		<item name="android:layout_width">wrap_content</item>
@@ -50,13 +55,14 @@
 		<item name="android:paddingRight">2dp</item>
 		<item name="android:paddingBottom">@dimen/default_margin</item>
     </style>
-    <style name="SummaryText" parent="HeaderText">
-        <item name="android:textStyle">bold</item>
-        <item name="android:background">@color/blue_gray_light</item>
-    </style>
     <style name="HeaderText" parent="@android:style/TextAppearance.Holo">
 		<item name="android:textAllCaps">true</item>
 		<item name="android:padding">@dimen/default_margin</item>
+    </style>
+    <!-- Row Style -->
+    <style name="HeaderRow">
+        <item name="android:divider">@android:drawable/divider_horizontal_bright</item>
+        <item name="android:showDividers">middle|beginning|end</item>
     </style>
     <!-- Button Style -->
     <style name="RedButton" parent="BaseButton.Light">

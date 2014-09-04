@@ -141,9 +141,9 @@ public class SendEnddayActivity extends MPOSActivityBase {
 		if(mEnddayAdapter == null){
 			mEnddayAdapter = new EnddayListAdapter();
 			mLvEndday.setAdapter(mEnddayAdapter);
-		}else{
-			mEnddayAdapter.notifyDataSetChanged();
 		}
+		mEnddayAdapter.notifyDataSetChanged();
+		mLvEndday.setSelection(mEnddayAdapter.getCount() - 1);
 	}
 	
 	private WebServiceWorkingListener mSendListener = new WebServiceWorkingListener(){

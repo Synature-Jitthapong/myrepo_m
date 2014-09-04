@@ -258,7 +258,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 		tvSummary.setText(content);
 		tvSummary.setLayoutParams(params);
 		tvSummary.setGravity(Gravity.RIGHT);
-		tvSummary.setTextAppearance(context, R.style.SummaryText);
+		tvSummary.setTextAppearance(context, R.style.TextSummary);
 		tvSummary.setPadding(4, 4, 4, 4);
 		return tvSummary;
 	}
@@ -1186,7 +1186,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 					LinearLayout row = (LinearLayout) convertView;
 					for(int i = 0; i < row.getChildCount(); i++){
 						View v = row.getChildAt(i);
-						v.setBackgroundResource(R.color.blue_gray_light);
+						v.setBackgroundResource(R.color.gray_light);
 					}
 				}
 			}

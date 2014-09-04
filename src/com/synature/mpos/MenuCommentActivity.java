@@ -18,9 +18,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -32,6 +30,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -64,6 +63,7 @@ public class MenuCommentActivity extends DialogFragment{
 	private Spinner mSpCommentGroup;
 	private ListView mLvComment;
 	private EditText mTxtComment;
+	private ImageButton mBtnHideKeyboard;
 	
 	public static MenuCommentActivity newInstance(int position, int transactionId, 
 			int computerId, int orderDetailId, int vatType, double vatRate, 
@@ -124,6 +124,7 @@ public class MenuCommentActivity extends DialogFragment{
 		mSpCommentGroup = (Spinner) view.findViewById(R.id.spCommentGroup);
 		mLvComment = (ListView) view.findViewById(R.id.lvComment);
 		mTxtComment = (EditText) view.findViewById(R.id.txtComment);
+		mBtnHideKeyboard = (ImageButton) view.findViewById(R.id.btnHideKeyboard); 
 		mTxtComment.setText(mOrderComment);
 		setupCommentGroupAdapter();
 		setupCommentAdapter();
@@ -145,22 +146,17 @@ public class MenuCommentActivity extends DialogFragment{
 			}
 			
 		});
-		
-		view.setOnTouchListener(new OnTouchListener(){
+		mBtnHideKeyboard.setOnClickListener(new OnClickListener(){
 
 			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				if(event.getAction() == MotionEvent.ACTION_DOWN || 
-						event.getAction() == MotionEvent.ACTION_OUTSIDE){
-					InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
-						      Context.INPUT_METHOD_SERVICE);
-					imm.hideSoftInputFromWindow(mTxtComment.getWindowToken(), 0);
-					return true;
-				}
-				return false;
+			public void onClick(View v) {
+				InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+					      Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(mTxtComment.getWindowToken(), 0);
 			}
-
+			
 		});
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(getActivity().getString(R.string.menu_comment) + ": " + mMenuName);
 		builder.setView(view);
@@ -186,11 +182,11 @@ public class MenuCommentActivity extends DialogFragment{
 		});
 		final AlertDialog d = builder.create();
 		d.getWindow().setSoftInputMode(
-				WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+				WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		d.show();
 		return d;
 	}
-
+	
 	private void setupCommentGroupAdapter(){
 		if(mCommentGroupAdapter == null){
 			mCommentGroupAdapter = 

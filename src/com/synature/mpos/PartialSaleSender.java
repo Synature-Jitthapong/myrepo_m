@@ -6,7 +6,7 @@ import android.content.Context;
 
 import com.synature.pos.WebServiceResult;
 
-public class PartialSaleTransactionSender extends MPOSServiceBase{
+public class PartialSaleSender extends MPOSServiceBase{
 
 	public static final String SEND_PARTIAL_SALE_TRANS_METHOD = "WSmPOS_JSON_SendSalePartialTransactionData";
 
@@ -20,7 +20,7 @@ public class PartialSaleTransactionSender extends MPOSServiceBase{
 	 * @param jsonSale
 	 * @param listener
 	 */
-	public PartialSaleTransactionSender(Context context, int shopId, int computerId,
+	public PartialSaleSender(Context context, int shopId, int computerId,
 			int staffId, String jsonSale, WebServiceWorkingListener listener) {
 		super(context, SEND_PARTIAL_SALE_TRANS_METHOD);
 		mListener = listener;
@@ -54,7 +54,7 @@ public class PartialSaleTransactionSender extends MPOSServiceBase{
 	@Override
 	protected void onPostExecute(String result) {
 		try {
-			WebServiceResult ws = (WebServiceResult) super.toServiceObject(result);
+			WebServiceResult ws = (WebServiceResult) toServiceObject(result);
 			if(ws.getiResultID() == WebServiceResult.SUCCESS_STATUS){
 				mListener.onPostExecute();
 			}else{

@@ -114,6 +114,11 @@ public class Utils {
 	public static final int MINIMUM_DAY = 1;
 	
 	/**
+	 * Enable/Disable log
+	 */
+	public static final boolean sIsEnableLog = true;
+	
+	/**
 	 * @param context
 	 * @param shopId
 	 * @param computerId
@@ -209,45 +214,6 @@ public class Utils {
 	}
 	
 	/**
-	 * @param context
-	 * @param enddaySale
-	 * @return String JSON endday
-	 */
-	public static String generateJSONEndDaySale(Context context,
-			POSData_EndDaySaleTransaction enddaySale) {
-		String jsonSale = null;
-		try {
-			Gson gson = new Gson();
-			Type type = new TypeToken<POSData_EndDaySaleTransaction>() {}.getType();
-			jsonSale = gson.toJson(enddaySale, type);
-		} catch (Exception e) {
-			Logger.appendLog(context, LOG_PATH, LOG_FILE_NAME,
-					" Error when generate json end day : " + e.getMessage());
-		}
-		return jsonSale;
-	}
-	
-	/**
-	 * @param context
-	 * @param saleTrans
-	 * @return String JSON Sale
-	 */
-	public static String generateJSONSale(Context context,
-			POSData_SaleTransaction saleTrans) {
-		String jsonSale = null;
-		try {
-			Gson gson = new Gson();
-			Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
-			jsonSale = gson.toJson(saleTrans, type);
-		} catch (Exception e) {
-			Logger.appendLog(context, LOG_PATH,
-					LOG_FILE_NAME,
-					" Error when generate json sale : " + e.getMessage());
-		}
-		return jsonSale;
-	}
-	
-	/**
 	 * @author j1tth4
 	 * task for load end day transaction data
 	 */
@@ -326,7 +292,7 @@ public class Utils {
 	}
 	
 	public static Calendar getCalendar(){
-		return Calendar.getInstance(Locale.US);
+		return Calendar.getInstance(Locale.getDefault());
 	}
 	
 	public static Calendar getMinimum(){

@@ -24,6 +24,7 @@ public class ShopTable{
 	public static final String COLUMN_TAX_ID = "tax_id";
 	public static final String COLUMN_REGISTER_ID = "register_id";
 	public static final String COLUMN_COMPANY_VAT_RATE = "company_vat_rate";
+	public static final String COLUMN_PRINT_VAT_IN_RECEIPT = "print_vat_in_receipt";
 	
 	private static final String SQL_CREATE =
 			" create table " + TABLE_SHOP + " ( " 
@@ -45,6 +46,7 @@ public class ShopTable{
 			+ COLUMN_FAX + " text, " 
 			+ COLUMN_TAX_ID + " text, "
 			+ COLUMN_REGISTER_ID + " text, " 
+			+ COLUMN_PRINT_VAT_IN_RECEIPT + " integer default 0, "
 			+ COLUMN_COMPANY_VAT_RATE + " real not null );";
 	
 	public static void onCreate(SQLiteDatabase db) {

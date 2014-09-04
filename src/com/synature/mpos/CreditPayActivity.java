@@ -35,6 +35,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 
 public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 	
@@ -65,7 +66,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 	private double mPaymentLeft;
 	private double mTotalCreditPay;
 	
-	private EditText mTxtTotalPrice;
+	private TextView mTvTotalPrice;
 	private EditText mTxtTotalPay;
 	private EditText mTxtCardHolderName;
 	private EditText mTxtCardNoSeq1;
@@ -92,7 +93,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 		setContentView(R.layout.activity_credit_pay);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
-		mTxtTotalPrice = (EditText) findViewById(R.id.txtCardTotalPrice);
+		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 		mTxtTotalPay = (EditText) findViewById(R.id.txtCardPayAmount);
 		mTxtCardNoSeq1 = (EditText) findViewById(R.id.txtCardNoSeq1);
 		mTxtCardNoSeq2 = (EditText) findViewById(R.id.txtCardNoSeq2);
@@ -241,8 +242,8 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(mFormat.currencyFormat(mPaymentLeft));
-		mTxtTotalPay.setText(mTxtTotalPrice.getText());
+		mTvTotalPrice.setText(mFormat.currencyFormat(mPaymentLeft));
+		mTxtTotalPay.setText(mTvTotalPrice.getText());
 	}
 	
 //	private boolean checkCardNoSeq(){

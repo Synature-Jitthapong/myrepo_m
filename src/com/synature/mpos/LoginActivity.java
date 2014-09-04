@@ -467,7 +467,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 						mTxtPass.setText(null);
 						if(checkSessionDate()){
 							Staffs st = new Staffs(LoginActivity.this);
-							if(!st.checkAccessPOSPermission(s.getStaffRoleID())){
+							if(st.checkAccessPOSPermission(s.getStaffRoleID())){
 								gotoMainActivity();
 							}else{
 								new AlertDialog.Builder(LoginActivity.this)

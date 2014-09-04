@@ -12,7 +12,6 @@ public class ComputerTable{
 	public static final String COLUMN_IS_MAIN_COMPUTER = "ismain_computer";
 	public static final String COLUMN_DOC_TYPE_HEADER = "document_type_header";
 	public static final String COLUMN_PRINT_RECEIPT_HAS_COPY = "print_receipt_has_copy";
-	public static final String COLUMN_PRINT_VAT_IN_RECEIPT = "print_vat_in_receipt";
 	
 	private static final String SQL_CREATE =
 			" create table " + TABLE_COMPUTER + " ( " 
@@ -23,7 +22,6 @@ public class ComputerTable{
 			+ COLUMN_IS_MAIN_COMPUTER + " integer default 0, " 
 			+ COLUMN_DOC_TYPE_HEADER + " text not null, "
 			+ COLUMN_PRINT_RECEIPT_HAS_COPY + " integer default 1, "
-			+ COLUMN_PRINT_VAT_IN_RECEIPT + " integer default 0, "
 			+ "primary key (" + COLUMN_COMPUTER_ID + ") );";
 	
 	public static void onCreate(SQLiteDatabase db) {

@@ -454,8 +454,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	public void summary(){
 		mTbSummary.removeAllViews();
 		
-		mTrans.summary(mTransactionId);
-		
 		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId);
 		
 		mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
@@ -756,6 +754,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			if(!st.checkOtherDiscountPermission(mStaffRoleId)){
 				UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(Staffs.OTHER_DISCOUNT_PERMISSION);
 				uvf.show(getSupportFragmentManager(), "StaffPermissionDialog");
+			}else{
+				goToOtherDiscountActivity();
 			}
 		}
 	}
@@ -1734,6 +1734,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		if(!st.checkVoidPermission(mStaffRoleId)){
 			UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(Staffs.VOID_PERMISSION);
 			uvf.show(getSupportFragmentManager(), "StaffPermissionDialog");
+		}else{
+			goToVoidActivity();
 		}
 	}
 
@@ -2239,27 +2241,32 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 	}
 
-	/*
+	/**
 	 * on allow permission
-	 * (non-Javadoc)
-	 * @see com.synature.mpos.UserVerifyDialogFragment.OnCheckPermissionListener#onAllow()
 	 */
 	@Override
 	public void onAllow(int permissionId) {
-		Intent intent = null;
 		switch(permissionId){
 		case Staffs.VOID_PERMISSION:
-			intent = new Intent(MainActivity.this, VoidBillActivity.class);
-			intent.putExtra("staffId", mStaffId);
-			intent.putExtra("shopId", mShopId);
-			startActivity(intent);
+			goToVoidActivity();
 			break;
 		case Staffs.OTHER_DISCOUNT_PERMISSION:
-			intent = new Intent(MainActivity.this, DiscountActivity.class);
-			intent.putExtra("transactionId", mTransactionId);
-			startActivity(intent);
+			goToOtherDiscountActivity();
 			break;
 		}
+	}
+	
+	private void goToVoidActivity(){
+		Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
+		intent.putExtra("staffId", mStaffId);
+		intent.putExtra("shopId", mShopId);
+		startActivity(intent);
+	}
+	
+	private void goToOtherDiscountActivity(){
+		Intent intent = new Intent(MainActivity.this, DiscountActivity.class);
+		intent.putExtra("transactionId", mTransactionId);
+		startActivity(intent);
 	}
 	
 	private void sendEnddayData(){

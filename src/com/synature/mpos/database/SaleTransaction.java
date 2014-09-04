@@ -54,6 +54,19 @@ public class SaleTransaction extends MPOSDatabase{
 	}
 	
 	/**
+	 * Get end day unsend 
+	 * @param sessionDate
+	 * @return POSData_EndDaySaleTransaction
+	 */
+	public POSData_EndDaySaleTransaction getEndDayUnSendTransaction(String sessionDate){
+		POSData_EndDaySaleTransaction posEnddayTrans = new POSData_EndDaySaleTransaction();
+		posEnddayTrans.setxArySaleTransaction(buildSaleTransLst(queryUnSendTransaction(sessionDate)));
+		posEnddayTrans.setxAryTableSession(buildSessionLst(sessionDate));
+		posEnddayTrans.setxTableSessionEndDay(buildSessEnddayObj(sessionDate));
+		return posEnddayTrans;
+	}
+	
+	/**
 	 * Get sale transaction
 	 * @param transactionId
 	 * @param sessionId
@@ -417,6 +430,22 @@ public class SaleTransaction extends MPOSDatabase{
 					String.valueOf(Products.NORMAL_TYPE),
 					String.valueOf(Products.SET_CAN_SELECT)
 				}, null, null, null);
+	}
+	
+	private Cursor queryUnSendTransaction(String sessionDate) {
+		return getReadableDatabase().query(
+				OrderTransTable.TABLE_ORDER_TRANS,
+				Transaction.ALL_TRANS_COLUMNS, 
+				OrderTransTable.COLUMN_SALE_DATE + "=?"
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+				+ " AND " + COLUMN_SEND_STATUS + "=?",
+				new String[] {
+						sessionDate,
+						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(Transaction.TRANS_STATUS_VOID),
+						String.valueOf(NOT_SEND)
+				}, 
+				null, null, null);
 	}
 	
 	private Cursor queryTransaction(String sessionDate) {

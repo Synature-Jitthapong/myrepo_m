@@ -32,7 +32,8 @@ public class Shop extends MPOSDatabase{
 		ShopTable.COLUMN_FAX,
 		ShopTable.COLUMN_TAX_ID,
 		ShopTable.COLUMN_REGISTER_ID,
-		ShopTable.COLUMN_COMPANY_VAT_RATE
+		ShopTable.COLUMN_COMPANY_VAT_RATE,
+		ShopTable.COLUMN_PRINT_VAT_IN_RECEIPT
 	};
 	
 	public Shop(Context context){
@@ -108,6 +109,7 @@ public class Shop extends MPOSDatabase{
 			sp.setCompanyTaxID(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_TAX_ID)));
 			sp.setCompanyRegisterID(cursor.getString(cursor.getColumnIndex(ShopTable.COLUMN_REGISTER_ID)));
 			sp.setCompanyVat(cursor.getFloat(cursor.getColumnIndex(ShopTable.COLUMN_COMPANY_VAT_RATE)));
+			sp.setPrintVatInReceipt(cursor.getInt(cursor.getColumnIndex(ShopTable.COLUMN_PRINT_VAT_IN_RECEIPT)));
 			cursor.moveToNext();
 		}
 		cursor.close();		
@@ -143,6 +145,7 @@ public class Shop extends MPOSDatabase{
 				cv.put(ShopTable.COLUMN_TAX_ID, shop.getCompanyTaxID());
 				cv.put(ShopTable.COLUMN_REGISTER_ID, shop.getCompanyRegisterID());
 				cv.put(ShopTable.COLUMN_COMPANY_VAT_RATE, shop.getCompanyVat());
+				cv.put(ShopTable.COLUMN_PRINT_VAT_IN_RECEIPT, shop.getPrintVatInReceipt());
 				getWritableDatabase().insertOrThrow(ShopTable.TABLE_SHOP, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();

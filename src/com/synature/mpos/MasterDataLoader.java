@@ -91,6 +91,7 @@ public class MasterDataLoader extends MPOSServiceBase{
 			computer.insertComputer(master.getComputerProperty());
 			format.insertProperty(master.getGlobalProperty());
 			staff.insertStaff(master.getStaffs());
+			staff.insertStaffPermission(master.getStaffPermission());
 			lang.insertLanguage(master.getLanguage());
 			hf.insertHeaderFooterReceipt(master.getHeaderFooterReceipt());
 			bank.insertBank(master.getBankName());

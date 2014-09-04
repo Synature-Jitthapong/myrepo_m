@@ -50,6 +50,7 @@ public class ReprintActivity extends MPOSActivityBase {
 		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, 
 				mOrders.listSuccessTransaction(sess.getLastSessionDate()));
 		mLvTrans.setAdapter(mTransAdapter);
+		mLvTrans.setSelection(mTransAdapter.getCount() - 1);
 	}
 	
 	@Override

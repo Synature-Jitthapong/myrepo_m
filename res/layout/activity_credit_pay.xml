@@ -6,91 +6,77 @@
     android:padding="@dimen/activity_horizontal_margin"
     tools:context=".CreditPayActivity" >
 
-    <TableLayout
-        android:id="@+id/TableLayout1"
+    <LinearLayout
+        android:id="@+id/LinearLayout1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin" >
 
-        <TableRow
-            android:id="@+id/tableRow1"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center" >
+            android:gravity="center_vertical" >
 
             <TextView
                 android:id="@+id/textView2"
+                style="@style/LabelText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                android:text="@string/total_price"
-                android:textAllCaps="true"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:text="@string/total_price" />
 
-            <EditText
-                android:id="@+id/txtCardTotalPrice"
+            <TextView
+                android:id="@+id/tvTotalPrice"
+                style="@style/TextPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="5"
-                android:enabled="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/holo_blue_dark"
-                android:textSize="@dimen/larger_text_size"
-                android:textStyle="bold" >
+                android:textSize="@dimen/larger_text_size" />
+        </LinearLayout>
 
-                <requestFocus />
-            </EditText>
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow2"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center" >
+            android:gravity="center_vertical" >
 
             <TextView
                 android:id="@+id/textView3"
+                style="@style/LabelText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                android:text="@string/amount"
-                android:textAllCaps="true"
+                android:text="@string/total_payment"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
                 android:id="@+id/txtCardPayAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="5"
+                android:ems="7"
                 android:gravity="center_vertical"
                 android:inputType="numberSigned|numberDecimal"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/large_text_size"
                 android:textStyle="bold" />
-        </TableRow>
+        </LinearLayout>
 
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center" >
+            android:gravity="center_vertical" >
 
             <TextView
                 android:id="@+id/textView4"
+                style="@style/LabelText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
                 android:text="@string/credit_card_no"
-                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <LinearLayout
-                android:id="@+id/layoutCardNo"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="500dp" >
+                android:layout_height="wrap_content" >
 
                 <EditText
                     android:id="@+id/txtCardNoSeq1"
@@ -101,7 +87,10 @@
                     android:inputType="number"
                     android:lines="1"
                     android:maxLength="4"
-                    android:textSize="@dimen/large_text_size" />
+                    android:textSize="@dimen/large_text_size" >
+
+                    <requestFocus />
+                </EditText>
 
                 <EditText
                     android:id="@+id/txtCardNoSeq2"
@@ -136,103 +125,81 @@
                     android:maxLength="4"
                     android:textSize="@dimen/large_text_size" />
             </LinearLayout>
-        </TableRow>
+        </LinearLayout>
 
-        <TableRow
-            android:id="@+id/tableRow4"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center" >
+            android:gravity="center_vertical" >
 
             <TextView
                 android:id="@+id/textView6"
+                style="@style/LabelText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
                 android:text="@string/card_type"
-                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <LinearLayout
+            <Spinner
+                android:id="@+id/spCardType"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
-                <Spinner
-                    android:id="@+id/spCardType"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow6"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center" >
+            android:gravity="center_vertical" >
 
             <TextView
                 android:id="@+id/textView8"
+                style="@style/LabelText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
                 android:text="@string/card_holder_name"
-                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
                 android:id="@+id/txtCardHolderName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="5"
+                android:ems="13"
                 android:textSize="@dimen/large_text_size" />
+        </LinearLayout>
 
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow5"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center" >
+            android:gravity="center_vertical" >
 
             <TextView
                 android:id="@+id/textView5"
+                style="@style/LabelText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
                 android:text="@string/bank"
-                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <LinearLayout
+            <Spinner
+                android:id="@+id/spBank"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
-                <Spinner
-                    android:id="@+id/spBank"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow7"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center" >
+            android:gravity="center_vertical" >
 
             <TextView
                 android:id="@+id/textView7"
+                style="@style/LabelText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
                 android:text="@string/expire_date"
-                android:textAllCaps="true"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <LinearLayout
-                android:id="@+id/layoutExpDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical" >
@@ -240,12 +207,14 @@
                 <Spinner
                     android:id="@+id/spExpMonth"
                     android:layout_width="96dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
                 <TextView
                     android:id="@+id/textView1"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:gravity="center"
                     android:text="/"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -253,11 +222,10 @@
                 <Spinner
                     android:id="@+id/spExpYear"
                     android:layout_width="128dp"
-                    android:layout_height="wrap_content" />
-
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
             </LinearLayout>
-        </TableRow>
-
-    </TableLayout>
+        </LinearLayout>
+    </LinearLayout>
 
 </ScrollView>

@@ -105,6 +105,7 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 		btnDel.setOnClickListener(this);
 		
 		mTvCash = (TextView) contentView.findViewById(R.id.tvDisplay);
+		mTvCash.setTextSize(getActivity().getResources().getInteger(R.integer.larger_text_size));
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(mTitle);
 		builder.setView(contentView);

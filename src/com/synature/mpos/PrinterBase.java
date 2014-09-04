@@ -533,8 +533,8 @@ public abstract class PrinterBase {
 	protected void createTextForPrintReceipt(int transId, boolean isCopy){
 		OrderTransaction trans = mTrans.getTransaction(transId);
 		OrderDetail summOrder = mTrans.getSummaryOrder(transId);
-		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
 		double change = mPayment.getTotalPayAmount(transId) - (summOrder.getTotalSalePrice());
+		boolean isShowVat = mShop.getShopProperty().getPrintVatInReceipt() == 1;
 		boolean isVoid = trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID;
 		
 		// have copy
@@ -570,7 +570,7 @@ public abstract class PrinterBase {
 		mTextToPrint.append(cashCheer + createHorizontalSpace(calculateLength(cashCheer)) + "\n");
 		mTextToPrint.append(createLine("=") + "\n");
 		
-		List<OrderDetail> orderLst = mTrans.listAllOrderGroupByProduct(transId);
+		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId);
     	for(int i = 0; i < orderLst.size(); i++){
     		OrderDetail order = orderLst.get(i);
     		String productName = order.getProductName();
@@ -628,7 +628,6 @@ public abstract class PrinterBase {
     	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
     	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
     	String strTotalChange = mFormat.currencyFormat(change);
-    	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
     	
     	// total item
     	String strTotalQty = NumberFormat.getInstance().format(summOrder.getOrderQty());
@@ -649,16 +648,19 @@ public abstract class PrinterBase {
 	    	mTextToPrint.append(strTotalDiscount + "\n");
     	}
     	
-    	// transaction exclude vat
-    	if(trans.getTransactionVatExclude() > 0){
-    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
-    				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
-    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
-    		mTextToPrint.append(vatExcludeText);
-    		mTextToPrint.append(createHorizontalSpace(
-    				calculateLength(vatExcludeText) + 
-    				calculateLength(strVatExclude)));
-    		mTextToPrint.append(strVatExclude + "\n");
+    	// show vat ?
+    	if(isShowVat){
+	    	// transaction exclude vat
+	    	if(trans.getTransactionVatExclude() > 0){
+	    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
+	    				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
+	    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
+	    		mTextToPrint.append(vatExcludeText);
+	    		mTextToPrint.append(createHorizontalSpace(
+	    				calculateLength(vatExcludeText) + 
+	    				calculateLength(strVatExclude)));
+	    		mTextToPrint.append(strVatExclude + "\n");
+	    	}
     	}
     	
     	// total price
@@ -725,27 +727,27 @@ public abstract class PrinterBase {
     	}
 	    mTextToPrint.append(createLine("=") + "\n");
 	    
-	   if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
-//	    	Computer comp = new Computer(mContext);
-//	    	if(comp.getComputerProperty().getPrintVatInReceipt() == 1){
-	        	String beforeVatText = mContext.getString(R.string.before_vat);
-	        	String strBeforeVat = mFormat.currencyFormat(beforVat);
-	        	String vatRateText = mContext.getString(R.string.vat) + " " +
-	        			NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
-			    // before vat
-			    mTextToPrint.append(beforeVatText);
-			    mTextToPrint.append(createHorizontalSpace(
-			    		calculateLength(beforeVatText) + 
-			    		calculateLength(strBeforeVat)));
-			    mTextToPrint.append(strBeforeVat + "\n");
-			    // transaction vat
-		    	mTextToPrint.append(vatRateText);
-		    	mTextToPrint.append(createHorizontalSpace(
-		    			calculateLength(vatRateText) + 
-		    			calculateLength(strTransactionVat)));
-		    	mTextToPrint.append(strTransactionVat + "\n");
-//	    	}
-	    }
+	    // show vat ?
+    	if(isShowVat){
+        	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
+    		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
+        	String beforeVatText = mContext.getString(R.string.before_vat);
+        	String strBeforeVat = mFormat.currencyFormat(beforVat);
+        	String vatRateText = mContext.getString(R.string.vat) + " " +
+        			NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
+		    // before vat
+		    mTextToPrint.append(beforeVatText);
+		    mTextToPrint.append(createHorizontalSpace(
+		    		calculateLength(beforeVatText) + 
+		    		calculateLength(strBeforeVat)));
+		    mTextToPrint.append(strBeforeVat + "\n");
+		    // transaction vat
+	    	mTextToPrint.append(vatRateText);
+	    	mTextToPrint.append(createHorizontalSpace(
+	    			calculateLength(vatRateText) + 
+	    			calculateLength(strTransactionVat)));
+	    	mTextToPrint.append(strTransactionVat + "\n");
+    	}
 	    
     	// add footer
     	for(com.synature.pos.HeaderFooterReceipt hf : 

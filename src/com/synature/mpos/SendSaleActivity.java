@@ -95,6 +95,7 @@ public class SendSaleActivity extends MPOSActivityBase{
 		mTransLst = listNotSendTransaction();
 		mSyncAdapter = new SyncItemAdapter(mTransLst);
 		mLvSyncItem.setAdapter(mSyncAdapter);
+		mLvSyncItem.setSelection(mSyncAdapter.getCount() - 1);
 	}
 	
 	@Override
