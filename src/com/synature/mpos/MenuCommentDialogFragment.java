@@ -35,7 +35,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class MenuCommentActivity extends DialogFragment{
+public class MenuCommentDialogFragment extends DialogFragment{
 	
 	/**
 	 * selected order position
@@ -65,10 +65,10 @@ public class MenuCommentActivity extends DialogFragment{
 	private EditText mTxtComment;
 	private ImageButton mBtnHideKeyboard;
 	
-	public static MenuCommentActivity newInstance(int position, int transactionId, 
+	public static MenuCommentDialogFragment newInstance(int position, int transactionId, 
 			int computerId, int orderDetailId, int vatType, double vatRate, 
 			String menuName, String orderComment){
-		MenuCommentActivity f = new MenuCommentActivity();
+		MenuCommentDialogFragment f = new MenuCommentDialogFragment();
 		Bundle b = new Bundle();
 		b.putInt("position", position);
 		b.putInt("transactionId", transactionId);

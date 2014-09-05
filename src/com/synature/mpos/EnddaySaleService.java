@@ -10,8 +10,6 @@ import android.os.IBinder;
  */
 public class EnddaySaleService extends Service{
 	
-	public static final String TAG = EnddaySaleService.class.getSimpleName();
-	
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -54,7 +52,6 @@ public class EnddaySaleService extends Service{
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

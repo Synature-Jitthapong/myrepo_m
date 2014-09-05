@@ -175,7 +175,7 @@ public class Reporting extends MPOSDatabase{
 				String selection2 = " a." + OrderTransTable.COLUMN_STATUS_ID + "=?"
 						+ " AND a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
 						+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?,?,?,?) "
-						+ " AND b." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=?";
+						+ " AND c." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=?";
 				String[] selectionArgs2 = new String[]{
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 						mDateFrom,
@@ -203,7 +203,7 @@ public class Reporting extends MPOSDatabase{
 				Cursor cursor = getReadableDatabase().rawQuery(
 						" SELECT SUM(b." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
 						+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
-						+ " c." + ProductTable.COLUMN_PRODUCT_TYPE_ID + ", "
+						+ " b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + ", "
 						+ " c." + ProductTable.COLUMN_PRODUCT_CODE + ", "
 						+ " c." + ProductTable.COLUMN_PRODUCT_NAME + ", "
 						+ " c." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "
@@ -214,7 +214,7 @@ public class Reporting extends MPOSDatabase{
 						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " c "
 						+ " ON b." + ProductTable.COLUMN_PRODUCT_ID + "=c." + ProductTable.COLUMN_PRODUCT_ID
 						+ " WHERE " + selection2
-						+ " GROUP BY c." + ProductTable.COLUMN_PRODUCT_ID + ", c." + ProductTable.COLUMN_PRODUCT_TYPE_ID
+						+ " GROUP BY b." + ProductTable.COLUMN_PRODUCT_ID + ", b." + ProductTable.COLUMN_PRODUCT_TYPE_ID
 						+ " ORDER BY c." + COLUMN_ORDERING + ", c." + ProductTable.COLUMN_PRODUCT_NAME, selectionArgs2);
 				if(cursor.moveToFirst()){
 					do{

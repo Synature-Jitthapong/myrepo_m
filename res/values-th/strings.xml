@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">mPOS</string>
     <string name="lang_eng">ภาษาอังกฤษ</string>
     <string name="lang_thai">ภาษาไทย</string>
     <string name="login">ล็อกอิน</string>
@@ -30,7 +28,6 @@
     <string name="bank">ธนาคาร</string>
     <string name="card_type">ประเภทบัตร</string>
     <string name="expire_date">หมดอายุ</string>
-    <string name="enter">Enter</string>
     <string name="qty">จำนวน</string>
     <string name="sale_price">ราคาขาย</string>
     <string name="vat_exclude">ภาษี</string>
@@ -157,6 +154,7 @@
 	<string name="delete">ลบ</string>
 	<string name="reason">เหตุผล</string>
 	<string name="date">วันที่</string>
+    <string name="items">Items</string>
 	<string name="total_sale">ราคาสุทธิ</string>
 	<string name="hold_current_order">กรุณาพักรายการปัจจุบันก่อน</string>
 	<string name="select_item">กรุณาเลือกรายการก่อน</string>
@@ -183,4 +181,13 @@
 	<string name="please_wait">กรุณารอสักครู่&#8230;</string>
     <string name="confirm_fast_payment">ยืนยันการจ่ายเงินพอดี</string>
 	<string name="wintec_setting">ตั้งค่าเครื่อง mPOS</string>
+	<string name="invalid_url">url ไม่ถูกต้อง</string>
+	<string name="open_by">เปิดโดย</string>
+	<string name="close_by">ปิดโดย</string>
+	<string name="permission_required">ต้องการสิทธิ์ในการเข้าถึง</string>
+	<string name="not_have_permission_to_void">คุณไม่มีสิทธิ์ในการทำการ void</string>
+	<string name="not_have_permission_to_other_discount">คุณไม่มีสิทธิ์ในการให้ส่วนลดแบบอื่นๆ</string>
+	<string name="not_have_permission_to_access_pos">คุณไม่มีสิทธิ์ในการเข้าระบบ mPOS</string>
+	<string name="test">Test</string>
+	<string name="shift_close_report">รายงานสรุปกะ</string>
 </resources>

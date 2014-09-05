@@ -240,9 +240,9 @@ public class VoidBillActivity extends MPOSActivityBase {
 		OrderTransaction ordTrans = mTrans.getTransaction(mTransactionId);
 		if(ordTrans != null){
 			if(ordTrans.getTransactionStatusId() == Transaction.TRANS_STATUS_SUCCESS)
-				((TextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());
+				((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());
 			else if(ordTrans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID)
-				((TextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEjVoid());
+				((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEjVoid());
 		}
 	}
 

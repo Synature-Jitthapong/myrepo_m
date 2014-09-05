@@ -161,7 +161,7 @@
         </activity>
         <activity
             android:name=".PromotionActivity"
-            android:label="@string/title_activity_promotion" >
+            android:label="@string/title_activity_promotion" android:screenOrientation="landscape" android:windowSoftInputMode="stateAlwaysHidden">
         </activity>
     </application>
 

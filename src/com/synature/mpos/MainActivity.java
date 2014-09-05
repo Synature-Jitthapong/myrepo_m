@@ -90,7 +90,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends MPOSFragmentActivityBase implements 
-	MenuCommentActivity.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
+	MenuCommentDialogFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
 	UserVerifyDialogFragment.OnCheckPermissionListener{
 	
 	public static final String TAG = MainActivity.class.getSimpleName();
@@ -452,8 +452,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * summary transaction 
 	 */
 	public void summary(){
-		mTbSummary.removeAllViews();
+		if(mTbSummary.getChildCount() > 0)
+			mTbSummary.removeAllViews();
 		
+		mTrans.summaryTransaction(mTransactionId);
 		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId);
 		
 		mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
@@ -864,8 +866,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 				@Override
 				public void onClick(View v) {
-					MenuCommentActivity commentDialog = 
-							MenuCommentActivity.newInstance(groupPosition, mTransactionId, 
+					MenuCommentDialogFragment commentDialog = 
+							MenuCommentDialogFragment.newInstance(groupPosition, mTransactionId, 
 									mComputerId, orderDetail.getOrderDetailId(), 
 									orderDetail.getVatType(), mProducts.getVatRate(orderDetail.getProductId()),
 									orderDetail.getProductName(), orderDetail.getOrderComment());
@@ -987,7 +989,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		@Override
 		public void notifyDataSetChanged() {
 			summary();
-			countSelectedOrder();
 			super.notifyDataSetChanged();
 		}
 	}
@@ -1012,24 +1013,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				mOrder.setChecked(true);
 			}
 			mOrderDetailAdapter.notifyDataSetChanged();
-		}
-	}
-	
-	/**
-	 * Count selected orderitem
-	 */
-	private void countSelectedOrder(){
-		int totalSelected = 0;
-		TextView tvOrderSelected = (TextView) findViewById(R.id.tvOrderSelected);
-		for(OrderDetail order : mOrderDetailLst){
-			if(order.isChecked()){
-				totalSelected ++;
-			}
-		}
-		if(totalSelected > 0){
-			tvOrderSelected.setText(getString(R.string.item_selection) + "(" + totalSelected + ")");
-		}else{
-			tvOrderSelected.setText(null);
 		}
 	}
 		
@@ -1342,6 +1325,9 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 	public void onClick(View v) {
 		switch(v.getId()){
+		case R.id.btnBillDetail:
+			showBillDetail();
+			break;
 		case R.id.btnDelOrder:
 			deleteSelectedOrder();
 			break;
@@ -1522,15 +1508,12 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				
 			}
 		})
 		.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				mTrans.cancelTransaction(mTransactionId);
 				startActivity(new Intent(MainActivity.this, LoginActivity.class));
 				finish();
 			}
@@ -1841,6 +1824,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 	}
 
+	private void showBillDetail(){
+		BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId);
+		bf.show(getFragmentManager(), "BillDetailFragment");
+	}
+	
 	/**
 	 * delete multiple selected order
 	 */
@@ -2203,6 +2191,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	@Override
 	public void onCloseShift(double cashAmount) {
 		mSession.closeSession(mSessionId, mStaffId, cashAmount, false);
+		mTrans.cancelTransaction(mTransactionId);
 
 		// send sale data service
 		mPartService.sendSale(mShopId, mSessionId, mTransactionId, 
@@ -2226,6 +2215,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		boolean endday = Utils.endday(MainActivity.this, mShopId, 
 				mComputerId, mSessionId, mStaffId, cashAmount, true);
 		if(endday){
+			mTrans.cancelTransaction(mTransactionId);
 			int totalSess = mSession.countSession(mSession.getLastSessionDate());
 			if(totalSess > 1){
 				new PrintReport(MainActivity.this, 

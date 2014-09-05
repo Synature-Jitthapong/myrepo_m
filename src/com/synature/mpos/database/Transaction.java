@@ -685,7 +685,8 @@ public class Transaction extends MPOSDatabase {
 				+ " a." + OrderDetailTable.COLUMN_PRICE_OR_PERCENT + ","
 				+ " a." + BaseColumn.COLUMN_REMARK + ","
 				+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", "
-				+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME2
 				+ " FROM " + OrderDetailTable.TABLE_ORDER + " a"
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b"
 				+ " ON a."  + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID
@@ -715,7 +716,8 @@ public class Transaction extends MPOSDatabase {
 				+ " a." + OrderDetailTable.COLUMN_PRICE_OR_PERCENT + ","
 				+ " a." + BaseColumn.COLUMN_REMARK + ","
 				+ " b." + ProductTable.COLUMN_PRODUCT_NAME + ", "
-				+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "
+				+ " b." + ProductTable.COLUMN_PRODUCT_NAME2
 				+ " FROM " + OrderDetailTable.TABLE_ORDER + " a"
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b"
 				+ " ON a."  + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID
@@ -1027,7 +1029,6 @@ public class Transaction extends MPOSDatabase {
 				new String[] { 
 						String.valueOf(transactionId) 
 				});
-		updateTransactionVat(transactionId);
 		updateTransactionVatable(transactionId, totalSalePrice, vatType, vatRate);
 	}
 
@@ -1305,7 +1306,7 @@ public class Transaction extends MPOSDatabase {
 					String.valueOf(transactionId)
 				});
 	}
-	
+
 	/**
 	 * Update transaction vat
 	 * @param transactionId
@@ -1323,6 +1324,14 @@ public class Transaction extends MPOSDatabase {
 				new String[] { String.valueOf(transactionId) });
 	}
 
+	/**
+	 * Update transaction vat
+	 * @param transactionId
+	 */
+	public void summaryTransaction(int transactionId){
+		updateTransactionVat(transactionId);	
+	}
+	
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
@@ -2099,9 +2108,9 @@ public class Transaction extends MPOSDatabase {
 	
 	private OrderComment toOrderComment(Cursor cursor){
 		OrderComment cm = new OrderComment();
+		cm.setCommentId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
 		cm.setCommentName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
 		cm.setCommentName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
-		cm.setCommentName2(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2)));
 		cm.setCommentQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
 		cm.setCommentPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 		return cm;

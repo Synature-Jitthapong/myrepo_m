@@ -1,7 +1,5 @@
 package com.synature.mpos;
 
-import com.synature.mpos.database.Transaction;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -32,37 +30,30 @@ public class SaleService extends Service{
 	 */
 	public void sendEnddaySale(final int shopId, final int computerId, final int staffId, 
 			final WebServiceWorkingListener listener){
-		Transaction trans = new Transaction(getApplicationContext());
-		boolean haveTransUnSend = trans.countTransUnSend() > 0;
-		if(haveTransUnSend){
-			new EnddayUnSendSaleExecutor(getApplicationContext(),
-					shopId, computerId, staffId, new WebServiceWorkingListener(){
-	
-						@Override
-						public void onPreExecute() {
-							listener.onPreExecute();
-						}
-	
-						@Override
-						public void onProgressUpdate(int value) {
-						}
-	
-						@Override
-						public void onPostExecute() {
-							listener.onPostExecute();
-						}
-	
-						@Override
-						public void onError(String msg) {
-							new EnddaySenderExecutor(getApplicationContext(), 
-									shopId, computerId, staffId, listener).run();
-						}
-				
-			}).run();
-		}else{
-			new EnddaySenderExecutor(getApplicationContext(), 
-					shopId, computerId, staffId, listener).run();
-		}
+		new EnddayUnSendSaleExecutor(getApplicationContext(),
+				shopId, computerId, staffId, new WebServiceWorkingListener(){
+
+					@Override
+					public void onPreExecute() {
+						listener.onPreExecute();
+					}
+
+					@Override
+					public void onProgressUpdate(int value) {
+					}
+
+					@Override
+					public void onPostExecute() {
+						listener.onPostExecute();
+					}
+
+					@Override
+					public void onError(String msg) {
+						new EnddaySenderExecutor(getApplicationContext(), 
+								shopId, computerId, staffId, listener).run();
+					}
+			
+		}).run();
 	}
 	
 	/**

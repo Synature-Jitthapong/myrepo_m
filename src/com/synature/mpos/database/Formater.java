@@ -255,6 +255,6 @@ public class Formater extends MPOSDatabase{
 	}
 	
 	private Locale getLocale(){
-		return new Locale(Utils.getLangCode(mContext));
+		return Locale.getDefault();//Utils.getLangCode(mContext));
 	}
 }

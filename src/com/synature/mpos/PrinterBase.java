@@ -562,7 +562,7 @@ public abstract class PrinterBase {
 		String saleDate = mContext.getString(R.string.date) + " " +
 				mFormat.dateTimeFormat(Utils.getCalendar().getTime());
 		String receiptNo = mContext.getString(R.string.receipt_no) + " " +
-				trans.getReceiptNo();
+				(TextUtils.isEmpty(trans.getReceiptNo()) ? "-" : trans.getReceiptNo());
 		String cashCheer = mContext.getString(R.string.cashier) + " " +
 				mStaff.getStaff(trans.getOpenStaffId()).getStaffName();
 		mTextToPrint.append(saleDate + createHorizontalSpace(calculateLength(saleDate)) + "\n");
@@ -729,24 +729,26 @@ public abstract class PrinterBase {
 	    
 	    // show vat ?
     	if(isShowVat){
-        	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
-    		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-        	String beforeVatText = mContext.getString(R.string.before_vat);
-        	String strBeforeVat = mFormat.currencyFormat(beforVat);
-        	String vatRateText = mContext.getString(R.string.vat) + " " +
-        			NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
-		    // before vat
-		    mTextToPrint.append(beforeVatText);
-		    mTextToPrint.append(createHorizontalSpace(
-		    		calculateLength(beforeVatText) + 
-		    		calculateLength(strBeforeVat)));
-		    mTextToPrint.append(strBeforeVat + "\n");
-		    // transaction vat
-	    	mTextToPrint.append(vatRateText);
-	    	mTextToPrint.append(createHorizontalSpace(
-	    			calculateLength(vatRateText) + 
-	    			calculateLength(strTransactionVat)));
-	    	mTextToPrint.append(strTransactionVat + "\n");
+    		if(trans.getTransactionVatable() > 0){
+	    		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
+	        	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
+	        	String beforeVatText = mContext.getString(R.string.before_vat);
+	        	String strBeforeVat = mFormat.currencyFormat(beforVat);
+	        	String vatRateText = mContext.getString(R.string.vat) + " " +
+	        			NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
+			    // before vat
+			    mTextToPrint.append(beforeVatText);
+			    mTextToPrint.append(createHorizontalSpace(
+			    		calculateLength(beforeVatText) + 
+			    		calculateLength(strBeforeVat)));
+			    mTextToPrint.append(strBeforeVat + "\n");
+			    // transaction vat
+		    	mTextToPrint.append(vatRateText);
+		    	mTextToPrint.append(createHorizontalSpace(
+		    			calculateLength(vatRateText) + 
+		    			calculateLength(strTransactionVat)));
+		    	mTextToPrint.append(strTransactionVat + "\n");
+    		}
     	}
 	    
     	// add footer

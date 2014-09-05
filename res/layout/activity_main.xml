@@ -50,7 +50,6 @@
                 android:minWidth="48dip"
                 android:onClick="clearBarCodeClicked"
                 android:src="@drawable/ic_action_cancel" />
-
         </RelativeLayout>
 
         <ExpandableListView
@@ -61,40 +60,47 @@
             android:childDivider="@android:color/transparent" >
         </ExpandableListView>
 
-        <LinearLayout
-            android:id="@+id/orderCtrlContent"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
             android:padding="4dp" >
-
-            <TextView
-                android:id="@+id/tvOrderSelected"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <ImageButton
-                android:id="@+id/btnClearSelOrder"
-                style="@style/GrayButtonOval"
-                android:layout_width="48dp"
-                android:layout_height="wrap_content"
-                android:minHeight="48dip"
-                android:minWidth="48dip"
-                android:onClick="onClick"
-                android:src="@android:drawable/ic_menu_revert" />
 
             <ImageButton
                 android:id="@+id/btnDelOrder"
                 style="@style/GrayButtonOval"
                 android:layout_width="48dp"
                 android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
                 android:minHeight="48dip"
                 android:minWidth="48dip"
                 android:onClick="onClick"
                 android:src="@android:drawable/ic_menu_delete" />
 
-        </LinearLayout>
+            <ImageButton
+                android:id="@+id/btnClearSelOrder"
+                style="@style/GrayButtonOval"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/btnDelOrder"
+                android:minHeight="48dip"
+                android:minWidth="48dip"
+                android:onClick="onClick"
+                android:src="@android:drawable/ic_menu_revert" />
+
+            <ImageButton
+                android:id="@+id/btnBillDetail"
+                style="@style/GrayButtonOval"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignTop="@+id/btnClearSelOrder"
+                android:minWidth="48dip"
+                android:onClick="onClick"
+                android:src="@drawable/ic_action_receipt" />
+
+        </RelativeLayout>
 
         <TableLayout
             android:id="@+id/tbLayoutSummary"
@@ -124,7 +130,6 @@
                 android:onClick="paymentClicked"
                 android:text="@string/payment"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-
         </LinearLayout>
     </LinearLayout>
 
@@ -146,7 +151,6 @@
             android:layout_height="0dp"
             android:layout_margin="4dp"
             android:layout_weight="1" >
-
         </android.support.v4.view.ViewPager>
 
         <RelativeLayout
@@ -196,9 +200,7 @@
                 android:onClick="holdOrderClicked"
                 android:text="@string/hold"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-
         </RelativeLayout>
-
     </LinearLayout>
 
 </LinearLayout>
