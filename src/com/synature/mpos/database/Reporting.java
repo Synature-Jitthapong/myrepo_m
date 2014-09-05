@@ -114,7 +114,7 @@ public class Reporting extends MPOSDatabase{
 	}
 	
 	/**
-	 * Get Summary Product by Group for print Summary Sale By Day
+	 * Get Summary product for print summary sale
 	 * @return List<SimpleProductData>
 	 */
 	public List<SimpleProductData> listSummaryProductGroupInDay(int sessId){
@@ -175,7 +175,7 @@ public class Reporting extends MPOSDatabase{
 				String selection2 = " a." + OrderTransTable.COLUMN_STATUS_ID + "=?"
 						+ " AND a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
 						+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?,?,?,?) "
-						+ " AND d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=?";
+						+ " AND b." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=?";
 				String[] selectionArgs2 = new String[]{
 						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
 						mDateFrom,
@@ -213,12 +213,9 @@ public class Reporting extends MPOSDatabase{
 						+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 						+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " c "
 						+ " ON b." + ProductTable.COLUMN_PRODUCT_ID + "=c." + ProductTable.COLUMN_PRODUCT_ID
-						+ " LEFT JOIN " + ProductDeptTable.TABLE_PRODUCT_DEPT + " d "
-						+ " ON c." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + "=d." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID
 						+ " WHERE " + selection2
-						+ " GROUP BY c." + ProductTable.COLUMN_PRODUCT_ID
-						+ " ORDER BY d." + COLUMN_ORDERING + ", d." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ","
-						+ " c." + COLUMN_ORDERING + ", c." + ProductTable.COLUMN_PRODUCT_NAME, selectionArgs2);
+						+ " GROUP BY c." + ProductTable.COLUMN_PRODUCT_ID + ", c." + ProductTable.COLUMN_PRODUCT_TYPE_ID
+						+ " ORDER BY c." + COLUMN_ORDERING + ", c." + ProductTable.COLUMN_PRODUCT_NAME, selectionArgs2);
 				if(cursor.moveToFirst()){
 					do{
 						SimpleProductData.Item item = new SimpleProductData.Item();
@@ -639,8 +636,7 @@ public class Reporting extends MPOSDatabase{
 				+ " WHERE " + selection + ") AS SummTotalSalePrice " 
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
 				+ " WHERE " + selection
-				+ " GROUP BY " + ProductTable.COLUMN_PRODUCT_ID + ", "
-				+ ProductTable.COLUMN_PRODUCT_TYPE_ID;
+				+ " GROUP BY " + ProductTable.COLUMN_PRODUCT_ID + ", " + ProductTable.COLUMN_PRODUCT_TYPE_ID;
 		Cursor cursor = getWritableDatabase().rawQuery(sql, null);
 		
 		if(cursor.moveToFirst()){

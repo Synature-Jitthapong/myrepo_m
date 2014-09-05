@@ -6,22 +6,39 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.SaleTransaction;
+import com.synature.mpos.database.Session;
+import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.synature.util.Logger;
 
-public abstract class JSONSaleDataGenerator {
+public abstract class EnddayBase {
 	
 	protected Context mContext;
+
+	protected Transaction mTrans;
+	protected Session mSession;
 	protected SaleTransaction mSaleTrans;
+	protected int mShopId;
+	protected int mComputerId;
+	protected int mStaffId;
 	
-	public JSONSaleDataGenerator(Context context){
+	protected WebServiceWorkingListener mListener;
+	
+	public EnddayBase(Context context, int shopId, int computerId, int staffId, WebServiceWorkingListener listener){
 		mContext = context;
 		mSaleTrans = new SaleTransaction(context);
+		mTrans = new Transaction(context);
+		mSession = new Session(context);
+		mShopId = shopId;
+		mComputerId = computerId;
+		mStaffId = staffId;
+		mListener = listener;
 	}
 	
-	public String generateSale(int transactionId, int sessionId){
+	protected String generateSale(int transactionId, int sessionId){
 		String json = null;
 		try {
 			Gson gson = new Gson();
@@ -34,7 +51,7 @@ public abstract class JSONSaleDataGenerator {
 		return json;
 	}
 	
-	public String generateEnddayUnSendSale(String sessionDate){
+	protected String generateEnddayUnSendSale(String sessionDate){
 		String json = null;
 		try {
 			Gson gson = new Gson();
@@ -47,7 +64,7 @@ public abstract class JSONSaleDataGenerator {
 		return json;
 	}
 	
-	public String generateEnddaySale(String sessionDate){
+	protected String generateEnddaySale(String sessionDate){
 		String json = null;
 		try {
 			Gson gson = new Gson();
@@ -58,5 +75,15 @@ public abstract class JSONSaleDataGenerator {
 					" Error at generate json end day : " + e.getMessage());
 		}
 		return json;
+	}
+	
+	protected void setFailStatus(String sessionDate){
+		mSession.updateSessionEnddayDetail(sessionDate, MPOSDatabase.NOT_SEND);
+		mTrans.updateTransactionSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
+	}
+	
+	protected void setSuccessStatus(String sessionDate){
+		mSession.updateSessionEnddayDetail(sessionDate, MPOSDatabase.ALREADY_SEND);
+		mTrans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 	}
 }

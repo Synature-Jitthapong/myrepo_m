@@ -2028,7 +2028,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	private void countSaleDataNotSend(){
 		if(mItemSendData != null){
-			int totalTrans = mTrans.countTransNotSend();
+			int totalTrans = mTrans.countTransUnSend();
 			int totalSess = mSession.countSessionEnddayNotSend();
 			int totalData = totalTrans + totalSess;
 			if(totalData > 0){

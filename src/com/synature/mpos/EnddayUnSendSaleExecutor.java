@@ -1,33 +1,15 @@
 package com.synature.mpos;
 
-import com.synature.mpos.database.MPOSDatabase;
-import com.synature.mpos.database.Session;
-import com.synature.mpos.database.Transaction;
 import com.synature.util.Logger;
 
 import android.content.Context;
 import android.text.TextUtils;
 
-public class EnddayUnSendSaleExecutor extends JSONSaleDataGenerator implements Runnable{
-
-	private Transaction mTrans;
-	private Session mSession;
-	
-	private int mShopId;
-	private int mComputerId;
-	private int mStaffId;
-	
-	private WebServiceWorkingListener mListener;
+public class EnddayUnSendSaleExecutor extends EnddayBase implements Runnable{
 	
 	public EnddayUnSendSaleExecutor(Context context, int shopId, int computerId, 
 			int staffId, WebServiceWorkingListener listener) {
-		super(context);
-		mTrans = new Transaction(context);
-		mSession = new Session(context);
-		mShopId = shopId;
-		mComputerId = computerId;
-		mStaffId = staffId;
-		mListener = listener;
+		super(context, shopId, computerId, staffId, listener);
 	}
 
 	@Override
@@ -53,8 +35,7 @@ public class EnddayUnSendSaleExecutor extends JSONSaleDataGenerator implements R
 	
 						@Override
 						public void onPostExecute() {
-							mSession.updateSessionEnddayDetail(sessionDate, MPOSDatabase.ALREADY_SEND);
-							mTrans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+							setSuccessStatus(sessionDate);
 							Logger.appendLog(mContext, Utils.LOG_PATH, 
 									Utils.LOG_FILE_NAME, "Send endday unsend trans successfully");
 							mListener.onPostExecute();

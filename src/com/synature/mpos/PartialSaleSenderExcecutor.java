@@ -1,38 +1,27 @@
 package com.synature.mpos;
 
 import com.synature.mpos.database.MPOSDatabase;
-import com.synature.mpos.database.Transaction;
 import com.synature.util.Logger;
 
 import android.content.Context;
 import android.text.TextUtils;
 
-public class PartialSaleSenderExcecutor extends JSONSaleDataGenerator implements Runnable{
+public class PartialSaleSenderExcecutor extends EnddayBase implements Runnable{
 
-	private Transaction mTrans;
-	
 	private int mSessionId;
 	private int mTransactionId;
-	private int mShopId;
-	private int mComputerId;
-	private int mStaffId;
-	private WebServiceWorkingListener mListener;
 	
 	public PartialSaleSenderExcecutor(Context context, int sessionId, int transactionId,
 			int shopId, int computerId, int staffId, WebServiceWorkingListener listener) {
-		super(context);
+		super(context, shopId, computerId, staffId, listener);
 		mSessionId = sessionId;
 		mTransactionId = transactionId;
-		mShopId = shopId;
-		mComputerId = computerId;
-		mStaffId = staffId;
-		mTrans = new Transaction(context);
 		mListener = listener;
 	}
 
 	@Override
 	public void run() {
-		final String json = super.generateSale(mTransactionId, mSessionId);
+		final String json = generateSale(mTransactionId, mSessionId);
 		if(!TextUtils.isEmpty(json)){
 			new PartialSaleSender(mContext, 
 					mShopId, mComputerId, mStaffId, json, new WebServiceWorkingListener() {

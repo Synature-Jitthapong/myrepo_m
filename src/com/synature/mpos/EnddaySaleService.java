@@ -4,6 +4,10 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+/**
+ * @author j1tth4
+ * Service for send background sale data
+ */
 public class EnddaySaleService extends Service{
 	
 	public static final String TAG = EnddaySaleService.class.getSimpleName();

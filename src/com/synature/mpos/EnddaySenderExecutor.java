@@ -3,9 +3,6 @@ package com.synature.mpos;
 import java.util.Iterator;
 import java.util.List;
 
-import com.synature.mpos.database.MPOSDatabase;
-import com.synature.mpos.database.Session;
-import com.synature.mpos.database.Transaction;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.util.Logger;
 
@@ -13,24 +10,11 @@ import android.content.Context;
 import android.database.SQLException;
 import android.text.TextUtils;
 
-public class EnddaySenderExecutor extends JSONSaleDataGenerator implements Runnable{
-	
-	private Session mSession;
-	private Transaction mTrans;
-	private int mShopId;
-	private int mComputerId;
-	private int mStaffId;
-	private WebServiceWorkingListener mListener;
+public class EnddaySenderExecutor extends EnddayBase implements Runnable{
 	
 	public EnddaySenderExecutor(Context context, int shopId, 
 			int computerId, int staffId, WebServiceWorkingListener listener) {
-		super(context);
-		mShopId = shopId;
-		mComputerId = computerId;
-		mStaffId = staffId;
-		mSession = new Session(context);
-		mTrans = new Transaction(context);
-		mListener = listener;
+		super(context, shopId, computerId, staffId, listener);
 	}
 
 	@Override
@@ -46,8 +30,7 @@ public class EnddaySenderExecutor extends JSONSaleDataGenerator implements Runna
 
 							@Override
 							public void onError(String mesg) {
-								mSession.updateSessionEnddayDetail(sessionDate, MPOSDatabase.NOT_SEND);
-								mTrans.updateTransactionSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
+								setFailStatus(sessionDate);
 								Utils.logServerResponse(mContext, " Send endday fail " + mesg);
 								mListener.onError(mesg);
 							}
@@ -61,8 +44,7 @@ public class EnddaySenderExecutor extends JSONSaleDataGenerator implements Runna
 							@Override
 							public void onPostExecute() {
 								try {
-									mSession.updateSessionEnddayDetail(sessionDate, MPOSDatabase.ALREADY_SEND);
-									mTrans.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+									setSuccessStatus(sessionDate);
 									// log json sale if send to server success
 									JSONSaleLogFile.appendEnddaySale(mContext, sessionDate, json);
 									if (!it.hasNext()) {

@@ -1119,7 +1119,7 @@ public class Transaction extends MPOSDatabase {
 	/**
 	 * @return total transaction that not sent
 	 */
-	public int countTransNotSend() {
+	public int countTransUnSend() {
 		int total = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT COUNT(" + OrderTransTable.COLUMN_TRANS_ID + ") "
