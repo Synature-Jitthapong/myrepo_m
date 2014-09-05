@@ -28,14 +28,14 @@ public class WintecCustomerDisplay{
 	
 	public void displayTotalPay(String totalPay, String change){
 		clearScreen();
-		mDsp.DSP_Dispay(mContext.getString(R.string.cash));
+		mDsp.DSP_Dispay("Cash");
 		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - totalPay.length());
 		mDsp.DSP_Dispay(totalPay);
 		try {
 			if(Utils.stringToDouble(change) > 0){
 				mDsp.DSP_MoveCursorDown();
 				mDsp.DSP_MoveCursorEndLeft();
-				mDsp.DSP_Dispay(mContext.getString(R.string.change));
+				mDsp.DSP_Dispay("Change");
 				mDsp.DSP_MoveCursor(2, MAX_TEXT_LENGTH - change.length());
 				mDsp.DSP_Dispay(change);
 			}
@@ -57,7 +57,7 @@ public class WintecCustomerDisplay{
 		mDsp.DSP_Dispay(combindText);
 		mDsp.DSP_MoveCursorDown();
 		mDsp.DSP_MoveCursorEndLeft();
-		mDsp.DSP_Dispay(mContext.getString(R.string.total));
+		mDsp.DSP_Dispay("Total");
 		mDsp.DSP_MoveCursor(2, MAX_TEXT_LENGTH - orderTotalPrice.length());
 		mDsp.DSP_Dispay(orderTotalPrice);
 		close();

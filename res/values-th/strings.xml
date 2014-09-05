@@ -18,7 +18,7 @@
     <string name="total_receive">จำนวนใบเสร็จ</string>
     <string name="change">เงินทอน</string>
     <string name="price">ราคา</string>
-    <string name="pay_type">ประเภทชำระ</string>
+    <string name="pay_type">ประเภท</string>
     <string name="total_payment">ยอดชำระ</string>
     <string name="payment_left">ต้องชำระอีก</string>
     <string name="item_no">#</string>
@@ -100,7 +100,7 @@
     <string name="credit_card">เครดิตการ์ด</string>
     <string name="before_vat">ราคาก่อนภาษี</string>
     <string name="clear_order_first">กรุณายกเลิกรายการปัจจุบันก่อน</string>
-    <string name="barcode">บาร์โคด</string>
+    <string name="barcode">บาร์โค้ด</string>
     <string name="font">ฟอนต์</string>
     <string name="device_code">หมายเลขเครื่อง: </string>
     <string name="reprint_receipt">พิมพ์ใบเสร็จ</string>

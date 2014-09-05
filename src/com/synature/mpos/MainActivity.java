@@ -55,6 +55,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -181,6 +182,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		mDsp = new WintecCustomerDisplay(this);
 
 		//setupCustomSwLang();
+		setupTitle();
 		setupBarCodeEvent();
 		setupMenuDeptPager();
 	}
@@ -264,6 +266,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			}
 			
 		});
+	}
+	
+	private void setupTitle(){
+		Staffs staff = new Staffs(this);
+		com.synature.pos.Staff s = staff.getStaff(mStaffId);
+		setTitle(mShop.getShopName());
+		getActionBar().setSubtitle(s.getStaffName());
 	}
 	
 	private void setupMenuDeptPager(){
@@ -1422,16 +1431,12 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	
 			@Override
 			public void onClick(View v) {
-				String user = "";
-				String pass = "";
-			
-				if(!txtUser.getText().toString().isEmpty()){
-					user = txtUser.getText().toString();
-					
-					if(!txtPassword.getText().toString().isEmpty()){
+				String user = txtUser.getText().toString();
+				String pass = txtPassword.getText().toString();
+				if(!TextUtils.isEmpty(user)){
+					if(!TextUtils.isEmpty(pass)){
 						pass = txtPassword.getText().toString();
 						UserVerification login = new UserVerification(MainActivity.this, user, pass);
-						
 						if(login.checkUser()){
 							com.synature.pos.Staff s = login.checkLogin();
 							if(s != null){
@@ -1439,56 +1444,16 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 								init();
 								d.dismiss();
 							}else{
-								new AlertDialog.Builder(MainActivity.this)
-								.setTitle(R.string.login)
-								.setMessage(R.string.incorrect_password)
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										
-									}
-								})
-								.show();
+								txtPassword.setError(getString(R.string.incorrect_password));
 							}
 						}else{
-							new AlertDialog.Builder(MainActivity.this)
-							.setTitle(R.string.login)
-							.setMessage(R.string.incorrect_staff_code)
-							.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									
-								}
-							})
-							.show();
+							txtUser.setError(getString(R.string.incorrect_staff_code));
 						}
 					}else{
-						new AlertDialog.Builder(MainActivity.this)
-						.setTitle(R.string.login)
-						.setMessage(R.string.enter_password)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								
-							}
-						})
-						.show();
+						txtPassword.setError(getString(R.string.enter_password));
 					}
 				}else{
-					new AlertDialog.Builder(MainActivity.this)
-					.setTitle(R.string.login)
-					.setMessage(R.string.enter_staff_code)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							
-						}
-					})
-					.show();
+					txtUser.setError(getString(R.string.enter_staff_code));
 				}
 			}
 			
@@ -1825,8 +1790,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	}
 
 	private void showBillDetail(){
-		BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId);
-		bf.show(getFragmentManager(), "BillDetailFragment");
+		if(mOrderDetailLst.size() > 0){
+			BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId);
+			bf.show(getFragmentManager(), "BillDetailFragment");
+		}
 	}
 	
 	/**

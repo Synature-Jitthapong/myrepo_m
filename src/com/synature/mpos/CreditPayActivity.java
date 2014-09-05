@@ -144,8 +144,8 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 			
 		});
 		
-		mPayment = new PaymentDetail(getApplicationContext());
-		mFormat = new Formater(getApplicationContext());
+		mPayment = new PaymentDetail(CreditPayActivity.this);
+		mFormat = new Formater(CreditPayActivity.this);
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -408,7 +408,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 	}
 	
 	private void loadCreditCardType(){
-		CreditCard cd = new CreditCard(getApplicationContext());
+		CreditCard cd = new CreditCard(CreditPayActivity.this);
 		mCreditCardLst = cd.listAllCreditCardType();
 		
 		CreditCardType cc = new CreditCardType();
@@ -439,7 +439,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 	}
 	
 	private void loadBankName(){
-		Bank bk = new Bank(getApplicationContext());
+		Bank bk = new Bank(CreditPayActivity.this);
 		mBankLst = bk.listAllBank();
 		
 		BankName b = new BankName();
@@ -516,7 +516,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 		private WintecMagneticReader mMsrReader;
 		
 		public MagneticReaderThread(){
-			mMsrReader = new WintecMagneticReader(getApplicationContext());
+			mMsrReader = new WintecMagneticReader(CreditPayActivity.this);
 		}
 		
 		@Override
@@ -526,7 +526,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 					final String content = mMsrReader.getTrackData();
 					
 					if(content.length() > 0){
-						Logger.appendLog(getApplicationContext(), 
+						Logger.appendLog(CreditPayActivity.this, 
 							Utils.LOG_PATH, Utils.LOG_FILE_NAME,
 							"Content : " + content);
 						runOnUiThread(new Runnable(){
@@ -577,12 +577,12 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 												mSpCardType.setSelection(0);
 											}
 										} catch (Exception e) {
-											Logger.appendLog(getApplicationContext(), 
+											Logger.appendLog(CreditPayActivity.this, 
 													Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 													"Error set selected spinner card type");
 										}
 										
-										Logger.appendLog(getApplicationContext(), 
+										Logger.appendLog(CreditPayActivity.this, 
 												Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 												"CARD NO : " + cardNo + " \n " +
 												"CARD HOLDER NAME : " + cardHolderName + "\n" +
@@ -599,7 +599,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 										}
 									})
 									.show();
-									Logger.appendLog(getApplicationContext(), 
+									Logger.appendLog(CreditPayActivity.this, 
 											Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 											"Error " + e.getMessage());
 								}
@@ -608,7 +608,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 						});
 					}
 				} catch (Exception e) {
-					Logger.appendLog(getApplicationContext(), 
+					Logger.appendLog(CreditPayActivity.this, 
 							Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 							" Error when read data from magnetic card : " + e.getMessage());
 				}
@@ -656,7 +656,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 						mSpCardType.setSelection(0);
 					}
 				} catch (Exception e) {
-					Logger.appendLog(getApplicationContext(), 
+					Logger.appendLog(CreditPayActivity.this, 
 							Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 							"Error set selected spinner card type");
 				}
@@ -672,7 +672,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 				}
 			})
 			.show();
-			Logger.appendLog(getApplicationContext(), 
+			Logger.appendLog(CreditPayActivity.this, 
 					Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 					"Error " + e.getMessage());
 		}
