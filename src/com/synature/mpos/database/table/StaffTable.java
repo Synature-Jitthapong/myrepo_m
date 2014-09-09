@@ -16,6 +16,7 @@ public class StaffTable {
 			+ COLUMN_STAFF_CODE + " text not null, " 
 			+ COLUMN_STAFF_NAME + " text not null, " 
 			+ COLUMN_STAFF_PASS + " text not null, " 
+			+ StaffPermissionTable.COLUMN_STAFF_ROLE_ID + " integer default 0, "
 			+ " primary key (" + COLUMN_STAFF_ID + "));";
 
 	public static void onCreate(SQLiteDatabase db) {

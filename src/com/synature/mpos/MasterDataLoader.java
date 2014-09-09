@@ -6,26 +6,26 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.synature.mpos.database.Bank;
-import com.synature.mpos.database.Computer;
-import com.synature.mpos.database.CreditCard;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.HeaderFooterReceipt;
-import com.synature.mpos.database.Language;
-import com.synature.mpos.database.MenuComment;
-import com.synature.mpos.database.PaymentAmountButton;
-import com.synature.mpos.database.PaymentDetail;
-import com.synature.mpos.database.ProductPrice;
-import com.synature.mpos.database.Products;
-import com.synature.mpos.database.PromotionDiscount;
-import com.synature.mpos.database.Shop;
-import com.synature.mpos.database.Staffs;
-import com.synature.mpos.database.SyncHistory;
+import com.synature.mpos.database.BankDao;
+import com.synature.mpos.database.ComputerDao;
+import com.synature.mpos.database.CreditCardDao;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.HeaderFooterReceiptDao;
+import com.synature.mpos.database.LanguageDao;
+import com.synature.mpos.database.MenuCommentDao;
+import com.synature.mpos.database.PaymentAmountButtonDao;
+import com.synature.mpos.database.PaymentDetailDao;
+import com.synature.mpos.database.ProductPriceDao;
+import com.synature.mpos.database.ProductsDao;
+import com.synature.mpos.database.PromotionDiscountDao;
+import com.synature.mpos.database.ShopDao;
+import com.synature.mpos.database.StaffsDao;
+import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.pos.MasterData;
 import com.synature.util.FileManager;
 import com.synature.util.Logger;
 
-public class MasterDataLoader extends MPOSMainService{
+public class MasterDataLoader extends MPOSServiceBase{
 	
 	public static final String LOAD_MASTER_METHOD = "WSmPOS_JSON_LoadShopMasterData";
 	
@@ -56,11 +56,11 @@ public class MasterDataLoader extends MPOSMainService{
 	protected void onPostExecute(String result) {
 		Gson gson = new Gson();
 		try {
-			MasterData master = (MasterData) gson.fromJson(result, MasterData.class);
+			MasterData master = gson.fromJson(result, MasterData.class);
 			updateMasterData(master);
 		} catch (JsonSyntaxException e) {
 			if(mListener != null)
-				mListener.onError(e.getMessage() + "\n" + result);
+				mListener.onError(result);
 		}
 	}
 
@@ -71,26 +71,27 @@ public class MasterDataLoader extends MPOSMainService{
 	}
 
 	private void updateMasterData(MasterData master){
-		SyncHistory sync = new SyncHistory(mContext);
-		Shop shop = new Shop(mContext);
-		Computer computer = new Computer(mContext);
-		Formater format = new Formater(mContext);
-		Staffs staff = new Staffs(mContext);
-		Language lang = new Language(mContext);
-		HeaderFooterReceipt hf = new HeaderFooterReceipt(mContext);
-		Bank bank = new Bank(mContext);
-		CreditCard cd = new CreditCard(mContext);
-		PaymentDetail pd = new PaymentDetail(mContext);
-		PaymentAmountButton pb = new PaymentAmountButton(mContext);
-		Products p = new Products(mContext);
-		ProductPrice pp = new ProductPrice(mContext);
-		MenuComment mc = new MenuComment(mContext);
-		PromotionDiscount promo = new PromotionDiscount(mContext);
+		SyncHistoryDao sync = new SyncHistoryDao(mContext);
+		ShopDao shop = new ShopDao(mContext);
+		ComputerDao computer = new ComputerDao(mContext);
+		FormaterDao format = new FormaterDao(mContext);
+		StaffsDao staff = new StaffsDao(mContext);
+		LanguageDao lang = new LanguageDao(mContext);
+		HeaderFooterReceiptDao hf = new HeaderFooterReceiptDao(mContext);
+		BankDao bank = new BankDao(mContext);
+		CreditCardDao cd = new CreditCardDao(mContext);
+		PaymentDetailDao pd = new PaymentDetailDao(mContext);
+		PaymentAmountButtonDao pb = new PaymentAmountButtonDao(mContext);
+		ProductsDao p = new ProductsDao(mContext);
+		ProductPriceDao pp = new ProductPriceDao(mContext);
+		MenuCommentDao mc = new MenuCommentDao(mContext);
+		PromotionDiscountDao promo = new PromotionDiscountDao(mContext);
 		try {
 			shop.insertShopProperty(master.getShopProperty());
 			computer.insertComputer(master.getComputerProperty());
 			format.insertProperty(master.getGlobalProperty());
 			staff.insertStaff(master.getStaffs());
+			staff.insertStaffPermission(master.getStaffPermission());
 			lang.insertLanguage(master.getLanguage());
 			hf.insertHeaderFooterReceipt(master.getHeaderFooterReceipt());
 			bank.insertBank(master.getBankName());
@@ -103,8 +104,6 @@ public class MasterDataLoader extends MPOSMainService{
 			pp.insertProductPrice(master.getProductPrice());
 			p.insertPComponentGroup(master.getPComponentGroup());
 			p.insertProductComponent(master.getProductComponent());
-			mc.insertMenuComment(master.getMenuComment());
-			mc.insertMenuCommentGroup(master.getMenuCommentGroup());
 			mc.insertMenuFixComment(master.getMenuFixComment());
 			promo.insertPromotionPriceGroup(master.getPromotionPriceGroup());
 			promo.insertPromotionProductDiscount(master.getPromotionProductDiscount());
@@ -113,12 +112,12 @@ public class MasterDataLoader extends MPOSMainService{
 			FileManager fm = new FileManager(mContext, Utils.IMG_DIR);
 			fm.clear();
 			// log sync history
-			sync.insertSyncLog(SyncHistory.SYNC_STATUS_SUCCESS);
+			sync.insertSyncLog(SyncHistoryDao.SYNC_STATUS_SUCCESS);
 			if(mListener != null)
 				mListener.onPostExecute();
 		} catch (Exception e) {
 			// log sync history
-			sync.insertSyncLog(SyncHistory.SYNC_STATUS_FAIL);
+			sync.insertSyncLog(SyncHistoryDao.SYNC_STATUS_FAIL);
 			Logger.appendLog(mContext, Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, 
 					"Error when add shop data : " + e.getMessage());

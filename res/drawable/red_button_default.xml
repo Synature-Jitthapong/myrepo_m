@@ -7,7 +7,7 @@
         android:bottom="2dp">
         <shape>
             <solid 
-                android:color="@color/light_gray_button"/>
+                android:color="@color/gray_light"/>
             <strok
                 android:width="1px"
                 android:color="@color/gray"/>

@@ -2,7 +2,6 @@ package com.synature.mpos;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -17,10 +16,9 @@ import java.util.List;
 
 public class SettingsActivity extends PreferenceActivity {
 
-	public static final int UPDATE_NEW_DATA = 2;
-	
 	public static final String KEY_PREF_SERVER_URL = "server_url";
 	public static final String KEY_PREF_CONN_TIME_OUT_LIST = "connection_time_out";
+	
 	public static final String KEY_PREF_PRINTER_IP = "printer_ip";
 	public static final String KEY_PREF_PRINTER_LIST = "printer_list";
 	public static final String KEY_PREF_PRINTER_INTERNAL = "printer_internal";
@@ -40,6 +38,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_DSP_TEXT_LINE2 = "dsp_wintec_line2";
 	public static final String KEY_PREF_ENABLE_SECOND_DISPLAY = "enable_second_display";
 	public static final String KEY_PREF_LANGUAGE_LIST = "language_list";
+	public static final String KEY_PREF_ENABLE_BACKUP_DB = "enable_backup_db";
 	
 	//private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
@@ -48,43 +47,12 @@ public class SettingsActivity extends PreferenceActivity {
 		super.onPostCreate(savedInstanceState);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        
-		//setupSimplePreferencesScreen();
-	}
-
-	private void setupSimplePreferencesScreen() {
-//		if (!isSimplePreferences(this)) {
-//			return;
-//		}
-		
-//		addPreferencesFromResource(R.xml.pref_connection);
-//		addPreferencesFromResource(R.xml.pref_general);
-//		addPreferencesFromResource(R.xml.pref_printer);
-//		addPreferencesFromResource(R.xml.pref_wintec);
-//		addPreferencesFromResource(R.xml.pref_second_display);
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONN_TIME_OUT_LIST));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_IP));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_LIST));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_DEV_PATH));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_PRINTER_BAUD_RATE));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_DEV_PATH));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DRW_BAUD_RATE));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_DEV_PATH));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_BAUD_RATE));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_TEXT_LINE1));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_DSP_TEXT_LINE2));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_DEV_PATH));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_MSR_BAUD_RATE));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_IP));
-//		bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
-			setResult(UPDATE_NEW_DATA);
 			finish();
 			return true;
 		default :
@@ -93,26 +61,9 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 
 	@Override
-	public boolean onIsMultiPane() {
-		return true;//isXLargeTablet(this) && !isSimplePreferences(this);
-	}
-
-//	private static boolean isXLargeTablet(Context context) {
-//		return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
-//	}
-//
-//	private static boolean isSimplePreferences(Context context) {
-//		return ALWAYS_SIMPLE_PREFS
-//				|| Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
-//				|| !isXLargeTablet(context);
-//	}
-
-	@Override
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void onBuildHeaders(List<Header> target) {
-		//if (!isSimplePreferences(this)) {
-			loadHeadersFromResource(R.xml.pref_headers, target);
-		//}
+		loadHeadersFromResource(R.xml.pref_headers, target);
 	}
 
 	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = 
@@ -207,8 +158,14 @@ public class SettingsActivity extends PreferenceActivity {
 		
 	}
 	
-	public void backupDbClick(final View v){
-		Utils.exportDatabase(getApplicationContext());
+	public void dspTestClick(final View v){
+		WintecCustomerDisplay dsp = new WintecCustomerDisplay(getApplicationContext());
+		dsp.displayWelcome();
+	}
+	
+	public void drwTestClick(final View v){
+		WintecCashDrawer drw = new WintecCashDrawer(getApplicationContext());
+		drw.openCashDrawer();
 	}
 	
 	public void printTestClick(final View v){

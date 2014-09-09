@@ -32,7 +32,8 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/textView1"
         android:layout_centerHorizontal="true"
-        android:layout_margin="8dp"
-        android:src="@drawable/company_logo" />
+        android:layout_marginBottom="32dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/mposlogo" />
 
 </RelativeLayout>

@@ -5,15 +5,15 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.SaleService.LocalBinder;
-import com.synature.mpos.database.Computer;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.MPOSOrderTransaction;
-import com.synature.mpos.database.PrintReceiptLog;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.common.MPOSActivityBase;
+import com.synature.mpos.database.ComputerDao;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.PrintReceiptLogDao;
+import com.synature.mpos.database.TransactionDao;
+import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
 import android.os.IBinder;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,20 +36,19 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class VoidBillActivity extends Activity {
+public class VoidBillActivity extends MPOSActivityBase {
 	
 	private SaleService mPartService;
 	private boolean mBound = false;
 	
-	private Transaction mTrans;
-	private Formater mFormat;
+	private TransactionDao mTrans;
+	private FormaterDao mFormat;
 	
-	private List<MPOSOrderTransaction> mTransLst;
-	private List<MPOSOrderTransaction.MPOSOrderDetail> mOrderLst;
+	private List<OrderTransaction> mTransLst;
 	private BillAdapter mBillAdapter;
-	private BillDetailAdapter mBillDetailAdapter;
 	
 	private int mTransactionId;
 	private int mComputerId;
@@ -57,45 +56,29 @@ public class VoidBillActivity extends Activity {
 	private int mShopId;
 	private int mStaffId;
 	
-	private String mReceiptNo;
-	private String mReceiptDate;
-	
 	private ListView mLvBill;
-	private ListView mLvBillDetail;
-	private EditText txtReceiptNo;
-	private EditText txtReceiptDate;
 	private TextView tvSaleDate;
 	private Button btnSearch;
+	private ScrollView mScrBill;
 	private MenuItem mItemConfirm;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		setContentView(R.layout.activity_void_bill);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
         
-		txtReceiptNo = (EditText) findViewById(R.id.txtReceiptNo);
-		txtReceiptDate = (EditText) findViewById(R.id.txtSaleDate);
 		mLvBill = (ListView) findViewById(R.id.lvBill);
-		mLvBillDetail = (ListView) findViewById(R.id.lvBillDetail);
 	    tvSaleDate = (TextView) findViewById(R.id.tvSaleDate);
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
+	    mScrBill = (ScrollView) findViewById(R.id.scrollView1);
 
-		mTrans = new Transaction(getApplicationContext());
-		mFormat = new Formater(getApplicationContext());
-		mTransLst = new ArrayList<MPOSOrderTransaction>();
-		mOrderLst = new ArrayList<MPOSOrderTransaction.MPOSOrderDetail>();
+		mTrans = new TransactionDao(getApplicationContext());
+		mFormat = new FormaterDao(getApplicationContext());
+		mTransLst = new ArrayList<OrderTransaction>();
 		mBillAdapter = new BillAdapter();
-		mBillDetailAdapter = new BillDetailAdapter();
 		mLvBill.setAdapter(mBillAdapter);
-		mLvBillDetail.setAdapter(mBillDetailAdapter);
 		
 		tvSaleDate.setText(mFormat.dateFormat(Utils.getCalendar().getTime()));
 	    
@@ -113,19 +96,17 @@ public class VoidBillActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View v, int position,
 					long id) {
-				Calendar c = Calendar.getInstance();
-				MPOSOrderTransaction trans = (MPOSOrderTransaction) parent.getItemAtPosition(position);
+				Calendar c = Utils.getCalendar();
+				OrderTransaction trans = (OrderTransaction) parent.getItemAtPosition(position);
 				c.setTimeInMillis(Long.parseLong(trans.getPaidTime()));
 				
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
 				mSessionId = trans.getSessionId();
-				mReceiptNo = trans.getReceiptNo();
-				mReceiptDate = mFormat.dateTimeFormat(c.getTime());
 				
-				if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_SUCCESS)
+				if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
 					mItemConfirm.setEnabled(true);
-				else if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID)
+				else if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID)
 					mItemConfirm.setEnabled(false);
 				searchVoidItem();
 			}
@@ -191,7 +172,7 @@ public class VoidBillActivity extends Activity {
 		}
 
 		@Override
-		public MPOSOrderTransaction getItem(int position) {
+		public OrderTransaction getItem(int position) {
 			return mTransLst.get(position);
 		}
 
@@ -213,7 +194,7 @@ public class VoidBillActivity extends Activity {
 				holder = (ViewHolder) convertView.getTag();
 			}
 			
-			final MPOSOrderTransaction trans = mTransLst.get(position);
+			final OrderTransaction trans = mTransLst.get(position);
 			Calendar c = Calendar.getInstance();
 			try {
 				c.setTimeInMillis(Long.parseLong(trans.getPaidTime()));
@@ -223,7 +204,7 @@ public class VoidBillActivity extends Activity {
 			}
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
 			holder.tvPaidTime.setText(mFormat.dateTimeFormat(c.getTime()));
-			if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
+			if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID){
 				holder.tvReceiptNo.setTextColor(Color.RED);
 				holder.tvReceiptNo.setPaintFlags(holder.tvReceiptNo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			}else{
@@ -239,68 +220,7 @@ public class VoidBillActivity extends Activity {
 		}
 	}
 	
-	private class BillDetailAdapter extends BaseAdapter{
-		
-		LayoutInflater inflater;
-		
-		public BillDetailAdapter(){
-			inflater = LayoutInflater.from(VoidBillActivity.this);
-		}
-		
-		@Override
-		public int getCount() {
-			return mOrderLst != null ? mOrderLst.size() : 0;
-		}
-
-		@Override
-		public MPOSOrderTransaction.OrderDetail getItem(int position) {
-			return mOrderLst.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			MPOSOrderTransaction.OrderDetail order = mOrderLst.get(position);
-			ViewHolder holder;
-			
-			if(convertView == null){
-				convertView = inflater.inflate(R.layout.void_item_template, null);
-				holder = new ViewHolder();
-				
-				holder.tvItem = (TextView) convertView.findViewById(R.id.tvItem);
-				holder.tvQty = (TextView) convertView.findViewById(R.id.tvQty);
-				holder.tvPrice = (TextView) convertView.findViewById(R.id.tvPrice);
-				holder.tvTotalPrice = (TextView) convertView.findViewById(R.id.tvTotalPrice);
-				
-				convertView.setTag(holder);
-			}else{
-				holder = (ViewHolder) convertView.getTag();
-			}
-		
-			holder.tvItem.setText(order.getProductName());
-			holder.tvQty.setText(mFormat.qtyFormat(order.getQty()));
-			holder.tvPrice.setText(mFormat.currencyFormat(order.getPricePerUnit()));
-			holder.tvTotalPrice.setText(mFormat.currencyFormat(order.getTotalRetailPrice()));
-			
-			return convertView;
-		}
-		
-		private class ViewHolder{
-			TextView tvItem;
-			TextView tvQty;
-			TextView tvPrice;
-			TextView tvTotalPrice;
-		}
-	}
-	
-	private void searchBill(){
-		txtReceiptNo.setText("");
-		txtReceiptDate.setText("");
-		
+	private void searchBill(){	
 		mTransLst = mTrans.listTransaction(String.valueOf(Utils.getDate().getTimeInMillis()));
 		if(mTransLst.size() == 0){
 			new AlertDialog.Builder(VoidBillActivity.this)
@@ -317,11 +237,13 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void searchVoidItem(){
-		txtReceiptNo.setText(mReceiptNo);
-		txtReceiptDate.setText(mReceiptDate);
-		
-		mOrderLst = mTrans.listAllOrder(mTransactionId);
-		mBillDetailAdapter.notifyDataSetChanged();
+		OrderTransaction ordTrans = mTrans.getTransaction(mTransactionId);
+		if(ordTrans != null){
+			if(ordTrans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
+				((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());
+			else if(ordTrans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID)
+				((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEjVoid());
+		}
 	}
 
 	public void confirm() {
@@ -376,9 +298,9 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void printReceipt(){
-		PrintReceiptLog printLog = 
-				new PrintReceiptLog(this);
-		Computer comp = new Computer(this);
+		PrintReceiptLogDao printLog = 
+				new PrintReceiptLogDao(this);
+		ComputerDao comp = new ComputerDao(this);
 		int isCopy = 0;
 		for(int i = 0; i < comp.getReceiptHasCopy(); i++){
 			if(i > 0)

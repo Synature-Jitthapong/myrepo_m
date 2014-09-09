@@ -28,14 +28,14 @@ public class WintecCustomerDisplay{
 	
 	public void displayTotalPay(String totalPay, String change){
 		clearScreen();
-		mDsp.DSP_Dispay(mContext.getString(R.string.cash));
+		mDsp.DSP_Dispay("Cash");
 		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - totalPay.length());
 		mDsp.DSP_Dispay(totalPay);
 		try {
 			if(Utils.stringToDouble(change) > 0){
 				mDsp.DSP_MoveCursorDown();
 				mDsp.DSP_MoveCursorEndLeft();
-				mDsp.DSP_Dispay(mContext.getString(R.string.change));
+				mDsp.DSP_Dispay("Change");
 				mDsp.DSP_MoveCursor(2, MAX_TEXT_LENGTH - change.length());
 				mDsp.DSP_Dispay(change);
 			}
@@ -43,7 +43,6 @@ public class WintecCustomerDisplay{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		close();
 	}
 	
 	public void displayOrder() throws Exception{
@@ -52,15 +51,15 @@ public class WintecCustomerDisplay{
 		}
 		clearScreen();
 		String combindText = orderQty + "@" + orderPrice;
+		String combindTotalText = orderTotalQty + "@" + orderTotalPrice;
 		mDsp.DSP_Dispay(orderName);
 		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - combindText.length());
 		mDsp.DSP_Dispay(combindText);
 		mDsp.DSP_MoveCursorDown();
 		mDsp.DSP_MoveCursorEndLeft();
-		mDsp.DSP_Dispay(mContext.getString(R.string.total));
-		mDsp.DSP_MoveCursor(2, MAX_TEXT_LENGTH - orderTotalPrice.length());
-		mDsp.DSP_Dispay(orderTotalPrice);
-		close();
+		mDsp.DSP_Dispay("Total");
+		mDsp.DSP_MoveCursor(2, MAX_TEXT_LENGTH - combindTotalText.length());
+		mDsp.DSP_Dispay(combindTotalText);
 	}
 	
 	public void displayWelcome(){
@@ -71,20 +70,14 @@ public class WintecCustomerDisplay{
 		mDsp.DSP_MoveCursorDown();
 		mDsp.DSP_MoveCursorEndLeft();
 		mDsp.DSP_Dispay(line2);
-		close();
 	}
 	
 	private String limitString(String text){
-		return text.substring(0, LIMIT_LENGTH - 3) + "...";
+		return text.substring(0, LIMIT_LENGTH);
 	}
 	
 	public void clearScreen(){
 		mDsp.DSP_ClearScreen();
-	}
-	
-	public void close(){
-		if(mDsp != null)
-			mDsp.DSP_Close();
 	}
 
 	public String getOrderName() {

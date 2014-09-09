@@ -2,13 +2,12 @@ package com.synature.mpos;
 
 import java.util.List;
 
-import com.synature.mpos.database.MPOSOrderTransaction;
-import com.synature.mpos.database.Session;
-import com.synature.mpos.database.Transaction;
-import com.synature.pos.OrderTransaction;
+import com.synature.mpos.common.MPOSActivityBase;
+import com.synature.mpos.database.SessionDao;
+import com.synature.mpos.database.TransactionDao;
+import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.content.Context;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,9 +20,9 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ReprintActivity extends Activity {
+public class ReprintActivity extends MPOSActivityBase {
 	
-	private Transaction mOrders;
+	private TransactionDao mOrders;
 	
 	private ReprintTransAdapter mTransAdapter;
 	private ListView mLvTrans;
@@ -31,12 +30,6 @@ public class ReprintActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -51,13 +44,13 @@ public class ReprintActivity extends Activity {
 		
 		mLvTrans = (ListView) findViewById(R.id.listView1);
 
-		mOrders = new Transaction(this);
-		Session sess = new Session(this);
+		mOrders = new TransactionDao(this);
+		SessionDao sess = new SessionDao(this);
 
-		int sessionId = getIntent().getIntExtra("sessionId", 0);
 		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, 
-				mOrders.listSuccessTransaction(sess.getSessionDate(sessionId)));
+				mOrders.listSuccessTransaction(sess.getLastSessionDate()));
 		mLvTrans.setAdapter(mTransAdapter);
+		mLvTrans.setSelection(mTransAdapter.getCount() - 1);
 	}
 	
 	@Override
@@ -73,7 +66,7 @@ public class ReprintActivity extends Activity {
 	
 	public class ReprintTransAdapter extends OrderTransactionAdapter{
 
-		public ReprintTransAdapter(Context c, List<MPOSOrderTransaction> transLst) {
+		public ReprintTransAdapter(Context c, List<OrderTransaction> transLst) {
 			super(c, transLst);
 		}
 
@@ -82,23 +75,23 @@ public class ReprintActivity extends Activity {
 			final OrderTransaction trans = mTransLst.get(position);
 			final ViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.reprint_trans_template, null);
+				convertView = mInflater.inflate(R.layout.reprint_trans_item, parent, false);
 				holder = new ViewHolder();
-				holder.tvNo = (TextView) convertView.findViewById(R.id.textView2);
-				holder.tvItem = (TextView) convertView.findViewById(R.id.textView1);
-				holder.btnPrint = (Button) convertView.findViewById(R.id.btnCommentMinus);
+				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
+				holder.tvReceiptNo = (TextView) convertView.findViewById(R.id.tvReceiptNo);
+				holder.btnPrint = (Button) convertView.findViewById(R.id.btnPrint);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
 			holder.tvNo.setText(String.valueOf(position + 1) + ".");
-			holder.tvItem.setText(trans.getReceiptNo());
+			holder.tvReceiptNo.setText(trans.getReceiptNo());
 			holder.btnPrint.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
 					holder.btnPrint.setEnabled(false);
-					new Thread(new Reprint(trans.getTransactionId(), holder.btnPrint)).start();
+					new Reprint(trans.getTransactionId(), holder.btnPrint).run();
 				}
 				
 			});
@@ -107,7 +100,7 @@ public class ReprintActivity extends Activity {
 		
 		public class ViewHolder {
 			TextView tvNo;
-			TextView tvItem;
+			TextView tvReceiptNo;
 			Button btnPrint;
 		}
 	}

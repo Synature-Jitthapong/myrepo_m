@@ -1,41 +1,61 @@
 package com.synature.mpos;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 
 public class BillViewerFragment extends DialogFragment{
 
-	private TextView mTextView;
+	private int mTransactionId;
+	
+	private CustomFontTextView mTextView;
+	
+	public static BillViewerFragment newInstance(int transactionId){
+		BillViewerFragment f = new BillViewerFragment();
+		Bundle b = new Bundle();
+		b.putInt("transactionId", transactionId);
+		f.setArguments(b);
+		return f;
+	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		mTransactionId = getArguments().getInt("transactionId");
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
-		super.onActivityCreated(savedInstanceState);
-	}
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		LayoutInflater inflater = getActivity().getLayoutInflater();
+		View content = inflater.inflate(R.layout.bill_viewer, null, false);
+		mTextView = (CustomFontTextView) content.findViewById(R.id.textView1);
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
-		return inflater.inflate(R.layout.bill_viewer, container, false);
+		TextPrint tp = new TextPrint(getActivity());
+		tp.createTextForPrintReceipt(mTransactionId, false);
+		mTextView.setText(tp.getTextToPrint());
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setView(content);
+		AlertDialog d = builder.create();
+		WindowManager.LayoutParams params = d.getWindow().getAttributes();
+		//params.gravity = Gravity.LEFT;
+		d.getWindow().setAttributes(params);
+		d.show();
+		return d;
 	}
-
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		mTextView = (TextView) view.findViewById(R.id.textView1);
-	}
-
 	
+	private class TextPrint extends PrinterBase{
+
+		public TextPrint(Context context) {
+			super(context);
+		}
+		
+	}
 }

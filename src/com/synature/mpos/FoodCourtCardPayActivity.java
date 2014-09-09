@@ -1,9 +1,9 @@
 package com.synature.mpos;
 
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.MPOSOrderTransaction;
-import com.synature.mpos.database.Shop;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.ShopDao;
+import com.synature.mpos.database.TransactionDao;
+import com.synature.mpos.database.model.OrderDetail;
 import com.synature.pos.PrepaidCardInfo;
 import com.synature.util.CreditCardParser;
 import com.synature.util.Logger;
@@ -54,8 +54,8 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 
 	private WintecMagneticReader mMsrReader;
 	
-	private Transaction mTrans;
-	private Formater mFormat;
+	private TransactionDao mTrans;
+	private FormaterDao mFormat;
 	
 	private int mTransactionId;
 	private int mShopId;
@@ -70,7 +70,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		super.onCreate(savedInstanceState);/**
 		 * Register ExceptinHandler for catch error when application crash.
 		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
+		Thread.setDefaultUncaughtExceptionHandler(new MyDefaultUncaughExceptionHandler(this, 
 				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
@@ -90,8 +90,8 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		mShopId = intent.getIntExtra("shopId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
-		mTrans = new Transaction(this);
-		mFormat = new Formater(this);
+		mTrans = new TransactionDao(this);
+		mFormat = new FormaterDao(this);
 		
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment(), "Placeholder").commit();
@@ -339,7 +339,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		}
 		
 		private void summary(){ 
-			MPOSOrderTransaction.MPOSOrderDetail summOrder = 
+			OrderDetail summOrder = 
 					((FoodCourtCardPayActivity) getActivity()).mTrans.getSummaryOrder(((FoodCourtCardPayActivity) getActivity()).mTransactionId);
 			((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice = summOrder.getTotalSalePrice();
 			mTxtTotalPrice.setText(((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice));		
@@ -378,7 +378,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				PayResultFragment fragment = PayResultFragment.newInstance(mCardBalance);
 				getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
 				
-				Shop shop = new Shop(FoodCourtCardPayActivity.this);
+				ShopDao shop = new ShopDao(FoodCourtCardPayActivity.this);
 				mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice, 
 						shop.getCompanyVatType(), shop.getCompanyVatRate());
 				//new PrintReceiptFoodCourtTask().execute();

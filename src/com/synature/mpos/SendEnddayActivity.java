@@ -5,10 +5,10 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.SaleService.LocalBinder;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.Session;
+import com.synature.mpos.common.MPOSActivityBase;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.SessionDao;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,19 +30,19 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class SendEnddayActivity extends Activity {
+public class SendEnddayActivity extends MPOSActivityBase {
 
 	private SaleService mPartService;
 	private boolean mBound = false;
 	
-	private Formater mFormat;
+	private FormaterDao mFormat;
 	
 	private int mStaffId;
 	private int mShopId;
 	private int mComputerId;
 	private boolean mAutoClose = false;
 	
-	private Session mSession;
+	private SessionDao mSession;
 	private List<String> mSessLst;
 	private EnddayListAdapter mEnddayAdapter;
 	
@@ -55,12 +55,6 @@ public class SendEnddayActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -82,8 +76,8 @@ public class SendEnddayActivity extends Activity {
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mAutoClose = intent.getBooleanExtra("autoClose", false);
 		
-		mFormat = new Formater(this);
-		mSession = new Session(this);
+		mFormat = new FormaterDao(this);
+		mSession = new SessionDao(this);
 		mSessLst = new ArrayList<String>();
 
 		setupAdapter();
@@ -147,9 +141,9 @@ public class SendEnddayActivity extends Activity {
 		if(mEnddayAdapter == null){
 			mEnddayAdapter = new EnddayListAdapter();
 			mLvEndday.setAdapter(mEnddayAdapter);
-		}else{
-			mEnddayAdapter.notifyDataSetChanged();
 		}
+		mEnddayAdapter.notifyDataSetChanged();
+		mLvEndday.setSelection(mEnddayAdapter.getCount() - 1);
 	}
 	
 	private WebServiceWorkingListener mSendListener = new WebServiceWorkingListener(){

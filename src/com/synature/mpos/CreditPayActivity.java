@@ -5,17 +5,17 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import com.synature.mpos.database.Bank;
-import com.synature.mpos.database.CreditCard;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.PaymentDetail;
+import com.synature.mpos.common.MPOSActivityBase;
+import com.synature.mpos.database.BankDao;
+import com.synature.mpos.database.CreditCardDao;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.pos.BankName;
 import com.synature.pos.CreditCardType;
 import com.synature.util.CreditCardParser;
 import com.synature.util.Logger;
 import com.synature.util.VerifyCardType;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,8 +35,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 
-public class CreditPayActivity extends Activity implements TextWatcher{
+public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 	
 	public static final String TAG = "CreditPayActivity";
 	
@@ -50,8 +51,8 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	 */
 	private Thread mMsrThread = null;
 	
-	private PaymentDetail mPayment;
-	private Formater mFormat;
+	private PaymentDetailDao mPayment;
+	private FormaterDao mFormat;
 	
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
@@ -65,7 +66,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	private double mPaymentLeft;
 	private double mTotalCreditPay;
 	
-	private EditText mTxtTotalPrice;
+	private TextView mTvTotalPrice;
 	private EditText mTxtTotalPay;
 	private EditText mTxtCardHolderName;
 	private EditText mTxtCardNoSeq1;
@@ -80,12 +81,6 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
-		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -98,7 +93,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 		setContentView(R.layout.activity_credit_pay);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
-		mTxtTotalPrice = (EditText) findViewById(R.id.txtCardTotalPrice);
+		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 		mTxtTotalPay = (EditText) findViewById(R.id.txtCardPayAmount);
 		mTxtCardNoSeq1 = (EditText) findViewById(R.id.txtCardNoSeq1);
 		mTxtCardNoSeq2 = (EditText) findViewById(R.id.txtCardNoSeq2);
@@ -149,8 +144,8 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 			
 		});
 		
-		mPayment = new PaymentDetail(getApplicationContext());
-		mFormat = new Formater(getApplicationContext());
+		mPayment = new PaymentDetailDao(CreditPayActivity.this);
+		mFormat = new FormaterDao(CreditPayActivity.this);
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -247,8 +242,8 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void displayTotalPrice(){
-		mTxtTotalPrice.setText(mFormat.currencyFormat(mPaymentLeft));
-		mTxtTotalPay.setText(mTxtTotalPrice.getText());
+		mTvTotalPrice.setText(mFormat.currencyFormat(mPaymentLeft));
+		mTxtTotalPay.setText(mTvTotalPrice.getText());
 	}
 	
 //	private boolean checkCardNoSeq(){
@@ -334,7 +329,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 									+ mTxtCardNoSeq4.getText().toString();
 							try {
 								mPayment.addPaymentDetail(mTransactionId, mComputerId,
-										PaymentDetail.PAY_TYPE_CREDIT,
+										PaymentDetailDao.PAY_TYPE_CREDIT,
 										mTotalCreditPay, mTotalCreditPay >= mPaymentLeft ?
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
 										mExpYear, mBankId, mCardTypeId, "");
@@ -413,7 +408,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadCreditCardType(){
-		CreditCard cd = new CreditCard(getApplicationContext());
+		CreditCardDao cd = new CreditCardDao(CreditPayActivity.this);
 		mCreditCardLst = cd.listAllCreditCardType();
 		
 		CreditCardType cc = new CreditCardType();
@@ -444,7 +439,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 	}
 	
 	private void loadBankName(){
-		Bank bk = new Bank(getApplicationContext());
+		BankDao bk = new BankDao(CreditPayActivity.this);
 		mBankLst = bk.listAllBank();
 		
 		BankName b = new BankName();
@@ -521,7 +516,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 		private WintecMagneticReader mMsrReader;
 		
 		public MagneticReaderThread(){
-			mMsrReader = new WintecMagneticReader(getApplicationContext());
+			mMsrReader = new WintecMagneticReader(CreditPayActivity.this);
 		}
 		
 		@Override
@@ -531,7 +526,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 					final String content = mMsrReader.getTrackData();
 					
 					if(content.length() > 0){
-						Logger.appendLog(getApplicationContext(), 
+						Logger.appendLog(CreditPayActivity.this, 
 							Utils.LOG_PATH, Utils.LOG_FILE_NAME,
 							"Content : " + content);
 						runOnUiThread(new Runnable(){
@@ -582,12 +577,12 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 												mSpCardType.setSelection(0);
 											}
 										} catch (Exception e) {
-											Logger.appendLog(getApplicationContext(), 
+											Logger.appendLog(CreditPayActivity.this, 
 													Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 													"Error set selected spinner card type");
 										}
 										
-										Logger.appendLog(getApplicationContext(), 
+										Logger.appendLog(CreditPayActivity.this, 
 												Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 												"CARD NO : " + cardNo + " \n " +
 												"CARD HOLDER NAME : " + cardHolderName + "\n" +
@@ -604,7 +599,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 										}
 									})
 									.show();
-									Logger.appendLog(getApplicationContext(), 
+									Logger.appendLog(CreditPayActivity.this, 
 											Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 											"Error " + e.getMessage());
 								}
@@ -613,7 +608,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 						});
 					}
 				} catch (Exception e) {
-					Logger.appendLog(getApplicationContext(), 
+					Logger.appendLog(CreditPayActivity.this, 
 							Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 							" Error when read data from magnetic card : " + e.getMessage());
 				}
@@ -661,7 +656,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 						mSpCardType.setSelection(0);
 					}
 				} catch (Exception e) {
-					Logger.appendLog(getApplicationContext(), 
+					Logger.appendLog(CreditPayActivity.this, 
 							Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 							"Error set selected spinner card type");
 				}
@@ -677,7 +672,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 				}
 			})
 			.show();
-			Logger.appendLog(getApplicationContext(), 
+			Logger.appendLog(CreditPayActivity.this, 
 					Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 					"Error " + e.getMessage());
 		}

@@ -2,7 +2,7 @@ package com.synature.mpos;
 
 import android.content.Context;
 
-public class DeviceChecker extends MPOSMainService {
+public class DeviceChecker extends MPOSServiceBase {
 	
 	public static final String CHECK_DEVICE_METHOD = "WSmPOS_CheckAuthenShopDevice";
 	

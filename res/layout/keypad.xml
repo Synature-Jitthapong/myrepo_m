@@ -5,32 +5,24 @@
     android:gravity="center"
     android:orientation="vertical" >
 
-    <EditText
-        android:id="@+id/txtDisplay"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvDisplay"
+        style="@style/TextPrice"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:clickable="false"
-        android:ems="10"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:gravity="right|center_vertical"
-        android:inputType="number"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLargeInverse"
-        android:textSize="@dimen/large_text_size"
-        android:textStyle="bold" >
-
-        <requestFocus />
-    </EditText>
+        android:layout_alignLeft="@+id/TableLayout1"
+        android:layout_alignRight="@+id/TableLayout1"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/large_text_size" />
 
     <TableLayout
         android:id="@+id/TableLayout1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/txtDisplay" >
+        android:layout_below="@+id/tvDisplay"
+        android:divider="@android:drawable/divider_horizontal_bright"
+        android:showDividers="beginning" >
 
         <TableRow
             android:id="@+id/tableRow1"
