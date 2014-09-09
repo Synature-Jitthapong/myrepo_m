@@ -30,14 +30,14 @@ import android.database.Cursor;
  */
 public class SaleTransaction extends MPOSDatabase{
 
-	private Formater mFormat;
+	private FormaterDao mFormat;
 	
-	private Shop mShop;
+	private ShopDao mShop;
 
 	public SaleTransaction(Context context) {
 		super(context);
-		mShop = new Shop(context);
-		mFormat = new Formater(context);
+		mShop = new ShopDao(context);
+		mFormat = new FormaterDao(context);
 	}
 	
 	/**
@@ -324,7 +324,7 @@ public class SaleTransaction extends MPOSDatabase{
 	private Cursor queryPaymentDetail(int transId) {
 		return getReadableDatabase().query(
 				PaymentDetailTable.TABLE_PAYMENT_DETAIL, 
-				PaymentDetail.ALL_PAYMENT_DETAIL_COLUMNS, 
+				PaymentDetailDao.ALL_PAYMENT_DETAIL_COLUMNS, 
 				OrderTransTable.COLUMN_TRANS_ID + "=?",
 				new String[]{
 					String.valueOf(transId)
@@ -347,8 +347,8 @@ public class SaleTransaction extends MPOSDatabase{
 				new String[]{
 					String.valueOf(transId),
 					String.valueOf(ordId),
-					String.valueOf(Products.COMMENT_HAVE_PRICE),
-					String.valueOf(Products.COMMENT_NOT_HAVE_PRICE)
+					String.valueOf(ProductsDao.COMMENT_HAVE_PRICE),
+					String.valueOf(ProductsDao.COMMENT_NOT_HAVE_PRICE)
 				}, null, null, null);
 	}
 	
@@ -370,7 +370,7 @@ public class SaleTransaction extends MPOSDatabase{
 			new String[]{
 				String.valueOf(transId),
 				String.valueOf(ordId),
-				String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE)
+				String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE)
 		});
 	}
 	
@@ -388,8 +388,8 @@ public class SaleTransaction extends MPOSDatabase{
 				+ " AND " + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?) ", 
 				new String[]{
 					String.valueOf(transId),
-					String.valueOf(Products.NORMAL_TYPE),
-					String.valueOf(Products.SET_CAN_SELECT)
+					String.valueOf(ProductsDao.NORMAL_TYPE),
+					String.valueOf(ProductsDao.SET_CAN_SELECT)
 				});
 	}
 	
@@ -399,8 +399,8 @@ public class SaleTransaction extends MPOSDatabase{
 				+ " AND " + COLUMN_SEND_STATUS + "=?",
 				new String[] {
 						sessionDate,
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(Transaction.TRANS_STATUS_VOID),
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 						String.valueOf(NOT_SEND)
 				});
 	}
@@ -410,8 +410,8 @@ public class SaleTransaction extends MPOSDatabase{
 				" AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] {
 						sessionDate,
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(Transaction.TRANS_STATUS_VOID)
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
 				});
 	}
 	
@@ -421,8 +421,8 @@ public class SaleTransaction extends MPOSDatabase{
 				" AND " + COLUMN_SEND_STATUS + "=?", 
 				new String[] {
 						String.valueOf(transactionId),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
-						String.valueOf(Transaction.TRANS_STATUS_VOID),
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 						String.valueOf(MPOSDatabase.NOT_SEND) 
 				});
 	}
@@ -430,7 +430,7 @@ public class SaleTransaction extends MPOSDatabase{
 	private Cursor querySessionEndday(String sessionDate) {
 		return getReadableDatabase().query(
 				SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, 
-				Session.ALL_SESS_ENDDAY_COLUMNS, 
+				SessionDao.ALL_SESS_ENDDAY_COLUMNS, 
 				SessionTable.COLUMN_SESS_DATE + "=?", 
 				new String[] {
 					sessionDate
@@ -455,20 +455,20 @@ public class SaleTransaction extends MPOSDatabase{
 	private Cursor queryOrderDetail(String selection, String[] selectionArgs){
 		return getReadableDatabase().query(
 				OrderDetailTable.TABLE_ORDER, 
-				Transaction.ALL_ORDER_COLUMNS, 
+				TransactionDao.ALL_ORDER_COLUMNS, 
 				selection, selectionArgs, null, null, null);
 	}
 	
 	private Cursor queryOrderTransaction(String selection, String[] selectionArgs){
 		return getReadableDatabase().query(
 				OrderTransTable.TABLE_ORDER_TRANS,
-				Transaction.ALL_TRANS_COLUMNS, 
+				TransactionDao.ALL_TRANS_COLUMNS, 
 				selection, selectionArgs, null, null, null);
 	}
 
 	private Cursor querySession(String selection, String[] selectionArgs){
 		return getReadableDatabase().query(SessionTable.TABLE_SESSION, 
-				Session.ALL_SESS_COLUMNS, selection, selectionArgs, 
+				SessionDao.ALL_SESS_COLUMNS, selection, selectionArgs, 
 				null, null, null);
 	}
 	

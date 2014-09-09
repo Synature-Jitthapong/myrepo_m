@@ -13,12 +13,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class PrintReceiptLog extends MPOSDatabase{
+public class PrintReceiptLogDao extends MPOSDatabase{
 	
 	public static final int PRINT_NOT_SUCCESS = 0;
 	public static final int PRINT_SUCCESS = 1;
 
-	public PrintReceiptLog(Context context) {
+	public PrintReceiptLogDao(Context context) {
 		super(context);
 	}
 	
@@ -31,7 +31,6 @@ public class PrintReceiptLog extends MPOSDatabase{
 				new String[]{
 					OrderTransTable.COLUMN_TRANS_ID,
 					StaffTable.COLUMN_STAFF_ID,
-					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID,
 					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME,
 					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS,
 					PrintReceiptLogTable.COLUMN_IS_COPY
@@ -44,7 +43,7 @@ public class PrintReceiptLog extends MPOSDatabase{
 				PrintReceipt print = new PrintReceipt();
 				print.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
 				print.setStaffId(cursor.getInt(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_ID)));
-				print.setPriceReceiptLogId(cursor.getInt(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID)));
+				print.setPrintReceiptLogStatus(cursor.getInt(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS)));
 				print.setPrintReceiptLogTime(cursor.getString(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME)));
 				print.setCopy(cursor.getInt(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_IS_COPY)) == 0 ? false : true);
 				printLst.add(print);
@@ -55,25 +54,25 @@ public class PrintReceiptLog extends MPOSDatabase{
 	}
 	
 	/**
-	 * @param printReceiptLogId
+	 * @param transactionId
 	 */
-	public void deletePrintStatus(int printReceiptLogId){
+	public void deletePrintStatus(int transactionId){
 		getWritableDatabase().delete(PrintReceiptLogTable.TABLE_PRINT_LOG, 
-				PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID + "=?", 
-				new String[]{String.valueOf(printReceiptLogId)}  );
+				OrderTransTable.COLUMN_TRANS_ID + "=?", 
+				new String[]{String.valueOf(transactionId)}  );
 	}
 	
 	/**
-	 * @param printReceiptLogId
+	 * @param transactionId
 	 * @param status
 	 */
-	public void updatePrintStatus(int printReceiptLogId, int status){
+	public void updatePrintStatus(int transactionId, int status){
 		ContentValues cv = new ContentValues();
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS, status);
 		getWritableDatabase().update(PrintReceiptLogTable.TABLE_PRINT_LOG, cv, 
-				PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID + "=?", 
+				OrderTransTable.COLUMN_TRANS_ID + "=?", 
 				new String[]{
-					String.valueOf(printReceiptLogId)
+					String.valueOf(transactionId)
 				}
 		);
 	}
@@ -95,7 +94,6 @@ public class PrintReceiptLog extends MPOSDatabase{
 	}
 	
 	public static class PrintReceipt{
-		private int priceReceiptLogId;
 		private int transactionId;
 		private int computerId;
 		private int staffId;
@@ -126,12 +124,6 @@ public class PrintReceiptLog extends MPOSDatabase{
 		}
 		public void setPrintReceiptLogStatus(int printReceiptLogStatus) {
 			this.printReceiptLogStatus = printReceiptLogStatus;
-		}
-		public int getPriceReceiptLogId() {
-			return priceReceiptLogId;
-		}
-		public void setPriceReceiptLogId(int priceReceiptLogId) {
-			this.priceReceiptLogId = priceReceiptLogId;
 		}
 		public int getTransactionId() {
 			return transactionId;

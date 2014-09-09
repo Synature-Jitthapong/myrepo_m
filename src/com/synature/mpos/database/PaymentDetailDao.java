@@ -3,6 +3,7 @@ package com.synature.mpos.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.synature.mpos.database.model.MPOSPaymentDetail;
 import com.synature.mpos.database.table.BankTable;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.CreditCardTable;
@@ -16,7 +17,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class PaymentDetail extends MPOSDatabase {
+public class PaymentDetailDao extends MPOSDatabase {
 	
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
@@ -37,7 +38,7 @@ public class PaymentDetail extends MPOSDatabase {
 		PaymentDetailTable.COLUMN_PAY_AMOUNT
 	};
 	
-	public PaymentDetail(Context context) {
+	public PaymentDetailDao(Context context) {
 		super(context);
 	}
 	
@@ -53,13 +54,13 @@ public class PaymentDetail extends MPOSDatabase {
                 + " AND b." + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?";
         String[] selectionArgs = {
                 saleDate,
-                String.valueOf(PaymentDetail.PAY_TYPE_CASH)
+                String.valueOf(PaymentDetailDao.PAY_TYPE_CASH)
         };
         if(sessId != 0){
             selection += " AND a." + SessionTable.COLUMN_SESS_ID + "=?";
             selectionArgs = new String[]{
                     saleDate,
-                    String.valueOf(PaymentDetail.PAY_TYPE_CASH),
+                    String.valueOf(PaymentDetailDao.PAY_TYPE_CASH),
                     String.valueOf(sessId)
             };
         }
@@ -90,13 +91,13 @@ public class PaymentDetail extends MPOSDatabase {
                 + " AND a." + OrderTransTable.COLUMN_STATUS_ID + "=?";
         String[] selectionArgs = {
                 saleDate,
-                String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
+                String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
         };
         if(sessId != 0){
             selection += " AND a." + SessionTable.COLUMN_SESS_ID + "=?";
             selectionArgs = new String[]{
                     saleDate,
-                    String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+                    String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
                     String.valueOf(sessId)
             };
         }
@@ -329,14 +330,14 @@ public class PaymentDetail extends MPOSDatabase {
                 + " AND b." + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?";
         String[] selectionArgs = {
                 saleDate,
-                String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+                String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
                 String.valueOf(PAY_TYPE_CASH)
         };
         if(sessId != 0){
             selection += " AND a." + SessionTable.COLUMN_SESS_ID + "=?";
             selectionArgs = new String[]{
                     saleDate,
-                    String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+                    String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
                     String.valueOf(PAY_TYPE_CASH),
                     String.valueOf(sessId)
             };

@@ -2,10 +2,10 @@ package com.synature.mpos;
 
 import java.util.List;
 
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.MenuComment;
-import com.synature.mpos.database.Products;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.MenuCommentDao;
+import com.synature.mpos.database.ProductsDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.Comment;
 import com.synature.mpos.database.model.CommentGroup;
 
@@ -50,9 +50,9 @@ public class MenuCommentDialogFragment extends DialogFragment{
 	private String mMenuName;
 	private String mOrderComment;
 	
-	private Formater mFormat;
-	private Transaction mTrans;
-	private MenuComment mComment;
+	private FormaterDao mFormat;
+	private TransactionDao mTrans;
+	private MenuCommentDao mComment;
 	private List<CommentGroup> mCommentGroupLst;
 	private List<Comment> mCommentLst;
 	private MenuCommentAdapter mCommentAdapter;
@@ -95,9 +95,9 @@ public class MenuCommentDialogFragment extends DialogFragment{
 		mMenuName = getArguments().getString("menuName");
 		mOrderComment = getArguments().getString("orderComment");
 		
-		mFormat = new Formater(getActivity());
-		mTrans = new Transaction(getActivity());
-		mComment = new MenuComment(getActivity());
+		mFormat = new FormaterDao(getActivity());
+		mTrans = new TransactionDao(getActivity());
+		mComment = new MenuCommentDao(getActivity());
 		mCommentLst = mComment.listMenuComment();
 		mCommentGroupLst = mComment.listMenuCommentGroup();
 		CommentGroup commentGroup = new CommentGroup();
@@ -320,7 +320,7 @@ public class MenuCommentDialogFragment extends DialogFragment{
 					mTrans.deleteOrderComment(mTransactionId, mOrderDetailId, mComment.getCommentId());
 				}else{
 					double price = mComment.getCommentPrice() < 0 ? 0 : mComment.getCommentPrice();
-					int proTypeId = price > 0 ? Products.COMMENT_HAVE_PRICE : Products.COMMENT_NOT_HAVE_PRICE;
+					int proTypeId = price > 0 ? ProductsDao.COMMENT_HAVE_PRICE : ProductsDao.COMMENT_NOT_HAVE_PRICE;
 					mComment.setSelected(true);
 					mTrans.addOrderComment(mTransactionId, mComputerId, mOrderDetailId, mComment.getCommentId(), 
 							proTypeId, 1, price);

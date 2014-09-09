@@ -17,7 +17,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class Session extends MPOSDatabase{
+public class SessionDao extends MPOSDatabase{
 	
 	public static final int NOT_ENDDAY_STATUS = 0;
 	public static final int ALREADY_ENDDAY_STATUS = 1;
@@ -45,7 +45,7 @@ public class Session extends MPOSDatabase{
 		SessionDetailTable.COLUMN_TOTAL_QTY_RECEIPT	
 	};
 	
-	public Session(Context context) {
+	public SessionDao(Context context) {
 		super(context);
 	}
 
@@ -264,6 +264,36 @@ public class Session extends MPOSDatabase{
 					String.valueOf(sessionId)
 				}
 		);
+	}
+	
+	/**
+	 * @param sessionDate
+	 * @param shopId
+	 * @param computerId
+	 * @param openStaffId
+	 * @param openAmount
+	 * @return
+	 */
+	public int openSession(String sessionDate, int shopId, int computerId, 
+			int openStaffId, double openAmount){
+		int sessionId = getMaxSessionId();
+		ContentValues cv = new ContentValues();
+		cv.put(SessionTable.COLUMN_SESS_ID, sessionId);
+		cv.put(BaseColumn.COLUMN_UUID, getUUID());
+		cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
+		cv.put(ShopTable.COLUMN_SHOP_ID, shopId);
+		cv.put(SessionTable.COLUMN_SESS_DATE, sessionDate);
+		cv.put(SessionTable.COLUMN_OPEN_DATE, Utils.getCalendar().getTimeInMillis());
+		cv.put(OrderTransTable.COLUMN_OPEN_STAFF, openStaffId);
+		cv.put(SessionTable.COLUMN_OPEN_AMOUNT, openAmount);
+		cv.put(SessionTable.COLUMN_IS_ENDDAY, 0);
+		try {
+			getWritableDatabase().insertOrThrow(SessionTable.TABLE_SESSION, null, cv);
+		} catch (Exception e) {
+			sessionId = 0;
+			e.printStackTrace();
+		}
+		return sessionId;
 	}
 	
 	/**

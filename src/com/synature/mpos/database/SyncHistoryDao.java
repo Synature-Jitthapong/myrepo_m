@@ -7,13 +7,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-public class SyncHistory extends MPOSDatabase{
+public class SyncHistoryDao extends MPOSDatabase{
 	
 	public static final int SYNC_STATUS_SUCCESS = 1;
 	
 	public static final int SYNC_STATUS_FAIL = 0;
 	
-	public SyncHistory(Context context) {
+	public SyncHistoryDao(Context context) {
 		super(context);
 	}
 

@@ -10,9 +10,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-public class CreditCard extends MPOSDatabase{
+public class CreditCardDao extends MPOSDatabase{
 	
-	public CreditCard(Context context) {
+	public CreditCardDao(Context context) {
 		super(context);
 	}
 

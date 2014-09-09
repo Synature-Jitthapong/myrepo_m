@@ -5,10 +5,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.Products;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.ProductsDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderSet;
 import com.synature.mpos.database.model.OrderSet.OrderSetDetail;
 import com.synature.mpos.database.model.Product;
@@ -17,6 +16,7 @@ import com.synature.mpos.database.model.ProductComponentGroup;
 import com.synature.util.ImageLoader;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -43,16 +43,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class ProductSetActivity extends MPOSActivityBase{
+public class ProductSetActivity extends Activity{
 
 	public static final String EDIT_MODE = "edit";
 	
 	public static final String ADD_MODE = "add";
 	
-	private Products mProduct;
-	private Formater mFormat;
+	private ProductsDao mProduct;
+	private FormaterDao mFormat;
 	
-	private Transaction mTrans;
+	private TransactionDao mTrans;
 	
 	private int mTransactionId;
 	private int mComputerId;
@@ -78,9 +78,9 @@ public class ProductSetActivity extends MPOSActivityBase{
 		mGvSetItem = (GridView) findViewById(R.id.gvSetItem);
 		mScroll = (HorizontalScrollView) findViewById(R.id.horizontalScrollView1);
 		
-		mProduct = new Products(ProductSetActivity.this);
-		mFormat = new Formater(ProductSetActivity.this);
-		mTrans = new Transaction(ProductSetActivity.this);
+		mProduct = new ProductsDao(ProductSetActivity.this);
+		mFormat = new FormaterDao(ProductSetActivity.this);
+		mTrans = new TransactionDao(ProductSetActivity.this);
 		mTrans.getWritableDatabase().beginTransaction();
 		
 		Intent intent = getIntent();
@@ -180,14 +180,19 @@ public class ProductSetActivity extends MPOSActivityBase{
 
 	private double updateBadge(int groupId, double requireAmount, double requireMinAmount){
 		double totalQty = mTrans.getOrderSetTotalQty(mTransactionId, mOrderDetailId, groupId);
-		LinearLayout scrollContent = getScrollContainer();
-		View groupBtn = scrollContent.findViewById(groupId);
-		TextView tvBadge = (TextView) groupBtn.findViewById(R.id.tvReqAmount);
-		double reductQty = requireAmount - totalQty;
-		tvBadge.setText(mFormat.qtyFormat(reductQty));
-		if(requireMinAmount > 0){
-			tvBadge.setText(mFormat.qtyFormat(requireMinAmount) + "-" + 
-					mFormat.qtyFormat(reductQty));
+		try {
+			LinearLayout scrollContent = getScrollContainer();
+			View groupBtn = scrollContent.findViewById(groupId);
+			TextView tvBadge = (TextView) groupBtn.findViewById(R.id.tvReqAmount);
+			double reductQty = requireAmount - totalQty;
+			tvBadge.setText(mFormat.qtyFormat(reductQty));
+			if(requireMinAmount > 0){
+				tvBadge.setText(mFormat.qtyFormat(requireMinAmount) + "-" + 
+						mFormat.qtyFormat(reductQty));
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return totalQty;
 	}
@@ -438,33 +443,38 @@ public class ProductSetActivity extends MPOSActivityBase{
 			}
 			final OrderSet set = mOrderSetLst.get(groupPosition);
 			holder.tvSetGroupName.setText(set.getSetGroupName());
-			holder.btnDel.setOnClickListener(new OnClickListener(){
+			if(set.getSetGroupNo() == 0){
+				holder.btnDel.setVisibility(View.INVISIBLE);
+			}else{
+				holder.btnDel.setVisibility(View.VISIBLE);
+				holder.btnDel.setOnClickListener(new OnClickListener(){
 
-				@Override
-				public void onClick(View v) {
-					new AlertDialog.Builder(ProductSetActivity.this)
-					.setTitle(R.string.delete)
-					.setMessage(R.string.confirm_delete_item)
-					.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-						}
-					}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener(){
-
-						@Override
-						public void onClick(DialogInterface dialog,
-								int which) {
-							mTrans.deleteOrderSetByGroup(mTransactionId, 
-									mOrderDetailId, set.getSetGroupId());
-							updateBadge(set.getSetGroupId(), set.getReqAmount(), set.getReqMinAmount());
-							loadOrderSet();
-						}
-						
-					}).show();
-				}
-				
-			});
+					@Override
+					public void onClick(View v) {
+						new AlertDialog.Builder(ProductSetActivity.this)
+						.setTitle(R.string.delete)
+						.setMessage(R.string.confirm_delete_item)
+						.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener(){
+	
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								mTrans.deleteOrderSetByGroup(mTransactionId, 
+										mOrderDetailId, set.getSetGroupId());
+								updateBadge(set.getSetGroupId(), set.getReqAmount(), set.getReqMinAmount());
+								loadOrderSet();
+							}
+							
+						}).show();
+					}
+					
+				});
+			}
 			return convertView;
 		}
 
@@ -494,83 +504,89 @@ public class ProductSetActivity extends MPOSActivityBase{
 			holder.tvSetQty.setText(mFormat.qtyFormat(detail.getOrderSetQty()));
 			holder.tvSetPrice.setText(detail.getProductPrice() > 0 ? 
 					mFormat.currencyFormat(detail.getProductPrice()) : null);
-			holder.btnSetMinus.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					double qty = detail.getOrderSetQty();
-					double deductAmount = detail.getDeductAmount();
-					if(qty > 0){
-						qty -= deductAmount;
-						if(qty == 0){
-							new AlertDialog.Builder(ProductSetActivity.this)
-							.setTitle(R.string.delete)
-							.setMessage(R.string.confirm_delete_item)
-							.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-								}
-							}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									mTrans.deleteOrderSet(mTransactionId, mOrderDetailId, detail.getOrderSetId());
+			if(setGroup.getSetGroupNo() == 0){
+				holder.btnSetMinus.setVisibility(View.INVISIBLE);
+				holder.btnSetPlus.setVisibility(View.INVISIBLE);
+			}else{
+				holder.btnSetMinus.setVisibility(View.VISIBLE);
+				holder.btnSetPlus.setVisibility(View.VISIBLE);
+				holder.btnSetMinus.setOnClickListener(new OnClickListener(){
+	
+					@Override
+					public void onClick(View v) {
+						double qty = detail.getOrderSetQty();
+						double deductAmount = detail.getDeductAmount();
+						if(qty > 0){
+							qty -= deductAmount;
+							if(qty == 0){
+								new AlertDialog.Builder(ProductSetActivity.this)
+								.setTitle(R.string.delete)
+								.setMessage(R.string.confirm_delete_item)
+								.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+									}
+								}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										mTrans.deleteOrderSet(mTransactionId, mOrderDetailId, detail.getOrderSetId());
+										updateBadge(setGroup.getSetGroupId(), setGroup.getReqAmount(), setGroup.getReqMinAmount());
+										loadOrderSet();
+									}
+								}).show();
+							}else{
+								detail.setOrderSetQty(qty);
+								mTrans.updateOrderSet(mTransactionId,mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
+								updateBadge(setGroup.getSetGroupId(), setGroup.getReqAmount(), setGroup.getReqMinAmount());
+								mOrderSetAdapter.notifyDataSetChanged();
+							}
+						}
+					}
+					
+				});
+				holder.btnSetPlus.setOnClickListener(new OnClickListener(){
+	
+					@Override
+					public void onClick(View v) {
+						double qty = detail.getOrderSetQty();
+						double deductAmount = detail.getDeductAmount();
+						if(setGroup.getReqAmount() > 0){
+							// count total group qty from db
+							double totalQty = mTrans.getOrderSetTotalQty(
+									mTransactionId, mOrderDetailId, setGroup.getSetGroupId());
+							if(totalQty < setGroup.getReqAmount()){
+								qty += deductAmount;
+								if(deductAmount <= setGroup.getReqAmount() - totalQty){
+									detail.setOrderSetQty(qty);
+									mTrans.updateOrderSet(mTransactionId, mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
 									updateBadge(setGroup.getSetGroupId(), setGroup.getReqAmount(), setGroup.getReqMinAmount());
-									loadOrderSet();
+									mOrderSetAdapter.notifyDataSetChanged();
+								}else{
+									new AlertDialog.Builder(ProductSetActivity.this)
+									.setTitle(setGroup.getSetGroupName())
+									.setMessage(getString(R.string.cannot_update) + " " 
+											+ detail.getProductName() + " " + getString(R.string.because_deduct_at) + " " 
+											+ mFormat.qtyFormat(detail.getDeductAmount()))
+									.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface arg0, int arg1) {
+										}
+									}).show();
 								}
-							}).show();
+							}
 						}else{
+							qty += deductAmount;
 							detail.setOrderSetQty(qty);
-							mTrans.updateOrderSet(mTransactionId,mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
+							mTrans.updateOrderSet(mTransactionId, mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
 							updateBadge(setGroup.getSetGroupId(), setGroup.getReqAmount(), setGroup.getReqMinAmount());
 							mOrderSetAdapter.notifyDataSetChanged();
 						}
 					}
-				}
-				
-			});
-			holder.btnSetPlus.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					double qty = detail.getOrderSetQty();
-					double deductAmount = detail.getDeductAmount();
-					if(setGroup.getReqAmount() > 0){
-						// count total group qty from db
-						double totalQty = mTrans.getOrderSetTotalQty(
-								mTransactionId, mOrderDetailId, setGroup.getSetGroupId());
-						if(totalQty < setGroup.getReqAmount()){
-							qty += deductAmount;
-							if(deductAmount <= setGroup.getReqAmount() - totalQty){
-								detail.setOrderSetQty(qty);
-								mTrans.updateOrderSet(mTransactionId, mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
-								updateBadge(setGroup.getSetGroupId(), setGroup.getReqAmount(), setGroup.getReqMinAmount());
-								mOrderSetAdapter.notifyDataSetChanged();
-							}else{
-								new AlertDialog.Builder(ProductSetActivity.this)
-								.setTitle(setGroup.getSetGroupName())
-								.setMessage(getString(R.string.cannot_update) + " " 
-										+ detail.getProductName() + " " + getString(R.string.because_deduct_at) + " " 
-										+ mFormat.qtyFormat(detail.getDeductAmount()))
-								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface arg0, int arg1) {
-									}
-								}).show();
-							}
-						}
-					}else{
-						qty += deductAmount;
-						detail.setOrderSetQty(qty);
-						mTrans.updateOrderSet(mTransactionId, mOrderDetailId, detail.getOrderSetId(), detail.getProductId(), qty);
-						updateBadge(setGroup.getSetGroupId(), setGroup.getReqAmount(), setGroup.getReqMinAmount());
-						mOrderSetAdapter.notifyDataSetChanged();
-					}
-				}
-				
-			});
+				});
+			}
 			return convertView;
 		}
 
@@ -673,6 +689,7 @@ public class ProductSetActivity extends MPOSActivityBase{
 				holder.tvDeductAmount.setVisibility(View.INVISIBLE);
 			}
 			if(Utils.isShowMenuImage(ProductSetActivity.this)){
+				holder.imgMenu.setVisibility(View.VISIBLE);
 				mImgLoader.displayImage(Utils.getImageUrl(ProductSetActivity.this) + pComp.getImgName(), holder.imgMenu);
 			}
 			
@@ -718,7 +735,7 @@ public class ProductSetActivity extends MPOSActivityBase{
 			if(totalQty < requireAmount){
 				if(deductQty <= requireAmount - totalQty){
 					orderSetId = mTrans.addOrderSet(mTransactionId, mComputerId, mOrderDetailId, productId, 
-							Products.CHILD_OF_SET_HAVE_PRICE, deductQty, price, pCompGroupId, requireAmount, requireMinAmount);
+							ProductsDao.CHILD_OF_SET_HAVE_PRICE, deductQty, price, pCompGroupId, requireAmount, requireMinAmount);
 				}else{
 					new AlertDialog.Builder(ProductSetActivity.this)
 					.setTitle(groupName)
@@ -740,7 +757,7 @@ public class ProductSetActivity extends MPOSActivityBase{
 			}
 		}else{
 			orderSetId = mTrans.addOrderSet(mTransactionId, mComputerId, mOrderDetailId, productId, 
-					Products.CHILD_OF_SET_HAVE_PRICE, deductQty, price, pCompGroupId, requireAmount, requireMinAmount);
+					ProductsDao.CHILD_OF_SET_HAVE_PRICE, deductQty, price, pCompGroupId, requireAmount, requireMinAmount);
 		}
 		return orderSetId;
 	}

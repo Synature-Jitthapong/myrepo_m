@@ -3,8 +3,8 @@ package com.synature.mpos;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.Session;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.SessionDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
@@ -22,7 +22,7 @@ import android.widget.TextView;
 
 public class ReprintActivity extends MPOSActivityBase {
 	
-	private Transaction mOrders;
+	private TransactionDao mOrders;
 	
 	private ReprintTransAdapter mTransAdapter;
 	private ListView mLvTrans;
@@ -44,8 +44,8 @@ public class ReprintActivity extends MPOSActivityBase {
 		
 		mLvTrans = (ListView) findViewById(R.id.listView1);
 
-		mOrders = new Transaction(this);
-		Session sess = new Session(this);
+		mOrders = new TransactionDao(this);
+		SessionDao sess = new SessionDao(this);
 
 		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, 
 				mOrders.listSuccessTransaction(sess.getLastSessionDate()));

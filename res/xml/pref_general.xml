@@ -6,7 +6,8 @@
             android:defaultValue="true"
             android:key="show_menu_image"
             android:title="@string/show_menu_image" />
-        <Preference android:title="@string/backup_db" android:widgetLayout="@layout/backup_layout"/>
+        <CheckBoxPreference android:key="enable_backup" android:title="@string/backup_db" android:defaultValue="true"/>
+        
         
     </PreferenceCategory>
 

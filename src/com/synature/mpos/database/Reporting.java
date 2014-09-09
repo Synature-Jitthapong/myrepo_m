@@ -75,8 +75,8 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						mDateFrom,
 						mDateTo,
-						String.valueOf(Transaction.TRANS_STATUS_HOLD),
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
+						String.valueOf(TransactionDao.TRANS_STATUS_HOLD),
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
 				});
 		if(mainCursor.moveToFirst()){
 			do{
@@ -93,8 +93,8 @@ public class Reporting extends MPOSDatabase{
 						+ " GROUP BY " + OrderTransTable.COLUMN_TRANS_ID,
 						new String[]{
 								mainCursor.getString(0),
-								String.valueOf(Transaction.TRANS_STATUS_HOLD),
-								String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
+								String.valueOf(TransactionDao.TRANS_STATUS_HOLD),
+								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
 						});
 				if(detailCursor.moveToFirst()){
 					do{
@@ -123,24 +123,24 @@ public class Reporting extends MPOSDatabase{
 				+ " AND a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
 				+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?,?,?,?) ";
 		String[] selectionArgs = new String[]{
-			String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+			String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 			mDateFrom,
 			mDateTo,
-			String.valueOf(Products.NORMAL_TYPE),
-			String.valueOf(Products.SET_CAN_SELECT),
-			String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE),
-			String.valueOf(Products.COMMENT_HAVE_PRICE)
+			String.valueOf(ProductsDao.NORMAL_TYPE),
+			String.valueOf(ProductsDao.SET_CAN_SELECT),
+			String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+			String.valueOf(ProductsDao.COMMENT_HAVE_PRICE)
 		}; 
 		if(sessId != 0){
 			selection += " AND a." + SessionTable.COLUMN_SESS_ID + "=?";
 			selectionArgs = new String[]{
-					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 					mDateFrom,
 					mDateTo,
-					String.valueOf(Products.NORMAL_TYPE),
-					String.valueOf(Products.SET_CAN_SELECT),
-					String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE),
-					String.valueOf(Products.COMMENT_HAVE_PRICE),
+					String.valueOf(ProductsDao.NORMAL_TYPE),
+					String.valueOf(ProductsDao.SET_CAN_SELECT),
+					String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+					String.valueOf(ProductsDao.COMMENT_HAVE_PRICE),
 					String.valueOf(sessId),
 			}; 
 		}
@@ -177,25 +177,25 @@ public class Reporting extends MPOSDatabase{
 						+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?,?,?,?) "
 						+ " AND c." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=?";
 				String[] selectionArgs2 = new String[]{
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						mDateFrom,
 						mDateTo,
-						String.valueOf(Products.NORMAL_TYPE),
-						String.valueOf(Products.SET_CAN_SELECT),
-						String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE),
-						String.valueOf(Products.COMMENT_HAVE_PRICE),
+						String.valueOf(ProductsDao.NORMAL_TYPE),
+						String.valueOf(ProductsDao.SET_CAN_SELECT),
+						String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+						String.valueOf(ProductsDao.COMMENT_HAVE_PRICE),
 						String.valueOf(pgId)
 				};
 				if(sessId != 0){
 					selection2 += " AND a." + SessionTable.COLUMN_SESS_ID + "=?";
 					selectionArgs2 = new String[]{
-							String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+							String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 							mDateFrom,
 							mDateTo,
-							String.valueOf(Products.NORMAL_TYPE),
-							String.valueOf(Products.SET_CAN_SELECT),
-							String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE),
-							String.valueOf(Products.COMMENT_HAVE_PRICE),
+							String.valueOf(ProductsDao.NORMAL_TYPE),
+							String.valueOf(ProductsDao.SET_CAN_SELECT),
+							String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+							String.valueOf(ProductsDao.COMMENT_HAVE_PRICE),
 							String.valueOf(pgId),
 							String.valueOf(sessId)
 					};
@@ -223,7 +223,7 @@ public class Reporting extends MPOSDatabase{
 						String itemName = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME));
 						String itemName1 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1));
 						String itemName2 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2));
-						if(productTypeId == Products.CHILD_OF_SET_HAVE_PRICE){
+						if(productTypeId == ProductsDao.CHILD_OF_SET_HAVE_PRICE){
 							itemName += "***";
 							itemName1 += "***";
 							itemName2 += "***";
@@ -274,7 +274,7 @@ public class Reporting extends MPOSDatabase{
 		Cursor cursor = getReadableDatabase().rawQuery(
 				sql, 
 				new String[]{
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
 				});
 		if(cursor.moveToFirst()){
 			report.setVatable(cursor.getDouble(cursor.getColumnIndex("TransVatable")));
@@ -324,8 +324,8 @@ public class Reporting extends MPOSDatabase{
                 new String[]{
                         mDateFrom,
                         mDateTo,
-                        String.valueOf(Transaction.TRANS_STATUS_VOID),
-                        String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
+                        String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+                        String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
                 });
 		
 		if(cursor.moveToFirst()){
@@ -399,7 +399,7 @@ public class Reporting extends MPOSDatabase{
 							String productName = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME));
 							String productName1 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1));
 							String productName2 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2));
-							if(productTypeId == Products.CHILD_OF_SET_HAVE_PRICE){
+							if(productTypeId == ProductsDao.CHILD_OF_SET_HAVE_PRICE){
 								productName += "***";
 								productName1 += "***";
 								productName2 += "***";
@@ -478,10 +478,10 @@ public class Reporting extends MPOSDatabase{
 		Cursor cursor = getReadableDatabase().rawQuery(
 				sql,
 				new String[]{
-					String.valueOf(Products.NORMAL_TYPE),
-					String.valueOf(Products.SET_CAN_SELECT),
-					String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE),
-					String.valueOf(Products.COMMENT_HAVE_PRICE),
+					String.valueOf(ProductsDao.NORMAL_TYPE),
+					String.valueOf(ProductsDao.SET_CAN_SELECT),
+					String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+					String.valueOf(ProductsDao.COMMENT_HAVE_PRICE),
 					String.valueOf(groupId)
 				});
 		
@@ -524,10 +524,10 @@ public class Reporting extends MPOSDatabase{
 		Cursor cursor = getReadableDatabase().rawQuery(
 				sql,
 				new String[]{
-					String.valueOf(Products.NORMAL_TYPE),
-					String.valueOf(Products.SET_CAN_SELECT),
-					String.valueOf(Products.CHILD_OF_SET_HAVE_PRICE),
-					String.valueOf(Products.COMMENT_HAVE_PRICE),
+					String.valueOf(ProductsDao.NORMAL_TYPE),
+					String.valueOf(ProductsDao.SET_CAN_SELECT),
+					String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+					String.valueOf(ProductsDao.COMMENT_HAVE_PRICE),
 					String.valueOf(deptId)
 				});
 		
@@ -588,7 +588,7 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						mDateFrom,
 						mDateTo,
-						String.valueOf(Transaction.TRANS_STATUS_SUCCESS)
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
 				});
 		if(cursor.moveToFirst()){
 			do{
@@ -609,7 +609,7 @@ public class Reporting extends MPOSDatabase{
 		String transIds = getTransactionIds();
 		String selection = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ") "
 				+ " AND " + ProductTable.COLUMN_PRODUCT_TYPE_ID 
-				+ " IN(" + Products.NORMAL_TYPE + "," + Products.SET_CAN_SELECT + "," + Products.CHILD_OF_SET_HAVE_PRICE + "," + Products.COMMENT_HAVE_PRICE + ") ";
+				+ " IN(" + ProductsDao.NORMAL_TYPE + "," + ProductsDao.SET_CAN_SELECT + "," + ProductsDao.CHILD_OF_SET_HAVE_PRICE + "," + ProductsDao.COMMENT_HAVE_PRICE + ") ";
 		String sql = " SELECT " + OrderDetailTable.COLUMN_ORDER_ID + ", "
 				+ ProductTable.COLUMN_PRODUCT_ID + ", "
 				+ ProductTable.COLUMN_PRODUCT_TYPE_ID + ", "

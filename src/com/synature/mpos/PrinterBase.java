@@ -7,19 +7,19 @@ import java.util.List;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.synature.mpos.database.CreditCard;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.HeaderFooterReceipt;
-import com.synature.mpos.database.MPOSPaymentDetail;
-import com.synature.mpos.database.PaymentDetail;
-import com.synature.mpos.database.Products;
+import com.synature.mpos.database.CreditCardDao;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.HeaderFooterReceiptDao;
+import com.synature.mpos.database.PaymentDetailDao;
+import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.Reporting;
-import com.synature.mpos.database.Session;
-import com.synature.mpos.database.Shop;
-import com.synature.mpos.database.Staffs;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.SessionDao;
+import com.synature.mpos.database.ShopDao;
+import com.synature.mpos.database.StaffsDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.Reporting.SimpleProductData;
 import com.synature.mpos.database.model.Comment;
+import com.synature.mpos.database.model.MPOSPaymentDetail;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderSet.OrderSetDetail;
 import com.synature.mpos.database.model.OrderTransaction;
@@ -33,26 +33,26 @@ public abstract class PrinterBase {
 	public static final int QTY_MAX_SPACE = 12;
 	public static final int MAX_TEXT_LENGTH = 25;
 	
-	protected Transaction mTrans;
-	protected PaymentDetail mPayment;
-	protected Shop mShop;
-	protected HeaderFooterReceipt mHeaderFooter;
-	protected Formater mFormat;
-	protected Staffs mStaff;
-	protected CreditCard mCreditCard;
+	protected TransactionDao mTrans;
+	protected PaymentDetailDao mPayment;
+	protected ShopDao mShop;
+	protected HeaderFooterReceiptDao mHeaderFooter;
+	protected FormaterDao mFormat;
+	protected StaffsDao mStaff;
+	protected CreditCardDao mCreditCard;
 	protected Context mContext;
 	
 	protected StringBuilder mTextToPrint;
 	
 	public PrinterBase(Context context){
 		mContext = context;
-		mTrans = new Transaction(context);
-		mPayment = new PaymentDetail(context);
-		mShop = new Shop(context);
-		mFormat = new Formater(context);
-		mHeaderFooter = new HeaderFooterReceipt(context);
-		mStaff = new Staffs(context);
-		mCreditCard = new CreditCard(context);
+		mTrans = new TransactionDao(context);
+		mPayment = new PaymentDetailDao(context);
+		mShop = new ShopDao(context);
+		mFormat = new FormaterDao(context);
+		mHeaderFooter = new HeaderFooterReceiptDao(context);
+		mStaff = new StaffsDao(context);
+		mCreditCard = new CreditCardDao(context);
 		mTextToPrint = new StringBuilder();
 	}
 	 
@@ -300,7 +300,7 @@ public abstract class PrinterBase {
 	 * @param staffId
 	 */
 	protected void createTextForPrintSummaryReport(int sessionId, int staffId){
-		Session session = new Session(mContext.getApplicationContext());
+		SessionDao session = new SessionDao(mContext.getApplicationContext());
 		String sessionDate = session.getLastSessionDate();
 		
 		OrderTransaction trans = null; 
@@ -323,7 +323,7 @@ public abstract class PrinterBase {
 		mTextToPrint.append(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 		if(sessionId != 0){
 			com.synature.mpos.database.model.Session sess = session.getSession(sessionId);
-			Staffs st = new Staffs(mContext);
+			StaffsDao st = new StaffsDao(mContext);
 			Staff std = st.getStaff(sess.getOpenStaff());
 			mTextToPrint.append(mContext.getString(R.string.open_by) + " " + std.getStaffName() + " " + mFormat.timeFormat(sess.getOpenDate()) + "\n");
 			std = st.getStaff(sess.getCloseStaff());
@@ -422,7 +422,7 @@ public abstract class PrinterBase {
 				+ calculateLength(totalSale)));
 		mTextToPrint.append(totalSale + "\n");
 		
-		if(mShop.getCompanyVatType() == Products.VAT_TYPE_INCLUDED){
+		if(mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
 			String beforeVatText = mContext.getString(R.string.before_vat);
 			String beforeVat = mFormat.currencyFormat(trans.getTransactionVatable() - trans.getTransactionVat());
 			String totalVatText = mContext.getString(R.string.total_vat) + " " +
@@ -535,7 +535,7 @@ public abstract class PrinterBase {
 		OrderDetail summOrder = mTrans.getSummaryOrder(transId);
 		double change = mPayment.getTotalPayAmount(transId) - (summOrder.getTotalSalePrice());
 		boolean isShowVat = mShop.getShopProperty().getPrintVatInReceipt() == 1;
-		boolean isVoid = trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID;
+		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
 		
 		// have copy
 		if(isCopy){
@@ -555,7 +555,7 @@ public abstract class PrinterBase {
 		}
 		// add header
 		for(com.synature.pos.HeaderFooterReceipt hf : 
-			mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.HEADER_LINE_TYPE)){
+			mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDao.HEADER_LINE_TYPE)){
 			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
 		}
 		
@@ -676,7 +676,7 @@ public abstract class PrinterBase {
     	for(int i = 0; i < paymentLst.size(); i++){
     		MPOSPaymentDetail payment = paymentLst.get(i);
 	    	String strTotalPaid = mFormat.currencyFormat(payment.getTotalPay());
-	    	if(payment.getPayTypeId() == PaymentDetail.PAY_TYPE_CREDIT){
+	    	if(payment.getPayTypeId() == PaymentDetailDao.PAY_TYPE_CREDIT){
 	    		String paymentText = payment.getPayTypeName();
 	    		String cardNoText = "xxxx xxxx xxxx ";
 	    		try {
@@ -753,7 +753,7 @@ public abstract class PrinterBase {
 	    
     	// add footer
     	for(com.synature.pos.HeaderFooterReceipt hf : 
-			mHeaderFooter.listHeaderFooter(HeaderFooterReceipt.FOOTER_LINE_TYPE)){
+			mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDao.FOOTER_LINE_TYPE)){
 			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
 		}
 

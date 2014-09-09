@@ -13,9 +13,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-public class MenuComment extends MPOSDatabase{
+public class MenuCommentDao extends MPOSDatabase{
 
-	public MenuComment(Context context) {
+	public MenuCommentDao(Context context) {
 		super(context);
 	}
 
@@ -103,7 +103,7 @@ public class MenuComment extends MPOSDatabase{
 				+ " AND " + COLUMN_DELETED + "=?", 
 				new String[]{
 						String.valueOf(1),
-						String.valueOf(Products.NOT_DELETE)
+						String.valueOf(ProductsDao.NOT_DELETE)
 				}, null, null, null);
 		if(cursor.moveToFirst()){
 			do{

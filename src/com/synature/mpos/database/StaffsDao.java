@@ -10,13 +10,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class Staffs extends MPOSDatabase{
+public class StaffsDao extends MPOSDatabase{
 	
 	public static final int VOID_PERMISSION = 30;
 	public static final int ACCESS_POS_PERMISSION = 36;
 	public static final int OTHER_DISCOUNT_PERMISSION = 134; 
 			
-	public Staffs(Context context) {
+	public StaffsDao(Context context) {
 		super(context);
 	}
 

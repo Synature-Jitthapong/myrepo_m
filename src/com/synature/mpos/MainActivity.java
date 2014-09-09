@@ -16,16 +16,17 @@ import java.util.List;
 
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SaleService.LocalBinder;
+import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
 import com.synature.mpos.common.MPOSFragmentActivityBase;
-import com.synature.mpos.database.Computer;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.PaymentDetail;
-import com.synature.mpos.database.PrintReceiptLog;
-import com.synature.mpos.database.Products;
-import com.synature.mpos.database.Session;
-import com.synature.mpos.database.Shop;
-import com.synature.mpos.database.Staffs;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.ComputerDao;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.PaymentDetailDao;
+import com.synature.mpos.database.PrintReceiptLogDao;
+import com.synature.mpos.database.ProductsDao;
+import com.synature.mpos.database.SessionDao;
+import com.synature.mpos.database.ShopDao;
+import com.synature.mpos.database.StaffsDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.UserVerification;
 import com.synature.mpos.database.model.OrderComment;
 import com.synature.mpos.database.model.OrderDetail;
@@ -41,8 +42,6 @@ import com.synature.util.Logger;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -50,7 +49,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
+import android.database.SQLException;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -68,6 +67,7 @@ import android.view.View.OnKeyListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -83,7 +83,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -92,7 +91,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends MPOSFragmentActivityBase implements 
 	MenuCommentDialogFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
-	UserVerifyDialogFragment.OnCheckPermissionListener{
+	UserVerifyDialogFragment.OnCheckPermissionListener, OnChangeLanguageListener{
 	
 	public static final String TAG = MainActivity.class.getSimpleName();
 	
@@ -106,6 +105,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	public static final int FOOD_COURT_PAYMENT_REQUEST = 2;
 	
+	private boolean mIsShowKeyboard = false;
+	
 	/**
 	 * Wintec customer display
 	 */
@@ -117,13 +118,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private SaleService mPartService;
 	private boolean mBound = false;
 	
-	private Products mProducts;
-	private Shop mShop;
-	private Formater mFormat;
+	private ProductsDao mProducts;
+	private ShopDao mShop;
+	private FormaterDao mFormat;
 	
-	private Session mSession;
-	private Transaction mTrans;
-	private Computer mComputer;
+	private SessionDao mSession;
+	private TransactionDao mTrans;
+	private ComputerDao mComputer;
 	
 	private List<OrderDetail> mOrderDetailLst;
 	private OrderDetailAdapter mOrderDetailAdapter;
@@ -166,22 +167,21 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mStaffRoleId = intent.getIntExtra("staffRoleId", 0);
 		
-		mSession = new Session(this);
-		mTrans = new Transaction(this);
-		mProducts = new Products(this);
-		mShop = new Shop(this);
-		mComputer = new Computer(this);
-		mFormat = new Formater(this);
+		mSession = new SessionDao(this);
+		mTrans = new TransactionDao(this);
+		mProducts = new ProductsDao(this);
+		mShop = new ShopDao(this);
+		mComputer = new ComputerDao(this);
+		mFormat = new FormaterDao(this);
 		
 		mShopId = mShop.getShopId();
 		mComputerId = mComputer.getComputerId();
 		
 		mImageLoader = new ImageLoader(this, 0,
 					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
-		
-		mDsp = new WintecCustomerDisplay(this);
 
-		//setupCustomSwLang();
+		mDsp = new WintecCustomerDisplay(this);
+		
 		setupTitle();
 		setupBarCodeEvent();
 		setupMenuDeptPager();
@@ -233,43 +233,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		
 	}
 	
-	private void setupCustomSwLang(){
-		final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		LayoutInflater inflater = getLayoutInflater();
-		View swView = inflater.inflate(R.layout.sw_layout, null, false);
-		final Switch swLang = (Switch) swView.findViewById(R.id.switch1);
-		swLang.setText(getString(R.string.language));
-		swLang.setTextOff(getString(R.string.lang_eng_short));
-		swLang.setTextOn(getString(R.string.lang_thai_short));
-		ActionBar actionBar = getActionBar();
-		actionBar.setDisplayShowCustomEnabled(true);
-		actionBar.setCustomView(swView);
-		if(Utils.getLangCode(this).equals("th_TH"))
-			swLang.setChecked(true);
-		swLang.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				if(swLang.isChecked()){
-					SharedPreferences.Editor editor = sharedPref.edit();
-					editor.putString(SettingsActivity.KEY_PREF_LANGUAGE_LIST, "th_TH");
-					editor.commit();
-					Utils.switchLanguage(MainActivity.this, "th_TH");
-				}else{
-					SharedPreferences.Editor editor = sharedPref.edit();
-					editor.putString(SettingsActivity.KEY_PREF_LANGUAGE_LIST, "en_US");
-					editor.commit();
-					Utils.switchLanguage(MainActivity.this, "en_US");
-				}
-				startActivity(getIntent());
-				finish();
-			}
-			
-		});
-	}
-	
 	private void setupTitle(){
-		Staffs staff = new Staffs(this);
+		StaffsDao staff = new StaffsDao(this);
 		com.synature.pos.Staff s = staff.getStaff(mStaffId);
 		setTitle(mShop.getShopName());
 		getActionBar().setSubtitle(s.getStaffName());
@@ -323,6 +288,18 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		});
 	}
 	
+	public void toggleKeyboard(final View v){
+		InputMethodManager imm = (InputMethodManager) getSystemService(
+			      Context.INPUT_METHOD_SERVICE);
+		if(mIsShowKeyboard){
+			imm.hideSoftInputFromWindow(mTxtBarCode.getWindowToken(), 0);
+			mIsShowKeyboard = false;
+		}else{
+			imm.showSoftInput(mTxtBarCode, InputMethodManager.SHOW_IMPLICIT);
+			mIsShowKeyboard = true;
+		}
+	}
+	
 	public void clearBarCodeClicked(final View v){
 		mTxtBarCode.setText(null);
 	}
@@ -371,7 +348,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				endday();
 				return true;
 			case R.id.itemBackupDb:
-				Utils.exportDatabase(this);
+				Utils.backupDatabase(this);
 				return true;
 			case R.id.itemSendEndday:
 				intent = new Intent(this, SendEnddayActivity.class);
@@ -398,6 +375,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			case R.id.itemUpdate:
 				new MasterDataLoader(this, mShopId, new MasterLoaderListener()).execute(Utils.getFullUrl(this));
 				return true;
+			case R.id.itemLang:
+				SwitchLangFragment swf = SwitchLangFragment.newInstance();
+				swf.show(getSupportFragmentManager(), "SwitchLangFragment");
+				return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -417,6 +398,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			unbindService(mServiceConnection);
 			mBound = false;
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 
 	@Override
@@ -519,17 +505,19 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			secondDisplayItem(transSummLst, mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
 		}
 		
-		mDsp.setOrderTotalQty(mFormat.qtyFormat(sumOrder.getOrderQty()));
-		mDsp.setOrderTotalPrice(mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
 		if(Utils.isEnableWintecCustomerDisplay(this)){
 			// display order if qty and retail price > 0
 			if(sumOrder.getOrderQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
 				try {
+					mDsp.setOrderTotalQty(mFormat.qtyFormat(sumOrder.getOrderQty()));
+					mDsp.setOrderTotalPrice(mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
 					mDsp.displayOrder();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}else{
+				mDsp.displayWelcome();
 			}
 		}
 	}
@@ -580,15 +568,15 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private void afterPaid(int transactionId, int staffId, double totalSalePrice, 
 			double totalPaid, double change){
 
-		PrintReceiptLog printLog = 
-				new PrintReceiptLog(MainActivity.this);
+		PrintReceiptLogDao printLog = 
+				new PrintReceiptLogDao(MainActivity.this);
 		int isCopy = 0;
 		for(int i = 0; i < mComputer.getReceiptHasCopy(); i++){
 			if(i > 0)
 				isCopy = 1;
 			printLog.insertLog(transactionId, staffId, isCopy);
 		}
-		new Thread(new PrintReceipt(getApplicationContext())).start();
+		new Thread(new PrintReceipt(MainActivity.this)).start();
 		
 		if(change > 0){
 			LinearLayout changeView = new LinearLayout(MainActivity.this);
@@ -699,14 +687,14 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId);
-					PaymentDetail payment = new PaymentDetail(MainActivity.this);
+					PaymentDetailDao payment = new PaymentDetailDao(MainActivity.this);
 					double totalSalePrice = sumOrder.getTotalSalePrice();
 					
-					payment.addPaymentDetail(mTransactionId, mComputerId, PaymentDetail.PAY_TYPE_CASH, 
+					payment.addPaymentDetail(mTransactionId, mComputerId, PaymentDetailDao.PAY_TYPE_CASH, 
 							totalSalePrice, totalSalePrice, "", 0, 0, 0, 0, "");
 					
 					// open cash drawer
-					WintecCashDrawer drw = new WintecCashDrawer(getApplicationContext());
+					WintecCashDrawer drw = new WintecCashDrawer(MainActivity.this);
 					drw.openCashDrawer();
 					drw.close();
 					
@@ -727,7 +715,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	public void paymentClicked(final View v){
 		if(mOrderDetailLst.size() > 0){
 			// food court type
-			if(mShop.getFastFoodType() == Shop.SHOP_TYPE_FOOD_COURT){
+			if(mShop.getFastFoodType() == ShopDao.SHOP_TYPE_FOOD_COURT){
 				Intent intent = new Intent(MainActivity.this, FoodCourtCardPayActivity.class);
 				intent.putExtra("transactionId", mTransactionId);
 				intent.putExtra("shopId", mShopId);
@@ -761,9 +749,9 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	public void discountClicked(final View v){
 		if(mOrderDetailLst.size() > 0){
-			Staffs st = new Staffs(MainActivity.this);
+			StaffsDao st = new StaffsDao(MainActivity.this);
 			if(!st.checkOtherDiscountPermission(mStaffRoleId)){
-				UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(Staffs.OTHER_DISCOUNT_PERMISSION);
+				UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(StaffsDao.OTHER_DISCOUNT_PERMISSION);
 				uvf.show(getSupportFragmentManager(), "StaffPermissionDialog");
 			}else{
 				goToOtherDiscountActivity();
@@ -952,7 +940,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				
 			});
 			
-			if(orderDetail.getProductTypeId() == Products.SET_CAN_SELECT){
+			if(orderDetail.getProductTypeId() == ProductsDao.SET_CAN_SELECT){
 				holder.btnSetMod.setVisibility(View.VISIBLE);
 				holder.btnComment.setVisibility(View.GONE);
 			}else{
@@ -1232,11 +1220,12 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					holder.tvPrice.setText(((MainActivity) 
 							getActivity()).mFormat.currencyFormat(p.getProductPrice()));
 				}
-				if(p.getProductTypeId() == Products.SIZE){
+				if(p.getProductTypeId() == ProductsDao.SIZE){
 					holder.tvPrice.setText("(size)");
 				}
 
 				if(Utils.isShowMenuImage(getActivity())){
+					holder.imgMenu.setVisibility(View.VISIBLE);
 					((MainActivity) getActivity()).mImageLoader.displayImage(
 							Utils.getImageUrl(getActivity()) + 
 							p.getImgName(), holder.imgMenu);
@@ -1315,13 +1304,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	public void onMenuClick(int productId, String productName, 
 			int productTypeId, int vatType, double vatRate, double productPrice) {
-		if(productTypeId == Products.NORMAL_TYPE || 
-				productTypeId == Products.SET){
+		if(productTypeId == ProductsDao.NORMAL_TYPE || 
+				productTypeId == ProductsDao.SET){
 			addOrder(productId, productName, productTypeId, 
 					vatType, vatRate, 1, productPrice);
-		}else if(productTypeId == Products.SIZE){
+		}else if(productTypeId == ProductsDao.SIZE){
 			productSizeDialog(productId, productName);
-		}else if(productTypeId == Products.SET_CAN_SELECT){
+		}else if(productTypeId == ProductsDao.SET_CAN_SELECT){
 			Intent intent = new Intent(MainActivity.this, ProductSetActivity.class);
 			intent.putExtra("mode", ProductSetActivity.ADD_MODE);
 			intent.putExtra("transactionId", mTransactionId);
@@ -1464,7 +1453,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * Logout
 	 */
 	public void logout() {
-		Staffs staff = new Staffs(this);
+		StaffsDao staff = new StaffsDao(this);
 		com.synature.pos.Staff s = staff.getStaff(mStaffId);
 		new AlertDialog.Builder(MainActivity.this)
 		.setTitle(R.string.logout)
@@ -1678,9 +1667,9 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * void bill
 	 */
 	private void voidBill(){
-		Staffs st = new Staffs(MainActivity.this);
+		StaffsDao st = new StaffsDao(MainActivity.this);
 		if(!st.checkVoidPermission(mStaffRoleId)){
-			UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(Staffs.VOID_PERMISSION);
+			UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(StaffsDao.VOID_PERMISSION);
 			uvf.show(getSupportFragmentManager(), "StaffPermissionDialog");
 		}else{
 			goToVoidActivity();
@@ -1725,7 +1714,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}else{
 			new AlertDialog.Builder(MainActivity.this)
 			.setTitle(R.string.close_shift)
-			.setMessage(R.string.clear_order_first)
+			.setMessage(R.string.check_not_complete_orders)
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
 				@Override
@@ -1764,7 +1753,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}else{
 			new AlertDialog.Builder(MainActivity.this)
 			.setTitle(R.string.endday)
-			.setMessage(R.string.clear_order_first)
+			.setMessage(R.string.check_not_complete_orders)
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
 				@Override
@@ -1862,11 +1851,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	private void updateOrder(int orderDetailId, double qty, 
 			double price, int vatType, double vatRate, String productName){
-		mTrans.updateOrderDetail(mTransactionId,
-				orderDetailId, vatType, vatRate, qty, price);
 		mDsp.setOrderName(productName);
 		mDsp.setOrderQty(mFormat.qtyFormat(qty));
 		mDsp.setOrderPrice(mFormat.currencyFormat(price));
+		mTrans.updateOrderDetail(mTransactionId,
+				orderDetailId, vatType, vatRate, qty, price);
 	}
 	
 	/**
@@ -1882,13 +1871,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	private void addOrder(final int productId, final String productName, 
 			final int productTypeId, final int vatType, final double vatRate, final double qty, double price){
+		mDsp.setOrderName(productName);
+		mDsp.setOrderQty(mFormat.qtyFormat(qty));
 		if(price > -1){
+			mDsp.setOrderPrice(mFormat.currencyFormat(price));
 			int ordId = mTrans.addOrderDetail(mTransactionId, mComputerId, 
 					productId, productTypeId, vatType, vatRate, qty, price);
 			updateOrderLst(ordId);
-			mDsp.setOrderName(productName);
-			mDsp.setOrderQty(mFormat.qtyFormat(qty));
-			mDsp.setOrderPrice(mFormat.currencyFormat(price));
 		}else{
 			final EditText txtProductPrice = new EditText(this);
 			txtProductPrice.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -1923,12 +1912,9 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					double openPrice = 0.0f;
 					try {
 						openPrice = Utils.stringToDouble(txtProductPrice.getText().toString());
+						mDsp.setOrderPrice(mFormat.currencyFormat(openPrice));
 						int ordId = mTrans.addOrderDetail(mTransactionId, mComputerId, 
 								productId, productTypeId, vatType, vatRate, qty, openPrice);
-
-						mDsp.setOrderName(productName);
-						mDsp.setOrderQty(mFormat.qtyFormat(qty));
-						mDsp.setOrderPrice(mFormat.currencyFormat(openPrice));
 						updateOrderLst(ordId);
 					} catch (ParseException e) {
 						new AlertDialog.Builder(MainActivity.this)
@@ -2081,7 +2067,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	}
 	
 	private void initSecondDisplay(){
-		Staffs s = new Staffs(this);
+		StaffsDao s = new StaffsDao(this);
 		final String initJson = SecondDisplayJSON.genInitDisplay(mShop.getShopName(), 
 				s.getStaff(mStaffId).getStaffName());
 		new Thread(new Runnable(){
@@ -2179,9 +2165,19 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 	@Override
 	public void onEndday(double cashAmount) {
-		boolean endday = Utils.endday(MainActivity.this, mShopId, 
-				mComputerId, mSessionId, mStaffId, cashAmount, true);
-		if(endday){
+		String lastSessDate = mSession.getLastSessionDate();
+		boolean isEndday = false;
+		try {
+			mSession.addSessionEnddayDetail(lastSessDate,
+					mTrans.getTotalReceipt(0, lastSessDate),
+					mTrans.getTotalReceiptAmount(lastSessDate));
+			mSession.closeSession(mSessionId, mStaffId, cashAmount, true);
+			isEndday = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			isEndday = false;
+		}
+		if(isEndday){
 			mTrans.cancelTransaction(mTransactionId);
 			int totalSess = mSession.countSession(mSession.getLastSessionDate());
 			if(totalSess > 1){
@@ -2193,7 +2189,9 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId).run();
 
 			// backup the database
-			Utils.exportDatabase(this);
+			if(Utils.isEnableBackupDatabase(MainActivity.this)){
+				Utils.backupDatabase(this);
+			}
 			sendEnddayData();
 		}
 	}
@@ -2204,10 +2202,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	@Override
 	public void onAllow(int permissionId) {
 		switch(permissionId){
-		case Staffs.VOID_PERMISSION:
+		case StaffsDao.VOID_PERMISSION:
 			goToVoidActivity();
 			break;
-		case Staffs.OTHER_DISCOUNT_PERMISSION:
+		case StaffsDao.OTHER_DISCOUNT_PERMISSION:
 			goToOtherDiscountActivity();
 			break;
 		}
@@ -2289,5 +2287,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					public void onProgressUpdate(int value) {
 					}
 		});
+	}
+
+	@Override
+	public void onChangeLanguage() {
+		startActivity(getIntent());
+		finish();
 	}
 }

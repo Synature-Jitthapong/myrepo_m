@@ -9,9 +9,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-public class PaymentAmountButton extends MPOSDatabase {
+public class PaymentAmountButtonDao extends MPOSDatabase {
 	
-	public PaymentAmountButton(Context context) {
+	public PaymentAmountButtonDao(Context context) {
 		super(context);
 	}
 	

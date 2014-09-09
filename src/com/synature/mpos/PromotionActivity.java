@@ -3,10 +3,10 @@ package com.synature.mpos;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.Products;
-import com.synature.mpos.database.PromotionDiscount;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.ProductsDao;
+import com.synature.mpos.database.PromotionDiscountDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderTransaction;
 
@@ -33,9 +33,9 @@ public class PromotionActivity extends MPOSActivityBase {
 
 	public static final String TAG = PromotionActivity.class.getSimpleName();
 	
-	private Transaction mTrans;
-	private PromotionDiscount mPromotion;
-	private Formater mFormat;
+	private TransactionDao mTrans;
+	private PromotionDiscountDao mPromotion;
+	private FormaterDao mFormat;
 	private List<OrderDetail> mOrderLst;
 	private List<com.synature.pos.PromotionPriceGroup> mPromoPriceGroupLst;
 	private OrderDiscountAdapter mOrderAdapter;
@@ -59,9 +59,9 @@ public class PromotionActivity extends MPOSActivityBase {
 		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 		mSummaryContainer = (LinearLayout) findViewById(R.id.summaryContainer);
 		
-		mTrans = new Transaction(this);
-		mFormat = new Formater(this);
-		mPromotion = new PromotionDiscount(this);
+		mTrans = new TransactionDao(this);
+		mFormat = new FormaterDao(this);
+		mPromotion = new PromotionDiscountDao(this);
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -148,7 +148,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	 */
 	private void resetDiscount(){
 		// reset discount
-		Products p = new Products(PromotionActivity.this);
+		ProductsDao p = new ProductsDao(PromotionActivity.this);
 		for(OrderDetail detail : mOrderLst){
 			double totalRetailPrice = detail.getTotalRetailPrice();
 			double discount = DiscountActivity.calculateDiscount(totalRetailPrice, 
@@ -238,7 +238,7 @@ public class PromotionActivity extends MPOSActivityBase {
 		 */
 		private boolean discount(List<com.synature.pos.PromotionProductDiscount> productLst){
 			boolean canDiscount = false;
-			Products p = new Products(PromotionActivity.this);
+			ProductsDao p = new ProductsDao(PromotionActivity.this);
 			for(OrderDetail detail : mOrderLst){
 				for(com.synature.pos.PromotionProductDiscount product : productLst){
 					if(detail.getProductId() == product.getProductID()){

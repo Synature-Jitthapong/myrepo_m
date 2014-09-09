@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Locale;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.Bank;
-import com.synature.mpos.database.CreditCard;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.PaymentDetail;
+import com.synature.mpos.database.BankDao;
+import com.synature.mpos.database.CreditCardDao;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.pos.BankName;
 import com.synature.pos.CreditCardType;
 import com.synature.util.CreditCardParser;
@@ -51,8 +51,8 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 	 */
 	private Thread mMsrThread = null;
 	
-	private PaymentDetail mPayment;
-	private Formater mFormat;
+	private PaymentDetailDao mPayment;
+	private FormaterDao mFormat;
 	
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
@@ -144,8 +144,8 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 			
 		});
 		
-		mPayment = new PaymentDetail(CreditPayActivity.this);
-		mFormat = new Formater(CreditPayActivity.this);
+		mPayment = new PaymentDetailDao(CreditPayActivity.this);
+		mFormat = new FormaterDao(CreditPayActivity.this);
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -329,7 +329,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 									+ mTxtCardNoSeq4.getText().toString();
 							try {
 								mPayment.addPaymentDetail(mTransactionId, mComputerId,
-										PaymentDetail.PAY_TYPE_CREDIT,
+										PaymentDetailDao.PAY_TYPE_CREDIT,
 										mTotalCreditPay, mTotalCreditPay >= mPaymentLeft ?
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
 										mExpYear, mBankId, mCardTypeId, "");
@@ -408,7 +408,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 	}
 	
 	private void loadCreditCardType(){
-		CreditCard cd = new CreditCard(CreditPayActivity.this);
+		CreditCardDao cd = new CreditCardDao(CreditPayActivity.this);
 		mCreditCardLst = cd.listAllCreditCardType();
 		
 		CreditCardType cc = new CreditCardType();
@@ -439,7 +439,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 	}
 	
 	private void loadBankName(){
-		Bank bk = new Bank(CreditPayActivity.this);
+		BankDao bk = new BankDao(CreditPayActivity.this);
 		mBankLst = bk.listAllBank();
 		
 		BankName b = new BankName();

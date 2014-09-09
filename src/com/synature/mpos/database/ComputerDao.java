@@ -10,9 +10,9 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.text.TextUtils;
 
-public class Computer extends MPOSDatabase{
+public class ComputerDao extends MPOSDatabase{
 
-	public Computer(Context context) {
+	public ComputerDao(Context context) {
 		super(context);
 	}
 

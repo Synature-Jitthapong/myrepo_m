@@ -8,9 +8,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.Products;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.ProductsDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
 
 import android.os.Bundle;
@@ -52,9 +52,9 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final int OTHER_DISCOUNT_TYPE = 6;
 
-	private Formater mFormat;
-	private Transaction mTrans;
-	private Products mProduct;
+	private FormaterDao mFormat;
+	private TransactionDao mTrans;
+	private ProductsDao mProduct;
 	private OrderDetail mOrder;
 	private DiscountAdapter mDisAdapter;
 	private List<OrderDetail> mOrderLst;
@@ -83,9 +83,9 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);	
-		mTrans = new Transaction(this);
-		mProduct = new Products(this);
-		mFormat = new Formater(this);
+		mTrans = new TransactionDao(this);
+		mProduct = new ProductsDao(this);
+		mFormat = new FormaterDao(this);
 		mOrder = new OrderDetail();
 		// begin transaction
 		mTrans.getWritableDatabase().beginTransaction();
@@ -287,7 +287,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 			// clear discount first
 			clearDiscount();
 			try {
-				Products product = new Products(this);
+				ProductsDao product = new ProductsDao(this);
 				double discountAll = Utils.stringToDouble(mTxtDisAll.getText().toString());
 				double maxTotalRetailPrice = mTrans.getMaxTotalRetailPrice(mTransactionId);
 				double totalDiscount = 0.0d;
@@ -509,7 +509,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		OrderDetail order = (OrderDetail) parent.getItemAtPosition(position);
 		
-		Products p = new Products(this);
+		ProductsDao p = new ProductsDao(this);
 		if(p.isAllowDiscount(order.getProductId())){
 			mPosition = position;
 			mOrder = order;

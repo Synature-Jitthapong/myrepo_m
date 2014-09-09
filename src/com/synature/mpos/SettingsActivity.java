@@ -38,6 +38,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_DSP_TEXT_LINE2 = "dsp_wintec_line2";
 	public static final String KEY_PREF_ENABLE_SECOND_DISPLAY = "enable_second_display";
 	public static final String KEY_PREF_LANGUAGE_LIST = "language_list";
+	public static final String KEY_PREF_ENABLE_BACKUP_DB = "enable_backup_db";
 	
 	//private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
@@ -165,10 +166,6 @@ public class SettingsActivity extends PreferenceActivity {
 	public void drwTestClick(final View v){
 		WintecCashDrawer drw = new WintecCashDrawer(getApplicationContext());
 		drw.openCashDrawer();
-	}
-	
-	public void backupDbClick(final View v){
-		Utils.exportDatabase(getApplicationContext());
 	}
 	
 	public void printTestClick(final View v){

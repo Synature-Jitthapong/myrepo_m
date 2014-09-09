@@ -8,9 +8,9 @@ import com.synature.mpos.database.table.ProductTable;
 import android.content.ContentValues;
 import android.content.Context;
 
-public class ProductPrice extends MPOSDatabase{
+public class ProductPriceDao extends MPOSDatabase{
 
-	public ProductPrice(Context context) {
+	public ProductPriceDao(Context context) {
 		super(context);
 	}
 

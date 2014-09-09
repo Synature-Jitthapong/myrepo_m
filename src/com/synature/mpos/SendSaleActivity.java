@@ -6,7 +6,7 @@ import java.util.List;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.MPOSDatabase;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.OrderTransTable;
@@ -199,8 +199,8 @@ public class SendSaleActivity extends MPOSActivityBase{
 				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
                     + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
 				new String[]{
-                    String.valueOf(Transaction.TRANS_STATUS_VOID),
-					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+                    String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
 				}, null, null, OrderTransTable.COLUMN_TRANS_ID);
 		if(cursor.moveToFirst()){

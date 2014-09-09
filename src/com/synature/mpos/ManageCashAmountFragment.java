@@ -2,7 +2,7 @@ package com.synature.mpos;
 
 import java.text.ParseException;
 
-import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.FormaterDao;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,7 +25,7 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 	public static final int END_DAY_MODE = 2;
 	public static final int EDIT_CASH_MODE = 3;
 	
-	private Formater mFormat;
+	private FormaterDao mFormat;
 	private int mMode;
 	private double mTotalCash;
 	private String mTitle;
@@ -52,7 +52,7 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 		mTitle = getArguments().getString("title");
 		mMode = getArguments().getInt("mode");
 		mTotalCash = getArguments().getDouble("totalCash", 0);
-		mFormat = new Formater(getActivity());
+		mFormat = new FormaterDao(getActivity());
 		mStrCashAmount = new StringBuilder();
 	}
 

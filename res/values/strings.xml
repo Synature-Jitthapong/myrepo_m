@@ -2,12 +2,8 @@
 <resources>
 
     <string name="app_name">mPOS</string>
-    <string name="lang_eng">English</string>
-    <string name="lang_thai">Thailand</string>
-    <string name="lang_eng_short">En</string>
-    <string name="lang_thai_short">Th</string>
     <string name="login">Login</string>
-    <string name="staff_code">StaffCode</string>
+    <string name="staff_code">Staff code</string>
     <string name="password">Password</string>
     <string name="hold_bill">Show Hold Bill</string>
     <string name="report">Reports</string>
@@ -105,7 +101,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="alredy_endday">Already endday.</string>
     <string name="credit_card">Credit Card</string>
     <string name="before_vat">Before VAT</string>
-    <string name="clear_order_first">Clear current order first!</string>
+    <string name="check_not_complete_orders">Some orders are not complete Please check those orders before do this function.</string>
     <string name="barcode">Barcode</string>
     <string name="font">Font</string>
     <string name="device_code">Device Code: </string>
@@ -238,4 +234,5 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="not_have_permission_to_other_discount">You not have permission to do Other Discount.</string>
 	<string name="not_have_permission_to_access_pos">You not have permission to access mPOS.</string>
 	<string name="test">Test</string>
+	<string name="restore_db_success">Restore database successfully.</string>
 </resources>

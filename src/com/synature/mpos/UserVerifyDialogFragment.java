@@ -1,6 +1,6 @@
 package com.synature.mpos;
 
-import com.synature.mpos.database.Staffs;
+import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.UserVerification;
 import com.synature.pos.Staff;
 
@@ -81,21 +81,21 @@ public class UserVerifyDialogFragment extends DialogFragment{
 							Staff s = verify.checkLogin();
 							if(s != null){
 								mTvMsg.setVisibility(View.GONE);
-								Staffs st = new Staffs(getActivity());
+								StaffsDao st = new StaffsDao(getActivity());
 								switch(mPermissionId){
-								case Staffs.VOID_PERMISSION:
+								case StaffsDao.VOID_PERMISSION:
 									if(st.checkVoidPermission(s.getStaffRoleID())){
 										d.dismiss();
-										mListener.onAllow(Staffs.VOID_PERMISSION);
+										mListener.onAllow(StaffsDao.VOID_PERMISSION);
 									}else{
 										mTvMsg.setVisibility(View.VISIBLE);
 										mTvMsg.setText(R.string.not_have_permission_to_void);
 									}
 									break;
-								case Staffs.OTHER_DISCOUNT_PERMISSION:
+								case StaffsDao.OTHER_DISCOUNT_PERMISSION:
 									if(st.checkOtherDiscountPermission(s.getStaffRoleID())){
 										d.dismiss();
-										mListener.onAllow(Staffs.OTHER_DISCOUNT_PERMISSION);
+										mListener.onAllow(StaffsDao.OTHER_DISCOUNT_PERMISSION);
 									}else{
 										mTvMsg.setVisibility(View.VISIBLE);
 										mTvMsg.setText(R.string.not_have_permission_to_other_discount);

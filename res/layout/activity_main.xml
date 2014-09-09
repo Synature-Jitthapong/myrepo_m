@@ -33,11 +33,9 @@
                 android:lines="1"
                 android:maxLines="1"
                 android:minHeight="48dp"
-                android:paddingRight="48dp"
+                android:paddingRight="96dp"
                 android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceLargeInverse" >
-
-                <requestFocus />
             </EditText>
 
             <ImageButton
@@ -50,6 +48,17 @@
                 android:minWidth="48dip"
                 android:onClick="clearBarCodeClicked"
                 android:src="@drawable/ic_action_cancel" />
+
+            <ImageButton
+                android:id="@+id/imgBtnToggleKey"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/imgBtnClearBarcode"
+                android:onClick="toggleKeyboard"
+                android:src="@drawable/ic_action_keyboard" />
+
         </RelativeLayout>
 
         <ExpandableListView

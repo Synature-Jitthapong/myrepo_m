@@ -3,12 +3,12 @@ package com.synature.mpos;
 import java.util.Calendar;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.Computer;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.Session;
-import com.synature.mpos.database.Shop;
-import com.synature.mpos.database.Staffs;
-import com.synature.mpos.database.SyncHistory;
+import com.synature.mpos.database.ComputerDao;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.SessionDao;
+import com.synature.mpos.database.ShopDao;
+import com.synature.mpos.database.StaffsDao;
+import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
 import com.synature.pos.Staff;
 
@@ -43,11 +43,11 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	private int mStaffId;
 	private int mStaffRoleId;
 	
-	private Shop mShop;
-	private Session mSession;
-	private Computer mComputer;
-	private Formater mFormat;
-	private SyncHistory mSync;
+	private ShopDao mShop;
+	private SessionDao mSession;
+	private ComputerDao mComputer;
+	private FormaterDao mFormat;
+	private SyncHistoryDao mSync;
 	
 	private Button mBtnLogin;
 	private EditText mTxtUser;
@@ -77,11 +77,11 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		mTvDeviceCode.setText(Utils.getDeviceCode(this));
 		mTvVersion.setText(getString(R.string.version) + " " + Utils.getSoftWareVersion(this));
 
-		mSession = new Session(this);
-		mShop = new Shop(this);
-		mComputer = new Computer(this);
-		mFormat = new Formater(this);
-		mSync = new SyncHistory(this);
+		mSession = new SessionDao(this);
+		mShop = new ShopDao(this);
+		mComputer = new ComputerDao(this);
+		mFormat = new FormaterDao(this);
+		mSync = new SyncHistoryDao(this);
 
 		try {
 			if(mShop.getShopName() != null){
@@ -247,15 +247,10 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 				}).show();
 				return false;
 			}else if(Utils.getDate().getTime().compareTo(lastSessDate.getTime()) > 0){
-				/*
-				 * Current date > Session date
-				 * mPOS will force to end previous day.
-				 */
-				if(!mSession.checkEndday(mSession.getLastSessionDate())){
-					Utils.endday(LoginActivity.this, mShop.getShopId(), 
-							mComputer.getComputerId(), mSession.getLastSessionId(), 
-							mStaffId, 0, true);
-				}
+				Calendar lastSessCal = Calendar.getInstance();
+				lastSessCal.setTimeInMillis(Long.parseLong(mSession.getLastSessionDate()));
+				Utils.endingMultipleDay(LoginActivity.this, mShop.getShopId(), 
+						mComputer.getComputerId(), mStaffId, lastSessCal);
 			}else{
 				if(mSession.checkEndday(String.valueOf(Utils.getDate().getTimeInMillis()))){
 					String enddayMsg = getString(R.string.sale_date) 
@@ -342,9 +337,17 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		}else{
 			mTxtUser.requestFocus();
 		}
+		displayWelcome();
 		super.onResume();
 	}
 			
+	private void displayWelcome(){
+		if(Utils.isEnableWintecCustomerDisplay(this)){
+			WintecCustomerDisplay dsp = new WintecCustomerDisplay(this);
+			dsp.displayWelcome();
+		}
+	}
+	
 	private void requestValidUrl(){
 		new MainUrlRegister(this, new RegisterValidUrlListener()).execute(Utils.MAIN_URL);
 	}
@@ -410,7 +413,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 	
 	private void gotoMainActivity(){
-		enddingMultipleDay();
 		startEnddayService();
 		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 		intent.putExtra("staffId", mStaffId);
@@ -428,21 +430,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		enddayIntent.putExtra("shopId", mShop.getShopId());
 		enddayIntent.putExtra("computerId", mComputer.getComputerId());
 		startService(enddayIntent);
-	}
-	
-	/**
-	 * ending multiple day
-	 */
-	private void enddingMultipleDay(){
-		String lastSessDate = mSession.getLastSessionDate();
-		if(!lastSessDate.equals("")){
-			Calendar lastSessCal = Calendar.getInstance();
-			lastSessCal.setTimeInMillis(Long.parseLong(lastSessDate));
-			if(Utils.getDiffDay(lastSessCal) > 0){
-				Utils.endingMultipleDay(LoginActivity.this, mShop.getShopId(), 
-						mComputer.getComputerId(), mStaffId, lastSessCal);
-			}
-		}
 	}
 	
 	public void checkLogin(){
@@ -466,7 +453,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 						mTxtUser.setText(null);
 						mTxtPass.setText(null);
 						if(checkSessionDate()){
-							Staffs st = new Staffs(LoginActivity.this);
+							StaffsDao st = new StaffsDao(LoginActivity.this);
 							if(st.checkAccessPOSPermission(s.getStaffRoleID())){
 								gotoMainActivity();
 							}else{

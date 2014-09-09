@@ -10,9 +10,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-public class Bank extends MPOSDatabase{
+public class BankDao extends MPOSDatabase{
 
-	public Bank(Context context) {
+	public BankDao(Context context) {
 		super(context);
 	}
 	

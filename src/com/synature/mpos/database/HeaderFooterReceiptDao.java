@@ -10,12 +10,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class HeaderFooterReceipt extends MPOSDatabase{
+public class HeaderFooterReceiptDao extends MPOSDatabase{
 	
 	public static final int HEADER_LINE_TYPE = 0;
 	public static final int FOOTER_LINE_TYPE = 1;
 
-	public HeaderFooterReceipt(Context context) {
+	public HeaderFooterReceiptDao(Context context) {
 		super(context);
 	}
 	

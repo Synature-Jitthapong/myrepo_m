@@ -18,8 +18,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.text.TextUtils;
 
-public class Products extends MPOSDatabase {
+public class ProductsDao extends MPOSDatabase {
 	
 	/**
 	 * Product normal type
@@ -121,7 +122,7 @@ public class Products extends MPOSDatabase {
 		ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME1
 	};
 
-	public Products(Context context){
+	public ProductsDao(Context context){
 		super(context);
 	}
 	
@@ -159,10 +160,11 @@ public class Products extends MPOSDatabase {
 		if(cursor.moveToFirst()){
 			do{
 				ProductComponentGroup pCompGroup = new ProductComponentGroup();
+				String pgName = cursor.getString(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME));
 				pCompGroup.setProductId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
 				pCompGroup.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
 				pCompGroup.setGroupNo(cursor.getInt(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
-				pCompGroup.setGroupName(cursor.getString(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NAME)));
+				pCompGroup.setGroupName(!TextUtils.isEmpty(pgName) ? "" : pgName);
 				pCompGroup.setRequireAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
 				pCompGroup.setRequireMinAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT)));
 				pCompGroup.setSaleMode(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));

@@ -8,8 +8,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.SaleTransaction;
-import com.synature.mpos.database.Session;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.SessionDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.synature.util.Logger;
@@ -18,8 +18,8 @@ public abstract class EnddayBase {
 	
 	protected Context mContext;
 
-	protected Transaction mTrans;
-	protected Session mSession;
+	protected TransactionDao mTrans;
+	protected SessionDao mSession;
 	protected SaleTransaction mSaleTrans;
 	protected int mShopId;
 	protected int mComputerId;
@@ -30,8 +30,8 @@ public abstract class EnddayBase {
 	public EnddayBase(Context context, int shopId, int computerId, int staffId, WebServiceWorkingListener listener){
 		mContext = context;
 		mSaleTrans = new SaleTransaction(context);
-		mTrans = new Transaction(context);
-		mSession = new Session(context);
+		mTrans = new TransactionDao(context);
+		mSession = new SessionDao(context);
 		mShopId = shopId;
 		mComputerId = computerId;
 		mStaffId = staffId;

@@ -17,12 +17,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
 
-public class PromotionDiscount extends MPOSDatabase{
+public class PromotionDiscountDao extends MPOSDatabase{
 
 	public static final int PROMOTION_TYPE_COUPON = 4;
 	public static final int PROMOTION_TYPE_VOUCHER = 5;
 	
-	public PromotionDiscount(Context context) {
+	public PromotionDiscountDao(Context context) {
 		super(context);
 	}
 

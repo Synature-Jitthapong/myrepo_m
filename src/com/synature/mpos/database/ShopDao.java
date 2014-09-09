@@ -9,7 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class Shop extends MPOSDatabase{
+public class ShopDao extends MPOSDatabase{
 	
 	public static final int SHOP_TYPE_FOOD_COURT = 3;
 	
@@ -36,7 +36,7 @@ public class Shop extends MPOSDatabase{
 		ShopTable.COLUMN_PRINT_VAT_IN_RECEIPT
 	};
 	
-	public Shop(Context context){
+	public ShopDao(Context context){
 		super(context);
 	}
 	

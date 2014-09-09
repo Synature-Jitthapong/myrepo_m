@@ -16,7 +16,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class Formater extends MPOSDatabase{
+public class FormaterDao extends MPOSDatabase{
 	
 	public static final String[] COLUMNS = {
 		GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL,
@@ -28,7 +28,7 @@ public class Formater extends MPOSDatabase{
 		GlobalPropertyTable.COLUMN_TIME_FORMAT
 	};
 	
-	public Formater(Context context) {
+	public FormaterDao(Context context) {
 		super(context);
 	}
 
@@ -230,31 +230,27 @@ public class Formater extends MPOSDatabase{
 	}
 	
 	private SimpleDateFormat getSimpleDateFormat(){
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", getLocale());
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Utils.getLocale(mContext));
 		return dateFormat;
 	}
 	
 	private SimpleDateFormat getSimpleDateTimeFormat(){
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", getLocale());
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Utils.getLocale(mContext));
 		return dateFormat;
 	}
 	
 	private SimpleDateFormat getSimpleTimeFormat(){
-		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", getLocale());
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Utils.getLocale(mContext));
 		return dateFormat;
 	}
 	
 	private NumberFormat getNumberFormat(){
-		NumberFormat numFormat = NumberFormat.getInstance(getLocale());
+		NumberFormat numFormat = NumberFormat.getInstance(Utils.getLocale(mContext));
 		return numFormat;
 	}
 	
 	private DecimalFormat getDecimalFormat(){
 		DecimalFormat decFormat = new DecimalFormat();
 		return decFormat;
-	}
-	
-	private Locale getLocale(){
-		return Locale.getDefault();//Utils.getLangCode(mContext));
 	}
 }

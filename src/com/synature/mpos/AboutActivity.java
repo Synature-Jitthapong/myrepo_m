@@ -7,13 +7,14 @@ import android.provider.Settings.Secure;
 import android.app.Activity;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 public class AboutActivity extends Activity {
@@ -33,20 +34,17 @@ public class AboutActivity extends Activity {
 		 ((TextView) findViewById(R.id.textView2)).setText(this.getString(R.string.device_code) +
 				 Secure.getString(this.getContentResolver(),
 					Secure.ANDROID_ID));
-		((ImageView) findViewById(R.id.imageView1))
-				.setOnClickListener(new OnClickListener() {
+		 
+		ImageView img = (ImageView) findViewById(R.id.imageView1); 
+		img.setOnClickListener(new OnClickListener() {
 
 					@Override
 					public void onClick(View arg0) {
 						if(mCountClick == TOTAL_CLICK){
                             mCountClick = 0;
-                            final EditText txtPass = new EditText(AboutActivity.this);
-                            txtPass.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                            		LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                            params.setMargins(8, 0, 8, 8);
-                            LinearLayout content = new LinearLayout(AboutActivity.this);
-                            content.addView(txtPass, params);
+                            LayoutInflater inflater = getLayoutInflater();
+                            View content = inflater.inflate(R.layout.edittext_password, null);
+                            final EditText txtPass = (EditText) content.findViewById(R.id.txtPassword);
                             AlertDialog.Builder builder = new AlertDialog.Builder(AboutActivity.this);
                             builder.setTitle("Clear all sale data");
                             builder.setCancelable(false);
@@ -84,6 +82,29 @@ public class AboutActivity extends Activity {
                         }
 					}
 				});
+		img.setOnLongClickListener(new OnLongClickListener() {
+			
+			@Override
+			public boolean onLongClick(View v) {
+				new AlertDialog.Builder(AboutActivity.this)
+				.setMessage("Restore database ?")
+				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						
+					}
+				})
+				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						Utils.restoreDatabase(AboutActivity.this);
+					}
+				}).show();
+				return false;
+			}
+		});
 	}
 
 	@Override

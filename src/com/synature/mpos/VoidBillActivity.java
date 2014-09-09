@@ -6,10 +6,10 @@ import java.util.List;
 
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.Computer;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.PrintReceiptLog;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.ComputerDao;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.PrintReceiptLogDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
@@ -44,8 +44,8 @@ public class VoidBillActivity extends MPOSActivityBase {
 	private SaleService mPartService;
 	private boolean mBound = false;
 	
-	private Transaction mTrans;
-	private Formater mFormat;
+	private TransactionDao mTrans;
+	private FormaterDao mFormat;
 	
 	private List<OrderTransaction> mTransLst;
 	private BillAdapter mBillAdapter;
@@ -74,8 +74,8 @@ public class VoidBillActivity extends MPOSActivityBase {
 	    btnSearch = (Button) findViewById(R.id.btnSearch);
 	    mScrBill = (ScrollView) findViewById(R.id.scrollView1);
 
-		mTrans = new Transaction(getApplicationContext());
-		mFormat = new Formater(getApplicationContext());
+		mTrans = new TransactionDao(getApplicationContext());
+		mFormat = new FormaterDao(getApplicationContext());
 		mTransLst = new ArrayList<OrderTransaction>();
 		mBillAdapter = new BillAdapter();
 		mLvBill.setAdapter(mBillAdapter);
@@ -104,9 +104,9 @@ public class VoidBillActivity extends MPOSActivityBase {
 				mComputerId = trans.getComputerId();
 				mSessionId = trans.getSessionId();
 				
-				if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_SUCCESS)
+				if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
 					mItemConfirm.setEnabled(true);
-				else if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID)
+				else if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID)
 					mItemConfirm.setEnabled(false);
 				searchVoidItem();
 			}
@@ -204,7 +204,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 			}
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
 			holder.tvPaidTime.setText(mFormat.dateTimeFormat(c.getTime()));
-			if(trans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID){
+			if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID){
 				holder.tvReceiptNo.setTextColor(Color.RED);
 				holder.tvReceiptNo.setPaintFlags(holder.tvReceiptNo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			}else{
@@ -239,9 +239,9 @@ public class VoidBillActivity extends MPOSActivityBase {
 	private void searchVoidItem(){
 		OrderTransaction ordTrans = mTrans.getTransaction(mTransactionId);
 		if(ordTrans != null){
-			if(ordTrans.getTransactionStatusId() == Transaction.TRANS_STATUS_SUCCESS)
+			if(ordTrans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
 				((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());
-			else if(ordTrans.getTransactionStatusId() == Transaction.TRANS_STATUS_VOID)
+			else if(ordTrans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID)
 				((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEjVoid());
 		}
 	}
@@ -298,9 +298,9 @@ public class VoidBillActivity extends MPOSActivityBase {
 	}
 	
 	private void printReceipt(){
-		PrintReceiptLog printLog = 
-				new PrintReceiptLog(this);
-		Computer comp = new Computer(this);
+		PrintReceiptLogDao printLog = 
+				new PrintReceiptLogDao(this);
+		ComputerDao comp = new ComputerDao(this);
 		int isCopy = 0;
 		for(int i = 0; i < comp.getReceiptHasCopy(); i++){
 			if(i > 0)

@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
@@ -31,15 +30,13 @@ import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.MPOSDatabase;
-import com.synature.mpos.database.Products;
+import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.SaleTransaction;
 import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
-import com.synature.mpos.database.Session;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.SessionDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
@@ -76,9 +73,14 @@ public class Utils {
 	public static final String RESOURCE_DIR = "mpos";
 	
 	/**
-	 * Backup db dir
+	 * Backup path
 	 */
 	public static final String BACKUP_DB_PATH = RESOURCE_DIR + File.separator + "backup";
+	
+	/**
+	 * Restore path
+	 */
+	public static final String RESTORE_DB_PATH = RESOURCE_DIR + File.separator + "restore";
 	
 	/**
 	 * Log dir
@@ -117,45 +119,6 @@ public class Utils {
 	 * Enable/Disable log
 	 */
 	public static final boolean sIsEnableLog = true;
-	
-	/**
-	 * @param context
-	 * @param shopId
-	 * @param computerId
-	 * @param sessionId
-	 * @param staffId
-	 * @param closeAmount
-	 * @param isEndday
-	 * @param listener
-	 */
-	public static boolean endday(Context context, int shopId, int computerId, 
-			int sessionId, int staffId, double closeAmount, boolean isEndday) {
-		Session sess = new Session(context);
-		Transaction trans = new Transaction(context);
-		String currentSaleDate = sess.getLastSessionDate();
-		try {
-			try {
-				/*
-				 * add session endday
-				 * get total receipt in day by parsing sessionId = 0 
-				 */
-				sess.addSessionEnddayDetail(currentSaleDate,
-						trans.getTotalReceipt(0, currentSaleDate),
-						trans.getTotalReceiptAmount(currentSaleDate));
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			// close session
-			sess.closeSession(sessionId,
-				staffId, closeAmount, isEndday);
-			return true;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
-	}
 
 	/**
 	 * @param context
@@ -169,16 +132,26 @@ public class Utils {
 			int computerId, int staffId, Calendar lastSessCal){
 		int diffDay = getDiffDay(lastSessCal);
 		try {
-			Session sess = new Session(context);
+			SessionDao sess = new SessionDao(context);
+			// if have some previous session does not end
+			String prevSessDate = String.valueOf(lastSessCal.getTimeInMillis());
+			if(!sess.checkEndday(prevSessDate)){
+				TransactionDao trans = new TransactionDao(context);
+				int prevSessId = sess.getLastSessionId();
+				sess.addSessionEnddayDetail(prevSessDate, 
+						trans.getTotalReceipt(prevSessId, prevSessDate), 
+						trans.getTotalReceiptAmount(prevSessDate));
+				sess.closeSession(prevSessId, staffId, 0, true);
+			}
 			Calendar sessCal = (Calendar) lastSessCal.clone();
 			for(int i = 1; i < diffDay; i++){
 				sessCal.add(Calendar.DAY_OF_MONTH, 1);
-				int sessId = sess.openSession(shopId, computerId, staffId, 0);
+				int sessId = sess.openSession(String.valueOf(sessCal.getTimeInMillis()), shopId, computerId, staffId, 0);
 				sess.addSessionEnddayDetail(String.valueOf(sessCal.getTimeInMillis()), 0, 0);
 				sess.closeSession(sessId, staffId, 0, true);
 			}
 			try {
-				Formater format = new Formater(context);
+				FormaterDao format = new FormaterDao(context);
 				Logger.appendLog(context, LOG_PATH,
 						LOG_FILE_NAME,
 						"Success ending multiple day : " 
@@ -320,16 +293,16 @@ public class Utils {
 	}
 	
 	public static double calculateVatPrice(double totalPrice, double vatRate, int vatType){
-		if(vatType == Products.VAT_TYPE_EXCLUDE)
+		if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
 			return totalPrice * (100 + vatRate) / 100;
 		else
 			return totalPrice;
 	}
 	
 	public static double calculateVatAmount(double totalPrice, double vatRate, int vatType){
-		if(vatType == Products.VAT_TYPE_INCLUDED)
+		if(vatType == ProductsDao.VAT_TYPE_INCLUDED)
 			return totalPrice * vatRate / (100 + vatRate);
-		else if(vatType == Products.VAT_TYPE_EXCLUDE)
+		else if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
 			return totalPrice * vatRate / 100;
 		else
 			return 0;
@@ -346,7 +319,7 @@ public class Utils {
 	 * @param value
 	 * @return string fixes digit
 	 */
-	public static String fixesDigitLength(Formater format, int scale, double value){
+	public static String fixesDigitLength(FormaterDao format, int scale, double value){
 		return format.currencyFormat(value, "#,##0.0000");
 	}
 
@@ -555,7 +528,7 @@ public class Utils {
 	 */
 	public static String getWintecDspTextLine2(Context context){
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE2, "pRoMiSe System");
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE2, "mPOS");
 	}
 	
 	/**
@@ -605,6 +578,16 @@ public class Utils {
 			e.printStackTrace();
 		}
 		return port;
+	}
+	
+	/**
+	 * @param context
+	 * @return true if enabled
+	 */
+	public static boolean isEnableBackupDatabase(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getBoolean(SettingsActivity.KEY_PREF_ENABLE_BACKUP_DB, true);
 	}
 	
 	/**
@@ -691,6 +674,10 @@ public class Utils {
 		context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
 	}
 	
+	public static Locale getLocale(Context context){
+		return new Locale(getLangCode(context));
+	}
+	
 	public static void shutdown(){
 		Process chperm;
 		try {
@@ -709,14 +696,32 @@ public class Utils {
 		}
 	}
 	
-	public static void writeEJ(Context context){
-		
+	public static void restoreDatabase(Context context){
+		String dbName = MPOSDatabase.MPOSOpenHelper.DB_NAME;
+		String restorePath = RESTORE_DB_PATH;
+		File sd = Environment.getExternalStorageDirectory();
+		FileChannel source = null;
+		FileChannel destination = null;
+		File dbPath = context.getDatabasePath(dbName);
+		File sdPath = new File(sd, restorePath);
+		if(!sdPath.exists())
+			sdPath.mkdirs();
+		try {
+			source = new FileInputStream(sdPath + File.separator + dbName).getChannel();
+			destination = new FileOutputStream(dbPath).getChannel();
+			destination.transferFrom(source, 0, source.size());
+			source.close();
+			destination.close();
+			makeToask(context, context.getString(R.string.restore_db_success));
+		} catch (IOException e) {
+			e.printStackTrace();
+			makeToask(context, e.getLocalizedMessage());
+		}
 	}
 	
-	public static void exportDatabase(Context context){
+	public static void backupDatabase(Context context){
 		Calendar calendar = Calendar.getInstance();
 		String dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.getTime());
-		//String timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.US).format(calendar.getTime());
 		String dbName = MPOSDatabase.MPOSOpenHelper.DB_NAME;
 		String backupPath = BACKUP_DB_PATH + "_" + dateFormat;
 		File sd = Environment.getExternalStorageDirectory();
@@ -735,6 +740,7 @@ public class Utils {
 			makeToask(context, context.getString(R.string.backup_db_success));
 		} catch (IOException e) {
 			e.printStackTrace();
+			makeToask(context, e.getLocalizedMessage());
 		}
 	}
 	

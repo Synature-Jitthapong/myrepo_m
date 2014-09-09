@@ -1,4 +1,4 @@
-package com.synature.mpos.database;
+package com.synature.mpos.database.model;
 
 public class MPOSPaymentDetail {
 	private int transactionId;

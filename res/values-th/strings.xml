@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="lang_eng">ภาษาอังกฤษ</string>
-    <string name="lang_thai">ภาษาไทย</string>
     <string name="login">ล็อกอิน</string>
     <string name="staff_code">รหัสพนักงาน</string>
     <string name="password">รหัสผ่าน</string>
@@ -99,7 +97,7 @@
     <string name="alredy_endday">ปิดสิ้นวันแล้ว</string>
     <string name="credit_card">เครดิตการ์ด</string>
     <string name="before_vat">ราคาก่อนภาษี</string>
-    <string name="clear_order_first">กรุณายกเลิกรายการปัจจุบันก่อน</string>
+    <string name="check_not_complete_orders">มีบางรายการที่ค้างอยู่ กรุณาตรวจสอบก่อนทำฟังก์ชันนี้</string>
     <string name="barcode">บาร์โค้ด</string>
     <string name="font">ฟอนต์</string>
     <string name="device_code">หมายเลขเครื่อง: </string>

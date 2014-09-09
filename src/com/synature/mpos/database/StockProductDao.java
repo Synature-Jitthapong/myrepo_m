@@ -1,6 +1,6 @@
 package com.synature.mpos.database;
 
-public class StockProduct {
+public class StockProductDao {
 	private int id;
 	private int proId;
 	private String code;
@@ -15,7 +15,7 @@ public class StockProduct {
 	private double unitPrice;
 	private String unitName;
 
-	public StockProduct() {
+	public StockProductDao() {
 
 	}
 
