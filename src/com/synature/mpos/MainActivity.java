@@ -638,14 +638,39 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 		
 		// send sale data service
-		List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
-		for(OrderTransaction trans : transIdLst){
-			mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
-					trans.getComputerId(), mStaffId, mPartialSaleSenderListener);
-		}
+		new Thread(new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
+
+			@Override
+			public void onLine() {
+				List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
+				int size = transIdLst.size();
+				for(int i = 0; i < size; i++){
+					OrderTransaction trans = transIdLst.get(i);
+					mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
+							trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
+				}
+			}
+
+			@Override
+			public void offLine() {
+			}
+
+			@Override
+			public void serverProblem(int code, String msg) {
+			}
+			
+		})).start();
 	}
 	
-	WebServiceWorkingListener mPartialSaleSenderListener = new WebServiceWorkingListener() {
+	class SendSaleListener implements WebServiceWorkingListener{
+		
+		private int mSize;
+		private int mPosition;
+		
+		public SendSaleListener(int size, int position){
+			mSize = size;
+			mPosition = position;
+		}
 		
 		@Override
 		public void onPreExecute() {
@@ -654,8 +679,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		@Override
 		public void onPostExecute() {
 			countSaleDataNotSend();
-			Utils.makeToask(MainActivity.this, MainActivity.this
-					.getString(R.string.send_sale_data_success));
+			if(mPosition == mSize - 1){
+				Utils.makeToask(MainActivity.this, MainActivity.this
+						.getString(R.string.send_sale_data_success));
+			}
 		}
 
 		@Override
@@ -1285,6 +1312,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				holder.tvPrice.setText(mFormat.currencyFormat(p.getProductPrice()));
 
 			if(Utils.isShowMenuImage(MainActivity.this)){
+				holder.imgMenu.setVisibility(View.VISIBLE);
 				mImageLoader.displayImage(
 						Utils.getImageUrl(MainActivity.this) + 
 						p.getImgName(), holder.imgMenu);
@@ -1555,7 +1583,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	}
 
 	private void openSession(){
-		mSessionId = mSession.getCurrentSessionId(mStaffId); 
+		mSessionId = mSession.getCurrentSessionId(); 
 		if(mSessionId == 0){
 			mSessionId = mSession.openSession(mShopId, mComputerId, mStaffId, 0);
 			
@@ -2148,7 +2176,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 		// send sale data service
 		mPartService.sendSale(mShopId, mSessionId, mTransactionId, 
-				mComputerId, mStaffId, mPartialSaleSenderListener);
+				mComputerId, mStaffId, new SendSaleListener(1, 0));
 
 		// print close shift
 		new PrintReport(MainActivity.this, 

@@ -29,6 +29,7 @@ public class PartialSaleSenderExcecutor extends EnddayBase implements Runnable{
 				public void onPreExecute() {
 					Logger.appendLog(mContext, Utils.LOG_PATH, 
 							Utils.LOG_FILE_NAME, "Start send partial " + json);
+					mListener.onPreExecute();
 				}
 
 				@Override

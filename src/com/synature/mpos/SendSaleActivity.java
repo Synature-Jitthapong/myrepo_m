@@ -150,8 +150,10 @@ public class SendSaleActivity extends MPOSActivityBase{
 		
 		@Override
 		public void onPreExecute() {
-			if(mPosition == 0)
-				mItemSendAll.setEnabled(false);
+			if(mPosition == 0){
+				mItemSendAll.setVisible(false);
+				mItemProgress.setVisible(true);
+			}
 			mTrans.onSend = true;
 			mTransLst.set(mPosition, mTrans);
 			mSyncAdapter.notifyDataSetChanged();
@@ -173,14 +175,15 @@ public class SendSaleActivity extends MPOSActivityBase{
 			mTransLst.set(mPosition, mTrans);
 			mTrans.onSend = false;
 			mSyncAdapter.notifyDataSetChanged();
-			if(mPosition == mTransLst.size() - 1)
-				mItemSendAll.setEnabled(true);
+			if(mPosition == mTransLst.size() - 1){
+				mItemSendAll.setVisible(true);
+				mItemProgress.setVisible(false);
+				Utils.makeToask(SendSaleActivity.this, msg);
+			}
 		}
 
 		@Override
 		public void onProgressUpdate(int value) {
-			// TODO Auto-generated method stub
-			
 		}
 		
 	}
@@ -277,6 +280,8 @@ public class SendSaleActivity extends MPOSActivityBase{
 			}
 			if(trans.getSendStatus() == MPOSDatabase.ALREADY_SEND){
 				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_accept);
+				mSendTransLst.remove(position);
+				notifyDataSetChanged();
 			}else{
 				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_warning);
 			}

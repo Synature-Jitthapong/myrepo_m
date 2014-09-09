@@ -33,7 +33,7 @@
     <string name="sale_price">Sale price</string>
     <string name="vat_exclude">VAT exclude</string>
     <string name="confirm_cancel">Are you sure to cancel?</string>
-    <string name="enter_enough_money">Please enter enough money.</string>
+    <string name="enter_enough_money">Not enough money.</string>
     <string name="close">Close</string>
     <string name="payment">Payment</string>
     <string name="sale_report">Sale report</string>
