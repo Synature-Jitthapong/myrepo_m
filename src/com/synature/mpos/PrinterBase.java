@@ -670,6 +670,7 @@ public abstract class PrinterBase {
     			calculateLength(strTotalSale)));
     	mTextToPrint.append(strTotalSale + "\n");
     	
+    	// thai exchange
     	totalText = "THB.................";
     	strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice() / 250);
     	mTextToPrint.append(totalText);
