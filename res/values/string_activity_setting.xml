@@ -64,12 +64,4 @@
         <item>45</item>
         <item>60</item>
     </string-array>
-    <string-array name="language_name">
-        <item>@string/lang_eng</item>
-        <item>@string/lang_thai</item>
-    </string-array>
-    <string-array name="language_value">
-        <item>en_US</item>
-        <item>th_TH</item>
-    </string-array>
 </resources>

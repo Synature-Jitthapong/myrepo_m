@@ -32,6 +32,8 @@ public class OrderTransaction {
 	private String receiptNo;
 	private String remark;
 	private int sendStatus;
+	private String ej;
+	private String ejVoid;
 
 	public int getSendStatus() {
 		return sendStatus;
@@ -278,5 +280,21 @@ public class OrderTransaction {
 
 	public void setPromotionPriceGroupId(int promotionPriceGroupId) {
 		this.promotionPriceGroupId = promotionPriceGroupId;
+	}
+
+	public String getEj() {
+		return ej;
+	}
+
+	public void setEj(String ej) {
+		this.ej = ej;
+	}
+
+	public String getEjVoid() {
+		return ejVoid;
+	}
+
+	public void setEjVoid(String ejVoid) {
+		this.ejVoid = ejVoid;
 	}
 }

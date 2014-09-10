@@ -3,10 +3,10 @@ package com.synature.mpos;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.Products;
-import com.synature.mpos.database.PromotionDiscount;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.ProductsDao;
+import com.synature.mpos.database.PromotionDiscountDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderTransaction;
 
@@ -15,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,7 +25,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -33,9 +33,9 @@ public class PromotionActivity extends MPOSActivityBase {
 
 	public static final String TAG = PromotionActivity.class.getSimpleName();
 	
-	private Transaction mTrans;
-	private PromotionDiscount mPromotion;
-	private Formater mFormat;
+	private TransactionDao mTrans;
+	private PromotionDiscountDao mPromotion;
+	private FormaterDao mFormat;
 	private List<OrderDetail> mOrderLst;
 	private List<com.synature.pos.PromotionPriceGroup> mPromoPriceGroupLst;
 	private OrderDiscountAdapter mOrderAdapter;
@@ -43,7 +43,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	private int mTransactionId;
 	private int mSelectedProPriceGroupId;
 	
-	private EditText mTxtTotalPrice;
+	private TextView mTvTotalPrice;
 	private LinearLayout mPromoButtonContainer;
 	private LinearLayout mSummaryContainer;
 	private ListView mLvOrderDiscount; 
@@ -56,12 +56,12 @@ public class PromotionActivity extends MPOSActivityBase {
 		
 		mPromoButtonContainer = (LinearLayout) findViewById(R.id.promoButtonContainer);
 		mLvOrderDiscount = (ListView) findViewById(R.id.lvOrderDiscount);
-		mTxtTotalPrice = (EditText) findViewById(R.id.txtTotalPrice);
+		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 		mSummaryContainer = (LinearLayout) findViewById(R.id.summaryContainer);
 		
-		mTrans = new Transaction(this);
-		mFormat = new Formater(this);
-		mPromotion = new PromotionDiscount(this);
+		mTrans = new TransactionDao(this);
+		mFormat = new FormaterDao(this);
+		mPromotion = new PromotionDiscountDao(this);
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);
@@ -78,10 +78,10 @@ public class PromotionActivity extends MPOSActivityBase {
 		for(com.synature.pos.PromotionPriceGroup promoPriceGroup : mPromoPriceGroupLst){
 			LayoutInflater inflater = (LayoutInflater) getLayoutInflater();
 			Button btn = (Button) inflater.inflate(R.layout.button_template, null, false);
-			btn.setBackgroundResource(R.drawable.btn_smooth_green);
+			btn.setBackgroundResource(R.drawable.btn_holo_green);
 			btn.setTextColor(Color.WHITE);
 			btn.setId(promoPriceGroup.getPriceGroupID());
-			btn.setText(promoPriceGroup.getPromotionName().equals("") ? promoPriceGroup.getButtonName() : promoPriceGroup.getPromotionName());
+			btn.setText(TextUtils.isEmpty(promoPriceGroup.getPromotionName()) ? promoPriceGroup.getButtonName() : promoPriceGroup.getPromotionName());
 			btn.setMinWidth(128);
 			btn.setMinHeight(64);
 			btn.setOnClickListener(new OnPromotionButtonClickListener(promoPriceGroup.getPriceGroupID(), 
@@ -148,7 +148,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	 */
 	private void resetDiscount(){
 		// reset discount
-		Products p = new Products(PromotionActivity.this);
+		ProductsDao p = new ProductsDao(PromotionActivity.this);
 		for(OrderDetail detail : mOrderLst){
 			double totalRetailPrice = detail.getTotalRetailPrice();
 			double discount = DiscountActivity.calculateDiscount(totalRetailPrice, 
@@ -165,7 +165,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	
 	private void summary(){
 		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId);
-		mTxtTotalPrice.setText(mFormat.currencyFormat(summ.getTotalSalePrice()));
+		mTvTotalPrice.setText(mFormat.currencyFormat(summ.getTotalSalePrice()));
 
 		if(mSummaryContainer.getChildCount() > 0)
 			mSummaryContainer.removeAllViews();
@@ -238,7 +238,7 @@ public class PromotionActivity extends MPOSActivityBase {
 		 */
 		private boolean discount(List<com.synature.pos.PromotionProductDiscount> productLst){
 			boolean canDiscount = false;
-			Products p = new Products(PromotionActivity.this);
+			ProductsDao p = new ProductsDao(PromotionActivity.this);
 			for(OrderDetail detail : mOrderLst){
 				for(com.synature.pos.PromotionProductDiscount product : productLst){
 					if(detail.getProductId() == product.getProductID()){

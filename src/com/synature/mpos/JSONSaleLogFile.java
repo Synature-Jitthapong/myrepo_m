@@ -12,12 +12,12 @@ import com.synature.util.FileManager;
 
 @SuppressLint("SimpleDateFormat")
 public class JSONSaleLogFile {
-	public static final String JSON_EXTENSION = ".txt";
+	public static final String FILE_EXTENSION = ".txt";
 	
 	public static void appendSale(Context c, String json) {
 		Calendar calendar = Calendar.getInstance();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		String fileName = dateFormat.format(calendar.getTime()) + JSON_EXTENSION;
+		String fileName = dateFormat.format(calendar.getTime()) + FILE_EXTENSION;
 		FileManager fileManager = new FileManager(c, Utils.SALE_PATH);
 		String logFile = fileManager.getFile(fileName).getPath();
 		try {
@@ -35,7 +35,7 @@ public class JSONSaleLogFile {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(Long.parseLong(sessDate));
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		String fileName = dateFormat.format(calendar.getTime()) + JSON_EXTENSION;
+		String fileName = dateFormat.format(calendar.getTime()) + FILE_EXTENSION;
 		FileManager fileManager = new FileManager(c, Utils.ENDDAY_PATH);
 		String logFile = fileManager.getFile(fileName).getPath();
 		try {

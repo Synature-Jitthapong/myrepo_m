@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:padding="@dimen/activity_horizontal_margin"
     tools:context=".VoidBillActivity" >
 
     <LinearLayout
@@ -22,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:orientation="horizontal" >
 
             <TextView
@@ -35,6 +34,7 @@
 
             <TextView
                 android:id="@+id/tvSaleDate"
+                style="@style/TextQty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
@@ -43,10 +43,12 @@
 
             <Button
                 android:id="@+id/btnSearch"
+                style="@style/BlueButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/search"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -90,129 +92,26 @@
         </ListView>
     </LinearLayout>
 
-    <LinearLayout
+    <ScrollView
+        android:id="@+id/scrollView1"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:divider="@android:drawable/divider_horizontal_bright"
-        android:orientation="vertical"
-        android:showDividers="middle" >
-
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp" >
-
-            <TableRow
-                android:id="@+id/tableRow2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical" >
-
-                <TextView
-                    android:id="@+id/textView1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="4dp"
-                    android:gravity="right"
-                    android:text="@string/receipt_no"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <EditText
-                    android:id="@+id/txtReceiptNo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="15"
-                    android:enabled="false"
-                    android:textColor="@android:color/black" >
-                </EditText>
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical" >
-
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="4dp"
-                    android:gravity="right"
-                    android:text="@string/paid_time"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <EditText
-                    android:id="@+id/txtSaleDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="15"
-                    android:enabled="false"
-                    android:textColor="@android:color/black" />
-            </TableRow>
-        </TableLayout>
+        android:background="@drawable/white_flat_bg" >
 
         <LinearLayout
-            style="@style/HeaderRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal" >
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/default_margin" >
 
-            <TextView
-                android:id="@+id/textView4"
-                style="@style/HeaderText"
+            <com.synature.mpos.CustomFontTextView
+                android:id="@+id/textView1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="left"
-                android:text="@string/product_name"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/textView5"
-                style="@style/HeaderText"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:text="@string/qty"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <TextView
-                android:id="@+id/textView6"
-                style="@style/HeaderText"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:text="@string/price"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <TextView
-                android:id="@+id/textView7"
-                style="@style/HeaderText"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="0dp"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:text="@string/total_price"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
-
-        <ListView
-            android:id="@+id/lvBillDetail"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/white_flat_bg" >
-
-        </ListView>
-    </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

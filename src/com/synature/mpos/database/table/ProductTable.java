@@ -6,8 +6,6 @@ public class ProductTable extends BaseColumn{
 	
 	public static final String TABLE_PRODUCT = "Product";
 	public static final String COLUMN_PRODUCT_ID = "product_id";
-	public static final String COLUMN_PRODUCT_DEPT_ID = "product_dept_id";
-	public static final String COLUMN_PRODUCT_GROUP_ID = "product_group_id";
 	public static final String COLUMN_PRODUCT_CODE = "product_code";
 	public static final String COLUMN_PRODUCT_BAR_CODE = "product_barcode";
 	public static final String COLUMN_PRODUCT_NAME = "product_name";
@@ -28,7 +26,8 @@ public class ProductTable extends BaseColumn{
 	private static final String SQL_CREATE =
 			" create table " + TABLE_PRODUCT + " ( " 
 			+ COLUMN_PRODUCT_ID + " integer not null, " 
-			+ COLUMN_PRODUCT_DEPT_ID + " integer not null, " 
+			+ ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + " integer not null, " 
+			+ ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + " integer not null, "
 			+ COLUMN_PRODUCT_CODE + " text, "
 			+ COLUMN_PRODUCT_BAR_CODE + " text, " 
 			+ COLUMN_PRODUCT_NAME + " text, " 

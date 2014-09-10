@@ -3,8 +3,8 @@ package com.synature.mpos;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.Session;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.SessionDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
@@ -22,7 +22,7 @@ import android.widget.TextView;
 
 public class ReprintActivity extends MPOSActivityBase {
 	
-	private Transaction mOrders;
+	private TransactionDao mOrders;
 	
 	private ReprintTransAdapter mTransAdapter;
 	private ListView mLvTrans;
@@ -44,12 +44,13 @@ public class ReprintActivity extends MPOSActivityBase {
 		
 		mLvTrans = (ListView) findViewById(R.id.listView1);
 
-		mOrders = new Transaction(this);
-		Session sess = new Session(this);
+		mOrders = new TransactionDao(this);
+		SessionDao sess = new SessionDao(this);
 
 		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, 
 				mOrders.listSuccessTransaction(sess.getLastSessionDate()));
 		mLvTrans.setAdapter(mTransAdapter);
+		mLvTrans.setSelection(mTransAdapter.getCount() - 1);
 	}
 	
 	@Override
@@ -74,17 +75,17 @@ public class ReprintActivity extends MPOSActivityBase {
 			final OrderTransaction trans = mTransLst.get(position);
 			final ViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.reprint_trans_template, parent, false);
+				convertView = mInflater.inflate(R.layout.reprint_trans_item, parent, false);
 				holder = new ViewHolder();
-				holder.tvNo = (TextView) convertView.findViewById(R.id.textView2);
-				holder.tvItem = (TextView) convertView.findViewById(R.id.textView1);
-				holder.btnPrint = (Button) convertView.findViewById(R.id.btnCommentMinus);
+				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
+				holder.tvReceiptNo = (TextView) convertView.findViewById(R.id.tvReceiptNo);
+				holder.btnPrint = (Button) convertView.findViewById(R.id.btnPrint);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
 			holder.tvNo.setText(String.valueOf(position + 1) + ".");
-			holder.tvItem.setText(trans.getReceiptNo());
+			holder.tvReceiptNo.setText(trans.getReceiptNo());
 			holder.btnPrint.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -99,7 +100,7 @@ public class ReprintActivity extends MPOSActivityBase {
 		
 		public class ViewHolder {
 			TextView tvNo;
-			TextView tvItem;
+			TextView tvReceiptNo;
 			Button btnPrint;
 		}
 	}

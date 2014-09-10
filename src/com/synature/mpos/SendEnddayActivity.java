@@ -6,8 +6,8 @@ import java.util.List;
 
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.Session;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.SessionDao;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -35,14 +35,14 @@ public class SendEnddayActivity extends MPOSActivityBase {
 	private SaleService mPartService;
 	private boolean mBound = false;
 	
-	private Formater mFormat;
+	private FormaterDao mFormat;
 	
 	private int mStaffId;
 	private int mShopId;
 	private int mComputerId;
 	private boolean mAutoClose = false;
 	
-	private Session mSession;
+	private SessionDao mSession;
 	private List<String> mSessLst;
 	private EnddayListAdapter mEnddayAdapter;
 	
@@ -76,8 +76,8 @@ public class SendEnddayActivity extends MPOSActivityBase {
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mAutoClose = intent.getBooleanExtra("autoClose", false);
 		
-		mFormat = new Formater(this);
-		mSession = new Session(this);
+		mFormat = new FormaterDao(this);
+		mSession = new SessionDao(this);
 		mSessLst = new ArrayList<String>();
 
 		setupAdapter();
@@ -141,9 +141,9 @@ public class SendEnddayActivity extends MPOSActivityBase {
 		if(mEnddayAdapter == null){
 			mEnddayAdapter = new EnddayListAdapter();
 			mLvEndday.setAdapter(mEnddayAdapter);
-		}else{
-			mEnddayAdapter.notifyDataSetChanged();
 		}
+		mEnddayAdapter.notifyDataSetChanged();
+		mLvEndday.setSelection(mEnddayAdapter.getCount() - 1);
 	}
 	
 	private WebServiceWorkingListener mSendListener = new WebServiceWorkingListener(){

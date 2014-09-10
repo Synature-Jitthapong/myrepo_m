@@ -9,6 +9,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -38,6 +39,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_DSP_TEXT_LINE2 = "dsp_wintec_line2";
 	public static final String KEY_PREF_ENABLE_SECOND_DISPLAY = "enable_second_display";
 	public static final String KEY_PREF_LANGUAGE_LIST = "language_list";
+	public static final String KEY_PREF_ENABLE_BACKUP_DB = "enable_backup_db";
 	
 	//private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
@@ -49,10 +51,23 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.activity_setting, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
 			finish();
+			return true;
+		case R.id.itemBackup:
+			Utils.backupDatabase(getApplicationContext());
+			return true;
+		case R.id.itemRestore:
+			RestoreDatabaseFragment f = RestoreDatabaseFragment.newInstance();
+			f.show(getFragmentManager(), "RestoreDatabase");
 			return true;
 		default :
 			return super.onOptionsItemSelected(item);
@@ -157,8 +172,14 @@ public class SettingsActivity extends PreferenceActivity {
 		
 	}
 	
-	public void backupDbClick(final View v){
-		Utils.exportDatabase(getApplicationContext());
+	public void dspTestClick(final View v){
+		WintecCustomerDisplay dsp = new WintecCustomerDisplay(getApplicationContext());
+		dsp.displayWelcome();
+	}
+	
+	public void drwTestClick(final View v){
+		WintecCashDrawer drw = new WintecCashDrawer(getApplicationContext());
+		drw.openCashDrawer();
 	}
 	
 	public void printTestClick(final View v){

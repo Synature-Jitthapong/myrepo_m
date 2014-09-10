@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.synature.mpos"
     android:installLocation="auto"
-    android:versionCode="7"
-    android:versionName="0.7" >
+    android:versionCode="4"
+    android:versionName="1.0.4" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -56,7 +56,7 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" >
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" >
         </activity>
         <activity
             android:name=".DiscountActivity"
@@ -161,7 +161,7 @@
         </activity>
         <activity
             android:name=".PromotionActivity"
-            android:label="@string/title_activity_promotion" >
+            android:label="@string/promotion_short" android:screenOrientation="landscape" android:windowSoftInputMode="stateAlwaysHidden">
         </activity>
     </application>
 

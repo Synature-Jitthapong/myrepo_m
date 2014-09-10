@@ -14,7 +14,7 @@
 	<header
         android:fragment="com.synature.mpos.SettingsActivity$WintecSettingFragment"
         android:title="@string/wintec_setting"/>
-    <header
+    <!-- <header
         android:fragment="com.synature.mpos.SettingsActivity$SecondDisplayPreferenceFragment"
-        android:title="@string/second_display_setting"/>
+        android:title="@string/second_display_setting"/> -->
 </preference-headers>

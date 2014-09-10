@@ -1,5 +1,6 @@
 package com.synature.mpos.database;
 
+import com.synature.mpos.database.table.StaffPermissionTable;
 import com.synature.mpos.database.table.StaffTable;
 import com.synature.util.EncryptSHA1;
 
@@ -43,6 +44,7 @@ public class UserVerification extends MPOSDatabase{
 			s.setStaffID(cursor.getInt(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_ID)));
 			s.setStaffCode(cursor.getString(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_CODE)));
 			s.setStaffName(cursor.getString(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_NAME)));
+			s.setStaffRoleID(cursor.getInt(cursor.getColumnIndex(StaffPermissionTable.COLUMN_STAFF_ROLE_ID)));
 			cursor.moveToNext();
 		}
 		cursor.close();

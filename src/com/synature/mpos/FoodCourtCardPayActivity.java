@@ -1,9 +1,9 @@
 package com.synature.mpos;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.Formater;
-import com.synature.mpos.database.Shop;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.ShopDao;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.pos.PrepaidCardInfo;
 import com.synature.util.CreditCardParser;
@@ -53,8 +53,8 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 
 	private WintecMagneticReader mMsrReader;
 	
-	private Transaction mTrans;
-	private Formater mFormat;
+	private TransactionDao mTrans;
+	private FormaterDao mFormat;
 	
 	private int mTransactionId;
 	private int mShopId;
@@ -84,8 +84,8 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		mShopId = intent.getIntExtra("shopId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
-		mTrans = new Transaction(this);
-		mFormat = new Formater(this);
+		mTrans = new TransactionDao(this);
+		mFormat = new FormaterDao(this);
 		
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment(), "Placeholder").commit();
@@ -372,7 +372,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 				PayResultFragment fragment = PayResultFragment.newInstance(mCardBalance);
 				getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
 				
-				Shop shop = new Shop(FoodCourtCardPayActivity.this);
+				ShopDao shop = new ShopDao(FoodCourtCardPayActivity.this);
 				mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice, 
 						shop.getCompanyVatType(), shop.getCompanyVatRate());
 				new ReceiptPrint().run();

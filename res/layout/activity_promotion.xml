@@ -23,29 +23,20 @@
 
             <LinearLayout
                 android:id="@+id/promoButtonContainer"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:orientation="horizontal" >
             </LinearLayout>
         </HorizontalScrollView>
 
-        <EditText
-            android:id="@+id/txtTotalPrice"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/tvTotalPrice"
+            style="@style/TextPrice"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:clickable="false"
-            android:ems="10"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:gravity="right|center_vertical"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textSize="@dimen/larger_text_size"
-            android:textStyle="bold" >
-
-            <requestFocus />
-        </EditText>
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="@dimen/larger_text_size" />
 
     </LinearLayout>
 

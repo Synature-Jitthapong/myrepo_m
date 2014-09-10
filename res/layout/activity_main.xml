@@ -11,6 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.6"
+        android:background="@color/white_gray"
         android:divider="@android:drawable/divider_horizontal_bright"
         android:orientation="vertical"
         android:showDividers="middle" >
@@ -32,11 +33,9 @@
                 android:lines="1"
                 android:maxLines="1"
                 android:minHeight="48dp"
-                android:paddingRight="48dp"
+                android:paddingRight="96dp"
                 android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceLargeInverse" >
-
-                <requestFocus />
             </EditText>
 
             <ImageButton
@@ -47,7 +46,19 @@
                 android:layout_alignRight="@+id/txtBarCode"
                 android:layout_centerVertical="true"
                 android:minWidth="48dip"
+                android:onClick="clearBarCodeClicked"
                 android:src="@drawable/ic_action_cancel" />
+
+            <ImageButton
+                android:id="@+id/imgBtnToggleKey"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/imgBtnClearBarcode"
+                android:onClick="toggleKeyboard"
+                android:src="@drawable/ic_action_keyboard" />
+
         </RelativeLayout>
 
         <ExpandableListView
@@ -55,48 +66,55 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@android:color/white"
             android:childDivider="@android:color/transparent" >
         </ExpandableListView>
 
-        <LinearLayout
-            android:id="@+id/orderCtrlContent"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
-            android:gravity="center_vertical"
             android:padding="4dp" >
 
-            <TextView
-                android:id="@+id/tvOrderSelected"
-                android:layout_width="0dp"
+            <ImageButton
+                android:id="@+id/btnDelOrder"
+                style="@style/GrayButtonOval"
+                android:layout_width="48dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:minHeight="48dip"
+                android:minWidth="48dip"
+                android:onClick="onClick"
+                android:src="@android:drawable/ic_menu_delete" />
 
             <ImageButton
                 android:id="@+id/btnClearSelOrder"
+                style="@style/GrayButtonOval"
                 android:layout_width="48dp"
                 android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/btnDelOrder"
                 android:minHeight="48dip"
                 android:minWidth="48dip"
                 android:onClick="onClick"
                 android:src="@android:drawable/ic_menu_revert" />
 
             <ImageButton
-                android:id="@+id/btnDelOrder"
-                android:layout_width="48dp"
+                android:id="@+id/btnBillDetail"
+                style="@style/GrayButtonOval"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="48dip"
+                android:layout_alignParentLeft="true"
+                android:layout_alignTop="@+id/btnClearSelOrder"
                 android:minWidth="48dip"
                 android:onClick="onClick"
-                android:src="@android:drawable/ic_menu_delete" />
-        </LinearLayout>
+                android:src="@drawable/ic_action_receipt" />
+
+        </RelativeLayout>
 
         <TableLayout
             android:id="@+id/tbLayoutSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
             android:padding="4dp" >
         </TableLayout>
 
@@ -106,7 +124,6 @@
 
             <Button
                 android:id="@+id/btnCashPaid"
-                style="@style/SmoothGreenButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -116,14 +133,13 @@
 
             <Button
                 android:id="@+id/btnPayment"
-                style="@style/SmoothGreenButton"
+                style="@style/BlueButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="paymentClicked"
                 android:text="@string/payment"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-
         </LinearLayout>
     </LinearLayout>
 
@@ -145,7 +161,6 @@
             android:layout_height="0dp"
             android:layout_margin="4dp"
             android:layout_weight="1" >
-
         </android.support.v4.view.ViewPager>
 
         <RelativeLayout
@@ -197,9 +212,7 @@
                 android:onClick="holdOrderClicked"
                 android:text="@string/hold"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-
         </RelativeLayout>
-
     </LinearLayout>
 
 </LinearLayout>

@@ -9,11 +9,9 @@ import com.synature.mpos.database.table.CreditCardTable;
 import com.synature.mpos.database.table.GlobalPropertyTable;
 import com.synature.mpos.database.table.HeaderFooterReceiptTable;
 import com.synature.mpos.database.table.LanguageTable;
-import com.synature.mpos.database.table.MenuCommentGroupTable;
-import com.synature.mpos.database.table.MenuCommentTable;
 import com.synature.mpos.database.table.MenuFixCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
-import com.synature.mpos.database.table.OrderTransactionTable;
+import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentButtonTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
@@ -77,7 +75,7 @@ public class MPOSDatabase extends BaseColumn{
 	public static class MPOSOpenHelper extends SQLiteOpenHelper {
 		
 		public static final String DB_NAME = "mpos.db";
-		private static final int DB_VERSION = 1;
+		private static final int DB_VERSION = 2;
 
 		private static MPOSOpenHelper sHelper;
 
@@ -105,11 +103,9 @@ public class MPOSDatabase extends BaseColumn{
 			GlobalPropertyTable.onCreate(db);
 			LanguageTable.onCreate(db);
 			HeaderFooterReceiptTable.onCreate(db);
-			MenuCommentTable.onCreate(db);
-			MenuCommentGroupTable.onCreate(db);
 			MenuFixCommentTable.onCreate(db);
 			OrderDetailTable.onCreate(db);
-			OrderTransactionTable.onCreate(db);
+			OrderTransTable.onCreate(db);
 			PrintReceiptLogTable.onCreate(db);
 			PaymentDetailTable.onCreate(db);
 			PaymentButtonTable.onCreate(db);
@@ -138,14 +134,13 @@ public class MPOSDatabase extends BaseColumn{
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			//OrderTransTable.onUpgrade(db, oldVersion, newVersion);
 			BankTable.onUpgrade(db, oldVersion, newVersion);
 			ComputerTable.onUpgrade(db, oldVersion, newVersion);
 			CreditCardTable.onUpgrade(db, oldVersion, newVersion);
 			GlobalPropertyTable.onUpgrade(db, oldVersion, newVersion);
 			LanguageTable.onUpgrade(db, oldVersion, newVersion);
 			HeaderFooterReceiptTable.onUpgrade(db, oldVersion, newVersion);
-			MenuCommentTable.onUpgrade(db, oldVersion, newVersion);
-			MenuCommentGroupTable.onUpgrade(db, oldVersion, newVersion);
 			MenuFixCommentTable.onUpgrade(db, oldVersion, newVersion);
 			PrintReceiptLogTable.onUpgrade(db, oldVersion, newVersion);
 			PaymentDetailTable.onUpgrade(db, oldVersion, newVersion);

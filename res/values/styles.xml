@@ -1,10 +1,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- AppTheme -->
     <style name="AppTheme" parent="AppBaseTheme">
-        <!--<item name="android:actionBarStyle">@style/MyActionBar</item>-->
+        <!-- <item name="android:actionBarStyle">@style/MyActionBar</item> -->
         <item name="android:buttonStyle">@style/GrayButton</item>
         <item name="android:imageButtonStyle">@style/GrayButton</item>
-        <item name="android:textColor">@color/dark_gray_text</item>
+        <!-- <item name="android:editTextStyle">@style/EditTextStyle</item> -->
     </style>
     <!-- ActivityDialogTheme -->
     <style name="ActivityDialogTheme" parent="BaseActivityDialogTheme">
@@ -14,25 +14,38 @@
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:buttonStyle">@style/GrayButton</item>
+        <!-- <item name="android:editTextStyle">@style/EditTextStyle</item> -->
     </style>
     <!-- ActionBar styles -->
     <style name="MyActionBar"
            parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
-        <item name="android:background">@color/blue_green_light</item>
-    </style>
-    <!-- Text Qty -->
-    <style name="TextQty" parent="@android:style/TextAppearance.Holo.Medium">
-        <item name="android:background">@drawable/white_flat_bg</item>
-        <item name="android:gravity">center</item>
-        <item name="android:minWidth">48dp</item>
-        <item name="android:minHeight">48dp</item>
-    </style>
-    <!-- Row Style -->
-    <style name="HeaderRow">
-        <item name="android:divider">@android:drawable/divider_horizontal_bright</item>
-        <item name="android:showDividers">middle|beginning|end</item>
+        <item name="android:background">@android:color/holo_orange_dark</item>
     </style>
     <!-- Text Style -->
+    <style name="TextQty" parent="@android:style/TextAppearance.Holo.Medium">
+        <!-- <item name="android:background">@drawable/white_flat_bg</item> -->
+        <item name="android:gravity">center</item>
+        <item name="android:minWidth">32dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:padding">@dimen/default_margin</item>
+    </style>
+    <style name="TextSummary" parent="@android:style/TextAppearance.Holo">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:gravity">right|center_vertical</item>
+        <item name="android:padding">@dimen/default_margin</item>
+    </style>
+    <style name="TextPrice" parent="@android:style/TextAppearance.Holo.Large">
+        <item name="android:textColor">@android:color/holo_blue_dark</item>
+        <item name="android:gravity">right|center_vertical</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:padding">@dimen/default_margin</item>
+    </style>
+    <style name="LabelText" parent="@android:style/TextAppearance.Holo">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:gravity">right</item>
+        <item name="android:minWidth">200dp</item>
+        <item name="android:layout_marginRight">4dp</item>
+    </style>
  	<style name="BodyText" parent="@android:style/TextAppearance.Holo">
 		<item name="android:gravity">right|center_vertical</item>
 		<item name="android:layout_width">wrap_content</item>
@@ -42,26 +55,30 @@
 		<item name="android:paddingRight">2dp</item>
 		<item name="android:paddingBottom">@dimen/default_margin</item>
     </style>
-    <style name="SummaryText" parent="HeaderText">
-        <item name="android:textStyle">bold</item>
-        <item name="android:background">@color/blue_gray_light</item>
-    </style>
     <style name="HeaderText" parent="@android:style/TextAppearance.Holo">
 		<item name="android:textAllCaps">true</item>
 		<item name="android:padding">@dimen/default_margin</item>
+    </style>
+    <!-- Row Style -->
+    <style name="HeaderRow">
+        <item name="android:divider">@android:drawable/divider_horizontal_bright</item>
+        <item name="android:showDividers">middle|beginning|end</item>
     </style>
     <!-- Button Style -->
     <style name="RedButton" parent="BaseButton.Light">
         <item name="android:background">@drawable/btn_holo_red</item>
     </style>
-    <style name="SmoothGreenButton" parent="BaseButton.Light">
-        <item name="android:background">@drawable/btn_smooth_green</item>
+    <style name="GreenButton" parent="BaseButton.Light">
+        <item name="android:background">@drawable/btn_holo_green</item>
     </style>
     <style name="BlueButton" parent="BaseButton.Light">
         <item name="android:background">@drawable/btn_holo_blue</item>
     </style>
     <style name="BlueGrayButton" parent="BaseButton">
         <item name="android:background">@drawable/btn_blue_gray_light</item>
+    </style>
+    <style name="GrayButtonOval" parent="BaseButton">
+        <item name="android:background">@drawable/btn_holo_gray_oval</item>
     </style>
     <style name="GrayButton" parent="BaseButton">
         <item name="android:background">@drawable/btn_holo_gray</item>
@@ -71,5 +88,9 @@
     </style>
     <style name="BaseButton" parent="@android:style/Widget.Holo.Light.Button">
         <item name="android:textAllCaps">true</item>
+    </style>
+    <!-- EditText Style -->
+    <style name="EditTextStyle" parent="@android:style/Widget.Holo.EditText">
+        <item name="android:background">@drawable/white_shape</item>
     </style>
 </resources>

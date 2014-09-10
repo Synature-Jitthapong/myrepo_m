@@ -4,9 +4,7 @@
     <color name="gray_light">#ffE5E5E5</color>
     <color name="blue_gray_light">#ffEFF4F4</color>
     <color name="blue_green_light">#ffC6D1D9</color>
-    <color name="green_smooth">#ff59A395</color>
     <color name="white_gray">#fffafafa</color>
-    <color name="dark_gray">#ff888888</color>
+    <color name="dark_gray">#ff858585</color>
     <color name="gray">#ffcccccc</color>
-	<color name="dark_gray_text">#ff444444</color>
 </resources>

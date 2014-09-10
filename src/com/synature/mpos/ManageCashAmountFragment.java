@@ -2,7 +2,7 @@ package com.synature.mpos;
 
 import java.text.ParseException;
 
-import com.synature.mpos.database.Formater;
+import com.synature.mpos.database.FormaterDao;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -15,7 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 
 public class ManageCashAmountFragment extends DialogFragment implements OnClickListener{
 
@@ -25,13 +25,13 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 	public static final int END_DAY_MODE = 2;
 	public static final int EDIT_CASH_MODE = 3;
 	
-	private Formater mFormat;
+	private FormaterDao mFormat;
 	private int mMode;
 	private double mTotalCash;
 	private String mTitle;
 	private StringBuilder mStrCashAmount;
 	
-	private EditText mTxtCash;
+	private TextView mTvCash;
 	private OnManageCashAmountDismissListener mDismissListener;
 	
 	public static ManageCashAmountFragment newInstance(String title, double totalCash, int mode){
@@ -52,7 +52,7 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 		mTitle = getArguments().getString("title");
 		mMode = getArguments().getInt("mode");
 		mTotalCash = getArguments().getDouble("totalCash", 0);
-		mFormat = new Formater(getActivity());
+		mFormat = new FormaterDao(getActivity());
 		mStrCashAmount = new StringBuilder();
 	}
 
@@ -67,7 +67,7 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 	@Override
 	public void onActivityCreated(Bundle arg0) {
 		super.onActivityCreated(arg0);
-		mTxtCash.setText(mFormat.currencyFormat(mTotalCash));
+		mTvCash.setText(mFormat.currencyFormat(mTotalCash));
 	}
 
 	@Override
@@ -104,7 +104,8 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 		btnDot.setOnClickListener(this);
 		btnDel.setOnClickListener(this);
 		
-		mTxtCash = (EditText) contentView.findViewById(R.id.txtDisplay);
+		mTvCash = (TextView) contentView.findViewById(R.id.tvDisplay);
+		mTvCash.setTextSize(getActivity().getResources().getInteger(R.integer.larger_text_size));
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(mTitle);
 		builder.setView(contentView);
@@ -144,7 +145,7 @@ public class ManageCashAmountFragment extends DialogFragment implements OnClickL
 			mTotalCash = 0;
 			Log.d(TAG, e.getMessage());
 		}
-		mTxtCash.setText(mFormat.currencyFormat(mTotalCash));
+		mTvCash.setText(mFormat.currencyFormat(mTotalCash));
 	}
 	
 	@Override

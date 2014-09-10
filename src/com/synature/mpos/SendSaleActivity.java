@@ -6,10 +6,10 @@ import java.util.List;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.MPOSDatabase;
-import com.synature.mpos.database.Transaction;
+import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
-import com.synature.mpos.database.table.OrderTransactionTable;
+import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.pos.OrderTransaction;
 
@@ -95,6 +95,7 @@ public class SendSaleActivity extends MPOSActivityBase{
 		mTransLst = listNotSendTransaction();
 		mSyncAdapter = new SyncItemAdapter(mTransLst);
 		mLvSyncItem.setAdapter(mSyncAdapter);
+		mLvSyncItem.setSelection(mSyncAdapter.getCount() - 1);
 	}
 	
 	@Override
@@ -149,8 +150,10 @@ public class SendSaleActivity extends MPOSActivityBase{
 		
 		@Override
 		public void onPreExecute() {
-			if(mPosition == 0)
-				mItemSendAll.setEnabled(false);
+			if(mPosition == 0){
+				mItemSendAll.setVisible(false);
+				mItemProgress.setVisible(true);
+			}
 			mTrans.onSend = true;
 			mTransLst.set(mPosition, mTrans);
 			mSyncAdapter.notifyDataSetChanged();
@@ -172,14 +175,15 @@ public class SendSaleActivity extends MPOSActivityBase{
 			mTransLst.set(mPosition, mTrans);
 			mTrans.onSend = false;
 			mSyncAdapter.notifyDataSetChanged();
-			if(mPosition == mTransLst.size() - 1)
-				mItemSendAll.setEnabled(true);
+			if(mPosition == mTransLst.size() - 1){
+				mItemSendAll.setVisible(true);
+				mItemProgress.setVisible(false);
+				Utils.makeToask(SendSaleActivity.this, msg);
+			}
 		}
 
 		@Override
 		public void onProgressUpdate(int value) {
-			// TODO Auto-generated method stub
-			
 		}
 		
 	}
@@ -187,29 +191,30 @@ public class SendSaleActivity extends MPOSActivityBase{
 	private List<SendTransaction> listNotSendTransaction(){
 		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
 		MPOSDatabase.MPOSOpenHelper helper = MPOSDatabase.MPOSOpenHelper.getInstance(getApplicationContext());
-		Cursor cursor = helper.getReadableDatabase().query(OrderTransactionTable.TABLE_ORDER_TRANS, 
+		Cursor cursor = helper.getReadableDatabase().query(OrderTransTable.TABLE_ORDER_TRANS,
 				new String[]{
-					OrderTransactionTable.COLUMN_TRANS_ID,
+					OrderTransTable.COLUMN_TRANS_ID,
 					ComputerTable.COLUMN_COMPUTER_ID,
 					SessionTable.COLUMN_SESS_ID,
-					OrderTransactionTable.COLUMN_RECEIPT_NO,
-					OrderTransactionTable.COLUMN_CLOSE_TIME,
+					OrderTransTable.COLUMN_RECEIPT_NO,
+					OrderTransTable.COLUMN_CLOSE_TIME,
 					BaseColumn.COLUMN_SEND_STATUS
-				}, OrderTransactionTable.COLUMN_STATUS_ID + "=? AND " +
-					BaseColumn.COLUMN_SEND_STATUS + " =? ", 
+				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+                    + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
 				new String[]{
-					String.valueOf(Transaction.TRANS_STATUS_SUCCESS),
+                    String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
-				}, null, null, OrderTransactionTable.COLUMN_TRANS_ID);
+				}, null, null, OrderTransTable.COLUMN_TRANS_ID);
 		if(cursor.moveToFirst()){
 			do{
 				SendTransaction trans = new SendTransaction();
-				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransactionTable.COLUMN_TRANS_ID)));
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 				trans.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
-				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_RECEIPT_NO)));
+				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_RECEIPT_NO)));
 				trans.setSendStatus(cursor.getInt(cursor.getColumnIndex(BaseColumn.COLUMN_SEND_STATUS)));
-				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(OrderTransactionTable.COLUMN_CLOSE_TIME)));
+				trans.setCloseTime(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_CLOSE_TIME)));
 				transLst.add(trans);
 			}while(cursor.moveToNext());
 		}
@@ -275,6 +280,8 @@ public class SendSaleActivity extends MPOSActivityBase{
 			}
 			if(trans.getSendStatus() == MPOSDatabase.ALREADY_SEND){
 				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_accept);
+				mSendTransLst.remove(position);
+				notifyDataSetChanged();
 			}else{
 				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_warning);
 			}
