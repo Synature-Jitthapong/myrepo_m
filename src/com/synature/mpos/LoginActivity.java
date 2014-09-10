@@ -349,7 +349,8 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 	
 	private void requestValidUrl(){
-		new MainUrlRegister(this, new RegisterValidUrlListener()).execute(Utils.MAIN_URL);
+		//new MainUrlRegister(this, new RegisterValidUrlListener()).execute(Utils.MAIN_URL);
+		new DeviceChecker(LoginActivity.this, new DeviceCheckerListener()).execute(Utils.getFullUrl(LoginActivity.this));
 	}
 	
 	private class RegisterValidUrlListener implements WebServiceWorkingListener{

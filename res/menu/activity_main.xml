@@ -45,13 +45,13 @@
                 android:titleCondensed="Void receipt if incorrect."/>
             <item
                 android:id="@+id/itemEditCash"
-                android:title="@string/edit_open_shift"/>
+                android:title="@string/edit_open_shift" android:visible="false"/>
             <item
                 android:id="@+id/itemCloseShift"
-                android:title="@string/close_shift"/>
+                android:title="@string/close_shift" android:visible="false"/>
             <item
                 android:id="@+id/itemEndday"
-                android:title="@string/endday"/>
+                android:title="@string/endday" android:visible="false"/>
             <item
                 android:id="@+id/itemBackupDb"
                 android:title="@string/backup_db"/>

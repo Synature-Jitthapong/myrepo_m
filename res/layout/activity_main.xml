@@ -107,7 +107,8 @@
                 android:layout_alignTop="@+id/btnClearSelOrder"
                 android:minWidth="48dip"
                 android:onClick="onClick"
-                android:src="@drawable/ic_action_receipt" />
+                android:src="@drawable/ic_action_receipt"
+                android:visibility="invisible" />
 
         </RelativeLayout>
 

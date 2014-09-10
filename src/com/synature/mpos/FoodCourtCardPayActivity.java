@@ -1,5 +1,7 @@
 package com.synature.mpos;
 
+import java.text.DecimalFormat;
+
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.ShopDao;
@@ -35,11 +37,12 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnable{
-	public static final int STATUS_READY_TO_USE = 1; 	//Ready to Use ��� ���������������������������������������������������������
-	public static final int STATUS_INUSE = 2;			//In Use ��� ���������������������������������������������
-	public static final int STATUS_BLACK_LIST = 3;		//BlackList ��� ������������������������������������������ BlackList
-	public static final int STATUS_CANCEL = 4;			//Cancel ��� ������������������������������ ������������������������������������������������������������������
-	public static final int STATUS_MISSING = 5;			//Missing ��� ���������������������
+	
+	public static final int STATUS_READY_TO_USE = 1; 	//Ready to Use
+	public static final int STATUS_INUSE = 2;			//In Use
+	public static final int STATUS_BLACK_LIST = 3;		//BlackList
+	public static final int STATUS_CANCEL = 4;			//Cancel
+	public static final int STATUS_MISSING = 5;			//Missing
 
 	/*
 	 * is magnatic read state
@@ -188,6 +191,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 	
 	public static class PayResultFragment extends Fragment{
 		
+		private FoodCourtCardPayActivity mHost;
 		private double mBalance;
 		private TextView mTvResult;
 		private EditText mTxtCardBalance;
@@ -203,7 +207,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			
+			mHost = (FoodCourtCardPayActivity) getActivity();
 			mBalance = getArguments().getDouble("balance");
 		}
 
@@ -218,12 +222,13 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 			mTvResult = (TextView) view.findViewById(R.id.textView2);
 			mTxtCardBalance = (EditText) view.findViewById(R.id.txtCardBalance);
 			mTvResult.setText("Payment Successfully.");
-			mTxtCardBalance.setText(((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(mBalance));
+			mTxtCardBalance.setText(mHost.mFormat.currencyFormat(mBalance));
 		}
 	}
 	
 	public static class PlaceholderFragment extends Fragment{
-
+		
+		private FoodCourtCardPayActivity mHost;
 		private MenuItem mItemConfirm;
 		private EditText mTxtTotalPrice;
 		private EditText mTxtCardNo;
@@ -234,6 +239,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			setHasOptionsMenu(true);
+			mHost = (FoodCourtCardPayActivity) getActivity();
 		}
 
 		@Override
@@ -265,7 +271,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 			mTxtCardNo = (EditText) view.findViewById(R.id.txtCardNo);
 			mTxtBalance = (EditText) view.findViewById(R.id.txtBalance);
 			mBtnCheckCard = (ImageButton) view.findViewById(R.id.btnCheckCard);
-			mTxtBalance.setText(((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(((FoodCourtCardPayActivity) getActivity()).mCardBalance));
+			mTxtBalance.setText(mHost.mFormat.currencyFormat(mHost.mCardBalance));
 			mTxtCardNo.setOnKeyListener(new OnKeyListener(){
 
 				@Override
@@ -296,11 +302,9 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 					getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(mTxtCardNo.getWindowToken(), 0);
 			if(!TextUtils.isEmpty(mTxtCardNo.getText())){
-				new FoodCourtBalanceOfCard(getActivity(), ((FoodCourtCardPayActivity) getActivity()).mShopId, 
-						((FoodCourtCardPayActivity) getActivity()).mComputerId,
-						((FoodCourtCardPayActivity) getActivity()).mStaffId, 
-						mTxtCardNo.getText().toString(), 
-						((FoodCourtCardPayActivity) getActivity()).mCardBalanceListener).execute(Utils.getFullUrl(getActivity()));
+				new FoodCourtBalanceOfCard(getActivity(), mHost.mShopId, 
+						mHost.mComputerId, mHost.mStaffId, mTxtCardNo.getText().toString(), 
+						mHost.mCardBalanceListener).execute(Utils.getFullUrl(getActivity()));
 			}else{
 				mTxtCardNo.requestFocus();
 			}
@@ -308,14 +312,12 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		
 		private void confirm(){
 			if(!TextUtils.isEmpty(mTxtCardNo.getText())){
-				if(((FoodCourtCardPayActivity) getActivity()).mCardBalance >= 
-						((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice){
+				if(mHost.mCardBalance >= mHost.mTotalSalePrice){
 					
-					new FoodCourtCardPay(getActivity(), ((FoodCourtCardPayActivity) getActivity()).mShopId, 
-							((FoodCourtCardPayActivity) getActivity()).mComputerId,
-							((FoodCourtCardPayActivity) getActivity()).mStaffId, mTxtCardNo.getText().toString(),
-							((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice), 
-							((FoodCourtCardPayActivity) getActivity()).mCardPayListener).execute(Utils.getFullUrl(getActivity()));
+					new FoodCourtCardPay(getActivity(), mHost.mShopId, 
+							mHost.mComputerId, mHost.mStaffId, mTxtCardNo.getText().toString(),
+							String.valueOf(mHost.mTotalSalePrice), 
+							mHost.mCardPayListener).execute(Utils.getFullUrl(getActivity()));
 				}else{
 					new AlertDialog.Builder(getActivity())
 					.setTitle(R.string.payment)
@@ -334,9 +336,9 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		
 		private void summary(){ 
 			OrderDetail summOrder = 
-					((FoodCourtCardPayActivity) getActivity()).mTrans.getSummaryOrder(((FoodCourtCardPayActivity) getActivity()).mTransactionId);
-			((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice = summOrder.getTotalSalePrice();
-			mTxtTotalPrice.setText(((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice));		
+					mHost.mTrans.getSummaryOrder(mHost.mTransactionId);
+			mHost.mTotalSalePrice = summOrder.getTotalSalePrice();
+			mTxtTotalPrice.setText(mHost.mFormat.currencyFormat(mHost.mTotalSalePrice));		
 		}
 	}
 	
