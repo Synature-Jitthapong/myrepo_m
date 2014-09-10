@@ -96,14 +96,19 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	public static final String TAG = MainActivity.class.getSimpleName();
 	
 	/**
-	 * send sale request code from payment activity
+	 * payment request code
 	 */
 	public static final int PAYMENT_REQUEST = 1;
 	
 	/**
-	 * food court payment request
+	 * food court payment request code
 	 */
 	public static final int FOOD_COURT_PAYMENT_REQUEST = 2;
+	
+	/**
+	 * add product set type 7 request code
+	 */
+	public static final int SET_TYPE7_REQUEST = 3;
 	
 	private boolean mIsShowKeyboard = false;
 	
@@ -516,8 +521,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else{
-				mDsp.displayWelcome();
 			}
 		}
 	}
@@ -561,6 +564,14 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				int transactionId = intent.getIntExtra("transactionId", 0);
 				int staffId = intent.getIntExtra("staffId", 0);
 				afterPaid(transactionId, staffId, totalSalePrice, totalPaid, change);
+			}
+		}
+		if(requestCode == SET_TYPE7_REQUEST){
+			if(resultCode == RESULT_OK){
+				String setName = intent.getStringExtra("setName");
+				String setPrice = intent.getStringExtra("setPrice");
+				mDsp.setOrderName(setName);
+				mDsp.setOrderPrice(setPrice);
 			}
 		}
 	}
@@ -1345,7 +1356,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			intent.putExtra("computerId", mComputerId);
 			intent.putExtra("productId", productId);
 			intent.putExtra("setGroupName", productName);
-			startActivity(intent);
+			startActivityForResult(intent, SET_TYPE7_REQUEST);
 		}
 	}
 

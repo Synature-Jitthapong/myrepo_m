@@ -361,6 +361,12 @@ public class ProductSetActivity extends Activity{
 		if(canDone){
 			mTrans.getWritableDatabase().setTransactionSuccessful();
 			mTrans.getWritableDatabase().endTransaction();
+			// set result for show on display
+			Product p = mProduct.getProduct(mProductId);
+			Intent intent = new Intent();
+			intent.putExtra("setName", p.getProductName());
+			intent.putExtra("setPrice", mFormat.currencyFormat(p.getProductPrice()));
+			setResult(RESULT_OK, intent);
 			finish();
 		}else{
 			new AlertDialog.Builder(ProductSetActivity.this)

@@ -86,11 +86,6 @@ public class Utils {
 	public static final String BACKUP_DB_PATH = RESOURCE_DIR + File.separator + "backup";
 	
 	/**
-	 * Restore path
-	 */
-	public static final String RESTORE_DB_PATH = RESOURCE_DIR + File.separator + "restore";
-	
-	/**
 	 * Log dir
 	 */
 	public static final String LOG_PATH = RESOURCE_DIR + File.separator + "log";
@@ -704,44 +699,19 @@ public class Utils {
 		}
 	}
 	
-	public static void restoreDatabase(Context context){
-		String dbName = MPOSDatabase.MPOSOpenHelper.DB_NAME;
-		String restorePath = RESTORE_DB_PATH;
-		File sd = Environment.getExternalStorageDirectory();
-		FileChannel source = null;
-		FileChannel destination = null;
-		File dbPath = context.getDatabasePath(dbName);
-		File sdPath = new File(sd, restorePath);
-		if(!sdPath.exists())
-			sdPath.mkdirs();
-		try {
-			source = new FileInputStream(sdPath + File.separator + dbName).getChannel();
-			destination = new FileOutputStream(dbPath).getChannel();
-			destination.transferFrom(source, 0, source.size());
-			source.close();
-			destination.close();
-			makeToask(context, context.getString(R.string.restore_db_success));
-		} catch (IOException e) {
-			e.printStackTrace();
-			makeToask(context, e.getLocalizedMessage());
-		}
-	}
-	
 	public static void backupDatabase(Context context){
-		Calendar calendar = Calendar.getInstance();
-		String dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.getTime());
+		String backupFileName = getBackupDbFileName();
 		String dbName = MPOSDatabase.MPOSOpenHelper.DB_NAME;
-		String backupPath = BACKUP_DB_PATH + "_" + dateFormat;
 		File sd = Environment.getExternalStorageDirectory();
 		FileChannel source = null;
 		FileChannel destination = null;
 		File dbPath = context.getDatabasePath(dbName);
-		File sdPath = new File(sd, backupPath);
+		File sdPath = new File(sd, BACKUP_DB_PATH);
 		if(!sdPath.exists())
 			sdPath.mkdirs();
 		try {
 			source = new FileInputStream(dbPath).getChannel();
-			destination = new FileOutputStream(sdPath + File.separator + dbName).getChannel();
+			destination = new FileOutputStream(sdPath + File.separator + backupFileName).getChannel();
 			destination.transferFrom(source, 0, source.size());
 			source.close();
 			destination.close();
@@ -750,6 +720,11 @@ public class Utils {
 			e.printStackTrace();
 			makeToask(context, e.getLocalizedMessage());
 		}
+	}
+	
+	public static String getBackupDbFileName(){
+		Calendar calendar = Calendar.getInstance();
+		return String.valueOf(calendar.getTimeInMillis());
 	}
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){

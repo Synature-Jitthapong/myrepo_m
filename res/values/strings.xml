@@ -235,4 +235,5 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="not_have_permission_to_access_pos">You not have permission to access mPOS.</string>
 	<string name="test">Test</string>
 	<string name="restore_db_success">Restore database successfully.</string>
+	<string name="restore_db">Restore database</string>
 </resources>
