@@ -25,13 +25,17 @@ public class MainUrlRegister extends MPOSServiceBase{
 		try {
 			MPOSSoftwareInfo info = gson.fromJson(result, MPOSSoftwareInfo.class);
 			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
-			if(!TextUtils.isEmpty(info.getSzRegisterServiceUrl())){
-				SharedPreferences.Editor editor = sharedPref.edit();
-				editor.putString(SettingsActivity.KEY_PREF_SERVER_URL, info.getSzRegisterServiceUrl());
-				editor.commit();
-				mListener.onPostExecute();
+			if(info != null){
+				if(!TextUtils.isEmpty(info.getSzRegisterServiceUrl())){
+					SharedPreferences.Editor editor = sharedPref.edit();
+					editor.putString(SettingsActivity.KEY_PREF_SERVER_URL, info.getSzRegisterServiceUrl());
+					editor.commit();
+					mListener.onPostExecute();
+				}else{
+					mListener.onError(mContext.getString(R.string.invalid_url));
+				}
 			}else{
-				mListener.onError(mContext.getString(R.string.invalid_url));
+				mListener.onError("No result from server");
 			}
 		} catch (JsonSyntaxException e1) {
 			mListener.onError(result);

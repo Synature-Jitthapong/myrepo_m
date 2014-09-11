@@ -581,6 +581,7 @@ public final class R {
         public static final int please_select=0x7f05007e;
         public static final int please_select_bank=0x7f050077;
         public static final int please_select_card=0x7f050076;
+        public static final int please_select_db=0x7f0500eb;
         public static final int please_wait=0x7f0500dc;
         public static final int plus=0x7f050069;
         public static final int port=0x7f050096;

@@ -18,6 +18,7 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,11 +26,16 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.CheckedTextView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class RestoreDatabaseFragment extends DialogFragment{
-
+	
+	public static final String RESTORE_PASS = "mposrestore";
+	
+	private int mLastPosition = -1;
 	private FormaterDao mFormat;
 	private DatabaseInfo mDbInfo;
 	private List<DatabaseInfo> mDbInfoLst;
@@ -50,7 +56,7 @@ public class RestoreDatabaseFragment extends DialogFragment{
 	
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		LayoutInflater inflater = getActivity().getLayoutInflater();
+		final LayoutInflater inflater = getActivity().getLayoutInflater();
 		View content = inflater.inflate(R.layout.database_listview, null);
 		mLvDatabase = (ListView) content;
 		setupDatabaseListViewAdapter();
@@ -66,20 +72,47 @@ public class RestoreDatabaseFragment extends DialogFragment{
 			}
 		});
 		builder.setPositiveButton(android.R.string.ok, null);
-		final AlertDialog d = builder.create();
-		d.show();
-		d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new OnClickListener(){
+		final AlertDialog dMain = builder.create();
+		dMain.show();
+		dMain.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new OnClickListener(){
 
 			@Override
 			public void onClick(View v) {
-				if(mDbInfo != null){
-					restoreDatabase(mDbInfo.getFileName());
-					mDbInfo = null;
-					d.dismiss();
+				if(mDbInfo != null && mDbInfo.isChecked()){
+					View passView = inflater.inflate(R.layout.edittext_password, null);
+					final EditText txtPass = (EditText) passView.findViewById(R.id.txtPassword);
+					AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+					builder.setTitle(R.string.restore_db);
+					builder.setView(passView);
+					builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					});
+					builder.setPositiveButton(android.R.string.ok, null);
+					final AlertDialog dPass = builder.create();
+					dPass.show();
+					dPass.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new OnClickListener(){
+
+						@Override
+						public void onClick(View v) {
+							String password = txtPass.getText().toString();
+							if(!TextUtils.isEmpty(password)){
+								if(password == RESTORE_PASS){
+									restoreDatabase(mDbInfo.getFileName());
+									mDbInfo = null;
+									dPass.dismiss();
+								}
+							}
+						}
+						
+					});
+					dMain.dismiss();
 				}else{
 					new AlertDialog.Builder(getActivity())
 					.setTitle(R.string.restore_db)
-					.setMessage(R.string.please_select)
+					.setMessage(R.string.please_select_db)
 					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 						
 						@Override
@@ -90,17 +123,28 @@ public class RestoreDatabaseFragment extends DialogFragment{
 			}
 			
 		});
-		return d;
+		return dMain;
 	}
 
 	private OnItemClickListener mOnItemClickListener = new OnItemClickListener(){
 
 		@Override
-		public void onItemClick(AdapterView<?> parent, View v, int pos,
+		public void onItemClick(AdapterView<?> parent, View v, int position,
 				long id) {
-			mDbInfo = (DatabaseInfo) parent.getItemAtPosition(pos);
+			mDbInfo = (DatabaseInfo) parent.getItemAtPosition(position);
+			if(mDbInfo.isChecked())
+				mDbInfo.setChecked(false);
+			else
+				mDbInfo.setChecked(true);
+			if(mLastPosition > -1 && mLastPosition != position){
+				DatabaseInfo dbInfo = mDbInfoLst.get(mLastPosition);
+				dbInfo.setChecked(false);
+			}
+			mDbInfoLst.set(position, mDbInfo);
+			mAdapter.notifyDataSetChanged();
+			mLastPosition = position;
 		}
-		
+
 	};
 	
 	private void restoreDatabase(String dbFileName){
@@ -175,7 +219,7 @@ public class RestoreDatabaseFragment extends DialogFragment{
 			if(convertView == null){
 				holder = new ViewHolder();
 				convertView = mInflater.inflate(R.layout.database_list_item, parent, false);
-				holder.tvDbName = (TextView) convertView.findViewById(R.id.tvDbName);
+				holder.tvDbName = (CheckedTextView) convertView.findViewById(R.id.tvDbName);
 				holder.tvDbSize = (TextView) convertView.findViewById(R.id.tvDbSize);
 				convertView.setTag(holder);
 			}else{
@@ -188,12 +232,13 @@ public class RestoreDatabaseFragment extends DialogFragment{
 			} catch (Exception e) {
 			}
 			holder.tvDbName.setText(fileName);
-			holder.tvDbSize.setText(dbInfo.getDbSize());
+			holder.tvDbName.setChecked(dbInfo.isChecked());
+			holder.tvDbSize.setText(dbInfo.getDbSize() + "k");
 			return convertView;
 		}
 		
 		private class ViewHolder{
-			TextView tvDbName;
+			CheckedTextView tvDbName;
 			TextView tvDbSize;
 		}
 	}
@@ -202,6 +247,7 @@ public class RestoreDatabaseFragment extends DialogFragment{
 		private String dbName;
 		private String fileName;
 		private String dbSize;
+		private boolean isChecked;
 		public String getDbName() {
 			return dbName;
 		}
@@ -219,6 +265,12 @@ public class RestoreDatabaseFragment extends DialogFragment{
 		}
 		public void setFileName(String fileName) {
 			this.fileName = fileName;
+		}
+		public boolean isChecked() {
+			return isChecked;
+		}
+		public void setChecked(boolean isChecked) {
+			this.isChecked = isChecked;
 		}
 	}
 }
