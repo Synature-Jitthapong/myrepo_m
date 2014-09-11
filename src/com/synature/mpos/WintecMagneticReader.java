@@ -25,4 +25,16 @@ public class WintecMagneticReader{
 		if(mMsr != null)
 			mMsr.MSR_Close();
 	}
+
+	public byte getEnterTrack1() {
+		return mEnterTrack1;
+	}
+
+	public byte getEnterTrack2() {
+		return mEnterTrack2;
+	}
+
+	public byte getEnterTrack3() {
+		return mEnterTrack3;
+	}
 }

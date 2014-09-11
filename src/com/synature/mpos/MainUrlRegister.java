@@ -1,5 +1,7 @@
 package com.synature.mpos;
 
+import org.ksoap2.serialization.PropertyInfo;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -12,11 +14,26 @@ public class MainUrlRegister extends MPOSServiceBase{
 
 	public static final String REGIST_SERVICE_URL_METHOD = "WSmPOS_GetRegisterServiceUrl";
 	
+	public static final String SW_VERSION_PARAM = "szSwVersion";
+	public static final String DB_VERSION_PARAM = "szDbVersion";
+	
 	private WebServiceWorkingListener mListener;
 	
 	public MainUrlRegister(Context context, WebServiceWorkingListener listener) {
 		super(context, REGIST_SERVICE_URL_METHOD);
 		mListener = listener;
+		
+//		mProperty = new PropertyInfo();
+//		mProperty.setName(SW_VERSION_PARAM);
+//		mProperty.setValue(Utils.getSoftWareVersion(mContext));
+//		mProperty.setType(String.class);
+//		mSoapRequest.addProperty(mProperty);
+//		
+//		mProperty = new PropertyInfo();
+//		mProperty.setName(DB_VERSION_PARAM);
+//		mProperty.setValue(Utils.DB_VERSION);
+//		mProperty.setType(String.class);
+//		mSoapRequest.addProperty(mProperty);
 	}
 
 	@Override

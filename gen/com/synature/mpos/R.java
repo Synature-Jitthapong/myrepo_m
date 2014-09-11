@@ -276,7 +276,6 @@ public final class R {
         public static final int tvDeAmount=0x7f0c00d5;
         public static final int tvDeviceCode=0x7f0c001f;
         public static final int tvDiscount=0x7f0c0063;
-        public static final int tvDisplay=0x7f0c008b;
         public static final int tvFrom=0x7f0c005c;
         public static final int tvGroupDept=0x7f0c0068;
         public static final int tvGroupTotalPrice=0x7f0c006a;
@@ -338,6 +337,7 @@ public final class R {
         public static final int txtCardType=0x7f0c0055;
         public static final int txtComment=0x7f0c00a4;
         public static final int txtDiscount=0x7f0c0086;
+        public static final int txtDisplay=0x7f0c008b;
         public static final int txtExpDate=0x7f0c0059;
         public static final int txtPass=0x7f0c001d;
         public static final int txtPassword=0x7f0c0066;

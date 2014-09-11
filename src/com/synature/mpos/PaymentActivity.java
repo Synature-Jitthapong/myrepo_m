@@ -66,7 +66,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 	private double mChange;
 	
 	private ListView mLvPayment;
-	private TextView mTvEnterPrice;
+	private EditText mTxtEnterPrice;
 	private TextView mTvTotalPaid;
 	private TextView mTvPaymentLeft;
 	private TextView mTvTotalPrice;
@@ -90,7 +90,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 	    setFinishOnTouchOutside(false);
 		mLvPayment = (ListView) findViewById(R.id.lvPayDetail);
-		mTvEnterPrice = (TextView) findViewById(R.id.tvDisplay);
+		mTxtEnterPrice = (EditText) findViewById(R.id.txtDisplay);
 		mTvTotalPaid = (TextView) findViewById(R.id.tvTotalPaid);
 		mTvPaymentLeft = (TextView) findViewById(R.id.tvPaymentLeft);
 		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
@@ -281,7 +281,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 	
 	private void displayEnterPrice(){
 		calculateInputPrice();
-		mTvEnterPrice.setText(mFormat.currencyFormat(mTotalPay));
+		mTxtEnterPrice.setText(mFormat.currencyFormat(mTotalPay));
 	}
 	
 	public void creditPay(){

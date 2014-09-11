@@ -2,6 +2,7 @@ package com.synature.mpos;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.mpos.database.FormaterDao;
-import com.synature.mpos.database.MPOSDatabase;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -99,16 +99,20 @@ public class RestoreDatabaseFragment extends DialogFragment{
 						public void onClick(View v) {
 							String password = txtPass.getText().toString();
 							if(!TextUtils.isEmpty(password)){
-								if(password == RESTORE_PASS){
-									restoreDatabase(mDbInfo.getFileName());
-									mDbInfo = null;
+								if(password.equals(RESTORE_PASS)){
+									try {
+										restoreDatabase(mDbInfo.getFileName());
+										Utils.makeToask(getActivity(), getActivity().getString(R.string.restore_db_success));
+									} catch (IOException e) {
+										Utils.makeToask(getActivity(), e.getMessage());
+									}
 									dPass.dismiss();
+									dMain.dismiss();
 								}
 							}
 						}
 						
 					});
-					dMain.dismiss();
 				}else{
 					new AlertDialog.Builder(getActivity())
 					.setTitle(R.string.restore_db)
@@ -147,26 +151,18 @@ public class RestoreDatabaseFragment extends DialogFragment{
 
 	};
 	
-	private void restoreDatabase(String dbFileName){
-		String dbName = MPOSDatabase.MPOSOpenHelper.DB_NAME;
+	@SuppressWarnings("resource")
+	private void restoreDatabase(String dbFileName) throws IOException{
 		File sd = Environment.getExternalStorageDirectory();
 		FileChannel source = null;
 		FileChannel destination = null;
-		File dbPath = getActivity().getDatabasePath(dbName);
+		File dbPath = getActivity().getDatabasePath(Utils.DB_NAME);
 		File sdPath = new File(sd, Utils.BACKUP_DB_PATH);
-		if(!sdPath.exists())
-			sdPath.mkdirs();
-		try {
-			source = new FileInputStream(sdPath + File.separator + dbFileName).getChannel();
-			destination = new FileOutputStream(dbPath).getChannel();
-			destination.transferFrom(source, 0, source.size());
-			source.close();
-			destination.close();
-			Utils.makeToask(getActivity(), getActivity().getString(R.string.restore_db_success));
-		} catch (IOException e) {
-			e.printStackTrace();
-			Utils.makeToask(getActivity(), e.getLocalizedMessage());
-		}
+		source = new FileInputStream(sdPath + File.separator + dbFileName).getChannel();
+		destination = new FileOutputStream(dbPath).getChannel();
+		destination.transferFrom(source, 0, source.size());
+		source.close();
+		destination.close();
 	}
 	
 	private void setupDatabaseListViewAdapter(){
