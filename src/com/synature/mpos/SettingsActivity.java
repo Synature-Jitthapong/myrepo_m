@@ -9,6 +9,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -50,10 +51,23 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.activity_setting, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
 			finish();
+			return true;
+		case R.id.itemBackup:
+			Utils.backupDatabase(getApplicationContext());
+			return true;
+		case R.id.itemRestore:
+			RestoreDatabaseFragment f = RestoreDatabaseFragment.newInstance();
+			f.show(getFragmentManager(), "RestoreDatabase");
 			return true;
 		default :
 			return super.onOptionsItemSelected(item);

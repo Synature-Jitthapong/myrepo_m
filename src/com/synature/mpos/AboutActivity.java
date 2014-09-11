@@ -5,16 +5,13 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.app.Activity;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class AboutActivity extends Activity {
@@ -66,6 +63,7 @@ public class AboutActivity extends Activity {
 									String pass = txtPass.getText().toString();
 									if(!TextUtils.isEmpty(pass)){
 										if(pass.equals(PASS)){
+											Utils.backupDatabase(AboutActivity.this);
 											Utils.clearSale(AboutActivity.this);
 											d.dismiss();
 										}else{
@@ -82,29 +80,29 @@ public class AboutActivity extends Activity {
                         }
 					}
 				});
-		img.setOnLongClickListener(new OnLongClickListener() {
-			
-			@Override
-			public boolean onLongClick(View v) {
-				new AlertDialog.Builder(AboutActivity.this)
-				.setMessage("Restore database ?")
-				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface arg0, int arg1) {
-						
-					}
-				})
-				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface arg0, int arg1) {
-						Utils.restoreDatabase(AboutActivity.this);
-					}
-				}).show();
-				return false;
-			}
-		});
+//		img.setOnLongClickListener(new OnLongClickListener() {
+//			
+//			@Override
+//			public boolean onLongClick(View v) {
+//				new AlertDialog.Builder(AboutActivity.this)
+//				.setMessage("Restore database ?")
+//				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+//					
+//					@Override
+//					public void onClick(DialogInterface arg0, int arg1) {
+//						
+//					}
+//				})
+//				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+//					
+//					@Override
+//					public void onClick(DialogInterface arg0, int arg1) {
+//						Utils.restoreDatabase(AboutActivity.this);
+//					}
+//				}).show();
+//				return false;
+//			}
+//		});
 	}
 
 	@Override

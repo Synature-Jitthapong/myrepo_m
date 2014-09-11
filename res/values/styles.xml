@@ -29,7 +29,7 @@
         <item name="android:minHeight">48dp</item>
         <item name="android:padding">@dimen/default_margin</item>
     </style>
-    <style name="TextSummary" parent="@android:style/TextAppearance.Holo.Large">
+    <style name="TextSummary" parent="@android:style/TextAppearance.Holo">
         <item name="android:textAllCaps">true</item>
         <item name="android:gravity">right|center_vertical</item>
         <item name="android:padding">@dimen/default_margin</item>

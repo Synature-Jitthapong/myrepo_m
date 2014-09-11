@@ -488,22 +488,19 @@ public class SessionDao extends MPOSDatabase{
 
 	/**
 	 * Get opened session
-	 * @param staffId
 	 * @return 0 if not have opened session
 	 */
-	public int getCurrentSessionId(int staffId) {
+	public int getCurrentSessionId() {
 		int sessionId = 0;
 		Cursor cursor = getReadableDatabase().query(
 				SessionTable.TABLE_SESSION,
 				new String[] { 
 					SessionTable.COLUMN_SESS_ID 
 				},
-				OrderTransTable.COLUMN_OPEN_STAFF + "=? "
-				+ " AND " + OrderTransTable.COLUMN_CLOSE_STAFF + "=?",
+				OrderTransTable.COLUMN_CLOSE_STAFF + "=?",
 				new String[] {
-					String.valueOf(staffId),
 					String.valueOf(0) 
-				}, null, null, null);
+				}, null, null, SessionTable.COLUMN_SESS_ID + " DESC ", "1");
 		if (cursor.moveToFirst()) {
 			sessionId = cursor.getInt(0);
 		}

@@ -44,6 +44,7 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -782,6 +783,16 @@ public class SaleReportActivity extends MPOSActivityBase{
 			mBillSumContent = (LinearLayout) rootView.findViewById(R.id.billSummaryContent);
 			mLvReport = (ListView) rootView.findViewById(R.id.lvReport);
 			mLvReport.setAdapter(mBillReportAdapter);
+			mLvReport.setOnItemClickListener(new OnItemClickListener() {
+
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View arg1,
+						int arg2, long arg3) {
+					Report.ReportDetail report = (Report.ReportDetail) arg0.getItemAtPosition(arg2);
+					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId());
+						bf.show(getFragmentManager(), "BillDetailFragment");
+				}
+			});
 			
 			createHeader();
 			return rootView;
@@ -924,9 +935,13 @@ public class SaleReportActivity extends MPOSActivityBase{
 
 					@Override
 					public void onClick(View v) {
-						PaymentDetailFragment f = 
-								PaymentDetailFragment.newInstance(report.getTransactionId());
-						f.show(getFragmentManager(), "PaymentDialogFragment");
+//						PaymentDetailFragment f = 
+//								PaymentDetailFragment.newInstance(report.getTransactionId());
+//						f.show(getFragmentManager(), "PaymentDialogFragment");
+
+						// bill detail
+						BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId());
+						bf.show(getFragmentManager(), "BillDetailFragment");
 					}
 					
 				});

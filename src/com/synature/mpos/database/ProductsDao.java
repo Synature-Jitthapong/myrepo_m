@@ -164,7 +164,7 @@ public class ProductsDao extends MPOSDatabase {
 				pCompGroup.setProductId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
 				pCompGroup.setProductGroupId(cursor.getInt(cursor.getColumnIndex(ProductComponentTable.COLUMN_PGROUP_ID)));
 				pCompGroup.setGroupNo(cursor.getInt(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_SET_GROUP_NO)));
-				pCompGroup.setGroupName(!TextUtils.isEmpty(pgName) ? "" : pgName);
+				pCompGroup.setGroupName(TextUtils.isEmpty(pgName) ? cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)) : pgName);
 				pCompGroup.setRequireAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_AMOUNT)));
 				pCompGroup.setRequireMinAmount(cursor.getDouble(cursor.getColumnIndex(ProductComponentGroupTable.COLUMN_REQ_MIN_AMOUNT)));
 				pCompGroup.setSaleMode(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_SALE_MODE)));
