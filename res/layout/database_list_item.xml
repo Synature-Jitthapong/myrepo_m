@@ -4,15 +4,16 @@
     android:layout_height="match_parent"
     android:padding="@dimen/default_margin" >
 
-    <TextView
+    <CheckedTextView
         android:id="@+id/tvDbName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/tvDbSize"
-        android:text="TextView"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:drawableLeft="?android:attr/listChoiceIndicatorMultiple"
+        android:gravity="center_vertical"
+        android:text="CheckedTextView" />
 
     <TextView
         android:id="@+id/tvDbSize"
