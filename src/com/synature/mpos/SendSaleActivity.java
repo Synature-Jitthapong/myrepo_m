@@ -46,7 +46,6 @@ public class SendSaleActivity extends MPOSActivityBase{
 	private int mStaffId;
 	private List<SendTransaction> mTransLst;
 	private SyncItemAdapter mSyncAdapter;
-	private MenuItem mItemProgress;
 	private MenuItem mItemSendAll;
 	private ListView mLvSyncItem;
 	
@@ -101,7 +100,6 @@ public class SendSaleActivity extends MPOSActivityBase{
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.action_send_sale, menu);
-		mItemProgress = menu.findItem(R.id.itemProgress);
 		mItemSendAll = menu.findItem(R.id.itemSendAll);
 		return true;
 	}
@@ -151,8 +149,7 @@ public class SendSaleActivity extends MPOSActivityBase{
 		@Override
 		public void onPreExecute() {
 			if(mPosition == 0){
-				mItemSendAll.setVisible(false);
-				mItemProgress.setVisible(true);
+				mItemSendAll.setEnabled(false);
 			}
 			mTrans.onSend = true;
 			mTransLst.set(mPosition, mTrans);
@@ -165,8 +162,9 @@ public class SendSaleActivity extends MPOSActivityBase{
 			mTrans.onSend = false;
 			mTransLst.set(mPosition, mTrans);
 			mSyncAdapter.notifyDataSetChanged();
-			if(mPosition == mTransLst.size() - 1)
+			if(mPosition == mTransLst.size() - 1){
 				mItemSendAll.setEnabled(true);
+			}
 		}
 
 		@Override
@@ -176,8 +174,7 @@ public class SendSaleActivity extends MPOSActivityBase{
 			mTrans.onSend = false;
 			mSyncAdapter.notifyDataSetChanged();
 			if(mPosition == mTransLst.size() - 1){
-				mItemSendAll.setVisible(true);
-				mItemProgress.setVisible(false);
+				mItemSendAll.setEnabled(true);
 				Utils.makeToask(SendSaleActivity.this, msg);
 			}
 		}
@@ -280,8 +277,6 @@ public class SendSaleActivity extends MPOSActivityBase{
 			}
 			if(trans.getSendStatus() == MPOSDatabase.ALREADY_SEND){
 				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_accept);
-				mSendTransLst.remove(position);
-				notifyDataSetChanged();
 			}else{
 				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_warning);
 			}

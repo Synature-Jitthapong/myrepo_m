@@ -1,6 +1,10 @@
 package com.synature.mpos.database.table;
 
+import java.io.IOException;
+
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class MemberTable {
 	public static final String TABLE_MEMBER = "Members";
@@ -47,8 +51,9 @@ public class MemberTable {
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
+		
 	}
-
+ 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		db.execSQL("drop table if exists " + TABLE_MEMBER);
 		onCreate(db);

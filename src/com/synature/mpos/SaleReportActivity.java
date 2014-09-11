@@ -783,16 +783,16 @@ public class SaleReportActivity extends MPOSActivityBase{
 			mBillSumContent = (LinearLayout) rootView.findViewById(R.id.billSummaryContent);
 			mLvReport = (ListView) rootView.findViewById(R.id.lvReport);
 			mLvReport.setAdapter(mBillReportAdapter);
-			mLvReport.setOnItemClickListener(new OnItemClickListener() {
-
-				@Override
-				public void onItemClick(AdapterView<?> arg0, View arg1,
-						int arg2, long arg3) {
-					Report.ReportDetail report = (Report.ReportDetail) arg0.getItemAtPosition(arg2);
-					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId());
-						bf.show(getFragmentManager(), "BillDetailFragment");
-				}
-			});
+//			mLvReport.setOnItemClickListener(new OnItemClickListener() {
+//
+//				@Override
+//				public void onItemClick(AdapterView<?> arg0, View arg1,
+//						int arg2, long arg3) {
+//					Report.ReportDetail report = (Report.ReportDetail) arg0.getItemAtPosition(arg2);
+//					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId());
+//						bf.show(getFragmentManager(), "BillDetailFragment");
+//				}
+//			});
 			
 			createHeader();
 			return rootView;
@@ -885,7 +885,8 @@ public class SaleReportActivity extends MPOSActivityBase{
 				LinearLayout container = (LinearLayout) convertView;
 				if(container.getChildCount() > 0)
 					container.removeAllViews();
-				TextView tvBill = createTextViewItem(getActivity(), report.getReceiptNo(), 
+				TextView tvBill = createTextViewItem(getActivity(), report.getReceiptNo() 
+						+ "\ngps: " + report.getLatitude() + ",\n" + report.getLongitude(), 
 						Utils.getLinHorParams(1f));
 				tvBill.setGravity(Gravity.LEFT);		
 				if(report.getTransStatus() == TransactionDao.TRANS_STATUS_VOID){
@@ -935,13 +936,9 @@ public class SaleReportActivity extends MPOSActivityBase{
 
 					@Override
 					public void onClick(View v) {
-//						PaymentDetailFragment f = 
-//								PaymentDetailFragment.newInstance(report.getTransactionId());
-//						f.show(getFragmentManager(), "PaymentDialogFragment");
-
-						// bill detail
-						BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId());
-						bf.show(getFragmentManager(), "BillDetailFragment");
+						PaymentDetailFragment f = 
+								PaymentDetailFragment.newInstance(report.getTransactionId());
+						f.show(getFragmentManager(), "PaymentDialogFragment");
 					}
 					
 				});

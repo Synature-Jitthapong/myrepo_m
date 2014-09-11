@@ -28,6 +28,7 @@ import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.UserVerification;
+import com.synature.mpos.database.model.Member;
 import com.synature.mpos.database.model.OrderComment;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderSet.OrderSetDetail;
@@ -110,6 +111,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	public static final int SET_TYPE7_REQUEST = 3;
 	
+	/**
+	 * search member
+	 */
+	public static final int SEARCH_MEMBER_REQUEST = 4;
+	
 	private boolean mIsShowKeyboard = false;
 	
 	/**
@@ -148,6 +154,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private ExpandableListView mLvOrderDetail;
 	private EditText mTxtBarCode;
 	private TableLayout mTbSummary;
+	private TextView mTvMember;
 	
 	private MenuItem mItemHoldBill;
 	private MenuItem mItemSendSale;
@@ -167,6 +174,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		mLvOrderDetail = (ExpandableListView) findViewById(R.id.lvOrder);
 		mTabs = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
 		mPager = (ViewPager) findViewById(R.id.pager);
+		mTvMember = (TextView) findViewById(R.id.tvMember);
 		
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
@@ -579,11 +587,38 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				mDsp.setOrderPrice(setPrice);
 			}
 		}
+		if(requestCode == SEARCH_MEMBER_REQUEST){
+			if(resultCode == RESULT_OK){
+				int memberId = intent.getIntExtra("memberId", 0);
+				setMember(memberId);
+			}
+		}
+	}
+	
+	private void setMember(int memberId){
+		if(memberId != 0){
+			Member m = mTrans.getMemberTransaction(mTransactionId, memberId);
+			mTvMember.setVisibility(View.VISIBLE);
+			mTvMember.setText("Member : " + m.getMemberFirstName() + " " + m.getMemberLastName());
+		}else{
+			mTvMember.setVisibility(View.GONE);
+		}
 	}
 	
 	private void afterPaid(int transactionId, int staffId, double totalSalePrice, 
 			double totalPaid, double change){
-
+		// update gps
+		try {
+			GPSTrackerService gps = new GPSTrackerService(this);
+			double latitude = gps.getLatitude();
+			double longitude = gps.getLongitude();
+			mTrans.updateTransactionGPS(mTransactionId, latitude, longitude);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		setMember(0);
+		
 		PrintReceiptLogDao printLog = 
 				new PrintReceiptLogDao(MainActivity.this);
 		int isCopy = 0;
@@ -1376,7 +1411,16 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		case R.id.btnClearSelOrder:
 			clearSelectedOrder();
 			break;
+		case R.id.btnMember:
+			searchMember();
+			break;
 		}
+	}
+	
+	public void searchMember(){
+		Intent intent = new Intent(MainActivity.this, MemberInfoActivity.class);
+		intent.putExtra("transactionId", mTransactionId);
+		startActivityForResult(intent, SEARCH_MEMBER_REQUEST);
 	}
 	
 	public void cancelOrderClicked(final View v){

@@ -107,9 +107,28 @@
                 android:layout_alignTop="@+id/btnClearSelOrder"
                 android:minWidth="48dip"
                 android:onClick="onClick"
-                android:src="@drawable/ic_action_receipt" />
+                android:src="@drawable/ic_action_receipt"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/btnMember"
+                style="@style/GrayButtonOval"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/btnBillDetail"
+                android:onClick="onClick"
+                android:src="@drawable/ic_action_person" />
 
         </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tvMember"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="gone" />
 
         <TableLayout
             android:id="@+id/tbLayoutSummary"

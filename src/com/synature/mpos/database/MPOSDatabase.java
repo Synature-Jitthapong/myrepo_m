@@ -9,6 +9,7 @@ import com.synature.mpos.database.table.CreditCardTable;
 import com.synature.mpos.database.table.GlobalPropertyTable;
 import com.synature.mpos.database.table.HeaderFooterReceiptTable;
 import com.synature.mpos.database.table.LanguageTable;
+import com.synature.mpos.database.table.MemberTable;
 import com.synature.mpos.database.table.MenuFixCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
@@ -124,8 +125,9 @@ public class MPOSDatabase extends BaseColumn{
 			SyncHistoryTable.onCreate(db);
 			PromotionPriceGroupTable.onCreate(db);
 			PromotionProductDiscountTable.onCreate(db);
+			MemberTable.onCreate(db);
 		}
-
+ 
 		@Override
 		public void onDowngrade(SQLiteDatabase db, int oldVersion,
 				int newVersion) {

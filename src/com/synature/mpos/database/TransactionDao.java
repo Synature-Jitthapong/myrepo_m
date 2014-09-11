@@ -13,12 +13,14 @@ import android.text.TextUtils;
 
 import com.synature.mpos.Utils;
 import com.synature.mpos.database.model.Comment;
+import com.synature.mpos.database.model.Member;
 import com.synature.mpos.database.model.OrderComment;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderSet;
 import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
+import com.synature.mpos.database.table.MemberTable;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.ProductComponentGroupTable;
@@ -1288,6 +1290,71 @@ public class TransactionDao extends MPOSDatabase {
 						String.valueOf(NOT_SEND)});
 	}
 
+	/**
+	 * Update member id into transaction
+	 * @param transactionId
+	 * @param memberId
+	 */
+	public void updateMemberTransaction(int transactionId, int memberId){
+		ContentValues cv = new ContentValues();
+		cv.put(MemberTable.COLUMN_MEMBER_ID, memberId);
+		getWritableDatabase().update(
+				OrderTransTable.TABLE_ORDER_TRANS, 
+				cv, 
+				OrderTransTable.COLUMN_TRANS_ID + "=?", 
+				new String[]{
+						String.valueOf(transactionId)
+				});
+	}
+	
+	/**
+	 * Update transaction gps
+	 * @param transactionId
+	 * @param latitude
+	 * @param longitude
+	 */
+	public void updateTransactionGPS(int transactionId, double latitude, double longitude){
+		ContentValues cv = new ContentValues();
+		cv.put(OrderTransTable.COLUMN_LATITUDE, latitude);
+		cv.put(OrderTransTable.COLUMN_LONGITUDE, longitude);
+		getWritableDatabase().update(OrderTransTable.TABLE_ORDER_TRANS, 
+				cv, OrderTransTable.COLUMN_TRANS_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId)
+				});
+	}
+	
+	/**
+	 * Get member transaction
+	 * @param transactionId
+	 * @param memberId
+	 * @return Member
+	 */
+	public Member getMemberTransaction(int transactionId, int memberId){
+		Member m = null;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT b." + MemberTable.COLUMN_MEMBER_CODE + ","
+				+ " b." + MemberTable.COLUMN_MEMBER_FIRST_NAME + ", "
+				+ " b." + MemberTable.COLUMN_MEMBER_LAST_NAME
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
+				+ " LEFT JOIN " + MemberTable.TABLE_MEMBER + " b "
+				+ " ON a." + MemberTable.COLUMN_MEMBER_ID + "=b." + MemberTable.COLUMN_MEMBER_ID
+				+ " WHERE a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " AND a." + MemberTable.COLUMN_MEMBER_ID + "=?", 
+				new String[]{
+						String.valueOf(transactionId),
+						String.valueOf(memberId)
+				});
+		if(cursor.moveToFirst()){
+			m = new Member();
+			m.setMemberCode(cursor.getString(cursor.getColumnIndex(MemberTable.COLUMN_MEMBER_CODE)));
+			m.setMemberFirstName(cursor.getString(cursor.getColumnIndex(MemberTable.COLUMN_MEMBER_FIRST_NAME)));
+			m.setMemberLastName(cursor.getString(cursor.getColumnIndex(MemberTable.COLUMN_MEMBER_LAST_NAME)));
+		}
+		cursor.close();
+		return m;
+	}
+	
 	/**
 	 * Update after payment
 	 * @param transactionId

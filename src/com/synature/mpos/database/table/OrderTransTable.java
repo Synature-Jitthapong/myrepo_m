@@ -21,11 +21,12 @@ public class OrderTransTable extends BaseColumn {
 	public static final String COLUMN_VOID_REASON = "void_reason";
 	public static final String COLUMN_VOID_TIME = "void_time";
 	public static final String COLUMN_OTHER_DISCOUNT = "other_discount";
-	public static final String COLUMN_MEMBER_ID = "member_id";
 	public static final String COLUMN_DOC_TYPE_ID = "document_type_id";
 	public static final String COLUMN_OTHER_DISCOUNT_DESC = "other_discount_desc";
 	public static final String COLUMN_EJ = "ej";
 	public static final String COLUMN_EJ_VOID = "ej_void";
+	public static final String COLUMN_LATITUDE = "latitude";
+	public static final String COLUMN_LONGITUDE = "longitude";
 
 	private static final String SQL_CREATE = 
 			" create table " + TABLE_ORDER_TRANS + " ( " 
@@ -51,7 +52,7 @@ public class OrderTransTable extends BaseColumn {
 			+ COLUMN_VOID_STAFF_ID + " integer, "
 			+ COLUMN_VOID_REASON + " text, " 
 			+ COLUMN_VOID_TIME + " text, "
-			+ COLUMN_MEMBER_ID + " integer, " 
+			+ MemberTable.COLUMN_MEMBER_ID + " integer, " 
 			+ COLUMN_TRANS_VAT + " real default 0, " 
 			+ COLUMN_TRANS_EXCLUDE_VAT + " real default 0, " 
 			+ COLUMN_TRANS_VATABLE + " real default 0, " 
@@ -63,6 +64,8 @@ public class OrderTransTable extends BaseColumn {
 			+ COLUMN_OTHER_DISCOUNT_DESC + " text, "
 			+ COLUMN_EJ + " text, "
 			+ COLUMN_EJ_VOID + " text, "
+			+ COLUMN_LATITUDE + " text, "
+			+ COLUMN_LONGITUDE + " text, "
 			+ " primary key (" + COLUMN_TRANS_ID + " desc) ); ";
 
 	public static void onCreate(SQLiteDatabase db) {

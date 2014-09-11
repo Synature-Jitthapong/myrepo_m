@@ -98,6 +98,11 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		if(isAlreadySetUrl()){
 			if(!mSync.IsAlreadySync())
 				requestValidUrl();
+			// test get gps location
+			GPSTrackerService gps = new GPSTrackerService(this);
+			if(!gps.canGetLocation()){
+				gps.showSettingsAlert();
+			}
 		}
 	}
 
@@ -333,7 +338,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	@Override
 	protected void onResume() {
 		if(!isAlreadySetUrl()){
-			requestValidUrl();
+			startActivity(new Intent(LoginActivity.this, SettingsActivity.class));
 		}else{
 			mTxtUser.requestFocus();
 		}
@@ -349,7 +354,8 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 	
 	private void requestValidUrl(){
-		new MainUrlRegister(this, new RegisterValidUrlListener()).execute(Utils.MAIN_URL);
+		//new MainUrlRegister(this, new RegisterValidUrlListener()).execute(Utils.MAIN_URL);
+		new DeviceChecker(LoginActivity.this, new DeviceCheckerListener()).execute(Utils.getFullUrl(LoginActivity.this));
 	}
 	
 	private class RegisterValidUrlListener implements WebServiceWorkingListener{

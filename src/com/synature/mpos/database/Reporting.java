@@ -306,6 +306,8 @@ public class Reporting extends MPOSDatabase{
 				+ " a." + OrderTransTable.COLUMN_TRANS_VAT + ", "
 				+ " a." + OrderTransTable.COLUMN_TRANS_VATABLE + ", "
 				+ " a." + COLUMN_SEND_STATUS + ", " 
+				+ " a." + OrderTransTable.COLUMN_LATITUDE + ", "
+				+ " a." + OrderTransTable.COLUMN_LONGITUDE + ", "
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", " 
 				+ " a." + OrderTransTable.COLUMN_OTHER_DISCOUNT + " + "
@@ -344,6 +346,8 @@ public class Reporting extends MPOSDatabase{
 				reportDetail.setTotalVat(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_VAT)));
 				reportDetail.setTotalPayment(cursor.getDouble(cursor.getColumnIndex(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT)));
 				reportDetail.setSendStatus(cursor.getInt(cursor.getColumnIndex(COLUMN_SEND_STATUS)));
+				reportDetail.setLatitude(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_LATITUDE)));
+				reportDetail.setLongitude(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_LONGITUDE)));
 				report.getReportDetail().add(reportDetail);
 				
 			}while(cursor.moveToNext());
