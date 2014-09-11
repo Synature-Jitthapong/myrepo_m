@@ -1602,6 +1602,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					.newInstance(getString(R.string.open_shift), 0,
 							ManageCashAmountFragment.OPEN_SHIFT_MODE);
 			mf.show(getSupportFragmentManager(), "ManageCashAmount");
+			WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
+			dsp.openCashDrawer();
 		}
 	}
 
@@ -1748,6 +1750,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 							.newInstance(getString(R.string.close_shift), 0, 
 									ManageCashAmountFragment.CLOSE_SHIFT_MODE);
 					mf.show(getSupportFragmentManager(), "ManageCashAmount");
+					WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
+					dsp.openCashDrawer();
 				}
 			}).show();
 		}else{
@@ -1787,6 +1791,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 							.newInstance(getString(R.string.close_shift), 0, 
 									ManageCashAmountFragment.END_DAY_MODE);
 					mf.show(getSupportFragmentManager(), "ManageCashAmount");
+					WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
+					dsp.openCashDrawer();
 				}
 			}).show();
 		}else{
