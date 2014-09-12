@@ -10,16 +10,9 @@ import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -28,8 +21,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -54,6 +45,16 @@ import com.synature.mpos.database.table.SessionTable;
 import com.synature.util.Logger;
 
 public class Utils {
+	
+	/**
+	 * Database name
+	 */
+	public static final String DB_NAME = "mpos.db";
+	
+	/**
+	 * Database version
+	 */
+	public static final int DB_VERSION = 2;
 	
 	/**
 	 * Main url 
@@ -701,11 +702,10 @@ public class Utils {
 	
 	public static void backupDatabase(Context context){
 		String backupFileName = getBackupDbFileName();
-		String dbName = MPOSDatabase.MPOSOpenHelper.DB_NAME;
 		File sd = Environment.getExternalStorageDirectory();
 		FileChannel source = null;
 		FileChannel destination = null;
-		File dbPath = context.getDatabasePath(dbName);
+		File dbPath = context.getDatabasePath(DB_NAME);
 		File sdPath = new File(sd, BACKUP_DB_PATH);
 		if(!sdPath.exists())
 			sdPath.mkdirs();
