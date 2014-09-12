@@ -42,7 +42,7 @@ public class MemberInfoActivity extends Activity {
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 	    LayoutParams params = getWindow().getAttributes();
-	    params.width = 590;
+	    params.width = 790;
 	    params.height= 500;
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
