@@ -79,6 +79,11 @@ public class WintecCustomerDisplay{
 	public void clearScreen(){
 		mDsp.DSP_ClearScreen();
 	}
+	
+	public void close(){
+		if(mDsp != null)
+			mDsp.DSP_Close();
+	}
 
 	public String getOrderName() {
 		return orderName;

@@ -403,6 +403,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			unbindService(mServiceConnection);
 			mBound = false;
 		}
+		mDsp.close();
 	}
 
 	@Override
@@ -1605,6 +1606,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			mf.show(getSupportFragmentManager(), "ManageCashAmount");
 			WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
 			dsp.openCashDrawer();
+			dsp.close();
 		}
 	}
 
@@ -1753,6 +1755,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					mf.show(getSupportFragmentManager(), "ManageCashAmount");
 					WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
 					dsp.openCashDrawer();
+					dsp.close();
 				}
 			}).show();
 		}else{
@@ -1794,6 +1797,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					mf.show(getSupportFragmentManager(), "ManageCashAmount");
 					WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
 					dsp.openCashDrawer();
+					dsp.close();
 				}
 			}).show();
 		}else{

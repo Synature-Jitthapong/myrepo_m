@@ -37,7 +37,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnable{
-	
 	public static final int STATUS_READY_TO_USE = 1; 	//Ready to Use
 	public static final int STATUS_INUSE = 2;			//In Use
 	public static final int STATUS_BLACK_LIST = 3;		//BlackList
