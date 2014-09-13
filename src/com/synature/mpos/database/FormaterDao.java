@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import com.synature.mpos.Utils;
 import com.synature.mpos.database.table.GlobalPropertyTable;
@@ -205,6 +204,7 @@ public class FormaterDao extends MPOSDatabase{
 			gb.setQtyFormat(cursor.getString(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_QTY_FORMAT)));
 			cursor.moveToNext();
 		}
+		cursor.close();
 		return gb;
 	}
 

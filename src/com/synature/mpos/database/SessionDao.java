@@ -487,7 +487,7 @@ public class SessionDao extends MPOSDatabase{
 	}
 
 	/**
-	 * Get opened session
+	 * Get opened session of current sale date
 	 * @return 0 if not have opened session
 	 */
 	public int getCurrentSessionId() {
@@ -497,8 +497,10 @@ public class SessionDao extends MPOSDatabase{
 				new String[] { 
 					SessionTable.COLUMN_SESS_ID 
 				},
-				OrderTransTable.COLUMN_CLOSE_STAFF + "=?",
+				SessionTable.COLUMN_SESS_DATE + "=?"
+				+ " AND " + OrderTransTable.COLUMN_CLOSE_STAFF + "=?",
 				new String[] {
+					String.valueOf(Utils.getDate().getTimeInMillis()),
 					String.valueOf(0) 
 				}, null, null, SessionTable.COLUMN_SESS_ID + " DESC ", "1");
 		if (cursor.moveToFirst()) {

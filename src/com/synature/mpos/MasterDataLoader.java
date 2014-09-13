@@ -33,6 +33,8 @@ public class MasterDataLoader extends MPOSServiceBase{
 	 * Total operation
 	 */
 	public static final int TOTAL_OPT = 21;
+
+	private SyncHistoryDao mSync;
 	
 	private WebServiceWorkingListener mListener;
 
@@ -42,6 +44,9 @@ public class MasterDataLoader extends MPOSServiceBase{
 	 */
 	public MasterDataLoader(Context context, int shopId, WebServiceWorkingListener listener) {
 		super(context, LOAD_MASTER_METHOD);
+		
+		mSync = new SyncHistoryDao(mContext);
+		
 		// shopId
 		mProperty = new PropertyInfo();
 		mProperty.setName(SHOP_ID_PARAM);
@@ -66,12 +71,12 @@ public class MasterDataLoader extends MPOSServiceBase{
 
 	@Override
 	protected void onPreExecute() {
+		mSync.insertSyncLog();
 		if(mListener != null)
 			mListener.onPreExecute();
 	}
 
 	private void updateMasterData(MasterData master){
-		SyncHistoryDao sync = new SyncHistoryDao(mContext);
 		ShopDao shop = new ShopDao(mContext);
 		ComputerDao computer = new ComputerDao(mContext);
 		FormaterDao format = new FormaterDao(mContext);
@@ -112,12 +117,12 @@ public class MasterDataLoader extends MPOSServiceBase{
 			FileManager fm = new FileManager(mContext, Utils.IMG_DIR);
 			fm.clear();
 			// log sync history
-			sync.insertSyncLog(SyncHistoryDao.SYNC_STATUS_SUCCESS);
+			mSync.updateSyncStatus(SyncHistoryDao.SYNC_STATUS_SUCCESS);
 			if(mListener != null)
 				mListener.onPostExecute();
 		} catch (Exception e) {
 			// log sync history
-			sync.insertSyncLog(SyncHistoryDao.SYNC_STATUS_FAIL);
+			mSync.updateSyncStatus(SyncHistoryDao.SYNC_STATUS_FAIL);
 			Logger.appendLog(mContext, Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, 
 					"Error when add shop data : " + e.getMessage());

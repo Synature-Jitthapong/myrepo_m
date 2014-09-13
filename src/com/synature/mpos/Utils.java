@@ -443,7 +443,7 @@ public class Utils {
 	public static String getWintecMsrBaudRate(Context context) {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		return sharedPref.getString(SettingsActivity.KEY_PREF_MSR_BAUD_RATE, "BAUD_38400");
+		return sharedPref.getString(SettingsActivity.KEY_PREF_MSR_BAUD_RATE, "BAUD_9600");
 	}
 	
 	/**

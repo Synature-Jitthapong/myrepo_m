@@ -155,12 +155,11 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 
 	@Override
 	protected void onStart() {
-		super.onStart();
 		// start magnetic reader thread
 		mMsrThread = new Thread(new MagneticReaderThread());
 		try {
-			mMsrThread.start();
 			mIsRead = true;
+			mMsrThread.start();
 			Logger.appendLog(this, Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, "Start magnetic reader thread");
 		} catch (Exception e) {
@@ -170,6 +169,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 					e.getMessage());
 		}
 		//test();
+		super.onStart();
 	}
 
 	@Override
@@ -616,65 +616,4 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 			mMsrReader.close();
 		}
 	};
-
-	// debug test
-	private void test(){
-		String content = "Track2:0025870064605584=1299=330001234=16824?";
-		String content1 = "Track1:B4552939410162971^JITTHAPONG ARJSALEE       ^170220100000   876540039600C000?"
-
-+"Track2:4552939410162971=17022010000039687654?";
-		try {
-			CreditCardParser parser = new CreditCardParser();
-			if(parser.parser(content1)){
-				mTxtCardNoSeq1.setText(null);
-				mTxtCardNoSeq2.setText(null);
-				mTxtCardNoSeq3.setText(null);
-				mTxtCardNoSeq4.setText(null);
-				mTxtCardHolderName.setText(null);
-				
-				String cardNo = parser.getCardNo();
-				String cardHolderName = parser.getCardHolderName();
-				String expDate = parser.getExpDate();
-				
-				mTxtCardNoSeq1.setText(cardNo.substring(0, 4));
-				mTxtCardNoSeq2.setText(cardNo.substring(4, 8));
-				mTxtCardNoSeq3.setText(cardNo.substring(8, 12));
-				mTxtCardNoSeq4.setText(cardNo.substring(12, 16));
-				mTxtCardHolderName.setText(cardHolderName);
-				//mSpExpMonth.setSelection();
-				
-				try {
-					VerifyCardType.CardType cardType = VerifyCardType.checkCardType(cardNo); 
-					switch(cardType){
-					case VISA:
-						mSpCardType.setSelection(1);
-						break;
-					case MASTER:
-						mSpCardType.setSelection(2);
-						break;
-					default:
-						mSpCardType.setSelection(0);
-					}
-				} catch (Exception e) {
-					Logger.appendLog(CreditPayActivity.this, 
-							Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
-							"Error set selected spinner card type");
-				}
-			}
-		} catch (Exception e) {
-			new AlertDialog.Builder(CreditPayActivity.this)
-			.setTitle(R.string.credit_card)
-			.setMessage("Error parser card data " + e.getMessage())
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-				}
-			})
-			.show();
-			Logger.appendLog(CreditPayActivity.this, 
-					Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
-					"Error " + e.getMessage());
-		}
-	}
 }

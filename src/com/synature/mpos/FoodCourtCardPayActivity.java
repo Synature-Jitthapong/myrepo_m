@@ -36,11 +36,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class FoodCourtCardPayActivity extends Activity implements Runnable{
-	public static final int STATUS_READY_TO_USE = 1; 	//Ready to Use ��� ���������������������������������������������������������
-	public static final int STATUS_INUSE = 2;			//In Use ��� ���������������������������������������������
-	public static final int STATUS_BLACK_LIST = 3;		//BlackList ��� ������������������������������������������ BlackList
-	public static final int STATUS_CANCEL = 4;			//Cancel ��� ������������������������������ ������������������������������������������������������������������
-	public static final int STATUS_MISSING = 5;			//Missing ��� ���������������������
+	public static final int STATUS_READY_TO_USE = 1; 	//Ready to Use
+	public static final int STATUS_INUSE = 2;			//In Use
+	public static final int STATUS_BLACK_LIST = 3;		//BlackList
+	public static final int STATUS_CANCEL = 4;			//Cancel
+	public static final int STATUS_MISSING = 5;			//Missing
 
 	/*
 	 * is magnatic read state

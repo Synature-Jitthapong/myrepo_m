@@ -42,32 +42,45 @@ public class SyncHistoryDao extends MPOSDatabase{
 	 * @return true if all sync_status = 1
 	 */
 	public boolean IsAlreadySync(){
-		boolean isSync = true;
+		boolean isSync = false;
 		Cursor cursor = getReadableDatabase().rawQuery(
-				"SELECT " + SyncHistoryTable.COLUMN_SYNC_ID + ","
-				+ SyncHistoryTable.COLUMN_SYNC_STATUS
+				"SELECT COUNT(*) "
 				+ " FROM " + SyncHistoryTable.TABLE_SYNC_HISTORY
-				+ " WHERE " + SyncHistoryTable.COLUMN_SYNC_DATE + "=?",
+				+ " WHERE " + SyncHistoryTable.COLUMN_SYNC_DATE + "=?"
+				+ " AND " + SyncHistoryTable.COLUMN_SYNC_STATUS + "=?",
 				new String[]{
-						String.valueOf(Utils.getDate().getTimeInMillis())
+						String.valueOf(Utils.getDate().getTimeInMillis()),
+						String.valueOf(SYNC_STATUS_SUCCESS)
 				});
 		if(cursor.moveToFirst()){
-			if(cursor.getInt(cursor.getColumnIndex(
-					SyncHistoryTable.COLUMN_SYNC_STATUS)) == SYNC_STATUS_FAIL)
-				isSync = false;
-		}else{
-			isSync = false;
+			if(cursor.getInt(0) > 0)
+				isSync = true;
 		}
 		cursor.close();
 		return isSync;
 	}
 	
-	public void insertSyncLog(int status){
+	/**
+	 * @param status
+	 */
+	public void updateSyncStatus(int status){
 		ContentValues cv = new ContentValues();
 		cv.put(SyncHistoryTable.COLUMN_SYNC_STATUS, status);
-		cv.put(SyncHistoryTable.COLUMN_SYNC_DATE, Utils.getDate().getTimeInMillis());
 		cv.put(SyncHistoryTable.COLUMN_SYNC_TIME, Utils.getCalendar().getTimeInMillis());
-		getWritableDatabase().insert(SyncHistoryTable.TABLE_SYNC_HISTORY, null, cv);
+		getWritableDatabase().update(SyncHistoryTable.TABLE_SYNC_HISTORY, 
+				cv, SyncHistoryTable.COLUMN_SYNC_DATE + "=?", 
+				new String[]{
+					String.valueOf(Utils.getDate().getTimeInMillis())
+				});
+	}
+	
+	public void insertSyncLog(){
+		if(!IsAlreadySync()){
+			ContentValues cv = new ContentValues();
+			cv.put(SyncHistoryTable.COLUMN_SYNC_DATE, Utils.getDate().getTimeInMillis());
+			cv.put(SyncHistoryTable.COLUMN_SYNC_TIME, Utils.getCalendar().getTimeInMillis());
+			getWritableDatabase().insert(SyncHistoryTable.TABLE_SYNC_HISTORY, null, cv);
+		}
 	}
 	
 	public void deleteSyncLog(){
