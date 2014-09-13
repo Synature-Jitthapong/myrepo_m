@@ -1,7 +1,5 @@
 package com.synature.mpos;
 
-import java.text.DecimalFormat;
-
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.ShopDao;
@@ -13,11 +11,14 @@ import com.synature.util.Logger;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -42,7 +43,12 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 	public static final int STATUS_BLACK_LIST = 3;		//BlackList
 	public static final int STATUS_CANCEL = 4;			//Cancel
 	public static final int STATUS_MISSING = 5;			//Missing
-
+		
+	/**
+	 * Point
+	 */
+	public static final float POINT = 100000; 
+	
 	/*
 	 * is magnatic read state
 	 */
@@ -94,6 +100,19 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		}
 	}
 
+	public static void setPoint(Context context, float point){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		sharedPref.edit().putFloat("point", point).commit();	
+	}
+	
+	public static float getPoint(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		float point = sharedPref.getFloat("point", 0);
+		return point;
+	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
@@ -112,8 +131,8 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		try {
 			mMsrReader = new WintecMagneticReader(this);
 			mMsrThread = new Thread(this);
-			mMsrThread.start();
 			mIsRead = true;
+			mMsrThread.start();
 			Logger.appendLog(this, Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, "Start magnetic reader thread");
 		} catch (Exception e) {
@@ -161,15 +180,15 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 						@Override
 						public void run() {
 							try {
-								CreditCardParser parser = new CreditCardParser();
-								if(parser.parser(content)){
-									String cardNo = parser.getCardNo();
-									PlaceholderFragment fragment = (PlaceholderFragment)
-											getFragmentManager().findFragmentById(R.id.container);
-									fragment.mTxtCardNo.setText(null);
-									fragment.mTxtCardNo.setText(cardNo);
-									fragment.loadCardInfo();
-								}
+								String[] track1 = content.split(":");
+								String memberCode = track1[1].replace("?", "");
+								String cardNo = memberCode;
+								PlaceholderFragment fragment = (PlaceholderFragment)
+										getFragmentManager().findFragmentById(R.id.container);
+								fragment.mTxtCardNo.setText(null);
+								fragment.mTxtCardNo.setText(cardNo);
+								fragment.loadCardInfo();
+								
 							} catch (Exception e) {
 								Logger.appendLog(getApplicationContext(), 
 										Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
@@ -220,7 +239,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		public void onViewCreated(View view, Bundle savedInstanceState) {
 			mTvResult = (TextView) view.findViewById(R.id.textView2);
 			mTxtCardBalance = (EditText) view.findViewById(R.id.txtCardBalance);
-			mTvResult.setText("Payment Successfully.");
+			mTvResult.setText("Successfully.");
 			mTxtCardBalance.setText(mHost.mFormat.currencyFormat(mBalance));
 		}
 	}
@@ -232,6 +251,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		private EditText mTxtTotalPrice;
 		private EditText mTxtCardNo;
 		private EditText mTxtBalance;
+		private EditText mTxtMember;
 		private ImageButton mBtnCheckCard;
 		
 		@Override
@@ -269,8 +289,10 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 			mTxtTotalPrice = (EditText) view.findViewById(R.id.txtTotal);
 			mTxtCardNo = (EditText) view.findViewById(R.id.txtCardNo);
 			mTxtBalance = (EditText) view.findViewById(R.id.txtBalance);
+			mTxtMember = (EditText) view.findViewById(R.id.txtMember);
 			mBtnCheckCard = (ImageButton) view.findViewById(R.id.btnCheckCard);
-			mTxtBalance.setText(mHost.mFormat.currencyFormat(mHost.mCardBalance));
+			
+			//mTxtBalance.setText(mHost.mFormat.currencyFormat(mHost.mCardBalance));
 			mTxtCardNo.setOnKeyListener(new OnKeyListener(){
 
 				@Override
@@ -320,7 +342,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 				}else{
 					new AlertDialog.Builder(getActivity())
 					.setTitle(R.string.payment)
-					.setMessage("Your balance not enough!")
+					.setMessage("Your point not enough!")
 					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 						
 						@Override
@@ -405,8 +427,14 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 	private FoodCourtMainService.FoodCourtWebServiceListener mCardBalanceListener 
 		= new FoodCourtMainService.FoodCourtWebServiceListener(){
 
+			//ProgressDialog progress;
+		
 			@Override
-			public void onPre() {
+			public void onPre() { 
+//				progress = new ProgressDialog(FoodCourtCardPayActivity.this);
+//				progress.setCancelable(false);
+//				progress.setMessage("Please wait...");
+//				progress.show();
 				PlaceholderFragment fragment = (PlaceholderFragment)
 						getFragmentManager().findFragmentById(R.id.container);
 				fragment.mBtnCheckCard.setEnabled(false);
@@ -414,6 +442,9 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 
 			@Override
 			public void onPost(PrepaidCardInfo cardInfo) {
+//				if(progress.isShowing())
+//					progress.dismiss();
+				
 				PlaceholderFragment fragment = (PlaceholderFragment)
 						getFragmentManager().findFragmentById(R.id.container);
 				fragment.mBtnCheckCard.setEnabled(true);
@@ -421,6 +452,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 					mCardBalance = cardInfo.getfCurrentAmount();
 					mCardBalanceBefore = mCardBalance;
 					fragment.mTxtBalance.setText(mFormat.currencyFormat(mCardBalance));
+					fragment.mTxtMember.setText("สมชาย สายสมาน");
 					if(mCardBalance < mTotalSalePrice){
 						fragment.mTxtBalance.setTextColor(Color.RED);
 					}else{

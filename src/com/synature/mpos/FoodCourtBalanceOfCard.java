@@ -9,6 +9,8 @@ import android.text.TextUtils;
 
 public class FoodCourtBalanceOfCard extends FoodCourtMainService{
 
+	private String mCardNo;
+	
 	public FoodCourtWebServiceListener mListener;
 	
 	/**
@@ -24,6 +26,7 @@ public class FoodCourtBalanceOfCard extends FoodCourtMainService{
 			int computerId, int staffId, String cardNo, 
 			FoodCourtWebServiceListener listener) {
 		super(context, GET_BALANCE_METHOD, shopId, computerId, staffId, cardNo);
+		mCardNo = cardNo;
 		mListener = listener;
 	}
 
@@ -34,22 +37,27 @@ public class FoodCourtBalanceOfCard extends FoodCourtMainService{
 
 	@Override
 	protected void onPostExecute(String result) {
-		WebServiceResult ws;
-		try {
-			ws = toServiceObject(result);
-			if(ws.getiResultID() == RESPONSE_SUCCESS){
-				try {
-					PrepaidCardInfo cardInfo = toPrepaidCardInfoObject(ws.getSzResultData());
-					mListener.onPost(cardInfo);
-				} catch (Exception e) {
-					mListener.onError(e.getMessage());
-				}
-			}else{
-				mListener.onError(TextUtils.isEmpty(ws.getSzResultData()) ? result : ws.getSzResultData());
-			}
-		} catch (JsonSyntaxException e) {
-			mListener.onError(result);
-		}
+//		WebServiceResult ws;
+//		try {
+//			ws = toServiceObject(result);
+//			if(ws.getiResultID() == RESPONSE_SUCCESS){
+//				try {
+//					PrepaidCardInfo cardInfo = toPrepaidCardInfoObject(ws.getSzResultData());
+//					mListener.onPost(cardInfo);
+//				} catch (Exception e) {
+//					mListener.onError(e.getMessage());
+//				}
+//			}else{
+//				mListener.onError(TextUtils.isEmpty(ws.getSzResultData()) ? result : ws.getSzResultData());
+//			}
+//		} catch (JsonSyntaxException e) {
+//			mListener.onError(result);
+//		}
+		PrepaidCardInfo cardInfo = new PrepaidCardInfo();
+		cardInfo.setfCurrentAmount(FoodCourtCardPayActivity.getPoint(mContext));
+		cardInfo.setiCardStatus(FoodCourtCardPayActivity.STATUS_READY_TO_USE);
+		cardInfo.setSzCardNo(mCardNo);
+		mListener.onPost(cardInfo);
 	}
 	
 }

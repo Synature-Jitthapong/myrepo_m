@@ -5,15 +5,51 @@
     android:gravity="center"
     android:orientation="vertical" >
 
+    <ImageButton
+        android:id="@+id/btnCheckCard"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/txtCardNo"
+        android:layout_toRightOf="@+id/txtCardNo"
+        android:src="@android:drawable/ic_menu_search"
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/textView1"
-        android:layout_below="@+id/txtTotal"
-        android:layout_marginTop="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
         android:gravity="right"
         android:text="@string/card_no"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/larger_text_size"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/txtCardNo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView4"
+        android:layout_alignParentBottom="true"
+        android:ems="8"
+        android:imeOptions="actionSearch"
+        android:lines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/larger_text_size"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/textView2"
+        style="@style/LabelText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txtTotal"
+        android:layout_alignBottom="@+id/txtTotal"
+        android:layout_alignParentLeft="true"
+        android:gravity="right"
+        android:text="Total:"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="@dimen/larger_text_size" />
 
@@ -21,77 +57,62 @@
         android:id="@+id/txtTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textView2"
-        android:layout_alignTop="@+id/textView2"
-        android:layout_centerHorizontal="true"
-        android:clickable="false"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/textView2"
+        android:editable="false"
         android:ems="7"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
         android:lines="1"
         android:singleLine="true"
-        android:textSize="@dimen/larger_text_size" >
-
-        <requestFocus />
-    </EditText>
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="@dimen/larger_text_size" />
 
     <EditText
-        android:id="@+id/txtCardNo"
+        android:id="@+id/txtMember"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textView3"
-        android:layout_alignBottom="@+id/textView3"
-        android:layout_alignLeft="@+id/txtTotal"
+        android:layout_below="@+id/txtTotal"
+        android:layout_toRightOf="@+id/textView2"
+        android:editable="false"
         android:ems="8"
-        android:imeOptions="actionSearch"
-        android:lines="1"
         android:singleLine="true"
+        android:textSize="@dimen/larger_text_size" />
+
+    <TextView
+        android:id="@+id/textView4"
+        style="@style/LabelText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txtMember"
+        android:layout_alignBottom="@+id/txtMember"
+        android:layout_alignParentLeft="true"
+        android:text="Member:"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/larger_text_size" />
+
+    <TextView
+        android:id="@+id/textView1"
+        style="@style/LabelText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txtBalance"
+        android:layout_alignBottom="@+id/txtBalance"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/txtBalance"
+        android:gravity="right"
+        android:text="Point:"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="@dimen/larger_text_size" />
 
     <EditText
         android:id="@+id/txtBalance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textView1"
-        android:layout_alignBottom="@+id/textView1"
-        android:layout_alignLeft="@+id/txtCardNo"
-        android:clickable="false"
+        android:layout_below="@+id/txtMember"
+        android:layout_toRightOf="@+id/textView4"
+        android:editable="false"
         android:ems="7"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
         android:singleLine="true"
-        android:textSize="@dimen/larger_text_size" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textView3"
-        android:layout_marginTop="58dp"
-        android:layout_toLeftOf="@+id/txtBalance"
-        android:gravity="right"
-        android:text="@string/balance"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="@dimen/larger_text_size" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/txtTotal"
-        android:gravity="right"
-        android:text="@string/total"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="@dimen/larger_text_size" />
-
-    <ImageButton
-        android:id="@+id/btnCheckCard"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/textView1"
-        android:layout_toRightOf="@+id/txtCardNo"
-        android:src="@android:drawable/ic_menu_search" />
+        android:textSize="@dimen/larger_text_size" >
+    </EditText>
     
 </RelativeLayout>

@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -99,8 +100,16 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 			if(!mSync.IsAlreadySync())
 				requestValidUrl();
 		}
+		
+		initPoint(this);
 	}
 
+	public void initPoint(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		sharedPref.edit().putFloat("point", FoodCourtCardPayActivity.POINT).commit();
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(requestCode == REQUEST_FOR_SETTING_DATE){
@@ -333,7 +342,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	@Override
 	protected void onResume() {
 		if(!isAlreadySetUrl()){
-			requestValidUrl();
+			startActivity(new Intent(this, SettingsActivity.class));
 		}else{
 			mTxtUser.requestFocus();
 		}

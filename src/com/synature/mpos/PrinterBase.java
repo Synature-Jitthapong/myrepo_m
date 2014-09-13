@@ -31,7 +31,7 @@ public abstract class PrinterBase {
 	
 	public static final int HORIZONTAL_MAX_SPACE = 45;
 	public static final int QTY_MAX_SPACE = 12;
-	public static final int MAX_TEXT_LENGTH = 25;
+	public static final int MAX_TEXT_LENGTH = 35;
 	
 	protected TransactionDao mTrans;
 	protected PaymentDetailDao mPayment;
@@ -810,7 +810,7 @@ public abstract class PrinterBase {
 		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId);
     	for(int i = 0; i < orderLst.size(); i++){
     		OrderDetail order = orderLst.get(i);
-    		String productName = order.getProductName();
+    		String productName = limitTextLength(order.getProductName());
     		String productQty = mFormat.qtyFormat(order.getOrderQty()) + "x ";
     		String productPrice = mFormat.currencyFormat(order.getProductPrice());
     		mTextToPrint.append(productQty);
@@ -908,13 +908,13 @@ public abstract class PrinterBase {
     	mTextToPrint.append(strTotalSale + "\n");
 	    
     	// balance
-    	String balanceBeforeText = "Balance before paid";
+    	String balanceBeforeText = "Point before";
     	String balanceBefore = mFormat.currencyFormat(cardBalanceBefore);
     	mTextToPrint.append(balanceBeforeText);
     	mTextToPrint.append(createHorizontalSpace(balanceBeforeText.length() + balanceBefore.length()));
     	mTextToPrint.append(balanceBefore + "\n");
     	
-    	String balanceText = "Balance after paid";
+    	String balanceText = "Current point";
     	String balance = mFormat.currencyFormat(cardBalance);
     	mTextToPrint.append(balanceText);
     	mTextToPrint.append(createHorizontalSpace(balanceText.length() + balance.length()));
