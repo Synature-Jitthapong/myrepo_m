@@ -4,12 +4,14 @@ import java.util.Calendar;
 
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.ShopDao;
+import com.synature.mpos.database.SoftwareInfoDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
+import com.synature.mpos.database.model.SoftwareInfo;
 import com.synature.pos.Staff;
 
 import android.os.Bundle;
@@ -46,7 +48,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	private ShopDao mShop;
 	private SessionDao mSession;
 	private ComputerDao mComputer;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	private SyncHistoryDao mSync;
 	
 	private Button mBtnLogin;
@@ -80,7 +82,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		mSession = new SessionDao(this);
 		mShop = new ShopDao(this);
 		mComputer = new ComputerDao(this);
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		mSync = new SyncHistoryDao(this);
 
 		try {
@@ -349,7 +351,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 	
 	private void requestValidUrl(){
-		new MainUrlRegister(this, new RegisterValidUrlListener()).execute(Utils.MAIN_URL);
+		new SoftwareRegister(this, new RegisterValidUrlListener()).execute(Utils.REGISTER_URL);
 		//new DeviceChecker(LoginActivity.this, new DeviceCheckerListener()).execute(Utils.getFullUrl(LoginActivity.this));
 	}
 	

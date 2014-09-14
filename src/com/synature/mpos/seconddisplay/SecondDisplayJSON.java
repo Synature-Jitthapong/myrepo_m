@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.pos.SecondDisplayProperty;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplayItemData;
@@ -42,7 +42,7 @@ public class SecondDisplayJSON {
 	 * @param grandTotal
 	 * @return
 	 */
-	public static String genDisplayItem(FormaterDao format, List<OrderDetail> orderDetailLst, 
+	public static String genDisplayItem(GlobalPropertyDao format, List<OrderDetail> orderDetailLst, 
 			List<clsSecDisplay_TransSummary> transSummLst, String grandTotal){
 		Gson gson = new Gson();
 		clsSecDisplayItemData displayData = new clsSecDisplayItemData();

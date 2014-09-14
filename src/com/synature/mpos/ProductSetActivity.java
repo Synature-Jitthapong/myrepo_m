@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderSet;
@@ -50,7 +50,7 @@ public class ProductSetActivity extends Activity{
 	public static final String ADD_MODE = "add";
 	
 	private ProductsDao mProduct;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private TransactionDao mTrans;
 	
@@ -79,7 +79,7 @@ public class ProductSetActivity extends Activity{
 		mScroll = (HorizontalScrollView) findViewById(R.id.horizontalScrollView1);
 		
 		mProduct = new ProductsDao(ProductSetActivity.this);
-		mFormat = new FormaterDao(ProductSetActivity.this);
+		mFormat = new GlobalPropertyDao(ProductSetActivity.this);
 		mTrans = new TransactionDao(ProductSetActivity.this);
 		mTrans.getWritableDatabase().beginTransaction();
 		

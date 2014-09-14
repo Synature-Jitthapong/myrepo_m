@@ -7,7 +7,7 @@ import java.util.List;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PrintReceiptLogDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
@@ -45,7 +45,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 	private boolean mBound = false;
 	
 	private TransactionDao mTrans;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private List<OrderTransaction> mTransLst;
 	private BillAdapter mBillAdapter;
@@ -75,7 +75,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 	    mScrBill = (ScrollView) findViewById(R.id.scrollView1);
 
 		mTrans = new TransactionDao(getApplicationContext());
-		mFormat = new FormaterDao(getApplicationContext());
+		mFormat = new GlobalPropertyDao(getApplicationContext());
 		mTransLst = new ArrayList<OrderTransaction>();
 		mBillAdapter = new BillAdapter();
 		mLvBill.setAdapter(mBillAdapter);

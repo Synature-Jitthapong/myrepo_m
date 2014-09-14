@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.ProductsDao;
@@ -65,7 +65,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 	public static final int REPORT_ENDDAY = 2;
 	
 	private ShopDao mShop;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	private Reporting mReporting;
 
 	private int mStaffId;
@@ -81,7 +81,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 		setTitle(null);
 		
 		mShop = new ShopDao(this);
-		mFormat = new FormaterDao(SaleReportActivity.this);
+		mFormat = new GlobalPropertyDao(SaleReportActivity.this);
 		mDateFrom = String.valueOf(Utils.getDate().getTimeInMillis());
 		mDateTo = String.valueOf(Utils.getDate().getTimeInMillis());
 

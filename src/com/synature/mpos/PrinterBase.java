@@ -8,7 +8,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.synature.mpos.database.CreditCardDao;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.HeaderFooterReceiptDao;
 import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.ProductsDao;
@@ -31,13 +31,13 @@ public abstract class PrinterBase {
 	
 	public static final int HORIZONTAL_MAX_SPACE = 45;
 	public static final int QTY_MAX_SPACE = 12;
-	public static final int MAX_TEXT_LENGTH = 25;
+	public static final int MAX_TEXT_LENGTH = 35;
 	
 	protected TransactionDao mTrans;
 	protected PaymentDetailDao mPayment;
 	protected ShopDao mShop;
 	protected HeaderFooterReceiptDao mHeaderFooter;
-	protected FormaterDao mFormat;
+	protected GlobalPropertyDao mFormat;
 	protected StaffsDao mStaff;
 	protected CreditCardDao mCreditCard;
 	protected Context mContext;
@@ -49,7 +49,7 @@ public abstract class PrinterBase {
 		mTrans = new TransactionDao(context);
 		mPayment = new PaymentDetailDao(context);
 		mShop = new ShopDao(context);
-		mFormat = new FormaterDao(context);
+		mFormat = new GlobalPropertyDao(context);
 		mHeaderFooter = new HeaderFooterReceiptDao(context);
 		mStaff = new StaffsDao(context);
 		mCreditCard = new CreditCardDao(context);
@@ -573,7 +573,7 @@ public abstract class PrinterBase {
 		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId);
     	for(int i = 0; i < orderLst.size(); i++){
     		OrderDetail order = orderLst.get(i);
-    		String productName = order.getProductName();
+    		String productName = limitTextLength(order.getProductName());
     		String productQty = mFormat.qtyFormat(order.getOrderQty()) + "x ";
     		String productPrice = mFormat.currencyFormat(order.getProductPrice());
     		mTextToPrint.append(productQty);
@@ -587,7 +587,7 @@ public abstract class PrinterBase {
     		if(order.getOrderCommentLst() != null && order.getOrderCommentLst().size() > 0){
     			for(Comment comm : order.getOrderCommentLst()){
     				if(comm.getCommentPrice() > 0){
-	    				String commName = comm.getCommentName();
+	    				String commName = limitTextLength(comm.getCommentName());
 	    				String commQty = "   " + mFormat.qtyFormat(comm.getCommentQty()) + "x ";
 	    				String commPrice = mFormat.currencyFormat(comm.getCommentPrice());
 	    				mTextToPrint.append(commQty);
@@ -603,7 +603,7 @@ public abstract class PrinterBase {
     		}
     		if(order.getOrdSetDetailLst() != null && order.getOrdSetDetailLst().size() > 0){
     			for(OrderSetDetail setDetail : order.getOrdSetDetailLst()){
-    				String setName = setDetail.getProductName();
+    				String setName = limitTextLength(setDetail.getProductName());
     				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
     				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
     				mTextToPrint.append(setQty);

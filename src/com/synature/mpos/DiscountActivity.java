@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
@@ -52,7 +52,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final int OTHER_DISCOUNT_TYPE = 6;
 
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	private TransactionDao mTrans;
 	private ProductsDao mProduct;
 	private OrderDetail mOrder;
@@ -85,7 +85,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 		mTransactionId = intent.getIntExtra("transactionId", 0);	
 		mTrans = new TransactionDao(this);
 		mProduct = new ProductsDao(this);
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		mOrder = new OrderDetail();
 		// begin transaction
 		mTrans.getWritableDatabase().beginTransaction();

@@ -29,7 +29,7 @@ import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.SaleTransaction;
@@ -54,12 +54,12 @@ public class Utils {
 	/**
 	 * Database version
 	 */
-	public static final int DB_VERSION = 2;
+	public static int DB_VERSION = 2;
 	
 	/**
 	 * Main url 
 	 */
-	public static final String MAIN_URL = "http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
+	public static final String REGISTER_URL = "http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
 	
 	/**
 	 * WebService file name
@@ -101,11 +101,11 @@ public class Utils {
 	 * Endday sale dir store endday sale json file
 	 */
 	public static final String ENDDAY_PATH = RESOURCE_DIR + File.separator + "EnddaySale";
-	
+
 	/**
-	 * EJ path
+	 * Update path stored apk for update.
 	 */
-	public static final String EJ_PATH = RESOURCE_DIR + File.separator + "EJ";
+	public static final String UPDATE_PATH = RESOURCE_DIR + File.separator + "Update";
 	
 	/**
 	 * Image path on server
@@ -155,7 +155,7 @@ public class Utils {
 				sess.closeSession(sessId, staffId, 0, true);
 			}
 			try {
-				FormaterDao format = new FormaterDao(context);
+				GlobalPropertyDao format = new GlobalPropertyDao(context);
 				Logger.appendLog(context, LOG_PATH,
 						LOG_FILE_NAME,
 						"Success ending multiple day : " 
@@ -323,7 +323,7 @@ public class Utils {
 	 * @param value
 	 * @return string fixes digit
 	 */
-	public static String fixesDigitLength(FormaterDao format, int scale, double value){
+	public static String fixesDigitLength(GlobalPropertyDao format, int scale, double value){
 		return format.currencyFormat(value, "#,##0.0000");
 	}
 

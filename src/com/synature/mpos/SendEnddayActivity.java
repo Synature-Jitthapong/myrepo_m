@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 
 import android.app.AlertDialog;
@@ -35,7 +35,7 @@ public class SendEnddayActivity extends MPOSActivityBase {
 	private SaleService mPartService;
 	private boolean mBound = false;
 	
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private int mStaffId;
 	private int mShopId;
@@ -76,7 +76,7 @@ public class SendEnddayActivity extends MPOSActivityBase {
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mAutoClose = intent.getBooleanExtra("autoClose", false);
 		
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		mSession = new SessionDao(this);
 		mSessLst = new ArrayList<String>();
 

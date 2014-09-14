@@ -3,7 +3,7 @@ package com.synature.mpos;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.PromotionDiscountDao;
 import com.synature.mpos.database.TransactionDao;
@@ -35,7 +35,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	
 	private TransactionDao mTrans;
 	private PromotionDiscountDao mPromotion;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	private List<OrderDetail> mOrderLst;
 	private List<com.synature.pos.PromotionPriceGroup> mPromoPriceGroupLst;
 	private OrderDiscountAdapter mOrderAdapter;
@@ -60,7 +60,7 @@ public class PromotionActivity extends MPOSActivityBase {
 		mSummaryContainer = (LinearLayout) findViewById(R.id.summaryContainer);
 		
 		mTrans = new TransactionDao(this);
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		mPromotion = new PromotionDiscountDao(this);
 		
 		Intent intent = getIntent();

@@ -8,7 +8,7 @@ import java.util.Locale;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.BankDao;
 import com.synature.mpos.database.CreditCardDao;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.pos.BankName;
 import com.synature.pos.CreditCardType;
@@ -52,7 +52,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 	private Thread mMsrThread = null;
 	
 	private PaymentDetailDao mPayment;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private List<BankName> mBankLst;
 	private List<CreditCardType> mCreditCardLst;
@@ -145,7 +145,7 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 		});
 		
 		mPayment = new PaymentDetailDao(CreditPayActivity.this);
-		mFormat = new FormaterDao(CreditPayActivity.this);
+		mFormat = new GlobalPropertyDao(CreditPayActivity.this);
 		
 		Intent intent = getIntent();
 		mTransactionId = intent.getIntExtra("transactionId", 0);

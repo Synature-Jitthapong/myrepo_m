@@ -2,7 +2,6 @@ package com.synature.mpos;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -10,7 +9,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -36,7 +35,7 @@ public class RestoreDatabaseFragment extends DialogFragment{
 	public static final String RESTORE_PASS = "mposrestore";
 	
 	private int mLastPosition = -1;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	private DatabaseInfo mDbInfo;
 	private List<DatabaseInfo> mDbInfoLst;
 	private DatabaseListAdapter mAdapter;
@@ -51,7 +50,7 @@ public class RestoreDatabaseFragment extends DialogFragment{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mFormat = new FormaterDao(getActivity());
+		mFormat = new GlobalPropertyDao(getActivity());
 	}
 	
 	@Override

@@ -1,16 +1,17 @@
 package com.synature.mpos;
 
-import org.ksoap2.serialization.PropertyInfo;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.synature.mpos.database.SoftwareInfoDao;
+import com.synature.mpos.database.model.SoftwareInfo;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-public class MainUrlRegister extends MPOSServiceBase{
+public class SoftwareRegister extends MPOSServiceBase{
 
 	public static final String REGIST_SERVICE_URL_METHOD = "WSmPOS_GetRegisterServiceUrl";
 	
@@ -19,7 +20,7 @@ public class MainUrlRegister extends MPOSServiceBase{
 	
 	private WebServiceWorkingListener mListener;
 	
-	public MainUrlRegister(Context context, WebServiceWorkingListener listener) {
+	public SoftwareRegister(Context context, WebServiceWorkingListener listener) {
 		super(context, REGIST_SERVICE_URL_METHOD);
 		mListener = listener;
 		
@@ -43,10 +44,29 @@ public class MainUrlRegister extends MPOSServiceBase{
 			MPOSSoftwareInfo info = gson.fromJson(result, MPOSSoftwareInfo.class);
 			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
 			if(info != null){
+				SoftwareInfoDao sw = new SoftwareInfoDao(mContext);
+				if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
+					sw.logSoftwareInfo(info.getSzSoftwareVersion(), String.valueOf(Utils.DB_VERSION));
+					
+					// compare version
+					SoftwareInfo sf = sw.getSoftwareInfo();
+					if(sf != null){
+						if(!TextUtils.equals(sf.getVersion(), info.getSzSoftwareVersion())){
+							Intent intent = new Intent(mContext, SoftwareUpdateService.class);
+							intent.putExtra("fileUrl", info.getSzSoftwareDownloadUrl());
+							intent.putExtra("version", info.getSzSoftwareVersion());
+							intent.putExtra("dbVersion", Utils.DB_VERSION);
+							mContext.startService(intent);
+						}
+					}
+				}else{
+					sw.logSoftwareInfo(Utils.getSoftWareVersion(mContext), String.valueOf(Utils.DB_VERSION));
+				}
 				if(!TextUtils.isEmpty(info.getSzRegisterServiceUrl())){
 					SharedPreferences.Editor editor = sharedPref.edit();
 					editor.putString(SettingsActivity.KEY_PREF_SERVER_URL, info.getSzRegisterServiceUrl());
 					editor.commit();
+					
 					mListener.onPostExecute();
 				}else{
 					mListener.onError(mContext.getString(R.string.invalid_url));

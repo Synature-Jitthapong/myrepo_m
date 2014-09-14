@@ -1,6 +1,6 @@
 package com.synature.mpos;
 
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
@@ -55,7 +55,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 	private WintecMagneticReader mMsrReader;
 	
 	private TransactionDao mTrans;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private int mTransactionId;
 	private int mShopId;
@@ -91,7 +91,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mTrans = new TransactionDao(this);
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment(), "Placeholder").commit();

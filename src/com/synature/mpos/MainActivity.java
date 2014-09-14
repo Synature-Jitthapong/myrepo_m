@@ -19,7 +19,7 @@ import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
 import com.synature.mpos.common.MPOSFragmentActivityBase;
 import com.synature.mpos.database.ComputerDao;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.PrintReceiptLogDao;
 import com.synature.mpos.database.ProductsDao;
@@ -125,7 +125,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	
 	private ProductsDao mProducts;
 	private ShopDao mShop;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private SessionDao mSession;
 	private TransactionDao mTrans;
@@ -177,7 +177,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		mProducts = new ProductsDao(this);
 		mShop = new ShopDao(this);
 		mComputer = new ComputerDao(this);
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		
 		mShopId = mShop.getShopId();
 		mComputerId = mComputer.getComputerId();
