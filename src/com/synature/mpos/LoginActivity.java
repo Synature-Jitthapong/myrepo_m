@@ -312,6 +312,10 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		case R.id.itemExit:
 			exit();
 			return true;
+		case R.id.itemPerformTest:
+			PerformTest f = PerformTest.newInstance();
+			f.show(getFragmentManager(), "PerformTest");
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
 		}
