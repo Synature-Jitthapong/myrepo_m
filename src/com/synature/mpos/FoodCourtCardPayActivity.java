@@ -6,7 +6,6 @@ import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.pos.PrepaidCardInfo;
-import com.synature.util.CreditCardParser;
 import com.synature.util.Logger;
 
 import android.app.AlertDialog;
@@ -44,10 +43,13 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 	public static final int STATUS_CANCEL = 4;			//Cancel
 	public static final int STATUS_MISSING = 5;			//Missing
 		
-	/**
-	 * Point
-	 */
-	public static final float POINT = 100000; 
+	
+	public static final String CARD1 = "A86311015B54C";
+	public static final String CARD2 = "A87981155B55C";
+	public static final String MEMBER1 = "สมชาย สายสมาน";
+	public static final String MEMBER2 = "นิรุศ วิเศษชัย";
+	public static final float POINT1 = 100000; 
+	public static final float POINT2 = 500000; 
 	
 	/*
 	 * is magnatic read state
@@ -100,16 +102,29 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		}
 	}
 
-	public static void setPoint(Context context, float point){
+	public static void setPoint2(Context context, float point){
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		sharedPref.edit().putFloat("point", point).commit();	
+		sharedPref.edit().putFloat("point2", point).commit();	
 	}
 	
-	public static float getPoint(Context context){
+	public static float getPoint2(Context context){
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		float point = sharedPref.getFloat("point", 0);
+		float point = sharedPref.getFloat("point2", 0);
+		return point;
+	}
+	
+	public static void setPoint1(Context context, float point){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		sharedPref.edit().putFloat("point1", point).commit();	
+	}
+	
+	public static float getPoint1(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		float point = sharedPref.getFloat("point1", 0);
 		return point;
 	}
 	
@@ -181,7 +196,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 						public void run() {
 							try {
 								String[] track1 = content.split(":");
-								String memberCode = track1[1].replace("?", "");
+								String memberCode = track1[1].replace("?", "").replace("\r", "");
 								String cardNo = memberCode;
 								PlaceholderFragment fragment = (PlaceholderFragment)
 										getFragmentManager().findFragmentById(R.id.container);
@@ -452,7 +467,10 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 					mCardBalance = cardInfo.getfCurrentAmount();
 					mCardBalanceBefore = mCardBalance;
 					fragment.mTxtBalance.setText(mFormat.currencyFormat(mCardBalance));
-					fragment.mTxtMember.setText("สมชาย สายสมาน");
+					if(cardInfo.getSzCardNo().equals(CARD1))
+						fragment.mTxtMember.setText(MEMBER1);
+					else if(cardInfo.getSzCardNo().equals(CARD2))
+						fragment.mTxtMember.setText(MEMBER2);
 					if(mCardBalance < mTotalSalePrice){
 						fragment.mTxtBalance.setTextColor(Color.RED);
 					}else{

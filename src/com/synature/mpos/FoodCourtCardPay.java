@@ -65,10 +65,16 @@ public class FoodCourtCardPay extends FoodCourtMainService{
 //			mListener.onError(result);
 //		}
 
-		float currPoint = FoodCourtCardPayActivity.getPoint(mContext);
-		FoodCourtCardPayActivity.setPoint(mContext, currPoint - mPayAmount);
 		PrepaidCardInfo cardInfo = new PrepaidCardInfo();
-		cardInfo.setfCurrentAmount(FoodCourtCardPayActivity.getPoint(mContext));
+		if(mCardNo.equals(FoodCourtCardPayActivity.CARD1)){
+			float currPoint = FoodCourtCardPayActivity.getPoint1(mContext);
+			FoodCourtCardPayActivity.setPoint1(mContext, currPoint - mPayAmount);
+			cardInfo.setfCurrentAmount(FoodCourtCardPayActivity.getPoint1(mContext));
+		}else if(mCardNo.equals(FoodCourtCardPayActivity.CARD2)){
+			float currPoint = FoodCourtCardPayActivity.getPoint2(mContext);
+			FoodCourtCardPayActivity.setPoint2(mContext, currPoint - mPayAmount);
+			cardInfo.setfCurrentAmount(FoodCourtCardPayActivity.getPoint2(mContext));
+		}
 		cardInfo.setiCardStatus(FoodCourtCardPayActivity.STATUS_READY_TO_USE);
 		cardInfo.setSzCardNo(mCardNo);
 		mListener.onPost(cardInfo);

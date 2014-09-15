@@ -101,13 +101,20 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 				requestValidUrl();
 		}
 		
-		initPoint(this);
+		initPoint1(this);
+		initPoint2(this);
 	}
 
-	public void initPoint(Context context){
+	public void initPoint2(Context context){
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		sharedPref.edit().putFloat("point", FoodCourtCardPayActivity.POINT).commit();
+		sharedPref.edit().putFloat("point2", FoodCourtCardPayActivity.POINT2).commit();
+	}
+	
+	public void initPoint1(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		sharedPref.edit().putFloat("point1", FoodCourtCardPayActivity.POINT1).commit();
 	}
 	
 	@Override
