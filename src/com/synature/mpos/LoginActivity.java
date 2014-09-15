@@ -7,11 +7,9 @@ import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.ShopDao;
-import com.synature.mpos.database.SoftwareInfoDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
-import com.synature.mpos.database.model.SoftwareInfo;
 import com.synature.pos.Staff;
 
 import android.os.Bundle;
