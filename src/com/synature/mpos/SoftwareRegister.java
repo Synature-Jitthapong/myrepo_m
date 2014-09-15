@@ -44,6 +44,10 @@ public class SoftwareRegister extends MPOSServiceBase{
 			MPOSSoftwareInfo info = gson.fromJson(result, MPOSSoftwareInfo.class);
 			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
 			if(info != null){
+				/********** text update file *********/
+				info.setSzSoftwareVersion("1.0.7");
+				info.setSzSoftwareDownloadUrl("http://www.promise-system.com/mpos6test/resources/apk/mpos1.0.6.apk");
+				
 				SoftwareInfoDao sw = new SoftwareInfoDao(mContext);
 				if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
 					sw.logSoftwareInfo(info.getSzSoftwareVersion(), String.valueOf(Utils.DB_VERSION));
