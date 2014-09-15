@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -47,7 +47,7 @@
             android:name=".LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustResize">
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -132,6 +132,17 @@
             android:theme="@style/ActivityDialogTheme"
             android:windowSoftInputMode="stateHidden|adjustPan" >
         </activity>
+        <activity
+            android:name=".SendEnddayActivity"
+            android:label="@string/send_endday_data"
+            android:theme="@style/ActivityDialogTheme" >
+        </activity>
+        <activity
+            android:name=".PromotionActivity"
+            android:label="@string/promotion_short"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateAlwaysHidden" >
+        </activity>
 
         <receiver
             android:name=".BootUpReceiver"
@@ -144,26 +155,19 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="MyInputMethodService"
-        	android:permission="android.permission.BIND_INPUT_METHOD">
-	       <intent-filter>
-	           <action android:name="android.view.InputMethod" />
-	       </intent-filter>
+        <service
+            android:name="MyInputMethodService"
+            android:permission="android.permission.BIND_INPUT_METHOD" >
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
         </service>
         <service android:name=".EnddaySaleService" >
         </service>
         <service android:name=".SaleService" >
         </service>
-
-        <activity
-            android:name=".SendEnddayActivity"
-            android:label="@string/send_endday_data"
-            android:theme="@style/ActivityDialogTheme" >
-        </activity>
-        <activity
-            android:name=".PromotionActivity"
-            android:label="@string/promotion_short" android:screenOrientation="landscape" android:windowSoftInputMode="stateAlwaysHidden">
-        </activity>
+        <service android:name="SoftwareUpdateService" >
+        </service>
     </application>
 
 </manifest>

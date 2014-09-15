@@ -20,24 +20,28 @@ public class SoftwareInfoDao extends MPOSDatabase{
 				new String[]{
 				SoftwareInfoTable.COLUMN_VERSION,
 				SoftwareInfoTable.COLUMN_DB_VERSION,
-				SoftwareInfoTable.COLUMN_LAST_UPDATE
+				SoftwareInfoTable.COLUMN_LAST_UPDATE,
+				SoftwareInfoTable.COLUMN_IS_ALREADY_UPDATE
 				}, null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			sw = new SoftwareInfo();
 			sw.setVersion(cursor.getString(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_VERSION)));
 			sw.setDbVersion(cursor.getString(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_DB_VERSION)));
 			sw.setLastUpdate(cursor.getString(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_LAST_UPDATE)));
+			sw.setAlreadyUpdate(cursor.getInt(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_IS_ALREADY_UPDATE)) == 1 ? 
+					true : false);
 		}
 		cursor.close();
 		return sw;
 	}
 	
-	public void logSoftwareInfo(String version, String dbVersion){
+	public void logSoftwareInfo(String version, String dbVersion, boolean isAlreadyUpdate){
 		getWritableDatabase().delete(SoftwareInfoTable.TABLE_SOFTWARE_INFO, null, null);
 		ContentValues cv = new ContentValues();
 		cv.put(SoftwareInfoTable.COLUMN_VERSION, version);
 		cv.put(SoftwareInfoTable.COLUMN_DB_VERSION, dbVersion);
 		cv.put(SoftwareInfoTable.COLUMN_LAST_UPDATE, Utils.getCalendar().getTimeInMillis());
+		cv.put(SoftwareInfoTable.COLUMN_IS_ALREADY_UPDATE, isAlreadyUpdate ? 1 : 0);
 		getWritableDatabase().insert(SoftwareInfoTable.TABLE_SOFTWARE_INFO, null, cv);
 	}
 }

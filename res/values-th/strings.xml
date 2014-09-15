@@ -188,4 +188,6 @@
 	<string name="not_have_permission_to_access_pos">คุณไม่มีสิทธิ์ในการเข้าระบบ mPOS</string>
 	<string name="test">Test</string>
 	<string name="shift_close_report">รายงานสรุปกะ</string>
+	<string name="software_update">ซอฟต์แวร์อัพเดต</string>
+	<string name="software_update_mesg">มีโปรแกรมเวอร์ชั่นใหม่กว่าที่ใช้อยู่ในปัจจุบัน กรุณาทำการอัพเดตเวอร์ชั่นของโปรแกรมก่อน</string>
 </resources>

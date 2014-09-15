@@ -1,5 +1,6 @@
 package com.synature.mpos;
 
+import java.io.File;
 import java.util.Calendar;
 
 import com.synature.mpos.common.MPOSActivityBase;
@@ -7,15 +8,20 @@ import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.ShopDao;
+import com.synature.mpos.database.SoftwareInfoDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
+import com.synature.mpos.database.model.SoftwareInfo;
 import com.synature.pos.Staff;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -337,10 +343,42 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		}else{
 			mTxtUser.requestFocus();
 		}
+		checkSoftwareUpdate();
 		displayWelcome();
 		super.onResume();
 	}
 			
+	private void checkSoftwareUpdate(){
+		SoftwareInfoDao sw = new SoftwareInfoDao(this);
+		SoftwareInfo info = sw.getSoftwareInfo();
+		if(info != null){
+			if(!info.isAlreadyUpdate()){
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setTitle(R.string.software_update);
+				builder.setMessage(R.string.software_update_mesg);
+				builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				});
+				builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						String filePath = Environment.getExternalStorageDirectory() + File.separator + Utils.UPDATE_PATH + File.separator + Utils.UPDATE_FILE_NAME;
+						File apkFile = new File(filePath);
+					    Intent intent = new Intent(Intent.ACTION_VIEW);
+					    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
+					    startActivity(intent);
+					}
+				});
+				AlertDialog d = builder.create();
+				d.show();
+			}
+		}
+	}
+	
 	private void displayWelcome(){
 		if(Utils.isEnableWintecCustomerDisplay(this)){
 			WintecCustomerDisplay dsp = new WintecCustomerDisplay(this);

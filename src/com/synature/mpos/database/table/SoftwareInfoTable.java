@@ -7,12 +7,14 @@ public class SoftwareInfoTable {
 	public static final String COLUMN_VERSION = "version";
 	public static final String COLUMN_DB_VERSION = "db_version";
 	public static final String COLUMN_LAST_UPDATE = "last_update";
+	public static final String COLUMN_IS_ALREADY_UPDATE = "is_already_update";
 	
 	private static final String SQL_CREATE = 
 			"create table " + TABLE_SOFTWARE_INFO + " ("
 			+ COLUMN_VERSION + " text, "
 			+ COLUMN_DB_VERSION + " text, "
-			+ COLUMN_LAST_UPDATE + " text);";
+			+ COLUMN_LAST_UPDATE + " text, "
+			+ COLUMN_IS_ALREADY_UPDATE + " integer default 1);";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);

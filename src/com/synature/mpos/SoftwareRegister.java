@@ -44,27 +44,22 @@ public class SoftwareRegister extends MPOSServiceBase{
 			MPOSSoftwareInfo info = gson.fromJson(result, MPOSSoftwareInfo.class);
 			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
 			if(info != null){
-				/********** text update file *********/
+				/********** text update file *********
 				info.setSzSoftwareVersion("1.0.7");
 				info.setSzSoftwareDownloadUrl("http://www.promise-system.com/mpos6test/resources/apk/mpos1.0.6.apk");
-				
+				*/
 				SoftwareInfoDao sw = new SoftwareInfoDao(mContext);
 				if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
-					sw.logSoftwareInfo(info.getSzSoftwareVersion(), String.valueOf(Utils.DB_VERSION));
-					
 					// compare version
-					SoftwareInfo sf = sw.getSoftwareInfo();
-					if(sf != null){
-						if(!TextUtils.equals(sf.getVersion(), info.getSzSoftwareVersion())){
-							Intent intent = new Intent(mContext, SoftwareUpdateService.class);
-							intent.putExtra("fileUrl", info.getSzSoftwareDownloadUrl());
-							intent.putExtra("version", info.getSzSoftwareVersion());
-							intent.putExtra("dbVersion", Utils.DB_VERSION);
-							mContext.startService(intent);
-						}
+					if(!TextUtils.equals(Utils.getSoftWareVersion(mContext), info.getSzSoftwareVersion())){
+						Intent intent = new Intent(mContext, SoftwareUpdateService.class);
+						intent.putExtra("fileUrl", info.getSzSoftwareDownloadUrl());
+						intent.putExtra("version", info.getSzSoftwareVersion());
+						intent.putExtra("dbVersion", String.valueOf(Utils.DB_VERSION));
+						mContext.startService(intent);
 					}
 				}else{
-					sw.logSoftwareInfo(Utils.getSoftWareVersion(mContext), String.valueOf(Utils.DB_VERSION));
+					sw.logSoftwareInfo(Utils.getSoftWareVersion(mContext), String.valueOf(Utils.DB_VERSION), true);
 				}
 				if(!TextUtils.isEmpty(info.getSzRegisterServiceUrl())){
 					SharedPreferences.Editor editor = sharedPref.edit();

@@ -25,42 +25,45 @@ public class SoftwareUpdateService extends Service{
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		String fileUrl = intent.getStringExtra("fileUrl");
-		String version = intent.getStringExtra("version");
-		String dbVersion = intent.getStringExtra("dbVersion");
-		try {
-			URL url = new URL(fileUrl);
-			URLConnection conn = url.openConnection();
-			conn.connect();
-			
-			int fileLength = conn.getContentLength();
-			
-			InputStream input = new BufferedInputStream(conn.getInputStream());
-			OutputStream output = new FileOutputStream(Utils.UPDATE_PATH);
-			File sdPath = new File(Environment.getExternalStorageDirectory(), Utils.UPDATE_PATH);
-			if(!sdPath.exists())
-				sdPath.mkdirs();
-			
-			byte data[] = new byte[1024];
-			long total = 0;
-			int count;
-			while((count = input.read(data)) != -1){
-				total += count;
-				output.write(data, 0, count);
-			}
-			output.flush();
-			output.close();
-			input.close();
-			SoftwareInfoDao sw = new SoftwareInfoDao(getApplicationContext());
-			sw.logSoftwareInfo(version, dbVersion);
-			
-			stopSelf();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public int onStartCommand(final Intent intent, final int flags, int startId) {
+		new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				String fileUrl = intent.getStringExtra("fileUrl");
+				String version = intent.getStringExtra("version");
+				String dbVersion = intent.getStringExtra("dbVersion");
+				try {
+					URL url = new URL(fileUrl);
+					URLConnection conn = url.openConnection();
+					conn.connect();
+					
+					File sdPath = new File(Environment.getExternalStorageDirectory(), 
+							Utils.UPDATE_PATH);
+					if(!sdPath.exists())
+						sdPath.mkdirs();
+					
+					InputStream input = new BufferedInputStream(conn.getInputStream());
+					OutputStream output = new FileOutputStream(sdPath + File.separator + Utils.UPDATE_FILE_NAME);
+					
+					byte data[] = new byte[1024];
+					int count;
+					while((count = input.read(data)) != -1){
+						output.write(data, 0, count);
+					}
+					output.flush();
+					output.close();
+					input.close();
+					SoftwareInfoDao sw = new SoftwareInfoDao(getApplicationContext());
+					sw.logSoftwareInfo(version, dbVersion, false);
+					
+					stopSelf();
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}}).start();
 		return START_REDELIVER_INTENT;
 	}
 

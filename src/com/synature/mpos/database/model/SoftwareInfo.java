@@ -4,12 +4,7 @@ public class SoftwareInfo {
 	private String version;
 	private String dbVersion;
 	private String lastUpdate;
-	public String getVersion() {
-		return version;
-	}
-	public void setVersion(String version) {
-		this.version = version;
-	}
+	private boolean isAlreadyUpdate;
 	public String getDbVersion() {
 		return dbVersion;
 	}
@@ -21,5 +16,17 @@ public class SoftwareInfo {
 	}
 	public void setLastUpdate(String lastUpdate) {
 		this.lastUpdate = lastUpdate;
+	}
+	public String getVersion() {
+		return version;
+	}
+	public void setVersion(String version) {
+		this.version = version;
+	}
+	public boolean isAlreadyUpdate() {
+		return isAlreadyUpdate;
+	}
+	public void setAlreadyUpdate(boolean isAlreadyUpdate) {
+		this.isAlreadyUpdate = isAlreadyUpdate;
 	}
 }
