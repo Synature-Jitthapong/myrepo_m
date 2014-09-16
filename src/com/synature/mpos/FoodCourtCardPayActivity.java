@@ -2,12 +2,14 @@ package com.synature.mpos;
 
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.pos.PrepaidCardInfo;
 import com.synature.util.Logger;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -36,7 +38,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnable{
+public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnable, 
+	SearchMemberFragment.OnSearchMember{
 	public static final int STATUS_READY_TO_USE = 1; 	//Ready to Use
 	public static final int STATUS_INUSE = 2;			//In Use
 	public static final int STATUS_BLACK_LIST = 3;		//BlackList
@@ -133,6 +136,10 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		switch(item.getItemId()){
 		case android.R.id.home:
 			finish();
+			return true;
+		case R.id.itemSearch:
+			SearchMemberFragment f = SearchMemberFragment.newInstance();
+			f.show(getFragmentManager(), "SearchMember");
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -411,6 +418,9 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 				getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
 				
 				ShopDao shop = new ShopDao(FoodCourtCardPayActivity.this);
+				PaymentDetailDao payment = new PaymentDetailDao(FoodCourtCardPayActivity.this);
+				payment.addPaymentDetail(mTransactionId, mComputerId, PaymentDetailDao.PAY_TYPE_CASH, 
+						mTotalSalePrice, mTotalSalePrice, cardInfo.getSzCardNo(), 0, 0, 0, 0, "Member Card");
 				mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice, 
 						shop.getCompanyVatType(), shop.getCompanyVatRate());
 				new ReceiptPrint().run();
@@ -507,5 +517,19 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 			print.print();
 		}
 		
+	}
+
+	@SuppressLint("DefaultLocale")
+	@Override
+	public void onSearch(String memberCode) {
+		PlaceholderFragment fragment = (PlaceholderFragment)
+				getFragmentManager().findFragmentById(R.id.container);
+		fragment.mTxtCardNo.setText(null);
+		if(memberCode.matches("A86(.*)")){
+			fragment.mTxtCardNo.setText(CARD1);
+		}else if(memberCode.matches("A87(.*)")){
+			fragment.mTxtCardNo.setText(CARD2);
+		}
+		fragment.loadCardInfo();
 	}
 }

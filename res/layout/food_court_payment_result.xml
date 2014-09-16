@@ -11,7 +11,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:editable="false"
-        android:ems="4"
+        android:ems="7"
         android:gravity="center"
         android:singleLine="true"
         android:textColor="@android:color/holo_blue_dark"

@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 public class SearchMemberFragment extends DialogFragment{
@@ -56,8 +58,16 @@ public class SearchMemberFragment extends DialogFragment{
 			public void onClick(View v) {
 				String memberCode = txtCode.getText().toString();
 				if(!TextUtils.isEmpty(memberCode)){
-					mListener.onSearch(memberCode);
-					d.dismiss();
+					memberCode = memberCode.toUpperCase();
+					if(memberCode.matches("A86(.*)") || memberCode.matches("A87(.*)")){
+						InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+							      Context.INPUT_METHOD_SERVICE);
+						imm.hideSoftInputFromWindow(txtCode.getWindowToken(), 0);
+						d.dismiss();
+						mListener.onSearch(memberCode);
+					}else{
+						txtCode.setError("Not found member!");
+					}
 				}
 			}
 		});

@@ -573,7 +573,7 @@ public abstract class PrinterBase {
 		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId);
     	for(int i = 0; i < orderLst.size(); i++){
     		OrderDetail order = orderLst.get(i);
-    		String productName = order.getProductName();
+    		String productName = limitTextLength(order.getProductName());
     		String productQty = mFormat.qtyFormat(order.getOrderQty()) + "x ";
     		String productPrice = mFormat.currencyFormat(order.getProductPrice());
     		mTextToPrint.append(productQty);
@@ -587,7 +587,7 @@ public abstract class PrinterBase {
     		if(order.getOrderCommentLst() != null && order.getOrderCommentLst().size() > 0){
     			for(Comment comm : order.getOrderCommentLst()){
     				if(comm.getCommentPrice() > 0){
-	    				String commName = comm.getCommentName();
+	    				String commName = limitTextLength(comm.getCommentName());
 	    				String commQty = "   " + mFormat.qtyFormat(comm.getCommentQty()) + "x ";
 	    				String commPrice = mFormat.currencyFormat(comm.getCommentPrice());
 	    				mTextToPrint.append(commQty);
@@ -603,7 +603,7 @@ public abstract class PrinterBase {
     		}
     		if(order.getOrdSetDetailLst() != null && order.getOrdSetDetailLst().size() > 0){
     			for(OrderSetDetail setDetail : order.getOrdSetDetailLst()){
-    				String setName = setDetail.getProductName();
+    				String setName = limitTextLength(setDetail.getProductName());
     				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
     				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
     				mTextToPrint.append(setQty);
