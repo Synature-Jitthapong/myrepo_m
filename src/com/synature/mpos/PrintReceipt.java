@@ -36,10 +36,10 @@ public class PrintReceipt implements Runnable{
 					epPrinter.createTextForPrintReceipt(printReceipt.getTransactionId(), printReceipt.isCopy(), false);
 					epPrinter.print();
 				}
-				mPrintLog.deletePrintStatus(printReceipt.getTransactionId());
+				mPrintLog.deletePrintStatus(printReceipt.getPrintId(), printReceipt.getTransactionId());
 				
 			} catch (Exception e) {
-				mPrintLog.updatePrintStatus(printReceipt.getTransactionId(), PrintReceiptLogDao.PRINT_NOT_SUCCESS);
+				mPrintLog.updatePrintStatus(printReceipt.getPrintId(), printReceipt.getTransactionId(), PrintReceiptLogDao.PRINT_NOT_SUCCESS);
 				Logger.appendLog(mContext, 
 						Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 						" Print receipt fail : " + e.getMessage());

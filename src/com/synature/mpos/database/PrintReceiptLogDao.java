@@ -29,6 +29,7 @@ public class PrintReceiptLogDao extends MPOSDatabase{
 		List<PrintReceipt> printLst = new ArrayList<PrintReceipt>();
 		Cursor cursor = getReadableDatabase().query(PrintReceiptLogTable.TABLE_PRINT_LOG, 
 				new String[]{
+					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID,
 					OrderTransTable.COLUMN_TRANS_ID,
 					StaffTable.COLUMN_STAFF_ID,
 					PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_TIME,
@@ -41,6 +42,7 @@ public class PrintReceiptLogDao extends MPOSDatabase{
 		if(cursor.moveToFirst()){
 			do{
 				PrintReceipt print = new PrintReceipt();
+				print.setPrintId(cursor.getInt(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID)));
 				print.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
 				print.setStaffId(cursor.getInt(cursor.getColumnIndex(StaffTable.COLUMN_STAFF_ID)));
 				print.setPrintReceiptLogStatus(cursor.getInt(cursor.getColumnIndex(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS)));
@@ -56,9 +58,10 @@ public class PrintReceiptLogDao extends MPOSDatabase{
 	/**
 	 * @param transactionId
 	 */
-	public void deletePrintStatus(int transactionId){
+	public void deletePrintStatus(int printId, int transactionId){
 		getWritableDatabase().delete(PrintReceiptLogTable.TABLE_PRINT_LOG, 
-				OrderTransTable.COLUMN_TRANS_ID + "=?", 
+				PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID + "=?"
+				+ " AND " + OrderTransTable.COLUMN_TRANS_ID + "=?", 
 				new String[]{String.valueOf(transactionId)}  );
 	}
 	
@@ -66,11 +69,12 @@ public class PrintReceiptLogDao extends MPOSDatabase{
 	 * @param transactionId
 	 * @param status
 	 */
-	public void updatePrintStatus(int transactionId, int status){
+	public void updatePrintStatus(int printId, int transactionId, int status){
 		ContentValues cv = new ContentValues();
 		cv.put(PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_STATUS, status);
-		getWritableDatabase().update(PrintReceiptLogTable.TABLE_PRINT_LOG, cv, 
-				OrderTransTable.COLUMN_TRANS_ID + "=?", 
+		getWritableDatabase().update(PrintReceiptLogTable.TABLE_PRINT_LOG, cv,
+				PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID + "=?"
+				+ " AND " + OrderTransTable.COLUMN_TRANS_ID + "=?", 
 				new String[]{
 					String.valueOf(transactionId)
 				}
@@ -94,6 +98,7 @@ public class PrintReceiptLogDao extends MPOSDatabase{
 	}
 	
 	public static class PrintReceipt{
+		private int printId;
 		private int transactionId;
 		private int computerId;
 		private int staffId;
@@ -136,6 +141,12 @@ public class PrintReceiptLogDao extends MPOSDatabase{
 		}
 		public void setComputerId(int computerId) {
 			this.computerId = computerId;
+		}
+		public int getPrintId() {
+			return printId;
+		}
+		public void setPrintId(int printId) {
+			this.printId = printId;
 		}
 	}
 }

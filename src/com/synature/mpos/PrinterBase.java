@@ -649,19 +649,16 @@ public abstract class PrinterBase {
 	    	mTextToPrint.append(strTotalDiscount + "\n");
     	}
     	
-    	// show vat ?
-    	if(isShowVat){
-	    	// transaction exclude vat
-	    	if(trans.getTransactionVatExclude() > 0){
-	    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
-	    				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
-	    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
-	    		mTextToPrint.append(vatExcludeText);
-	    		mTextToPrint.append(createHorizontalSpace(
-	    				calculateLength(vatExcludeText) + 
-	    				calculateLength(strVatExclude)));
-	    		mTextToPrint.append(strVatExclude + "\n");
-	    	}
+    	// transaction exclude vat
+    	if(trans.getTransactionVatExclude() > 0){
+    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
+    				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
+    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
+    		mTextToPrint.append(vatExcludeText);
+    		mTextToPrint.append(createHorizontalSpace(
+    				calculateLength(vatExcludeText) + 
+    				calculateLength(strVatExclude)));
+    		mTextToPrint.append(strVatExclude + "\n");
     	}
     	
     	// total price
@@ -730,7 +727,7 @@ public abstract class PrinterBase {
 	    
 	    // show vat ?
     	if(isShowVat){
-    		if(trans.getTransactionVatable() > 0 && trans.getTransactionVatExclude() == 0){
+    		if(trans.getTransactionVatable() > 0){
 	    		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
 	        	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
 	        	String beforeVatText = mContext.getString(R.string.before_vat);
