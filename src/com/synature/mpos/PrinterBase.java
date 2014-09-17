@@ -650,7 +650,7 @@ public abstract class PrinterBase {
     	
     	// transaction exclude vat
     	if(trans.getTransactionVatExclude() > 0){
-    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
+    		String vatExcludeText = mContext.getString(R.string.vat_exclude) + " " +
     				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
     		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
     		mTextToPrint.append(vatExcludeText);

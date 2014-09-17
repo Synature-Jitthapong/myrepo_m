@@ -13,7 +13,7 @@
     <string name="cash">Cash</string>
     <string name="logout">Logout</string>
     <string name="sub_total">Sub total</string>
-    <string name="vat">Vat</string>
+    <string name="vat">Pb.1</string>
     <string name="total_price">Total price</string>
     <string name="total_receive">Total receive</string>
     <string name="change">Change</string>
@@ -31,7 +31,7 @@
     <string name="enter">Enter</string>
     <string name="qty">Qty</string>
     <string name="sale_price">Sale price</string>
-    <string name="vat_exclude">VAT exclude</string>
+    <string name="vat_exclude">Pb.1</string>
     <string name="confirm_cancel">Are you sure to cancel?</string>
     <string name="enter_enough_money">Not enough money.</string>
     <string name="close">Close</string>
