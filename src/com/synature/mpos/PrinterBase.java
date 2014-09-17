@@ -648,19 +648,16 @@ public abstract class PrinterBase {
 	    	mTextToPrint.append(strTotalDiscount + "\n");
     	}
     	
-    	// show vat ?
-    	if(isShowVat){
-	    	// transaction exclude vat
-	    	if(trans.getTransactionVatExclude() > 0){
-	    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
-	    				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
-	    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
-	    		mTextToPrint.append(vatExcludeText);
-	    		mTextToPrint.append(createHorizontalSpace(
-	    				calculateLength(vatExcludeText) + 
-	    				calculateLength(strVatExclude)));
-	    		mTextToPrint.append(strVatExclude + "\n");
-	    	}
+    	// transaction exclude vat
+    	if(trans.getTransactionVatExclude() > 0){
+    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
+    				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
+    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
+    		mTextToPrint.append(vatExcludeText);
+    		mTextToPrint.append(createHorizontalSpace(
+    				calculateLength(vatExcludeText) + 
+    				calculateLength(strVatExclude)));
+    		mTextToPrint.append(strVatExclude + "\n");
     	}
     	
     	// total price
