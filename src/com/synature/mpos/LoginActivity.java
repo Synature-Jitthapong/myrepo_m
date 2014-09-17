@@ -3,6 +3,7 @@ package com.synature.mpos;
 import java.io.File;
 import java.util.Calendar;
 
+import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
@@ -21,7 +22,6 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -468,11 +468,27 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	 * Start endday service for send endday sale
 	 */
 	private void startEnddayService(){
-		Intent enddayIntent = new Intent(LoginActivity.this, EnddaySaleService.class);
-		enddayIntent.putExtra("staffId", mStaffId);
-		enddayIntent.putExtra("shopId", mShop.getShopId());
-		enddayIntent.putExtra("computerId", mComputer.getComputerId());
-		startService(enddayIntent);
+		new NetworkConnectionChecker(this, new NetworkCheckerListener() {
+			
+			@Override
+			public void serverProblem(int code, String msg) {
+				Utils.makeToask(LoginActivity.this, msg);
+			}
+			
+			@Override
+			public void onLine() {
+				Intent enddayIntent = new Intent(LoginActivity.this, EnddaySaleService.class);
+				enddayIntent.putExtra("staffId", mStaffId);
+				enddayIntent.putExtra("shopId", mShop.getShopId());
+				enddayIntent.putExtra("computerId", mComputer.getComputerId());
+				startService(enddayIntent);
+			}
+			
+			@Override
+			public void offLine(String msg) {
+				Utils.makeToask(LoginActivity.this, msg);
+			}
+		}).execute();
 	}
 	
 	public void checkLogin(){

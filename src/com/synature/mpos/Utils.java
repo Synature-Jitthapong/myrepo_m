@@ -54,12 +54,12 @@ public class Utils {
 	/**
 	 * Database version
 	 */
-	public static int DB_VERSION = 2;
+	public static int DB_VERSION = 4; //2
 	
 	/**
 	 * Main url 
 	 */
-	public static final String REGISTER_URL = "http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
+	public static final String REGISTER_URL = "http://1.1.0.20/testregister/ws_mpos.asmx";//"http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
 	
 	/**
 	 * WebService file name
@@ -388,7 +388,9 @@ public class Utils {
 				MPOSDatabase.MPOSOpenHelper.getInstance(context);
 		SQLiteDatabase sqlite = mSqliteHelper.getWritableDatabase();
 		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
+		sqlite.delete(OrderDetailTable.TEMP_ORDER, null, null);
 		sqlite.delete(OrderTransTable.TABLE_ORDER_TRANS, null, null);
+		sqlite.delete(OrderTransTable.TEMP_ORDER_TRANS, null, null);
 		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
 		sqlite.delete(SessionTable.TABLE_SESSION, null, null);
 		sqlite.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, null);
@@ -706,7 +708,6 @@ public class Utils {
 	}
 	
 	public static void backupDatabase(Context context){
-		String backupFileName = getBackupDbFileName();
 		File sd = Environment.getExternalStorageDirectory();
 		FileChannel source = null;
 		FileChannel destination = null;
@@ -714,9 +715,10 @@ public class Utils {
 		File sdPath = new File(sd, BACKUP_DB_PATH);
 		if(!sdPath.exists())
 			sdPath.mkdirs();
+		deleteBackupDatabase(context);
 		try {
 			source = new FileInputStream(dbPath).getChannel();
-			destination = new FileOutputStream(sdPath + File.separator + backupFileName).getChannel();
+			destination = new FileOutputStream(sdPath + File.separator + DB_NAME).getChannel();
 			destination.transferFrom(source, 0, source.size());
 			source.close();
 			destination.close();
@@ -727,9 +729,17 @@ public class Utils {
 		}
 	}
 	
-	public static String getBackupDbFileName(){
-		Calendar calendar = Calendar.getInstance();
-		return String.valueOf(calendar.getTimeInMillis());
+	public static void deleteBackupDatabase(Context context){
+		File sd = Environment.getExternalStorageDirectory();
+		File sdPath = new File(sd, BACKUP_DB_PATH);
+		File files[] = sdPath.listFiles();
+		if(files != null){
+			for(File file : files){
+				if(file.lastModified() < Calendar.getInstance().getTimeInMillis()){
+					file.delete();
+				}
+			}
+		}
 	}
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){

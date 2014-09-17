@@ -95,7 +95,7 @@ public class PerformTest extends DialogFragment{
 										p.getProductTypeId(), p.getVatType(), 
 										p.getVatRate(), 1, p.getProductPrice());
 							}
-							OrderDetail sum = mTrans.getSummaryOrder(transId);
+							OrderDetail sum = mTrans.getSummaryOrder(transId, true);
 							
 							mPayment.addPaymentDetail(transId, comp.getComputerId(), 
 									1, sum.getTotalRetailPrice(), sum.getTotalRetailPrice(), 

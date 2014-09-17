@@ -16,11 +16,20 @@
         android:text="CheckedTextView" />
 
     <TextView
+        android:id="@+id/tvModifyDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tvDbName"
+        android:layout_below="@+id/tvDbName"
+        android:text="TextView" />
+
+    <TextView
         android:id="@+id/tvDbSize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvDbName"
+        android:layout_alignBottom="@+id/tvDbName"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
         android:text="TextView" />
 
 </RelativeLayout>

@@ -5,9 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import com.synature.mpos.database.GlobalPropertyDao;
 
@@ -181,9 +184,9 @@ public class RestoreDatabaseFragment extends DialogFragment{
 			mDbInfoLst = new ArrayList<DatabaseInfo>();
 			for(File file : files){
 				DatabaseInfo dbInfo = new DatabaseInfo();
-				dbInfo.setDbName(file.getName());
+				dbInfo.setModifyDate(file.lastModified());
 				dbInfo.setFileName(file.getName());
-				dbInfo.setDbSize(DecimalFormat.getInstance().format(file.length()));
+				dbInfo.setDbSize(DecimalFormat.getInstance().format((file.length() / 1024) / 1024));
 				mDbInfoLst.add(dbInfo);
 			}
 		}
@@ -216,39 +219,34 @@ public class RestoreDatabaseFragment extends DialogFragment{
 				convertView = mInflater.inflate(R.layout.database_list_item, parent, false);
 				holder.tvDbName = (CheckedTextView) convertView.findViewById(R.id.tvDbName);
 				holder.tvDbSize = (TextView) convertView.findViewById(R.id.tvDbSize);
+				holder.tvModifyDate = (TextView) convertView.findViewById(R.id.tvModifyDate);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
 			DatabaseInfo dbInfo = mDbInfoLst.get(position);
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(dbInfo.getModifyDate());
 			String fileName = dbInfo.getFileName();
-			try {
-				fileName = mFormat.dateTimeFormat(dbInfo.getDbName());
-			} catch (Exception e) {
-			}
 			holder.tvDbName.setText(fileName);
 			holder.tvDbName.setChecked(dbInfo.isChecked());
-			holder.tvDbSize.setText(dbInfo.getDbSize() + "k");
+			holder.tvModifyDate.setText(DateFormat.getInstance().format(c.getTime()));
+			holder.tvDbSize.setText(dbInfo.getDbSize() + "mb.");
 			return convertView;
 		}
 		
 		private class ViewHolder{
 			CheckedTextView tvDbName;
 			TextView tvDbSize;
+			TextView tvModifyDate;
 		}
 	}
 	
 	private class DatabaseInfo{
-		private String dbName;
 		private String fileName;
 		private String dbSize;
+		private long modifyDate;
 		private boolean isChecked;
-		public String getDbName() {
-			return dbName;
-		}
-		public void setDbName(String dbName) {
-			this.dbName = dbName;
-		}
 		public String getDbSize() {
 			return dbSize;
 		}
@@ -266,6 +264,12 @@ public class RestoreDatabaseFragment extends DialogFragment{
 		}
 		public void setChecked(boolean isChecked) {
 			this.isChecked = isChecked;
+		}
+		public long getModifyDate() {
+			return modifyDate;
+		}
+		public void setModifyDate(long modifyDate) {
+			this.modifyDate = modifyDate;
 		}
 	}
 }

@@ -457,7 +457,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			mTbSummary.removeAllViews();
 		
 		mTrans.summaryTransaction(mTransactionId);
-		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId);
+		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
 		
 		mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
 				mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
@@ -650,28 +650,41 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 		
 		// send sale data service
-		new Thread(new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
+		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
 
 			@Override
 			public void onLine() {
-				List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
-				int size = transIdLst.size();
-				for(int i = 0; i < size; i++){
-					OrderTransaction trans = transIdLst.get(i);
-					mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
-							trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
-				}
+				new Thread(new Runnable(){
+
+					@Override
+					public void run() {
+						List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
+						int size = transIdLst.size();
+						for(int i = 0; i < size; i++){
+							if(i < 10){
+								OrderTransaction trans = transIdLst.get(i);
+								mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
+										trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
+							}else{
+								break;
+							}
+						}
+					}
+					
+				}).start();
 			}
 
 			@Override
-			public void offLine() {
+			public void offLine(String msg) {
+				Utils.makeToask(MainActivity.this, msg);
 			}
 
 			@Override
 			public void serverProblem(int code, String msg) {
+				Utils.makeToask(MainActivity.this, msg);
 			}
 			
-		})).start();
+		}).execute();
 	}
 	
 	class SendSaleListener implements WebServiceWorkingListener{
@@ -690,11 +703,18 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 		@Override
 		public void onPostExecute() {
-			countSaleDataNotSend();
-			if(mPosition == mSize - 1){
-				Utils.makeToask(MainActivity.this, MainActivity.this
-						.getString(R.string.send_sale_data_success));
-			}
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					countSaleDataNotSend();
+					if(mPosition == mSize - 1){
+						Utils.makeToask(MainActivity.this, MainActivity.this
+								.getString(R.string.send_sale_data_success));
+					}
+				}
+				
+			});
 		}
 
 		@Override
@@ -725,7 +745,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId);
+					OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
 					PaymentDetailDao payment = new PaymentDetailDao(MainActivity.this);
 					double totalSalePrice = sumOrder.getTotalSalePrice();
 					
@@ -2277,65 +2297,80 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		final ProgressDialog progress = new ProgressDialog(MainActivity.this);
 		progress.setTitle(getString(R.string.endday_success));
 		progress.setCancelable(false);
-		mPartService.sendEnddaySale(mShopId, mComputerId, 
-				mStaffId, new WebServiceWorkingListener(){
+		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
 
-					@Override
-					public void onPreExecute() {
-						progress.setMessage(getString(R.string.send_endday_data_progress));
-						progress.show();
-					}
-
-					@Override
-					public void onPostExecute() {
-						if(progress.isShowing())
-							progress.dismiss();
-
-						new AlertDialog.Builder(MainActivity.this)
-						.setTitle(R.string.endday)
-						.setMessage(R.string.send_endday_data_success)
-						.setCancelable(false)
-						.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener(){
-
+			@Override
+			public void onLine() {
+				mPartService.sendEnddaySale(mShopId, mComputerId, mStaffId, new WebServiceWorkingListener() {
+	
 							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								//Utils.shutdown();
-								finish();
+							public void onPreExecute() {
+								progress.setMessage(getString(R.string.send_endday_data_progress));
+								progress.show();
 							}
-						})
-						.show();
-					}
+	
+							@Override
+							public void onPostExecute() {
+								if (progress.isShowing())
+									progress.dismiss();
+	
+								new AlertDialog.Builder(
+										MainActivity.this)
+										.setTitle(R.string.endday)
+										.setMessage(R.string.send_endday_data_success)
+										.setCancelable(false)
+										.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+	
+													@Override
+													public void onClick(DialogInterface dialog,int which) {
+														// Utils.shutdown();
+														finish();
+													}
+												}).show();
+							}
+	
+							@Override
+							public void onError(String msg) {
+								if (progress.isShowing())
+									progress.dismiss();
+								new AlertDialog.Builder(
+										MainActivity.this)
+										.setTitle(R.string.endday)
+										.setMessage(R.string.cannot_send_endday_data_on_this_time)
+										.setCancelable(false)
+										.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+	
+													@Override
+													public void onClick(DialogInterface arg0, int arg1) {
+														finish();
+													}
+												})
+										.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+	
+													@Override
+													public void onClick(DialogInterface dialog, int which) {
+														sendEnddayData();
+													}
+												}).show();
+							}
+	
+							@Override
+							public void onProgressUpdate(int value) {
+							}
+					});
+			}
 
-					@Override
-					public void onError(String msg) {
-						if(progress.isShowing())
-							progress.dismiss();
-						new AlertDialog.Builder(MainActivity.this)
-							.setTitle(R.string.endday)
-							.setMessage(R.string.cannot_send_endday_data_on_this_time)
-							.setCancelable(false)
-							.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface arg0, int arg1) {
-									finish();
-								}
-							})
-							.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+			@Override
+			public void offLine(String msg) {
+				Utils.makeToask(MainActivity.this, msg);
+			}
 
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									sendEnddayData();
-								}
-							}).show();
-					}
-
-					@Override
-					public void onProgressUpdate(int value) {
-					}
-		});
+			@Override
+			public void serverProblem(int code, String msg) {
+				Utils.makeToask(MainActivity.this, msg);
+			}
+			
+		}).execute();
 	}
 
 	@Override

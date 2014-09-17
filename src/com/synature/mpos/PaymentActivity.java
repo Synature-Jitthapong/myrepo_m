@@ -127,15 +127,10 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 	
 	@Override
 	protected void onResume() {
-		if(mTrans.getTransaction(mTransactionId).getTransactionStatusId() == 
-				TransactionDao.TRANS_STATUS_SUCCESS){
-			finish();
-		}else{
-			summary();
-			loadPayDetail();
-			if(mResultCreditCode == RESULT_ENOUGH)
-				confirm();
-		}
+		summary();
+		loadPayDetail();
+		if(mResultCreditCode == RESULT_ENOUGH)
+			confirm();
 		super.onResume();
 	}
 
@@ -174,7 +169,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 	}
 	
 	private void summary(){ 
-		OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId);
+		OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId, true);
 		mTotalSalePrice = summOrder.getTotalSalePrice();
 		mTvTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));
 	}

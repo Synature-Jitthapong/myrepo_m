@@ -120,11 +120,11 @@ public class ReprintActivity extends MPOSActivityBase {
 		public void run() {
 			if(Utils.isInternalPrinterSetting(ReprintActivity.this)){
 				WintecPrinter wtPrinter = new WintecPrinter(ReprintActivity.this);
-				wtPrinter.createTextForPrintReceipt(mTransactionId, true);
+				wtPrinter.createTextForPrintReceipt(mTransactionId, true, false);
 				wtPrinter.print();
 			}else{
 				EPSONPrinter epPrinter = new EPSONPrinter(ReprintActivity.this);	
-				epPrinter.createTextForPrintReceipt(mTransactionId, true);
+				epPrinter.createTextForPrintReceipt(mTransactionId, true, false);
 				epPrinter.print();
 			}
 			runOnUiThread(new Runnable(){

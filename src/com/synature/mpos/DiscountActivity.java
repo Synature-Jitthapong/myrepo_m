@@ -291,7 +291,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 				double discountAll = Utils.stringToDouble(mTxtDisAll.getText().toString());
 				double maxTotalRetailPrice = mTrans.getMaxTotalRetailPrice(mTransactionId);
 				double totalDiscount = 0.0d;
-				OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId);
+				OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId, true);
 				double totalPrice = summOrder.getTotalRetailPrice();
 				if(discountAll <= summOrder.getTotalRetailPrice()){
 					mTxtDisAll.setText(null);
@@ -413,7 +413,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	}
 	
 	private void summary() {
-		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId);
+		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId, true);
 		TextView[] tvs = {
 				SaleReportActivity.createTextViewSummary(this, getString(R.string.summary), Utils.getLinHorParams(1.2f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(summ.getOrderQty()), Utils.getLinHorParams(0.5f)),

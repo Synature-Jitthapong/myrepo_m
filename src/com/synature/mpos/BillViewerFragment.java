@@ -38,7 +38,7 @@ public class BillViewerFragment extends DialogFragment{
 		mTextView = (CustomFontTextView) content.findViewById(R.id.textView1);
 
 		TextPrint tp = new TextPrint(getActivity());
-		tp.createTextForPrintReceipt(mTransactionId, false);
+		tp.createTextForPrintReceipt(mTransactionId, false, true);
 		mTextView.setText(tp.getTextToPrint());
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

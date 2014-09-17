@@ -237,7 +237,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 	}
 	
 	private void searchVoidItem(){
-		OrderTransaction ordTrans = mTrans.getTransaction(mTransactionId);
+		OrderTransaction ordTrans = mTrans.getTransaction(mTransactionId, false);
 		if(ordTrans != null){
 			if(ordTrans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
 				((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());

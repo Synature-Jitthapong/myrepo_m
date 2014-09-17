@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.GlobalPropertyDao;
@@ -129,7 +130,23 @@ public class SendEnddayActivity extends MPOSActivityBase {
 				finish();
 				return true;
 			case R.id.itemSendAll:
-				mPartService.sendEnddaySale(mShopId, mComputerId, mStaffId, mSendListener);
+				new NetworkConnectionChecker(this, new NetworkCheckerListener() {
+					
+					@Override
+					public void serverProblem(int code, String msg) {
+						Utils.makeToask(SendEnddayActivity.this, msg);
+					}
+					
+					@Override
+					public void onLine() {
+						mPartService.sendEnddaySale(mShopId, mComputerId, mStaffId, mSendListener);
+					}
+					
+					@Override
+					public void offLine(String msg) {
+						Utils.makeToask(SendEnddayActivity.this, msg);
+					}
+				}).execute();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
