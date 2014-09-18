@@ -307,7 +307,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 				isCopy = 1;
 			printLog.insertLog(mTransactionId, mStaffId, isCopy);
 		}
-		new Thread(new PrintReceipt(VoidBillActivity.this)).start();
+		new PrintReceipt(VoidBillActivity.this).execute();
 	}
 	
 	private void sendSale(){

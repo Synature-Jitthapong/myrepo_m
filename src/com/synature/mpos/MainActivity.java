@@ -588,7 +588,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				isCopy = 1;
 			printLog.insertLog(transactionId, staffId, isCopy);
 		}
-		new Thread(new PrintReceipt(MainActivity.this)).start();
+		new PrintReceipt(MainActivity.this).execute();
 		
 		if(change > 0){
 			LinearLayout changeView = new LinearLayout(MainActivity.this);
@@ -2201,7 +2201,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 		// print close shift
 		new PrintReport(MainActivity.this, 
-			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).run();
+			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).execute();
 		
 		startActivity(new Intent(MainActivity.this, LoginActivity.class));
 		finish();
@@ -2231,11 +2231,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			int totalSess = mSession.countSession(mSession.getLastSessionDate());
 			if(totalSess > 1){
 				new PrintReport(MainActivity.this, 
-					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).run();
+					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).execute();
 			}
 			// if parse sessionId = 0 will be print all summary in day
 			new PrintReport(MainActivity.this, 
-				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId).run();
+				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId).execute();
 
 			// backup the database
 			if(Utils.isEnableBackupDatabase(MainActivity.this)){

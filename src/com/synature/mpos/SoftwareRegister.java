@@ -1,9 +1,10 @@
 package com.synature.mpos;
 
+import org.ksoap2.serialization.PropertyInfo;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.synature.mpos.database.SoftwareInfoDao;
-import com.synature.mpos.database.model.SoftwareInfo;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,17 +25,17 @@ public class SoftwareRegister extends MPOSServiceBase{
 		super(context, REGIST_SERVICE_URL_METHOD);
 		mListener = listener;
 		
-//		mProperty = new PropertyInfo();
-//		mProperty.setName(SW_VERSION_PARAM);
-//		mProperty.setValue(Utils.getSoftWareVersion(mContext));
-//		mProperty.setType(String.class);
-//		mSoapRequest.addProperty(mProperty);
-//		
-//		mProperty = new PropertyInfo();
-//		mProperty.setName(DB_VERSION_PARAM);
-//		mProperty.setValue(Utils.DB_VERSION);
-//		mProperty.setType(String.class);
-//		mSoapRequest.addProperty(mProperty);
+		mProperty = new PropertyInfo();
+		mProperty.setName(SW_VERSION_PARAM);
+		mProperty.setValue(Utils.getSoftWareVersion(mContext));
+		mProperty.setType(String.class);
+		mSoapRequest.addProperty(mProperty);
+		
+		mProperty = new PropertyInfo();
+		mProperty.setName(DB_VERSION_PARAM);
+		mProperty.setValue(Utils.DB_VERSION);
+		mProperty.setType(String.class);
+		mSoapRequest.addProperty(mProperty);
 	}
 
 	@Override

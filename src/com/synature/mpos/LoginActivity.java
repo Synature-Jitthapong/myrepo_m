@@ -21,7 +21,6 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -349,7 +348,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 			
 	private void checkSoftwareUpdate(){
-		SoftwareInfoDao sw = new SoftwareInfoDao(this);
+		final SoftwareInfoDao sw = new SoftwareInfoDao(this);
 		SoftwareInfo info = sw.getSoftwareInfo();
 		if(info != null){
 			if(!info.isAlreadyUpdate()){
@@ -371,6 +370,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 					    Intent intent = new Intent(Intent.ACTION_VIEW);
 					    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
 					    startActivity(intent);
+					    finish();
 					}
 				});
 				AlertDialog d = builder.create();

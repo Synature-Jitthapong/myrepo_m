@@ -789,7 +789,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				public void onItemClick(AdapterView<?> arg0, View arg1,
 						int arg2, long arg3) {
 					Report.ReportDetail report = (Report.ReportDetail) arg0.getItemAtPosition(arg2);
-					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId(), false);
+					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId());
 						bf.show(getFragmentManager(), "BillDetailFragment");
 				}
 			});
@@ -947,7 +947,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 //						f.show(getFragmentManager(), "PaymentDialogFragment");
 
 						// bill detail
-						BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId(), false);
+						BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId());
 						bf.show(getFragmentManager(), "BillDetailFragment");
 					}
 					
