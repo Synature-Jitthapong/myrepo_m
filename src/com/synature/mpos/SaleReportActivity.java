@@ -422,7 +422,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				return true;
 			case R.id.itemPrint:
 				new PrintReport(getActivity(), 
-						PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, activity.mStaffId).run();
+						PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, activity.mStaffId).execute();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -746,7 +746,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				return true;
 			case R.id.itemPrint:
 				new PrintReport(getActivity(), PrintReport.WhatPrint.BILL_REPORT, 
-					mHost.mDateFrom, mHost.mDateTo).run();
+					mHost.mDateFrom, mHost.mDateTo).execute();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -789,7 +789,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				public void onItemClick(AdapterView<?> arg0, View arg1,
 						int arg2, long arg3) {
 					Report.ReportDetail report = (Report.ReportDetail) arg0.getItemAtPosition(arg2);
-					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId());
+					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId(), false);
 						bf.show(getFragmentManager(), "BillDetailFragment");
 				}
 			});
@@ -809,8 +809,6 @@ public class SaleReportActivity extends MPOSActivityBase{
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.discount), 
 							Utils.getLinHorParams(0.7f), Gravity.RIGHT),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.sub_total), 
-							Utils.getLinHorParams(0.7f), Gravity.RIGHT),
-					createTextViewHeader(getActivity(), getActivity().getString(R.string.vatable), 
 							Utils.getLinHorParams(0.7f), Gravity.RIGHT)
 			};
 			for(TextView tv : tvHeaders){
@@ -819,16 +817,18 @@ public class SaleReportActivity extends MPOSActivityBase{
 			if(mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
 				tvHeaders = new TextView[]{
 						createTextViewHeader(getActivity(), getString(R.string.before_vat), 
-								Utils.getLinHorParams(0.7f), Gravity.RIGHT),
-						createTextViewHeader(getActivity(), getString(R.string.vat) + " "
-								+ NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate())
-								+ " " + getString(R.string.percent), Utils.getLinHorParams(0.7f), Gravity.RIGHT)
+								Utils.getLinHorParams(0.7f), Gravity.RIGHT)
 				};
 				for(TextView tv : tvHeaders){
 					mBillHeader.addView(tv);
 				}
 			}
 			tvHeaders = new TextView[]{
+					createTextViewHeader(getActivity(), getString(R.string.vat) + " "
+							+ NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate())
+							+ " " + getString(R.string.percent), Utils.getLinHorParams(0.7f), Gravity.RIGHT),
+					createTextViewHeader(getActivity(), getActivity().getString(R.string.vatable), 
+							Utils.getLinHorParams(0.7f), Gravity.RIGHT),
 					createTextViewHeader(getActivity(), getString(R.string.total_payment), 
 							Utils.getLinHorParams(0.7f), Gravity.RIGHT)
 			};
@@ -902,8 +902,6 @@ public class SaleReportActivity extends MPOSActivityBase{
 						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalDiscount),
 								Utils.getLinHorParams(0.7f)),
 						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(subTotal),  
-								Utils.getLinHorParams(0.7f)),
-						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(vatable),  
 								Utils.getLinHorParams(0.7f))
 				};
 				ImageView imgSendStatus = new ImageView(getActivity());
@@ -915,14 +913,23 @@ public class SaleReportActivity extends MPOSActivityBase{
 				if(mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
 					tvs = new TextView[]{
 						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(beforVat),  
-								Utils.getLinHorParams(0.7f)),
-						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalVat),  
-								Utils.getLinHorParams(0.7f)),
+								Utils.getLinHorParams(0.7f))
 					};
 					for(TextView tv : tvs){
 						container.addView(tv);
 					}
 				}
+				
+				tvs = new TextView[]{
+					createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalVat),  
+							Utils.getLinHorParams(0.7f)),
+					createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(vatable),  
+							Utils.getLinHorParams(0.7f))
+					};
+				for(TextView tv : tvs){
+					container.addView(tv);
+				}
+				
 				TextView tvTotalPay = new TextView(getActivity());
 				tvTotalPay = createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalPay),  
 						Utils.getLinHorParams(0.7f));
@@ -940,7 +947,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 //						f.show(getFragmentManager(), "PaymentDialogFragment");
 
 						// bill detail
-						BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId());
+						BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId(), false);
 						bf.show(getFragmentManager(), "BillDetailFragment");
 					}
 					
@@ -995,8 +1002,6 @@ public class SaleReportActivity extends MPOSActivityBase{
 					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getDiscount()),  
 							Utils.getLinHorParams(0.7f)),
 					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getSubTotal()),  
-							Utils.getLinHorParams(0.7f)),
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getVatable()),  
 							Utils.getLinHorParams(0.7f))
 			};
 			for(TextView tv : tvSummary){
@@ -1006,8 +1011,6 @@ public class SaleReportActivity extends MPOSActivityBase{
 				double beforVat = summary.getVatable() - summary.getTotalVat();
 				tvSummary = new TextView[]{
 					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(beforVat), 
-							Utils.getLinHorParams(0.7f)),
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalVat()),  
 							Utils.getLinHorParams(0.7f))
 				};
 				for(TextView tv : tvSummary){
@@ -1015,6 +1018,10 @@ public class SaleReportActivity extends MPOSActivityBase{
 				}
 			}
 			tvSummary = new TextView[]{
+				createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalVat()),  
+						Utils.getLinHorParams(0.7f)),
+				createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getVatable()),  
+						Utils.getLinHorParams(0.7f)),
 				createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalPayment()),  
 						Utils.getLinHorParams(0.7f))
 			};
@@ -1087,7 +1094,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				return true;
 			case R.id.itemPrint:
 				new PrintReport(getActivity(), PrintReport.WhatPrint.PRODUCT_REPORT, 
-						mHost.mDateFrom, mHost.mDateTo).run();
+						mHost.mDateFrom, mHost.mDateTo).execute();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
