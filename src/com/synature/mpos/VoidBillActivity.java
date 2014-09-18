@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
@@ -307,29 +308,43 @@ public class VoidBillActivity extends MPOSActivityBase {
 				isCopy = 1;
 			printLog.insertLog(mTransactionId, mStaffId, isCopy);
 		}
-		new Thread(new PrintReceipt(VoidBillActivity.this)).start();
+		new PrintReceipt(VoidBillActivity.this).execute();
 	}
 	
 	private void sendSale(){
-		mPartService.sendSale(mShopId, mSessionId, mTransactionId, mComputerId, 
-				mStaffId, new WebServiceWorkingListener(){
-
+		new NetworkConnectionChecker(this, new NetworkCheckerListener() {
+			
 			@Override
-			public void onPreExecute() {
-			}
-
-			@Override
-			public void onPostExecute() {
-			}
-
-			@Override
-			public void onError(String msg) {
-			}
-
-			@Override
-			public void onProgressUpdate(int value) {
+			public void serverProblem(int code, String msg) {
 			}
 			
+			@Override
+			public void onLine() {
+				mPartService.sendSale(mShopId, mSessionId, mTransactionId, mComputerId, 
+						mStaffId, new WebServiceWorkingListener(){
+
+					@Override
+					public void onPreExecute() {
+					}
+
+					@Override
+					public void onPostExecute() {
+					}
+
+					@Override
+					public void onError(String msg) {
+					}
+
+					@Override
+					public void onProgressUpdate(int value) {
+					}
+					
+				});
+			}
+			
+			@Override
+			public void offLine(String msg) {
+			}
 		});
 	}
 

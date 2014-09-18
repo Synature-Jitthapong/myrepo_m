@@ -3,10 +3,12 @@ package com.synature.mpos;
 import java.util.List;
 
 import android.content.Context;
+import android.os.AsyncTask;
+
 import com.synature.mpos.database.PrintReceiptLogDao;
 import com.synature.util.Logger;
 
-public class PrintReceipt implements Runnable{
+public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	
 	public static final String TAG = "PrintReceipt";
 	
@@ -22,7 +24,7 @@ public class PrintReceipt implements Runnable{
 	}
 
 	@Override
-	public void run() {
+	protected Void doInBackground(Void... arg0) {
 		List<PrintReceiptLogDao.PrintReceipt> printLogLst = mPrintLog.listPrintReceiptLog(); 
 		for(int i = 0; i < printLogLst.size(); i++){
 			PrintReceiptLogDao.PrintReceipt printReceipt = printLogLst.get(i);
@@ -45,5 +47,7 @@ public class PrintReceipt implements Runnable{
 						" Print receipt fail : " + e.getMessage());
 			}
 		}
+		return null;
 	}
+
 }

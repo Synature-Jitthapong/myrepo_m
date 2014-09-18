@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -181,12 +182,12 @@ public class RestoreDatabaseFragment extends DialogFragment{
 		File backupPath = new File(sd, Utils.BACKUP_DB_PATH);
 		File[] files = backupPath.listFiles();
 		if(files != null){
+			Arrays.sort(files);
 			mDbInfoLst = new ArrayList<DatabaseInfo>();
 			for(File file : files){
 				DatabaseInfo dbInfo = new DatabaseInfo();
 				dbInfo.setModifyDate(file.lastModified());
 				dbInfo.setFileName(file.getName());
-				dbInfo.setDbSize(DecimalFormat.getInstance().format((file.length() / 1024) / 1024));
 				mDbInfoLst.add(dbInfo);
 			}
 		}
@@ -218,7 +219,6 @@ public class RestoreDatabaseFragment extends DialogFragment{
 				holder = new ViewHolder();
 				convertView = mInflater.inflate(R.layout.database_list_item, parent, false);
 				holder.tvDbName = (CheckedTextView) convertView.findViewById(R.id.tvDbName);
-				holder.tvDbSize = (TextView) convertView.findViewById(R.id.tvDbSize);
 				holder.tvModifyDate = (TextView) convertView.findViewById(R.id.tvModifyDate);
 				convertView.setTag(holder);
 			}else{
@@ -231,28 +231,19 @@ public class RestoreDatabaseFragment extends DialogFragment{
 			holder.tvDbName.setText(fileName);
 			holder.tvDbName.setChecked(dbInfo.isChecked());
 			holder.tvModifyDate.setText(DateFormat.getInstance().format(c.getTime()));
-			holder.tvDbSize.setText(dbInfo.getDbSize() + "mb.");
 			return convertView;
 		}
 		
 		private class ViewHolder{
 			CheckedTextView tvDbName;
-			TextView tvDbSize;
 			TextView tvModifyDate;
 		}
 	}
 	
 	private class DatabaseInfo{
 		private String fileName;
-		private String dbSize;
 		private long modifyDate;
 		private boolean isChecked;
-		public String getDbSize() {
-			return dbSize;
-		}
-		public void setDbSize(String dbSize) {
-			this.dbSize = dbSize;
-		}
 		public String getFileName() {
 			return fileName;
 		}

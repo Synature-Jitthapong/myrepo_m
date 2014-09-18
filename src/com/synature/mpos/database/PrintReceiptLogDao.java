@@ -56,16 +56,21 @@ public class PrintReceiptLogDao extends MPOSDatabase{
 	}
 	
 	/**
+	 * @param printId
 	 * @param transactionId
 	 */
 	public void deletePrintStatus(int printId, int transactionId){
 		getWritableDatabase().delete(PrintReceiptLogTable.TABLE_PRINT_LOG, 
 				PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID + "=?"
 				+ " AND " + OrderTransTable.COLUMN_TRANS_ID + "=?", 
-				new String[]{String.valueOf(transactionId)}  );
+				new String[]{
+					String.valueOf(printId),
+					String.valueOf(transactionId)
+				});
 	}
 	
 	/**
+	 * @param printId
 	 * @param transactionId
 	 * @param status
 	 */
@@ -76,6 +81,7 @@ public class PrintReceiptLogDao extends MPOSDatabase{
 				PrintReceiptLogTable.COLUMN_PRINT_RECEIPT_LOG_ID + "=?"
 				+ " AND " + OrderTransTable.COLUMN_TRANS_ID + "=?", 
 				new String[]{
+					String.valueOf(printId),
 					String.valueOf(transactionId)
 				}
 		);

@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -299,13 +301,6 @@ public class Utils {
 		}
 		calendar.setTimeInMillis(Long.parseLong(dateTime));
 		return calendar;
-	}
-	
-	public static double calculateVatPrice(double totalPrice, double vatRate, int vatType){
-		if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
-			return totalPrice * (100 + vatRate) / 100;
-		else
-			return totalPrice;
 	}
 	
 	public static double calculateVatAmount(double totalPrice, double vatRate, int vatType){
@@ -708,6 +703,7 @@ public class Utils {
 	}
 	
 	public static void backupDatabase(Context context){
+		String backupDbName = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()) + "_" + DB_NAME;
 		File sd = Environment.getExternalStorageDirectory();
 		FileChannel source = null;
 		FileChannel destination = null;
@@ -718,7 +714,7 @@ public class Utils {
 		deleteBackupDatabase(context);
 		try {
 			source = new FileInputStream(dbPath).getChannel();
-			destination = new FileOutputStream(sdPath + File.separator + DB_NAME).getChannel();
+			destination = new FileOutputStream(sdPath + File.separator + backupDbName).getChannel();
 			destination.transferFrom(source, 0, source.size());
 			source.close();
 			destination.close();
@@ -734,8 +730,11 @@ public class Utils {
 		File sdPath = new File(sd, BACKUP_DB_PATH);
 		File files[] = sdPath.listFiles();
 		if(files != null){
+			Calendar current = Calendar.getInstance();
+			Calendar lastMod = Calendar.getInstance();
 			for(File file : files){
-				if(file.lastModified() < Calendar.getInstance().getTimeInMillis()){
+				lastMod.setTimeInMillis(file.lastModified());
+				if(getDiffDay(lastMod) > current.getActualMaximum(Calendar.DAY_OF_MONTH)){
 					file.delete();
 				}
 			}

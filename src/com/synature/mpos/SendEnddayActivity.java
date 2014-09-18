@@ -167,44 +167,65 @@ public class SendEnddayActivity extends MPOSActivityBase {
 
 		@Override
 		public void onPreExecute() {
-			mItemClose.setEnabled(false);
-			mItemSend.setVisible(false);
-			mItemProgress.setVisible(true);
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mItemClose.setEnabled(false);
+					mItemSend.setVisible(false);
+					mItemProgress.setVisible(true);
+				}
+				
+			});
 		}
 
 		@Override
-		public void onPostExecute() {
-			mItemClose.setEnabled(true);
-			mItemSend.setVisible(true);
-			mItemProgress.setVisible(false);
-			
-			setupAdapter();
-			
-			if(mAutoClose){
-				new AlertDialog.Builder(SendEnddayActivity.this)
-				.setCancelable(false)
-				.setTitle(R.string.send_endday_data)
-				.setMessage(R.string.send_endday_data_success)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+		public void onPostExecute() {			
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mItemClose.setEnabled(true);
+					mItemSend.setVisible(true);
+					mItemProgress.setVisible(false);
 					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						setResult(RESULT_OK);
-						finish();
+					setupAdapter();
+					
+					if(mAutoClose){
+						new AlertDialog.Builder(SendEnddayActivity.this)
+						.setCancelable(false)
+						.setTitle(R.string.send_endday_data)
+						.setMessage(R.string.send_endday_data_success)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								setResult(RESULT_OK);
+								finish();
+							}
+						})
+						.show();
+					}else{
+						Utils.makeToask(SendEnddayActivity.this, getString(R.string.send_sale_data_success));
 					}
-				})
-				.show();
-			}else{
-				Utils.makeToask(SendEnddayActivity.this, getString(R.string.send_sale_data_success));
-			}
+				}
+			
+			});
 		}
 
 		@Override
-		public void onError(String msg) {
-			mItemClose.setEnabled(true);
-			mItemSend.setVisible(true);
-			mItemProgress.setVisible(false);
-			Utils.makeToask(SendEnddayActivity.this, msg);
+		public void onError(final String msg) {
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mItemClose.setEnabled(true);
+					mItemSend.setVisible(true);
+					mItemProgress.setVisible(false);
+					Utils.makeToask(SendEnddayActivity.this, msg);
+				}
+				
+			});
 		}
 
 		@Override

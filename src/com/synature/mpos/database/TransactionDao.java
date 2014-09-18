@@ -398,14 +398,15 @@ public class TransactionDao extends MPOSDatabase {
 	 */
 	public OrderDetail getSummaryOrder(int transactionId, boolean isLoadTemp) {
 		OrderDetail ord = new OrderDetail(); 
-		Cursor cursor = querySummaryOrder(
-				OrderTransTable.TABLE_ORDER_TRANS + " a "
+		String tables = (isLoadTemp ? OrderTransTable.TEMP_ORDER_TRANS : OrderTransTable.TABLE_ORDER_TRANS) + " a "
 				+ " LEFT JOIN " + (isLoadTemp ? OrderDetailTable.TEMP_ORDER : OrderDetailTable.TABLE_ORDER) + " b "
 				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 				+ " LEFT JOIN " + PromotionPriceGroupTable.TABLE_PROMOTION_PRICE_GROUP + " c "
-				+ " ON a." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + "=c." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID,
-				" a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
-				+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?, ?, ?) ",
+				+ " ON a." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + "=c." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID;
+		String selection = " a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?, ?, ?) ";
+		Cursor cursor = querySummaryOrder(
+				tables, selection,
 				new String[] { 
 					String.valueOf(transactionId),
 					String.valueOf(ProductsDao.NORMAL_TYPE),
@@ -701,6 +702,7 @@ public class TransactionDao extends MPOSDatabase {
 				+ " a." + ProductTable.COLUMN_PRODUCT_PRICE + ","
 				+ " a." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + "," 
 				+ " a." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ","
+				+ " a." + OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ", "
 				+ " a." + ProductTable.COLUMN_VAT_TYPE + ","
 				+ " a." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ","
 				+ " a." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ","
@@ -763,6 +765,7 @@ public class TransactionDao extends MPOSDatabase {
 		ord.setProductPrice(cursor.getFloat(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 		ord.setTotalRetailPrice(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
 		ord.setTotalSalePrice(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
+		ord.setVatExclude(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE)));
 		ord.setVatType(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
 		ord.setMemberDiscount(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_MEMBER_DISCOUNT)));
 		ord.setPriceDiscount(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
@@ -1038,7 +1041,6 @@ public class TransactionDao extends MPOSDatabase {
 		Calendar date = Utils.getDate();
 		Calendar dateTime = Utils.getCalendar();
 		int receiptId = getMaxReceiptId(String.valueOf(date.getTimeInMillis()));
-		double vatable = Utils.calculateVatPrice(totalSalePrice, vatRate, vatType);
 		String receiptNo = formatReceiptNo(date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1, 
 				date.get(Calendar.DAY_OF_MONTH), receiptId);
 		ContentValues cv = new ContentValues();
@@ -1046,7 +1048,7 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderTransTable.COLUMN_RECEIPT_ID, receiptId);
 		cv.put(OrderTransTable.COLUMN_CLOSE_TIME, dateTime.getTimeInMillis());
 		cv.put(OrderTransTable.COLUMN_PAID_TIME, dateTime.getTimeInMillis()); 
-		cv.put(OrderTransTable.COLUMN_TRANS_VATABLE, vatable);
+		cv.put(OrderTransTable.COLUMN_TRANS_VATABLE, totalSalePrice);
 		cv.put(OrderTransTable.COLUMN_PAID_STAFF_ID, staffId);
 		cv.put(OrderTransTable.COLUMN_CLOSE_STAFF, staffId);
 		cv.put(OrderTransTable.COLUMN_RECEIPT_NO, receiptNo);

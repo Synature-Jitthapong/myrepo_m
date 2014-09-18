@@ -1,8 +1,9 @@
 package com.synature.mpos;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
-public class PrintReport implements Runnable{
+public class PrintReport extends AsyncTask<Void, Void, Void>{
 
 	public static enum WhatPrint{
 		SUMMARY_SALE,
@@ -43,7 +44,7 @@ public class PrintReport implements Runnable{
 	}
 
 	@Override
-	public void run() {
+	protected Void doInBackground(Void... arg0) {
 		if(Utils.isInternalPrinterSetting(mContext)){
 			WintecPrinter wtPrinter = new WintecPrinter(mContext);
 			switch(mWhatPrint){
@@ -77,5 +78,6 @@ public class PrintReport implements Runnable{
 				break;
 			}
 		}
+		return null;
 	}
 }

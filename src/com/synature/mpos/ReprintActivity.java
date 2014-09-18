@@ -91,7 +91,7 @@ public class ReprintActivity extends MPOSActivityBase {
 				@Override
 				public void onClick(View v) {
 					holder.btnPrint.setEnabled(false);
-					new Reprint(trans.getTransactionId(), holder.btnPrint).run();
+					new Reprint(trans.getTransactionId(), holder.btnPrint).execute();
 				}
 				
 			});
@@ -105,7 +105,7 @@ public class ReprintActivity extends MPOSActivityBase {
 		}
 	}
 
-	public class Reprint extends PrintReceipt{
+	private class Reprint extends PrintReceipt{
 		
 		public int mTransactionId;
 		private Button mBtnPrint;
@@ -117,7 +117,7 @@ public class ReprintActivity extends MPOSActivityBase {
 		}
 
 		@Override
-		public void run() {
+		protected Void doInBackground(Void... arg0) {
 			if(Utils.isInternalPrinterSetting(ReprintActivity.this)){
 				WintecPrinter wtPrinter = new WintecPrinter(ReprintActivity.this);
 				wtPrinter.createTextForPrintReceipt(mTransactionId, true, false);
@@ -135,7 +135,8 @@ public class ReprintActivity extends MPOSActivityBase {
 				}
 				
 			});
+			return null;
 		}
-		
+
 	}
 }

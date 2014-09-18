@@ -12,7 +12,7 @@ public class PrintReceiptLogTable{
 	
 	private static final String SQL_CREATE = 
 			" create table " + TABLE_PRINT_LOG + "( " 
-			+ COLUMN_PRINT_RECEIPT_LOG_ID + " integer primary key auto increment, "
+			+ COLUMN_PRINT_RECEIPT_LOG_ID + " integer primary key autoincrement, "
 			+ OrderTransTable.COLUMN_TRANS_ID + " integer not null, "
 			+ StaffTable.COLUMN_STAFF_ID + " integer not null, "
 			+ COLUMN_PRINT_RECEIPT_LOG_TIME + " text, "

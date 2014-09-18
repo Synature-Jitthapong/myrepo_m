@@ -564,7 +564,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				double change = intent.getDoubleExtra("change", 0);
 				int transactionId = intent.getIntExtra("transactionId", 0);
 				int staffId = intent.getIntExtra("staffId", 0);
-				afterPaid(transactionId, staffId, totalSalePrice, totalPaid, change);
+				successTransaction(transactionId, staffId, totalSalePrice, totalPaid, change);
 			}
 		}
 		if(requestCode == SET_TYPE7_REQUEST){
@@ -577,18 +577,17 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 	}
 	
-	private void afterPaid(int transactionId, int staffId, double totalSalePrice, 
+	private void successTransaction(int transactionId, int staffId, double totalSalePrice, 
 			double totalPaid, double change){
 
-		PrintReceiptLogDao printLog = 
-				new PrintReceiptLogDao(MainActivity.this);
+		PrintReceiptLogDao printLog = new PrintReceiptLogDao(MainActivity.this);
 		int isCopy = 0;
 		for(int i = 0; i < mComputer.getReceiptHasCopy(); i++){
 			if(i > 0)
 				isCopy = 1;
 			printLog.insertLog(transactionId, staffId, isCopy);
 		}
-		new Thread(new PrintReceipt(MainActivity.this)).start();
+		new PrintReceipt(MainActivity.this).execute();
 		
 		if(change > 0){
 			LinearLayout changeView = new LinearLayout(MainActivity.this);
@@ -759,7 +758,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					
 					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice, 
 							mShop.getCompanyVatType(), mShop.getCompanyVatRate());
-					afterPaid(mTransactionId, mStaffId, totalSalePrice, totalSalePrice, 0);
+					successTransaction(mTransactionId, mStaffId, totalSalePrice, totalSalePrice, 0);
 					
 					init();
 				}
@@ -1849,7 +1848,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 	private void showBillDetail(){
 		if(mOrderDetailLst.size() > 0){
-			BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId);
+			BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId, true);
 			bf.show(getFragmentManager(), "BillDetailFragment");
 		}
 	}
@@ -2221,7 +2220,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 		// print close shift
 		new PrintReport(MainActivity.this, 
-			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).run();
+			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).execute();
 		
 		startActivity(new Intent(MainActivity.this, LoginActivity.class));
 		finish();
@@ -2251,11 +2250,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			int totalSess = mSession.countSession(mSession.getLastSessionDate());
 			if(totalSess > 1){
 				new PrintReport(MainActivity.this, 
-					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).run();
+					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).execute();
 			}
 			// if parse sessionId = 0 will be print all summary in day
 			new PrintReport(MainActivity.this, 
-				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId).run();
+				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId).execute();
 
 			// backup the database
 			if(Utils.isEnableBackupDatabase(MainActivity.this)){
