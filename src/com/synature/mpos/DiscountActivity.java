@@ -414,13 +414,14 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	
 	private void summary() {
 		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId, true);
+		double totalPrice = summ.getVatExclude() > 0 ? summ.getTotalSalePrice() - summ.getVatExclude() : summ.getTotalSalePrice();
 		TextView[] tvs = {
 				SaleReportActivity.createTextViewSummary(this, getString(R.string.summary), Utils.getLinHorParams(1.2f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(summ.getOrderQty()), Utils.getLinHorParams(0.5f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getProductPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalRetailPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPriceDiscount()), Utils.getLinHorParams(0.7f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalSalePrice()), Utils.getLinHorParams(0.7f))
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(totalPrice), Utils.getLinHorParams(0.7f))
 		};
 		if(mSummaryContainer.getChildCount() > 0)
 			mSummaryContainer.removeAllViews();
