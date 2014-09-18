@@ -230,8 +230,6 @@ public class SendEnddayActivity extends MPOSActivityBase {
 
 		@Override
 		public void onProgressUpdate(int value) {
-			// TODO Auto-generated method stub
-			
 		}
 		
 	};

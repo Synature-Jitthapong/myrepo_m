@@ -440,6 +440,7 @@ public class TransactionDao extends MPOSDatabase {
 		else 
 			ord.setPromotionName("");
 		ord.setOrderQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+		ord.setProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 		ord.setPriceDiscount(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
 		ord.setTotalRetailPrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
 		ord.setTotalSalePrice(totalSalePrice);
@@ -458,6 +459,7 @@ public class TransactionDao extends MPOSDatabase {
 	private Cursor querySummaryOrder(String tables, String selection, String[] selectionArgs){
 		String sql = "SELECT a." + OrderTransTable.COLUMN_OTHER_DISCOUNT_DESC + ", "
 				+ " SUM(b." + OrderDetailTable.COLUMN_ORDER_QTY + ") AS " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
+				+ " SUM(b." + ProductTable.COLUMN_PRODUCT_PRICE + ") AS " + ProductTable.COLUMN_PRODUCT_PRICE + ", "
 				+ " SUM(b." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", "

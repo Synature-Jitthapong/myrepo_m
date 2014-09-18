@@ -260,8 +260,7 @@ public class Reporting extends MPOSDatabase{
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
 				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalDiscount, "
 				// total sale price
-				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + " + "
-				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") "
+				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") "
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
 				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalSalePrice, "
 				// total payment
@@ -280,8 +279,8 @@ public class Reporting extends MPOSDatabase{
 			report.setVatable(cursor.getDouble(cursor.getColumnIndex("TransVatable")));
 			report.setTotalVat(cursor.getDouble(cursor.getColumnIndex("TransVat")));
 			report.setVatExclude(cursor.getDouble(cursor.getColumnIndex("TransExcludeVat")));
-			report.setTotalPrice(cursor.getDouble(cursor.getColumnIndex("SummTotalSalePrice")));
-			report.setSubTotal(cursor.getDouble(cursor.getColumnIndex("SummTotalRetailPrice")));
+			report.setTotalPrice(cursor.getDouble(cursor.getColumnIndex("SummTotalRetailPrice")));
+			report.setSubTotal(cursor.getDouble(cursor.getColumnIndex("SummTotalSalePrice")));
 			report.setDiscount(cursor.getDouble(cursor.getColumnIndex("SummTotalDiscount")));
 			report.setTotalPayment(cursor.getDouble(cursor.getColumnIndex("SummTotalPayment")));
 		}

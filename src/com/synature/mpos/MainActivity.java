@@ -459,7 +459,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		mTrans.summaryTransaction(mTransactionId);
 		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
 		
-		mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
+		mTbSummary.addView(createTableRowSummary(
+				getString(R.string.items) + ": " + NumberFormat.getInstance().format(sumOrder.getOrderQty()), 
 				mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
 				0, 0, 0, 0));
 		
@@ -470,6 +471,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 							0, 0, 0, 0));
 		}
 		if(sumOrder.getVatExclude() > 0){
+			if(sumOrder.getPriceDiscount() > 0){
+				mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
+						mFormat.currencyFormat(sumOrder.getTotalSalePrice() - sumOrder.getVatExclude()), 
+								0, 0, 0, 0));
+			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
 					" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%",
 					mFormat.currencyFormat(sumOrder.getVatExclude()),
@@ -531,7 +537,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		TextView tvLabel = new TextView(this);
 		TextView tvValue = new TextView(this);
 		tvLabel.setTextAppearance(this, android.R.style.TextAppearance_Holo_Medium);
-		tvLabel.setAllCaps(true);
 		tvValue.setTextAppearance(this, android.R.style.TextAppearance_Holo_Medium);
 		if(labelAppear != 0)
 			tvLabel.setTextAppearance(this, labelAppear);
@@ -2361,12 +2366,12 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 			@Override
 			public void offLine(String msg) {
-				Utils.makeToask(MainActivity.this, msg);
+				finish();
 			}
 
 			@Override
 			public void serverProblem(int code, String msg) {
-				Utils.makeToask(MainActivity.this, msg);
+				finish();
 			}
 			
 		}).execute();

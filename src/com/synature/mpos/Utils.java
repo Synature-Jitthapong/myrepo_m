@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
-import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,7 +60,7 @@ public class Utils {
 	/**
 	 * Main url 
 	 */
-	public static final String REGISTER_URL = "http://1.1.0.20/testregister/ws_mpos.asmx";//"http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
+	public static final String REGISTER_URL = "http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
 	
 	/**
 	 * WebService file name
