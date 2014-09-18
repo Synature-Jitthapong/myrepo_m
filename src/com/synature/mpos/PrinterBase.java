@@ -650,6 +650,16 @@ public abstract class PrinterBase {
     	
     	// transaction exclude vat
     	if(trans.getTransactionVatExclude() > 0){
+    		if(summOrder.getPriceDiscount() > 0){
+	    		String subTotalText = mContext.getString(R.string.sub_total);
+	    		String subTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice() - summOrder.getVatExclude());
+		    	mTextToPrint.append(subTotalText);
+		    	mTextToPrint.append(createHorizontalSpace(
+		    			calculateLength(subTotalText) + 
+		    			calculateLength(subTotal)));
+		    	mTextToPrint.append(subTotal + "\n");
+    		}
+	    	
     		String vatExcludeText = mContext.getString(R.string.vat_exclude) + " " +
     				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
     		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
