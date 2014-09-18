@@ -1296,9 +1296,8 @@ public class TransactionDao extends MPOSDatabase {
 	 * @return rows affected
 	 */
 	private int updateTransactionVatable(int transactionId, double totalPayment, int vatType, double vatRate){
-		double vatable = Utils.calculateVatPrice(totalPayment, vatRate, vatType); 
 		ContentValues cv = new ContentValues();
-		cv.put(OrderTransTable.COLUMN_TRANS_VATABLE, vatable);
+		cv.put(OrderTransTable.COLUMN_TRANS_VATABLE, totalPayment);
 		return getWritableDatabase().update(
 				OrderTransTable.TABLE_ORDER_TRANS, cv,
 				OrderTransTable.COLUMN_TRANS_ID + "=?", 

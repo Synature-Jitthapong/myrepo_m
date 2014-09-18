@@ -300,14 +300,7 @@ public class Utils {
 		calendar.setTimeInMillis(Long.parseLong(dateTime));
 		return calendar;
 	}
-	
-	public static double calculateVatPrice(double totalPrice, double vatRate, int vatType){
-		if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
-			return totalPrice * (100 + vatRate) / 100;
-		else
-			return totalPrice;
-	}
-	
+
 	public static double calculateVatAmount(double totalPrice, double vatRate, int vatType){
 		if(vatType == ProductsDao.VAT_TYPE_INCLUDED)
 			return totalPrice * vatRate / (100 + vatRate);

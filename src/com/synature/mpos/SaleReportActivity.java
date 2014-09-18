@@ -1371,28 +1371,6 @@ public class SaleReportActivity extends MPOSActivityBase{
 			TransactionDao trans = new TransactionDao(getActivity());
 			OrderDetail summOrder = trans.getSummaryOrder(mHost.mDateFrom, mHost.mDateTo);	
 			
-			// total sale
-			TextView[] tvSubTotal = {
-					createTextViewSummary(getActivity(), getString(R.string.sub_total), Utils.getLinHorParams(5.9f)),
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summOrder.getTotalRetailPrice()),
-							Utils.getLinHorParams(0.8f)),
-					createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.5f)),
-					createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.2f))
-			};
-			mProductSumContent.addView(createRowSummary(getActivity(), tvSubTotal));
-			
-			if(summOrder.getPriceDiscount() > 0){
-				// total discount
-				TextView[] tvTotalDiscount = {
-						createTextViewSummary(getActivity(), getString(R.string.discount), Utils.getLinHorParams(5.9f)),
-						createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summOrder.getPriceDiscount()),
-								Utils.getLinHorParams(0.8f)),
-						createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.5f)),
-						createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.2f))
-				};
-				mProductSumContent.addView(createRowSummary(getActivity(), tvTotalDiscount));
-			}
-			
 			if(summOrder.getVatExclude() > 0){
 				ShopDao shop = new ShopDao(getActivity());
 				// total vatExclude
@@ -1410,8 +1388,8 @@ public class SaleReportActivity extends MPOSActivityBase{
 			// total sale
 			TextView[] tvTotalSale = {
 					createTextViewSummary(getActivity(), getString(R.string.total_sale), Utils.getLinHorParams(5.9f)),
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summOrder.getTotalSalePrice() + 
-							summOrder.getVatExclude()), Utils.getLinHorParams(0.8f)),
+					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summOrder.getTotalSalePrice()), 
+							Utils.getLinHorParams(0.8f)),
 					createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.5f)),
 					createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.2f))
 			};
