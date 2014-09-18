@@ -165,8 +165,8 @@ public class PromotionActivity extends MPOSActivityBase {
 	
 	private void summary(){
 		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId, true);
-		mTvTotalPrice.setText(mFormat.currencyFormat(summ.getTotalSalePrice()));
-
+		double totalPrice = summ.getVatExclude() > 0 ? summ.getTotalSalePrice() - summ.getVatExclude() : summ.getTotalSalePrice();
+		mTvTotalPrice.setText(mFormat.currencyFormat(totalPrice));
 		if(mSummaryContainer.getChildCount() > 0)
 			mSummaryContainer.removeAllViews();
 		TextView[] tvs = {
@@ -175,7 +175,7 @@ public class PromotionActivity extends MPOSActivityBase {
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getProductPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalRetailPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPriceDiscount()), Utils.getLinHorParams(0.7f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalSalePrice()), Utils.getLinHorParams(0.7f))
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(totalPrice), Utils.getLinHorParams(0.7f))
 		};
 		LinearLayout rowSummary = SaleReportActivity.createRowSummary(this, tvs);
 		rowSummary.setDividerDrawable(getResources().getDrawable(android.R.drawable.divider_horizontal_bright));

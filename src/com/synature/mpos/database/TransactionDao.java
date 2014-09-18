@@ -938,6 +938,15 @@ public class TransactionDao extends MPOSDatabase {
 			transactionId = cursor.getInt(0);
 		}
 		cursor.close();
+		if(transactionId == 0){
+			cursor = getReadableDatabase().rawQuery(
+					"SELECT MAX(" + OrderTransTable.COLUMN_TRANS_ID + ")"
+					+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS, null);
+			if(cursor.moveToFirst()){
+				transactionId = cursor.getInt(0);
+			}
+			cursor.close();
+		}
 		transactionId += 1;
 		ContentValues cv = new ContentValues();
 		cv.put(MaxTransIdTable.COLUMN_MAX_TRANS_ID, transactionId);
@@ -1548,6 +1557,15 @@ public class TransactionDao extends MPOSDatabase {
 			orderDetailId = cursor.getInt(0);
 		}
 		cursor.close();
+		if(orderDetailId == 0){
+			cursor = getReadableDatabase().rawQuery(
+					"SELECT MAX(" + OrderDetailTable.COLUMN_ORDER_ID + ")"
+					+ " FROM " + OrderDetailTable.TABLE_ORDER, null);
+			if(cursor.moveToFirst()){
+				orderDetailId = cursor.getInt(0);
+			}
+			cursor.close();
+		}
 		orderDetailId += 1;
 		ContentValues cv = new ContentValues();
 		cv.put(MaxOrderIdTable.COLUMN_MAX_ORDER_ID, orderDetailId);
