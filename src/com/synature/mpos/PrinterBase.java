@@ -661,7 +661,7 @@ public abstract class PrinterBase {
     	    			calculateLength(subTotal)));
     	    	mTextToPrint.append(subTotal + "\n");
     		}
-    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
+    		String vatExcludeText = mContext.getString(R.string.vat_exclude) + " " +
     				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
     		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
     		mTextToPrint.append(vatExcludeText);
