@@ -10,6 +10,7 @@ import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -54,7 +55,7 @@ public class Utils {
 	/**
 	 * Database version
 	 */
-	public static int DB_VERSION = 2;
+	public static int DB_VERSION = 4; //2
 	
 	/**
 	 * Main url 
@@ -301,13 +302,6 @@ public class Utils {
 		return calendar;
 	}
 	
-	public static double calculateVatPrice(double totalPrice, double vatRate, int vatType){
-		if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
-			return totalPrice * (100 + vatRate) / 100;
-		else
-			return totalPrice;
-	}
-	
 	public static double calculateVatAmount(double totalPrice, double vatRate, int vatType){
 		if(vatType == ProductsDao.VAT_TYPE_INCLUDED)
 			return totalPrice * vatRate / (100 + vatRate);
@@ -388,7 +382,9 @@ public class Utils {
 				MPOSDatabase.MPOSOpenHelper.getInstance(context);
 		SQLiteDatabase sqlite = mSqliteHelper.getWritableDatabase();
 		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
+		sqlite.delete(OrderDetailTable.TEMP_ORDER, null, null);
 		sqlite.delete(OrderTransTable.TABLE_ORDER_TRANS, null, null);
+		sqlite.delete(OrderTransTable.TEMP_ORDER_TRANS, null, null);
 		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
 		sqlite.delete(SessionTable.TABLE_SESSION, null, null);
 		sqlite.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, null);
@@ -706,7 +702,7 @@ public class Utils {
 	}
 	
 	public static void backupDatabase(Context context){
-		String backupFileName = getBackupDbFileName();
+		String backupDbName = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()) + "_" + DB_NAME;
 		File sd = Environment.getExternalStorageDirectory();
 		FileChannel source = null;
 		FileChannel destination = null;
@@ -714,9 +710,10 @@ public class Utils {
 		File sdPath = new File(sd, BACKUP_DB_PATH);
 		if(!sdPath.exists())
 			sdPath.mkdirs();
+		deleteBackupDatabase(context);
 		try {
 			source = new FileInputStream(dbPath).getChannel();
-			destination = new FileOutputStream(sdPath + File.separator + backupFileName).getChannel();
+			destination = new FileOutputStream(sdPath + File.separator + backupDbName).getChannel();
 			destination.transferFrom(source, 0, source.size());
 			source.close();
 			destination.close();
@@ -727,9 +724,20 @@ public class Utils {
 		}
 	}
 	
-	public static String getBackupDbFileName(){
-		Calendar calendar = Calendar.getInstance();
-		return String.valueOf(calendar.getTimeInMillis());
+	public static void deleteBackupDatabase(Context context){
+		File sd = Environment.getExternalStorageDirectory();
+		File sdPath = new File(sd, BACKUP_DB_PATH);
+		File files[] = sdPath.listFiles();
+		if(files != null){
+			Calendar current = Calendar.getInstance();
+			Calendar lastMod = Calendar.getInstance();
+			for(File file : files){
+				lastMod.setTimeInMillis(file.lastModified());
+				if(getDiffDay(lastMod) > current.getActualMaximum(Calendar.DAY_OF_MONTH)){
+					file.delete();
+				}
+			}
+		}
 	}
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){

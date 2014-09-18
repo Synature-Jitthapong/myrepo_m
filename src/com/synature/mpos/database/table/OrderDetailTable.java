@@ -3,8 +3,8 @@ package com.synature.mpos.database.table;
 import android.database.sqlite.SQLiteDatabase;
 
 public class OrderDetailTable extends BaseColumn{
-
 	public static final String TABLE_ORDER = "OrderDetail";
+	public static final String TEMP_ORDER = "OrderDetailTemp";
 	public static final String COLUMN_ORDER_ID = "order_detail_id";
 	public static final String COLUMN_ORDER_QTY = "order_qty";
 	public static final String COLUMN_TOTAL_RETAIL_PRICE = "total_retail_price";
@@ -48,9 +48,24 @@ public class OrderDetailTable extends BaseColumn{
 
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(ORDER_SQL_CREATE);
+		db.execSQL("create table " + TEMP_ORDER + " as select * from " + TABLE_ORDER + " where 0;");
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion,
 			int newVersion) {
+		// upgrade schema from 2 to 3
+		db.beginTransaction();
+		try{
+			String tbCopy = "OrderDetailCopy";
+			db.execSQL("create table " + tbCopy + " as select * from " + TABLE_ORDER);
+			db.execSQL("drop table " + TABLE_ORDER);
+			db.execSQL("drop table " + TEMP_ORDER);
+			onCreate(db);
+			db.execSQL("insert into " + TABLE_ORDER + " select * from " + tbCopy);
+			db.execSQL("drop table " + tbCopy);
+			db.setTransactionSuccessful();
+		}finally{
+			db.endTransaction();
+		}
 	}
 }

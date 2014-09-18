@@ -90,7 +90,7 @@ public class PromotionActivity extends MPOSActivityBase {
 		}
 
 		try {
-			OrderTransaction trans = mTrans.getTransaction(mTransactionId);
+			OrderTransaction trans = mTrans.getTransaction(mTransactionId, true);
 			for(int i = 0; i < mPromoButtonContainer.getChildCount(); i++){
 				View child = mPromoButtonContainer.getChildAt(i);
 				if(trans.getPromotionPriceGroupId() == child.getId()){
@@ -164,7 +164,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	}
 	
 	private void summary(){
-		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId);
+		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId, true);
 		mTvTotalPrice.setText(mFormat.currencyFormat(summ.getTotalSalePrice()));
 
 		if(mSummaryContainer.getChildCount() > 0)

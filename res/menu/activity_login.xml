@@ -18,9 +18,10 @@
         android:showAsAction="always|withText"
         android:title="@string/update_data">
     </item>
-    <item
+    <item android:id="@+id/itemPerformTest" android:title="Performance Test" android:showAsAction="collapseActionView"></item><item
         android:id="@+id/itemExit"
         android:title="@string/exit">
     </item>
+    
 
 </menu>

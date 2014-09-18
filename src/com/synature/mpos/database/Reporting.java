@@ -260,8 +260,7 @@ public class Reporting extends MPOSDatabase{
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
 				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalDiscount, "
 				// total sale price
-				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + " + "
-				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") "
+				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") "
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
 				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalSalePrice, "
 				// total payment
@@ -307,15 +306,13 @@ public class Reporting extends MPOSDatabase{
 				+ " a." + OrderTransTable.COLUMN_TRANS_VATABLE + ", "
 				+ " a." + COLUMN_SEND_STATUS + ", " 
 				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
-				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", " 
-				+ " a." + OrderTransTable.COLUMN_OTHER_DISCOUNT + " + "
-				+ " SUM(b." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + " + "
-				+ " b." + OrderDetailTable.COLUMN_MEMBER_DISCOUNT + ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
+				+ " SUM(b." + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", "
+				+ " SUM(b." + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ") AS " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
 				+ " (SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") " 
 				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
 				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " =a." + OrderTransTable.COLUMN_TRANS_ID + ") AS " + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT
 				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
-				+ " INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b "
+				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
 				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 				+ " WHERE " + selection
 				+ " GROUP BY a." + OrderTransTable.COLUMN_TRANS_ID;

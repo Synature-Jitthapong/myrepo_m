@@ -10,17 +10,18 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/tvDbSize"
+        android:layout_toLeftOf="@+id/tvModifyDate"
         android:drawableLeft="?android:attr/listChoiceIndicatorMultiple"
         android:gravity="center_vertical"
         android:text="CheckedTextView" />
 
     <TextView
-        android:id="@+id/tvDbSize"
+        android:id="@+id/tvModifyDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvDbName"
+        android:layout_alignBottom="@+id/tvDbName"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
         android:text="TextView" />
 
 </RelativeLayout>
