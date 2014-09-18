@@ -30,7 +30,7 @@ public class SaleService extends Service{
 	 */
 	public void sendEnddaySale(final int shopId, final int computerId, final int staffId, 
 			final WebServiceWorkingListener listener){
-		new EnddayUnSendSaleExecutor(getApplicationContext(),
+		new Thread(new EnddayUnSendSaleExecutor(getApplicationContext(),
 				shopId, computerId, staffId, new WebServiceWorkingListener(){
 
 					@Override
@@ -53,7 +53,7 @@ public class SaleService extends Service{
 								shopId, computerId, staffId, listener).run();
 					}
 			
-		}).run();
+		})).start();
 	}
 	
 	/**

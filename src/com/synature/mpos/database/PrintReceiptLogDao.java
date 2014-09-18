@@ -56,6 +56,7 @@ public class PrintReceiptLogDao extends MPOSDatabase{
 	}
 	
 	/**
+	 * @param printId
 	 * @param transactionId
 	 */
 	public void deletePrintStatus(int printId, int transactionId){

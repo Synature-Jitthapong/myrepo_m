@@ -529,11 +529,12 @@ public abstract class PrinterBase {
 	 * Create text for print receipt
 	 * @param transId
 	 * @param isCopy
+	 * @param isLoadTemp
 	 */
-	protected void createTextForPrintReceipt(int transId, boolean isCopy){
-		OrderTransaction trans = mTrans.getTransaction(transId);
-		OrderDetail summOrder = mTrans.getSummaryOrder(transId);
-		double change = mPayment.getTotalPayAmount(transId) - (summOrder.getTotalSalePrice());
+	protected void createTextForPrintReceipt(int transId, boolean isCopy, boolean isLoadTemp){
+		OrderTransaction trans = mTrans.getTransaction(transId, isLoadTemp);
+		OrderDetail sumOrder = mTrans.getSummaryOrder(transId, isLoadTemp);
+		double change = mPayment.getTotalPayAmount(transId) - (sumOrder.getTotalSalePrice());
 		boolean isShowVat = mShop.getShopProperty().getPrintVatInReceipt() == 1;
 		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
 		
@@ -570,7 +571,7 @@ public abstract class PrinterBase {
 		mTextToPrint.append(cashCheer + createHorizontalSpace(calculateLength(cashCheer)) + "\n");
 		mTextToPrint.append(createLine("=") + "\n");
 		
-		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId);
+		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId, isLoadTemp);
     	for(int i = 0; i < orderLst.size(); i++){
     		OrderDetail order = orderLst.get(i);
     		String productName = limitTextLength(order.getProductName());
@@ -622,15 +623,15 @@ public abstract class PrinterBase {
     	String itemText = mContext.getString(R.string.items) + ": ";
     	String totalText = mContext.getString(R.string.total) + "...............";
     	String changeText = mContext.getString(R.string.change) + " ";
-    	String discountText = TextUtils.isEmpty(summOrder.getPromotionName()) ? mContext.getString(R.string.discount) : summOrder.getPromotionName();
+    	String discountText = TextUtils.isEmpty(sumOrder.getPromotionName()) ? mContext.getString(R.string.discount) : sumOrder.getPromotionName();
     	
-    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
-    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
-    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
+    	String strTotalRetailPrice = mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
+    	String strTotalSale = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+    	String strTotalDiscount = "-" + mFormat.currencyFormat(sumOrder.getPriceDiscount());
     	String strTotalChange = mFormat.currencyFormat(change);
     	
     	// total item
-    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getOrderQty());
+    	String strTotalQty = NumberFormat.getInstance().format(sumOrder.getOrderQty());
     	mTextToPrint.append(itemText);
     	mTextToPrint.append(strTotalQty);
     	mTextToPrint.append(createHorizontalSpace(
@@ -640,7 +641,7 @@ public abstract class PrinterBase {
     	mTextToPrint.append(strTotalRetailPrice + "\n");
     	
     	// total discount
-    	if(summOrder.getPriceDiscount() > 0){
+    	if(sumOrder.getPriceDiscount() > 0){
 	    	mTextToPrint.append(discountText);
 	    	mTextToPrint.append(createHorizontalSpace(
 	    			calculateLength(discountText) + 
@@ -650,9 +651,9 @@ public abstract class PrinterBase {
     	
     	// transaction exclude vat
     	if(trans.getTransactionVatExclude() > 0){
-    		if(summOrder.getPriceDiscount() > 0){
+    		if(sumOrder.getPriceDiscount() > 0){
 	    		String subTotalText = mContext.getString(R.string.sub_total);
-	    		String subTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice() - summOrder.getVatExclude());
+	    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice() - sumOrder.getVatExclude());
 		    	mTextToPrint.append(subTotalText);
 		    	mTextToPrint.append(createHorizontalSpace(
 		    			calculateLength(subTotalText) + 

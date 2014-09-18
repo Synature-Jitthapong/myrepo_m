@@ -3,6 +3,7 @@ package com.synature.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.MPOSDatabase;
@@ -20,6 +21,7 @@ import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,7 +38,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class SendSaleActivity extends MPOSActivityBase{
+	public static final String TAG = SendSaleActivity.class.getSimpleName();
 	
+	private Thread mSendThread;
 	private SaleService mPartService;
 	private boolean mBound = false;
 	
@@ -88,6 +92,10 @@ public class SendSaleActivity extends MPOSActivityBase{
 			unbindService(mServiceConnection);
 			mBound = false;
 		}
+		if(mSendThread != null){
+			mSendThread.interrupt();
+			mSendThread = null;
+		}
 	}
 
 	private void loadTransNotSend(){
@@ -129,11 +137,39 @@ public class SendSaleActivity extends MPOSActivityBase{
 	}
 
 	private void sendSale(){
-		for(int i = 0; i < mTransLst.size(); i++){
-			SendTransaction trans = mTransLst.get(i);
-			mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
-					mComputerId, mStaffId, new SendSaleProgress(trans, i));
-		}
+		new NetworkConnectionChecker(this, new NetworkCheckerListener() {
+			
+			@Override
+			public void serverProblem(int code, String msg) {
+				Utils.makeToask(SendSaleActivity.this, msg);
+			}
+			
+			@Override
+			public void onLine() {
+				mSendThread = new Thread(new Runnable(){
+
+					@Override
+					public void run() {
+						for(int i = 0; i < mTransLst.size(); i++){
+							if(i < 100){
+								SendTransaction trans = mTransLst.get(i);
+								mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
+										mComputerId, mStaffId, new SendSaleProgress(trans, i));
+							}else{
+								break;
+							}
+						}
+					}
+					
+				});
+				mSendThread.start();
+			}
+			
+			@Override
+			public void offLine(String msg) {
+				Utils.makeToask(SendSaleActivity.this, msg);
+			}
+		}).execute();
 	}
 	
 	class SendSaleProgress implements WebServiceWorkingListener{
@@ -148,34 +184,57 @@ public class SendSaleActivity extends MPOSActivityBase{
 		
 		@Override
 		public void onPreExecute() {
-			if(mPosition == 0){
-				mItemSendAll.setEnabled(false);
-			}
-			mTrans.onSend = true;
-			mTransLst.set(mPosition, mTrans);
-			mSyncAdapter.notifyDataSetChanged();
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					if(mPosition == 0){
+						mItemSendAll.setEnabled(false);
+					}
+					mTrans.onSend = true;
+					mTransLst.set(mPosition, mTrans);
+					mSyncAdapter.notifyDataSetChanged();
+					Log.i(TAG, "Begin send bill " + mTrans.getReceiptNo());
+				}
+				
+			});
 		}
 
 		@Override
 		public void onPostExecute() {
-			mTrans.setSendStatus(MPOSDatabase.ALREADY_SEND);
-			mTrans.onSend = false;
-			mTransLst.set(mPosition, mTrans);
-			mSyncAdapter.notifyDataSetChanged();
-			if(mPosition == mTransLst.size() - 1)
-				mItemSendAll.setEnabled(true);
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mTrans.setSendStatus(MPOSDatabase.ALREADY_SEND);
+					mTrans.onSend = false;
+					mTransLst.set(mPosition, mTrans);
+					mSyncAdapter.notifyDataSetChanged();
+					if(mPosition == mTransLst.size() - 1)
+						mItemSendAll.setEnabled(true);
+					Log.i(TAG, "Success send bill " + mTrans.getReceiptNo());
+				}
+				
+			});
 		}
 
 		@Override
-		public void onError(String msg) {
-			mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
-			mTransLst.set(mPosition, mTrans);
-			mTrans.onSend = false;
-			mSyncAdapter.notifyDataSetChanged();
-			if(mPosition == mTransLst.size() - 1){
-				mItemSendAll.setEnabled(true);
-				Utils.makeToask(SendSaleActivity.this, msg);
-			}
+		public void onError(final String msg) {
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
+					mTransLst.set(mPosition, mTrans);
+					mTrans.onSend = false;
+					mSyncAdapter.notifyDataSetChanged();
+					if(mPosition == mTransLst.size() - 1){
+						mItemSendAll.setEnabled(true);
+						Utils.makeToask(SendSaleActivity.this, msg);
+					}
+				}
+				
+			});
 		}
 
 		@Override

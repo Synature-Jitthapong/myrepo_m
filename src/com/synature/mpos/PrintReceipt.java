@@ -31,11 +31,11 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 			try {
 				if(Utils.isInternalPrinterSetting(mContext)){
 					WintecPrinter wtPrinter = new WintecPrinter(mContext);
-					wtPrinter.createTextForPrintReceipt(printReceipt.getTransactionId(), printReceipt.isCopy());
+					wtPrinter.createTextForPrintReceipt(printReceipt.getTransactionId(), printReceipt.isCopy(), false);
 					wtPrinter.print();
 				}else{
 					EPSONPrinter epPrinter = new EPSONPrinter(mContext);
-					epPrinter.createTextForPrintReceipt(printReceipt.getTransactionId(), printReceipt.isCopy());
+					epPrinter.createTextForPrintReceipt(printReceipt.getTransactionId(), printReceipt.isCopy(), false);
 					epPrinter.print();
 				}
 				mPrintLog.deletePrintStatus(printReceipt.getPrintId(), printReceipt.getTransactionId());

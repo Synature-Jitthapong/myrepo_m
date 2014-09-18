@@ -260,8 +260,7 @@ public class Reporting extends MPOSDatabase{
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
 				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalDiscount, "
 				// total sale price
-				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + " + "
-				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ") "
+				+ " (SELECT SUM(" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") "
 				+ " FROM " + OrderDetailTable.TABLE_ORDER
 				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")) AS SummTotalSalePrice, "
 				// total payment
@@ -313,7 +312,7 @@ public class Reporting extends MPOSDatabase{
 				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
 				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + " =a." + OrderTransTable.COLUMN_TRANS_ID + ") AS " + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT
 				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
-				+ " INNER JOIN " + OrderDetailTable.TABLE_ORDER + " b "
+				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
 				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 				+ " WHERE " + selection
 				+ " GROUP BY a." + OrderTransTable.COLUMN_TRANS_ID;

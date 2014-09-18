@@ -20,7 +20,7 @@ public class EnddaySaleService extends Service{
 		final int staffId = intent.getIntExtra("staffId", 0);
 		final int shopId = intent.getIntExtra("shopId", 0);
 		final int computerId = intent.getIntExtra("computerId", 0);
-		new EnddaySenderExecutor(getApplicationContext(), 
+		new Thread(new EnddaySenderExecutor(getApplicationContext(), 
 				shopId, computerId, staffId, new WebServiceWorkingListener(){
 
 					@Override
@@ -41,7 +41,7 @@ public class EnddaySaleService extends Service{
 						stopSelf();
 					}
 			
-		}).run();
+		})).start();
 		return START_REDELIVER_INTENT;
 	}
 	

@@ -457,9 +457,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			mTbSummary.removeAllViews();
 		
 		mTrans.summaryTransaction(mTransactionId);
-		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId);
+		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
 		
-		mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
+		mTbSummary.addView(createTableRowSummary(
+				getString(R.string.items) + ": " + NumberFormat.getInstance().format(sumOrder.getOrderQty()), 
 				mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
 				0, 0, 0, 0));
 		
@@ -470,6 +471,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 							0, 0, 0, 0));
 		}
 		if(sumOrder.getVatExclude() > 0){
+			if(sumOrder.getPriceDiscount() > 0){
+				mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
+						mFormat.currencyFormat(sumOrder.getTotalSalePrice() - sumOrder.getVatExclude()), 
+								0, 0, 0, 0));
+			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
 					" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%",
 					mFormat.currencyFormat(sumOrder.getVatExclude()),
@@ -531,7 +537,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		TextView tvLabel = new TextView(this);
 		TextView tvValue = new TextView(this);
 		tvLabel.setTextAppearance(this, android.R.style.TextAppearance_Holo_Medium);
-		tvLabel.setAllCaps(true);
 		tvValue.setTextAppearance(this, android.R.style.TextAppearance_Holo_Medium);
 		if(labelAppear != 0)
 			tvLabel.setTextAppearance(this, labelAppear);
@@ -564,7 +569,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				double change = intent.getDoubleExtra("change", 0);
 				int transactionId = intent.getIntExtra("transactionId", 0);
 				int staffId = intent.getIntExtra("staffId", 0);
-				afterPaid(transactionId, staffId, totalSalePrice, totalPaid, change);
+				successTransaction(transactionId, staffId, totalSalePrice, totalPaid, change);
 			}
 		}
 		if(requestCode == SET_TYPE7_REQUEST){
@@ -577,11 +582,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 	}
 	
-	private void afterPaid(int transactionId, int staffId, double totalSalePrice, 
+	private void successTransaction(int transactionId, int staffId, double totalSalePrice, 
 			double totalPaid, double change){
 
-		PrintReceiptLogDao printLog = 
-				new PrintReceiptLogDao(MainActivity.this);
+		PrintReceiptLogDao printLog = new PrintReceiptLogDao(MainActivity.this);
 		int isCopy = 0;
 		for(int i = 0; i < mComputer.getReceiptHasCopy(); i++){
 			if(i > 0)
@@ -650,28 +654,41 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 		
 		// send sale data service
-		new Thread(new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
+		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
 
 			@Override
 			public void onLine() {
-				List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
-				int size = transIdLst.size();
-				for(int i = 0; i < size; i++){
-					OrderTransaction trans = transIdLst.get(i);
-					mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
-							trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
-				}
+				new Thread(new Runnable(){
+
+					@Override
+					public void run() {
+						List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
+						int size = transIdLst.size();
+						for(int i = 0; i < size; i++){
+							if(i < 10){
+								OrderTransaction trans = transIdLst.get(i);
+								mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
+										trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
+							}else{
+								break;
+							}
+						}
+					}
+					
+				}).start();
 			}
 
 			@Override
-			public void offLine() {
+			public void offLine(String msg) {
+				Utils.makeToask(MainActivity.this, msg);
 			}
 
 			@Override
 			public void serverProblem(int code, String msg) {
+				Utils.makeToask(MainActivity.this, msg);
 			}
 			
-		})).start();
+		}).execute();
 	}
 	
 	class SendSaleListener implements WebServiceWorkingListener{
@@ -690,11 +707,18 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 		@Override
 		public void onPostExecute() {
-			countSaleDataNotSend();
-			if(mPosition == mSize - 1){
-				Utils.makeToask(MainActivity.this, MainActivity.this
-						.getString(R.string.send_sale_data_success));
-			}
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					countSaleDataNotSend();
+					if(mPosition == mSize - 1){
+						Utils.makeToask(MainActivity.this, MainActivity.this
+								.getString(R.string.send_sale_data_success));
+					}
+				}
+				
+			});
 		}
 
 		@Override
@@ -725,7 +749,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId);
+					OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
 					PaymentDetailDao payment = new PaymentDetailDao(MainActivity.this);
 					double totalSalePrice = sumOrder.getTotalSalePrice();
 					
@@ -739,7 +763,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					
 					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice, 
 							mShop.getCompanyVatType(), mShop.getCompanyVatRate());
-					afterPaid(mTransactionId, mStaffId, totalSalePrice, totalSalePrice, 0);
+					successTransaction(mTransactionId, mStaffId, totalSalePrice, totalSalePrice, 0);
 					
 					init();
 				}
@@ -1829,7 +1853,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 	private void showBillDetail(){
 		if(mOrderDetailLst.size() > 0){
-			BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId);
+			BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId, true);
 			bf.show(getFragmentManager(), "BillDetailFragment");
 		}
 	}
@@ -2277,65 +2301,80 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		final ProgressDialog progress = new ProgressDialog(MainActivity.this);
 		progress.setTitle(getString(R.string.endday_success));
 		progress.setCancelable(false);
-		mPartService.sendEnddaySale(mShopId, mComputerId, 
-				mStaffId, new WebServiceWorkingListener(){
+		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
 
-					@Override
-					public void onPreExecute() {
-						progress.setMessage(getString(R.string.send_endday_data_progress));
-						progress.show();
-					}
-
-					@Override
-					public void onPostExecute() {
-						if(progress.isShowing())
-							progress.dismiss();
-
-						new AlertDialog.Builder(MainActivity.this)
-						.setTitle(R.string.endday)
-						.setMessage(R.string.send_endday_data_success)
-						.setCancelable(false)
-						.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener(){
-
+			@Override
+			public void onLine() {
+				mPartService.sendEnddaySale(mShopId, mComputerId, mStaffId, new WebServiceWorkingListener() {
+	
 							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								//Utils.shutdown();
-								finish();
+							public void onPreExecute() {
+								progress.setMessage(getString(R.string.send_endday_data_progress));
+								progress.show();
 							}
-						})
-						.show();
-					}
+	
+							@Override
+							public void onPostExecute() {
+								if (progress.isShowing())
+									progress.dismiss();
+	
+								new AlertDialog.Builder(
+										MainActivity.this)
+										.setTitle(R.string.endday)
+										.setMessage(R.string.send_endday_data_success)
+										.setCancelable(false)
+										.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+	
+													@Override
+													public void onClick(DialogInterface dialog,int which) {
+														// Utils.shutdown();
+														finish();
+													}
+												}).show();
+							}
+	
+							@Override
+							public void onError(String msg) {
+								if (progress.isShowing())
+									progress.dismiss();
+								new AlertDialog.Builder(
+										MainActivity.this)
+										.setTitle(R.string.endday)
+										.setMessage(R.string.cannot_send_endday_data_on_this_time)
+										.setCancelable(false)
+										.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+	
+													@Override
+													public void onClick(DialogInterface arg0, int arg1) {
+														finish();
+													}
+												})
+										.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+	
+													@Override
+													public void onClick(DialogInterface dialog, int which) {
+														sendEnddayData();
+													}
+												}).show();
+							}
+	
+							@Override
+							public void onProgressUpdate(int value) {
+							}
+					});
+			}
 
-					@Override
-					public void onError(String msg) {
-						if(progress.isShowing())
-							progress.dismiss();
-						new AlertDialog.Builder(MainActivity.this)
-							.setTitle(R.string.endday)
-							.setMessage(R.string.cannot_send_endday_data_on_this_time)
-							.setCancelable(false)
-							.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface arg0, int arg1) {
-									finish();
-								}
-							})
-							.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+			@Override
+			public void offLine(String msg) {
+				finish();
+			}
 
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									sendEnddayData();
-								}
-							}).show();
-					}
-
-					@Override
-					public void onProgressUpdate(int value) {
-					}
-		});
+			@Override
+			public void serverProblem(int code, String msg) {
+				finish();
+			}
+			
+		}).execute();
 	}
 
 	@Override
