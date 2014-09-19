@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import com.synature.mpos.database.SoftwareInfoDao;
+import com.synature.util.Logger;
 
 import android.app.Service;
 import android.content.Intent;
@@ -32,6 +33,7 @@ public class SoftwareUpdateService extends Service{
 			public void run() {
 				String fileUrl = intent.getStringExtra("fileUrl");
 				int infoId = intent.getIntExtra("infoId", 0);
+				Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Start download apk...");
 				try {
 					URL url = new URL(fileUrl);
 					URLConnection conn = url.openConnection();
@@ -55,10 +57,13 @@ public class SoftwareUpdateService extends Service{
 					input.close();
 					SoftwareInfoDao sw = new SoftwareInfoDao(getApplicationContext());
 					sw.setStatusDownloaded(infoId, 1);
+					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Successfully download apk...");
 					stopSelf();
 				} catch (MalformedURLException e) {
+					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Error download apk: " + e.getLocalizedMessage());
 					e.printStackTrace();
 				} catch (IOException e) {
+					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Error download apk: " + e.getLocalizedMessage());
 					e.printStackTrace();
 				}
 			}}).start();
