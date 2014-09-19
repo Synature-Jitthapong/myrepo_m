@@ -804,7 +804,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 					createTextViewHeader(getActivity(), "", Utils.getLinHorParams(0.2f), 0),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.receipt_no), 
 							Utils.getLinHorParams(1.0f), Gravity.LEFT),
-					createTextViewHeader(getActivity(), getActivity().getString(R.string.total), 
+					createTextViewHeader(getActivity(), getActivity().getString(R.string.total_price), 
 							Utils.getLinHorParams(0.7f), Gravity.RIGHT),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.discount), 
 							Utils.getLinHorParams(0.7f), Gravity.RIGHT),
