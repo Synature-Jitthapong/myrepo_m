@@ -152,7 +152,7 @@
 	<string name="delete">ลบ</string>
 	<string name="reason">เหตุผล</string>
 	<string name="date">วันที่</string>
-    <string name="items">Items</string>
+    <string name="items">รายการ</string>
 	<string name="total_sale">ราคาสุทธิ</string>
 	<string name="hold_current_order">กรุณาพักรายการปัจจุบันก่อน</string>
 	<string name="select_item">กรุณาเลือกรายการก่อน</string>
