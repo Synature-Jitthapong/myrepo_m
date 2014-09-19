@@ -815,6 +815,8 @@ public class SaleReportActivity extends MPOSActivityBase{
 				mBillHeader.addView(tv);
 			}
 			if(isIncVat){
+				mBillHeader.addView(createTextViewHeader(getActivity(), getString(R.string.total_sale), 
+						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
 				mBillHeader.addView(createTextViewHeader(getActivity(), getString(R.string.before_vat), 
 						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
 			}
@@ -911,6 +913,9 @@ public class SaleReportActivity extends MPOSActivityBase{
 				}
 				if(isIncVat){
 					container.addView(
+							createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(vatable),  
+									Utils.getLinHorParams(0.7f)));
+					container.addView(
 							createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(beforVat),  
 									Utils.getLinHorParams(0.7f)));
 				}
@@ -1002,6 +1007,8 @@ public class SaleReportActivity extends MPOSActivityBase{
 				mBillSumContent.addView(tv);	
 			}
 			if(isIncVat){
+				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getVatable()),  
+						Utils.getLinHorParams(0.7f)));
 				double beforVat = summary.getVatable() - summary.getTotalVat();
 				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(beforVat), 
 						Utils.getLinHorParams(0.7f)));

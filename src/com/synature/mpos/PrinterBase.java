@@ -302,6 +302,7 @@ public abstract class PrinterBase {
 	protected void createTextForPrintSummaryReport(int sessionId, int staffId){
 		SessionDao session = new SessionDao(mContext.getApplicationContext());
 		String sessionDate = session.getLastSessionDate();
+		boolean isOneSession = session.countSession(sessionDate) == 1;
 		
 		OrderTransaction trans = null; 
 		OrderDetail summOrder = null;
@@ -440,7 +441,7 @@ public abstract class PrinterBase {
 			mTextToPrint.append(totalVat + "\n\n");
 		}
 
-		if(sessionId != 0){
+		if(sessionId != 0 || isOneSession){
 			// open/close shift
 			String floatInText = mContext.getString(R.string.float_in);
 			String totalCashText = mContext.getString(R.string.total_cash);
