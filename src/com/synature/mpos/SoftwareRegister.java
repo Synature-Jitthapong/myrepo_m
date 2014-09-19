@@ -53,14 +53,12 @@ public class SoftwareRegister extends MPOSServiceBase{
 				if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
 					// compare version
 					if(!TextUtils.equals(Utils.getSoftWareVersion(mContext), info.getSzSoftwareVersion())){
+						int infoId = sw.logSoftwareInfo(info.getSzSoftwareVersion(), String.valueOf(Utils.DB_VERSION));
 						Intent intent = new Intent(mContext, SoftwareUpdateService.class);
 						intent.putExtra("fileUrl", info.getSzSoftwareDownloadUrl());
-						intent.putExtra("version", info.getSzSoftwareVersion());
-						intent.putExtra("dbVersion", String.valueOf(Utils.DB_VERSION));
+						intent.putExtra("infoId", infoId);
 						mContext.startService(intent);
 					}
-				}else{
-					sw.logSoftwareInfo(Utils.getSoftWareVersion(mContext), String.valueOf(Utils.DB_VERSION), true);
 				}
 				if(!TextUtils.isEmpty(info.getSzRegisterServiceUrl())){
 					SharedPreferences.Editor editor = sharedPref.edit();

@@ -205,12 +205,9 @@ public class TransactionDao extends MPOSDatabase {
 	private Cursor querySummaryTransaction(String selection, String[] selectionArgs){
 		String sql = "SELECT " + OrderTransTable.COLUMN_TRANS_ID + ", "
 				+ ComputerTable.COLUMN_COMPUTER_ID + ", "
-				+ " SUM(" + OrderTransTable.COLUMN_TRANS_VATABLE + ")"
-				+ " AS " + OrderTransTable.COLUMN_TRANS_VATABLE + ","
-				+ " SUM(" + OrderTransTable.COLUMN_TRANS_VAT + ")"
-				+ " AS " + OrderTransTable.COLUMN_TRANS_VAT + ","
-				+ " SUM(" + OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT + ")"
-				+ " AS " + OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT + ","
+				+ " SUM(" + OrderTransTable.COLUMN_TRANS_VATABLE + ") AS " + OrderTransTable.COLUMN_TRANS_VATABLE + ","
+				+ " SUM(" + OrderTransTable.COLUMN_TRANS_VAT + ") AS " + OrderTransTable.COLUMN_TRANS_VAT + ","
+				+ " SUM(" + OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT + ") AS " + OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT + ","
 				+ OrderTransTable.COLUMN_STATUS_ID + ","
 				+ OrderTransTable.COLUMN_PAID_TIME + ","
 				+ OrderTransTable.COLUMN_VOID_TIME + ","
@@ -233,8 +230,7 @@ public class TransactionDao extends MPOSDatabase {
 		OrderTransaction trans = null;
 		Cursor cursor = getReadableDatabase().query(
 				isLoadTemp ? OrderTransTable.TEMP_ORDER_TRANS : OrderTransTable.TABLE_ORDER_TRANS,
-				ALL_TRANS_COLUMNS,
-				OrderTransTable.COLUMN_TRANS_ID + "=?",
+				ALL_TRANS_COLUMNS, OrderTransTable.COLUMN_TRANS_ID + "=?",
 				new String[] { 
 					String.valueOf(transId) 
 				}, null, null, null);
