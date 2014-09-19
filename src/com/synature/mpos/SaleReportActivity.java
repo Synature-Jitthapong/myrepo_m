@@ -799,6 +799,8 @@ public class SaleReportActivity extends MPOSActivityBase{
 		}
 		
 		private void createHeader(){
+			boolean isIncVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED;
+			boolean isExcVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_EXCLUDE;
 			mBillHeader.removeAllViews();
 			TextView[] tvHeaders = {
 					createTextViewHeader(getActivity(), "", Utils.getLinHorParams(0.2f), 0),
@@ -807,34 +809,31 @@ public class SaleReportActivity extends MPOSActivityBase{
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.total_price), 
 							Utils.getLinHorParams(0.7f), Gravity.RIGHT),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.discount), 
-							Utils.getLinHorParams(0.7f), Gravity.RIGHT),
-					createTextViewHeader(getActivity(), getActivity().getString(R.string.sub_total), 
 							Utils.getLinHorParams(0.7f), Gravity.RIGHT)
 			};
 			for(TextView tv : tvHeaders){
 				mBillHeader.addView(tv);
 			}
-			if(mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
-				tvHeaders = new TextView[]{
-						createTextViewHeader(getActivity(), getString(R.string.before_vat), 
-								Utils.getLinHorParams(0.7f), Gravity.RIGHT)
-				};
-				for(TextView tv : tvHeaders){
-					mBillHeader.addView(tv);
-				}
+			if(isIncVat){
+				mBillHeader.addView(createTextViewHeader(getActivity(), getString(R.string.before_vat), 
+						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
 			}
-			tvHeaders = new TextView[]{
+			if(isExcVat){
+				mBillHeader.addView(createTextViewHeader(getActivity(), getActivity().getString(R.string.sub_total), 
+						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
+			}
+			mBillHeader.addView(
 					createTextViewHeader(getActivity(), getString(R.string.vat) + " "
 							+ NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate())
-							+ " " + getString(R.string.percent), Utils.getLinHorParams(0.7f), Gravity.RIGHT),
-					createTextViewHeader(getActivity(), getActivity().getString(R.string.vatable), 
-							Utils.getLinHorParams(0.7f), Gravity.RIGHT),
-					createTextViewHeader(getActivity(), getString(R.string.total_payment), 
-							Utils.getLinHorParams(0.7f), Gravity.RIGHT)
-			};
-			for(TextView tv : tvHeaders){
-				mBillHeader.addView(tv);
+							+ " " + getString(R.string.percent), Utils.getLinHorParams(0.7f), Gravity.RIGHT));
+			if(isExcVat){
+				mBillHeader.addView(
+						createTextViewHeader(getActivity(), getActivity().getString(R.string.total_sale_include_vat),
+						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
 			}
+			mBillHeader.addView(
+					createTextViewHeader(getActivity(), getString(R.string.total_payment),
+					Utils.getLinHorParams(0.7f), Gravity.RIGHT));
 		}
 		
 		public class BillReportAdapter extends BaseAdapter{
@@ -881,7 +880,9 @@ public class SaleReportActivity extends MPOSActivityBase{
 				double totalDiscount = report.getDiscount();
 				double subTotal = report.getSubTotal();
 				double totalPay = report.getTotalPayment();
-
+				boolean isIncVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED;
+				boolean isExcVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_EXCLUDE;
+					
 				LinearLayout container = (LinearLayout) convertView;
 				if(container.getChildCount() > 0)
 					container.removeAllViews();
@@ -900,8 +901,6 @@ public class SaleReportActivity extends MPOSActivityBase{
 						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalPrice),
 								Utils.getLinHorParams(0.7f)),
 						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalDiscount),
-								Utils.getLinHorParams(0.7f)),
-						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(subTotal),  
 								Utils.getLinHorParams(0.7f))
 				};
 				ImageView imgSendStatus = new ImageView(getActivity());
@@ -910,26 +909,21 @@ public class SaleReportActivity extends MPOSActivityBase{
 				for(TextView tv : tvs){
 					container.addView(tv);
 				}
-				if(mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
-					tvs = new TextView[]{
-						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(beforVat),  
-								Utils.getLinHorParams(0.7f))
-					};
-					for(TextView tv : tvs){
-						container.addView(tv);
-					}
+				if(isIncVat){
+					container.addView(
+							createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(beforVat),  
+									Utils.getLinHorParams(0.7f)));
 				}
-				
-				tvs = new TextView[]{
-					createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalVat),  
-							Utils.getLinHorParams(0.7f)),
-					createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(vatable),  
-							Utils.getLinHorParams(0.7f))
-					};
-				for(TextView tv : tvs){
-					container.addView(tv);
+				if(isExcVat){
+					container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(subTotal),  
+							Utils.getLinHorParams(0.7f)));
 				}
-				
+				container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalVat),  
+						Utils.getLinHorParams(0.7f)));
+				if(isExcVat){
+					container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(vatable),  
+							Utils.getLinHorParams(0.7f)));
+				}
 				TextView tvTotalPay = new TextView(getActivity());
 				tvTotalPay = createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalPay),  
 						Utils.getLinHorParams(0.7f));
@@ -991,6 +985,8 @@ public class SaleReportActivity extends MPOSActivityBase{
 		}
 		
 		private void summaryBill(){
+			boolean isIncVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED;
+			boolean isExcVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_EXCLUDE;
 			Report.ReportDetail summary = 
 					mHost.mReporting.getBillSummary();
 			mBillSumContent.removeAllViews();
@@ -1000,34 +996,29 @@ public class SaleReportActivity extends MPOSActivityBase{
 					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalPrice()),  
 							Utils.getLinHorParams(0.7f)),
 					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getDiscount()),  
-							Utils.getLinHorParams(0.7f)),
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getSubTotal()),  
 							Utils.getLinHorParams(0.7f))
 			};
 			for(TextView tv : tvSummary){
 				mBillSumContent.addView(tv);	
 			}
-			if(mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
+			if(isIncVat){
 				double beforVat = summary.getVatable() - summary.getTotalVat();
-				tvSummary = new TextView[]{
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(beforVat), 
-							Utils.getLinHorParams(0.7f))
-				};
-				for(TextView tv : tvSummary){
-					mBillSumContent.addView(tv);
-				}
+				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(beforVat), 
+						Utils.getLinHorParams(0.7f)));
 			}
-			tvSummary = new TextView[]{
-				createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalVat()),  
-						Utils.getLinHorParams(0.7f)),
-				createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getVatable()),  
-						Utils.getLinHorParams(0.7f)),
-				createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalPayment()),  
-						Utils.getLinHorParams(0.7f))
-			};
-			for(TextView tv : tvSummary){
-				mBillSumContent.addView(tv);
+			if(isExcVat){
+				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getSubTotal()),  
+						Utils.getLinHorParams(0.7f)));
 			}
+			mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalVat()),  
+						Utils.getLinHorParams(0.7f)));
+			if(isExcVat){
+				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getVatable()),  
+						Utils.getLinHorParams(0.7f)));
+			}
+			mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalPayment()),  
+						Utils.getLinHorParams(0.7f)));
+			
 		}
 		
 		public class LoadBillReportTask extends AsyncTask<Void, Void, Void>{

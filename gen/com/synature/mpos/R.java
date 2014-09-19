@@ -660,6 +660,7 @@ public final class R {
         public static final int total_receipt=0x7f050086;
         public static final int total_receive=0x7f050010;
         public static final int total_sale=0x7f0500a2;
+        public static final int total_sale_include_vat=0x7f0500ee;
         public static final int total_vat=0x7f050032;
         public static final int try_again=0x7f0500e0;
         public static final int unit_price=0x7f05002f;
