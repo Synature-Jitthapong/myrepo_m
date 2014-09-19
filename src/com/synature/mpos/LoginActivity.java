@@ -353,32 +353,40 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 			
 	private void checkSoftwareUpdate(){
-		SoftwareInfoDao sw = new SoftwareInfoDao(this);
-		SoftwareInfo info = sw.getSoftwareInfo();
+		final SoftwareInfoDao sw = new SoftwareInfoDao(this);
+		final SoftwareInfo info = sw.getSoftwareInfo();
 		if(info != null){
-			if(!info.isAlreadyUpdate()){
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(R.string.software_update);
-				builder.setMessage(R.string.software_update_mesg);
-				builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
+			if(!info.isDownloaded()){
+				final String filePath = Environment.getExternalStorageDirectory() + File.separator + Utils.UPDATE_PATH + File.separator + Utils.UPDATE_FILE_NAME;
+				if(!info.isAlreadyUpdate()){
+					AlertDialog.Builder builder = new AlertDialog.Builder(this);
+					builder.setTitle(R.string.software_update);
+					builder.setMessage(R.string.software_update_mesg);
+					builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					});
+					builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							sw.setStatusAlreadyUpdated(info.getId(), 1);
+							File apkFile = new File(filePath);
+						    Intent intent = new Intent(Intent.ACTION_VIEW);
+						    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
+						    startActivity(intent);
+						}
+					});
+					AlertDialog d = builder.create();
+					d.show();
+				}else{
+					File f = new File(filePath);
+					if(f != null){
+						f.delete();
 					}
-				});
-				builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						String filePath = Environment.getExternalStorageDirectory() + File.separator + Utils.UPDATE_PATH + File.separator + Utils.UPDATE_FILE_NAME;
-						File apkFile = new File(filePath);
-					    Intent intent = new Intent(Intent.ACTION_VIEW);
-					    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
-					    startActivity(intent);
-					}
-				});
-				AlertDialog d = builder.create();
-				d.show();
+				}
 			}
 		}
 	}

@@ -1,5 +1,7 @@
 package com.synature.mpos;
 
+import org.ksoap2.serialization.PropertyInfo;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.synature.mpos.database.SoftwareInfoDao;
@@ -24,17 +26,17 @@ public class SoftwareRegister extends MPOSServiceBase{
 		super(context, REGIST_SERVICE_URL_METHOD);
 		mListener = listener;
 		
-//		mProperty = new PropertyInfo();
-//		mProperty.setName(SW_VERSION_PARAM);
-//		mProperty.setValue(Utils.getSoftWareVersion(mContext));
-//		mProperty.setType(String.class);
-//		mSoapRequest.addProperty(mProperty);
-//		
-//		mProperty = new PropertyInfo();
-//		mProperty.setName(DB_VERSION_PARAM);
-//		mProperty.setValue(Utils.DB_VERSION);
-//		mProperty.setType(String.class);
-//		mSoapRequest.addProperty(mProperty);
+		mProperty = new PropertyInfo();
+		mProperty.setName(SW_VERSION_PARAM);
+		mProperty.setValue(Utils.getSoftWareVersion(mContext));
+		mProperty.setType(String.class);
+		mSoapRequest.addProperty(mProperty);
+		
+		mProperty = new PropertyInfo();
+		mProperty.setName(DB_VERSION_PARAM);
+		mProperty.setValue(Utils.DB_VERSION);
+		mProperty.setType(String.class);
+		mSoapRequest.addProperty(mProperty);
 	}
 
 	@Override
@@ -52,14 +54,12 @@ public class SoftwareRegister extends MPOSServiceBase{
 				if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
 					// compare version
 					if(!TextUtils.equals(Utils.getSoftWareVersion(mContext), info.getSzSoftwareVersion())){
+						int infoId = sw.logSoftwareInfo(info.getSzSoftwareVersion(), String.valueOf(Utils.DB_VERSION));
 						Intent intent = new Intent(mContext, SoftwareUpdateService.class);
 						intent.putExtra("fileUrl", info.getSzSoftwareDownloadUrl());
-						intent.putExtra("version", info.getSzSoftwareVersion());
-						intent.putExtra("dbVersion", String.valueOf(Utils.DB_VERSION));
+						intent.putExtra("infoId", infoId);
 						mContext.startService(intent);
 					}
-				}else{
-					sw.logSoftwareInfo(Utils.getSoftWareVersion(mContext), String.valueOf(Utils.DB_VERSION), true);
 				}
 				if(!TextUtils.isEmpty(info.getSzRegisterServiceUrl())){
 					SharedPreferences.Editor editor = sharedPref.edit();

@@ -1,9 +1,11 @@
 package com.synature.mpos.database.model;
 
 public class SoftwareInfo {
+	private int id;
 	private String version;
 	private String dbVersion;
 	private String lastUpdate;
+	private boolean isDownloaded;
 	private boolean isAlreadyUpdate;
 	public String getDbVersion() {
 		return dbVersion;
@@ -28,5 +30,17 @@ public class SoftwareInfo {
 	}
 	public void setAlreadyUpdate(boolean isAlreadyUpdate) {
 		this.isAlreadyUpdate = isAlreadyUpdate;
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public boolean isDownloaded() {
+		return isDownloaded;
+	}
+	public void setDownloaded(boolean isDownloaded) {
+		this.isDownloaded = isDownloaded;
 	}
 }

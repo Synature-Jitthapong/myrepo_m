@@ -31,8 +31,7 @@ public class SoftwareUpdateService extends Service{
 			@Override
 			public void run() {
 				String fileUrl = intent.getStringExtra("fileUrl");
-				String version = intent.getStringExtra("version");
-				String dbVersion = intent.getStringExtra("dbVersion");
+				int infoId = intent.getIntExtra("infoId", 0);
 				try {
 					URL url = new URL(fileUrl);
 					URLConnection conn = url.openConnection();
@@ -55,8 +54,7 @@ public class SoftwareUpdateService extends Service{
 					output.close();
 					input.close();
 					SoftwareInfoDao sw = new SoftwareInfoDao(getApplicationContext());
-					sw.logSoftwareInfo(version, dbVersion, false);
-					
+					sw.setStatusDownloaded(infoId, 1);
 					stopSelf();
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
