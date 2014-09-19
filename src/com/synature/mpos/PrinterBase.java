@@ -442,6 +442,9 @@ public abstract class PrinterBase {
 		}
 
 		if(sessionId != 0 || isOneSession){
+			if(isOneSession)
+				sessionId = session.getLastSessionId();
+			
 			// open/close shift
 			String floatInText = mContext.getString(R.string.float_in);
 			String totalCashText = mContext.getString(R.string.total_cash);
