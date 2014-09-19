@@ -26,5 +26,7 @@ public class SoftwareInfoTable {
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		db.execSQL("drop table if exists " + TABLE_SOFTWARE_INFO);
+		onCreate(db);
 	}
 }
