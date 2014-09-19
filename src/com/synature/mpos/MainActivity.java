@@ -2309,53 +2309,76 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	
 							@Override
 							public void onPreExecute() {
-								progress.setMessage(getString(R.string.send_endday_data_progress));
-								progress.show();
+								runOnUiThread(new Runnable(){
+
+									@Override
+									public void run() {
+										progress.setMessage(getString(R.string.send_endday_data_progress));
+										progress.show();
+									}
+									
+								});
 							}
 	
 							@Override
 							public void onPostExecute() {
-								if (progress.isShowing())
-									progress.dismiss();
+								runOnUiThread(new Runnable(){
+
+									@Override
+									public void run() {
+										if (progress.isShowing())
+											progress.dismiss();
 	
-								new AlertDialog.Builder(
-										MainActivity.this)
-										.setTitle(R.string.endday)
-										.setMessage(R.string.send_endday_data_success)
-										.setCancelable(false)
-										.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-	
-													@Override
-													public void onClick(DialogInterface dialog,int which) {
-														// Utils.shutdown();
-														finish();
-													}
+										new AlertDialog.Builder(
+												MainActivity.this)
+												.setTitle(R.string.endday)
+												.setMessage(R.string.send_endday_data_success)
+												.setCancelable(false)
+												.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+															@Override
+															public void onClick(DialogInterface dialog,int which) {
+																// Utils.shutdown();
+																finish();
+															}
 												}).show();
+									}
+									
+								});
+								
 							}
 	
 							@Override
 							public void onError(String msg) {
-								if (progress.isShowing())
-									progress.dismiss();
-								new AlertDialog.Builder(
-										MainActivity.this)
-										.setTitle(R.string.endday)
-										.setMessage(R.string.cannot_send_endday_data_on_this_time)
-										.setCancelable(false)
-										.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-	
-													@Override
-													public void onClick(DialogInterface arg0, int arg1) {
-														finish();
-													}
+								runOnUiThread(new Runnable(){
+
+									@Override
+									public void run() {
+										if (progress.isShowing())
+											progress.dismiss();
+										new AlertDialog.Builder(
+												MainActivity.this)
+												.setTitle(R.string.endday)
+												.setMessage(R.string.cannot_send_endday_data_on_this_time)
+												.setCancelable(false)
+												.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+															@Override
+															public void onClick(DialogInterface arg0, int arg1) {
+																finish();
+															}
 												})
-										.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-	
-													@Override
-													public void onClick(DialogInterface dialog, int which) {
-														sendEnddayData();
-													}
+												.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+															@Override
+															public void onClick(DialogInterface dialog, int which) {
+																sendEnddayData();
+															}
 												}).show();
+									}
+									
+								});
+								
 							}
 	
 							@Override

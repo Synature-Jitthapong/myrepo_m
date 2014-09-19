@@ -19,7 +19,7 @@ public class SoftwareInfoTable {
 			+ COLUMN_LAST_UPDATE + " text, "
 			+ COLUMN_IS_DOWNLOADED + " integer default 0, "
 			+ COLUMN_IS_ALREADY_UPDATE + " integer default 0, "
-			+ " primary key(" + COLUMN_SOFTWARE_INFO_ID + ");";
+			+ " primary key(" + COLUMN_SOFTWARE_INFO_ID + "));";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);

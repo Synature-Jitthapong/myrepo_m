@@ -1,5 +1,6 @@
 package com.synature.mpos.database;
 
+import com.synature.mpos.Utils;
 import com.synature.mpos.database.model.SoftwareInfo;
 import com.synature.mpos.database.table.SoftwareInfoTable;
 
@@ -23,7 +24,7 @@ public class SoftwareInfoDao extends MPOSDatabase{
 					SoftwareInfoTable.COLUMN_LAST_UPDATE,
 					SoftwareInfoTable.COLUMN_IS_DOWNLOADED,
 					SoftwareInfoTable.COLUMN_IS_ALREADY_UPDATE
-				}, null, null, null, SoftwareInfoTable.COLUMN_SOFTWARE_INFO_ID + " DESC ", "1");
+				}, null, null, null, null, SoftwareInfoTable.COLUMN_SOFTWARE_INFO_ID + " DESC ", "1");
 		if(cursor.moveToFirst()){
 			sw = new SoftwareInfo();
 			sw.setId(cursor.getInt(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_SOFTWARE_INFO_ID)));
@@ -42,6 +43,7 @@ public class SoftwareInfoDao extends MPOSDatabase{
 	public void setStatusAlreadyUpdated(int id, int status){
 		ContentValues cv = new ContentValues();
 		cv.put(SoftwareInfoTable.COLUMN_IS_ALREADY_UPDATE, status);
+		cv.put(SoftwareInfoTable.COLUMN_LAST_UPDATE, Utils.getCalendar().getTimeInMillis());
 		getWritableDatabase().update(SoftwareInfoTable.TABLE_SOFTWARE_INFO, 
 				cv, SoftwareInfoTable.COLUMN_SOFTWARE_INFO_ID + "=?", 
 				new String[]{

@@ -357,7 +357,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		final SoftwareInfoDao sw = new SoftwareInfoDao(this);
 		final SoftwareInfo info = sw.getSoftwareInfo();
 		if(info != null){
-			if(!info.isDownloaded()){
+			if(info.isDownloaded()){
 				final String filePath = Environment.getExternalStorageDirectory() + File.separator + Utils.UPDATE_PATH + File.separator + Utils.UPDATE_FILE_NAME;
 				if(!info.isAlreadyUpdate()){
 					AlertDialog.Builder builder = new AlertDialog.Builder(this);
