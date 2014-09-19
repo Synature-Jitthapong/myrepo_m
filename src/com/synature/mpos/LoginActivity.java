@@ -15,6 +15,7 @@ import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
 import com.synature.mpos.database.model.SoftwareInfo;
 import com.synature.pos.Staff;
+import com.synature.util.Logger;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -373,6 +374,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							sw.setStatusAlreadyUpdated(info.getId(), 1);
+							Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Success install apk");
 							File apkFile = new File(filePath);
 						    Intent intent = new Intent(Intent.ACTION_VIEW);
 						    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
