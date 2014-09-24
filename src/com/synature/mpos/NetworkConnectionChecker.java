@@ -7,6 +7,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -44,7 +47,9 @@ public class NetworkConnectionChecker extends AsyncTask<Void, Void, Object>{
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
 			// check server status
-			HttpClient httpClient = new DefaultHttpClient();
+			HttpParams httpParam = new BasicHttpParams();
+			HttpConnectionParams.setConnectionTimeout(httpParam, 10 * 1000);
+			HttpClient httpClient = new DefaultHttpClient(httpParam);
 			HttpResponse res;
 			try {
 				res = httpClient.execute(new HttpGet(Utils.getFullUrl(mContext)));

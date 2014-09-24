@@ -373,8 +373,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							sw.setStatusAlreadyUpdated(info.getId(), 1);
-							Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Success install apk");
 							File apkFile = new File(filePath);
 						    Intent intent = new Intent(Intent.ACTION_VIEW);
 						    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
@@ -466,7 +464,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 	
 	private void gotoMainActivity(){
-		startEnddayService();
+		//startEnddayService();
 		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 		intent.putExtra("staffId", mStaffId);
 		intent.putExtra("staffRoleId", mStaffRoleId);
@@ -476,7 +474,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	
 	/**
 	 * Start endday service for send endday sale
-	 */
+	
 	private void startEnddayService(){
 		new NetworkConnectionChecker(this, new NetworkCheckerListener() {
 			
@@ -499,7 +497,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 				Utils.makeToask(LoginActivity.this, msg);
 			}
 		}).execute();
-	}
+	} */
 	
 	public void checkLogin(){
 		String user = "";

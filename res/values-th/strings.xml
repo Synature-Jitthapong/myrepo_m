@@ -191,4 +191,5 @@
 	<string name="software_update">ซอฟต์แวร์อัพเดต</string>
 	<string name="software_update_mesg">มีโปรแกรมเวอร์ชั่นใหม่กว่าที่ใช้อยู่ในปัจจุบัน กรุณาทำการอัพเดตเวอร์ชั่นของโปรแกรมก่อน</string>
 	<string name="total_sale_include_vat">ราคารวม VAT</string>
+	<string name="check_network_progress">ตรวจสอบการเชื่อมต่อกับ Server&#8230;</string>
 </resources>
