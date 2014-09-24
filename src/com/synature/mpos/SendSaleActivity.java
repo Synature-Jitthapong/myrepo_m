@@ -40,7 +40,6 @@ import android.widget.TextView;
 public class SendSaleActivity extends MPOSActivityBase{
 	public static final String TAG = SendSaleActivity.class.getSimpleName();
 	
-	private Thread mSendThread;
 	private SaleService mPartService;
 	private boolean mBound = false;
 	
@@ -92,10 +91,6 @@ public class SendSaleActivity extends MPOSActivityBase{
 			unbindService(mServiceConnection);
 			mBound = false;
 		}
-		if(mSendThread != null){
-			mSendThread.interrupt();
-			mSendThread = null;
-		}
 	}
 
 	private void loadTransNotSend(){
@@ -137,42 +132,37 @@ public class SendSaleActivity extends MPOSActivityBase{
 	}
 
 	private void sendSale(){
+		mItemSendAll.setEnabled(false);
 		new NetworkConnectionChecker(this, new NetworkCheckerListener() {
 			
 			@Override
 			public void serverProblem(int code, String msg) {
+				mItemSendAll.setEnabled(true);
 				Utils.makeToask(SendSaleActivity.this, msg);
 			}
 			
 			@Override
 			public void onLine() {
-				mSendThread = new Thread(new Runnable(){
-
-					@Override
-					public void run() {
-						for(int i = 0; i < mTransLst.size(); i++){
-							if(i < 100){
-								SendTransaction trans = mTransLst.get(i);
-								mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
-										mComputerId, mStaffId, new SendSaleProgress(trans, i));
-							}else{
-								break;
-							}
-						}
+				for(int i = 0; i < mTransLst.size(); i++){
+					if(i < 100){
+						SendTransaction trans = mTransLst.get(i);
+						mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
+								mComputerId, mStaffId, new SendSaleProgress(trans, i));
+					}else{
+						break;
 					}
-					
-				});
-				mSendThread.start();
+				}
 			}
 			
 			@Override
 			public void offLine(String msg) {
+				mItemSendAll.setEnabled(true);
 				Utils.makeToask(SendSaleActivity.this, msg);
 			}
 		}).execute();
 	}
 	
-	class SendSaleProgress implements WebServiceWorkingListener{
+	private class SendSaleProgress implements WebServiceWorkingListener{
 
 		private SendTransaction mTrans;
 		private int mPosition;
@@ -184,57 +174,31 @@ public class SendSaleActivity extends MPOSActivityBase{
 		
 		@Override
 		public void onPreExecute() {
-			runOnUiThread(new Runnable(){
-
-				@Override
-				public void run() {
-					if(mPosition == 0){
-						mItemSendAll.setEnabled(false);
-					}
-					mTrans.onSend = true;
-					mTransLst.set(mPosition, mTrans);
-					mSyncAdapter.notifyDataSetChanged();
-					Log.i(TAG, "Begin send bill " + mTrans.getReceiptNo());
-				}
-				
-			});
+			mTrans.onSend = true;
+			mTransLst.set(mPosition, mTrans);
+			mSyncAdapter.notifyDataSetChanged();
+			Log.i(TAG, "Begin send bill " + mTrans.getReceiptNo());
 		}
 
 		@Override
 		public void onPostExecute() {
-			runOnUiThread(new Runnable(){
-
-				@Override
-				public void run() {
-					mTrans.setSendStatus(MPOSDatabase.ALREADY_SEND);
-					mTrans.onSend = false;
-					mTransLst.set(mPosition, mTrans);
-					mSyncAdapter.notifyDataSetChanged();
-					if(mPosition == mTransLst.size() - 1)
-						mItemSendAll.setEnabled(true);
-					Log.i(TAG, "Success send bill " + mTrans.getReceiptNo());
-				}
-				
-			});
+			mTrans.setSendStatus(MPOSDatabase.ALREADY_SEND);
+			mTrans.onSend = false;
+			mTransLst.set(mPosition, mTrans);
+			mSyncAdapter.notifyDataSetChanged();
+			Log.i(TAG, "Success send bill " + mTrans.getReceiptNo());
 		}
 
 		@Override
 		public void onError(final String msg) {
-			runOnUiThread(new Runnable(){
-
-				@Override
-				public void run() {
-					mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
-					mTransLst.set(mPosition, mTrans);
-					mTrans.onSend = false;
-					mSyncAdapter.notifyDataSetChanged();
-					if(mPosition == mTransLst.size() - 1){
-						mItemSendAll.setEnabled(true);
-						Utils.makeToask(SendSaleActivity.this, msg);
-					}
-				}
-				
-			});
+			mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
+			mTransLst.set(mPosition, mTrans);
+			mTrans.onSend = false;
+			mSyncAdapter.notifyDataSetChanged();
+			if(mPosition == mTransLst.size() - 1){
+				mItemSendAll.setEnabled(true);
+				Utils.makeToask(SendSaleActivity.this, msg);
+			}
 		}
 
 		@Override
@@ -313,7 +277,7 @@ public class SendSaleActivity extends MPOSActivityBase{
 			final SendTransaction trans = mSendTransLst.get(position);
 			final ViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.send_trans_template, null);
+				convertView = mInflater.inflate(R.layout.send_trans_template, parent, false);
 				holder = new ViewHolder();
 				holder.tvNo = (TextView) convertView.findViewById(R.id.textView2);
 				holder.imgSyncStatus = (ImageView) convertView.findViewById(R.id.imageView1);

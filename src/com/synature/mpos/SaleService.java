@@ -30,7 +30,7 @@ public class SaleService extends Service{
 	 */
 	public void sendEnddaySale(final int shopId, final int computerId, final int staffId, 
 			final WebServiceWorkingListener listener){
-		new Thread(new EnddayUnSendSaleExecutor(getApplicationContext(),
+		new EnddayUnSendSaleExecutor(getApplicationContext(),
 				shopId, computerId, staffId, new WebServiceWorkingListener(){
 
 					@Override
@@ -49,11 +49,22 @@ public class SaleService extends Service{
 
 					@Override
 					public void onError(String msg) {
-						new EnddaySenderExecutor(getApplicationContext(), 
-								shopId, computerId, staffId, listener).run();
+						sendAllEndday(shopId, computerId, staffId, listener);
 					}
 			
-		})).start();
+		}).execute();
+	}
+	
+	/**
+	 * @param shopId
+	 * @param computerId
+	 * @param staffId
+	 * @param listener
+	 */
+	public void sendAllEndday(final int shopId, final int computerId, final int staffId, 
+			final WebServiceWorkingListener listener){
+		new EnddaySenderExecutor(getApplicationContext(), 
+				shopId, computerId, staffId, listener).execute();	
 	}
 	
 	/**
@@ -67,6 +78,6 @@ public class SaleService extends Service{
 	public void sendSale(int shopId, int sessionId, int transactionId, 
 			int computerId, int staffId, WebServiceWorkingListener listener) {
 		new PartialSaleSenderExcecutor(getApplicationContext(),
-				sessionId, transactionId, shopId, computerId, staffId, listener).run();
+				sessionId, transactionId, shopId, computerId, staffId, listener).execute();
 	}
 }
