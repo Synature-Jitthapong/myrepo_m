@@ -475,6 +475,7 @@ public final class R {
         public static final int cashier=0x7f05006f;
         public static final int change=0x7f050011;
         public static final int check_device_progress=0x7f05002a;
+        public static final int check_network_progress=0x7f0500ef;
         public static final int check_not_complete_orders=0x7f050064;
         public static final int clear=0x7f0500ab;
         public static final int close=0x7f050023;
