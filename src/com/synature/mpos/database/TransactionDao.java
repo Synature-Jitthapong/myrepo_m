@@ -133,7 +133,7 @@ public class TransactionDao extends MPOSDatabase {
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT COUNT(b." + OrderDetailTable.COLUMN_ORDER_ID + ")"
 				+ " FROM " + OrderTransTable.TEMP_ORDER_TRANS + " a "
-				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
+				+ " LEFT JOIN " + OrderDetailTable.TEMP_ORDER + " b "
 				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 				+ " WHERE a." + OrderTransTable.COLUMN_STATUS_ID + " in (?, ?)"
 				+ " AND a." + OrderTransTable.COLUMN_SALE_DATE + "=?",
