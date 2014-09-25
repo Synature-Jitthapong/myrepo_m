@@ -3,6 +3,7 @@ package com.synature.mpos;
 public class MPOSSoftwareInfo {
 	private String szRegisterServiceUrl;
 	private String szExpireDate;
+	private String szLockExpireDate;
 	private String szRegisterMessage;
 	private String szSoftwareVersion;
 	private String szSoftwareDownloadUrl;
@@ -35,5 +36,11 @@ public class MPOSSoftwareInfo {
 	}
 	public void setSzSoftwareDownloadUrl(String szSoftwareDownloadUrl) {
 		this.szSoftwareDownloadUrl = szSoftwareDownloadUrl;
+	}
+	public String getSzLockExpireDate() {
+		return szLockExpireDate;
+	}
+	public void setSzLockExpireDate(String szLockExpireDate) {
+		this.szLockExpireDate = szLockExpireDate;
 	}
 }

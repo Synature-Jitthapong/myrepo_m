@@ -32,6 +32,7 @@ public abstract class PrinterBase {
 	public static final int HORIZONTAL_MAX_SPACE = 45;
 	public static final int QTY_MAX_SPACE = 12;
 	public static final int MAX_TEXT_LENGTH = 35;
+	public static final int MAX_TEXT_WITH_QTY_LENGTH = 25;
 	
 	protected TransactionDao mTrans;
 	protected PaymentDetailDao mPayment;
@@ -74,6 +75,14 @@ public abstract class PrinterBase {
 			empText.append(" ");
 		}
 		return empText.toString() + text + empText.toString();
+	}
+	
+	protected String limitTextWithQtyLength(String text){
+		if(text == null)
+			return "";
+		if(text.length() > MAX_TEXT_WITH_QTY_LENGTH)
+			text = text.substring(0, MAX_TEXT_WITH_QTY_LENGTH) + "...";
+		return text;
 	}
 	
 	protected String limitTextLength(String text){
@@ -241,6 +250,7 @@ public abstract class PrinterBase {
 							mContext.getString(R.string.summary);
 					mTextToPrint.append(itemName);
 				}else{
+					itemName = limitTextWithQtyLength(itemName);
 					mTextToPrint.append(itemName);
 				}
 				String itemTotalPrice = mFormat.currencyFormat(detail.getSubTotal());
@@ -358,7 +368,7 @@ public abstract class PrinterBase {
 				mTextToPrint.append(groupTotalPrice + "\n");
 				if(sp.getItemLst() != null){
 					for(SimpleProductData.Item item : sp.getItemLst()){
-						String itemName = limitTextLength("-" + item.getItemName());
+						String itemName = limitTextWithQtyLength("-" + item.getItemName());
 						String itemTotalPrice = mFormat.currencyFormat(item.getTotalPrice());
 						String itemTotalQty = mFormat.qtyFormat(item.getTotalQty()) + 
 								createQtySpace(calculateLength(itemTotalPrice));
@@ -371,6 +381,7 @@ public abstract class PrinterBase {
 						mTextToPrint.append(itemTotalPrice + "\n");
 					}
 				}
+				mTextToPrint.append(createLine("-") + "\n");
 			}
 			// Sub Total
 			mTextToPrint.append("\n");
@@ -578,13 +589,11 @@ public abstract class PrinterBase {
 		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId, isLoadTemp);
     	for(int i = 0; i < orderLst.size(); i++){
     		OrderDetail order = orderLst.get(i);
-    		String productName = limitTextLength(order.getProductName());
-    		String productQty = mFormat.qtyFormat(order.getOrderQty()) + "x ";
+    		String productName = limitTextLength(mFormat.qtyFormat(order.getOrderQty()) + "x " + 
+    				order.getProductName());
     		String productPrice = mFormat.currencyFormat(order.getProductPrice());
-    		mTextToPrint.append(productQty);
     		mTextToPrint.append(productName);
     		mTextToPrint.append(createHorizontalSpace(
-    				calculateLength(productQty) + 
     				calculateLength(productName) + 
     				calculateLength(productPrice)));
     		mTextToPrint.append(productPrice);
@@ -592,13 +601,11 @@ public abstract class PrinterBase {
     		if(order.getOrderCommentLst() != null && order.getOrderCommentLst().size() > 0){
     			for(Comment comm : order.getOrderCommentLst()){
     				if(comm.getCommentPrice() > 0){
-	    				String commName = limitTextLength(comm.getCommentName());
-	    				String commQty = "   " + mFormat.qtyFormat(comm.getCommentQty()) + "x ";
+	    				String commName = limitTextLength("   " + mFormat.qtyFormat(comm.getCommentQty()) + "x "
+	    						+ comm.getCommentName());
 	    				String commPrice = mFormat.currencyFormat(comm.getCommentPrice());
-	    				mTextToPrint.append(commQty);
 	    				mTextToPrint.append(commName);
 	    				mTextToPrint.append(createHorizontalSpace(
-	    						calculateLength(commQty) +
 	    						calculateLength(commName) + 
 	    						calculateLength(commPrice)));
 	    				mTextToPrint.append(commPrice);
@@ -608,13 +615,11 @@ public abstract class PrinterBase {
     		}
     		if(order.getOrdSetDetailLst() != null && order.getOrdSetDetailLst().size() > 0){
     			for(OrderSetDetail setDetail : order.getOrdSetDetailLst()){
-    				String setName = limitTextLength(setDetail.getProductName());
-    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
+    				String setName = limitTextLength("   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x "
+    						+ setDetail.getProductName());
     				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
-    				mTextToPrint.append(setQty);
     				mTextToPrint.append(setName);
     				mTextToPrint.append(createHorizontalSpace(
-    						calculateLength(setQty) + 
     						calculateLength(setName) +
     						calculateLength(setPrice)));
     				mTextToPrint.append(setPrice);

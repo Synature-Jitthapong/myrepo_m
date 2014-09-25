@@ -54,18 +54,20 @@ public class OrderDetailTable extends BaseColumn{
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion,
 			int newVersion) {
 		// upgrade schema from 2 to 3
-		db.beginTransaction();
-		try{
-			String tbCopy = "OrderDetailCopy";
-			db.execSQL("create table " + tbCopy + " as select * from " + TABLE_ORDER);
-			db.execSQL("drop table if exists " + TABLE_ORDER);
-			db.execSQL("drop table if exists " + TEMP_ORDER);
-			onCreate(db);
-			db.execSQL("insert into " + TABLE_ORDER + " select * from " + tbCopy);
-			db.execSQL("drop table " + tbCopy);
-			db.setTransactionSuccessful();
-		}finally{
-			db.endTransaction();
+		if(oldVersion < 4){
+			db.beginTransaction();
+			try{
+				String tbCopy = "OrderDetailCopy";
+				db.execSQL("create table " + tbCopy + " as select * from " + TABLE_ORDER);
+				db.execSQL("drop table if exists " + TABLE_ORDER);
+				db.execSQL("drop table if exists " + TEMP_ORDER);
+				onCreate(db);
+				db.execSQL("insert into " + TABLE_ORDER + " select * from " + tbCopy);
+				db.execSQL("drop table " + tbCopy);
+				db.setTransactionSuccessful();
+			}finally{
+				db.endTransaction();
+			}
 		}
 	}
 }

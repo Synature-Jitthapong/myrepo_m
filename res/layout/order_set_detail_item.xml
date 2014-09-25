@@ -25,9 +25,7 @@
         android:id="@+id/include1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/btnSetMinus"
         android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/btnSetMinus"
         android:layout_toLeftOf="@+id/btnSetMinus"
         android:layout_weight="1"
         layout="@layout/order_set_item" />
