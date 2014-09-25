@@ -49,7 +49,8 @@ public class SoftwareRegister extends MPOSServiceBase{
 				if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
 					// compare version
 					if(!TextUtils.equals(Utils.getSoftWareVersion(mContext), info.getSzSoftwareVersion())){
-						int infoId = sw.logSoftwareInfo(info.getSzSoftwareVersion(), String.valueOf(Utils.DB_VERSION));
+						int infoId = sw.logSoftwareInfo(info.getSzSoftwareVersion(), 
+								String.valueOf(Utils.DB_VERSION), info.getSzExpireDate(), info.getSzLockExpireDate());
 						Intent intent = new Intent(mContext, SoftwareUpdateService.class);
 						intent.putExtra("fileUrl", info.getSzSoftwareDownloadUrl());
 						intent.putExtra("infoId", infoId);

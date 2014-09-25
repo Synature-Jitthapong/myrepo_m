@@ -599,15 +599,14 @@ public class TransactionDao extends MPOSDatabase {
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b"
 				+ " ON a."  + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID;
 		String selection = "a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
-				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?, ?) ";
+				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?) ";
 		Cursor cursor = queryOrderDetail(
 				tables,
 				selection,
 				new String[] { 
 					String.valueOf(transactionId),
 					String.valueOf(ProductsDao.NORMAL_TYPE),
-					String.valueOf(ProductsDao.SET_CAN_SELECT),
-					String.valueOf(ProductsDao.COMMENT_HAVE_PRICE)
+					String.valueOf(ProductsDao.SET_CAN_SELECT)
 				}, "a." + ProductTable.COLUMN_PRODUCT_ID);
 		if (cursor.moveToFirst()) {
 			do {
