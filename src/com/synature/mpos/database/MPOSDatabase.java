@@ -31,6 +31,7 @@ import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
 import com.synature.mpos.database.table.SoftwareInfoTable;
+import com.synature.mpos.database.table.SoftwareUpdateTable;
 import com.synature.mpos.database.table.StaffPermissionTable;
 import com.synature.mpos.database.table.StaffTable;
 import com.synature.mpos.database.table.SyncHistoryTable;
@@ -128,6 +129,7 @@ public class MPOSDatabase extends BaseColumn{
 			PromotionPriceGroupTable.onCreate(db);
 			PromotionProductDiscountTable.onCreate(db);
 			SoftwareInfoTable.onCreate(db);
+			SoftwareUpdateTable.onCreate(db);
 		}
 		
 		@Override
@@ -158,6 +160,7 @@ public class MPOSDatabase extends BaseColumn{
 			PromotionPriceGroupTable.onUpgrade(db, oldVersion, newVersion);
 			PromotionProductDiscountTable.onUpgrade(db, oldVersion, newVersion);
 			SoftwareInfoTable.onUpgrade(db, oldVersion, newVersion);
+			SoftwareUpdateTable.onUpgrade(db, oldVersion, newVersion);
 			OrderTransTable.onUpgrade(db, oldVersion, newVersion);
 			OrderDetailTable.onUpgrade(db, oldVersion, newVersion);
 		}

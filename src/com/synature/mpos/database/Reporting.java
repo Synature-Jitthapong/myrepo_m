@@ -315,7 +315,7 @@ public class Reporting extends MPOSDatabase{
 				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
 				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 				+ " WHERE " + selection
-				+ " GROUP BY a." + OrderTransTable.COLUMN_TRANS_ID;
+				+ " GROUP BY a." + OrderTransTable.COLUMN_SALE_DATE + ", a." + OrderTransTable.COLUMN_TRANS_ID;
 
 		Cursor cursor = getReadableDatabase().rawQuery(strSql,
                 new String[]{

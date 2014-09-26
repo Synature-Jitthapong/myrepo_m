@@ -10,10 +10,12 @@ import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.SoftwareInfoDao;
+import com.synature.mpos.database.SoftwareUpdateDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
 import com.synature.mpos.database.model.SoftwareInfo;
+import com.synature.mpos.database.model.SoftwareUpdate;
 import com.synature.pos.Staff;
 import com.synature.util.Logger;
 
@@ -354,12 +356,12 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 			
 	private void checkSoftwareUpdate(){
-		final SoftwareInfoDao sw = new SoftwareInfoDao(this);
-		final SoftwareInfo info = sw.getSoftwareInfo();
-		if(info != null){
-			if(info.isDownloaded()){
+		final SoftwareUpdateDao su = new SoftwareUpdateDao(this);
+		final SoftwareUpdate update = su.getUpdateData();
+		if(update != null){
+			if(update.isDownloaded()){
 				final String filePath = Environment.getExternalStorageDirectory() + File.separator + Utils.UPDATE_PATH + File.separator + Utils.UPDATE_FILE_NAME;
-				if(!info.isAlreadyUpdate()){
+				if(!update.isAlreadyUpdated()){
 					AlertDialog.Builder builder = new AlertDialog.Builder(this);
 					builder.setTitle(R.string.software_update);
 					builder.setMessage(R.string.software_update_mesg);

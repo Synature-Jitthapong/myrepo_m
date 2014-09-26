@@ -49,6 +49,19 @@ public class SessionDao extends MPOSDatabase{
 		super(context);
 	}
 
+	public String getFirstSessionDate(){
+		String firstSessDate = "";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + SessionTable.COLUMN_SESS_DATE
+				+ " FROM " + SessionTable.TABLE_SESSION
+				+ " ORDER BY " + SessionTable.COLUMN_SESS_DATE + " ASC LIMIT 1", null);
+		if(cursor.moveToFirst()){
+			firstSessDate = cursor.getString(0);
+		}
+		cursor.close();
+		return firstSessDate;
+	}
+	
 	/**
 	 * list all session in day
 	 * @param sessDate

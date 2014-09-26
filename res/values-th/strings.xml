@@ -12,7 +12,7 @@
     <string name="logout">ออกจากระบบ</string>
     <string name="sub_total">รวมราคา</string>
     <string name="vat">ภาษี</string>
-    <string name="total_price">รวมราคา</string>
+    <string name="total_price">ราคาขาย</string>
     <string name="total_receive">จำนวนใบเสร็จ</string>
     <string name="change">เงินทอน</string>
     <string name="price">ราคา</string>
@@ -190,6 +190,6 @@
 	<string name="shift_close_report">รายงานสรุปกะ</string>
 	<string name="software_update">ซอฟต์แวร์อัพเดต</string>
 	<string name="software_update_mesg">มีโปรแกรมเวอร์ชั่นใหม่กว่าที่ใช้อยู่ในปัจจุบัน กรุณาทำการอัพเดตเวอร์ชั่นของโปรแกรมก่อน</string>
-	<string name="total_sale_include_vat">ราคารวม VAT</string>
+	<string name="total_sale_include_vat">ราคารวมภาษี</string>
 	<string name="check_network_progress">ตรวจสอบการเชื่อมต่อกับ Server&#8230;</string>
 </resources>

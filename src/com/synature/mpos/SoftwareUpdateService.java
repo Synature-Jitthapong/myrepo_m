@@ -10,7 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.synature.mpos.database.SoftwareInfoDao;
+import com.synature.mpos.database.SoftwareUpdateDao;
 import com.synature.util.Logger;
 
 import android.app.Service;
@@ -32,7 +32,6 @@ public class SoftwareUpdateService extends Service{
 			@Override
 			public void run() {
 				String fileUrl = intent.getStringExtra("fileUrl");
-				int infoId = intent.getIntExtra("infoId", 0);
 				Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Start download apk...");
 				try {
 					URL url = new URL(fileUrl);
@@ -55,8 +54,8 @@ public class SoftwareUpdateService extends Service{
 					output.flush();
 					output.close();
 					input.close();
-					SoftwareInfoDao sw = new SoftwareInfoDao(getApplicationContext());
-					sw.setStatusDownloaded(infoId, 1);
+					SoftwareUpdateDao su = new SoftwareUpdateDao(getApplicationContext());
+					su.setDownloadStatus(1);
 					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Successfully download apk...");
 					stopSelf();
 				} catch (MalformedURLException e) {

@@ -823,6 +823,8 @@ public class SaleReportActivity extends MPOSActivityBase{
 			if(isExcVat){
 				mBillHeader.addView(createTextViewHeader(getActivity(), getActivity().getString(R.string.sub_total), 
 						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
+				mBillHeader.addView(createTextViewHeader(getActivity(), getString(R.string.total_sale), 
+						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
 			}
 			mBillHeader.addView(
 					createTextViewHeader(getActivity(), getString(R.string.vat) + " "
@@ -922,6 +924,9 @@ public class SaleReportActivity extends MPOSActivityBase{
 				if(isExcVat){
 					container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(subTotal),  
 							Utils.getLinHorParams(0.7f)));
+					container.addView(
+							createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(beforVat),  
+									Utils.getLinHorParams(0.7f)));
 				}
 				container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalVat),  
 						Utils.getLinHorParams(0.7f)));
@@ -992,8 +997,8 @@ public class SaleReportActivity extends MPOSActivityBase{
 		private void summaryBill(){
 			boolean isIncVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED;
 			boolean isExcVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_EXCLUDE;
-			Report.ReportDetail summary = 
-					mHost.mReporting.getBillSummary();
+			Report.ReportDetail summary = mHost.mReporting.getBillSummary();
+			double beforVat = summary.getVatable() - summary.getTotalVat();
 			mBillSumContent.removeAllViews();
 			TextView[] tvSummary = {
 					createTextViewSummary(getActivity(), getString(R.string.summary),  
@@ -1009,12 +1014,13 @@ public class SaleReportActivity extends MPOSActivityBase{
 			if(isIncVat){
 				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getVatable()),  
 						Utils.getLinHorParams(0.7f)));
-				double beforVat = summary.getVatable() - summary.getTotalVat();
 				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(beforVat), 
 						Utils.getLinHorParams(0.7f)));
 			}
 			if(isExcVat){
 				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getSubTotal()),  
+						Utils.getLinHorParams(0.7f)));
+				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(beforVat), 
 						Utils.getLinHorParams(0.7f)));
 			}
 			mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalVat()),  
@@ -1400,28 +1406,6 @@ public class SaleReportActivity extends MPOSActivityBase{
 			};
 			mProductSumContent.addView(createRowSummary(getActivity(), tvTotalSale));
 		
-		}
-		
-		public class LoadProductReportTask extends AsyncTask<Void, Void, Void>{
-
-			@Override
-			protected void onPreExecute() {
-				mProgress.show();
-			}
-
-			@Override
-			protected void onPostExecute(Void result) {
-				if(mProgress.isShowing())
-					mProgress.dismiss();
-				mProductReportAdapter.notifyDataSetChanged();
-			}
-
-			@Override
-			protected Void doInBackground(Void... params) {
-				mReportProduct = mHost.mReporting.getProductDataReport();
-				return null;
-			}
-			
 		}
 	}
 }
