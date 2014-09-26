@@ -2,7 +2,7 @@ package com.synature.mpos;
 
 import java.util.List;
 
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MenuCommentDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.TransactionDao;
@@ -50,7 +50,7 @@ public class MenuCommentDialogFragment extends DialogFragment{
 	private String mMenuName;
 	private String mOrderComment;
 	
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	private TransactionDao mTrans;
 	private MenuCommentDao mComment;
 	private List<CommentGroup> mCommentGroupLst;
@@ -95,7 +95,7 @@ public class MenuCommentDialogFragment extends DialogFragment{
 		mMenuName = getArguments().getString("menuName");
 		mOrderComment = getArguments().getString("orderComment");
 		
-		mFormat = new FormaterDao(getActivity());
+		mFormat = new GlobalPropertyDao(getActivity());
 		mTrans = new TransactionDao(getActivity());
 		mComment = new MenuCommentDao(getActivity());
 		mCommentLst = mComment.listMenuComment();

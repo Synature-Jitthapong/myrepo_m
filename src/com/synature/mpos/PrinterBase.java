@@ -8,7 +8,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.synature.mpos.database.CreditCardDao;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.HeaderFooterReceiptDao;
 import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.ProductsDao;
@@ -32,12 +32,13 @@ public abstract class PrinterBase {
 	public static final int HORIZONTAL_MAX_SPACE = 45;
 	public static final int QTY_MAX_SPACE = 12;
 	public static final int MAX_TEXT_LENGTH = 35;
+	public static final int MAX_TEXT_WITH_QTY_LENGTH = 25;
 	
 	protected TransactionDao mTrans;
 	protected PaymentDetailDao mPayment;
 	protected ShopDao mShop;
 	protected HeaderFooterReceiptDao mHeaderFooter;
-	protected FormaterDao mFormat;
+	protected GlobalPropertyDao mFormat;
 	protected StaffsDao mStaff;
 	protected CreditCardDao mCreditCard;
 	protected Context mContext;
@@ -49,7 +50,7 @@ public abstract class PrinterBase {
 		mTrans = new TransactionDao(context);
 		mPayment = new PaymentDetailDao(context);
 		mShop = new ShopDao(context);
-		mFormat = new FormaterDao(context);
+		mFormat = new GlobalPropertyDao(context);
 		mHeaderFooter = new HeaderFooterReceiptDao(context);
 		mStaff = new StaffsDao(context);
 		mCreditCard = new CreditCardDao(context);
@@ -74,6 +75,14 @@ public abstract class PrinterBase {
 			empText.append(" ");
 		}
 		return empText.toString() + text + empText.toString();
+	}
+	
+	protected String limitTextWithQtyLength(String text){
+		if(text == null)
+			return "";
+		if(text.length() > MAX_TEXT_WITH_QTY_LENGTH)
+			text = text.substring(0, MAX_TEXT_WITH_QTY_LENGTH) + "...";
+		return text;
 	}
 	
 	protected String limitTextLength(String text){
@@ -241,6 +250,7 @@ public abstract class PrinterBase {
 							mContext.getString(R.string.summary);
 					mTextToPrint.append(itemName);
 				}else{
+					itemName = limitTextWithQtyLength(itemName);
 					mTextToPrint.append(itemName);
 				}
 				String itemTotalPrice = mFormat.currencyFormat(detail.getSubTotal());
@@ -302,6 +312,7 @@ public abstract class PrinterBase {
 	protected void createTextForPrintSummaryReport(int sessionId, int staffId){
 		SessionDao session = new SessionDao(mContext.getApplicationContext());
 		String sessionDate = session.getLastSessionDate();
+		boolean isOneSession = session.countSession(sessionDate) == 1;
 		
 		OrderTransaction trans = null; 
 		OrderDetail summOrder = null;
@@ -357,7 +368,7 @@ public abstract class PrinterBase {
 				mTextToPrint.append(groupTotalPrice + "\n");
 				if(sp.getItemLst() != null){
 					for(SimpleProductData.Item item : sp.getItemLst()){
-						String itemName = limitTextLength("-" + item.getItemName());
+						String itemName = limitTextWithQtyLength("-" + item.getItemName());
 						String itemTotalPrice = mFormat.currencyFormat(item.getTotalPrice());
 						String itemTotalQty = mFormat.qtyFormat(item.getTotalQty()) + 
 								createQtySpace(calculateLength(itemTotalPrice));
@@ -370,6 +381,7 @@ public abstract class PrinterBase {
 						mTextToPrint.append(itemTotalPrice + "\n");
 					}
 				}
+				mTextToPrint.append(createLine("-") + "\n");
 			}
 			// Sub Total
 			mTextToPrint.append("\n");
@@ -440,7 +452,10 @@ public abstract class PrinterBase {
 			mTextToPrint.append(totalVat + "\n\n");
 		}
 
-		if(sessionId != 0){
+		if(sessionId != 0 || isOneSession){
+			if(isOneSession)
+				sessionId = session.getLastSessionId();
+			
 			// open/close shift
 			String floatInText = mContext.getString(R.string.float_in);
 			String totalCashText = mContext.getString(R.string.total_cash);
@@ -529,11 +544,12 @@ public abstract class PrinterBase {
 	 * Create text for print receipt
 	 * @param transId
 	 * @param isCopy
+	 * @param isLoadTemp
 	 */
-	protected void createTextForPrintReceipt(int transId, boolean isCopy){
-		OrderTransaction trans = mTrans.getTransaction(transId);
-		OrderDetail summOrder = mTrans.getSummaryOrder(transId);
-		double change = mPayment.getTotalPayAmount(transId) - (summOrder.getTotalSalePrice());
+	protected void createTextForPrintReceipt(int transId, boolean isCopy, boolean isLoadTemp){
+		OrderTransaction trans = mTrans.getTransaction(transId, isLoadTemp);
+		OrderDetail sumOrder = mTrans.getSummaryOrder(transId, isLoadTemp);
+		double change = mPayment.getTotalPayAmount(transId) - (sumOrder.getTotalSalePrice());
 		boolean isShowVat = mShop.getShopProperty().getPrintVatInReceipt() == 1;
 		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
 		
@@ -570,16 +586,14 @@ public abstract class PrinterBase {
 		mTextToPrint.append(cashCheer + createHorizontalSpace(calculateLength(cashCheer)) + "\n");
 		mTextToPrint.append(createLine("=") + "\n");
 		
-		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId);
+		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId, isLoadTemp);
     	for(int i = 0; i < orderLst.size(); i++){
     		OrderDetail order = orderLst.get(i);
-    		String productName = limitTextLength(order.getProductName());
-    		String productQty = mFormat.qtyFormat(order.getOrderQty()) + "x ";
+    		String productName = limitTextLength(mFormat.qtyFormat(order.getOrderQty()) + "x " + 
+    				order.getProductName());
     		String productPrice = mFormat.currencyFormat(order.getProductPrice());
-    		mTextToPrint.append(productQty);
     		mTextToPrint.append(productName);
     		mTextToPrint.append(createHorizontalSpace(
-    				calculateLength(productQty) + 
     				calculateLength(productName) + 
     				calculateLength(productPrice)));
     		mTextToPrint.append(productPrice);
@@ -587,13 +601,11 @@ public abstract class PrinterBase {
     		if(order.getOrderCommentLst() != null && order.getOrderCommentLst().size() > 0){
     			for(Comment comm : order.getOrderCommentLst()){
     				if(comm.getCommentPrice() > 0){
-	    				String commName = limitTextLength(comm.getCommentName());
-	    				String commQty = "   " + mFormat.qtyFormat(comm.getCommentQty()) + "x ";
+	    				String commName = limitTextLength("   " + mFormat.qtyFormat(comm.getCommentQty()) + "x "
+	    						+ comm.getCommentName());
 	    				String commPrice = mFormat.currencyFormat(comm.getCommentPrice());
-	    				mTextToPrint.append(commQty);
 	    				mTextToPrint.append(commName);
 	    				mTextToPrint.append(createHorizontalSpace(
-	    						calculateLength(commQty) +
 	    						calculateLength(commName) + 
 	    						calculateLength(commPrice)));
 	    				mTextToPrint.append(commPrice);
@@ -603,13 +615,11 @@ public abstract class PrinterBase {
     		}
     		if(order.getOrdSetDetailLst() != null && order.getOrdSetDetailLst().size() > 0){
     			for(OrderSetDetail setDetail : order.getOrdSetDetailLst()){
-    				String setName = limitTextLength(setDetail.getProductName());
-    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
+    				String setName = limitTextLength("   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x "
+    						+ setDetail.getProductName());
     				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
-    				mTextToPrint.append(setQty);
     				mTextToPrint.append(setName);
     				mTextToPrint.append(createHorizontalSpace(
-    						calculateLength(setQty) + 
     						calculateLength(setName) +
     						calculateLength(setPrice)));
     				mTextToPrint.append(setPrice);
@@ -622,15 +632,15 @@ public abstract class PrinterBase {
     	String itemText = mContext.getString(R.string.items) + ": ";
     	String totalText = mContext.getString(R.string.total) + "...............";
     	String changeText = mContext.getString(R.string.change) + " ";
-    	String discountText = TextUtils.isEmpty(summOrder.getPromotionName()) ? mContext.getString(R.string.discount) : summOrder.getPromotionName();
+    	String discountText = TextUtils.isEmpty(sumOrder.getPromotionName()) ? mContext.getString(R.string.discount) : sumOrder.getPromotionName();
     	
-    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
-    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
-    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
+    	String strTotalRetailPrice = mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
+    	String strTotalSale = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+    	String strTotalDiscount = "-" + mFormat.currencyFormat(sumOrder.getPriceDiscount());
     	String strTotalChange = mFormat.currencyFormat(change);
     	
     	// total item
-    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getOrderQty());
+    	String strTotalQty = NumberFormat.getInstance().format(sumOrder.getOrderQty());
     	mTextToPrint.append(itemText);
     	mTextToPrint.append(strTotalQty);
     	mTextToPrint.append(createHorizontalSpace(
@@ -640,7 +650,7 @@ public abstract class PrinterBase {
     	mTextToPrint.append(strTotalRetailPrice + "\n");
     	
     	// total discount
-    	if(summOrder.getPriceDiscount() > 0){
+    	if(sumOrder.getPriceDiscount() > 0){
 	    	mTextToPrint.append(discountText);
 	    	mTextToPrint.append(createHorizontalSpace(
 	    			calculateLength(discountText) + 
@@ -648,19 +658,26 @@ public abstract class PrinterBase {
 	    	mTextToPrint.append(strTotalDiscount + "\n");
     	}
     	
-    	// show vat ?
-    	if(isShowVat){
-	    	// transaction exclude vat
-	    	if(trans.getTransactionVatExclude() > 0){
-	    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
-	    				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
-	    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
-	    		mTextToPrint.append(vatExcludeText);
-	    		mTextToPrint.append(createHorizontalSpace(
-	    				calculateLength(vatExcludeText) + 
-	    				calculateLength(strVatExclude)));
-	    		mTextToPrint.append(strVatExclude + "\n");
-	    	}
+    	// transaction exclude vat
+    	if(trans.getTransactionVatExclude() > 0){
+    		// show sub total
+    		if(sumOrder.getPriceDiscount() > 0){
+	    		String subTotalText = mContext.getString(R.string.sub_total);
+	    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice() - sumOrder.getVatExclude());
+		    	mTextToPrint.append(subTotalText);
+		    	mTextToPrint.append(createHorizontalSpace(
+		    			calculateLength(subTotalText) + 
+		    			calculateLength(subTotal)));
+		    	mTextToPrint.append(subTotal + "\n");
+    		}
+    		String vatExcludeText = mContext.getString(R.string.vat_exclude) + " " +
+    				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
+    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
+    		mTextToPrint.append(vatExcludeText);
+    		mTextToPrint.append(createHorizontalSpace(
+    				calculateLength(vatExcludeText) + 
+    				calculateLength(strVatExclude)));
+    		mTextToPrint.append(strVatExclude + "\n");
     	}
     	
     	// total price
@@ -767,9 +784,9 @@ public abstract class PrinterBase {
 	}
 	
 	protected void createTextForPrintFoodCourtReceipt(int transId, double cardBalanceBefore, 
-			double cardBalance, boolean isCopy){
-		OrderTransaction trans = mTrans.getTransaction(transId);
-		OrderDetail summOrder = mTrans.getSummaryOrder(transId);
+			double cardBalance, boolean isCopy, boolean isLoadTemp){
+		OrderTransaction trans = mTrans.getTransaction(transId, isLoadTemp);
+		OrderDetail summOrder = mTrans.getSummaryOrder(transId, isLoadTemp);
 		double change = mPayment.getTotalPayAmount(transId) - (summOrder.getTotalSalePrice());
 		boolean isShowVat = false;//mShop.getShopProperty().getPrintVatInReceipt() == 1;
 		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
@@ -807,7 +824,7 @@ public abstract class PrinterBase {
 		mTextToPrint.append(cashCheer + createHorizontalSpace(calculateLength(cashCheer)) + "\n");
 		mTextToPrint.append(createLine("=") + "\n");
 		
-		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId);
+		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId, isLoadTemp);
     	for(int i = 0; i < orderLst.size(); i++){
     		OrderDetail order = orderLst.get(i);
     		String productName = limitTextLength(order.getProductName());

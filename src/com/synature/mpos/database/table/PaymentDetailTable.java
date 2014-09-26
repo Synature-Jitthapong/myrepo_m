@@ -31,7 +31,5 @@ public class PaymentDetailTable{
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("drop table if exists " + TABLE_PAYMENT_DETAIL);
-		onCreate(db);
 	}
 }

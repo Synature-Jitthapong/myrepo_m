@@ -15,7 +15,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-public class FormaterDao extends MPOSDatabase{
+public class GlobalPropertyDao extends MPOSDatabase{
 	
 	public static final String[] COLUMNS = {
 		GlobalPropertyTable.COLUMN_CURRENCY_SYMBOL,
@@ -27,7 +27,7 @@ public class FormaterDao extends MPOSDatabase{
 		GlobalPropertyTable.COLUMN_TIME_FORMAT
 	};
 	
-	public FormaterDao(Context context) {
+	public GlobalPropertyDao(Context context) {
 		super(context);
 	}
 

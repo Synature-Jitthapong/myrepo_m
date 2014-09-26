@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PrintReceiptLogDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
@@ -45,7 +46,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 	private boolean mBound = false;
 	
 	private TransactionDao mTrans;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private List<OrderTransaction> mTransLst;
 	private BillAdapter mBillAdapter;
@@ -75,7 +76,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 	    mScrBill = (ScrollView) findViewById(R.id.scrollView1);
 
 		mTrans = new TransactionDao(getApplicationContext());
-		mFormat = new FormaterDao(getApplicationContext());
+		mFormat = new GlobalPropertyDao(getApplicationContext());
 		mTransLst = new ArrayList<OrderTransaction>();
 		mBillAdapter = new BillAdapter();
 		mLvBill.setAdapter(mBillAdapter);
@@ -237,7 +238,7 @@ public class VoidBillActivity extends MPOSActivityBase {
 	}
 	
 	private void searchVoidItem(){
-		OrderTransaction ordTrans = mTrans.getTransaction(mTransactionId);
+		OrderTransaction ordTrans = mTrans.getTransaction(mTransactionId, false);
 		if(ordTrans != null){
 			if(ordTrans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
 				((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());
@@ -307,29 +308,43 @@ public class VoidBillActivity extends MPOSActivityBase {
 				isCopy = 1;
 			printLog.insertLog(mTransactionId, mStaffId, isCopy);
 		}
-		new Thread(new PrintReceipt(VoidBillActivity.this)).start();
+		new PrintReceipt(VoidBillActivity.this).execute();
 	}
 	
 	private void sendSale(){
-		mPartService.sendSale(mShopId, mSessionId, mTransactionId, mComputerId, 
-				mStaffId, new WebServiceWorkingListener(){
-
+		new NetworkConnectionChecker(this, new NetworkCheckerListener() {
+			
 			@Override
-			public void onPreExecute() {
-			}
-
-			@Override
-			public void onPostExecute() {
-			}
-
-			@Override
-			public void onError(String msg) {
-			}
-
-			@Override
-			public void onProgressUpdate(int value) {
+			public void serverProblem(int code, String msg) {
 			}
 			
+			@Override
+			public void onLine() {
+				mPartService.sendSale(mShopId, mSessionId, mTransactionId, mComputerId, 
+						mStaffId, new WebServiceWorkingListener(){
+
+					@Override
+					public void onPreExecute() {
+					}
+
+					@Override
+					public void onPostExecute() {
+					}
+
+					@Override
+					public void onError(String msg) {
+					}
+
+					@Override
+					public void onProgressUpdate(int value) {
+					}
+					
+				});
+			}
+			
+			@Override
+			public void offLine(String msg) {
+			}
 		});
 	}
 

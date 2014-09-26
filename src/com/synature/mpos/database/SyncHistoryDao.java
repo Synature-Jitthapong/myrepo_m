@@ -76,6 +76,7 @@ public class SyncHistoryDao extends MPOSDatabase{
 	
 	public void insertSyncLog(){
 		if(!IsAlreadySync()){
+			deleteSyncLog();
 			ContentValues cv = new ContentValues();
 			cv.put(SyncHistoryTable.COLUMN_SYNC_DATE, Utils.getDate().getTimeInMillis());
 			cv.put(SyncHistoryTable.COLUMN_SYNC_TIME, Utils.getCalendar().getTimeInMillis());

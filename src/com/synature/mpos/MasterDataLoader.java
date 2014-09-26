@@ -9,7 +9,7 @@ import com.google.gson.JsonSyntaxException;
 import com.synature.mpos.database.BankDao;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.CreditCardDao;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.HeaderFooterReceiptDao;
 import com.synature.mpos.database.LanguageDao;
 import com.synature.mpos.database.MenuCommentDao;
@@ -79,7 +79,7 @@ public class MasterDataLoader extends MPOSServiceBase{
 	private void updateMasterData(MasterData master){
 		ShopDao shop = new ShopDao(mContext);
 		ComputerDao computer = new ComputerDao(mContext);
-		FormaterDao format = new FormaterDao(mContext);
+		GlobalPropertyDao format = new GlobalPropertyDao(mContext);
 		StaffsDao staff = new StaffsDao(mContext);
 		LanguageDao lang = new LanguageDao(mContext);
 		HeaderFooterReceiptDao hf = new HeaderFooterReceiptDao(mContext);

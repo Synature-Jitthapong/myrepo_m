@@ -3,7 +3,7 @@ package com.synature.mpos;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.PromotionDiscountDao;
 import com.synature.mpos.database.TransactionDao;
@@ -35,7 +35,7 @@ public class PromotionActivity extends MPOSActivityBase {
 	
 	private TransactionDao mTrans;
 	private PromotionDiscountDao mPromotion;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	private List<OrderDetail> mOrderLst;
 	private List<com.synature.pos.PromotionPriceGroup> mPromoPriceGroupLst;
 	private OrderDiscountAdapter mOrderAdapter;
@@ -60,7 +60,7 @@ public class PromotionActivity extends MPOSActivityBase {
 		mSummaryContainer = (LinearLayout) findViewById(R.id.summaryContainer);
 		
 		mTrans = new TransactionDao(this);
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		mPromotion = new PromotionDiscountDao(this);
 		
 		Intent intent = getIntent();
@@ -90,7 +90,7 @@ public class PromotionActivity extends MPOSActivityBase {
 		}
 
 		try {
-			OrderTransaction trans = mTrans.getTransaction(mTransactionId);
+			OrderTransaction trans = mTrans.getTransaction(mTransactionId, true);
 			for(int i = 0; i < mPromoButtonContainer.getChildCount(); i++){
 				View child = mPromoButtonContainer.getChildAt(i);
 				if(trans.getPromotionPriceGroupId() == child.getId()){
@@ -164,9 +164,9 @@ public class PromotionActivity extends MPOSActivityBase {
 	}
 	
 	private void summary(){
-		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId);
-		mTvTotalPrice.setText(mFormat.currencyFormat(summ.getTotalSalePrice()));
-
+		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId, true);
+		double totalPrice = summ.getVatExclude() > 0 ? summ.getTotalSalePrice() - summ.getVatExclude() : summ.getTotalSalePrice();
+		mTvTotalPrice.setText(mFormat.currencyFormat(totalPrice));
 		if(mSummaryContainer.getChildCount() > 0)
 			mSummaryContainer.removeAllViews();
 		TextView[] tvs = {
@@ -175,7 +175,7 @@ public class PromotionActivity extends MPOSActivityBase {
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getProductPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalRetailPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPriceDiscount()), Utils.getLinHorParams(0.7f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalSalePrice()), Utils.getLinHorParams(0.7f))
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(totalPrice), Utils.getLinHorParams(0.7f))
 		};
 		LinearLayout rowSummary = SaleReportActivity.createRowSummary(this, tvs);
 		rowSummary.setDividerDrawable(getResources().getDrawable(android.R.drawable.divider_horizontal_bright));

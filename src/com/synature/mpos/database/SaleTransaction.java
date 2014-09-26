@@ -30,14 +30,14 @@ import android.database.Cursor;
  */
 public class SaleTransaction extends MPOSDatabase{
 
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private ShopDao mShop;
 
 	public SaleTransaction(Context context) {
 		super(context);
 		mShop = new ShopDao(context);
-		mFormat = new FormaterDao(context);
+		mFormat = new GlobalPropertyDao(context);
 	}
 	
 	/**

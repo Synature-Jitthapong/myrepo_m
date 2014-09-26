@@ -31,7 +31,7 @@
     <string name="enter">Enter</string>
     <string name="qty">Qty</string>
     <string name="sale_price">Sale price</string>
-    <string name="vat_exclude">VAT exclude</string>
+    <string name="vat_exclude">Vat Excluded</string>
     <string name="confirm_cancel">Are you sure to cancel?</string>
     <string name="enter_enough_money">Not enough money.</string>
     <string name="close">Close</string>
@@ -237,4 +237,8 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="restore_db_success">Restore database successfully.</string>
 	<string name="restore_db">Restore database</string>
 	<string name="please_select_db">Please select database that you want to restore.</string>
+	<string name="software_update">Software Update</string>
+	<string name="software_update_mesg">New version available. Please update the latest version.</string>
+	<string name="total_sale_include_vat">Total Sale Include VAT</string>
+	<string name="check_network_progress">Checking network connection&#8230;</string>
 </resources>

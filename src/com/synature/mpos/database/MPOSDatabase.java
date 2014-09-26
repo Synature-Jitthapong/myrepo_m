@@ -10,6 +10,8 @@ import com.synature.mpos.database.table.CreditCardTable;
 import com.synature.mpos.database.table.GlobalPropertyTable;
 import com.synature.mpos.database.table.HeaderFooterReceiptTable;
 import com.synature.mpos.database.table.LanguageTable;
+import com.synature.mpos.database.table.MaxOrderIdTable;
+import com.synature.mpos.database.table.MaxTransIdTable;
 import com.synature.mpos.database.table.MenuFixCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
@@ -28,6 +30,8 @@ import com.synature.mpos.database.table.PromotionProductDiscountTable;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
+import com.synature.mpos.database.table.SoftwareInfoTable;
+import com.synature.mpos.database.table.SoftwareUpdateTable;
 import com.synature.mpos.database.table.StaffPermissionTable;
 import com.synature.mpos.database.table.StaffTable;
 import com.synature.mpos.database.table.SyncHistoryTable;
@@ -95,6 +99,8 @@ public class MPOSDatabase extends BaseColumn{
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
+			MaxTransIdTable.onCreate(db);
+			MaxOrderIdTable.onCreate(db);
 			BankTable.onCreate(db);
 			ComputerTable.onCreate(db);
 			CreditCardTable.onCreate(db);
@@ -122,17 +128,14 @@ public class MPOSDatabase extends BaseColumn{
 			SyncHistoryTable.onCreate(db);
 			PromotionPriceGroupTable.onCreate(db);
 			PromotionProductDiscountTable.onCreate(db);
+			SoftwareInfoTable.onCreate(db);
+			SoftwareUpdateTable.onCreate(db);
 		}
-
-		@Override
-		public void onDowngrade(SQLiteDatabase db, int oldVersion,
-				int newVersion) {
-
-		}
-
+		
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			//OrderTransTable.onUpgrade(db, oldVersion, newVersion);
+			MaxTransIdTable.onUpgrade(db, oldVersion, newVersion);
+			MaxOrderIdTable.onUpgrade(db, oldVersion, newVersion);
 			BankTable.onUpgrade(db, oldVersion, newVersion);
 			ComputerTable.onUpgrade(db, oldVersion, newVersion);
 			CreditCardTable.onUpgrade(db, oldVersion, newVersion);
@@ -156,6 +159,10 @@ public class MPOSDatabase extends BaseColumn{
 			SyncHistoryTable.onUpgrade(db, oldVersion, newVersion);
 			PromotionPriceGroupTable.onUpgrade(db, oldVersion, newVersion);
 			PromotionProductDiscountTable.onUpgrade(db, oldVersion, newVersion);
+			SoftwareInfoTable.onUpgrade(db, oldVersion, newVersion);
+			SoftwareUpdateTable.onUpgrade(db, oldVersion, newVersion);
+			OrderTransTable.onUpgrade(db, oldVersion, newVersion);
+			OrderDetailTable.onUpgrade(db, oldVersion, newVersion);
 		}
 	}
 }

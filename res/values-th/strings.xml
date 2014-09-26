@@ -12,7 +12,7 @@
     <string name="logout">ออกจากระบบ</string>
     <string name="sub_total">รวมราคา</string>
     <string name="vat">ภาษี</string>
-    <string name="total_price">รวมราคา</string>
+    <string name="total_price">ราคาขาย</string>
     <string name="total_receive">จำนวนใบเสร็จ</string>
     <string name="change">เงินทอน</string>
     <string name="price">ราคา</string>
@@ -152,7 +152,7 @@
 	<string name="delete">ลบ</string>
 	<string name="reason">เหตุผล</string>
 	<string name="date">วันที่</string>
-    <string name="items">Items</string>
+    <string name="items">รายการ</string>
 	<string name="total_sale">ราคาสุทธิ</string>
 	<string name="hold_current_order">กรุณาพักรายการปัจจุบันก่อน</string>
 	<string name="select_item">กรุณาเลือกรายการก่อน</string>
@@ -188,4 +188,8 @@
 	<string name="not_have_permission_to_access_pos">คุณไม่มีสิทธิ์ในการเข้าระบบ mPOS</string>
 	<string name="test">Test</string>
 	<string name="shift_close_report">รายงานสรุปกะ</string>
+	<string name="software_update">ซอฟต์แวร์อัพเดต</string>
+	<string name="software_update_mesg">มีโปรแกรมเวอร์ชั่นใหม่กว่าที่ใช้อยู่ในปัจจุบัน กรุณาทำการอัพเดตเวอร์ชั่นของโปรแกรมก่อน</string>
+	<string name="total_sale_include_vat">ราคารวมภาษี</string>
+	<string name="check_network_progress">ตรวจสอบการเชื่อมต่อกับ Server&#8230;</string>
 </resources>

@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.ProductsDao;
@@ -65,7 +65,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 	public static final int REPORT_ENDDAY = 2;
 	
 	private ShopDao mShop;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	private Reporting mReporting;
 
 	private int mStaffId;
@@ -81,7 +81,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 		setTitle(null);
 		
 		mShop = new ShopDao(this);
-		mFormat = new FormaterDao(SaleReportActivity.this);
+		mFormat = new GlobalPropertyDao(SaleReportActivity.this);
 		mDateFrom = String.valueOf(Utils.getDate().getTimeInMillis());
 		mDateTo = String.valueOf(Utils.getDate().getTimeInMillis());
 
@@ -422,7 +422,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				return true;
 			case R.id.itemPrint:
 				new PrintReport(getActivity(), 
-						PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, activity.mStaffId).run();
+						PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, activity.mStaffId).execute();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -746,7 +746,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				return true;
 			case R.id.itemPrint:
 				new PrintReport(getActivity(), PrintReport.WhatPrint.BILL_REPORT, 
-					mHost.mDateFrom, mHost.mDateTo).run();
+					mHost.mDateFrom, mHost.mDateTo).execute();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -789,7 +789,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				public void onItemClick(AdapterView<?> arg0, View arg1,
 						int arg2, long arg3) {
 					Report.ReportDetail report = (Report.ReportDetail) arg0.getItemAtPosition(arg2);
-					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId());
+					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId(), false);
 						bf.show(getFragmentManager(), "BillDetailFragment");
 				}
 			});
@@ -799,42 +799,45 @@ public class SaleReportActivity extends MPOSActivityBase{
 		}
 		
 		private void createHeader(){
+			boolean isIncVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED;
+			boolean isExcVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_EXCLUDE;
 			mBillHeader.removeAllViews();
 			TextView[] tvHeaders = {
 					createTextViewHeader(getActivity(), "", Utils.getLinHorParams(0.2f), 0),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.receipt_no), 
 							Utils.getLinHorParams(1.0f), Gravity.LEFT),
-					createTextViewHeader(getActivity(), getActivity().getString(R.string.total), 
+					createTextViewHeader(getActivity(), getActivity().getString(R.string.total_price), 
 							Utils.getLinHorParams(0.7f), Gravity.RIGHT),
 					createTextViewHeader(getActivity(), getActivity().getString(R.string.discount), 
-							Utils.getLinHorParams(0.7f), Gravity.RIGHT),
-					createTextViewHeader(getActivity(), getActivity().getString(R.string.sub_total), 
-							Utils.getLinHorParams(0.7f), Gravity.RIGHT),
-					createTextViewHeader(getActivity(), getActivity().getString(R.string.vatable), 
 							Utils.getLinHorParams(0.7f), Gravity.RIGHT)
 			};
 			for(TextView tv : tvHeaders){
 				mBillHeader.addView(tv);
 			}
-			if(mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
-				tvHeaders = new TextView[]{
-						createTextViewHeader(getActivity(), getString(R.string.before_vat), 
-								Utils.getLinHorParams(0.7f), Gravity.RIGHT),
-						createTextViewHeader(getActivity(), getString(R.string.vat) + " "
-								+ NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate())
-								+ " " + getString(R.string.percent), Utils.getLinHorParams(0.7f), Gravity.RIGHT)
-				};
-				for(TextView tv : tvHeaders){
-					mBillHeader.addView(tv);
-				}
+			if(isIncVat){
+				mBillHeader.addView(createTextViewHeader(getActivity(), getString(R.string.total_sale), 
+						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
+				mBillHeader.addView(createTextViewHeader(getActivity(), getString(R.string.before_vat), 
+						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
 			}
-			tvHeaders = new TextView[]{
-					createTextViewHeader(getActivity(), getString(R.string.total_payment), 
-							Utils.getLinHorParams(0.7f), Gravity.RIGHT)
-			};
-			for(TextView tv : tvHeaders){
-				mBillHeader.addView(tv);
+			if(isExcVat){
+				mBillHeader.addView(createTextViewHeader(getActivity(), getActivity().getString(R.string.sub_total), 
+						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
+				mBillHeader.addView(createTextViewHeader(getActivity(), getString(R.string.total_sale), 
+						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
 			}
+			mBillHeader.addView(
+					createTextViewHeader(getActivity(), getString(R.string.vat) + " "
+							+ NumberFormat.getInstance().format(mHost.mShop.getCompanyVatRate())
+							+ " " + getString(R.string.percent), Utils.getLinHorParams(0.7f), Gravity.RIGHT));
+			if(isExcVat){
+				mBillHeader.addView(
+						createTextViewHeader(getActivity(), getActivity().getString(R.string.total_sale_include_vat),
+						Utils.getLinHorParams(0.7f), Gravity.RIGHT));
+			}
+			mBillHeader.addView(
+					createTextViewHeader(getActivity(), getString(R.string.total_payment),
+					Utils.getLinHorParams(0.7f), Gravity.RIGHT));
 		}
 		
 		public class BillReportAdapter extends BaseAdapter{
@@ -881,7 +884,9 @@ public class SaleReportActivity extends MPOSActivityBase{
 				double totalDiscount = report.getDiscount();
 				double subTotal = report.getSubTotal();
 				double totalPay = report.getTotalPayment();
-
+				boolean isIncVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED;
+				boolean isExcVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_EXCLUDE;
+					
 				LinearLayout container = (LinearLayout) convertView;
 				if(container.getChildCount() > 0)
 					container.removeAllViews();
@@ -900,10 +905,6 @@ public class SaleReportActivity extends MPOSActivityBase{
 						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalPrice),
 								Utils.getLinHorParams(0.7f)),
 						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalDiscount),
-								Utils.getLinHorParams(0.7f)),
-						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(subTotal),  
-								Utils.getLinHorParams(0.7f)),
-						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(vatable),  
 								Utils.getLinHorParams(0.7f))
 				};
 				ImageView imgSendStatus = new ImageView(getActivity());
@@ -912,16 +913,26 @@ public class SaleReportActivity extends MPOSActivityBase{
 				for(TextView tv : tvs){
 					container.addView(tv);
 				}
-				if(mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
-					tvs = new TextView[]{
-						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(beforVat),  
-								Utils.getLinHorParams(0.7f)),
-						createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalVat),  
-								Utils.getLinHorParams(0.7f)),
-					};
-					for(TextView tv : tvs){
-						container.addView(tv);
-					}
+				if(isIncVat){
+					container.addView(
+							createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(vatable),  
+									Utils.getLinHorParams(0.7f)));
+					container.addView(
+							createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(beforVat),  
+									Utils.getLinHorParams(0.7f)));
+				}
+				if(isExcVat){
+					container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(subTotal),  
+							Utils.getLinHorParams(0.7f)));
+					container.addView(
+							createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(beforVat),  
+									Utils.getLinHorParams(0.7f)));
+				}
+				container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalVat),  
+						Utils.getLinHorParams(0.7f)));
+				if(isExcVat){
+					container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(vatable),  
+							Utils.getLinHorParams(0.7f)));
 				}
 				TextView tvTotalPay = new TextView(getActivity());
 				tvTotalPay = createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalPay),  
@@ -940,7 +951,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 //						f.show(getFragmentManager(), "PaymentDialogFragment");
 
 						// bill detail
-						BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId());
+						BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId(), false);
 						bf.show(getFragmentManager(), "BillDetailFragment");
 					}
 					
@@ -984,8 +995,10 @@ public class SaleReportActivity extends MPOSActivityBase{
 		}
 		
 		private void summaryBill(){
-			Report.ReportDetail summary = 
-					mHost.mReporting.getBillSummary();
+			boolean isIncVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED;
+			boolean isExcVat = mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_EXCLUDE;
+			Report.ReportDetail summary = mHost.mReporting.getBillSummary();
+			double beforVat = summary.getVatable() - summary.getTotalVat();
 			mBillSumContent.removeAllViews();
 			TextView[] tvSummary = {
 					createTextViewSummary(getActivity(), getString(R.string.summary),  
@@ -993,34 +1006,32 @@ public class SaleReportActivity extends MPOSActivityBase{
 					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalPrice()),  
 							Utils.getLinHorParams(0.7f)),
 					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getDiscount()),  
-							Utils.getLinHorParams(0.7f)),
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getSubTotal()),  
-							Utils.getLinHorParams(0.7f)),
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getVatable()),  
 							Utils.getLinHorParams(0.7f))
 			};
 			for(TextView tv : tvSummary){
 				mBillSumContent.addView(tv);	
 			}
-			if(mHost.mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
-				double beforVat = summary.getVatable() - summary.getTotalVat();
-				tvSummary = new TextView[]{
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(beforVat), 
-							Utils.getLinHorParams(0.7f)),
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalVat()),  
-							Utils.getLinHorParams(0.7f))
-				};
-				for(TextView tv : tvSummary){
-					mBillSumContent.addView(tv);
-				}
+			if(isIncVat){
+				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getVatable()),  
+						Utils.getLinHorParams(0.7f)));
+				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(beforVat), 
+						Utils.getLinHorParams(0.7f)));
 			}
-			tvSummary = new TextView[]{
-				createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalPayment()),  
-						Utils.getLinHorParams(0.7f))
-			};
-			for(TextView tv : tvSummary){
-				mBillSumContent.addView(tv);
+			if(isExcVat){
+				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getSubTotal()),  
+						Utils.getLinHorParams(0.7f)));
+				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(beforVat), 
+						Utils.getLinHorParams(0.7f)));
 			}
+			mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalVat()),  
+						Utils.getLinHorParams(0.7f)));
+			if(isExcVat){
+				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getVatable()),  
+						Utils.getLinHorParams(0.7f)));
+			}
+			mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalPayment()),  
+						Utils.getLinHorParams(0.7f)));
+			
 		}
 		
 		public class LoadBillReportTask extends AsyncTask<Void, Void, Void>{
@@ -1087,7 +1098,7 @@ public class SaleReportActivity extends MPOSActivityBase{
 				return true;
 			case R.id.itemPrint:
 				new PrintReport(getActivity(), PrintReport.WhatPrint.PRODUCT_REPORT, 
-						mHost.mDateFrom, mHost.mDateTo).run();
+						mHost.mDateFrom, mHost.mDateTo).execute();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -1371,28 +1382,6 @@ public class SaleReportActivity extends MPOSActivityBase{
 			TransactionDao trans = new TransactionDao(getActivity());
 			OrderDetail summOrder = trans.getSummaryOrder(mHost.mDateFrom, mHost.mDateTo);	
 			
-			// total sale
-			TextView[] tvSubTotal = {
-					createTextViewSummary(getActivity(), getString(R.string.sub_total), Utils.getLinHorParams(5.9f)),
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summOrder.getTotalRetailPrice()),
-							Utils.getLinHorParams(0.8f)),
-					createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.5f)),
-					createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.2f))
-			};
-			mProductSumContent.addView(createRowSummary(getActivity(), tvSubTotal));
-			
-			if(summOrder.getPriceDiscount() > 0){
-				// total discount
-				TextView[] tvTotalDiscount = {
-						createTextViewSummary(getActivity(), getString(R.string.discount), Utils.getLinHorParams(5.9f)),
-						createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summOrder.getPriceDiscount()),
-								Utils.getLinHorParams(0.8f)),
-						createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.5f)),
-						createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.2f))
-				};
-				mProductSumContent.addView(createRowSummary(getActivity(), tvTotalDiscount));
-			}
-			
 			if(summOrder.getVatExclude() > 0){
 				ShopDao shop = new ShopDao(getActivity());
 				// total vatExclude
@@ -1410,35 +1399,13 @@ public class SaleReportActivity extends MPOSActivityBase{
 			// total sale
 			TextView[] tvTotalSale = {
 					createTextViewSummary(getActivity(), getString(R.string.total_sale), Utils.getLinHorParams(5.9f)),
-					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summOrder.getTotalSalePrice() + 
-							summOrder.getVatExclude()), Utils.getLinHorParams(0.8f)),
+					createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summOrder.getTotalSalePrice()), 
+							Utils.getLinHorParams(0.8f)),
 					createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.5f)),
 					createTextViewSummary(getActivity(), "", Utils.getLinHorParams(0.2f))
 			};
 			mProductSumContent.addView(createRowSummary(getActivity(), tvTotalSale));
 		
-		}
-		
-		public class LoadProductReportTask extends AsyncTask<Void, Void, Void>{
-
-			@Override
-			protected void onPreExecute() {
-				mProgress.show();
-			}
-
-			@Override
-			protected void onPostExecute(Void result) {
-				if(mProgress.isShowing())
-					mProgress.dismiss();
-				mProductReportAdapter.notifyDataSetChanged();
-			}
-
-			@Override
-			protected Void doInBackground(Void... params) {
-				mReportProduct = mHost.mReporting.getProductDataReport();
-				return null;
-			}
-			
 		}
 	}
 }

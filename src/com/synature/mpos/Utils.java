@@ -10,6 +10,7 @@ import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -29,7 +30,7 @@ import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.SaleTransaction;
@@ -54,12 +55,12 @@ public class Utils {
 	/**
 	 * Database version
 	 */
-	public static final int DB_VERSION = 2;
+	public static int DB_VERSION = 5;
 	
 	/**
 	 * Main url 
 	 */
-	public static final String MAIN_URL = "http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
+	public static final String REGISTER_URL = "http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
 	
 	/**
 	 * WebService file name
@@ -101,11 +102,16 @@ public class Utils {
 	 * Endday sale dir store endday sale json file
 	 */
 	public static final String ENDDAY_PATH = RESOURCE_DIR + File.separator + "EnddaySale";
+
+	/**
+	 * Update path stored apk for update.
+	 */
+	public static final String UPDATE_PATH = RESOURCE_DIR + File.separator + "Update";
 	
 	/**
-	 * EJ path
+	 * apk file name
 	 */
-	public static final String EJ_PATH = RESOURCE_DIR + File.separator + "EJ";
+	public static final String UPDATE_FILE_NAME = "mpos.apk";
 	
 	/**
 	 * Image path on server
@@ -155,7 +161,7 @@ public class Utils {
 				sess.closeSession(sessId, staffId, 0, true);
 			}
 			try {
-				FormaterDao format = new FormaterDao(context);
+				GlobalPropertyDao format = new GlobalPropertyDao(context);
 				Logger.appendLog(context, LOG_PATH,
 						LOG_FILE_NAME,
 						"Success ending multiple day : " 
@@ -296,13 +302,6 @@ public class Utils {
 		return calendar;
 	}
 	
-	public static double calculateVatPrice(double totalPrice, double vatRate, int vatType){
-		if(vatType == ProductsDao.VAT_TYPE_EXCLUDE)
-			return totalPrice * (100 + vatRate) / 100;
-		else
-			return totalPrice;
-	}
-	
 	public static double calculateVatAmount(double totalPrice, double vatRate, int vatType){
 		if(vatType == ProductsDao.VAT_TYPE_INCLUDED)
 			return totalPrice * vatRate / (100 + vatRate);
@@ -323,7 +322,7 @@ public class Utils {
 	 * @param value
 	 * @return string fixes digit
 	 */
-	public static String fixesDigitLength(FormaterDao format, int scale, double value){
+	public static String fixesDigitLength(GlobalPropertyDao format, int scale, double value){
 		return format.currencyFormat(value, "#,##0.0000");
 	}
 
@@ -383,7 +382,9 @@ public class Utils {
 				MPOSDatabase.MPOSOpenHelper.getInstance(context);
 		SQLiteDatabase sqlite = mSqliteHelper.getWritableDatabase();
 		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
+		sqlite.delete(OrderDetailTable.TEMP_ORDER, null, null);
 		sqlite.delete(OrderTransTable.TABLE_ORDER_TRANS, null, null);
+		sqlite.delete(OrderTransTable.TEMP_ORDER_TRANS, null, null);
 		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
 		sqlite.delete(SessionTable.TABLE_SESSION, null, null);
 		sqlite.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, null);
@@ -701,7 +702,7 @@ public class Utils {
 	}
 	
 	public static void backupDatabase(Context context){
-		String backupFileName = getBackupDbFileName();
+		String backupDbName = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()) + "_" + DB_NAME;
 		File sd = Environment.getExternalStorageDirectory();
 		FileChannel source = null;
 		FileChannel destination = null;
@@ -709,9 +710,10 @@ public class Utils {
 		File sdPath = new File(sd, BACKUP_DB_PATH);
 		if(!sdPath.exists())
 			sdPath.mkdirs();
+		deleteBackupDatabase(context);
 		try {
 			source = new FileInputStream(dbPath).getChannel();
-			destination = new FileOutputStream(sdPath + File.separator + backupFileName).getChannel();
+			destination = new FileOutputStream(sdPath + File.separator + backupDbName).getChannel();
 			destination.transferFrom(source, 0, source.size());
 			source.close();
 			destination.close();
@@ -722,9 +724,20 @@ public class Utils {
 		}
 	}
 	
-	public static String getBackupDbFileName(){
-		Calendar calendar = Calendar.getInstance();
-		return String.valueOf(calendar.getTimeInMillis());
+	public static void deleteBackupDatabase(Context context){
+		File sd = Environment.getExternalStorageDirectory();
+		File sdPath = new File(sd, BACKUP_DB_PATH);
+		File files[] = sdPath.listFiles();
+		if(files != null){
+			Calendar current = Calendar.getInstance();
+			Calendar lastMod = Calendar.getInstance();
+			for(File file : files){
+				lastMod.setTimeInMillis(file.lastModified());
+				if(getDiffDay(lastMod) > current.getActualMaximum(Calendar.DAY_OF_MONTH)){
+					file.delete();
+				}
+			}
+		}
 	}
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){

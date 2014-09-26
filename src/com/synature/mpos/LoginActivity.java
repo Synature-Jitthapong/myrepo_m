@@ -1,18 +1,23 @@
 package com.synature.mpos;
 
+import java.io.File;
 import java.util.Calendar;
 
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.ShopDao;
+import com.synature.mpos.database.SoftwareUpdateDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
+import com.synature.mpos.database.model.SoftwareUpdate;
 import com.synature.pos.Staff;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -47,7 +52,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	private ShopDao mShop;
 	private SessionDao mSession;
 	private ComputerDao mComputer;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	private SyncHistoryDao mSync;
 	
 	private Button mBtnLogin;
@@ -81,7 +86,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		mSession = new SessionDao(this);
 		mShop = new ShopDao(this);
 		mComputer = new ComputerDao(this);
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		mSync = new SyncHistoryDao(this);
 
 		try {
@@ -322,6 +327,10 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		case R.id.itemExit:
 			exit();
 			return true;
+		case R.id.itemPerformTest:
+			PerformTest f = PerformTest.newInstance();
+			f.show(getFragmentManager(), "PerformTest");
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
 		}
@@ -353,10 +362,49 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		}else{
 			mTxtUser.requestFocus();
 		}
+		checkSoftwareUpdate();
 		displayWelcome();
 		super.onResume();
 	}
 			
+	private void checkSoftwareUpdate(){
+		final SoftwareUpdateDao su = new SoftwareUpdateDao(this);
+		final SoftwareUpdate update = su.getUpdateData();
+		if(update != null){
+			if(update.isDownloaded()){
+				final String filePath = Environment.getExternalStorageDirectory() + File.separator + Utils.UPDATE_PATH + File.separator + Utils.UPDATE_FILE_NAME;
+				if(!update.isAlreadyUpdated()){
+					AlertDialog.Builder builder = new AlertDialog.Builder(this);
+					builder.setTitle(R.string.software_update);
+					builder.setMessage(R.string.software_update_mesg);
+					builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					});
+					builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							File apkFile = new File(filePath);
+						    Intent intent = new Intent(Intent.ACTION_VIEW);
+						    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
+						    startActivity(intent);
+						}
+					});
+					AlertDialog d = builder.create();
+					d.show();
+				}else{
+					File f = new File(filePath);
+					if(f != null){
+						f.delete();
+					}
+				}
+			}
+		}
+	}
+	
 	private void displayWelcome(){
 		if(Utils.isEnableWintecCustomerDisplay(this)){
 			WintecCustomerDisplay dsp = new WintecCustomerDisplay(this);
@@ -430,23 +478,12 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 	
 	private void gotoMainActivity(){
-		startEnddayService();
+		//startEnddayService();
 		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 		intent.putExtra("staffId", mStaffId);
 		intent.putExtra("staffRoleId", mStaffRoleId);
 		startActivity(intent);
         finish();
-	}
-	
-	/**
-	 * Start endday service for send endday sale
-	 */
-	private void startEnddayService(){
-		Intent enddayIntent = new Intent(LoginActivity.this, EnddaySaleService.class);
-		enddayIntent.putExtra("staffId", mStaffId);
-		enddayIntent.putExtra("shopId", mShop.getShopId());
-		enddayIntent.putExtra("computerId", mComputer.getComputerId());
-		startService(enddayIntent);
 	}
 	
 	public void checkLogin(){

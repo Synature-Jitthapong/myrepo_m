@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PaymentAmountButtonDao;
 import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.ShopDao;
@@ -49,7 +49,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 	
 	private PaymentDetailDao mPayment;
 	private TransactionDao mTrans;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private List<MPOSPaymentDetail> mPayLst;
 	private PaymentAdapter mPaymentAdapter;
@@ -106,7 +106,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 		
 		mTrans = new TransactionDao(getApplicationContext());
 		mPayment = new PaymentDetailDao(getApplicationContext());
-		mFormat = new FormaterDao(getApplicationContext());
+		mFormat = new GlobalPropertyDao(getApplicationContext());
 		
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<MPOSPaymentDetail>();
@@ -127,15 +127,10 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 	
 	@Override
 	protected void onResume() {
-		if(mTrans.getTransaction(mTransactionId).getTransactionStatusId() == 
-				TransactionDao.TRANS_STATUS_SUCCESS){
-			finish();
-		}else{
-			summary();
-			loadPayDetail();
-			if(mResultCreditCode == RESULT_ENOUGH)
-				confirm();
-		}
+		summary();
+		loadPayDetail();
+		if(mResultCreditCode == RESULT_ENOUGH)
+			confirm();
 		super.onResume();
 	}
 
@@ -174,7 +169,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 	}
 	
 	private void summary(){ 
-		OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId);
+		OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId, true);
 		mTotalSalePrice = summOrder.getTotalSalePrice();
 		mTvTotalPrice.setText(mFormat.currencyFormat(mTotalSalePrice));
 	}

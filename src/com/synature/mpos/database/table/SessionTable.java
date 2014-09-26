@@ -34,7 +34,5 @@ public class SessionTable extends BaseColumn{
 	}
 	
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("drop table if exists " + TABLE_SESSION);
-		onCreate(db);
 	}	
 }

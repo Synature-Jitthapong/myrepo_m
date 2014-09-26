@@ -1,8 +1,8 @@
 package com.synature.mpos;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.PaymentDetailDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
@@ -67,7 +67,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 	private WintecMagneticReader mMsrReader;
 	
 	private TransactionDao mTrans;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private int mTransactionId;
 	private int mShopId;
@@ -98,7 +98,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mTrans = new TransactionDao(this);
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		
 		if(savedInstanceState == null){
 			getFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment(), "Placeholder").commit();
@@ -379,9 +379,9 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		
 		private void summary(){ 
 			OrderDetail summOrder = 
-					mHost.mTrans.getSummaryOrder(mHost.mTransactionId);
+					mHost.mTrans.getSummaryOrder(mHost.mTransactionId, true);
 			mHost.mTotalSalePrice = summOrder.getTotalSalePrice();
-			mTxtTotalPrice.setText(mHost.mFormat.currencyFormat(mHost.mTotalSalePrice));		
+			mTxtTotalPrice.setText(mHost.mFormat.currencyFormat(mHost.mTotalSalePrice));
 		}
 	}
 	
@@ -513,7 +513,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		@Override
 		public void run() {
 			WintecPrinter print = new WintecPrinter(FoodCourtCardPayActivity.this);
-			print.createTextForPrintFoodCourtReceipt(mTransactionId, mCardBalanceBefore, mCardBalance, false);
+			print.createTextForPrintFoodCourtReceipt(mTransactionId, mCardBalanceBefore, mCardBalance, false, false);
 			print.print();
 		}
 		

@@ -19,7 +19,7 @@ import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
 import com.synature.mpos.common.MPOSFragmentActivityBase;
 import com.synature.mpos.database.ComputerDao;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.PrintReceiptLogDao;
 import com.synature.mpos.database.ProductsDao;
@@ -125,7 +125,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	
 	private ProductsDao mProducts;
 	private ShopDao mShop;
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private SessionDao mSession;
 	private TransactionDao mTrans;
@@ -177,7 +177,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		mProducts = new ProductsDao(this);
 		mShop = new ShopDao(this);
 		mComputer = new ComputerDao(this);
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		
 		mShopId = mShop.getShopId();
 		mComputerId = mComputer.getComputerId();
@@ -423,7 +423,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			 * It will be return to LoginActivity for new initial
 			 */
 			String lastSessDate = mSession.getLastSessionDate();
-			if(!lastSessDate.equals("")){
+			if(!TextUtils.isEmpty(lastSessDate)){
 				Calendar sessCal = Calendar.getInstance();
 				sessCal.setTimeInMillis(Long.parseLong(lastSessDate));
 				if(Utils.getDate().getTime().compareTo(sessCal.getTime()) > 0 || 
@@ -457,9 +457,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			mTbSummary.removeAllViews();
 		
 		mTrans.summaryTransaction(mTransactionId);
-		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId);
+		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
 		
-		mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
+		mTbSummary.addView(createTableRowSummary(
+				getString(R.string.items) + ": " + NumberFormat.getInstance().format(sumOrder.getOrderQty()), 
 				mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
 				0, 0, 0, 0));
 		
@@ -470,6 +471,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 							0, 0, 0, 0));
 		}
 		if(sumOrder.getVatExclude() > 0){
+			if(sumOrder.getPriceDiscount() > 0){
+				mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
+						mFormat.currencyFormat(sumOrder.getTotalSalePrice() - sumOrder.getVatExclude()), 
+								0, 0, 0, 0));
+			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
 					" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%",
 					mFormat.currencyFormat(sumOrder.getVatExclude()),
@@ -531,7 +537,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		TextView tvLabel = new TextView(this);
 		TextView tvValue = new TextView(this);
 		tvLabel.setTextAppearance(this, android.R.style.TextAppearance_Holo_Medium);
-		tvLabel.setAllCaps(true);
 		tvValue.setTextAppearance(this, android.R.style.TextAppearance_Holo_Medium);
 		if(labelAppear != 0)
 			tvLabel.setTextAppearance(this, labelAppear);
@@ -564,7 +569,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				double change = intent.getDoubleExtra("change", 0);
 				int transactionId = intent.getIntExtra("transactionId", 0);
 				int staffId = intent.getIntExtra("staffId", 0);
-				afterPaid(transactionId, staffId, totalSalePrice, totalPaid, change);
+				successTransaction(transactionId, staffId, totalSalePrice, totalPaid, change);
 			}
 		}
 		if(requestCode == SET_TYPE7_REQUEST){
@@ -577,18 +582,17 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 	}
 	
-	private void afterPaid(int transactionId, int staffId, double totalSalePrice, 
+	private void successTransaction(int transactionId, int staffId, double totalSalePrice, 
 			double totalPaid, double change){
 
-		PrintReceiptLogDao printLog = 
-				new PrintReceiptLogDao(MainActivity.this);
+		PrintReceiptLogDao printLog = new PrintReceiptLogDao(MainActivity.this);
 		int isCopy = 0;
 		for(int i = 0; i < mComputer.getReceiptHasCopy(); i++){
 			if(i > 0)
 				isCopy = 1;
 			printLog.insertLog(transactionId, staffId, isCopy);
 		}
-		new Thread(new PrintReceipt(MainActivity.this)).start();
+		new PrintReceipt(MainActivity.this).execute();
 		
 		if(change > 0){
 			LinearLayout changeView = new LinearLayout(MainActivity.this);
@@ -650,31 +654,37 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 		
 		// send sale data service
-		new Thread(new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
+		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
 
 			@Override
 			public void onLine() {
 				List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
 				int size = transIdLst.size();
 				for(int i = 0; i < size; i++){
-					OrderTransaction trans = transIdLst.get(i);
-					mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
-							trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
+					if(i < 10){
+						OrderTransaction trans = transIdLst.get(i);
+						mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
+								trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
+					}else{
+						break;
+					}
 				}
 			}
 
 			@Override
-			public void offLine() {
+			public void offLine(String msg) {
+				Utils.makeToask(MainActivity.this, msg);
 			}
 
 			@Override
 			public void serverProblem(int code, String msg) {
+				Utils.makeToask(MainActivity.this, msg);
 			}
 			
-		})).start();
+		}).execute();
 	}
 	
-	class SendSaleListener implements WebServiceWorkingListener{
+	private class SendSaleListener implements WebServiceWorkingListener{
 		
 		private int mSize;
 		private int mPosition;
@@ -725,7 +735,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId);
+					OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
 					PaymentDetailDao payment = new PaymentDetailDao(MainActivity.this);
 					double totalSalePrice = sumOrder.getTotalSalePrice();
 					
@@ -739,7 +749,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					
 					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice, 
 							mShop.getCompanyVatType(), mShop.getCompanyVatRate());
-					afterPaid(mTransactionId, mStaffId, totalSalePrice, totalSalePrice, 0);
+					successTransaction(mTransactionId, mStaffId, totalSalePrice, totalSalePrice, 0);
 					
 					init();
 				}
@@ -1798,6 +1808,20 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
 					dsp.openCashDrawer();
 					dsp.close();
+					
+					// delete sale if more than 90 days
+					String firstDate = mSession.getFirstSessionDate();
+					if(!TextUtils.isEmpty(firstDate)){
+						int maxDays = 90;
+						Calendar cFirst = Calendar.getInstance();
+						cFirst.setTimeInMillis(Long.parseLong(firstDate));
+						int days = Utils.getDiffDay(cFirst);
+						if(days >= maxDays){
+							Calendar cLast = (Calendar) cFirst.clone();
+							cLast.add(Calendar.DAY_OF_YEAR, maxDays);
+							mTrans.deleteSale(firstDate, String.valueOf(cLast.getTimeInMillis()));
+						}
+					}
 				}
 			}).show();
 		}else{
@@ -1830,7 +1854,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 	private void showBillDetail(){
 		if(mOrderDetailLst.size() > 0){
-			BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId);
+			BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId, true);
 			bf.show(getFragmentManager(), "BillDetailFragment");
 		}
 	}
@@ -2177,6 +2201,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			LocalBinder binder = (LocalBinder) service;
 			mPartService = binder.getService();
 			mBound = true;
+			sendUnSendEnddayData();
 		}
 
 		@Override
@@ -2202,7 +2227,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 		// print close shift
 		new PrintReport(MainActivity.this, 
-			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).run();
+			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).execute();
 		
 		startActivity(new Intent(MainActivity.this, LoginActivity.class));
 		finish();
@@ -2232,11 +2257,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			int totalSess = mSession.countSession(mSession.getLastSessionDate());
 			if(totalSess > 1){
 				new PrintReport(MainActivity.this, 
-					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).run();
+					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).execute();
 			}
 			// if parse sessionId = 0 will be print all summary in day
 			new PrintReport(MainActivity.this, 
-				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId).run();
+				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId).execute();
 
 			// backup the database
 			if(Utils.isEnableBackupDatabase(MainActivity.this)){
@@ -2278,67 +2303,142 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		final ProgressDialog progress = new ProgressDialog(MainActivity.this);
 		progress.setTitle(getString(R.string.endday_success));
 		progress.setCancelable(false);
-		mPartService.sendEnddaySale(mShopId, mComputerId, 
-				mStaffId, new WebServiceWorkingListener(){
+		progress.setMessage(getString(R.string.check_network_progress));
+		progress.show();
+		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
 
-					@Override
-					public void onPreExecute() {
-						progress.setMessage(getString(R.string.send_endday_data_progress));
-						progress.show();
-					}
-
-					@Override
-					public void onPostExecute() {
-						if(progress.isShowing())
-							progress.dismiss();
-
-						new AlertDialog.Builder(MainActivity.this)
-						.setTitle(R.string.endday)
-						.setMessage(R.string.send_endday_data_success)
-						.setCancelable(false)
-						.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener(){
-
+			@Override
+			public void onLine() {
+				mPartService.sendEnddaySale(mShopId, mComputerId, mStaffId, new WebServiceWorkingListener() {
+	
 							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								//Utils.shutdown();
-								finish();
+							public void onPreExecute() {
+								progress.setMessage(getString(R.string.send_endday_data_progress));
 							}
+	
+							@Override
+							public void onPostExecute() {
+								if (progress.isShowing())
+									progress.dismiss();
+
+								new AlertDialog.Builder(
+										MainActivity.this)
+										.setTitle(R.string.endday)
+										.setMessage(R.string.send_endday_data_success)
+										.setCancelable(false)
+										.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+	
+													@Override
+													public void onClick(DialogInterface dialog,int which) {
+														// Utils.shutdown();
+														finish();
+													}
+										}).show();
+							}
+	
+							@Override
+							public void onError(String msg) {
+								if (progress.isShowing())
+									progress.dismiss();
+								new AlertDialog.Builder(
+										MainActivity.this)
+										.setTitle(R.string.endday)
+										.setMessage(R.string.cannot_send_endday_data_on_this_time)
+										.setCancelable(false)
+										.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+	
+													@Override
+													public void onClick(DialogInterface arg0, int arg1) {
+														finish();
+													}
+										})
+										.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+	
+													@Override
+													public void onClick(DialogInterface dialog, int which) {
+														sendEnddayData();
+													}
+										}).show();
+							}
+	
+							@Override
+							public void onProgressUpdate(int value) {
+							}
+					});
+			}
+
+			@Override
+			public void offLine(String msg) {
+				if(progress.isShowing())
+					progress.dismiss();
+				new AlertDialog.Builder(
+						MainActivity.this)
+						.setTitle(R.string.endday)
+						.setMessage(R.string.cannot_send_endday_data_on_this_time)
+						.setCancelable(false)
+						.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+
+									@Override
+									public void onClick(DialogInterface arg0, int arg1) {
+										finish();
+									}
 						})
-						.show();
-					}
+						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onError(String msg) {
-						if(progress.isShowing())
-							progress.dismiss();
-						new AlertDialog.Builder(MainActivity.this)
-							.setTitle(R.string.endday)
-							.setMessage(R.string.cannot_send_endday_data_on_this_time)
-							.setCancelable(false)
-							.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface arg0, int arg1) {
-									finish();
-								}
-							})
-							.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										sendEnddayData();
+									}
+						}).show();
+			}
 
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									sendEnddayData();
-								}
-							}).show();
-					}
-
-					@Override
-					public void onProgressUpdate(int value) {
-					}
-		});
+			@Override
+			public void serverProblem(int code, String msg) {
+				if(progress.isShowing())
+					progress.dismiss();
+				finish();
+			}
+			
+		}).execute();
 	}
 
+	private void sendUnSendEnddayData(){
+		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
+
+			@Override
+			public void onLine() {
+				mPartService.sendAllEndday(mShopId, mComputerId, mStaffId, new WebServiceWorkingListener() {
+	
+							@Override
+							public void onPreExecute() {
+							}
+	
+							@Override
+							public void onPostExecute() {
+								countSaleDataNotSend();
+							}
+	
+							@Override
+							public void onError(String msg) {
+							}
+	
+							@Override
+							public void onProgressUpdate(int value) {
+							}
+					});
+			}
+
+			@Override
+			public void offLine(String msg) {
+			}
+
+			@Override
+			public void serverProblem(int code, String msg) {
+			}
+			
+		}).execute();	
+	}
+	
 	@Override
 	public void onChangeLanguage() {
 		startActivity(getIntent());

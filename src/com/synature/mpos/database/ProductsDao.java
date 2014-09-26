@@ -150,7 +150,8 @@ public class ProductsDao extends MPOSDatabase {
 				+ ProductTable.COLUMN_PRODUCT_ID 
 				+ " WHERE a." + ProductTable.COLUMN_PRODUCT_ID + "=?"
 				+ " AND b." + ProductTable.COLUMN_ACTIVATE + "=?"
-				+ " AND b." + COLUMN_DELETED + "=?",
+				+ " AND b." + COLUMN_DELETED + "=?"
+				+ " ORDER BY a." + ProductComponentGroupTable.COLUMN_SET_GROUP_NO,
 				new String[]{
 					String.valueOf(productId),
 					String.valueOf(ACTIVATED),
@@ -197,8 +198,7 @@ public class ProductsDao extends MPOSDatabase {
 				+ " b." + ProductTable.COLUMN_IMG_FILE_NAME 
 				+ " FROM " + ProductComponentTable.TABLE_PCOMPONENT + " a "
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b "
-				+ " ON a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_ID + "=b."
-				+ ProductTable.COLUMN_PRODUCT_ID 
+				+ " ON a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_ID + "=b." + ProductTable.COLUMN_PRODUCT_ID 
 				+ " WHERE a." + ProductComponentTable.COLUMN_PGROUP_ID + "=?"
 				+ " AND b." + COLUMN_DELETED + "=?",
 				new String[]{
@@ -306,7 +306,8 @@ public class ProductsDao extends MPOSDatabase {
 				+ " ON a." + ProductComponentTable.COLUMN_CHILD_PRODUCT_ID + "=b."
 				+ ProductTable.COLUMN_PRODUCT_ID 
 				+ " WHERE a."+ ProductTable.COLUMN_PRODUCT_ID + "=?"
-				+ " AND b." + COLUMN_DELETED + "=?",
+				+ " AND b." + COLUMN_DELETED + "=?"
+				+ " ORDER BY b." + COLUMN_ORDERING + ", b." + ProductTable.COLUMN_PRODUCT_NAME,
 				new String[] { 
 					String.valueOf(proId),
 					String.valueOf(NOT_DELETE)

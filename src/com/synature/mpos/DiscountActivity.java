@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
@@ -52,7 +52,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	public static final int PERCENT_DISCOUNT_TYPE = 2;
 	public static final int OTHER_DISCOUNT_TYPE = 6;
 
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	private TransactionDao mTrans;
 	private ProductsDao mProduct;
 	private OrderDetail mOrder;
@@ -85,7 +85,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 		mTransactionId = intent.getIntExtra("transactionId", 0);	
 		mTrans = new TransactionDao(this);
 		mProduct = new ProductsDao(this);
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		mOrder = new OrderDetail();
 		// begin transaction
 		mTrans.getWritableDatabase().beginTransaction();
@@ -291,7 +291,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 				double discountAll = Utils.stringToDouble(mTxtDisAll.getText().toString());
 				double maxTotalRetailPrice = mTrans.getMaxTotalRetailPrice(mTransactionId);
 				double totalDiscount = 0.0d;
-				OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId);
+				OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId, true);
 				double totalPrice = summOrder.getTotalRetailPrice();
 				if(discountAll <= summOrder.getTotalRetailPrice()){
 					mTxtDisAll.setText(null);
@@ -413,14 +413,15 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	}
 	
 	private void summary() {
-		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId);
+		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId, true);
+		double totalPrice = summ.getVatExclude() > 0 ? summ.getTotalSalePrice() - summ.getVatExclude() : summ.getTotalSalePrice();
 		TextView[] tvs = {
 				SaleReportActivity.createTextViewSummary(this, getString(R.string.summary), Utils.getLinHorParams(1.2f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(summ.getOrderQty()), Utils.getLinHorParams(0.5f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getProductPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalRetailPrice()), Utils.getLinHorParams(0.7f)),
 				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPriceDiscount()), Utils.getLinHorParams(0.7f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalSalePrice()), Utils.getLinHorParams(0.7f))
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(totalPrice), Utils.getLinHorParams(0.7f))
 		};
 		if(mSummaryContainer.getChildCount() > 0)
 			mSummaryContainer.removeAllViews();

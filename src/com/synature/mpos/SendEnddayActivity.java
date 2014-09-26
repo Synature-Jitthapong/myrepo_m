@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
-import com.synature.mpos.database.FormaterDao;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 
 import android.app.AlertDialog;
@@ -35,7 +36,7 @@ public class SendEnddayActivity extends MPOSActivityBase {
 	private SaleService mPartService;
 	private boolean mBound = false;
 	
-	private FormaterDao mFormat;
+	private GlobalPropertyDao mFormat;
 	
 	private int mStaffId;
 	private int mShopId;
@@ -76,7 +77,7 @@ public class SendEnddayActivity extends MPOSActivityBase {
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mAutoClose = intent.getBooleanExtra("autoClose", false);
 		
-		mFormat = new FormaterDao(this);
+		mFormat = new GlobalPropertyDao(this);
 		mSession = new SessionDao(this);
 		mSessLst = new ArrayList<String>();
 
@@ -129,7 +130,32 @@ public class SendEnddayActivity extends MPOSActivityBase {
 				finish();
 				return true;
 			case R.id.itemSendAll:
-				mPartService.sendEnddaySale(mShopId, mComputerId, mStaffId, mSendListener);
+				mItemClose.setEnabled(false);
+				mItemSend.setVisible(false);
+				mItemProgress.setVisible(true);
+				new NetworkConnectionChecker(this, new NetworkCheckerListener() {
+					
+					@Override
+					public void serverProblem(int code, String msg) {
+						mItemClose.setEnabled(true);
+						mItemSend.setVisible(true);
+						mItemProgress.setVisible(false);
+						Utils.makeToask(SendEnddayActivity.this, msg);
+					}
+					
+					@Override
+					public void onLine() {
+						mPartService.sendAllEndday(mShopId, mComputerId, mStaffId, mSendListener);
+					}
+					
+					@Override
+					public void offLine(String msg) {
+						mItemClose.setEnabled(true);
+						mItemSend.setVisible(true);
+						mItemProgress.setVisible(false);
+						Utils.makeToask(SendEnddayActivity.this, msg);
+					}
+				}).execute();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -150,9 +176,6 @@ public class SendEnddayActivity extends MPOSActivityBase {
 
 		@Override
 		public void onPreExecute() {
-			mItemClose.setEnabled(false);
-			mItemSend.setVisible(false);
-			mItemProgress.setVisible(true);
 		}
 
 		@Override
@@ -183,7 +206,7 @@ public class SendEnddayActivity extends MPOSActivityBase {
 		}
 
 		@Override
-		public void onError(String msg) {
+		public void onError(final String msg) {
 			mItemClose.setEnabled(true);
 			mItemSend.setVisible(true);
 			mItemProgress.setVisible(false);
@@ -192,8 +215,6 @@ public class SendEnddayActivity extends MPOSActivityBase {
 
 		@Override
 		public void onProgressUpdate(int value) {
-			// TODO Auto-generated method stub
-			
 		}
 		
 	};
