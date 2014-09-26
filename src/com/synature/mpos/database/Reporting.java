@@ -90,7 +90,8 @@ public class Reporting extends MPOSDatabase{
 						+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
 						+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE + "=?"
 						+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?)"
-						+ " GROUP BY " + OrderTransTable.COLUMN_TRANS_ID,
+						+ " GROUP BY " + OrderTransTable.COLUMN_TRANS_ID
+						+ " ORDER BY " + OrderTransTable.COLUMN_SALE_DATE + ", " + OrderTransTable.COLUMN_RECEIPT_ID,
 						new String[]{
 								mainCursor.getString(0),
 								String.valueOf(TransactionDao.TRANS_STATUS_HOLD),
@@ -315,7 +316,7 @@ public class Reporting extends MPOSDatabase{
 				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
 				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 				+ " WHERE " + selection
-				+ " GROUP BY a." + OrderTransTable.COLUMN_SALE_DATE + ", a." + OrderTransTable.COLUMN_TRANS_ID;
+				+ " GROUP BY a." + OrderTransTable.COLUMN_SALE_DATE + ", a." + OrderTransTable.COLUMN_RECEIPT_ID;
 
 		Cursor cursor = getReadableDatabase().rawQuery(strSql,
                 new String[]{
