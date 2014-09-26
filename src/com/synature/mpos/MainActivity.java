@@ -1811,11 +1811,14 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					// delete sale if more than 90 days
 					String firstDate = mSession.getFirstSessionDate();
 					if(!TextUtils.isEmpty(firstDate)){
-						Calendar c = Calendar.getInstance();
-						c.setTimeInMillis(Long.parseLong(firstDate));
-						int days = Utils.getDiffDay(c);
-						if(days >= 90){
-							mTrans.deleteSale(firstDate, String.valueOf(Calendar.getInstance().getTimeInMillis()));
+						int maxDays = 90;
+						Calendar cFirst = Calendar.getInstance();
+						cFirst.setTimeInMillis(Long.parseLong(firstDate));
+						int days = Utils.getDiffDay(cFirst);
+						if(days >= maxDays){
+							Calendar cLast = (Calendar) cFirst.clone();
+							cLast.add(Calendar.DAY_OF_YEAR, maxDays);
+							mTrans.deleteSale(firstDate, String.valueOf(cLast.getTimeInMillis()));
 						}
 					}
 				}

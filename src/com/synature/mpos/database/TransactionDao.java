@@ -1149,9 +1149,9 @@ public class TransactionDao extends MPOSDatabase {
 			String transWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")";
 			db.delete(SessionTable.TABLE_SESSION, sessWhere, sessWhereArgs);
 			db.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, sessWhere, sessWhereArgs);
-			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER + " WHERE " + transWhere, null);
-			db.execSQL("DELETE FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE " + transWhere, null);
-			db.execSQL("DELETE FROM " + OrderTransTable.TABLE_ORDER_TRANS + " WHERE " + transWhere, null);
+			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER + " WHERE " + transWhere);
+			db.execSQL("DELETE FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE " + transWhere);
+			db.execSQL("DELETE FROM " + OrderTransTable.TABLE_ORDER_TRANS + " WHERE " + transWhere);
 			db.setTransactionSuccessful();
 		}finally{
 			db.endTransaction();

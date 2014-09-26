@@ -98,7 +98,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
             android:gravity="right"
-            android:text="@string/total" />
+            android:text="@string/total_sale" />
 
         <TextView
             android:id="@+id/tvTo"
