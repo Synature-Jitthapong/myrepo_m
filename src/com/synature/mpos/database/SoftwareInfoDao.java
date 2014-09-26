@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import com.synature.mpos.Utils;
 import com.synature.mpos.database.model.SoftwareInfo;
 import com.synature.mpos.database.table.SoftwareInfoTable;
 
@@ -24,56 +23,21 @@ public class SoftwareInfoDao extends MPOSDatabase{
 		SoftwareInfo sw = null;
 		Cursor cursor = getReadableDatabase().query(SoftwareInfoTable.TABLE_SOFTWARE_INFO, 
 				new String[]{
-					SoftwareInfoTable.COLUMN_SOFTWARE_INFO_ID,
-					SoftwareInfoTable.COLUMN_VERSION,
-					SoftwareInfoTable.COLUMN_DB_VERSION,
 					SoftwareInfoTable.COLUMN_EXP_DATE,
-					SoftwareInfoTable.COLUMN_LOCK_DATE,
-					SoftwareInfoTable.COLUMN_IS_DOWNLOADED,
-					SoftwareInfoTable.COLUMN_IS_ALREADY_UPDATE
-				}, null, null, null, null, SoftwareInfoTable.COLUMN_SOFTWARE_INFO_ID + " DESC ", "1");
+					SoftwareInfoTable.COLUMN_LOCK_DATE
+				}, null, null, null, null, null);
 		if(cursor.moveToFirst()){
 			sw = new SoftwareInfo();
-			sw.setId(cursor.getInt(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_SOFTWARE_INFO_ID)));
-			sw.setVersion(cursor.getString(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_VERSION)));
-			sw.setDbVersion(cursor.getString(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_DB_VERSION)));
 			sw.setExpDate(cursor.getString(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_EXP_DATE)));
 			sw.setLockDate(cursor.getString(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_LOCK_DATE)));
-			sw.setDownloaded(cursor.getInt(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_IS_DOWNLOADED)) == 1 ? 
-					true : false);
-			sw.setAlreadyUpdate(cursor.getInt(cursor.getColumnIndex(SoftwareInfoTable.COLUMN_IS_ALREADY_UPDATE)) == 1 ? 
-					true : false);
 		}
 		cursor.close();
 		return sw;
 	}
 	
-	public void setStatusAlreadyUpdated(int id, int status){
+	public void logSoftwareInfo(String version, String dbVersion, String expDate, String lockDate){
+		getWritableDatabase().delete(SoftwareInfoTable.TABLE_SOFTWARE_INFO, null, null);
 		ContentValues cv = new ContentValues();
-		cv.put(SoftwareInfoTable.COLUMN_IS_ALREADY_UPDATE, status);
-		getWritableDatabase().update(SoftwareInfoTable.TABLE_SOFTWARE_INFO, 
-				cv, SoftwareInfoTable.COLUMN_SOFTWARE_INFO_ID + "=?", 
-				new String[]{
-					String.valueOf(id)
-				});
-	}
-	
-	public void setStatusDownloaded(int id, int status){
-		ContentValues cv = new ContentValues();
-		cv.put(SoftwareInfoTable.COLUMN_IS_DOWNLOADED, status);
-		getWritableDatabase().update(SoftwareInfoTable.TABLE_SOFTWARE_INFO, 
-				cv, SoftwareInfoTable.COLUMN_SOFTWARE_INFO_ID + "=?", 
-				new String[]{
-					String.valueOf(id)
-				});
-	}
-	
-	public int logSoftwareInfo(String version, String dbVersion, String expDate, String lockDate){
-		int maxId = getMaxId();
-		ContentValues cv = new ContentValues();
-		cv.put(SoftwareInfoTable.COLUMN_SOFTWARE_INFO_ID, maxId);
-		cv.put(SoftwareInfoTable.COLUMN_VERSION, version);
-		cv.put(SoftwareInfoTable.COLUMN_DB_VERSION, dbVersion);
 		if(!TextUtils.isEmpty(expDate)){
 			try {
 				Date d = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(expDate);
@@ -93,18 +57,5 @@ public class SoftwareInfoDao extends MPOSDatabase{
 			}
 		}
 		getWritableDatabase().insert(SoftwareInfoTable.TABLE_SOFTWARE_INFO, null, cv);
-		return maxId;
-	}
-	
-	private int getMaxId(){
-		int maxId = 0;
-		Cursor cursor = getReadableDatabase().rawQuery(
-				"SELECT MAX(" + SoftwareInfoTable.COLUMN_SOFTWARE_INFO_ID + ")"
-				+ " FROM " + SoftwareInfoTable.TABLE_SOFTWARE_INFO, null);
-		if(cursor.moveToFirst()){
-			maxId = cursor.getInt(0);
-		}
-		cursor.close();
-		return maxId + 1;
 	}
 }

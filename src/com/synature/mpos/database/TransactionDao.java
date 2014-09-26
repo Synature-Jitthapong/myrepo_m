@@ -24,10 +24,12 @@ import com.synature.mpos.database.table.MaxOrderIdTable;
 import com.synature.mpos.database.table.MaxTransIdTable;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
+import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.mpos.database.table.ProductComponentGroupTable;
 import com.synature.mpos.database.table.ProductComponentTable;
 import com.synature.mpos.database.table.ProductTable;
 import com.synature.mpos.database.table.PromotionPriceGroupTable;
+import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
 import com.synature.mpos.database.table.StaffTable;
@@ -1133,6 +1135,48 @@ public class TransactionDao extends MPOSDatabase {
 		deleteOrderComment(transactionId, orderDetailId);
 		deleteOrderSet(transactionId, orderDetailId);
 		deleteOrderDetail(transactionId, orderDetailId);
+	}
+	
+	public void deleteSale(String dateFrom, String dateTo){
+		String transIds = getTransactionIds(dateFrom, dateTo);
+		if(TextUtils.isEmpty(transIds))
+			return;
+		SQLiteDatabase db = getWritableDatabase();
+		db.beginTransaction();
+		try{
+			String sessWhere = SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ?";
+			String[] sessWhereArgs = {dateFrom, dateTo};
+			String transWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")";
+			db.delete(SessionTable.TABLE_SESSION, sessWhere, sessWhereArgs);
+			db.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, sessWhere, sessWhereArgs);
+			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER + " WHERE " + transWhere, null);
+			db.execSQL("DELETE FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE " + transWhere, null);
+			db.execSQL("DELETE FROM " + OrderTransTable.TABLE_ORDER_TRANS + " WHERE " + transWhere, null);
+			db.setTransactionSuccessful();
+		}finally{
+			db.endTransaction();
+		}
+	}
+	
+	private String getTransactionIds(String dateFrom, String dateTo){
+		String transIds = "";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + OrderTransTable.COLUMN_TRANS_ID
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? ", 
+				new String[]{
+						dateFrom,
+						dateTo
+				});
+		if(cursor.moveToFirst()){
+			do{
+				transIds += cursor.getString(0);
+				if(!cursor.isLast())
+					transIds += ",";
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return transIds;
 	}
 	
 	/**

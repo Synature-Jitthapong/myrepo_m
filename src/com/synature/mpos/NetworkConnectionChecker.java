@@ -41,7 +41,7 @@ public class NetworkConnectionChecker extends AsyncTask<Void, Void, Object>{
 	}
 	
 	@Override
-	protected Object doInBackground(Void... arg0) {
+	protected Object doInBackground(Void... arg0){
 		MyResponse myRes = new MyResponse();
 		ConnectivityManager connMgr = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -52,7 +52,8 @@ public class NetworkConnectionChecker extends AsyncTask<Void, Void, Object>{
 			HttpClient httpClient = new DefaultHttpClient(httpParam);
 			HttpResponse res;
 			try {
-				res = httpClient.execute(new HttpGet(Utils.getFullUrl(mContext)));
+				HttpGet httpGet = new HttpGet(Utils.getFullUrl(mContext));
+				res = httpClient.execute(httpGet);
 				int resCode = res.getStatusLine().getStatusCode();
 				myRes.code = resCode;
 				if(resCode != 200){

@@ -1807,6 +1807,17 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
 					dsp.openCashDrawer();
 					dsp.close();
+					
+					// delete sale if more than 90 days
+					String firstDate = mSession.getFirstSessionDate();
+					if(!TextUtils.isEmpty(firstDate)){
+						Calendar c = Calendar.getInstance();
+						c.setTimeInMillis(Long.parseLong(firstDate));
+						int days = Utils.getDiffDay(c);
+						if(days >= 90){
+							mTrans.deleteSale(firstDate, String.valueOf(Calendar.getInstance().getTimeInMillis()));
+						}
+					}
 				}
 			}).show();
 		}else{

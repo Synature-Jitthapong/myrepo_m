@@ -5,6 +5,7 @@ import org.ksoap2.serialization.PropertyInfo;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.synature.mpos.database.SoftwareInfoDao;
+import com.synature.mpos.database.SoftwareUpdateDao;
 
 import android.content.Context;
 import android.content.Intent;
@@ -46,14 +47,16 @@ public class SoftwareRegister extends MPOSServiceBase{
 			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
 			if(info != null){
 				SoftwareInfoDao sw = new SoftwareInfoDao(mContext);
+				sw.logSoftwareInfo(info.getSzSoftwareVersion(), 
+						String.valueOf(Utils.DB_VERSION), info.getSzSoftwareExpireDate(), 
+						info.getSzLockExpireDate());
 				if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
 					// compare version
 					if(!TextUtils.equals(Utils.getSoftWareVersion(mContext), info.getSzSoftwareVersion())){
-						int infoId = sw.logSoftwareInfo(info.getSzSoftwareVersion(), 
-								String.valueOf(Utils.DB_VERSION), info.getSzExpireDate(), info.getSzLockExpireDate());
+						SoftwareUpdateDao su = new SoftwareUpdateDao(mContext);
+						su.logSoftwareUpdate(info.getSzSoftwareVersion());
 						Intent intent = new Intent(mContext, SoftwareUpdateService.class);
 						intent.putExtra("fileUrl", info.getSzSoftwareDownloadUrl());
-						intent.putExtra("infoId", infoId);
 						mContext.startService(intent);
 					}
 				}
