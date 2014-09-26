@@ -3,21 +3,17 @@ package com.synature.mpos;
 import java.io.File;
 import java.util.Calendar;
 
-import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.ShopDao;
-import com.synature.mpos.database.SoftwareInfoDao;
 import com.synature.mpos.database.SoftwareUpdateDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
-import com.synature.mpos.database.model.SoftwareInfo;
 import com.synature.mpos.database.model.SoftwareUpdate;
 import com.synature.pos.Staff;
-import com.synature.util.Logger;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -473,33 +469,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		startActivity(intent);
         finish();
 	}
-	
-	/**
-	 * Start endday service for send endday sale
-	
-	private void startEnddayService(){
-		new NetworkConnectionChecker(this, new NetworkCheckerListener() {
-			
-			@Override
-			public void serverProblem(int code, String msg) {
-				Utils.makeToask(LoginActivity.this, msg);
-			}
-			
-			@Override
-			public void onLine() {
-				Intent enddayIntent = new Intent(LoginActivity.this, EnddaySaleService.class);
-				enddayIntent.putExtra("staffId", mStaffId);
-				enddayIntent.putExtra("shopId", mShop.getShopId());
-				enddayIntent.putExtra("computerId", mComputer.getComputerId());
-				startService(enddayIntent);
-			}
-			
-			@Override
-			public void offLine(String msg) {
-				Utils.makeToask(LoginActivity.this, msg);
-			}
-		}).execute();
-	} */
 	
 	public void checkLogin(){
 		String user = "";
