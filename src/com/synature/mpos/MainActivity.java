@@ -13,7 +13,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
@@ -34,11 +33,11 @@ import com.synature.mpos.database.model.OrderSet.OrderSetDetail;
 import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.database.model.Product;
 import com.synature.mpos.database.model.ProductDept;
+import com.synature.mpos.point.R;
 import com.synature.mpos.seconddisplay.SecondDisplayJSON;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
 import com.synature.util.ImageLoader;
 import com.synature.util.Logger;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;

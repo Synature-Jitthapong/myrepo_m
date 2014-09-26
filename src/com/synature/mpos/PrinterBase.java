@@ -3,10 +3,8 @@ package com.synature.mpos;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.List;
-
 import android.content.Context;
 import android.text.TextUtils;
-
 import com.synature.mpos.database.CreditCardDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.HeaderFooterReceiptDao;
@@ -23,6 +21,7 @@ import com.synature.mpos.database.model.MPOSPaymentDetail;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderSet.OrderSetDetail;
 import com.synature.mpos.database.model.OrderTransaction;
+import com.synature.mpos.point.R;
 import com.synature.pos.Report;
 import com.synature.pos.Staff;
 import com.synature.util.Logger;

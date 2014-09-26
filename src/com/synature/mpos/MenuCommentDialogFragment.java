@@ -1,14 +1,13 @@
 package com.synature.mpos;
 
 import java.util.List;
-
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MenuCommentDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.Comment;
 import com.synature.mpos.database.model.CommentGroup;
-
+import com.synature.mpos.point.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

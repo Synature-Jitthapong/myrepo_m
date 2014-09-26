@@ -2,7 +2,6 @@ package com.synature.mpos;
 
 import java.io.File;
 import java.util.Calendar;
-
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
@@ -13,8 +12,8 @@ import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
 import com.synature.mpos.database.model.SoftwareUpdate;
+import com.synature.mpos.point.R;
 import com.synature.pos.Staff;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;

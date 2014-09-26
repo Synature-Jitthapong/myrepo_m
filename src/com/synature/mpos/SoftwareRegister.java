@@ -1,12 +1,11 @@
 package com.synature.mpos;
 
 import org.ksoap2.serialization.PropertyInfo;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.synature.mpos.database.SoftwareInfoDao;
 import com.synature.mpos.database.SoftwareUpdateDao;
-
+import com.synature.mpos.point.R;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;

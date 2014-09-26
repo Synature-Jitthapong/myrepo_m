@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import com.synature.mpos.point.R;
 
 public class SearchMemberFragment extends DialogFragment{
 

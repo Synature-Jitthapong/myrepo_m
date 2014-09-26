@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import com.synature.mpos.point.R;
 
 public class BillViewerFragment extends DialogFragment{
 

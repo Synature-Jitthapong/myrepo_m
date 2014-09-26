@@ -3,7 +3,6 @@ package com.synature.mpos;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PaymentAmountButtonDao;
@@ -12,8 +11,8 @@ import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.MPOSPaymentDetail;
 import com.synature.mpos.database.model.OrderDetail;
+import com.synature.mpos.point.R;
 import com.synature.pos.PayType;
-
 import android.os.Bundle;
 import android.app.AlertDialog;
 import android.content.Context;

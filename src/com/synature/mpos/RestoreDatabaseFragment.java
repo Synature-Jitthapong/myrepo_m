@@ -12,9 +12,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-
 import com.synature.mpos.database.GlobalPropertyDao;
-
+import com.synature.mpos.point.R;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;

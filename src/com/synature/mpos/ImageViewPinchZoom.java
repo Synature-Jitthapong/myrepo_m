@@ -3,8 +3,8 @@ package com.synature.mpos;
 import com.imagezoom.ImageAttacher;
 import com.imagezoom.ImageAttacher.OnMatrixChangedListener;
 import com.imagezoom.ImageAttacher.OnPhotoTapListener;
+import com.synature.mpos.point.R;
 import com.synature.util.ImageLoader;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;

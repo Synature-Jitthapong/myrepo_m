@@ -3,13 +3,12 @@ package com.synature.mpos;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
 import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
-
+import com.synature.mpos.point.R;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;

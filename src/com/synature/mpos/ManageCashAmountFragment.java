@@ -1,9 +1,8 @@
 package com.synature.mpos;
 
 import java.text.ParseException;
-
 import com.synature.mpos.database.GlobalPropertyDao;
-
+import com.synature.mpos.point.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

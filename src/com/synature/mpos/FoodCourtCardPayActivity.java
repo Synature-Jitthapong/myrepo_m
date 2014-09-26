@@ -6,9 +6,9 @@ import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
+import com.synature.mpos.point.R;
 import com.synature.pos.PrepaidCardInfo;
 import com.synature.util.Logger;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Fragment;

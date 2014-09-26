@@ -1,10 +1,9 @@
 package com.synature.mpos;
 
 import java.util.List;
-
 import com.synature.mpos.database.LanguageDao;
 import com.synature.mpos.database.model.Language;
-
+import com.synature.mpos.point.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

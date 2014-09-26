@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -29,7 +28,6 @@ import android.provider.Settings.Secure;
 import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.ProductsDao;
@@ -43,6 +41,7 @@ import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
+import com.synature.mpos.point.R;
 import com.synature.util.Logger;
 
 public class Utils {
