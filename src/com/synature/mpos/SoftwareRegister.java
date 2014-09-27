@@ -67,7 +67,7 @@ public class SoftwareRegister extends MPOSServiceBase{
 					
 					mListener.onPostExecute();
 				}else{
-					mListener.onError(mContext.getString(R.string.invalid_url));
+					mListener.onError(mContext.getString(R.string.device_not_register));
 				}
 			}else{
 				mListener.onError("No result from server");

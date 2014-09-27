@@ -634,6 +634,7 @@ public final class R {
         public static final int shop=0x7f050082;
         public static final int shop_info=0x7f050043;
         public static final int show_menu_image=0x7f050091;
+        public static final int software_expired=0x7f0500f0;
         public static final int software_info=0x7f05003f;
         public static final int software_update=0x7f0500ec;
         public static final int software_update_mesg=0x7f0500ed;
