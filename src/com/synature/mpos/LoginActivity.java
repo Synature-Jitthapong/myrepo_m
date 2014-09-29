@@ -3,6 +3,7 @@ package com.synature.mpos;
 import java.io.File;
 import java.util.Calendar;
 
+import com.synature.mpos.SoftwareExpirationChecker.SoftwareExpirationCheckerListener;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
@@ -464,12 +465,26 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 	
 	private void gotoMainActivity(){
-		//startEnddayService();
-		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+		final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 		intent.putExtra("staffId", mStaffId);
 		intent.putExtra("staffRoleId", mStaffRoleId);
-		startActivity(intent);
-        finish();
+		SoftwareExpirationChecker swChecker = new SoftwareExpirationChecker(this, new SoftwareExpirationCheckerListener() {
+			
+			@Override
+			public void onNotExpired() {
+				startActivity(intent);
+		        finish();	
+			}
+			
+			@Override
+			public void onExpire(boolean isLocked) {
+				if(!isLocked){
+					startActivity(intent);
+			        finish();	
+				}
+			}
+		});
+		swChecker.checkExpDate();
 	}
 	
 	public void checkLogin(){
