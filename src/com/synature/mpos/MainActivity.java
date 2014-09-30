@@ -764,12 +764,17 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		if(mOrderDetailLst.size() > 0){
 			// food court type
 			//if(mShop.getFastFoodType() == ShopDao.SHOP_TYPE_FOOD_COURT){
-				Intent intent = new Intent(MainActivity.this, FoodCourtCardPayActivity.class);
-				intent.putExtra("transactionId", mTransactionId);
-				intent.putExtra("shopId", mShopId);
-				intent.putExtra("computerId", mComputerId);
-				intent.putExtra("staffId", mStaffId);
-				startActivityForResult(intent, FOOD_COURT_PAYMENT_REQUEST);
+//				Intent intent = new Intent(MainActivity.this, PointCardPaidActivity.class);
+//				intent.putExtra("transactionId", mTransactionId);
+//				intent.putExtra("shopId", mShopId);
+//				intent.putExtra("computerId", mComputerId);
+//				intent.putExtra("staffId", mStaffId);
+//				startActivityForResult(intent, FOOD_COURT_PAYMENT_REQUEST);
+			
+
+			MemberPointInfoDialogFragment f = MemberPointInfoDialogFragment.newInstance(MemberPointInfoDialogFragment.REDEEM_MODE);
+			f.show(getFragmentManager(), "MemberPointInfo");	
+			
 //			}else{
 //				Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
 //				intent.putExtra("transactionId", mTransactionId);
@@ -781,6 +786,16 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 	}
 
+	public void refillClick(final View v){
+		CardRefillDialogFragment f = CardRefillDialogFragment.newInstance();
+		f.show(getFragmentManager(), "CardRefill");
+	}
+	
+	public void checkPointClick(final View v){
+		MemberPointInfoDialogFragment f = MemberPointInfoDialogFragment.newInstance(MemberPointInfoDialogFragment.INFO_MODE);
+		f.show(getFragmentManager(), "MemberPointInfo");	
+	}
+	
 	/**
 	 * @param v
 	 */
@@ -1276,7 +1291,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				if(Utils.isShowMenuImage(getActivity())){
 					holder.imgMenu.setVisibility(View.VISIBLE);
 					((MainActivity) getActivity()).mImageLoader.displayImage(
-							Utils.getImageUrl(getActivity()) + 
 							p.getImgName(), holder.imgMenu);
 				}
 				return convertView;

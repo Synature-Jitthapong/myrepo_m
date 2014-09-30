@@ -125,7 +125,7 @@
             android:screenOrientation="landscape" >
         </activity>
         <activity
-            android:name="com.synature.mpos.FoodCourtCardPayActivity"
+            android:name="com.synature.mpos.PointCardPaidActivity"
             android:label="@string/payment"
             android:screenOrientation="landscape"
             android:theme="@style/ActivityDialogTheme"

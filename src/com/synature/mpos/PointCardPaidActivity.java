@@ -12,7 +12,6 @@ import com.synature.util.Logger;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,7 +37,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnable, 
+public class PointCardPaidActivity extends MPOSActivityBase implements Runnable, 
 	SearchMemberFragment.OnSearchMember{
 	public static final int STATUS_READY_TO_USE = 1; 	//Ready to Use
 	public static final int STATUS_INUSE = 2;			//In Use
@@ -231,7 +230,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 	
 	public static class PayResultFragment extends Fragment{
 		
-		private FoodCourtCardPayActivity mHost;
+		private PointCardPaidActivity mHost;
 		private double mBalance;
 		private TextView mTvResult;
 		private EditText mTxtCardBalance;
@@ -247,7 +246,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			mHost = (FoodCourtCardPayActivity) getActivity();
+			mHost = (PointCardPaidActivity) getActivity();
 			mBalance = getArguments().getDouble("balance");
 		}
 
@@ -268,7 +267,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 	
 	public static class PlaceholderFragment extends Fragment{
 		
-		private FoodCourtCardPayActivity mHost;
+		private PointCardPaidActivity mHost;
 		private MenuItem mItemConfirm;
 		private EditText mTxtTotalPrice;
 		private EditText mTxtCardNo;
@@ -280,7 +279,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			setHasOptionsMenu(true);
-			mHost = (FoodCourtCardPayActivity) getActivity();
+			mHost = (PointCardPaidActivity) getActivity();
 		}
 
 		@Override
@@ -303,7 +302,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			return inflater.inflate(R.layout.fragment_food_court_card_pay, container, false);
+			return inflater.inflate(R.layout.fragment_point_card_paid, container, false);
 		}
 
 		@Override
@@ -417,8 +416,8 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 				PayResultFragment fragment = PayResultFragment.newInstance(mCardBalance);
 				getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
 				
-				ShopDao shop = new ShopDao(FoodCourtCardPayActivity.this);
-				PaymentDetailDao payment = new PaymentDetailDao(FoodCourtCardPayActivity.this);
+				ShopDao shop = new ShopDao(PointCardPaidActivity.this);
+				PaymentDetailDao payment = new PaymentDetailDao(PointCardPaidActivity.this);
 				payment.addPaymentDetail(mTransactionId, mComputerId, PaymentDetailDao.PAY_TYPE_CASH, 
 						mTotalSalePrice, mTotalSalePrice, cardInfo.getSzCardNo(), 0, 0, 0, 0, "Member Card");
 				mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice, 
@@ -433,7 +432,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 					getFragmentManager().findFragmentById(R.id.container);
 			clearTextBox();
 			fragment.mItemConfirm.setEnabled(true);
-			new AlertDialog.Builder(FoodCourtCardPayActivity.this)
+			new AlertDialog.Builder(PointCardPaidActivity.this)
 			.setTitle(R.string.payment)
 			.setMessage(msg)
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -495,7 +494,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 						getFragmentManager().findFragmentById(R.id.container);
 				clearTextBox();
 				fragment.mBtnCheckCard.setEnabled(true);
-				new AlertDialog.Builder(FoodCourtCardPayActivity.this)
+				new AlertDialog.Builder(PointCardPaidActivity.this)
 				.setTitle(R.string.payment)
 				.setMessage(msg)
 				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -512,7 +511,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 
 		@Override
 		public void run() {
-			WintecPrinter print = new WintecPrinter(FoodCourtCardPayActivity.this);
+			WintecPrinter print = new WintecPrinter(PointCardPaidActivity.this);
 			print.createTextForPrintFoodCourtReceipt(mTransactionId, mCardBalanceBefore, mCardBalance, false, false);
 			print.print();
 		}

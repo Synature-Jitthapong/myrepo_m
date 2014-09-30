@@ -54,12 +54,12 @@ public class FoodCourtBalanceOfCard extends FoodCourtMainService{
 //			mListener.onError(result);
 //		}
 		PrepaidCardInfo cardInfo = new PrepaidCardInfo();
-		if(mCardNo.equals(FoodCourtCardPayActivity.CARD1)){
-			cardInfo.setfCurrentAmount(FoodCourtCardPayActivity.getPoint1(mContext));
-		}else if(mCardNo.equals(FoodCourtCardPayActivity.CARD2)){
-			cardInfo.setfCurrentAmount(FoodCourtCardPayActivity.getPoint2(mContext));
+		if(mCardNo.equals(PointCardPaidActivity.CARD1)){
+			cardInfo.setfCurrentAmount(PointCardPaidActivity.getPoint1(mContext));
+		}else if(mCardNo.equals(PointCardPaidActivity.CARD2)){
+			cardInfo.setfCurrentAmount(PointCardPaidActivity.getPoint2(mContext));
 		}
-		cardInfo.setiCardStatus(FoodCourtCardPayActivity.STATUS_READY_TO_USE);
+		cardInfo.setiCardStatus(PointCardPaidActivity.STATUS_READY_TO_USE);
 		cardInfo.setSzCardNo(mCardNo);
 		mListener.onPost(cardInfo);
 	}

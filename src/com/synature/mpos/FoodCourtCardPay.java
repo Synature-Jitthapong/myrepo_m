@@ -66,16 +66,16 @@ public class FoodCourtCardPay extends FoodCourtMainService{
 //		}
 
 		PrepaidCardInfo cardInfo = new PrepaidCardInfo();
-		if(mCardNo.equals(FoodCourtCardPayActivity.CARD1)){
-			float currPoint = FoodCourtCardPayActivity.getPoint1(mContext);
-			FoodCourtCardPayActivity.setPoint1(mContext, currPoint - mPayAmount);
-			cardInfo.setfCurrentAmount(FoodCourtCardPayActivity.getPoint1(mContext));
-		}else if(mCardNo.equals(FoodCourtCardPayActivity.CARD2)){
-			float currPoint = FoodCourtCardPayActivity.getPoint2(mContext);
-			FoodCourtCardPayActivity.setPoint2(mContext, currPoint - mPayAmount);
-			cardInfo.setfCurrentAmount(FoodCourtCardPayActivity.getPoint2(mContext));
+		if(mCardNo.equals(PointCardPaidActivity.CARD1)){
+			float currPoint = PointCardPaidActivity.getPoint1(mContext);
+			PointCardPaidActivity.setPoint1(mContext, currPoint - mPayAmount);
+			cardInfo.setfCurrentAmount(PointCardPaidActivity.getPoint1(mContext));
+		}else if(mCardNo.equals(PointCardPaidActivity.CARD2)){
+			float currPoint = PointCardPaidActivity.getPoint2(mContext);
+			PointCardPaidActivity.setPoint2(mContext, currPoint - mPayAmount);
+			cardInfo.setfCurrentAmount(PointCardPaidActivity.getPoint2(mContext));
 		}
-		cardInfo.setiCardStatus(FoodCourtCardPayActivity.STATUS_READY_TO_USE);
+		cardInfo.setiCardStatus(PointCardPaidActivity.STATUS_READY_TO_USE);
 		cardInfo.setSzCardNo(mCardNo);
 		mListener.onPost(cardInfo);
 	}
