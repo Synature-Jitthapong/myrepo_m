@@ -5,7 +5,7 @@ import java.text.NumberFormat;
 import com.synature.mpos.PointServiceBase.MemberInfo;
 import com.synature.mpos.point.R;
 
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.graphics.Color;
@@ -20,50 +20,46 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class MemberPointInfoDialogFragment extends DialogFragment implements OnClickListener{
+public class MemberPointInfoDialogFragment extends DialogFragment{
 
 	public static final String TAG = MemberPointInfoDialogFragment.class.getSimpleName();
-	
+
 	public static final int INACTIVE = 0;
 	public static final int ACTIVE = 1;
 	
-	public static final int INFO_MODE = 3;
-	public static final int REDEEM_MODE = 4;
-	
 	private Thread mMsrThread;
 	private CardReaderRunnable mCardReaderRunnable;
-	private int mMode;
-	
+
 	private ProgressDialog mProgress;
 	private TextView mTvMemberName;
 	private TextView mTvMobile;
-	private TextView mTvStatus;
-	private TextView mTvRemark;
 	private TextView mTvPoint;
-	private Button mBtnCancel;
-	private Button mBtnOk;
+	private TextView mTvStatus;
 	private Button mBtnClose;
 	
-	public static MemberPointInfoDialogFragment newInstance(int mode){
+	public static MemberPointInfoDialogFragment newInstance(){
 		MemberPointInfoDialogFragment f = new MemberPointInfoDialogFragment();
-		Bundle b = new Bundle();
-		b.putInt("mode", mode);
-		f.setArguments(b);
 		return f;
+	}
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		getDialog().getWindow().setLayout(600, 450);
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mMode = getArguments().getInt("mode");
 		mCardReaderRunnable = new CardReaderRunnable(getActivity(), mCardReaderListener);
 		mMsrThread = new Thread(mCardReaderRunnable);
 		mProgress = new ProgressDialog(getActivity());
 		mProgress.setCancelable(false);
 	}
-	
+
 	@Override
 	public void onStart() {
+		mCardReaderRunnable.setmIsRead(true);
 		mMsrThread.start();
 		Log.i(TAG, "Start msr thread");
 		super.onStart();
@@ -89,64 +85,13 @@ public class MemberPointInfoDialogFragment extends DialogFragment implements OnC
 				@Override
 				public void run() {
 					if(!TextUtils.isEmpty(content)){
-						new BalanceInquiryCard(getActivity(), "", content, 
+						new BalanceInquiryCard(getActivity(), "", "", content, 
 								mGetBalanceListener).execute(BalanceInquiryCard.POINT_SERVICE_URL);
 					}
 				}
 			});
 		}
 	};
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		getDialog().getWindow().setLayout(700, 500);
-	}
-	
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-	}
-
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		mTvMemberName = (TextView) view.findViewById(R.id.tvMemberName);
-		mTvMobile = (TextView) view.findViewById(R.id.tvMobile);
-		mTvStatus = (TextView) view.findViewById(R.id.tvStatus);
-		mTvRemark = (TextView) view.findViewById(R.id.tvRemark);
-		mTvPoint = (TextView) view.findViewById(R.id.tvPoint);
-		mBtnCancel = (Button) view.findViewById(R.id.btnCancel);
-		mBtnClose = (Button) view.findViewById(R.id.btnClose);
-		mBtnOk = (Button) view.findViewById(R.id.btnOk);
-		mBtnCancel.setOnClickListener(this);
-		mBtnClose.setOnClickListener(this);
-		mBtnOk.setOnClickListener(this);
-		switch(mMode){
-		case INFO_MODE:
-			mBtnCancel.setVisibility(View.GONE);
-			mBtnOk.setVisibility(View.GONE);
-			mBtnClose.setVisibility(View.VISIBLE);
-			break;
-		case REDEEM_MODE:
-			mBtnCancel.setVisibility(View.VISIBLE);
-			mBtnOk.setVisibility(View.VISIBLE);
-			mBtnClose.setVisibility(View.GONE);
-			break;
-		default:
-			mBtnCancel.setVisibility(View.GONE);
-			mBtnOk.setVisibility(View.GONE);
-			mBtnClose.setVisibility(View.VISIBLE);
-			break;
-		}
-	}
-	
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-		return inflater.inflate(R.layout.fragment_member_point_info, container, false);
-	}
 	
 	private BalanceInquiryCard.GetBalanceListener mGetBalanceListener = 
 			new BalanceInquiryCard.GetBalanceListener() {
@@ -162,16 +107,15 @@ public class MemberPointInfoDialogFragment extends DialogFragment implements OnC
 					if(mProgress.isShowing())
 						mProgress.dismiss();
 					if(member != null){
+						mTvStatus.setText(null);
 						mTvMemberName.setText(member.getSzFirstName() + " " + member.getSzLastName());
 						mTvMobile.setText(member.getSzMobileNo());
 						mTvPoint.setText(NumberFormat.getInstance().format(member.getiCurrentCardPoint()));
 						if(member.getiCardStatus() == INACTIVE){
-							mTvStatus.setText("InActive");
 							mTvStatus.setTextColor(Color.RED);
-							mTvRemark.setText(member.getSzCardRemark());
+							mTvStatus.setText(member.getSzCardRemark());
 						}else{
-							mTvStatus.setTextColor(Color.GREEN);
-							mTvStatus.setText("Active");
+							mTvStatus.setTextColor(Color.BLACK);
 						}
 					}
 				}
@@ -180,22 +124,36 @@ public class MemberPointInfoDialogFragment extends DialogFragment implements OnC
 				public void onError(String msg) {
 					if(mProgress.isShowing())
 						mProgress.dismiss();
-					Log.e(TAG, msg);
+					new AlertDialog.Builder(getActivity())
+					.setTitle(R.string.check_card)
+					.setMessage(msg)
+					.show();
 				}
 	};
+	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		mTvMemberName = (TextView) view.findViewById(R.id.tvMemberName);
+		mTvMobile = (TextView) view.findViewById(R.id.tvMobile);
+		mTvPoint = (TextView) view.findViewById(R.id.tvPoint);
+		mTvStatus = (TextView) view.findViewById(R.id.tvStatus);
+		mBtnClose = (Button) view.findViewById(R.id.btnClose);
+		mBtnClose.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				getDialog().dismiss();
+			}
+			
+		});
+	}
 
 	@Override
-	public void onClick(View v) {
-		getDialog().dismiss();
-		switch(v.getId()){
-		case R.id.btnCancel:
-			break;
-		case R.id.btnClose:
-			break;
-		case R.id.btnOk:
-			
-			break;
-		}
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+		return inflater.inflate(R.layout.fragment_member_point_info, container, false);
 	}
-	
+
 }

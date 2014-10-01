@@ -169,28 +169,28 @@
                 android:layout_alignParentLeft="true"
                 android:minWidth="100dp"
                 android:onClick="paymentClicked"
-                android:text="@string/payment"
+                android:text="@string/redeem"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
-
-            <Button
-                android:id="@+id/btnCheckPoint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toRightOf="@+id/btnPayment"
-                android:minWidth="100dp"
-                android:onClick="checkPointClick"
-                android:text="@string/check_card" />
 
             <Button
                 android:id="@+id/btnRefill"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_toRightOf="@+id/btnCheckPoint"
+                android:layout_toLeftOf="@+id/btnCancelOrder"
                 android:minWidth="100dp"
                 android:onClick="refillClick"
                 android:text="@string/refill" />
+
+            <Button
+                android:id="@+id/btnCheckPoint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/btnRefill"
+                android:minWidth="100dp"
+                android:onClick="checkPointClick"
+                android:text="@string/check_card" />
 
         </RelativeLayout>
     </LinearLayout>

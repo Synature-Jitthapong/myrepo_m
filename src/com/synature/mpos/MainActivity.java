@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
@@ -38,6 +39,7 @@ import com.synature.mpos.seconddisplay.SecondDisplayJSON;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
 import com.synature.util.ImageLoader;
 import com.synature.util.Logger;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -90,7 +92,8 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends MPOSFragmentActivityBase implements 
 	MenuCommentDialogFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
-	UserVerifyDialogFragment.OnCheckPermissionListener, OnChangeLanguageListener{
+	UserVerifyDialogFragment.OnCheckPermissionListener, OnChangeLanguageListener, 
+	PointRedeemtionDialogFragment.OnRedeemtionListener{
 	
 	public static final String TAG = MainActivity.class.getSimpleName();
 	
@@ -762,27 +765,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	public void paymentClicked(final View v){
 		if(mOrderDetailLst.size() > 0){
-			// food court type
-			//if(mShop.getFastFoodType() == ShopDao.SHOP_TYPE_FOOD_COURT){
-//				Intent intent = new Intent(MainActivity.this, PointCardPaidActivity.class);
-//				intent.putExtra("transactionId", mTransactionId);
-//				intent.putExtra("shopId", mShopId);
-//				intent.putExtra("computerId", mComputerId);
-//				intent.putExtra("staffId", mStaffId);
-//				startActivityForResult(intent, FOOD_COURT_PAYMENT_REQUEST);
-			
-
-			MemberPointInfoDialogFragment f = MemberPointInfoDialogFragment.newInstance(MemberPointInfoDialogFragment.REDEEM_MODE);
-			f.show(getFragmentManager(), "MemberPointInfo");	
-			
-//			}else{
-//				Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
-//				intent.putExtra("transactionId", mTransactionId);
-//				intent.putExtra("computerId", mComputerId);
-//				intent.putExtra("staffId", mStaffId);
-//				startActivityForResult(intent, PAYMENT_REQUEST);
-//			}
-			//}
+			PointRedeemtionDialogFragment f = PointRedeemtionDialogFragment.newInstance(mTransactionId, mComputerId, mStaffId);
+			f.show(getFragmentManager(), "RedeemPointDialog");
 		}
 	}
 
@@ -792,8 +776,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	}
 	
 	public void checkPointClick(final View v){
-		MemberPointInfoDialogFragment f = MemberPointInfoDialogFragment.newInstance(MemberPointInfoDialogFragment.INFO_MODE);
-		f.show(getFragmentManager(), "MemberPointInfo");	
+		MemberPointInfoDialogFragment f = MemberPointInfoDialogFragment.newInstance();
+		f.show(getFragmentManager(), "CheckCardDialog");
 	}
 	
 	/**
@@ -1623,13 +1607,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		if(mSessionId == 0){
 			mSessionId = mSession.openSession(mShopId, mComputerId, mStaffId, 0);
 			
-			ManageCashAmountFragment mf = ManageCashAmountFragment
-					.newInstance(getString(R.string.open_shift), 0,
-							ManageCashAmountFragment.OPEN_SHIFT_MODE);
-			mf.show(getSupportFragmentManager(), "ManageCashAmount");
-			WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
-			dsp.openCashDrawer();
-			dsp.close();
+//			ManageCashAmountFragment mf = ManageCashAmountFragment
+//					.newInstance(getString(R.string.open_shift), 0,
+//							ManageCashAmountFragment.OPEN_SHIFT_MODE);
+//			mf.show(getSupportFragmentManager(), "ManageCashAmount");
+//			WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
+//			dsp.openCashDrawer();
+//			dsp.close();
 		}
 	}
 
@@ -1814,13 +1798,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					ManageCashAmountFragment mf = ManageCashAmountFragment
-							.newInstance(getString(R.string.close_shift), 0, 
-									ManageCashAmountFragment.END_DAY_MODE);
-					mf.show(getSupportFragmentManager(), "ManageCashAmount");
-					WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
-					dsp.openCashDrawer();
-					dsp.close();
+//					ManageCashAmountFragment mf = ManageCashAmountFragment
+//							.newInstance(getString(R.string.close_shift), 0, 
+//									ManageCashAmountFragment.END_DAY_MODE);
+//					mf.show(getSupportFragmentManager(), "ManageCashAmount");
+//					WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
+//					dsp.openCashDrawer();
+//					dsp.close();
 					
 					// delete sale if more than 90 days
 					String firstDate = mSession.getFirstSessionDate();
@@ -2456,5 +2440,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	public void onChangeLanguage() {
 		startActivity(getIntent());
 		finish();
+	}
+
+	@Override
+	public void onRedeemSuccess(int transId, int totalPoint) {
+		successTransaction(transId, mStaffId, totalPoint, totalPoint, 0);
+		init();
 	}
 }

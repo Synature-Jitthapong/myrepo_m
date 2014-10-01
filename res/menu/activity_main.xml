@@ -51,7 +51,7 @@
                 android:title="@string/close_shift" android:visible="false"/>
             <item
                 android:id="@+id/itemEndday"
-                android:title="@string/endday" android:visible="false"/>
+                android:title="@string/endday"/>
             <item
                 android:id="@+id/itemBackupDb"
                 android:title="@string/backup_db"/>

@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class PointRedeemtion extends PointServiceBase{
@@ -17,7 +18,10 @@ public class PointRedeemtion extends PointServiceBase{
 	
 	public static final String METHOD = "RedemptionItemsProcess";
 	
-	public PointRedeemtion(Context c, String merchantCode, String cardCode, String jsonRedeemItem, int requestId) {
+	private RedeemtionListener mListener;
+	
+	public PointRedeemtion(Context c, String merchantCode, String cardCode, 
+			String jsonRedeemItem, int requestId, RedeemtionListener listener) {
 		super(c, METHOD);
 		
 		mProperty = new PropertyInfo();
@@ -43,26 +47,36 @@ public class PointRedeemtion extends PointServiceBase{
 		mProperty.setValue(requestId);
 		mProperty.setType(int.class);
 		mSoapRequest.addProperty(mProperty);
+		
+		mListener = listener;
 	}
 	
 	@Override
 	protected void onPostExecute(String result) {
-		super.onPostExecute(result);
 		Log.i(TAG, result);
+		try {
+			Result res = toResultObject(result);
+			if(res != null){
+				if(res.getiResultID() == RESPONSE_SUCCESS){
+					mListener.onPost();
+				}else{
+					mListener.onError(TextUtils.isEmpty(res.getSzResultData()) ? res.getSzResultData() : result);
+				}
+			}
+		} catch (Exception e) {
+			mListener.onError(result);
+		}
 	}
 
 	@Override
 	protected void onPreExecute() {
-		// TODO Auto-generated method stub
-		super.onPreExecute();
+		mListener.onPre();
 	}
 	
-	public List<RedeemItem> toRedeemItemList(String json){
-		List<RedeemItem> redeemItemLst = null;
-		Gson gson = new Gson();
-		Type type = new TypeToken<List<RedeemItem>>(){}.getType();
-		redeemItemLst = gson.fromJson(json, type);
-		return redeemItemLst;
+	public static interface RedeemtionListener{
+		void onPre();
+		void onPost();
+		void onError(String msg);
 	}
 	
 	public static class RedeemItem{

@@ -4,103 +4,86 @@
     android:layout_height="match_parent"
     android:padding="@dimen/activity_horizontal_margin" >
 
-    <LinearLayout
-        android:id="@+id/linearLayout1"
+    <Button
+        android:id="@+id/btnClose"
+        style="@style/GrayButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true" >
-
-        <Button
-            android:id="@+id/btnCancel"
-            style="@style/GrayButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@android:string/cancel" />
-
-        <Button
-            android:id="@+id/btnClose"
-            style="@style/GrayButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/close" />
-
-        <Button
-            android:id="@+id/btnOk"
-            style="@style/BlueButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@android:string/ok" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvPoint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/textView2"
-        android:gravity="center"
-        android:minWidth="128dp"
-        android:text="0"
-        android:textColor="@android:color/holo_blue_dark"
-        android:textSize="96sp"
-        android:typeface="monospace" />
-
-    <TextView
-        android:id="@+id/tvMobile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/tvMemberName"
-        android:layout_below="@+id/tvMemberName"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="@string/member_info"
-        android:textSize="@dimen/larger_text_size" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/tvPoint"
-        android:layout_alignTop="@+id/tvPoint"
-        android:text="@string/point" />
+        android:layout_weight="1"
+        android:minWidth="100dp"
+        android:text="@string/close" />
 
     <TextView
         android:id="@+id/tvMemberName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textView1"
-        android:layout_marginLeft="16dp"
-        android:layout_toLeftOf="@+id/tvPoint"
-        android:text="TextView"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/textView2"
         android:textSize="@dimen/large_text_size" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvMemberName"
+        android:layout_alignBottom="@+id/tvMemberName"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="4dp"
+        android:text="@string/name" />
+
+    <TextView
+        android:id="@+id/tvMobile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvMemberName"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@+id/textView2" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tvMobile"
+        android:layout_marginTop="48dp"
+        android:divider="@android:drawable/divider_horizontal_bright"
+        android:minHeight="128dp"
+        android:showDividers="middle" >
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center" >
+
+            <TextView
+                android:id="@+id/tvPoint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="128dp"
+                android:text="0"
+                android:textColor="@android:color/holo_green_dark"
+                android:textSize="72sp"
+                android:typeface="monospace" />
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/your_point" />
+        </RelativeLayout>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout1"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="TextView"
-        android:textSize="@dimen/larger_text_size" />
-
-    <TextView
-        android:id="@+id/tvRemark"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tvStatus"
-        android:layout_centerHorizontal="true"
-        android:text="TextView" />
+        android:text="@string/please_swipe_card"
+        android:textSize="@dimen/large_text_size" />
 
 </RelativeLayout>

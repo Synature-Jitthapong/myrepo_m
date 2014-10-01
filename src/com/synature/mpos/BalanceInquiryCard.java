@@ -6,14 +6,18 @@ import com.synature.util.Logger;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 public class BalanceInquiryCard extends PointServiceBase{
 
+	public static final String TAG = BalanceInquiryCard.class.getSimpleName();
+	
 	public static final String METHOD = "GetBalanceInquiryCard";
 	
 	private GetBalanceListener mListener;
 	
-	public BalanceInquiryCard(Context c, String merchantCode, String cardCode, GetBalanceListener listener) {
+	public BalanceInquiryCard(Context c, String merchantCode, String requestId, 
+			String cardCode, GetBalanceListener listener) {
 		super(c, METHOD);
 		
 		mProperty = new PropertyInfo();
@@ -30,7 +34,7 @@ public class BalanceInquiryCard extends PointServiceBase{
 
 		mProperty = new PropertyInfo();
 		mProperty.setName(REQUEST_ID_PARAM);
-		mProperty.setValue("1");
+		mProperty.setValue(requestId);
 		mProperty.setType(String.class);
 		mSoapRequest.addProperty(mProperty);
 		
@@ -39,6 +43,7 @@ public class BalanceInquiryCard extends PointServiceBase{
 
 	@Override
 	protected void onPostExecute(String result) {
+		Log.i(TAG, result);
 		try {
 			Result res = toResultObject(result);
 			if(res != null){
@@ -51,7 +56,7 @@ public class BalanceInquiryCard extends PointServiceBase{
 						mListener.onError("No result");
 					}
 				}else{
-					mListener.onError("Not found member");
+					mListener.onError(TextUtils.isEmpty(res.getSzResultData()) ? "Card not found" : res.getSzResultData());
 				}
 			}
 		} catch (Exception e) {

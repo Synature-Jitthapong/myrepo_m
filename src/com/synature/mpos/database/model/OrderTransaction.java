@@ -34,6 +34,7 @@ public class OrderTransaction {
 	private int sendStatus;
 	private String ej;
 	private String ejVoid;
+	private String transactionUuid;
 
 	public int getSendStatus() {
 		return sendStatus;
@@ -296,5 +297,13 @@ public class OrderTransaction {
 
 	public void setEjVoid(String ejVoid) {
 		this.ejVoid = ejVoid;
+	}
+
+	public String getTransactionUuid() {
+		return transactionUuid;
+	}
+
+	public void setTransactionUuid(String transactionUuid) {
+		this.transactionUuid = transactionUuid;
 	}
 }

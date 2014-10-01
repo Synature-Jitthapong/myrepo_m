@@ -247,6 +247,7 @@ public class TransactionDao extends MPOSDatabase {
 	
 	private OrderTransaction toOrderTransaction(Cursor cursor){
 		OrderTransaction trans = new OrderTransaction();
+		trans.setTransactionUuid(cursor.getString(cursor.getColumnIndex(BaseColumn.COLUMN_UUID)));
 		trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
 		trans.setTransactionVatable(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_VATABLE)));
 		trans.setTransactionVat(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_VAT)));

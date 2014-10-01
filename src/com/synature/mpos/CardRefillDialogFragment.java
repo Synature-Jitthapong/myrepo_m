@@ -1,14 +1,11 @@
 package com.synature.mpos;
 
-import java.text.NumberFormat;
-
 import com.synature.mpos.PointServiceBase.MemberInfo;
 import com.synature.mpos.point.R;
 
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.webkit.WebView;
 
 public class CardRefillDialogFragment extends DialogFragment{
 
@@ -55,7 +51,7 @@ public class CardRefillDialogFragment extends DialogFragment{
 				@Override
 				public void run() {
 					if(!TextUtils.isEmpty(content)){
-						new BalanceInquiryCard(getActivity(), "", content, 
+						new BalanceInquiryCard(getActivity(), "", "", content, 
 								mGetBalanceListener).execute(BalanceInquiryCard.POINT_SERVICE_URL);
 					}
 				}
@@ -89,8 +85,8 @@ public class CardRefillDialogFragment extends DialogFragment{
 	
 	@Override
 	public void onStart() {
-		mMsrThread.start();
 		mCardReaderRunnable.setmIsRead(true);
+		mMsrThread.start();
 		Log.i(TAG, "Start msr thread");
 		super.onStart();
 	}
@@ -109,7 +105,7 @@ public class CardRefillDialogFragment extends DialogFragment{
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		//getDialog().getWindow().setLayout(1024, 600);
+		getDialog().getWindow().setLayout(600, 450);
 	}
 	
 	@Override
