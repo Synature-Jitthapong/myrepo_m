@@ -1,21 +1,41 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
 
     <!--
          NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
          dismiss it.
     -->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
-    <PreferenceCategory 
-        android:title="@string/connection" 
-        android:summary="@string/connection_summary">
-        <EditTextPreference 
-        	android:key="server_url" 
-        	android:title="@string/url" 
-        	android:selectAllOnFocus="true"/>
-        <ListPreference android:key="connection_time_out" android:title="@string/connection_time_out" android:defaultValue="30" android:entries="@array/connection_time_out_name" android:entryValues="@array/connection_time_out_value"/>
-	</PreferenceCategory>
+    <PreferenceCategory
+        android:summary="@string/connection_summary"
+        android:title="@string/connection" >
+        <EditTextPreference
+            android:key="server_url"
+            android:selectAllOnFocus="true"
+            android:title="@string/url"
+            android:defaultValue="www.promise-system.com/abcpoint"
+            android:summary="POS service url" />
+		<EditTextPreference
+            android:key="point_url"
+            android:selectAllOnFocus="true"
+            android:title="Point url"
+            android:defaultValue="www.promise-system.com/webservice_abcpoint"
+            android:summary="Point service url" />
+		<EditTextPreference
+            android:key="refill_url"
+            android:selectAllOnFocus="true"
+            android:title="Refill url" 
+            android:defaultValue="www.abcpoint.com"
+            android:summary="Card refill url"/>
+        <ListPreference
+            android:defaultValue="30"
+            android:entries="@array/connection_time_out_name"
+            android:entryValues="@array/connection_time_out_value"
+            android:key="connection_time_out"
+            android:title="@string/connection_time_out" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

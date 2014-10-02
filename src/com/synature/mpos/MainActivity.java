@@ -82,12 +82,10 @@ import android.widget.ExpandableListView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends MPOSFragmentActivityBase implements 
@@ -137,8 +135,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private OrderDetailAdapter mOrderDetailAdapter;
 	private List<ProductDept> mProductDeptLst;
 	private MenuItemPagerAdapter mPageAdapter;
-
-	private ImageLoader mImageLoader;
 	
 	private int mSessionId;
 	private int mTransactionId;
@@ -183,9 +179,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		
 		mShopId = mShop.getShopId();
 		mComputerId = mComputer.getComputerId();
-		
-		mImageLoader = new ImageLoader(this, 0,
-					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 
 		mDsp = new WintecCustomerDisplay(this);
 		
@@ -571,7 +564,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				double change = intent.getDoubleExtra("change", 0);
 				int transactionId = intent.getIntExtra("transactionId", 0);
 				int staffId = intent.getIntExtra("staffId", 0);
-				successTransaction(transactionId, staffId, totalSalePrice, totalPaid, change);
+				successTransaction(transactionId, staffId, totalSalePrice, change);
 			}
 		}
 		if(requestCode == SET_TYPE7_REQUEST){
@@ -584,8 +577,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 	}
 	
-	private void successTransaction(int transactionId, int staffId, double totalSalePrice, 
-			double totalPaid, double change){
+	private void successTransaction(int transactionId, int staffId, double totalPoint, double currentPoint){
 
 		PrintReceiptLogDao printLog = new PrintReceiptLogDao(MainActivity.this);
 		int isCopy = 0;
@@ -596,48 +588,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		}
 		new PrintReceipt(MainActivity.this).execute();
 		
-		if(change > 0){
-			LinearLayout changeView = new LinearLayout(MainActivity.this);
-			TextView tvChange = new TextView(MainActivity.this);
-			tvChange.setTextSize(getResources().getDimension(R.dimen.larger_text_size));
-			tvChange.setGravity(Gravity.CENTER);
-			tvChange.setText(mFormat.currencyFormat(change));
-			LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, 
-					LayoutParams.WRAP_CONTENT);
-			params.gravity = Gravity.CENTER;
-			changeView.addView(tvChange, params);
-			
-			new AlertDialog.Builder(MainActivity.this)
-			.setTitle(R.string.change)
-			.setCancelable(false)
-			.setView(changeView)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if(Utils.isEnableSecondDisplay(MainActivity.this)){
-						clearSecondDisplay();
-					}
-				}
-			}).show();
-			if(Utils.isEnableSecondDisplay(this)){
-				secondDisplayChangePayment(mFormat.currencyFormat(totalSalePrice), 
-						mFormat.currencyFormat(totalPaid), mFormat.currencyFormat(change));
-				new Handler().postDelayed(new Runnable(){
-
-					@Override
-					public void run() {
-						clearSecondDisplay();
-					}
-					
-				}, 10000);
-			}
-		}
-		
 		// Wintec DSP
 		if(Utils.isEnableWintecCustomerDisplay(this)){
-			mDsp.displayTotalPay(mFormat.currencyFormat(totalPaid), 
-					mFormat.currencyFormat(change));
+			mDsp.displayTotalPoint(NumberFormat.getInstance().format(totalPoint), 
+					NumberFormat.getInstance().format(currentPoint));
 			new Handler().postDelayed(
 					new Runnable(){
 
@@ -751,7 +705,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					
 					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice, 
 							mShop.getCompanyVatType(), mShop.getCompanyVatRate());
-					successTransaction(mTransactionId, mStaffId, totalSalePrice, totalSalePrice, 0);
+					successTransaction(mTransactionId, mStaffId, totalSalePrice, 0);
 					
 					init();
 				}
@@ -995,6 +949,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				holder.btnSetMod.setVisibility(View.GONE);
 				holder.btnComment.setVisibility(View.VISIBLE);
 			}
+			holder.btnComment.setVisibility(View.GONE);
+			holder.btnSetMod.setVisibility(View.GONE);
 			return convertView;
 		}
 
@@ -1161,7 +1117,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		private int mDeptId;
 
 		private GridView mGvItem;
-		private LayoutInflater mInflater;
 		
 		public static MenuPageFragment newInstance(int deptId){
 			MenuPageFragment f = new MenuPageFragment();
@@ -1176,7 +1131,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			super.onCreate(savedInstanceState);
 			
 			mDeptId = getArguments().getInt("deptId");
-			mInflater = getActivity().getLayoutInflater();
 		}
 
 		@Override
@@ -1184,12 +1138,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			super.onActivityCreated(savedInstanceState);
 			loadMenuItem();
 		}
-		
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
 
-			mGvItem = (GridView) inflater.inflate(R.layout.menu_grid_view, container, false);
+		@Override
+		public void onViewCreated(View view, Bundle savedInstanceState) {
+			super.onViewCreated(view, savedInstanceState);
+			mGvItem = (GridView) view.findViewById(R.id.gvMenu);
 			mGvItem.setOnItemClickListener(new OnItemClickListener(){
 
 				@Override
@@ -1215,7 +1168,12 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				}
 				
 			});
-			return mGvItem;
+		}
+		
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			return inflater.inflate(R.layout.menu_grid_view, container, false);
 		}
 		
 		private void loadMenuItem(){
@@ -1229,7 +1187,15 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		 * MenuItemAdapter
 		 */
 		private class MenuItemAdapter extends BaseAdapter{
-		
+
+			private ImageLoader mImageLoader;
+			private boolean mIsShowImage = Utils.isShowMenuImage(getActivity());
+			
+			public MenuItemAdapter(){
+				mImageLoader = new ImageLoader(getActivity(), 0,
+							Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+			}
+			
 			@Override
 			public int getCount() {
 				return mProductLst.size();
@@ -1250,7 +1216,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				final Product p = mProductLst.get(position);
 				final MenuItemViewHolder holder;
 				if(convertView == null){
-					convertView = mInflater.inflate(R.layout.menu_template, parent, false);
+					convertView = getActivity().getLayoutInflater().inflate(R.layout.menu_template, parent, false);
 					holder = new MenuItemViewHolder();
 					holder.tvMenu = (TextView) convertView.findViewById(R.id.textViewMenuName);
 					holder.tvPrice = (TextView) convertView.findViewById(R.id.textViewMenuPrice);
@@ -1271,11 +1237,12 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				if(p.getProductTypeId() == ProductsDao.SIZE){
 					holder.tvPrice.setText("(size)");
 				}
-
-				if(Utils.isShowMenuImage(getActivity())){
+				if(mIsShowImage){
 					holder.imgMenu.setVisibility(View.VISIBLE);
-					((MainActivity) getActivity()).mImageLoader.displayImage(
-							p.getImgName(), holder.imgMenu);
+					holder.imgMenu.setImageBitmap(null);
+					if(!TextUtils.isEmpty(p.getImgName())){
+						mImageLoader.displayImage(p.getImgName(), holder.imgMenu);
+					}
 				}
 				return convertView;
 			}
@@ -1287,13 +1254,16 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * ProductSizeAdapter
 	 */
 	private class ProductSizeAdapter extends BaseAdapter{
-		
+
+		private ImageLoader mImageLoader;
 		private LayoutInflater mInflater;
 		private List<Product> mProLst;
 		
 		public ProductSizeAdapter(List<Product> proLst){
 			mInflater = getLayoutInflater();
 			mProLst = proLst;
+			mImageLoader = new ImageLoader(MainActivity.this, 0,
+					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		}
 		
 		@Override
@@ -2443,8 +2413,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	}
 
 	@Override
-	public void onRedeemSuccess(int transId, int totalPoint) {
-		successTransaction(transId, mStaffId, totalPoint, totalPoint, 0);
+	public void onRedeemSuccess(int transId, int totalPoint, int currentPoint) {
+		successTransaction(transId, mStaffId, totalPoint, currentPoint);
 		init();
 	}
 }

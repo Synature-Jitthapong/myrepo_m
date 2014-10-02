@@ -17,9 +17,10 @@ public class BalanceInquiryCard extends PointServiceBase{
 	private GetBalanceListener mListener;
 	
 	public BalanceInquiryCard(Context c, String merchantCode, String requestId, 
-			String cardCode, GetBalanceListener listener) {
+			String cardTagCode, GetBalanceListener listener) {
 		super(c, METHOD);
 		
+		Log.i(TAG, "cardTagCode: " + cardTagCode);
 		mProperty = new PropertyInfo();
 		mProperty.setName(MERCHANT_PARAM);
 		mProperty.setValue(merchantCode);
@@ -27,8 +28,8 @@ public class BalanceInquiryCard extends PointServiceBase{
 		mSoapRequest.addProperty(mProperty);
 		
 		mProperty = new PropertyInfo();
-		mProperty.setName(CARD_CODE_PARAM);
-		mProperty.setValue(cardCode);
+		mProperty.setName(CARD_TAG_CODE_PARAM);
+		mProperty.setValue(cardTagCode);
 		mProperty.setType(String.class);
 		mSoapRequest.addProperty(mProperty);
 
@@ -60,6 +61,7 @@ public class BalanceInquiryCard extends PointServiceBase{
 				}
 			}
 		} catch (Exception e) {
+			mListener.onError(result);
 			Logger.appendLog(mContext, Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 					"Error GetBalanceInquiryCard: " + e.getLocalizedMessage() + "\n" + result);
 		}

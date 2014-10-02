@@ -10,11 +10,10 @@ import com.synature.connection.Ksoap2WebServiceTask;
 
 public abstract class PointServiceBase extends Ksoap2WebServiceTask{
 	
-	public static final String POINT_SERVICE_URL = "http://61.90.204.61/webservice_abcpoint/ws_abcpoint.asmx";
 	public static final String NAME_SPACE = "http://tempuri.org/";
 	
 	public static final String MERCHANT_PARAM = "szMerchantCode";
-	public static final String CARD_CODE_PARAM = "szCardTagCode";
+	public static final String CARD_TAG_CODE_PARAM = "szCardTagCode";
 	public static final String REQUEST_ID_PARAM = "szRequestID";
 	public static final String JSON_REDEEM_ITEMS_PARAM = "szJSonListRedeemItems";
 	
@@ -87,6 +86,7 @@ public abstract class PointServiceBase extends Ksoap2WebServiceTask{
 	    private String szLastName;
 	    private String szNickName;
 	    private String szMobileNo;
+	    private String szIDCardNo;
 		public String getSzCardTagCode() {
 			return szCardTagCode;
 		}
@@ -140,6 +140,12 @@ public abstract class PointServiceBase extends Ksoap2WebServiceTask{
 		}
 		public void setSzMobileNo(String szMobileNo) {
 			this.szMobileNo = szMobileNo;
+		}
+		public String getSzIDCardNo() {
+			return szIDCardNo;
+		}
+		public void setSzIDCardNo(String szIDCardNo) {
+			this.szIDCardNo = szIDCardNo;
 		}
 	}
 }

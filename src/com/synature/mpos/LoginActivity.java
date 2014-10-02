@@ -20,7 +20,6 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -104,21 +103,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 			if(!mSync.IsAlreadySync())
 				requestValidUrl();
 		}
-		
-		initPoint1(this);
-		initPoint2(this);
-	}
-
-	public void initPoint2(Context context){
-		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sharedPref.edit().putFloat("point2", PointCardPaidActivity.POINT2).commit();
-	}
-	
-	public void initPoint1(Context context){
-		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sharedPref.edit().putFloat("point1", PointCardPaidActivity.POINT1).commit();
 	}
 	
 	@Override

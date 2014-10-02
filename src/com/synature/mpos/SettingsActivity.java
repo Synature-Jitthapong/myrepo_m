@@ -18,6 +18,8 @@ import java.util.List;
 public class SettingsActivity extends PreferenceActivity {
 
 	public static final String KEY_PREF_SERVER_URL = "server_url";
+	public static final String KEY_PREF_POINT_URL = "point_url";
+	public static final String KEY_PREF_REFILL_URL = "refill_url";
 	public static final String KEY_PREF_CONN_TIME_OUT_LIST = "connection_time_out";
 	
 	public static final String KEY_PREF_PRINTER_IP = "printer_ip";
@@ -146,6 +148,8 @@ public class SettingsActivity extends PreferenceActivity {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_connection);
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_SERVER_URL));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_POINT_URL));
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_REFILL_URL));
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONN_TIME_OUT_LIST));
 		}
 	}

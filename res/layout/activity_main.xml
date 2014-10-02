@@ -125,74 +125,79 @@
         </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical" >
+        android:layout_weight="1" >
 
         <com.j1tth4.slidinglibs.SlidingTabLayout
             android:id="@+id/sliding_tabs"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:minHeight="48dp" >
+
         </com.j1tth4.slidinglibs.SlidingTabLayout>
 
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/btnPayment"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/sliding_tabs"
             android:layout_margin="4dp"
             android:layout_weight="1" >
+
         </android.support.v4.view.ViewPager>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+        <Button
+            android:id="@+id/btnPayment"
+            style="@style/BlueButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:minWidth="100dp"
+            android:onClick="paymentClicked"
+            android:text="@string/redeem"
+            android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
-            <Button
-                android:id="@+id/btnCancelOrder"
-                style="@style/RedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:minWidth="128dp"
-                android:onClick="cancelOrderClicked"
-                android:text="@android:string/cancel"
-                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+        <Button
+            android:id="@+id/btnCancelOrder"
+            style="@style/RedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:minWidth="128dp"
+            android:onClick="cancelOrderClicked"
+            android:text="@android:string/cancel"
+            android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
-            <Button
-                android:id="@+id/btnPayment"
-                style="@style/BlueButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:minWidth="100dp"
-                android:onClick="paymentClicked"
-                android:text="@string/redeem"
-                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+        <Button
+            android:id="@+id/btnRefill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/btnCancelOrder"
+            android:minWidth="100dp"
+            android:onClick="refillClick"
+            android:text="@string/refill" />
 
-            <Button
-                android:id="@+id/btnRefill"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@+id/btnCancelOrder"
-                android:minWidth="100dp"
-                android:onClick="refillClick"
-                android:text="@string/refill" />
+        <Button
+            android:id="@+id/btnCheckPoint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/btnRefill"
+            android:minWidth="100dp"
+            android:onClick="checkPointClick"
+            android:text="@string/check_card" />
 
-            <Button
-                android:id="@+id/btnCheckPoint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@+id/btnRefill"
-                android:minWidth="100dp"
-                android:onClick="checkPointClick"
-                android:text="@string/check_card" />
-
-        </RelativeLayout>
-    </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>

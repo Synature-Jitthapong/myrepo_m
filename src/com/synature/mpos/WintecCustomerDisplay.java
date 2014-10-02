@@ -26,28 +26,21 @@ public class WintecCustomerDisplay{
 		mContext = context;
 	}
 	
-	public void displayTotalPay(String totalPay, String change){
+	public void displayTotalPoint(String totalPoint, String currentPoint){
 		clearScreen();
-		mDsp.DSP_Dispay("Cash");
-		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - totalPay.length());
-		mDsp.DSP_Dispay(totalPay);
-		try {
-			if(Utils.stringToDouble(change) > 0){
-				mDsp.DSP_MoveCursorDown();
-				mDsp.DSP_MoveCursorEndLeft();
-				mDsp.DSP_Dispay("Change");
-				mDsp.DSP_MoveCursor(2, MAX_TEXT_LENGTH - change.length());
-				mDsp.DSP_Dispay(change);
-			}
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		mDsp.DSP_Dispay("Total");
+		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - totalPoint.length());
+		mDsp.DSP_Dispay(totalPoint);
+		mDsp.DSP_MoveCursorDown();
+		mDsp.DSP_MoveCursorEndLeft();
+		mDsp.DSP_Dispay("Curr. Point");
+		mDsp.DSP_MoveCursor(2, MAX_TEXT_LENGTH - currentPoint.length());
+		mDsp.DSP_Dispay(currentPoint);
 	}
 	
 	public void displayOrder() throws Exception{
 		if(orderName.length() > LIMIT_LENGTH){
-			orderName = limitString(orderName);
+			orderName = "";//limitString(orderName);
 		}
 		clearScreen();
 		String combindText = orderQty + "@" + orderPrice;

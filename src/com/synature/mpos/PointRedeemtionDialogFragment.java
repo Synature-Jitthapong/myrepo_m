@@ -17,6 +17,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -36,13 +37,14 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 	private Thread mMsrThread;
 	private TransactionDao mTrans;
 	private ShopDao mShop;
+	private PointServiceBase.MemberInfo mMemberInfo;
 	private CardReaderRunnable mCardReaderRunnable;
 	private OnRedeemtionListener mListener;
-	private String mCardCode;
 	
 	private int mTransId;
 	private int mCompId;
 	private int mStaffId;
+	private String mCardTagCode;
 	private Double mTotalPoint;
 	
 	private ProgressDialog mProgress;
@@ -101,7 +103,7 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 		
 		@Override
 		public void onRead(final String content) {
-			mCardCode = content;
+			mCardTagCode = content;
 			getActivity().runOnUiThread(new Runnable(){
 
 				@Override
@@ -109,7 +111,7 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 					if(!TextUtils.isEmpty(content)){
 						OrderTransaction trans = mTrans.getTransaction(mTransId, true);
 						new BalanceInquiryCard(getActivity(), "", trans.getTransactionUuid(), content, 
-								mGetBalanceListener).execute(BalanceInquiryCard.POINT_SERVICE_URL);
+								mGetBalanceListener).execute(Utils.getFullPointUrl(getActivity()));
 					}
 				}
 			});
@@ -172,6 +174,7 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 					if(mProgress.isShowing())
 						mProgress.dismiss();
 					if(member != null){
+						mMemberInfo = member;
 						mTvStatus.setText(null);
 						mTvMemberName.setText(member.getSzFirstName() + " " + member.getSzLastName());
 						mTvMobile.setText(member.getSzMobileNo());
@@ -222,8 +225,8 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 			Gson gson = new Gson();
 			jsonRedeemItem = gson.toJson(itemLst);
 			Log.i(TAG, jsonRedeemItem);
-			new PointRedeemtion(getActivity(), "", mCardCode, jsonRedeemItem, 
-					mTransId, mRedeemListener).execute(PointRedeemtion.POINT_SERVICE_URL);
+			new PointRedeemtion(getActivity(), "", mCardTagCode, jsonRedeemItem, 
+					mTransId, mRedeemListener).execute(Utils.getFullPointUrl(getActivity()));
 		}
 	}
 	
@@ -238,11 +241,28 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 				public void onPost() {
 					if(mProgress.isShowing())
 						mProgress.dismiss();
+					Double currentPoint = mMemberInfo.getiCurrentCardPoint() - mTotalPoint;
+					LayoutInflater inflater = getActivity().getLayoutInflater();
+					View view = inflater.inflate(R.layout.point_balance, null);
+					TextView tvPoint = (TextView) view.findViewById(R.id.tvCurrentPoint);
+					tvPoint.setText(NumberFormat.getInstance().format(currentPoint));
+					new AlertDialog.Builder(getActivity())
+					.setTitle("Current Point:")
+					.setView(view)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface arg0, int arg1) {
+						}
+					}).show();
 					PaymentDetailDao payment = new PaymentDetailDao(getActivity());
 					payment.addPaymentDetail(mTransId, mCompId, PaymentDetailDao.PAY_TYPE_CASH, 
-							mTotalPoint, mTotalPoint, mCardCode, 0, 0, 0, 0, "Point");
+							mTotalPoint, mTotalPoint, mCardTagCode, 0, 0, 0, 0, "Point");
+					mTrans.updateTransactionPointInfo(mTransId, mMemberInfo.getSzIDCardNo(), 
+							mMemberInfo.getSzFirstName() + " " + mMemberInfo.getSzLastName(), 
+							mMemberInfo.getiCurrentCardPoint(), currentPoint);
 					mTrans.closeTransaction(mTransId, mStaffId, mTotalPoint, mShop.getCompanyVatType(), mShop.getCompanyVatRate());
-					mListener.onRedeemSuccess(mTransId, mTotalPoint.intValue());
+					mListener.onRedeemSuccess(mTransId, mTotalPoint.intValue(), currentPoint.intValue());
 					getDialog().dismiss();
 				}
 				
@@ -271,6 +291,6 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 	}
 	
 	public static interface OnRedeemtionListener{
-		void onRedeemSuccess(int transId, int point);
+		void onRedeemSuccess(int transId, int point, int currentPoint);
 	}
 }

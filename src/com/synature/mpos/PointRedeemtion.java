@@ -31,7 +31,7 @@ public class PointRedeemtion extends PointServiceBase{
 		mSoapRequest.addProperty(mProperty);
 		
 		mProperty = new PropertyInfo();
-		mProperty.setName(CARD_CODE_PARAM);
+		mProperty.setName(CARD_TAG_CODE_PARAM);
 		mProperty.setValue(cardCode);
 		mProperty.setType(String.class);
 		mSoapRequest.addProperty(mProperty);

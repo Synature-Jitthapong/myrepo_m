@@ -54,7 +54,7 @@ public class Utils {
 	/**
 	 * Database version
 	 */
-	public static int DB_VERSION = 5;
+	public static int DB_VERSION = 6;
 	
 	/**
 	 * Main url 
@@ -66,6 +66,11 @@ public class Utils {
 	 */
 	public static final String WS_NAME = "ws_mpos.asmx";
 
+	/**
+	 * WebService point name (ABC Point)
+	 */
+	public static final String WS_POINT_NAME = "ws_abcpoint.asmx";
+	
 	/**
 	 * Menu image dir
 	 */
@@ -532,7 +537,7 @@ public class Utils {
 	 */
 	public static String getWintecDspTextLine2(Context context){
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE2, "mPOS");
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE2, "");
 	}
 	
 	/**
@@ -541,7 +546,7 @@ public class Utils {
 	 */
 	public static String getWintecDspTextLine1(Context context){
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE1, "Welcome to");
+		return sharedPref.getString(SettingsActivity.KEY_PREF_DSP_TEXT_LINE1, "");
 	}
 	
 	/**
@@ -619,6 +624,14 @@ public class Utils {
 	public static String getFullUrl(Context context) {
 		return getUrl(context) + "/" + WS_NAME;
 	}
+	
+	/**
+	 * @param context
+	 * @return full point url
+	 */
+	public static String getFullPointUrl(Context context) {
+		return getPointUrl(context) + "/" + WS_POINT_NAME;
+	}
 
 	/**
 	 * @param context
@@ -635,6 +648,32 @@ public class Utils {
 	public static String getUrl(Context context) {
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
+		try {
+			new URL(url);
+		} catch (MalformedURLException e) {
+			// not found protocal
+			url = "http://" + url;
+			//e.printStackTrace();
+		}
+		return url;
+	}
+	
+	public static String getPointUrl(Context context) {
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+		String url = sharedPref.getString(SettingsActivity.KEY_PREF_POINT_URL, "");
+		try {
+			new URL(url);
+		} catch (MalformedURLException e) {
+			// not found protocal
+			url = "http://" + url;
+			//e.printStackTrace();
+		}
+		return url;
+	}
+	
+	public static String getRefillUrl(Context context) {
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+		String url = sharedPref.getString(SettingsActivity.KEY_PREF_REFILL_URL, "");
 		try {
 			new URL(url);
 		} catch (MalformedURLException e) {

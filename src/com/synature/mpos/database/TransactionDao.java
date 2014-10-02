@@ -93,7 +93,11 @@ public class TransactionDao extends MPOSDatabase {
 		OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT,
 		PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID,
 		OrderTransTable.COLUMN_EJ,
-		OrderTransTable.COLUMN_EJ_VOID
+		OrderTransTable.COLUMN_EJ_VOID,
+		OrderTransTable.COLUMN_MEMBER_CARD_NO,
+		OrderTransTable.COLUMN_MEMBER_NAME,
+		OrderTransTable.COLUMN_POINT_BEFORE,
+		OrderTransTable.COLUMN_CURRENT_POINT
 	};
 
 	/**
@@ -263,6 +267,10 @@ public class TransactionDao extends MPOSDatabase {
 		trans.setPromotionPriceGroupId(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID)));
 		trans.setEj(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_EJ)));
 		trans.setEjVoid(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_EJ_VOID)));
+		trans.setMemberCardNo(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_MEMBER_CARD_NO)));
+		trans.setMemberName(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_MEMBER_NAME)));
+		trans.setPointBefore(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_POINT_BEFORE)));
+		trans.setCurrentPoint(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_CURRENT_POINT)));
 		return trans;
 	}
 	
@@ -1279,6 +1287,28 @@ public class TransactionDao extends MPOSDatabase {
 				});
 	}
 
+	/**
+	 * @param transactionId
+	 * @param memberCardNo
+	 * @param memberName
+	 * @param pointBefore
+	 * @param currentPoint
+	 */
+	public void updateTransactionPointInfo(int transactionId, String memberCardNo, 
+			String memberName, double pointBefore, double currentPoint){
+		ContentValues cv = new ContentValues();
+		cv.put(OrderTransTable.COLUMN_MEMBER_CARD_NO, memberCardNo);
+		cv.put(OrderTransTable.COLUMN_MEMBER_NAME, memberName);
+		cv.put(OrderTransTable.COLUMN_POINT_BEFORE, pointBefore);
+		cv.put(OrderTransTable.COLUMN_CURRENT_POINT, currentPoint);
+		getWritableDatabase().update(OrderTransTable.TEMP_ORDER_TRANS, 
+				cv, 
+				OrderTransTable.COLUMN_TRANS_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId)
+				});
+	}
+	
 	/**
 	 * Update transaction set void e-journal
 	 * @param transId

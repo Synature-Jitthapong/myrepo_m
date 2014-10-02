@@ -26,8 +26,8 @@ public class CardReaderRunnable implements Runnable{
 				Log.i(TAG, content);
 
 				String[] track1 = content.split(":");
-				String cardCode = track1[1].replace("?", "").replace("\r", "");
-				mListener.onRead(cardCode);
+				String cardTagCode = track1[1].replace("?", "").replace("\r", "");//"A4605B579942C";
+				mListener.onRead(cardTagCode);
 			}
 		}
 		mMsr.close();

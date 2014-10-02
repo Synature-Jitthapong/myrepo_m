@@ -4,7 +4,9 @@ import com.synature.mpos.PointServiceBase.MemberInfo;
 import com.synature.mpos.point.R;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,11 +20,11 @@ import android.view.Window;
 public class CardRefillDialogFragment extends DialogFragment{
 
 	public static final String TAG = CardRefillDialogFragment.class.getSimpleName();
-			
-	public static final String REFILL_URL = "http://www.abcpoint.com";
 	
 	private Thread mMsrThread;
 	private CardReaderRunnable mCardReaderRunnable;
+	
+	private ProgressDialog mProgress;
 	
 	public static CardRefillDialogFragment newInstance(){
 		CardRefillDialogFragment f = new CardRefillDialogFragment();
@@ -40,6 +42,9 @@ public class CardRefillDialogFragment extends DialogFragment{
 		super.onCreate(savedInstanceState);
 		mCardReaderRunnable = new CardReaderRunnable(getActivity(), mCardReaderListener);
 		mMsrThread = new Thread(mCardReaderRunnable);
+		mProgress = new ProgressDialog(getActivity());
+		mProgress.setCancelable(false);
+		mProgress.setMessage(getString(R.string.loading));
 	}
 	
 	private CardReaderRunnable.CardReaderListener mCardReaderListener = new CardReaderRunnable.CardReaderListener() {
@@ -52,7 +57,7 @@ public class CardRefillDialogFragment extends DialogFragment{
 				public void run() {
 					if(!TextUtils.isEmpty(content)){
 						new BalanceInquiryCard(getActivity(), "", "", content, 
-								mGetBalanceListener).execute(BalanceInquiryCard.POINT_SERVICE_URL);
+								mGetBalanceListener).execute(Utils.getFullPointUrl(getActivity()));
 					}
 				}
 			});
@@ -64,14 +69,19 @@ public class CardRefillDialogFragment extends DialogFragment{
 				
 				@Override
 				public void onPre() {
+					mProgress.show();
 				}
 				
 				@Override
 				public void onPost(MemberInfo member) {
+					if(mProgress.isShowing())
+						mProgress.dismiss();
 					if(member != null){
 						// check card
+						String cardNoParam = "?card_no=" + member.getSzCardNo();
+						String refillUrl = Utils.getRefillUrl(getActivity()) + cardNoParam;
 						Intent intent = new Intent(Intent.ACTION_VIEW);
-						intent.setData(Uri.parse(REFILL_URL));
+						intent.setData(Uri.parse(refillUrl));
 						startActivity(intent);
 						getDialog().dismiss();
 					}
@@ -80,6 +90,12 @@ public class CardRefillDialogFragment extends DialogFragment{
 				@Override
 				public void onError(String msg) {
 					Log.e(TAG, msg);
+					if(mProgress.isShowing())
+						mProgress.dismiss();
+					new AlertDialog.Builder(getActivity())
+					.setTitle(R.string.check_card)
+					.setMessage(msg)
+					.show();
 				}
 	};
 	

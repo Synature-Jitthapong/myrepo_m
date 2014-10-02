@@ -52,10 +52,10 @@
 
         <EditTextPreference
             android:key="dsp_wintec_line1"
-            android:title="@string/text_line1" android:defaultValue="Welcome to"/>
+            android:title="@string/text_line1" android:defaultValue="Welcome to ABCPoint"/>
         <EditTextPreference
             android:key="dsp_wintec_line2"
-            android:title="@string/text_line2" android:defaultValue="mPOS" android:widgetLayout="@layout/dsp_test_layout"/>
+            android:title="@string/text_line2" android:widgetLayout="@layout/dsp_test_layout"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

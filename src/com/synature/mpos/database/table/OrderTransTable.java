@@ -27,6 +27,10 @@ public class OrderTransTable extends BaseColumn {
 	public static final String COLUMN_OTHER_DISCOUNT_DESC = "other_discount_desc";
 	public static final String COLUMN_EJ = "ej";
 	public static final String COLUMN_EJ_VOID = "ej_void";
+	public static final String COLUMN_MEMBER_CARD_NO = "member_card_no";
+	public static final String COLUMN_MEMBER_NAME = "member_name";
+	public static final String COLUMN_POINT_BEFORE = "point_before";
+	public static final String COLUMN_CURRENT_POINT = "current_point";
 
 	private static final String SQL_CREATE = 
 			" create table " + TABLE_ORDER_TRANS + " ( " 
@@ -64,6 +68,10 @@ public class OrderTransTable extends BaseColumn {
 			+ COLUMN_OTHER_DISCOUNT_DESC + " text, "
 			+ COLUMN_EJ + " text, "
 			+ COLUMN_EJ_VOID + " text, "
+			+ COLUMN_MEMBER_CARD_NO + " text, "
+			+ COLUMN_MEMBER_NAME + " text, "
+			+ COLUMN_POINT_BEFORE + " real default 0, "
+			+ COLUMN_CURRENT_POINT + " real default 0, "
 			+ " primary key (" + COLUMN_TRANS_ID + " desc) ); ";
 
 	public static void onCreate(SQLiteDatabase db) {
@@ -73,21 +81,53 @@ public class OrderTransTable extends BaseColumn {
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion,
 			int newVersion) {
-		// upgrade schema from 2 to 3
-		if(oldVersion < 4){
-			db.beginTransaction();
-			try {
-				String tbCopy = "OrderTransCopy";
-				db.execSQL("create table " + tbCopy + " as select * from " + TABLE_ORDER_TRANS);
-				db.execSQL("drop table if exists " + TABLE_ORDER_TRANS);
-				db.execSQL("drop table if exists " + TEMP_ORDER_TRANS);
-				onCreate(db);
-				db.execSQL("insert into " + TABLE_ORDER_TRANS + " select * from " + tbCopy);
-				db.execSQL("drop table " + tbCopy);
-				db.setTransactionSuccessful();
-			} finally {
-				db.endTransaction();
-			}
+		db.beginTransaction();
+		try {
+			String tbCopy = "OrderTransCopy";
+			db.execSQL("create table " + tbCopy + " as select * from " + TABLE_ORDER_TRANS);
+			db.execSQL("drop table if exists " + TABLE_ORDER_TRANS);
+			db.execSQL("drop table if exists " + TEMP_ORDER_TRANS);
+			onCreate(db);
+			db.execSQL("insert into " + TABLE_ORDER_TRANS
+					+ "(" + COLUMN_UUID + ", " 
+					+ COLUMN_TRANS_ID + ", "
+					+ ComputerTable.COLUMN_COMPUTER_ID + ", "
+					+ ShopTable.COLUMN_SHOP_ID + ", " 
+					+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + ", "
+					+ COLUMN_OPEN_TIME + ", " 
+					+ COLUMN_OPEN_STAFF + ", "
+					+ COLUMN_PAID_TIME + ", " 
+					+ COLUMN_PAID_STAFF_ID + ", " 
+					+ COLUMN_CLOSE_TIME + ", "
+					+ COLUMN_CLOSE_STAFF + ", " 
+					+ COLUMN_STATUS_ID + ", " 
+					+ COLUMN_DOC_TYPE_ID + ", " 
+					+ COLUMN_RECEIPT_YEAR + ", "
+					+ COLUMN_RECEIPT_MONTH + ", " 
+					+ COLUMN_RECEIPT_ID + ", " 
+					+ COLUMN_RECEIPT_NO + ", "
+					+ COLUMN_SALE_DATE + ", " 
+					+ SessionTable.COLUMN_SESS_ID + ", " 
+					+ COLUMN_VOID_STAFF_ID + ", "
+					+ COLUMN_VOID_REASON + ", " 
+					+ COLUMN_VOID_TIME + ", "
+					+ COLUMN_MEMBER_ID + ", " 
+					+ COLUMN_TRANS_VAT + ", " 
+					+ COLUMN_TRANS_EXCLUDE_VAT + ", " 
+					+ COLUMN_TRANS_VATABLE + ", " 
+					+ COLUMN_TRANS_NOTE + ", "
+					+ COLUMN_OTHER_DISCOUNT + ", "
+					+ COLUMN_SEND_STATUS + ", "
+					+ ProductTable.COLUMN_SALE_MODE + ", "
+					+ ProductTable.COLUMN_VAT_RATE + ", "
+					+ COLUMN_OTHER_DISCOUNT_DESC + ", "
+					+ COLUMN_EJ + ", "
+					+ COLUMN_EJ_VOID + ")"
+					+ " select * from " + tbCopy);
+			db.execSQL("drop table " + tbCopy);
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
 		}
 	}
 }

@@ -86,7 +86,7 @@ public class MemberPointInfoDialogFragment extends DialogFragment{
 				public void run() {
 					if(!TextUtils.isEmpty(content)){
 						new BalanceInquiryCard(getActivity(), "", "", content, 
-								mGetBalanceListener).execute(BalanceInquiryCard.POINT_SERVICE_URL);
+								mGetBalanceListener).execute(Utils.getFullPointUrl(getActivity()));
 					}
 				}
 			});

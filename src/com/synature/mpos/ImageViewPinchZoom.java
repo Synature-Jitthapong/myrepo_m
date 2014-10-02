@@ -82,7 +82,7 @@ public class ImageViewPinchZoom extends DialogFragment{
 
 			@Override
 			public void run() {
-				mImgLoader.displayImage(Utils.getImageUrl(getActivity()) + mImgName, imgMenu);
+				mImgLoader.displayImage(mImgName, imgMenu);
 				imgMenu.setVisibility(View.VISIBLE);
 				tvMenuName.setText(mMenuName + "\n" + mMenuPrice);
 				progress.setVisibility(View.GONE);

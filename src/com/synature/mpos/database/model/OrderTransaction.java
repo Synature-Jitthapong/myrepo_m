@@ -35,6 +35,10 @@ public class OrderTransaction {
 	private String ej;
 	private String ejVoid;
 	private String transactionUuid;
+	private String memberCardNo;
+	private String memberName;
+	private double pointBefore;
+	private double currentPoint;
 
 	public int getSendStatus() {
 		return sendStatus;
@@ -305,5 +309,37 @@ public class OrderTransaction {
 
 	public void setTransactionUuid(String transactionUuid) {
 		this.transactionUuid = transactionUuid;
+	}
+
+	public String getMemberName() {
+		return memberName;
+	}
+
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
+	}
+
+	public double getPointBefore() {
+		return pointBefore;
+	}
+
+	public void setPointBefore(double pointBefore) {
+		this.pointBefore = pointBefore;
+	}
+
+	public double getCurrentPoint() {
+		return currentPoint;
+	}
+
+	public void setCurrentPoint(double currentPoint) {
+		this.currentPoint = currentPoint;
+	}
+
+	public String getMemberCardNo() {
+		return memberCardNo;
+	}
+
+	public void setMemberCardNo(String memberCardNo) {
+		this.memberCardNo = memberCardNo;
 	}
 }

@@ -21,7 +21,7 @@
         android:id="@+id/itemHoldBill"
         android:icon="@drawable/ic_action_copy"
         android:showAsAction="always|withText"
-        android:title="@string/hold_bill">
+        android:title="@string/hold_bill" android:visible="false">
     </item>
     <item
         android:id="@+id/itemReport"

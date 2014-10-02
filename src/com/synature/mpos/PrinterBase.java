@@ -30,7 +30,7 @@ public abstract class PrinterBase {
 	
 	public static final int HORIZONTAL_MAX_SPACE = 45;
 	public static final int QTY_MAX_SPACE = 12;
-	public static final int MAX_TEXT_LENGTH = 35;
+	public static final int MAX_TEXT_LENGTH = 30;
 	public static final int MAX_TEXT_WITH_QTY_LENGTH = 25;
 	
 	protected TransactionDao mTrans;
@@ -548,8 +548,6 @@ public abstract class PrinterBase {
 	protected void createTextForPrintReceipt(int transId, boolean isCopy, boolean isLoadTemp){
 		OrderTransaction trans = mTrans.getTransaction(transId, isLoadTemp);
 		OrderDetail sumOrder = mTrans.getSummaryOrder(transId, isLoadTemp);
-		double change = mPayment.getTotalPayAmount(transId) - (sumOrder.getTotalSalePrice());
-		boolean isShowVat = mShop.getShopProperty().getPrintVatInReceipt() == 1;
 		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
 		
 		// have copy
@@ -578,11 +576,12 @@ public abstract class PrinterBase {
 				mFormat.dateTimeFormat(Utils.getCalendar().getTime());
 		String receiptNo = mContext.getString(R.string.receipt_no) + " " +
 				(TextUtils.isEmpty(trans.getReceiptNo()) ? "-" : trans.getReceiptNo());
-		String cashCheer = mContext.getString(R.string.cashier) + " " +
-				mStaff.getStaff(trans.getOpenStaffId()).getStaffName();
+		String memberName = mContext.getString(R.string.name) + " " + trans.getMemberName();
+		String idCard = mContext.getString(R.string.id_card) + " " + trans.getMemberCardNo();
 		mTextToPrint.append(saleDate + createHorizontalSpace(calculateLength(saleDate)) + "\n");
 		mTextToPrint.append(receiptNo + createHorizontalSpace(calculateLength(receiptNo)) + "\n");
-		mTextToPrint.append(cashCheer + createHorizontalSpace(calculateLength(cashCheer)) + "\n");
+		mTextToPrint.append(memberName + createHorizontalSpace(calculateLength(memberName)) + "\n");
+		mTextToPrint.append(idCard + createHorizontalSpace(calculateLength(idCard)) + "\n");
 		mTextToPrint.append(createLine("=") + "\n");
 		
 		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId, isLoadTemp);
@@ -630,13 +629,8 @@ public abstract class PrinterBase {
     	
     	String itemText = mContext.getString(R.string.items) + ": ";
     	String totalText = mContext.getString(R.string.total) + "...............";
-    	String changeText = mContext.getString(R.string.change) + " ";
-    	String discountText = TextUtils.isEmpty(sumOrder.getPromotionName()) ? mContext.getString(R.string.discount) : sumOrder.getPromotionName();
-    	
     	String strTotalRetailPrice = mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
     	String strTotalSale = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
-    	String strTotalDiscount = "-" + mFormat.currencyFormat(sumOrder.getPriceDiscount());
-    	String strTotalChange = mFormat.currencyFormat(change);
     	
     	// total item
     	String strTotalQty = NumberFormat.getInstance().format(sumOrder.getOrderQty());
@@ -647,15 +641,6 @@ public abstract class PrinterBase {
     			calculateLength(strTotalQty) + 
     			calculateLength(strTotalRetailPrice)));
     	mTextToPrint.append(strTotalRetailPrice + "\n");
-    	
-    	// total discount
-    	if(sumOrder.getPriceDiscount() > 0){
-	    	mTextToPrint.append(discountText);
-	    	mTextToPrint.append(createHorizontalSpace(
-	    			calculateLength(discountText) + 
-	    			calculateLength(strTotalDiscount)));
-	    	mTextToPrint.append(strTotalDiscount + "\n");
-    	}
     	
     	// transaction exclude vat
     	if(trans.getTransactionVatExclude() > 0){
@@ -686,86 +671,19 @@ public abstract class PrinterBase {
     			calculateLength(strTotalSale)));
     	mTextToPrint.append(strTotalSale + "\n");
 	    
-    	// total payment
-    	List<MPOSPaymentDetail> paymentLst = 
-    			mPayment.listPaymentGroupByType(transId);
-    	for(int i = 0; i < paymentLst.size(); i++){
-    		MPOSPaymentDetail payment = paymentLst.get(i);
-	    	String strTotalPaid = mFormat.currencyFormat(payment.getTotalPay());
-	    	if(payment.getPayTypeId() == PaymentDetailDao.PAY_TYPE_CREDIT){
-	    		String paymentText = payment.getPayTypeName();
-	    		String cardNoText = "xxxx xxxx xxxx ";
-	    		try {
-	    			paymentText = payment.getPayTypeName() + ":" + 
-    					mCreditCard.getCreditCardType(payment.getCreditCardTypeId());
-	    			cardNoText += payment.getCreditCardNo().substring(12, 16);
-	    		} catch (Exception e) {
-	    			Logger.appendLog(mContext, Utils.LOG_PATH, 
-	    					Utils.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
-	    		}
-	    		mTextToPrint.append(paymentText);
-	    		mTextToPrint.append(createHorizontalSpace(calculateLength(paymentText)));
-	    		mTextToPrint.append("\n");
-    			mTextToPrint.append(cardNoText);
-    			mTextToPrint.append(createHorizontalSpace(
-    					calculateLength(cardNoText) + 
-    					calculateLength(strTotalPaid)));
-    			mTextToPrint.append(strTotalPaid);
-	    	}else{
-	    		String paymentText = payment.getPayTypeName() + " ";
-		    	if(i < paymentLst.size() - 1){
-			    	mTextToPrint.append(paymentText);
-		    		mTextToPrint.append(createHorizontalSpace(
-		    				calculateLength(paymentText) + 
-		    				calculateLength(strTotalPaid)));
-			    	mTextToPrint.append(strTotalPaid);
-		    	}else if(i == paymentLst.size() - 1){
-			    	if(change > 0){
-				    	mTextToPrint.append(paymentText);
-				    	mTextToPrint.append(strTotalPaid);
-			    		mTextToPrint.append(createHorizontalSpace(
-			    				calculateLength(changeText) + 
-			    				calculateLength(strTotalChange) + 
-			    				calculateLength(paymentText) + 
-			    				calculateLength(strTotalPaid)));
-				    	mTextToPrint.append(changeText);
-				    	mTextToPrint.append(strTotalChange);
-				    }else{
-				    	mTextToPrint.append(paymentText);
-			    		mTextToPrint.append(createHorizontalSpace(
-			    				calculateLength(paymentText) + 
-			    				calculateLength(strTotalPaid)));
-				    	mTextToPrint.append(strTotalPaid);
-				    }
-		    	}
-	    	}
-    		mTextToPrint.append("\n");
-    	}
-	    mTextToPrint.append(createLine("=") + "\n");
-	    
-	    // show vat ?
-    	if(isShowVat){
-    		if(trans.getTransactionVatable() > 0){
-	    		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-	        	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
-	        	String beforeVatText = mContext.getString(R.string.before_vat);
-	        	String strBeforeVat = mFormat.currencyFormat(beforVat);
-	        	String vatRateText = mContext.getString(R.string.vat) + " " +
-	        			NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
-			    // before vat
-			    mTextToPrint.append(beforeVatText);
-			    mTextToPrint.append(createHorizontalSpace(
-			    		calculateLength(beforeVatText) + 
-			    		calculateLength(strBeforeVat)));
-			    mTextToPrint.append(strBeforeVat + "\n");
-			    // transaction vat
-		    	mTextToPrint.append(vatRateText);
-		    	mTextToPrint.append(createHorizontalSpace(
-		    			calculateLength(vatRateText) + 
-		    			calculateLength(strTransactionVat)));
-		    	mTextToPrint.append(strTransactionVat + "\n");
-    		}
-    	}
+	    // balance
+    	String balanceBeforeText = "Point before";
+    	String balanceBefore = mFormat.currencyFormat(trans.getPointBefore());
+    	mTextToPrint.append(balanceBeforeText);
+    	mTextToPrint.append(createHorizontalSpace(balanceBeforeText.length() + balanceBefore.length()));
+    	mTextToPrint.append(balanceBefore + "\n");
+    	
+    	String balanceText = "Current point";
+    	String balance = mFormat.currencyFormat(trans.getCurrentPoint());
+    	mTextToPrint.append(balanceText);
+    	mTextToPrint.append(createHorizontalSpace(balanceText.length() + balance.length()));
+    	mTextToPrint.append(balance + "\n");
+    	mTextToPrint.append(createLine("=") + "\n");
 	    
     	// add footer
     	for(com.synature.pos.HeaderFooterReceipt hf : 
@@ -779,186 +697,6 @@ public abstract class PrinterBase {
     	}
     	if(isVoid){
     		mTrans.updateTransactionVoidEjournal(transId, mTextToPrint.toString());
-    	}
-	}
-	
-	protected void createTextForPrintFoodCourtReceipt(int transId, double cardBalanceBefore, 
-			double cardBalance, boolean isCopy, boolean isLoadTemp){
-		OrderTransaction trans = mTrans.getTransaction(transId, isLoadTemp);
-		OrderDetail summOrder = mTrans.getSummaryOrder(transId, isLoadTemp);
-		double change = mPayment.getTotalPayAmount(transId) - (summOrder.getTotalSalePrice());
-		boolean isShowVat = false;//mShop.getShopProperty().getPrintVatInReceipt() == 1;
-		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
-		
-		// have copy
-		if(isCopy){
-			String copyText = mContext.getString(R.string.copy);
-			mTextToPrint.append(createLine("-") + "\n");
-			mTextToPrint.append(adjustAlignCenter(copyText) + "\n");
-			mTextToPrint.append(createLine("-") + "\n\n");
-		}
-		// add void header
-		if(isVoid){
-			mTextToPrint.append(mContext.getString(R.string.void_bill) + "\n");
-			Calendar voidTime = Calendar.getInstance();
-			voidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
-			mTextToPrint.append(mContext.getString(R.string.void_time) + " " + mFormat.dateTimeFormat(voidTime.getTime()) + "\n");
-			mTextToPrint.append(mContext.getString(R.string.void_by) + " " + mStaff.getStaff(trans.getVoidStaffId()).getStaffName() + "\n");
-			mTextToPrint.append(mContext.getString(R.string.reason) + " " + trans.getVoidReason() + "\n\n");
-		}
-		// add header
-		for(com.synature.pos.HeaderFooterReceipt hf : 
-			mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDao.HEADER_LINE_TYPE)){
-			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
-		}
-		
-		String saleDate = mContext.getString(R.string.date) + " " +
-				mFormat.dateTimeFormat(Utils.getCalendar().getTime());
-		String receiptNo = mContext.getString(R.string.receipt_no) + " " +
-				(TextUtils.isEmpty(trans.getReceiptNo()) ? "-" : trans.getReceiptNo());
-		String cashCheer = mContext.getString(R.string.cashier) + " " +
-				mStaff.getStaff(trans.getOpenStaffId()).getStaffName();
-		mTextToPrint.append(saleDate + createHorizontalSpace(calculateLength(saleDate)) + "\n");
-		mTextToPrint.append(receiptNo + createHorizontalSpace(calculateLength(receiptNo)) + "\n");
-		mTextToPrint.append(cashCheer + createHorizontalSpace(calculateLength(cashCheer)) + "\n");
-		mTextToPrint.append(createLine("=") + "\n");
-		
-		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId, isLoadTemp);
-    	for(int i = 0; i < orderLst.size(); i++){
-    		OrderDetail order = orderLst.get(i);
-    		String productName = limitTextLength(order.getProductName());
-    		String productQty = mFormat.qtyFormat(order.getOrderQty()) + "x ";
-    		String productPrice = mFormat.currencyFormat(order.getProductPrice());
-    		mTextToPrint.append(productQty);
-    		mTextToPrint.append(productName);
-    		mTextToPrint.append(createHorizontalSpace(
-    				calculateLength(productQty) + 
-    				calculateLength(productName) + 
-    				calculateLength(productPrice)));
-    		mTextToPrint.append(productPrice);
-    		mTextToPrint.append("\n");
-    		if(order.getOrderCommentLst() != null && order.getOrderCommentLst().size() > 0){
-    			for(Comment comm : order.getOrderCommentLst()){
-    				if(comm.getCommentPrice() > 0){
-	    				String commName = comm.getCommentName();
-	    				String commQty = "   " + mFormat.qtyFormat(comm.getCommentQty()) + "x ";
-	    				String commPrice = mFormat.currencyFormat(comm.getCommentPrice());
-	    				mTextToPrint.append(commQty);
-	    				mTextToPrint.append(commName);
-	    				mTextToPrint.append(createHorizontalSpace(
-	    						calculateLength(commQty) +
-	    						calculateLength(commName) + 
-	    						calculateLength(commPrice)));
-	    				mTextToPrint.append(commPrice);
-	    				mTextToPrint.append("\n");
-    				}
-    			}
-    		}
-    		if(order.getOrdSetDetailLst() != null && order.getOrdSetDetailLst().size() > 0){
-    			for(OrderSetDetail setDetail : order.getOrdSetDetailLst()){
-    				String setName = setDetail.getProductName();
-    				String setQty = "   " + mFormat.qtyFormat(setDetail.getOrderSetQty()) + "x ";
-    				String setPrice = mFormat.currencyFormat(setDetail.getProductPrice());
-    				mTextToPrint.append(setQty);
-    				mTextToPrint.append(setName);
-    				mTextToPrint.append(createHorizontalSpace(
-    						calculateLength(setQty) + 
-    						calculateLength(setName) +
-    						calculateLength(setPrice)));
-    				mTextToPrint.append(setPrice);
-    				mTextToPrint.append("\n");
-    			}
-    		}
-    	}
-    	mTextToPrint.append(createLine("-") + "\n");
-    	
-    	String itemText = mContext.getString(R.string.items) + ": ";
-    	String totalText = mContext.getString(R.string.total) + "...............";
-    	String changeText = mContext.getString(R.string.change) + " ";
-    	String discountText = TextUtils.isEmpty(summOrder.getPromotionName()) ? mContext.getString(R.string.discount) : summOrder.getPromotionName();
-    	
-    	String strTotalRetailPrice = mFormat.currencyFormat(summOrder.getTotalRetailPrice());
-    	String strTotalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
-    	String strTotalDiscount = "-" + mFormat.currencyFormat(summOrder.getPriceDiscount());
-    	String strTotalChange = mFormat.currencyFormat(change);
-    	
-    	// total item
-    	String strTotalQty = NumberFormat.getInstance().format(summOrder.getOrderQty());
-    	mTextToPrint.append(itemText);
-    	mTextToPrint.append(strTotalQty);
-    	mTextToPrint.append(createHorizontalSpace(
-    			calculateLength(itemText) + 
-    			calculateLength(strTotalQty) + 
-    			calculateLength(strTotalRetailPrice)));
-    	mTextToPrint.append(strTotalRetailPrice + "\n");
-    	
-    	// total discount
-    	if(summOrder.getPriceDiscount() > 0){
-	    	mTextToPrint.append(discountText);
-	    	mTextToPrint.append(createHorizontalSpace(
-	    			calculateLength(discountText) + 
-	    			calculateLength(strTotalDiscount)));
-	    	mTextToPrint.append(strTotalDiscount + "\n");
-    	}
-    	
-    	// show vat ?
-    	if(isShowVat){
-	    	// transaction exclude vat
-	    	if(trans.getTransactionVatExclude() > 0){
-	    		String vatExcludeText = mContext.getString(R.string.vat) + " " +
-	    				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
-	    		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
-	    		mTextToPrint.append(vatExcludeText);
-	    		mTextToPrint.append(createHorizontalSpace(
-	    				calculateLength(vatExcludeText) + 
-	    				calculateLength(strVatExclude)));
-	    		mTextToPrint.append(strVatExclude + "\n");
-	    	}
-    	}
-    	
-    	// total price
-    	mTextToPrint.append(totalText);
-    	mTextToPrint.append(createHorizontalSpace(
-    			calculateLength(totalText) + 
-    			calculateLength(strTotalSale)));
-    	mTextToPrint.append(strTotalSale + "\n");
-	    
-    	// balance
-    	String balanceBeforeText = "Point before";
-    	String balanceBefore = mFormat.currencyFormat(cardBalanceBefore);
-    	mTextToPrint.append(balanceBeforeText);
-    	mTextToPrint.append(createHorizontalSpace(balanceBeforeText.length() + balanceBefore.length()));
-    	mTextToPrint.append(balanceBefore + "\n");
-    	
-    	String balanceText = "Current point";
-    	String balance = mFormat.currencyFormat(cardBalance);
-    	mTextToPrint.append(balanceText);
-    	mTextToPrint.append(createHorizontalSpace(balanceText.length() + balance.length()));
-    	mTextToPrint.append(balance + "\n");
-    	mTextToPrint.append(createLine("=") + "\n");
-	    
-	    // show vat ?
-    	if(isShowVat){
-    		if(trans.getTransactionVatable() > 0){
-	    		double beforVat = trans.getTransactionVatable() - trans.getTransactionVat();
-	        	String strTransactionVat = mFormat.currencyFormat(trans.getTransactionVat());
-	        	String beforeVatText = mContext.getString(R.string.before_vat);
-	        	String strBeforeVat = mFormat.currencyFormat(beforVat);
-	        	String vatRateText = mContext.getString(R.string.vat) + " " +
-	        			NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
-			    // before vat
-			    mTextToPrint.append(beforeVatText);
-			    mTextToPrint.append(createHorizontalSpace(
-			    		calculateLength(beforeVatText) + 
-			    		calculateLength(strBeforeVat)));
-			    mTextToPrint.append(strBeforeVat + "\n");
-			    // transaction vat
-		    	mTextToPrint.append(vatRateText);
-		    	mTextToPrint.append(createHorizontalSpace(
-		    			calculateLength(vatRateText) + 
-		    			calculateLength(strTransactionVat)));
-		    	mTextToPrint.append(strTransactionVat + "\n");
-    		}
     	}
 	}
 }
