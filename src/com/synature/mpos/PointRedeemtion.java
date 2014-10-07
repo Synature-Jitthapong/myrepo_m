@@ -1,16 +1,11 @@
 package com.synature.mpos;
 
-import java.lang.reflect.Type;
-import java.util.List;
-
 import org.ksoap2.serialization.PropertyInfo;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.synature.util.Logger;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 public class PointRedeemtion extends PointServiceBase{
 
@@ -53,17 +48,16 @@ public class PointRedeemtion extends PointServiceBase{
 	
 	@Override
 	protected void onPostExecute(String result) {
-		Log.i(TAG, result);
 		try {
 			Result res = toResultObject(result);
-			if(res != null){
-				if(res.getiResultID() == RESPONSE_SUCCESS){
-					mListener.onPost();
-				}else{
-					mListener.onError(TextUtils.isEmpty(res.getSzResultData()) ? res.getSzResultData() : result);
-				}
+			if(res.getiResultID() == RESPONSE_SUCCESS){
+				mListener.onPost();
+			}else{
+				mListener.onError(TextUtils.isEmpty(res.getSzResultData()) ? res.getSzResultData() : result);
 			}
 		} catch (Exception e) {
+			Logger.appendLog(mContext, Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+					"Error RedemptionItemsProcess: " + e.getLocalizedMessage() + "\n" + result);
 			mListener.onError(result);
 		}
 	}

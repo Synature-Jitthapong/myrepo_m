@@ -6,7 +6,6 @@ import com.synature.util.Logger;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 public class BalanceInquiryCard extends PointServiceBase{
 
@@ -20,7 +19,6 @@ public class BalanceInquiryCard extends PointServiceBase{
 			String cardTagCode, GetBalanceListener listener) {
 		super(c, METHOD);
 		
-		Log.i(TAG, "cardTagCode: " + cardTagCode);
 		mProperty = new PropertyInfo();
 		mProperty.setName(MERCHANT_PARAM);
 		mProperty.setValue(merchantCode);
@@ -44,32 +42,28 @@ public class BalanceInquiryCard extends PointServiceBase{
 
 	@Override
 	protected void onPostExecute(String result) {
-		Log.i(TAG, result);
 		try {
 			Result res = toResultObject(result);
-			if(res != null){
-				if(res.getiResultID() == RESPONSE_SUCCESS){
-					String resultData = res.getSzResultData();
-					if(!TextUtils.isEmpty(resultData)){
-						MemberInfo member = toMemberInfoObject(resultData);
-						mListener.onPost(member);
-					}else{
-						mListener.onError("No result");
-					}
+			if(res.getiResultID() == RESPONSE_SUCCESS){
+				String resultData = res.getSzResultData();
+				if(!TextUtils.isEmpty(resultData)){
+					MemberInfo member = toMemberInfoObject(resultData);
+					mListener.onPost(member);
 				}else{
-					mListener.onError(TextUtils.isEmpty(res.getSzResultData()) ? "Card not found" : res.getSzResultData());
+					mListener.onError("No result");
 				}
+			}else{
+				mListener.onError(TextUtils.isEmpty(res.getSzResultData()) ? "Card not found" : res.getSzResultData());
 			}
 		} catch (Exception e) {
-			mListener.onError(result);
 			Logger.appendLog(mContext, Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 					"Error GetBalanceInquiryCard: " + e.getLocalizedMessage() + "\n" + result);
+			mListener.onError(result);
 		}
 	}
 
 	@Override
 	protected void onPreExecute() {
-		super.onPreExecute();
 		mListener.onPre();
 	}
 	
