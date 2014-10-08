@@ -52,11 +52,13 @@ public class SoftwareRegister extends MPOSServiceBase{
 			if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
 				// compare version
 				if(!TextUtils.equals(Utils.getSoftWareVersion(mContext), info.getSzSoftwareVersion())){
-					SoftwareUpdateDao su = new SoftwareUpdateDao(mContext);
-					su.logSoftwareUpdate(info.getSzSoftwareVersion());
-					Intent intent = new Intent(mContext, SoftwareUpdateService.class);
-					intent.putExtra("fileUrl", info.getSzSoftwareDownloadUrl());
-					mContext.startService(intent);
+					if(!SoftwareUpdateService.sIsRunning){
+						SoftwareUpdateDao su = new SoftwareUpdateDao(mContext);
+						su.logSoftwareUpdate(info.getSzSoftwareVersion());
+						Intent intent = new Intent(mContext, SoftwareUpdateService.class);
+						intent.putExtra("fileUrl", info.getSzSoftwareDownloadUrl());
+						mContext.startService(intent);
+					}
 				}
 			}
 			if(!TextUtils.isEmpty(info.getSzRegisterServiceUrl())){
