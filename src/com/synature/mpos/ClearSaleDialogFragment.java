@@ -77,8 +77,8 @@ public class ClearSaleDialogFragment extends DialogFragment implements OnClickLi
 					Calendar cTo = Utils.getDate();
 					cFrom.setTimeInMillis(mDateFrom);
 					cTo.setTimeInMillis(mDateTo);
-					String msg = getString(R.string.clear_sale_msg)
-							+ " " + getString(R.string.from) + " "
+					String msg = getString(R.string.clear_sale_msg) + "\n"
+							+ getString(R.string.from) + " "
 							+ DateFormat.getDateInstance().format(cFrom.getTime())
 							+ " " + getString(R.string.to) + " "
 							+ DateFormat.getDateInstance().format(cTo.getTime());
