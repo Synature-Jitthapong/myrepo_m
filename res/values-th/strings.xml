@@ -192,4 +192,7 @@
 	<string name="software_update_mesg">มีโปรแกรมเวอร์ชั่นใหม่กว่าที่ใช้อยู่ในปัจจุบัน กรุณาทำการอัพเดตเวอร์ชั่นของโปรแกรมก่อน</string>
 	<string name="total_sale_include_vat">ราคารวมภาษี</string>
 	<string name="check_network_progress">ตรวจสอบการเชื่อมต่อกับ Server&#8230;</string>
+	<string name="software_expired">ซอฟท์แวร์หมดอายุ</string>
+	<string name="software_expired_msg">mPOS หมดอายุแล้ว! คุณยังสามารถใช้ได้จนถึง </string>
+	<string name="software_locked">mPOS ถูกล็อกเนื่องจากหมดอายุ กรุณาติดต่อเราเพื่อทำการปลดล็อก.</string>
 </resources>

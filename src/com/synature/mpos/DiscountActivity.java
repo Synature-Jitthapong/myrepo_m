@@ -1,6 +1,5 @@
 package com.synature.mpos;
 
-import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -302,9 +301,6 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 							if(mDisAllType == PRICE_DISCOUNT_TYPE){
 								if(totalRetailPrice < maxTotalRetailPrice){
 									double discount = (totalRetailPrice / totalPrice) * discountAll;
-									BigDecimal big = new BigDecimal(discount);
-									big = big.setScale(0, BigDecimal.ROUND_FLOOR);
-									discount = big.doubleValue();
 									totalDiscount += discount;
 									double totalPriceAfterDiscount = totalRetailPrice - discount;
 									mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
@@ -331,9 +327,6 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 							if(order.getTotalRetailPrice() == maxTotalRetailPrice){
 								double totalRetailPrice = order.getTotalRetailPrice();
 								double discount = discountAll - totalDiscount;
-								BigDecimal big = new BigDecimal(discount);
-								big = big.setScale(0, BigDecimal.ROUND_FLOOR);
-								discount = big.doubleValue();
 								if(discount > order.getTotalRetailPrice())
 									discount = order.getTotalRetailPrice();
 								totalDiscount += discount;
@@ -397,9 +390,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 			else
 				totalDiscount = totalRetailPrice * discount / 100;
 		}
-		BigDecimal bg = new BigDecimal(totalDiscount);
-		bg = bg.setScale(0, BigDecimal.ROUND_FLOOR);
-		return bg.doubleValue();
+		return totalDiscount;
 	}
 	
 	private void confirm(){

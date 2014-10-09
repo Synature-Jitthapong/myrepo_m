@@ -242,6 +242,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="total_sale_include_vat">Total Sale Include VAT</string>
 	<string name="check_network_progress">Checking network connection&#8230;</string>
 	<string name="software_expired">Software Expired</string>
-	<string name="software_expired_msg">Your software has expired! Please contact </string>
-	<string name="software_locked">Software Locked</string>
+	<string name="software_expired_msg">mPOS has already expired! You can use until </string>
+	<string name="software_locked">mPOS has already locked. Please contact us for unlock.</string>
 </resources>

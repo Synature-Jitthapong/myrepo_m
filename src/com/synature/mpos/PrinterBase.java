@@ -31,7 +31,7 @@ public abstract class PrinterBase {
 	
 	public static final int HORIZONTAL_MAX_SPACE = 45;
 	public static final int QTY_MAX_SPACE = 12;
-	public static final int MAX_TEXT_LENGTH = 35;
+	public static final int MAX_TEXT_LENGTH = 32;
 	public static final int MAX_TEXT_WITH_QTY_LENGTH = 25;
 	
 	protected TransactionDao mTrans;

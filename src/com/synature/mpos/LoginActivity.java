@@ -477,11 +477,28 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 			}
 			
 			@Override
-			public void onExpire(boolean isLocked) {
-				if(!isLocked){
-					startActivity(intent);
-			        finish();	
+			public void onExpire(final Calendar lockDate, final boolean isLocked) {
+				String msg = getString(R.string.software_expired_msg);
+				msg += " " + mFormat.dateFormat(lockDate.getTime());
+				if(isLocked){
+					msg = getString(R.string.software_locked);
 				}
+				AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+				builder.setTitle(R.string.software_expired);
+				builder.setMessage(msg);
+				builder.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						if(!isLocked){
+							startActivity(intent);
+					        finish();	
+						}
+					}
+				});
+				AlertDialog d = builder.create();
+				d.show();
+				
 			}
 		});
 		swChecker.checkExpDate();

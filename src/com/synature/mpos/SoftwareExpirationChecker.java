@@ -29,27 +29,13 @@ public class SoftwareExpirationChecker{
 				Calendar cExp = Calendar.getInstance();
 				cExp.setTimeInMillis(Long.parseLong(info.getExpDate()));
 				boolean isLocked = false;
-				if(cExp.compareTo(c) > 0){
+				if(c.compareTo(cExp) >= 0){
 					Calendar cLock = Calendar.getInstance();
 					cLock.setTimeInMillis(Long.parseLong(info.getLockDate()));
-					String msg = mContext.getString(R.string.software_expired_msg);
-					if(cLock.compareTo(c) > 0){
+					if(c.compareTo(cLock) > 0){
 						isLocked = true;
-						msg += "\n" + mContext.getString(R.string.software_locked);
 					}
-					AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-					builder.setTitle(R.string.software_expired);
-					builder.setMessage(msg);
-					builder.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface arg0, int arg1) {
-						}
-					});
-					AlertDialog d = builder.create();
-					d.show();
-					
-					mListener.onExpire(isLocked);
+					mListener.onExpire(cLock, isLocked);
 				}else{
 					mListener.onNotExpired();
 				}
@@ -62,7 +48,7 @@ public class SoftwareExpirationChecker{
 	}
 	
 	public static interface SoftwareExpirationCheckerListener{
-		void onExpire(boolean isLocked);
+		void onExpire(Calendar lockDate, boolean isLocked);
 		void onNotExpired();
 	}
 }

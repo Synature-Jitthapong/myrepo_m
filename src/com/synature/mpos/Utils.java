@@ -22,7 +22,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
@@ -33,11 +32,8 @@ import android.widget.Toast;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.ProductsDao;
-import com.synature.mpos.database.SaleTransaction;
-import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
-import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
@@ -196,84 +192,6 @@ public class Utils {
 		return diffDay;
 	}
 	
-	/**
-	 * @author j1tth4
-	 * task for load end day transaction data
-	 */
-	public static class LoadEndDayTransaction extends AsyncTask<Void, Void, POSData_EndDaySaleTransaction>{
-
-		protected String mSessionDate;
-		protected SaleTransaction mSaleTrans;
-		protected LoadEndDaySaleTransactionListener mListener;
-		
-		/**
-		 * @param context
-		 * @param sessionDate
-		 * @param listener
-		 */
-		public LoadEndDayTransaction(Context context, String sessionDate, LoadEndDaySaleTransactionListener listener){
-			mSessionDate = sessionDate;
-			mSaleTrans = new SaleTransaction(context);
-			mListener = listener;
-		}
-		
-		@Override
-		protected void onPreExecute() {
-			mListener.onPreExecute();
-		}
-
-		@Override
-		protected void onPostExecute(POSData_EndDaySaleTransaction enddayTrans) {
-			mListener.onPost(enddayTrans);
-		}
-		
-		@Override
-		protected POSData_EndDaySaleTransaction doInBackground(Void... params) {
-			return mSaleTrans.getEndDayTransaction(mSessionDate);
-		}
-	}
-	
-	/**
-	 * @author j1tth4
-	 * task for load partial sale transaction 
-	 */
-	public static class LoadSaleTransaction extends AsyncTask<Void, Void, POSData_SaleTransaction>{
-
-		protected int mTransactionId;
-		protected int mSessionId;
-		protected SaleTransaction mSaleTrans;
-		protected LoadSaleTransactionListener mListener;
-		
-		/**
-		 * @param context
-		 * @param sessionId
-		 * @param transactionId
-		 * @param listener
-		 */
-		public LoadSaleTransaction(Context context, int sessionId, int transactionId,
-				LoadSaleTransactionListener listener){
-			mTransactionId = transactionId;
-			mSessionId = sessionId;
-			mSaleTrans = new SaleTransaction(context);
-			mListener = listener;
-		}
-		
-		@Override
-		protected void onPreExecute() {
-			mListener.onPreExecute();
-		}
-
-		@Override
-		protected void onPostExecute(POSData_SaleTransaction saleTrans) {
-			mListener.onPost(saleTrans);
-		}
-		
-		@Override
-		protected POSData_SaleTransaction doInBackground(Void... params) {
-			return mSaleTrans.getTransaction(mTransactionId, mSessionId);
-		}
-	}
-	
 	public static Calendar getCalendar(){
 		return Calendar.getInstance(Locale.getDefault());
 	}
@@ -325,43 +243,32 @@ public class Utils {
 	public static String fixesDigitLength(GlobalPropertyDao format, int scale, double value){
 		return format.currencyFormat(value, "#,##0.0000");
 	}
-
-	/**
-	 * @param scale
-	 * @param value
-	 * @return rounding value
-	 */
-//	public static double rounding(int scale, double value){
-//		BigDecimal big = new BigDecimal(value);
-//		return big.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
-//	}
 	
 	/**
 	 * @param price
 	 * @return rounding value
 	 */
-//	public static double roundingPrice(double price){
-//		double result = price;
-//		long iPart;		// integer part
-//		double fPart;	// fractional part
-//		iPart = (long) price;
-//		fPart = price - iPart;
-//		if(fPart < 0.25){
-//			fPart = 0.0d;
-//		}else if(fPart >= 0.25 && fPart < 0.50){
-//			fPart = 0.25d;
-//		}else if(fPart >= 0.50 && fPart < 0.75){
-//			fPart = 0.50d;
-//		}else if(fPart == 0.75){
-//			fPart = 0.75d;
-//		}else if(fPart > 0.75){
-//			iPart += 1;
-//			fPart = 0.0d;
-//		}
-//		result = iPart + fPart;
-//		return result;
-//		return price;
-//	}
+	public static double roundingPrice(double price){
+		double result = price;
+		long iPart;		// integer part
+		double fPart;	// fractional part
+		iPart = (long) price;
+		fPart = price - iPart;
+		if(fPart < 0.25){
+			fPart = 0.0d;
+		}else if(fPart >= 0.25 && fPart < 0.50){
+			fPart = 0.25d;
+		}else if(fPart >= 0.50 && fPart < 0.75){
+			fPart = 0.50d;
+		}else if(fPart == 0.75){
+			fPart = 0.75d;
+		}else if(fPart > 0.75){
+			iPart += 1;
+			fPart = 0.0d;
+		}
+		result = iPart + fPart;
+		return result;
+	}
 
 	public static double stringToDouble(String text) throws ParseException{
 		double value = 0.0d;
@@ -742,13 +649,5 @@ public class Utils {
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){
 		return new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight);
-	}
-	
-	public static interface LoadEndDaySaleTransactionListener extends WebServiceWorkingListener{
-		void onPost(POSData_EndDaySaleTransaction enddayTrans);
-	}
-	
-	public static interface LoadSaleTransactionListener extends WebServiceWorkingListener{
-		void onPost(POSData_SaleTransaction saleTrans);
 	}
 }

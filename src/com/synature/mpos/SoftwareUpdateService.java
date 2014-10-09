@@ -20,9 +20,12 @@ import android.os.IBinder;
 
 public class SoftwareUpdateService extends Service{
 	
+	public static boolean sIsRunning = false;
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		sIsRunning = true;
 	}
 
 	@Override
@@ -72,6 +75,12 @@ public class SoftwareUpdateService extends Service{
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
+	}
+
+	@Override
+	public void onDestroy() {
+		sIsRunning = false;
+		super.onDestroy();
 	}
 
 }
