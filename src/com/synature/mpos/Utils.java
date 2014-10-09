@@ -21,7 +21,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
@@ -30,15 +29,9 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.synature.mpos.database.GlobalPropertyDao;
-import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
-import com.synature.mpos.database.table.OrderDetailTable;
-import com.synature.mpos.database.table.OrderTransTable;
-import com.synature.mpos.database.table.PaymentDetailTable;
-import com.synature.mpos.database.table.SessionDetailTable;
-import com.synature.mpos.database.table.SessionTable;
 import com.synature.util.Logger;
 
 public class Utils {
@@ -284,20 +277,6 @@ public class Utils {
 				" Server Response : " + msg);
 	}
 	
-	public static void clearSale(Context context){
-		MPOSDatabase.MPOSOpenHelper mSqliteHelper = 
-				MPOSDatabase.MPOSOpenHelper.getInstance(context);
-		SQLiteDatabase sqlite = mSqliteHelper.getWritableDatabase();
-		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
-		sqlite.delete(OrderDetailTable.TEMP_ORDER, null, null);
-		sqlite.delete(OrderTransTable.TABLE_ORDER_TRANS, null, null);
-		sqlite.delete(OrderTransTable.TEMP_ORDER_TRANS, null, null);
-		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
-		sqlite.delete(SessionTable.TABLE_SESSION, null, null);
-		sqlite.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, null);
-		makeToask(context, "Clear sale data successfully.");
-	}
-
 	/**
 	 * Get software version
 	 * @param context

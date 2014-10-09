@@ -9,12 +9,10 @@ import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.ShopDao;
-import com.synature.mpos.database.SoftwareInfoDao;
 import com.synature.mpos.database.SoftwareUpdateDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
-import com.synature.mpos.database.model.SoftwareInfo;
 import com.synature.mpos.database.model.SoftwareUpdate;
 import com.synature.pos.Staff;
 
@@ -279,15 +277,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 			}
 		}
 		return true;
-	}
-	
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if(keyCode == KeyEvent.KEYCODE_BACK){
-			return false;
-		}else{
-			return super.onKeyDown(keyCode, event);
-		}
 	}
 	
 	@Override

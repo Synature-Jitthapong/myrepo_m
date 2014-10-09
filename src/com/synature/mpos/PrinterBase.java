@@ -220,6 +220,7 @@ public abstract class PrinterBase {
 	 * @param dateTo
 	 */
 	protected void createTextForPrintSaleByProductReport(String dateFrom, String dateTo){
+		OrderTransaction sumTrans = mTrans.getSummaryTransaction(dateFrom, dateTo);
 		OrderDetail summOrder = mTrans.getSummaryOrder(dateFrom, dateTo);
 	
 		String date = mFormat.dateFormat(dateTo);
@@ -297,7 +298,7 @@ public abstract class PrinterBase {
 		}
 		
 		String grandTotalText = mContext.getString(R.string.grand_total);
-		String grandTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice());
+		String grandTotal = mFormat.currencyFormat(sumTrans.getTransactionVatable());
 		mTextToPrint.append(grandTotalText);
 		mTextToPrint.append(createHorizontalSpace(calculateLength(grandTotalText) 
 				+ calculateLength(grandTotal)));

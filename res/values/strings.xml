@@ -244,4 +244,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="software_expired">Software Expired</string>
 	<string name="software_expired_msg">mPOS has already expired! You can use until </string>
 	<string name="software_locked">mPOS has already locked. Please contact us for unlock.</string>
+	<string name="clear_sale_data">Clear sale data</string>
+	<string name="clear_sale_msg">Are you sure you want to clear sale data</string>
 </resources>

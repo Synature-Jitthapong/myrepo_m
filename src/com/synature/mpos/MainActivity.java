@@ -458,6 +458,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		
 		mTrans.summaryTransaction(mTransactionId);
 		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
+		double totalSalePrice = Utils.roundingPrice(sumOrder.getTotalSalePrice());
 		
 		mTbSummary.addView(createTableRowSummary(
 				getString(R.string.items) + ": " + NumberFormat.getInstance().format(sumOrder.getOrderQty()), 

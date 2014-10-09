@@ -177,6 +177,30 @@ public class TransactionDao extends MPOSDatabase {
 	}
 	
 	/**
+	 * @param saleDateFrom
+	 * @param saleDateTo
+	 * @return OrderTransaction
+	 */
+	public OrderTransaction getSummaryTransaction(String saleDateFrom, String saleDateTo) {
+		OrderTransaction trans = null;
+		Cursor cursor = querySummaryTransaction(
+				OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " =? ",
+				new String[] {
+					saleDateFrom,
+					saleDateTo,
+					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+				});
+		if (cursor != null) {
+			if (cursor.moveToFirst()) {
+				trans = toSummaryOrderTransaction(cursor);
+			}
+			cursor.close();
+		}
+		return trans;
+	}
+	
+	/**
 	 * @param saleDate
 	 * @return OrderTransaction
 	 */
@@ -290,32 +314,29 @@ public class TransactionDao extends MPOSDatabase {
 	 */
 	public OrderDetail getSummaryVoidOrderInDay(int sessId, String sessDate) {
 		OrderDetail orderDetail = new OrderDetail();
-		String selection = "a." + OrderTransTable.COLUMN_SALE_DATE + "=?"
-				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID + "=?";
+		String selection = OrderTransTable.COLUMN_SALE_DATE + "=?"
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + "=?";
 		String[] selectionArgs = new String[]{
 			sessDate, 
 			String.valueOf(TransactionDao.TRANS_STATUS_VOID)
 		};
 		if(sessId != 0){
-			selection += " AND a." + SessionTable.COLUMN_SESS_ID + "=?";
+			selection += " AND " + SessionTable.COLUMN_SESS_ID + "=?";
 			selectionArgs = new String[]{
 				sessDate, 
 				String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 				String.valueOf(sessId)
 			};
 		}
-		String sql = "SELECT a." + OrderTransTable.COLUMN_TRANS_ID + ", "
-				+ " COUNT(a." + OrderTransTable.COLUMN_TRANS_ID + ") AS TotalVoid, "
-				+ " (SELECT SUM (" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") "
-				+ " FROM " + OrderDetailTable.TABLE_ORDER
-				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=a." + OrderTransTable.COLUMN_TRANS_ID + ") "
-				+ " AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
-				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
+		String sql = "SELECT " + OrderTransTable.COLUMN_TRANS_ID + ", "
+				+ " COUNT(" + OrderTransTable.COLUMN_TRANS_ID + ") AS TotalVoid, "
+				+ " SUM(" + OrderTransTable.COLUMN_TRANS_VATABLE + ") AS Vatable "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
 				+ " WHERE " + selection;
 		Cursor cursor = getReadableDatabase().rawQuery(sql, selectionArgs);
 		if (cursor.moveToFirst()) {
 			orderDetail.setOrderQty(cursor.getDouble(cursor.getColumnIndex("TotalVoid")));
-			orderDetail.setTotalSalePrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
+			orderDetail.setTotalSalePrice(cursor.getDouble(cursor.getColumnIndex("Vatable")));
 		}
 		cursor.close();
 		return orderDetail;
@@ -329,26 +350,38 @@ public class TransactionDao extends MPOSDatabase {
 	 */
 	public OrderDetail getSummaryOrder(int sessId, String dateFrom, String dateTo) {
 		OrderDetail ord = new OrderDetail();
+		String whereArg = " a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
+		                + " AND a." + OrderTransTable.COLUMN_STATUS_ID + "=? "
+						+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?, ?, ?, ?) ";
+		String[] whereArgs = new String[] { 
+				dateFrom,
+				dateTo,
+                String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+				String.valueOf(ProductsDao.NORMAL_TYPE),
+				String.valueOf(ProductsDao.SET_CAN_SELECT),
+				String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+				String.valueOf(ProductsDao.COMMENT_HAVE_PRICE)
+			};
+		if(sessId != 0){
+			whereArg += " AND a." + SessionTable.COLUMN_SESS_ID + "=?";
+			whereArgs = new String[] { 
+					dateFrom,
+					dateTo,
+	                String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+					String.valueOf(ProductsDao.NORMAL_TYPE),
+					String.valueOf(ProductsDao.SET_CAN_SELECT),
+					String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+					String.valueOf(ProductsDao.COMMENT_HAVE_PRICE),
+					String.valueOf(sessId)
+				};
+		}
 		Cursor cursor = querySummaryOrder(
 				OrderTransTable.TABLE_ORDER_TRANS + " a "
 				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
 				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 				+ " LEFT JOIN " + PromotionPriceGroupTable.TABLE_PROMOTION_PRICE_GROUP + " c "
 				+ " ON a." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + "=c." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID,
-				" a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ?"
-                + " AND a." + OrderTransTable.COLUMN_STATUS_ID + "=? "
-				+ " AND a." + SessionTable.COLUMN_SESS_ID + "=?"
-				+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?, ?, ?, ?) ",
-				new String[] { 
-					dateFrom,
-					dateTo,
-                    String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-					String.valueOf(sessId),
-					String.valueOf(ProductsDao.NORMAL_TYPE),
-					String.valueOf(ProductsDao.SET_CAN_SELECT),
-					String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
-					String.valueOf(ProductsDao.COMMENT_HAVE_PRICE)
-				});
+				whereArg, whereArgs);
 		if (cursor.moveToFirst()) {
 			ord = toSumOrderDetail(cursor);
 		}

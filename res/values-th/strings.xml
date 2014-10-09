@@ -195,4 +195,6 @@
 	<string name="software_expired">ซอฟท์แวร์หมดอายุ</string>
 	<string name="software_expired_msg">mPOS หมดอายุแล้ว! คุณยังสามารถใช้ได้จนถึง </string>
 	<string name="software_locked">mPOS ถูกล็อกเนื่องจากหมดอายุ กรุณาติดต่อเราเพื่อทำการปลดล็อก.</string>
+	<string name="clear_sale_data">ลบข้อมูลการขาย</string>
+	<string name="clear_sale_msg">คุณต้องการลบข้อมูลการขาย</string>
 </resources>
