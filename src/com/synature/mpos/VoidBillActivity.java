@@ -345,6 +345,10 @@ public class VoidBillActivity extends MPOSActivityBase {
 			@Override
 			public void offLine(String msg) {
 			}
+
+			@Override
+			public void onPre() {
+			}
 		});
 	}
 

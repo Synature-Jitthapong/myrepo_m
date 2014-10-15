@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">mPOS</string>
     <string name="login">Login</string>
     <string name="staff_code">Staff code</string>
@@ -223,7 +222,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="because_deduct_at">because this item deducted at</string>
 	<string name="please_wait">Please wait&#8230;</string>
 	<string name="from">From</string>
-	<string name="all">--All--</string>
+	<string name="all_session">--All Session--</string>
 	<string name="shift_close_report">Shift close report</string>
 	<string name="try_again">Try again</string>
 	<string name="invalid_url">Invalid url!</string>
@@ -246,4 +245,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="software_locked">mPOS has already locked. Please contact us for unlock.</string>
 	<string name="clear_sale_data">Clear sale data</string>
 	<string name="clear_sale_msg">Are you sure you want to clear sale data</string>
+	<string name="rounding">Rounding</string>
+	<string name="diff">Diff</string>
 </resources>

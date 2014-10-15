@@ -47,6 +47,7 @@
     <string name="unit_price">ราคา/หน่วย</string>
     <string name="from">จาก</string>
     <string name="to">ถึง</string>
+	<string name="all_session">--ทุกกะ--</string>
     <string name="vatable">ราคาที่คิดภาษี</string>
     <string name="total_vat">ภาษีขาย</string>
     <string name="connection">การเชื่อมต่อ</string>
@@ -197,4 +198,6 @@
 	<string name="software_locked">mPOS ถูกล็อกเนื่องจากหมดอายุ กรุณาติดต่อเราเพื่อทำการปลดล็อก.</string>
 	<string name="clear_sale_data">ลบข้อมูลการขาย</string>
 	<string name="clear_sale_msg">คุณต้องการลบข้อมูลการขาย</string>
+	<string name="rounding">ปัดเศษ</string>
+	<string name="diff">ส่วนต่าง</string>
 </resources>

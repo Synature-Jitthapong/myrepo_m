@@ -44,7 +44,7 @@ public class Utils {
 	/**
 	 * Database version
 	 */
-	public static int DB_VERSION = 5;
+	public static int DB_VERSION = 6;
 	
 	/**
 	 * Main url 
@@ -238,26 +238,65 @@ public class Utils {
 	}
 	
 	/**
+	 * @param roundType
 	 * @param price
 	 * @return rounding value
 	 */
-	public static double roundingPrice(double price){
+	public static double roundingPrice(int roundType, double price){
 		double result = price;
 		long iPart;		// integer part
 		double fPart;	// fractional part
 		iPart = (long) price;
 		fPart = price - iPart;
-		if(fPart < 0.25){
-			fPart = 0.0d;
-		}else if(fPart >= 0.25 && fPart < 0.50){
-			fPart = 0.25d;
-		}else if(fPart >= 0.50 && fPart < 0.75){
-			fPart = 0.50d;
-		}else if(fPart == 0.75){
-			fPart = 0.75d;
-		}else if(fPart > 0.75){
-			iPart += 1;
-			fPart = 0.0d;
+		switch(roundType){
+		case 1:
+		case 7:
+			if(fPart > 0){
+				iPart += 1;
+				fPart = 0;
+			}
+			break;
+		case 2:
+		case 8:
+			if(fPart < 0.5){
+				fPart = 0;
+			}else if (fPart == 0.5){
+				fPart = 0.5;
+			}else{
+				iPart += 1;
+				fPart = 0;
+			}
+			break;
+		case 3:
+		case 9:
+			if(fPart > 0 && fPart < 0.25){
+				fPart = 0.25;
+			}else if(fPart > 0.25 && fPart <= 0.5){
+				fPart = 0.5;
+			}else if(fPart > 0.5){
+				iPart += 1;
+				fPart = 0;
+			}
+			break;
+		case 4:
+			fPart = 0;
+			break;
+		case 5:
+			if(fPart < 0.5){
+				fPart = 0;
+			}else if (fPart >= 0.5){
+				fPart = 0.5;
+			}
+			break;
+		case 6:
+			if(fPart < 0.25){
+				fPart = 0;
+			}else if(fPart >= 0.25 && fPart < 0.5){
+				fPart = 0.25;
+			}else if(fPart >= 0.5){
+				fPart = 0.5;
+			}	
+			break;
 		}
 		result = iPart + fPart;
 		return result;

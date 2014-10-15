@@ -458,11 +458,8 @@ public class TransactionDao extends MPOSDatabase {
 	 * @return OrderDetail
 	 */
 	private OrderDetail toSumOrderDetail(Cursor cursor){
-		OrderDetail ord = new OrderDetail(); 
-		double vatExclude = cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE));
-		double totalSalePrice = cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)) + vatExclude;
+		OrderDetail ord = new OrderDetail();
 		String proName = cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_NAME));
-		//String buttonName = cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_BUTTON_NAME));
 		String otherDisDesc = cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_OTHER_DISCOUNT_DESC));
 		if(!TextUtils.isEmpty(proName))
 			ord.setPromotionName(proName);
@@ -474,9 +471,9 @@ public class TransactionDao extends MPOSDatabase {
 		ord.setProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 		ord.setPriceDiscount(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
 		ord.setTotalRetailPrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
-		ord.setTotalSalePrice(totalSalePrice);
+		ord.setTotalSalePrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
 		ord.setVat(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT)));
-		ord.setVatExclude(vatExclude);
+		ord.setVatExclude(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE)));
 		return ord;
 	}
 	
@@ -1074,11 +1071,8 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param transactionId
 	 * @param staffId
 	 * @param totalSalePrice
-	 * @param vatType
-	 * @param vatRate
 	 */
-	public void closeTransaction(int transactionId, int staffId, 
-			double totalSalePrice, int vatType, double vatRate) {
+	public void closeTransaction(int transactionId, int staffId, double totalSalePrice) {
 		Calendar date = Utils.getDate();
 		Calendar dateTime = Utils.getCalendar();
 		int receiptId = getMaxReceiptId(String.valueOf(date.getTimeInMillis()));
@@ -1709,16 +1703,18 @@ public class TransactionDao extends MPOSDatabase {
 		double totalReceiptAmount = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT "
-				+ " SUM (" + OrderTransTable.COLUMN_TRANS_VATABLE + ") "
-				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
-				+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE + "=? "
-				+ " AND " + OrderTransTable.COLUMN_STATUS_ID
-				+ " IN(?,?)",
+				+ " SUM (b." + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
+				+ " LEFT JOIN " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " b "
+				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID 
+				+ " WHERE a." + OrderTransTable.COLUMN_SALE_DATE + "=? "
+				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID
+				+ " IN(?,?) ",
 				new String[] { sessionDate,
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
 		if (cursor.moveToFirst()) {
-			totalReceiptAmount = cursor.getFloat(0);
+			totalReceiptAmount = cursor.getDouble(0);
 		}
 		cursor.close();
 		return totalReceiptAmount;

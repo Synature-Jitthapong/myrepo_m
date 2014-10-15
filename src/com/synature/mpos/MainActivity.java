@@ -125,7 +125,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	
 	private ProductsDao mProducts;
 	private ShopDao mShop;
-	private GlobalPropertyDao mFormat;
+	private GlobalPropertyDao mGlobal;
 	
 	private SessionDao mSession;
 	private TransactionDao mTrans;
@@ -177,7 +177,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		mProducts = new ProductsDao(this);
 		mShop = new ShopDao(this);
 		mComputer = new ComputerDao(this);
-		mFormat = new GlobalPropertyDao(this);
+		mGlobal = new GlobalPropertyDao(this);
 		
 		mShopId = mShop.getShopId();
 		mComputerId = mComputer.getComputerId();
@@ -458,71 +458,82 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		
 		mTrans.summaryTransaction(mTransactionId);
 		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
+		double vatExclude = sumOrder.getVatExclude();
+		double totalQty = sumOrder.getOrderQty();
+		double totalDiscount = sumOrder.getPriceDiscount();
+		double totalRetailPrice = sumOrder.getTotalRetailPrice();
+		double totalSalePrice = sumOrder.getTotalSalePrice();
+		double totalPriceInclVat = totalSalePrice + vatExclude;
+		String disText = sumOrder.getPromotionName().equals("") ? getString(R.string.discount) : sumOrder.getPromotionName();
 
 		mTbSummary.addView(createTableRowSummary(
-				getString(R.string.items) + ": " + NumberFormat.getInstance().format(sumOrder.getOrderQty()), 
-				mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
+				getString(R.string.items) + ": " + NumberFormat.getInstance().format(totalQty), 
+				mGlobal.currencyFormat(sumOrder.getTotalRetailPrice()), 
 				0, 0, 0, 0));
 		
-		if(sumOrder.getPriceDiscount() > 0){
-			String discountText = sumOrder.getPromotionName().equals("") ? getString(R.string.discount) : sumOrder.getPromotionName();
-			mTbSummary.addView(createTableRowSummary(discountText, 
-					"-" + mFormat.currencyFormat(sumOrder.getPriceDiscount()), 
-							0, 0, 0, 0));
+		if(totalDiscount > 0){ 
+			mTbSummary.addView(createTableRowSummary(disText, 
+					"-" + mGlobal.currencyFormat(totalDiscount), 0, 0, 0, 0));
 		}
-		if(sumOrder.getVatExclude() > 0){
-			if(sumOrder.getPriceDiscount() > 0){
+		if(vatExclude > 0){
+			if(totalDiscount > 0){
 				mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
-						mFormat.currencyFormat(sumOrder.getTotalSalePrice() - sumOrder.getVatExclude()), 
-								0, 0, 0, 0));
+						mGlobal.currencyFormat(totalSalePrice), 0, 0, 0, 0));
 			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
 					" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%",
-					mFormat.currencyFormat(sumOrder.getVatExclude()),
-					0, 0, 0, 0));
+					mGlobal.currencyFormat(vatExclude), 0, 0, 0, 0));
+		}
+		double rounding = Utils.roundingPrice(mGlobal.getRoundingType(), totalPriceInclVat);
+		if(rounding != totalPriceInclVat){
+			if(vatExclude == 0){
+				mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
+						mGlobal.currencyFormat(totalSalePrice), 0, 0, 0, 0));
+			}
+			mTbSummary.addView(createTableRowSummary(getString(R.string.rounding),
+					mGlobal.currencyFormat(rounding - totalPriceInclVat), 0, 0, 0, 0));
 		}
 		mTbSummary.addView(createTableRowSummary(getString(R.string.total),
-				mFormat.currencyFormat(sumOrder.getTotalSalePrice()),
+				mGlobal.currencyFormat(rounding),
 				0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size)));
 		
 		if(Utils.isEnableSecondDisplay(this)){
 			List<clsSecDisplay_TransSummary> transSummLst = new ArrayList<clsSecDisplay_TransSummary>();
 			clsSecDisplay_TransSummary transSumm = new clsSecDisplay_TransSummary();
 			transSumm.szSumName = getString(R.string.sub_total); 
-			transSumm.szSumAmount = mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
+			transSumm.szSumAmount = mGlobal.currencyFormat(totalRetailPrice);
 			transSummLst.add(transSumm);
-			if(sumOrder.getPriceDiscount() > 0){
-				String discountText = sumOrder.getPromotionName().equals("") ? getString(R.string.discount) : sumOrder.getPromotionName();
+			if(totalDiscount > 0){
 				transSumm = new clsSecDisplay_TransSummary();
-				transSumm.szSumName = discountText;
-				transSumm.szSumAmount = "-" + mFormat.currencyFormat(sumOrder.getPriceDiscount());
+				transSumm.szSumName = disText;
+				transSumm.szSumAmount = "-" + mGlobal.currencyFormat(totalDiscount);
 				transSummLst.add(transSumm);
 			}
-			if(sumOrder.getVatExclude() > 0){
+			if(vatExclude > 0){
 				transSumm = new clsSecDisplay_TransSummary();
 				transSumm.szSumName = getString(R.string.vat_exclude) + 
 						" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
-				transSumm.szSumAmount = mFormat.currencyFormat(sumOrder.getVatExclude());
+				transSumm.szSumAmount = mGlobal.currencyFormat(vatExclude);
 				transSummLst.add(transSumm);
 			}
 			transSumm = new clsSecDisplay_TransSummary();
 			transSumm.szSumName = getString(R.string.total_qty); 
-			transSumm.szSumAmount = mFormat.qtyFormat(sumOrder.getOrderQty());
+			transSumm.szSumAmount = mGlobal.qtyFormat(totalQty);
 			transSummLst.add(transSumm);
 			
 			transSumm = new clsSecDisplay_TransSummary();
 			transSumm.szSumName = getString(R.string.total); 
-			transSumm.szSumAmount = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+			transSumm.szSumAmount = mGlobal.currencyFormat(totalPriceInclVat);
 			transSummLst.add(transSumm);
-			secondDisplayItem(transSummLst, mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
+			secondDisplayItem(transSummLst, mGlobal.currencyFormat(totalPriceInclVat));
 		}
 		
 		if(Utils.isEnableWintecCustomerDisplay(this)){
 			// display order if qty and retail price > 0
-			if(sumOrder.getOrderQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
+			if(totalQty > 0 && totalRetailPrice > 0){
 				try {
-					mDsp.setOrderTotalQty(mFormat.qtyFormat(sumOrder.getOrderQty()));
-					mDsp.setOrderTotalPrice(mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
+					mDsp.setOrderTotalQty(mGlobal.qtyFormat(totalQty));
+					mDsp.setOrderTotalPrice(mGlobal.currencyFormat(totalRetailPrice));
 					mDsp.displayOrder();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -599,7 +610,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			TextView tvChange = new TextView(MainActivity.this);
 			tvChange.setTextSize(getResources().getDimension(R.dimen.larger_text_size));
 			tvChange.setGravity(Gravity.CENTER);
-			tvChange.setText(mFormat.currencyFormat(change));
+			tvChange.setText(mGlobal.currencyFormat(change));
 			LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, 
 					LayoutParams.WRAP_CONTENT);
 			params.gravity = Gravity.CENTER;
@@ -619,8 +630,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				}
 			}).show();
 			if(Utils.isEnableSecondDisplay(this)){
-				secondDisplayChangePayment(mFormat.currencyFormat(totalSalePrice), 
-						mFormat.currencyFormat(totalPaid), mFormat.currencyFormat(change));
+				secondDisplayChangePayment(mGlobal.currencyFormat(totalSalePrice), 
+						mGlobal.currencyFormat(totalPaid), mGlobal.currencyFormat(change));
 				new Handler().postDelayed(new Runnable(){
 
 					@Override
@@ -634,8 +645,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		
 		// Wintec DSP
 		if(Utils.isEnableWintecCustomerDisplay(this)){
-			mDsp.displayTotalPay(mFormat.currencyFormat(totalPaid), 
-					mFormat.currencyFormat(change));
+			mDsp.displayTotalPay(mGlobal.currencyFormat(totalPaid), 
+					mGlobal.currencyFormat(change));
 			new Handler().postDelayed(
 					new Runnable(){
 
@@ -679,6 +690,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			@Override
 			public void serverProblem(int code, String msg) {
 				Utils.makeToask(MainActivity.this, msg);
+			}
+
+			@Override
+			public void onPre() {
 			}
 			
 		}).execute();
@@ -737,18 +752,18 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				public void onClick(DialogInterface dialog, int which) {
 					OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
 					PaymentDetailDao payment = new PaymentDetailDao(MainActivity.this);
-					double totalSalePrice = sumOrder.getTotalSalePrice();
+					double totalSalePrice = sumOrder.getTotalSalePrice() + sumOrder.getVatExclude();
+					double totalPaid = Utils.roundingPrice(mGlobal.getRoundingType(), totalSalePrice);
 					
 					payment.addPaymentDetail(mTransactionId, mComputerId, PaymentDetailDao.PAY_TYPE_CASH, 
-							totalSalePrice, totalSalePrice, "", 0, 0, 0, 0, "");
+							totalPaid, totalPaid, "", 0, 0, 0, 0, "");
 					
 					// open cash drawer
 					WintecCashDrawer drw = new WintecCashDrawer(MainActivity.this);
 					drw.openCashDrawer();
 					drw.close();
 					
-					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice, 
-							mShop.getCompanyVatType(), mShop.getCompanyVatRate());
+					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice);
 					successTransaction(mTransactionId, mStaffId, totalSalePrice, totalSalePrice, 0);
 					
 					init();
@@ -884,8 +899,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			holder.tvOrderName.setChecked(orderDetail.isChecked());
 			holder.tvOrderNo.setText(Integer.toString(groupPosition + 1) + ".");
 			holder.tvOrderName.setText(orderDetail.getProductName());
-			holder.tvOrderPrice.setText(mFormat.currencyFormat(orderDetail.getProductPrice()));
-			holder.tvOrderQty.setText(mFormat.qtyFormat(orderDetail.getOrderQty()));
+			holder.tvOrderPrice.setText(mGlobal.currencyFormat(orderDetail.getProductPrice()));
+			holder.tvOrderQty.setText(mGlobal.qtyFormat(orderDetail.getOrderQty()));
 			holder.tvComment.setText(null);
 			if(orderDetail.getOrderCommentLst() != null){
 				holder.tvComment.setVisibility(View.VISIBLE);
@@ -896,9 +911,9 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 						double commentQty = comment.getCommentQty();
 						double commentPrice = comment.getCommentPrice();
 						double commentTotalPrice = commentPrice * commentQty;
-						holder.tvComment.append(" " + mFormat.qtyFormat(commentQty));
-						holder.tvComment.append("x" + mFormat.currencyFormat(commentPrice));
-						holder.tvComment.append("=" + mFormat.currencyFormat(commentTotalPrice));
+						holder.tvComment.append(" " + mGlobal.qtyFormat(commentQty));
+						holder.tvComment.append("x" + mGlobal.currencyFormat(commentPrice));
+						holder.tvComment.append("=" + mGlobal.currencyFormat(commentTotalPrice));
 					}
 					holder.tvComment.append("\n");
 				}
@@ -1021,8 +1036,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			OrderSetDetail setDetail = mOrderDetailLst.get(groupPosition).getOrdSetDetailLst().get(childPosition);
 			holder.tvSetNo.setText("-");
 			holder.tvSetName.setText(setDetail.getProductName());
-			holder.tvSetPrice.setText(setDetail.getProductPrice() > 0 ? mFormat.currencyFormat(setDetail.getProductPrice()) : null);
-			holder.tvSetQty.setText(mFormat.qtyFormat(setDetail.getOrderSetQty()));
+			holder.tvSetPrice.setText(setDetail.getProductPrice() > 0 ? mGlobal.currencyFormat(setDetail.getProductPrice()) : null);
+			holder.tvSetQty.setText(mGlobal.qtyFormat(setDetail.getOrderSetQty()));
 			return convertView;
 		}
 
@@ -1119,7 +1134,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 			c.setTimeInMillis(Long.parseLong(trans.getOpenTime()));
 			tvNo.setText(Integer.toString(position + 1) + ".");
-			tvOpenTime.setText(mFormat.dateTimeFormat(c.getTime()));
+			tvOpenTime.setText(mGlobal.dateTimeFormat(c.getTime()));
 			tvOpenStaff.setText(trans.getStaffName());
 			tvRemark.setText(trans.getTransactionNote());
 
@@ -1210,7 +1225,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 						int position, long id) {
 					Product p = (Product) parent.getItemAtPosition(position);
 					ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgName(), p.getProductName(), 
-							((MainActivity) getActivity()).mFormat.currencyFormat(p.getProductPrice()));
+							((MainActivity) getActivity()).mGlobal.currencyFormat(p.getProductPrice()));
 					imgZoom.show(getFragmentManager(), "MenuImage");
 					return true;
 				}
@@ -1267,7 +1282,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					holder.tvPrice.setVisibility(View.INVISIBLE);
 				}else{
 					holder.tvPrice.setText(((MainActivity) 
-							getActivity()).mFormat.currencyFormat(p.getProductPrice()));
+							getActivity()).mGlobal.currencyFormat(p.getProductPrice()));
 				}
 				if(p.getProductTypeId() == ProductsDao.SIZE){
 					holder.tvPrice.setText("(size)");
@@ -1331,7 +1346,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			if(p.getProductPrice() < 0)
 				holder.tvPrice.setVisibility(View.INVISIBLE);
 			else
-				holder.tvPrice.setText(mFormat.currencyFormat(p.getProductPrice()));
+				holder.tvPrice.setText(mGlobal.currencyFormat(p.getProductPrice()));
 
 			if(Utils.isShowMenuImage(MainActivity.this)){
 				holder.imgMenu.setVisibility(View.VISIBLE);
@@ -1925,8 +1940,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private void updateOrder(int orderDetailId, double qty, 
 			double price, int vatType, double vatRate, String productName){
 		mDsp.setOrderName(productName);
-		mDsp.setOrderQty(mFormat.qtyFormat(qty));
-		mDsp.setOrderPrice(mFormat.currencyFormat(price));
+		mDsp.setOrderQty(mGlobal.qtyFormat(qty));
+		mDsp.setOrderPrice(mGlobal.currencyFormat(price));
 		mTrans.updateOrderDetail(mTransactionId,
 				orderDetailId, vatType, vatRate, qty, price);
 	}
@@ -1945,9 +1960,9 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private void addOrder(final int productId, final String productName, 
 			final int productTypeId, final int vatType, final double vatRate, final double qty, double price){
 		mDsp.setOrderName(productName);
-		mDsp.setOrderQty(mFormat.qtyFormat(qty));
+		mDsp.setOrderQty(mGlobal.qtyFormat(qty));
 		if(price > -1){
-			mDsp.setOrderPrice(mFormat.currencyFormat(price));
+			mDsp.setOrderPrice(mGlobal.currencyFormat(price));
 			int ordId = mTrans.addOrderDetail(mTransactionId, mComputerId, 
 					productId, productTypeId, vatType, vatRate, qty, price);
 			updateOrderLst(ordId);
@@ -1985,7 +2000,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					double openPrice = 0.0f;
 					try {
 						openPrice = Utils.stringToDouble(txtProductPrice.getText().toString());
-						mDsp.setOrderPrice(mFormat.currencyFormat(openPrice));
+						mDsp.setOrderPrice(mGlobal.currencyFormat(openPrice));
 						int ordId = mTrans.addOrderDetail(mTransactionId, mComputerId, 
 								productId, productTypeId, vatType, vatRate, qty, openPrice);
 						updateOrderLst(ordId);
@@ -2113,7 +2128,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	}
 	
 	private void secondDisplayItem(List<clsSecDisplay_TransSummary> transSummLst, String grandTotal){
-		final String itemJson = SecondDisplayJSON.genDisplayItem(mFormat, mOrderDetailLst, 
+		final String itemJson = SecondDisplayJSON.genDisplayItem(mGlobal, mOrderDetailLst, 
 				transSummLst, grandTotal);
 		Logger.appendLog(this, Utils.LOG_PATH, Utils.LOG_FILE_NAME, itemJson);
 		new Thread(new Runnable(){
@@ -2303,7 +2318,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		progress.setTitle(getString(R.string.endday_success));
 		progress.setCancelable(false);
 		progress.setMessage(getString(R.string.check_network_progress));
-		progress.show();
 		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
 
 			@Override
@@ -2397,6 +2411,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					progress.dismiss();
 				finish();
 			}
+
+			@Override
+			public void onPre() {
+				progress.show();
+			}
 			
 		}).execute();
 	}
@@ -2433,6 +2452,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 			@Override
 			public void serverProblem(int code, String msg) {
+			}
+
+			@Override
+			public void onPre() {
 			}
 			
 		}).execute();	

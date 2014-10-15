@@ -51,6 +51,7 @@ public class SendSaleActivity extends MPOSActivityBase{
 	private SyncItemAdapter mSyncAdapter;
 	private MenuItem mItemSendAll;
 	private ListView mLvSyncItem;
+	private View mChkNetworkProgress;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +70,8 @@ public class SendSaleActivity extends MPOSActivityBase{
 		setContentView(R.layout.activity_send_sale);
 		
 		mLvSyncItem = (ListView) findViewById(R.id.lvSync);
+		mChkNetworkProgress = findViewById(R.id.check_network_progress);
+		
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mShopId = intent.getIntExtra("shopId", 0);
@@ -132,17 +135,18 @@ public class SendSaleActivity extends MPOSActivityBase{
 	}
 
 	private void sendSale(){
-		mItemSendAll.setEnabled(false);
 		new NetworkConnectionChecker(this, new NetworkCheckerListener() {
 			
 			@Override
 			public void serverProblem(int code, String msg) {
 				mItemSendAll.setEnabled(true);
+				mChkNetworkProgress.setVisibility(View.GONE);
 				Utils.makeToask(SendSaleActivity.this, msg);
 			}
 			
 			@Override
 			public void onLine() {
+				mChkNetworkProgress.setVisibility(View.GONE);
 				for(int i = 0; i < mTransLst.size(); i++){
 					if(i < 100){
 						SendTransaction trans = mTransLst.get(i);
@@ -157,7 +161,14 @@ public class SendSaleActivity extends MPOSActivityBase{
 			@Override
 			public void offLine(String msg) {
 				mItemSendAll.setEnabled(true);
+				mChkNetworkProgress.setVisibility(View.GONE);
 				Utils.makeToask(SendSaleActivity.this, msg);
+			}
+
+			@Override
+			public void onPre() {
+				mItemSendAll.setEnabled(false);
+				mChkNetworkProgress.setVisibility(View.VISIBLE);
 			}
 		}).execute();
 	}

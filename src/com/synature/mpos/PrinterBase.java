@@ -550,7 +550,9 @@ public abstract class PrinterBase {
 	protected void createTextForPrintReceipt(int transId, boolean isCopy, boolean isLoadTemp){
 		OrderTransaction trans = mTrans.getTransaction(transId, isLoadTemp);
 		OrderDetail sumOrder = mTrans.getSummaryOrder(transId, isLoadTemp);
-		double change = mPayment.getTotalPayAmount(transId) - (sumOrder.getTotalSalePrice());
+		double totalPayAmount = mPayment.getTotalPayAmount(transId);
+		double totalPaid = mPayment.getTotalPaid(transId);
+		double change = totalPayAmount - totalPaid;
 		boolean isShowVat = mShop.getShopProperty().getPrintVatInReceipt() == 1;
 		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
 		
@@ -636,7 +638,7 @@ public abstract class PrinterBase {
     	String discountText = TextUtils.isEmpty(sumOrder.getPromotionName()) ? mContext.getString(R.string.discount) : sumOrder.getPromotionName();
     	
     	String strTotalRetailPrice = mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
-    	String strTotalSale = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+    	String strTotalSale = mFormat.currencyFormat(totalPaid);
     	String strTotalDiscount = "-" + mFormat.currencyFormat(sumOrder.getPriceDiscount());
     	String strTotalChange = mFormat.currencyFormat(change);
     	
@@ -664,7 +666,7 @@ public abstract class PrinterBase {
     		// show sub total
     		if(sumOrder.getPriceDiscount() > 0){
 	    		String subTotalText = mContext.getString(R.string.sub_total);
-	    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice() - sumOrder.getVatExclude());
+	    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
 		    	mTextToPrint.append(subTotalText);
 		    	mTextToPrint.append(createHorizontalSpace(
 		    			calculateLength(subTotalText) + 
@@ -681,6 +683,26 @@ public abstract class PrinterBase {
     		mTextToPrint.append(strVatExclude + "\n");
     	}
     	
+    	// show rounding
+    	if(trans.getTransactionVatable() != totalPaid){
+    		if(trans.getTransactionVatExclude() == 0){
+	    		String subTotalText = mContext.getString(R.string.sub_total);
+	    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+		    	mTextToPrint.append(subTotalText);
+		    	mTextToPrint.append(createHorizontalSpace(
+		    			calculateLength(subTotalText) + 
+		    			calculateLength(subTotal)));
+		    	mTextToPrint.append(subTotal + "\n");
+    		}
+    		String roundText = mContext.getString(R.string.rounding);
+    		String round = mFormat.currencyFormat(totalPaid - trans.getTransactionVatable());    	
+    		mTextToPrint.append(roundText);
+        	mTextToPrint.append(createHorizontalSpace(
+        			calculateLength(roundText) + 
+        			calculateLength(round)));
+        	mTextToPrint.append(round + "\n");
+    	}
+    	
     	// total price
     	mTextToPrint.append(totalText);
     	mTextToPrint.append(createHorizontalSpace(
@@ -688,6 +710,8 @@ public abstract class PrinterBase {
     			calculateLength(strTotalSale)));
     	mTextToPrint.append(strTotalSale + "\n");
 
+    	
+    	
     	// total payment
     	List<MPOSPaymentDetail> paymentLst = 
     			mPayment.listPaymentGroupByType(transId);

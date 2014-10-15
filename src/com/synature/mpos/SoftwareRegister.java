@@ -46,9 +46,7 @@ public class SoftwareRegister extends MPOSServiceBase{
 			MPOSSoftwareInfo info = gson.fromJson(result, MPOSSoftwareInfo.class);
 			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
 			SoftwareInfoDao sw = new SoftwareInfoDao(mContext);
-			sw.logSoftwareInfo(info.getSzSoftwareVersion(), 
-					String.valueOf(Utils.DB_VERSION), info.getSzSoftwareExpireDate(), 
-					info.getSzLockExpireDate());
+			sw.logSoftwareInfo(info.getSzSoftwareExpireDate(), info.getSzLockExpireDate());
 			if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
 				// compare version
 				if(!TextUtils.equals(Utils.getSoftWareVersion(mContext), info.getSzSoftwareVersion())){

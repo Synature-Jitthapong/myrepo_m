@@ -35,7 +35,7 @@ public class SoftwareInfoDao extends MPOSDatabase{
 		return sw;
 	}
 	
-	public void logSoftwareInfo(String version, String dbVersion, String expDate, String lockDate){
+	public void logSoftwareInfo(String expDate, String lockDate){
 		getWritableDatabase().delete(SoftwareInfoTable.TABLE_SOFTWARE_INFO, null, null);
 		ContentValues cv = new ContentValues();
 		if(!TextUtils.isEmpty(expDate)){
@@ -56,6 +56,8 @@ public class SoftwareInfoDao extends MPOSDatabase{
 				e.printStackTrace();
 			}
 		}
-		getWritableDatabase().insert(SoftwareInfoTable.TABLE_SOFTWARE_INFO, null, cv);
+		if(cv.size() > 0){
+			getWritableDatabase().insert(SoftwareInfoTable.TABLE_SOFTWARE_INFO, null, cv);
+		}
 	}
 }

@@ -25,6 +25,11 @@ public class NetworkConnectionChecker extends AsyncTask<Void, Void, Object>{
 		mContext = context;
 		mListener = listener;
 	}
+
+	@Override
+	protected void onPreExecute() {	
+		mListener.onPre();
+	}
 	
 	@Override
 	protected void onPostExecute(Object result) {
@@ -71,6 +76,7 @@ public class NetworkConnectionChecker extends AsyncTask<Void, Void, Object>{
 	}
 	
 	public static interface NetworkCheckerListener{
+		void onPre();
 		void onLine();
 		void offLine(String msg);
 		void serverProblem(int code, String msg);

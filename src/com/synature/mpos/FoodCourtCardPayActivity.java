@@ -379,8 +379,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
 				
 				ShopDao shop = new ShopDao(FoodCourtCardPayActivity.this);
-				mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice, 
-						shop.getCompanyVatType(), shop.getCompanyVatRate());
+				mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice);
 				new PrintReceiptFoodCourtTask().execute();
 			}
 		}
