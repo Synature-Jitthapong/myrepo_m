@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.SaleService.LocalBinder;
-import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.table.BaseColumn;
@@ -14,6 +13,7 @@ import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.pos.OrderTransaction;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -37,7 +37,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class SendSaleActivity extends MPOSActivityBase{
+public class SendSaleActivity extends Activity{
 	public static final String TAG = SendSaleActivity.class.getSimpleName();
 	
 	private SaleService mPartService;

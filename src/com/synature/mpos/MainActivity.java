@@ -17,7 +17,6 @@ import java.util.List;
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
-import com.synature.mpos.common.MPOSFragmentActivityBase;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PaymentDetailDao;
@@ -49,7 +48,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.database.SQLException;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -89,7 +90,7 @@ import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MainActivity extends MPOSFragmentActivityBase implements 
+public class MainActivity extends FragmentActivity implements 
 	MenuCommentDialogFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
 	UserVerifyDialogFragment.OnCheckPermissionListener, OnChangeLanguageListener{
 	
@@ -109,6 +110,16 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * add product set type 7 request code
 	 */
 	public static final int SET_TYPE7_REQUEST = 3;
+	
+	/**
+	 * number of menu grid column preference
+	 */
+	public static final String PREF_NUM_MENU_COLUMNS = "PrefNumMenuColums";
+	
+	/**
+	 * the number of menu columns
+	 */
+	public static final String NUM_MENU_COLUMNS = "numMenuColumns";
 	
 	private boolean mIsShowKeyboard = false;
 	
@@ -149,10 +160,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private EditText mTxtBarCode;
 	private TableLayout mTbSummary;
 	
-	private MenuItem mItemHoldBill;
-	private MenuItem mItemSendSale;
-	private MenuItem mItemSendData;
-	private MenuItem mItemSendEndday;
+	private Menu mMenu;
 	
 	private SlidingTabLayout mTabs;
 	private ViewPager mPager;
@@ -246,8 +254,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	}
 	
 	private void setupMenuDeptPager(){
+		SharedPreferences settings = getSharedPreferences(PREF_NUM_MENU_COLUMNS, 0);
+		int numCols = settings.getInt(NUM_MENU_COLUMNS, 4);
+
 		mProductDeptLst = mProducts.listProductDept();
-		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
+		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager(), numCols);
 		//mPager.setOffscreenPageLimit(8);
 		mPager.setAdapter(mPageAdapter);
 		final int pageMargin = (int) TypedValue.applyDimension(
@@ -255,6 +266,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 						.getDisplayMetrics());
 		mPager.setPageMargin(pageMargin);
 		mTabs.setViewPager(mPager);
+	}
+	
+	private void setNumMenuColumnPref(int numCols){
+		SharedPreferences settings = getSharedPreferences(PREF_NUM_MENU_COLUMNS, 0);
+	    SharedPreferences.Editor editor = settings.edit();
+	    editor.putInt(NUM_MENU_COLUMNS, numCols);
+	    editor.commit();
 	}
 	
 	private void setupBarCodeEvent(){
@@ -312,13 +330,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
-		mItemHoldBill = menu.findItem(R.id.itemHoldBill);
-		mItemSendSale = menu.findItem(R.id.itemSendSale);
-		mItemSendData = menu.findItem(R.id.itemSendData);
-		mItemSendEndday = menu.findItem(R.id.itemSendEndday);
+		mMenu = menu;
 		
 		countHoldOrder();
 		countSaleDataNotSend();
+		updateDisplayColumnMenu();
 		return true;
 	}
 
@@ -383,6 +399,22 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			case R.id.itemLang:
 				SwitchLangFragment swf = SwitchLangFragment.newInstance();
 				swf.show(getSupportFragmentManager(), "SwitchLangFragment");
+				return true;
+			case R.id.item2Cols:
+				setNumMenuColumnPref(2);
+				refreshSelf();
+				return true;
+			case R.id.item3Cols:
+				setNumMenuColumnPref(3);
+				refreshSelf();
+				return true;
+			case R.id.item4Cols:
+				setNumMenuColumnPref(4);
+				refreshSelf();
+				return true;
+				case R.id.item5Cols:
+				setNumMenuColumnPref(5);
+				refreshSelf();
 				return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -474,21 +506,19 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		if(totalDiscount > 0){ 
 			mTbSummary.addView(createTableRowSummary(disText, 
 					"-" + mGlobal.currencyFormat(totalDiscount), 0, 0, 0, 0));
+			mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
+					mGlobal.currencyFormat(totalSalePrice), 0, 0, 0, 0));
 		}
 		if(vatExclude > 0){
-			if(totalDiscount > 0){
-				mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
-						mGlobal.currencyFormat(totalSalePrice), 0, 0, 0, 0));
-			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
 					" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%",
 					mGlobal.currencyFormat(vatExclude), 0, 0, 0, 0));
 		}
 		double rounding = Utils.roundingPrice(mGlobal.getRoundingType(), totalPriceInclVat);
 		if(rounding != totalPriceInclVat){
-			if(vatExclude == 0){
+			if(totalDiscount == 0){
 				mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
-						mGlobal.currencyFormat(totalSalePrice), 0, 0, 0, 0));
+						mGlobal.currencyFormat(totalPriceInclVat), 0, 0, 0, 0));
 			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.rounding),
 					mGlobal.currencyFormat(rounding - totalPriceInclVat), 0, 0, 0, 0));
@@ -555,7 +585,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			tvValue.setTextAppearance(this, valAppear);
 		tvLabel.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 
 				TableRow.LayoutParams.WRAP_CONTENT, 1f));
-		tvValue.setGravity(Gravity.RIGHT);
+		tvValue.setGravity(Gravity.END);
 		if(labelSize != 0)
 			tvLabel.setTextSize(labelSize);
 		if(valSize != 0)
@@ -1147,9 +1177,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * page
 	 */
 	private class MenuItemPagerAdapter extends FragmentPagerAdapter{
+		private int mNumCols;
 		
-		public MenuItemPagerAdapter(FragmentManager fm) {
+		public MenuItemPagerAdapter(FragmentManager fm, int numCols) {
 			super(fm);
+			mNumCols = numCols;
 		}
 		
 		@Override
@@ -1160,7 +1192,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		@Override
 		public android.support.v4.app.Fragment getItem(int position) {
 			int deptId = mProductDeptLst.get(position).getProductDeptId();
-			return MenuPageFragment.newInstance(deptId);
+			return MenuPageFragment.newInstance(deptId, mNumCols);
 		}
 	
 		@Override
@@ -1175,14 +1207,16 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		private MenuItemAdapter mMenuItemAdapter;
 		
 		private int mDeptId;
-
+		private int mNumCols;
+		
 		private GridView mGvItem;
 		private LayoutInflater mInflater;
 		
-		public static MenuPageFragment newInstance(int deptId){
+		public static MenuPageFragment newInstance(int deptId, int numCols){
 			MenuPageFragment f = new MenuPageFragment();
 			Bundle b = new Bundle();
 			b.putInt("deptId", deptId);
+			b.putInt("numCols", numCols);
 			f.setArguments(b);
 			return f;
 		}
@@ -1192,6 +1226,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			super.onCreate(savedInstanceState);
 			
 			mDeptId = getArguments().getInt("deptId");
+			mNumCols = getArguments().getInt("numCols");
 			mInflater = getActivity().getLayoutInflater();
 		}
 
@@ -1231,6 +1266,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				}
 				
 			});
+			setGridColumns();
 			return mGvItem;
 		}
 		
@@ -1240,6 +1276,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			mGvItem.setAdapter(mMenuItemAdapter);
 		}
 
+		private void setGridColumns(){
+			mGvItem.setNumColumns(mNumCols);
+		}
+		
 		/**
 		 * @author j1tth4
 		 * MenuItemAdapter
@@ -2052,28 +2092,40 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		dialog.show();
 	}
 
+	private void updateDisplayColumnMenu(){
+		SharedPreferences settings = getSharedPreferences(PREF_NUM_MENU_COLUMNS, 0);
+		int numCols = settings.getInt(NUM_MENU_COLUMNS, 4);
+		if(mMenu != null){
+			MenuItem itemMenuCols = mMenu.findItem(R.id.itemMenuCols);
+			itemMenuCols.setTitle(getString(R.string.num_menu_columns) + "(" + numCols + ")");
+		}	
+	}
+	
 	/**
 	 * count transaction that not send to server
 	 */
 	private void countSaleDataNotSend(){
-		if(mItemSendData != null){
+		if(mMenu != null){
+			MenuItem itemSendSale = mMenu.findItem(R.id.itemSendSale);
+			MenuItem itemSendData = mMenu.findItem(R.id.itemSendData);
+			MenuItem itemSendEndday = mMenu.findItem(R.id.itemSendEndday);
 			int totalTrans = mTrans.countTransUnSend();
 			int totalSess = mSession.countSessionEnddayNotSend();
 			int totalData = totalTrans + totalSess;
 			if(totalData > 0){
-				mItemSendData.setTitle(getString(R.string.send_sale_data) + "(" + totalData + ")");
+				itemSendData.setTitle(getString(R.string.send_sale_data) + "(" + totalData + ")");
 			}else{
-				mItemSendData.setTitle(getString(R.string.send_sale_data));
+				itemSendData.setTitle(getString(R.string.send_sale_data));
 			}
 			if(totalTrans > 0){
-				mItemSendSale.setTitle(getString(R.string.send_sale_data) + "(" + totalTrans + ")");
+				itemSendSale.setTitle(getString(R.string.send_sale_data) + "(" + totalTrans + ")");
 			}else{
-				mItemSendSale.setTitle(getString(R.string.send_sale_data));
+				itemSendSale.setTitle(getString(R.string.send_sale_data));
 			}
 			if(totalSess > 0){
-				mItemSendEndday.setTitle(getString(R.string.send_endday_data) + "(" + totalSess + ")");
+				itemSendEndday.setTitle(getString(R.string.send_endday_data) + "(" + totalSess + ")");
 			}else{
-				mItemSendEndday.setTitle(getString(R.string.send_endday_data));
+				itemSendEndday.setTitle(getString(R.string.send_endday_data));
 			}
 		}
 	}
@@ -2082,12 +2134,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * count order that hold
 	 */
 	private void countHoldOrder(){
-		if(mItemHoldBill != null){
+		if(mMenu != null){
+			MenuItem itemHoldBill = mMenu.findItem(R.id.itemHoldBill);
 			int totalHold = mTrans.countHoldOrder(mSession.getLastSessionDate());
 			if(totalHold > 0){
-				mItemHoldBill.setTitle(getString(R.string.hold_bill) + "(" + totalHold + ")");
+				itemHoldBill.setTitle(getString(R.string.hold_bill) + "(" + totalHold + ")");
 			}else{
-				mItemHoldBill.setTitle(getString(R.string.hold_bill));
+				itemHoldBill.setTitle(getString(R.string.hold_bill));
 			}
 		}
 	}
@@ -2463,6 +2516,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	
 	@Override
 	public void onChangeLanguage() {
+		refreshSelf();
+	}
+	
+	private void refreshSelf(){
 		startActivity(getIntent());
 		finish();
 	}

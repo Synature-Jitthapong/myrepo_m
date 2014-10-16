@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PaymentAmountButtonDao;
 import com.synature.mpos.database.PaymentDetailDao;
@@ -14,6 +13,7 @@ import com.synature.mpos.database.model.OrderDetail;
 import com.synature.pos.PayType;
 
 import android.os.Bundle;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,7 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PaymentActivity extends MPOSActivityBase  implements OnClickListener{
+public class PaymentActivity extends Activity implements OnClickListener{
 	
 	public static final int REQUEST_CREDIT_PAY = 1;
 	public static final int RESULT_ENOUGH = 2;

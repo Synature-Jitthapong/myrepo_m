@@ -2,12 +2,12 @@ package com.synature.mpos;
 
 import java.util.List;
 
-import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
+import android.app.Activity;
 import android.content.Context;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +20,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ReprintActivity extends MPOSActivityBase {
+public class ReprintActivity extends Activity {
 	
 	private TransactionDao mOrders;
 	

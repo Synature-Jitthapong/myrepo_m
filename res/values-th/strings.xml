@@ -200,4 +200,5 @@
 	<string name="clear_sale_msg">คุณต้องการลบข้อมูลการขาย</string>
 	<string name="rounding">ปัดเศษ</string>
 	<string name="diff">ส่วนต่าง</string>
+    <string name="num_menu_columns">แสดงจำนวน Column</string>
 </resources>

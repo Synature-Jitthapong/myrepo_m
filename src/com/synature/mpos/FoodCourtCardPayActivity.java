@@ -67,11 +67,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);/**
-		 * Register ExceptinHandler for catch error when application crash.
-		 */
-		Thread.setDefaultUncaughtExceptionHandler(new MyDefaultUncaughExceptionHandler(this, 
-				Utils.LOG_PATH, Utils.LOG_FILE_NAME));
+		super.onCreate(savedInstanceState);
 		
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,

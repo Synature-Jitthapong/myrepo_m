@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Calendar;
 
 import com.synature.mpos.SoftwareExpirationChecker.SoftwareExpirationCheckerListener;
-import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
@@ -20,6 +19,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -37,7 +37,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class LoginActivity extends MPOSActivityBase implements OnClickListener, OnEditorActionListener{
+public class LoginActivity extends Activity implements OnClickListener, OnEditorActionListener{
 	
 	/**
 	 * Request code for set system date
@@ -65,7 +65,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.activity_login);
 		
 		mBtnLogin = (Button) findViewById(R.id.btnLogin);
