@@ -75,7 +75,7 @@
         android:showAsAction="collapseActionView"
         android:title="@string/setting" android:visible="false">
     </item>
-    <item android:id="@+id/itemMenuCols" android:title="@string/num_menu_columns" android:showAsAction="collapseActionView">
+    <item android:id="@+id/itemMenuCols" android:title="@string/num_menu_columns" android:showAsAction="collapseActionView" android:visible="false">
         <menu>
             <item android:id="@+id/item2Cols" android:title="2" />
             <item android:id="@+id/item3Cols" android:title="3" />
