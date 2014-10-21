@@ -7,10 +7,10 @@ import com.synature.pos.Staff;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +19,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class UserVerifyDialogFragment extends DialogFragment{
+	
+	public static final String TAG = UserVerifyDialogFragment.class.getSimpleName();
+	
+	public static final int GRANT_PERMISSION = 0;
 	
 	private int mPermissionId;
 	private OnCheckPermissionListener mListener;
@@ -58,7 +62,7 @@ public class UserVerifyDialogFragment extends DialogFragment{
 		mTxtPass = (EditText) content.findViewById(R.id.txtStaffPass);
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setCancelable(false);
-		builder.setTitle(R.string.permission_required);
+		builder.setTitle(mPermissionId == GRANT_PERMISSION ? R.string.login : R.string.permission_required);
 		builder.setView(content);
 		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
@@ -86,7 +90,7 @@ public class UserVerifyDialogFragment extends DialogFragment{
 								case StaffsDao.VOID_PERMISSION:
 									if(st.checkVoidPermission(s.getStaffRoleID())){
 										d.dismiss();
-										mListener.onAllow(StaffsDao.VOID_PERMISSION);
+										mListener.onAllow(s.getStaffID(), StaffsDao.VOID_PERMISSION);
 									}else{
 										mTvMsg.setVisibility(View.VISIBLE);
 										mTvMsg.setText(R.string.not_have_permission_to_void);
@@ -95,11 +99,15 @@ public class UserVerifyDialogFragment extends DialogFragment{
 								case StaffsDao.OTHER_DISCOUNT_PERMISSION:
 									if(st.checkOtherDiscountPermission(s.getStaffRoleID())){
 										d.dismiss();
-										mListener.onAllow(StaffsDao.OTHER_DISCOUNT_PERMISSION);
+										mListener.onAllow(s.getStaffID(), StaffsDao.OTHER_DISCOUNT_PERMISSION);
 									}else{
 										mTvMsg.setVisibility(View.VISIBLE);
 										mTvMsg.setText(R.string.not_have_permission_to_other_discount);
 									}
+									break;
+								case GRANT_PERMISSION:
+									d.dismiss();
+									mListener.onAllow(s.getStaffID(), GRANT_PERMISSION);
 									break;
 								}
 							}else{
@@ -124,6 +132,6 @@ public class UserVerifyDialogFragment extends DialogFragment{
 	}
 	
 	public static interface OnCheckPermissionListener{
-		void onAllow(int permissionId);
+		void onAllow(int staffId, int permissionId);
 	}
 }

@@ -2,14 +2,20 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
     <item>
         <shape>
+            <corners 
+                android:topLeftRadius="6dp"
+                android:bottomRightRadius="6dp"/>
             <solid 
                 android:color="@color/gray"/>
         </shape>
     </item>
     <item
-        android:right="1px"
-        android:bottom="2px">
+        android:right="1dp"
+        android:bottom="2dp">
         <shape>
+            <corners 
+                android:topLeftRadius="6dp"
+                android:bottomRightRadius="6dp"/>
             <solid 
                 android:color="@android:color/holo_blue_light"/>
             <strok

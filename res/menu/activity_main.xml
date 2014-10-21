@@ -25,7 +25,7 @@
     </item>
     <item
         android:id="@+id/itemReport"
-        android:icon="@drawable/ic_action_paste"
+        android:icon="@drawable/ic_action_report"
         android:showAsAction="always|withText"
         android:title="@string/report">
     </item>

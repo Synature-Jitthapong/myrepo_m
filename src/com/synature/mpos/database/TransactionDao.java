@@ -1164,11 +1164,18 @@ public class TransactionDao extends MPOSDatabase {
 		deleteOrderDetail(transactionId, orderDetailId);
 	}
 	
+	/**
+	 * Delete sale specific date
+	 * @param dateFrom
+	 * @param dateTo
+	 */
 	public void deleteSale(String dateFrom, String dateTo){
 		String transIds = getTransactionIds(dateFrom, dateTo);
+		SQLiteDatabase db = getWritableDatabase();
+		db.execSQL("DELETE FROM " + OrderTransTable.TEMP_ORDER_TRANS);
+		db.execSQL("DELETE FROM " + OrderDetailTable.TEMP_ORDER);
 		if(TextUtils.isEmpty(transIds))
 			return;
-		SQLiteDatabase db = getWritableDatabase();
 		db.beginTransaction();
 		try{
 			String sessWhere = SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ?";

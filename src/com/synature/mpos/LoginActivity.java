@@ -37,7 +37,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class LoginActivity extends Activity implements OnClickListener, OnEditorActionListener{
+public class LoginActivity extends Activity implements OnClickListener, 
+	OnEditorActionListener, UserVerifyDialogFragment.OnCheckPermissionListener{
 	
 	/**
 	 * Request code for set system date
@@ -306,6 +307,24 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 			PerformTest f = PerformTest.newInstance();
 			f.show(getFragmentManager(), "PerformTest");
 			return true;
+		case android.R.id.home:
+			finish();
+			return true;
+		case R.id.itemBackup:
+			Utils.backupDatabase(this);
+			return true;
+		case R.id.itemRestore:
+			RestoreDatabaseFragment restoreFragment = RestoreDatabaseFragment.newInstance();
+			restoreFragment.show(getFragmentManager(), "RestoreDatabase");
+			return true;
+		case R.id.itemClearSale:
+			ClearSaleDialogFragment clearSaleFragment = ClearSaleDialogFragment.newInstance();
+			clearSaleFragment.show(getFragmentManager(), ClearSaleDialogFragment.TAG);
+			return true;
+		case R.id.itemReport:
+			UserVerifyDialogFragment userFragment = UserVerifyDialogFragment.newInstance(0);
+			userFragment.show(getFragmentManager(), UserVerifyDialogFragment.TAG);
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
 		}
@@ -557,5 +576,12 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 				checkLogin();
 				break;
 		}
+	}
+
+	@Override
+	public void onAllow(int staffId, int permissionId) {
+		Intent intent = new Intent(this, SaleReportActivity.class);
+		intent.putExtra("staffId", staffId);
+		startActivity(intent);
 	}
 }

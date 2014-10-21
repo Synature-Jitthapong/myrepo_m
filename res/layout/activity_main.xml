@@ -42,7 +42,7 @@
             <ImageButton
                 android:id="@+id/imgBtnClearBarcode"
                 style="?android:attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="48dp"
                 android:layout_height="wrap_content"
                 android:layout_alignRight="@+id/txtBarCode"
                 android:layout_centerVertical="true"
@@ -85,7 +85,7 @@
                 android:minHeight="48dip"
                 android:minWidth="48dip"
                 android:onClick="onClick"
-                android:src="@android:drawable/ic_menu_delete" />
+                android:src="@drawable/ic_action_discard" />
 
             <ImageButton
                 android:id="@+id/btnClearSelOrder"
@@ -97,7 +97,7 @@
                 android:minHeight="48dip"
                 android:minWidth="48dip"
                 android:onClick="onClick"
-                android:src="@android:drawable/ic_menu_revert" />
+                android:src="@drawable/ic_action_content_undo" />
 
             <ImageButton
                 android:id="@+id/btnBillDetail"
@@ -108,7 +108,7 @@
                 android:layout_alignTop="@+id/btnClearSelOrder"
                 android:minWidth="48dip"
                 android:onClick="onClick"
-                android:src="@drawable/ic_action_receipt" />
+                android:src="@drawable/ic_action_receipt_light" />
 
         </RelativeLayout>
 

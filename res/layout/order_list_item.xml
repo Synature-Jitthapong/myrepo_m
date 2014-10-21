@@ -13,7 +13,7 @@
         android:layout_toLeftOf="@+id/btnOrderMinus"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:src="@android:drawable/ic_menu_manage" />
+        android:src="@drawable/ic_action_modify_light" />
 
     <ImageButton
         android:id="@+id/btnSetModify"
@@ -24,7 +24,7 @@
         android:layout_toLeftOf="@+id/btnComment"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:src="@android:drawable/ic_menu_edit" />
+        android:src="@drawable/ic_action_content_edit" />
 
     <CheckedTextView
         android:id="@+id/chkOrderName"

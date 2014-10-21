@@ -39,7 +39,6 @@ public class RestoreDatabaseFragment extends DialogFragment{
 	public static final String RESTORE_PASS = "mposrestore";
 	
 	private int mLastPosition = -1;
-	private GlobalPropertyDao mFormat;
 	private DatabaseInfo mDbInfo;
 	private List<DatabaseInfo> mDbInfoLst;
 	private DatabaseListAdapter mAdapter;
@@ -54,7 +53,6 @@ public class RestoreDatabaseFragment extends DialogFragment{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mFormat = new GlobalPropertyDao(getActivity());
 	}
 	
 	@Override

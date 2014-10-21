@@ -22,7 +22,7 @@
         <item name="android:background">@android:color/holo_orange_dark</item>
     </style>
     <!-- Text Style -->
-    <style name="TextQty" parent="@android:style/TextAppearance.Holo.Medium">
+    <style name="TextQty" parent="@android:style/TextAppearance.Holo.Large">
         <!-- <item name="android:background">@drawable/white_flat_bg</item> -->
         <item name="android:gravity">center</item>
         <item name="android:minWidth">32dp</item>

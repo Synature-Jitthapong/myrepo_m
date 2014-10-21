@@ -121,8 +121,6 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	public static final String NUM_MENU_COLUMNS = "numMenuColumns";
 	
-	private boolean mIsShowKeyboard = false;
-	
 	/**
 	 * Wintec customer display
 	 */
@@ -314,13 +312,7 @@ public class MainActivity extends FragmentActivity implements
 	public void toggleKeyboard(final View v){
 		InputMethodManager imm = (InputMethodManager) getSystemService(
 			      Context.INPUT_METHOD_SERVICE);
-		if(mIsShowKeyboard){
-			imm.hideSoftInputFromWindow(mTxtBarCode.getWindowToken(), 0);
-			mIsShowKeyboard = false;
-		}else{
-			imm.showSoftInput(mTxtBarCode, InputMethodManager.SHOW_IMPLICIT);
-			mIsShowKeyboard = true;
-		}
+		imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
 	}
 	
 	public void clearBarCodeClicked(final View v){
@@ -846,7 +838,7 @@ public class MainActivity extends FragmentActivity implements
 			StaffsDao st = new StaffsDao(MainActivity.this);
 			if(!st.checkOtherDiscountPermission(mStaffRoleId)){
 				UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(StaffsDao.OTHER_DISCOUNT_PERMISSION);
-				uvf.show(getSupportFragmentManager(), "StaffPermissionDialog");
+				uvf.show(getFragmentManager(), "StaffPermissionDialog");
 			}else{
 				goToOtherDiscountActivity();
 			}
@@ -1330,6 +1322,7 @@ public class MainActivity extends FragmentActivity implements
 
 				if(Utils.isShowMenuImage(getActivity())){
 					holder.imgMenu.setVisibility(View.VISIBLE);
+					holder.imgMenu.setImageBitmap(null);
 					((MainActivity) getActivity()).mImageLoader.displayImage(
 							Utils.getImageUrl(getActivity()) + 
 							p.getImgName(), holder.imgMenu);
@@ -1778,7 +1771,7 @@ public class MainActivity extends FragmentActivity implements
 		StaffsDao st = new StaffsDao(MainActivity.this);
 		if(!st.checkVoidPermission(mStaffRoleId)){
 			UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(StaffsDao.VOID_PERMISSION);
-			uvf.show(getSupportFragmentManager(), "StaffPermissionDialog");
+			uvf.show(getFragmentManager(), "StaffPermissionDialog");
 		}else{
 			goToVoidActivity();
 		}
@@ -2342,7 +2335,7 @@ public class MainActivity extends FragmentActivity implements
 	 * on allow permission
 	 */
 	@Override
-	public void onAllow(int permissionId) {
+	public void onAllow(int staffId, int permissionId) {
 		switch(permissionId){
 		case StaffsDao.VOID_PERMISSION:
 			goToVoidActivity();

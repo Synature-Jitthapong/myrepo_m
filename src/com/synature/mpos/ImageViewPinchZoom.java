@@ -65,6 +65,7 @@ public class ImageViewPinchZoom extends DialogFragment{
 		View menuImgView = inflater.inflate(R.layout.menu_image_layout, null);
 		final ImageView imgMenu = (ImageView) menuImgView.findViewById(R.id.imgMenu);
 		final TextView tvMenuName = (TextView) menuImgView.findViewById(R.id.textView1);
+		final TextView tvMenuPrice = (TextView) menuImgView.findViewById(R.id.textView2);
 		final ProgressBar progress = (ProgressBar) menuImgView.findViewById(R.id.loadImgProgress);
 		final ImageButton btnClose = (ImageButton) menuImgView.findViewById(R.id.imgBtnClose);
 		btnClose.setOnClickListener(new OnClickListener(){
@@ -84,7 +85,8 @@ public class ImageViewPinchZoom extends DialogFragment{
 			public void run() {
 				mImgLoader.displayImage(Utils.getImageUrl(getActivity()) + mImgName, imgMenu);
 				imgMenu.setVisibility(View.VISIBLE);
-				tvMenuName.setText(mMenuName + "\n" + mMenuPrice);
+				tvMenuName.setText(mMenuName);
+				tvMenuPrice.setText(mMenuPrice);
 				progress.setVisibility(View.GONE);
 			}
 			
