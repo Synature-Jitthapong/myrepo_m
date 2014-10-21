@@ -91,11 +91,6 @@ public class Utils {
 	 * Endday sale dir store endday sale json file
 	 */
 	public static final String ENDDAY_PATH = RESOURCE_DIR + File.separator + "EnddaySale";
-
-	/**
-	 * Update path stored apk for update.
-	 */
-	public static final String UPDATE_PATH = RESOURCE_DIR + File.separator + "Update";
 	
 	/**
 	 * apk file name

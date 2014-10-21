@@ -541,6 +541,9 @@ public abstract class PrinterBase {
 		OrderDetail sumOrder = mTrans.getSummaryOrder(transId, isLoadTemp);
 		double totalPayAmount = mPayment.getTotalPayAmount(transId);
 		double totalPaid = mPayment.getTotalPaid(transId);
+		if(totalPaid == 0){
+			totalPaid = Utils.roundingPrice(mFormat.getRoundingType(), sumOrder.getTotalSalePrice());
+		}
 		double change = totalPayAmount - totalPaid;
 		boolean isShowVat = mShop.getShopProperty().getPrintVatInReceipt() == 1;
 		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
@@ -671,23 +674,25 @@ public abstract class PrinterBase {
     	}
     	
     	// show rounding
-    	if(trans.getTransactionVatable() != totalPaid){
-    		if(sumOrder.getPriceDiscount() == 0){
-	    		String subTotalText = mContext.getString(R.string.sub_total);
-	    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
-		    	mTextToPrint.append(subTotalText);
-		    	mTextToPrint.append(createHorizontalSpace(
-		    			calculateLength(subTotalText) + 
-		    			calculateLength(subTotal)));
-		    	mTextToPrint.append(subTotal + "\n");
-    		}
-    		String roundText = mContext.getString(R.string.rounding);
-    		String round = mFormat.currencyFormat(totalPaid - trans.getTransactionVatable());    	
-    		mTextToPrint.append(roundText);
-        	mTextToPrint.append(createHorizontalSpace(
-        			calculateLength(roundText) + 
-        			calculateLength(round)));
-        	mTextToPrint.append(round + "\n");
+    	if(trans.getTransactionVatable() > 0){
+	    	if(trans.getTransactionVatable() != totalPaid){
+	    		if(sumOrder.getPriceDiscount() == 0){
+		    		String subTotalText = mContext.getString(R.string.sub_total);
+		    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+			    	mTextToPrint.append(subTotalText);
+			    	mTextToPrint.append(createHorizontalSpace(
+			    			calculateLength(subTotalText) + 
+			    			calculateLength(subTotal)));
+			    	mTextToPrint.append(subTotal + "\n");
+	    		}
+	    		String roundText = mContext.getString(R.string.rounding);
+	    		String round = mFormat.currencyFormat(totalPaid - trans.getTransactionVatable());    	
+	    		mTextToPrint.append(roundText);
+	        	mTextToPrint.append(createHorizontalSpace(
+	        			calculateLength(roundText) + 
+	        			calculateLength(round)));
+	        	mTextToPrint.append(round + "\n");
+	    	}
     	}
     	
     	// total price

@@ -12,9 +12,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 public class SoftwareRegister extends MPOSServiceBase{
 
+	public static final String TAG = SoftwareRegister.class.getSimpleName();
+			
 	public static final String REGIST_SERVICE_URL_METHOD = "WSmPOS_GetRegisterServiceUrl";
 	
 	public static final String SW_VERSION_PARAM = "szSwVersion";
@@ -48,9 +51,9 @@ public class SoftwareRegister extends MPOSServiceBase{
 			SoftwareInfoDao sw = new SoftwareInfoDao(mContext);
 			sw.logSoftwareInfo(info.getSzSoftwareExpireDate(), info.getSzLockExpireDate());
 			if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
-				// compare version
-				if(!TextUtils.equals(Utils.getSoftWareVersion(mContext), info.getSzSoftwareVersion())){
-					if(!SoftwareUpdateService.sIsRunning){
+				if(!SoftwareUpdateService.sIsRunning){
+					// compare version
+					if(!TextUtils.equals(Utils.getSoftWareVersion(mContext), info.getSzSoftwareVersion())){
 						SoftwareUpdateDao su = new SoftwareUpdateDao(mContext);
 						su.logSoftwareUpdate(info.getSzSoftwareVersion());
 						Intent intent = new Intent(mContext, SoftwareUpdateService.class);

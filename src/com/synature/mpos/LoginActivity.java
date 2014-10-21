@@ -347,7 +347,6 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 		final SoftwareUpdate update = su.getUpdateData();
 		if(update != null){
 			if(update.isDownloaded()){
-				final String filePath = Environment.getExternalStorageDirectory() + File.separator + Utils.UPDATE_PATH + File.separator + Utils.UPDATE_FILE_NAME;
 				if(!update.isAlreadyUpdated()){
 					AlertDialog.Builder builder = new AlertDialog.Builder(this);
 					builder.setTitle(R.string.software_update);
@@ -362,7 +361,8 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							File apkFile = new File(filePath);
+							File download = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+							File apkFile = new File(download + File.separator + Utils.UPDATE_FILE_NAME);
 						    Intent intent = new Intent(Intent.ACTION_VIEW);
 						    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
 						    startActivity(intent);
@@ -370,11 +370,6 @@ public class LoginActivity extends Activity implements OnClickListener, OnEditor
 					});
 					AlertDialog d = builder.create();
 					d.show();
-				}else{
-					File f = new File(filePath);
-					if(f != null){
-						f.delete();
-					}
 				}
 			}
 		}

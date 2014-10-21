@@ -13,23 +13,37 @@ import java.net.URLConnection;
 import com.synature.mpos.database.SoftwareUpdateDao;
 import com.synature.util.Logger;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 
 public class SoftwareUpdateService extends Service{
 	
 	public static boolean sIsRunning = false;
+
+	private NotificationManager mNotify;
+	private NotificationCompat.Builder mBuilder;
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		sIsRunning = true;
+		mNotify = (NotificationManager) 
+				getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+		mBuilder = new NotificationCompat.Builder(getApplicationContext());
+		mBuilder.setContentTitle("mPOS Update");
+		mBuilder.setContentText("Download in progress");
+	    mBuilder.setSmallIcon(R.drawable.ic_launcher);
 	}
 
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, int startId) {
+		sIsRunning = true;
 		new Thread(new Runnable(){
 
 			@Override
@@ -41,35 +55,52 @@ public class SoftwareUpdateService extends Service{
 					URLConnection conn = url.openConnection();
 					conn.connect();
 					
-					File sdPath = new File(Environment.getExternalStorageDirectory(), 
-							Utils.UPDATE_PATH);
+					File sdPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+					File apk = new File(sdPath + File.separator + Utils.UPDATE_FILE_NAME);
 					if(!sdPath.exists())
 						sdPath.mkdirs();
+					if(apk.exists())
+						apk.delete();
 					
 					InputStream input = new BufferedInputStream(conn.getInputStream());
 					OutputStream output = new FileOutputStream(sdPath + File.separator + Utils.UPDATE_FILE_NAME);
-					
-					byte data[] = new byte[1024];
-					int count;
-					while((count = input.read(data)) != -1){
+
+					byte data[] = new byte[2048];
+					int length = conn.getContentLength();
+					int total = 0;
+					int count = 0;
+					while((count = input.read(data)) > 0){
 						output.write(data, 0, count);
+						total += count;
+						mBuilder.setProgress(100, (int)(total * 100 / length), false);
+						mNotify.notify(0, mBuilder.build());
 					}
 					output.flush();
 					output.close();
 					input.close();
 					SoftwareUpdateDao su = new SoftwareUpdateDao(getApplicationContext());
 					su.setDownloadStatus(1);
+					mBuilder.setContentText("Download complete");
+					mBuilder.setProgress(0, 0, false);
+					Intent intent = new Intent();
+				    intent.setDataAndType(Uri.fromFile(apk), "application/vnd.android.package-archive");
+				    PendingIntent pending = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+				    mBuilder.setContentIntent(pending);
+					mNotify.notify(0, mBuilder.build());
 					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Successfully download apk...");
-					stopSelf();
 				} catch (MalformedURLException e) {
 					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Error download apk: " + e.getLocalizedMessage());
 					e.printStackTrace();
 				} catch (IOException e) {
+					mBuilder.setContentText(e.getMessage());
+					mNotify.notify(0, mBuilder.build());
 					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Error download apk: " + e.getLocalizedMessage());
 					e.printStackTrace();
+				}finally{
+					stopSelf();
 				}
 			}}).start();
-		return START_REDELIVER_INTENT;
+		return START_NOT_STICKY;
 	}
 
 	@Override
