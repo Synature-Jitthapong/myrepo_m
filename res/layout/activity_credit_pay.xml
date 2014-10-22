@@ -24,7 +24,8 @@
                 style="@style/LabelText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/total_price" />
+                android:text="@string/total_price"
+                android:textSize="@dimen/large_text_size" />
 
             <TextView
                 android:id="@+id/tvTotalPrice"
@@ -48,7 +49,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/total_payment"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="@dimen/large_text_size" />
 
             <EditText
                 android:id="@+id/txtCardPayAmount"
@@ -74,7 +76,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/credit_card_no"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="@dimen/large_text_size" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -140,7 +143,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/card_type"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="@dimen/large_text_size" />
 
             <Spinner
                 android:id="@+id/spCardType"
@@ -159,7 +163,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/card_holder_name"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="@dimen/large_text_size" />
 
             <EditText
                 android:id="@+id/txtCardHolderName"
@@ -180,7 +185,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/bank"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="@dimen/large_text_size" />
 
             <Spinner
                 android:id="@+id/spBank"
@@ -199,7 +205,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/expire_date"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="@dimen/large_text_size" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

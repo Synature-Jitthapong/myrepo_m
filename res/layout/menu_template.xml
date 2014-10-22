@@ -44,6 +44,6 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_margin="4dp"
-        android:scaleType="fitXY" />
+        android:scaleType="fitCenter" />
 
 </RelativeLayout>

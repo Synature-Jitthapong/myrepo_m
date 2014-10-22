@@ -126,7 +126,7 @@ public class ProductSetActivity extends Activity{
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						double openPrice = 0.0f;
+						double openPrice = 0;
 						try {
 							openPrice = Utils.stringToDouble(txtProductPrice.getText().toString());
 							mOrderDetailId = mTrans.addOrderDetail(mTransactionId, 
@@ -696,6 +696,7 @@ public class ProductSetActivity extends Activity{
 			}
 			if(Utils.isShowMenuImage(ProductSetActivity.this)){
 				holder.imgMenu.setVisibility(View.VISIBLE);
+				holder.imgMenu.setImageBitmap(null);
 				mImgLoader.displayImage(Utils.getImageUrl(ProductSetActivity.this) + pComp.getImgName(), holder.imgMenu);
 			}
 			

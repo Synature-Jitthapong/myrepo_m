@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:scaleType="fitXY" />
+        android:scaleType="fitCenter" />
 
     <ImageButton
         android:id="@+id/imgBtnClose"

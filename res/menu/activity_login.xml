@@ -18,22 +18,6 @@
         android:icon="@drawable/ic_action_phone"
         android:showAsAction="always|withText"
         android:title="@string/utility">
-        <menu>
-            <item
-                android:id="@+id/itemBackup"
-                android:showAsAction="collapseActionView"
-                android:title="@string/backup_db">
-            </item>
-            <item
-                android:id="@+id/itemRestore"
-                android:showAsAction="collapseActionView"
-                android:title="@string/restore_db">
-            </item>
-            <item
-                android:id="@+id/itemClearSale"
-                android:title="@string/clear_sale_data">
-            </item>
-        </menu>
     </item>
     <item
         android:id="@+id/itemReport"

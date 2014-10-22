@@ -34,6 +34,8 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -45,7 +47,12 @@ public class LoginActivity extends Activity implements OnClickListener,
 	 */
 	public static final int REQUEST_FOR_SETTING_DATE = 1;
 	
-	public static final int CLICK_TIMES_TO_SETTING = 5;
+	public static enum WhatToDo{
+		VIEW_REPORT,
+		UTILITY
+	};
+
+	private WhatToDo mWhatToDo;
 	
 	private int mStaffId;
 	private int mStaffRoleId;
@@ -288,6 +295,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Intent intent = null;
+		UserVerifyDialogFragment userFragment = null;
 		switch(item.getItemId()){
 		case R.id.itemSetting:
 			intent = new Intent(LoginActivity.this, SettingsActivity.class);
@@ -310,19 +318,14 @@ public class LoginActivity extends Activity implements OnClickListener,
 		case android.R.id.home:
 			finish();
 			return true;
-		case R.id.itemBackup:
-			Utils.backupDatabase(this);
-			return true;
-		case R.id.itemRestore:
-			RestoreDatabaseFragment restoreFragment = RestoreDatabaseFragment.newInstance();
-			restoreFragment.show(getFragmentManager(), "RestoreDatabase");
-			return true;
-		case R.id.itemClearSale:
-			ClearSaleDialogFragment clearSaleFragment = ClearSaleDialogFragment.newInstance();
-			clearSaleFragment.show(getFragmentManager(), ClearSaleDialogFragment.TAG);
+		case R.id.itemUtils:
+			mWhatToDo = WhatToDo.UTILITY;
+			userFragment = UserVerifyDialogFragment.newInstance(0);
+			userFragment.show(getFragmentManager(), UserVerifyDialogFragment.TAG);
 			return true;
 		case R.id.itemReport:
-			UserVerifyDialogFragment userFragment = UserVerifyDialogFragment.newInstance(0);
+			mWhatToDo = WhatToDo.VIEW_REPORT;
+			userFragment = UserVerifyDialogFragment.newInstance(0);
 			userFragment.show(getFragmentManager(), UserVerifyDialogFragment.TAG);
 			return true;
 		default:
@@ -330,6 +333,55 @@ public class LoginActivity extends Activity implements OnClickListener,
 		}
 	}
 
+	private void createUtilsPopup(final View v){
+		if(v != null){
+			PopupMenu popup = new PopupMenu(this, v);
+			popup.inflate(R.menu.action_utility);
+			popup.setOnMenuItemClickListener(new OnMenuItemClickListener(){
+	
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+					Intent intent = null;
+					switch(item.getItemId()){
+					case R.id.itemBackup:
+						Utils.backupDatabase(LoginActivity.this);
+						return true;
+					case R.id.itemRestore:
+						RestoreDatabaseFragment restoreFragment = RestoreDatabaseFragment.newInstance();
+						restoreFragment.show(getFragmentManager(), RestoreDatabaseFragment.TAG);
+						return true;
+					case R.id.itemSendEndday:
+						intent = new Intent(LoginActivity.this, SendEnddayActivity.class);
+						intent.putExtra("staffId", mStaffId);
+						intent.putExtra("shopId", mShop.getShopId());
+						intent.putExtra("computerId", mComputer.getComputerId());
+						startActivity(intent);
+						return true;
+					case R.id.itemSendSale:
+						intent = new Intent(LoginActivity.this, SendSaleActivity.class);
+						intent.putExtra("staffId", mStaffId);
+						intent.putExtra("shopId", mShop.getShopId());
+						intent.putExtra("computerId", mComputer.getComputerId());
+						startActivity(intent);
+						return true;
+					case R.id.itemResetEndday:
+						ResetEnddayStateDialogFragment resetFragment = ResetEnddayStateDialogFragment.newInstance();
+						resetFragment.show(getFragmentManager(), ResetEnddayStateDialogFragment.TAG);
+						return true;
+					case R.id.itemClearSale:
+						ClearSaleDialogFragment clearSaleFragment = ClearSaleDialogFragment.newInstance();
+						clearSaleFragment.show(getFragmentManager(), ClearSaleDialogFragment.TAG);
+						return true;
+					default :
+						return false;
+					}
+				}
+				
+			});
+			popup.show();
+		}
+	}
+	
 	private void exit(){
 		new AlertDialog.Builder(this)
 		.setTitle(R.string.exit)
@@ -580,8 +632,15 @@ public class LoginActivity extends Activity implements OnClickListener,
 
 	@Override
 	public void onAllow(int staffId, int permissionId) {
-		Intent intent = new Intent(this, SaleReportActivity.class);
-		intent.putExtra("staffId", staffId);
-		startActivity(intent);
+		switch(mWhatToDo){
+		case VIEW_REPORT:
+			Intent intent = new Intent(this, SaleReportActivity.class);
+			intent.putExtra("staffId", staffId);
+			startActivity(intent);
+			break;
+		case UTILITY:
+			createUtilsPopup(findViewById(R.id.itemUtils));
+			break;
+		}
 	}
 }

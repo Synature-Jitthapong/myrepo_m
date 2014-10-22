@@ -36,6 +36,8 @@ import android.widget.TextView;
 
 public class RestoreDatabaseFragment extends DialogFragment{
 	
+	public static final String TAG = RestoreDatabaseFragment.class.getSimpleName();
+	
 	public static final String RESTORE_PASS = "mposrestore";
 	
 	private int mLastPosition = -1;

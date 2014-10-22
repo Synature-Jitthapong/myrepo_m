@@ -49,6 +49,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.SQLException;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -167,7 +168,7 @@ public class MainActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+        
 		mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
 		mTbSummary = (TableLayout) findViewById(R.id.tbLayoutSummary);
 		mLvOrderDetail = (ExpandableListView) findViewById(R.id.lvOrder);

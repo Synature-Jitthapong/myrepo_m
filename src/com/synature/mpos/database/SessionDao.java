@@ -473,7 +473,7 @@ public class SessionDao extends MPOSDatabase{
 					SessionTable.COLUMN_SESS_DATE
 				}, 
 				null, null, null, null, 
-				SessionTable.COLUMN_SESS_ID + " DESC ", "1");
+				SessionTable.COLUMN_SESS_DATE + " DESC ", "1");
 		if(cursor.moveToFirst()){
 			sessDate = cursor.getString(0);
 		}
@@ -521,5 +521,19 @@ public class SessionDao extends MPOSDatabase{
 		}
 		cursor.close();
 		return sessionId;
+	}
+	
+	/**
+	 * Reset end day state
+	 * @param date
+	 */
+	public void resetEndday(String date){
+		String whereClause = SessionTable.COLUMN_SESS_DATE + "=?";
+		String[] whereArgs = {date};
+		getWritableDatabase().delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, whereClause, whereArgs);
+		ContentValues cv = new ContentValues();
+		cv.put(SessionTable.COLUMN_IS_ENDDAY, 0);
+		cv.put(OrderTransTable.COLUMN_CLOSE_STAFF, 0);
+		getWritableDatabase().update(SessionTable.TABLE_SESSION, cv, whereClause, whereArgs);
 	}
 }

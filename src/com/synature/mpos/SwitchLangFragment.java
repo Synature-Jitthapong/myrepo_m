@@ -22,7 +22,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.CheckedTextView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 public class SwitchLangFragment extends DialogFragment{
 
@@ -77,7 +76,7 @@ public class SwitchLangFragment extends DialogFragment{
 				SharedPreferences.Editor editor = sharedPref.edit();
 				editor.putString(SettingsActivity.KEY_PREF_LANGUAGE_LIST, langCode);
 				editor.commit();
-				Utils.switchLanguage(getActivity(), langCode);
+				Utils.switchLanguage(getActivity().getBaseContext(), langCode);
 			}
 
 			@Override
