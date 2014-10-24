@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -79,7 +79,7 @@ public class ReprintActivity extends Activity {
 				holder = new ViewHolder();
 				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
 				holder.tvReceiptNo = (TextView) convertView.findViewById(R.id.tvReceiptNo);
-				holder.btnPrint = (Button) convertView.findViewById(R.id.btnPrint);
+				holder.btnPrint = (ImageButton) convertView.findViewById(R.id.btnPrint);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
@@ -101,16 +101,16 @@ public class ReprintActivity extends Activity {
 		public class ViewHolder {
 			TextView tvNo;
 			TextView tvReceiptNo;
-			Button btnPrint;
+			ImageButton btnPrint;
 		}
 	}
 
 	private class Reprint extends PrintReceipt{
 		
 		public int mTransactionId;
-		private Button mBtnPrint;
+		private ImageButton mBtnPrint;
 		
-		public Reprint(int transactionId, Button refBtnPrint) {
+		public Reprint(int transactionId, ImageButton refBtnPrint) {
 			super(ReprintActivity.this);
 			mTransactionId = transactionId;
 			mBtnPrint = refBtnPrint;

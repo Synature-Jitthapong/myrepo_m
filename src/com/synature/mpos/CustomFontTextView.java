@@ -13,6 +13,10 @@ public class CustomFontTextView extends TextView{
 		super(context, attrs);
 	}
 	
+	public CustomFontTextView(Context context){	
+		super(context);
+	}
+	
 	@Override
 	public void setTypeface(Typeface tf) {
 		tf = Typeface.createFromAsset(getContext().getAssets(), FONT_PATH);

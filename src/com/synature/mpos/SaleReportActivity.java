@@ -539,7 +539,7 @@ public class SaleReportActivity extends Activity{
 				((TextView) clStView.findViewById(R.id.tvLeft)).setText(getString(R.string.close_by) + ": ");
 				((TextView) clStView.findViewById(R.id.tvLeft)).append(std != null ? std.getStaffName(): "-");
 				((TextView) clStView.findViewById(R.id.tvMid)).setVisibility(View.GONE);
-				((TextView) clStView.findViewById(R.id.tvRight)).setText(s.getCloseDate() != null ? mHost.mFormat.timeFormat(s.getCloseDate()) : "-");
+				((TextView) clStView.findViewById(R.id.tvRight)).setText(std != null ? mHost.mFormat.timeFormat(s.getCloseDate()) : "-");
 				mEnddaySumContent.addView(clStView);
 			}
 			
@@ -574,13 +574,25 @@ public class SaleReportActivity extends Activity{
 				mEnddaySumContent.addView(vatExcludeView);
 			}
 			
-			View grandTotal = inflater.inflate(R.layout.left_mid_right_template, null);
-			((TextView) grandTotal.findViewById(R.id.tvLeft)).setText(getString(R.string.grand_total));
-			((TextView) grandTotal.findViewById(R.id.tvLeft)).setPaintFlags(
-					((TextView) grandTotal.findViewById(R.id.tvLeft)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
-			((TextView) grandTotal.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(trans.getTransactionVatable()));
-			((TextView) grandTotal.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
-			mEnddaySumContent.addView(grandTotal);
+			double totalReceipt = mTrans.getTotalReceiptAmount(mHost.mDateTo);
+			if(mSessionId != 0)
+				totalReceipt = mTrans.getTotalReceiptAmount(mSessionId);
+			if( totalReceipt != trans.getTransactionVatable()){
+				double totalRounding = totalReceipt - trans.getTransactionVatable();
+				View rounding = inflater.inflate(R.layout.left_mid_right_template, null);
+				((TextView) rounding.findViewById(R.id.tvLeft)).setText(getString(R.string.rounding));
+				((TextView) rounding.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(totalRounding));
+				((TextView) rounding.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
+				mEnddaySumContent.addView(rounding);
+				
+				View grandTotal = inflater.inflate(R.layout.left_mid_right_template, null);
+				((TextView) grandTotal.findViewById(R.id.tvLeft)).setText(getString(R.string.grand_total));
+				((TextView) grandTotal.findViewById(R.id.tvLeft)).setPaintFlags(
+						((TextView) grandTotal.findViewById(R.id.tvLeft)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
+				((TextView) grandTotal.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(totalReceipt));
+				((TextView) grandTotal.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
+				mEnddaySumContent.addView(grandTotal);
+			}
 			
 			if(shop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
 				View vatView = inflater.inflate(R.layout.left_mid_right_template, null);

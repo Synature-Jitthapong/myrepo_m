@@ -251,7 +251,7 @@ public abstract class PrinterBase {
 							mContext.getString(R.string.summary);
 					mTextToPrint.append(itemName);
 				}else{
-					itemName = limitTextWithQtyLength(itemName);
+					itemName = limitTextWithQtyLength("  " + itemName);
 					mTextToPrint.append(itemName);
 				}
 				String itemTotalPrice = mFormat.currencyFormat(detail.getSubTotal());
@@ -342,8 +342,8 @@ public abstract class PrinterBase {
 			Staff std = st.getStaff(sess.getOpenStaff());
 			mTextToPrint.append(mContext.getString(R.string.open_by) + " " + std.getStaffName() + " " + mFormat.timeFormat(sess.getOpenDate()) + "\n");
 			std = st.getStaff(sess.getCloseStaff());
-			String closeBy = std != null ? std.getStaffName() : "";
-			String closeTime = sess.getCloseDate() != null ? mFormat.timeFormat(sess.getCloseDate()) : "";
+			String closeBy = std != null ? std.getStaffName() : "-";
+			String closeTime = std != null ? mFormat.timeFormat(sess.getCloseDate()) : "";
 			mTextToPrint.append(mContext.getString(R.string.close_by) + " " + closeBy + " " + closeTime + "\n");
 		}
 		mTextToPrint.append(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(staffId).getStaffName() + "\n");
@@ -372,7 +372,7 @@ public abstract class PrinterBase {
 				mTextToPrint.append(groupTotalPrice + "\n");
 				if(sp.getItemLst() != null){
 					for(SimpleProductData.Item item : sp.getItemLst()){
-						String itemName = limitTextWithQtyLength("-" + item.getItemName());
+						String itemName = limitTextWithQtyLength("  " + item.getItemName());
 						String itemTotalPrice = mFormat.currencyFormat(item.getTotalPrice());
 						String itemTotalQty = mFormat.qtyFormat(item.getTotalQty()) + 
 								createQtySpace(calculateLength(itemTotalPrice));
@@ -426,13 +426,27 @@ public abstract class PrinterBase {
 					+ calculateLength(vatExclude)));
 			mTextToPrint.append(vatExclude + "\n");
 		}
-		String grandTotalText = mContext.getString(R.string.grand_total);
-		String grandTotal = mFormat.currencyFormat(trans.getTransactionVatable());
-		mTextToPrint.append(grandTotalText);
-		mTextToPrint.append(createHorizontalSpace(
-				calculateLength(grandTotalText) 
-				+ calculateLength(grandTotal)));
-		mTextToPrint.append(grandTotal + "\n");
+		double totalReceiptAmount = mTrans.getTotalReceiptAmount(sessionDate);
+		if(sessionId != 0)
+			totalReceiptAmount = mTrans.getTotalReceiptAmount(sessionId);
+		if(totalReceiptAmount != trans.getTransactionVatable()){
+			double totalRounding = totalReceiptAmount - trans.getTransactionVatable();
+			String roundingText = mContext.getString(R.string.rounding);
+			String rounding = mFormat.currencyFormat(totalRounding);
+			mTextToPrint.append(roundingText);
+			mTextToPrint.append(createHorizontalSpace(
+					calculateLength(roundingText) 
+					+ calculateLength(rounding)));
+			mTextToPrint.append(rounding + "\n");
+			
+			String grandTotalText = mContext.getString(R.string.grand_total);
+			String grandTotal = mFormat.currencyFormat(totalReceiptAmount);
+			mTextToPrint.append(grandTotalText);
+			mTextToPrint.append(createHorizontalSpace(
+					calculateLength(grandTotalText) 
+					+ calculateLength(grandTotal)));
+			mTextToPrint.append(grandTotal + "\n");
+		}
 		
 		if(mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
 			String beforeVatText = mContext.getString(R.string.before_vat);

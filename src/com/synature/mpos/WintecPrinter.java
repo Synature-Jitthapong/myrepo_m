@@ -13,7 +13,7 @@ public class WintecPrinter extends PrinterBase{
 	/**
 	 * ISO8859-11 character
 	 */
-	public static final String ISO_8859_11 = "x-iso-8859-11";
+	public static final String ISO_8859_11 = "ISO8859-11";//"x-iso-8859-11";
 	
 	protected Context mContext;
 	protected Printer mPrinter;
@@ -31,11 +31,13 @@ public class WintecPrinter extends PrinterBase{
 		String[] subElement = mTextToPrint.toString().split("\n");
     	for(String data : subElement){
     		ThreeLevelPrint supportThai = LevelTextPrint.parsingThaiLevel(data);
-    		if(!TextUtils.isEmpty(supportThai.getLine1()))
+    		if(!TextUtils.isEmpty(supportThai.getLine1())){
     			mPrinter.PRN_Print(supportThai.getLine1(), ISO_8859_11);
+    		}
     		mPrinter.PRN_Print(supportThai.getLine2(), ISO_8859_11);
-    		if(!TextUtils.isEmpty(supportThai.getLine3()))
+    		if(!TextUtils.isEmpty(supportThai.getLine3())){
     			mPrinter.PRN_Print(supportThai.getLine3(), ISO_8859_11);
+    		}
 		}
     	mPrinter.PRN_PrintAndFeedLine(6);		
     	mPrinter.PRN_HalfCutPaper();

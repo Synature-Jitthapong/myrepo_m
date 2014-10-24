@@ -1728,6 +1728,32 @@ public class TransactionDao extends MPOSDatabase {
 	}
 
 	/**
+	 * @param sessionId
+	 * @return total receipt amount specific by sessionId
+	 */
+	public double getTotalReceiptAmount(int sessionId) {
+		double totalReceiptAmount = 0.0f;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT "
+				+ " SUM (b." + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
+				+ " LEFT JOIN " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " b "
+				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID 
+				+ " WHERE a." + SessionTable.COLUMN_SESS_ID + "=? "
+				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID
+				+ " IN(?,?) ",
+				new String[] { 
+						String.valueOf(sessionId),
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
+		if (cursor.moveToFirst()) {
+			totalReceiptAmount = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalReceiptAmount;
+	}
+	
+	/**
 	 * @param transactionId
 	 * @param orderDetailId
 	 * @param orderSetId
