@@ -6,10 +6,10 @@ import java.util.List;
 
 import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.SaleService.LocalBinder;
-import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -31,7 +31,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class SendEnddayActivity extends MPOSActivityBase {
+public class SendEnddayActivity extends Activity {
 
 	private SaleService mPartService;
 	private boolean mBound = false;
@@ -48,6 +48,7 @@ public class SendEnddayActivity extends MPOSActivityBase {
 	private EnddayListAdapter mEnddayAdapter;
 	
 	private ListView mLvEndday;
+	private View mChkNetworkProgress;
 	
 	private MenuItem mItemClose;
 	private MenuItem mItemSend;
@@ -70,6 +71,7 @@ public class SendEnddayActivity extends MPOSActivityBase {
 		setContentView(R.layout.activity_send_endday);
 		
 		mLvEndday = (ListView) findViewById(R.id.lvEndday);
+		mChkNetworkProgress = findViewById(R.id.check_network_progress);
 
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
@@ -130,9 +132,6 @@ public class SendEnddayActivity extends MPOSActivityBase {
 				finish();
 				return true;
 			case R.id.itemSendAll:
-				mItemClose.setEnabled(false);
-				mItemSend.setVisible(false);
-				mItemProgress.setVisible(true);
 				new NetworkConnectionChecker(this, new NetworkCheckerListener() {
 					
 					@Override
@@ -140,11 +139,13 @@ public class SendEnddayActivity extends MPOSActivityBase {
 						mItemClose.setEnabled(true);
 						mItemSend.setVisible(true);
 						mItemProgress.setVisible(false);
+						mChkNetworkProgress.setVisibility(View.GONE);
 						Utils.makeToask(SendEnddayActivity.this, msg);
 					}
 					
 					@Override
 					public void onLine() {
+						mChkNetworkProgress.setVisibility(View.GONE);
 						mPartService.sendAllEndday(mShopId, mComputerId, mStaffId, mSendListener);
 					}
 					
@@ -153,7 +154,16 @@ public class SendEnddayActivity extends MPOSActivityBase {
 						mItemClose.setEnabled(true);
 						mItemSend.setVisible(true);
 						mItemProgress.setVisible(false);
+						mChkNetworkProgress.setVisibility(View.GONE);
 						Utils.makeToask(SendEnddayActivity.this, msg);
+					}
+
+					@Override
+					public void onPre() {
+						mItemClose.setEnabled(false);
+						mItemSend.setVisible(false);
+						mItemProgress.setVisible(true);
+						mChkNetworkProgress.setVisibility(View.VISIBLE);
 					}
 				}).execute();
 				return true;

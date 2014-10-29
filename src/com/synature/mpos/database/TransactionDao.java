@@ -177,6 +177,30 @@ public class TransactionDao extends MPOSDatabase {
 	}
 	
 	/**
+	 * @param saleDateFrom
+	 * @param saleDateTo
+	 * @return OrderTransaction
+	 */
+	public OrderTransaction getSummaryTransaction(String saleDateFrom, String saleDateTo) {
+		OrderTransaction trans = null;
+		Cursor cursor = querySummaryTransaction(
+				OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " =? ",
+				new String[] {
+					saleDateFrom,
+					saleDateTo,
+					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+				});
+		if (cursor != null) {
+			if (cursor.moveToFirst()) {
+				trans = toSummaryOrderTransaction(cursor);
+			}
+			cursor.close();
+		}
+		return trans;
+	}
+	
+	/**
 	 * @param saleDate
 	 * @return OrderTransaction
 	 */
@@ -290,32 +314,29 @@ public class TransactionDao extends MPOSDatabase {
 	 */
 	public OrderDetail getSummaryVoidOrderInDay(int sessId, String sessDate) {
 		OrderDetail orderDetail = new OrderDetail();
-		String selection = "a." + OrderTransTable.COLUMN_SALE_DATE + "=?"
-				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID + "=?";
+		String selection = OrderTransTable.COLUMN_SALE_DATE + "=?"
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + "=?";
 		String[] selectionArgs = new String[]{
 			sessDate, 
 			String.valueOf(TransactionDao.TRANS_STATUS_VOID)
 		};
 		if(sessId != 0){
-			selection += " AND a." + SessionTable.COLUMN_SESS_ID + "=?";
+			selection += " AND " + SessionTable.COLUMN_SESS_ID + "=?";
 			selectionArgs = new String[]{
 				sessDate, 
 				String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 				String.valueOf(sessId)
 			};
 		}
-		String sql = "SELECT a." + OrderTransTable.COLUMN_TRANS_ID + ", "
-				+ " COUNT(a." + OrderTransTable.COLUMN_TRANS_ID + ") AS TotalVoid, "
-				+ " (SELECT SUM (" + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ") "
-				+ " FROM " + OrderDetailTable.TABLE_ORDER
-				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=a." + OrderTransTable.COLUMN_TRANS_ID + ") "
-				+ " AS " + OrderDetailTable.COLUMN_TOTAL_SALE_PRICE
-				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
+		String sql = "SELECT " + OrderTransTable.COLUMN_TRANS_ID + ", "
+				+ " COUNT(" + OrderTransTable.COLUMN_TRANS_ID + ") AS TotalVoid, "
+				+ " SUM(" + OrderTransTable.COLUMN_TRANS_VATABLE + ") AS Vatable "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
 				+ " WHERE " + selection;
 		Cursor cursor = getReadableDatabase().rawQuery(sql, selectionArgs);
 		if (cursor.moveToFirst()) {
 			orderDetail.setOrderQty(cursor.getDouble(cursor.getColumnIndex("TotalVoid")));
-			orderDetail.setTotalSalePrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
+			orderDetail.setTotalSalePrice(cursor.getDouble(cursor.getColumnIndex("Vatable")));
 		}
 		cursor.close();
 		return orderDetail;
@@ -329,26 +350,38 @@ public class TransactionDao extends MPOSDatabase {
 	 */
 	public OrderDetail getSummaryOrder(int sessId, String dateFrom, String dateTo) {
 		OrderDetail ord = new OrderDetail();
+		String whereArg = " a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
+		                + " AND a." + OrderTransTable.COLUMN_STATUS_ID + "=? "
+						+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?, ?, ?, ?) ";
+		String[] whereArgs = new String[] { 
+				dateFrom,
+				dateTo,
+                String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+				String.valueOf(ProductsDao.NORMAL_TYPE),
+				String.valueOf(ProductsDao.SET_CAN_SELECT),
+				String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+				String.valueOf(ProductsDao.COMMENT_HAVE_PRICE)
+			};
+		if(sessId != 0){
+			whereArg += " AND a." + SessionTable.COLUMN_SESS_ID + "=?";
+			whereArgs = new String[] { 
+					dateFrom,
+					dateTo,
+	                String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+					String.valueOf(ProductsDao.NORMAL_TYPE),
+					String.valueOf(ProductsDao.SET_CAN_SELECT),
+					String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+					String.valueOf(ProductsDao.COMMENT_HAVE_PRICE),
+					String.valueOf(sessId)
+				};
+		}
 		Cursor cursor = querySummaryOrder(
 				OrderTransTable.TABLE_ORDER_TRANS + " a "
 				+ " LEFT JOIN " + OrderDetailTable.TABLE_ORDER + " b "
 				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
 				+ " LEFT JOIN " + PromotionPriceGroupTable.TABLE_PROMOTION_PRICE_GROUP + " c "
 				+ " ON a." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + "=c." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID,
-				" a." + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ?"
-                + " AND a." + OrderTransTable.COLUMN_STATUS_ID + "=? "
-				+ " AND a." + SessionTable.COLUMN_SESS_ID + "=?"
-				+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?, ?, ?, ?) ",
-				new String[] { 
-					dateFrom,
-					dateTo,
-                    String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-					String.valueOf(sessId),
-					String.valueOf(ProductsDao.NORMAL_TYPE),
-					String.valueOf(ProductsDao.SET_CAN_SELECT),
-					String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
-					String.valueOf(ProductsDao.COMMENT_HAVE_PRICE)
-				});
+				whereArg, whereArgs);
 		if (cursor.moveToFirst()) {
 			ord = toSumOrderDetail(cursor);
 		}
@@ -425,11 +458,8 @@ public class TransactionDao extends MPOSDatabase {
 	 * @return OrderDetail
 	 */
 	private OrderDetail toSumOrderDetail(Cursor cursor){
-		OrderDetail ord = new OrderDetail(); 
-		double vatExclude = cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE));
-		double totalSalePrice = cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)) + vatExclude;
+		OrderDetail ord = new OrderDetail();
 		String proName = cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PROMOTION_NAME));
-		//String buttonName = cursor.getString(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_BUTTON_NAME));
 		String otherDisDesc = cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_OTHER_DISCOUNT_DESC));
 		if(!TextUtils.isEmpty(proName))
 			ord.setPromotionName(proName);
@@ -441,9 +471,9 @@ public class TransactionDao extends MPOSDatabase {
 		ord.setProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
 		ord.setPriceDiscount(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
 		ord.setTotalRetailPrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
-		ord.setTotalSalePrice(totalSalePrice);
+		ord.setTotalSalePrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
 		ord.setVat(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT)));
-		ord.setVatExclude(vatExclude);
+		ord.setVatExclude(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE)));
 		return ord;
 	}
 	
@@ -1041,11 +1071,8 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param transactionId
 	 * @param staffId
 	 * @param totalSalePrice
-	 * @param vatType
-	 * @param vatRate
 	 */
-	public void closeTransaction(int transactionId, int staffId, 
-			double totalSalePrice, int vatType, double vatRate) {
+	public void closeTransaction(int transactionId, int staffId, double totalSalePrice) {
 		Calendar date = Utils.getDate();
 		Calendar dateTime = Utils.getCalendar();
 		int receiptId = getMaxReceiptId(String.valueOf(date.getTimeInMillis()));
@@ -1137,11 +1164,18 @@ public class TransactionDao extends MPOSDatabase {
 		deleteOrderDetail(transactionId, orderDetailId);
 	}
 	
+	/**
+	 * Delete sale specific date
+	 * @param dateFrom
+	 * @param dateTo
+	 */
 	public void deleteSale(String dateFrom, String dateTo){
 		String transIds = getTransactionIds(dateFrom, dateTo);
+		SQLiteDatabase db = getWritableDatabase();
+		db.execSQL("DELETE FROM " + OrderTransTable.TEMP_ORDER_TRANS);
+		db.execSQL("DELETE FROM " + OrderDetailTable.TEMP_ORDER);
 		if(TextUtils.isEmpty(transIds))
 			return;
-		SQLiteDatabase db = getWritableDatabase();
 		db.beginTransaction();
 		try{
 			String sessWhere = SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ?";
@@ -1676,21 +1710,49 @@ public class TransactionDao extends MPOSDatabase {
 		double totalReceiptAmount = 0.0f;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT "
-				+ " SUM (" + OrderTransTable.COLUMN_TRANS_VATABLE + ") "
-				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
-				+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE + "=? "
-				+ " AND " + OrderTransTable.COLUMN_STATUS_ID
-				+ " IN(?,?)",
+				+ " SUM (b." + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
+				+ " LEFT JOIN " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " b "
+				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID 
+				+ " WHERE a." + OrderTransTable.COLUMN_SALE_DATE + "=? "
+				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID
+				+ " IN(?,?) ",
 				new String[] { sessionDate,
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
 		if (cursor.moveToFirst()) {
-			totalReceiptAmount = cursor.getFloat(0);
+			totalReceiptAmount = cursor.getDouble(0);
 		}
 		cursor.close();
 		return totalReceiptAmount;
 	}
 
+	/**
+	 * @param sessionId
+	 * @return total receipt amount specific by sessionId
+	 */
+	public double getTotalReceiptAmount(int sessionId) {
+		double totalReceiptAmount = 0.0f;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT "
+				+ " SUM (b." + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
+				+ " LEFT JOIN " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " b "
+				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID 
+				+ " WHERE a." + SessionTable.COLUMN_SESS_ID + "=? "
+				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID
+				+ " IN(?,?) ",
+				new String[] { 
+						String.valueOf(sessionId),
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
+		if (cursor.moveToFirst()) {
+			totalReceiptAmount = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalReceiptAmount;
+	}
+	
 	/**
 	 * @param transactionId
 	 * @param orderDetailId

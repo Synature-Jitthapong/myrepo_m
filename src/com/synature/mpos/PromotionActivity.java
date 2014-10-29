@@ -2,7 +2,6 @@ package com.synature.mpos;
 
 import java.util.List;
 
-import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.PromotionDiscountDao;
@@ -10,6 +9,7 @@ import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderTransaction;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,7 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PromotionActivity extends MPOSActivityBase {
+public class PromotionActivity extends Activity {
 
 	public static final String TAG = PromotionActivity.class.getSimpleName();
 	
@@ -164,18 +164,17 @@ public class PromotionActivity extends MPOSActivityBase {
 	}
 	
 	private void summary(){
-		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId, true);
-		double totalPrice = summ.getVatExclude() > 0 ? summ.getTotalSalePrice() - summ.getVatExclude() : summ.getTotalSalePrice();
-		mTvTotalPrice.setText(mFormat.currencyFormat(totalPrice));
+		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
+		mTvTotalPrice.setText(mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
 		if(mSummaryContainer.getChildCount() > 0)
 			mSummaryContainer.removeAllViews();
 		TextView[] tvs = {
 				SaleReportActivity.createTextViewSummary(this, getString(R.string.summary), Utils.getLinHorParams(1.2f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(summ.getOrderQty()), Utils.getLinHorParams(0.5f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getProductPrice()), Utils.getLinHorParams(0.7f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalRetailPrice()), Utils.getLinHorParams(0.7f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPriceDiscount()), Utils.getLinHorParams(0.7f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(totalPrice), Utils.getLinHorParams(0.7f))
+				SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(sumOrder.getOrderQty()), Utils.getLinHorParams(0.5f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(sumOrder.getProductPrice()), Utils.getLinHorParams(0.7f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), Utils.getLinHorParams(0.7f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(sumOrder.getPriceDiscount()), Utils.getLinHorParams(0.7f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(sumOrder.getTotalSalePrice()), Utils.getLinHorParams(0.7f))
 		};
 		LinearLayout rowSummary = SaleReportActivity.createRowSummary(this, tvs);
 		rowSummary.setDividerDrawable(getResources().getDrawable(android.R.drawable.divider_horizontal_bright));

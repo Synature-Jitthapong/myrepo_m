@@ -16,7 +16,5 @@ public class MaxOrderIdTable {
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion,
 			int newVersion) {
-		db.execSQL("drop table if exists " + TABLE_MAX_ORDER_ID);
-		onCreate(db);
 	}
 }

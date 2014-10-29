@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.SaleService.LocalBinder;
-import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PrintReceiptLogDao;
@@ -15,6 +14,7 @@ import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
 import android.os.IBinder;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -40,7 +40,7 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class VoidBillActivity extends MPOSActivityBase {
+public class VoidBillActivity extends Activity {
 	
 	private SaleService mPartService;
 	private boolean mBound = false;
@@ -344,6 +344,10 @@ public class VoidBillActivity extends MPOSActivityBase {
 			
 			@Override
 			public void offLine(String msg) {
+			}
+
+			@Override
+			public void onPre() {
 			}
 		});
 	}

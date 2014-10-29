@@ -17,7 +17,6 @@ import java.util.List;
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
-import com.synature.mpos.common.MPOSFragmentActivityBase;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PaymentDetailDao;
@@ -49,7 +48,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.SQLException;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -89,7 +91,7 @@ import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MainActivity extends MPOSFragmentActivityBase implements 
+public class MainActivity extends FragmentActivity implements 
 	MenuCommentDialogFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
 	UserVerifyDialogFragment.OnCheckPermissionListener, OnChangeLanguageListener{
 	
@@ -110,7 +112,15 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	public static final int SET_TYPE7_REQUEST = 3;
 	
-	private boolean mIsShowKeyboard = false;
+	/**
+	 * number of menu grid column preference
+	 */
+	public static final String PREF_NUM_MENU_COLUMNS = "PrefNumMenuColums";
+	
+	/**
+	 * the number of menu columns
+	 */
+	public static final String NUM_MENU_COLUMNS = "numMenuColumns";
 	
 	/**
 	 * Wintec customer display
@@ -125,7 +135,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	
 	private ProductsDao mProducts;
 	private ShopDao mShop;
-	private GlobalPropertyDao mFormat;
+	private GlobalPropertyDao mGlobal;
 	
 	private SessionDao mSession;
 	private TransactionDao mTrans;
@@ -149,10 +159,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private EditText mTxtBarCode;
 	private TableLayout mTbSummary;
 	
-	private MenuItem mItemHoldBill;
-	private MenuItem mItemSendSale;
-	private MenuItem mItemSendData;
-	private MenuItem mItemSendEndday;
+	private Menu mMenu;
 	
 	private SlidingTabLayout mTabs;
 	private ViewPager mPager;
@@ -161,7 +168,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+        
 		mTxtBarCode = (EditText) findViewById(R.id.txtBarCode);
 		mTbSummary = (TableLayout) findViewById(R.id.tbLayoutSummary);
 		mLvOrderDetail = (ExpandableListView) findViewById(R.id.lvOrder);
@@ -177,7 +184,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		mProducts = new ProductsDao(this);
 		mShop = new ShopDao(this);
 		mComputer = new ComputerDao(this);
-		mFormat = new GlobalPropertyDao(this);
+		mGlobal = new GlobalPropertyDao(this);
 		
 		mShopId = mShop.getShopId();
 		mComputerId = mComputer.getComputerId();
@@ -246,8 +253,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	}
 	
 	private void setupMenuDeptPager(){
+		SharedPreferences settings = getSharedPreferences(PREF_NUM_MENU_COLUMNS, 0);
+		int numCols = settings.getInt(NUM_MENU_COLUMNS, 4);
+
 		mProductDeptLst = mProducts.listProductDept();
-		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager());
+		mPageAdapter = new MenuItemPagerAdapter(getSupportFragmentManager(), numCols);
 		//mPager.setOffscreenPageLimit(8);
 		mPager.setAdapter(mPageAdapter);
 		final int pageMargin = (int) TypedValue.applyDimension(
@@ -255,6 +265,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 						.getDisplayMetrics());
 		mPager.setPageMargin(pageMargin);
 		mTabs.setViewPager(mPager);
+	}
+	
+	private void setNumMenuColumnPref(int numCols){
+		SharedPreferences settings = getSharedPreferences(PREF_NUM_MENU_COLUMNS, 0);
+	    SharedPreferences.Editor editor = settings.edit();
+	    editor.putInt(NUM_MENU_COLUMNS, numCols);
+	    editor.commit();
 	}
 	
 	private void setupBarCodeEvent(){
@@ -296,13 +313,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	public void toggleKeyboard(final View v){
 		InputMethodManager imm = (InputMethodManager) getSystemService(
 			      Context.INPUT_METHOD_SERVICE);
-		if(mIsShowKeyboard){
-			imm.hideSoftInputFromWindow(mTxtBarCode.getWindowToken(), 0);
-			mIsShowKeyboard = false;
-		}else{
-			imm.showSoftInput(mTxtBarCode, InputMethodManager.SHOW_IMPLICIT);
-			mIsShowKeyboard = true;
-		}
+		imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
 	}
 	
 	public void clearBarCodeClicked(final View v){
@@ -312,13 +323,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
-		mItemHoldBill = menu.findItem(R.id.itemHoldBill);
-		mItemSendSale = menu.findItem(R.id.itemSendSale);
-		mItemSendData = menu.findItem(R.id.itemSendData);
-		mItemSendEndday = menu.findItem(R.id.itemSendEndday);
+		mMenu = menu;
 		
 		countHoldOrder();
 		countSaleDataNotSend();
+		updateDisplayColumnMenu();
 		return true;
 	}
 
@@ -383,6 +392,22 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			case R.id.itemLang:
 				SwitchLangFragment swf = SwitchLangFragment.newInstance();
 				swf.show(getSupportFragmentManager(), "SwitchLangFragment");
+				return true;
+			case R.id.item2Cols:
+				setNumMenuColumnPref(2);
+				refreshSelf();
+				return true;
+			case R.id.item3Cols:
+				setNumMenuColumnPref(3);
+				refreshSelf();
+				return true;
+			case R.id.item4Cols:
+				setNumMenuColumnPref(4);
+				refreshSelf();
+				return true;
+				case R.id.item5Cols:
+				setNumMenuColumnPref(5);
+				refreshSelf();
 				return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -458,71 +483,80 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		
 		mTrans.summaryTransaction(mTransactionId);
 		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
-		
+		double vatExclude = sumOrder.getVatExclude();
+		double totalQty = sumOrder.getOrderQty();
+		double totalDiscount = sumOrder.getPriceDiscount();
+		double totalRetailPrice = sumOrder.getTotalRetailPrice();
+		double totalSalePrice = sumOrder.getTotalSalePrice();
+		double totalPriceInclVat = totalSalePrice + vatExclude;
+		String disText = sumOrder.getPromotionName().equals("") ? getString(R.string.discount) : sumOrder.getPromotionName();
+
 		mTbSummary.addView(createTableRowSummary(
-				getString(R.string.items) + ": " + NumberFormat.getInstance().format(sumOrder.getOrderQty()), 
-				mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), 
+				getString(R.string.items) + ": " + NumberFormat.getInstance().format(totalQty), 
+				mGlobal.currencyFormat(sumOrder.getTotalRetailPrice()), 
 				0, 0, 0, 0));
 		
-		if(sumOrder.getPriceDiscount() > 0){
-			String discountText = sumOrder.getPromotionName().equals("") ? getString(R.string.discount) : sumOrder.getPromotionName();
-			mTbSummary.addView(createTableRowSummary(discountText, 
-					"-" + mFormat.currencyFormat(sumOrder.getPriceDiscount()), 
-							0, 0, 0, 0));
+		if(totalDiscount > 0){ 
+			mTbSummary.addView(createTableRowSummary(disText, 
+					"-" + mGlobal.currencyFormat(totalDiscount), 0, 0, 0, 0));
+			mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
+					mGlobal.currencyFormat(totalSalePrice), 0, 0, 0, 0));
 		}
-		if(sumOrder.getVatExclude() > 0){
-			if(sumOrder.getPriceDiscount() > 0){
-				mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
-						mFormat.currencyFormat(sumOrder.getTotalSalePrice() - sumOrder.getVatExclude()), 
-								0, 0, 0, 0));
-			}
+		if(vatExclude > 0){
 			mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
 					" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%",
-					mFormat.currencyFormat(sumOrder.getVatExclude()),
-					0, 0, 0, 0));
+					mGlobal.currencyFormat(vatExclude), 0, 0, 0, 0));
+		}
+		double rounding = Utils.roundingPrice(mGlobal.getRoundingType(), totalPriceInclVat);
+		if(rounding != totalPriceInclVat){
+			if(totalDiscount == 0){
+				mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
+						mGlobal.currencyFormat(totalPriceInclVat), 0, 0, 0, 0));
+			}
+			mTbSummary.addView(createTableRowSummary(getString(R.string.rounding),
+					mGlobal.currencyFormat(rounding - totalPriceInclVat), 0, 0, 0, 0));
 		}
 		mTbSummary.addView(createTableRowSummary(getString(R.string.total),
-				mFormat.currencyFormat(sumOrder.getTotalSalePrice()),
+				mGlobal.currencyFormat(rounding),
 				0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size)));
 		
 		if(Utils.isEnableSecondDisplay(this)){
 			List<clsSecDisplay_TransSummary> transSummLst = new ArrayList<clsSecDisplay_TransSummary>();
 			clsSecDisplay_TransSummary transSumm = new clsSecDisplay_TransSummary();
 			transSumm.szSumName = getString(R.string.sub_total); 
-			transSumm.szSumAmount = mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
+			transSumm.szSumAmount = mGlobal.currencyFormat(totalRetailPrice);
 			transSummLst.add(transSumm);
-			if(sumOrder.getPriceDiscount() > 0){
-				String discountText = sumOrder.getPromotionName().equals("") ? getString(R.string.discount) : sumOrder.getPromotionName();
+			if(totalDiscount > 0){
 				transSumm = new clsSecDisplay_TransSummary();
-				transSumm.szSumName = discountText;
-				transSumm.szSumAmount = "-" + mFormat.currencyFormat(sumOrder.getPriceDiscount());
+				transSumm.szSumName = disText;
+				transSumm.szSumAmount = "-" + mGlobal.currencyFormat(totalDiscount);
 				transSummLst.add(transSumm);
 			}
-			if(sumOrder.getVatExclude() > 0){
+			if(vatExclude > 0){
 				transSumm = new clsSecDisplay_TransSummary();
 				transSumm.szSumName = getString(R.string.vat_exclude) + 
 						" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
-				transSumm.szSumAmount = mFormat.currencyFormat(sumOrder.getVatExclude());
+				transSumm.szSumAmount = mGlobal.currencyFormat(vatExclude);
 				transSummLst.add(transSumm);
 			}
 			transSumm = new clsSecDisplay_TransSummary();
 			transSumm.szSumName = getString(R.string.total_qty); 
-			transSumm.szSumAmount = mFormat.qtyFormat(sumOrder.getOrderQty());
+			transSumm.szSumAmount = mGlobal.qtyFormat(totalQty);
 			transSummLst.add(transSumm);
 			
 			transSumm = new clsSecDisplay_TransSummary();
 			transSumm.szSumName = getString(R.string.total); 
-			transSumm.szSumAmount = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+			transSumm.szSumAmount = mGlobal.currencyFormat(totalPriceInclVat);
 			transSummLst.add(transSumm);
-			secondDisplayItem(transSummLst, mFormat.currencyFormat(sumOrder.getTotalSalePrice()));
+			secondDisplayItem(transSummLst, mGlobal.currencyFormat(totalPriceInclVat));
 		}
 		
 		if(Utils.isEnableWintecCustomerDisplay(this)){
 			// display order if qty and retail price > 0
-			if(sumOrder.getOrderQty() > 0 && sumOrder.getTotalRetailPrice() > 0){
+			if(totalQty > 0 && totalRetailPrice > 0){
 				try {
-					mDsp.setOrderTotalQty(mFormat.qtyFormat(sumOrder.getOrderQty()));
-					mDsp.setOrderTotalPrice(mFormat.currencyFormat(sumOrder.getTotalRetailPrice()));
+					mDsp.setOrderTotalQty(mGlobal.qtyFormat(totalQty));
+					mDsp.setOrderTotalPrice(mGlobal.currencyFormat(totalRetailPrice));
 					mDsp.displayOrder();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -544,7 +578,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			tvValue.setTextAppearance(this, valAppear);
 		tvLabel.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 
 				TableRow.LayoutParams.WRAP_CONTENT, 1f));
-		tvValue.setGravity(Gravity.RIGHT);
+		tvValue.setGravity(Gravity.END);
 		if(labelSize != 0)
 			tvLabel.setTextSize(labelSize);
 		if(valSize != 0)
@@ -599,7 +633,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			TextView tvChange = new TextView(MainActivity.this);
 			tvChange.setTextSize(getResources().getDimension(R.dimen.larger_text_size));
 			tvChange.setGravity(Gravity.CENTER);
-			tvChange.setText(mFormat.currencyFormat(change));
+			tvChange.setText(mGlobal.currencyFormat(change));
 			LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, 
 					LayoutParams.WRAP_CONTENT);
 			params.gravity = Gravity.CENTER;
@@ -619,8 +653,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				}
 			}).show();
 			if(Utils.isEnableSecondDisplay(this)){
-				secondDisplayChangePayment(mFormat.currencyFormat(totalSalePrice), 
-						mFormat.currencyFormat(totalPaid), mFormat.currencyFormat(change));
+				secondDisplayChangePayment(mGlobal.currencyFormat(totalSalePrice), 
+						mGlobal.currencyFormat(totalPaid), mGlobal.currencyFormat(change));
 				new Handler().postDelayed(new Runnable(){
 
 					@Override
@@ -634,8 +668,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		
 		// Wintec DSP
 		if(Utils.isEnableWintecCustomerDisplay(this)){
-			mDsp.displayTotalPay(mFormat.currencyFormat(totalPaid), 
-					mFormat.currencyFormat(change));
+			mDsp.displayTotalPay(mGlobal.currencyFormat(totalPaid), 
+					mGlobal.currencyFormat(change));
 			new Handler().postDelayed(
 					new Runnable(){
 
@@ -679,6 +713,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			@Override
 			public void serverProblem(int code, String msg) {
 				Utils.makeToask(MainActivity.this, msg);
+			}
+
+			@Override
+			public void onPre() {
 			}
 			
 		}).execute();
@@ -737,18 +775,18 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				public void onClick(DialogInterface dialog, int which) {
 					OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
 					PaymentDetailDao payment = new PaymentDetailDao(MainActivity.this);
-					double totalSalePrice = sumOrder.getTotalSalePrice();
+					double totalSalePrice = sumOrder.getTotalSalePrice() + sumOrder.getVatExclude();
+					double totalPaid = Utils.roundingPrice(mGlobal.getRoundingType(), totalSalePrice);
 					
 					payment.addPaymentDetail(mTransactionId, mComputerId, PaymentDetailDao.PAY_TYPE_CASH, 
-							totalSalePrice, totalSalePrice, "", 0, 0, 0, 0, "");
+							totalPaid, totalPaid, "", 0, 0, 0, 0, "");
 					
 					// open cash drawer
 					WintecCashDrawer drw = new WintecCashDrawer(MainActivity.this);
 					drw.openCashDrawer();
 					drw.close();
 					
-					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice, 
-							mShop.getCompanyVatType(), mShop.getCompanyVatRate());
+					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice);
 					successTransaction(mTransactionId, mStaffId, totalSalePrice, totalSalePrice, 0);
 					
 					init();
@@ -801,7 +839,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			StaffsDao st = new StaffsDao(MainActivity.this);
 			if(!st.checkOtherDiscountPermission(mStaffRoleId)){
 				UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(StaffsDao.OTHER_DISCOUNT_PERMISSION);
-				uvf.show(getSupportFragmentManager(), "StaffPermissionDialog");
+				uvf.show(getFragmentManager(), "StaffPermissionDialog");
 			}else{
 				goToOtherDiscountActivity();
 			}
@@ -884,8 +922,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			holder.tvOrderName.setChecked(orderDetail.isChecked());
 			holder.tvOrderNo.setText(Integer.toString(groupPosition + 1) + ".");
 			holder.tvOrderName.setText(orderDetail.getProductName());
-			holder.tvOrderPrice.setText(mFormat.currencyFormat(orderDetail.getProductPrice()));
-			holder.tvOrderQty.setText(mFormat.qtyFormat(orderDetail.getOrderQty()));
+			holder.tvOrderPrice.setText(mGlobal.currencyFormat(orderDetail.getProductPrice()));
+			holder.tvOrderQty.setText(mGlobal.qtyFormat(orderDetail.getOrderQty()));
 			holder.tvComment.setText(null);
 			if(orderDetail.getOrderCommentLst() != null){
 				holder.tvComment.setVisibility(View.VISIBLE);
@@ -896,9 +934,9 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 						double commentQty = comment.getCommentQty();
 						double commentPrice = comment.getCommentPrice();
 						double commentTotalPrice = commentPrice * commentQty;
-						holder.tvComment.append(" " + mFormat.qtyFormat(commentQty));
-						holder.tvComment.append("x" + mFormat.currencyFormat(commentPrice));
-						holder.tvComment.append("=" + mFormat.currencyFormat(commentTotalPrice));
+						holder.tvComment.append(" " + mGlobal.qtyFormat(commentQty));
+						holder.tvComment.append("x" + mGlobal.currencyFormat(commentPrice));
+						holder.tvComment.append("=" + mGlobal.currencyFormat(commentTotalPrice));
 					}
 					holder.tvComment.append("\n");
 				}
@@ -1021,8 +1059,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			OrderSetDetail setDetail = mOrderDetailLst.get(groupPosition).getOrdSetDetailLst().get(childPosition);
 			holder.tvSetNo.setText("-");
 			holder.tvSetName.setText(setDetail.getProductName());
-			holder.tvSetPrice.setText(setDetail.getProductPrice() > 0 ? mFormat.currencyFormat(setDetail.getProductPrice()) : null);
-			holder.tvSetQty.setText(mFormat.qtyFormat(setDetail.getOrderSetQty()));
+			holder.tvSetPrice.setText(setDetail.getProductPrice() > 0 ? mGlobal.currencyFormat(setDetail.getProductPrice()) : null);
+			holder.tvSetQty.setText(mGlobal.qtyFormat(setDetail.getOrderSetQty()));
 			return convertView;
 		}
 
@@ -1119,7 +1157,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 			c.setTimeInMillis(Long.parseLong(trans.getOpenTime()));
 			tvNo.setText(Integer.toString(position + 1) + ".");
-			tvOpenTime.setText(mFormat.dateTimeFormat(c.getTime()));
+			tvOpenTime.setText(mGlobal.dateTimeFormat(c.getTime()));
 			tvOpenStaff.setText(trans.getStaffName());
 			tvRemark.setText(trans.getTransactionNote());
 
@@ -1132,9 +1170,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * page
 	 */
 	private class MenuItemPagerAdapter extends FragmentPagerAdapter{
+		private int mNumCols;
 		
-		public MenuItemPagerAdapter(FragmentManager fm) {
+		public MenuItemPagerAdapter(FragmentManager fm, int numCols) {
 			super(fm);
+			mNumCols = numCols;
 		}
 		
 		@Override
@@ -1145,7 +1185,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		@Override
 		public android.support.v4.app.Fragment getItem(int position) {
 			int deptId = mProductDeptLst.get(position).getProductDeptId();
-			return MenuPageFragment.newInstance(deptId);
+			return MenuPageFragment.newInstance(deptId, mNumCols);
 		}
 	
 		@Override
@@ -1160,14 +1200,16 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		private MenuItemAdapter mMenuItemAdapter;
 		
 		private int mDeptId;
-
+		private int mNumCols;
+		
 		private GridView mGvItem;
 		private LayoutInflater mInflater;
 		
-		public static MenuPageFragment newInstance(int deptId){
+		public static MenuPageFragment newInstance(int deptId, int numCols){
 			MenuPageFragment f = new MenuPageFragment();
 			Bundle b = new Bundle();
 			b.putInt("deptId", deptId);
+			b.putInt("numCols", numCols);
 			f.setArguments(b);
 			return f;
 		}
@@ -1177,6 +1219,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			super.onCreate(savedInstanceState);
 			
 			mDeptId = getArguments().getInt("deptId");
+			mNumCols = getArguments().getInt("numCols");
 			mInflater = getActivity().getLayoutInflater();
 		}
 
@@ -1210,12 +1253,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 						int position, long id) {
 					Product p = (Product) parent.getItemAtPosition(position);
 					ImageViewPinchZoom imgZoom = ImageViewPinchZoom.newInstance(p.getImgName(), p.getProductName(), 
-							((MainActivity) getActivity()).mFormat.currencyFormat(p.getProductPrice()));
+							((MainActivity) getActivity()).mGlobal.currencyFormat(p.getProductPrice()));
 					imgZoom.show(getFragmentManager(), "MenuImage");
 					return true;
 				}
 				
 			});
+			setGridColumns();
 			return mGvItem;
 		}
 		
@@ -1225,6 +1269,10 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			mGvItem.setAdapter(mMenuItemAdapter);
 		}
 
+		private void setGridColumns(){
+			mGvItem.setNumColumns(mNumCols);
+		}
+		
 		/**
 		 * @author j1tth4
 		 * MenuItemAdapter
@@ -1267,7 +1315,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					holder.tvPrice.setVisibility(View.INVISIBLE);
 				}else{
 					holder.tvPrice.setText(((MainActivity) 
-							getActivity()).mFormat.currencyFormat(p.getProductPrice()));
+							getActivity()).mGlobal.currencyFormat(p.getProductPrice()));
 				}
 				if(p.getProductTypeId() == ProductsDao.SIZE){
 					holder.tvPrice.setText("(size)");
@@ -1275,6 +1323,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 				if(Utils.isShowMenuImage(getActivity())){
 					holder.imgMenu.setVisibility(View.VISIBLE);
+					holder.imgMenu.setImageBitmap(null);
 					((MainActivity) getActivity()).mImageLoader.displayImage(
 							Utils.getImageUrl(getActivity()) + 
 							p.getImgName(), holder.imgMenu);
@@ -1331,7 +1380,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			if(p.getProductPrice() < 0)
 				holder.tvPrice.setVisibility(View.INVISIBLE);
 			else
-				holder.tvPrice.setText(mFormat.currencyFormat(p.getProductPrice()));
+				holder.tvPrice.setText(mGlobal.currencyFormat(p.getProductPrice()));
 
 			if(Utils.isShowMenuImage(MainActivity.this)){
 				holder.imgMenu.setVisibility(View.VISIBLE);
@@ -1723,7 +1772,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		StaffsDao st = new StaffsDao(MainActivity.this);
 		if(!st.checkVoidPermission(mStaffRoleId)){
 			UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(StaffsDao.VOID_PERMISSION);
-			uvf.show(getSupportFragmentManager(), "StaffPermissionDialog");
+			uvf.show(getFragmentManager(), "StaffPermissionDialog");
 		}else{
 			goToVoidActivity();
 		}
@@ -1925,8 +1974,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private void updateOrder(int orderDetailId, double qty, 
 			double price, int vatType, double vatRate, String productName){
 		mDsp.setOrderName(productName);
-		mDsp.setOrderQty(mFormat.qtyFormat(qty));
-		mDsp.setOrderPrice(mFormat.currencyFormat(price));
+		mDsp.setOrderQty(mGlobal.qtyFormat(qty));
+		mDsp.setOrderPrice(mGlobal.currencyFormat(price));
 		mTrans.updateOrderDetail(mTransactionId,
 				orderDetailId, vatType, vatRate, qty, price);
 	}
@@ -1945,9 +1994,9 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private void addOrder(final int productId, final String productName, 
 			final int productTypeId, final int vatType, final double vatRate, final double qty, double price){
 		mDsp.setOrderName(productName);
-		mDsp.setOrderQty(mFormat.qtyFormat(qty));
+		mDsp.setOrderQty(mGlobal.qtyFormat(qty));
 		if(price > -1){
-			mDsp.setOrderPrice(mFormat.currencyFormat(price));
+			mDsp.setOrderPrice(mGlobal.currencyFormat(price));
 			int ordId = mTrans.addOrderDetail(mTransactionId, mComputerId, 
 					productId, productTypeId, vatType, vatRate, qty, price);
 			updateOrderLst(ordId);
@@ -1985,7 +2034,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					double openPrice = 0.0f;
 					try {
 						openPrice = Utils.stringToDouble(txtProductPrice.getText().toString());
-						mDsp.setOrderPrice(mFormat.currencyFormat(openPrice));
+						mDsp.setOrderPrice(mGlobal.currencyFormat(openPrice));
 						int ordId = mTrans.addOrderDetail(mTransactionId, mComputerId, 
 								productId, productTypeId, vatType, vatRate, qty, openPrice);
 						updateOrderLst(ordId);
@@ -2037,28 +2086,40 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		dialog.show();
 	}
 
+	private void updateDisplayColumnMenu(){
+		SharedPreferences settings = getSharedPreferences(PREF_NUM_MENU_COLUMNS, 0);
+		int numCols = settings.getInt(NUM_MENU_COLUMNS, 4);
+		if(mMenu != null){
+			MenuItem itemMenuCols = mMenu.findItem(R.id.itemMenuCols);
+			itemMenuCols.setTitle(getString(R.string.num_menu_columns) + "(" + numCols + ")");
+		}	
+	}
+	
 	/**
 	 * count transaction that not send to server
 	 */
 	private void countSaleDataNotSend(){
-		if(mItemSendData != null){
+		if(mMenu != null){
+			MenuItem itemSendSale = mMenu.findItem(R.id.itemSendSale);
+			MenuItem itemSendData = mMenu.findItem(R.id.itemSendData);
+			MenuItem itemSendEndday = mMenu.findItem(R.id.itemSendEndday);
 			int totalTrans = mTrans.countTransUnSend();
 			int totalSess = mSession.countSessionEnddayNotSend();
 			int totalData = totalTrans + totalSess;
 			if(totalData > 0){
-				mItemSendData.setTitle(getString(R.string.send_sale_data) + "(" + totalData + ")");
+				itemSendData.setTitle(getString(R.string.send_sale_data) + "(" + totalData + ")");
 			}else{
-				mItemSendData.setTitle(getString(R.string.send_sale_data));
+				itemSendData.setTitle(getString(R.string.send_sale_data));
 			}
 			if(totalTrans > 0){
-				mItemSendSale.setTitle(getString(R.string.send_sale_data) + "(" + totalTrans + ")");
+				itemSendSale.setTitle(getString(R.string.send_sale_data) + "(" + totalTrans + ")");
 			}else{
-				mItemSendSale.setTitle(getString(R.string.send_sale_data));
+				itemSendSale.setTitle(getString(R.string.send_sale_data));
 			}
 			if(totalSess > 0){
-				mItemSendEndday.setTitle(getString(R.string.send_endday_data) + "(" + totalSess + ")");
+				itemSendEndday.setTitle(getString(R.string.send_endday_data) + "(" + totalSess + ")");
 			}else{
-				mItemSendEndday.setTitle(getString(R.string.send_endday_data));
+				itemSendEndday.setTitle(getString(R.string.send_endday_data));
 			}
 		}
 	}
@@ -2067,12 +2128,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * count order that hold
 	 */
 	private void countHoldOrder(){
-		if(mItemHoldBill != null){
+		if(mMenu != null){
+			MenuItem itemHoldBill = mMenu.findItem(R.id.itemHoldBill);
 			int totalHold = mTrans.countHoldOrder(mSession.getLastSessionDate());
 			if(totalHold > 0){
-				mItemHoldBill.setTitle(getString(R.string.hold_bill) + "(" + totalHold + ")");
+				itemHoldBill.setTitle(getString(R.string.hold_bill) + "(" + totalHold + ")");
 			}else{
-				mItemHoldBill.setTitle(getString(R.string.hold_bill));
+				itemHoldBill.setTitle(getString(R.string.hold_bill));
 			}
 		}
 	}
@@ -2113,7 +2175,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	}
 	
 	private void secondDisplayItem(List<clsSecDisplay_TransSummary> transSummLst, String grandTotal){
-		final String itemJson = SecondDisplayJSON.genDisplayItem(mFormat, mOrderDetailLst, 
+		final String itemJson = SecondDisplayJSON.genDisplayItem(mGlobal, mOrderDetailLst, 
 				transSummLst, grandTotal);
 		Logger.appendLog(this, Utils.LOG_PATH, Utils.LOG_FILE_NAME, itemJson);
 		new Thread(new Runnable(){
@@ -2274,7 +2336,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 * on allow permission
 	 */
 	@Override
-	public void onAllow(int permissionId) {
+	public void onAllow(int staffId, int permissionId) {
 		switch(permissionId){
 		case StaffsDao.VOID_PERMISSION:
 			goToVoidActivity();
@@ -2303,7 +2365,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		progress.setTitle(getString(R.string.endday_success));
 		progress.setCancelable(false);
 		progress.setMessage(getString(R.string.check_network_progress));
-		progress.show();
 		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
 
 			@Override
@@ -2397,6 +2458,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					progress.dismiss();
 				finish();
 			}
+
+			@Override
+			public void onPre() {
+				progress.show();
+			}
 			
 		}).execute();
 	}
@@ -2434,12 +2500,20 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			@Override
 			public void serverProblem(int code, String msg) {
 			}
+
+			@Override
+			public void onPre() {
+			}
 			
 		}).execute();	
 	}
 	
 	@Override
 	public void onChangeLanguage() {
+		refreshSelf();
+	}
+	
+	private void refreshSelf(){
 		startActivity(getIntent());
 		finish();
 	}

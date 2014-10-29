@@ -15,6 +15,7 @@
     </item>
     <item
         android:id="@+id/itemPrint"
+        android:icon="@drawable/ic_action_print"
         android:showAsAction="always|withText"
         android:title="@string/print">
     </item>

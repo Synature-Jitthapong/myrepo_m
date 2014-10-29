@@ -1,13 +1,11 @@
 package com.synature.mpos;
 
-import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.TransactionDao;
@@ -38,6 +36,7 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.app.ActionBar.LayoutParams;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -45,7 +44,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
-public class DiscountActivity extends MPOSActivityBase implements OnItemClickListener, 
+public class DiscountActivity extends Activity implements OnItemClickListener, 
 	OnCheckedChangeListener, OnClickListener, OnEditorActionListener{
 	
 	public static final int PRICE_DISCOUNT_TYPE = 1;
@@ -302,9 +301,6 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 							if(mDisAllType == PRICE_DISCOUNT_TYPE){
 								if(totalRetailPrice < maxTotalRetailPrice){
 									double discount = (totalRetailPrice / totalPrice) * discountAll;
-									BigDecimal big = new BigDecimal(discount);
-									big = big.setScale(0, BigDecimal.ROUND_FLOOR);
-									discount = big.doubleValue();
 									totalDiscount += discount;
 									double totalPriceAfterDiscount = totalRetailPrice - discount;
 									mTrans.discountEatchProduct(mTransactionId, order.getOrderDetailId(),
@@ -331,9 +327,6 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 							if(order.getTotalRetailPrice() == maxTotalRetailPrice){
 								double totalRetailPrice = order.getTotalRetailPrice();
 								double discount = discountAll - totalDiscount;
-								BigDecimal big = new BigDecimal(discount);
-								big = big.setScale(0, BigDecimal.ROUND_FLOOR);
-								discount = big.doubleValue();
 								if(discount > order.getTotalRetailPrice())
 									discount = order.getTotalRetailPrice();
 								totalDiscount += discount;
@@ -397,9 +390,7 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 			else
 				totalDiscount = totalRetailPrice * discount / 100;
 		}
-		BigDecimal bg = new BigDecimal(totalDiscount);
-		bg = bg.setScale(0, BigDecimal.ROUND_FLOOR);
-		return bg.doubleValue();
+		return totalDiscount;
 	}
 	
 	private void confirm(){
@@ -413,15 +404,14 @@ public class DiscountActivity extends MPOSActivityBase implements OnItemClickLis
 	}
 	
 	private void summary() {
-		OrderDetail summ = mTrans.getSummaryOrder(mTransactionId, true);
-		double totalPrice = summ.getVatExclude() > 0 ? summ.getTotalSalePrice() - summ.getVatExclude() : summ.getTotalSalePrice();
+		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransactionId, true);
 		TextView[] tvs = {
 				SaleReportActivity.createTextViewSummary(this, getString(R.string.summary), Utils.getLinHorParams(1.2f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(summ.getOrderQty()), Utils.getLinHorParams(0.5f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getProductPrice()), Utils.getLinHorParams(0.7f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getTotalRetailPrice()), Utils.getLinHorParams(0.7f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(summ.getPriceDiscount()), Utils.getLinHorParams(0.7f)),
-				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(totalPrice), Utils.getLinHorParams(0.7f))
+				SaleReportActivity.createTextViewSummary(this, mFormat.qtyFormat(sumOrder.getOrderQty()), Utils.getLinHorParams(0.5f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(sumOrder.getProductPrice()), Utils.getLinHorParams(0.7f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(sumOrder.getTotalRetailPrice()), Utils.getLinHorParams(0.7f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(sumOrder.getPriceDiscount()), Utils.getLinHorParams(0.7f)),
+				SaleReportActivity.createTextViewSummary(this, mFormat.currencyFormat(sumOrder.getTotalSalePrice()), Utils.getLinHorParams(0.7f))
 		};
 		if(mSummaryContainer.getChildCount() > 0)
 			mSummaryContainer.removeAllViews();

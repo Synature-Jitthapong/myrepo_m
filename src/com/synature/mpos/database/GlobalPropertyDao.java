@@ -24,13 +24,29 @@ public class GlobalPropertyDao extends MPOSDatabase{
 		GlobalPropertyTable.COLUMN_CURRENCY_FORMAT,
 		GlobalPropertyTable.COLUMN_QTY_FORMAT,
 		GlobalPropertyTable.COLUMN_DATE_FORMAT,
-		GlobalPropertyTable.COLUMN_TIME_FORMAT
+		GlobalPropertyTable.COLUMN_TIME_FORMAT,
+		GlobalPropertyTable.COLUMN_TOTAL_DISCOUNT_ROUND_TYPE
 	};
 	
 	public GlobalPropertyDao(Context context) {
 		super(context);
 	}
-
+	
+	/**
+	 * Get rounding type 
+	 * 1 - 6 up/down not follow by function
+	 * 7 0, 1
+	 * 8 0, 0.5, 1
+	 * 9 0, 0.25, 0.5, 0.75, 1
+	 * @return rounding type
+	 */
+	public int getRoundingType(){
+		int roundingType = 0;
+		com.synature.pos.GlobalProperty gb = getGlobalProperty();
+		roundingType = gb.getTotalDiscountRoundType();
+		return roundingType;
+	}
+	
 	/**
 	 * @param d
 	 * @param pattern
@@ -202,6 +218,7 @@ public class GlobalPropertyDao extends MPOSDatabase{
 			gb.setDateFormat(cursor.getString(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_DATE_FORMAT)));
 			gb.setTimeFormat(cursor.getString(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_TIME_FORMAT)));
 			gb.setQtyFormat(cursor.getString(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_QTY_FORMAT)));
+			gb.setTotalDiscountRoundType(cursor.getInt(cursor.getColumnIndex(GlobalPropertyTable.COLUMN_TOTAL_DISCOUNT_ROUND_TYPE)));
 			cursor.moveToNext();
 		}
 		cursor.close();
@@ -221,6 +238,7 @@ public class GlobalPropertyDao extends MPOSDatabase{
 				cv.put(GlobalPropertyTable.COLUMN_DATE_FORMAT, global.getDateFormat());
 				cv.put(GlobalPropertyTable.COLUMN_TIME_FORMAT, global.getTimeFormat());
 				cv.put(GlobalPropertyTable.COLUMN_QTY_FORMAT, global.getQtyFormat());
+				cv.put(GlobalPropertyTable.COLUMN_TOTAL_DISCOUNT_ROUND_TYPE, global.getTotalDiscountRoundType());
 				getWritableDatabase().insertOrThrow(GlobalPropertyTable.TABLE_GLOBAL_PROPERTY, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();

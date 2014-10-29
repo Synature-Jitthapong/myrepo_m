@@ -7,35 +7,32 @@
     android:orientation="horizontal"
     android:padding="@dimen/activity_horizontal_margin" >
 
-    <Button
+    <ImageButton
         android:id="@+id/btnPrint"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:text="@string/print" />
-
-    <TextView
-        android:id="@+id/tvReceiptNo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/btnPrint"
-        android:layout_alignBottom="@+id/btnPrint"
-        android:layout_toLeftOf="@+id/btnPrint"
-        android:layout_toRightOf="@+id/tvNo"
-        android:layout_weight="1"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:src="@drawable/ic_action_print" />
 
     <TextView
         android:id="@+id/tvNo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/tvReceiptNo"
-        android:layout_alignBottom="@+id/tvReceiptNo"
         android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
         android:layout_marginRight="4dp"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/tvReceiptNo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/btnPrint"
+        android:layout_toRightOf="@+id/tvNo"
+        android:layout_weight="1"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

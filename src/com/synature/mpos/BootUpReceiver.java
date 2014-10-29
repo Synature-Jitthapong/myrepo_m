@@ -18,12 +18,13 @@ public class BootUpReceiver extends BroadcastReceiver{
 				update.setUpdateStatus(1);
 				Logger.appendLog(context, Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Success update apk");
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		Intent loginIntent = new Intent(context, LoginActivity.class);
-		loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		context.startActivity(loginIntent);
+		if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+			Intent loginIntent = new Intent(context, LoginActivity.class);
+			loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			context.startActivity(loginIntent);
+		}
 	}
 }

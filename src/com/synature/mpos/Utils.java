@@ -21,8 +21,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
@@ -31,18 +29,9 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.synature.mpos.database.GlobalPropertyDao;
-import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.ProductsDao;
-import com.synature.mpos.database.SaleTransaction;
-import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
-import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
-import com.synature.mpos.database.table.OrderDetailTable;
-import com.synature.mpos.database.table.OrderTransTable;
-import com.synature.mpos.database.table.PaymentDetailTable;
-import com.synature.mpos.database.table.SessionDetailTable;
-import com.synature.mpos.database.table.SessionTable;
 import com.synature.util.Logger;
 
 public class Utils {
@@ -55,7 +44,7 @@ public class Utils {
 	/**
 	 * Database version
 	 */
-	public static int DB_VERSION = 5;
+	public static int DB_VERSION = 6;
 	
 	/**
 	 * Main url 
@@ -102,11 +91,6 @@ public class Utils {
 	 * Endday sale dir store endday sale json file
 	 */
 	public static final String ENDDAY_PATH = RESOURCE_DIR + File.separator + "EnddaySale";
-
-	/**
-	 * Update path stored apk for update.
-	 */
-	public static final String UPDATE_PATH = RESOURCE_DIR + File.separator + "Update";
 	
 	/**
 	 * apk file name
@@ -196,84 +180,6 @@ public class Utils {
 		return diffDay;
 	}
 	
-	/**
-	 * @author j1tth4
-	 * task for load end day transaction data
-	 */
-	public static class LoadEndDayTransaction extends AsyncTask<Void, Void, POSData_EndDaySaleTransaction>{
-
-		protected String mSessionDate;
-		protected SaleTransaction mSaleTrans;
-		protected LoadEndDaySaleTransactionListener mListener;
-		
-		/**
-		 * @param context
-		 * @param sessionDate
-		 * @param listener
-		 */
-		public LoadEndDayTransaction(Context context, String sessionDate, LoadEndDaySaleTransactionListener listener){
-			mSessionDate = sessionDate;
-			mSaleTrans = new SaleTransaction(context);
-			mListener = listener;
-		}
-		
-		@Override
-		protected void onPreExecute() {
-			mListener.onPreExecute();
-		}
-
-		@Override
-		protected void onPostExecute(POSData_EndDaySaleTransaction enddayTrans) {
-			mListener.onPost(enddayTrans);
-		}
-		
-		@Override
-		protected POSData_EndDaySaleTransaction doInBackground(Void... params) {
-			return mSaleTrans.getEndDayTransaction(mSessionDate);
-		}
-	}
-	
-	/**
-	 * @author j1tth4
-	 * task for load partial sale transaction 
-	 */
-	public static class LoadSaleTransaction extends AsyncTask<Void, Void, POSData_SaleTransaction>{
-
-		protected int mTransactionId;
-		protected int mSessionId;
-		protected SaleTransaction mSaleTrans;
-		protected LoadSaleTransactionListener mListener;
-		
-		/**
-		 * @param context
-		 * @param sessionId
-		 * @param transactionId
-		 * @param listener
-		 */
-		public LoadSaleTransaction(Context context, int sessionId, int transactionId,
-				LoadSaleTransactionListener listener){
-			mTransactionId = transactionId;
-			mSessionId = sessionId;
-			mSaleTrans = new SaleTransaction(context);
-			mListener = listener;
-		}
-		
-		@Override
-		protected void onPreExecute() {
-			mListener.onPreExecute();
-		}
-
-		@Override
-		protected void onPostExecute(POSData_SaleTransaction saleTrans) {
-			mListener.onPost(saleTrans);
-		}
-		
-		@Override
-		protected POSData_SaleTransaction doInBackground(Void... params) {
-			return mSaleTrans.getTransaction(mTransactionId, mSessionId);
-		}
-	}
-	
 	public static Calendar getCalendar(){
 		return Calendar.getInstance(Locale.getDefault());
 	}
@@ -325,43 +231,71 @@ public class Utils {
 	public static String fixesDigitLength(GlobalPropertyDao format, int scale, double value){
 		return format.currencyFormat(value, "#,##0.0000");
 	}
-
-	/**
-	 * @param scale
-	 * @param value
-	 * @return rounding value
-	 */
-//	public static double rounding(int scale, double value){
-//		BigDecimal big = new BigDecimal(value);
-//		return big.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
-//	}
 	
 	/**
+	 * @param roundType
 	 * @param price
 	 * @return rounding value
 	 */
-//	public static double roundingPrice(double price){
-//		double result = price;
-//		long iPart;		// integer part
-//		double fPart;	// fractional part
-//		iPart = (long) price;
-//		fPart = price - iPart;
-//		if(fPart < 0.25){
-//			fPart = 0.0d;
-//		}else if(fPart >= 0.25 && fPart < 0.50){
-//			fPart = 0.25d;
-//		}else if(fPart >= 0.50 && fPart < 0.75){
-//			fPart = 0.50d;
-//		}else if(fPart == 0.75){
-//			fPart = 0.75d;
-//		}else if(fPart > 0.75){
-//			iPart += 1;
-//			fPart = 0.0d;
-//		}
-//		result = iPart + fPart;
-//		return result;
-//		return price;
-//	}
+	public static double roundingPrice(int roundType, double price){
+		double result = price;
+		long iPart;		// integer part
+		double fPart;	// fractional part
+		iPart = (long) price;
+		fPart = price - iPart;
+		switch(roundType){
+		case 1:
+		case 7:
+			if(fPart > 0){
+				iPart += 1;
+				fPart = 0;
+			}
+			break;
+		case 2:
+		case 8:
+			if(fPart < 0.5){
+				fPart = 0;
+			}else if (fPart == 0.5){
+				fPart = 0.5;
+			}else{
+				iPart += 1;
+				fPart = 0;
+			}
+			break;
+		case 3:
+		case 9:
+			if(fPart > 0 && fPart < 0.25){
+				fPart = 0.25;
+			}else if(fPart > 0.25 && fPart <= 0.5){
+				fPart = 0.5;
+			}else if(fPart > 0.5){
+				iPart += 1;
+				fPart = 0;
+			}
+			break;
+		case 4:
+			fPart = 0;
+			break;
+		case 5:
+			if(fPart < 0.5){
+				fPart = 0;
+			}else if (fPart >= 0.5){
+				fPart = 0.5;
+			}
+			break;
+		case 6:
+			if(fPart < 0.25){
+				fPart = 0;
+			}else if(fPart >= 0.25 && fPart < 0.5){
+				fPart = 0.25;
+			}else if(fPart >= 0.5){
+				fPart = 0.5;
+			}	
+			break;
+		}
+		result = iPart + fPart;
+		return result;
+	}
 
 	public static double stringToDouble(String text) throws ParseException{
 		double value = 0.0d;
@@ -377,20 +311,6 @@ public class Utils {
 				" Server Response : " + msg);
 	}
 	
-	public static void clearSale(Context context){
-		MPOSDatabase.MPOSOpenHelper mSqliteHelper = 
-				MPOSDatabase.MPOSOpenHelper.getInstance(context);
-		SQLiteDatabase sqlite = mSqliteHelper.getWritableDatabase();
-		sqlite.delete(OrderDetailTable.TABLE_ORDER, null, null);
-		sqlite.delete(OrderDetailTable.TEMP_ORDER, null, null);
-		sqlite.delete(OrderTransTable.TABLE_ORDER_TRANS, null, null);
-		sqlite.delete(OrderTransTable.TEMP_ORDER_TRANS, null, null);
-		sqlite.delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, null);
-		sqlite.delete(SessionTable.TABLE_SESSION, null, null);
-		sqlite.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, null, null);
-		makeToask(context, "Clear sale data successfully.");
-	}
-
 	/**
 	 * Get software version
 	 * @param context
@@ -742,13 +662,5 @@ public class Utils {
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){
 		return new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight);
-	}
-	
-	public static interface LoadEndDaySaleTransactionListener extends WebServiceWorkingListener{
-		void onPost(POSData_EndDaySaleTransaction enddayTrans);
-	}
-	
-	public static interface LoadSaleTransactionListener extends WebServiceWorkingListener{
-		void onPost(POSData_SaleTransaction saleTrans);
 	}
 }

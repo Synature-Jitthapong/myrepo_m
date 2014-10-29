@@ -12,6 +12,7 @@ public class GlobalPropertyTable{
 	public static final String COLUMN_QTY_FORMAT = "qty_format";
 	public static final String COLUMN_DATE_FORMAT = "date_format";
 	public static final String COLUMN_TIME_FORMAT = "time_format";
+	public static final String COLUMN_TOTAL_DISCOUNT_ROUND_TYPE = "total_discount_round_type";
 	
 	private static final String SQL_CREATE =
 			" create table " + TABLE_GLOBAL_PROPERTY + " ( " 
@@ -21,7 +22,8 @@ public class GlobalPropertyTable{
 			+ COLUMN_CURRENCY_FORMAT + " text default '#,##0.00', "
 			+ COLUMN_QTY_FORMAT + " text default '#,##0', "
 			+ COLUMN_DATE_FORMAT + " text default 'd MMMM yyyy', "
-			+ COLUMN_TIME_FORMAT + " text default 'HH:mm:ss' );";
+			+ COLUMN_TIME_FORMAT + " text default 'HH:mm:ss', "
+			+ COLUMN_TOTAL_DISCOUNT_ROUND_TYPE + " integer default 0);";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);

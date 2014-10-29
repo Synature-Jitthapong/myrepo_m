@@ -11,7 +11,6 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.6"
-        android:background="@color/white_gray"
         android:divider="@android:drawable/divider_horizontal_bright"
         android:orientation="vertical"
         android:showDividers="middle" >
@@ -36,28 +35,29 @@
                 android:paddingRight="96dp"
                 android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceLargeInverse" >
-            </EditText>
 
-            <ImageButton
-                android:id="@+id/imgBtnClearBarcode"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignRight="@+id/txtBarCode"
-                android:layout_centerVertical="true"
-                android:minWidth="48dip"
-                android:onClick="clearBarCodeClicked"
-                android:src="@drawable/ic_action_cancel" />
+            </EditText>
 
             <ImageButton
                 android:id="@+id/imgBtnToggleKey"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="48dp"
                 android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@+id/imgBtnClearBarcode"
                 android:onClick="toggleKeyboard"
                 android:src="@drawable/ic_action_keyboard" />
+
+            <ImageButton
+                android:id="@+id/imgBtnClearBarcode"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/imgBtnToggleKey"
+                android:minWidth="48dip"
+                android:onClick="clearBarCodeClicked"
+                android:src="@drawable/ic_action_cancel" />
 
         </RelativeLayout>
 
@@ -66,12 +66,15 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:background="@color/white_gray"
             android:childDivider="@android:color/transparent" >
+
         </ExpandableListView>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/white_gray"
             android:padding="4dp" >
 
             <ImageButton
@@ -84,7 +87,7 @@
                 android:minHeight="48dip"
                 android:minWidth="48dip"
                 android:onClick="onClick"
-                android:src="@android:drawable/ic_menu_delete" />
+                android:src="@drawable/ic_action_discard" />
 
             <ImageButton
                 android:id="@+id/btnClearSelOrder"
@@ -96,7 +99,7 @@
                 android:minHeight="48dip"
                 android:minWidth="48dip"
                 android:onClick="onClick"
-                android:src="@android:drawable/ic_menu_revert" />
+                android:src="@drawable/ic_action_content_undo" />
 
             <ImageButton
                 android:id="@+id/btnBillDetail"
@@ -107,7 +110,7 @@
                 android:layout_alignTop="@+id/btnClearSelOrder"
                 android:minWidth="48dip"
                 android:onClick="onClick"
-                android:src="@drawable/ic_action_receipt" />
+                android:src="@drawable/ic_action_receipt_light" />
 
         </RelativeLayout>
 
@@ -116,6 +119,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp" >
+
         </TableLayout>
 
         <LinearLayout

@@ -1,13 +1,15 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- AppTheme -->
-    <style name="AppTheme" parent="AppBaseTheme">
+    <style name="AppTheme" parent="android:Theme.Holo.Light">
+        <item name="android:windowBackground">@color/blue_gray_light</item>
+        <item name="android:colorBackground">@color/blue_gray_light</item>
         <!-- <item name="android:actionBarStyle">@style/MyActionBar</item> -->
         <item name="android:buttonStyle">@style/GrayButton</item>
         <item name="android:imageButtonStyle">@style/GrayButton</item>
         <!-- <item name="android:editTextStyle">@style/EditTextStyle</item> -->
     </style>
     <!-- ActivityDialogTheme -->
-    <style name="ActivityDialogTheme" parent="BaseActivityDialogTheme">
+    <style name="ActivityDialogTheme" parent="android:Theme.Holo.Light.Dialog">
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowSoftInputMode">stateAlwaysHidden</item>
@@ -22,7 +24,7 @@
         <item name="android:background">@android:color/holo_orange_dark</item>
     </style>
     <!-- Text Style -->
-    <style name="TextQty" parent="@android:style/TextAppearance.Holo.Medium">
+    <style name="TextQty" parent="@android:style/TextAppearance.Holo.Large">
         <!-- <item name="android:background">@drawable/white_flat_bg</item> -->
         <item name="android:gravity">center</item>
         <item name="android:minWidth">32dp</item>
@@ -45,7 +47,7 @@
         <item name="android:minWidth">200dp</item>
         <item name="android:layout_marginRight">4dp</item>
     </style>
- 	<style name="BodyText" parent="@android:style/TextAppearance.Holo">
+ 	<style name="BodyText" parent="@android:style/TextAppearance.Holo.Small">
 		<item name="android:gravity">right|center_vertical</item>
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>

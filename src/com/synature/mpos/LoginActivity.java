@@ -3,7 +3,7 @@ package com.synature.mpos;
 import java.io.File;
 import java.util.Calendar;
 
-import com.synature.mpos.common.MPOSActivityBase;
+import com.synature.mpos.SoftwareExpirationChecker.SoftwareExpirationCheckerListener;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -33,17 +34,25 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class LoginActivity extends MPOSActivityBase implements OnClickListener, OnEditorActionListener{
+public class LoginActivity extends Activity implements OnClickListener, 
+	OnEditorActionListener, UserVerifyDialogFragment.OnCheckPermissionListener{
 	
 	/**
 	 * Request code for set system date
 	 */
 	public static final int REQUEST_FOR_SETTING_DATE = 1;
 	
-	public static final int CLICK_TIMES_TO_SETTING = 5;
+	public static enum WhatToDo{
+		VIEW_REPORT,
+		UTILITY
+	};
+
+	private WhatToDo mWhatToDo;
 	
 	private int mStaffId;
 	private int mStaffRoleId;
@@ -64,7 +73,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.activity_login);
 		
 		mBtnLogin = (Button) findViewById(R.id.btnLogin);
@@ -279,15 +287,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if(keyCode == KeyEvent.KEYCODE_BACK){
-			return false;
-		}else{
-			return super.onKeyDown(keyCode, event);
-		}
-	}
-	
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_login, menu);
 		return true;
@@ -296,6 +295,7 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Intent intent = null;
+		UserVerifyDialogFragment userFragment = null;
 		switch(item.getItemId()){
 		case R.id.itemSetting:
 			intent = new Intent(LoginActivity.this, SettingsActivity.class);
@@ -315,11 +315,73 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 			PerformTest f = PerformTest.newInstance();
 			f.show(getFragmentManager(), "PerformTest");
 			return true;
+		case android.R.id.home:
+			finish();
+			return true;
+		case R.id.itemUtils:
+			mWhatToDo = WhatToDo.UTILITY;
+			userFragment = UserVerifyDialogFragment.newInstance(0);
+			userFragment.show(getFragmentManager(), UserVerifyDialogFragment.TAG);
+			return true;
+		case R.id.itemReport:
+			mWhatToDo = WhatToDo.VIEW_REPORT;
+			userFragment = UserVerifyDialogFragment.newInstance(0);
+			userFragment.show(getFragmentManager(), UserVerifyDialogFragment.TAG);
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
 		}
 	}
 
+	private void createUtilsPopup(final View v){
+		if(v != null){
+			PopupMenu popup = new PopupMenu(this, v);
+			popup.inflate(R.menu.action_utility);
+			popup.setOnMenuItemClickListener(new OnMenuItemClickListener(){
+	
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+					Intent intent = null;
+					switch(item.getItemId()){
+					case R.id.itemBackup:
+						Utils.backupDatabase(LoginActivity.this);
+						return true;
+					case R.id.itemRestore:
+						RestoreDatabaseFragment restoreFragment = RestoreDatabaseFragment.newInstance();
+						restoreFragment.show(getFragmentManager(), RestoreDatabaseFragment.TAG);
+						return true;
+					case R.id.itemSendEndday:
+						intent = new Intent(LoginActivity.this, SendEnddayActivity.class);
+						intent.putExtra("staffId", mStaffId);
+						intent.putExtra("shopId", mShop.getShopId());
+						intent.putExtra("computerId", mComputer.getComputerId());
+						startActivity(intent);
+						return true;
+					case R.id.itemSendSale:
+						intent = new Intent(LoginActivity.this, SendSaleActivity.class);
+						intent.putExtra("staffId", mStaffId);
+						intent.putExtra("shopId", mShop.getShopId());
+						intent.putExtra("computerId", mComputer.getComputerId());
+						startActivity(intent);
+						return true;
+					case R.id.itemResetEndday:
+						ResetEnddayStateDialogFragment resetFragment = ResetEnddayStateDialogFragment.newInstance();
+						resetFragment.show(getFragmentManager(), ResetEnddayStateDialogFragment.TAG);
+						return true;
+					case R.id.itemClearSale:
+						ClearSaleDialogFragment clearSaleFragment = ClearSaleDialogFragment.newInstance();
+						clearSaleFragment.show(getFragmentManager(), ClearSaleDialogFragment.TAG);
+						return true;
+					default :
+						return false;
+					}
+				}
+				
+			});
+			popup.show();
+		}
+	}
+	
 	private void exit(){
 		new AlertDialog.Builder(this)
 		.setTitle(R.string.exit)
@@ -350,13 +412,12 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		displayWelcome();
 		super.onResume();
 	}
-			
+	
 	private void checkSoftwareUpdate(){
 		final SoftwareUpdateDao su = new SoftwareUpdateDao(this);
 		final SoftwareUpdate update = su.getUpdateData();
 		if(update != null){
 			if(update.isDownloaded()){
-				final String filePath = Environment.getExternalStorageDirectory() + File.separator + Utils.UPDATE_PATH + File.separator + Utils.UPDATE_FILE_NAME;
 				if(!update.isAlreadyUpdated()){
 					AlertDialog.Builder builder = new AlertDialog.Builder(this);
 					builder.setTitle(R.string.software_update);
@@ -371,7 +432,8 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							File apkFile = new File(filePath);
+							File download = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+							File apkFile = new File(download + File.separator + Utils.UPDATE_FILE_NAME);
 						    Intent intent = new Intent(Intent.ACTION_VIEW);
 						    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
 						    startActivity(intent);
@@ -379,11 +441,6 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 					});
 					AlertDialog d = builder.create();
 					d.show();
-				}else{
-					File f = new File(filePath);
-					if(f != null){
-						f.delete();
-					}
 				}
 			}
 		}
@@ -462,12 +519,43 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 	}
 	
 	private void gotoMainActivity(){
-		//startEnddayService();
-		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+		final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 		intent.putExtra("staffId", mStaffId);
 		intent.putExtra("staffRoleId", mStaffRoleId);
-		startActivity(intent);
-        finish();
+		SoftwareExpirationChecker swChecker = new SoftwareExpirationChecker(this, new SoftwareExpirationCheckerListener() {
+			
+			@Override
+			public void onNotExpired() {
+				startActivity(intent);
+		        finish();	
+			}
+			
+			@Override
+			public void onExpire(final Calendar lockDate, final boolean isLocked) {
+				String msg = getString(R.string.software_expired_msg);
+				msg += " " + mFormat.dateFormat(lockDate.getTime());
+				if(isLocked){
+					msg = getString(R.string.software_locked);
+				}
+				AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+				builder.setTitle(R.string.software_expired);
+				builder.setMessage(msg);
+				builder.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						if(!isLocked){
+							startActivity(intent);
+					        finish();	
+						}
+					}
+				});
+				AlertDialog d = builder.create();
+				d.show();
+				
+			}
+		});
+		swChecker.checkExpDate();
 	}
 	
 	public void checkLogin(){
@@ -539,6 +627,20 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 			case R.id.btnLogin:
 				checkLogin();
 				break;
+		}
+	}
+
+	@Override
+	public void onAllow(int staffId, int permissionId) {
+		switch(mWhatToDo){
+		case VIEW_REPORT:
+			Intent intent = new Intent(this, SaleReportActivity.class);
+			intent.putExtra("staffId", staffId);
+			startActivity(intent);
+			break;
+		case UTILITY:
+			createUtilsPopup(findViewById(R.id.itemUtils));
+			break;
 		}
 	}
 }

@@ -82,7 +82,42 @@ public class OrderTransTable extends BaseColumn {
 				db.execSQL("drop table if exists " + TABLE_ORDER_TRANS);
 				db.execSQL("drop table if exists " + TEMP_ORDER_TRANS);
 				onCreate(db);
-				db.execSQL("insert into " + TABLE_ORDER_TRANS + " select * from " + tbCopy);
+				db.execSQL("insert into " + TABLE_ORDER_TRANS
+						+ "(" + COLUMN_UUID + ", " 
+						+ COLUMN_TRANS_ID + ", "
+						+ ComputerTable.COLUMN_COMPUTER_ID + ", "
+						+ ShopTable.COLUMN_SHOP_ID + ", " 
+						+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + ", "
+						+ COLUMN_OPEN_TIME + ", " 
+						+ COLUMN_OPEN_STAFF + ", "
+						+ COLUMN_PAID_TIME + ", " 
+						+ COLUMN_PAID_STAFF_ID + ", " 
+						+ COLUMN_CLOSE_TIME + ", "
+						+ COLUMN_CLOSE_STAFF + ", " 
+						+ COLUMN_STATUS_ID + ", " 
+						+ COLUMN_DOC_TYPE_ID + ", " 
+						+ COLUMN_RECEIPT_YEAR + ", "
+						+ COLUMN_RECEIPT_MONTH + ", " 
+						+ COLUMN_RECEIPT_ID + ", " 
+						+ COLUMN_RECEIPT_NO + ", "
+						+ COLUMN_SALE_DATE + ", " 
+						+ SessionTable.COLUMN_SESS_ID + ", " 
+						+ COLUMN_VOID_STAFF_ID + ", "
+						+ COLUMN_VOID_REASON + ", " 
+						+ COLUMN_VOID_TIME + ", "
+						+ COLUMN_MEMBER_ID + ", " 
+						+ COLUMN_TRANS_VAT + ", " 
+						+ COLUMN_TRANS_EXCLUDE_VAT + ", " 
+						+ COLUMN_TRANS_VATABLE + ", " 
+						+ COLUMN_TRANS_NOTE + ", "
+						+ COLUMN_OTHER_DISCOUNT + ", "
+						+ COLUMN_SEND_STATUS + ", "
+						+ ProductTable.COLUMN_SALE_MODE + ", "
+						+ ProductTable.COLUMN_VAT_RATE + ", "
+						+ COLUMN_OTHER_DISCOUNT_DESC + ", "
+						+ COLUMN_EJ + ", "
+						+ COLUMN_EJ_VOID + ")"
+						+ " select * from " + tbCopy);
 				db.execSQL("drop table " + tbCopy);
 				db.setTransactionSuccessful();
 			} finally {

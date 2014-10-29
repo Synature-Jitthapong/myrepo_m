@@ -4,6 +4,10 @@
     android:layout_height="match_parent"
     android:baselineAligned="false"
     android:orientation="horizontal"
+    android:paddingBottom="@dimen/vertical_margin"
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp"
+    android:paddingTop="@dimen/vertical_margin"
     tools:context=".PaymentActivity" >
 
     <LinearLayout
@@ -197,8 +201,9 @@
             style="@style/TextPrice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="0"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="@dimen/larger_text_size" />
+            android:textSize="72sp" />
 
         <GridView
             android:id="@+id/gvPaymentButton"

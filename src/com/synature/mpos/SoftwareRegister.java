@@ -15,6 +15,8 @@ import android.text.TextUtils;
 
 public class SoftwareRegister extends MPOSServiceBase{
 
+	public static final String TAG = SoftwareRegister.class.getSimpleName();
+			
 	public static final String REGIST_SERVICE_URL_METHOD = "WSmPOS_GetRegisterServiceUrl";
 	
 	public static final String SW_VERSION_PARAM = "szSwVersion";
@@ -45,12 +47,10 @@ public class SoftwareRegister extends MPOSServiceBase{
 		try {
 			MPOSSoftwareInfo info = gson.fromJson(result, MPOSSoftwareInfo.class);
 			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
-			if(info != null){
-				SoftwareInfoDao sw = new SoftwareInfoDao(mContext);
-				sw.logSoftwareInfo(info.getSzSoftwareVersion(), 
-						String.valueOf(Utils.DB_VERSION), info.getSzSoftwareExpireDate(), 
-						info.getSzLockExpireDate());
-				if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
+			SoftwareInfoDao sw = new SoftwareInfoDao(mContext);
+			sw.logSoftwareInfo(info.getSzSoftwareExpireDate(), info.getSzLockExpireDate());
+			if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
+				if(!SoftwareUpdateService.sIsRunning){
 					// compare version
 					if(!TextUtils.equals(Utils.getSoftWareVersion(mContext), info.getSzSoftwareVersion())){
 						SoftwareUpdateDao su = new SoftwareUpdateDao(mContext);
@@ -60,17 +60,14 @@ public class SoftwareRegister extends MPOSServiceBase{
 						mContext.startService(intent);
 					}
 				}
-				if(!TextUtils.isEmpty(info.getSzRegisterServiceUrl())){
-					SharedPreferences.Editor editor = sharedPref.edit();
-					editor.putString(SettingsActivity.KEY_PREF_SERVER_URL, info.getSzRegisterServiceUrl());
-					editor.commit();
-					
-					mListener.onPostExecute();
-				}else{
-					mListener.onError(mContext.getString(R.string.invalid_url));
-				}
+			}
+			if(!TextUtils.isEmpty(info.getSzRegisterServiceUrl())){
+				SharedPreferences.Editor editor = sharedPref.edit();
+				editor.putString(SettingsActivity.KEY_PREF_SERVER_URL, info.getSzRegisterServiceUrl());
+				editor.commit();
+				mListener.onPostExecute();
 			}else{
-				mListener.onError("No result from server");
+				mListener.onError(mContext.getString(R.string.device_not_register));
 			}
 		} catch (JsonSyntaxException e1) {
 			mListener.onError(result);

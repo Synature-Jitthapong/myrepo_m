@@ -31,7 +31,7 @@ public abstract class PrinterBase {
 	
 	public static final int HORIZONTAL_MAX_SPACE = 45;
 	public static final int QTY_MAX_SPACE = 12;
-	public static final int MAX_TEXT_LENGTH = 35;
+	public static final int MAX_TEXT_LENGTH = 32;
 	public static final int MAX_TEXT_WITH_QTY_LENGTH = 25;
 	
 	protected TransactionDao mTrans;
@@ -220,6 +220,7 @@ public abstract class PrinterBase {
 	 * @param dateTo
 	 */
 	protected void createTextForPrintSaleByProductReport(String dateFrom, String dateTo){
+		OrderTransaction sumTrans = mTrans.getSummaryTransaction(dateFrom, dateTo);
 		OrderDetail summOrder = mTrans.getSummaryOrder(dateFrom, dateTo);
 	
 		String date = mFormat.dateFormat(dateTo);
@@ -250,7 +251,7 @@ public abstract class PrinterBase {
 							mContext.getString(R.string.summary);
 					mTextToPrint.append(itemName);
 				}else{
-					itemName = limitTextWithQtyLength(itemName);
+					itemName = limitTextWithQtyLength("  " + itemName);
 					mTextToPrint.append(itemName);
 				}
 				String itemTotalPrice = mFormat.currencyFormat(detail.getSubTotal());
@@ -283,6 +284,12 @@ public abstract class PrinterBase {
 				+ calculateLength(discount)));
 		mTextToPrint.append(discount + "\n");
 		
+		String totalText = mContext.getString(R.string.total);
+		String total = mFormat.currencyFormat(summOrder.getTotalSalePrice());
+		mTextToPrint.append(totalText);
+		mTextToPrint.append(createHorizontalSpace(calculateLength(totalText) 
+				+ calculateLength(total)));
+		mTextToPrint.append(total + "\n");
 		// Vat Exclude
 		if(summOrder.getVatExclude() > 0){
 			String vatExcludeText = mContext.getString(R.string.vat_exclude) + " " +
@@ -291,17 +298,14 @@ public abstract class PrinterBase {
 			mTextToPrint.append(vatExcludeText);
 			mTextToPrint.append(createHorizontalSpace(calculateLength(vatExcludeText) 
 					+ calculateLength(vatExclude)));
-			mTextToPrint.append(vatExclude + "\n\n");
-		}else{
-			mTextToPrint.append("\n");
+			mTextToPrint.append(vatExclude + "\n");
 		}
-		
 		String grandTotalText = mContext.getString(R.string.grand_total);
-		String grandTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice());
+		String grandTotal = mFormat.currencyFormat(sumTrans.getTransactionVatable());
 		mTextToPrint.append(grandTotalText);
 		mTextToPrint.append(createHorizontalSpace(calculateLength(grandTotalText) 
 				+ calculateLength(grandTotal)));
-		mTextToPrint.append(grandTotal + "\n");
+		mTextToPrint.append(grandTotal);
 	}
 	
 	/**
@@ -338,8 +342,8 @@ public abstract class PrinterBase {
 			Staff std = st.getStaff(sess.getOpenStaff());
 			mTextToPrint.append(mContext.getString(R.string.open_by) + " " + std.getStaffName() + " " + mFormat.timeFormat(sess.getOpenDate()) + "\n");
 			std = st.getStaff(sess.getCloseStaff());
-			String closeBy = std != null ? std.getStaffName() : "";
-			String closeTime = sess.getCloseDate() != null ? mFormat.timeFormat(sess.getCloseDate()) : "";
+			String closeBy = std != null ? std.getStaffName() : "-";
+			String closeTime = std != null ? mFormat.timeFormat(sess.getCloseDate()) : "";
 			mTextToPrint.append(mContext.getString(R.string.close_by) + " " + closeBy + " " + closeTime + "\n");
 		}
 		mTextToPrint.append(mContext.getString(R.string.print_by) + " " + mStaff.getStaff(staffId).getStaffName() + "\n");
@@ -368,7 +372,7 @@ public abstract class PrinterBase {
 				mTextToPrint.append(groupTotalPrice + "\n");
 				if(sp.getItemLst() != null){
 					for(SimpleProductData.Item item : sp.getItemLst()){
-						String itemName = limitTextWithQtyLength("-" + item.getItemName());
+						String itemName = limitTextWithQtyLength("  " + item.getItemName());
 						String itemTotalPrice = mFormat.currencyFormat(item.getTotalPrice());
 						String itemTotalQty = mFormat.qtyFormat(item.getTotalQty()) + 
 								createQtySpace(calculateLength(itemTotalPrice));
@@ -395,25 +399,22 @@ public abstract class PrinterBase {
 					+ calculateLength(subTotalQty) 
 					+ calculateLength(subTotalPrice)));
 			mTextToPrint.append(subTotalQty);
-			mTextToPrint.append(subTotalPrice + "\n\n");
+			mTextToPrint.append(subTotalPrice + "\n");
 		}
-		
 		String discountText = mContext.getString(R.string.discount);
 		String discount = mFormat.currencyFormat(summOrder.getPriceDiscount());
-//		String subTotalText = mContext.getString(R.string.sub_total) + " ";
-//		String subTotal = mFormat.currencyFormat(summOrder.getTotalSalePrice());
-		
 		mTextToPrint.append(discountText);
 		mTextToPrint.append(createHorizontalSpace(
 				calculateLength(discountText) 
 				+ calculateLength(discount)));
 		mTextToPrint.append(discount + "\n");
-//		mTextToPrint.append(subTotalText);
-//		mTextToPrint.append(createHorizontalSpace(
-//				calculateLength(subTotalText) 
-//				+ calculateLength(subTotal)));
-//		mTextToPrint.append(subTotal + "\n");
-		
+		String totalText = mContext.getString(R.string.total);
+		String total = mFormat.currencyFormat(summOrder.getTotalSalePrice());
+		mTextToPrint.append(totalText);
+		mTextToPrint.append(createHorizontalSpace(
+				calculateLength(totalText) 
+				+ calculateLength(total)));
+		mTextToPrint.append(total + "\n");
 		// Vat Exclude
 		if(summOrder.getVatExclude() > 0){
 			String vatExcludeText = mContext.getString(R.string.vat_exclude) + " " +
@@ -423,16 +424,29 @@ public abstract class PrinterBase {
 			mTextToPrint.append(createHorizontalSpace(
 					calculateLength(vatExcludeText) 
 					+ calculateLength(vatExclude)));
-			mTextToPrint.append(vatExclude + "\n\n");
+			mTextToPrint.append(vatExclude + "\n");
 		}
-		
-		String totalSaleText = mContext.getString(R.string.total_sale);
-		String totalSale = mFormat.currencyFormat(summOrder.getTotalSalePrice());
-		mTextToPrint.append(totalSaleText);
-		mTextToPrint.append(createHorizontalSpace(
-				calculateLength(totalSaleText) 
-				+ calculateLength(totalSale)));
-		mTextToPrint.append(totalSale + "\n");
+		double totalReceiptAmount = mTrans.getTotalReceiptAmount(sessionDate);
+		if(sessionId != 0)
+			totalReceiptAmount = mTrans.getTotalReceiptAmount(sessionId);
+		if(totalReceiptAmount != trans.getTransactionVatable()){
+			double totalRounding = totalReceiptAmount - trans.getTransactionVatable();
+			String roundingText = mContext.getString(R.string.rounding);
+			String rounding = mFormat.currencyFormat(totalRounding);
+			mTextToPrint.append(roundingText);
+			mTextToPrint.append(createHorizontalSpace(
+					calculateLength(roundingText) 
+					+ calculateLength(rounding)));
+			mTextToPrint.append(rounding + "\n");
+			
+			String grandTotalText = mContext.getString(R.string.grand_total);
+			String grandTotal = mFormat.currencyFormat(totalReceiptAmount);
+			mTextToPrint.append(grandTotalText);
+			mTextToPrint.append(createHorizontalSpace(
+					calculateLength(grandTotalText) 
+					+ calculateLength(grandTotal)));
+			mTextToPrint.append(grandTotal + "\n");
+		}
 		
 		if(mShop.getCompanyVatType() == ProductsDao.VAT_TYPE_INCLUDED){
 			String beforeVatText = mContext.getString(R.string.before_vat);
@@ -449,9 +463,9 @@ public abstract class PrinterBase {
 			mTextToPrint.append(createHorizontalSpace(
 					calculateLength(totalVatText) 
 					+ calculateLength(totalVat)));
-			mTextToPrint.append(totalVat + "\n\n");
+			mTextToPrint.append(totalVat + "\n");
 		}
-
+		mTextToPrint.append("\n");
 		if(sessionId != 0 || isOneSession){
 			if(isOneSession)
 				sessionId = session.getLastSessionId();
@@ -462,7 +476,6 @@ public abstract class PrinterBase {
 			String cashInDrawerText = mContext.getString(R.string.cash_in_drawer);
 			String cashCountText = mContext.getString(R.string.cash_count);
 			String overShotText = mContext.getString(R.string.over_or_short);
-			//double totalBillPayByCashAmount = mPayment.getTotalTransPayByCash(session.getSessionDate());
 			double floatInAmount = session.getOpenAmount(sessionId);
 			double totalCashAmount = mPayment.getTotalCash(sessionId, sessionDate);
 			double cashInDrawerAmount = floatInAmount + totalCashAmount;
@@ -472,15 +485,6 @@ public abstract class PrinterBase {
 			String totalCash = mFormat.currencyFormat(totalCashAmount);
 			String cashCount = mFormat.currencyFormat(cashCountAmount);
 			String overShot = mFormat.currencyFormat(cashCountAmount - cashInDrawerAmount);
-	//			String totalBillPayByCash = mFormat.qtyFormat(totalBillPayByCashAmount)
-	//					+ createQtySpace(calculateLength(totalCash));
-	
-	//			mTextToPrint.append(totalCashText);
-	//			mTextToPrint.append(createHorizontalSpace(calculateLength(totalCashText)
-	//					+ calculateLength(totalBillPayByCash)
-	//					+ calculateLength(totalCash)));
-	//			mTextToPrint.append(totalBillPayByCash);
-	//			mTextToPrint.append(totalCash + "\n");
 			mTextToPrint.append(floatInText);
 			mTextToPrint.append(createHorizontalSpace(calculateLength(floatInText) + 
 					calculateLength(floatIn)));
@@ -549,7 +553,12 @@ public abstract class PrinterBase {
 	protected void createTextForPrintReceipt(int transId, boolean isCopy, boolean isLoadTemp){
 		OrderTransaction trans = mTrans.getTransaction(transId, isLoadTemp);
 		OrderDetail sumOrder = mTrans.getSummaryOrder(transId, isLoadTemp);
-		double change = mPayment.getTotalPayAmount(transId) - (sumOrder.getTotalSalePrice());
+		double totalPayAmount = mPayment.getTotalPayAmount(transId);
+		double totalPaid = mPayment.getTotalPaid(transId);
+		if(totalPaid == 0){
+			totalPaid = Utils.roundingPrice(mFormat.getRoundingType(), sumOrder.getTotalSalePrice());
+		}
+		double change = totalPayAmount - totalPaid;
 		boolean isShowVat = mShop.getShopProperty().getPrintVatInReceipt() == 1;
 		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
 		
@@ -635,7 +644,7 @@ public abstract class PrinterBase {
     	String discountText = TextUtils.isEmpty(sumOrder.getPromotionName()) ? mContext.getString(R.string.discount) : sumOrder.getPromotionName();
     	
     	String strTotalRetailPrice = mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
-    	String strTotalSale = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+    	String strTotalSale = mFormat.currencyFormat(totalPaid);
     	String strTotalDiscount = "-" + mFormat.currencyFormat(sumOrder.getPriceDiscount());
     	String strTotalChange = mFormat.currencyFormat(change);
     	
@@ -656,20 +665,18 @@ public abstract class PrinterBase {
 	    			calculateLength(discountText) + 
 	    			calculateLength(strTotalDiscount)));
 	    	mTextToPrint.append(strTotalDiscount + "\n");
+	    	
+    		String subTotalText = mContext.getString(R.string.sub_total);
+    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+	    	mTextToPrint.append(subTotalText);
+	    	mTextToPrint.append(createHorizontalSpace(
+	    			calculateLength(subTotalText) + 
+	    			calculateLength(subTotal)));
+	    	mTextToPrint.append(subTotal + "\n");
     	}
     	
     	// transaction exclude vat
     	if(trans.getTransactionVatExclude() > 0){
-    		// show sub total
-    		if(sumOrder.getPriceDiscount() > 0){
-	    		String subTotalText = mContext.getString(R.string.sub_total);
-	    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice() - sumOrder.getVatExclude());
-		    	mTextToPrint.append(subTotalText);
-		    	mTextToPrint.append(createHorizontalSpace(
-		    			calculateLength(subTotalText) + 
-		    			calculateLength(subTotal)));
-		    	mTextToPrint.append(subTotal + "\n");
-    		}
     		String vatExcludeText = mContext.getString(R.string.vat_exclude) + " " +
     				NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
     		String strVatExclude = mFormat.currencyFormat(trans.getTransactionVatExclude());
@@ -680,6 +687,28 @@ public abstract class PrinterBase {
     		mTextToPrint.append(strVatExclude + "\n");
     	}
     	
+    	// show rounding
+    	if(trans.getTransactionVatable() > 0){
+	    	if(trans.getTransactionVatable() != totalPaid){
+	    		if(sumOrder.getPriceDiscount() == 0){
+		    		String subTotalText = mContext.getString(R.string.sub_total);
+		    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+			    	mTextToPrint.append(subTotalText);
+			    	mTextToPrint.append(createHorizontalSpace(
+			    			calculateLength(subTotalText) + 
+			    			calculateLength(subTotal)));
+			    	mTextToPrint.append(subTotal + "\n");
+	    		}
+	    		String roundText = mContext.getString(R.string.rounding);
+	    		String round = mFormat.currencyFormat(totalPaid - trans.getTransactionVatable());    	
+	    		mTextToPrint.append(roundText);
+	        	mTextToPrint.append(createHorizontalSpace(
+	        			calculateLength(roundText) + 
+	        			calculateLength(round)));
+	        	mTextToPrint.append(round + "\n");
+	    	}
+    	}
+    	
     	// total price
     	mTextToPrint.append(totalText);
     	mTextToPrint.append(createHorizontalSpace(
@@ -687,6 +716,8 @@ public abstract class PrinterBase {
     			calculateLength(strTotalSale)));
     	mTextToPrint.append(strTotalSale + "\n");
 
+    	
+    	
     	// total payment
     	List<MPOSPaymentDetail> paymentLst = 
     			mPayment.listPaymentGroupByType(transId);

@@ -239,7 +239,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 		if(checkThisPayTypeIsAdded(transactionId, payTypeId)){
 			// update payment
 			double totalPayment = getTotalPayAmount(transactionId) + totalPay;
-			double totalPayed = getTotalPayedAmount(transactionId) + pay;
+			double totalPayed = getTotalPaid(transactionId) + pay;
 			updatePaymentDetail(transactionId, payTypeId, totalPayment, totalPayed);
 		}else{
 			// add new payment
@@ -359,9 +359,9 @@ public class PaymentDetailDao extends MPOSDatabase {
 	/**
 	 * Get total payed
 	 * @param transactionId
-	 * @return total payed amount
+	 * @return total paid amount (real paid)
 	 */
-	public double getTotalPayedAmount(int transactionId){
+	public double getTotalPaid(int transactionId){
 		double totalPaid = 0.0d;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "

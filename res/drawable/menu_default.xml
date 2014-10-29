@@ -3,6 +3,9 @@
 
     <item>
         <shape>
+           <corners 
+               android:topLeftRadius="6dp"
+               android:bottomRightRadius="6dp"/>
            <gradient
                 android:angle="0"
                 android:centerColor="@color/gray"
@@ -14,6 +17,9 @@
         android:right="1dp"
         android:bottom="1dp">
         <shape>
+            <corners 
+                android:topLeftRadius="6dp"
+                android:bottomRightRadius="6dp"/>
             <solid android:color="@android:color/white" />
         </shape>
     </item>
