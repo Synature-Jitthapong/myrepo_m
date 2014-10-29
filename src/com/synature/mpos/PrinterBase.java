@@ -24,7 +24,6 @@ import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.point.R;
 import com.synature.pos.Report;
 import com.synature.pos.Staff;
-import com.synature.util.Logger;
 
 public abstract class PrinterBase {
 	
