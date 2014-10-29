@@ -48,8 +48,8 @@
     <string name="product_name">Product Name</string>
     <string name="unit_price">Unit Price</string>
     <string name="to">To</string>
-    <string name="vatable">VATable</string>
-    <string name="total_vat">Total VAT</string>
+    <string name="vatable">Pb.1</string>
+    <string name="total_vat">Total Pb.1</string>
     <string name="connection">Connection</string>
     <string name="connection_summary">Setting server url.</string>
     <string name="incorrect_password">Incorrect password!</string>
@@ -100,7 +100,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="endday_progress">Ending day please wait&#8230;</string>
     <string name="alredy_endday">Already endday.</string>
     <string name="credit_card">Credit Card</string>
-    <string name="before_vat">Before VAT</string>
+    <string name="before_vat">Before Pb.1</string>
     <string name="check_not_complete_orders">Some orders are not complete Please check those orders before do this function.</string>
     <string name="barcode">Barcode</string>
     <string name="font">Font</string>
@@ -239,7 +239,7 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="please_select_db">Please select database that you want to restore.</string>
     <string name="software_update">Software Update</string>
     <string name="software_update_mesg">New version available. Please update the latest version.</string>
-    <string name="total_sale_include_vat">Total Sale Include VAT</string>
+    <string name="total_sale_include_vat">Total Sale Include Pb.1</string>
     <string name="check_network_progress">Checking network connection&#8230;</string>
     <string name="software_expired">Software Expired</string>
     <string name="software_expired_msg">mPOS has already expired! You can use until </string>
