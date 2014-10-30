@@ -600,7 +600,7 @@ public abstract class PrinterBase {
     		OrderDetail order = orderLst.get(i);
     		String productName = limitTextLength(mFormat.qtyFormat(order.getOrderQty()) + "x " + 
     				order.getProductName());
-    		String productPrice = mFormat.currencyFormat(order.getProductPrice());
+    		String productPrice = mFormat.currencyFormat(order.getTotalRetailPrice());
     		mTextToPrint.append(productName);
     		mTextToPrint.append(createHorizontalSpace(
     				calculateLength(productName) + 
