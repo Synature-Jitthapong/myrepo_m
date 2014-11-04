@@ -625,7 +625,7 @@ public class MainActivity extends FragmentActivity implements
 				isCopy = 1;
 			printLog.insertLog(transactionId, staffId, isCopy);
 		}
-		new PrintReceipt(MainActivity.this).execute();
+		new PrintReceipt(MainActivity.this, mPrintReceiptListener).execute();
 		
 		if(change > 0){
 			LinearLayout changeView = new LinearLayout(MainActivity.this);
@@ -685,41 +685,57 @@ public class MainActivity extends FragmentActivity implements
 						}
 			}, 10000);
 		}
-		
-		// send sale data service
-		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
-
-			@Override
-			public void onLine() {
-				List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
-				int size = transIdLst.size();
-				for(int i = 0; i < size; i++){
-					if(i < 10){
-						OrderTransaction trans = transIdLst.get(i);
-						mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
-								trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
-					}else{
-						break;
-					}
-				}
-			}
-
-			@Override
-			public void offLine(String msg) {
-				Utils.makeToask(MainActivity.this, msg);
-			}
-
-			@Override
-			public void serverProblem(int code, String msg) {
-				Utils.makeToask(MainActivity.this, msg);
-			}
-
-			@Override
-			public void onPre() {
-			}
-			
-		}).execute();
 	}
+	
+	/**
+	 * The listener of print receipt
+	 */
+	private PrintReceipt.OnPrintReceiptListener mPrintReceiptListener = 
+			new PrintReceipt.OnPrintReceiptListener(){
+
+				@Override
+				public void onPrePrint() {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onPostPrint() {
+					// send sale data service
+					new NetworkConnectionChecker(MainActivity.this, new NetworkConnectionChecker.NetworkCheckerListener(){
+
+						@Override
+						public void onLine() {
+							List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
+							int size = transIdLst.size();
+							for(int i = 0; i < size; i++){
+								if(i < 10){
+									OrderTransaction trans = transIdLst.get(i);
+									mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
+											trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
+								}else{
+									break;
+								}
+							}
+						}
+
+						@Override
+						public void offLine(String msg) {
+							Utils.makeToask(MainActivity.this, msg);
+						}
+
+						@Override
+						public void serverProblem(int code, String msg) {
+							Utils.makeToask(MainActivity.this, msg);
+						}
+
+						@Override
+						public void onPre() {
+						}
+						
+					}).execute();
+				}
+	};
 	
 	private class SendSaleListener implements WebServiceWorkingListener{
 		
