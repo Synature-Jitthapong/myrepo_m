@@ -632,6 +632,9 @@ public class TransactionDao extends MPOSDatabase {
 				+ " ON a."  + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID;
 		String selection = "a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?) ";
+		String groupBy = "a." + ProductTable.COLUMN_PRODUCT_ID;
+		if(countNotNormalTypeOrder(transactionId, isLoadTemp) > 0)
+			groupBy = "a." + OrderDetailTable.COLUMN_ORDER_ID + ", a." + ProductTable.COLUMN_PRODUCT_ID;
 		Cursor cursor = queryOrderDetail(
 				tables,
 				selection,
@@ -639,7 +642,7 @@ public class TransactionDao extends MPOSDatabase {
 					String.valueOf(transactionId),
 					String.valueOf(ProductsDao.NORMAL_TYPE),
 					String.valueOf(ProductsDao.SET_CAN_SELECT)
-				}, "a." + ProductTable.COLUMN_PRODUCT_ID);
+				}, groupBy);
 		if (cursor.moveToFirst()) {
 			do {
 				OrderDetail ord = new OrderDetail();
@@ -667,6 +670,28 @@ public class TransactionDao extends MPOSDatabase {
 		return orderDetailLst;
 	}
 
+	/**
+	 * @param transactionId
+	 * @param isLoadTemp
+	 * @return > 0 if have not normal type product
+	 */
+	private int countNotNormalTypeOrder(int transactionId, boolean isLoadTemp){
+		int count = 0;
+		Cursor cursor = getReadableDatabase().rawQuery("SELECT COUNT(*) FROM " 
+				+ (isLoadTemp ? OrderDetailTable.TEMP_ORDER : OrderDetailTable.TABLE_ORDER)
+				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " AND " + ProductTable.COLUMN_PRODUCT_TYPE_ID + "!=?", 
+				new String[]{
+						String.valueOf(transactionId),
+						String.valueOf(ProductsDao.NORMAL_TYPE)
+						});
+		if(cursor.moveToFirst()){
+			count = cursor.getInt(0);
+		}
+		cursor.close();
+		return count;
+	}
+	
 	/**
 	 * list order for discount
 	 * @param transactionId
@@ -1894,22 +1919,24 @@ public class TransactionDao extends MPOSDatabase {
 	
 	/**
 	 * @param transactionId
-	 * @param orderDetailId List<OrderSet.OrderSetDetail>
+	 * @param parentOrderId
 	 * @param isLoadTemp
 	 * @return List<OrderSet.OrderSetDetail>
 	 */
-	public List<OrderSet.OrderSetDetail> listGroupedOrderSetDetail(int transactionId, int orderDetailId, boolean isLoadTemp) {
+	public List<OrderSet.OrderSetDetail> listGroupedOrderSetDetail(int transactionId, int parentOrderId, boolean isLoadTemp) {
 		List<OrderSet.OrderSetDetail> sdl = null;
-		Cursor cursor = queryOrderDetail(
-				(isLoadTemp ? OrderDetailTable.TEMP_ORDER : OrderDetailTable.TABLE_ORDER) + " a"
+		String tables = (isLoadTemp ? OrderDetailTable.TEMP_ORDER : OrderDetailTable.TABLE_ORDER) + " a"
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b"
-				+ " ON a."  + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID,
-				"a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " ON a."  + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID;
+		String selection = "a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " AND a." + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?"
-				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + "=?",
+				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + "=?";
+		Cursor cursor = queryOrderDetail(
+				tables,
+				selection,
 				new String[] {
 					String.valueOf(transactionId),
-					String.valueOf(orderDetailId),
+					String.valueOf(parentOrderId),
 					String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE)
 				}, "a." + ProductTable.COLUMN_PRODUCT_ID);
 		if (cursor.moveToFirst()) {
@@ -1934,7 +1961,7 @@ public class TransactionDao extends MPOSDatabase {
 		sd.setProductName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
 		sd.setOrderSetQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
 		sd.setDeductAmount(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_DEDUCT_AMOUNT)));
-		sd.setProductPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
+		sd.setProductPrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
 		return sd;
 	}
 	
@@ -2135,25 +2162,25 @@ public class TransactionDao extends MPOSDatabase {
 	}
 	
 	/**
-	 * @param transId
-	 * @param ordId
+	 * @param transactionId
+	 * @param parentOrderId
 	 * @param isLoadTemp
 	 * @return List<OrderComment>
 	 */
-	public List<OrderComment> listGroupedOrderComment(int transId, int ordId, boolean isLoadTemp){
+	public List<OrderComment> listGroupedOrderComment(int transactionId, int parentOrderId, boolean isLoadTemp){
 		List<OrderComment> ordCmLst = new ArrayList<OrderComment>();
 		String tables = (isLoadTemp ? OrderDetailTable.TEMP_ORDER : OrderDetailTable.TABLE_ORDER) + " a"
 				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b"
 				+ " ON a."  + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID;
-		String selection = "a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
-				+ " AND a." + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=?"
+		String selection = "a." + OrderTransTable.COLUMN_TRANS_ID + "=? "
+				+ " AND a." + OrderDetailTable.COLUMN_PARENT_ORDER_ID + "=? "
 				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN(?,?) "; 
 		Cursor cursor = queryOrderDetail(
 				tables,
 				selection,
 				new String[]{
-					String.valueOf(transId),
-					String.valueOf(ordId),
+					String.valueOf(transactionId),
+					String.valueOf(parentOrderId),
 					String.valueOf(ProductsDao.COMMENT_HAVE_PRICE),
 					String.valueOf(ProductsDao.COMMENT_NOT_HAVE_PRICE)
 				}, "a." + ProductTable.COLUMN_PRODUCT_ID);
@@ -2172,7 +2199,7 @@ public class TransactionDao extends MPOSDatabase {
 		cm.setCommentName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
 		cm.setCommentName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
 		cm.setCommentQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
-		cm.setCommentPrice(cursor.getDouble(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
+		cm.setCommentPrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
 		return cm;
 	}
 	

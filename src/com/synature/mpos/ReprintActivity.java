@@ -111,7 +111,7 @@ public class ReprintActivity extends Activity {
 		private ImageButton mBtnPrint;
 		
 		public Reprint(int transactionId, ImageButton refBtnPrint) {
-			super(ReprintActivity.this);
+			super(ReprintActivity.this, null);
 			mTransactionId = transactionId;
 			mBtnPrint = refBtnPrint;
 		}

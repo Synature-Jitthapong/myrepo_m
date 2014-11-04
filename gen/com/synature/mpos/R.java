@@ -225,7 +225,7 @@ public final class R {
         public static final int itemPerformTest=0x7f0c00ed;
         public static final int itemPrint=0x7f0c0102;
         public static final int itemProgress=0x7f0c00de;
-        public static final int itemReport=0x7f0c00eb;
+        public static final int itemReport=0x7f0c00ea;
         public static final int itemReprint=0x7f0c00f1;
         public static final int itemResetEndday=0x7f0c00e5;
         public static final int itemRestore=0x7f0c00e4;
@@ -238,7 +238,7 @@ public final class R {
         public static final int itemSwUser=0x7f0c00f7;
         public static final int itemUpdate=0x7f0c00e9;
         public static final int itemUtility=0x7f0c00f0;
-        public static final int itemUtils=0x7f0c00ea;
+        public static final int itemUtils=0x7f0c00eb;
         public static final int itemVoid=0x7f0c00f2;
         public static final int listView1=0x7f0c0042;
         public static final int loadImgProgress=0x7f0c00a8;
