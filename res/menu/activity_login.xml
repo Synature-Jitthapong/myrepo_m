@@ -13,17 +13,13 @@
         android:showAsAction="always|withText"
         android:title="@string/update_data">
     </item>
-    <item
-        android:id="@+id/itemUtils"
-        android:icon="@drawable/ic_action_phone"
-        android:showAsAction="always|withText"
-        android:title="@string/utility">
-    </item>
+    
     <item
         android:id="@+id/itemReport"
         android:icon="@drawable/ic_action_report"
         android:showAsAction="always|withText"
         android:title="@string/report">
+    </item><item android:id="@+id/itemUtils" android:icon="@drawable/ic_action_phone" android:showAsAction="collapseActionView" android:title="@string/utility">
     </item>
     <item
         android:id="@+id/itemAbout"

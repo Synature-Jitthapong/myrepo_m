@@ -49,7 +49,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.database.SQLException;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
