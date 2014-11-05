@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <Preference android:widgetLayout="@layout/reset_send_layout" android:title="Reset Send Data Status" android:key="reset_send_status"/>
+    
+
+</PreferenceScreen>

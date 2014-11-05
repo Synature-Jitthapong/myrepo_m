@@ -1,6 +1,7 @@
 package com.synature.mpos;
 
 import android.annotation.TargetApi;
+import android.content.ContentValues;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,7 +13,13 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.synature.mpos.database.MPOSDatabase;
+import com.synature.mpos.database.SessionDao;
+import com.synature.mpos.database.table.OrderTransTable;
+import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.point.R;
+
 import java.util.List;
 
 public class SettingsActivity extends PreferenceActivity {
@@ -164,6 +171,16 @@ public class SettingsActivity extends PreferenceActivity {
 		
 	}
 	
+	public static class ResetSendStatusFragment extends PreferenceFragment{
+
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_reset_send_status);
+		}
+		
+	}
+	
 	public static class SecondDisplayPreferenceFragment extends PreferenceFragment{
 
 		@Override
@@ -174,6 +191,15 @@ public class SettingsActivity extends PreferenceActivity {
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
 		}
 		
+	}
+	
+	public void resetClick(final View v){
+		MPOSDatabase db = new MPOSDatabase(getApplicationContext());
+		ContentValues cv = new ContentValues();
+		cv.put(MPOSDatabase.COLUMN_SEND_STATUS, 0);
+		db.getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, cv, null, null);
+		db.getWritableDatabase().update(OrderTransTable.TABLE_ORDER_TRANS, cv, null, null);
+		Utils.makeToask(getApplicationContext(), "Reset successfully.");
 	}
 	
 	public void dspTestClick(final View v){
