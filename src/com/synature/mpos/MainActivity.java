@@ -523,6 +523,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}else{
+				mDsp.displayWelcome();
 			}
 		}
 	}
@@ -586,7 +588,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 				isCopy = 1;
 			printLog.insertLog(transactionId, staffId, isCopy);
 		}
-		new PrintReceipt(MainActivity.this).execute();
+		new PrintReceipt(MainActivity.this, mPrintReceiptListener).execute();
 		
 		// Wintec DSP
 		if(Utils.isEnableWintecCustomerDisplay(this)){
@@ -608,37 +610,49 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 						}
 			}, 10000);
 		}
-		
-		// send sale data service
-		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
-
-			@Override
-			public void onLine() {
-				List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
-				int size = transIdLst.size();
-				for(int i = 0; i < size; i++){
-					if(i < 10){
-						OrderTransaction trans = transIdLst.get(i);
-						mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
-								trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
-					}else{
-						break;
-					}
-				}
-			}
-
-			@Override
-			public void offLine(String msg) {
-				Utils.makeToask(MainActivity.this, msg);
-			}
-
-			@Override
-			public void serverProblem(int code, String msg) {
-				Utils.makeToask(MainActivity.this, msg);
-			}
-			
-		}).execute();
 	}
+	
+	private PrintReceipt.OnPrintReceiptListener mPrintReceiptListener = 
+			new PrintReceipt.OnPrintReceiptListener(){
+
+				@Override
+				public void onPrePrint() {
+				}
+
+				@Override
+				public void onPostPrint() {
+					// send sale data service
+					new NetworkConnectionChecker(MainActivity.this, new NetworkConnectionChecker.NetworkCheckerListener(){
+
+						@Override
+						public void onLine() {
+							List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
+							int size = transIdLst.size();
+							for(int i = 0; i < size; i++){
+								if(i < 10){
+									OrderTransaction trans = transIdLst.get(i);
+									mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
+											trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
+								}else{
+									break;
+								}
+							}
+						}
+
+						@Override
+						public void offLine(String msg) {
+							Utils.makeToask(MainActivity.this, msg);
+						}
+
+						@Override
+						public void serverProblem(int code, String msg) {
+							Utils.makeToask(MainActivity.this, msg);
+						}
+						
+					}).execute();
+				}
+		
+	};
 	
 	private class SendSaleListener implements WebServiceWorkingListener{
 		
@@ -2194,7 +2208,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 
 		// print close shift
 		new PrintReport(MainActivity.this, 
-			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).execute();
+			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId, null).execute();
 		
 		startActivity(new Intent(MainActivity.this, LoginActivity.class));
 		finish();
@@ -2224,11 +2238,11 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			int totalSess = mSession.countSession(mSession.getLastSessionDate());
 			if(totalSess > 1){
 				new PrintReport(MainActivity.this, 
-					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).execute();
+					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId, null).execute();
 			}
 			// if parse sessionId = 0 will be print all summary in day
 			new PrintReport(MainActivity.this, 
-				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId).execute();
+				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId, null).execute();
 
 			// backup the database
 			if(Utils.isEnableBackupDatabase(MainActivity.this)){

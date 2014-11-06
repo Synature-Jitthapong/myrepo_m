@@ -23,12 +23,14 @@ public class PrintReport extends AsyncTask<Void, Void, Void>{
 	 * @param whatPrint
 	 * @param sessionId
 	 * @param staffId
+	 * @param dateTo
 	 */
-	public PrintReport(Context context, WhatPrint whatPrint, int sessionId, int staffId){
+	public PrintReport(Context context, WhatPrint whatPrint, int sessionId, int staffId, String dateTo){
 		mContext = context;
 		mWhatPrint = whatPrint;
 		mSessionId = sessionId;
 		mStaffId = staffId;
+		mDateTo = dateTo;
 	}
 	
 	/**
@@ -38,7 +40,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void>{
 	 * @param dateTo
 	 */
 	public PrintReport(Context context, WhatPrint whatPrint, String dateFrom, String dateTo){
-		this(context, whatPrint, 0, 0);
+		this(context, whatPrint, 0, 0, dateTo);
 		mDateFrom = dateFrom;
 		mDateTo = dateTo;
 	}
@@ -49,7 +51,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void>{
 			WintecPrinter wtPrinter = new WintecPrinter(mContext);
 			switch(mWhatPrint){
 			case SUMMARY_SALE:
-				wtPrinter.createTextForPrintSummaryReport(mSessionId, mStaffId);
+				wtPrinter.createTextForPrintSummaryReport(mSessionId, mStaffId, mDateTo);
 				wtPrinter.print();
 				break;
 			case PRODUCT_REPORT:
@@ -65,7 +67,7 @@ public class PrintReport extends AsyncTask<Void, Void, Void>{
 			EPSONPrinter epPrinter = new EPSONPrinter(mContext);
 			switch(mWhatPrint){
 			case SUMMARY_SALE:
-				epPrinter.createTextForPrintSummaryReport(mSessionId, mStaffId);
+				epPrinter.createTextForPrintSummaryReport(mSessionId, mStaffId, mDateTo);
 				epPrinter.print();
 				break;
 			case PRODUCT_REPORT:

@@ -290,7 +290,6 @@ public class VoidBillActivity extends MPOSActivityBase {
 					d.dismiss();
 					searchBill();
 					printReceipt();
-					sendSale();
 				}
 			}
 			
@@ -307,9 +306,22 @@ public class VoidBillActivity extends MPOSActivityBase {
 				isCopy = 1;
 			printLog.insertLog(mTransactionId, mStaffId, isCopy);
 		}
-		new PrintReceipt(VoidBillActivity.this).execute();
+		new PrintReceipt(VoidBillActivity.this, mPrintReceiptListener).execute();
 	}
 	
+	private PrintReceipt.OnPrintReceiptListener mPrintReceiptListener = 
+			new PrintReceipt.OnPrintReceiptListener() {
+				
+				@Override
+				public void onPrePrint() {
+				}
+				
+				@Override
+				public void onPostPrint() {
+					sendSale();
+				}
+			};
+			
 	private void sendSale(){
 		new NetworkConnectionChecker(this, new NetworkCheckerListener() {
 			

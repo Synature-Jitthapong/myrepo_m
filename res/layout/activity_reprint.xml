@@ -5,6 +5,13 @@
     android:padding="@dimen/activity_horizontal_margin"
     tools:context=".ReprintActivity" >
 
+    <Spinner
+        android:id="@+id/spSaleDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true" />
+
     <ListView
         android:id="@+id/listView1"
         android:layout_width="match_parent"
@@ -12,7 +19,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" >
+        android:layout_below="@+id/spSaleDate" >
 
     </ListView>
 

@@ -1,13 +1,22 @@
 package com.synature.mpos;
 
+import java.util.ArrayList;
 import java.util.List;
+
 import com.synature.mpos.common.MPOSActivityBase;
+import com.synature.mpos.database.GlobalPropertyDao;
+import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
+import com.synature.mpos.database.model.Session;
+import com.synature.mpos.database.table.OrderTransTable;
+import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.point.R;
+
 import android.os.Bundle;
 import android.content.Context;
+import android.database.Cursor;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,15 +24,23 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
-public class ReprintActivity extends MPOSActivityBase {
+public class ReprintActivity extends MPOSActivityBase implements OnItemSelectedListener{
 	
 	private TransactionDao mOrders;
+	private GlobalPropertyDao mGlobal;
+	private List<OrderTransaction> mOrderTrans;
 	
 	private ReprintTransAdapter mTransAdapter;
+	private Spinner mSpSaleDate;
 	private ListView mLvTrans;
 	
 	@Override
@@ -41,15 +58,17 @@ public class ReprintActivity extends MPOSActivityBase {
 		setContentView(R.layout.activity_reprint);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
+		mSpSaleDate = (Spinner) findViewById(R.id.spSaleDate);
 		mLvTrans = (ListView) findViewById(R.id.listView1);
 
 		mOrders = new TransactionDao(this);
-		SessionDao sess = new SessionDao(this);
+		mGlobal = new GlobalPropertyDao(this);
 
-		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, 
-				mOrders.listSuccessTransaction(sess.getLastSessionDate()));
-		mLvTrans.setAdapter(mTransAdapter);
-		mLvTrans.setSelection(mTransAdapter.getCount() - 1);
+		setupListView();
+		
+		mSpSaleDate.setAdapter(new SaleDateAdapter(getSaleDate()));
+		mSpSaleDate.setOnItemSelectedListener(this);
+		mSpSaleDate.setSelection(mSpSaleDate.getCount() - 1);
 	}
 	
 	@Override
@@ -61,6 +80,67 @@ public class ReprintActivity extends MPOSActivityBase {
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+	
+	private void setupListView(){
+		if(mTransAdapter == null){
+			SessionDao sess = new SessionDao(this);
+			mOrderTrans = mOrders.listSuccessTransaction(sess.getLastSessionDate());
+			mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, mOrderTrans);
+			mLvTrans.setAdapter(mTransAdapter);
+			mLvTrans.setSelection(mTransAdapter.getCount() - 1);
+		}
+	}
+	
+	private List<String> getSaleDate(){
+		List<String> saleDate = new ArrayList<String>();
+		MPOSDatabase db = new MPOSDatabase(ReprintActivity.this);
+		Cursor cursor = db.getReadableDatabase().rawQuery(
+				"SELECT " + OrderTransTable.COLUMN_SALE_DATE 
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
+				+ " GROUP BY " + OrderTransTable.COLUMN_SALE_DATE, null);
+		if(cursor.moveToFirst()){
+			do{
+				saleDate.add(cursor.getString(0));
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return saleDate;
+	}
+	
+	public class SaleDateAdapter extends BaseAdapter{
+
+		private List<String> mSaleDate;
+		
+		public SaleDateAdapter(List<String> saleDate){
+			mSaleDate = saleDate;
+		}
+		
+		@Override
+		public int getCount() {
+			return mSaleDate != null ? mSaleDate.size() : 0;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return mSaleDate.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if(convertView == null){
+				convertView = getLayoutInflater().inflate(android.R.layout.simple_spinner_dropdown_item, parent, false);
+			}
+			CheckedTextView textView = (CheckedTextView) convertView;
+			textView.setText(mGlobal.dateFormat(mSaleDate.get(position)));
+			return convertView;
+		}
+		
 	}
 	
 	public class ReprintTransAdapter extends OrderTransactionAdapter{
@@ -110,7 +190,7 @@ public class ReprintActivity extends MPOSActivityBase {
 		private Button mBtnPrint;
 		
 		public Reprint(int transactionId, Button refBtnPrint) {
-			super(ReprintActivity.this);
+			super(ReprintActivity.this, null);
 			mTransactionId = transactionId;
 			mBtnPrint = refBtnPrint;
 		}
@@ -136,5 +216,19 @@ public class ReprintActivity extends MPOSActivityBase {
 			});
 			return null;
 		}
+	}
+
+	@Override
+	public void onItemSelected(AdapterView<?> parent, View view, int position,
+			long id) {
+		String saleDate = parent.getItemAtPosition(position).toString();
+		mOrderTrans = mOrders.listSuccessTransaction(saleDate);
+		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, mOrderTrans);
+		mLvTrans.setAdapter(mTransAdapter);
+		mLvTrans.setSelection(mTransAdapter.getCount() - 1);
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> parent) {
 	}
 }

@@ -15,12 +15,15 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	private PrintReceiptLogDao mPrintLog;
 	private Context mContext;
 	
+	private OnPrintReceiptListener mListener;
+	
 	/**
 	 * @param context
 	 */
-	public PrintReceipt(Context context){
+	public PrintReceipt(Context context, OnPrintReceiptListener listener){
 		mContext = context;
 		mPrintLog = new PrintReceiptLogDao(context);
+		mListener = listener;
 	}
 
 	@Override
@@ -50,4 +53,20 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 		return null;
 	}
 
+	@Override
+	protected void onPreExecute() {
+		if(mListener != null)
+			mListener.onPrePrint();
+	}
+
+	@Override
+	protected void onPostExecute(Void result) {
+		if(mListener != null)
+			mListener.onPostPrint();
+	}
+
+	public static interface OnPrintReceiptListener{
+		void onPrePrint();
+		void onPostPrint();
+	}
 }
