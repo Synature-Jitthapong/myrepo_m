@@ -181,7 +181,7 @@ public class Utils {
 	}
 	
 	public static Calendar getCalendar(){
-		return Calendar.getInstance(Locale.getDefault());
+		return Calendar.getInstance(Locale.US);
 	}
 	
 	public static Calendar getMinimum(){

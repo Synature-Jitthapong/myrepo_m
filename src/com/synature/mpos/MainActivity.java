@@ -561,6 +561,8 @@ public class MainActivity extends FragmentActivity implements
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}else{
+				mDsp.displayWelcome();
 			}
 		}
 	}
