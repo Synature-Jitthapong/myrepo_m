@@ -24,10 +24,11 @@
         android:id="@+id/itemResetEndday"
         android:title="@string/reset_endday">
     </item>
-    <item
+    <item android:id="@+id/itemResetSendStatus" android:title="@string/reset_send_status"></item><item
         android:id="@+id/itemClearSale"
         android:title="@string/clear_sale_data">
     </item>
+    
     
 
 </menu>

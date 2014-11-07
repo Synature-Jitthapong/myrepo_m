@@ -13,8 +13,6 @@ public class MPOSApplication extends Application {
 				handleUncaughtException(thread, e);
 			}
 		});
-		Utils.switchLanguage(getApplicationContext(),
-				Utils.getLangCode(getApplicationContext()));
 	}
 
 	public void handleUncaughtException(Thread thread, Throwable e) {

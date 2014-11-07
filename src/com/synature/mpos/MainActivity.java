@@ -1336,13 +1336,17 @@ public class MainActivity extends FragmentActivity implements
 				if(p.getProductTypeId() == ProductsDao.SIZE){
 					holder.tvPrice.setText("(size)");
 				}
-
 				if(Utils.isShowMenuImage(getActivity())){
+					holder.tvMenu.setLines(2);
 					holder.imgMenu.setVisibility(View.VISIBLE);
 					holder.imgMenu.setImageBitmap(null);
 					((MainActivity) getActivity()).mImageLoader.displayImage(
 							Utils.getImageUrl(getActivity()) + 
 							p.getImgName(), holder.imgMenu);
+				}else{
+					holder.tvMenu.setLines(4);
+					holder.tvMenu.setTextAppearance(getActivity(), android.R.attr.textAppearanceLarge);
+					holder.imgMenu.setVisibility(View.GONE);
 				}
 				return convertView;
 			}

@@ -112,6 +112,9 @@ public class LoginActivity extends Activity implements OnClickListener,
 			if(!mSync.IsAlreadySync())
 				requestValidUrl();
 		}
+		
+		Utils.switchLanguage(getApplicationContext(),
+				Utils.getLangCode(getApplicationContext()));
 	}
 
 	@Override
@@ -371,6 +374,24 @@ public class LoginActivity extends Activity implements OnClickListener,
 					case R.id.itemClearSale:
 						ClearSaleDialogFragment clearSaleFragment = ClearSaleDialogFragment.newInstance();
 						clearSaleFragment.show(getFragmentManager(), ClearSaleDialogFragment.TAG);
+						return true;
+					case R.id.itemResetSendStatus:
+						new AlertDialog.Builder(LoginActivity.this)
+						.setTitle(R.string.reset_send_status)
+						.setMessage(R.string.confirm_reset_send_status)
+						.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						})
+						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								Utils.resetSendDataStatus(LoginActivity.this);
+							}
+						}).show();
 						return true;
 					default :
 						return false;

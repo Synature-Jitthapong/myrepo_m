@@ -15,6 +15,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -29,9 +30,12 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.synature.mpos.database.GlobalPropertyDao;
+import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
+import com.synature.mpos.database.table.OrderTransTable;
+import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.util.Logger;
 
 public class Utils {
@@ -658,6 +662,15 @@ public class Utils {
 				}
 			}
 		}
+	}
+	
+	public static void resetSendDataStatus(Context context){
+		MPOSDatabase db = new MPOSDatabase(context);
+		ContentValues cv = new ContentValues();
+		cv.put(MPOSDatabase.COLUMN_SEND_STATUS, 0);
+		db.getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, cv, null, null);
+		db.getWritableDatabase().update(OrderTransTable.TABLE_ORDER_TRANS, cv, null, null);
+		makeToask(context, "Reset successfully.");
 	}
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){

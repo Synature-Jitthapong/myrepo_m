@@ -206,4 +206,6 @@
     <string name="confirm_reset_endday">คุณต้องการรีเซ็ตการปิดสิ้นวัน</string>
     <string name="have_not_endday">ยังไม่มีการปิดสิ้นวัน</string>
     <string name="reset_endday_success">รีเซ็ตการปิดสิ้นวันสำเร็จ</string>
+    <string name="reset_send_status">รีเซ็ทสถานะการส่งข้อมูล</string>
+    <string name="confirm_reset_send_status">ต้องการรีเซ็ทสถานะการส่งข้อมูล?</string>
 </resources>
