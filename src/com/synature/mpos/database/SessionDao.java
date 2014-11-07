@@ -481,6 +481,28 @@ public class SessionDao extends MPOSDatabase{
 		return sessDate;
 	}
 	
+	
+	/**
+	 * get sessionId from sessionDate
+	 * @param sessionDate
+	 * @return sessionId
+	 */
+	public int getSessionId(String sessionDate){
+		int sessionId = 0;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + SessionTable.COLUMN_SESS_ID
+				+ " FROM " + SessionTable.TABLE_SESSION
+				+ " WHERE " + SessionTable.COLUMN_SESS_DATE + "=?", 
+				new String[]{
+					sessionDate
+				});
+		if(cursor.moveToFirst()){
+			sessionId = cursor.getInt(0);
+		}
+		cursor.close();
+		return sessionId;
+	}
+	
 	/**
 	 * Get last sessionId
 	 * @return 0 if not have any session
