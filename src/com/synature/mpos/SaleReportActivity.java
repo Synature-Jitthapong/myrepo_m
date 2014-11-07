@@ -421,7 +421,7 @@ public class SaleReportActivity extends Activity{
 				return true;
 			case R.id.itemPrint:
 				new PrintReport(getActivity(), 
-						PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, activity.mStaffId).execute();
+						PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, activity.mStaffId, activity.mDateTo).execute();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

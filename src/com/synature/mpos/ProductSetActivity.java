@@ -223,7 +223,7 @@ public class ProductSetActivity extends Activity{
 								mProduct.listProductComponent(pCompGroup.getProductGroupId());
 						if(pCompLst != null){
 							for(ProductComponent pComp : pCompLst){
-								double qty = pCompGroup.getChildProductAmount() > 0 ? pCompGroup.getChildProductAmount() : 1;
+								double qty = pComp.getChildProductAmount() > 0 ? pComp.getChildProductAmount() : 1;
 								double price = pComp.getFlexibleProductPrice() > 0 ? pComp.getFlexibleProductPrice() : 0.0d;
 								addOrderSet(pCompGroup.getProductGroupId(), pComp.getProductId(), 
 										qty, price, pCompGroup.getRequireAmount(), 

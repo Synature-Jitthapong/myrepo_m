@@ -312,10 +312,13 @@ public abstract class PrinterBase {
 	 * Create text for print summary report
 	 * @param sessionId
 	 * @param staffId
+	 * @param dateTo
 	 */
-	protected void createTextForPrintSummaryReport(int sessionId, int staffId){
+	protected void createTextForPrintSummaryReport(int sessionId, int staffId, String dateTo){
 		SessionDao session = new SessionDao(mContext.getApplicationContext());
 		String sessionDate = session.getLastSessionDate();
+		if(!TextUtils.isEmpty(dateTo))
+			sessionDate = dateTo;
 		boolean isOneSession = session.countSession(sessionDate) == 1;
 		
 		OrderTransaction trans = null; 
@@ -612,7 +615,7 @@ public abstract class PrinterBase {
     				if(comm.getCommentPrice() > 0){
 	    				String commName = limitTextLength("   " + mFormat.qtyFormat(comm.getCommentQty()) + "x "
 	    						+ comm.getCommentName());
-	    				String commPrice = mFormat.currencyFormat(comm.getCommentPrice());
+	    				String commPrice = mFormat.currencyFormat(comm.getCommentTotalPrice());
 	    				mTextToPrint.append(commName);
 	    				mTextToPrint.append(createHorizontalSpace(
 	    						calculateLength(commName) + 

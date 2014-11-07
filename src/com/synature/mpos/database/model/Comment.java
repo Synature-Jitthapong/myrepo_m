@@ -7,8 +7,15 @@ public class Comment{
 	private String commentName2;
 	private double commentQty;
 	private double commentPrice;
+	private double commentTotalPrice;
 	private boolean isSelected;
 	
+	public double getCommentTotalPrice() {
+		return commentTotalPrice;
+	}
+	public void setCommentTotalPrice(double commentTotalPrice) {
+		this.commentTotalPrice = commentTotalPrice;
+	}
 	public double getCommentQty() {
 		return commentQty;
 	}

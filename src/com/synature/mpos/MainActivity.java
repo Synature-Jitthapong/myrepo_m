@@ -950,10 +950,9 @@ public class MainActivity extends FragmentActivity implements
 					if(comment.getCommentPrice() > 0){
 						double commentQty = comment.getCommentQty();
 						double commentPrice = comment.getCommentPrice();
-						double commentTotalPrice = commentPrice * commentQty;
 						holder.tvComment.append(" " + mGlobal.qtyFormat(commentQty));
 						holder.tvComment.append("x" + mGlobal.currencyFormat(commentPrice));
-						holder.tvComment.append("=" + mGlobal.currencyFormat(commentTotalPrice));
+						holder.tvComment.append("=" + mGlobal.currencyFormat(comment.getCommentTotalPrice()));
 					}
 					holder.tvComment.append("\n");
 				}
@@ -2305,7 +2304,7 @@ public class MainActivity extends FragmentActivity implements
 
 		// print close shift
 		new PrintReport(MainActivity.this, 
-			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).execute();
+			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId, null).execute();
 		
 		startActivity(new Intent(MainActivity.this, LoginActivity.class));
 		finish();
@@ -2335,11 +2334,11 @@ public class MainActivity extends FragmentActivity implements
 			int totalSess = mSession.countSession(mSession.getLastSessionDate());
 			if(totalSess > 1){
 				new PrintReport(MainActivity.this, 
-					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId).execute();
+					PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId, null).execute();
 			}
 			// if parse sessionId = 0 will be print all summary in day
 			new PrintReport(MainActivity.this, 
-				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId).execute();
+				PrintReport.WhatPrint.SUMMARY_SALE, 0, mStaffId, null).execute();
 
 			// backup the database
 			if(Utils.isEnableBackupDatabase(MainActivity.this)){
