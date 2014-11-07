@@ -407,8 +407,8 @@ public class SaleReportActivity extends Activity{
 			((TextView) itemCondition.getActionView().findViewById(R.id.tvFrom)).setVisibility(View.GONE);
 			((TextView) itemCondition.getActionView().findViewById(R.id.tvTo)).setText(R.string.sale_date);
 			mSpSession = (Spinner) itemSession.getActionView().findViewById(R.id.spinner1);
-			mSpSession.setOnItemSelectedListener(new OnSessionSelectedListener());
 			setupSpSession();
+			mSpSession.setOnItemSelectedListener(new OnSessionSelectedListener());
 			super.onCreateOptionsMenu(menu, inflater);
 		}
 
@@ -527,20 +527,24 @@ public class SaleReportActivity extends Activity{
 				com.synature.mpos.database.model.Session s = mSession.getSession(mSessionId);
 				StaffsDao st = new StaffsDao(getActivity());
 				Staff std = st.getStaff(s.getOpenStaff());
-				View opStView = inflater.inflate(R.layout.left_mid_right_template, null);
-				((TextView) opStView.findViewById(R.id.tvLeft)).setText(getString(R.string.open_by) + ": ");
-				((TextView) opStView.findViewById(R.id.tvLeft)).append(std.getStaffName());
-				((TextView) opStView.findViewById(R.id.tvMid)).setVisibility(View.GONE);
-				((TextView) opStView.findViewById(R.id.tvRight)).setText(mHost.mFormat.timeFormat(s.getOpenDate()));
-				mEnddaySumContent.addView(opStView);
-
+				if(std != null){
+					View opStView = inflater.inflate(R.layout.left_mid_right_template, null);
+					((TextView) opStView.findViewById(R.id.tvLeft)).setText(getString(R.string.open_by) + ": ");
+					((TextView) opStView.findViewById(R.id.tvLeft)).append(std.getStaffName());
+					((TextView) opStView.findViewById(R.id.tvMid)).setVisibility(View.GONE);
+					((TextView) opStView.findViewById(R.id.tvRight)).setText(mHost.mFormat.timeFormat(s.getOpenDate()));
+					mEnddaySumContent.addView(opStView);
+				}
+				
 				std = st.getStaff(s.getCloseStaff());
-				View clStView = inflater.inflate(R.layout.left_mid_right_template, null);
-				((TextView) clStView.findViewById(R.id.tvLeft)).setText(getString(R.string.close_by) + ": ");
-				((TextView) clStView.findViewById(R.id.tvLeft)).append(std != null ? std.getStaffName(): "-");
-				((TextView) clStView.findViewById(R.id.tvMid)).setVisibility(View.GONE);
-				((TextView) clStView.findViewById(R.id.tvRight)).setText(std != null ? mHost.mFormat.timeFormat(s.getCloseDate()) : "-");
-				mEnddaySumContent.addView(clStView);
+				if(std != null){
+					View clStView = inflater.inflate(R.layout.left_mid_right_template, null);
+					((TextView) clStView.findViewById(R.id.tvLeft)).setText(getString(R.string.close_by) + ": ");
+					((TextView) clStView.findViewById(R.id.tvLeft)).append(std != null ? std.getStaffName(): "-");
+					((TextView) clStView.findViewById(R.id.tvMid)).setVisibility(View.GONE);
+					((TextView) clStView.findViewById(R.id.tvRight)).setText(std != null ? mHost.mFormat.timeFormat(s.getCloseDate()) : "-");
+					mEnddaySumContent.addView(clStView);
+				}
 			}
 			
 			View lmrView = inflater.inflate(R.layout.left_mid_right_template, null);
