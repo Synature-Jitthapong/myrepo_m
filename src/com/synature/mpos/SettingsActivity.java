@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.synature.mpos.database.MPOSDatabase;
-import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.point.R;
@@ -171,12 +170,12 @@ public class SettingsActivity extends PreferenceActivity {
 		
 	}
 	
-	public static class ResetSendStatusFragment extends PreferenceFragment{
+	public static class UtilityFragment extends PreferenceFragment{
 
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_reset_send_status);
+			addPreferencesFromResource(R.xml.pref_utility);
 		}
 		
 	}
@@ -191,6 +190,13 @@ public class SettingsActivity extends PreferenceActivity {
 			bindPreferenceSummaryToValue(findPreference(KEY_PREF_SECOND_DISPLAY_PORT));
 		}
 		
+	}
+	
+	public void resolveClick(final View v){
+		WrongTimeZoneResolve.resolveSession(getApplicationContext());
+		WrongTimeZoneResolve.resolveSessionDetail(getApplicationContext());
+		WrongTimeZoneResolve.resolveTransaction(getApplicationContext());
+		Utils.makeToask(getApplicationContext(), "Resolve successfully.");
 	}
 	
 	public void resetClick(final View v){

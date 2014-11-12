@@ -15,8 +15,8 @@
         android:fragment="com.synature.mpos.SettingsActivity$WintecSettingFragment"
         android:title="@string/wintec_setting"/>
 	<header
-	    android:fragment="com.synature.mpos.SettingsActivity$ResetSendStatusFragment" 
-	    android:title="Reset Send Data Status"/>
+	    android:fragment="com.synature.mpos.SettingsActivity$UtilityFragment" 
+	    android:title="Utility"/>
     <!-- <header
         android:fragment="com.synature.mpos.SettingsActivity$SecondDisplayPreferenceFragment"
         android:title="@string/second_display_setting"/> -->
