@@ -561,8 +561,6 @@ public class MainActivity extends FragmentActivity implements
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else{
-				mDsp.displayWelcome();
 			}
 		}
 	}
@@ -1338,6 +1336,7 @@ public class MainActivity extends FragmentActivity implements
 				}
 				if(Utils.isShowMenuImage(getActivity())){
 					holder.tvMenu.setLines(2);
+					holder.tvMenu.setTextSize(14);
 					holder.imgMenu.setVisibility(View.VISIBLE);
 					holder.imgMenu.setImageBitmap(null);
 					((MainActivity) getActivity()).mImageLoader.displayImage(
@@ -1345,7 +1344,7 @@ public class MainActivity extends FragmentActivity implements
 							p.getImgName(), holder.imgMenu);
 				}else{
 					holder.tvMenu.setLines(4);
-					holder.tvMenu.setTextAppearance(getActivity(), android.R.attr.textAppearanceLarge);
+					holder.tvMenu.setTextSize(getResources().getDimension(R.dimen.menu_text_large));
 					holder.imgMenu.setVisibility(View.GONE);
 				}
 				return convertView;

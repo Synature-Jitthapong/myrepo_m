@@ -11,13 +11,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
         android:layout_below="@+id/imageViewMenu"
-        android:ellipsize="end"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:text="Name"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:text="Name" />
 
     <TextView
         android:id="@+id/textViewMenuPrice"

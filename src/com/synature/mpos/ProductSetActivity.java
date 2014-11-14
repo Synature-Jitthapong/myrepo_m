@@ -696,12 +696,13 @@ public class ProductSetActivity extends Activity{
 			}
 			if(Utils.isShowMenuImage(ProductSetActivity.this)){
 				holder.tvMenu.setLines(2);
+				holder.tvMenu.setTextSize(14);
 				holder.imgMenu.setVisibility(View.VISIBLE);
 				holder.imgMenu.setImageBitmap(null);
 				mImgLoader.displayImage(Utils.getImageUrl(ProductSetActivity.this) + pComp.getImgName(), holder.imgMenu);
 			}else{
 				holder.tvMenu.setLines(4);
-				holder.tvMenu.setTextAppearance(ProductSetActivity.this, android.R.attr.textAppearanceLarge);
+				holder.tvMenu.setTextSize(getResources().getDimension(R.dimen.menu_text_large));
 				holder.imgMenu.setVisibility(View.GONE);
 			}
 			
