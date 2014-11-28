@@ -6,7 +6,7 @@ import com.synature.util.Logger;
 import android.content.Context;
 import android.text.TextUtils;
 
-public class PartialSaleSenderExcecutor extends EnddayBase{
+public class PartialSaleSenderExcecutor extends EnddayBase implements Runnable{
 
 	private int mSessionId;
 	private int mTransactionId;
@@ -19,7 +19,8 @@ public class PartialSaleSenderExcecutor extends EnddayBase{
 		mListener = listener;
 	}
 
-	public void execute() {
+	@Override
+	public void run() {
 		final String json = generateSale(mTransactionId, mSessionId);
 		if(!TextUtils.isEmpty(json)){
 			new PartialSaleSender(mContext, 

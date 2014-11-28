@@ -185,31 +185,49 @@ public class SendSaleActivity extends Activity{
 		
 		@Override
 		public void onPreExecute() {
-			mTrans.onSend = true;
-			mTransLst.set(mPosition, mTrans);
-			mSyncAdapter.notifyDataSetChanged();
-			Log.i(TAG, "Begin send bill " + mTrans.getReceiptNo());
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mTrans.onSend = true;
+					mTransLst.set(mPosition, mTrans);
+					mSyncAdapter.notifyDataSetChanged();
+					Log.i(TAG, "Begin send bill " + mTrans.getReceiptNo());
+				}
+			});
 		}
 
 		@Override
 		public void onPostExecute() {
-			mTrans.setSendStatus(MPOSDatabase.ALREADY_SEND);
-			mTrans.onSend = false;
-			mTransLst.set(mPosition, mTrans);
-			mSyncAdapter.notifyDataSetChanged();
-			Log.i(TAG, "Success send bill " + mTrans.getReceiptNo());
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mTrans.setSendStatus(MPOSDatabase.ALREADY_SEND);
+					mTrans.onSend = false;
+					mTransLst.set(mPosition, mTrans);
+					mSyncAdapter.notifyDataSetChanged();
+					Log.i(TAG, "Success send bill " + mTrans.getReceiptNo());
+				}
+			});
 		}
 
 		@Override
 		public void onError(final String msg) {
-			mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
-			mTransLst.set(mPosition, mTrans);
-			mTrans.onSend = false;
-			mSyncAdapter.notifyDataSetChanged();
-			if(mPosition == mTransLst.size() - 1){
-				mItemSendAll.setEnabled(true);
-				Utils.makeToask(SendSaleActivity.this, msg);
-			}
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
+					mTransLst.set(mPosition, mTrans);
+					mTrans.onSend = false;
+					mSyncAdapter.notifyDataSetChanged();
+					if(mPosition == mTransLst.size() - 1){
+						mItemSendAll.setEnabled(true);
+						Utils.makeToask(SendSaleActivity.this, msg);
+					}
+				}
+			});
 		}
 
 		@Override

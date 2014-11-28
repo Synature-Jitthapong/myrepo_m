@@ -319,6 +319,27 @@ public class PaymentDetailDao extends MPOSDatabase {
 	}
 	
 	/**
+	 * get payment type by pay type id
+	 * @param payTypeId
+	 * @return pay type name
+	 */
+	public String getPaymentTypeName(int payTypeId){
+		String paymentType = null;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + PayTypeTable.COLUMN_PAY_TYPE_NAME
+				+ " FROM " + PayTypeTable.TABLE_PAY_TYPE
+				+ " WHERE " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
+				new String[]{
+					String.valueOf(payTypeId)
+				});
+		if(cursor.moveToFirst()){
+			paymentType = cursor.getString(0);
+		}
+		cursor.close();
+		return paymentType;
+	}
+	
+	/**
      * @param sessId
 	 * @param saleDate
 	 * @return total cash amount

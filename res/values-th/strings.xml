@@ -10,9 +10,9 @@
     <string name="discount">ส่วนลด</string>
     <string name="cash">เงินสด</string>
     <string name="logout">ออกจากระบบ</string>
-    <string name="sub_total">รวมราคา</string>
+    <string name="sub_total">ราคารวม</string>
     <string name="vat">ภาษี</string>
-    <string name="total_price">ราคาขาย</string>
+    <string name="total_price">ราคารวม</string>
     <string name="total_receive">จำนวนใบเสร็จ</string>
     <string name="change">เงินทอน</string>
     <string name="price">ราคา</string>
@@ -159,6 +159,7 @@
 	<string name="select_item">กรุณาเลือกรายการก่อน</string>
 	<string name="detail">รายละเอียด</string>
 	<string name="ip_address">ไอพีแอดเดรส</string>
+    <string name="apply">ใช้</string>
     <string name="open_time">เวลาเปิดบิล</string>
     <string name="staff">พนักงาน</string>
     <string name="balance">จำนวนคงเหลือ</string>

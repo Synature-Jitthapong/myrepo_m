@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/list_selector"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/list_item_min_height"
     android:orientation="horizontal" >
 
     <TextView
@@ -61,7 +63,8 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.7"
         android:gravity="right"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvSalePrice"

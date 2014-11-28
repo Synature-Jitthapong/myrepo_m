@@ -14,7 +14,7 @@ import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.synature.util.Logger;
 
-public abstract class EnddayBase {
+public abstract class EnddayBase{
 	
 	protected Context mContext;
 

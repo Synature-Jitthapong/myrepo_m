@@ -173,12 +173,6 @@ public class PaymentActivity extends Activity implements OnClickListener{
 	}
 	
 	private class PaymentAdapter extends BaseAdapter{
-		
-		private LayoutInflater mInflater;
-		
-		public PaymentAdapter(){
-			mInflater = getLayoutInflater();
-		}
 
 		@Override
 		public int getCount() {
@@ -199,7 +193,7 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		public View getView(int position, View convertView, ViewGroup parent) {
 			PaymentDetailViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.payment_detail_template, parent, false);
+				convertView = getLayoutInflater().inflate(R.layout.payment_detail_template, parent, false);
 				holder = new PaymentDetailViewHolder();
 				holder.tvPayType = (TextView) convertView.findViewById(R.id.tvPayType);
 				holder.tvPayDetail = (TextView) convertView.findViewById(R.id.tvPayDetail);
@@ -259,6 +253,11 @@ public class PaymentActivity extends Activity implements OnClickListener{
 					mTotalPay >= mPaymentLeft ? mPaymentLeft : mTotalPay, "",
 					0, 0, 0, 0, remark);
 			loadPayDetail();
+			// display pay type to customer display
+			if(Utils.isEnableWintecCustomerDisplay(PaymentActivity.this)){
+				WintecCustomerDisplay dsp = new WintecCustomerDisplay(PaymentActivity.this);
+				dsp.displayPayment(mPayment.getPaymentTypeName(payTypeId), mGlobal.currencyFormat(mTotalPay));
+			}
 		}
 		mStrTotalPay = new StringBuilder();
 		displayEnterPrice();

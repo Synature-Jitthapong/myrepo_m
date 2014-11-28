@@ -7,4 +7,5 @@
     <dimen name="large_text_size">32sp</dimen>
     <dimen name="larger_text_size">48sp</dimen>
     <dimen name="menu_text_large">22sp</dimen>
+    <dimen name="list_item_min_height">48dp</dimen>
 </resources>

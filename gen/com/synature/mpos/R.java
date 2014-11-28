@@ -43,8 +43,9 @@ public final class R {
         public static final int default_margin=0x7f060002;
         public static final int large_text_size=0x7f060003;
         public static final int larger_text_size=0x7f060004;
+        public static final int list_item_min_height=0x7f060006;
         public static final int menu_text_large=0x7f060005;
-        public static final int vertical_margin=0x7f060006;
+        public static final int vertical_margin=0x7f060007;
     }
     public static final class drawable {
         public static final int actionbar_bottom=0x7f020000;

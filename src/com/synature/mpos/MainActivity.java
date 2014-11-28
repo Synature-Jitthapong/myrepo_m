@@ -549,16 +549,14 @@ public class MainActivity extends FragmentActivity implements
 			transSummLst.add(transSumm);
 			secondDisplayItem(transSummLst, mGlobal.currencyFormat(totalPriceInclVat));
 		}
-		
 		if(Utils.isEnableWintecCustomerDisplay(this)){
-			// display order if qty and retail price > 0
-			if(totalQty > 0 && totalRetailPrice > 0){
+			// display only have item
+			if(!TextUtils.isEmpty(mDsp.getItemName())){
 				try {
-					mDsp.setOrderTotalQty(mGlobal.qtyFormat(totalQty));
-					mDsp.setOrderTotalPrice(mGlobal.currencyFormat(totalRetailPrice));
+					mDsp.setItemTotalQty(mGlobal.qtyFormat(totalQty));
+					mDsp.setItemTotalAmount(mGlobal.currencyFormat(totalRetailPrice));
 					mDsp.displayOrder();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -609,15 +607,19 @@ public class MainActivity extends FragmentActivity implements
 			if(resultCode == RESULT_OK){
 				String setName = intent.getStringExtra("setName");
 				String setPrice = intent.getStringExtra("setPrice");
-				mDsp.setOrderName(setName);
-				mDsp.setOrderPrice(setPrice);
+				mDsp.setItemName(setName);
+				mDsp.setItemAmount(setPrice);
 			}
 		}
 	}
 	
 	private void successTransaction(int transactionId, int staffId, double totalSalePrice, 
 			double totalPaid, double change){
-
+		// clear item that display on dsp
+		if(Utils.isEnableWintecCustomerDisplay(this))
+			mDsp.setItemName(null);
+		
+		// log receipt for print task
 		PrintReceiptLogDao printLog = new PrintReceiptLogDao(MainActivity.this);
 		int isCopy = 0;
 		for(int i = 0; i < mComputer.getReceiptHasCopy(); i++){
@@ -646,6 +648,9 @@ public class MainActivity extends FragmentActivity implements
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
+					if(Utils.isEnableWintecCustomerDisplay(MainActivity.this)){
+						mDsp.displayWelcome();
+					}
 					if(Utils.isEnableSecondDisplay(MainActivity.this)){
 						clearSecondDisplay();
 					}
@@ -664,26 +669,26 @@ public class MainActivity extends FragmentActivity implements
 				}, 10000);
 			}
 		}
-		
-		// Wintec DSP
 		if(Utils.isEnableWintecCustomerDisplay(this)){
 			mDsp.displayTotalPay(mGlobal.currencyFormat(totalPaid), 
 					mGlobal.currencyFormat(change));
-			new Handler().postDelayed(
-					new Runnable(){
-
-						@Override
-						public void run() {
-							runOnUiThread(new Runnable(){
-
-								@Override
-								public void run() {
-									mDsp.displayWelcome();
-								}
-								
-							});
-						}
-			}, 10000);
+			if(change == 0){
+				new Handler().postDelayed(
+						new Runnable(){
+	
+							@Override
+							public void run() {
+								runOnUiThread(new Runnable(){
+	
+									@Override
+									public void run() {
+										mDsp.displayWelcome();
+									}
+									
+								});
+							}
+				}, 10000);
+			}
 		}
 	}
 	
@@ -753,11 +758,17 @@ public class MainActivity extends FragmentActivity implements
 
 		@Override
 		public void onPostExecute() {
-			countSaleDataNotSend();
-			if(mPosition == mSize - 1){
-				Utils.makeToask(MainActivity.this, MainActivity.this
-						.getString(R.string.send_sale_data_success));
-			}
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					countSaleDataNotSend();
+					if(mPosition == mSize - 1){
+						Utils.makeToask(MainActivity.this, MainActivity.this
+								.getString(R.string.send_sale_data_success));
+					}
+				}
+			});
 		}
 
 		@Override
@@ -1422,6 +1433,8 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	public void onMenuClick(int productId, String productName, 
 			int productTypeId, int vatType, double vatRate, double productPrice) {
+		mDsp.setItemName(productName);
+		mDsp.setItemQty(mGlobal.qtyFormat(1));
 		if(productTypeId == ProductsDao.NORMAL_TYPE || 
 				productTypeId == ProductsDao.SET){
 			addOrder(productId, productName, productTypeId, 
@@ -1992,9 +2005,9 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	private void updateOrder(int orderDetailId, double qty, 
 			double price, int vatType, double vatRate, String productName){
-		mDsp.setOrderName(productName);
-		mDsp.setOrderQty(mGlobal.qtyFormat(qty));
-		mDsp.setOrderPrice(mGlobal.currencyFormat(price));
+		mDsp.setItemName(productName);
+		mDsp.setItemQty(mGlobal.qtyFormat(qty));
+		mDsp.setItemAmount(mGlobal.currencyFormat(price));
 		mTrans.updateOrderDetail(mTransactionId,
 				orderDetailId, vatType, vatRate, qty, price);
 	}
@@ -2012,10 +2025,8 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	private void addOrder(final int productId, final String productName, 
 			final int productTypeId, final int vatType, final double vatRate, final double qty, double price){
-		mDsp.setOrderName(productName);
-		mDsp.setOrderQty(mGlobal.qtyFormat(qty));
 		if(price > -1){
-			mDsp.setOrderPrice(mGlobal.currencyFormat(price));
+			mDsp.setItemAmount(mGlobal.currencyFormat(price));
 			int ordId = mTrans.addOrderDetail(mTransactionId, mComputerId, 
 					productId, productTypeId, vatType, vatRate, qty, price);
 			updateOrderLst(ordId);
@@ -2053,7 +2064,7 @@ public class MainActivity extends FragmentActivity implements
 					double openPrice = 0.0f;
 					try {
 						openPrice = Utils.stringToDouble(txtProductPrice.getText().toString());
-						mDsp.setOrderPrice(mGlobal.currencyFormat(openPrice));
+						mDsp.setItemAmount(mGlobal.currencyFormat(openPrice));
 						int ordId = mTrans.addOrderDetail(mTransactionId, mComputerId, 
 								productId, productTypeId, vatType, vatRate, qty, openPrice);
 						updateOrderLst(ordId);
@@ -2392,52 +2403,71 @@ public class MainActivity extends FragmentActivity implements
 	
 							@Override
 							public void onPreExecute() {
-								progress.setMessage(getString(R.string.send_endday_data_progress));
+								runOnUiThread(new Runnable(){
+
+									@Override
+									public void run() {
+										progress.setMessage(getString(R.string.send_endday_data_progress));
+									}
+									
+								});
 							}
 	
 							@Override
 							public void onPostExecute() {
-								if (progress.isShowing())
-									progress.dismiss();
+								runOnUiThread(new Runnable(){
 
-								new AlertDialog.Builder(
-										MainActivity.this)
-										.setTitle(R.string.endday)
-										.setMessage(R.string.send_endday_data_success)
-										.setCancelable(false)
-										.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-	
-													@Override
-													public void onClick(DialogInterface dialog,int which) {
-														// Utils.shutdown();
-														finish();
-													}
-										}).show();
+									@Override
+									public void run() {
+										if (progress.isShowing())
+											progress.dismiss();
+		
+										new AlertDialog.Builder(
+												MainActivity.this)
+												.setTitle(R.string.endday)
+												.setMessage(R.string.send_endday_data_success)
+												.setCancelable(false)
+												.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+															@Override
+															public void onClick(DialogInterface dialog,int which) {
+																// Utils.shutdown();
+																finish();
+															}
+												}).show();
+									}
+								});
 							}
 	
 							@Override
 							public void onError(String msg) {
-								if (progress.isShowing())
-									progress.dismiss();
-								new AlertDialog.Builder(
-										MainActivity.this)
-										.setTitle(R.string.endday)
-										.setMessage(R.string.cannot_send_endday_data_on_this_time)
-										.setCancelable(false)
-										.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-	
-													@Override
-													public void onClick(DialogInterface arg0, int arg1) {
-														finish();
-													}
-										})
-										.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-	
-													@Override
-													public void onClick(DialogInterface dialog, int which) {
-														sendEnddayData();
-													}
-										}).show();
+								runOnUiThread(new Runnable(){
+
+									@Override
+									public void run() {
+										if (progress.isShowing())
+											progress.dismiss();
+										new AlertDialog.Builder(
+												MainActivity.this)
+												.setTitle(R.string.endday)
+												.setMessage(R.string.cannot_send_endday_data_on_this_time)
+												.setCancelable(false)
+												.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+															@Override
+															public void onClick(DialogInterface arg0, int arg1) {
+																finish();
+															}
+												})
+												.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+															@Override
+															public void onClick(DialogInterface dialog, int which) {
+																sendEnddayData();
+															}
+												}).show();
+											}
+									});
 							}
 	
 							@Override
@@ -2499,7 +2529,13 @@ public class MainActivity extends FragmentActivity implements
 	
 							@Override
 							public void onPostExecute() {
-								countSaleDataNotSend();
+								runOnUiThread(new Runnable(){
+
+									@Override
+									public void run() {
+										countSaleDataNotSend();
+									}
+								});
 							}
 	
 							@Override

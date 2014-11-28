@@ -330,6 +330,14 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 										mTotalCreditPay, mTotalCreditPay >= mPaymentLeft ?
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
 										mExpYear, mBankId, mCardTypeId, "");
+
+								// display pay type to customer display
+								if(Utils.isEnableWintecCustomerDisplay(CreditPayActivity.this)){
+									WintecCustomerDisplay dsp = new WintecCustomerDisplay(CreditPayActivity.this);
+									dsp.displayPayment(mPayment.getPaymentTypeName(PaymentDetailDao.PAY_TYPE_CREDIT), 
+											mGlobal.currencyFormat(mTotalCreditPay));
+								}
+								
 								//d.dismiss();
 								Intent intent = new Intent(CreditPayActivity.this, PaymentActivity.class);
 								if(mTotalCreditPay >= mPaymentLeft)

@@ -10,14 +10,15 @@ import android.content.Context;
 import android.database.SQLException;
 import android.text.TextUtils;
 
-public class EnddaySenderExecutor extends EnddayBase{
+public class EnddaySenderExecutor extends EnddayBase implements Runnable{
 	
 	public EnddaySenderExecutor(Context context, int shopId, 
 			int computerId, int staffId, WebServiceWorkingListener listener) {
 		super(context, shopId, computerId, staffId, listener);
 	}
 
-	public void execute() {
+	@Override
+	public void run() {
 		List<String> sessLst = mSession.listSessionEnddayNotSend();
 		final Iterator<String> it = sessLst.iterator();
 		while (it.hasNext()) {

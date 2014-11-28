@@ -3,10 +3,12 @@ package com.synature.mpos;
 import java.text.ParseException;
 
 import android.content.Context;
+import android.text.TextUtils;
 import cn.wintec.wtandroidjar2.ComIO;
 import cn.wintec.wtandroidjar2.DspPos;
 
 public class WintecCustomerDisplay{
+	
 	public static final int MAX_TEXT_LENGTH = 20;
 	public static final int LIMIT_LENGTH = 10;
 	
@@ -14,11 +16,12 @@ public class WintecCustomerDisplay{
 	
 	private DspPos mDsp;
 	
-	private String orderName;
-	private String orderQty;
-	private String orderPrice;
-	private String orderTotalQty;
-	private String orderTotalPrice;
+	private String itemExtra;
+	private String itemName;
+	private String itemQty;
+	private String itemAmount;
+	private String itemTotalQty;
+	private String itemTotalAmount;
 	
 	public WintecCustomerDisplay(Context context){
 		mDsp = new DspPos(Utils.getWintecDspPath(context), 
@@ -26,9 +29,18 @@ public class WintecCustomerDisplay{
 		mContext = context;
 	}
 	
+	public void displayPayment(String payType, String amount){
+		clearScreen();
+		mDsp.DSP_Dispay(payType);
+		mDsp.DSP_MoveCursorDown();
+		mDsp.DSP_MoveCursorEndLeft();
+		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - amount.length());
+		mDsp.DSP_Dispay(amount);
+	}
+	
 	public void displayTotalPay(String totalPay, String change){
 		clearScreen();
-		mDsp.DSP_Dispay("Cash");
+		mDsp.DSP_Dispay("Receive");
 		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - totalPay.length());
 		mDsp.DSP_Dispay(totalPay);
 		try {
@@ -40,19 +52,18 @@ public class WintecCustomerDisplay{
 				mDsp.DSP_Dispay(change);
 			}
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	public void displayOrder() throws Exception{
-		if(orderName.length() > LIMIT_LENGTH){
-			orderName = limitString(orderName);
+		if(!TextUtils.isEmpty(itemName) && itemName.length() > LIMIT_LENGTH){
+			itemName = limitString(itemName);
 		}
 		clearScreen();
-		String combindText = orderQty + "@" + orderPrice;
-		String combindTotalText = orderTotalQty + "@" + orderTotalPrice;
-		mDsp.DSP_Dispay(orderName);
+		String combindText = itemQty + "@" + itemAmount;
+		String combindTotalText = itemTotalQty + "@" + itemTotalAmount;
+		mDsp.DSP_Dispay(itemName);
 		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - combindText.length());
 		mDsp.DSP_Dispay(combindText);
 		mDsp.DSP_MoveCursorDown();
@@ -85,43 +96,51 @@ public class WintecCustomerDisplay{
 			mDsp.DSP_Close();
 	}
 
-	public String getOrderName() {
-		return orderName;
+	public String getItemExtra() {
+		return itemExtra;
 	}
 
-	public void setOrderName(String orderName) {
-		this.orderName = orderName;
+	public void setItemExtra(String itemExtra) {
+		this.itemExtra = itemExtra;
 	}
 
-	public String getOrderQty() {
-		return orderQty;
+	public String getItemName() {
+		return itemName;
 	}
 
-	public void setOrderQty(String orderQty) {
-		this.orderQty = orderQty;
+	public void setItemName(String itemName) {
+		this.itemName = itemName;
 	}
 
-	public String getOrderPrice() {
-		return orderPrice;
+	public String getItemQty() {
+		return itemQty;
 	}
 
-	public void setOrderPrice(String orderPrice) {
-		this.orderPrice = orderPrice;
+	public void setItemQty(String itemQty) {
+		this.itemQty = itemQty;
 	}
 
-	public String getOrderTotalQty() {
-		return orderTotalQty;
+	public String getItemAmount() {
+		return itemAmount;
 	}
 
-	public void setOrderTotalQty(String orderTotalQty) {
-		this.orderTotalQty = orderTotalQty;
+	public void setItemAmount(String itemAmount) {
+		this.itemAmount = itemAmount;
 	}
 
-	public String getOrderTotalPrice() {
-		return orderTotalPrice;
+	public String getItemTotalQty() {
+		return itemTotalQty;
 	}
 
-	public void setOrderTotalPrice(String orderTotalPrice) {
-		this.orderTotalPrice = orderTotalPrice;
+	public void setItemTotalQty(String itemTotalQty) {
+		this.itemTotalQty = itemTotalQty;
+	}
+
+	public String getItemTotalAmount() {
+		return itemTotalAmount;
+	}
+
+	public void setItemTotalAmount(String itemTotalAmount) {
+		this.itemTotalAmount = itemTotalAmount;
 	}
 }

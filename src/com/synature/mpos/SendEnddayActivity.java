@@ -190,37 +190,49 @@ public class SendEnddayActivity extends Activity {
 
 		@Override
 		public void onPostExecute() {
-			mItemClose.setEnabled(true);
-			mItemSend.setVisible(true);
-			mItemProgress.setVisible(false);
-			
-			setupAdapter();
-			
-			if(mAutoClose){
-				new AlertDialog.Builder(SendEnddayActivity.this)
-				.setCancelable(false)
-				.setTitle(R.string.send_endday_data)
-				.setMessage(R.string.send_endday_data_success)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mItemClose.setEnabled(true);
+					mItemSend.setVisible(true);
+					mItemProgress.setVisible(false);
 					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						setResult(RESULT_OK);
-						finish();
+					setupAdapter();
+					
+					if(mAutoClose){
+						new AlertDialog.Builder(SendEnddayActivity.this)
+						.setCancelable(false)
+						.setTitle(R.string.send_endday_data)
+						.setMessage(R.string.send_endday_data_success)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								setResult(RESULT_OK);
+								finish();
+							}
+						})
+						.show();
+					}else{
+						Utils.makeToask(SendEnddayActivity.this, getString(R.string.send_sale_data_success));
 					}
-				})
-				.show();
-			}else{
-				Utils.makeToask(SendEnddayActivity.this, getString(R.string.send_sale_data_success));
-			}
+				}
+			});
 		}
 
 		@Override
 		public void onError(final String msg) {
-			mItemClose.setEnabled(true);
-			mItemSend.setVisible(true);
-			mItemProgress.setVisible(false);
-			Utils.makeToask(SendEnddayActivity.this, msg);
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mItemClose.setEnabled(true);
+					mItemSend.setVisible(true);
+					mItemProgress.setVisible(false);
+					Utils.makeToask(SendEnddayActivity.this, msg);
+				}
+			});
 		}
 
 		@Override
