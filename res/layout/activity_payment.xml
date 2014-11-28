@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:baselineAligned="false"
     android:orientation="horizontal"
-    android:padding="@dimen/vertical_margin"
+    android:padding="4dp"
     tools:context=".PaymentActivity" >
 
     <LinearLayout
@@ -180,6 +180,7 @@
             <include
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/vertical_margin"
                 android:layout_weight="1"
                 layout="@layout/keypad" />
 
