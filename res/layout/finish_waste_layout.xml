@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin" >
+
+    <TextView
+        android:id="@+id/tvTotalPrice"
+        style="@style/TextPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="0,000,000.00"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="72sp" />
+
+    <Button
+        android:id="@+id/btnConfirm"
+        style="@style/BlueButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:minHeight="96dp"
+        android:minWidth="256dp"
+        android:text="confirm"
+        android:textSize="@dimen/large_text_size" />
+
+    <EditText
+        android:id="@+id/txtRemark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnCancel"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/horizontalScrollView1"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:background="@drawable/card_bg"
+        android:ems="10"
+        android:gravity="top|left"
+        android:hint="@string/remark"
+        android:inputType="textMultiLine"
+        android:padding="@dimen/default_margin"
+        android:textSize="@dimen/large_text_size" >
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/btnCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:minHeight="96dp"
+        android:minWidth="256dp"
+        android:text="@android:string/cancel"
+        android:textSize="@dimen/large_text_size" />
+
+    <HorizontalScrollView
+        android:id="@+id/horizontalScrollView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tvTotalPrice" >
+
+        <LinearLayout
+            android:id="@+id/wasteDocTypeContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+        </LinearLayout>
+    </HorizontalScrollView>
+
+</RelativeLayout>

@@ -14,6 +14,7 @@ public class MasterData {
 	private List<BankName> BankName;
 	private List<CreditCardType> CreditCardType;
 	private List<PayType> PayType;
+	private List<PayType> PayTypeFinishWaste;
 	private List<PaymentAmountButton> PaymentAmountButton;
 
 	private List<ProductGroup> ProductGroup;
@@ -33,6 +34,9 @@ public class MasterData {
 	private List<PromotionPriceGroup> PromotionPriceGroup;
 	private List<PromotionProductDiscount> PromotionProductDiscount;
 	
+	public List<PayType> getPayTypeFinishWaste() {
+		return PayTypeFinishWaste;
+	}
 	public List<ShopProperty> getShopProperty() {
 		return ShopProperty;
 	}
