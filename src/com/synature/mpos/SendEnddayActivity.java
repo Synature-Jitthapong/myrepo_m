@@ -238,6 +238,19 @@ public class SendEnddayActivity extends Activity {
 		@Override
 		public void onProgressUpdate(int value) {
 		}
+
+		@Override
+		public void onCancelled(String msg) {
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mItemClose.setEnabled(true);
+					mItemSend.setVisible(true);
+					mItemProgress.setVisible(false);
+				}
+			});
+		}
 		
 	};
 	

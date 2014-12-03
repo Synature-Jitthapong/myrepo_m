@@ -75,7 +75,7 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						mDateFrom,
 						mDateTo,
-						String.valueOf(TransactionDao.TRANS_STATUS_HOLD),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
 				});
 		if(mainCursor.moveToFirst()){
@@ -94,7 +94,7 @@ public class Reporting extends MPOSDatabase{
 						+ " ORDER BY " + OrderTransTable.COLUMN_SALE_DATE + ", " + OrderTransTable.COLUMN_RECEIPT_ID,
 						new String[]{
 								mainCursor.getString(0),
-								String.valueOf(TransactionDao.TRANS_STATUS_HOLD),
+								String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
 						});
 				if(detailCursor.moveToFirst()){

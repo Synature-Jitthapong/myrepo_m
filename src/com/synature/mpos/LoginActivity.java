@@ -26,6 +26,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,6 +42,8 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends Activity implements OnClickListener, 
 	OnEditorActionListener, UserVerifyDialogFragment.OnCheckPermissionListener{
+	
+	public static final String TAG = "LoginActivity";
 	
 	/**
 	 * Request code for set system date
@@ -62,6 +65,10 @@ public class LoginActivity extends Activity implements OnClickListener,
 	private ComputerDao mComputer;
 	private GlobalPropertyDao mFormat;
 	private SyncHistoryDao mSync;
+	
+	private SoftwareRegister mSoftwareRegister;
+	private DeviceChecker mDeviceChecker;
+	private MasterDataLoader mMasterDataLoader;
 	
 	private Button mBtnLogin;
 	private EditText mTxtUser;
@@ -124,107 +131,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 				gotoMainActivity();
 			}
 		}
-	}
-	
-	/**
-	 * @author j1tth4
-	 * Listener for reference to checking device state
-	 */
-	private class DeviceCheckerListener implements DeviceChecker.AuthenDeviceListener{
-
-		private ProgressDialog mProgress;
-		
-		public DeviceCheckerListener(){
-			mProgress = new ProgressDialog(LoginActivity.this);
-			mProgress.setCancelable(false);
-			mProgress.setMessage(getString(R.string.loading));
-		}
-		
-		@Override
-		public void onPreExecute() {
-			mProgress.show();
-		}
-
-		@Override
-		public void onPostExecute() {
-		}
-
-		@Override
-		public void onError(String msg) {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			new AlertDialog.Builder(LoginActivity.this)
-			.setMessage(msg)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface arg0, int arg1) {
-				}
-			}).show();
-		}
-
-		@Override
-		public void onPostExecute(int shopId) {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			new MasterDataLoader(LoginActivity.this, shopId, new MasterLoaderListener()).execute(Utils.getFullUrl(LoginActivity.this));
-		}
-
-		@Override
-		public void onProgressUpdate(int value) {
-		}
-		
-	}
-	
-	/**
-	 * @author j1tth4
-	 * Listener for 
-	 */
-	private class MasterLoaderListener implements WebServiceWorkingListener{
-
-		private ProgressDialog mProgress;
-		
-		public MasterLoaderListener(){
-			mProgress = new ProgressDialog(LoginActivity.this);
-			mProgress.setMessage(getString(R.string.load_master_progress));
-//			mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//			mProgress.setIndeterminate(false);
-//			mProgress.setMax(100);
-			mProgress.setCancelable(false);
-		}
-		
-		@Override
-		public void onPreExecute() {
-			mProgress.show();
-		}
-
-		@Override
-		public void onPostExecute() {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			startActivity(new Intent(LoginActivity.this, LoginActivity.class));
-			finish();
-		}
-
-		@Override
-		public void onError(String msg) {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			new AlertDialog.Builder(LoginActivity.this)
-			.setMessage(msg)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface arg0, int arg1) {
-				}
-			}).show();
-		}
-
-		@Override
-		public void onProgressUpdate(int value) {
-			//mProgress.setProgress(value);
-		}
-		
 	}
 	
 	/**
@@ -475,18 +381,155 @@ public class LoginActivity extends Activity implements OnClickListener,
 	}
 	
 	private void requestValidUrl(){
-		new SoftwareRegister(this, new RegisterValidUrlListener()).execute(Utils.REGISTER_URL);
+		mSoftwareRegister = new SoftwareRegister(this, new RegisterValidUrlListener());
+		mSoftwareRegister.execute(Utils.REGISTER_URL);
 		//new DeviceChecker(LoginActivity.this, new DeviceCheckerListener()).execute(Utils.getFullUrl(LoginActivity.this));
 	}
 	
-	private class RegisterValidUrlListener implements WebServiceWorkingListener{
+	/**
+	 * @author j1tth4
+	 * Listener for 
+	 */
+	private class MasterLoaderListener implements WebServiceWorkingListener, DialogInterface.OnClickListener{
+
+		private ProgressDialog mProgress;
+		
+		public MasterLoaderListener(){
+			mProgress = new ProgressDialog(LoginActivity.this);
+			mProgress.setMessage(getString(R.string.load_master_progress));
+//			mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+//			mProgress.setIndeterminate(false);
+//			mProgress.setMax(100);
+			mProgress.setCanceledOnTouchOutside(false);
+			mProgress.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), this);
+		}
+		
+		@Override
+		public void onPreExecute() {
+			mProgress.show();
+		}
+
+		@Override
+		public void onPostExecute() {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+			finish();
+		}
+
+		@Override
+		public void onError(String msg) {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			new AlertDialog.Builder(LoginActivity.this)
+			.setMessage(msg)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+				}
+			}).show();
+		}
+
+		@Override
+		public void onProgressUpdate(int value) {
+			//mProgress.setProgress(value);
+		}
+
+		@Override
+		public void onCancelled(String msg) {
+
+			Log.i(TAG, "master data loader task canclled.");
+			
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+		}
+
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			if(mDeviceChecker != null)
+				mDeviceChecker.cancel(true);
+		}
+		
+	}
+
+	/**
+	 * @author j1tth4
+	 * Listener for reference to checking device state
+	 */
+	private class DeviceCheckerListener implements DeviceChecker.AuthenDeviceListener, 
+		DialogInterface.OnClickListener{
+	
+		private ProgressDialog mProgress;
+		
+		public DeviceCheckerListener(){
+			mProgress = new ProgressDialog(LoginActivity.this);
+			mProgress.setCanceledOnTouchOutside(false);
+			mProgress.setMessage(getString(R.string.loading));
+			mProgress.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), this);
+		}
+		
+		@Override
+		public void onPreExecute() {
+			mProgress.show();
+		}
+	
+		@Override
+		public void onPostExecute() {
+		}
+	
+		@Override
+		public void onError(String msg) {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			new AlertDialog.Builder(LoginActivity.this)
+			.setMessage(msg)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+				}
+			}).show();
+		}
+	
+		@Override
+		public void onPostExecute(int shopId) {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			mMasterDataLoader = new MasterDataLoader(LoginActivity.this, shopId, new MasterLoaderListener());
+			mMasterDataLoader.execute(Utils.getFullUrl(LoginActivity.this));
+		}
+	
+		@Override
+		public void onProgressUpdate(int value) {
+		}
+	
+		@Override
+		public void onCancelled(String msg) {
+
+			Log.i(TAG, "device checker task canclled.");
+			
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+		}
+	
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			if(mDeviceChecker != null)
+				mDeviceChecker.cancel(true);
+		}
+		
+	}
+
+	private class RegisterValidUrlListener implements WebServiceWorkingListener, DialogInterface.OnClickListener{
 
 		private ProgressDialog mProgress;
 		
 		public RegisterValidUrlListener(){
 			mProgress = new ProgressDialog(LoginActivity.this);
-			mProgress.setCancelable(false);
+			mProgress.setCanceledOnTouchOutside(false);
 			mProgress.setMessage(getString(R.string.loading));
+			mProgress.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), this);
 		}
 		
 		@Override
@@ -502,7 +545,8 @@ public class LoginActivity extends Activity implements OnClickListener,
 		public void onPostExecute() {
 			if(mProgress.isShowing())
 				mProgress.dismiss();
-			new DeviceChecker(LoginActivity.this, new DeviceCheckerListener()).execute(Utils.getFullUrl(LoginActivity.this));
+			mDeviceChecker = new DeviceChecker(LoginActivity.this, new DeviceCheckerListener());
+			mDeviceChecker.execute(Utils.getFullUrl(LoginActivity.this));
 		}
 
 		@Override
@@ -526,6 +570,20 @@ public class LoginActivity extends Activity implements OnClickListener,
 				}
 			})
 			.show();
+		}
+
+		@Override
+		public void onCancelled(String msg) {
+			Log.i(TAG, "register task canclled.");
+			
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+		}
+
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			if(mSoftwareRegister != null)
+				mSoftwareRegister.cancel(true);
 		}
 	}
 	

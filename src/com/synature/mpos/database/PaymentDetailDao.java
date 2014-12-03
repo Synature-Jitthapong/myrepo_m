@@ -378,6 +378,55 @@ public class PaymentDetailDao extends MPOSDatabase {
 	}
 	
 	/**
+	 * @param sessionDate
+	 * @return total receipt amount
+	 */
+	public double getTotalPaymentReceipt(String sessionDate) {
+		double totalReceiptAmount = 0.0f;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT "
+				+ " SUM (b." + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
+				+ " LEFT JOIN " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " b "
+				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID 
+				+ " WHERE a." + OrderTransTable.COLUMN_SALE_DATE + "=? "
+				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID + " =? ",
+				new String[] { sessionDate,
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+				});
+		if (cursor.moveToFirst()) {
+			totalReceiptAmount = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalReceiptAmount;
+	}
+
+	/**
+	 * @param sessionId
+	 * @return total receipt amount specific by sessionId
+	 */
+	public double getTotalPaymentReceipt(int sessionId) {
+		double totalReceiptAmount = 0.0f;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT "
+				+ " SUM (b." + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS + " a "
+				+ " LEFT JOIN " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " b "
+				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID 
+				+ " WHERE a." + SessionTable.COLUMN_SESS_ID + "=? "
+				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID + " =? ",
+				new String[] { 
+						String.valueOf(sessionId),
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+				});
+		if (cursor.moveToFirst()) {
+			totalReceiptAmount = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalReceiptAmount;
+	}
+	
+	/**
 	 * Get total payed
 	 * @param transactionId
 	 * @return total paid amount (real paid)

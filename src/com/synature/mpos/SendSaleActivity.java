@@ -233,6 +233,23 @@ public class SendSaleActivity extends Activity{
 		@Override
 		public void onProgressUpdate(int value) {
 		}
+
+		@Override
+		public void onCancelled(String msg) {
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
+					mTransLst.set(mPosition, mTrans);
+					mTrans.onSend = false;
+					mSyncAdapter.notifyDataSetChanged();
+					if(mPosition == mTransLst.size() - 1){
+						mItemSendAll.setEnabled(true);
+					}
+				}
+			});
+		}
 		
 	}
 	

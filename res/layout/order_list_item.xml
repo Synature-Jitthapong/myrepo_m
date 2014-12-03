@@ -72,34 +72,38 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:id="@+id/tvOrderQty"
-        style="@style/TextQty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/btnOrderPlus"
-        android:layout_toLeftOf="@+id/btnOrderPlus"
-        android:text="1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <Button
-        android:id="@+id/btnOrderMinus"
-        style="@style/GrayButtonOval"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/chkOrderName"
-        android:layout_toLeftOf="@+id/tvOrderQty"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:minWidth="48dip"
-        android:text="@string/minus"
-        android:textAppearance="?android:attr/textAppearanceLargeInverse" />
-
-    <TextView
         android:id="@+id/tvComment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/tvOrderPrice"
         android:layout_below="@+id/tvOrderPrice"
         android:layout_toLeftOf="@+id/btnSetModify" />
+
+    <EditText
+        android:id="@+id/txtOrderQty"
+        style="@style/EditTextQty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/btnOrderPlus"
+        android:layout_alignTop="@+id/btnOrderPlus"
+        android:layout_toLeftOf="@+id/btnOrderPlus"
+        android:gravity="center"
+        android:inputType="number"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:text="1" />
+
+    <Button
+        android:id="@+id/btnOrderMinus"
+        style="@style/GrayButtonOval"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/txtOrderQty"
+        android:layout_toLeftOf="@+id/txtOrderQty"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:minWidth="48dip"
+        android:text="@string/minus"
+        android:textAppearance="?android:attr/textAppearanceLargeInverse" />
 
 </RelativeLayout>

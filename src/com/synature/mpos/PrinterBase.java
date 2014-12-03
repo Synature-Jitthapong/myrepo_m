@@ -212,6 +212,14 @@ public abstract class PrinterBase {
 			}
 			mTextToPrint.append("\n");
 		}
+		OrderTransaction sumTrans = mTrans.getSummaryTransaction(dateFrom, dateTo);
+		String summaryText = mContext.getString(R.string.total);
+		String total = mFormat.currencyFormat(sumTrans.getTransactionVatable());
+		mTextToPrint.append(summaryText);
+		mTextToPrint.append(createHorizontalSpace(calculateLength(" ") + 
+						calculateLength(summaryText) 
+						+ calculateLength(total)));
+		mTextToPrint.append(total);
 	}
 	
 	/**
@@ -429,11 +437,11 @@ public abstract class PrinterBase {
 					+ calculateLength(vatExclude)));
 			mTextToPrint.append(vatExclude + "\n");
 		}
-		double totalReceiptAmount = mTrans.getTotalReceiptAmount(sessionDate);
+		double totalPaymentReceipt = mPayment.getTotalPaymentReceipt(sessionDate);
 		if(sessionId != 0)
-			totalReceiptAmount = mTrans.getTotalReceiptAmount(sessionId);
-		if(totalReceiptAmount != trans.getTransactionVatable()){
-			double totalRounding = totalReceiptAmount - trans.getTransactionVatable();
+			totalPaymentReceipt = mPayment.getTotalPaymentReceipt(sessionId);
+		if(totalPaymentReceipt != trans.getTransactionVatable()){
+			double totalRounding = totalPaymentReceipt - trans.getTransactionVatable();
 			String roundingText = mContext.getString(R.string.rounding);
 			String rounding = mFormat.currencyFormat(totalRounding);
 			mTextToPrint.append(roundingText);
@@ -443,7 +451,7 @@ public abstract class PrinterBase {
 			mTextToPrint.append(rounding + "\n");
 			
 			String grandTotalText = mContext.getString(R.string.grand_total);
-			String grandTotal = mFormat.currencyFormat(totalReceiptAmount);
+			String grandTotal = mFormat.currencyFormat(totalPaymentReceipt);
 			mTextToPrint.append(grandTotalText);
 			mTextToPrint.append(createHorizontalSpace(
 					calculateLength(grandTotalText) 

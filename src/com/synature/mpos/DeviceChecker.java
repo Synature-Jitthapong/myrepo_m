@@ -43,6 +43,11 @@ public class DeviceChecker extends MPOSServiceBase {
 	}
 
 	@Override
+	protected void onCancelled(String result) {
+		mListener.onCancelled(result);
+	}
+
+	@Override
 	protected void onPreExecute() {
 		mListener.onPreExecute();
 	}

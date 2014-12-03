@@ -350,6 +350,10 @@ public class VoidBillActivity extends Activity {
 					@Override
 					public void onProgressUpdate(int value) {
 					}
+
+					@Override
+					public void onCancelled(String msg) {
+					}
 					
 				});
 			}
