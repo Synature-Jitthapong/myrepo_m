@@ -199,7 +199,7 @@ public abstract class PrinterBase {
 		for(Reporting.SaleTransactionReport report : saleReportLst){
 			mTextToPrint.append(mFormat.dateFormat(report.getSaleDate()) + "\n");
 			for(OrderTransaction trans : report.getTransLst()){
-				String receiptNo = trans.getReceiptNo();
+				String receiptNo = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID ? trans.getReceiptNo() + "(void)" : trans.getReceiptNo();
 				String totalSale = mFormat.currencyFormat(trans.getTransactionVatable());
 				String closeTime = mFormat.timeFormat(trans.getCloseTime()) + 
 						createQtySpace(calculateLength(totalSale));
@@ -213,11 +213,11 @@ public abstract class PrinterBase {
 			mTextToPrint.append("\n");
 		}
 		OrderTransaction sumTrans = mTrans.getSummaryTransaction(dateFrom, dateTo);
-		String summaryText = mContext.getString(R.string.total);
 		String total = mFormat.currencyFormat(sumTrans.getTransactionVatable());
+		String summaryText = mContext.getString(R.string.summary) + 
+				createQtySpace(calculateLength(total));
 		mTextToPrint.append(summaryText);
-		mTextToPrint.append(createHorizontalSpace(calculateLength(" ") + 
-						calculateLength(summaryText) 
+		mTextToPrint.append(createHorizontalSpace(calculateLength(summaryText) 
 						+ calculateLength(total)));
 		mTextToPrint.append(total);
 	}

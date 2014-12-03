@@ -7,20 +7,9 @@
     android:padding="4dp"
     tools:context=".PaymentActivity" >
 
-    <TextView
-        android:id="@+id/tvTotalPrice"
-        style="@style/TextPrice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="72sp" />
-
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tvTotalPrice" >
+        android:layout_height="wrap_content" >
 
         <LinearLayout
             android:layout_width="0dp"
@@ -192,8 +181,10 @@
                 <include
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/vertical_margin"
                     android:layout_weight="1"
                     layout="@layout/keypad" />
+
             </LinearLayout>
         </LinearLayout>
 
@@ -205,6 +196,16 @@
             android:gravity="center"
             android:orientation="vertical" >
 
+            <TextView
+                android:id="@+id/tvTotalPrice"
+                style="@style/TextPrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="0"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="72sp" />
+
             <GridView
                 android:id="@+id/gvPaymentButton"
                 android:layout_width="match_parent"
@@ -215,7 +216,6 @@
                 android:numColumns="2"
                 android:stretchMode="columnWidth"
                 android:verticalSpacing="4dp" >
-
             </GridView>
 
             <Button
