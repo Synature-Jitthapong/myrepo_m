@@ -32,6 +32,13 @@ public class Product{
 	private double VATRATE;
 	private String IMGLINK;
 	private String UDATE;
+	private int PORD;
+	public int getPORD() {
+		return PORD;
+	}
+	public void setPORD(int pORD) {
+		PORD = pORD;
+	}
 	public int getPID() {
 		return PID;
 	}

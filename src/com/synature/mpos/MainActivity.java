@@ -1010,7 +1010,7 @@ public class MainActivity extends FragmentActivity implements
 								qty, orderDetail.getProductPrice(), 
 								orderDetail.getVatType(),
 								mProducts.getVatRate(orderDetail.getProductId()),
-								orderDetail.getProductName());
+								orderDetail.getProductName(), orderDetail.getProductName1());
 					}else{
 						new AlertDialog.Builder(MainActivity.this)
 						.setTitle(R.string.delete)
@@ -1045,7 +1045,7 @@ public class MainActivity extends FragmentActivity implements
 							qty, orderDetail.getProductPrice(), 
 							orderDetail.getVatType(),
 							mProducts.getVatRate(orderDetail.getProductId()),
-							orderDetail.getProductName());
+							orderDetail.getProductName(), orderDetail.getProductName1());
 					
 					mOrderDetailAdapter.notifyDataSetChanged();
 				}
@@ -1266,7 +1266,7 @@ public class MainActivity extends FragmentActivity implements
 						long id) {
 					Product p = (Product) parent.getItemAtPosition(position);
 					((MainActivity) getActivity()).onMenuClick(p.getProductId(),
-							p.getProductName(), p.getProductTypeId(), 
+							p.getProductName(), p.getProductName1(), p.getProductTypeId(), 
 							p.getVatType(), p.getVatRate(), p.getProductPrice());
 				}
 			});
@@ -1426,14 +1426,15 @@ public class MainActivity extends FragmentActivity implements
 	 * @param productId
 	 * @param productCode
 	 * @param productName
+	 * @param productName2
 	 * @param productTypeId
 	 * @param vatType
 	 * @param vatRate
 	 * @param productPrice
 	 */
-	public void onMenuClick(int productId, String productName, 
+	public void onMenuClick(int productId, String productName, String productName2,
 			int productTypeId, int vatType, double vatRate, double productPrice) {
-		mDsp.setItemName(productName);
+		mDsp.setItemName(TextUtils.isEmpty(productName2) ? productName : productName2);
 		mDsp.setItemQty(mGlobal.qtyFormat(1));
 		if(productTypeId == ProductsDao.NORMAL_TYPE || 
 				productTypeId == ProductsDao.SET){
@@ -2002,10 +2003,13 @@ public class MainActivity extends FragmentActivity implements
 	 * @param price
 	 * @param vatType
 	 * @param vatRate
+	 * @param productName
+	 * @param productName2
 	 */
 	private void updateOrder(int orderDetailId, double qty, 
-			double price, int vatType, double vatRate, String productName){
-		mDsp.setItemName(productName);
+			double price, int vatType, double vatRate, 
+			String productName, String productName2){
+		mDsp.setItemName(TextUtils.isEmpty(productName2) ? productName : productName2);
 		mDsp.setItemQty(mGlobal.qtyFormat(qty));
 		mDsp.setItemAmount(mGlobal.currencyFormat(price));
 		mTrans.updateOrderDetail(mTransactionId,
