@@ -71,7 +71,14 @@ public class SoftwareRegister extends MPOSServiceBase{
 			}
 		} catch (JsonSyntaxException e1) {
 			mListener.onError(result);
+		} catch(Exception e){
+			mListener.onError(TextUtils.isEmpty(result) ? "Sorry unknown error." : result);
 		}
+	}
+
+	@Override
+	protected void onCancelled(String result) {
+		mListener.onCancelled(result);
 	}
 
 	@Override

@@ -256,7 +256,6 @@ public class Utils {
 			}
 			break;
 		case 2:
-		case 8:
 			if(fPart < 0.5){
 				fPart = 0;
 			}else if (fPart == 0.5){
@@ -267,7 +266,6 @@ public class Utils {
 			}
 			break;
 		case 3:
-		case 9:
 			if(fPart > 0 && fPart < 0.25){
 				fPart = 0.25;
 			}else if(fPart > 0.25 && fPart <= 0.5){
@@ -294,6 +292,24 @@ public class Utils {
 				fPart = 0.25;
 			}else if(fPart >= 0.5){
 				fPart = 0.5;
+			}	
+			break;
+		case 8:
+			if(fPart < 0.5){
+				fPart = 0;
+			}else if (fPart >= 0.5){
+				iPart += 1;
+				fPart = 0;
+			}
+			break;
+		case 9:
+			if(fPart < 0.25){
+				fPart = 0;
+			}else if(fPart >= 0.25 && fPart < 0.5){
+				fPart = 0.25;
+			}else if(fPart >= 0.5){
+				iPart += 1;
+				fPart = 0;
 			}	
 			break;
 		}

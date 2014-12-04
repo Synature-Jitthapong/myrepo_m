@@ -64,6 +64,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
@@ -240,6 +241,10 @@ public class MainActivity extends FragmentActivity implements
 
 		@Override
 		public void onProgressUpdate(int value) {
+		}
+
+		@Override
+		public void onCancelled(String msg) {
 		}
 		
 	}
@@ -556,12 +561,16 @@ public class MainActivity extends FragmentActivity implements
 		if(Utils.isEnableWintecCustomerDisplay(this)){
 			// display only have item
 			if(!TextUtils.isEmpty(mDsp.getItemName())){
-				try {
-					mDsp.setItemTotalQty(mGlobal.qtyFormat(totalQty));
-					mDsp.setItemTotalAmount(mGlobal.currencyFormat(totalRetailPrice));
-					mDsp.displayOrder();
-				} catch (Exception e) {
-					e.printStackTrace();
+				if(totalQty > 0){
+					try {
+						mDsp.setItemTotalQty(mGlobal.qtyFormat(totalQty));
+						mDsp.setItemTotalAmount(mGlobal.currencyFormat(totalRetailPrice));
+						mDsp.displayOrder();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}else{
+					mDsp.displayWelcome();
 				}
 			}
 		}
@@ -782,6 +791,10 @@ public class MainActivity extends FragmentActivity implements
 		@Override
 		public void onProgressUpdate(int value) {
 		}
+
+		@Override
+		public void onCancelled(String msg) {
+		}
 	};
 	
 	/**
@@ -885,13 +898,11 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
+	/**
+	 * @author j1tth4
+	 *
+	 */
 	private class OrderDetailAdapter extends BaseExpandableListAdapter{
-
-		private LayoutInflater mInflater;
-		
-		public OrderDetailAdapter(){
-			mInflater = getLayoutInflater();
-		}
 		
 		@Override
 		public int getGroupCount() {
@@ -933,13 +944,13 @@ public class MainActivity extends FragmentActivity implements
 				View convertView, ViewGroup parent) {
 			ViewHolder holder;		
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.order_list_item, parent, false);
+				convertView = getLayoutInflater().inflate(R.layout.order_list_item, parent, false);
 				holder = new ViewHolder();
 				holder.tvOrderNo = (TextView) convertView.findViewById(R.id.tvOrderNo);
 				holder.tvOrderName = (CheckedTextView) convertView.findViewById(R.id.chkOrderName);
 				holder.tvOrderPrice = (TextView) convertView.findViewById(R.id.tvOrderPrice);
 				holder.tvComment = (TextView) convertView.findViewById(R.id.tvComment);
-				holder.tvOrderQty = (TextView) convertView.findViewById(R.id.tvOrderQty);
+				holder.txtOrderQty = (EditText) convertView.findViewById(R.id.txtOrderQty);
 				holder.btnComment = (ImageButton) convertView.findViewById(R.id.btnComment);
 				holder.btnSetMod = (ImageButton) convertView.findViewById(R.id.btnSetModify);
 				holder.btnMinus = (Button) convertView.findViewById(R.id.btnOrderMinus);
@@ -953,7 +964,7 @@ public class MainActivity extends FragmentActivity implements
 			holder.tvOrderNo.setText(Integer.toString(groupPosition + 1) + ".");
 			holder.tvOrderName.setText(orderDetail.getProductName());
 			holder.tvOrderPrice.setText(mGlobal.currencyFormat(orderDetail.getProductPrice()));
-			holder.tvOrderQty.setText(mGlobal.qtyFormat(orderDetail.getOrderQty()));
+			holder.txtOrderQty.setText(mGlobal.qtyFormat(orderDetail.getOrderQty()));
 			holder.tvComment.setText(null);
 			if(orderDetail.getOrderCommentLst() != null){
 				holder.tvComment.setVisibility(View.VISIBLE);
@@ -1014,7 +1025,7 @@ public class MainActivity extends FragmentActivity implements
 								qty, orderDetail.getProductPrice(), 
 								orderDetail.getVatType(),
 								mProducts.getVatRate(orderDetail.getProductId()),
-								orderDetail.getProductName());
+								orderDetail.getProductName(), orderDetail.getProductName1());
 					}else{
 						new AlertDialog.Builder(MainActivity.this)
 						.setTitle(R.string.delete)
@@ -1049,13 +1060,61 @@ public class MainActivity extends FragmentActivity implements
 							qty, orderDetail.getProductPrice(), 
 							orderDetail.getVatType(),
 							mProducts.getVatRate(orderDetail.getProductId()),
-							orderDetail.getProductName());
+							orderDetail.getProductName(), orderDetail.getProductName1());
 					
 					mOrderDetailAdapter.notifyDataSetChanged();
 				}
 				
 			});
-			
+			holder.txtOrderQty.setOnFocusChangeListener(new OnFocusChangeListener() {
+				
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) {
+					if(hasFocus){
+						EditText editText = (EditText) v;
+						orderDetail.mTxtFocus = editText;
+					}
+				}
+			});
+			holder.txtOrderQty.setOnKeyListener(new OnKeyListener(){
+
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event) {
+					if(event.getAction() != KeyEvent.ACTION_DOWN)
+						return true;
+					
+					if(keyCode == KeyEvent.KEYCODE_ENTER){
+						EditText editText = (EditText) v;
+						orderDetail.mTxtFocus = editText;
+						try {
+							double qty = Utils.stringToDouble(editText.getText().toString());
+							if(qty > 0){
+								orderDetail.setOrderQty(qty);
+								updateOrder(orderDetail.getOrderDetailId(),
+										qty, orderDetail.getProductPrice(), 
+										orderDetail.getVatType(),
+										mProducts.getVatRate(orderDetail.getProductId()),
+										orderDetail.getProductName(), orderDetail.getProductName1());
+								
+								mOrderDetailAdapter.notifyDataSetChanged();
+							}
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						toggleKeyboard(v);
+					}
+					return false;
+				}
+				
+			});
+			if(orderDetail.mTxtFocus != null){
+				holder.txtOrderQty.requestFocus();
+				holder.txtOrderQty.selectAll();
+				orderDetail.mTxtFocus = null;
+			}else{
+				holder.txtOrderQty.clearFocus();
+			}
 			if(orderDetail.getProductTypeId() == ProductsDao.SET_CAN_SELECT){
 				holder.btnSetMod.setVisibility(View.VISIBLE);
 				holder.btnComment.setVisibility(View.GONE);
@@ -1071,7 +1130,7 @@ public class MainActivity extends FragmentActivity implements
 				boolean isLastChild, View convertView, ViewGroup parent) {
 			ChildViewHolder holder;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.order_detail_set_item, parent, false);
+				convertView = getLayoutInflater().inflate(R.layout.order_detail_set_item, parent, false);
 				holder = new ChildViewHolder();
 				holder.tvSetNo = (TextView) convertView.findViewById(R.id.tvSetNo);
 				holder.tvSetName = (TextView) convertView.findViewById(R.id.tvSetName);
@@ -1141,7 +1200,7 @@ public class MainActivity extends FragmentActivity implements
 		CheckedTextView tvOrderName;
 		TextView tvOrderPrice;
 		TextView tvComment;
-		TextView tvOrderQty;
+		EditText txtOrderQty;
 		ImageButton btnSetMod;
 		ImageButton btnComment;
 		Button btnMinus;
@@ -1270,7 +1329,7 @@ public class MainActivity extends FragmentActivity implements
 						long id) {
 					Product p = (Product) parent.getItemAtPosition(position);
 					((MainActivity) getActivity()).onMenuClick(p.getProductId(),
-							p.getProductName(), p.getProductTypeId(), 
+							p.getProductName(), p.getProductName1(), p.getProductTypeId(), 
 							p.getVatType(), p.getVatRate(), p.getProductPrice());
 				}
 			});
@@ -1430,14 +1489,15 @@ public class MainActivity extends FragmentActivity implements
 	 * @param productId
 	 * @param productCode
 	 * @param productName
+	 * @param productName2
 	 * @param productTypeId
 	 * @param vatType
 	 * @param vatRate
 	 * @param productPrice
 	 */
-	public void onMenuClick(int productId, String productName, 
+	public void onMenuClick(int productId, String productName, String productName2,
 			int productTypeId, int vatType, double vatRate, double productPrice) {
-		mDsp.setItemName(productName);
+		mDsp.setItemName(TextUtils.isEmpty(productName2) ? productName : productName2);
 		mDsp.setItemQty(mGlobal.qtyFormat(1));
 		if(productTypeId == ProductsDao.NORMAL_TYPE || 
 				productTypeId == ProductsDao.SET){
@@ -2006,10 +2066,13 @@ public class MainActivity extends FragmentActivity implements
 	 * @param price
 	 * @param vatType
 	 * @param vatRate
+	 * @param productName
+	 * @param productName2
 	 */
 	private void updateOrder(int orderDetailId, double qty, 
-			double price, int vatType, double vatRate, String productName){
-		mDsp.setItemName(productName);
+			double price, int vatType, double vatRate, 
+			String productName, String productName2){
+		mDsp.setItemName(TextUtils.isEmpty(productName2) ? productName : productName2);
 		mDsp.setItemQty(mGlobal.qtyFormat(qty));
 		mDsp.setItemAmount(mGlobal.currencyFormat(price));
 		mTrans.updateOrderDetail(mTransactionId,
@@ -2477,6 +2540,10 @@ public class MainActivity extends FragmentActivity implements
 							@Override
 							public void onProgressUpdate(int value) {
 							}
+
+							@Override
+							public void onCancelled(String msg) {
+							}
 					});
 			}
 
@@ -2548,6 +2615,10 @@ public class MainActivity extends FragmentActivity implements
 	
 							@Override
 							public void onProgressUpdate(int value) {
+							}
+
+							@Override
+							public void onCancelled(String msg) {
 							}
 					});
 			}

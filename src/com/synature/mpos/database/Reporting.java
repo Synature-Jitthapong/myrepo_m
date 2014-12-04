@@ -75,7 +75,7 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						mDateFrom,
 						mDateTo,
-						String.valueOf(TransactionDao.TRANS_STATUS_HOLD),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
 				});
 		if(mainCursor.moveToFirst()){
@@ -86,6 +86,7 @@ public class Reporting extends MPOSDatabase{
 				Cursor detailCursor = getReadableDatabase().rawQuery(
 						"SELECT " + OrderTransTable.COLUMN_RECEIPT_NO + ", "
 						+ OrderTransTable.COLUMN_CLOSE_TIME + ", "
+						+ OrderTransTable.COLUMN_STATUS_ID + ", "
 						+ OrderTransTable.COLUMN_TRANS_VATABLE
 						+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
 						+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE + "=?"
@@ -94,7 +95,7 @@ public class Reporting extends MPOSDatabase{
 						+ " ORDER BY " + OrderTransTable.COLUMN_SALE_DATE + ", " + OrderTransTable.COLUMN_RECEIPT_ID,
 						new String[]{
 								mainCursor.getString(0),
-								String.valueOf(TransactionDao.TRANS_STATUS_HOLD),
+								String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
 						});
 				if(detailCursor.moveToFirst()){
@@ -102,6 +103,7 @@ public class Reporting extends MPOSDatabase{
 						OrderTransaction detail = new OrderTransaction();
 						detail.setReceiptNo(detailCursor.getString(detailCursor.getColumnIndex(OrderTransTable.COLUMN_RECEIPT_NO)));
 						detail.setCloseTime(detailCursor.getString(detailCursor.getColumnIndex(OrderTransTable.COLUMN_CLOSE_TIME)));
+						detail.setTransactionStatusId(detailCursor.getInt(detailCursor.getColumnIndex(OrderTransTable.COLUMN_STATUS_ID)));
 						detail.setTransactionVatable(detailCursor.getDouble(detailCursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_VATABLE)));
 						trans.getTransLst().add(detail);
 					}while(detailCursor.moveToNext());

@@ -1740,11 +1740,11 @@ public class TransactionDao extends MPOSDatabase {
 				+ " LEFT JOIN " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " b "
 				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID 
 				+ " WHERE a." + OrderTransTable.COLUMN_SALE_DATE + "=? "
-				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID
-				+ " IN(?,?) ",
+				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] { sessionDate,
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+				});
 		if (cursor.moveToFirst()) {
 			totalReceiptAmount = cursor.getDouble(0);
 		}
@@ -1765,12 +1765,12 @@ public class TransactionDao extends MPOSDatabase {
 				+ " LEFT JOIN " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " b "
 				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID 
 				+ " WHERE a." + SessionTable.COLUMN_SESS_ID + "=? "
-				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID
-				+ " IN(?,?) ",
+				+ " AND a." + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] { 
 						String.valueOf(sessionId),
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)});
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+				});
 		if (cursor.moveToFirst()) {
 			totalReceiptAmount = cursor.getDouble(0);
 		}

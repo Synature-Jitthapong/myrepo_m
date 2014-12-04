@@ -578,11 +578,11 @@ public class SaleReportActivity extends Activity{
 				mEnddaySumContent.addView(vatExcludeView);
 			}
 			
-			double totalReceipt = mTrans.getTotalReceiptAmount(mHost.mDateTo);
+			double totalPaymentReceipt = mPayment.getTotalPaymentReceipt(mHost.mDateTo);
 			if(mSessionId != 0)
-				totalReceipt = mTrans.getTotalReceiptAmount(mSessionId);
-			if( totalReceipt != trans.getTransactionVatable()){
-				double totalRounding = totalReceipt - trans.getTransactionVatable();
+				totalPaymentReceipt = mPayment.getTotalPaymentReceipt(mSessionId);
+			if( totalPaymentReceipt != trans.getTransactionVatable()){
+				double totalRounding = totalPaymentReceipt - trans.getTransactionVatable();
 				View rounding = inflater.inflate(R.layout.left_mid_right_template, null);
 				((TextView) rounding.findViewById(R.id.tvLeft)).setText(getString(R.string.rounding));
 				((TextView) rounding.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(totalRounding));
@@ -593,7 +593,7 @@ public class SaleReportActivity extends Activity{
 				((TextView) grandTotal.findViewById(R.id.tvLeft)).setText(getString(R.string.grand_total));
 				((TextView) grandTotal.findViewById(R.id.tvLeft)).setPaintFlags(
 						((TextView) grandTotal.findViewById(R.id.tvLeft)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
-				((TextView) grandTotal.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(totalReceipt));
+				((TextView) grandTotal.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(totalPaymentReceipt));
 				((TextView) grandTotal.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
 				mEnddaySumContent.addView(grandTotal);
 			}
@@ -835,8 +835,8 @@ public class SaleReportActivity extends Activity{
 			}
 			mBillHeader.addView(createTextViewHeader(getActivity(), getString(R.string.sub_total), 
 					Utils.getLinHorParams(0.7f), Gravity.END));
-			mBillHeader.addView(createTextViewHeader(getActivity(), getString(R.string.total_sale), 
-				Utils.getLinHorParams(0.7f), Gravity.END));
+//			mBillHeader.addView(createTextViewHeader(getActivity(), getString(R.string.total_sale), 
+//				Utils.getLinHorParams(0.7f), Gravity.END));
 			if(!isExcVat){
 				mBillHeader.addView(createTextViewHeader(getActivity(), getString(R.string.vatable), 
 						Utils.getLinHorParams(0.7f), Gravity.END));
@@ -932,8 +932,8 @@ public class SaleReportActivity extends Activity{
 				}
 				container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(subTotal),  
 								Utils.getLinHorParams(0.7f)));
-				container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalPay - totalVatExcl),  
-								Utils.getLinHorParams(0.7f)));
+//				container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(totalPay - totalVatExcl),  
+//								Utils.getLinHorParams(0.7f)));
 				if(!isExcVat){
 					container.addView(createTextViewItem(getActivity(), mHost.mFormat.currencyFormat(vatable - totalVatExcl),  
 							Utils.getLinHorParams(0.7f)));
@@ -995,8 +995,8 @@ public class SaleReportActivity extends Activity{
 			}
 			mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getSubTotal()),  
 					Utils.getLinHorParams(0.7f)));
-			mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalPayment() - summary.getVatExclude()),  
-					Utils.getLinHorParams(0.7f)));
+//			mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalPayment() - summary.getVatExclude()),  
+//					Utils.getLinHorParams(0.7f)));
 			if(!isExcVat){
 				mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getVatable() - summary.getVatExclude()),  
 						Utils.getLinHorParams(0.7f)));

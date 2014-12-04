@@ -51,6 +51,10 @@ public class PartialSaleSenderExcecutor extends EnddayBase implements Runnable{
 				@Override
 				public void onProgressUpdate(int value) {
 				}
+
+				@Override
+				public void onCancelled(String msg) {
+				}
 			}).execute(Utils.getFullUrl(mContext));
 		}
 	}

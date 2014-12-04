@@ -300,7 +300,7 @@ public final class R {
         public static final int textViewMenuName=0x7f0c00ae;
         public static final int textViewMenuPrice=0x7f0c00b0;
         public static final int tvChange=0x7f0c003b;
-        public static final int tvComment=0x7f0c00bc;
+        public static final int tvComment=0x7f0c00bb;
         public static final int tvCommentPrice=0x7f0c004c;
         public static final int tvCommentQty=0x7f0c004e;
         public static final int tvDbName=0x7f0c005c;
@@ -322,7 +322,6 @@ public final class R {
         public static final int tvOpenTime=0x7f0c0088;
         public static final int tvOrderNo=0x7f0c00b8;
         public static final int tvOrderPrice=0x7f0c00ba;
-        public static final int tvOrderQty=0x7f0c00bb;
         public static final int tvPaidTime=0x7f0c00d4;
         public static final int tvPayAmount=0x7f0c00c7;
         public static final int tvPayDetail=0x7f0c00c6;
@@ -371,6 +370,7 @@ public final class R {
         public static final int txtDiscount=0x7f0c008b;
         public static final int txtDisplay=0x7f0c0090;
         public static final int txtExpDate=0x7f0c005b;
+        public static final int txtOrderQty=0x7f0c00bc;
         public static final int txtPass=0x7f0c001d;
         public static final int txtPassword=0x7f0c0068;
         public static final int txtRemark=0x7f0c006e;
@@ -748,33 +748,34 @@ public final class R {
  <item name="android:editTextStyle">@style/EditTextStyle</item> 
          */
         public static final int AppTheme=0x7f0a0000;
-        public static final int BaseButton=0x7f0a0011;
-        public static final int BaseButton_Light=0x7f0a0010;
-        public static final int BlueButton=0x7f0a000c;
-        public static final int BlueGrayButton=0x7f0a000d;
-        public static final int BodyText=0x7f0a0007;
+        public static final int BaseButton=0x7f0a0012;
+        public static final int BaseButton_Light=0x7f0a0011;
+        public static final int BlueButton=0x7f0a000d;
+        public static final int BlueGrayButton=0x7f0a000e;
+        public static final int BodyText=0x7f0a0008;
+        public static final int EditTextQty=0x7f0a0003;
         /**  EditText Style 
          */
-        public static final int EditTextStyle=0x7f0a0012;
-        public static final int GrayButton=0x7f0a000f;
-        public static final int GrayButtonOval=0x7f0a000e;
-        public static final int GreenButton=0x7f0a000b;
+        public static final int EditTextStyle=0x7f0a0013;
+        public static final int GrayButton=0x7f0a0010;
+        public static final int GrayButtonOval=0x7f0a000f;
+        public static final int GreenButton=0x7f0a000c;
         /**  Row Style 
          */
-        public static final int HeaderRow=0x7f0a0009;
-        public static final int HeaderText=0x7f0a0008;
-        public static final int LabelText=0x7f0a0006;
+        public static final int HeaderRow=0x7f0a000a;
+        public static final int HeaderText=0x7f0a0009;
+        public static final int LabelText=0x7f0a0007;
         /**  ActionBar styles 
          */
         public static final int MyActionBar=0x7f0a0002;
         /**  Button Style 
          */
-        public static final int RedButton=0x7f0a000a;
-        public static final int TextPrice=0x7f0a0005;
+        public static final int RedButton=0x7f0a000b;
+        public static final int TextPrice=0x7f0a0006;
         /**  Text Style 
          */
-        public static final int TextQty=0x7f0a0003;
-        public static final int TextSummary=0x7f0a0004;
+        public static final int TextQty=0x7f0a0004;
+        public static final int TextSummary=0x7f0a0005;
     }
     public static final class xml {
         public static final int pref_connection=0x7f040000;

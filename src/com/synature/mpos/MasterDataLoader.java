@@ -58,6 +58,11 @@ public class MasterDataLoader extends MPOSServiceBase{
 	}
 
 	@Override
+	protected void onCancelled(String result) {
+		mListener.onCancelled(result);
+	}
+
+	@Override
 	protected void onPostExecute(String result) {
 		Gson gson = new Gson();
 		try {

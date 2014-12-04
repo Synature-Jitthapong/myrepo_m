@@ -5,4 +5,5 @@ public interface WebServiceWorkingListener {
 	void onProgressUpdate(int value);
 	void onPostExecute();
 	void onError(String msg);
+	void onCancelled(String msg);
 }

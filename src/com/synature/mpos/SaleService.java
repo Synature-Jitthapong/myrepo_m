@@ -51,6 +51,11 @@ public class SaleService extends Service{
 					public void onError(String msg) {
 						sendAllEndday(shopId, computerId, staffId, listener);
 					}
+
+					@Override
+					public void onCancelled(String msg) {
+						listener.onCancelled(msg);
+					}
 		
 		})).start();
 	}

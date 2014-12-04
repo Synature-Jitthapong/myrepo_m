@@ -24,6 +24,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -74,15 +77,15 @@ public class PaymentActivity extends Activity implements OnClickListener{
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-//		requestWindowFeature(Window.FEATURE_ACTION_BAR);
-//	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
-//	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-//	    LayoutParams params = getWindow().getAttributes();
-//	    params.width = WindowManager.LayoutParams.MATCH_PARENT;
-//	    params.height= getResources().getInteger(R.integer.activity_dialog_height);
-//	    params.alpha = 1.0f;
-//	    params.dimAmount = 0.5f;
-//	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
+		requestWindowFeature(Window.FEATURE_ACTION_BAR);
+	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
+	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+	    LayoutParams params = getWindow().getAttributes();
+	    params.width = WindowManager.LayoutParams.MATCH_PARENT;
+	    params.height= getResources().getInteger(R.integer.activity_dialog_height);
+	    params.alpha = 1.0f;
+	    params.dimAmount = 0.5f;
+	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
 		setContentView(R.layout.activity_payment);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 	    setFinishOnTouchOutside(false);

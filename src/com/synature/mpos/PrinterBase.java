@@ -199,7 +199,7 @@ public abstract class PrinterBase {
 		for(Reporting.SaleTransactionReport report : saleReportLst){
 			mTextToPrint.append(mFormat.dateFormat(report.getSaleDate()) + "\n");
 			for(OrderTransaction trans : report.getTransLst()){
-				String receiptNo = trans.getReceiptNo();
+				String receiptNo = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID ? trans.getReceiptNo() + "(void)" : trans.getReceiptNo();
 				String totalSale = mFormat.currencyFormat(trans.getTransactionVatable());
 				String closeTime = mFormat.timeFormat(trans.getCloseTime()) + 
 						createQtySpace(calculateLength(totalSale));
@@ -212,6 +212,14 @@ public abstract class PrinterBase {
 			}
 			mTextToPrint.append("\n");
 		}
+		OrderTransaction sumTrans = mTrans.getSummaryTransaction(dateFrom, dateTo);
+		String total = mFormat.currencyFormat(sumTrans.getTransactionVatable());
+		String summaryText = mContext.getString(R.string.summary) + 
+				createQtySpace(calculateLength(total));
+		mTextToPrint.append(summaryText);
+		mTextToPrint.append(createHorizontalSpace(calculateLength(summaryText) 
+						+ calculateLength(total)));
+		mTextToPrint.append(total);
 	}
 	
 	/**
@@ -429,11 +437,11 @@ public abstract class PrinterBase {
 					+ calculateLength(vatExclude)));
 			mTextToPrint.append(vatExclude + "\n");
 		}
-		double totalReceiptAmount = mTrans.getTotalReceiptAmount(sessionDate);
+		double totalPaymentReceipt = mPayment.getTotalPaymentReceipt(sessionDate);
 		if(sessionId != 0)
-			totalReceiptAmount = mTrans.getTotalReceiptAmount(sessionId);
-		if(totalReceiptAmount != trans.getTransactionVatable()){
-			double totalRounding = totalReceiptAmount - trans.getTransactionVatable();
+			totalPaymentReceipt = mPayment.getTotalPaymentReceipt(sessionId);
+		if(totalPaymentReceipt != trans.getTransactionVatable()){
+			double totalRounding = totalPaymentReceipt - trans.getTransactionVatable();
 			String roundingText = mContext.getString(R.string.rounding);
 			String rounding = mFormat.currencyFormat(totalRounding);
 			mTextToPrint.append(roundingText);
@@ -443,7 +451,7 @@ public abstract class PrinterBase {
 			mTextToPrint.append(rounding + "\n");
 			
 			String grandTotalText = mContext.getString(R.string.grand_total);
-			String grandTotal = mFormat.currencyFormat(totalReceiptAmount);
+			String grandTotal = mFormat.currencyFormat(totalPaymentReceipt);
 			mTextToPrint.append(grandTotalText);
 			mTextToPrint.append(createHorizontalSpace(
 					calculateLength(grandTotalText) 

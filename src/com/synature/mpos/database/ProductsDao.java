@@ -8,6 +8,7 @@ import com.synature.mpos.database.model.ProductComponent;
 import com.synature.mpos.database.model.ProductComponentGroup;
 import com.synature.mpos.database.model.ProductDept;
 import com.synature.mpos.database.model.ProductGroup;
+import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ProductComponentGroupTable;
 import com.synature.mpos.database.table.ProductComponentTable;
 import com.synature.mpos.database.table.ProductDeptTable;
@@ -692,6 +693,7 @@ public class ProductsDao extends MPOSDatabase {
 				cv.put(ProductTable.COLUMN_ACTIVATE, p.getACTIVATE());
 				cv.put(COLUMN_DELETED, p.getDEL());
 				cv.put(ProductTable.COLUMN_IMG_FILE_NAME, p.getIMGLINK());
+				cv.put(BaseColumn.COLUMN_ORDERING, p.getPORD());
 				getWritableDatabase().insertOrThrow(ProductTable.TABLE_PRODUCT, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();
