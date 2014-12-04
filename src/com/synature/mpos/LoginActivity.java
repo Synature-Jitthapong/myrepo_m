@@ -121,6 +121,12 @@ public class LoginActivity extends Activity implements OnClickListener,
 				Utils.getLangCode(getApplicationContext()));
 	}
 
+	public void testUpdateClick(final View v){
+		Intent intent = new Intent(this, SoftwareUpdateService.class);
+		intent.putExtra("fileUrl", "http://www.promise-system.com/mposupdate/mpos1.2.5.apk");
+		startService(intent);
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(requestCode == REQUEST_FOR_SETTING_DATE){
@@ -357,9 +363,9 @@ public class LoginActivity extends Activity implements OnClickListener,
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							File download = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-							File apkFile = new File(download + File.separator + Utils.UPDATE_FILE_NAME);
+							//File apkFile = new File(download + File.separator + Utils.UPDATE_FILE_NAME);
 						    Intent intent = new Intent(Intent.ACTION_VIEW);
-						    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
+						    //intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
 						    startActivity(intent);
 						}
 					});

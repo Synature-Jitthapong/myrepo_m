@@ -9,7 +9,6 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -40,6 +39,11 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_ENABLE_SECOND_DISPLAY = "enable_second_display";
 	public static final String KEY_PREF_LANGUAGE_LIST = "language_list";
 	public static final String KEY_PREF_ENABLE_BACKUP_DB = "enable_backup_db";
+	
+	// store update apk information
+	public static final String KEY_PREF_APK_FILE_NAME = "apk_file_name";
+	public static final String KEY_PREF_DOWNLOAD_STATUS = "download_status"; 	// 0, 1
+	public static final String KEY_PREF_UPDATE_STATUS = "update_status";		// 0, 1
 	
 	//private static final boolean ALWAYS_SIMPLE_PREFS = false;
 

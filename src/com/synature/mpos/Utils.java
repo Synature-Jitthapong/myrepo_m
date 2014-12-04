@@ -97,11 +97,6 @@ public class Utils {
 	public static final String ENDDAY_PATH = RESOURCE_DIR + File.separator + "EnddaySale";
 	
 	/**
-	 * apk file name
-	 */
-	public static final String UPDATE_FILE_NAME = "mpos.apk";
-	
-	/**
 	 * Image path on server
 	 */
 	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
