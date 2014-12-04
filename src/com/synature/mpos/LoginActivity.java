@@ -104,7 +104,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 		mSync = new SyncHistoryDao(this);
 
 		try {
-			if(TextUtils.isEmpty(mShop.getShopName())){
+			if(!TextUtils.isEmpty(mShop.getShopName())){
 				setTitle(mShop.getShopName());
 				getActionBar().setSubtitle(mComputer.getComputerProperty().getComputerName());
 			}
