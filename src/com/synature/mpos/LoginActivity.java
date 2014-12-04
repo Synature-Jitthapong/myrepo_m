@@ -104,22 +104,19 @@ public class LoginActivity extends Activity implements OnClickListener,
 		mSync = new SyncHistoryDao(this);
 
 		try {
-			if(mShop.getShopName() != null){
+			if(TextUtils.isEmpty(mShop.getShopName())){
 				setTitle(mShop.getShopName());
 				getActionBar().setSubtitle(mComputer.getComputerProperty().getComputerName());
 			}
 			mTvLastSyncTime.setText(getString(R.string.last_update) + " " + mFormat.dateTimeFormat(mSync.getLastSyncTime()));
 		} catch (Exception e) {
-			// mFormat may be null if first initial
 			e.printStackTrace();
 		}
-		
 		// sync new master data every day
 		if(isAlreadySetUrl()){
 			if(!mSync.IsAlreadySync())
 				requestValidUrl();
 		}
-		
 		Utils.switchLanguage(getApplicationContext(),
 				Utils.getLangCode(getApplicationContext()));
 	}
@@ -383,7 +380,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 	private void requestValidUrl(){
 		mSoftwareRegister = new SoftwareRegister(this, new RegisterValidUrlListener());
 		mSoftwareRegister.execute(Utils.REGISTER_URL);
-		//new DeviceChecker(LoginActivity.this, new DeviceCheckerListener()).execute(Utils.getFullUrl(LoginActivity.this));
 	}
 	
 	/**
