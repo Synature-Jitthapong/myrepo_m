@@ -122,7 +122,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 	}
 
 	public void testUpdateClick(final View v){
-		Intent intent = new Intent(this, SoftwareUpdateService.class);
+		Intent intent = new Intent(this, DownloadService.class);
 		intent.putExtra("fileUrl", "http://www.promise-system.com/mposupdate/mpos1.2.5.apk");
 		startService(intent);
 	}
@@ -215,6 +215,10 @@ public class LoginActivity extends Activity implements OnClickListener,
 			return true;
 		case R.id.itemUpdate:
 			requestValidUrl();
+			return true;
+		case R.id.itemCheckUpdate:
+			intent = new Intent(LoginActivity.this, CheckUpdateActivity.class);
+			startActivity(intent);
 			return true;
 		case R.id.itemAbout:
 			intent = new Intent(LoginActivity.this, AboutActivity.class);
@@ -343,6 +347,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 		super.onResume();
 	}
 	
+	@Deprecated
 	private void checkSoftwareUpdate(){
 		final SoftwareUpdateDao su = new SoftwareUpdateDao(this);
 		final SoftwareUpdate update = su.getUpdateData();
@@ -523,7 +528,8 @@ public class LoginActivity extends Activity implements OnClickListener,
 		
 	}
 
-	private class RegisterValidUrlListener implements WebServiceWorkingListener, DialogInterface.OnClickListener{
+	private class RegisterValidUrlListener implements SoftwareRegister.SoftwareRegisterListener, 
+		DialogInterface.OnClickListener{
 
 		private ProgressDialog mProgress;
 		
@@ -545,10 +551,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 
 		@Override
 		public void onPostExecute() {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			mDeviceChecker = new DeviceChecker(LoginActivity.this, new DeviceCheckerListener());
-			mDeviceChecker.execute(Utils.getFullUrl(LoginActivity.this));
 		}
 
 		@Override
@@ -586,6 +588,14 @@ public class LoginActivity extends Activity implements OnClickListener,
 		public void onClick(DialogInterface dialog, int which) {
 			if(mSoftwareRegister != null)
 				mSoftwareRegister.cancel(true);
+		}
+
+		@Override
+		public void onPostExecute(MPOSSoftwareInfo info) {
+			if(mProgress.isShowing())
+				mProgress.dismiss();
+			mDeviceChecker = new DeviceChecker(LoginActivity.this, new DeviceCheckerListener());
+			mDeviceChecker.execute(Utils.getFullUrl(LoginActivity.this));
 		}
 	}
 	

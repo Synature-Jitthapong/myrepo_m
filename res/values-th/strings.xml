@@ -209,4 +209,10 @@
     <string name="reset_endday_success">รีเซ็ตการปิดสิ้นวันสำเร็จ</string>
     <string name="reset_send_status">รีเซ็ทสถานะการส่งข้อมูล</string>
     <string name="confirm_reset_send_status">ต้องการรีเซ็ทสถานะการส่งข้อมูล?</string>
+    <string name="downloading">กำลังดาวน์โหลด</string>
+    <string name="check_update">ตรวจสอบการอัพเดต</string>
+	<string name="download_complete">ดาวน์โหลดสมบูรณ์.</string>
+	<string name="last_time_update_version">อัพเดตเวอร์ขันล่าสุดเมื่อ</string>
+	<string name="checking_update">กำลังตรวจสอบการอัพเดต</string>
+	<string name="software_up_to_date">ซอฟต์แวร์เป็นเวอร์ชั่นใหม่แล้ว</string>
 </resources>

@@ -101,7 +101,8 @@
         <activity
             android:name=".PaymentActivity"
             android:label="@string/payment"
-            android:screenOrientation="landscape" android:theme="@style/ActivityDialogTheme">
+            android:screenOrientation="landscape"
+            android:theme="@style/ActivityDialogTheme" >
         </activity>
         <activity
             android:name=".CreditPayActivity"
@@ -144,14 +145,19 @@
         </activity>
         <activity
             android:name=".SendLogActivity"
-            android:theme="@android:style/Theme.Holo.Dialog"
+            android:label="@string/title_activity_send_log"
             android:textAppearance="@android:style/TextAppearance.Large"
-            android:windowSoftInputMode="stateHidden"
-            android:label="@string/title_activity_send_log" >
+            android:theme="@android:style/Theme.Holo.Dialog"
+            android:windowSoftInputMode="stateHidden" >
             <intent-filter>
-              <action android:name="com.synature.mpos.SEND_LOG" />
-              <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="com.synature.mpos.SEND_LOG" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".CheckUpdateActivity"
+            android:label="@string/check_update" >
         </activity>
 
         <receiver
@@ -172,7 +178,7 @@
 
         <service android:name=".SaleService" >
         </service>
-        <service android:name=".SoftwareUpdateService" >
+        <service android:name=".DownloadService" >
         </service>
     </application>
 

@@ -2,6 +2,7 @@ package com.synature.mpos.database.table;
 
 import android.database.sqlite.SQLiteDatabase;
 
+@Deprecated
 public class SoftwareInfoTable {
 	public static final String TABLE_SOFTWARE_INFO = "SoftwareInfo";
 	public static final String COLUMN_EXP_DATE = "exp_date";

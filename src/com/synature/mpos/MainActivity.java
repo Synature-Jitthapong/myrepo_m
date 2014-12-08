@@ -1866,7 +1866,7 @@ public class MainActivity extends FragmentActivity implements
 			UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(StaffsDao.VOID_PERMISSION);
 			uvf.show(getFragmentManager(), "StaffPermissionDialog");
 		}else{
-			goToVoidActivity();
+			goToVoidActivity(mStaffId);
 		}
 	}
 
@@ -2432,7 +2432,7 @@ public class MainActivity extends FragmentActivity implements
 	public void onAllow(int staffId, int permissionId) {
 		switch(permissionId){
 		case StaffsDao.VOID_PERMISSION:
-			goToVoidActivity();
+			goToVoidActivity(staffId);
 			break;
 		case StaffsDao.OTHER_DISCOUNT_PERMISSION:
 			goToOtherDiscountActivity();
@@ -2440,9 +2440,9 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 	
-	private void goToVoidActivity(){
+	private void goToVoidActivity(int staffId){
 		Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
-		intent.putExtra("staffId", mStaffId);
+		intent.putExtra("staffId", staffId);
 		intent.putExtra("shopId", mShopId);
 		startActivity(intent);
 	}

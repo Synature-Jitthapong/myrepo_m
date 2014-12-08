@@ -41,11 +41,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_ENABLE_BACKUP_DB = "enable_backup_db";
 	
 	// store update apk information
-	public static final String KEY_PREF_APK_FILE_NAME = "apk_file_name";
-	public static final String KEY_PREF_DOWNLOAD_STATUS = "download_status"; 	// 0, 1
-	public static final String KEY_PREF_UPDATE_STATUS = "update_status";		// 0, 1
-	
-	//private static final boolean ALWAYS_SIMPLE_PREFS = false;
+	public static final String KEY_PREF_LAST_UPDATE = "last_update";
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {

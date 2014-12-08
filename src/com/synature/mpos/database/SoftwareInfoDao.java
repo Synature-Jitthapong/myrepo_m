@@ -13,6 +13,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
 
+@Deprecated
 public class SoftwareInfoDao extends MPOSDatabase{
 
 	public SoftwareInfoDao(Context context) {
