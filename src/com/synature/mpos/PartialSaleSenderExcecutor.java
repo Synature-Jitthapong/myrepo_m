@@ -4,9 +4,10 @@ import com.synature.mpos.database.MPOSDatabase;
 import com.synature.util.Logger;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 
-public class PartialSaleSenderExcecutor extends EnddayBase implements Runnable{
+public class PartialSaleSenderExcecutor extends EnddayBase{
 
 	private int mSessionId;
 	private int mTransactionId;
@@ -19,8 +20,7 @@ public class PartialSaleSenderExcecutor extends EnddayBase implements Runnable{
 		mListener = listener;
 	}
 
-	@Override
-	public void run() {
+	public void execute() {
 		final String json = generateSale(mTransactionId, mSessionId);
 		if(!TextUtils.isEmpty(json)){
 			new PartialSaleSender(mContext, 
@@ -55,7 +55,7 @@ public class PartialSaleSenderExcecutor extends EnddayBase implements Runnable{
 				@Override
 				public void onCancelled(String msg) {
 				}
-			}).execute(Utils.getFullUrl(mContext));
+			}).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Utils.getFullUrl(mContext));
 		}
 	}
 

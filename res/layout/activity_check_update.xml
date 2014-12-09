@@ -30,30 +30,47 @@
         android:max="100" />
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/progressBar1"
-        android:layout_below="@+id/progressBar1"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="13dp"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/progressBar1"
-        android:layout_below="@+id/progressBar1"
-        android:text="0" />
+        android:layout_below="@+id/progressBar1" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView3"
+        android:text="@string/current_version"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView4"
+        android:text="Last update"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
+        android:layout_below="@+id/textView2"
         android:onClick="updateClicked"
         android:text="@string/check_update" />
+
+    <Button
+        android:id="@+id/button2"
+        style="@style/GreenButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/textView2"
+        android:onClick="installClicked"
+        android:text="@string/install_update" />
 
 </RelativeLayout>

@@ -30,7 +30,7 @@ public class SaleService extends Service{
 	 */
 	public synchronized void sendEnddaySale(final int shopId, final int computerId, final int staffId, 
 			final WebServiceWorkingListener listener){
-		new Thread(new EnddayUnSendSaleExecutor(getApplicationContext(),
+		new EnddayUnSendSaleExecutor(getApplicationContext(),
 				shopId, computerId, staffId, new WebServiceWorkingListener() {
 
 					@Override
@@ -57,7 +57,7 @@ public class SaleService extends Service{
 						listener.onCancelled(msg);
 					}
 		
-		})).start();
+		}).execute();
 	}
 	
 	/**
@@ -68,8 +68,8 @@ public class SaleService extends Service{
 	 */
 	public synchronized void sendAllEndday(final int shopId, final int computerId, final int staffId, 
 			final WebServiceWorkingListener listener){
-		new Thread(new EnddaySenderExecutor(getApplicationContext(), 
-				shopId, computerId, staffId, listener)).start();
+		new EnddaySenderExecutor(getApplicationContext(), 
+				shopId, computerId, staffId, listener).execute();
 	}
 	
 	/**
@@ -82,7 +82,7 @@ public class SaleService extends Service{
 	 */
 	public synchronized void sendSale(int shopId, int sessionId, int transactionId, 
 			int computerId, int staffId, WebServiceWorkingListener listener) {
-		new Thread(new PartialSaleSenderExcecutor(getApplicationContext(),
-				sessionId, transactionId, shopId, computerId, staffId, listener)).start();
+		new PartialSaleSenderExcecutor(getApplicationContext(),
+				sessionId, transactionId, shopId, computerId, staffId, listener).execute();
 	}
 }

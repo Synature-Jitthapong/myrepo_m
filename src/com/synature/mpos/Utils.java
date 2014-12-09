@@ -571,12 +571,15 @@ public class Utils {
 	public static String getUrl(Context context) {
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
+		return checkProtocal(url);
+	}
+	
+	public static String checkProtocal(String url){
 		try {
 			new URL(url);
 		} catch (MalformedURLException e) {
 			// not found protocal
 			url = "http://" + url;
-			//e.printStackTrace();
 		}
 		return url;
 	}

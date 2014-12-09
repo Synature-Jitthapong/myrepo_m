@@ -1,6 +1,5 @@
 package com.synature.mpos;
 
-import java.io.File;
 import java.util.Calendar;
 
 import com.synature.mpos.SoftwareExpirationChecker.SoftwareExpirationCheckerListener;
@@ -8,16 +7,12 @@ import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.ShopDao;
-import com.synature.mpos.database.SoftwareUpdateDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
-import com.synature.mpos.database.model.SoftwareUpdate;
 import com.synature.pos.Staff;
 
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -117,6 +112,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 			if(!mSync.IsAlreadySync())
 				requestValidUrl();
 		}
+		
 		Utils.switchLanguage(getApplicationContext(),
 				Utils.getLangCode(getApplicationContext()));
 	}
@@ -342,43 +338,8 @@ public class LoginActivity extends Activity implements OnClickListener,
 		}else{
 			mTxtUser.requestFocus();
 		}
-		checkSoftwareUpdate();
 		displayWelcome();
 		super.onResume();
-	}
-	
-	@Deprecated
-	private void checkSoftwareUpdate(){
-		final SoftwareUpdateDao su = new SoftwareUpdateDao(this);
-		final SoftwareUpdate update = su.getUpdateData();
-		if(update != null){
-			if(update.isDownloaded()){
-				if(!update.isAlreadyUpdated()){
-					AlertDialog.Builder builder = new AlertDialog.Builder(this);
-					builder.setTitle(R.string.software_update);
-					builder.setMessage(R.string.software_update_mesg);
-					builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-						}
-					});
-					builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							File download = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-							//File apkFile = new File(download + File.separator + Utils.UPDATE_FILE_NAME);
-						    Intent intent = new Intent(Intent.ACTION_VIEW);
-						    //intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
-						    startActivity(intent);
-						}
-					});
-					AlertDialog d = builder.create();
-					d.show();
-				}
-			}
-		}
 	}
 	
 	private void displayWelcome(){
