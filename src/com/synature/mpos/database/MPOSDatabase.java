@@ -128,13 +128,8 @@ public class MPOSDatabase extends BaseColumn{
 			SyncHistoryTable.onCreate(db);
 			PromotionPriceGroupTable.onCreate(db);
 			PromotionProductDiscountTable.onCreate(db);
-<<<<<<< HEAD
-			SoftwareInfoTable.onCreate(db);
-			SoftwareUpdateTable.onCreate(db);
 			PayTypeFinishWasteTable.onCreate(db);
-=======
 			ProgramFeatureTable.onCreate(db);
->>>>>>> master
 		}
 		
 		@Override
@@ -166,11 +161,8 @@ public class MPOSDatabase extends BaseColumn{
 			PromotionProductDiscountTable.onUpgrade(db, oldVersion, newVersion);
 			OrderTransTable.onUpgrade(db, oldVersion, newVersion);
 			OrderDetailTable.onUpgrade(db, oldVersion, newVersion);
-<<<<<<< HEAD
 			PayTypeFinishWasteTable.onUpgrade(db, oldVersion, newVersion);
-=======
 			ProgramFeatureTable.onUpgrade(db, oldVersion, newVersion);
->>>>>>> master
 		}
 	}
 }
