@@ -581,8 +581,8 @@ public class SaleReportActivity extends Activity{
 			double totalPaymentReceipt = mPayment.getTotalPaymentReceipt(mHost.mDateTo);
 			if(mSessionId != 0)
 				totalPaymentReceipt = mPayment.getTotalPaymentReceipt(mSessionId);
-			if( totalPaymentReceipt != trans.getTransactionVatable()){
-				double totalRounding = totalPaymentReceipt - trans.getTransactionVatable();
+			if( totalPaymentReceipt != (sumOrder.getTotalSalePrice() + sumOrder.getVatExclude())){
+				double totalRounding = totalPaymentReceipt - (sumOrder.getTotalSalePrice() + sumOrder.getVatExclude());
 				View rounding = inflater.inflate(R.layout.left_mid_right_template, null);
 				((TextView) rounding.findViewById(R.id.tvLeft)).setText(getString(R.string.rounding));
 				((TextView) rounding.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(totalRounding));
@@ -968,7 +968,7 @@ public class SaleReportActivity extends Activity{
 //				});
 				container.addView(tvTotalPay);
 				container.addView(createTextViewItem(getActivity(), 
-						mHost.mFormat.currencyFormat(totalPay - vatable), Utils.getLinHorParams(0.5f)));
+						mHost.mFormat.currencyFormat(totalPay - (subTotal + totalVatExcl)), Utils.getLinHorParams(0.5f)));
 				if(report.getSendStatus() == MPOSDatabase.ALREADY_SEND){
 					imgSendStatus.setImageResource(R.drawable.ic_action_accept);
 				}else{
@@ -1010,7 +1010,7 @@ public class SaleReportActivity extends Activity{
 			mBillSumContent.addView(createTextViewSummary(getActivity(), mHost.mFormat.currencyFormat(summary.getTotalPayment()),  
 						Utils.getLinHorParams(0.7f)));
 			mBillSumContent.addView(createTextViewSummary(getActivity(), 
-					mHost.mFormat.currencyFormat(summary.getTotalPayment() - summary.getVatable()), Utils.getLinHorParams(0.5f)));
+					mHost.mFormat.currencyFormat(summary.getTotalPayment() - (summary.getSubTotal() + summary.getVatExclude())), Utils.getLinHorParams(0.5f)));
 			
 		}
 	}

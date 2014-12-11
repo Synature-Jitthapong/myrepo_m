@@ -38,6 +38,7 @@ import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
 import com.synature.util.ImageLoader;
 import com.synature.util.Logger;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -397,6 +398,10 @@ public class MainActivity extends FragmentActivity implements
 			case R.id.itemUpdate:
 				new MasterDataLoader(this, mShopId, new MasterLoaderListener()).execute(Utils.getFullUrl(this));
 				return true;
+			case R.id.itemCheckUpdate:
+				intent = new Intent(this, CheckUpdateActivity.class);
+				startActivity(intent);
+				return true;
 			case R.id.itemLang:
 				SwitchLangFragment swf = SwitchLangFragment.newInstance();
 				swf.show(getSupportFragmentManager(), "SwitchLangFragment");
@@ -751,7 +756,7 @@ public class MainActivity extends FragmentActivity implements
 						public void onPre() {
 						}
 						
-					}).execute();
+					}).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 	};
 	
@@ -1870,7 +1875,7 @@ public class MainActivity extends FragmentActivity implements
 			UserVerifyDialogFragment uvf = UserVerifyDialogFragment.newInstance(StaffsDao.VOID_PERMISSION);
 			uvf.show(getFragmentManager(), "StaffPermissionDialog");
 		}else{
-			goToVoidActivity();
+			goToVoidActivity(mStaffId);
 		}
 	}
 
@@ -2436,7 +2441,7 @@ public class MainActivity extends FragmentActivity implements
 	public void onAllow(int staffId, int permissionId) {
 		switch(permissionId){
 		case StaffsDao.VOID_PERMISSION:
-			goToVoidActivity();
+			goToVoidActivity(staffId);
 			break;
 		case StaffsDao.OTHER_DISCOUNT_PERMISSION:
 			goToOtherDiscountActivity();
@@ -2444,9 +2449,9 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 	
-	private void goToVoidActivity(){
+	private void goToVoidActivity(int staffId){
 		Intent intent = new Intent(MainActivity.this, VoidBillActivity.class);
-		intent.putExtra("staffId", mStaffId);
+		intent.putExtra("staffId", staffId);
 		intent.putExtra("shopId", mShopId);
 		startActivity(intent);
 	}
@@ -2635,7 +2640,7 @@ public class MainActivity extends FragmentActivity implements
 			public void onPre() {
 			}
 			
-		}).execute();	
+		}).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);	
 	}
 	
 	@Override

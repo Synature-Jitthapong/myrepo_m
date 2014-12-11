@@ -48,7 +48,7 @@ public class Utils {
 	/**
 	 * Database version
 	 */
-	public static int DB_VERSION = 6;
+	public static int DB_VERSION = 7;
 	
 	/**
 	 * Main url 
@@ -66,9 +66,14 @@ public class Utils {
 	public static final String IMG_DIR = "mPOSImg";
 	
 	/**
-	 * Log file name
+	 * Log prefix file name
 	 */
 	public static final String LOG_FILE_NAME = "log_";
+	
+	/**
+	 * Error log prefix file name
+	 */
+	public  static final String ERR_LOG_FILE_NAME = "err_";
 	
 	/**
 	 * Resource dir
@@ -87,6 +92,11 @@ public class Utils {
 
 
 	/**
+	 * Error log dir
+	 */
+	public static final String ERR_LOG_PATH = RESOURCE_DIR + File.separator + "error";
+	
+	/**
 	 * Sale dir store partial sale json file
 	 */
 	public static final String SALE_PATH = RESOURCE_DIR + File.separator + "Sale";
@@ -95,11 +105,6 @@ public class Utils {
 	 * Endday sale dir store endday sale json file
 	 */
 	public static final String ENDDAY_PATH = RESOURCE_DIR + File.separator + "EnddaySale";
-	
-	/**
-	 * apk file name
-	 */
-	public static final String UPDATE_FILE_NAME = "mpos.apk";
 	
 	/**
 	 * Image path on server
@@ -576,12 +581,15 @@ public class Utils {
 	public static String getUrl(Context context) {
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 		String url = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
+		return checkProtocal(url);
+	}
+	
+	public static String checkProtocal(String url){
 		try {
 			new URL(url);
 		} catch (MalformedURLException e) {
 			// not found protocal
 			url = "http://" + url;
-			//e.printStackTrace();
 		}
 		return url;
 	}

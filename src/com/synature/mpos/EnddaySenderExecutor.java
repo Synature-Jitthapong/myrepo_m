@@ -8,17 +8,17 @@ import com.synature.util.Logger;
 
 import android.content.Context;
 import android.database.SQLException;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 
-public class EnddaySenderExecutor extends EnddayBase implements Runnable{
+public class EnddaySenderExecutor extends EnddayBase{
 	
 	public EnddaySenderExecutor(Context context, int shopId, 
 			int computerId, int staffId, WebServiceWorkingListener listener) {
 		super(context, shopId, computerId, staffId, listener);
 	}
 
-	@Override
-	public void run() {
+	public void execute() {
 		List<String> sessLst = mSession.listSessionEnddayNotSend();
 		final Iterator<String> it = sessLst.iterator();
 		while (it.hasNext()) {
@@ -68,7 +68,7 @@ public class EnddaySenderExecutor extends EnddayBase implements Runnable{
 							public void onCancelled(String msg) {
 								
 							}
-					}).execute(Utils.getFullUrl(mContext));
+					}).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Utils.getFullUrl(mContext));
 			}
 		}
 	}

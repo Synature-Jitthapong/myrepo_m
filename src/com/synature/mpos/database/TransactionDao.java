@@ -33,6 +33,7 @@ import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
 import com.synature.mpos.database.table.StaffTable;
+import com.synature.pos.ProgramFeature;
 
 /**
  * 
@@ -1101,9 +1102,24 @@ public class TransactionDao extends MPOSDatabase {
 		Calendar date = Utils.getDate();
 		Calendar dateTime = Utils.getCalendar();
 		int receiptId = getMaxReceiptId(String.valueOf(date.getTimeInMillis()));
-		String receiptNo = formatReceiptNo(date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1, 
+		String receiptNo = formatReceiptNo(date.get(Calendar.YEAR), 
+				date.get(Calendar.MONTH) + 1, 
 				date.get(Calendar.DAY_OF_MONTH), receiptId);
+		
 		ContentValues cv = new ContentValues();
+		// Calculate VAT when amount of receipt is zero
+		// featureId = 19
+		ProgramFeatureDao featureDao = new ProgramFeatureDao(mContext);
+		ProgramFeature feature = featureDao.getProgramFeature(19);
+		if(feature != null){
+			if(feature.getFeatureValue() == 1 && totalSalePrice == 0){
+				totalSalePrice = getSummaryOrder(transactionId, true).getTotalRetailPrice();
+				ShopDao shopDao = new ShopDao(mContext);
+				double transVat = Utils.calculateVatAmount(totalSalePrice, shopDao.getCompanyVatRate(), 
+						shopDao.getCompanyVatType());
+				cv.put(OrderTransTable.COLUMN_TRANS_VAT, transVat);
+			}
+		}
 		cv.put(OrderTransTable.COLUMN_STATUS_ID, TRANS_STATUS_SUCCESS);
 		cv.put(OrderTransTable.COLUMN_RECEIPT_ID, receiptId);
 		cv.put(OrderTransTable.COLUMN_CLOSE_TIME, dateTime.getTimeInMillis());

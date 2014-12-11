@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.synature.mpos"
     android:installLocation="auto"
-    android:versionCode="21"
-    android:versionName="1.2.7" >
+    android:versionCode="22"
+    android:versionName="1.2.8" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -100,7 +101,8 @@
         <activity
             android:name=".PaymentActivity"
             android:label="@string/payment"
-            android:screenOrientation="landscape" android:theme="@style/ActivityDialogTheme">
+            android:screenOrientation="landscape"
+            android:theme="@style/ActivityDialogTheme" >
         </activity>
         <activity
             android:name=".CreditPayActivity"
@@ -143,14 +145,19 @@
         </activity>
         <activity
             android:name=".SendLogActivity"
-            android:theme="@android:style/Theme.Holo.Dialog"
+            android:label="@string/title_activity_send_log"
             android:textAppearance="@android:style/TextAppearance.Large"
-            android:windowSoftInputMode="stateHidden"
-            android:label="@string/title_activity_send_log" >
+            android:theme="@android:style/Theme.Holo.Dialog"
+            android:windowSoftInputMode="stateHidden" >
             <intent-filter>
-              <action android:name="com.synature.mpos.SEND_LOG" />
-              <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="com.synature.mpos.SEND_LOG" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".CheckUpdateActivity"
+            android:label="@string/check_update" >
         </activity>
 
         <receiver
@@ -171,7 +178,7 @@
 
         <service android:name=".SaleService" >
         </service>
-        <service android:name=".SoftwareUpdateService" >
+        <service android:name=".DownloadService" >
         </service>
     </application>
 

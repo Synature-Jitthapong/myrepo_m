@@ -5,15 +5,14 @@ import com.synature.util.Logger;
 import android.content.Context;
 import android.text.TextUtils;
 
-public class EnddayUnSendSaleExecutor extends EnddayBase implements Runnable{
+public class EnddayUnSendSaleExecutor extends EnddayBase{
 	
 	public EnddayUnSendSaleExecutor(Context context, int shopId, int computerId, 
 			int staffId, WebServiceWorkingListener listener) {
 		super(context, shopId, computerId, staffId, listener);
 	}
 
-	@Override
-	public void run() {
+	public void execute() {
 		final String sessionDate = mSession.getLastSessionDate();
 		final String json = generateEnddayUnSendSale(sessionDate);
 		if(!TextUtils.isEmpty(json)){

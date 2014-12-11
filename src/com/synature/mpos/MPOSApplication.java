@@ -3,12 +3,16 @@ package com.synature.mpos;
 import com.synature.util.Logger;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Build;
 
 public class MPOSApplication extends Application {
 
+	private static Context sContext;
+	
 	@Override
 	public void onCreate() {
+		sContext = getApplicationContext();
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread thread, Throwable e) {
@@ -51,9 +55,13 @@ public class MPOSApplication extends Application {
 				report.append("Release: " + Build.VERSION.RELEASE + "\n\r");
 				report.append("Incremental: " + Build.VERSION.INCREMENTAL + "\n\r");
 				report.append("-------------------------------\n\n\r");
-				Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, report.toString());
+				Logger.appendLog(getApplicationContext(), Utils.ERR_LOG_PATH, Utils.ERR_LOG_FILE_NAME, report.toString());
 				System.exit(0);
 			}
 		});
+	}
+	
+	public static Context getContext(){
+		return sContext;
 	}
 }

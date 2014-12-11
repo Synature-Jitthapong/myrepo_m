@@ -26,13 +26,12 @@ import com.synature.mpos.database.table.ProductDeptTable;
 import com.synature.mpos.database.table.ProductGroupTable;
 import com.synature.mpos.database.table.ProductPriceTable;
 import com.synature.mpos.database.table.ProductTable;
+import com.synature.mpos.database.table.ProgramFeatureTable;
 import com.synature.mpos.database.table.PromotionPriceGroupTable;
 import com.synature.mpos.database.table.PromotionProductDiscountTable;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.database.table.ShopTable;
-import com.synature.mpos.database.table.SoftwareInfoTable;
-import com.synature.mpos.database.table.SoftwareUpdateTable;
 import com.synature.mpos.database.table.StaffPermissionTable;
 import com.synature.mpos.database.table.StaffTable;
 import com.synature.mpos.database.table.SyncHistoryTable;
@@ -129,9 +128,13 @@ public class MPOSDatabase extends BaseColumn{
 			SyncHistoryTable.onCreate(db);
 			PromotionPriceGroupTable.onCreate(db);
 			PromotionProductDiscountTable.onCreate(db);
+<<<<<<< HEAD
 			SoftwareInfoTable.onCreate(db);
 			SoftwareUpdateTable.onCreate(db);
 			PayTypeFinishWasteTable.onCreate(db);
+=======
+			ProgramFeatureTable.onCreate(db);
+>>>>>>> master
 		}
 		
 		@Override
@@ -161,11 +164,13 @@ public class MPOSDatabase extends BaseColumn{
 			SyncHistoryTable.onUpgrade(db, oldVersion, newVersion);
 			PromotionPriceGroupTable.onUpgrade(db, oldVersion, newVersion);
 			PromotionProductDiscountTable.onUpgrade(db, oldVersion, newVersion);
-			SoftwareInfoTable.onUpgrade(db, oldVersion, newVersion);
-			SoftwareUpdateTable.onUpgrade(db, oldVersion, newVersion);
 			OrderTransTable.onUpgrade(db, oldVersion, newVersion);
 			OrderDetailTable.onUpgrade(db, oldVersion, newVersion);
+<<<<<<< HEAD
 			PayTypeFinishWasteTable.onUpgrade(db, oldVersion, newVersion);
+=======
+			ProgramFeatureTable.onUpgrade(db, oldVersion, newVersion);
+>>>>>>> master
 		}
 	}
 }

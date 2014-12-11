@@ -440,8 +440,8 @@ public abstract class PrinterBase {
 		double totalPaymentReceipt = mPayment.getTotalPaymentReceipt(sessionDate);
 		if(sessionId != 0)
 			totalPaymentReceipt = mPayment.getTotalPaymentReceipt(sessionId);
-		if(totalPaymentReceipt != trans.getTransactionVatable()){
-			double totalRounding = totalPaymentReceipt - trans.getTransactionVatable();
+		if(totalPaymentReceipt != (summOrder.getTotalSalePrice() + summOrder.getVatExclude())){
+			double totalRounding = totalPaymentReceipt - (summOrder.getTotalSalePrice() + summOrder.getVatExclude());
 			String roundingText = mContext.getString(R.string.rounding);
 			String rounding = mFormat.currencyFormat(totalRounding);
 			mTextToPrint.append(roundingText);
@@ -702,8 +702,8 @@ public abstract class PrinterBase {
     	}
     	
     	// show rounding
-    	if(trans.getTransactionVatable() > 0){
-	    	if(trans.getTransactionVatable() != totalPaid){
+    	if(sumOrder.getTotalSalePrice() > 0 && totalPaid != 0){
+	    	if((sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()) != totalPaid){
 	    		if(sumOrder.getPriceDiscount() == 0){
 		    		String subTotalText = mContext.getString(R.string.sub_total);
 		    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
@@ -714,7 +714,7 @@ public abstract class PrinterBase {
 			    	mTextToPrint.append(subTotal + "\n");
 	    		}
 	    		String roundText = mContext.getString(R.string.rounding);
-	    		String round = mFormat.currencyFormat(totalPaid - trans.getTransactionVatable());    	
+	    		String round = mFormat.currencyFormat(totalPaid - (sumOrder.getTotalSalePrice() + sumOrder.getVatExclude()));    	
 	    		mTextToPrint.append(roundText);
 	        	mTextToPrint.append(createHorizontalSpace(
 	        			calculateLength(roundText) + 
