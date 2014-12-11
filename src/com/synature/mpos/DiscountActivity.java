@@ -292,7 +292,13 @@ public class DiscountActivity extends Activity implements OnItemClickListener,
 				double totalDiscount = 0.0d;
 				OrderDetail summOrder = mTrans.getSummaryOrder(mTransactionId, true);
 				double totalPrice = summOrder.getTotalRetailPrice();
-				if(discountAll <= summOrder.getTotalRetailPrice()){
+				boolean canCalculate = false;
+				if(mDisAllType == PRICE_DISCOUNT_TYPE){
+					canCalculate = discountAll <= summOrder.getTotalSalePrice();
+				}else if(mDisAllType == PERCENT_DISCOUNT_TYPE){
+					canCalculate = discountAll <= 100;
+				}
+				if(canCalculate){
 					mTxtDisAll.setText(null);
 					List<OrderDetail> orderLst = mOrderLst;
 					for(OrderDetail order : orderLst){

@@ -55,7 +55,7 @@ public class MPOSApplication extends Application {
 				report.append("Release: " + Build.VERSION.RELEASE + "\n\r");
 				report.append("Incremental: " + Build.VERSION.INCREMENTAL + "\n\r");
 				report.append("-------------------------------\n\n\r");
-				Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, report.toString());
+				Logger.appendLog(getApplicationContext(), Utils.ERR_LOG_PATH, Utils.ERR_LOG_FILE_NAME, report.toString());
 				System.exit(0);
 			}
 		});

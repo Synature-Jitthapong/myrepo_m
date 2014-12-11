@@ -66,9 +66,14 @@ public class Utils {
 	public static final String IMG_DIR = "mPOSImg";
 	
 	/**
-	 * Log file name
+	 * Log prefix file name
 	 */
 	public static final String LOG_FILE_NAME = "log_";
+	
+	/**
+	 * Error log prefix file name
+	 */
+	public  static final String ERR_LOG_FILE_NAME = "err_";
 	
 	/**
 	 * Resource dir
@@ -86,6 +91,11 @@ public class Utils {
 	public static final String LOG_PATH = RESOURCE_DIR + File.separator + "log";
 
 
+	/**
+	 * Error log dir
+	 */
+	public static final String ERR_LOG_PATH = RESOURCE_DIR + File.separator + "error";
+	
 	/**
 	 * Sale dir store partial sale json file
 	 */

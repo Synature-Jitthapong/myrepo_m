@@ -182,17 +182,17 @@ public class CheckUpdateActivity extends Activity {
 						intent.putExtra("fileUrl", fileUrl);
 						intent.putExtra("receiver", DownloadReceiver.getInstance());
 						startService(intent);
+					}else{
+						new AlertDialog.Builder(CheckUpdateActivity.this)
+						.setMessage(R.string.software_up_to_date)
+						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						})
+						.show();
 					}
-				}else{
-					new AlertDialog.Builder(CheckUpdateActivity.this)
-					.setMessage(R.string.software_up_to_date)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-						}
-					})
-					.show();
 				}
 			}
 		}
@@ -217,6 +217,7 @@ public class CheckUpdateActivity extends Activity {
 		editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_FILE_NAME, "");
 		editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_STATUS, "0");
 		editor.commit();
+		Utils.backupDatabase(this);
 	}
 	
 	public void updateClicked(final View v){
