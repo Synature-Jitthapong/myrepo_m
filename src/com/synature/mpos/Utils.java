@@ -48,7 +48,7 @@ public class Utils {
 	/**
 	 * Database version
 	 */
-	public static int DB_VERSION = 6;
+	public static int DB_VERSION = 7;
 	
 	/**
 	 * Main url 

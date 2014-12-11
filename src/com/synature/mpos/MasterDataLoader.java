@@ -17,6 +17,7 @@ import com.synature.mpos.database.PaymentAmountButtonDao;
 import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.ProductPriceDao;
 import com.synature.mpos.database.ProductsDao;
+import com.synature.mpos.database.ProgramFeatureDao;
 import com.synature.mpos.database.PromotionDiscountDao;
 import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.StaffsDao;
@@ -96,6 +97,7 @@ public class MasterDataLoader extends MPOSServiceBase{
 		ProductPriceDao pp = new ProductPriceDao(mContext);
 		MenuCommentDao mc = new MenuCommentDao(mContext);
 		PromotionDiscountDao promo = new PromotionDiscountDao(mContext);
+		ProgramFeatureDao feature = new ProgramFeatureDao(mContext);
 		try {
 			shop.insertShopProperty(master.getShopProperty());
 			computer.insertComputer(master.getComputerProperty());
@@ -117,6 +119,7 @@ public class MasterDataLoader extends MPOSServiceBase{
 			mc.insertMenuFixComment(master.getMenuFixComment());
 			promo.insertPromotionPriceGroup(master.getPromotionPriceGroup());
 			promo.insertPromotionProductDiscount(master.getPromotionProductDiscount());
+			feature.insertProgramFeature(master.getProgramFeature());
 			
 			// clear all menu picture
 			FileManager fm = new FileManager(mContext, Utils.IMG_DIR);

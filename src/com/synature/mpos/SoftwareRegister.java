@@ -51,6 +51,8 @@ public class SoftwareRegister extends MPOSServiceBase{
 			if(!TextUtils.isEmpty(info.getSzRegisterServiceUrl())){
 				SharedPreferences.Editor editor = sharedPref.edit();
 				editor.putString(SettingsActivity.KEY_PREF_SERVER_URL, info.getSzRegisterServiceUrl());
+				editor.putString(SettingsActivity.KEY_PREF_EXP_DATE, info.getSzSoftwareExpireDate());
+				editor.putString(SettingsActivity.KEY_PREF_LOCK_DATE, info.getSzLockExpireDate());
 				editor.commit();
 				mListener.onPostExecute(info);
 			}else{
