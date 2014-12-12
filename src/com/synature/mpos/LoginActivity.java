@@ -116,12 +116,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 		Utils.switchLanguage(getApplicationContext(),
 				Utils.getLangCode(getApplicationContext()));
 	}
-
-	public void testUpdateClick(final View v){
-		Intent intent = new Intent(this, DownloadService.class);
-		intent.putExtra("fileUrl", "http://www.promise-system.com/mposupdate/mpos1.2.5.apk");
-		startService(intent);
-	}
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

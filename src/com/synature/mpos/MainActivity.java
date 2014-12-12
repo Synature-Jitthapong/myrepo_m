@@ -822,6 +822,7 @@ public class MainActivity extends FragmentActivity implements
 					double totalSalePrice = sumOrder.getTotalSalePrice() + sumOrder.getVatExclude();
 					double totalPaid = Utils.roundingPrice(mGlobal.getRoundingType(), totalSalePrice);
 					
+					payment.deleteAllPaymentDetail(mTransactionId);
 					payment.addPaymentDetail(mTransactionId, mComputerId, PaymentDetailDao.PAY_TYPE_CASH, 
 							totalPaid, totalPaid, "", 0, 0, 0, 0, "");
 					
