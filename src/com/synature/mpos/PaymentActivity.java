@@ -135,12 +135,6 @@ public class PaymentActivity extends Activity implements OnClickListener{
 	}
 
 	@Override
-	protected void onDestroy() {
-		mPayment.deleteAllPaymentDetail(mTransactionId);
-		super.onDestroy();
-	}
-
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_payment, menu);
 		return true;
@@ -331,6 +325,7 @@ public class PaymentActivity extends Activity implements OnClickListener{
 	}
 
 	public void cancel() {
+		mPayment.deleteAllPaymentDetail(mTransactionId);
 		finish();
 	}
 
