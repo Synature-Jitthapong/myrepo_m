@@ -2,23 +2,27 @@ package com.synature.mpos;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 
 import android.app.Service;
 import android.content.Intent;
+import android.net.http.AndroidHttpClient;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 public class DownloadService extends Service{
 
+	public static final String TAG = DownloadService.class.getSimpleName();
+	
 	public static final int ERROR = -1;
 	public static final int UPDATE_PROGRESS = 1;
 	public static final int DOWNLOAD_COMPLETE = 2;
@@ -33,51 +37,55 @@ public class DownloadService extends Service{
 			public void run() {
 				String fileName = getFileNameFromUrl(fileUrl);
 				InputStream input = null;
-				OutputStream output = null;
+				RandomAccessFile out = null;
+				AndroidHttpClient httpClient = null;
 				try {
 					File sdPath = Environment
 							.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 					File apk = new File(sdPath + File.separator + fileName);
 
-					URL url = new URL(fileUrl);
-					URLConnection conn = url.openConnection();
-
-					int downloaded = 0;
-					int length = conn.getContentLength();
+					httpClient = AndroidHttpClient.newInstance("DownloadService");
+					HttpGet httpGet = new HttpGet(fileUrl);
+					HttpResponse response = httpClient.execute(httpGet);
+					HttpEntity entity = response.getEntity();
+					long totalFileSize = entity.getContentLength();
+					long prevFileSize = 0;
+					long downloaded = 0;
 					if (apk.exists()) {
-						if (apk.length() != length) {
-							apk.delete();
-						} else {
+						prevFileSize = apk.length();
+						if(totalFileSize > prevFileSize){
+							httpGet.addHeader("Range", "bytes="+ apk.length() + "-");
+							
+							httpClient.close();
+							httpClient = AndroidHttpClient.newInstance("DownloadService");
+							response = httpClient.execute(httpGet);
+						}else if(totalFileSize == prevFileSize){
 							Bundle resultData = new Bundle();
 							resultData.putString("fileName", fileName);
 							receiver.send(DOWNLOAD_COMPLETE, resultData);
-							return;
+							return;	
+						}else{
+							apk.delete();
 						}
 					}
-
-					input = new BufferedInputStream(conn.getInputStream());
-					output = new FileOutputStream(sdPath + File.separator
-							+ fileName);
-
-					byte data[] = new byte[1024];
+					entity = response.getEntity();
+					input = new BufferedInputStream(entity.getContent());
+					byte buffer[] = new byte[1024];
 					int count = 0;
-					while ((count = input.read(data)) > 0) {
-						output.write(data, 0, count);
+					out = new RandomAccessFile(apk, "rwd");
+					out.seek(out.length());
+					while ((count = input.read(buffer, 0, 1024)) != -1) {
+						out.write(buffer, 0, count);
 						downloaded += count;
-						if(length > 0){
+						Log.i(TAG, "downloaded: " + downloaded);
+						if(totalFileSize > 0){
+							int progress = (int) ((downloaded + prevFileSize) * 100 / totalFileSize); 
+							Log.i(TAG, "Progress: " + progress + "%");
 							Bundle resultData = new Bundle();
-							resultData.putInt("progress",
-									(int) (downloaded * 100 / length));
+							resultData.putInt("progress", progress);
 							receiver.send(UPDATE_PROGRESS, resultData);
 						}
-//						try {
-//							Thread.sleep(100);
-//						} catch (InterruptedException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
 					}
-					output.flush();
 					Bundle resultData = new Bundle();
 					resultData.putInt("progress", 100);
 					receiver.send(UPDATE_PROGRESS, resultData);
@@ -100,11 +108,15 @@ public class DownloadService extends Service{
 						} catch (IOException e) {
 						}
 					}
-					if (output != null) {
+					if(out != null){
 						try {
-							output.close();
+							out.close();
 						} catch (IOException e) {
 						}
+					}
+					if(httpClient != null){
+						httpClient.close();
+						httpClient = null;
 					}
 					stopSelf();
 				}

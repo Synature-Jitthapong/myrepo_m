@@ -92,6 +92,8 @@ public class LoginActivity extends Activity implements OnClickListener,
 		mTvDeviceCode.setText(Utils.getDeviceCode(this));
 		mTvVersion.setText(getString(R.string.version) + " " + Utils.getSoftWareVersion(this));
 
+		Utils.switchLanguage(this, Utils.getLangCode(this));
+		
 		mSession = new SessionDao(this);
 		mShop = new ShopDao(this);
 		mComputer = new ComputerDao(this);
@@ -112,9 +114,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 			if(!mSync.IsAlreadySync())
 				requestValidUrl();
 		}
-		
-		Utils.switchLanguage(getApplicationContext(),
-				Utils.getLangCode(getApplicationContext()));
 	}
 	
 	@Override

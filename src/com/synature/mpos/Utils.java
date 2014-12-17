@@ -622,7 +622,7 @@ public class Utils {
 	public static void switchLanguage(Context context, String langCode){
 		Locale locale = new Locale(langCode);  
 		Locale.setDefault(locale); 
-		Configuration config = new Configuration(); 
+		Configuration config = new Configuration();
 		config.locale = locale; 
 		context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
 	}

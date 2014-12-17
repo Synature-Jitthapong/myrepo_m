@@ -4,6 +4,7 @@ import java.io.File;
 import java.text.NumberFormat;
 import java.util.Calendar;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -26,19 +27,26 @@ import android.widget.TextView;
 public class CheckUpdateActivity extends Activity {
 
 	private SoftwareRegister mRegister;
-	private static Button mBtnCheckUpdate;
-	private static Button mBtnInstall;
-	private static ProgressBar mProgressBar;
-	private static TextView mTvTitle;
-	private static TextView mTvLastUpdate;
-	private static TextView mTvPercent;
-	private TextView mTvCurrentVersion;
+	
+	private static int sProgress;
+	
+	private static Button sBtnCheckUpdate;
+	private static Button sBtnInstall;
+	private static ProgressBar sProgressBar;
+	private static TextView sTvTitle;
+	private static TextView sTvLastUpdate;
+	private static TextView sTvPercent;
+	private static TextView sTvCurrentVersion;
 	
 	private static class DownloadReceiver extends ResultReceiver{
 
-		public static DownloadReceiver getInstance(){
-			DownloadReceiver dr = new DownloadReceiver(new Handler());
-			return dr;
+		private static DownloadReceiver sInstance = null;
+		
+		public static synchronized DownloadReceiver getInstance(){
+			if(sInstance == null){
+				sInstance = new DownloadReceiver(new Handler());
+			}
+			return sInstance;
 		}
 		
 		public DownloadReceiver(Handler handler) {
@@ -50,17 +58,18 @@ public class CheckUpdateActivity extends Activity {
 			super.onReceiveResult(resultCode, resultData);
 			switch(resultCode){
 			case DownloadService.UPDATE_PROGRESS:
-				int progress = resultData.getInt("progress");
-				mProgressBar.setProgress(progress);
-				mTvPercent.setText(NumberFormat.getInstance().format(progress) + "%");
-				mBtnCheckUpdate.setEnabled(false);
+				sProgress = resultData.getInt("progress");
+				sProgressBar.setProgress(sProgress);
+				sTvPercent.setText(NumberFormat.getInstance().format(sProgress) + "%");
+				sBtnCheckUpdate.setEnabled(false);
 				break;
 			case DownloadService.DOWNLOAD_COMPLETE:
-				mTvTitle.setText(R.string.download_complete);
-				mBtnCheckUpdate.setVisibility(View.GONE);
-				mBtnInstall.setVisibility(View.VISIBLE);
-				mProgressBar.setProgress(100);
-				mTvPercent.setText(NumberFormat.getInstance().format(100) + "%");
+				sTvTitle.setText(R.string.download_complete);
+				sBtnCheckUpdate.setVisibility(View.GONE);
+				sBtnInstall.setVisibility(View.VISIBLE);
+				sProgress = 100;
+				sProgressBar.setProgress(sProgress);
+				sTvPercent.setText(NumberFormat.getInstance().format(sProgress) + "%");
 				String fileName = resultData.getString("fileName");
 				Calendar c = Calendar.getInstance();
 				SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MPOSApplication.getContext());
@@ -69,30 +78,30 @@ public class CheckUpdateActivity extends Activity {
 				editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_STATUS, "1");
 				editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_FILE_NAME, fileName);
 				editor.commit();
-				mTvLastUpdate.setText(MPOSApplication.getContext().getString(R.string.last_time_update_version) + ": " 
+				sTvLastUpdate.setText(MPOSApplication.getContext().getString(R.string.last_time_update_version) + ": " 
 						+ java.text.DateFormat.getDateInstance().format(c.getTime()));
 				break;
 			case DownloadService.ERROR:
-				mTvTitle.setText(R.string.check_update);
-				mBtnCheckUpdate.setEnabled(true);
+				sBtnCheckUpdate.setEnabled(true);
 				break;
 			}
 		}
-		
 	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_check_update);
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
-		mBtnCheckUpdate = (Button) findViewById(R.id.button1);
-		mBtnInstall = (Button) findViewById(R.id.button2);
-		mTvTitle = (TextView) findViewById(R.id.textView1);
-		mTvLastUpdate = (TextView) findViewById(R.id.textView2);
-		mTvPercent = (TextView) findViewById(R.id.textView3);
-		mTvCurrentVersion = (TextView) findViewById(R.id.textView4);
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		
+		sProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
+		sBtnCheckUpdate = (Button) findViewById(R.id.button1);
+		sBtnInstall = (Button) findViewById(R.id.button2);
+		sTvTitle = (TextView) findViewById(R.id.textView1);
+		sTvLastUpdate = (TextView) findViewById(R.id.textView2);
+		sTvPercent = (TextView) findViewById(R.id.textView3);
+		sTvCurrentVersion = (TextView) findViewById(R.id.textView4);
 	}
 
 	@Override
@@ -104,20 +113,20 @@ public class CheckUpdateActivity extends Activity {
 		if(!TextUtils.isEmpty(lastUpdate)){
 			Calendar c = Calendar.getInstance();
 			c.setTimeInMillis(Long.parseLong(lastUpdate));
-			mTvLastUpdate.setText(getString(R.string.last_time_update_version) + ": " 
+			sTvLastUpdate.setText(getString(R.string.last_time_update_version) + ": " 
 					+ java.text.DateFormat.getDateInstance().format(c.getTime()));
 		}
-		mTvCurrentVersion.setText(getString(R.string.current_version) + " " + Utils.getSoftWareVersion(this));
+		sTvCurrentVersion.setText(getString(R.string.current_version) + " " + Utils.getSoftWareVersion(this));
 		if(TextUtils.equals(fileDownloadStatus, "1")){
-			mTvTitle.setText(R.string.download_complete);
-			mBtnInstall.setVisibility(View.VISIBLE);
-			mBtnCheckUpdate.setVisibility(View.GONE);
-			mProgressBar.setProgress(100);
-			mTvPercent.setText(NumberFormat.getInstance().format(100) + "%");
+			sTvTitle.setText(R.string.download_complete);
+			sBtnInstall.setVisibility(View.VISIBLE);
+			sBtnCheckUpdate.setVisibility(View.GONE);
 		}else{
-			mBtnInstall.setVisibility(View.GONE);
-			mBtnCheckUpdate.setVisibility(View.VISIBLE);
+			sBtnInstall.setVisibility(View.GONE);
+			sBtnCheckUpdate.setVisibility(View.VISIBLE);
 		}
+		sProgressBar.setProgress(sProgress);
+		sTvPercent.setText(NumberFormat.getInstance().format(sProgress) + "%");
 	}
 
 	@Override
@@ -160,12 +169,14 @@ public class CheckUpdateActivity extends Activity {
 		public void onError(String msg) {
 			if(mProgressDialog.isShowing())
 				mProgressDialog.dismiss();
+			sBtnCheckUpdate.setEnabled(true);
 		}
 
 		@Override
 		public void onCancelled(String msg) {
 			if(mProgressDialog.isShowing())
 				mProgressDialog.dismiss();
+			sBtnCheckUpdate.setEnabled(true);
 		}
 
 		@Override
@@ -177,7 +188,7 @@ public class CheckUpdateActivity extends Activity {
 				String fileUrl = info.getSzSoftwareDownloadUrl();
 				if(!TextUtils.isEmpty(version) && !TextUtils.isEmpty(fileUrl)){
 					if(!TextUtils.equals(version, Utils.getSoftWareVersion(CheckUpdateActivity.this))){
-						mTvTitle.setText(R.string.downloading);
+						sTvTitle.setText(R.string.downloading);
 						Intent intent = new Intent(CheckUpdateActivity.this, DownloadService.class);
 						intent.putExtra("fileUrl", fileUrl);
 						intent.putExtra("receiver", DownloadReceiver.getInstance());
@@ -223,6 +234,6 @@ public class CheckUpdateActivity extends Activity {
 	public void updateClicked(final View v){
 		mRegister = new SoftwareRegister(this, new RegisterValidUrlListener());
 		mRegister.execute(Utils.REGISTER_URL);
-		mBtnCheckUpdate.setEnabled(false);
+		sBtnCheckUpdate.setEnabled(false);
 	}
 }

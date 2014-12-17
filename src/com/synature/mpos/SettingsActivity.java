@@ -41,6 +41,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_ENABLE_BACKUP_DB = "enable_backup_db";
 	
 	// store update information
+	public static final String KEY_PREF_NEED_TO_UPDATE = "need_to_update";
 	public static final String KEY_PREF_APK_DOWNLOAD_STATUS = "apk_download_status"; 	// 0 fail, 1 success
 	public static final String KEY_PREF_APK_DOWNLOAD_FILE_NAME = "apk_download_file_name";
 	public static final String KEY_PREF_APK_MD5 = "apk_md5";
