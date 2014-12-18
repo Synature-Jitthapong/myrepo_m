@@ -238,7 +238,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="restore_db">Restore database</string>
     <string name="please_select_db">Please select database that you want to restore.</string>
     <string name="software_update">Software Update</string>
-    <string name="software_update_mesg">New version available. Please update the latest version.</string>
     <string name="total_sale_include_vat">Total Sale Include VAT</string>
     <string name="check_network_progress">Checking network connection&#8230;</string>
     <string name="software_expired">Software Expired</string>
@@ -265,4 +264,5 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
 	<string name="software_up_to_date">Software is up to date.</string>
 	<string name="install_update">Install Update</string>
     <string name="current_version">Current Version</string>
+    <string name="update_version">Update Version</string>
 </resources>

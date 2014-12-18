@@ -192,7 +192,6 @@
 	<string name="test">Test</string>
 	<string name="shift_close_report">รายงานสรุปกะ</string>
 	<string name="software_update">ซอฟต์แวร์อัพเดต</string>
-	<string name="software_update_mesg">มีโปรแกรมเวอร์ชันใหม่กว่าที่ใช้อยู่ในปัจจุบัน กรุณาทำการอัพเดตเวอร์ชันของโปรแกรมก่อน</string>
 	<string name="total_sale_include_vat">ราคารวมภาษี</string>
 	<string name="check_network_progress">ตรวจสอบการเชื่อมต่อกับ Server&#8230;</string>
 	<string name="software_expired">ซอฟท์แวร์หมดอายุ</string>
@@ -218,4 +217,5 @@
 	<string name="install_update">ติดตั้งอัพเดต</string>
     <string name="version">เวอร์ชัน</string>
     <string name="current_version">เวอร์ชันปัจจุบัน</string>
+    <string name="update_version">อัพเดตเวอร์ชัน</string>
 </resources>

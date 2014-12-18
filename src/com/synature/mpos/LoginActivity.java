@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -71,6 +72,8 @@ public class LoginActivity extends Activity implements OnClickListener,
 	private TextView mTvDeviceCode;
 	private TextView mTvLastSyncTime;
 	private TextView mTvVersion;
+	
+	private Menu mMenuItem;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -190,6 +193,20 @@ public class LoginActivity extends Activity implements OnClickListener,
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_login, menu);
+		mMenuItem = menu;
+		MenuItem badgeItem = mMenuItem.findItem(R.id.itemUpdateVersion);
+		RelativeLayout badgeLayout = (RelativeLayout) badgeItem.getActionView();
+		
+		((TextView) badgeLayout.findViewById(R.id.tvBadge)).setText(R.string.update_version);
+		badgeLayout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(LoginActivity.this, CheckUpdateActivity.class);
+				startActivity(intent);
+			}
+		});
+		checkUpdate();
 		return true;
 	}
 
@@ -332,7 +349,24 @@ public class LoginActivity extends Activity implements OnClickListener,
 			mTxtUser.requestFocus();
 		}
 		displayWelcome();
+		checkUpdate();
 		super.onResume();
+	}
+	
+	private void checkUpdate(){
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
+		String needToUpdate = sharedPref.getString(SettingsActivity.KEY_PREF_NEED_TO_UPDATE, "0");
+		
+		Log.i("CheckUpdate", needToUpdate);
+		
+		if(mMenuItem != null){
+		MenuItem badgeItem = mMenuItem.findItem(R.id.itemUpdateVersion);
+			if(Integer.parseInt(needToUpdate) == 1){
+				badgeItem.setVisible(true);
+			}else{
+				badgeItem.setVisible(false);
+			}
+		}
 	}
 	
 	private void displayWelcome(){
@@ -550,6 +584,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 				mProgress.dismiss();
 			mDeviceChecker = new DeviceChecker(LoginActivity.this, new DeviceCheckerListener());
 			mDeviceChecker.execute(Utils.getFullUrl(LoginActivity.this));
+			checkUpdate();
 		}
 	}
 	

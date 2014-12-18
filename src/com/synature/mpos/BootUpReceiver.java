@@ -9,10 +9,8 @@ public class BootUpReceiver extends BroadcastReceiver{
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
-			Intent loginIntent = new Intent(context, LoginActivity.class);
-			loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			context.startActivity(loginIntent);
-		}
+		Intent loginIntent = new Intent(context, LoginActivity.class);
+		loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(loginIntent);
 	}
 }

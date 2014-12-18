@@ -53,6 +53,20 @@ public class SoftwareRegister extends MPOSServiceBase{
 				editor.putString(SettingsActivity.KEY_PREF_SERVER_URL, info.getSzRegisterServiceUrl());
 				editor.putString(SettingsActivity.KEY_PREF_EXP_DATE, info.getSzSoftwareExpireDate());
 				editor.putString(SettingsActivity.KEY_PREF_LOCK_DATE, info.getSzLockExpireDate());
+				
+				String version = info.getSzSoftwareVersion();
+				String fileUrl = info.getSzSoftwareDownloadUrl();
+				if(!TextUtils.isEmpty(version) && !TextUtils.isEmpty(fileUrl)){
+					if(!TextUtils.equals(version, Utils.getSoftWareVersion(mContext))){
+						editor.putString(SettingsActivity.KEY_PREF_NEED_TO_UPDATE, "1");
+						editor.putString(SettingsActivity.KEY_PREF_NEW_VERSION, version);
+						editor.putString(SettingsActivity.KEY_PREF_FILE_URL, fileUrl);
+					}
+				}else{
+					editor.putString(SettingsActivity.KEY_PREF_NEED_TO_UPDATE, "0");
+					editor.putString(SettingsActivity.KEY_PREF_NEW_VERSION, "");
+					editor.putString(SettingsActivity.KEY_PREF_FILE_URL, "");
+				}
 				editor.commit();
 				mListener.onPostExecute(info);
 			}else{

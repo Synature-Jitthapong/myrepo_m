@@ -8,6 +8,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 
 public class CheckUpdateActivity extends Activity {
 
+	private static Context sContext;
 	private SoftwareRegister mRegister;
 	
 	private static int sProgress;
@@ -72,13 +74,13 @@ public class CheckUpdateActivity extends Activity {
 				sTvPercent.setText(NumberFormat.getInstance().format(sProgress) + "%");
 				String fileName = resultData.getString("fileName");
 				Calendar c = Calendar.getInstance();
-				SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MPOSApplication.getContext());
+				SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(sContext);
 				SharedPreferences.Editor editor = sharedPref.edit();
 				editor.putString(SettingsActivity.KEY_PREF_LAST_UPDATE, String.valueOf(c.getTimeInMillis()));
 				editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_STATUS, "1");
 				editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_FILE_NAME, fileName);
 				editor.commit();
-				sTvLastUpdate.setText(MPOSApplication.getContext().getString(R.string.last_time_update_version) + ": " 
+				sTvLastUpdate.setText(sContext.getString(R.string.last_time_update_version) + ": " 
 						+ java.text.DateFormat.getDateInstance().format(c.getTime()));
 				break;
 			case DownloadService.ERROR:
@@ -91,6 +93,7 @@ public class CheckUpdateActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		sContext = this;
 		setContentView(R.layout.activity_check_update);
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
@@ -121,6 +124,7 @@ public class CheckUpdateActivity extends Activity {
 			sTvTitle.setText(R.string.download_complete);
 			sBtnInstall.setVisibility(View.VISIBLE);
 			sBtnCheckUpdate.setVisibility(View.GONE);
+			sProgress = 100;
 		}else{
 			sBtnInstall.setVisibility(View.GONE);
 			sBtnCheckUpdate.setVisibility(View.VISIBLE);
@@ -183,28 +187,25 @@ public class CheckUpdateActivity extends Activity {
 		public void onPostExecute(MPOSSoftwareInfo info) {
 			if(mProgressDialog.isShowing())
 				mProgressDialog.dismiss();
-			if(info != null){
-				String version = info.getSzSoftwareVersion();
-				String fileUrl = info.getSzSoftwareDownloadUrl();
-				if(!TextUtils.isEmpty(version) && !TextUtils.isEmpty(fileUrl)){
-					if(!TextUtils.equals(version, Utils.getSoftWareVersion(CheckUpdateActivity.this))){
-						sTvTitle.setText(R.string.downloading);
-						Intent intent = new Intent(CheckUpdateActivity.this, DownloadService.class);
-						intent.putExtra("fileUrl", fileUrl);
-						intent.putExtra("receiver", DownloadReceiver.getInstance());
-						startService(intent);
-					}else{
-						new AlertDialog.Builder(CheckUpdateActivity.this)
-						.setMessage(R.string.software_up_to_date)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-							}
-						})
-						.show();
+			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(CheckUpdateActivity.this);
+			String needToUpdate = sharedPref.getString(SettingsActivity.KEY_PREF_NEED_TO_UPDATE, "0");
+			if(Integer.parseInt(needToUpdate) == 1){
+				String fileUrl = sharedPref.getString(SettingsActivity.KEY_PREF_FILE_URL, "");
+				Intent intent = new Intent(CheckUpdateActivity.this, DownloadService.class);
+				intent.putExtra("fileUrl", fileUrl);
+				intent.putExtra("receiver", DownloadReceiver.getInstance());
+				startService(intent);
+				sTvTitle.setText(R.string.downloading);
+			}else{
+				new AlertDialog.Builder(CheckUpdateActivity.this)
+				.setMessage(R.string.software_up_to_date)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
 					}
-				}
+				})
+				.show();
 			}
 		}
 
@@ -220,20 +221,38 @@ public class CheckUpdateActivity extends Activity {
 		if(!TextUtils.isEmpty(fileName)){
 			File download = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 			File apkFile = new File(download + File.separator + fileName);
-		    Intent intent = new Intent(Intent.ACTION_VIEW);
-		    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
-		    startActivity(intent);
+			if(apkFile.exists()){
+			    Intent intent = new Intent(Intent.ACTION_VIEW);
+			    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
+			    startActivity(intent);
+			}else{
+				SharedPreferences.Editor editor = sharedPref.edit();
+				editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_FILE_NAME, "");
+				editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_STATUS, "0");
+				editor.putString(SettingsActivity.KEY_PREF_NEED_TO_UPDATE, "0");
+				editor.putString(SettingsActivity.KEY_PREF_NEW_VERSION, "");
+				editor.putString(SettingsActivity.KEY_PREF_FILE_URL, "");
+				editor.commit();
+			}
 		}
-		SharedPreferences.Editor editor = sharedPref.edit();
-		editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_FILE_NAME, "");
-		editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_STATUS, "0");
-		editor.commit();
 		Utils.backupDatabase(this);
 	}
 	
 	public void updateClicked(final View v){
-		mRegister = new SoftwareRegister(this, new RegisterValidUrlListener());
-		mRegister.execute(Utils.REGISTER_URL);
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(CheckUpdateActivity.this);
+		String needToUpdate = sharedPref.getString(SettingsActivity.KEY_PREF_NEED_TO_UPDATE, "0");
+		String newVersion = sharedPref.getString(SettingsActivity.KEY_PREF_NEW_VERSION, "");
+		if(Integer.parseInt(needToUpdate) == 1){
+			String fileUrl = sharedPref.getString(SettingsActivity.KEY_PREF_FILE_URL, "");
+			Intent intent = new Intent(CheckUpdateActivity.this, DownloadService.class);
+			intent.putExtra("fileUrl", fileUrl);
+			intent.putExtra("receiver", DownloadReceiver.getInstance());
+			startService(intent);
+			sTvTitle.setText(getString(R.string.downloading) + " " + newVersion);
+		}else{
+			mRegister = new SoftwareRegister(this, new RegisterValidUrlListener());
+			mRegister.execute(Utils.REGISTER_URL);
+		}
 		sBtnCheckUpdate.setEnabled(false);
 	}
 }

@@ -3,16 +3,12 @@ package com.synature.mpos;
 import com.synature.util.Logger;
 
 import android.app.Application;
-import android.content.Context;
 import android.os.Build;
 
 public class MPOSApplication extends Application {
 
-	private static Context sContext;
-	
 	@Override
 	public void onCreate() {
-		sContext = getApplicationContext();
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread thread, Throwable e) {
@@ -59,9 +55,5 @@ public class MPOSApplication extends Application {
 				System.exit(0);
 			}
 		});
-	}
-	
-	public static Context getContext(){
-		return sContext;
 	}
 }
