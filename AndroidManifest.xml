@@ -19,7 +19,7 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="17" />
+        android:targetSdkVersion="21" />
 
     <supports-screens
         android:requiresSmallestWidthDp="1024"
@@ -183,6 +183,8 @@
         <service android:name=".SaleService" >
         </service>
         <service android:name=".DownloadService" >
+        </service>
+        <service android:name=".RemoteStackTraceService" >
         </service>
     </application>
 

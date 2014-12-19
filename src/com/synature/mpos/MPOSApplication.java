@@ -1,8 +1,12 @@
 package com.synature.mpos;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import com.synature.util.Logger;
 
 import android.app.Application;
+import android.content.Intent;
 import android.os.Build;
 
 public class MPOSApplication extends Application {
@@ -14,46 +18,45 @@ public class MPOSApplication extends Application {
 			public void uncaughtException(Thread thread, Throwable e) {
 				StackTraceElement[] arr = e.getStackTrace();
 				StringBuilder report = new StringBuilder();
-				report.append(e.toString() + "\n\r");
-				report.append("--------- Stack trace ---------\n\r");
+				report.append(new SimpleDateFormat("HH:mm:ss").format(
+						Calendar.getInstance().getTime()) + "\n");
+				report.append(e.toString() + "\n");
+				report.append("--------- Stack trace ---------\n");
 				for (int i = 0; i < arr.length; i++){
-					report.append("    " + arr[i].toString() + "\n\r");
+					report.append("    " + arr[i].toString() + "\n");
 				}
-				report.append("-------------------------------\n\r");
-
-				// If the exception was thrown in a background thread inside
-
-				// AsyncTask, then the actual exception can be found with
-				// getCause
-				report.append("--------- Cause ---------\n\r");
 				Throwable cause = e.getCause();
 				if (cause != null) {
-					report.append(cause.toString() + "\n\r");
+					report.append("--------- Cause ---------\n");
+					report.append(cause.toString() + "\n");
 					arr = cause.getStackTrace();
 					for (int i = 0; i < arr.length; i++){
-						report.append("    " + arr[i].toString() + "\n\r");
+						report.append("    " + arr[i].toString() + "\n");
 					}
 				}
-
-				/**
-				 * 
-				 * Getting the Device brand,model and sdk verion details.
-				 */
-				report.append("--------- Device ---------\n\r");
-				report.append("Brand: " + Build.BRAND + "\n\r");
-				report.append("Device: " + Build.DEVICE + "\n\r");
-				report.append("Model: " + Build.MODEL + "\n\r");
+				report.append("--------- Device ---------\n");
+				report.append("Brand: " + Build.BRAND + "\n");
+				report.append("Device: " + Build.DEVICE + "\n");
+				report.append("Model: " + Build.MODEL + "\n");
 				report.append("Id: " + Build.ID + "\n\r");
-				report.append("Product: " + Build.PRODUCT + "\n\r");
-				report.append("-------------------------------\n\r");
-				report.append("--------- Firmware ---------\n\r");
-				report.append("SDK: " + Build.VERSION.SDK + "\n\r");
-				report.append("Release: " + Build.VERSION.RELEASE + "\n\r");
-				report.append("Incremental: " + Build.VERSION.INCREMENTAL + "\n\r");
-				report.append("-------------------------------\n\n\r");
-				Logger.appendLog(getApplicationContext(), Utils.ERR_LOG_PATH, Utils.ERR_LOG_FILE_NAME, report.toString());
-				System.exit(0);
+				report.append("Product: " + Build.PRODUCT + "\n");
+				report.append("--------- Firmware ---------\n");
+				report.append("SDK: " + Build.VERSION.SDK + "\n");
+				report.append("Release: " + Build.VERSION.RELEASE + "\n");
+				report.append("Incremental: " + Build.VERSION.INCREMENTAL + "\n");
+				report.append("-------------------------------\n");
+				Logger.appendLog(getApplicationContext(), Utils.ERR_LOG_PATH, "", report.toString());
+				
+				postStackTraceToServer(report.toString());
+				System.gc();
+				android.os.Process.killProcess(android.os.Process.myPid());
 			}
 		});
+	}
+	
+	private void postStackTraceToServer(String stackTrace){
+		Intent intent = new Intent(getApplicationContext(), RemoteStackTraceService.class);
+		intent.putExtra("stackTrace", stackTrace);
+		startService(intent);
 	}
 }

@@ -56,6 +56,11 @@ public class Utils {
 	public static final String REGISTER_URL = "http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
 	
 	/**
+	 * Url to post stacktrace
+	 */
+	public static final String STACK_TRACE_URL = "http://www.promise-system.com/mpos_stack_trace/post_stack.php";
+	
+	/**
 	 * WebService file name
 	 */
 	public static final String WS_NAME = "ws_mpos.asmx";
@@ -69,11 +74,6 @@ public class Utils {
 	 * Log prefix file name
 	 */
 	public static final String LOG_FILE_NAME = "log_";
-	
-	/**
-	 * Error log prefix file name
-	 */
-	public  static final String ERR_LOG_FILE_NAME = "err_";
 	
 	/**
 	 * Resource dir
