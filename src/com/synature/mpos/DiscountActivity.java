@@ -6,13 +6,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
-
+import com.synature.mpos.foodcourt.R;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;

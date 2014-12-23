@@ -1,6 +1,7 @@
 package com.synature.mpos;
 
 import android.content.Context;
+import com.synature.mpos.foodcourt.R;
 
 public class DeviceChecker extends MPOSServiceBase {
 	

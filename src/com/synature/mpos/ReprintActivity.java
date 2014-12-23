@@ -1,12 +1,11 @@
 package com.synature.mpos;
 
 import java.util.List;
-
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
-
+import com.synature.mpos.foodcourt.R;
 import android.os.Bundle;
 import android.content.Context;
 import android.view.MenuItem;

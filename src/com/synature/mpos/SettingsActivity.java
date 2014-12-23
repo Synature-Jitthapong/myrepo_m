@@ -12,7 +12,7 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
+import com.synature.mpos.foodcourt.R;
 import java.util.List;
 
 public class SettingsActivity extends PreferenceActivity {

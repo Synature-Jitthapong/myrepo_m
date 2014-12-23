@@ -3,7 +3,6 @@ package com.synature.mpos;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
@@ -11,7 +10,7 @@ import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.PrintReceiptLogDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
-
+import com.synature.mpos.foodcourt.R;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.app.AlertDialog;

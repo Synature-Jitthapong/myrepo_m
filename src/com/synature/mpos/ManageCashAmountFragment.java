@@ -1,9 +1,8 @@
 package com.synature.mpos;
 
 import java.text.ParseException;
-
 import com.synature.mpos.database.FormaterDao;
-
+import com.synature.mpos.foodcourt.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

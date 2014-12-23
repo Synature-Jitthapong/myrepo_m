@@ -1,10 +1,9 @@
 package com.synature.mpos;
 
 import org.ksoap2.serialization.PropertyInfo;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-
+import com.synature.mpos.foodcourt.R;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;

@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import com.synature.mpos.foodcourt.R;
 
 public class BillViewerFragment extends DialogFragment{
 

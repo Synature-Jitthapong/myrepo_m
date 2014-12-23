@@ -13,6 +13,7 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.synature.mpos.foodcourt.R;
 
 public class AboutActivity extends Activity {
 	

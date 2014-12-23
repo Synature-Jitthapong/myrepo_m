@@ -1,7 +1,6 @@
 package com.synature.mpos;
 
 import java.util.Calendar;
-
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.FormaterDao;
@@ -10,8 +9,8 @@ import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.mpos.database.UserVerification;
+import com.synature.mpos.foodcourt.R;
 import com.synature.pos.Staff;
-
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.AlertDialog;

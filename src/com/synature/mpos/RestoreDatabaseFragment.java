@@ -9,9 +9,8 @@ import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.synature.mpos.database.FormaterDao;
-
+import com.synature.mpos.foodcourt.R;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;

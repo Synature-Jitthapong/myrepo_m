@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.TransactionDao;
@@ -13,8 +12,8 @@ import com.synature.mpos.database.model.OrderSet.OrderSetDetail;
 import com.synature.mpos.database.model.Product;
 import com.synature.mpos.database.model.ProductComponent;
 import com.synature.mpos.database.model.ProductComponentGroup;
+import com.synature.mpos.foodcourt.R;
 import com.synature.util.ImageLoader;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;

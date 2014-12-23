@@ -2,8 +2,8 @@ package com.synature.mpos;
 
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.UserVerification;
+import com.synature.mpos.foodcourt.R;
 import com.synature.pos.Staff;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

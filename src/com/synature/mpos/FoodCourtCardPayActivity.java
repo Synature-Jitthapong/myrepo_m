@@ -5,10 +5,10 @@ import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
+import com.synature.mpos.foodcourt.R;
 import com.synature.pos.PrepaidCardInfo;
 import com.synature.util.CreditCardParser;
 import com.synature.util.Logger;
-
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -452,7 +452,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 					mCardBalance = cardInfo.getfCurrentAmount();
 					mCardBalanceBefore = mCardBalance;
 					fragment.mTxtBalance.setText(mFormat.currencyFormat(mCardBalance));
-					fragment.mTxtMember.setText("สมชาย สายสมาน");
+					//fragment.mTxtMember.setText("สมชาย สายสมาน");
 					if(mCardBalance < mTotalSalePrice){
 						fragment.mTxtBalance.setTextColor(Color.RED);
 					}else{

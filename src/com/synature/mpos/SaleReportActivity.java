@@ -3,7 +3,6 @@ package com.synature.mpos;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.List;
-
 import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.MPOSDatabase;
@@ -18,9 +17,9 @@ import com.synature.mpos.database.Reporting.SimpleProductData;
 import com.synature.mpos.database.model.MPOSPaymentDetail;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderTransaction;
+import com.synature.mpos.foodcourt.R;
 import com.synature.pos.Report;
 import com.synature.pos.Staff;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.ActionBar;
