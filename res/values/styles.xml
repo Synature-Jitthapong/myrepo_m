@@ -69,6 +69,10 @@
         <item name="android:showDividers">middle|beginning|end</item>
     </style>
     <!-- Button Style -->
+    <style name="KeyPadButton" parnet="BaseButton.Light">
+        <item name="android:minWidth">72dp</item>
+        <item name="android:minHeight">72dp</item>
+    </style>
     <style name="RedButton" parent="BaseButton.Light">
         <item name="android:background">@drawable/btn_holo_red</item>
     </style>

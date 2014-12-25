@@ -15,7 +15,6 @@
         android:layout_alignParentTop="true"
         android:text="@string/check_update"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@android:color/holo_blue_dark"
         android:textSize="@dimen/larger_text_size" />
 
     <ProgressBar
@@ -27,8 +26,7 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/textView1"
         android:indeterminate="false"
-        android:max="100"
-        android:progressDrawable="@android:drawable/progress_horizontal" />
+        android:max="100" />
 
     <TextView
         android:id="@+id/textView3"

@@ -1,6 +1,8 @@
 package com.synature.mpos;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Calendar;
 
@@ -225,6 +227,22 @@ public class CheckUpdateActivity extends Activity {
 			    Intent intent = new Intent(Intent.ACTION_VIEW);
 			    intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
 			    startActivity(intent);
+//				try {
+//					Process su = Runtime.getRuntime().exec("su");
+//					DataOutputStream outputStream = new DataOutputStream(su.getOutputStream());
+//
+//					//outputStream.writeBytes("pm install " + apkFile.toString() + "\n");
+//				    outputStream.writeBytes("screenrecord --time-limit 10 /sdcard/MyVideo.mp4\n");
+//				    outputStream.writeBytes("exit\n");
+//					outputStream.flush();
+//					su.waitFor();
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 			}else{
 				SharedPreferences.Editor editor = sharedPref.edit();
 				editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_FILE_NAME, "");
