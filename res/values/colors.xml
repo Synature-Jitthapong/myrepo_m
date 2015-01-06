@@ -7,4 +7,7 @@
     <color name="white_gray">#fffafafa</color>
     <color name="dark_gray">#ff858585</color>
     <color name="gray">#ffcccccc</color>
+    <color name="sum_bg1">#ff8e9a87</color>
+    <color name="sum_bg2">#ff7a8473</color>
+    <color name="bar_bg">#ccdcc1</color>
 </resources>

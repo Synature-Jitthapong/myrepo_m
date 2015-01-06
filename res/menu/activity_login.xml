@@ -20,8 +20,7 @@
         android:showAsAction="always|withText"
         android:title="@string/report">
     </item><item android:id="@+id/itemUtils" android:icon="@drawable/ic_action_phone" android:showAsAction="always|withText" android:title="@string/utility">
-    </item>
-    <item android:id="@+id/itemUpdateVersion" android:title="@string/update_version" android:actionLayout="@layout/badge_layout" android:showAsAction="always" android:visible="false"></item><item android:id="@+id/itemCheckUpdate" android:title="@string/check_update" android:showAsAction="collapseActionView"></item><item
+    </item><item android:id="@+id/itemCheckUpdate" android:title="@string/check_update" android:showAsAction="collapseActionView"></item><item
         android:id="@+id/itemAbout"
         android:showAsAction="collapseActionView"
         android:title="@string/about">

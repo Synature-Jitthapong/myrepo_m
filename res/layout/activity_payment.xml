@@ -4,7 +4,6 @@
     android:layout_height="wrap_content"
     android:baselineAligned="false"
     android:orientation="horizontal"
-    android:padding="4dp"
     tools:context=".PaymentActivity" >
 
     <LinearLayout
@@ -22,8 +21,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:layout_marginBottom="4dp"
-                android:layout_marginLeft="2dp"
-                android:minHeight="64dp" >
+                android:background="@color/sum_bg1"
+                android:minHeight="64dp"
+                android:paddingLeft="2dp" >
 
                 <LinearLayout
                     android:id="@+id/payTypeContent"
@@ -191,7 +191,6 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="2dp"
             android:layout_weight="0.5"
             android:gravity="center"
             android:orientation="vertical" >
@@ -201,9 +200,11 @@
                 style="@style/TextPrice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/sum_bg2"
                 android:gravity="right"
                 android:text="0"
                 android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@android:color/white"
                 android:textSize="72sp" />
 
             <GridView

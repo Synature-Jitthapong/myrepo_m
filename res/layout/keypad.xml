@@ -184,7 +184,7 @@
         style="@style/KeyPadButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/btn1"
+        android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/btn2"
         android:layout_below="@+id/btn1"
         android:layout_margin="2dp"

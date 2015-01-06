@@ -4,20 +4,21 @@
     android:layout_height="match_parent"
     android:baselineAligned="false"
     android:divider="@android:drawable/divider_horizontal_bright"
-    android:showDividers="middle"
     tools:context=".MainActivity" >
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.6"
+        android:background="@color/bar_bg"
         android:divider="@android:drawable/divider_horizontal_bright"
         android:orientation="vertical"
-        android:showDividers="middle" >
+        android:paddingRight="1dp" >
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:background="@color/blue_gray_light" >
 
             <EditText
                 android:id="@+id/txtBarCode"
@@ -119,13 +120,14 @@
             android:id="@+id/tbLayoutSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="4dp" >
+            android:background="@color/sum_bg1" >
 
         </TableLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:background="@color/sum_bg2" >
 
             <Button
                 android:id="@+id/btnCashPaid"
@@ -166,6 +168,15 @@
             android:layout_margin="4dp"
             android:layout_weight="1" >
         </android.support.v4.view.ViewPager>
+
+        <FrameLayout
+            android:id="@+id/orderingCtrlContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp" >
+
+        </FrameLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -215,6 +226,7 @@
                 android:text="@string/hold"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
         </RelativeLayout>
+
     </LinearLayout>
 
 </LinearLayout>

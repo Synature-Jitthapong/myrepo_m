@@ -2,9 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="64dp"
-    android:paddingRight="64dp"
-    android:paddingTop="96dp"
+    android:padding="48dp"
     tools:context="com.synature.mpos.CheckUpdateActivity" >
 
     <TextView
@@ -15,25 +13,56 @@
         android:layout_alignParentTop="true"
         android:text="@string/check_update"
         android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@android:color/holo_green_light"
         android:textSize="@dimen/larger_text_size" />
 
     <ProgressBar
         android:id="@+id/progressBar1"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/textView1"
+        android:layout_centerVertical="true"
         android:indeterminate="false"
         android:max="100" />
+
+    <Button
+        android:id="@+id/button2"
+        style="@style/GreenButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="31dp"
+        android:onClick="installClicked"
+        android:text="@string/install_update" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:onClick="updateClicked"
+        android:text="@string/check_update" />
 
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/progressBar1"
+        android:layout_above="@+id/progressBar1"
+        android:layout_alignParentLeft="true"
+        android:text="1%"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@android:color/secondary_text_light"
+        android:textSize="@dimen/large_text_size" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
         android:layout_below="@+id/progressBar1"
+        android:text="text2"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -41,34 +70,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textView3"
+        android:layout_below="@+id/progressBar1"
+        android:text="text4"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textView4"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/textView2"
-        android:onClick="updateClicked"
-        android:text="@string/check_update" />
-
-    <Button
-        android:id="@+id/button2"
-        style="@style/GreenButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/textView2"
-        android:onClick="installClicked"
-        android:text="@string/install_update" />
 
 </RelativeLayout>

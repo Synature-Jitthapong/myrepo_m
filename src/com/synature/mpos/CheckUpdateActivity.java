@@ -1,8 +1,6 @@
 package com.synature.mpos;
 
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Calendar;
 
@@ -29,6 +27,8 @@ import android.widget.TextView;
 
 public class CheckUpdateActivity extends Activity {
 
+	private static final int AUTO_DOWNLOAD = 1;
+	
 	private static Context sContext;
 	private SoftwareRegister mRegister;
 	
@@ -107,6 +107,12 @@ public class CheckUpdateActivity extends Activity {
 		sTvLastUpdate = (TextView) findViewById(R.id.textView2);
 		sTvPercent = (TextView) findViewById(R.id.textView3);
 		sTvCurrentVersion = (TextView) findViewById(R.id.textView4);
+		
+		Intent intent = getIntent();
+		if(intent.getIntExtra("auto_download", 0) == AUTO_DOWNLOAD){
+			if(sProgress == 0)
+				checkForUpdate();
+		}
 	}
 
 	@Override
@@ -139,7 +145,7 @@ public class CheckUpdateActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
-			finish();
+			onBackPressed();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -256,7 +262,7 @@ public class CheckUpdateActivity extends Activity {
 		Utils.backupDatabase(this);
 	}
 	
-	public void updateClicked(final View v){
+	private void checkForUpdate(){
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(CheckUpdateActivity.this);
 		String needToUpdate = sharedPref.getString(SettingsActivity.KEY_PREF_NEED_TO_UPDATE, "0");
 		String newVersion = sharedPref.getString(SettingsActivity.KEY_PREF_NEW_VERSION, "");
@@ -271,6 +277,10 @@ public class CheckUpdateActivity extends Activity {
 			mRegister = new SoftwareRegister(this, new RegisterValidUrlListener());
 			mRegister.execute(Utils.REGISTER_URL);
 		}
-		sBtnCheckUpdate.setEnabled(false);
+		sBtnCheckUpdate.setEnabled(false);	
+	}
+	
+	public void updateClicked(final View v){
+		checkForUpdate();
 	}
 }

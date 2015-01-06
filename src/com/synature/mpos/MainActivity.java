@@ -1,8 +1,6 @@
 package com.synature.mpos;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -45,6 +43,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -53,6 +52,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.SQLException;
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -88,6 +88,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -200,6 +201,7 @@ public class MainActivity extends FragmentActivity implements
 		setupTitle();
 		setupBarCodeEvent();
 		setupMenuDeptPager();
+		setupOrderingKeypadUtils();
 	}
 	
 	/**
@@ -252,6 +254,12 @@ public class MainActivity extends FragmentActivity implements
 		
 	}
 	
+	private void setupOrderingKeypadUtils(){
+		FragmentTransaction transaction = getFragmentManager().beginTransaction();
+		transaction.add(R.id.orderingCtrlContent, new OrderingKeypadFragment(), OrderingKeypadFragment.TAG);
+		transaction.commit();
+	}
+	
 	private void setupTitle(){
 		StaffsDao staff = new StaffsDao(this);
 		com.synature.pos.Staff s = staff.getStaff(mStaffId);
@@ -296,7 +304,7 @@ public class MainActivity extends FragmentActivity implements
 						if(p != null){
 							addOrder(p.getProductId(), p.getProductName(), 
 									p.getProductTypeId(), p.getVatType(), p.getVatRate(), 
-									1, p.getProductPrice());
+									getOrderingQty(), p.getProductPrice());
 						}else{
 							new AlertDialog.Builder(MainActivity.this)
 							.setTitle(R.string.search)
@@ -505,31 +513,32 @@ public class MainActivity extends FragmentActivity implements
 		mTbSummary.addView(createTableRowSummary(
 				getString(R.string.items) + ": " + NumberFormat.getInstance().format(totalQty), 
 				mGlobal.currencyFormat(sumOrder.getTotalRetailPrice()), 
-				0, 0, 0, 0));
+				0, 0, 0, 0, 0, 0));
 		
 		if(totalDiscount > 0){ 
 			mTbSummary.addView(createTableRowSummary(disText, 
-					"-" + mGlobal.currencyFormat(totalDiscount), 0, 0, 0, 0));
+					"-" + mGlobal.currencyFormat(totalDiscount), 0, 0, 0, 0, 0, 0));
 			mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
-					mGlobal.currencyFormat(totalSalePrice), 0, 0, 0, 0));
+					mGlobal.currencyFormat(totalSalePrice), 0, 0, 0, 0, 0, 0));
 		}
 		if(vatExclude > 0){
 			mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
 					" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%",
-					mGlobal.currencyFormat(vatExclude), 0, 0, 0, 0));
+					mGlobal.currencyFormat(vatExclude), 0, 0, 0, 0, 0, 0));
 		}
 		double rounding = Utils.roundingPrice(mGlobal.getRoundingType(), totalPriceInclVat);
 		if(rounding != totalPriceInclVat){
 			if(totalDiscount == 0){
 				mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
-						mGlobal.currencyFormat(totalPriceInclVat), 0, 0, 0, 0));
+						mGlobal.currencyFormat(totalPriceInclVat), 0, 0, 0, 0, 0, 0));
 			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.rounding),
-					mGlobal.currencyFormat(rounding - totalPriceInclVat), 0, 0, 0, 0));
+					mGlobal.currencyFormat(rounding - totalPriceInclVat), 0, 0, 0, 0, 0, 0));
 		}
 		mTbSummary.addView(createTableRowSummary(getString(R.string.total),
 				mGlobal.currencyFormat(rounding),
-				0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size)));
+				0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size),
+				R.color.sum_bg2, android.R.color.white));
 		
 		if(Utils.isEnableSecondDisplay(this)){
 			List<clsSecDisplay_TransSummary> transSummLst = new ArrayList<clsSecDisplay_TransSummary>();
@@ -577,10 +586,11 @@ public class MainActivity extends FragmentActivity implements
 				}
 			}
 		}
+		resetOrdingQty();
 	}
 	
 	private TableRow createTableRowSummary(String label, String value,
-			int labelAppear, int valAppear, float labelSize, float valSize){
+			int labelAppear, int valAppear, float labelSize, float valSize, int bgColor, int fgColor){
 		TextView tvLabel = new TextView(this);
 		TextView tvValue = new TextView(this);
 		tvLabel.setTextAppearance(this, android.R.style.TextAppearance_Holo_Medium);
@@ -598,10 +608,16 @@ public class MainActivity extends FragmentActivity implements
 			tvValue.setTextSize(valSize);
 		tvLabel.setText(label);
 		tvValue.setText(value);
-
+		//if(fgColor != 0){
+			tvLabel.setTextColor(Color.WHITE);
+			tvValue.setTextColor(Color.WHITE);
+		//}
 		TableRow rowSummary = new TableRow(this);
+		rowSummary.setPadding(4, 4, 4, 4);
 		rowSummary.addView(tvLabel);
 		rowSummary.addView(tvValue);
+		if(bgColor != 0)
+			rowSummary.setBackgroundResource(bgColor);
 		return rowSummary;
 	}
 
@@ -1506,7 +1522,7 @@ public class MainActivity extends FragmentActivity implements
 		if(productTypeId == ProductsDao.NORMAL_TYPE || 
 				productTypeId == ProductsDao.SET){
 			addOrder(productId, productName, productTypeId, 
-					vatType, vatRate, 1, productPrice);
+					vatType, vatRate, getOrderingQty(), productPrice);
 		}else if(productTypeId == ProductsDao.SIZE){
 			productSizeDialog(productId, productName);
 		}else if(productTypeId == ProductsDao.SET_CAN_SELECT){
@@ -1518,6 +1534,30 @@ public class MainActivity extends FragmentActivity implements
 			intent.putExtra("setGroupName", productName);
 			startActivityForResult(intent, SET_TYPE7_REQUEST);
 		}
+	}
+	
+	private void resetOrdingQty(){
+		OrderingKeypadFragment f = getOrderingKeypadFragment();
+		if(f != null){
+			f.resetTotalQty();
+		}
+	}
+	
+	private int getOrderingQty(){
+		int qty = 1;
+		OrderingKeypadFragment f = getOrderingKeypadFragment();
+		if(f != null){
+			qty = f.getTotalQty();
+			if(qty == 0)
+				qty = 1;
+		}
+		return qty;
+	}
+	
+	private OrderingKeypadFragment getOrderingKeypadFragment(){
+		OrderingKeypadFragment f = (OrderingKeypadFragment) 
+				getFragmentManager().findFragmentByTag(OrderingKeypadFragment.TAG);
+		return f;
 	}
 
 	public void onClick(View v) {
@@ -1693,13 +1733,43 @@ public class MainActivity extends FragmentActivity implements
 	 * @param orderDetailId
 	 */
 	private void updateOrderLst(int orderDetailId){
-		OrderDetail orderDetail = mTrans.getOrder(mTransactionId, orderDetailId);
-		if(orderDetail != null){
-			mOrderDetailLst.add(orderDetail);
-			mOrderDetailAdapter.notifyDataSetChanged();
-			expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
-			scrollOrderLv(mOrderDetailAdapter.getGroupCount());
+		new AsyncLoadOrder(orderDetailId).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//		OrderDetail orderDetail = mTrans.getOrder(mTransactionId, orderDetailId);
+//		if(orderDetail != null){
+//			mOrderDetailLst.add(orderDetail);
+//			mOrderDetailAdapter.notifyDataSetChanged();
+//			expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
+//			scrollOrderLv(mOrderDetailAdapter.getGroupCount());
+//		}
+	}
+	
+	private class AsyncLoadOrder extends AsyncTask<Void, Void, Void>{
+		
+		private int mOrderDetailId;
+		
+		public AsyncLoadOrder(int orderDetailId){
+			mOrderDetailId = orderDetailId;
 		}
+		
+		@Override
+		protected Void doInBackground(Void... params) {
+			final OrderDetail orderDetail = mTrans.getOrder(mTransactionId, mOrderDetailId);
+			if(orderDetail != null){
+				runOnUiThread(new Runnable(){
+
+					@Override
+					public void run() {
+						mOrderDetailLst.add(orderDetail);
+						mOrderDetailAdapter.notifyDataSetChanged();
+						expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
+						scrollOrderLv(mOrderDetailAdapter.getGroupCount());
+					}
+					
+				});
+			}
+			return null;
+		}
+		
 	}
 	
 	/**
@@ -2179,7 +2249,8 @@ public class MainActivity extends FragmentActivity implements
 					long arg3) {
 				Product p = (Product) parent.getItemAtPosition(position);
 				addOrder(p.getProductId(), p.getProductName(), 
-						p.getProductTypeId(), p.getVatType(), p.getVatRate(), 1, p.getProductPrice());
+						p.getProductTypeId(), p.getVatType(), p.getVatRate(), 
+						getOrderingQty(), p.getProductPrice());
 				dialog.dismiss();
 			}
 			
