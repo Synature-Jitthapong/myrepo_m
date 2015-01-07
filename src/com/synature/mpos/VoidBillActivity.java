@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
@@ -324,47 +323,29 @@ public class VoidBillActivity extends Activity {
 			};
 			
 	private void sendSale(){
-		new NetworkConnectionChecker(this, new NetworkCheckerListener() {
-			
+		mPartService.sendSale(mShopId, mSessionId, mTransactionId, mComputerId, 
+				mStaffId, new WebServiceWorkingListener(){
+
 			@Override
-			public void serverProblem(int code, String msg) {
+			public void onPreExecute() {
+			}
+
+			@Override
+			public void onPostExecute() {
+			}
+
+			@Override
+			public void onError(String msg) {
+			}
+
+			@Override
+			public void onProgressUpdate(int value) {
+			}
+
+			@Override
+			public void onCancelled(String msg) {
 			}
 			
-			@Override
-			public void onLine() {
-				mPartService.sendSale(mShopId, mSessionId, mTransactionId, mComputerId, 
-						mStaffId, new WebServiceWorkingListener(){
-
-					@Override
-					public void onPreExecute() {
-					}
-
-					@Override
-					public void onPostExecute() {
-					}
-
-					@Override
-					public void onError(String msg) {
-					}
-
-					@Override
-					public void onProgressUpdate(int value) {
-					}
-
-					@Override
-					public void onCancelled(String msg) {
-					}
-					
-				});
-			}
-			
-			@Override
-			public void offLine(String msg) {
-			}
-
-			@Override
-			public void onPre() {
-			}
 		});
 	}
 

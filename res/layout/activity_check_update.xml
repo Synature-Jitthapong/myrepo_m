@@ -13,17 +13,8 @@
         android:layout_alignParentTop="true"
         android:text="@string/check_update"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@android:color/holo_green_light"
+        android:textColor="@color/green"
         android:textSize="@dimen/larger_text_size" />
-
-    <ProgressBar
-        android:id="@+id/progressBar1"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:indeterminate="false"
-        android:max="100" />
 
     <Button
         android:id="@+id/button2"
@@ -57,21 +48,32 @@
         android:textSize="@dimen/large_text_size" />
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/progressBar1"
-        android:text="text2"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/progressBar1"
+        android:layout_centerVertical="true"
         android:text="text4"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:text="text2"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/textView4"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="8dp"
+        android:indeterminate="false"
+        android:max="100" />
 
 </RelativeLayout>

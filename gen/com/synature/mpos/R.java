@@ -22,15 +22,19 @@ public final class R {
     }
     public static final class color {
         public static final int bar_bg=0x7f050008;
+        public static final int blue=0x7f05000d;
         public static final int blue_gray_light=0x7f050001;
         public static final int blue_green_light=0x7f050002;
+        public static final int cyan=0x7f05000c;
         public static final int dark_gray=0x7f050004;
         public static final int gray=0x7f050005;
-        /**  <color name="light_gray">#ffe8e8e8</color> 
-         */
         public static final int gray_light=0x7f050000;
+        public static final int green=0x7f05000a;
+        public static final int light_green=0x7f05000b;
+        public static final int orange=0x7f05000e;
         public static final int sum_bg1=0x7f050006;
         public static final int sum_bg2=0x7f050007;
+        public static final int teal=0x7f050009;
         public static final int white_gray=0x7f050003;
     }
     public static final class dimen {
@@ -193,8 +197,8 @@ public final class R {
         public static final int btnSetModify=0x7f0c00c2;
         public static final int btnSetPlus=0x7f0c00c9;
         public static final int btnTest=0x7f0c006c;
-        public static final int button1=0x7f0c0006;
-        public static final int button2=0x7f0c0005;
+        public static final int button1=0x7f0c0005;
+        public static final int button2=0x7f0c0004;
         public static final int buttonDiscount=0x7f0c0037;
         public static final int buttonHold=0x7f0c0039;
         public static final int check_network_progress=0x7f0c0048;
@@ -283,7 +287,7 @@ public final class R {
         public static final int payTypeContent=0x7f0c003b;
         public static final int productHeader=0x7f0c007c;
         public static final int productSummaryContent=0x7f0c0088;
-        public static final int progressBar1=0x7f0c0004;
+        public static final int progressBar1=0x7f0c0007;
         public static final int promoButtonContainer=0x7f0c0044;
         public static final int rdoDiscountType=0x7f0c008e;
         public static final int rdoPercent=0x7f0c008f;
@@ -308,7 +312,7 @@ public final class R {
         public static final int textView13=0x7f0c0086;
         public static final int textView14=0x7f0c007d;
         public static final int textView2=0x7f0c0002;
-        public static final int textView3=0x7f0c0007;
+        public static final int textView3=0x7f0c0006;
         public static final int textView4=0x7f0c0008;
         public static final int textView5=0x7f0c0015;
         public static final int textView6=0x7f0c0011;

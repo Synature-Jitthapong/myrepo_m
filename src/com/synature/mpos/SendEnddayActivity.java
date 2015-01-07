@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.synature.mpos.NetworkConnectionChecker.NetworkCheckerListener;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
@@ -132,40 +131,8 @@ public class SendEnddayActivity extends Activity {
 				finish();
 				return true;
 			case R.id.itemSendAll:
-				new NetworkConnectionChecker(this, new NetworkCheckerListener() {
-					
-					@Override
-					public void serverProblem(int code, String msg) {
-						mItemClose.setEnabled(true);
-						mItemSend.setVisible(true);
-						mItemProgress.setVisible(false);
-						mChkNetworkProgress.setVisibility(View.GONE);
-						Utils.makeToask(SendEnddayActivity.this, msg);
-					}
-					
-					@Override
-					public void onLine() {
-						mChkNetworkProgress.setVisibility(View.GONE);
-						mPartService.sendAllEndday(mShopId, mComputerId, mStaffId, mSendListener);
-					}
-					
-					@Override
-					public void offLine(String msg) {
-						mItemClose.setEnabled(true);
-						mItemSend.setVisible(true);
-						mItemProgress.setVisible(false);
-						mChkNetworkProgress.setVisibility(View.GONE);
-						Utils.makeToask(SendEnddayActivity.this, msg);
-					}
-
-					@Override
-					public void onPre() {
-						mItemClose.setEnabled(false);
-						mItemSend.setVisible(false);
-						mItemProgress.setVisible(true);
-						mChkNetworkProgress.setVisibility(View.VISIBLE);
-					}
-				}).execute();
+				mChkNetworkProgress.setVisibility(View.GONE);
+				mPartService.sendAllEndday(mShopId, mComputerId, mStaffId, mSendListener);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -190,49 +157,37 @@ public class SendEnddayActivity extends Activity {
 
 		@Override
 		public void onPostExecute() {
-			runOnUiThread(new Runnable(){
-
-				@Override
-				public void run() {
-					mItemClose.setEnabled(true);
-					mItemSend.setVisible(true);
-					mItemProgress.setVisible(false);
+			mItemClose.setEnabled(true);
+			mItemSend.setVisible(true);
+			mItemProgress.setVisible(false);
+			
+			setupAdapter();
+			
+			if(mAutoClose){
+				new AlertDialog.Builder(SendEnddayActivity.this)
+				.setCancelable(false)
+				.setTitle(R.string.send_endday_data)
+				.setMessage(R.string.send_endday_data_success)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 					
-					setupAdapter();
-					
-					if(mAutoClose){
-						new AlertDialog.Builder(SendEnddayActivity.this)
-						.setCancelable(false)
-						.setTitle(R.string.send_endday_data)
-						.setMessage(R.string.send_endday_data_success)
-						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								setResult(RESULT_OK);
-								finish();
-							}
-						})
-						.show();
-					}else{
-						Utils.makeToask(SendEnddayActivity.this, getString(R.string.send_sale_data_success));
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						setResult(RESULT_OK);
+						finish();
 					}
-				}
-			});
+				})
+				.show();
+			}else{
+				Utils.makeToask(SendEnddayActivity.this, getString(R.string.send_sale_data_success));
+			}
 		}
 
 		@Override
 		public void onError(final String msg) {
-			runOnUiThread(new Runnable(){
-
-				@Override
-				public void run() {
-					mItemClose.setEnabled(true);
-					mItemSend.setVisible(true);
-					mItemProgress.setVisible(false);
-					Utils.makeToask(SendEnddayActivity.this, msg);
-				}
-			});
+			mItemClose.setEnabled(true);
+			mItemSend.setVisible(true);
+			mItemProgress.setVisible(false);
+			Utils.makeToask(SendEnddayActivity.this, msg);
 		}
 
 		@Override
@@ -241,15 +196,9 @@ public class SendEnddayActivity extends Activity {
 
 		@Override
 		public void onCancelled(String msg) {
-			runOnUiThread(new Runnable(){
-
-				@Override
-				public void run() {
-					mItemClose.setEnabled(true);
-					mItemSend.setVisible(true);
-					mItemProgress.setVisible(false);
-				}
-			});
+			mItemClose.setEnabled(true);
+			mItemSend.setVisible(true);
+			mItemProgress.setVisible(false);
 		}
 		
 	};

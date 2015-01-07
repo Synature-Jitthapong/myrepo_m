@@ -1219,9 +1219,11 @@ public class TransactionDao extends MPOSDatabase {
 			return;
 		db.beginTransaction();
 		try{
-			String sessWhere = SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ?";
-			String[] sessWhereArgs = {dateFrom, dateTo};
-			String transWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")";
+			String sessWhere = SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ? "
+					+ " AND " + COLUMN_SEND_STATUS + "=?";
+			String[] sessWhereArgs = {dateFrom, dateTo, String.valueOf(ALREADY_SEND)};
+			String transWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
+					+ " AND " + COLUMN_SEND_STATUS + "=" + ALREADY_SEND;
 			db.delete(SessionTable.TABLE_SESSION, sessWhere, sessWhereArgs);
 			db.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, sessWhere, sessWhereArgs);
 			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER + " WHERE " + transWhere);

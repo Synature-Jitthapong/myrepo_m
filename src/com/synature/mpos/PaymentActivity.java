@@ -40,6 +40,8 @@ public class PaymentActivity extends Activity implements OnClickListener{
 	public static final int REQUEST_CREDIT_PAY = 1;
 	public static final int RESULT_ENOUGH = 2;
 	public static final int RESULT_NOT_ENOUGH = 3;
+	
+	public static boolean sIsRunning = false;
 
 	/*
 	 * credit pay not enough result code
@@ -116,6 +118,18 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		mGvPaymentButton.setAdapter(mPaymentButtonAdapter);
 		loadPayType();
 		displayEnterPrice();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		sIsRunning = true;
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		sIsRunning = false;
 	}
 
 	@Override

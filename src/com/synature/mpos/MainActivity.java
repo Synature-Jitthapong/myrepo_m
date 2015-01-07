@@ -38,7 +38,6 @@ import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
 import com.synature.util.ImageLoader;
 import com.synature.util.Logger;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -88,7 +87,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -728,50 +726,22 @@ public class MainActivity extends FragmentActivity implements
 	 * The listener of print receipt
 	 */
 	private PrintReceipt.OnPrintReceiptListener mPrintReceiptListener = 
-			new PrintReceipt.OnPrintReceiptListener(){
+		new PrintReceipt.OnPrintReceiptListener(){
 
-				@Override
-				public void onPrePrint() {
-					// TODO Auto-generated method stub
-					
+			@Override
+			public void onPrePrint() {}
+
+			@Override
+			public void onPostPrint() {
+				List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
+				int size = transIdLst.size();
+				for(int i = 0; i < size; i++){
+					OrderTransaction trans = transIdLst.get(i);
+					SendSaleListener sendSaleListener = new SendSaleListener(size, i);
+					mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
+							trans.getComputerId(), mStaffId, sendSaleListener);
 				}
-
-				@Override
-				public void onPostPrint() {
-					// send sale data service
-					new NetworkConnectionChecker(MainActivity.this, new NetworkConnectionChecker.NetworkCheckerListener(){
-
-						@Override
-						public void onLine() {
-							List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
-							int size = transIdLst.size();
-							for(int i = 0; i < size; i++){
-								if(i < 10){
-									OrderTransaction trans = transIdLst.get(i);
-									mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
-											trans.getComputerId(), mStaffId, new SendSaleListener(size, i));
-								}else{
-									break;
-								}
-							}
-						}
-
-						@Override
-						public void offLine(String msg) {
-							Utils.makeToask(MainActivity.this, msg);
-						}
-
-						@Override
-						public void serverProblem(int code, String msg) {
-							Utils.makeToask(MainActivity.this, msg);
-						}
-
-						@Override
-						public void onPre() {
-						}
-						
-					}).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				}
+		}
 	};
 	
 	private class SendSaleListener implements WebServiceWorkingListener{
@@ -790,17 +760,11 @@ public class MainActivity extends FragmentActivity implements
 
 		@Override
 		public void onPostExecute() {
-			runOnUiThread(new Runnable(){
-
-				@Override
-				public void run() {
-					countSaleDataNotSend();
-					if(mPosition == mSize - 1){
-						Utils.makeToask(MainActivity.this, MainActivity.this
-								.getString(R.string.send_sale_data_success));
-					}
-				}
-			});
+			countSaleDataNotSend();
+			if(mPosition == mSize - 1){
+				Utils.makeToask(MainActivity.this, MainActivity.this
+						.getString(R.string.send_sale_data_success));
+			}
 		}
 
 		@Override
@@ -873,11 +837,13 @@ public class MainActivity extends FragmentActivity implements
 				intent.putExtra("staffId", mStaffId);
 				startActivityForResult(intent, FOOD_COURT_PAYMENT_REQUEST);
 			}else{
-				Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
-				intent.putExtra("transactionId", mTransactionId);
-				intent.putExtra("computerId", mComputerId);
-				intent.putExtra("staffId", mStaffId);
-				startActivityForResult(intent, PAYMENT_REQUEST);
+				if(PaymentActivity.sIsRunning == false){
+					Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
+					intent.putExtra("transactionId", mTransactionId);
+					intent.putExtra("computerId", mComputerId);
+					intent.putExtra("staffId", mStaffId);
+					startActivityForResult(intent, PAYMENT_REQUEST);
+				}
 			}
 		}
 	}
@@ -1733,43 +1699,13 @@ public class MainActivity extends FragmentActivity implements
 	 * @param orderDetailId
 	 */
 	private void updateOrderLst(int orderDetailId){
-		new AsyncLoadOrder(orderDetailId).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-//		OrderDetail orderDetail = mTrans.getOrder(mTransactionId, orderDetailId);
-//		if(orderDetail != null){
-//			mOrderDetailLst.add(orderDetail);
-//			mOrderDetailAdapter.notifyDataSetChanged();
-//			expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
-//			scrollOrderLv(mOrderDetailAdapter.getGroupCount());
-//		}
-	}
-	
-	private class AsyncLoadOrder extends AsyncTask<Void, Void, Void>{
-		
-		private int mOrderDetailId;
-		
-		public AsyncLoadOrder(int orderDetailId){
-			mOrderDetailId = orderDetailId;
+		OrderDetail orderDetail = mTrans.getOrder(mTransactionId, orderDetailId);
+		if(orderDetail != null){
+			mOrderDetailLst.add(orderDetail);
+			mOrderDetailAdapter.notifyDataSetChanged();
+			expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
+			scrollOrderLv(mOrderDetailAdapter.getGroupCount());
 		}
-		
-		@Override
-		protected Void doInBackground(Void... params) {
-			final OrderDetail orderDetail = mTrans.getOrder(mTransactionId, mOrderDetailId);
-			if(orderDetail != null){
-				runOnUiThread(new Runnable(){
-
-					@Override
-					public void run() {
-						mOrderDetailLst.add(orderDetail);
-						mOrderDetailAdapter.notifyDataSetChanged();
-						expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
-						scrollOrderLv(mOrderDetailAdapter.getGroupCount());
-					}
-					
-				});
-			}
-			return null;
-		}
-		
 	}
 	
 	/**
@@ -2536,97 +2472,38 @@ public class MainActivity extends FragmentActivity implements
 		final ProgressDialog progress = new ProgressDialog(MainActivity.this);
 		progress.setTitle(getString(R.string.endday_success));
 		progress.setCancelable(false);
-		progress.setMessage(getString(R.string.check_network_progress));
-		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
-
+		progress.setMessage(getString(R.string.send_endday_data_progress));
+		mPartService.sendEnddaySale(mShopId, mComputerId, mStaffId, new WebServiceWorkingListener() {
+			
 			@Override
-			public void onLine() {
-				mPartService.sendEnddaySale(mShopId, mComputerId, mStaffId, new WebServiceWorkingListener() {
-	
-							@Override
-							public void onPreExecute() {
-								runOnUiThread(new Runnable(){
-
-									@Override
-									public void run() {
-										progress.setMessage(getString(R.string.send_endday_data_progress));
-									}
-									
-								});
-							}
-	
-							@Override
-							public void onPostExecute() {
-								runOnUiThread(new Runnable(){
-
-									@Override
-									public void run() {
-										if (progress.isShowing())
-											progress.dismiss();
-		
-										new AlertDialog.Builder(
-												MainActivity.this)
-												.setTitle(R.string.endday)
-												.setMessage(R.string.send_endday_data_success)
-												.setCancelable(false)
-												.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-															@Override
-															public void onClick(DialogInterface dialog,int which) {
-																// Utils.shutdown();
-																finish();
-															}
-												}).show();
-									}
-								});
-							}
-	
-							@Override
-							public void onError(String msg) {
-								runOnUiThread(new Runnable(){
-
-									@Override
-									public void run() {
-										if (progress.isShowing())
-											progress.dismiss();
-										new AlertDialog.Builder(
-												MainActivity.this)
-												.setTitle(R.string.endday)
-												.setMessage(R.string.cannot_send_endday_data_on_this_time)
-												.setCancelable(false)
-												.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			
-															@Override
-															public void onClick(DialogInterface arg0, int arg1) {
-																finish();
-															}
-												})
-												.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			
-															@Override
-															public void onClick(DialogInterface dialog, int which) {
-																sendEnddayData();
-															}
-												}).show();
-											}
-									});
-							}
-	
-							@Override
-							public void onProgressUpdate(int value) {
-							}
-
-							@Override
-							public void onCancelled(String msg) {
-							}
-					});
+			public void onPreExecute() {
+				progress.show();
 			}
 
 			@Override
-			public void offLine(String msg) {
-				if(progress.isShowing())
+			public void onPostExecute() {
+				if (progress.isShowing())
 					progress.dismiss();
-				new AlertDialog.Builder(
+					new AlertDialog.Builder(
+						MainActivity.this)
+						.setTitle(R.string.endday)
+						.setMessage(R.string.send_endday_data_success)
+						.setCancelable(false)
+						.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+									@Override
+									public void onClick(DialogInterface dialog,int which) {
+										// Utils.shutdown();
+										finish();
+									}
+						}).show();
+			}
+
+			@Override
+			public void onError(String msg) {
+				if (progress.isShowing())
+					progress.dismiss();
+					new AlertDialog.Builder(
 						MainActivity.this)
 						.setTitle(R.string.endday)
 						.setMessage(R.string.cannot_send_endday_data_on_this_time)
@@ -2648,69 +2525,39 @@ public class MainActivity extends FragmentActivity implements
 			}
 
 			@Override
-			public void serverProblem(int code, String msg) {
-				if(progress.isShowing())
-					progress.dismiss();
-				finish();
+			public void onProgressUpdate(int value) {
 			}
 
 			@Override
-			public void onPre() {
-				progress.show();
+			public void onCancelled(String msg) {
 			}
-			
-		}).execute();
+		});
 	}
 
 	private void sendUnSendEnddayData(){
-		new NetworkConnectionChecker(this, new NetworkConnectionChecker.NetworkCheckerListener(){
+		mPartService.sendAllEndday(mShopId, mComputerId, mStaffId, new WebServiceWorkingListener() {
 
-			@Override
-			public void onLine() {
-				mPartService.sendAllEndday(mShopId, mComputerId, mStaffId, new WebServiceWorkingListener() {
-	
-							@Override
-							public void onPreExecute() {
-							}
-	
-							@Override
-							public void onPostExecute() {
-								runOnUiThread(new Runnable(){
+					@Override
+					public void onPreExecute() {
+					}
 
-									@Override
-									public void run() {
-										countSaleDataNotSend();
-									}
-								});
-							}
-	
-							@Override
-							public void onError(String msg) {
-							}
-	
-							@Override
-							public void onProgressUpdate(int value) {
-							}
+					@Override
+					public void onPostExecute() {
+						countSaleDataNotSend();
+					}
 
-							@Override
-							public void onCancelled(String msg) {
-							}
-					});
-			}
+					@Override
+					public void onError(String msg) {
+					}
 
-			@Override
-			public void offLine(String msg) {
-			}
+					@Override
+					public void onProgressUpdate(int value) {
+					}
 
-			@Override
-			public void serverProblem(int code, String msg) {
-			}
-
-			@Override
-			public void onPre() {
-			}
-			
-		}).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);	
+					@Override
+					public void onCancelled(String msg) {
+					}
+			});
 	}
 	
 	@Override
