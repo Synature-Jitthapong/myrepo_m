@@ -5,9 +5,11 @@ import java.util.List;
 
 import com.synature.mpos.database.model.MPOSPaymentDetail;
 import com.synature.mpos.database.table.BankTable;
+import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.CreditCardTable;
 import com.synature.mpos.database.table.OrderTransTable;
+import com.synature.mpos.database.table.PayTypeFinishWasteTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.mpos.database.table.SessionTable;
@@ -509,6 +511,29 @@ public class PaymentDetailDao extends MPOSDatabase {
 	/**
 	 * @param payTypeLst
 	 */
+	public void insertPaytypeFinishWaste(List<com.synature.pos.PayType> payTypeLst){
+		getWritableDatabase().beginTransaction();
+		try {
+			getWritableDatabase().delete(PayTypeFinishWasteTable.TABLE_PAY_TYPE_FINISH_WASTE, null, null);
+			for(com.synature.pos.PayType payType : payTypeLst){
+				ContentValues cv = new ContentValues();
+				cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payType.getPayTypeID());
+				cv.put(PayTypeTable.COLUMN_PAY_TYPE_CODE, payType.getPayTypeCode());
+				cv.put(PayTypeTable.COLUMN_PAY_TYPE_NAME, payType.getPayTypeName());
+				cv.put(BaseColumn.COLUMN_DOCUMENT_TYPE_ID, payType.getDocumentTypeID());
+				cv.put(BaseColumn.COLUMN_DOCUMENT_TYPE_HEADER, payType.getDocumentTypeHeader());
+				cv.put(BaseColumn.COLUMN_ORDERING, payType.getOrdering());
+				getWritableDatabase().insertOrThrow(PayTypeFinishWasteTable.TABLE_PAY_TYPE_FINISH_WASTE, null, cv);
+			}
+			getWritableDatabase().setTransactionSuccessful();
+		} finally {
+			getWritableDatabase().endTransaction();
+		}
+	}
+	
+	/**
+	 * @param payTypeLst
+	 */
 	public void insertPaytype(List<com.synature.pos.PayType> payTypeLst){
 		getWritableDatabase().beginTransaction();
 		try {
@@ -518,6 +543,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 				cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payType.getPayTypeID());
 				cv.put(PayTypeTable.COLUMN_PAY_TYPE_CODE, payType.getPayTypeCode());
 				cv.put(PayTypeTable.COLUMN_PAY_TYPE_NAME, payType.getPayTypeName());
+				cv.put(BaseColumn.COLUMN_ORDERING, payType.getOrdering());
 				getWritableDatabase().insertOrThrow(PayTypeTable.TABLE_PAY_TYPE, null, cv);
 			}
 			getWritableDatabase().setTransactionSuccessful();

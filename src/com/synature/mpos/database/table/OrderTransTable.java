@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 public class OrderTransTable extends BaseColumn {
 	public static final String TABLE_ORDER_TRANS = "OrderTransaction";
 	public static final String TEMP_ORDER_TRANS = "OrderTransactionTemp";
+	public static final String TABLE_ORDER_TRANS_WASTE = "OrderTransactionWaste";
 	public static final String COLUMN_TRANS_ID = "transaction_id";
 	public static final String COLUMN_RECEIPT_YEAR = "receipt_year";
 	public static final String COLUMN_RECEIPT_MONTH = "receipt_month";
@@ -69,6 +70,7 @@ public class OrderTransTable extends BaseColumn {
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 		db.execSQL("create table " + TEMP_ORDER_TRANS + " as select * from " + TABLE_ORDER_TRANS + " where 0;");
+		db.execSQL("create table " + TABLE_ORDER_TRANS_WASTE + " as select * from " + TABLE_ORDER_TRANS + " where 0;");
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion,

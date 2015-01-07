@@ -109,6 +109,7 @@ public class MasterDataLoader extends MPOSServiceBase{
 			bank.insertBank(master.getBankName());
 			cd.insertCreditCardType(master.getCreditCardType());
 			pd.insertPaytype(master.getPayType());
+			pd.insertPaytypeFinishWaste(master.getPayTypeFinishWaste());
 			pb.insertPaymentAmountButton(master.getPaymentAmountButton());
 			p.insertProductGroup(master.getProductGroup());
 			p.insertProductDept(master.getProductDept());

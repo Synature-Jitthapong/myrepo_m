@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 public class OrderDetailTable extends BaseColumn{
 	public static final String TABLE_ORDER = "OrderDetail";
 	public static final String TEMP_ORDER = "OrderDetailTemp";
+	public static final String TABLE_ORDER_WASTE = "OrderDetailWaste";
 	public static final String COLUMN_ORDER_ID = "order_detail_id";
 	public static final String COLUMN_ORDER_QTY = "order_qty";
 	public static final String COLUMN_TOTAL_RETAIL_PRICE = "total_retail_price";
@@ -49,6 +50,7 @@ public class OrderDetailTable extends BaseColumn{
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(ORDER_SQL_CREATE);
 		db.execSQL("create table " + TEMP_ORDER + " as select * from " + TABLE_ORDER + " where 0;");
+		db.execSQL("create table " + TABLE_ORDER_WASTE + " as select * from " + TABLE_ORDER + " where 0;");
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion,

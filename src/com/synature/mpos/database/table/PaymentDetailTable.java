@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 public class PaymentDetailTable{
 	
 	public static final String TABLE_PAYMENT_DETAIL = "PaymentDetail";
+	public static final String TEMP_PAYMENT_DETAIL = "PaymentDetailTemp";
 	public static final String COLUMN_PAY_ID = "pay_detail_id";
 	public static final String COLUMN_PAY_AMOUNT = "pay_amount";
 	public static final String COLUMN_TOTAL_PAY_AMOUNT = "total_pay_amount";
@@ -28,6 +29,7 @@ public class PaymentDetailTable{
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
+		db.execSQL("create table " + TEMP_PAYMENT_DETAIL + " as select * from " + TABLE_PAYMENT_DETAIL + " where 0;");
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

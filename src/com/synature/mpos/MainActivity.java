@@ -365,6 +365,10 @@ public class MainActivity extends FragmentActivity implements
 			case R.id.itemVoid:
 				voidBill();
 				return true;
+			case R.id.itemFinishWaste:
+				FinishWasteDialogFragment waste = FinishWasteDialogFragment.newInstance();
+				waste.show(getFragmentManager(), FinishWasteDialogFragment.TAG);
+				return true;
 			case R.id.itemEditCash:
 				editCash();
 				return true;

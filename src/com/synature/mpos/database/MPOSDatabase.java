@@ -15,6 +15,7 @@ import com.synature.mpos.database.table.MaxTransIdTable;
 import com.synature.mpos.database.table.MenuFixCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
+import com.synature.mpos.database.table.PayTypeFinishWasteTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentButtonTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
@@ -127,6 +128,7 @@ public class MPOSDatabase extends BaseColumn{
 			SyncHistoryTable.onCreate(db);
 			PromotionPriceGroupTable.onCreate(db);
 			PromotionProductDiscountTable.onCreate(db);
+			PayTypeFinishWasteTable.onCreate(db);
 			ProgramFeatureTable.onCreate(db);
 		}
 		
@@ -159,6 +161,7 @@ public class MPOSDatabase extends BaseColumn{
 			PromotionProductDiscountTable.onUpgrade(db, oldVersion, newVersion);
 			OrderTransTable.onUpgrade(db, oldVersion, newVersion);
 			OrderDetailTable.onUpgrade(db, oldVersion, newVersion);
+			PayTypeFinishWasteTable.onUpgrade(db, oldVersion, newVersion);
 			ProgramFeatureTable.onUpgrade(db, oldVersion, newVersion);
 		}
 	}
