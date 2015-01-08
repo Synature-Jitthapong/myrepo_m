@@ -170,10 +170,6 @@ public class CheckUpdateActivity extends Activity {
 		}
 
 		@Override
-		public void onProgressUpdate(int value) {
-		}
-
-		@Override
 		public void onPostExecute() {
 		}
 

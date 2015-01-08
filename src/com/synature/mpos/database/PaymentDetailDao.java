@@ -13,6 +13,7 @@ import com.synature.mpos.database.table.PayTypeFinishWasteTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
 import com.synature.mpos.database.table.SessionTable;
+import com.synature.pos.PayType;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -125,6 +126,32 @@ public class PaymentDetailDao extends MPOSDatabase {
 		}
 		cursor.close();
 		return paymentLst;
+	}
+	
+	public List<com.synature.pos.PayType> listPaytypeWest(){
+		List<com.synature.pos.PayType> westLst = null;
+		Cursor cursor = getReadableDatabase().query(PayTypeFinishWasteTable.TABLE_PAY_TYPE_FINISH_WASTE, 
+				new String[]{
+					PayTypeTable.COLUMN_PAY_TYPE_ID,
+					PayTypeTable.COLUMN_PAY_TYPE_CODE,
+					PayTypeTable.COLUMN_PAY_TYPE_NAME,
+					PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_ID,
+					PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_HEADER,
+				}, null, null, null, null, COLUMN_ORDERING);
+		if(cursor.moveToFirst()){
+			westLst = new ArrayList<com.synature.pos.PayType>();
+			do{
+				com.synature.pos.PayType west = new com.synature.pos.PayType();
+				west.setPayTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
+				west.setPayTypeCode(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)));
+				west.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
+				west.setDocumentTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_ID)));
+				west.setDocumentTypeHeader(cursor.getString(cursor.getColumnIndex(PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_HEADER)));
+				westLst.add(west);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return westLst;
 	}
 	
 	/**

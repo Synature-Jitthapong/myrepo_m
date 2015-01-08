@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PrintReceiptLogDao;
@@ -12,14 +11,11 @@ import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
-import android.os.IBinder;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
@@ -40,9 +36,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
-	
-	private SaleService mPartService;
-	private boolean mBound = false;
 	
 	private TransactionDao mTrans;
 	private GlobalPropertyDao mFormat;
@@ -120,17 +113,11 @@ public class VoidBillActivity extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Intent intent = new Intent(this, SaleService.class);
-		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		if(mBound){
-			unbindService(mServiceConnection);
-			mBound = false;
-		}
 	}
 
 	@Override
@@ -323,52 +310,25 @@ public class VoidBillActivity extends Activity {
 			};
 			
 	private void sendSale(){
-		mPartService.sendSale(mShopId, mSessionId, mTransactionId, mComputerId, 
-				mStaffId, new WebServiceWorkingListener(){
+		new PartialSaleSenderExcecutor(this, mSessionId, mTransactionId, 
+				mShopId, mComputerId, mStaffId, new WebServiceWorkingListener(){
 
-			@Override
-			public void onPreExecute() {
-			}
+					@Override
+					public void onPreExecute() {}
 
-			@Override
-			public void onPostExecute() {
-			}
+					@Override
+					public void onPostExecute() {}
 
-			@Override
-			public void onError(String msg) {
-			}
+					@Override
+					public void onError(String msg) {}
 
-			@Override
-			public void onProgressUpdate(int value) {
-			}
-
-			@Override
-			public void onCancelled(String msg) {
-			}
+					@Override
+					public void onCancelled(String msg) {}
 			
-		});
+		}).execute();
 	}
 
 	private void cancel() {
 		finish();
 	}
-	
-	/**
-	 * PartialSaleService Connection
-	 */
-	private ServiceConnection mServiceConnection = new ServiceConnection(){
-
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			LocalBinder binder = (LocalBinder) service;
-			mPartService = binder.getService();
-			mBound = true;
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mBound = false;
-		}
-		
-	};
 }

@@ -61,10 +61,6 @@ public class EnddaySenderExecutor extends EnddayBase{
 							}
 
 							@Override
-							public void onProgressUpdate(int value) {
-							}
-
-							@Override
 							public void onCancelled(String msg) {
 								
 							}

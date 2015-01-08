@@ -103,7 +103,7 @@
             android:name=".PaymentActivity"
             android:label="@string/payment"
             android:screenOrientation="landscape"
-            android:theme="@style/ActivityDialogTheme" android:launchMode="singleTop">
+            android:theme="@style/ActivityDialogTheme" android:launchMode="singleTop" android:windowSoftInputMode="stateAlwaysHidden|adjustPan">
         </activity>
         <activity
             android:name=".CreditPayActivity"
@@ -179,9 +179,6 @@
 	            <data android:scheme="package"/>
 	        </intent-filter>
         </receiver>
-
-        <service android:name=".SaleService" >
-        </service>
         <service android:name=".DownloadService" >
         </service>
         <service android:name=".RemoteStackTraceService" >

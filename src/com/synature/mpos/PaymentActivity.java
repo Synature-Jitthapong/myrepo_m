@@ -35,7 +35,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PaymentActivity extends Activity implements OnClickListener{
+public class PaymentActivity extends Activity implements OnClickListener, 
+	FinishWasteDialogFragment.OnFinishWasteListener{
 	
 	public static final int REQUEST_CREDIT_PAY = 1;
 	public static final int RESULT_ENOUGH = 2;
@@ -106,9 +107,9 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		mComputerId = intent.getIntExtra("computerId", 0);
 		mStaffId = intent.getIntExtra("staffId", 0);
 		
-		mTrans = new TransactionDao(getApplicationContext());
-		mPayment = new PaymentDetailDao(getApplicationContext());
-		mGlobal = new GlobalPropertyDao(getApplicationContext());
+		mTrans = new TransactionDao(this);
+		mPayment = new PaymentDetailDao(this);
+		mGlobal = new GlobalPropertyDao(this);
 		
 		mPaymentAdapter = new PaymentAdapter();
 		mPayLst = new ArrayList<MPOSPaymentDetail>();
@@ -116,7 +117,8 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		mStrTotalPay = new StringBuilder();
 		mLvPayment.setAdapter(mPaymentAdapter);
 		mGvPaymentButton.setAdapter(mPaymentButtonAdapter);
-		loadPayType();
+		setupPaytypeButton();
+		setupPaytypeWasteButton();
 		displayEnterPrice();
 	}
 
@@ -302,7 +304,7 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		if(mTotalPaid >= mTotalSalePrice){
 
 			// open cash drawer
-			WintecCashDrawer drw = new WintecCashDrawer(getApplicationContext());
+			WintecCashDrawer drw = new WintecCashDrawer(this);
 			drw.openCashDrawer();
 			drw.close();
 
@@ -424,7 +426,6 @@ public class PaymentActivity extends Activity implements OnClickListener{
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				
 			}
 		});
 		builder.setPositiveButton(android.R.string.ok, null);
@@ -453,7 +454,30 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		});
 	}
 	
-	private void loadPayType(){
+	private void setupPaytypeWasteButton(){
+		List<PayType> payTypeLst = mPayment.listPaytypeWest();
+		LinearLayout payTypeContent = (LinearLayout) findViewById(R.id.payTypeWasteContainer);
+		payTypeContent.removeAllViews();
+		for(final PayType payType : payTypeLst){
+			final Button btnPayType = new Button(PaymentActivity.this);
+			btnPayType.setMinWidth(128);
+			btnPayType.setMinHeight(64);
+			btnPayType.setText(payType.getPayTypeName());
+			btnPayType.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					FinishWasteDialogFragment westDialog = 
+							FinishWasteDialogFragment.newInstance(payType.getPayTypeName(), mTotalPrice);
+					westDialog.show(getFragmentManager(), FinishWasteDialogFragment.TAG);
+				}
+				
+			});
+			payTypeContent.addView(btnPayType);
+		}
+	}
+	
+	private void setupPaytypeButton(){
 		List<PayType> payTypeLst = mPayment.listPayType();
 		LinearLayout payTypeContent = (LinearLayout) findViewById(R.id.payTypeContent);
 		payTypeContent.removeAllViews();
@@ -480,7 +504,7 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		}
 	}
 	
-	public class PaymentButtonAdapter extends BaseAdapter{
+	private class PaymentButtonAdapter extends BaseAdapter{
 		
 		private PaymentAmountButtonDao mPaymentButton;
 		private List<com.synature.pos.PaymentAmountButton> mPaymentButtonLst;
@@ -489,7 +513,7 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		public PaymentButtonAdapter(){
 			mInflater = (LayoutInflater)
 					PaymentActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			mPaymentButton = new PaymentAmountButtonDao(getApplicationContext());
+			mPaymentButton = new PaymentAmountButtonDao(PaymentActivity.this);
 			mPaymentButtonLst = mPaymentButton.listPaymentButton();
 		}
 		
@@ -545,4 +569,13 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		}
 	}
 
+	@Override
+	public void onWasteConfirm(){
+		
+	}
+	
+	@Override
+	public void onWasteCancel() {
+		cancel();
+	}
 }

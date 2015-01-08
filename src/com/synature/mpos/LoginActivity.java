@@ -384,9 +384,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 		public MasterLoaderListener(){
 			mProgress = new ProgressDialog(LoginActivity.this);
 			mProgress.setMessage(getString(R.string.load_master_progress));
-//			mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//			mProgress.setIndeterminate(false);
-//			mProgress.setMax(100);
 			mProgress.setCanceledOnTouchOutside(false);
 			mProgress.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), this);
 		}
@@ -416,11 +413,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 				public void onClick(DialogInterface arg0, int arg1) {
 				}
 			}).show();
-		}
-
-		@Override
-		public void onProgressUpdate(int value) {
-			//mProgress.setProgress(value);
 		}
 
 		@Override
@@ -488,10 +480,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 		}
 	
 		@Override
-		public void onProgressUpdate(int value) {
-		}
-	
-		@Override
 		public void onCancelled(String msg) {
 
 			Log.i(TAG, "device checker task canclled.");
@@ -523,10 +511,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 		@Override
 		public void onPreExecute() {
 			mProgress.show();
-		}
-
-		@Override
-		public void onProgressUpdate(int value) {
 		}
 
 		@Override

@@ -47,11 +47,7 @@ public class PartialSaleSenderExcecutor extends EnddayBase{
 					Utils.logServerResponse(mContext, "Send patial fail : " + msg);
 					mListener.onError(msg);
 				}
-
-				@Override
-				public void onProgressUpdate(int value) {
-				}
-
+				
 				@Override
 				public void onCancelled(String msg) {
 				}

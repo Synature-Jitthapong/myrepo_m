@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.table.BaseColumn;
@@ -14,13 +13,9 @@ import com.synature.mpos.database.table.SessionTable;
 import com.synature.pos.OrderTransaction;
 
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -40,12 +35,8 @@ import android.widget.TextView;
 public class SendSaleActivity extends Activity{
 	public static final String TAG = SendSaleActivity.class.getSimpleName();
 	
-	private SaleService mPartService;
-	private boolean mBound = false;
-	
 	private boolean mIsOnSync;
 	private int mShopId;
-	private int mComputerId;
 	private int mStaffId;
 	private List<SendTransaction> mTransLst;
 	private SyncItemAdapter mSyncAdapter;
@@ -75,7 +66,6 @@ public class SendSaleActivity extends Activity{
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mShopId = intent.getIntExtra("shopId", 0);
-		mComputerId = intent.getIntExtra("computerId", 0);
 
 		loadTransNotSend();
 	}
@@ -83,17 +73,11 @@ public class SendSaleActivity extends Activity{
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Intent intent = new Intent(this, SaleService.class);
-		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		if(mBound){
-			unbindService(mServiceConnection);
-			mBound = false;
-		}
 	}
 
 	private void loadTransNotSend(){
@@ -138,13 +122,14 @@ public class SendSaleActivity extends Activity{
 		mChkNetworkProgress.setVisibility(View.GONE);
 		Iterator<SendTransaction> it = mTransLst.iterator();
 		int index = 0;
-		do{
+		while(it.hasNext()){
 			SendTransaction trans = it.next();
 			SendSaleProgress sendSaleProgress = new SendSaleProgress(trans, index);
-			mPartService.sendSale(mShopId, trans.getSessionId(), trans.getTransactionId(), 
-					mComputerId, mStaffId, sendSaleProgress);
+			new PartialSaleSenderExcecutor(this, trans.getSessionId(), 
+					trans.getTransactionId(), mShopId, trans.getComputerId(), 
+					mStaffId, sendSaleProgress).execute();
 			index++;
-		}while(it.hasNext());
+		}
 	}
 	
 	private class SendSaleProgress implements WebServiceWorkingListener{
@@ -186,11 +171,7 @@ public class SendSaleActivity extends Activity{
 				Utils.makeToask(SendSaleActivity.this, msg);
 			}
 		}
-
-		@Override
-		public void onProgressUpdate(int value) {
-		}
-
+		
 		@Override
 		public void onCancelled(String msg) {
 			mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
@@ -302,25 +283,6 @@ public class SendSaleActivity extends Activity{
 			return convertView;
 		}
 	}
-	
-	/**
-	 * PartialSaleService Connection
-	 */
-	private ServiceConnection mServiceConnection = new ServiceConnection(){
-
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			LocalBinder binder = (LocalBinder) service;
-			mPartService = binder.getService();
-			mBound = true;
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mBound = false;
-		}
-		
-	};
 	
 	private class SendTransaction extends OrderTransaction{
 		private boolean onSend = false;

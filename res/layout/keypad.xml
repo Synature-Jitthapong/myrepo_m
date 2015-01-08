@@ -195,13 +195,14 @@
 
     <Button
         android:id="@+id/btnEnter"
-        style="@style/KeyPadButton"
+        style="@style/GreenButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/btnDot"
         android:layout_below="@+id/btn3"
         android:layout_margin="2dp"
         android:layout_toRightOf="@+id/btn0"
+        android:minHeight="72dp"
         android:onClick="onClick"
         android:text="@string/enter"
         android:textAppearance="?android:attr/textAppearanceLargeInverse"

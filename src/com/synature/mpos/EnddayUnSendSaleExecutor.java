@@ -39,10 +39,6 @@ public class EnddayUnSendSaleExecutor extends EnddayBase{
 									Utils.LOG_FILE_NAME, "Send endday unsend trans successfully");
 							mListener.onPostExecute();
 						}
-	
-						@Override
-						public void onProgressUpdate(int value) {
-						}
 
 						@Override
 						public void onCancelled(String msg) {

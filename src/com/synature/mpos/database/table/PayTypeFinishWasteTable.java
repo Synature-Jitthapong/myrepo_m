@@ -12,7 +12,8 @@ public class PayTypeFinishWasteTable extends BaseColumn{
 					+ PayTypeTable.COLUMN_PAY_TYPE_CODE + " text, "
 					+ PayTypeTable.COLUMN_PAY_TYPE_NAME + " text, "
 					+ COLUMN_DOCUMENT_TYPE_ID + " integer, "
-					+ COLUMN_DOCUMENT_TYPE_HEADER + " text);";
+					+ COLUMN_DOCUMENT_TYPE_HEADER + " text, "
+					+ COLUMN_ORDERING + " integer default 0);";
 	
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
