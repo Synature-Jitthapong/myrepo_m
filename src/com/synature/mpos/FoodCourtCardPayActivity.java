@@ -302,7 +302,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 						((FoodCourtCardPayActivity) getActivity()).mComputerId,
 						((FoodCourtCardPayActivity) getActivity()).mStaffId, 
 						mTxtCardNo.getText().toString(), 
-						((FoodCourtCardPayActivity) getActivity()).mCardBalanceListener).execute(Utils.getFullUrl(getActivity()));
+						((FoodCourtCardPayActivity) getActivity()).mCardBalanceListener);
 			}else{
 				mTxtCardNo.requestFocus();
 			}
@@ -317,7 +317,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 							((FoodCourtCardPayActivity) getActivity()).mComputerId,
 							((FoodCourtCardPayActivity) getActivity()).mStaffId, mTxtCardNo.getText().toString(),
 							((FoodCourtCardPayActivity) getActivity()).mFormat.currencyFormat(((FoodCourtCardPayActivity) getActivity()).mTotalSalePrice), 
-							((FoodCourtCardPayActivity) getActivity()).mCardPayListener).execute(Utils.getFullUrl(getActivity()));
+							((FoodCourtCardPayActivity) getActivity()).mCardPayListener);
 				}else{
 					new AlertDialog.Builder(getActivity())
 					.setTitle(R.string.payment)

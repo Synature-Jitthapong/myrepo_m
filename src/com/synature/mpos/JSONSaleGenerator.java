@@ -14,31 +14,22 @@ import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.synature.util.Logger;
 
-public abstract class EnddayBase{
+public class JSONSaleGenerator{
+	public static final String TAG = JSONSaleGenerator.class.getSimpleName();
 	
-	protected Context mContext;
-
-	protected TransactionDao mTrans;
-	protected SessionDao mSession;
-	protected SaleTransaction mSaleTrans;
-	protected int mShopId;
-	protected int mComputerId;
-	protected int mStaffId;
+	private Context mContext;
+	private TransactionDao mTrans;
+	private SessionDao mSession;
+	private SaleTransaction mSaleTrans;
 	
-	protected WebServiceWorkingListener mListener;
-	
-	public EnddayBase(Context context, int shopId, int computerId, int staffId, WebServiceWorkingListener listener){
+	public JSONSaleGenerator(Context context){
 		mContext = context;
 		mSaleTrans = new SaleTransaction(context);
 		mTrans = new TransactionDao(context);
 		mSession = new SessionDao(context);
-		mShopId = shopId;
-		mComputerId = computerId;
-		mStaffId = staffId;
-		mListener = listener;
 	}
 	
-	protected String generateSale(int transactionId, int sessionId){
+	public String generateSale(int transactionId, int sessionId){
 		String json = null;
 		try {
 			Gson gson = new Gson();
@@ -51,7 +42,7 @@ public abstract class EnddayBase{
 		return json;
 	}
 	
-	protected String generateEnddayUnSendSale(String sessionDate){
+	public String generateEnddayUnSendSale(String sessionDate){
 		String json = null;
 		try {
 			Gson gson = new Gson();
@@ -64,7 +55,7 @@ public abstract class EnddayBase{
 		return json;
 	}
 	
-	protected String generateEnddaySale(String sessionDate){
+	public String generateEnddaySale(String sessionDate){
 		String json = null;
 		try {
 			Gson gson = new Gson();

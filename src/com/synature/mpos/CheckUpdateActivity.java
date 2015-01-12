@@ -3,6 +3,8 @@ package com.synature.mpos;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -30,7 +32,6 @@ public class CheckUpdateActivity extends Activity {
 	private static final int AUTO_DOWNLOAD = 1;
 	
 	private static Context sContext;
-	private SoftwareRegister mRegister;
 	
 	private static int sProgress;
 	
@@ -152,8 +153,7 @@ public class CheckUpdateActivity extends Activity {
 		}
 	}
 	
-	private class RegisterValidUrlListener implements
-			SoftwareRegister.SoftwareRegisterListener, DialogInterface.OnClickListener {
+	private class RegisterValidUrlListener implements SoftwareRegister.SoftwareRegisterListener{
 		
 		private ProgressDialog mProgressDialog;
 		
@@ -161,27 +161,15 @@ public class CheckUpdateActivity extends Activity {
 			 mProgressDialog = new ProgressDialog(CheckUpdateActivity.this);
 			 mProgressDialog.setCanceledOnTouchOutside(false);
 			 mProgressDialog.setMessage(getString(R.string.checking_update));
-			 mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), this);
-		}
-
-		@Override
-		public void onPreExecute() {
 			mProgressDialog.show();
 		}
-
+		
 		@Override
 		public void onPostExecute() {
 		}
 
 		@Override
 		public void onError(String msg) {
-			if(mProgressDialog.isShowing())
-				mProgressDialog.dismiss();
-			sBtnCheckUpdate.setEnabled(true);
-		}
-
-		@Override
-		public void onCancelled(String msg) {
 			if(mProgressDialog.isShowing())
 				mProgressDialog.dismiss();
 			sBtnCheckUpdate.setEnabled(true);
@@ -211,11 +199,6 @@ public class CheckUpdateActivity extends Activity {
 				})
 				.show();
 			}
-		}
-
-		@Override
-		public void onClick(DialogInterface dialog, int which) {
-			mRegister.cancel(true);
 		}
 	}
 
@@ -270,8 +253,8 @@ public class CheckUpdateActivity extends Activity {
 			startService(intent);
 			sTvTitle.setText(getString(R.string.downloading) + " " + newVersion);
 		}else{
-			mRegister = new SoftwareRegister(this, new RegisterValidUrlListener());
-			mRegister.execute(Utils.REGISTER_URL);
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			executor.execute(new SoftwareRegister(this, new RegisterValidUrlListener()));
 		}
 		sBtnCheckUpdate.setEnabled(false);	
 	}

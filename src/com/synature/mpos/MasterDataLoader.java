@@ -23,7 +23,6 @@ import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.pos.MasterData;
-import com.synature.util.FileManager;
 import com.synature.util.Logger;
 
 public class MasterDataLoader extends MPOSServiceBase{
@@ -34,8 +33,6 @@ public class MasterDataLoader extends MPOSServiceBase{
 	 * Total operation
 	 */
 	public static final int TOTAL_OPT = 21;
-
-	private SyncHistoryDao mSync;
 	
 	private WebServiceWorkingListener mListener;
 
@@ -46,8 +43,6 @@ public class MasterDataLoader extends MPOSServiceBase{
 	public MasterDataLoader(Context context, int shopId, WebServiceWorkingListener listener) {
 		super(context, LOAD_MASTER_METHOD);
 		
-		mSync = new SyncHistoryDao(mContext);
-		
 		// shopId
 		mProperty = new PropertyInfo();
 		mProperty.setName(SHOP_ID_PARAM);
@@ -56,11 +51,6 @@ public class MasterDataLoader extends MPOSServiceBase{
 		mSoapRequest.addProperty(mProperty);
 		
 		mListener = listener;
-	}
-
-	@Override
-	protected void onCancelled(String result) {
-		mListener.onCancelled(result);
 	}
 
 	@Override
@@ -75,14 +65,8 @@ public class MasterDataLoader extends MPOSServiceBase{
 		}
 	}
 
-	@Override
-	protected void onPreExecute() {
-		mSync.insertSyncLog();
-		if(mListener != null)
-			mListener.onPreExecute();
-	}
-
 	private void updateMasterData(MasterData master){
+		SyncHistoryDao sync = new SyncHistoryDao(mContext);
 		ShopDao shop = new ShopDao(mContext);
 		ComputerDao computer = new ComputerDao(mContext);
 		GlobalPropertyDao format = new GlobalPropertyDao(mContext);
@@ -99,6 +83,7 @@ public class MasterDataLoader extends MPOSServiceBase{
 		PromotionDiscountDao promo = new PromotionDiscountDao(mContext);
 		ProgramFeatureDao feature = new ProgramFeatureDao(mContext);
 		try {
+			sync.insertSyncLog();
 			shop.insertShopProperty(master.getShopProperty());
 			computer.insertComputer(master.getComputerProperty());
 			format.insertProperty(master.getGlobalProperty());
@@ -122,16 +107,13 @@ public class MasterDataLoader extends MPOSServiceBase{
 			promo.insertPromotionProductDiscount(master.getPromotionProductDiscount());
 			feature.insertProgramFeature(master.getProgramFeature());
 			
-			// clear all menu picture
-			FileManager fm = new FileManager(mContext, Utils.IMG_DIR);
-			fm.clear();
 			// log sync history
-			mSync.updateSyncStatus(SyncHistoryDao.SYNC_STATUS_SUCCESS);
+			sync.updateSyncStatus(SyncHistoryDao.SYNC_STATUS_SUCCESS);
 			if(mListener != null)
 				mListener.onPostExecute();
 		} catch (Exception e) {
 			// log sync history
-			mSync.updateSyncStatus(SyncHistoryDao.SYNC_STATUS_FAIL);
+			sync.updateSyncStatus(SyncHistoryDao.SYNC_STATUS_FAIL);
 			Logger.appendLog(mContext, Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, 
 					"Error when add shop data : " + e.getMessage());

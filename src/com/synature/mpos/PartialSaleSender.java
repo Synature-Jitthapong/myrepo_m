@@ -56,19 +56,17 @@ public class PartialSaleSender extends MPOSServiceBase{
 		try {
 			WebServiceResult ws = (WebServiceResult) toServiceObject(result);
 			if(ws.getiResultID() == WebServiceResult.SUCCESS_STATUS){
-				mListener.onPostExecute();
+				if(mListener != null)
+					mListener.onPostExecute();
 			}else{
-				mListener.onError(ws.getSzResultData().equals("") ? result :
-					ws.getSzResultData());
+				if(mListener != null)
+					mListener.onError(ws.getSzResultData().equals("") ? result :
+						ws.getSzResultData());
 			}
 		} catch (Exception e) {
-			mListener.onError(result);
+			if(mListener != null)
+				mListener.onError(result);
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	protected void onPreExecute() {
-		mListener.onPreExecute();
 	}
 }

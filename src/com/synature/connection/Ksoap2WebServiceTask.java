@@ -15,34 +15,35 @@ import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 
-public abstract class Ksoap2WebServiceTask extends AsyncTask<String, String, String> {
+public abstract class Ksoap2WebServiceTask implements Runnable{
 	
+	public static final String NAME_SPACE = "http://tempuri.org/"; 
+			
+	protected String mUrl;
 	protected SoapObject mSoapRequest;
 	protected int mTimeOut = 30 * 1000;
-	protected String mNameSpace;
 	protected String mWebMethod;
 	protected Context mContext;
 	protected PropertyInfo mProperty;
+	protected String mResult;
 	
-	public Ksoap2WebServiceTask(Context c, String nameSpace, 
-			String method, int timeOut){
+	public Ksoap2WebServiceTask(Context c, String url, String method, int timeOut){
 		mContext = c;
-		mNameSpace = nameSpace;
+		mUrl = url;
 		mWebMethod = method;
 		mTimeOut = timeOut;
-		mSoapRequest = new SoapObject(nameSpace, mWebMethod);
+		mSoapRequest = new SoapObject(NAME_SPACE, mWebMethod);
 	}
+
+	protected abstract void onPostExecute(String result);
 	
 	@Override
-	protected String doInBackground(String... uri) {
-		String result = "";
-		String url = uri[0];
-
+	public void run() {
 		System.setProperty("http.keepAlive", "false");
 		ConnectivityManager connMgr = (ConnectivityManager) mContext
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -51,35 +52,35 @@ public abstract class Ksoap2WebServiceTask extends AsyncTask<String, String, Str
 			// check server status
 			HttpClient httpClient = new DefaultHttpClient();
 			try {
-				HttpResponse res = httpClient.execute(new HttpGet(url));
+				HttpResponse res = httpClient.execute(new HttpGet(mUrl));
 				int resCode = res.getStatusLine().getStatusCode();
 				if(resCode == 200){
 					SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 					envelope.dotNet = true;
 					envelope.setOutputSoapObject(mSoapRequest);
-					String soapAction = mNameSpace + mWebMethod;
-					HttpTransportSE androidHttpTransport = new HttpTransportSE(url, mTimeOut);
+					String soapAction = NAME_SPACE + mWebMethod;
+					HttpTransportSE androidHttpTransport = new HttpTransportSE(mUrl, mTimeOut);
 					androidHttpTransport.debug = true;
 					try {
 						androidHttpTransport.call(soapAction, envelope);
 						if(envelope.bodyIn instanceof SoapObject){
 							SoapObject soapResult = (SoapObject) envelope.bodyIn;
 							if(soapResult != null){
-								result = soapResult.getProperty(0).toString();
+								mResult = soapResult.getProperty(0).toString();
 							}else{
-								result = "No result!";
+								mResult = "No result!";
 							}
 						}else if(envelope.bodyIn instanceof SoapFault){
 							SoapFault soapFault = (SoapFault) envelope.bodyIn;
-							result = soapFault.getMessage();
+							mResult = soapFault.getMessage();
 						}
 					} catch (IOException e) {
-						result = e.getMessage();
+						mResult = e.getMessage();
 					} catch (XmlPullParserException e) {
-						result = e.getMessage();
+						mResult = e.getMessage();
 					}
 				}else{
-					result = "Status: " + resCode + " " + res.getStatusLine().getReasonPhrase();
+					mResult = "Status: " + resCode + " " + res.getStatusLine().getReasonPhrase();
 				}
 			} catch (ClientProtocolException e1) {
 				e1.printStackTrace();
@@ -87,8 +88,16 @@ public abstract class Ksoap2WebServiceTask extends AsyncTask<String, String, Str
 				e1.printStackTrace();
 			}
 		}else{
-			result = "Cannot connect to network!";
+			mResult = "Cannot connect to network!";
 		}
-		return result;
+		Activity act = (Activity) mContext;
+		act.runOnUiThread(new Runnable(){
+
+			@Override
+			public void run() {
+				onPostExecute(mResult);
+			}
+			
+		});
 	}
 }

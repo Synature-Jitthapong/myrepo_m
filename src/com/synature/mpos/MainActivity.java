@@ -12,12 +12,16 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
+import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.PrintReceiptLogDao;
 import com.synature.mpos.database.ProductsDao;
@@ -47,7 +51,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.SQLException;
-import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -204,10 +207,6 @@ public class MainActivity extends FragmentActivity implements
 			mProgress = new ProgressDialog(MainActivity.this);
 			mProgress.setMessage(getString(R.string.load_master_progress));
 			mProgress.setCancelable(false);
-		}
-		
-		@Override
-		public void onPreExecute() {
 			mProgress.show();
 		}
 
@@ -215,8 +214,7 @@ public class MainActivity extends FragmentActivity implements
 		public void onPostExecute() {
 			if(mProgress.isShowing())
 				mProgress.dismiss();
-			startActivity(getIntent());
-			finish();
+			refreshSelf();
 		}
 
 		@Override
@@ -232,11 +230,6 @@ public class MainActivity extends FragmentActivity implements
 				}
 			}).show();
 		}
-
-		@Override
-		public void onCancelled(String msg) {
-		}
-		
 	}
 	
 	private void setupOrderingKeypadUtils(){
@@ -387,7 +380,9 @@ public class MainActivity extends FragmentActivity implements
 				startActivity(intent);
 				return true;
 			case R.id.itemUpdate:
-				new MasterDataLoader(this, mShopId, new MasterLoaderListener()).execute(Utils.getFullUrl(this));
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				executor.execute(new MasterDataLoader(this, mShopId, new MasterLoaderListener()));
+				executor.shutdown();
 				return true;
 			case R.id.itemCheckUpdate:
 				intent = new Intent(this, CheckUpdateActivity.class);
@@ -421,7 +416,6 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	protected void onStart() {
 		super.onStart();
-		sendUnSendEnddayData();
 	}
 
 	@Override
@@ -589,15 +583,15 @@ public class MainActivity extends FragmentActivity implements
 		tvLabel.setText(label);
 		tvValue.setText(value);
 		//if(fgColor != 0){
-			tvLabel.setTextColor(Color.WHITE);
-			tvValue.setTextColor(Color.WHITE);
+//			tvLabel.setTextColor(Color.WHITE);
+//			tvValue.setTextColor(Color.WHITE);
 		//}
 		TableRow rowSummary = new TableRow(this);
 		rowSummary.setPadding(4, 4, 4, 4);
 		rowSummary.addView(tvLabel);
 		rowSummary.addView(tvValue);
-		if(bgColor != 0)
-			rowSummary.setBackgroundResource(bgColor);
+//		if(bgColor != 0)
+//			rowSummary.setBackgroundResource(bgColor);
 		return rowSummary;
 	}
 
@@ -717,15 +711,21 @@ public class MainActivity extends FragmentActivity implements
 			public void onPostPrint() {
 				List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
 				int size = transIdLst.size();
-				for(int i = 0; i < size; i++){
-					if(i < 10){
-						OrderTransaction trans = transIdLst.get(i);
-						SendSaleListener sendSaleListener = new SendSaleListener(size, i);
-						new PartialSaleSenderExcecutor(MainActivity.this, 
-								trans.getSessionId(), trans.getTransactionId(), 
-								mShopId, trans.getComputerId(), mStaffId, sendSaleListener).execute();
-					}else{
-						break;
+				if(size > 0){
+					ExecutorService executor = Executors.newFixedThreadPool(5);
+					try {
+						JSONSaleGenerator jsonGenerator = 
+								new JSONSaleGenerator(MainActivity.this);
+						for(int i = 0; i < size; i++){
+							OrderTransaction trans = transIdLst.get(i);
+							String jsonSale = jsonGenerator.generateSale(trans.getTransactionId(), mSessionId);
+							SendSaleListener sendSaleListener = new SendSaleListener(trans.getTransactionId(), 
+									jsonSale, size, i);
+							executor.execute(new PartialSaleSender(MainActivity.this, 
+									mShopId, mComputerId, mStaffId, jsonSale, sendSaleListener));	
+						}
+					} finally {
+						executor.shutdown();
 					}
 				}
 		}
@@ -733,34 +733,38 @@ public class MainActivity extends FragmentActivity implements
 	
 	private class SendSaleListener implements WebServiceWorkingListener{
 		
+		private int mTransactionId;
 		private int mSize;
 		private int mPosition;
+		private String mJsonSale;
 		
-		public SendSaleListener(int size, int position){
+		public SendSaleListener(int transactionId, String jsonSale, int size, int position){
+			mTransactionId = transactionId;
+			mJsonSale = jsonSale;
 			mSize = size;
 			mPosition = position;
 		}
 		
 		@Override
-		public void onPreExecute() {
-		}
-
-		@Override
 		public void onPostExecute() {
+			setSendSaleDataStatus(mTransactionId, MPOSDatabase.ALREADY_SEND);
+			if(!TextUtils.isEmpty(mJsonSale)){
+				JSONSaleLogFile.appendSale(MainActivity.this, mJsonSale);
+				Logger.appendLog(MainActivity.this, Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+						"Send partial successfully");
+			}
 			countSaleDataNotSend();
 			if(mPosition == mSize - 1){
-				Utils.makeToask(MainActivity.this, MainActivity.this
-						.getString(R.string.send_sale_data_success));
+				Toast.makeText(MainActivity.this, 
+						getString(R.string.send_sale_data_success), Toast.LENGTH_SHORT).show();
 			}
 		}
 
 		@Override
-		public void onError(String msg) {
-			Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-		}
-
-		@Override
-		public void onCancelled(String msg) {
+		public void onError(final String msg) {
+			setSendSaleDataStatus(mTransactionId, MPOSDatabase.NOT_SEND);
+			if(mPosition == mSize - 1)
+				Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
 		}
 	};
 	
@@ -1946,20 +1950,6 @@ public class MainActivity extends FragmentActivity implements
 					WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
 					dsp.openCashDrawer();
 					dsp.close();
-					
-					// delete sale if more than 90 days
-					String firstDate = mSession.getFirstSessionDate();
-					if(!TextUtils.isEmpty(firstDate)){
-						int maxDays = 90;
-						Calendar cFirst = Calendar.getInstance();
-						cFirst.setTimeInMillis(Long.parseLong(firstDate));
-						int days = Utils.getDiffDay(cFirst);
-						if(days >= maxDays){
-							Calendar cLast = (Calendar) cFirst.clone();
-							cLast.add(Calendar.DAY_OF_YEAR, maxDays);
-							mTrans.deleteSale(firstDate, String.valueOf(cLast.getTimeInMillis()));
-						}
-					}
 				}
 			}).show();
 		}else{
@@ -2358,9 +2348,13 @@ public class MainActivity extends FragmentActivity implements
 		new PrintReport(MainActivity.this, 
 			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId, null).execute();
 		
-		new PartialSaleSenderExcecutor(MainActivity.this, mSessionId, 
-				mTransactionId, mShopId, mComputerId, mStaffId, new SendSaleListener(1, 0));
-
+		JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
+		String jsonSale = jsonGenerator.generateSale(mTransactionId, mSessionId);
+		if(!TextUtils.isEmpty(jsonSale)){
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			executor.execute(new PartialSaleSender(this, mShopId, mComputerId, mStaffId, jsonSale, null));
+			executor.shutdown();
+		}
 		startActivity(new Intent(MainActivity.this, LoginActivity.class));
 		finish();
 	}
@@ -2432,137 +2426,161 @@ public class MainActivity extends FragmentActivity implements
 	}
 	
 	private void sendEnddayData(){
-		new EnddayUnSendSaleExecutor(this, mShopId, mComputerId, mStaffId,
-				new WebServiceWorkingListener() {
-					private ProgressDialog progress;
+		final JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
+		final String sessionDate = mSession.getLastSessionDate();
+		final String jsonEndday = jsonGenerator.generateEnddayUnSendSale(sessionDate);
+		if(!TextUtils.isEmpty(jsonEndday)){
+			final ProgressDialog progress  = new ProgressDialog(MainActivity.this);
+			progress.setTitle(getString(R.string.endday_success));
+			progress.setCancelable(false);
+			progress.setMessage(getString(R.string.send_endday_data_progress));
+			progress.show();
+			EndDaySaleSender sender = new EndDaySaleSender(this, mShopId, mComputerId, mStaffId, jsonEndday, 
+					new WebServiceWorkingListener(){
 
-					@Override
-					public void onPreExecute() {
-						progress = new ProgressDialog(MainActivity.this);
-						progress.setTitle(getString(R.string.endday_success));
-						progress.setCancelable(false);
-						progress.setMessage(getString(R.string.send_endday_data_progress));
-						progress.show();
-					}
+				@Override
+				public void onPostExecute() {
+					if (progress.isShowing())
+						progress.dismiss();
+					onEnddaySuccess(sessionDate, jsonEndday);
+				}
 
-					@Override
-					public void onPostExecute() {
-						if (progress.isShowing())
-							progress.dismiss();
-						new AlertDialog.Builder(MainActivity.this)
-								.setTitle(R.string.endday)
-								.setMessage(R.string.send_endday_data_success)
-								.setCancelable(false)
-								.setNeutralButton(android.R.string.ok,
-										new DialogInterface.OnClickListener() {
-
-											@Override
-											public void onClick(
-													DialogInterface dialog,
-													int which) {
-												// Utils.shutdown();
-												finish();
-											}
-										}).show();
-					}
-
-					@Override
-					public void onError(String msg) {
-						// send all again if send unsend trans not success
-						new EnddaySenderExecutor(MainActivity.this, mShopId,
-								mComputerId, mStaffId,
-								new WebServiceWorkingListener() {
-
-									@Override
-									public void onPreExecute() {}
-
+				@Override
+				public void onError(String msg) {
+					final String jsonEnddayAll = jsonGenerator.generateEnddaySale(sessionDate);
+					if(!TextUtils.isEmpty(jsonEnddayAll)){
+						EndDaySaleSender sender = new EndDaySaleSender(MainActivity.this, mShopId, mComputerId, mStaffId, jsonEnddayAll, 
+								new WebServiceWorkingListener(){
+		
 									@Override
 									public void onPostExecute() {
 										if (progress.isShowing())
 											progress.dismiss();
-										new AlertDialog.Builder(
-												MainActivity.this)
-												.setTitle(R.string.endday)
-												.setMessage(
-														R.string.send_endday_data_success)
-												.setCancelable(false)
-												.setNeutralButton(
-														android.R.string.ok,
-														new DialogInterface.OnClickListener() {
-
-															@Override
-															public void onClick(
-																	DialogInterface dialog,
-																	int which) {
-																// Utils.shutdown();
-																finish();
-															}
-														}).show();
+										onEnddaySuccess(sessionDate, jsonEnddayAll);
 									}
-
+		
 									@Override
 									public void onError(String msg) {
-										if (progress.isShowing())
+										if(progress.isShowing())
 											progress.dismiss();
-										new AlertDialog.Builder(
-												MainActivity.this)
-												.setTitle(R.string.endday)
-												.setMessage(
-														R.string.cannot_send_endday_data_on_this_time)
-												.setCancelable(false)
-												.setNegativeButton(
-														android.R.string.cancel,
-														new DialogInterface.OnClickListener() {
-
-															@Override
-															public void onClick(
-																	DialogInterface arg0,
-																	int arg1) {
-																finish();
-															}
-														})
-												.setPositiveButton(
-														android.R.string.ok,
-														new DialogInterface.OnClickListener() {
-
-															@Override
-															public void onClick(
-																	DialogInterface dialog,
-																	int which) {
-																sendEnddayData();
-															}
-														}).show();
+										onEnddayFail(sessionDate);
 									}
-
-									@Override
-									public void onCancelled(String msg) {
-									}
-
-								}).execute();
+							
+						});
+						ExecutorService executor = Executors.newSingleThreadExecutor();
+						executor.execute(sender);
+						executor.shutdown();
 					}
-
-					@Override
-					public void onCancelled(String msg) {}
-				}).execute();
+				}
+				
+			});
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			executor.execute(sender);
+			executor.shutdown();
+		}
 	}
 	
-	private void sendUnSendEnddayData(){
-		new EnddaySenderExecutor(MainActivity.this, mShopId, mComputerId, mStaffId, 
-				new WebServiceWorkingListener(){
+	private void sendAllEnddayData(){
+		List<String> sessionLst = mSession.listSessionEnddayNotSend();
+		if(sessionLst.size() > 0){
+			ExecutorService executor = Executors.newFixedThreadPool(5);
+			JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
+			Iterator<String> it = sessionLst.iterator();
+			try {
+				while(it.hasNext()){
+					final String sessionDate = it.next();
+					String jsonEndday = jsonGenerator.generateEnddaySale(sessionDate);
+					executor.execute(new EndDaySaleSender(MainActivity.this, mShopId, mComputerId, mStaffId, jsonEndday,
+							new WebServiceWorkingListener(){
 
-					@Override
-					public void onPreExecute() {}
+								@Override
+								public void onPostExecute() {
+									setSendEnddayDataStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+									countSaleDataNotSend();
+								}
 
-					@Override
-					public void onPostExecute() {}
+								@Override
+								public void onError(String msg) {
+									setSendEnddayDataStatus(sessionDate, MPOSDatabase.NOT_SEND);
+								}
+						
+					}));
+				}
+			} finally {
+				executor.shutdown();
+			}
+		}
+	}
+	
+	private void onEnddayFail(String sessionDate){
+		setSendEnddayDataStatus(sessionDate, MPOSDatabase.NOT_SEND);
+		new AlertDialog.Builder(MainActivity.this)
+				.setTitle(R.string.endday)
+				.setMessage(R.string.cannot_send_endday_data_on_this_time)
+				.setCancelable(false)
+				.setNegativeButton(android.R.string.cancel,
+						new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onError(String msg) {}
+							@Override
+							public void onClick(DialogInterface arg0, int arg1) {
+								finish();
+							}
+						})
+				.setPositiveButton(android.R.string.ok,
+						new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onCancelled(String msg) {}
-			
-		}).execute();
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								sendEnddayData();
+							}
+						}).show();
+	}
+	
+	private void onEnddaySuccess(String sessionDate, String jsonEndday){
+		// flag send status
+		setSendEnddayDataStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+		
+		// log json sale if send to server success
+		JSONSaleLogFile.appendEnddaySale(MainActivity.this, sessionDate, jsonEndday);
+		Logger.appendLog(MainActivity.this, Utils.LOG_PATH, 
+					Utils.LOG_FILE_NAME, "Send endday successfully");
+
+		// delete sale if more than 90 days
+		String firstDate = mSession.getFirstSessionDate();
+		if(!TextUtils.isEmpty(firstDate)){
+			int maxDays = 90;
+			Calendar cFirst = Calendar.getInstance();
+			cFirst.setTimeInMillis(Long.parseLong(firstDate));
+			int days = Utils.getDiffDay(cFirst);
+			if(days > maxDays){
+				Calendar cLast = (Calendar) cFirst.clone();
+				cLast.add(Calendar.DAY_OF_YEAR, maxDays);
+				mTrans.deleteSale(firstDate, String.valueOf(cLast.getTimeInMillis()));
+			}
+		}
+		new AlertDialog.Builder(MainActivity.this)
+			.setTitle(R.string.endday)
+			.setMessage(R.string.send_endday_data_success)
+			.setCancelable(false)
+			.setNeutralButton(android.R.string.ok,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog,
+								int which) {
+							finish();
+						}
+					}).show();
+	}
+	
+	private void setSendSaleDataStatus(int transactionId, int status){
+		mTrans.updateTransactionSendStatus(transactionId, status);
+	}
+	
+	private void setSendEnddayDataStatus(String sessionDate, int status){
+		mSession.updateSessionEnddayDetail(sessionDate, status);
+		mTrans.updateTransactionSendStatus(sessionDate, status);
 	}
 	
 	@Override

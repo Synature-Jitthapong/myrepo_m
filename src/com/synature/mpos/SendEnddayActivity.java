@@ -2,10 +2,15 @@ package com.synature.mpos;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.synature.mpos.database.GlobalPropertyDao;
+import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.SessionDao;
+import com.synature.mpos.database.TransactionDao;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,6 +29,7 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SendEnddayActivity extends Activity {
 
@@ -35,6 +41,7 @@ public class SendEnddayActivity extends Activity {
 	private boolean mAutoClose = false;
 	
 	private SessionDao mSession;
+	private TransactionDao mTrans;
 	private List<String> mSessLst;
 	private EnddayListAdapter mEnddayAdapter;
 	
@@ -72,6 +79,7 @@ public class SendEnddayActivity extends Activity {
 		
 		mFormat = new GlobalPropertyDao(this);
 		mSession = new SessionDao(this);
+		mTrans = new TransactionDao(this);
 		mSessLst = new ArrayList<String>();
 
 		setupAdapter();
@@ -135,59 +143,69 @@ public class SendEnddayActivity extends Activity {
 	}
 	
 	private void sendEndday(){
-		new EnddaySenderExecutor(this, mShopId, mComputerId, mStaffId, mSendListener).execute();
-	}
-	
-	private WebServiceWorkingListener mSendListener = new WebServiceWorkingListener(){
+		mChkNetworkProgress.setVisibility(View.GONE);
+		List<String> sessionLst = mSession.listSessionEnddayNotSend();
+		if(sessionLst.size() > 0){
+			ExecutorService executor = Executors.newFixedThreadPool(5);
+			JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
+			Iterator<String> it = sessionLst.iterator();
+			try {
+				while(it.hasNext()){
+					final String sessionDate = it.next();
+					String jsonEndday = jsonGenerator.generateEnddaySale(sessionDate);
+					executor.execute(new EndDaySaleSender(SendEnddayActivity.this, mShopId, mComputerId, mStaffId, jsonEndday,
+							new WebServiceWorkingListener(){
 
-		@Override
-		public void onPreExecute() {
-			mChkNetworkProgress.setVisibility(View.GONE);
-		}
+								@Override
+								public void onPostExecute() {
+									setSendEnddayDataStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+									mItemClose.setEnabled(true);
+									mItemSend.setVisible(true);
+									mItemProgress.setVisible(false);
+									
+									setupAdapter();
+									
+									if(mAutoClose){
+										new AlertDialog.Builder(SendEnddayActivity.this)
+										.setCancelable(false)
+										.setTitle(R.string.send_endday_data)
+										.setMessage(R.string.send_endday_data_success)
+										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+											
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+												setResult(RESULT_OK);
+												finish();
+											}
+										})
+										.show();
+									}else{
+										Toast.makeText(SendEnddayActivity.this, 
+												getString(R.string.send_sale_data_success), Toast.LENGTH_SHORT);
+									}
+								}
 
-		@Override
-		public void onPostExecute() {
-			mItemClose.setEnabled(true);
-			mItemSend.setVisible(true);
-			mItemProgress.setVisible(false);
-			
-			setupAdapter();
-			
-			if(mAutoClose){
-				new AlertDialog.Builder(SendEnddayActivity.this)
-				.setCancelable(false)
-				.setTitle(R.string.send_endday_data)
-				.setMessage(R.string.send_endday_data_success)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						setResult(RESULT_OK);
-						finish();
-					}
-				})
-				.show();
-			}else{
-				Utils.makeToask(SendEnddayActivity.this, getString(R.string.send_sale_data_success));
+								@Override
+								public void onError(String msg) {
+									setSendEnddayDataStatus(sessionDate, MPOSDatabase.NOT_SEND);
+									mItemClose.setEnabled(true);
+									mItemSend.setVisible(true);
+									mItemProgress.setVisible(false);
+									Toast.makeText(SendEnddayActivity.this, msg, Toast.LENGTH_SHORT);
+								}
+						
+					}));
+				}
+			} finally {
+				executor.shutdown();
 			}
 		}
-
-		@Override
-		public void onError(final String msg) {
-			mItemClose.setEnabled(true);
-			mItemSend.setVisible(true);
-			mItemProgress.setVisible(false);
-			Utils.makeToask(SendEnddayActivity.this, msg);
-		}
-
-		@Override
-		public void onCancelled(String msg) {
-			mItemClose.setEnabled(true);
-			mItemSend.setVisible(true);
-			mItemProgress.setVisible(false);
-		}
-		
-	};
+	}
+	
+	private void setSendEnddayDataStatus(String sessionDate, int status){
+		mSession.updateSessionEnddayDetail(sessionDate, status);
+		mTrans.updateTransactionSendStatus(sessionDate, status);
+	}
 	
 	private class EnddayListAdapter extends BaseAdapter{
 		

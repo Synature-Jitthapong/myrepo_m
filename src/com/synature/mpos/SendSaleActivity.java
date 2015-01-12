@@ -3,6 +3,8 @@ package com.synature.mpos;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.TransactionDao;
@@ -16,6 +18,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SendSaleActivity extends Activity{
 	public static final String TAG = SendSaleActivity.class.getSimpleName();
@@ -120,15 +124,23 @@ public class SendSaleActivity extends Activity{
 
 	private void sendSale(){
 		mChkNetworkProgress.setVisibility(View.GONE);
-		Iterator<SendTransaction> it = mTransLst.iterator();
-		int index = 0;
-		while(it.hasNext()){
-			SendTransaction trans = it.next();
-			SendSaleProgress sendSaleProgress = new SendSaleProgress(trans, index);
-			new PartialSaleSenderExcecutor(this, trans.getSessionId(), 
-					trans.getTransactionId(), mShopId, trans.getComputerId(), 
-					mStaffId, sendSaleProgress).execute();
-			index++;
+		ExecutorService executor = Executors.newFixedThreadPool(5);
+		try {
+			JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
+			Iterator<SendTransaction> it = mTransLst.iterator();
+			int index = 0;
+			while(it.hasNext()){
+				SendTransaction trans = it.next();
+				String jsonSale = jsonGenerator.generateSale(trans.getTransactionId(), trans.getSessionId());
+				if(!TextUtils.isEmpty(jsonSale)){
+					SendSaleProgress sendSaleProgress = new SendSaleProgress(trans, index);
+					executor.execute(new PartialSaleSender(this, mShopId, trans.getComputerId(), 
+							mStaffId, jsonSale, sendSaleProgress));
+				}
+				index++;
+			}
+		} finally {
+			executor.shutdown();
 		}
 	}
 	
@@ -140,10 +152,6 @@ public class SendSaleActivity extends Activity{
 		public SendSaleProgress(SendTransaction trans, int position){
 			mTrans = trans;
 			mPosition = position;
-		}
-		
-		@Override
-		public void onPreExecute() {
 			mItemSendAll.setEnabled(false);
 			mTrans.onSend = true;
 			mTransLst.set(mPosition, mTrans);
@@ -161,28 +169,16 @@ public class SendSaleActivity extends Activity{
 		}
 
 		@Override
-		public void onError(String msg) {
+		public void onError(final String msg) {
 			mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
 			mTransLst.set(mPosition, mTrans);
 			mTrans.onSend = false;
 			mSyncAdapter.notifyDataSetChanged();
 			if(mPosition == mTransLst.size() - 1){
 				mItemSendAll.setEnabled(true);
-				Utils.makeToask(SendSaleActivity.this, msg);
+				Toast.makeText(SendSaleActivity.this, msg, Toast.LENGTH_SHORT);
 			}
 		}
-		
-		@Override
-		public void onCancelled(String msg) {
-			mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
-			mTransLst.set(mPosition, mTrans);
-			mTrans.onSend = false;
-			mSyncAdapter.notifyDataSetChanged();
-			if(mPosition == mTransLst.size() - 1){
-				mItemSendAll.setEnabled(true);
-			}
-		}
-		
 	}
 	
 	private List<SendTransaction> listNotSendTransaction(){

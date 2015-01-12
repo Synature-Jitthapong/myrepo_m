@@ -10,7 +10,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-public class SoftwareRegister extends MPOSServiceBase{
+public class SoftwareRegister extends RegisterServiceBase{
 
 	public static final String TAG = SoftwareRegister.class.getSimpleName();
 			
@@ -78,15 +78,4 @@ public class SoftwareRegister extends MPOSServiceBase{
 			mListener.onError(TextUtils.isEmpty(result) ? "Sorry unknown error." : result);
 		}
 	}
-
-	@Override
-	protected void onCancelled(String result) {
-		mListener.onCancelled(result);
-	}
-
-	@Override
-	protected void onPreExecute() {
-		mListener.onPreExecute();
-	}
-
 }

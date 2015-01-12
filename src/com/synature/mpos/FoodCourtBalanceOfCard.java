@@ -28,11 +28,6 @@ public class FoodCourtBalanceOfCard extends FoodCourtMainService{
 	}
 
 	@Override
-	protected void onPreExecute() {
-		mListener.onPre();
-	}
-
-	@Override
 	protected void onPostExecute(String result) {
 		WebServiceResult ws;
 		try {

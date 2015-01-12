@@ -66,9 +66,4 @@ public class EndDaySaleSender extends MPOSServiceBase{
 			e.printStackTrace();
 		}
 	}
-
-	@Override
-	protected void onPreExecute() {
-		mListener.onPreExecute();
-	}
 }

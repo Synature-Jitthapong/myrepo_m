@@ -12,27 +12,13 @@ import com.google.gson.reflect.TypeToken;
 import com.synature.connection.Ksoap2WebServiceTask;
 import com.synature.pos.WebServiceResult;
 
-
-public abstract class MPOSServiceBase extends Ksoap2WebServiceTask{
+public abstract class RegisterServiceBase extends Ksoap2WebServiceTask{
 	
-	/**
-	 * The response of WebServiceResult
-	 * 0 success -1 error
-	 */
-	public static final int RESPONSE_SUCCESS = 0;
-	public static final int RESPONSE_ERROR = -1;
-	
-	public static final String SHOP_ID_PARAM = "iShopID";
-	public static final String COMPUTER_ID_PARAM = "iComputerID";
-	public static final String STAFF_ID_PARAM = "iStaffID";
-	public static final String DEVICE_CODE_PARAM = "szDeviceCode";
-	public static final String JSON_SALE_PARAM = "szJsonSaleTransData";
-	
-	public MPOSServiceBase(Context context, String method) {
-		super(context, Utils.getFullUrl(context), method, Utils.getConnectionTimeOut(context));
+	public RegisterServiceBase(Context context, String method) {
+		super(context, Utils.REGISTER_URL, method, Utils.getConnectionTimeOut(context));
 		
 		mProperty = new PropertyInfo();
-		mProperty.setName(DEVICE_CODE_PARAM);
+		mProperty.setName(MPOSServiceBase.DEVICE_CODE_PARAM);
 		mProperty.setValue(Utils.getDeviceCode(context));
 		mProperty.setType(String.class);
 		mSoapRequest.addProperty(mProperty);

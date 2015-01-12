@@ -3,6 +3,8 @@ package com.synature.mpos;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
@@ -18,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -305,28 +308,19 @@ public class VoidBillActivity extends Activity {
 				
 				@Override
 				public void onPostPrint() {
-					sendSale();
+					ExecutorService executor = Executors.newSingleThreadExecutor();
+					JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(VoidBillActivity.this);
+					try {
+						String jsonSale = jsonGenerator.generateSale(mTransactionId, mSessionId);
+						if(!TextUtils.isEmpty(jsonSale)){
+							executor.execute(new PartialSaleSender(VoidBillActivity.this, mShopId, 
+									mComputerId, mStaffId, jsonSale, null));
+						}
+					} finally {
+						executor.shutdown();
+					}
 				}
 			};
-			
-	private void sendSale(){
-		new PartialSaleSenderExcecutor(this, mSessionId, mTransactionId, 
-				mShopId, mComputerId, mStaffId, new WebServiceWorkingListener(){
-
-					@Override
-					public void onPreExecute() {}
-
-					@Override
-					public void onPostExecute() {}
-
-					@Override
-					public void onError(String msg) {}
-
-					@Override
-					public void onCancelled(String msg) {}
-			
-		}).execute();
-	}
 
 	private void cancel() {
 		finish();
