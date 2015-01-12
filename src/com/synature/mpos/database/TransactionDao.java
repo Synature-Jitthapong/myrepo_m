@@ -1267,6 +1267,34 @@ public class TransactionDao extends MPOSDatabase {
 				new String[] { String.valueOf(transactionId) });
 	}
 
+	/**
+	 * get last transaction that not send
+	 * @return OrderTransaction null if not found
+	 */
+	public OrderTransaction getLastTransactionNotSend(){
+		OrderTransaction trans = null;
+		Cursor cursor = getReadableDatabase().query(OrderTransTable.TABLE_ORDER_TRANS,
+				new String[]{
+					OrderTransTable.COLUMN_TRANS_ID,
+					ComputerTable.COLUMN_COMPUTER_ID,
+					SessionTable.COLUMN_SESS_ID
+				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+                    + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
+				new String[]{
+					String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+                    String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+				 	String.valueOf(NOT_SEND)
+				}, null, null, OrderTransTable.COLUMN_SALE_DATE + " DESC ", "1");
+		if(cursor.moveToFirst()){
+			trans = new OrderTransaction();
+			trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
+			trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+			trans.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
+		}
+		cursor.close();
+		return trans;
+	}
+	
 	/** 
 	 * List transaction not send to server
 	 * @return List<OrderTransaction>

@@ -709,21 +709,36 @@ public class MainActivity extends FragmentActivity implements
 
 			@Override
 			public void onPostPrint() {
-				List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
-				int size = transIdLst.size();
-				if(size > 0){
-					ExecutorService executor = Executors.newFixedThreadPool(5);
+//				List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
+//				int size = transIdLst.size();
+//				if(size > 0){
+//					ExecutorService executor = Executors.newFixedThreadPool(5);
+//					try {
+//						JSONSaleGenerator jsonGenerator = 
+//								new JSONSaleGenerator(MainActivity.this);
+//						//for(int i = 0; i < size; i++){
+//							OrderTransaction trans = transIdLst.get(0);
+//							String jsonSale = jsonGenerator.generateSale(trans.getTransactionId(), mSessionId);
+//							SendSaleListener sendSaleListener = new SendSaleListener(trans.getTransactionId(), 
+//									jsonSale, size, i);
+//							executor.execute(new PartialSaleSender(MainActivity.this, 
+//									mShopId, mComputerId, mStaffId, jsonSale, sendSaleListener));	
+//						//}
+//					} finally {
+//						executor.shutdown();
+//					}
+//				}
+				OrderTransaction trans = mTrans.getLastTransactionNotSend();
+				if(trans != null){
+					ExecutorService executor = Executors.newSingleThreadExecutor();
 					try {
 						JSONSaleGenerator jsonGenerator = 
 								new JSONSaleGenerator(MainActivity.this);
-						for(int i = 0; i < size; i++){
-							OrderTransaction trans = transIdLst.get(i);
-							String jsonSale = jsonGenerator.generateSale(trans.getTransactionId(), mSessionId);
-							SendSaleListener sendSaleListener = new SendSaleListener(trans.getTransactionId(), 
-									jsonSale, size, i);
-							executor.execute(new PartialSaleSender(MainActivity.this, 
-									mShopId, mComputerId, mStaffId, jsonSale, sendSaleListener));	
-						}
+						String jsonSale = jsonGenerator.generateSale(trans.getTransactionId(), mSessionId);
+						SendSaleListener sendSaleListener = new SendSaleListener(trans.getTransactionId(), 
+								jsonSale, 1, 0);
+						executor.execute(new PartialSaleSender(MainActivity.this, 
+								mShopId, mComputerId, mStaffId, jsonSale, sendSaleListener));
 					} finally {
 						executor.shutdown();
 					}
