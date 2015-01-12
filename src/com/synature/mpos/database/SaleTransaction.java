@@ -47,7 +47,7 @@ public class SaleTransaction extends MPOSDatabase{
 	 */
 	public POSData_EndDaySaleTransaction getEndDayTransaction(String sessionDate){
 		POSData_EndDaySaleTransaction posEnddayTrans = new POSData_EndDaySaleTransaction();
-		posEnddayTrans.setxArySaleTransaction(buildSaleTransLst(getTransaction(sessionDate)));
+		posEnddayTrans.setxArySaleTransaction(buildSaleTransLst(getTransactionBySaleDate(sessionDate)));
 		posEnddayTrans.setxAryTableSession(buildSessionLst(sessionDate));
 		posEnddayTrans.setxTableSessionEndDay(buildSessEnddayObj(sessionDate));
 		return posEnddayTrans;
@@ -67,6 +67,18 @@ public class SaleTransaction extends MPOSDatabase{
 	}
 	
 	/**
+	 * Get unsend sale transaction by sessionId
+	 * @param sessionId
+	 * @return POSData_SaleTransaction
+	 */
+	public POSData_SaleTransaction getTransaction(int sessionId) {
+		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(getUnSendTransactionBySessionId(sessionId)));
+		posSaleTrans.setxTableSession(buildSessionObj(sessionId));
+		return posSaleTrans;
+	}
+	
+	/**
 	 * Get sale transaction
 	 * @param transactionId
 	 * @param sessionId
@@ -74,7 +86,7 @@ public class SaleTransaction extends MPOSDatabase{
 	 */
 	public POSData_SaleTransaction getTransaction(int transactionId, int sessionId) {
 		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
-		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(getTransaction(transactionId)));
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(getTransactionById(transactionId)));
 		posSaleTrans.setxTableSession(buildSessionObj(sessionId));
 		return posSaleTrans;
 	}
@@ -275,7 +287,7 @@ public class SaleTransaction extends MPOSDatabase{
 
 	private List<SaleTable_Session> buildSessionLst(String sessionDate){
 		List<SaleTable_Session> saleSessLst = new ArrayList<SaleTable_Session>();
-		Cursor cursor = getSession(sessionDate);
+		Cursor cursor = querySession(sessionDate);
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -301,7 +313,7 @@ public class SaleTransaction extends MPOSDatabase{
 	
 	private SaleTable_Session buildSessionObj(int sessionId) {
 		SaleTable_Session saleSess = new SaleTable_Session();
-		Cursor cursor = getSession(sessionId);
+		Cursor cursor = querySession(sessionId);
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				saleSess.setiSessionID(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
@@ -405,7 +417,19 @@ public class SaleTransaction extends MPOSDatabase{
 				});
 	}
 	
-	private Cursor getTransaction(String sessionDate) {
+	private Cursor getUnSendTransactionBySessionId(int sessionId) {
+		return queryOrderTransaction(SessionTable.COLUMN_SESS_ID + "=?" 
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+				+ " AND " + COLUMN_SEND_STATUS + "=?",
+				new String[] {
+						String.valueOf(sessionId),
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+						String.valueOf(MPOSDatabase.NOT_SEND)
+				});
+	}
+	
+	private Cursor getTransactionBySaleDate(String sessionDate) {
 		return queryOrderTransaction(OrderTransTable.COLUMN_SALE_DATE + "=?" +
 				" AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] {
@@ -415,7 +439,7 @@ public class SaleTransaction extends MPOSDatabase{
 				});
 	}
 	
-	private Cursor getTransaction(int transactionId) {
+	private Cursor getTransactionById(int transactionId) {
 		return queryOrderTransaction(OrderTransTable.COLUMN_TRANS_ID + "=?" +
 				" AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) " +
 				" AND " + COLUMN_SEND_STATUS + "=?", 
@@ -438,14 +462,14 @@ public class SaleTransaction extends MPOSDatabase{
 				null, null, null);
 	}
 
-	private Cursor getSession(int sessionId) {
+	private Cursor querySession(int sessionId) {
 		return querySession(SessionTable.COLUMN_SESS_ID + "=?", 
 				new String[] {
 					String.valueOf(sessionId)
 				});
 	}
 	
-	private Cursor getSession(String sessionDate) {
+	private Cursor querySession(String sessionDate) {
 		return querySession(SessionTable.COLUMN_SESS_DATE + "=?", 
 				new String[] {
 					sessionDate

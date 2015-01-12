@@ -728,58 +728,48 @@ public class MainActivity extends FragmentActivity implements
 //						executor.shutdown();
 //					}
 //				}
-				OrderTransaction trans = mTrans.getLastTransactionNotSend();
-				if(trans != null){
-					ExecutorService executor = Executors.newSingleThreadExecutor();
-					try {
-						JSONSaleGenerator jsonGenerator = 
-								new JSONSaleGenerator(MainActivity.this);
-						String jsonSale = jsonGenerator.generateSale(trans.getTransactionId(), mSessionId);
-						SendSaleListener sendSaleListener = new SendSaleListener(trans.getTransactionId(), 
-								jsonSale, 1, 0);
-						executor.execute(new PartialSaleSender(MainActivity.this, 
-								mShopId, mComputerId, mStaffId, jsonSale, sendSaleListener));
-					} finally {
-						executor.shutdown();
-					}
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				try {
+					String sessionDate = mSession.getLastSessionDate();
+					JSONSaleGenerator jsonGenerator = 
+							new JSONSaleGenerator(MainActivity.this);
+					String jsonSale = jsonGenerator.generateSale(mSessionId);
+					SendSaleListener sendSaleListener = new SendSaleListener(sessionDate, jsonSale);
+					executor.execute(new PartialSaleSender(MainActivity.this, 
+							mShopId, mComputerId, mStaffId, jsonSale, sendSaleListener));
+				} finally {
+					executor.shutdown();
 				}
 		}
 	};
 	
 	private class SendSaleListener implements WebServiceWorkingListener{
 		
-		private int mTransactionId;
-		private int mSize;
-		private int mPosition;
+		private String mSessionDate;
 		private String mJsonSale;
 		
-		public SendSaleListener(int transactionId, String jsonSale, int size, int position){
-			mTransactionId = transactionId;
+		public SendSaleListener(String sessionDate, String jsonSale){
+			mSessionDate = sessionDate;
 			mJsonSale = jsonSale;
-			mSize = size;
-			mPosition = position;
 		}
 		
 		@Override
 		public void onPostExecute() {
-			setSendSaleDataStatus(mTransactionId, MPOSDatabase.ALREADY_SEND);
+			setSendSaleDataStatus(mSessionDate, MPOSDatabase.ALREADY_SEND);
 			if(!TextUtils.isEmpty(mJsonSale)){
 				JSONSaleLogFile.appendSale(MainActivity.this, mJsonSale);
 				Logger.appendLog(MainActivity.this, Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
 						"Send partial successfully");
 			}
 			countSaleDataNotSend();
-			if(mPosition == mSize - 1){
-				Toast.makeText(MainActivity.this, 
-						getString(R.string.send_sale_data_success), Toast.LENGTH_SHORT).show();
-			}
+			Toast.makeText(MainActivity.this, 
+					getString(R.string.send_sale_data_success), Toast.LENGTH_SHORT).show();
 		}
 
 		@Override
 		public void onError(final String msg) {
-			setSendSaleDataStatus(mTransactionId, MPOSDatabase.NOT_SEND);
-			if(mPosition == mSize - 1)
-				Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+			setSendSaleDataStatus(mSessionDate, MPOSDatabase.NOT_SEND);
+			Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
 		}
 	};
 	
@@ -2589,8 +2579,8 @@ public class MainActivity extends FragmentActivity implements
 					}).show();
 	}
 	
-	private void setSendSaleDataStatus(int transactionId, int status){
-		mTrans.updateTransactionSendStatus(transactionId, status);
+	private void setSendSaleDataStatus(String saleDate, int status){
+		mTrans.updateTransactionSendStatus(saleDate, status);
 	}
 	
 	private void setSendEnddayDataStatus(String sessionDate, int status){
