@@ -3,6 +3,8 @@ package com.synature.mpos;
 import org.ksoap2.serialization.PropertyInfo;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -28,20 +30,13 @@ import com.synature.util.Logger;
 public class MasterDataLoader extends MPOSServiceBase{
 	
 	public static final String LOAD_MASTER_METHOD = "WSmPOS_JSON_LoadShopMasterData";
-	
-	/**
-	 * Total operation
-	 */
-	public static final int TOTAL_OPT = 21;
-	
-	private WebServiceWorkingListener mListener;
 
 	/**
 	 * @param context
 	 * @param listener
 	 */
-	public MasterDataLoader(Context context, int shopId, WebServiceWorkingListener listener) {
-		super(context, LOAD_MASTER_METHOD);
+	public MasterDataLoader(Context context, int shopId, ResultReceiver receiver) {
+		super(context, LOAD_MASTER_METHOD, receiver);
 		
 		// shopId
 		mProperty = new PropertyInfo();
@@ -49,8 +44,6 @@ public class MasterDataLoader extends MPOSServiceBase{
 		mProperty.setValue(shopId);
 		mProperty.setType(int.class);
 		mSoapRequest.addProperty(mProperty);
-		
-		mListener = listener;
 	}
 
 	@Override
@@ -60,8 +53,11 @@ public class MasterDataLoader extends MPOSServiceBase{
 			MasterData master = gson.fromJson(result, MasterData.class);
 			updateMasterData(master);
 		} catch (JsonSyntaxException e) {
-			if(mListener != null)
-				mListener.onError(result);
+			if(mReceiver != null){
+				Bundle b = new Bundle();
+				b.putString("msg", e.getMessage());
+				mReceiver.send(RESULT_ERROR, b);
+			}
 		}
 	}
 
@@ -109,16 +105,19 @@ public class MasterDataLoader extends MPOSServiceBase{
 			
 			// log sync history
 			sync.updateSyncStatus(SyncHistoryDao.SYNC_STATUS_SUCCESS);
-			if(mListener != null)
-				mListener.onPostExecute();
+			if(mReceiver != null)
+				mReceiver.send(RESULT_SUCCESS, null);
 		} catch (Exception e) {
 			// log sync history
 			sync.updateSyncStatus(SyncHistoryDao.SYNC_STATUS_FAIL);
 			Logger.appendLog(mContext, Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, 
 					"Error when add shop data : " + e.getMessage());
-			if(mListener != null)
-				mListener.onError(e.getMessage());
+			if(mReceiver != null){
+				Bundle b = new Bundle();
+				b.putString("msg", e.getMessage());
+				mReceiver.send(RESULT_ERROR, b);
+			}
 		}
 	}
 }

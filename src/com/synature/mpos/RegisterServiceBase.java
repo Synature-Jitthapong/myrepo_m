@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import org.ksoap2.serialization.PropertyInfo;
 
 import android.content.Context;
+import android.os.ResultReceiver;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -14,8 +15,12 @@ import com.synature.pos.WebServiceResult;
 
 public abstract class RegisterServiceBase extends Ksoap2WebServiceTask{
 	
-	public RegisterServiceBase(Context context, String method) {
+	protected ResultReceiver mReceiver;
+	
+	public RegisterServiceBase(Context context, String method, ResultReceiver receiver) {
 		super(context, Utils.REGISTER_URL, method, Utils.getConnectionTimeOut(context));
+		
+		mReceiver = receiver;
 		
 		mProperty = new PropertyInfo();
 		mProperty.setName(MPOSServiceBase.DEVICE_CODE_PARAM);

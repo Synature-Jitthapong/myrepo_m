@@ -456,24 +456,26 @@ public class PaymentActivity extends Activity implements OnClickListener,
 	
 	private void setupPaytypeWasteButton(){
 		List<PayType> payTypeLst = mPayment.listPaytypeWest();
-		LinearLayout payTypeContent = (LinearLayout) findViewById(R.id.payTypeWasteContainer);
-		payTypeContent.removeAllViews();
-		for(final PayType payType : payTypeLst){
-			final Button btnPayType = new Button(PaymentActivity.this);
-			btnPayType.setMinWidth(128);
-			btnPayType.setMinHeight(64);
-			btnPayType.setText(payType.getPayTypeName());
-			btnPayType.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					FinishWasteDialogFragment westDialog = 
-							FinishWasteDialogFragment.newInstance(payType.getPayTypeName(), mTotalPrice);
-					westDialog.show(getFragmentManager(), FinishWasteDialogFragment.TAG);
-				}
-				
-			});
-			payTypeContent.addView(btnPayType);
+		if(payTypeLst != null){
+			LinearLayout payTypeContent = (LinearLayout) findViewById(R.id.payTypeWasteContainer);
+			payTypeContent.removeAllViews();
+			for(final PayType payType : payTypeLst){
+				final Button btnPayType = new Button(PaymentActivity.this);
+				btnPayType.setMinWidth(128);
+				btnPayType.setMinHeight(64);
+				btnPayType.setText(payType.getPayTypeName());
+				btnPayType.setOnClickListener(new OnClickListener(){
+	
+					@Override
+					public void onClick(View v) {
+						FinishWasteDialogFragment westDialog = 
+								FinishWasteDialogFragment.newInstance(payType.getPayTypeName(), mTotalPrice);
+						westDialog.show(getFragmentManager(), FinishWasteDialogFragment.TAG);
+					}
+					
+				});
+				payTypeContent.addView(btnPayType);
+			}
 		}
 	}
 	

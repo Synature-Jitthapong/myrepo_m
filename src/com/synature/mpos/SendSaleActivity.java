@@ -1,11 +1,7 @@
 package com.synature.mpos;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.table.BaseColumn;
@@ -13,13 +9,13 @@ import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.pos.OrderTransaction;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,14 +35,14 @@ import android.widget.Toast;
 public class SendSaleActivity extends Activity{
 	public static final String TAG = SendSaleActivity.class.getSimpleName();
 	
-	private boolean mIsOnSync;
 	private int mShopId;
+	private int mComputerId;
 	private int mStaffId;
 	private List<SendTransaction> mTransLst;
 	private SyncItemAdapter mSyncAdapter;
 	private MenuItem mItemSendAll;
 	private ListView mLvSyncItem;
-	private View mChkNetworkProgress;
+	private ProgressBar mProgress;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,23 +61,14 @@ public class SendSaleActivity extends Activity{
 		setContentView(R.layout.activity_send_sale);
 		
 		mLvSyncItem = (ListView) findViewById(R.id.lvSync);
-		mChkNetworkProgress = findViewById(R.id.check_network_progress);
+		mProgress = (ProgressBar) findViewById(R.id.progressBar1);
 		
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mShopId = intent.getIntExtra("shopId", 0);
+		mComputerId = intent.getIntExtra("computerId", 0);
 
 		loadTransNotSend();
-	}
-	
-	@Override
-	protected void onStart() {
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
 	}
 
 	private void loadTransNotSend(){
@@ -111,8 +98,7 @@ public class SendSaleActivity extends Activity{
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
-			if(!mIsOnSync)
-				finish();
+			finish();
 			return true;
 		case R.id.itemSendAll:
 			sendSale();
@@ -122,63 +108,40 @@ public class SendSaleActivity extends Activity{
 		}
 	}
 
-	private void sendSale(){
-		mChkNetworkProgress.setVisibility(View.GONE);
-		ExecutorService executor = Executors.newFixedThreadPool(5);
-		try {
-			JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
-			Iterator<SendTransaction> it = mTransLst.iterator();
-			int index = 0;
-			while(it.hasNext()){
-				SendTransaction trans = it.next();
-				String jsonSale = jsonGenerator.generateSale(trans.getTransactionId(), trans.getSessionId());
-				if(!TextUtils.isEmpty(jsonSale)){
-					SendSaleProgress sendSaleProgress = new SendSaleProgress(trans, index);
-					executor.execute(new PartialSaleSender(this, mShopId, trans.getComputerId(), 
-							mStaffId, jsonSale, sendSaleProgress));
-				}
-				index++;
-			}
-		} finally {
-			executor.shutdown();
-		}
-	}
-	
-	private class SendSaleProgress implements WebServiceWorkingListener{
-
-		private SendTransaction mTrans;
-		private int mPosition;
+	@SuppressLint("ShowToast")
+	private class SendSaleReceiver extends ResultReceiver{
 		
-		public SendSaleProgress(SendTransaction trans, int position){
-			mTrans = trans;
-			mPosition = position;
-			mItemSendAll.setEnabled(false);
-			mTrans.onSend = true;
-			mTransLst.set(mPosition, mTrans);
-			mSyncAdapter.notifyDataSetChanged();
-			Log.i(TAG, "Begin send bill " + mTrans.getReceiptNo());
+		public SendSaleReceiver(Handler handler) {
+			super(handler);
+			mProgress.setVisibility(View.VISIBLE);
 		}
 
 		@Override
-		public void onPostExecute() {
-			mTrans.setSendStatus(MPOSDatabase.ALREADY_SEND);
-			mTrans.onSend = false;
-			mTransLst.set(mPosition, mTrans);
-			mSyncAdapter.notifyDataSetChanged();
-			Log.i(TAG, "Success send bill " + mTrans.getReceiptNo());
-		}
-
-		@Override
-		public void onError(final String msg) {
-			mTrans.setSendStatus(MPOSDatabase.NOT_SEND);
-			mTransLst.set(mPosition, mTrans);
-			mTrans.onSend = false;
-			mSyncAdapter.notifyDataSetChanged();
-			if(mPosition == mTransLst.size() - 1){
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+			case MPOSServiceBase.RESULT_SUCCESS:
+				mProgress.setVisibility(View.GONE);
+				loadTransNotSend();
+				break;
+			case MPOSServiceBase.RESULT_ERROR:
 				mItemSendAll.setEnabled(true);
-				Toast.makeText(SendSaleActivity.this, msg, Toast.LENGTH_SHORT);
+				mProgress.setVisibility(View.GONE);
+				Toast.makeText(SendSaleActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
+				break;
 			}
 		}
+		
+	}
+
+	private void sendSale(){
+		Intent intent = new Intent(this, SaleSenderService.class);
+		intent.putExtra("what", SaleSenderService.SEND_PARTIAL_SALE);
+		intent.putExtra("shopId", mShopId);
+		intent.putExtra("computerId", mComputerId);
+		intent.putExtra("staffId", mStaffId);
+		intent.putExtra("sendSaleReceiver", new SendSaleReceiver(new Handler()));
+		startService(intent);
 	}
 	
 	private List<SendTransaction> listNotSendTransaction(){

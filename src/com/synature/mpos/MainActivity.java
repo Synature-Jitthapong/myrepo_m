@@ -12,7 +12,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,6 +42,7 @@ import com.synature.util.Logger;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ResultReceiver;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
@@ -194,42 +194,46 @@ public class MainActivity extends FragmentActivity implements
 		setupBarCodeEvent();
 		setupMenuDeptPager();
 		setupOrderingKeypadUtils();
+		sendUnSendEndday();
 	}
-	
-	/**
-	 * @author j1tth4
-	 */
-	private class MasterLoaderListener implements WebServiceWorkingListener{
 
-		private ProgressDialog mProgress;
+	private class MasterDataReceiver extends ResultReceiver{
+
+		private ProgressDialog progress;
 		
-		public MasterLoaderListener(){
-			mProgress = new ProgressDialog(MainActivity.this);
-			mProgress.setMessage(getString(R.string.load_master_progress));
-			mProgress.setCancelable(false);
-			mProgress.show();
+		public MasterDataReceiver(Handler handler) {
+			super(handler);
+			progress = new ProgressDialog(MainActivity.this);
+			progress.setMessage(getString(R.string.load_master_progress));
+			progress.setCancelable(false);
+			progress.show();
 		}
 
 		@Override
-		public void onPostExecute() {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			refreshSelf();
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+			case MPOSServiceBase.RESULT_SUCCESS:
+				if(progress.isShowing())
+					progress.dismiss();
+				refreshSelf();
+				break;
+			case MPOSServiceBase.RESULT_ERROR:
+				if(progress.isShowing())
+					progress.dismiss();
+				String msg = resultData.getString("msg");
+				new AlertDialog.Builder(MainActivity.this)
+				.setMessage(msg)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+					}
+				}).show();
+				break;
+			}
 		}
-
-		@Override
-		public void onError(String msg) {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			new AlertDialog.Builder(MainActivity.this)
-			.setMessage(msg)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface arg0, int arg1) {
-				}
-			}).show();
-		}
+		
 	}
 	
 	private void setupOrderingKeypadUtils(){
@@ -381,7 +385,7 @@ public class MainActivity extends FragmentActivity implements
 				return true;
 			case R.id.itemUpdate:
 				ExecutorService executor = Executors.newSingleThreadExecutor();
-				executor.execute(new MasterDataLoader(this, mShopId, new MasterLoaderListener()));
+				executor.execute(new MasterDataLoader(this, mShopId, new MasterDataReceiver(new Handler())));
 				executor.shutdown();
 				return true;
 			case R.id.itemCheckUpdate:
@@ -698,6 +702,30 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 	
+	public class SendSaleResultReceiver extends ResultReceiver{
+
+		public SendSaleResultReceiver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+				case SaleSenderService.RESULT_SUCCESS:
+					countSaleDataNotSend();
+					Toast.makeText(MainActivity.this, 
+							getString(R.string.send_sale_data_success), Toast.LENGTH_SHORT).show();
+					break;
+				case SaleSenderService.RESULT_ERROR:
+					String msg = resultData.getString("msg");
+					Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+					break;
+			}
+		}
+		
+	}
+	
 	/**
 	 * The listener of print receipt
 	 */
@@ -709,68 +737,14 @@ public class MainActivity extends FragmentActivity implements
 
 			@Override
 			public void onPostPrint() {
-//				List<OrderTransaction> transIdLst = mTrans.listTransactionNotSend();
-//				int size = transIdLst.size();
-//				if(size > 0){
-//					ExecutorService executor = Executors.newFixedThreadPool(5);
-//					try {
-//						JSONSaleGenerator jsonGenerator = 
-//								new JSONSaleGenerator(MainActivity.this);
-//						//for(int i = 0; i < size; i++){
-//							OrderTransaction trans = transIdLst.get(0);
-//							String jsonSale = jsonGenerator.generateSale(trans.getTransactionId(), mSessionId);
-//							SendSaleListener sendSaleListener = new SendSaleListener(trans.getTransactionId(), 
-//									jsonSale, size, i);
-//							executor.execute(new PartialSaleSender(MainActivity.this, 
-//									mShopId, mComputerId, mStaffId, jsonSale, sendSaleListener));	
-//						//}
-//					} finally {
-//						executor.shutdown();
-//					}
-//				}
-				ExecutorService executor = Executors.newSingleThreadExecutor();
-				try {
-					String sessionDate = mSession.getLastSessionDate();
-					JSONSaleGenerator jsonGenerator = 
-							new JSONSaleGenerator(MainActivity.this);
-					String jsonSale = jsonGenerator.generateSale(mSessionId);
-					SendSaleListener sendSaleListener = new SendSaleListener(sessionDate, jsonSale);
-					executor.execute(new PartialSaleSender(MainActivity.this, 
-							mShopId, mComputerId, mStaffId, jsonSale, sendSaleListener));
-				} finally {
-					executor.shutdown();
-				}
-		}
-	};
-	
-	private class SendSaleListener implements WebServiceWorkingListener{
-		
-		private String mSessionDate;
-		private String mJsonSale;
-		
-		public SendSaleListener(String sessionDate, String jsonSale){
-			mSessionDate = sessionDate;
-			mJsonSale = jsonSale;
-		}
-		
-		@Override
-		public void onPostExecute() {
-			setSendSaleDataStatus(mSessionDate, MPOSDatabase.ALREADY_SEND);
-			if(!TextUtils.isEmpty(mJsonSale)){
-				JSONSaleLogFile.appendSale(MainActivity.this, mJsonSale);
-				Logger.appendLog(MainActivity.this, Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
-						"Send partial successfully");
+				Intent intent = new Intent(MainActivity.this, SaleSenderService.class);
+				intent.putExtra("what", SaleSenderService.SEND_PARTIAL_SALE);
+				intent.putExtra("shopId", mShopId);
+				intent.putExtra("computerId", mComputerId);
+				intent.putExtra("staffId", mStaffId);
+				intent.putExtra("sendSaleReceiver", new SendSaleResultReceiver(new Handler()));
+				startService(intent);
 			}
-			countSaleDataNotSend();
-			Toast.makeText(MainActivity.this, 
-					getString(R.string.send_sale_data_success), Toast.LENGTH_SHORT).show();
-		}
-
-		@Override
-		public void onError(final String msg) {
-			setSendSaleDataStatus(mSessionDate, MPOSDatabase.NOT_SEND);
-			Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-		}
 	};
 	
 	/**
@@ -2354,7 +2328,8 @@ public class MainActivity extends FragmentActivity implements
 			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId, null).execute();
 		
 		JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
-		String jsonSale = jsonGenerator.generateSale(mTransactionId, mSessionId);
+		String sessionDate = mSession.getLastSessionDate();
+		String jsonSale = jsonGenerator.generateSale(sessionDate);
 		if(!TextUtils.isEmpty(jsonSale)){
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 			executor.execute(new PartialSaleSender(this, mShopId, mComputerId, mStaffId, jsonSale, null));
@@ -2430,91 +2405,123 @@ public class MainActivity extends FragmentActivity implements
 		startActivity(intent);
 	}
 	
+	private class EnddayAllReceiver extends ResultReceiver{
+
+		private String sessionDate;
+		private String jsonEnddayAll;
+		
+		private ProgressDialog progress;
+		
+		public EnddayAllReceiver(Handler handler, ProgressDialog progress, String sessionDate, String jsonEnddayAll) {
+			super(handler);
+			this.jsonEnddayAll = jsonEnddayAll;
+			this.progress = progress;
+		}
+
+		@Override
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+			case MPOSServiceBase.RESULT_SUCCESS:
+				if (progress.isShowing())
+					progress.dismiss();
+				onEnddaySuccess(sessionDate, jsonEnddayAll);
+				break;
+			case MPOSServiceBase.RESULT_ERROR:
+				if(progress.isShowing())
+					progress.dismiss();
+				onEnddayFail(sessionDate);
+				break;
+			}
+		}
+		
+	}
+	
+	private class EnddayReceiver extends ResultReceiver{
+		
+		private String sessionDate;
+		private String jsonEndday;
+		
+		private ProgressDialog progress;
+		
+		public EnddayReceiver(Handler handler, String sessionDate, String jsonEndday) {
+			super(handler);
+			this.sessionDate = sessionDate;
+			this.jsonEndday = jsonEndday;
+			
+			progress = new ProgressDialog(MainActivity.this);
+			progress.setTitle(getString(R.string.endday_success));
+			progress.setCancelable(false);
+			progress.setMessage(getString(R.string.send_endday_data_progress));
+			progress.show();
+		}
+
+		@Override
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+			case MPOSServiceBase.RESULT_SUCCESS:
+				if (progress.isShowing())
+					progress.dismiss();
+				onEnddaySuccess(sessionDate, jsonEndday);
+				break;
+			case MPOSServiceBase.RESULT_ERROR:
+				JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(MainActivity.this);
+				final String jsonEnddayAll = jsonGenerator.generateEnddaySale(sessionDate);
+				if(!TextUtils.isEmpty(jsonEnddayAll)){
+					EndDaySaleSender sender = new EndDaySaleSender(MainActivity.this, mShopId, mComputerId, mStaffId, 
+							jsonEnddayAll, new EnddayAllReceiver(new Handler(), progress, sessionDate, jsonEndday));
+					ExecutorService executor = Executors.newSingleThreadExecutor();
+					executor.execute(sender);
+					executor.shutdown();
+				}
+				break;
+			}
+		}
+		
+	}
+	
 	private void sendEnddayData(){
 		final JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
 		final String sessionDate = mSession.getLastSessionDate();
 		final String jsonEndday = jsonGenerator.generateEnddayUnSendSale(sessionDate);
 		if(!TextUtils.isEmpty(jsonEndday)){
-			final ProgressDialog progress  = new ProgressDialog(MainActivity.this);
-			progress.setTitle(getString(R.string.endday_success));
-			progress.setCancelable(false);
-			progress.setMessage(getString(R.string.send_endday_data_progress));
-			progress.show();
 			EndDaySaleSender sender = new EndDaySaleSender(this, mShopId, mComputerId, mStaffId, jsonEndday, 
-					new WebServiceWorkingListener(){
-
-				@Override
-				public void onPostExecute() {
-					if (progress.isShowing())
-						progress.dismiss();
-					onEnddaySuccess(sessionDate, jsonEndday);
-				}
-
-				@Override
-				public void onError(String msg) {
-					final String jsonEnddayAll = jsonGenerator.generateEnddaySale(sessionDate);
-					if(!TextUtils.isEmpty(jsonEnddayAll)){
-						EndDaySaleSender sender = new EndDaySaleSender(MainActivity.this, mShopId, mComputerId, mStaffId, jsonEnddayAll, 
-								new WebServiceWorkingListener(){
-		
-									@Override
-									public void onPostExecute() {
-										if (progress.isShowing())
-											progress.dismiss();
-										onEnddaySuccess(sessionDate, jsonEnddayAll);
-									}
-		
-									@Override
-									public void onError(String msg) {
-										if(progress.isShowing())
-											progress.dismiss();
-										onEnddayFail(sessionDate);
-									}
-							
-						});
-						ExecutorService executor = Executors.newSingleThreadExecutor();
-						executor.execute(sender);
-						executor.shutdown();
-					}
-				}
-				
-			});
+					new EnddayReceiver(new Handler(), sessionDate, jsonEndday));
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 			executor.execute(sender);
 			executor.shutdown();
 		}
 	}
 	
-	private void sendAllEnddayData(){
-		List<String> sessionLst = mSession.listSessionEnddayNotSend();
-		if(sessionLst.size() > 0){
-			ExecutorService executor = Executors.newFixedThreadPool(5);
-			JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
-			Iterator<String> it = sessionLst.iterator();
-			try {
-				while(it.hasNext()){
-					final String sessionDate = it.next();
-					String jsonEndday = jsonGenerator.generateEnddaySale(sessionDate);
-					executor.execute(new EndDaySaleSender(MainActivity.this, mShopId, mComputerId, mStaffId, jsonEndday,
-							new WebServiceWorkingListener(){
+	private class SendEnddayReceiver extends ResultReceiver{
 
-								@Override
-								public void onPostExecute() {
-									setSendEnddayDataStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
-									countSaleDataNotSend();
-								}
+		public SendEnddayReceiver(Handler handler) {
+			super(handler);
+		}
 
-								@Override
-								public void onError(String msg) {
-									setSendEnddayDataStatus(sessionDate, MPOSDatabase.NOT_SEND);
-								}
-						
-					}));
-				}
-			} finally {
-				executor.shutdown();
+		@Override
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+			case MPOSServiceBase.RESULT_SUCCESS:
+				countSaleDataNotSend();
+				break;
+			case MPOSServiceBase.RESULT_ERROR:
+				break;
 			}
 		}
+		
+	}
+	
+	private void sendUnSendEndday(){
+		Intent intent = new Intent(MainActivity.this, SaleSenderService.class);
+		intent.putExtra("what", SaleSenderService.SEND_ENDDAY);
+		intent.putExtra("shopId", mShopId);
+		intent.putExtra("computerId", mComputerId);
+		intent.putExtra("staffId", mStaffId);
+		intent.putExtra("sendSaleReceiver", new SendEnddayReceiver(new Handler()));
+		startService(intent);
 	}
 	
 	private void onEnddayFail(String sessionDate){
@@ -2577,10 +2584,6 @@ public class MainActivity extends FragmentActivity implements
 							finish();
 						}
 					}).show();
-	}
-	
-	private void setSendSaleDataStatus(String saleDate, int status){
-		mTrans.updateTransactionSendStatus(saleDate, status);
 	}
 	
 	private void setSendEnddayDataStatus(String sessionDate, int status){

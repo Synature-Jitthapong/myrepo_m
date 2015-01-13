@@ -7,6 +7,8 @@ import com.google.gson.JsonSyntaxException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
@@ -19,15 +21,8 @@ public class SoftwareRegister extends RegisterServiceBase{
 	public static final String SW_VERSION_PARAM = "szSwVersion";
 	public static final String DB_VERSION_PARAM = "szDbVersion";
 	
-	private SoftwareRegisterListener mListener;
-	
-	public static interface SoftwareRegisterListener extends WebServiceWorkingListener{
-		void onPostExecute(MPOSSoftwareInfo info);
-	}
-	
-	public SoftwareRegister(Context context, SoftwareRegisterListener listener) {
-		super(context, REGIST_SERVICE_URL_METHOD);
-		mListener = listener;
+	public SoftwareRegister(Context context, ResultReceiver receiver) {
+		super(context, REGIST_SERVICE_URL_METHOD, receiver);
 		
 		mProperty = new PropertyInfo();
 		mProperty.setName(SW_VERSION_PARAM);
@@ -68,14 +63,28 @@ public class SoftwareRegister extends RegisterServiceBase{
 					editor.putString(SettingsActivity.KEY_PREF_FILE_URL, "");
 				}
 				editor.commit();
-				mListener.onPostExecute(info);
+				if(mReceiver != null){
+					mReceiver.send(MPOSServiceBase.RESULT_SUCCESS, null);
+				}
 			}else{
-				mListener.onError(mContext.getString(R.string.device_not_register));
+				if(mReceiver != null){
+					Bundle b = new Bundle();
+					b.putString("msg", mContext.getString(R.string.device_not_register));
+					mReceiver.send(MPOSServiceBase.RESULT_ERROR, b);
+				}
 			}
 		} catch (JsonSyntaxException e1) {
-			mListener.onError(result);
+			if(mReceiver != null){
+				Bundle b = new Bundle();
+				b.putString("msg", result);
+				mReceiver.send(MPOSServiceBase.RESULT_ERROR, b);
+			}
 		} catch(Exception e){
-			mListener.onError(TextUtils.isEmpty(result) ? "Sorry unknown error." : result);
+			if(mReceiver != null){
+				Bundle b = new Bundle();
+				b.putString("msg", TextUtils.isEmpty(result) ? "Sorry unknown error." : result);
+				mReceiver.send(MPOSServiceBase.RESULT_ERROR, b);
+			}
 		}
 	}
 }

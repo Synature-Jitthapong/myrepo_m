@@ -16,6 +16,8 @@ import com.synature.pos.Staff;
 import com.synature.util.FileManager;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -62,6 +64,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 	private ComputerDao mComputer;
 	private GlobalPropertyDao mFormat;
 	private SyncHistoryDao mSync;
+	private ExecutorService mExecutor;
 	
 	private Button mBtnLogin;
 	private EditText mTxtUser;
@@ -98,6 +101,8 @@ public class LoginActivity extends Activity implements OnClickListener,
 		mFormat = new GlobalPropertyDao(this);
 		mSync = new SyncHistoryDao(this);
 
+		mExecutor = Executors.newFixedThreadPool(5);
+		
 		try {
 			if(!TextUtils.isEmpty(mShop.getShopName())){
 				setTitle(mShop.getShopName());
@@ -114,6 +119,12 @@ public class LoginActivity extends Activity implements OnClickListener,
 		}
 	}
 	
+	@Override
+	protected void onDestroy() {
+		mExecutor.shutdown();
+		super.onDestroy();
+	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(requestCode == REQUEST_FOR_SETTING_DATE){
@@ -367,140 +378,141 @@ public class LoginActivity extends Activity implements OnClickListener,
 	}
 	
 	private void requestValidUrl(){
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		executor.execute(new SoftwareRegister(this, new RegisterValidUrlListener()));
-		executor.shutdown();
+		mExecutor.execute(new SoftwareRegister(this, new RegisterReceiver(new Handler())));
 	}
-	
-	/**
-	 * @author j1tth4
-	 * Listener for master data loader
-	 */
-	private class MasterLoaderListener implements WebServiceWorkingListener{
 
-		private ProgressDialog mProgress;
+	private class MasterDataReceiver extends ResultReceiver{
+
+		private ProgressDialog progress;
 		
-		public MasterLoaderListener(){
-			mProgress = new ProgressDialog(LoginActivity.this);
-			mProgress.setMessage(getString(R.string.load_master_progress));
-			mProgress.setCanceledOnTouchOutside(false);
-			mProgress.show();
-		}
-		
-		@Override
-		public void onPostExecute() {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			FileManager fm = new FileManager(LoginActivity.this, Utils.IMG_DIR);
-			fm.clear();
-			startActivity(new Intent(LoginActivity.this, LoginActivity.class));
-			finish();
+		public MasterDataReceiver(Handler handler) {
+			super(handler);
+			progress = new ProgressDialog(LoginActivity.this);
+			progress.setMessage(getString(R.string.load_master_progress));
+			progress.setCanceledOnTouchOutside(false);
+			progress.show();
 		}
 
 		@Override
-		public void onError(String msg) {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			new AlertDialog.Builder(LoginActivity.this)
-			.setMessage(msg)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+			case MPOSServiceBase.RESULT_SUCCESS:
+				if(progress.isShowing())
+					progress.dismiss();
+
+				checkUpdate();
 				
-				@Override
-				public void onClick(DialogInterface arg0, int arg1) {
-				}
-			}).show();
+				FileManager fm = new FileManager(LoginActivity.this, Utils.IMG_DIR);
+				fm.clear();
+				startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+				finish();
+				break;
+			case MPOSServiceBase.RESULT_ERROR:
+				if(progress.isShowing())
+					progress.dismiss();
+				String msg = resultData.getString("msg");
+				new AlertDialog.Builder(LoginActivity.this)
+				.setMessage(msg)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+					}
+				}).show();
+				break;
+			}
 		}
-	}
-
-	/**
-	 * @author j1tth4
-	 * Listener for reference to checking device state
-	 */
-	private class DeviceCheckerListener implements DeviceChecker.AuthenDeviceListener{
-	
-		private ProgressDialog mProgress;
 		
-		public DeviceCheckerListener(){
-			mProgress = new ProgressDialog(LoginActivity.this);
-			mProgress.setCanceledOnTouchOutside(false);
-			mProgress.setMessage(getString(R.string.loading));
-			mProgress.show();
-		}
-		
-		@Override
-		public void onPostExecute() {}
-	
-		@Override
-		public void onError(final String msg) {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			new AlertDialog.Builder(LoginActivity.this)
-			.setMessage(msg)
-			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface arg0, int arg1) {
-				}
-			}).show();
-		}
-	
-		@Override
-		public void onPostExecute(int shopId) {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			ExecutorService executor = Executors.newSingleThreadExecutor();
-			executor.execute(new MasterDataLoader(LoginActivity.this, 
-					shopId, new MasterLoaderListener()));
-			executor.shutdown();
-		}
 	}
-
-	private class RegisterValidUrlListener implements SoftwareRegister.SoftwareRegisterListener{
+	
+	private class DeviceCheckerReceiver extends ResultReceiver{
 
 		private ProgressDialog mProgress;
 		
-		public RegisterValidUrlListener(){
+		public DeviceCheckerReceiver(Handler handler) {
+			super(handler);
 			mProgress = new ProgressDialog(LoginActivity.this);
 			mProgress.setCanceledOnTouchOutside(false);
 			mProgress.setMessage(getString(R.string.loading));
 			mProgress.show();
 		}
+
+		@Override
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+			case MPOSServiceBase.RESULT_SUCCESS:
+				if(mProgress.isShowing())
+					mProgress.dismiss();
+				int shopId = resultData.getInt("shopId");
+				mExecutor.execute(new MasterDataLoader(LoginActivity.this, 
+						shopId, new MasterDataReceiver(new Handler())));
+				break;
+			case MPOSServiceBase.RESULT_ERROR:
+				if(mProgress.isShowing())
+					mProgress.dismiss();
+				String msg = resultData.getString("msg");
+				new AlertDialog.Builder(LoginActivity.this)
+				.setMessage(msg)
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+					}
+				}).show();
+				break;
+			}
+		}
 		
-		@Override
-		public void onPostExecute() {}
+	}
+	
+	private class RegisterReceiver extends ResultReceiver{
 
-		@Override
-		public void onError(final String msg) {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			new AlertDialog.Builder(LoginActivity.this)
-			.setCancelable(false)
-			.setMessage(msg)
-			.setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-				}
-			})
-			.setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					requestValidUrl();
-				}
-			})
-			.show();
+		private ProgressDialog progress;
+		
+		public RegisterReceiver(Handler handler) {
+			super(handler);
+			progress = new ProgressDialog(LoginActivity.this);
+			progress.setCanceledOnTouchOutside(false);
+			progress.setMessage(getString(R.string.loading));
+			progress.show();
 		}
 
 		@Override
-		public void onPostExecute(MPOSSoftwareInfo info) {
-			if(mProgress.isShowing())
-				mProgress.dismiss();
-			ExecutorService executor = Executors.newSingleThreadExecutor();
-			executor.execute(new DeviceChecker(LoginActivity.this, new DeviceCheckerListener()));
-			executor.shutdown();
-			checkUpdate();
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+			case MPOSServiceBase.RESULT_SUCCESS:
+				if(progress.isShowing())
+					progress.dismiss();
+				mExecutor.execute(new DeviceChecker(LoginActivity.this, new DeviceCheckerReceiver(new Handler())));
+				break;
+			case MPOSServiceBase.RESPONSE_ERROR:
+				if(progress.isShowing())
+					progress.dismiss();
+				String msg = resultData.getString("msg");
+				new AlertDialog.Builder(LoginActivity.this)
+				.setCancelable(false)
+				.setMessage(msg)
+				.setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				})
+				.setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						requestValidUrl();
+					}
+				})
+				.show();
+				break;
+			}
 		}
+		
 	}
 	
 	private boolean isAlreadySetUrl(){

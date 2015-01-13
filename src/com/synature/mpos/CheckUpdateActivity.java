@@ -153,51 +153,51 @@ public class CheckUpdateActivity extends Activity {
 		}
 	}
 	
-	private class RegisterValidUrlListener implements SoftwareRegister.SoftwareRegisterListener{
+	private class RegisterResultReceiver extends ResultReceiver{
+
+		private ProgressDialog progressDialog;
 		
-		private ProgressDialog mProgressDialog;
-		
-		public RegisterValidUrlListener() {
-			 mProgressDialog = new ProgressDialog(CheckUpdateActivity.this);
-			 mProgressDialog.setCanceledOnTouchOutside(false);
-			 mProgressDialog.setMessage(getString(R.string.checking_update));
-			mProgressDialog.show();
-		}
-		
-		@Override
-		public void onPostExecute() {
+		public RegisterResultReceiver(Handler handler) {
+			super(handler);
+			progressDialog = new ProgressDialog(CheckUpdateActivity.this);
+			progressDialog.setCanceledOnTouchOutside(false);
+			progressDialog.setMessage(getString(R.string.checking_update));
+			progressDialog.show();
 		}
 
 		@Override
-		public void onError(String msg) {
-			if(mProgressDialog.isShowing())
-				mProgressDialog.dismiss();
-			sBtnCheckUpdate.setEnabled(true);
-		}
-
-		@Override
-		public void onPostExecute(MPOSSoftwareInfo info) {
-			if(mProgressDialog.isShowing())
-				mProgressDialog.dismiss();
-			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(CheckUpdateActivity.this);
-			String needToUpdate = sharedPref.getString(SettingsActivity.KEY_PREF_NEED_TO_UPDATE, "0");
-			if(Integer.parseInt(needToUpdate) == 1){
-				String fileUrl = sharedPref.getString(SettingsActivity.KEY_PREF_FILE_URL, "");
-				Intent intent = new Intent(CheckUpdateActivity.this, DownloadService.class);
-				intent.putExtra("fileUrl", fileUrl);
-				intent.putExtra("receiver", DownloadReceiver.getInstance());
-				startService(intent);
-				sTvTitle.setText(R.string.downloading);
-			}else{
-				new AlertDialog.Builder(CheckUpdateActivity.this)
-				.setMessage(R.string.software_up_to_date)
-				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-					}
-				})
-				.show();
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+			case MPOSServiceBase.RESULT_SUCCESS:
+				if(progressDialog.isShowing())
+					progressDialog.dismiss();
+				SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(CheckUpdateActivity.this);
+				String needToUpdate = sharedPref.getString(SettingsActivity.KEY_PREF_NEED_TO_UPDATE, "0");
+				if(Integer.parseInt(needToUpdate) == 1){
+					String fileUrl = sharedPref.getString(SettingsActivity.KEY_PREF_FILE_URL, "");
+					Intent intent = new Intent(CheckUpdateActivity.this, DownloadService.class);
+					intent.putExtra("fileUrl", fileUrl);
+					intent.putExtra("receiver", DownloadReceiver.getInstance());
+					startService(intent);
+					sTvTitle.setText(R.string.downloading);
+				}else{
+					new AlertDialog.Builder(CheckUpdateActivity.this)
+					.setMessage(R.string.software_up_to_date)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					})
+					.show();
+				}
+				break;
+			case MPOSServiceBase.RESULT_ERROR:
+				if(progressDialog.isShowing())
+					progressDialog.dismiss();
+				sBtnCheckUpdate.setEnabled(true);
+				break;
 			}
 		}
 	}
@@ -254,7 +254,8 @@ public class CheckUpdateActivity extends Activity {
 			sTvTitle.setText(getString(R.string.downloading) + " " + newVersion);
 		}else{
 			ExecutorService executor = Executors.newSingleThreadExecutor();
-			executor.execute(new SoftwareRegister(this, new RegisterValidUrlListener()));
+			executor.execute(new SoftwareRegister(this, new RegisterResultReceiver(new Handler())));
+			executor.shutdown();
 		}
 		sBtnCheckUpdate.setEnabled(false);	
 	}

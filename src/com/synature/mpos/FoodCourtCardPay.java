@@ -25,7 +25,7 @@ public class FoodCourtCardPay extends FoodCourtMainService{
 	public FoodCourtCardPay(Context context, int shopId,
 			int computerId, int staffId, String cardNo, String payAmount, 
 			FoodCourtWebServiceListener listener) {
-		super(context, PAY_METHOD, shopId, computerId, staffId, cardNo);
+		super(context, PAY_METHOD, shopId, computerId, staffId, cardNo, null);
 
 		mListener = listener;
 		

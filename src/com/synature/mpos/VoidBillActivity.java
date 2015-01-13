@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PrintReceiptLogDao;
+import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
 
@@ -311,7 +312,9 @@ public class VoidBillActivity extends Activity {
 					ExecutorService executor = Executors.newSingleThreadExecutor();
 					JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(VoidBillActivity.this);
 					try {
-						String jsonSale = jsonGenerator.generateSale(mTransactionId, mSessionId);
+						SessionDao session = new SessionDao(VoidBillActivity.this);
+						String sessionDate = session.getLastSessionDate();
+						String jsonSale = jsonGenerator.generateSale(sessionDate);
 						if(!TextUtils.isEmpty(jsonSale)){
 							executor.execute(new PartialSaleSender(VoidBillActivity.this, mShopId, 
 									mComputerId, mStaffId, jsonSale, null));

@@ -1,6 +1,9 @@
 package com.synature.mpos;
 
-public class MPOSSoftwareInfo {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class MPOSSoftwareInfo implements Parcelable {
 	private String szRegisterServiceUrl;
 	private String szSoftwareExpireDate;
 	private String szLockExpireDate;
@@ -42,5 +45,12 @@ public class MPOSSoftwareInfo {
 	}
 	public void setSzSoftwareExpireDate(String szSoftwareExpireDate) {
 		this.szSoftwareExpireDate = szSoftwareExpireDate;
+	}
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
 	}
 }

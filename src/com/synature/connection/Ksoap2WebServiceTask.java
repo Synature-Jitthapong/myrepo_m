@@ -12,7 +12,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.synature.mpos.R;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -73,18 +72,6 @@ public abstract class Ksoap2WebServiceTask implements Runnable{
 		}else{
 			mResult = mContext.getString(R.string.cannot_connect_to_network);
 		}
-		if(mContext instanceof Activity){
-			Activity act = (Activity) mContext;
-			act.runOnUiThread(new Runnable(){
-	
-				@Override
-				public void run() {
-					onPostExecute(mResult);
-				}
-				
-			});
-		}else{
-			throw new IllegalArgumentException("Context must be Activity Context");
-		}
+		onPostExecute(mResult);
 	}
 }

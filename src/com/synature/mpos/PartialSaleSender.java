@@ -3,6 +3,9 @@ package com.synature.mpos;
 import org.ksoap2.serialization.PropertyInfo;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.ResultReceiver;
+import android.text.TextUtils;
 
 import com.synature.pos.WebServiceResult;
 
@@ -10,8 +13,6 @@ public class PartialSaleSender extends MPOSServiceBase{
 
 	public static final String SEND_PARTIAL_SALE_TRANS_METHOD = "WSmPOS_JSON_SendSalePartialTransactionData";
 
-	private WebServiceWorkingListener mListener;
-	
 	/**
 	 * @param context
 	 * @param shopId
@@ -21,9 +22,8 @@ public class PartialSaleSender extends MPOSServiceBase{
 	 * @param listener
 	 */
 	public PartialSaleSender(Context context, int shopId, int computerId,
-			int staffId, String jsonSale, WebServiceWorkingListener listener) {
-		super(context, SEND_PARTIAL_SALE_TRANS_METHOD);
-		mListener = listener;
+			int staffId, String jsonSale, ResultReceiver receiver) {
+		super(context, SEND_PARTIAL_SALE_TRANS_METHOD, receiver);
 
 		// shopId
 		mProperty = new PropertyInfo();
@@ -56,17 +56,22 @@ public class PartialSaleSender extends MPOSServiceBase{
 		try {
 			WebServiceResult ws = (WebServiceResult) toServiceObject(result);
 			if(ws.getiResultID() == WebServiceResult.SUCCESS_STATUS){
-				if(mListener != null)
-					mListener.onPostExecute();
+				if(mReceiver != null)
+					mReceiver.send(RESULT_SUCCESS, null);
 			}else{
-				if(mListener != null)
-					mListener.onError(ws.getSzResultData().equals("") ? result :
+				if(mReceiver != null){
+					Bundle b = new Bundle();
+					b.putString("msg", ws.getSzResultData().equals("") ? result :
 						ws.getSzResultData());
+					mReceiver.send(RESULT_ERROR, b);
+				}
 			}
 		} catch (Exception e) {
-			if(mListener != null)
-				mListener.onError(result);
-			e.printStackTrace();
+			if(mReceiver != null){
+				Bundle b = new Bundle();
+				b.putString("msg", TextUtils.isEmpty(result) ? e.getMessage() : result);
+				mReceiver.send(RESULT_ERROR, b);
+			}
 		}
 	}
 }

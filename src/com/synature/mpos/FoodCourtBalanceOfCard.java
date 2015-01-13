@@ -23,7 +23,7 @@ public class FoodCourtBalanceOfCard extends FoodCourtMainService{
 	public FoodCourtBalanceOfCard(Context context, int shopId,
 			int computerId, int staffId, String cardNo, 
 			FoodCourtWebServiceListener listener) {
-		super(context, GET_BALANCE_METHOD, shopId, computerId, staffId, cardNo);
+		super(context, GET_BALANCE_METHOD, shopId, computerId, staffId, cardNo, null);
 		mListener = listener;
 	}
 

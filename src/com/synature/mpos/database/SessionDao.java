@@ -91,6 +91,30 @@ public class SessionDao extends MPOSDatabase{
 	}
 	
 	/**
+	 * Get unsend session date 
+	 * @return session date, null if not found
+	 */
+	public String getUnSendSessionEndday(){
+		String sessionDate = null;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + SessionTable.COLUMN_SESS_DATE
+				+ " FROM " + SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL
+				+ " WHERE " + COLUMN_SEND_STATUS + "=?"
+				+ " ORDER BY " + SessionTable.COLUMN_SESS_DATE + " ASC LIMIT 1", 
+				new String[]{
+					String.valueOf(NOT_SEND)
+				}
+		);
+		if(cursor.moveToFirst()){
+			do{
+				sessionDate = cursor.getString(0);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return sessionDate;
+	}
+	
+	/**
 	 * List session that not send to server
 	 * @return List<String> sessionDate 
 	 */

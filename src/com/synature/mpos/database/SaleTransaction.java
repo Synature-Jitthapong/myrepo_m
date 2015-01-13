@@ -28,6 +28,14 @@ import android.database.Cursor;
  * This class to do generate SaleTransactionData
  * for send to HQ Server
  */
+/**
+ * @author j1tth4
+ *
+ */
+/**
+ * @author j1tth4
+ *
+ */
 public class SaleTransaction extends MPOSDatabase{
 
 	private GlobalPropertyDao mFormat;
@@ -67,30 +75,22 @@ public class SaleTransaction extends MPOSDatabase{
 	}
 	
 	/**
-	 * Get unsend sale transaction by sessionId
-	 * @param sessionId
-	 * @return POSData_SaleTransaction
-	 */
-	public POSData_SaleTransaction getTransaction(int sessionId) {
-		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
-		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(getUnSendTransactionBySessionId(sessionId)));
-		posSaleTrans.setxTableSession(buildSessionObj(sessionId));
-		return posSaleTrans;
-	}
-	
-	/**
 	 * Get sale transaction
-	 * @param transactionId
-	 * @param sessionId
+	 * @param sessionDate
 	 * @return POSData_SaleTransaction
 	 */
-	public POSData_SaleTransaction getTransaction(int transactionId, int sessionId) {
+	public POSData_SaleTransaction getTransaction(String sessionDate) {
 		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
-		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(getTransactionById(transactionId)));
-		posSaleTrans.setxTableSession(buildSessionObj(sessionId));
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(getUnSendTransaction(sessionDate)));
+		posSaleTrans.setxTableSession(buildSessionObj(sessionDate));
 		return posSaleTrans;
 	}
 
+	/**
+	 * Build callection of transaction
+	 * @param cursor
+	 * @return List<SaleData_SaleTransaction>
+	 */
 	private List<SaleData_SaleTransaction> buildSaleTransLst(Cursor cursor) {
 		List<SaleData_SaleTransaction> saleTransLst = new ArrayList<SaleData_SaleTransaction>();
 		if (cursor != null) {
@@ -142,7 +142,11 @@ public class SaleTransaction extends MPOSDatabase{
 		return saleTransLst;
 	}
 
-	// build PaymentDetailLst
+	/**
+	 * Build collectoin of payment
+	 * @param transactionId
+	 * @return List<SaleTable_PaymentDetail>
+	 */
 	private List<SaleTable_PaymentDetail> buildPaymentDetailLst(int transactionId) {
 		List<SaleTable_PaymentDetail> paymentDetailLst = new ArrayList<SaleTable_PaymentDetail>();
 		Cursor cursor = queryPaymentDetail(transactionId);
@@ -193,7 +197,11 @@ public class SaleTransaction extends MPOSDatabase{
 		return orderPromotionLst;
 	}
 	
-	// build OrderDetailLst
+	/**
+	 * Build collection of order detail
+	 * @param cursor
+	 * @return List<SaleTable_OrderDetail>
+	 */
 	private List<SaleTable_OrderDetail> buildOrderDetailLst(Cursor cursor) {
 		List<SaleTable_OrderDetail> orderDetailLst = new ArrayList<SaleTable_OrderDetail>();
 		if (cursor != null) {
@@ -225,6 +233,11 @@ public class SaleTransaction extends MPOSDatabase{
 		return orderDetailLst;
 	}
 
+	/**
+	 * Build callection of orderset
+	 * @param cursor
+	 * @return List<SaleTable_ChildOrderType7>
+	 */
 	private List<SaleTable_ChildOrderType7> buildChildOfSet(Cursor cursor){
 		List<SaleTable_ChildOrderType7> childSetLst = new ArrayList<SaleTable_ChildOrderType7>();
 		if(cursor != null){
@@ -245,6 +258,11 @@ public class SaleTransaction extends MPOSDatabase{
 		return childSetLst;
 	}
 	
+	/**
+	 * Build collection of comment
+	 * @param cursor
+	 * @return List<SaleTable_CommentInfo>
+	 */
 	private List<SaleTable_CommentInfo> buildOrderComment(Cursor cursor){
 		List<SaleTable_CommentInfo> commLst = new ArrayList<SaleTable_CommentInfo>();
 		if(cursor != null){
@@ -263,6 +281,11 @@ public class SaleTransaction extends MPOSDatabase{
 		return commLst;
 	}
 	
+	/**
+	 * Build single session endday
+	 * @param sessionDate
+	 * @return SaleTable_SessionEndDay
+	 */
 	private SaleTable_SessionEndDay buildSessEnddayObj(String sessionDate) {
 		SaleTable_SessionEndDay saleSessEnd = new SaleTable_SessionEndDay();
 		Cursor cursor = querySessionEndday(sessionDate);
@@ -285,9 +308,14 @@ public class SaleTransaction extends MPOSDatabase{
 		return saleSessEnd;
 	}
 
+	/**
+	 * Build collection of session
+	 * @param sessionDate
+	 * @return List<SaleTable_Session>
+	 */
 	private List<SaleTable_Session> buildSessionLst(String sessionDate){
 		List<SaleTable_Session> saleSessLst = new ArrayList<SaleTable_Session>();
-		Cursor cursor = querySession(sessionDate);
+		Cursor cursor = getAllSession(sessionDate);
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -311,9 +339,14 @@ public class SaleTransaction extends MPOSDatabase{
 		return saleSessLst;
 	}
 	
-	private SaleTable_Session buildSessionObj(int sessionId) {
+	/**
+	 * Build single session
+	 * @param sessionDate
+	 * @return SaleTable_Session
+	 */
+	private SaleTable_Session buildSessionObj(String sessionDate) {
 		SaleTable_Session saleSess = new SaleTable_Session();
-		Cursor cursor = querySession(sessionId);
+		Cursor cursor = getUnCloseSession(sessionDate);
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				saleSess.setiSessionID(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
@@ -332,7 +365,83 @@ public class SaleTransaction extends MPOSDatabase{
 		}
 		return saleSess;
 	}
+	
+	/**
+	 * Get unsend transaction
+	 * @param sessionDate
+	 * @return Cursor
+	 */
+	private Cursor getUnSendTransaction(String sessionDate) {
+		return queryOrderTransaction(OrderTransTable.COLUMN_SALE_DATE + "=?"
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+				+ " AND " + COLUMN_SEND_STATUS + "=?",
+				new String[] {
+						sessionDate,
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+						String.valueOf(NOT_SEND)
+				});
+	}
+	
+	/**
+	 * Get transaction by session date
+	 * @param sessionDate
+	 * @return Cursor
+	 */
+	private Cursor getTransactionBySaleDate(String sessionDate) {
+		return queryOrderTransaction(OrderTransTable.COLUMN_SALE_DATE + "=?" +
+				" AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) ",
+				new String[] {
+						sessionDate,
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+				});
+	}
 
+	/**
+	 * Get unclosed session for generate partial sale
+	 * @param sessionDate
+	 * @return Cursor
+	 */
+	private Cursor getUnCloseSession(String sessionDate) {
+		return querySession(SessionTable.COLUMN_SESS_DATE + "=?"
+				+ " AND " + SessionTable.COLUMN_CLOSE_STAFF + "=?", 
+				new String[] {
+					sessionDate,
+					String.valueOf(0)
+				});
+	}
+	
+	/**
+	 * Get all session by session date
+	 * @param sessionDate
+	 * @return Cursor
+	 */
+	private Cursor getAllSession(String sessionDate) {
+		return querySession(SessionTable.COLUMN_SESS_DATE + "=?", 
+				new String[] {
+					sessionDate
+				});
+	}
+	
+	private Cursor querySessionEndday(String sessionDate) {
+		return getReadableDatabase().query(
+				SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, 
+				SessionDao.ALL_SESS_ENDDAY_COLUMNS, 
+				SessionTable.COLUMN_SESS_DATE + "=?", 
+				new String[] {
+					sessionDate
+				}, 
+				null, null, null);
+	}
+	
+	private Cursor queryOrderDetail(String selection, String[] selectionArgs){
+		return getReadableDatabase().query(
+				OrderDetailTable.TABLE_ORDER, 
+				TransactionDao.ALL_ORDER_COLUMNS, 
+				selection, selectionArgs, null, null, null);
+	}
+	
 	private Cursor queryPaymentDetail(int transId) {
 		return getReadableDatabase().query(
 				PaymentDetailTable.TABLE_PAYMENT_DETAIL, 
@@ -403,84 +512,6 @@ public class SaleTransaction extends MPOSDatabase{
 					String.valueOf(ProductsDao.NORMAL_TYPE),
 					String.valueOf(ProductsDao.SET_CAN_SELECT)
 				});
-	}
-	
-	private Cursor getUnSendTransaction(String sessionDate) {
-		return queryOrderTransaction(OrderTransTable.COLUMN_SALE_DATE + "=?"
-				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
-				+ " AND " + COLUMN_SEND_STATUS + "=?",
-				new String[] {
-						sessionDate,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
-						String.valueOf(NOT_SEND)
-				});
-	}
-	
-	private Cursor getUnSendTransactionBySessionId(int sessionId) {
-		return queryOrderTransaction(SessionTable.COLUMN_SESS_ID + "=?" 
-				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
-				+ " AND " + COLUMN_SEND_STATUS + "=?",
-				new String[] {
-						String.valueOf(sessionId),
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
-						String.valueOf(MPOSDatabase.NOT_SEND)
-				});
-	}
-	
-	private Cursor getTransactionBySaleDate(String sessionDate) {
-		return queryOrderTransaction(OrderTransTable.COLUMN_SALE_DATE + "=?" +
-				" AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) ",
-				new String[] {
-						sessionDate,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
-				});
-	}
-	
-	private Cursor getTransactionById(int transactionId) {
-		return queryOrderTransaction(OrderTransTable.COLUMN_TRANS_ID + "=?" +
-				" AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) " +
-				" AND " + COLUMN_SEND_STATUS + "=?", 
-				new String[] {
-						String.valueOf(transactionId),
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
-						String.valueOf(MPOSDatabase.NOT_SEND) 
-				});
-	}
-
-	private Cursor querySessionEndday(String sessionDate) {
-		return getReadableDatabase().query(
-				SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, 
-				SessionDao.ALL_SESS_ENDDAY_COLUMNS, 
-				SessionTable.COLUMN_SESS_DATE + "=?", 
-				new String[] {
-					sessionDate
-				}, 
-				null, null, null);
-	}
-
-	private Cursor querySession(int sessionId) {
-		return querySession(SessionTable.COLUMN_SESS_ID + "=?", 
-				new String[] {
-					String.valueOf(sessionId)
-				});
-	}
-	
-	private Cursor querySession(String sessionDate) {
-		return querySession(SessionTable.COLUMN_SESS_DATE + "=?", 
-				new String[] {
-					sessionDate
-				});
-	}
-
-	private Cursor queryOrderDetail(String selection, String[] selectionArgs){
-		return getReadableDatabase().query(
-				OrderDetailTable.TABLE_ORDER, 
-				TransactionDao.ALL_ORDER_COLUMNS, 
-				selection, selectionArgs, null, null, null);
 	}
 	
 	private Cursor queryOrderTransaction(String selection, String[] selectionArgs){

@@ -3,19 +3,13 @@ package com.synature.mpos;
 import java.text.DateFormat;
 import java.util.Calendar;
 
-import com.synature.mpos.database.MPOSDatabase;
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.TransactionDao;
-import com.synature.mpos.database.table.OrderDetailTable;
-import com.synature.mpos.database.table.OrderTransTable;
-import com.synature.mpos.database.table.PaymentDetailTable;
-import com.synature.mpos.database.table.SessionDetailTable;
-import com.synature.mpos.database.table.SessionTable;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -29,6 +23,7 @@ public class ClearSaleDialogFragment extends DialogFragment implements OnClickLi
 	public static final String TAG = ClearSaleDialogFragment.class.getSimpleName();
 	public static final String PASS = "mposclear";
 	
+	private GlobalPropertyDao mGlobal;
 	private long mDateFrom;
 	private long mDateTo;
 	
@@ -40,6 +35,7 @@ public class ClearSaleDialogFragment extends DialogFragment implements OnClickLi
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mGlobal = new GlobalPropertyDao(getActivity());
 	}
 	
 	@Override
@@ -51,8 +47,8 @@ public class ClearSaleDialogFragment extends DialogFragment implements OnClickLi
 		View content = inflater.inflate(R.layout.fragment_clear_sale, null);
 		Button btnDateFrom = (Button) content.findViewById(R.id.btnDateFrom);
 		Button btnDateTo = (Button) content.findViewById(R.id.btnDateTo);
-		btnDateFrom.setText(DateFormat.getDateInstance().format(c.getTime()));
-		btnDateTo.setText(DateFormat.getDateInstance().format(c.getTime()));
+		btnDateFrom.setText(mGlobal.dateFormat(c.getTime()));
+		btnDateTo.setText(mGlobal.dateFormat(c.getTime()));
 		btnDateFrom.setOnClickListener(this);
 		btnDateTo.setOnClickListener(this);
 		
@@ -172,7 +168,7 @@ public class ClearSaleDialogFragment extends DialogFragment implements OnClickLi
 	
 	private void clearSale(){
 		TransactionDao trans = new TransactionDao(getActivity());
-		trans.deleteSale(String.valueOf(mDateFrom), String.valueOf(mDateTo));
+		trans.deleteAllSale(String.valueOf(mDateFrom), String.valueOf(mDateTo));
 		createAlertDialog(getString(R.string.clear_sale_data), "Clear sale data success.");
 	}
 }

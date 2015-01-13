@@ -3,14 +3,15 @@ package com.synature.mpos;
 import org.ksoap2.serialization.PropertyInfo;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.ResultReceiver;
+import android.text.TextUtils;
 
 import com.synature.pos.WebServiceResult;
 
 public class EndDayUnSendSaleSender extends MPOSServiceBase{
 
 	public static final String SEND_SALE_TRANS_METHOD = "WSmPOS_JSON_SendUnsendSaleTransactionDataWithEndDay";
-	
-	private WebServiceWorkingListener mListener;
 	
 	/**
 	 * @param context
@@ -21,9 +22,8 @@ public class EndDayUnSendSaleSender extends MPOSServiceBase{
 	 * @param listener
 	 */
 	public EndDayUnSendSaleSender(Context context, int shopId, int computerId,
-			int staffId, String jsonSale, WebServiceWorkingListener listener) {
-		super(context, SEND_SALE_TRANS_METHOD);
-		mListener = listener;
+			int staffId, String jsonSale, ResultReceiver receiver) {
+		super(context, SEND_SALE_TRANS_METHOD, receiver);
 
 		// shopId
 		mProperty = new PropertyInfo();
@@ -56,14 +56,24 @@ public class EndDayUnSendSaleSender extends MPOSServiceBase{
 		try {
 			WebServiceResult ws = (WebServiceResult) toServiceObject(result);
 			if(ws.getiResultID() == WebServiceResult.SUCCESS_STATUS){
-				mListener.onPostExecute();
+				if(mReceiver != null){
+					mReceiver.send(RESULT_SUCCESS, null);
+				}
 			}else{
-				mListener.onError(ws.getSzResultData().equals("") ? result :
-					ws.getSzResultData());
+				if(mReceiver != null){
+					Bundle b = new Bundle();
+					b.putString("msg", TextUtils.isEmpty(ws.getSzResultData()) ? result :
+						ws.getSzResultData());
+					mReceiver.send(RESULT_ERROR, b);
+				}
 			}
 		} catch (Exception e) {
-			mListener.onError(result);
-			e.printStackTrace();
+			if(mReceiver != null){
+				Bundle b = new Bundle();
+				b.putString("msg", TextUtils.isEmpty(result) ? e.getMessage() :
+					result);
+				mReceiver.send(RESULT_ERROR, b);
+			}
 		}
 	}
 }

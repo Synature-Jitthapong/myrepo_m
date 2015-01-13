@@ -22,25 +22,12 @@ public class JSONSaleGenerator{
 		mSaleTrans = new SaleTransaction(context);
 	}
 	
-	public String generateSale(int sessionId){
+	public String generateSale(String sessionDate){
 		String json = null;
 		try {
 			Gson gson = new Gson();
 			Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
-			json = gson.toJson(mSaleTrans.getTransaction(sessionId), type);
-		} catch (Exception e) {
-			Logger.appendLog(mContext, Utils.LOG_PATH, Utils.LOG_FILE_NAME,
-					" Error at generate json sale : " + e.getMessage());
-		}
-		return json;
-	}
-	
-	public String generateSale(int transactionId, int sessionId){
-		String json = null;
-		try {
-			Gson gson = new Gson();
-			Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
-			json = gson.toJson(mSaleTrans.getTransaction(transactionId, sessionId), type);
+			json = gson.toJson(mSaleTrans.getTransaction(sessionDate), type);
 		} catch (Exception e) {
 			Logger.appendLog(mContext, Utils.LOG_PATH, Utils.LOG_FILE_NAME,
 					" Error at generate json sale : " + e.getMessage());

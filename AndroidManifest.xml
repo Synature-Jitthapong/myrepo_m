@@ -183,6 +183,7 @@
         </service>
         <service android:name=".RemoteStackTraceService" >
         </service>
+        <service android:name=".SaleSenderService"></service>
     </application>
 
 </manifest>

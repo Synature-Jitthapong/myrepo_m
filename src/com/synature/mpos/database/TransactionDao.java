@@ -1206,11 +1206,11 @@ public class TransactionDao extends MPOSDatabase {
 	}
 	
 	/**
-	 * Delete sale specific date
+	 * For clear all
 	 * @param dateFrom
 	 * @param dateTo
 	 */
-	public void deleteSale(String dateFrom, String dateTo){
+	public void deleteAllSale(String dateFrom, String dateTo){
 		String transIds = getTransactionIds(dateFrom, dateTo);
 		SQLiteDatabase db = getWritableDatabase();
 		db.execSQL("DELETE FROM " + OrderTransTable.TEMP_ORDER_TRANS);
@@ -1219,11 +1219,9 @@ public class TransactionDao extends MPOSDatabase {
 			return;
 		db.beginTransaction();
 		try{
-			String sessWhere = SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ? "
-					+ " AND " + COLUMN_SEND_STATUS + "=?";
-			String[] sessWhereArgs = {dateFrom, dateTo, String.valueOf(ALREADY_SEND)};
-			String transWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")"
-					+ " AND " + COLUMN_SEND_STATUS + "=" + ALREADY_SEND;
+			String sessWhere = SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ? ";
+			String[] sessWhereArgs = {dateFrom, dateTo};
+			String transWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")";
 			db.delete(SessionTable.TABLE_SESSION, sessWhere, sessWhereArgs);
 			db.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, sessWhere, sessWhereArgs);
 			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER + " WHERE " + transWhere);
@@ -1233,6 +1231,59 @@ public class TransactionDao extends MPOSDatabase {
 		}finally{
 			db.endTransaction();
 		}
+	}
+	
+	/**
+	 * Delete sale specific date
+	 * @param dateFrom
+	 * @param dateTo
+	 */
+	public void deleteSale(String dateFrom, String dateTo){
+		String transIds = getAlreadySendTransactionIds(dateFrom, dateTo);
+		SQLiteDatabase db = getWritableDatabase();
+		db.execSQL("DELETE FROM " + OrderTransTable.TEMP_ORDER_TRANS);
+		db.execSQL("DELETE FROM " + OrderDetailTable.TEMP_ORDER);
+		if(TextUtils.isEmpty(transIds))
+			return;
+		db.beginTransaction();
+		try{
+			String sessWhere = SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ? ";
+			String[] sessWhereArgs = {dateFrom, dateTo};
+			String sessEndWhere = sessWhere + " AND " + COLUMN_SEND_STATUS + "=?";
+			String[] sessEndWhereArgs = {dateFrom, dateTo, String.valueOf(ALREADY_SEND)};
+			String transWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")";
+			db.delete(SessionTable.TABLE_SESSION, sessWhere, sessWhereArgs);
+			db.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, sessEndWhere, sessEndWhereArgs);
+			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER + " WHERE " + transWhere);
+			db.execSQL("DELETE FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE " + transWhere);
+			db.execSQL("DELETE FROM " + OrderTransTable.TABLE_ORDER_TRANS + " WHERE " + transWhere);
+			db.setTransactionSuccessful();
+		}finally{
+			db.endTransaction();
+		}
+	}
+	
+	private String getAlreadySendTransactionIds(String dateFrom, String dateTo){
+		String transIds = "";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + OrderTransTable.COLUMN_TRANS_ID
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
+				+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
+				+ " AND " + COLUMN_SEND_STATUS + "=?", 
+				new String[]{
+						dateFrom,
+						dateTo,
+						String.valueOf(ALREADY_SEND)
+				});
+		if(cursor.moveToFirst()){
+			do{
+				transIds += cursor.getString(0);
+				if(!cursor.isLast())
+					transIds += ",";
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return transIds;
 	}
 	
 	private String getTransactionIds(String dateFrom, String dateTo){
@@ -1267,64 +1318,64 @@ public class TransactionDao extends MPOSDatabase {
 				new String[] { String.valueOf(transactionId) });
 	}
 
-	/**
-	 * get last transaction that not send
-	 * @return OrderTransaction null if not found
-	 */
-	public OrderTransaction getLastTransactionNotSend(){
-		OrderTransaction trans = null;
-		Cursor cursor = getReadableDatabase().query(OrderTransTable.TABLE_ORDER_TRANS,
-				new String[]{
-					OrderTransTable.COLUMN_TRANS_ID,
-					ComputerTable.COLUMN_COMPUTER_ID,
-					SessionTable.COLUMN_SESS_ID
-				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
-                    + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
-				new String[]{
-					String.valueOf(TransactionDao.TRANS_STATUS_VOID),
-                    String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-				 	String.valueOf(NOT_SEND)
-				}, null, null, OrderTransTable.COLUMN_SALE_DATE + " DESC ", "1");
-		if(cursor.moveToFirst()){
-			trans = new OrderTransaction();
-			trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
-			trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
-			trans.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
-		}
-		cursor.close();
-		return trans;
-	}
-	
-	/** 
-	 * List transaction not send to server
-	 * @return List<OrderTransaction>
-	 */
-	public List<OrderTransaction> listTransactionNotSend(){
-		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
-		Cursor cursor = getReadableDatabase().query(OrderTransTable.TABLE_ORDER_TRANS,
-				new String[]{
-					OrderTransTable.COLUMN_TRANS_ID,
-					ComputerTable.COLUMN_COMPUTER_ID,
-					SessionTable.COLUMN_SESS_ID
-				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
-                    + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
-				new String[]{
-					String.valueOf(TransactionDao.TRANS_STATUS_VOID),
-                    String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-				 	String.valueOf(NOT_SEND)
-				}, null, null, null);
-		if(cursor.moveToFirst()){
-			do{
-				OrderTransaction trans = new OrderTransaction();
-				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
-				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
-				trans.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
-				transLst.add(trans);
-			}while(cursor.moveToNext());
-		}
-		cursor.close();
-		return transLst;
-	}
+//	/**
+//	 * get last transaction that not send
+//	 * @return OrderTransaction null if not found
+//	 */
+//	public OrderTransaction getLastTransactionNotSend(){
+//		OrderTransaction trans = null;
+//		Cursor cursor = getReadableDatabase().query(OrderTransTable.TABLE_ORDER_TRANS,
+//				new String[]{
+//					OrderTransTable.COLUMN_TRANS_ID,
+//					ComputerTable.COLUMN_COMPUTER_ID,
+//					SessionTable.COLUMN_SESS_ID
+//				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+//                    + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
+//				new String[]{
+//					String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+//                    String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+//				 	String.valueOf(NOT_SEND)
+//				}, null, null, OrderTransTable.COLUMN_SALE_DATE + " ASC ", "1");
+//		if(cursor.moveToFirst()){
+//			trans = new OrderTransaction();
+//			trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
+//			trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+//			trans.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
+//		}
+//		cursor.close();
+//		return trans;
+//	}
+//	
+//	/** 
+//	 * List transaction not send to server
+//	 * @return List<OrderTransaction>
+//	 */
+//	public List<OrderTransaction> listTransactionNotSend(){
+//		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
+//		Cursor cursor = getReadableDatabase().query(OrderTransTable.TABLE_ORDER_TRANS,
+//				new String[]{
+//					OrderTransTable.COLUMN_TRANS_ID,
+//					ComputerTable.COLUMN_COMPUTER_ID,
+//					SessionTable.COLUMN_SESS_ID
+//				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+//                    + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
+//				new String[]{
+//					String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+//                    String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+//				 	String.valueOf(NOT_SEND)
+//				}, null, null, null);
+//		if(cursor.moveToFirst()){
+//			do{
+//				OrderTransaction trans = new OrderTransaction();
+//				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
+//				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+//				trans.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
+//				transLst.add(trans);
+//			}while(cursor.moveToNext());
+//		}
+//		cursor.close();
+//		return transLst;
+//	}
 	
 	/**
 	 * @return total transaction that not sent

@@ -10,6 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import com.synature.pos.PrepaidCardInfo;
 
 import android.content.Context;
+import android.os.ResultReceiver;
 
 public abstract class FoodCourtMainService extends MPOSServiceBase{
 
@@ -20,8 +21,8 @@ public abstract class FoodCourtMainService extends MPOSServiceBase{
 	public static final String PAY_AMOUNT_PARAM = "fPayAmount";
 	
 	public FoodCourtMainService(Context context, String method, int shopId, 
-			int computerId, int staffId, String cardNo) {
-		super(context, method);
+			int computerId, int staffId, String cardNo, ResultReceiver receiver) {
+		super(context, method, receiver);
 
 		mProperty = new PropertyInfo();
 		mProperty.setName(SHOP_ID_PARAM);
