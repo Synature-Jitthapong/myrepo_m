@@ -75,9 +75,9 @@ public class ClearSaleDialogFragment extends DialogFragment implements OnClickLi
 					cTo.setTimeInMillis(mDateTo);
 					String msg = getString(R.string.clear_sale_msg) + "\n"
 							+ getString(R.string.from) + " "
-							+ DateFormat.getDateInstance().format(cFrom.getTime())
+							+ mGlobal.dateFormat(cFrom.getTime())
 							+ " " + getString(R.string.to) + " "
-							+ DateFormat.getDateInstance().format(cTo.getTime());
+							+ mGlobal.dateFormat(cTo.getTime());
 					View passContent = inflater.inflate(R.layout.edittext_password, null);
 					final EditText txtPass = (EditText) passContent.findViewById(R.id.txtPassword);
 					txtPass.setHint(R.string.enter_password);

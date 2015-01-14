@@ -70,6 +70,8 @@ public class OrderDetailTable extends BaseColumn{
 			}finally{
 				db.endTransaction();
 			}
+		}else if(oldVersion < 8){
+			db.execSQL("create table " + TABLE_ORDER_WASTE + " as select * from " + TABLE_ORDER + " where 0;");
 		}
 	}
 }

@@ -25,6 +25,7 @@ import android.database.SQLException;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -684,6 +685,22 @@ public class Utils {
 				if(getDiffDay(lastMod) > current.getActualMaximum(Calendar.DAY_OF_MONTH)){
 					file.delete();
 				}
+			}
+		}
+	}
+	
+	public static void deleteOverSale(Context context){
+		SessionDao sessionDao = new SessionDao(context);
+		// delete sale if more than 90 days
+		String firstDate = sessionDao.getFirstSessionDate();
+		if(!TextUtils.isEmpty(firstDate)){
+			Calendar cFirst = Calendar.getInstance();
+			Calendar cLast = Calendar.getInstance();
+			cFirst.setTimeInMillis(Long.parseLong(firstDate));
+			cLast.set(Calendar.DAY_OF_YEAR, -90);
+			if(cLast.compareTo(cFirst) >= 0){
+				TransactionDao trans = new TransactionDao(context);
+				trans.deleteSale(firstDate, String.valueOf(cLast.getTimeInMillis()));
 			}
 		}
 	}

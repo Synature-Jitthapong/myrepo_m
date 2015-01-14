@@ -308,12 +308,10 @@ public class PaymentActivity extends Activity implements OnClickListener,
 			drw.openCashDrawer();
 			drw.close();
 
+			mPayment.confirmPayment(mTransactionId);
 			mTrans.closeTransaction(mTransactionId, mStaffId, mTotalPrice);
 			
 			mChange = mTotalPaid - mTotalSalePrice;
-			
-			// auto backup db
-			//Utils.exportDatabase(this);
 			
 			Intent intent = new Intent(this, MainActivity.class);
 			intent.putExtra("totalSalePrice", mTotalSalePrice);
@@ -469,7 +467,9 @@ public class PaymentActivity extends Activity implements OnClickListener,
 					@Override
 					public void onClick(View v) {
 						FinishWasteDialogFragment westDialog = 
-								FinishWasteDialogFragment.newInstance(payType.getPayTypeName(), mTotalPrice);
+								FinishWasteDialogFragment.newInstance(
+										payType.getPayTypeID(), payType.getPayTypeName(),
+										payType.getDocumentTypeID(), payType.getDocumentTypeHeader(), mTotalPrice);
 						westDialog.show(getFragmentManager(), FinishWasteDialogFragment.TAG);
 					}
 					
@@ -572,8 +572,11 @@ public class PaymentActivity extends Activity implements OnClickListener,
 	}
 
 	@Override
-	public void onWasteConfirm(){
-		
+	public void onWasteConfirm(int payTypeId, int docTypeId, String docTypeHeader, double totalPrice, String remark){
+		mPayment.addPaymentDetailWaste(mTransactionId, mComputerId, payTypeId, totalPrice, remark);
+		mPayment.confirmWastePayment(mTransactionId);
+		mTrans.closeWasteTransaction(mTransactionId, mStaffId, docTypeId, docTypeHeader, totalPrice);
+		finish();
 	}
 	
 	@Override

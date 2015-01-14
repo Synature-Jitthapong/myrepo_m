@@ -13,6 +13,11 @@ public class PaymentDetailWasteTable {
 			+ ComputerTable.COLUMN_COMPUTER_ID + " integer not null, "
 			+ PayTypeTable.COLUMN_PAY_TYPE_ID + " integer not null, "
 			+ PaymentDetailTable.COLUMN_PAY_AMOUNT + " real not null, "
+			+ CreditCardTable.COLUMN_CREDITCARD_NO + " text, " 
+			+ CreditCardTable.COLUMN_EXP_MONTH + " integer, "
+			+ CreditCardTable.COLUMN_EXP_YEAR + " integer, "
+			+ BankTable.COLUMN_BANK_ID + " integer, "
+			+ CreditCardTable.COLUMN_CREDITCARD_TYPE_ID + " integer, "
 			+ BaseColumn.COLUMN_REMARK + " text, " 
 			+ " primary key  (" + PaymentDetailTable.COLUMN_PAY_ID + "));";
 	
@@ -22,5 +27,8 @@ public class PaymentDetailWasteTable {
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		if(oldVersion < 8){
+			onCreate(db);
+		}
 	}
 }

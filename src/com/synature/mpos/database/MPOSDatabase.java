@@ -19,6 +19,7 @@ import com.synature.mpos.database.table.PayTypeFinishWasteTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentButtonTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
+import com.synature.mpos.database.table.PaymentDetailWasteTable;
 import com.synature.mpos.database.table.PrintReceiptLogTable;
 import com.synature.mpos.database.table.ProductComponentGroupTable;
 import com.synature.mpos.database.table.ProductComponentTable;
@@ -130,6 +131,7 @@ public class MPOSDatabase extends BaseColumn{
 			PromotionProductDiscountTable.onCreate(db);
 			PayTypeFinishWasteTable.onCreate(db);
 			ProgramFeatureTable.onCreate(db);
+			PaymentDetailWasteTable.onCreate(db);
 		}
 		
 		@Override
@@ -163,6 +165,7 @@ public class MPOSDatabase extends BaseColumn{
 			OrderDetailTable.onUpgrade(db, oldVersion, newVersion);
 			PayTypeFinishWasteTable.onUpgrade(db, oldVersion, newVersion);
 			ProgramFeatureTable.onUpgrade(db, oldVersion, newVersion);
+			PaymentDetailWasteTable.onUpgrade(db, oldVersion, newVersion);
 		}
 	}
 }

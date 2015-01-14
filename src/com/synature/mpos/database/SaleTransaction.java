@@ -12,6 +12,7 @@ import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
+import com.synature.mpos.database.table.PaymentDetailWasteTable;
 import com.synature.mpos.database.table.ProductComponentGroupTable;
 import com.synature.mpos.database.table.ProductComponentTable;
 import com.synature.mpos.database.table.ProductTable;
@@ -379,6 +380,10 @@ public class SaleTransaction extends MPOSDatabase{
 						sessionDate,
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+						String.valueOf(NOT_SEND),
+						sessionDate,
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 						String.valueOf(NOT_SEND)
 				});
 	}
@@ -392,6 +397,9 @@ public class SaleTransaction extends MPOSDatabase{
 		return queryOrderTransaction(OrderTransTable.COLUMN_SALE_DATE + "=?" +
 				" AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) ",
 				new String[] {
+						sessionDate,
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 						sessionDate,
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
@@ -436,20 +444,88 @@ public class SaleTransaction extends MPOSDatabase{
 	}
 	
 	private Cursor queryOrderDetail(String selection, String[] selectionArgs){
-		return getReadableDatabase().query(
-				OrderDetailTable.TABLE_ORDER, 
-				TransactionDao.ALL_ORDER_COLUMNS, 
-				selection, selectionArgs, null, null, null);
+		String sqlQuery = " SELECT "
+				+ OrderDetailTable.COLUMN_ORDER_ID + ", "
+				+ OrderTransTable.COLUMN_TRANS_ID + ", "
+				+ ComputerTable.COLUMN_COMPUTER_ID + ", "
+				+ OrderDetailTable.COLUMN_ORDER_QTY + ", "
+				+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
+				+ OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", "
+				+ OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
+				+ OrderDetailTable.COLUMN_TOTAL_VAT + ", "
+				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ", "
+				+ OrderDetailTable.COLUMN_REMARK + ", "
+				+ OrderDetailTable.COLUMN_PARENT_ORDER_ID + ", "
+				+ ProductTable.COLUMN_PRODUCT_ID + ", "
+				+ ProductTable.COLUMN_PRODUCT_TYPE_ID + ", "
+				+ ProductTable.COLUMN_PRODUCT_PRICE + ", "
+				+ ProductTable.COLUMN_SALE_MODE + ", "
+				+ ProductTable.COLUMN_VAT_TYPE + ", "
+				+ PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID + ", "
+				+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + ", "
+				+ PromotionPriceGroupTable.COLUMN_COUPON_HEADER
+				+ " FROM " + OrderDetailTable.TABLE_ORDER
+				+ " WHERE " + selection
+				+ " UNION " 
+				+ " SELECT "
+				+ OrderDetailTable.COLUMN_ORDER_ID + ", "
+				+ OrderTransTable.COLUMN_TRANS_ID + ", "
+				+ ComputerTable.COLUMN_COMPUTER_ID + ", "
+				+ OrderDetailTable.COLUMN_ORDER_QTY + ", "
+				+ OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
+				+ OrderDetailTable.COLUMN_TOTAL_SALE_PRICE + ", "
+				+ OrderDetailTable.COLUMN_PRICE_DISCOUNT + ", "
+				+ OrderDetailTable.COLUMN_TOTAL_VAT + ", "
+				+ OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE + ", "
+				+ OrderDetailTable.COLUMN_REMARK + ", "
+				+ OrderDetailTable.COLUMN_PARENT_ORDER_ID + ", "
+				+ ProductTable.COLUMN_PRODUCT_ID + ", "
+				+ ProductTable.COLUMN_PRODUCT_TYPE_ID + ", "
+				+ ProductTable.COLUMN_PRODUCT_PRICE + ", "
+				+ ProductTable.COLUMN_SALE_MODE + ", "
+				+ ProductTable.COLUMN_VAT_TYPE + ", "
+				+ PromotionPriceGroupTable.COLUMN_PROMOTION_TYPE_ID + ", "
+				+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + ", "
+				+ PromotionPriceGroupTable.COLUMN_COUPON_HEADER
+				+ " FROM " + OrderDetailTable.TABLE_ORDER_WASTE
+				+ " WHERE " + selection;
+		return getReadableDatabase().rawQuery(sqlQuery, selectionArgs);
 	}
 	
 	private Cursor queryPaymentDetail(int transId) {
-		return getReadableDatabase().query(
-				PaymentDetailTable.TABLE_PAYMENT_DETAIL, 
-				PaymentDetailDao.ALL_PAYMENT_DETAIL_COLUMNS, 
-				OrderTransTable.COLUMN_TRANS_ID + "=?",
+		String sqlQuery = "SELECT " + PaymentDetailTable.COLUMN_PAY_ID + ", "
+				+ ComputerTable.COLUMN_COMPUTER_ID + ", "
+				+ BankTable.COLUMN_BANK_ID + ", "
+				+ PayTypeTable.COLUMN_PAY_TYPE_ID + ", "
+				+ CreditCardTable.COLUMN_CREDITCARD_TYPE_ID + ", "
+				+ CreditCardTable.COLUMN_CREDITCARD_NO + ", "
+				+ CreditCardTable.COLUMN_EXP_MONTH + ", "
+				+ CreditCardTable.COLUMN_EXP_YEAR + ", "
+				+ PaymentDetailTable.COLUMN_REMARK + ", "
+				+ PaymentDetailTable.COLUMN_PAY_AMOUNT
+				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL
+				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " GROUP BY " + PayTypeTable.COLUMN_PAY_TYPE_ID
+				+ " UNION "
+				+ " SELECT " + PaymentDetailTable.COLUMN_PAY_ID + ", "
+				+ ComputerTable.COLUMN_COMPUTER_ID + ", "
+				+ BankTable.COLUMN_BANK_ID + ", "
+				+ PayTypeTable.COLUMN_PAY_TYPE_ID + ", "
+				+ CreditCardTable.COLUMN_CREDITCARD_TYPE_ID + ", "
+				+ CreditCardTable.COLUMN_CREDITCARD_NO + ", "
+				+ CreditCardTable.COLUMN_EXP_MONTH + ", "
+				+ CreditCardTable.COLUMN_EXP_YEAR + ", "
+				+ PaymentDetailTable.COLUMN_REMARK + ", "
+				+ PaymentDetailTable.COLUMN_PAY_AMOUNT
+				+ " FROM " + PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE
+				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " GROUP BY " + PayTypeTable.COLUMN_PAY_TYPE_ID;
+		
+		return getReadableDatabase().rawQuery(sqlQuery,
 				new String[]{
+					String.valueOf(transId),
 					String.valueOf(transId)
-				}, null, null, null);
+				});
 	}
 	
 	private Cursor queryOrderComment(int transId, int ordId) {
@@ -495,19 +571,30 @@ public class SaleTransaction extends MPOSDatabase{
 		});
 	}
 	
+	/*
+	 * support union
+	 */
 	private Cursor queryOrderPromotion(int transId) {
 		return queryOrderDetail(OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " AND " + OrderDetailTable.COLUMN_PRICE_DISCOUNT + " >? ", 
 				new String[]{
 					String.valueOf(transId),
+					String.valueOf(0),
+					String.valueOf(transId),
 					String.valueOf(0)
 				});
 	}
 	
+	/*
+	 * suport union
+	 */
 	private Cursor queryOrderDetail(int transId) {
 		return queryOrderDetail(OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " AND " + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?) ", 
 				new String[]{
+					String.valueOf(transId),
+					String.valueOf(ProductsDao.NORMAL_TYPE),
+					String.valueOf(ProductsDao.SET_CAN_SELECT),
 					String.valueOf(transId),
 					String.valueOf(ProductsDao.NORMAL_TYPE),
 					String.valueOf(ProductsDao.SET_CAN_SELECT)
@@ -515,10 +602,72 @@ public class SaleTransaction extends MPOSDatabase{
 	}
 	
 	private Cursor queryOrderTransaction(String selection, String[] selectionArgs){
-		return getReadableDatabase().query(
-				OrderTransTable.TABLE_ORDER_TRANS,
-				TransactionDao.ALL_TRANS_COLUMNS, 
-				selection, selectionArgs, null, null, null);
+		String sqlQuery = " SELECT " 
+				+ BaseColumn.COLUMN_UUID + ", "
+				+ OrderTransTable.COLUMN_TRANS_ID + ", "
+				+ ComputerTable.COLUMN_COMPUTER_ID + ", "
+				+ ShopTable.COLUMN_SHOP_ID + ", "
+				+ OrderTransTable.COLUMN_OPEN_STAFF + ", "
+				+ OrderTransTable.COLUMN_OPEN_TIME + ", "
+				+ OrderTransTable.COLUMN_CLOSE_TIME + ", "
+				+ OrderTransTable.COLUMN_PAID_TIME + ", "
+				+ OrderTransTable.COLUMN_PAID_STAFF_ID + ", "
+				+ OrderTransTable.COLUMN_DOC_TYPE_ID + ", "
+				+ OrderTransTable.COLUMN_STATUS_ID + ", "
+				+ OrderTransTable.COLUMN_RECEIPT_YEAR + ", "
+				+ OrderTransTable.COLUMN_RECEIPT_MONTH + ", "
+				+ OrderTransTable.COLUMN_RECEIPT_ID + ", "
+				+ OrderTransTable.COLUMN_RECEIPT_NO + ", "
+				+ OrderTransTable.COLUMN_SALE_DATE + ", "
+				+ OrderTransTable.COLUMN_TRANS_VAT + ", "
+				+ OrderTransTable.COLUMN_TRANS_VATABLE + ", "
+				+ SessionTable.COLUMN_SESS_ID + ", "
+				+ OrderTransTable.COLUMN_VOID_STAFF_ID + ", "
+				+ OrderTransTable.COLUMN_VOID_REASON + ", "
+				+ OrderTransTable.COLUMN_VOID_TIME + ", "
+				+ OrderTransTable.COLUMN_TRANS_NOTE + ", "
+				+ ProductTable.COLUMN_SALE_MODE + ", "
+				+ ProductTable.COLUMN_VAT_RATE + ", "
+				+ OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT + ", "
+				+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + ", "
+				+ OrderTransTable.COLUMN_EJ + ", "
+				+ OrderTransTable.COLUMN_EJ_VOID
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
+				+ " WHERE " + selection
+				+ " UNION "
+				+ " SELECT " 
+				+ BaseColumn.COLUMN_UUID + ", "
+				+ OrderTransTable.COLUMN_TRANS_ID + ", "
+				+ ComputerTable.COLUMN_COMPUTER_ID + ", "
+				+ ShopTable.COLUMN_SHOP_ID + ", "
+				+ OrderTransTable.COLUMN_OPEN_STAFF + ", "
+				+ OrderTransTable.COLUMN_OPEN_TIME + ", "
+				+ OrderTransTable.COLUMN_CLOSE_TIME + ", "
+				+ OrderTransTable.COLUMN_PAID_TIME + ", "
+				+ OrderTransTable.COLUMN_PAID_STAFF_ID + ", "
+				+ OrderTransTable.COLUMN_DOC_TYPE_ID + ", "
+				+ OrderTransTable.COLUMN_STATUS_ID + ", "
+				+ OrderTransTable.COLUMN_RECEIPT_YEAR + ", "
+				+ OrderTransTable.COLUMN_RECEIPT_MONTH + ", "
+				+ OrderTransTable.COLUMN_RECEIPT_ID + ", "
+				+ OrderTransTable.COLUMN_RECEIPT_NO + ", "
+				+ OrderTransTable.COLUMN_SALE_DATE + ", "
+				+ OrderTransTable.COLUMN_TRANS_VAT + ", "
+				+ OrderTransTable.COLUMN_TRANS_VATABLE + ", "
+				+ SessionTable.COLUMN_SESS_ID + ", "
+				+ OrderTransTable.COLUMN_VOID_STAFF_ID + ", "
+				+ OrderTransTable.COLUMN_VOID_REASON + ", "
+				+ OrderTransTable.COLUMN_VOID_TIME + ", "
+				+ OrderTransTable.COLUMN_TRANS_NOTE + ", "
+				+ ProductTable.COLUMN_SALE_MODE + ", "
+				+ ProductTable.COLUMN_VAT_RATE + ", "
+				+ OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT + ", "
+				+ PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + ", "
+				+ OrderTransTable.COLUMN_EJ + ", "
+				+ OrderTransTable.COLUMN_EJ_VOID
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS_WASTE
+				+ " WHERE " + selection;
+		return getReadableDatabase().rawQuery(sqlQuery, selectionArgs);
 	}
 
 	private Cursor querySession(String selection, String[] selectionArgs){

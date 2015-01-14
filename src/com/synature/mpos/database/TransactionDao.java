@@ -25,6 +25,7 @@ import com.synature.mpos.database.table.MaxTransIdTable;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
+import com.synature.mpos.database.table.PaymentDetailWasteTable;
 import com.synature.mpos.database.table.ProductComponentGroupTable;
 import com.synature.mpos.database.table.ProductComponentTable;
 import com.synature.mpos.database.table.ProductTable;
@@ -852,6 +853,14 @@ public class TransactionDao extends MPOSDatabase {
 		return order;
 	}
 	
+	public String formatWasteReceiptNo(String docTypeHeader, int year, int month, int day, int id) {
+		String receiptYear = String.format(Locale.US, "%04d", year);
+		String receiptMonth = String.format(Locale.US, "%02d", month);
+		String receiptDay = String.format(Locale.US, "%02d", day);
+		String receiptId = String.format(Locale.US, "%04d", id);
+		return docTypeHeader + receiptDay + receiptMonth + receiptYear + "/" + receiptId;
+	}
+	
 	public String formatReceiptNo(int year, int month, int day, int id) {
 		ComputerDao computer = new ComputerDao(getContext());
 		String receiptHeader = computer.getReceiptHeader();
@@ -1009,6 +1018,27 @@ public class TransactionDao extends MPOSDatabase {
 	}
 
 	/**
+	 * Get max waste receipt id
+	 * @param saleDate
+	 * @return max waste receipt id
+	 */
+	public int getMaxWasteReceiptId(String saleDate) {
+		int maxReceiptId = 0;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				" SELECT MAX(" + OrderTransTable.COLUMN_RECEIPT_ID + ") "
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS_WASTE
+				+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE + "=?",
+				new String[] { 
+					saleDate 
+				});
+		if (cursor.moveToFirst()) {
+			maxReceiptId = cursor.getInt(0);
+		}
+		cursor.close();
+		return maxReceiptId + 1;
+	}
+	
+	/**
 	 * Get max receiptId
 	 * @param year
 	 * @param month
@@ -1094,6 +1124,43 @@ public class TransactionDao extends MPOSDatabase {
 	}
 
 	/**
+	 * Close waste transaction
+	 * @param transactionId
+	 * @param staffId
+	 * @param docType
+	 * @param docTypeHeader
+	 * @param totalSalePrice
+	 */
+	public void closeWasteTransaction(int transactionId, int staffId, 
+			int docType, String docTypeHeader, double totalSalePrice) {
+		Calendar date = Utils.getDate();
+		Calendar dateTime = Utils.getCalendar();
+		int receiptId = getMaxWasteReceiptId(String.valueOf(date.getTimeInMillis()));
+		String receiptNo = formatWasteReceiptNo(docTypeHeader,
+				date.get(Calendar.YEAR), 
+				date.get(Calendar.MONTH) + 1, 
+				date.get(Calendar.DAY_OF_MONTH), receiptId);
+		
+		ContentValues cv = new ContentValues();
+		cv.put(OrderTransTable.COLUMN_STATUS_ID, TRANS_STATUS_SUCCESS);
+		cv.put(OrderTransTable.COLUMN_RECEIPT_ID, receiptId);
+		cv.put(OrderTransTable.COLUMN_CLOSE_TIME, dateTime.getTimeInMillis());
+		cv.put(OrderTransTable.COLUMN_PAID_TIME, dateTime.getTimeInMillis()); 
+		cv.put(OrderTransTable.COLUMN_TRANS_VATABLE, totalSalePrice);
+		cv.put(OrderTransTable.COLUMN_DOC_TYPE_ID, docType);
+		cv.put(OrderTransTable.COLUMN_PAID_STAFF_ID, staffId);
+		cv.put(OrderTransTable.COLUMN_CLOSE_STAFF, staffId);
+		cv.put(OrderTransTable.COLUMN_RECEIPT_NO, receiptNo);
+		getWritableDatabase().update(OrderTransTable.TEMP_ORDER_TRANS, 
+				cv,
+				OrderTransTable.COLUMN_TRANS_ID + "=?",
+				new String[] { 
+						String.valueOf(transactionId) 
+				});
+		moveTransWasteToRealTable(transactionId);
+	}
+	
+	/**
 	 * @param transactionId
 	 * @param staffId
 	 * @param totalSalePrice
@@ -1134,14 +1201,39 @@ public class TransactionDao extends MPOSDatabase {
 				new String[] { 
 						String.valueOf(transactionId) 
 				});
-		copyToRealTable(transactionId);
+		moveTransToRealTable(transactionId);
 	}
 
+	/**
+	 * Move waste transaction to real table
+	 * @param transactionId
+	 */
+	private void moveTransWasteToRealTable(int transactionId){
+		SQLiteDatabase db = getWritableDatabase();
+		db.beginTransaction();
+		try{
+			String where = OrderTransTable.COLUMN_TRANS_ID + "=" + transactionId;
+			db.execSQL("insert into " + OrderTransTable.TABLE_ORDER_TRANS_WASTE 
+					+ " select * from " + OrderTransTable.TEMP_ORDER_TRANS
+					+ " where " + where);
+			db.execSQL("insert into " + OrderDetailTable.TABLE_ORDER_WASTE
+					+ " select * from " + OrderDetailTable.TEMP_ORDER
+					+ " where " + where);
+			db.execSQL("delete from " + OrderDetailTable.TEMP_ORDER
+					+ " where " + where);
+			db.execSQL("delete from " + OrderTransTable.TEMP_ORDER_TRANS
+					+ " where " + where);
+			db.setTransactionSuccessful();
+		}finally{
+			db.endTransaction();
+		}
+	}
+	
 	/**
 	 * Copy transaction data from temp to real table
 	 * @param transactionId
 	 */
-	private void copyToRealTable(int transactionId){
+	private void moveTransToRealTable(int transactionId){
 		SQLiteDatabase db = getWritableDatabase();
 		db.beginTransaction();
 		try{
@@ -1212,21 +1304,26 @@ public class TransactionDao extends MPOSDatabase {
 	 */
 	public void deleteAllSale(String dateFrom, String dateTo){
 		String transIds = getTransactionIds(dateFrom, dateTo);
+		String wasteTransIds = getWasteTransactionIds(dateFrom, dateTo);
 		SQLiteDatabase db = getWritableDatabase();
 		db.execSQL("DELETE FROM " + OrderTransTable.TEMP_ORDER_TRANS);
 		db.execSQL("DELETE FROM " + OrderDetailTable.TEMP_ORDER);
-		if(TextUtils.isEmpty(transIds))
-			return;
+		db.execSQL("DELETE FROM " + PaymentDetailTable.TEMP_PAYMENT_DETAIL);
+		db.execSQL("DELETE FROM " + PaymentDetailWasteTable.TEMP_PAYMENT_DETAIL_WASTE);
 		db.beginTransaction();
 		try{
 			String sessWhere = SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ? ";
 			String[] sessWhereArgs = {dateFrom, dateTo};
 			String transWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")";
+			String wasteTransWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + wasteTransIds + ")";
 			db.delete(SessionTable.TABLE_SESSION, sessWhere, sessWhereArgs);
 			db.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, sessWhere, sessWhereArgs);
 			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER + " WHERE " + transWhere);
+			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER_WASTE + " WHERE " + wasteTransWhere);
 			db.execSQL("DELETE FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE " + transWhere);
+			db.execSQL("DELETE FROM " + PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE + " WHERE " + wasteTransWhere);
 			db.execSQL("DELETE FROM " + OrderTransTable.TABLE_ORDER_TRANS + " WHERE " + transWhere);
+			db.execSQL("DELETE FROM " + OrderTransTable.TABLE_ORDER_TRANS_WASTE + " WHERE " + wasteTransWhere);
 			db.setTransactionSuccessful();
 		}finally{
 			db.endTransaction();
@@ -1240,11 +1337,12 @@ public class TransactionDao extends MPOSDatabase {
 	 */
 	public void deleteSale(String dateFrom, String dateTo){
 		String transIds = getAlreadySendTransactionIds(dateFrom, dateTo);
+		String wasteTransIds = getAlreadySendWasteTransactionIds(dateFrom, dateTo);
 		SQLiteDatabase db = getWritableDatabase();
 		db.execSQL("DELETE FROM " + OrderTransTable.TEMP_ORDER_TRANS);
 		db.execSQL("DELETE FROM " + OrderDetailTable.TEMP_ORDER);
-		if(TextUtils.isEmpty(transIds))
-			return;
+		db.execSQL("DELETE FROM " + PaymentDetailTable.TEMP_PAYMENT_DETAIL);
+		db.execSQL("DELETE FROM " + PaymentDetailWasteTable.TEMP_PAYMENT_DETAIL_WASTE);
 		db.beginTransaction();
 		try{
 			String sessWhere = SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ? ";
@@ -1252,15 +1350,42 @@ public class TransactionDao extends MPOSDatabase {
 			String sessEndWhere = sessWhere + " AND " + COLUMN_SEND_STATUS + "=?";
 			String[] sessEndWhereArgs = {dateFrom, dateTo, String.valueOf(ALREADY_SEND)};
 			String transWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")";
+			String wasteTransWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + wasteTransIds + ")";
 			db.delete(SessionTable.TABLE_SESSION, sessWhere, sessWhereArgs);
 			db.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, sessEndWhere, sessEndWhereArgs);
 			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER + " WHERE " + transWhere);
+			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER_WASTE + " WHERE " + wasteTransWhere);
 			db.execSQL("DELETE FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE " + transWhere);
+			db.execSQL("DELETE FROM " + PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE + " WHERE " + wasteTransWhere);
 			db.execSQL("DELETE FROM " + OrderTransTable.TABLE_ORDER_TRANS + " WHERE " + transWhere);
+			db.execSQL("DELETE FROM " + OrderTransTable.TABLE_ORDER_TRANS_WASTE + " WHERE " + wasteTransWhere);
 			db.setTransactionSuccessful();
 		}finally{
 			db.endTransaction();
 		}
+	}
+	
+	private String getAlreadySendWasteTransactionIds(String dateFrom, String dateTo){
+		String transIds = "";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + OrderTransTable.COLUMN_TRANS_ID
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS_WASTE
+				+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? "
+				+ " AND " + COLUMN_SEND_STATUS + "=?", 
+				new String[]{
+						dateFrom,
+						dateTo,
+						String.valueOf(ALREADY_SEND)
+				});
+		if(cursor.moveToFirst()){
+			do{
+				transIds += cursor.getString(0);
+				if(!cursor.isLast())
+					transIds += ",";
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return transIds;
 	}
 	
 	private String getAlreadySendTransactionIds(String dateFrom, String dateTo){
@@ -1274,6 +1399,27 @@ public class TransactionDao extends MPOSDatabase {
 						dateFrom,
 						dateTo,
 						String.valueOf(ALREADY_SEND)
+				});
+		if(cursor.moveToFirst()){
+			do{
+				transIds += cursor.getString(0);
+				if(!cursor.isLast())
+					transIds += ",";
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return transIds;
+	}
+	
+	private String getWasteTransactionIds(String dateFrom, String dateTo){
+		String transIds = "";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + OrderTransTable.COLUMN_TRANS_ID
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS_WASTE
+				+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE + " BETWEEN ? AND ? ", 
+				new String[]{
+						dateFrom,
+						dateTo
 				});
 		if(cursor.moveToFirst()){
 			do{
@@ -1534,6 +1680,26 @@ public class TransactionDao extends MPOSDatabase {
 						String.valueOf(TRANS_STATUS_VOID) });
 	}
 
+	/**
+	 * @param saleDate
+	 * @return row affected
+	 */
+	public int updateTransactionWasteSendStatus(String saleDate, int status) {
+		ContentValues cv = new ContentValues();
+		cv.put(COLUMN_SEND_STATUS, status);
+		return getWritableDatabase().update(
+				OrderTransTable.TABLE_ORDER_TRANS_WASTE,
+				cv,
+				OrderTransTable.COLUMN_SALE_DATE + "=?"
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+				+ " AND " + COLUMN_SEND_STATUS + "=?",
+				new String[] { 
+						saleDate, 
+						String.valueOf(TRANS_STATUS_SUCCESS),
+						String.valueOf(TRANS_STATUS_VOID),
+						String.valueOf(NOT_SEND)});
+	}
+	
 	/**
 	 * @param saleDate
 	 * @return row affected

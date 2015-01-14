@@ -774,6 +774,7 @@ public class MainActivity extends FragmentActivity implements
 					payment.deleteAllPaymentDetail(mTransactionId);
 					payment.addPaymentDetail(mTransactionId, mComputerId, PaymentDetailDao.PAY_TYPE_CASH, 
 							totalPaid, totalPaid, "", 0, 0, 0, 0, "");
+					payment.confirmPayment(mTransactionId);
 					
 					// open cash drawer
 					WintecCashDrawer drw = new WintecCashDrawer(MainActivity.this);
@@ -2558,19 +2559,6 @@ public class MainActivity extends FragmentActivity implements
 		Logger.appendLog(MainActivity.this, Utils.LOG_PATH, 
 					Utils.LOG_FILE_NAME, "Send endday successfully");
 
-		// delete sale if more than 90 days
-		String firstDate = mSession.getFirstSessionDate();
-		if(!TextUtils.isEmpty(firstDate)){
-			int maxDays = 90;
-			Calendar cFirst = Calendar.getInstance();
-			cFirst.setTimeInMillis(Long.parseLong(firstDate));
-			int days = Utils.getDiffDay(cFirst);
-			if(days > maxDays){
-				Calendar cLast = (Calendar) cFirst.clone();
-				cLast.add(Calendar.DAY_OF_YEAR, maxDays);
-				mTrans.deleteSale(firstDate, String.valueOf(cLast.getTimeInMillis()));
-			}
-		}
 		new AlertDialog.Builder(MainActivity.this)
 			.setTitle(R.string.endday)
 			.setMessage(R.string.send_endday_data_success)

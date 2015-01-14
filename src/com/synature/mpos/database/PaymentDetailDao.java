@@ -12,8 +12,8 @@ import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.PayTypeFinishWasteTable;
 import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
+import com.synature.mpos.database.table.PaymentDetailWasteTable;
 import com.synature.mpos.database.table.SessionTable;
-import com.synature.pos.PayType;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -128,32 +128,6 @@ public class PaymentDetailDao extends MPOSDatabase {
 		return paymentLst;
 	}
 	
-	public List<com.synature.pos.PayType> listPaytypeWest(){
-		List<com.synature.pos.PayType> westLst = null;
-		Cursor cursor = getReadableDatabase().query(PayTypeFinishWasteTable.TABLE_PAY_TYPE_FINISH_WASTE, 
-				new String[]{
-					PayTypeTable.COLUMN_PAY_TYPE_ID,
-					PayTypeTable.COLUMN_PAY_TYPE_CODE,
-					PayTypeTable.COLUMN_PAY_TYPE_NAME,
-					PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_ID,
-					PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_HEADER,
-				}, null, null, null, null, COLUMN_ORDERING);
-		if(cursor.moveToFirst()){
-			westLst = new ArrayList<com.synature.pos.PayType>();
-			do{
-				com.synature.pos.PayType west = new com.synature.pos.PayType();
-				west.setPayTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
-				west.setPayTypeCode(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)));
-				west.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
-				west.setDocumentTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_ID)));
-				west.setDocumentTypeHeader(cursor.getString(cursor.getColumnIndex(PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_HEADER)));
-				westLst.add(west);
-			}while(cursor.moveToNext());
-		}
-		cursor.close();
-		return westLst;
-	}
-	
 	/**
 	 * @return List<Payment.PayType>
 	 */
@@ -227,7 +201,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 	 * @return row affected
 	 */
 	public int deleteAllPaymentDetail(int transactionId){
-		return getWritableDatabase().delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL, 
+		return getWritableDatabase().delete(PaymentDetailTable.TEMP_PAYMENT_DETAIL, 
 					OrderTransTable.COLUMN_TRANS_ID + "=?",
 					new String[]{String.valueOf(transactionId)});
 	}
@@ -247,6 +221,24 @@ public class PaymentDetailDao extends MPOSDatabase {
 		return maxPaymentId + 1;
 	}
 
+	/**
+	 * Confirm payment move from temp to real table
+	 * @param transactionId
+	 */
+	public void confirmPayment(int transactionId){
+		getWritableDatabase().beginTransaction();
+		try {
+			getWritableDatabase().execSQL("insert into " + PaymentDetailTable.TABLE_PAYMENT_DETAIL
+					+ " select * from " + PaymentDetailTable.TEMP_PAYMENT_DETAIL
+					+ " where " + OrderTransTable.COLUMN_TRANS_ID + "=" + transactionId);
+			getWritableDatabase().execSQL("delete from " + PaymentDetailTable.TEMP_PAYMENT_DETAIL
+					+ " where " + OrderTransTable.COLUMN_TRANS_ID + "=" + transactionId);
+			getWritableDatabase().setTransactionSuccessful();
+		} finally {
+			getWritableDatabase().endTransaction();
+		}
+	}
+	
 	/**
 	 * @param transactionId
 	 * @param computerId
@@ -271,7 +263,6 @@ public class PaymentDetailDao extends MPOSDatabase {
 			double totalPayed = getTotalPaid(transactionId) + pay;
 			updatePaymentDetail(transactionId, payTypeId, totalPayment, totalPayed);
 		}else{
-			// add new payment
 			int paymentId = getMaxPaymentDetailId();
 			ContentValues cv = new ContentValues();
 			cv.put(PaymentDetailTable.COLUMN_PAY_ID, paymentId);
@@ -286,7 +277,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 			cv.put(CreditCardTable.COLUMN_CREDITCARD_TYPE_ID, creditCardTypeId);
 			cv.put(BankTable.COLUMN_BANK_ID, bankId);
 			cv.put(PaymentDetailTable.COLUMN_REMARK, remark);
-			getWritableDatabase().insertOrThrow(PaymentDetailTable.TABLE_PAYMENT_DETAIL, null, cv);
+			getWritableDatabase().insertOrThrow(PaymentDetailTable.TEMP_PAYMENT_DETAIL, null, cv);
 		}
 	}
 
@@ -299,7 +290,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 		boolean isAdded = false;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				"SELECT COUNT(" + PaymentDetailTable.COLUMN_PAY_ID + ")"
-				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL
+				+ " FROM " + PaymentDetailTable.TEMP_PAYMENT_DETAIL
 				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{String.valueOf(transactionId), String.valueOf(payTypeId)});
@@ -323,7 +314,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT, paid);
 		cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, amount);
-		return getWritableDatabase().update(PaymentDetailTable.TABLE_PAYMENT_DETAIL, cv, 
+		return getWritableDatabase().update(PaymentDetailTable.TEMP_PAYMENT_DETAIL, cv, 
 				OrderTransTable.COLUMN_TRANS_ID + "=? "
 								+ " AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{
@@ -332,14 +323,14 @@ public class PaymentDetailDao extends MPOSDatabase {
 				}
 		);
 	}
-
+	
 	/**
 	 * @param transactionId
 	 * @param payTypeId
 	 * @return row affected
 	 */
 	public int deletePaymentDetail(int transactionId, int payTypeId){
-		return getWritableDatabase().delete(PaymentDetailTable.TABLE_PAYMENT_DETAIL,
+		return getWritableDatabase().delete(PaymentDetailTable.TEMP_PAYMENT_DETAIL,
 				OrderTransTable.COLUMN_TRANS_ID + "=? AND "
 				+ PayTypeTable.COLUMN_PAY_TYPE_ID + "=?", 
 				new String[]{
@@ -485,7 +476,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 		double totalPaid = 0.0d;
 		Cursor cursor = getReadableDatabase().rawQuery(
 				" SELECT SUM(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ") "
-						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
+						+ " FROM " + PaymentDetailTable.TEMP_PAYMENT_DETAIL 
 						+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?",
 				new String[]{
 						String.valueOf(transactionId)
@@ -510,8 +501,8 @@ public class PaymentDetailDao extends MPOSDatabase {
 						+ " a." + PaymentDetailTable.COLUMN_REMARK + ", " 
 						+ " b." + PayTypeTable.COLUMN_PAY_TYPE_CODE + ", " 
 						+ " b." + PayTypeTable.COLUMN_PAY_TYPE_NAME 
-						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " a " 
-						+ " INNER JOIN " + PayTypeTable.TABLE_PAY_TYPE + " b "
+						+ " FROM " + PaymentDetailTable.TEMP_PAYMENT_DETAIL + " a " 
+						+ " LEFT JOIN " + PayTypeTable.TABLE_PAY_TYPE + " b "
 						+ " ON a." + PayTypeTable.COLUMN_PAY_TYPE_ID 
 						+ "=b." + PayTypeTable.COLUMN_PAY_TYPE_ID 
 						+ " WHERE a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
@@ -533,6 +524,98 @@ public class PaymentDetailDao extends MPOSDatabase {
 		}
 		cursor.close();
 		return paymentLst;
+	}
+	
+	/**
+	 * @return List<com.synature.pos.PayType>
+	 */
+	public List<com.synature.pos.PayType> listPaytypeWest(){
+		List<com.synature.pos.PayType> westLst = null;
+		Cursor cursor = getReadableDatabase().query(PayTypeFinishWasteTable.TABLE_PAY_TYPE_FINISH_WASTE, 
+				new String[]{
+					PayTypeTable.COLUMN_PAY_TYPE_ID,
+					PayTypeTable.COLUMN_PAY_TYPE_CODE,
+					PayTypeTable.COLUMN_PAY_TYPE_NAME,
+					PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_ID,
+					PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_HEADER,
+				}, null, null, null, null, COLUMN_ORDERING);
+		if(cursor.moveToFirst()){
+			westLst = new ArrayList<com.synature.pos.PayType>();
+			do{
+				com.synature.pos.PayType west = new com.synature.pos.PayType();
+				west.setPayTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
+				west.setPayTypeCode(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)));
+				west.setPayTypeName(cursor.getString(cursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
+				west.setDocumentTypeID(cursor.getInt(cursor.getColumnIndex(PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_ID)));
+				west.setDocumentTypeHeader(cursor.getString(cursor.getColumnIndex(PayTypeFinishWasteTable.COLUMN_DOCUMENT_TYPE_HEADER)));
+				westLst.add(west);
+			}while(cursor.moveToNext());
+		}
+		cursor.close();
+		return westLst;
+	}
+	
+	public void addPaymentDetailWaste(int transactionId, int computerId, 
+			int payTypeId, double payAmount, String remark) throws SQLException{
+		int maxId = getMaxPaymentDetailWasteId();
+		ContentValues cv = new ContentValues();
+		cv.put(PaymentDetailTable.COLUMN_PAY_ID, maxId);
+		cv.put(OrderTransTable.COLUMN_TRANS_ID, transactionId);
+		cv.put(ComputerTable.COLUMN_COMPUTER_ID, computerId);
+		cv.put(PayTypeTable.COLUMN_PAY_TYPE_ID, payTypeId);
+		cv.put(PaymentDetailTable.COLUMN_PAY_AMOUNT, payAmount);
+		cv.put(PaymentDetailTable.COLUMN_REMARK, remark);
+		getWritableDatabase().insertOrThrow(PaymentDetailWasteTable.TEMP_PAYMENT_DETAIL_WASTE, 
+				PaymentDetailTable.COLUMN_REMARK, cv);
+	}
+
+	public void deletePaymentDetailWaste(int transactionId){
+		delete(OrderTransTable.COLUMN_TRANS_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId)
+				});
+	}
+
+	public void deletePaymentDetailWaste(int transactionId, int paymentId){
+		delete(OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " AND " + PaymentDetailTable.COLUMN_PAY_ID + "=?", 
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(paymentId)
+				});
+	}
+	
+	private void delete(String whereClause, String[] whereArgs){
+		getWritableDatabase().delete(
+				PaymentDetailWasteTable.TEMP_PAYMENT_DETAIL_WASTE,
+				whereClause,
+				whereArgs);	
+	}
+	
+	public void confirmWastePayment(int transactionId) throws SQLException{
+		String where = OrderTransTable.COLUMN_TRANS_ID + "=" + transactionId;
+		getWritableDatabase().beginTransaction();
+		try {
+			getWritableDatabase().execSQL("insert into " + PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE
+					+ " select * from " + PaymentDetailWasteTable.TEMP_PAYMENT_DETAIL_WASTE
+					+ " where " + where);
+			getWritableDatabase().execSQL("delete from " + PaymentDetailWasteTable.TEMP_PAYMENT_DETAIL_WASTE
+					+ " where " + where);
+			getWritableDatabase().setTransactionSuccessful();
+		} finally {
+			getWritableDatabase().endTransaction();
+		}
+	}
+	
+	public int getMaxPaymentDetailWasteId(){
+		int maxId = 0;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"select max(" + PaymentDetailTable.COLUMN_PAY_ID + ")"
+				+ " from " + PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE, null);
+		if(cursor.moveToFirst()){
+			maxId = cursor.getInt(0);
+		}
+		return maxId + 1;
 	}
 	
 	/**

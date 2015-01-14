@@ -125,6 +125,8 @@ public class OrderTransTable extends BaseColumn {
 			} finally {
 				db.endTransaction();
 			}
+		}else if(oldVersion < 8){
+			db.execSQL("create table " + TABLE_ORDER_TRANS_WASTE + " as select * from " + TABLE_ORDER_TRANS + " where 0;");
 		}
 	}
 }
