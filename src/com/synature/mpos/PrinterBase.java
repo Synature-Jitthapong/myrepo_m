@@ -746,8 +746,8 @@ public abstract class PrinterBase {
     					mCreditCard.getCreditCardType(payment.getCreditCardTypeId());
 	    			cardNoText += payment.getCreditCardNo().substring(12, 16);
 	    		} catch (Exception e) {
-	    			Logger.appendLog(mContext, Utils.LOG_PATH, 
-	    					Utils.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
+	    			Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+	    					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
 	    		}
 	    		mTextToPrint.append(paymentText);
 	    		mTextToPrint.append(createHorizontalSpace(calculateLength(paymentText)));

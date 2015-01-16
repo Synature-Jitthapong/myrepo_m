@@ -644,7 +644,7 @@ public class ProductSetActivity extends Activity{
 			mRequireMinAmount = requireMinAmount;
 			
 			mImgLoader = new ImageLoader(ProductSetActivity.this, 0,
-					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 
 			mInflater = (LayoutInflater)
 					getSystemService(Context.LAYOUT_INFLATER_SERVICE);

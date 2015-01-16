@@ -2,19 +2,11 @@ package com.synature.mpos;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import com.synature.mpos.database.GlobalPropertyDao;
-import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.SessionDao;
-import com.synature.mpos.database.TransactionDao;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,19 +33,15 @@ public class SendEnddayActivity extends Activity {
 	private int mStaffId;
 	private int mShopId;
 	private int mComputerId;
-	private boolean mAutoClose = false;
 	
 	private SessionDao mSession;
-	private TransactionDao mTrans;
 	private List<String> mSessLst;
 	private EnddayListAdapter mEnddayAdapter;
 	
 	private ListView mLvEndday;
 	private ProgressBar mProgress;
 	
-	private MenuItem mItemClose;
 	private MenuItem mItemSend;
-	private MenuItem mItemProgress;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,11 +66,9 @@ public class SendEnddayActivity extends Activity {
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mShopId = intent.getIntExtra("shopId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
-		mAutoClose = intent.getBooleanExtra("autoClose", false);
 		
 		mFormat = new GlobalPropertyDao(this);
 		mSession = new SessionDao(this);
-		mTrans = new TransactionDao(this);
 		mSessLst = new ArrayList<String>();
 
 		setupAdapter();
@@ -100,9 +86,7 @@ public class SendEnddayActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.send_endday, menu);
-		mItemClose = menu.findItem(R.id.itemClose);
 		mItemSend = menu.findItem(R.id.itemSendAll);
-		mItemProgress = menu.findItem(R.id.itemProgress);
 		return true;
 	}
 
@@ -113,12 +97,8 @@ public class SendEnddayActivity extends Activity {
 				setResult(RESULT_OK);
 				finish();
 			return true;
-			case R.id.itemClose:
-				setResult(RESULT_OK);
-				finish();
-				return true;
 			case R.id.itemSendAll:
-				//sendEndday();
+				sendEndday();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -140,6 +120,7 @@ public class SendEnddayActivity extends Activity {
 		public EnddayReceiver(Handler handler) {
 			super(handler);
 			mProgress.setVisibility(View.VISIBLE);
+			mItemSend.setEnabled(false);
 		}
 
 		@Override
@@ -147,77 +128,28 @@ public class SendEnddayActivity extends Activity {
 			super.onReceiveResult(resultCode, resultData);
 			switch(resultCode){
 			case MPOSServiceBase.RESULT_SUCCESS:
+				mProgress.setVisibility(View.GONE);
+				mItemSend.setEnabled(true);
+				setupAdapter();
 				break;
 			case MPOSServiceBase.RESULT_ERROR:
+				mProgress.setVisibility(View.GONE);
+				mItemSend.setEnabled(false);
+				Toast.makeText(SendEnddayActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
 				break;
 			}
 		}
 		
 	}
 	
-//	private void sendEndday(){
-//		mChkNetworkProgress.setVisibility(View.GONE);
-//		List<String> sessionLst = mSession.listSessionEnddayNotSend();
-//		if(sessionLst.size() > 0){
-//			ExecutorService executor = Executors.newFixedThreadPool(5);
-//			JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
-//			Iterator<String> it = sessionLst.iterator();
-//			try {
-//				while(it.hasNext()){
-//					final String sessionDate = it.next();
-//					String jsonEndday = jsonGenerator.generateEnddaySale(sessionDate);
-//					executor.execute(new EndDaySaleSender(SendEnddayActivity.this, mShopId, mComputerId, mStaffId, jsonEndday,
-//							new WebServiceWorkingListener(){
-//
-//								@Override
-//								public void onPostExecute() {
-//									setSendEnddayDataStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
-//									mItemClose.setEnabled(true);
-//									mItemSend.setVisible(true);
-//									mItemProgress.setVisible(false);
-//									
-//									setupAdapter();
-//									
-//									if(mAutoClose){
-//										new AlertDialog.Builder(SendEnddayActivity.this)
-//										.setCancelable(false)
-//										.setTitle(R.string.send_endday_data)
-//										.setMessage(R.string.send_endday_data_success)
-//										.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-//											
-//											@Override
-//											public void onClick(DialogInterface dialog, int which) {
-//												setResult(RESULT_OK);
-//												finish();
-//											}
-//										})
-//										.show();
-//									}else{
-//										Toast.makeText(SendEnddayActivity.this, 
-//												getString(R.string.send_sale_data_success), Toast.LENGTH_SHORT);
-//									}
-//								}
-//
-//								@Override
-//								public void onError(String msg) {
-//									setSendEnddayDataStatus(sessionDate, MPOSDatabase.NOT_SEND);
-//									mItemClose.setEnabled(true);
-//									mItemSend.setVisible(true);
-//									mItemProgress.setVisible(false);
-//									Toast.makeText(SendEnddayActivity.this, msg, Toast.LENGTH_SHORT);
-//								}
-//						
-//					}));
-//				}
-//			} finally {
-//				executor.shutdown();
-//			}
-//		}
-//	}
-	
-	private void setSendEnddayDataStatus(String sessionDate, int status){
-		mSession.updateSessionEnddayDetail(sessionDate, status);
-		mTrans.updateTransactionSendStatus(sessionDate, status);
+	private void sendEndday(){
+		Intent intent = new Intent(this, SaleSenderService.class);
+		intent.putExtra("what", SaleSenderService.SEND_ENDDAY);
+		intent.putExtra("shopId", mShopId);
+		intent.putExtra("computerId", mComputerId);
+		intent.putExtra("staffId", mStaffId);
+		intent.putExtra("sendSaleReceiver", new EnddayReceiver(new Handler()));
+		startService(intent);
 	}
 	
 	private class EnddayListAdapter extends BaseAdapter{

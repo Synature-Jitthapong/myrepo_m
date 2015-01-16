@@ -114,11 +114,11 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 			mMsrThread = new Thread(this);
 			mMsrThread.start();
 			mIsRead = true;
-			Logger.appendLog(this, Utils.LOG_PATH, 
-					Utils.LOG_FILE_NAME, "Start magnetic reader thread");
+			Logger.appendLog(this, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME, "Start magnetic reader thread");
 		} catch (Exception e) {
-			Logger.appendLog(this, Utils.LOG_PATH, 
-					Utils.LOG_FILE_NAME, 
+			Logger.appendLog(this, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME, 
 					"Error start magnetic reader thread " + 
 					e.getMessage());
 		}
@@ -155,7 +155,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				final String content = mMsrReader.getTrackData();
 				if(content.length() > 0){
 					Logger.appendLog(getApplicationContext(), 
-						Utils.LOG_PATH, Utils.LOG_FILE_NAME,
+						MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME,
 						"Content : " + content);
 					runOnUiThread(new Runnable(){
 
@@ -173,7 +173,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 								}
 							} catch (Exception e) {
 								Logger.appendLog(getApplicationContext(), 
-										Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+										MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 										"Error parser card : " + e.getMessage());
 							}
 						}
@@ -182,7 +182,7 @@ public class FoodCourtCardPayActivity extends Activity implements Runnable{
 				}
 			} catch (Exception e) {
 				Logger.appendLog(getApplicationContext(), 
-						Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+						MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 						" Error when read data from magnetic card : " + e.getMessage());
 			}
 		}

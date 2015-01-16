@@ -32,7 +32,7 @@ public class SoftwareRegister extends RegisterServiceBase{
 		
 		mProperty = new PropertyInfo();
 		mProperty.setName(DB_VERSION_PARAM);
-		mProperty.setValue(Utils.DB_VERSION);
+		mProperty.setValue(MPOSApplication.DB_VERSION);
 		mProperty.setType(String.class);
 		mSoapRequest.addProperty(mProperty);
 	}

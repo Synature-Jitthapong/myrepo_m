@@ -110,8 +110,8 @@ public class MasterDataLoader extends MPOSServiceBase{
 		} catch (Exception e) {
 			// log sync history
 			sync.updateSyncStatus(SyncHistoryDao.SYNC_STATUS_FAIL);
-			Logger.appendLog(mContext, Utils.LOG_PATH, 
-					Utils.LOG_FILE_NAME, 
+			Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME, 
 					"Error when add shop data : " + e.getMessage());
 			if(mReceiver != null){
 				Bundle b = new Bundle();

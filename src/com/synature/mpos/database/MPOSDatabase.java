@@ -2,7 +2,7 @@ package com.synature.mpos.database;
 
 import java.util.UUID;
 
-import com.synature.mpos.Utils;
+import com.synature.mpos.MPOSApplication;
 import com.synature.mpos.database.table.BankTable;
 import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
@@ -95,7 +95,7 @@ public class MPOSDatabase extends BaseColumn{
 		}
 
 		private MPOSOpenHelper(Context context) {
-			super(context, Utils.DB_NAME, null, Utils.DB_VERSION);
+			super(context, MPOSApplication.DB_NAME, null, MPOSApplication.DB_VERSION);
 		}
 
 		@Override

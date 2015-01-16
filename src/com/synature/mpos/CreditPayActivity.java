@@ -160,11 +160,11 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 		try {
 			mIsRead = true;
 			mMsrThread.start();
-			Logger.appendLog(this, Utils.LOG_PATH, 
-					Utils.LOG_FILE_NAME, "Start magnetic reader thread");
+			Logger.appendLog(this, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME, "Start magnetic reader thread");
 		} catch (Exception e) {
-			Logger.appendLog(this, Utils.LOG_PATH, 
-					Utils.LOG_FILE_NAME, 
+			Logger.appendLog(this, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME, 
 					"Error start magnetic reader thread " + 
 					e.getMessage());
 		}
@@ -282,8 +282,8 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 					mTotalCreditPay = Utils.stringToDouble(
 							mTxtTotalPay.getText().toString());
 				} catch (ParseException e) {
-					Logger.appendLog(this, Utils.LOG_PATH, 
-							Utils.LOG_FILE_NAME, e.getMessage());
+					Logger.appendLog(this, MPOSApplication.LOG_PATH, 
+							MPOSApplication.LOG_FILE_NAME, e.getMessage());
 				}
 				
 				if (mTotalCreditPay > 0) {
@@ -535,7 +535,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 					
 					if(content.length() > 0){
 						Logger.appendLog(CreditPayActivity.this, 
-							Utils.LOG_PATH, Utils.LOG_FILE_NAME,
+							MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME,
 							"Content : " + content);
 						runOnUiThread(new Runnable(){
 
@@ -586,12 +586,12 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 											}
 										} catch (Exception e) {
 											Logger.appendLog(CreditPayActivity.this, 
-													Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+													MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 													"Error set selected spinner card type");
 										}
 										
 										Logger.appendLog(CreditPayActivity.this, 
-												Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+												MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 												"CARD NO : " + cardNo + " \n " +
 												"CARD HOLDER NAME : " + cardHolderName + "\n" +
 												"EXP DATE : " + expDate);	
@@ -608,7 +608,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 									})
 									.show();
 									Logger.appendLog(CreditPayActivity.this, 
-											Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+											MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 											"Error " + e.getMessage());
 								}
 							}
@@ -617,7 +617,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 					}
 				} catch (Exception e) {
 					Logger.appendLog(CreditPayActivity.this, 
-							Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+							MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 							" Error when read data from magnetic card : " + e.getMessage());
 				}
 			}

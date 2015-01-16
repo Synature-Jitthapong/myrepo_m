@@ -145,18 +145,6 @@
             android:windowSoftInputMode="stateAlwaysHidden">
         </activity>
         <activity
-            android:name=".SendLogActivity"
-            android:label="@string/title_activity_send_log"
-            android:textAppearance="@android:style/TextAppearance.Large"
-            android:theme="@android:style/Theme.Holo.Dialog"
-            android:windowSoftInputMode="stateHidden" >
-            <intent-filter>
-                <action android:name="com.synature.mpos.SEND_LOG" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".CheckUpdateActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden"

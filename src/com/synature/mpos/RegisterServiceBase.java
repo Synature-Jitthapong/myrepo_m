@@ -18,7 +18,7 @@ public abstract class RegisterServiceBase extends Ksoap2WebServiceTask{
 	protected ResultReceiver mReceiver;
 	
 	public RegisterServiceBase(Context context, String method, ResultReceiver receiver) {
-		super(context, Utils.REGISTER_URL, method, Utils.getConnectionTimeOut(context));
+		super(context, MPOSApplication.REGISTER_URL, method, Utils.getConnectionTimeOut(context));
 		
 		mReceiver = receiver;
 		

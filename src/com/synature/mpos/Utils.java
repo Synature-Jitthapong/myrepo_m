@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -29,7 +29,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.ProductsDao;
@@ -39,91 +38,8 @@ import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.util.Logger;
 
+@SuppressLint("ShowToast")
 public class Utils {
-	
-	/**
-	 * Database name
-	 */
-	public static final String DB_NAME = "mpos.db";
-	
-	/**
-	 * Database version
-	 */
-	public static int DB_VERSION = 8;
-	
-	/**
-	 * Main url 
-	 */
-	public static final String REGISTER_URL = "http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
-	
-	/**
-	 * Url to post stacktrace
-	 */
-	public static final String STACK_TRACE_URL = "http://www.promise-system.com/mpos_stack_trace/post_stack.php";
-	
-	/**
-	 * WebService file name
-	 */
-	public static final String WS_NAME = "ws_mpos.asmx";
-
-	/**
-	 * Menu image dir
-	 */
-	public static final String IMG_DIR = "mPOSImg";
-	
-	/**
-	 * Log prefix file name
-	 */
-	public static final String LOG_FILE_NAME = "log_";
-	
-	/**
-	 * Resource dir
-	 */
-	public static final String RESOURCE_DIR = "mpos";
-	
-	/**
-	 * Backup path
-	 */
-	public static final String BACKUP_DB_PATH = RESOURCE_DIR + File.separator + "backup";
-	
-	/**
-	 * Log dir
-	 */
-	public static final String LOG_PATH = RESOURCE_DIR + File.separator + "log";
-
-
-	/**
-	 * Error log dir
-	 */
-	public static final String ERR_LOG_PATH = RESOURCE_DIR + File.separator + "error";
-	
-	/**
-	 * Sale dir store partial sale json file
-	 */
-	public static final String SALE_PATH = RESOURCE_DIR + File.separator + "Sale";
-	
-	/**
-	 * Endday sale dir store endday sale json file
-	 */
-	public static final String ENDDAY_PATH = RESOURCE_DIR + File.separator + "EnddaySale";
-	
-	/**
-	 * Image path on server
-	 */
-	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
-	
-	/**
-	 * The minimum date
-	 */
-	public static final int MINIMUM_YEAR = 1900;
-	public static final int MINIMUM_MONTH = 0;
-	public static final int MINIMUM_DAY = 1;
-	
-	/**
-	 * Enable/Disable log
-	 */
-	public static final boolean sIsEnableLog = true;
-
 	/**
 	 * @param context
 	 * @param shopId
@@ -156,8 +72,8 @@ public class Utils {
 			}
 			try {
 				GlobalPropertyDao format = new GlobalPropertyDao(context);
-				Logger.appendLog(context, LOG_PATH,
-						LOG_FILE_NAME,
+				Logger.appendLog(context, MPOSApplication.LOG_PATH,
+						MPOSApplication.LOG_FILE_NAME,
 						"Success ending multiple day : " 
 						+ " from : " + format.dateFormat(lastSessCal.getTime())
 						+ " to : " + format.dateFormat(Calendar.getInstance().getTime()));
@@ -167,8 +83,8 @@ public class Utils {
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			Logger.appendLog(context, LOG_PATH,
-					LOG_FILE_NAME,
+			Logger.appendLog(context, MPOSApplication.LOG_PATH,
+					MPOSApplication.LOG_FILE_NAME,
 					"Error ending multiple day : " + e.getMessage());
 		}
 		return false;
@@ -195,7 +111,8 @@ public class Utils {
 	}
 	
 	public static Calendar getMinimum(){
-		return new GregorianCalendar(MINIMUM_YEAR, MINIMUM_MONTH, MINIMUM_DAY);
+		return new GregorianCalendar(MPOSApplication.MINIMUM_YEAR, 
+				MPOSApplication.MINIMUM_MONTH, MPOSApplication.MINIMUM_DAY);
 	}
 	
 	public static Calendar getDate(int year, int month, int day){
@@ -227,12 +144,6 @@ public class Utils {
 			return 0;
 	}
 	
-	public static void makeToask(Context c, String msg){
-		Toast toast = Toast.makeText(c, 
-				msg, Toast.LENGTH_LONG);
-		toast.show();
-	}
-
 	/**
 	 * @param scale
 	 * @param value
@@ -332,8 +243,8 @@ public class Utils {
 	}
 
 	public static void logServerResponse(Context context, String msg){
-		Logger.appendLog(context, LOG_PATH,
-				LOG_FILE_NAME,
+		Logger.appendLog(context, MPOSApplication.LOG_PATH,
+				MPOSApplication.LOG_FILE_NAME,
 				" Server Response : " + msg);
 	}
 	
@@ -556,7 +467,7 @@ public class Utils {
 	 * @return menu image url
 	 */
 	public static String getImageUrl(Context context) {
-		return getUrl(context) + "/" + SERVER_IMG_PATH;
+		return getUrl(context) + "/" + MPOSApplication.SERVER_IMG_PATH;
 	}
 
 	/**
@@ -564,7 +475,7 @@ public class Utils {
 	 * @return full webservice url
 	 */
 	public static String getFullUrl(Context context) {
-		return getUrl(context) + "/" + WS_NAME;
+		return getUrl(context) + "/" + MPOSApplication.WS_NAME;
 	}
 
 	/**
@@ -651,12 +562,12 @@ public class Utils {
 	}
 	
 	public static void backupDatabase(Context context){
-		String backupDbName = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()) + "_" + DB_NAME;
+		String backupDbName = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()) + "_" + MPOSApplication.DB_NAME;
 		File sd = Environment.getExternalStorageDirectory();
 		FileChannel source = null;
 		FileChannel destination = null;
-		File dbPath = context.getDatabasePath(DB_NAME);
-		File sdPath = new File(sd, BACKUP_DB_PATH);
+		File dbPath = context.getDatabasePath(MPOSApplication.DB_NAME);
+		File sdPath = new File(sd, MPOSApplication.BACKUP_DB_PATH);
 		if(!sdPath.exists())
 			sdPath.mkdirs();
 		deleteBackupDatabase(context);
@@ -666,16 +577,16 @@ public class Utils {
 			destination.transferFrom(source, 0, source.size());
 			source.close();
 			destination.close();
-			makeToask(context, context.getString(R.string.backup_db_success));
+			Toast.makeText(context, context.getString(R.string.backup_db_success), Toast.LENGTH_SHORT).show();
 		} catch (IOException e) {
 			e.printStackTrace();
-			makeToask(context, e.getLocalizedMessage());
+			Toast.makeText(context, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 		}
 	}
 	
 	public static void deleteBackupDatabase(Context context){
 		File sd = Environment.getExternalStorageDirectory();
-		File sdPath = new File(sd, BACKUP_DB_PATH);
+		File sdPath = new File(sd, MPOSApplication.BACKUP_DB_PATH);
 		File files[] = sdPath.listFiles();
 		if(files != null){
 			Calendar current = Calendar.getInstance();
@@ -705,14 +616,14 @@ public class Utils {
 		}
 	}
 	
-	public static void resetSendDataStatus(Context context){
-		MPOSDatabase db = new MPOSDatabase(context);
-		ContentValues cv = new ContentValues();
-		cv.put(MPOSDatabase.COLUMN_SEND_STATUS, 0);
-		db.getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, cv, null, null);
-		db.getWritableDatabase().update(OrderTransTable.TABLE_ORDER_TRANS, cv, null, null);
-		makeToask(context, "Reset successfully.");
-	}
+//	public static void resetSendDataStatus(Context context){
+//		MPOSDatabase db = new MPOSDatabase(context);
+//		ContentValues cv = new ContentValues();
+//		cv.put(MPOSDatabase.COLUMN_SEND_STATUS, 0);
+//		db.getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, cv, null, null);
+//		db.getWritableDatabase().update(OrderTransTable.TABLE_ORDER_TRANS, cv, null, null);
+//		Toast.makeText(context, "Reset successfully.", Toast.LENGTH_SHORT).show();
+//	}
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){
 		return new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight);

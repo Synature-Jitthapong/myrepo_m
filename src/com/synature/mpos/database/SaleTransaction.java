@@ -24,6 +24,7 @@ import com.synature.pos.Question.QuestionAnswerData;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 
 /*
  * This class to do generate SaleTransactionData
@@ -39,6 +40,8 @@ import android.database.Cursor;
  */
 public class SaleTransaction extends MPOSDatabase{
 
+	public static final String LIMIT = "10";
+	
 	private GlobalPropertyDao mFormat;
 	
 	private ShopDao mShop;
@@ -385,7 +388,7 @@ public class SaleTransaction extends MPOSDatabase{
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 						String.valueOf(NOT_SEND)
-				});
+				}, OrderTransTable.COLUMN_TRANS_ID, LIMIT);
 	}
 	
 	/**
@@ -403,7 +406,7 @@ public class SaleTransaction extends MPOSDatabase{
 						sessionDate,
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
-				});
+				}, null, null);
 	}
 
 	/**
@@ -601,7 +604,10 @@ public class SaleTransaction extends MPOSDatabase{
 				});
 	}
 	
-	private Cursor queryOrderTransaction(String selection, String[] selectionArgs){
+	private Cursor queryOrderTransaction(String selection, String[] selectionArgs, String orderBy, String limit){
+		String ordering = !TextUtils.isEmpty(orderBy) ? " ORDER BY " + orderBy : "";
+		String limitation = !TextUtils.isEmpty(limit) ? " LIMIT " + limit : "";
+		
 		String sqlQuery = " SELECT " 
 				+ BaseColumn.COLUMN_UUID + ", "
 				+ OrderTransTable.COLUMN_TRANS_ID + ", "
@@ -634,6 +640,8 @@ public class SaleTransaction extends MPOSDatabase{
 				+ OrderTransTable.COLUMN_EJ_VOID
 				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
 				+ " WHERE " + selection
+				+ ordering
+				+ limitation
 				+ " UNION "
 				+ " SELECT " 
 				+ BaseColumn.COLUMN_UUID + ", "
@@ -666,7 +674,9 @@ public class SaleTransaction extends MPOSDatabase{
 				+ OrderTransTable.COLUMN_EJ + ", "
 				+ OrderTransTable.COLUMN_EJ_VOID
 				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS_WASTE
-				+ " WHERE " + selection;
+				+ " WHERE " + selection
+				+ ordering
+				+ limitation;
 		return getReadableDatabase().rawQuery(sqlQuery, selectionArgs);
 	}
 

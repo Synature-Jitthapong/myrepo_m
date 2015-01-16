@@ -300,7 +300,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								Utils.resetSendDataStatus(LoginActivity.this);
+								//Utils.resetSendDataStatus(LoginActivity.this);
 							}
 						}).show();
 						return true;
@@ -403,7 +403,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 
 				checkUpdate();
 				
-				FileManager fm = new FileManager(LoginActivity.this, Utils.IMG_DIR);
+				FileManager fm = new FileManager(LoginActivity.this, MPOSApplication.IMG_DIR);
 				fm.clear();
 				startActivity(new Intent(LoginActivity.this, LoginActivity.class));
 				finish();

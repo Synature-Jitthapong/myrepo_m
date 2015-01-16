@@ -90,7 +90,7 @@ public class SaleSenderService extends Service{
 				transDao.updateTransactionWasteSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 				if(!TextUtils.isEmpty(jsonSale)){
 					JSONSaleLogFile.appendSale(getApplicationContext(), jsonSale);
-					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+					Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 							"Send partial successfully");
 				}
 				if(mReceiver != null){
@@ -110,7 +110,6 @@ public class SaleSenderService extends Service{
 				Log.e(TAG, "Send partial sale fail: " + msg);
 				break;
 			}
-			stopSelf();
 		}
 		
 	}
@@ -169,7 +168,6 @@ public class SaleSenderService extends Service{
 				Log.e(TAG, "Send unsend endday fail: " + msg);
 				break;
 			}
-			stopSelf();
 		}
 		
 	}

@@ -186,7 +186,7 @@ public class MainActivity extends FragmentActivity implements
 		mComputerId = mComputer.getComputerId();
 		
 		mImageLoader = new ImageLoader(this, 0,
-					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 
 		mDsp = new WintecCustomerDisplay(this);
 		
@@ -194,7 +194,6 @@ public class MainActivity extends FragmentActivity implements
 		setupBarCodeEvent();
 		setupMenuDeptPager();
 		setupOrderingKeypadUtils();
-		sendUnSendEndday();
 	}
 
 	private class MasterDataReceiver extends ResultReceiver{
@@ -2212,7 +2211,7 @@ public class MainActivity extends FragmentActivity implements
 	
 	private void secondDisplayChangePayment(String grandTotal, String totalPay, String change){
 		final String paymentJson = SecondDisplayJSON.genChangePayment(grandTotal, totalPay, change);
-		Logger.appendLog(this, Utils.LOG_PATH, Utils.LOG_FILE_NAME, paymentJson);
+		Logger.appendLog(this, MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, paymentJson);
 		new Thread(new Runnable(){
 
 			@Override
@@ -2239,7 +2238,7 @@ public class MainActivity extends FragmentActivity implements
 	private void secondDisplayItem(List<clsSecDisplay_TransSummary> transSummLst, String grandTotal){
 		final String itemJson = SecondDisplayJSON.genDisplayItem(mGlobal, mOrderDetailLst, 
 				transSummLst, grandTotal);
-		Logger.appendLog(this, Utils.LOG_PATH, Utils.LOG_FILE_NAME, itemJson);
+		Logger.appendLog(this, MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, itemJson);
 		new Thread(new Runnable(){
 
 			@Override
@@ -2495,36 +2494,6 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 	
-	private class SendEnddayReceiver extends ResultReceiver{
-
-		public SendEnddayReceiver(Handler handler) {
-			super(handler);
-		}
-
-		@Override
-		protected void onReceiveResult(int resultCode, Bundle resultData) {
-			super.onReceiveResult(resultCode, resultData);
-			switch(resultCode){
-			case MPOSServiceBase.RESULT_SUCCESS:
-				countSaleDataNotSend();
-				break;
-			case MPOSServiceBase.RESULT_ERROR:
-				break;
-			}
-		}
-		
-	}
-	
-	private void sendUnSendEndday(){
-		Intent intent = new Intent(MainActivity.this, SaleSenderService.class);
-		intent.putExtra("what", SaleSenderService.SEND_ENDDAY);
-		intent.putExtra("shopId", mShopId);
-		intent.putExtra("computerId", mComputerId);
-		intent.putExtra("staffId", mStaffId);
-		intent.putExtra("sendSaleReceiver", new SendEnddayReceiver(new Handler()));
-		startService(intent);
-	}
-	
 	private void onEnddayFail(String sessionDate){
 		setSendEnddayDataStatus(sessionDate, MPOSDatabase.NOT_SEND);
 		new AlertDialog.Builder(MainActivity.this)
@@ -2556,8 +2525,8 @@ public class MainActivity extends FragmentActivity implements
 		
 		// log json sale if send to server success
 		JSONSaleLogFile.appendEnddaySale(MainActivity.this, sessionDate, jsonEndday);
-		Logger.appendLog(MainActivity.this, Utils.LOG_PATH, 
-					Utils.LOG_FILE_NAME, "Send endday successfully");
+		Logger.appendLog(MainActivity.this, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME, "Send endday successfully");
 
 		new AlertDialog.Builder(MainActivity.this)
 			.setTitle(R.string.endday)

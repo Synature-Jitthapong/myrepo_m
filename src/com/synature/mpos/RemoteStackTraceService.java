@@ -24,7 +24,7 @@ public class RemoteStackTraceService extends Service{
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		final String stackTrace = intent.getStringExtra("stackTrace");
-		final String logUrl = Utils.STACK_TRACE_URL;
+		final String logUrl = MPOSApplication.STACK_TRACE_URL;
 		SimpleDateFormat dateFormat = 
 				new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 		final String fileName = Utils.getDeviceCode(getApplicationContext())

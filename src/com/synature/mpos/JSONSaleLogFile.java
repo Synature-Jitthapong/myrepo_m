@@ -22,7 +22,7 @@ public class JSONSaleLogFile {
 		Calendar calendar = Calendar.getInstance();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String fileName = dateFormat.format(calendar.getTime()) + FILE_EXTENSION;
-		FileManager fileManager = new FileManager(c, Utils.SALE_PATH);
+		FileManager fileManager = new FileManager(c, MPOSApplication.SALE_PATH);
 		String logFile = fileManager.getFile(fileName).getPath();
 		if(MyStatFs.getAvailableSpace() <= 500)
 			Logger.deleteOldLogFile(fileManager, logFile);
@@ -42,7 +42,7 @@ public class JSONSaleLogFile {
 		calendar.setTimeInMillis(Long.parseLong(sessDate));
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String fileName = dateFormat.format(calendar.getTime()) + FILE_EXTENSION;
-		FileManager fileManager = new FileManager(c, Utils.ENDDAY_PATH);
+		FileManager fileManager = new FileManager(c, MPOSApplication.ENDDAY_PATH);
 		String logFile = fileManager.getFile(fileName).getPath();
 		if(MyStatFs.getAvailableSpace() <= 500)
 			Logger.deleteOldLogFile(fileManager, logFile);

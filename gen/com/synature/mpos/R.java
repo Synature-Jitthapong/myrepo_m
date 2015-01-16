@@ -238,7 +238,6 @@ public final class R {
         public static final int itemBackupDb=0x7f0c0109;
         public static final int itemCheckUpdate=0x7f0c00fe;
         public static final int itemClearSale=0x7f0c00f8;
-        public static final int itemClose=0x7f0c0116;
         public static final int itemCloseShift=0x7f0c0107;
         public static final int itemConfirm=0x7f0c00f9;
         public static final int itemContainer=0x7f0c0073;
