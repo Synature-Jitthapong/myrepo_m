@@ -7,7 +7,10 @@ import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.OrderDetailTable;
 import com.synature.mpos.database.table.OrderTransTable;
+import com.synature.mpos.database.table.PayTypeFinishWasteTable;
+import com.synature.mpos.database.table.PayTypeTable;
 import com.synature.mpos.database.table.PaymentDetailTable;
+import com.synature.mpos.database.table.PaymentDetailWasteTable;
 import com.synature.mpos.database.table.ProductDeptTable;
 import com.synature.mpos.database.table.ProductGroupTable;
 import com.synature.mpos.database.table.ProductTable;
@@ -114,6 +117,203 @@ public class Reporting extends MPOSDatabase{
 		}
 		mainCursor.close();
 		return transLst;
+	}
+	
+	/**
+	 * @return SimpleProductData.Item null if not found
+	 */
+	public SimpleProductData.Item getTotalStockOnly(){
+		SimpleProductData.Item item = null;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				" select sum(b." + OrderDetailTable.COLUMN_ORDER_QTY + ") as " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
+						+ " sum(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") as " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE
+						+ " from " + OrderTransTable.TABLE_ORDER_TRANS_WASTE + " a "
+						+ " left join " + OrderDetailTable.TABLE_ORDER_WASTE + " b "
+						+ " on a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
+						+ " where a." + OrderTransTable.COLUMN_SALE_DATE + " between ? and ? "
+						+ " and a." + OrderTransTable.COLUMN_STATUS_ID + "=?" 
+						+ " group by a." + OrderTransTable.COLUMN_SALE_DATE,
+						new String[]{
+								mDateFrom,
+								mDateTo,
+								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+						});
+		if(cursor.moveToFirst()){
+			item = new SimpleProductData.Item();
+			item.setTotalQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+			item.setTotalPrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
+		}
+		cursor.close();
+		return item;
+	}
+	
+	/**
+	 * @param payTypeId
+	 * @return SimpleProductData.Item null if not found
+	 */
+	public SimpleProductData.Item getTotalStockOnly(int payTypeId){
+		SimpleProductData.Item item = null;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				" select sum(b." + OrderDetailTable.COLUMN_ORDER_QTY + ") as " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
+						+ " sum(b." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") as " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE
+						+ " from " + OrderTransTable.TABLE_ORDER_TRANS_WASTE + " a "
+						+ " left join " + OrderDetailTable.TABLE_ORDER_WASTE + " b "
+						+ " on a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
+						+ " left join " + PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE + " c "
+						+ " on a." + OrderTransTable.COLUMN_TRANS_ID + "=c." + OrderTransTable.COLUMN_TRANS_ID
+						+ " where a." + OrderTransTable.COLUMN_SALE_DATE + " between ? and ? "
+						+ " and a." + OrderTransTable.COLUMN_STATUS_ID + "=?"
+						+ " and c." + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?"
+						+ " group by a." + OrderTransTable.COLUMN_SALE_DATE,
+						new String[]{
+								mDateFrom,
+								mDateTo,
+								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+								String.valueOf(payTypeId)
+						});
+		if(cursor.moveToFirst()){
+			item = new SimpleProductData.Item();
+			item.setTotalQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+			item.setTotalPrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
+		}
+		cursor.close();
+		return item;
+	}
+	
+	/**
+	 * @return List<WasteReportData> null if not found
+	 */
+	public List<WasteReportData> listWasteReport(){
+		List<WasteReportData> wasteReportLst = null;
+		Cursor payTypeCursor = getReadableDatabase().rawQuery(
+				"select c." + PayTypeTable.COLUMN_PAY_TYPE_ID + ", " 
+				+ "c." + PayTypeTable.COLUMN_PAY_TYPE_CODE + ", "
+				+ "c." + PayTypeTable.COLUMN_PAY_TYPE_NAME
+				+ " from " + OrderTransTable.TABLE_ORDER_TRANS_WASTE + " a "
+				+ " left join " + PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE + " b "
+				+ " on a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
+				+ " left join " + PayTypeFinishWasteTable.TABLE_PAY_TYPE_FINISH_WASTE + " c "
+				+ " on b." + PayTypeTable.COLUMN_PAY_TYPE_ID + "=c." + PayTypeTable.COLUMN_PAY_TYPE_ID
+				+ " where a." + OrderTransTable.COLUMN_SALE_DATE + " between ? and ? "
+				+ " and a." + OrderTransTable.COLUMN_STATUS_ID + "=?"
+				+ " group by c." + PayTypeTable.COLUMN_PAY_TYPE_ID, 
+				new String[]{
+						mDateFrom,
+						mDateTo,
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+				});
+		if(payTypeCursor.moveToFirst()){
+			wasteReportLst = new ArrayList<WasteReportData>();
+			do{
+				WasteReportData wasteData = new WasteReportData();
+				wasteData.setPayTypeId(payTypeCursor.getInt(payTypeCursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
+				wasteData.setWasteName(payTypeCursor.getString(payTypeCursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)) + ":"
+						+ payTypeCursor.getString(payTypeCursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
+				
+				String payTypeId = payTypeCursor.getString(payTypeCursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID));
+				// product data
+				Cursor groupCursor = getReadableDatabase().rawQuery(
+						" select sum(c." + OrderDetailTable.COLUMN_ORDER_QTY + ") as " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
+						+ " sum(c." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") as " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
+						+ " f." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + ", "
+						+ " f." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME
+						+ " from " + OrderTransTable.TABLE_ORDER_TRANS_WASTE + " a "
+						+ " left join " + PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE + " b "
+						+ " on a." + OrderTransTable.COLUMN_TRANS_ID + "=b."  + OrderTransTable.COLUMN_TRANS_ID
+						+ " left join " + OrderDetailTable.TABLE_ORDER_WASTE + " c "
+						+ " on a." + OrderTransTable.COLUMN_TRANS_ID + "=c." + OrderTransTable.COLUMN_TRANS_ID
+						+ " left join " + ProductTable.TABLE_PRODUCT + " d "
+						+ " on c." + ProductTable.COLUMN_PRODUCT_ID + "=d." + ProductTable.COLUMN_PRODUCT_ID
+						+ " left join " + ProductDeptTable.TABLE_PRODUCT_DEPT + " e "
+						+ " on d." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID + "=e." + ProductDeptTable.COLUMN_PRODUCT_DEPT_ID
+						+ " left join " + ProductGroupTable.TABLE_PRODUCT_GROUP + " f "
+						+ " on e." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=f." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID
+						+ " where a." + OrderTransTable.COLUMN_SALE_DATE + " between ? and ? "
+						+ " and a." + OrderTransTable.COLUMN_STATUS_ID + "=?"
+						+ " and b." + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?"
+						+ " group by f." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID
+						+ " order by f." + COLUMN_ORDERING + ", f." + ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME + ","
+						+ " e." + COLUMN_ORDERING + ", e." + ProductDeptTable.COLUMN_PRODUCT_DEPT_NAME + ", "
+						+ " d." + COLUMN_ORDERING + ", d." + ProductTable.COLUMN_PRODUCT_NAME, 
+						new String[]{
+								mDateFrom,
+								mDateTo,
+								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+								payTypeId
+						});
+				
+				if(groupCursor.moveToFirst()){
+					do{
+						SimpleProductData sp = new SimpleProductData();
+						String pgId = groupCursor.getString(groupCursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_ID));
+						sp.setDeptName(groupCursor.getString(groupCursor.getColumnIndex(ProductGroupTable.COLUMN_PRODUCT_GROUP_NAME)));
+						sp.setDeptTotalQty(groupCursor.getInt(groupCursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+						sp.setDeptTotalPrice(groupCursor.getDouble(groupCursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
+						
+						Cursor cursor = getReadableDatabase().rawQuery(
+								" select sum(c." + OrderDetailTable.COLUMN_ORDER_QTY + ") as " + OrderDetailTable.COLUMN_ORDER_QTY + ", "
+								+ " sum(c." + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ") as " + OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE + ", "
+								+ " c." + ProductTable.COLUMN_PRODUCT_TYPE_ID + ", "
+								+ " d." + ProductTable.COLUMN_PRODUCT_CODE + ", "
+								+ " d." + ProductTable.COLUMN_PRODUCT_NAME + ", "
+								+ " d." + ProductTable.COLUMN_PRODUCT_NAME1 + ", "
+								+ " d." + ProductTable.COLUMN_PRODUCT_NAME2
+								+ " from " + OrderTransTable.TABLE_ORDER_TRANS_WASTE + " a "
+								+ " left join " + PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE + " b "
+								+ " on a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
+								+ " left join " + OrderDetailTable.TABLE_ORDER_WASTE + " c "
+								+ " on a." + OrderTransTable.COLUMN_TRANS_ID + "=c." + OrderTransTable.COLUMN_TRANS_ID
+								+ " left join " + ProductTable.TABLE_PRODUCT + " d "
+								+ " on c." + ProductTable.COLUMN_PRODUCT_ID + "=d." + ProductTable.COLUMN_PRODUCT_ID
+								+ " where a." + OrderTransTable.COLUMN_STATUS_ID + "=?"
+								+ " and a." + OrderTransTable.COLUMN_SALE_DATE + " between ? and ? "
+								+ " and b." + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?"
+								+ " and c." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?,?,?,?) "
+								+ " and d." + ProductGroupTable.COLUMN_PRODUCT_GROUP_ID + "=?"
+								+ " group by c." + ProductTable.COLUMN_PRODUCT_ID + ", c." + ProductTable.COLUMN_PRODUCT_TYPE_ID
+								+ " order by d." + COLUMN_ORDERING + ", d." + ProductTable.COLUMN_PRODUCT_NAME, 
+								new String[]{
+										String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+										mDateFrom,
+										mDateTo,
+										payTypeId,
+										String.valueOf(ProductsDao.NORMAL_TYPE),
+										String.valueOf(ProductsDao.SET_CAN_SELECT),
+										String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+										String.valueOf(ProductsDao.COMMENT_HAVE_PRICE),
+										pgId
+								});
+						if(cursor.moveToFirst()){
+							do{
+								SimpleProductData.Item item = new SimpleProductData.Item();
+								int productTypeId = cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID));
+								String itemName = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME));
+								String itemName1 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1));
+								String itemName2 = cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME2));
+								if(productTypeId == ProductsDao.CHILD_OF_SET_HAVE_PRICE){
+									itemName += "***";
+									itemName1 += "***";
+									itemName2 += "***";
+								}
+								item.setItemName(itemName);
+								item.setItemName1(itemName1);
+								item.setItemName2(itemName2);
+								item.setTotalQty(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+								item.setTotalPrice(cursor.getDouble(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
+								sp.getItemLst().add(item);
+							}while(cursor.moveToNext());
+						}
+						cursor.close();
+						wasteData.getSimpleProductData().add(sp);
+					}while(groupCursor.moveToNext());
+				}
+				groupCursor.close();
+				// product data
+				wasteReportLst.add(wasteData);
+			}while(payTypeCursor.moveToNext());
+		}
+		payTypeCursor.close();
+		return wasteReportLst;
 	}
 	
 	/**
@@ -748,6 +948,34 @@ public class Reporting extends MPOSDatabase{
 		}
 		public List<OrderTransaction> getTransLst() {
 			return transLst;
+		}
+	}
+	
+	/**
+	 * @author j1tth4
+	 * Waste Report Data
+	 */
+	public static class WasteReportData{
+		private int payTypeId;
+		private String wasteName;
+		private List<SimpleProductData> simpleProductData = new ArrayList<SimpleProductData>();
+		public String getWasteName() {
+			return wasteName;
+		}
+		public int getPayTypeId() {
+			return payTypeId;
+		}
+		public void setPayTypeId(int payTypeId) {
+			this.payTypeId = payTypeId;
+		}
+		public void setWasteName(String wasteName) {
+			this.wasteName = wasteName;
+		}
+		public List<SimpleProductData> getSimpleProductData() {
+			return simpleProductData;
+		}
+		public void setSimpleProductData(List<SimpleProductData> simpleProductData) {
+			this.simpleProductData = simpleProductData;
 		}
 	}
 	

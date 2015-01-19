@@ -8,14 +8,15 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -29,13 +30,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
 import com.synature.mpos.database.GlobalPropertyDao;
-import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
-import com.synature.mpos.database.table.OrderTransTable;
-import com.synature.mpos.database.table.SessionDetailTable;
 import com.synature.util.Logger;
 
 @SuppressLint("ShowToast")
@@ -444,6 +443,16 @@ public class Utils {
 	
 	/**
 	 * @param context
+	 * @return month number to keep sale default -60
+	 */
+	public static int getLastDayToClearSale(Context context){
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sharedPref.getInt(SettingsActivity.KEY_PREF_MONTHS_TO_KEEP_SALE, -60);
+	}
+	
+	/**
+	 * @param context
 	 * @return true if enabled
 	 */
 	public static boolean isEnableBackupDatabase(Context context){
@@ -600,19 +609,31 @@ public class Utils {
 		}
 	}
 	
+	/**
+	 * Clear sale data
+	 * @param context
+	 */
 	public static void deleteOverSale(Context context){
 		SessionDao sessionDao = new SessionDao(context);
 		// delete sale if more than 90 days
 		String firstDate = sessionDao.getFirstSessionDate();
 		if(!TextUtils.isEmpty(firstDate)){
+			int lastDay = getLastDayToClearSale(context);
 			Calendar cFirst = Calendar.getInstance();
 			Calendar cLast = Calendar.getInstance();
 			cFirst.setTimeInMillis(Long.parseLong(firstDate));
-			cLast.set(Calendar.DAY_OF_YEAR, -90);
-			if(cLast.compareTo(cFirst) >= 0){
+			cLast.add(Calendar.DAY_OF_YEAR, lastDay);
+			if(cLast.get(Calendar.DAY_OF_MONTH) > 1){
+				cLast.set(Calendar.DAY_OF_MONTH, 1);
+				cLast.add(Calendar.DAY_OF_MONTH, -1);
+			}
+			if(cLast.compareTo(cFirst) > 0){
 				TransactionDao trans = new TransactionDao(context);
 				trans.deleteSale(firstDate, String.valueOf(cLast.getTimeInMillis()));
 			}
+			DateFormat format = DateFormat.getDateInstance(DateFormat.LONG);
+			Log.i("ClearSale", "first_date: " + format.format(cFirst.getTime()));
+			Log.i("ClearSale", "last_date: " + format.format(cLast.getTime()));
 		}
 	}
 	

@@ -220,4 +220,9 @@
     <string name="update_available">แจ้งอัพเดตโปรแกรม</string>
     <string name="ok_to_continue">กด &#8220;ตกลง&#8221; เพื่อทำการอัพเดตโปรแกรม</string>
     <string name="later">ภายหลัง</string>
+    <string name="keep_sale_data">การเก็บข้อมูลยอดขาย</string>
+    <string name="max_months_to_keep_sale">จำนวนเดือนที่ต้องการเก็บยอดขาย</string>
+    <string name="one_month">1 เดือน</string>
+    <string name="two_month">2 เดือน</string>
+    <string name="three_month">3 เดือน</string>
 </resources>

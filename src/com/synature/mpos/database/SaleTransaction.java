@@ -640,8 +640,6 @@ public class SaleTransaction extends MPOSDatabase{
 				+ OrderTransTable.COLUMN_EJ_VOID
 				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS
 				+ " WHERE " + selection
-				+ ordering
-				+ limitation
 				+ " UNION "
 				+ " SELECT " 
 				+ BaseColumn.COLUMN_UUID + ", "

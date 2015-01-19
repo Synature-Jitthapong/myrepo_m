@@ -64,4 +64,14 @@
         <item>45</item>
         <item>60</item>
     </string-array>
+    <string-array name="months_to_keep_sale">
+        <item>@string/one_month</item>
+        <item>@string/two_month</item>
+        <item>@string/three_month</item>
+    </string-array>
+    <string-array name="months_to_keep_sale_value">
+        <item>-30</item>
+        <item>-60</item>
+        <item>-90</item>
+    </string-array>
 </resources>

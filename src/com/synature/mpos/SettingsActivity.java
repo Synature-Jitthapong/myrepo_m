@@ -39,6 +39,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_ENABLE_SECOND_DISPLAY = "enable_second_display";
 	public static final String KEY_PREF_LANGUAGE_LIST = "language_list";
 	public static final String KEY_PREF_ENABLE_BACKUP_DB = "enable_backup_db";
+	public static final String KEY_PREF_MONTHS_TO_KEEP_SALE = "months_keep_sale";
 	
 	// store update information
 	public static final String KEY_PREF_NEED_TO_UPDATE = "need_to_update";
@@ -151,6 +152,7 @@ public class SettingsActivity extends PreferenceActivity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_general);
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_MONTHS_TO_KEEP_SALE));
 		}
 		
 	}

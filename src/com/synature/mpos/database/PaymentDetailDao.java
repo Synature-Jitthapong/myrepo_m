@@ -259,8 +259,8 @@ public class PaymentDetailDao extends MPOSDatabase {
 			int expireYear, int bankId,int creditCardTypeId, String remark) throws SQLException {
 		if(checkThisPayTypeIsAdded(transactionId, payTypeId)){
 			// update payment
-			double totalPayment = getTotalPayAmount(transactionId) + totalPay;
-			double totalPayed = getTotalPaid(transactionId) + pay;
+			double totalPayment = getTotalPayAmount(transactionId, true) + totalPay;
+			double totalPayed = getTotalPaid(transactionId, true) + pay;
 			updatePaymentDetail(transactionId, payTypeId, totalPayment, totalPayed);
 		}else{
 			int paymentId = getMaxPaymentDetailId();
@@ -447,19 +447,68 @@ public class PaymentDetailDao extends MPOSDatabase {
 	}
 	
 	/**
+	 * @param transactionId
+	 * @param isLoadTemp
+	 * @return total paid waste
+	 */
+	public double getTotalPaidWaste(int transactionId, boolean isLoadTemp){
+		double totalPaid = 0.0d;
+		Cursor cursor = queryPaymentDetail(
+				isLoadTemp ? PaymentDetailWasteTable.TEMP_PAYMENT_DETAIL_WASTE : PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE,
+				new String[]{
+					"sum(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ")"
+				},
+				OrderTransTable.COLUMN_TRANS_ID + "=?",
+				new String[]{
+					String.valueOf(transactionId)
+				}, null, null);
+		if(cursor.moveToFirst()){
+			totalPaid = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalPaid;
+	}
+	
+	/**
 	 * Get total payed
 	 * @param transactionId
+	 * @param isLoadTemp
 	 * @return total paid amount (real paid)
 	 */
-	public double getTotalPaid(int transactionId){
+	public double getTotalPaid(int transactionId, boolean isLoadTemp){
 		double totalPaid = 0.0d;
-		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
-						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
-						+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?",
+		Cursor cursor = queryPaymentDetail(
+				isLoadTemp ? PaymentDetailTable.TEMP_PAYMENT_DETAIL : PaymentDetailTable.TABLE_PAYMENT_DETAIL,
 				new String[]{
-						String.valueOf(transactionId)
-				});
+					"sum(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ")"
+				},
+				OrderTransTable.COLUMN_TRANS_ID + "=?",
+				new String[]{
+					String.valueOf(transactionId)
+				}, null, null);
+		if(cursor.moveToFirst()){
+			totalPaid = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalPaid;
+	}
+	
+	/**
+	 * @param transactionId
+	 * @param isLoadTemp
+	 * @return total waste payment by transactionId
+	 */
+	public double getTotalPayAmountWaste(int transactionId, boolean isLoadTemp){
+		double totalPaid = 0.0d;
+		Cursor cursor = queryPaymentDetail(
+				isLoadTemp ? PaymentDetailWasteTable.TEMP_PAYMENT_DETAIL_WASTE : PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE,
+				new String[]{
+					"sum(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ")",
+				}, 
+				OrderTransTable.COLUMN_TRANS_ID + "=?",
+				new String[]{
+					String.valueOf(transactionId)
+				}, null, null);
 		if(cursor.moveToFirst()){
 			totalPaid = cursor.getDouble(0);
 		}
@@ -470,22 +519,53 @@ public class PaymentDetailDao extends MPOSDatabase {
 	/**
 	 * Get total pay
 	 * @param transactionId
+	 * @param isLoadTemp
 	 * @return total pay amount
 	 */
-	public double getTotalPayAmount(int transactionId){
+	public double getTotalPayAmount(int transactionId, boolean isLoadTemp){
 		double totalPaid = 0.0d;
-		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT SUM(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ") "
-						+ " FROM " + PaymentDetailTable.TEMP_PAYMENT_DETAIL 
-						+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?",
+		Cursor cursor = queryPaymentDetail(
+				isLoadTemp ? PaymentDetailTable.TEMP_PAYMENT_DETAIL : PaymentDetailTable.TABLE_PAYMENT_DETAIL,
 				new String[]{
-						String.valueOf(transactionId)
-				});
+					"sum(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ")",
+				}, 
+				OrderTransTable.COLUMN_TRANS_ID + "=?",
+				new String[]{
+					String.valueOf(transactionId)
+				}, null, null);
 		if(cursor.moveToFirst()){
 			totalPaid = cursor.getDouble(0);
 		}
 		cursor.close();
 		return totalPaid;
+	}
+	
+	/**
+	 * @param table
+	 * @param columns
+	 * @param selection
+	 * @param selectArgs
+	 * @param groupBy
+	 * @param orderBy
+	 * @return Cursor may be null
+	 */
+	private Cursor queryPaymentDetail(String table, String[] columns, String selection, 
+			String[] selectArgs, String groupBy, String orderBy){
+		StringBuilder strQuery = new StringBuilder(" select ");
+		for(int i = 0; i < columns.length; i++){
+			String column = columns[i];
+			if(i < columns.length - 1)
+				strQuery.append(column + ",");
+		}
+		strQuery.append(" from ");
+		strQuery.append(table);
+		strQuery.append(" where ");
+		strQuery.append(selection);
+		if(groupBy != null)
+			strQuery.append(groupBy);
+		if(orderBy != null)
+			strQuery.append(orderBy);
+		return getReadableDatabase().rawQuery(strQuery.toString(), selectArgs);
 	}
 	
 	/**

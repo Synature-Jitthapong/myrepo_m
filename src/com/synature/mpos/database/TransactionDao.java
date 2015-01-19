@@ -250,6 +250,28 @@ public class TransactionDao extends MPOSDatabase {
 	
 	/**
 	 * @param transId
+	 * @param isLoadTemp
+	 * @return OrderTransaction
+	 */
+	public OrderTransaction getTransactionWaste(int transId, boolean isLoadTemp) {
+		OrderTransaction trans = null;
+		Cursor cursor = getReadableDatabase().query(
+				isLoadTemp ? OrderTransTable.TEMP_ORDER_TRANS : OrderTransTable.TABLE_ORDER_TRANS_WASTE,
+				ALL_TRANS_COLUMNS, OrderTransTable.COLUMN_TRANS_ID + "=?",
+				new String[] { 
+					String.valueOf(transId) 
+				}, null, null, null);
+		if (cursor != null) {
+			if (cursor.moveToFirst()) {
+				trans = toOrderTransaction(cursor);
+			}
+			cursor.close();
+		}
+		return trans;
+	}
+	
+	/**
+	 * @param transId
 	 * @param computerId
 	 * @param isLoadTemp
 	 * @return OrderTransaction
@@ -411,6 +433,36 @@ public class TransactionDao extends MPOSDatabase {
 					dateFrom,
 					dateTo,
                     String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+					String.valueOf(ProductsDao.NORMAL_TYPE),
+					String.valueOf(ProductsDao.SET_CAN_SELECT),
+					String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
+					String.valueOf(ProductsDao.COMMENT_HAVE_PRICE)
+				});
+		if (cursor.moveToFirst()) {
+			ord = toSumOrderDetail(cursor);
+		}
+		cursor.close();
+		return ord;
+	}
+	
+	/**
+	 * @param transactionId
+	 * @param isLoadTemp
+	 * @return OrderDetail
+	 */
+	public OrderDetail getSummaryOrderWaste(int transactionId, boolean isLoadTemp) {
+		OrderDetail ord = new OrderDetail(); 
+		String tables = (isLoadTemp ? OrderTransTable.TEMP_ORDER_TRANS : OrderTransTable.TABLE_ORDER_TRANS_WASTE) + " a "
+				+ " LEFT JOIN " + (isLoadTemp ? OrderDetailTable.TEMP_ORDER : OrderDetailTable.TABLE_ORDER_WASTE) + " b "
+				+ " ON a." + OrderTransTable.COLUMN_TRANS_ID + "=b." + OrderTransTable.COLUMN_TRANS_ID
+				+ " LEFT JOIN " + PromotionPriceGroupTable.TABLE_PROMOTION_PRICE_GROUP + " c "
+				+ " ON a." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID + "=c." + PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID;
+		String selection = " a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " AND b." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?, ?, ?) ";
+		Cursor cursor = querySummaryOrder(
+				tables, selection,
+				new String[] { 
+					String.valueOf(transactionId),
 					String.valueOf(ProductsDao.NORMAL_TYPE),
 					String.valueOf(ProductsDao.SET_CAN_SELECT),
 					String.valueOf(ProductsDao.CHILD_OF_SET_HAVE_PRICE),
@@ -1146,7 +1198,10 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderTransTable.COLUMN_RECEIPT_ID, receiptId);
 		cv.put(OrderTransTable.COLUMN_CLOSE_TIME, dateTime.getTimeInMillis());
 		cv.put(OrderTransTable.COLUMN_PAID_TIME, dateTime.getTimeInMillis()); 
-		cv.put(OrderTransTable.COLUMN_TRANS_VATABLE, totalSalePrice);
+		cv.put(OrderTransTable.COLUMN_TRANS_VATABLE, totalSalePrice); 
+		cv.put(OrderTransTable.COLUMN_TRANS_VAT, 0); 
+		cv.put(OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT, 0);
+		cv.put(ProductTable.COLUMN_VAT_RATE, 0);
 		cv.put(OrderTransTable.COLUMN_DOC_TYPE_ID, docType);
 		cv.put(OrderTransTable.COLUMN_PAID_STAFF_ID, staffId);
 		cv.put(OrderTransTable.COLUMN_CLOSE_STAFF, staffId);
