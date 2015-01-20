@@ -308,6 +308,7 @@ public class TransactionDao extends MPOSDatabase {
 		trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_RECEIPT_NO)));
 		trans.setOpenStaffId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_OPEN_STAFF)));
 		trans.setPromotionPriceGroupId(cursor.getInt(cursor.getColumnIndex(PromotionPriceGroupTable.COLUMN_PRICE_GROUP_ID)));
+		trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_NOTE)));
 		trans.setEj(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_EJ)));
 		trans.setEjVoid(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_EJ_VOID)));
 		return trans;
@@ -674,6 +675,56 @@ public class TransactionDao extends MPOSDatabase {
 	}
 
 	/**
+	 * @param transactionId
+	 * @param isLoadTemp
+	 * @return List<OrderDetail>
+	 */
+	public List<OrderDetail> listGroupedAllOrderDetailWaste(int transactionId, boolean isLoadTemp) {
+		List<OrderDetail> orderDetailLst = new ArrayList<OrderDetail>();
+		String tables = (isLoadTemp ? OrderDetailTable.TEMP_ORDER : OrderDetailTable.TABLE_ORDER_WASTE) + " a"
+				+ " LEFT JOIN " + ProductTable.TABLE_PRODUCT + " b"
+				+ " ON a."  + ProductTable.COLUMN_PRODUCT_ID + " =b." + ProductTable.COLUMN_PRODUCT_ID;
+		String selection = "a." + OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " AND a." + ProductTable.COLUMN_PRODUCT_TYPE_ID + " IN (?, ?) ";
+		String groupBy = "a." + ProductTable.COLUMN_PRODUCT_ID;
+		if(countNotNormalTypeOrder(transactionId, isLoadTemp) > 0)
+			groupBy = "a." + OrderDetailTable.COLUMN_ORDER_ID + ", a." + ProductTable.COLUMN_PRODUCT_ID;
+		Cursor cursor = queryOrderDetail(
+				tables,
+				selection,
+				new String[] { 
+					String.valueOf(transactionId),
+					String.valueOf(ProductsDao.NORMAL_TYPE),
+					String.valueOf(ProductsDao.SET_CAN_SELECT)
+				}, groupBy);
+		if (cursor.moveToFirst()) {
+			do {
+				OrderDetail ord = new OrderDetail();
+				ord.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
+				ord.setOrderDetailId(cursor.getInt(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_ID)));
+				ord.setProductId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_ID)));
+				ord.setProductTypeId(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_TYPE_ID)));
+				ord.setProductName(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME)));
+				ord.setProductName1(cursor.getString(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_NAME1)));
+				ord.setOrderQty(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_ORDER_QTY)));
+				ord.setProductPrice(cursor.getFloat(cursor.getColumnIndex(ProductTable.COLUMN_PRODUCT_PRICE)));
+				ord.setTotalRetailPrice(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE)));
+				ord.setTotalSalePrice(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE)));
+				ord.setVatType(cursor.getInt(cursor.getColumnIndex(ProductTable.COLUMN_VAT_TYPE)));
+				ord.setMemberDiscount(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_MEMBER_DISCOUNT)));
+				ord.setPriceDiscount(cursor.getFloat(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_DISCOUNT)));
+				ord.setPriceOrPercent(cursor.getInt(cursor.getColumnIndex(OrderDetailTable.COLUMN_PRICE_OR_PERCENT)));
+				ord.setOrderComment(cursor.getString(cursor.getColumnIndex(BaseColumn.COLUMN_REMARK)));
+				ord.setOrdSetDetailLst(listGroupedOrderSetDetail(ord.getTransactionId(), ord.getOrderDetailId(), isLoadTemp));
+				ord.setOrderCommentLst(listGroupedOrderComment(ord.getTransactionId(), ord.getOrderDetailId(), isLoadTemp));
+				orderDetailLst.add(ord);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return orderDetailLst;
+	}
+	
+	/**
 	 * list all order group by productId
 	 * @param transactionId
 	 * @param isLoadTemp
@@ -923,6 +974,47 @@ public class TransactionDao extends MPOSDatabase {
 		return receiptHeader + receiptDay + receiptMonth + receiptYear + "/" + receiptId;
 	}
 
+	/**
+	 * @param saleDate
+	 * @return List<OrderTransaction>
+	 */
+	public List<OrderTransaction> listTransactionWaste(String saleDate) {
+		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
+		Cursor cursor = getReadableDatabase().query(
+				OrderTransTable.TABLE_ORDER_TRANS_WASTE,
+				new String[]{
+					OrderTransTable.COLUMN_TRANS_ID,
+					ComputerTable.COLUMN_COMPUTER_ID,
+					SessionTable.COLUMN_SESS_ID,
+					OrderTransTable.COLUMN_PAID_TIME,
+					OrderTransTable.COLUMN_TRANS_NOTE,
+					OrderTransTable.COLUMN_RECEIPT_NO,
+					OrderTransTable.COLUMN_STATUS_ID
+				}, 
+				OrderTransTable.COLUMN_SALE_DATE + "=? AND "
+				+ OrderTransTable.COLUMN_STATUS_ID + " IN(?,?)",
+				new String[] { 
+					saleDate, 
+					String.valueOf(TRANS_STATUS_VOID),
+					String.valueOf(TRANS_STATUS_SUCCESS) 
+				}, null, null, null);
+		if (cursor.moveToFirst()) {
+			do {
+				OrderTransaction trans = new OrderTransaction();
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
+				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+				trans.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
+				trans.setTransactionStatusId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_STATUS_ID)));
+				trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_NOTE)));
+				trans.setPaidTime(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_PAID_TIME)));
+				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_RECEIPT_NO)));
+				transLst.add(trans);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return transLst;
+	}
+	
 	/**
 	 * @param saleDate
 	 * @return List<OrderTransaction>
@@ -1198,7 +1290,7 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderTransTable.COLUMN_RECEIPT_ID, receiptId);
 		cv.put(OrderTransTable.COLUMN_CLOSE_TIME, dateTime.getTimeInMillis());
 		cv.put(OrderTransTable.COLUMN_PAID_TIME, dateTime.getTimeInMillis()); 
-		cv.put(OrderTransTable.COLUMN_TRANS_VATABLE, totalSalePrice); 
+		cv.put(OrderTransTable.COLUMN_TRANS_VATABLE, 0); 
 		cv.put(OrderTransTable.COLUMN_TRANS_VAT, 0); 
 		cv.put(OrderTransTable.COLUMN_TRANS_EXCLUDE_VAT, 0);
 		cv.put(ProductTable.COLUMN_VAT_RATE, 0);
@@ -1316,7 +1408,6 @@ public class TransactionDao extends MPOSDatabase {
 	public int prepareTransaction(int transactionId) {
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransTable.COLUMN_STATUS_ID, TRANS_STATUS_NEW);
-		cv.put(OrderTransTable.COLUMN_TRANS_NOTE, "");
 		return getWritableDatabase().update(
 				OrderTransTable.TEMP_ORDER_TRANS, cv,
 				OrderTransTable.COLUMN_TRANS_ID + "=?",
@@ -1636,6 +1727,21 @@ public class TransactionDao extends MPOSDatabase {
 	}
 
 	/**
+	 * @param transId
+	 * @param ej
+	 */
+	public void updateTransactionVoidEjournalWaste(int transId, String ej){
+		ContentValues cv = new ContentValues();
+		cv.put(OrderTransTable.COLUMN_EJ_VOID, ej);
+		getWritableDatabase().update(OrderTransTable.TABLE_ORDER_TRANS_WASTE, cv,
+				OrderTransTable.COLUMN_TRANS_ID + "=?",
+				new String[]{
+					String.valueOf(transId)
+				}
+		);
+	}
+	
+	/**
 	 * Update transaction set void e-journal
 	 * @param transId
 	 * @param ej
@@ -1644,6 +1750,22 @@ public class TransactionDao extends MPOSDatabase {
 		ContentValues cv = new ContentValues();
 		cv.put(OrderTransTable.COLUMN_EJ_VOID, ej);
 		getWritableDatabase().update(OrderTransTable.TABLE_ORDER_TRANS, cv,
+				OrderTransTable.COLUMN_TRANS_ID + "=?",
+				new String[]{
+					String.valueOf(transId)
+				}
+		);
+	}
+	
+	/**
+	 * @param transId
+	 * @param ej
+	 */
+	public void updateTransactionEjournalWaste(int transId, String ej){
+		ContentValues cv = new ContentValues();
+		cv.put(OrderTransTable.COLUMN_EJ, ej);
+		getWritableDatabase().update(
+				OrderTransTable.TABLE_ORDER_TRANS_WASTE, cv,
 				OrderTransTable.COLUMN_TRANS_ID + "=?",
 				new String[]{
 					String.valueOf(transId)
@@ -1990,6 +2112,26 @@ public class TransactionDao extends MPOSDatabase {
 		return orderDetailId;
 	}
 
+	/**
+	 * @param transactionId
+	 * @param staffId
+	 * @param reason
+	 * @return row affected
+	 */
+	public int voidTransactionWaste(int transactionId, int staffId, String reason) {
+		ContentValues cv = new ContentValues();
+		cv.put(OrderTransTable.COLUMN_STATUS_ID, TRANS_STATUS_VOID);
+		cv.put(OrderTransTable.COLUMN_VOID_STAFF_ID, staffId);
+		cv.put(OrderTransTable.COLUMN_VOID_REASON, reason);
+		cv.put(COLUMN_SEND_STATUS, MPOSDatabase.NOT_SEND);
+		cv.put(OrderTransTable.COLUMN_VOID_TIME, Utils.getCalendar()
+				.getTimeInMillis());
+		return getWritableDatabase().update(
+				OrderTransTable.TABLE_ORDER_TRANS_WASTE, cv,
+				OrderTransTable.COLUMN_TRANS_ID + "=? ",
+				new String[] { String.valueOf(transactionId) });
+	}
+	
 	/**
 	 * @param transactionId
 	 * @param staffId

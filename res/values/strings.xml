@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">mPOS</string>
+    <string name="tm_t88v">TM-T88V</string>
+    <string name="default_second_display_port">6600</string>
     <string name="login">Login</string>
     <string name="staff_code">Staff code</string>
     <string name="password">Password</string>
@@ -274,5 +275,6 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="two_month">2 month</string>
     <string name="three_month">3 month</string>
     <string name="auto_backup_database">Auto backup database</string>
-    <string name="stock_only">Stock only</string>
+    <string name="void_finish_waste">Void Finish Waste</string>
+    <string name="bill_check">Bill Check</string>
 </resources>

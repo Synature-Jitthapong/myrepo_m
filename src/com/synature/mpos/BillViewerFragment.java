@@ -7,20 +7,28 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 
-public class BillViewerFragment extends DialogFragment{
+public class BillViewerFragment extends DialogFragment implements OnClickListener{
 
-	private int mTransactionId;
-	private boolean mIsLoadTemp;
+	public static final int CHECK_VIEW = 1;
+	public static final int REPORT_VIEW = 2;
 	
+	private int mTransactionId;
+	private int mViewMode;
+	
+	private TextPrint mTextPrint;
+	
+	private ImageButton mBtnPrint;
 	private CustomFontTextView mTextView;
 	
-	public static BillViewerFragment newInstance(int transactionId, boolean isLoadTemp){
+	public static BillViewerFragment newInstance(int transactionId, int viewMode){
 		BillViewerFragment f = new BillViewerFragment();
 		Bundle b = new Bundle();
 		b.putInt("transactionId", transactionId);
-		b.putBoolean("isLoadTemp", isLoadTemp);
+		b.putInt("viewMode", viewMode);
 		f.setArguments(b);
 		return f;
 	}
@@ -29,18 +37,25 @@ public class BillViewerFragment extends DialogFragment{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mTransactionId = getArguments().getInt("transactionId");
-		mIsLoadTemp = getArguments().getBoolean("isLoadTemp");
+		mViewMode = getArguments().getInt("viewMode");
 	}
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		View content = inflater.inflate(R.layout.bill_viewer, null, false);
+		mBtnPrint = (ImageButton) content.findViewById(R.id.btnPrint);
 		mTextView = (CustomFontTextView) content.findViewById(R.id.textView1);
 
-		TextPrint tp = new TextPrint(getActivity());
-		tp.createTextForPrintReceipt(mTransactionId, false, mIsLoadTemp);
-		mTextView.setText(tp.getTextToPrint());
+		mBtnPrint.setOnClickListener(this);
+		
+		mTextPrint = new TextPrint(getActivity());
+		if(mViewMode == CHECK_VIEW){
+			mTextPrint.createTextForPrintCheckReceipt(mTransactionId);
+		}else if (mViewMode == REPORT_VIEW){
+			mTextPrint.createTextForPrintReceipt(mTransactionId, false, false);
+		}
+		mTextView.setText(mTextPrint.getTextToPrint());
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setView(content);
@@ -52,11 +67,15 @@ public class BillViewerFragment extends DialogFragment{
 		return d;
 	}
 	
-	private class TextPrint extends PrinterBase{
+	private class TextPrint extends WintecPrinter{
 
 		public TextPrint(Context context) {
 			super(context);
 		}
-		
+	}
+
+	@Override
+	public void onClick(View v) {
+		mTextPrint.print();
 	}
 }

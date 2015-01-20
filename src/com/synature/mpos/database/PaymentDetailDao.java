@@ -480,7 +480,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 		Cursor cursor = queryPaymentDetail(
 				isLoadTemp ? PaymentDetailTable.TEMP_PAYMENT_DETAIL : PaymentDetailTable.TABLE_PAYMENT_DETAIL,
 				new String[]{
-					"sum(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ")"
+					"sum(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ")"
 				},
 				OrderTransTable.COLUMN_TRANS_ID + "=?",
 				new String[]{
@@ -554,8 +554,9 @@ public class PaymentDetailDao extends MPOSDatabase {
 		StringBuilder strQuery = new StringBuilder(" select ");
 		for(int i = 0; i < columns.length; i++){
 			String column = columns[i];
+			strQuery.append(column);
 			if(i < columns.length - 1)
-				strQuery.append(column + ",");
+				strQuery.append(",");
 		}
 		strQuery.append(" from ");
 		strQuery.append(table);
@@ -604,6 +605,17 @@ public class PaymentDetailDao extends MPOSDatabase {
 		}
 		cursor.close();
 		return paymentLst;
+	}
+	
+	public int countPayTypeWaste(){
+		int total = 0;
+		Cursor cursor = getReadableDatabase().rawQuery("select count(*) from " 
+				+ PayTypeFinishWasteTable.TABLE_PAY_TYPE_FINISH_WASTE, null);
+		if(cursor.moveToFirst()){
+			total = cursor.getInt(0);
+		}
+		cursor.close();
+		return total;
 	}
 	
 	/**

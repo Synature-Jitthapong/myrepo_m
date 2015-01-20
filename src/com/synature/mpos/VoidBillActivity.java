@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
+import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.PrintReceiptLogDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
@@ -32,11 +33,15 @@ import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class VoidBillActivity extends Activity {
@@ -52,6 +57,7 @@ public class VoidBillActivity extends Activity {
 	private int mSessionId;
 	private int mShopId;
 	private int mStaffId;
+	private int mVoidType = 1;
 	
 	private ListView mLvBill;
 	private TextView tvSaleDate;
@@ -112,16 +118,7 @@ public class VoidBillActivity extends Activity {
 	    Intent intent = getIntent();
 	    mStaffId = intent.getIntExtra("staffId", 0);
 	    mShopId = intent.getIntExtra("shopId", 0);
-	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
+	    setupSearchSpinner();
 	}
 
 	@Override
@@ -145,6 +142,37 @@ public class VoidBillActivity extends Activity {
 			return true;
 		default:
 		return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	private void setupSearchSpinner(){
+		PaymentDetailDao payment = new PaymentDetailDao(this);
+		if(payment.countPayTypeWaste() > 0){
+			String[] voidTypes = getResources().getStringArray(R.array.void_type);
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, 
+					android.R.layout.simple_spinner_dropdown_item, voidTypes);
+			Spinner spSearchType = (Spinner) findViewById(R.id.spBillType);
+			LinearLayout billTypeContainer = (LinearLayout) findViewById(R.id.billTypeContainer);
+			billTypeContainer.setVisibility(View.VISIBLE);
+			spSearchType.setAdapter(adapter);
+			spSearchType.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view,
+						int position, long id) {
+					if(position == 0){
+						mVoidType = 1;
+					}else if (position == 1){
+						mVoidType = 2;
+					}else{
+						mVoidType = 1;
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> parent) {
+				}
+			});
 		}
 	}
 	
@@ -212,7 +240,11 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void searchBill(){	
-		mTransLst = mTrans.listTransaction(String.valueOf(Utils.getDate().getTimeInMillis()));
+		if(mVoidType == 1){
+			mTransLst = mTrans.listTransaction(String.valueOf(Utils.getDate().getTimeInMillis()));
+		}else if(mVoidType == 2){
+			mTransLst = mTrans.listTransactionWaste(String.valueOf(Utils.getDate().getTimeInMillis()));
+		}
 		if(mTransLst.size() == 0){
 			new AlertDialog.Builder(VoidBillActivity.this)
 			.setTitle(R.string.void_bill)
@@ -228,7 +260,12 @@ public class VoidBillActivity extends Activity {
 	}
 	
 	private void searchVoidItem(){
-		OrderTransaction ordTrans = mTrans.getTransaction(mTransactionId, false);
+		OrderTransaction ordTrans = null;
+		if(mVoidType == 1){
+			ordTrans = mTrans.getTransaction(mTransactionId, false);
+		}else if(mVoidType == 2){
+			ordTrans = mTrans.getTransactionWaste(mTransactionId, false);
+		}
 		if(ordTrans != null){
 			if(ordTrans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
 				((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());
@@ -267,7 +304,14 @@ public class VoidBillActivity extends Activity {
 			public void onClick(View v) {
 				String voidReason = txtVoidReason.getText().toString();
 				if(!voidReason.isEmpty()){
-					mTrans.voidTransaction(mTransactionId, mStaffId, voidReason);
+					if(mVoidType == 1){
+						mTrans.voidTransaction(mTransactionId, mStaffId, voidReason);
+						printReceipt();
+					}else if(mVoidType == 2){
+						mTrans.voidTransactionWaste(mTransactionId, mStaffId, voidReason);
+						FinishWasteTextPrint wastePrint = new FinishWasteTextPrint(VoidBillActivity.this);
+						wastePrint.createTextForPrintWasteReceipt(mTransactionId, false);
+					}
 					new AlertDialog.Builder(VoidBillActivity.this)
 					.setTitle(R.string.void_bill)
 					.setMessage(R.string.void_bill_success)
@@ -277,10 +321,9 @@ public class VoidBillActivity extends Activity {
 						public void onClick(DialogInterface dialog, int which) {
 						}
 					}).show();
-					mItemConfirm.setEnabled(false);
 					d.dismiss();
+					mItemConfirm.setEnabled(false);
 					searchBill();
-					printReceipt();
 				}
 			}
 			
@@ -325,6 +368,14 @@ public class VoidBillActivity extends Activity {
 				}
 			};
 
+	private class FinishWasteTextPrint extends PrinterBase{
+
+		public FinishWasteTextPrint(Context context) {
+			super(context);
+		}
+		
+	}
+	
 	private void cancel() {
 		finish();
 	}

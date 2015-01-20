@@ -51,7 +51,7 @@ public class SaleSenderService extends Service{
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.i(TAG, "Start sale sender service");
+		Log.i(TAG, "Call start command as id " + startId);
 		if(intent != null){
 			mReceiver = (ResultReceiver) intent.getParcelableExtra("sendSaleReceiver");
 			int what = intent.getIntExtra("what", 1);
@@ -96,7 +96,6 @@ public class SaleSenderService extends Service{
 				if(mReceiver != null){
 					mReceiver.send(RESULT_SUCCESS, null);
 				}
-				Log.i(TAG, "Send partial sale success");
 				break;
 			case MPOSServiceBase.RESULT_ERROR:
 				transDao.updateTransactionSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
@@ -107,9 +106,9 @@ public class SaleSenderService extends Service{
 					b.putString("msg", msg);
 					mReceiver.send(RESULT_ERROR, b);
 				}
-				Log.e(TAG, "Send partial sale fail: " + msg);
 				break;
 			}
+			stopSelf();
 		}
 		
 	}
@@ -125,6 +124,8 @@ public class SaleSenderService extends Service{
 			mExecutor.execute(new PartialSaleSender(getApplicationContext(), 
 					mShopId, mComputerId, mStaffId, jsonSale,
 					new SendSaleReceiver(new Handler(), transDao, sessionDate, jsonSale)));
+		}else{
+			stopSelf();
 		}
 	}
 	
@@ -133,13 +134,15 @@ public class SaleSenderService extends Service{
 		private SessionDao sessionDao;
 		private TransactionDao transDao;
 		private String sessionDate;
+		private String jsonSale;
 		
 		public SendUnSendEnddayReceiver(Handler handler, SessionDao sessionDao, 
-				TransactionDao transDao, String sessionDate) {
+				TransactionDao transDao, String sessionDate, String jsonSale) {
 			super(handler);
 			this.sessionDao = sessionDao;
 			this.transDao = transDao;
 			this.sessionDate = sessionDate;
+			this.jsonSale = jsonSale;
 		}
 
 		@Override
@@ -150,22 +153,23 @@ public class SaleSenderService extends Service{
 				sessionDao.updateSessionEnddayDetail(sessionDate, MPOSDatabase.ALREADY_SEND);
 				transDao.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 				transDao.updateTransactionWasteSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
-				if(mReceiver != null)
-					mReceiver.send(RESULT_SUCCESS, null);
+				JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
+				Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
+						"Send unsend endday successfully.");
 				sendUnSendEndday();
-				Log.i(TAG, "Send unsend endday success");
 				break;
 			case MPOSServiceBase.RESULT_ERROR:
 				sessionDao.updateSessionEnddayDetail(sessionDate, MPOSDatabase.NOT_SEND);
 				transDao.updateTransactionSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
 				transDao.updateTransactionWasteSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
 				String msg = resultData.getString("msg");
+				Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
+						"Send unsend endday fail: " + msg + "\n" + jsonSale);
 				if(mReceiver != null){
 					Bundle b = new Bundle();
 					b.putString("msg", msg);
 					mReceiver.send(RESULT_ERROR, b);
 				}
-				Log.e(TAG, "Send unsend endday fail: " + msg);
 				break;
 			}
 		}
@@ -183,8 +187,12 @@ public class SaleSenderService extends Service{
 			JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
 			String jsonEndday = jsonGenerator.generateEnddaySale(sessionDate);
 			mExecutor.execute(new EndDaySaleSender(getApplicationContext(), mShopId, mComputerId, mStaffId, jsonEndday,
-					new SendUnSendEnddayReceiver(new Handler(), sessionDao, transDao, sessionDate)));
-		}	
+					new SendUnSendEnddayReceiver(new Handler(), sessionDao, transDao, sessionDate, jsonEndday)));
+		}else{
+			if(mReceiver != null)
+				mReceiver.send(RESULT_SUCCESS, null);
+			stopSelf();
+		}
 	}
 	
 	@Override

@@ -388,7 +388,7 @@ public class SaleTransaction extends MPOSDatabase{
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 						String.valueOf(NOT_SEND)
-				}, OrderTransTable.COLUMN_TRANS_ID, LIMIT);
+				}, OrderTransTable.COLUMN_TRANS_ID, null);
 	}
 	
 	/**
@@ -406,7 +406,7 @@ public class SaleTransaction extends MPOSDatabase{
 						sessionDate,
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
-				}, null, null);
+				}, OrderTransTable.COLUMN_TRANS_ID, null);
 	}
 
 	/**
@@ -508,7 +508,6 @@ public class SaleTransaction extends MPOSDatabase{
 				+ PaymentDetailTable.COLUMN_PAY_AMOUNT
 				+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL
 				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?"
-				+ " GROUP BY " + PayTypeTable.COLUMN_PAY_TYPE_ID
 				+ " UNION "
 				+ " SELECT " + PaymentDetailTable.COLUMN_PAY_ID + ", "
 				+ ComputerTable.COLUMN_COMPUTER_ID + ", "
@@ -521,8 +520,7 @@ public class SaleTransaction extends MPOSDatabase{
 				+ PaymentDetailTable.COLUMN_REMARK + ", "
 				+ PaymentDetailTable.COLUMN_PAY_AMOUNT
 				+ " FROM " + PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE
-				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?"
-				+ " GROUP BY " + PayTypeTable.COLUMN_PAY_TYPE_ID;
+				+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?";
 		
 		return getReadableDatabase().rawQuery(sqlQuery,
 				new String[]{

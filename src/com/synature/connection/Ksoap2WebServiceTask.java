@@ -40,7 +40,7 @@ public abstract class Ksoap2WebServiceTask implements Runnable{
 	
 	@Override
 	public void run() {
-		//System.setProperty("http.keepAlive", "false");
+		System.setProperty("http.keepAlive", "false");
 		ConnectivityManager connMgr = (ConnectivityManager) mContext
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();

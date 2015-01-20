@@ -3,10 +3,12 @@ package com.synature.mpos;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,7 +24,6 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +40,6 @@ public class SendEnddayActivity extends Activity {
 	private EnddayListAdapter mEnddayAdapter;
 	
 	private ListView mLvEndday;
-	private ProgressBar mProgress;
 	
 	private MenuItem mItemSend;
 	
@@ -60,7 +60,6 @@ public class SendEnddayActivity extends Activity {
 		setContentView(R.layout.activity_send_endday);
 		
 		mLvEndday = (ListView) findViewById(R.id.lvEndday);
-		mProgress = (ProgressBar) findViewById(R.id.progressBar1);
 
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
@@ -117,9 +116,14 @@ public class SendEnddayActivity extends Activity {
 	
 	private class EnddayReceiver extends ResultReceiver{
 
+		private ProgressDialog progress;
+		
 		public EnddayReceiver(Handler handler) {
 			super(handler);
-			mProgress.setVisibility(View.VISIBLE);
+			progress = new ProgressDialog(SendEnddayActivity.this);
+			progress.setCanceledOnTouchOutside(false);
+			progress.setMessage(getString(R.string.please_wait));
+			progress.show();
 			mItemSend.setEnabled(false);
 		}
 
@@ -128,13 +132,12 @@ public class SendEnddayActivity extends Activity {
 			super.onReceiveResult(resultCode, resultData);
 			switch(resultCode){
 			case MPOSServiceBase.RESULT_SUCCESS:
-				mProgress.setVisibility(View.GONE);
-				mItemSend.setEnabled(true);
+				progress.dismiss();
 				setupAdapter();
 				break;
 			case MPOSServiceBase.RESULT_ERROR:
-				mProgress.setVisibility(View.GONE);
-				mItemSend.setEnabled(false);
+				progress.dismiss();
+				mItemSend.setEnabled(true);
 				Toast.makeText(SendEnddayActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
 				break;
 			}

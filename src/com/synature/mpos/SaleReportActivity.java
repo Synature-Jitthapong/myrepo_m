@@ -651,7 +651,60 @@ public class SaleReportActivity extends Activity{
 			((TextView) totalVoidView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumVoidOrder.getTotalSalePrice()));
 			((TextView) totalVoidView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
 			mEnddaySumContent.addView(totalVoidView);
-			
+
+			Reporting report = new Reporting(getActivity(), 
+					mHost.mDateTo, 
+					mHost.mDateTo);
+			List<Reporting.WasteReportData> wasteLst = report.listWasteReport();
+			if(wasteLst != null){
+				View wasteReportView = inflater.inflate(R.layout.left_mid_right_template, null);
+				((TextView) wasteReportView.findViewById(R.id.tvLeft)).setText(getString(R.string.finish_waste));
+				((TextView) wasteReportView.findViewById(R.id.tvLeft)).setPaintFlags(
+						((TextView) wasteReportView.findViewById(R.id.tvLeft)).getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
+				mEnddaySumContent.addView(wasteReportView);
+				for(Reporting.WasteReportData wasteData : wasteLst){
+					String wasteName = wasteData.getWasteName();
+					wasteReportView = inflater.inflate(R.layout.left_mid_right_template, null);
+					((TextView) wasteReportView.findViewById(R.id.tvLeft)).setText(wasteName);
+					mEnddaySumContent.addView(wasteReportView);
+					if(wasteData.getSimpleProductData() != null){
+						for(SimpleProductData sp : wasteData.getSimpleProductData()){
+							wasteReportView = inflater.inflate(R.layout.left_mid_right_template, null);
+							((TextView) wasteReportView.findViewById(R.id.tvLeft)).setText(" " + sp.getDeptName());
+							((TextView) wasteReportView.findViewById(R.id.tvMid)).setText(mHost.mFormat.qtyFormat(sp.getDeptTotalQty()));
+							((TextView) wasteReportView.findViewById(R.id.tvMid)).setTypeface(null, Typeface.BOLD);
+							((TextView) wasteReportView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sp.getDeptTotalPrice()));
+							((TextView) wasteReportView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
+							mEnddaySumContent.addView(wasteReportView);
+							if(sp.getItemLst() != null){
+								for(SimpleProductData.Item item : sp.getItemLst()){
+									wasteReportView = inflater.inflate(R.layout.left_mid_right_template, null);
+									((TextView) wasteReportView.findViewById(R.id.tvLeft)).setText("   " + item.getItemName());
+									((TextView) wasteReportView.findViewById(R.id.tvMid)).setText(mHost.mFormat.qtyFormat(item.getTotalQty()));
+									((TextView) wasteReportView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(item.getTotalPrice()));
+									mEnddaySumContent.addView(wasteReportView);
+								}
+							}
+						}
+					}
+					SimpleProductData.Item sumWaste = report.getTotalStockOnly(wasteData.getPayTypeId());
+					wasteReportView = inflater.inflate(R.layout.left_mid_right_template, null);
+					((TextView) wasteReportView.findViewById(R.id.tvLeft)).setText(" " + getString(R.string.summary) + " " + wasteName);
+					((TextView) wasteReportView.findViewById(R.id.tvMid)).setText(mHost.mFormat.qtyFormat(sumWaste.getTotalQty()));
+					((TextView) wasteReportView.findViewById(R.id.tvMid)).setTypeface(null, Typeface.BOLD);
+					((TextView) wasteReportView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumWaste.getTotalPrice()));
+					((TextView) wasteReportView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
+					mEnddaySumContent.addView(wasteReportView);
+				}
+				SimpleProductData.Item sumTotalWaste = report.getTotalStockOnly();
+				wasteReportView = inflater.inflate(R.layout.left_mid_right_template, null);
+				((TextView) wasteReportView.findViewById(R.id.tvLeft)).setText(" " + getString(R.string.total) + " " + getString(R.string.finish_waste));
+				((TextView) wasteReportView.findViewById(R.id.tvMid)).setText(mHost.mFormat.qtyFormat(sumTotalWaste.getTotalQty()));
+				((TextView) wasteReportView.findViewById(R.id.tvMid)).setTypeface(null, Typeface.BOLD);
+				((TextView) wasteReportView.findViewById(R.id.tvRight)).setText(mHost.mFormat.currencyFormat(sumTotalWaste.getTotalPrice()));
+				((TextView) wasteReportView.findViewById(R.id.tvRight)).setTypeface(null, Typeface.BOLD);
+				mEnddaySumContent.addView(wasteReportView);
+			}
 			loadReportDetail();
 		}
 		
@@ -809,7 +862,8 @@ public class SaleReportActivity extends Activity{
 				public void onItemClick(AdapterView<?> arg0, View arg1,
 						int arg2, long arg3) {
 					Report.ReportDetail report = (Report.ReportDetail) arg0.getItemAtPosition(arg2);
-					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId(), false);
+					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId(), 
+							BillViewerFragment.REPORT_VIEW);
 						bf.show(getFragmentManager(), "BillDetailFragment");
 				}
 			});

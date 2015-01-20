@@ -2,6 +2,7 @@ package com.synature.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.table.BaseColumn;
@@ -9,8 +10,10 @@ import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.pos.OrderTransaction;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -42,7 +45,6 @@ public class SendSaleActivity extends Activity{
 	private SyncItemAdapter mSyncAdapter;
 	private MenuItem mItemSendAll;
 	private ListView mLvSyncItem;
-	private ProgressBar mProgress;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +63,6 @@ public class SendSaleActivity extends Activity{
 		setContentView(R.layout.activity_send_sale);
 		
 		mLvSyncItem = (ListView) findViewById(R.id.lvSync);
-		mProgress = (ProgressBar) findViewById(R.id.progressBar1);
 		
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
@@ -111,9 +112,15 @@ public class SendSaleActivity extends Activity{
 	@SuppressLint("ShowToast")
 	private class SendSaleReceiver extends ResultReceiver{
 		
+		private ProgressDialog progress;
+		
 		public SendSaleReceiver(Handler handler) {
 			super(handler);
-			mProgress.setVisibility(View.VISIBLE);
+			progress = new ProgressDialog(SendSaleActivity.this);
+			progress.setCanceledOnTouchOutside(false);
+			progress.setMessage(getString(R.string.please_wait));
+			progress.show();
+			mItemSendAll.setEnabled(false);
 		}
 
 		@Override
@@ -121,12 +128,12 @@ public class SendSaleActivity extends Activity{
 			super.onReceiveResult(resultCode, resultData);
 			switch(resultCode){
 			case MPOSServiceBase.RESULT_SUCCESS:
-				mProgress.setVisibility(View.GONE);
+				progress.dismiss();
 				loadTransNotSend();
 				break;
 			case MPOSServiceBase.RESULT_ERROR:
 				mItemSendAll.setEnabled(true);
-				mProgress.setVisibility(View.GONE);
+				progress.dismiss();
 				Toast.makeText(SendSaleActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
 				break;
 			}

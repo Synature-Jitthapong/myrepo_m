@@ -40,6 +40,7 @@ import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
 import com.synature.util.ImageLoader;
 import com.synature.util.Logger;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -1653,12 +1654,13 @@ public class MainActivity extends FragmentActivity implements
 	 * @param orderDetailId
 	 */
 	private void updateOrderLst(int position, int orderDetailId){
-		OrderDetail orderDetail = mTrans.getOrder(mTransactionId, orderDetailId);
-		if(orderDetail != null){
-			mOrderDetailLst.set(position, orderDetail);
-			mOrderDetailAdapter.notifyDataSetChanged();
-			expandOrderLv(position);
-		}
+//		OrderDetail orderDetail = mTrans.getOrder(mTransactionId, orderDetailId);
+//		if(orderDetail != null){
+//			mOrderDetailLst.set(position, orderDetail);
+//			mOrderDetailAdapter.notifyDataSetChanged();
+//			expandOrderLv(position);
+//		}
+		new UpdateOrderTask(position, orderDetailId).execute();
 	}
 	
 	/**
@@ -1666,13 +1668,49 @@ public class MainActivity extends FragmentActivity implements
 	 * @param orderDetailId
 	 */
 	private void updateOrderLst(int orderDetailId){
-		OrderDetail orderDetail = mTrans.getOrder(mTransactionId, orderDetailId);
-		if(orderDetail != null){
-			mOrderDetailLst.add(orderDetail);
-			mOrderDetailAdapter.notifyDataSetChanged();
-			expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
-			scrollOrderLv(mOrderDetailAdapter.getGroupCount());
+//		OrderDetail orderDetail = mTrans.getOrder(mTransactionId, orderDetailId);
+//		if(orderDetail != null){
+//			mOrderDetailLst.add(orderDetail);
+//			mOrderDetailAdapter.notifyDataSetChanged();
+//			expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
+//			scrollOrderLv(mOrderDetailAdapter.getGroupCount());
+//		}
+		new UpdateOrderTask(0, orderDetailId).execute();
+	}
+	
+	private class UpdateOrderTask extends AsyncTask<Void, Void, Void>{
+
+		private OrderDetail orderDetail;
+		private int position;
+		private int orderId;
+		
+		public UpdateOrderTask(int position, int orderId){
+			this.position = position;
+			this.orderId = orderId;
 		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			if(orderDetail != null){
+				if(position > 0){
+					mOrderDetailLst.set(position, orderDetail);
+					mOrderDetailAdapter.notifyDataSetChanged();
+					expandOrderLv(position);
+				}else{
+					mOrderDetailLst.add(orderDetail);
+					mOrderDetailAdapter.notifyDataSetChanged();
+					expandOrderLv(mOrderDetailAdapter.getGroupCount() - 1);
+					scrollOrderLv(mOrderDetailAdapter.getGroupCount());
+				}
+			}
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			orderDetail = mTrans.getOrder(mTransactionId, orderId);
+			return null;
+		}
+		
 	}
 	
 	/**
@@ -1961,7 +1999,8 @@ public class MainActivity extends FragmentActivity implements
 
 	private void showBillDetail(){
 		if(mOrderDetailLst.size() > 0){
-			BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId, true);
+			BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId, 
+					BillViewerFragment.CHECK_VIEW);
 			bf.show(getFragmentManager(), "BillDetailFragment");
 		}
 	}
@@ -2431,6 +2470,10 @@ public class MainActivity extends FragmentActivity implements
 				if(progress.isShowing())
 					progress.dismiss();
 				onEnddayFail(sessionDate);
+
+				String msg = resultData.getString("msg");
+				Logger.appendLog(MainActivity.this, MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
+						"Send all endday fail: " + msg + "\n" + jsonEnddayAll);
 				break;
 			}
 		}
@@ -2470,11 +2513,14 @@ public class MainActivity extends FragmentActivity implements
 				final String jsonEnddayAll = jsonGenerator.generateEnddaySale(sessionDate);
 				if(!TextUtils.isEmpty(jsonEnddayAll)){
 					EndDaySaleSender sender = new EndDaySaleSender(MainActivity.this, mShopId, mComputerId, mStaffId, 
-							jsonEnddayAll, new EnddayAllReceiver(new Handler(), progress, sessionDate, jsonEndday));
+							jsonEnddayAll, new EnddayAllReceiver(new Handler(), progress, sessionDate, jsonEnddayAll));
 					ExecutorService executor = Executors.newSingleThreadExecutor();
 					executor.execute(sender);
 					executor.shutdown();
 				}
+				String msg = resultData.getString("msg");
+				Logger.appendLog(MainActivity.this, MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
+						"Send unsend endday fail: " + msg + "\n" + jsonEndday);
 				break;
 			}
 		}
@@ -2486,7 +2532,7 @@ public class MainActivity extends FragmentActivity implements
 		final String sessionDate = mSession.getLastSessionDate();
 		final String jsonEndday = jsonGenerator.generateEnddayUnSendSale(sessionDate);
 		if(!TextUtils.isEmpty(jsonEndday)){
-			EndDaySaleSender sender = new EndDaySaleSender(this, mShopId, mComputerId, mStaffId, jsonEndday, 
+			EndDayUnSendSaleSender sender = new EndDayUnSendSaleSender(this, mShopId, mComputerId, mStaffId, jsonEndday, 
 					new EnddayReceiver(new Handler(), sessionDate, jsonEndday));
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 			executor.execute(sender);

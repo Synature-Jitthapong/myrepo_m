@@ -244,7 +244,7 @@ public class PaymentActivity extends Activity implements OnClickListener,
 	private void loadPayDetail(){
 		mPayLst = mPayment.listPayment(mTransactionId);
 		mPaymentAdapter.notifyDataSetChanged();
-		mTotalPaid = mPayment.getTotalPayAmount(mTransactionId);
+		mTotalPaid = mPayment.getTotalPaid(mTransactionId, true);
 		mPaymentLeft = mTotalSalePrice - mTotalPaid;
 		mChange = mTotalPaid - mTotalSalePrice;
 		mTvTotalPaid.setText(mGlobal.currencyFormat(mTotalPaid));
@@ -576,7 +576,17 @@ public class PaymentActivity extends Activity implements OnClickListener,
 		mPayment.addPaymentDetailWaste(mTransactionId, mComputerId, payTypeId, totalPrice, remark);
 		mPayment.confirmWastePayment(mTransactionId);
 		mTrans.closeWasteTransaction(mTransactionId, mStaffId, docTypeId, docTypeHeader, totalPrice);
+		FinishWasteTextPrint wastePrint = new FinishWasteTextPrint(getApplicationContext());
+		wastePrint.createTextForPrintWasteReceipt(mTransactionId, false);
 		finish();
+	}
+	
+	private class FinishWasteTextPrint extends PrinterBase{
+
+		public FinishWasteTextPrint(Context context) {
+			super(context);
+		}
+		
 	}
 	
 	@Override
