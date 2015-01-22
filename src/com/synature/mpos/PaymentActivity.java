@@ -323,7 +323,6 @@ public class PaymentActivity extends Activity implements OnClickListener,
 			finish();
 		}else{
 			new AlertDialog.Builder(PaymentActivity.this)
-			.setIcon(android.R.drawable.ic_dialog_alert)
 			.setTitle(R.string.payment)
 			.setMessage(R.string.enter_enough_money)
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
@@ -457,7 +456,8 @@ public class PaymentActivity extends Activity implements OnClickListener,
 		if(payTypeLst != null){
 			LinearLayout payTypeContent = (LinearLayout) findViewById(R.id.payTypeWasteContainer);
 			payTypeContent.removeAllViews();
-			for(final PayType payType : payTypeLst){
+			for(int i = 0; i < payTypeLst.size(); i++){
+				final PayType payType = payTypeLst.get(i);
 				final Button btnPayType = new Button(PaymentActivity.this);
 				btnPayType.setMinWidth(128);
 				btnPayType.setMinHeight(64);
@@ -474,6 +474,13 @@ public class PaymentActivity extends Activity implements OnClickListener,
 					}
 					
 				});
+				if(i == 0){
+					btnPayType.setBackgroundResource(R.drawable.btn_holo_gray_left_corner);
+				}else if (i == payTypeLst.size() - 1){
+					btnPayType.setBackgroundResource(R.drawable.btn_holo_gray_right_corner);
+				}else{
+					btnPayType.setBackgroundResource(R.drawable.btn_holo_gray_no_radius);
+				}
 				payTypeContent.addView(btnPayType);
 			}
 		}
@@ -483,7 +490,8 @@ public class PaymentActivity extends Activity implements OnClickListener,
 		List<PayType> payTypeLst = mPayment.listPayType();
 		LinearLayout payTypeContent = (LinearLayout) findViewById(R.id.payTypeContent);
 		payTypeContent.removeAllViews();
-		for(final PayType payType : payTypeLst){
+		for(int i = 0; i < payTypeLst.size(); i++){
+			final PayType payType = payTypeLst.get(i);
 			final Button btnPayType = new Button(PaymentActivity.this);
 			btnPayType.setMinWidth(128);
 			btnPayType.setMinHeight(64);
@@ -502,6 +510,13 @@ public class PaymentActivity extends Activity implements OnClickListener,
 				}
 				
 			});
+			if(i == 0){
+				btnPayType.setBackgroundResource(R.drawable.btn_holo_gray_left_corner);
+			}else if (i == payTypeLst.size() - 1){
+				btnPayType.setBackgroundResource(R.drawable.btn_holo_gray_right_corner);
+			}else{
+				btnPayType.setBackgroundResource(R.drawable.btn_holo_gray_no_radius);
+			}
 			payTypeContent.addView(btnPayType);
 		}
 	}

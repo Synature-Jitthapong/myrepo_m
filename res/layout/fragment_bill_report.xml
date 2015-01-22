@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@drawable/white_flat_bg"
+        android:background="@drawable/light_gray_shape_radius"
         android:choiceMode="singleChoice" >
     </ListView>
 

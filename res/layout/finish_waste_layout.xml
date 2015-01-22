@@ -10,7 +10,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:background="@color/sum_bg2"
+        android:background="@color/blue_grey"
+        android:gravity="center"
         android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceLargeInverse" />
 
@@ -22,7 +23,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/tvTitle"
-        android:background="@color/sum_bg2"
+        android:background="@color/blue_grey"
         android:gravity="right"
         android:text="0.00"
         android:textAppearance="?android:attr/textAppearanceLargeInverse"
@@ -36,8 +37,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/tvTotalPrice"
-        android:layout_marginBottom="@dimen/default_margin"
-        android:background="@drawable/card_bg"
+        android:layout_margin="@dimen/default_margin"
+        android:background="@drawable/light_gray_shape_radius"
         android:ems="10"
         android:gravity="top|left"
         android:hint="@string/remark"
@@ -53,10 +54,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/txtRemark" >
+        android:layout_below="@+id/txtRemark"
+        android:padding="@dimen/default_margin" >
 
         <Button
             android:id="@+id/btnCancel"
+            style="@style/GrayButtonLeftCorner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -67,7 +70,7 @@
 
         <Button
             android:id="@+id/btnConfirm"
-            style="@style/BlueButton"
+            style="@style/BlueButtonRightCorner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

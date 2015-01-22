@@ -307,13 +307,13 @@ public class MainActivity extends FragmentActivity implements
 		});
 	}
 	
-	public void toggleKeyboard(final View v){
+	private void toggleKeyboard(){
 		InputMethodManager imm = (InputMethodManager) getSystemService(
 			      Context.INPUT_METHOD_SERVICE);
 		imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
 	}
 	
-	public void clearBarCodeClicked(final View v){
+	private void clearBarCode(){
 		mTxtBarCode.setText(null);
 	}
 	
@@ -491,32 +491,31 @@ public class MainActivity extends FragmentActivity implements
 		mTbSummary.addView(createTableRowSummary(
 				getString(R.string.items) + ": " + NumberFormat.getInstance().format(totalQty), 
 				mGlobal.currencyFormat(sumOrder.getTotalRetailPrice()), 
-				0, 0, 0, 0, 0, 0));
+				0, 0, 0, 0));
 		
 		if(totalDiscount > 0){ 
 			mTbSummary.addView(createTableRowSummary(disText, 
-					"-" + mGlobal.currencyFormat(totalDiscount), 0, 0, 0, 0, 0, 0));
+					"-" + mGlobal.currencyFormat(totalDiscount), 0, 0, 0, 0));
 			mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
-					mGlobal.currencyFormat(totalSalePrice), 0, 0, 0, 0, 0, 0));
+					mGlobal.currencyFormat(totalSalePrice), 0, 0, 0, 0));
 		}
 		if(vatExclude > 0){
 			mTbSummary.addView(createTableRowSummary(getString(R.string.vat_exclude) +
 					" " + NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%",
-					mGlobal.currencyFormat(vatExclude), 0, 0, 0, 0, 0, 0));
+					mGlobal.currencyFormat(vatExclude), 0, 0, 0, 0));
 		}
 		double rounding = Utils.roundingPrice(mGlobal.getRoundingType(), totalPriceInclVat);
 		if(rounding != totalPriceInclVat){
 			if(totalDiscount == 0){
 				mTbSummary.addView(createTableRowSummary(getString(R.string.sub_total), 
-						mGlobal.currencyFormat(totalPriceInclVat), 0, 0, 0, 0, 0, 0));
+						mGlobal.currencyFormat(totalPriceInclVat), 0, 0, 0, 0));
 			}
 			mTbSummary.addView(createTableRowSummary(getString(R.string.rounding),
-					mGlobal.currencyFormat(rounding - totalPriceInclVat), 0, 0, 0, 0, 0, 0));
+					mGlobal.currencyFormat(rounding - totalPriceInclVat), 0, 0, 0, 0));
 		}
 		mTbSummary.addView(createTableRowSummary(getString(R.string.total),
 				mGlobal.currencyFormat(rounding),
-				0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size),
-				R.color.sum_bg2, android.R.color.white));
+				0, R.style.HeaderText, 0, getResources().getInteger(R.integer.large_text_size)));
 		
 		if(Utils.isEnableSecondDisplay(this)){
 			List<clsSecDisplay_TransSummary> transSummLst = new ArrayList<clsSecDisplay_TransSummary>();
@@ -568,7 +567,7 @@ public class MainActivity extends FragmentActivity implements
 	}
 	
 	private TableRow createTableRowSummary(String label, String value,
-			int labelAppear, int valAppear, float labelSize, float valSize, int bgColor, int fgColor){
+			int labelAppear, int valAppear, float labelSize, float valSize){
 		TextView tvLabel = new TextView(this);
 		TextView tvValue = new TextView(this);
 		tvLabel.setTextAppearance(this, android.R.style.TextAppearance_Holo_Medium);
@@ -586,16 +585,10 @@ public class MainActivity extends FragmentActivity implements
 			tvValue.setTextSize(valSize);
 		tvLabel.setText(label);
 		tvValue.setText(value);
-		//if(fgColor != 0){
-//			tvLabel.setTextColor(Color.WHITE);
-//			tvValue.setTextColor(Color.WHITE);
-		//}
 		TableRow rowSummary = new TableRow(this);
 		rowSummary.setPadding(4, 4, 4, 4);
 		rowSummary.addView(tvLabel);
 		rowSummary.addView(tvValue);
-//		if(bgColor != 0)
-//			rowSummary.setBackgroundResource(bgColor);
 		return rowSummary;
 	}
 
@@ -623,12 +616,7 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 	
-	private void successTransaction(int transactionId, int staffId, double totalSalePrice, 
-			double totalPaid, double change){
-		// clear item that display on dsp
-		if(Utils.isEnableWintecCustomerDisplay(this))
-			mDsp.setItemName(null);
-		
+	private void printReceipt(int transactionId, int staffId){
 		// log receipt for print task
 		PrintReceiptLogDao printLog = new PrintReceiptLogDao(MainActivity.this);
 		int isCopy = 0;
@@ -638,6 +626,15 @@ public class MainActivity extends FragmentActivity implements
 			printLog.insertLog(transactionId, staffId, isCopy);
 		}
 		new PrintReceipt(MainActivity.this, mPrintReceiptListener).execute();
+	}
+	
+	private void successTransaction(int transactionId, int staffId, double totalSalePrice, 
+			double totalPaid, double change){
+		// clear item that display on dsp
+		if(Utils.isEnableWintecCustomerDisplay(this))
+			mDsp.setItemName(null);
+		
+		printReceipt(transactionId, staffId);
 		
 		if(change > 0){
 			LinearLayout changeView = new LinearLayout(MainActivity.this);
@@ -748,10 +745,9 @@ public class MainActivity extends FragmentActivity implements
 	};
 	
 	/**
-	 * @param v
 	 * Paid equal total price
 	 */
-	public void cashPaidClicked(final View v){
+	private void cashPaid(){
 		if(mOrderDetailLst.size() > 0){
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.cash_paid)
@@ -791,10 +787,9 @@ public class MainActivity extends FragmentActivity implements
 	}
 	
 	/**
-	 * @param v
 	 * Go to PaymentActivity
 	 */
-	public void paymentClicked(final View v){
+	private void payment(){
 		if(mOrderDetailLst.size() > 0){
 			// food court type
 			if(mShop.getFastFoodType() == ShopDao.SHOP_TYPE_FOOD_COURT){
@@ -816,10 +811,7 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
-	/**
-	 * @param v
-	 */
-	public void promotionClicked(final View v) {
+	private void promotion() {
 		if (mOrderDetailLst.size() > 0) {
 			Intent intent = new Intent(MainActivity.this, PromotionActivity.class);
 			intent.putExtra("transactionId", mTransactionId);
@@ -828,10 +820,9 @@ public class MainActivity extends FragmentActivity implements
 	}
 	
 	/**
-	 * @param v
 	 * Go to DiscountActivity
 	 */
-	public void discountClicked(final View v){
+	private void discount(){
 		if(mOrderDetailLst.size() > 0){
 			StaffsDao st = new StaffsDao(MainActivity.this);
 			if(!st.checkOtherDiscountPermission(mStaffRoleId)){
@@ -1056,7 +1047,7 @@ public class MainActivity extends FragmentActivity implements
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						toggleKeyboard(v);
+						toggleKeyboard();
 					}
 					return false;
 				}
@@ -1189,21 +1180,43 @@ public class MainActivity extends FragmentActivity implements
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			OrderTransaction trans = transLst.get(position);
-
-			convertView = inflater.inflate(R.layout.hold_bill_template, parent, false);
-			TextView tvNo = (TextView) convertView.findViewById(R.id.tvNo);
-			TextView tvOpenTime = (TextView) convertView.findViewById(R.id.tvOpenTime);
-			TextView tvOpenStaff = (TextView) convertView.findViewById(R.id.tvOpenStaff);
-			TextView tvRemark = (TextView) convertView.findViewById(R.id.tvRemark);
-
+			final OrderTransaction trans = transLst.get(position);
+			ViewHolder holder;
+			if(convertView == null){
+				holder = new ViewHolder();
+				convertView = inflater.inflate(R.layout.hold_bill_template, parent, false);
+				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
+				holder.tvOpenTime = (TextView) convertView.findViewById(R.id.tvOpenTime);
+				holder.tvOpenStaff = (TextView) convertView.findViewById(R.id.tvOpenStaff);
+				holder.tvRemark = (TextView) convertView.findViewById(R.id.tvRemark);
+				holder.btnBillDetail = (ImageButton) convertView.findViewById(R.id.btnBillDetail);	
+				convertView.setTag(holder);
+			}else{
+				holder = (ViewHolder) convertView.getTag();
+			}
 			c.setTimeInMillis(Long.parseLong(trans.getOpenTime()));
-			tvNo.setText(Integer.toString(position + 1) + ".");
-			tvOpenTime.setText(mGlobal.dateTimeFormat(c.getTime()));
-			tvOpenStaff.setText(trans.getStaffName());
-			tvRemark.setText(trans.getTransactionNote());
-
+			holder.tvNo.setText(Integer.toString(position + 1) + ".");
+			holder.tvOpenTime.setText(mGlobal.dateTimeFormat(c.getTime()));
+			holder.tvOpenStaff.setText(trans.getStaffName());
+			holder.tvRemark.setText(trans.getTransactionNote());
+			holder.btnBillDetail.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					BillViewerFragment f = BillViewerFragment.newInstance(trans.getTransactionId(), 
+							BillViewerFragment.CHECK_VIEW);
+					f.show(getFragmentManager(), BillViewerFragment.TAG);
+				}
+			});
 			return convertView;
+		}
+		
+		private class ViewHolder{
+			TextView tvNo;
+			TextView tvOpenTime;
+			TextView tvOpenStaff;
+			TextView tvRemark;
+			ImageButton btnBillDetail;
 		}
 	}
 	
@@ -1499,16 +1512,43 @@ public class MainActivity extends FragmentActivity implements
 		case R.id.btnBillDetail:
 			showBillDetail();
 			break;
+		case R.id.btnFree:
+			setFreeProductPrice();
+			break;
 		case R.id.btnDelOrder:
 			deleteSelectedOrder();
 			break;
 		case R.id.btnClearSelOrder:
 			clearSelectedOrder();
 			break;
+		case R.id.btnCashPaid:
+			cashPaid();
+			break;
+		case R.id.btnPayment:
+			payment();
+			break;
+		case R.id.btnDiscount:
+			discount();
+			break;
+		case R.id.btnPromotion:
+			promotion();
+			break;
+		case R.id.btnHold:
+			holdOrder();
+			break;
+		case R.id.btnCancelOrder:
+			cancelOrder();
+			break;
+		case R.id.imgBtnToggleKey:
+			toggleKeyboard();
+			break;
+		case R.id.imgBtnClearBarcode:
+			clearBarCode();
+			break;
 		}
 	}
 	
-	public void cancelOrderClicked(final View v){
+	private void cancelOrder(){
 		if(mOrderDetailLst.size() > 0){
 			new AlertDialog.Builder(MainActivity.this)
 			.setTitle(android.R.string.cancel)
@@ -1532,10 +1572,9 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	/**
-	 * @param v
 	 * Hold order click
 	 */
-	public void holdOrderClicked(final View v){
+	private void holdOrder(){
 		if(mOrderDetailLst.size() > 0){
 			final EditText txtRemark = new EditText(MainActivity.this);
 			txtRemark.setHint(R.string.remark);
@@ -2001,7 +2040,20 @@ public class MainActivity extends FragmentActivity implements
 		if(mOrderDetailLst.size() > 0){
 			BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId, 
 					BillViewerFragment.CHECK_VIEW);
-			bf.show(getFragmentManager(), "BillDetailFragment");
+			bf.show(getFragmentManager(), BillViewerFragment.TAG);
+		}
+	}
+	
+	private void setFreeProductPrice(){
+		final List<OrderDetail> selectedOrderLst = listSelectedOrder();
+		int size = selectedOrderLst.size();
+		if(size > 0){
+			for(OrderDetail detail : selectedOrderLst){
+				mTrans.updateOrderDetailFreePrice(detail.getTransactionId(), detail.getOrderDetailId());
+			}
+			int idx = mOrderDetailLst.indexOf(selectedOrderLst.get(size - 1));
+			loadOrder();
+			scrollOrderLv(idx);
 		}
 	}
 	
@@ -2366,14 +2418,13 @@ public class MainActivity extends FragmentActivity implements
 		new PrintReport(MainActivity.this, 
 			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId, null).execute();
 		
-		JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
-		String sessionDate = mSession.getLastSessionDate();
-		String jsonSale = jsonGenerator.generateSale(sessionDate);
-		if(!TextUtils.isEmpty(jsonSale)){
-			ExecutorService executor = Executors.newSingleThreadExecutor();
-			executor.execute(new PartialSaleSender(this, mShopId, mComputerId, mStaffId, jsonSale, null));
-			executor.shutdown();
-		}
+		Intent intent = new Intent(MainActivity.this, SaleSenderService.class);
+		intent.putExtra("what", SaleSenderService.SEND_PARTIAL_SALE);
+		intent.putExtra("shopId", mShopId);
+		intent.putExtra("computerId", mComputerId);
+		intent.putExtra("staffId", mStaffId);
+		intent.putExtra("sendSaleReceiver", new ResultReceiver(new Handler()));
+		startService(intent);
 		startActivity(new Intent(MainActivity.this, LoginActivity.class));
 		finish();
 	}
@@ -2570,7 +2621,9 @@ public class MainActivity extends FragmentActivity implements
 		setSendEnddayDataStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 		
 		// log json sale if send to server success
-		JSONSaleLogFile.appendEnddaySale(MainActivity.this, sessionDate, jsonEndday);
+		try {
+			JSONSaleLogFile.appendEnddaySale(MainActivity.this, sessionDate, jsonEndday);
+		} catch (Exception e) {}
 		Logger.appendLog(MainActivity.this, MPOSApplication.LOG_PATH, 
 					MPOSApplication.LOG_FILE_NAME, "Send endday successfully");
 

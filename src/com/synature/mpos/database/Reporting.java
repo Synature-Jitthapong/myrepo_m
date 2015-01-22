@@ -136,7 +136,7 @@ public class Reporting extends MPOSDatabase{
 						new String[]{
 								mDateFrom,
 								mDateTo,
-								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+								String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS)
 						});
 		if(cursor.moveToFirst()){
 			item = new SimpleProductData.Item();
@@ -168,7 +168,7 @@ public class Reporting extends MPOSDatabase{
 						new String[]{
 								mDateFrom,
 								mDateTo,
-								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+								String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS),
 								String.valueOf(payTypeId)
 						});
 		if(cursor.moveToFirst()){
@@ -200,7 +200,7 @@ public class Reporting extends MPOSDatabase{
 				new String[]{
 						mDateFrom,
 						mDateTo,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS)
+						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS)
 				});
 		if(payTypeCursor.moveToFirst()){
 			wasteReportLst = new ArrayList<WasteReportData>();
@@ -238,7 +238,7 @@ public class Reporting extends MPOSDatabase{
 						new String[]{
 								mDateFrom,
 								mDateTo,
-								String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+								String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS),
 								payTypeId
 						});
 				
@@ -273,7 +273,7 @@ public class Reporting extends MPOSDatabase{
 								+ " group by c." + ProductTable.COLUMN_PRODUCT_ID + ", c." + ProductTable.COLUMN_PRODUCT_TYPE_ID
 								+ " order by d." + COLUMN_ORDERING + ", d." + ProductTable.COLUMN_PRODUCT_NAME, 
 								new String[]{
-										String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+										String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS),
 										mDateFrom,
 										mDateTo,
 										payTypeId,

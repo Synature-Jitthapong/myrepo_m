@@ -11,7 +11,7 @@
 
     <Button
         android:id="@+id/btnSetPlus"
-        style="@style/GrayButtonOval"
+        style="@style/GrayButtonRightCorner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -43,7 +43,7 @@
 
     <Button
         android:id="@+id/btnSetMinus"
-        style="@style/GrayButtonOval"
+        style="@style/GrayButtonLeftCorner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/tvSetQty"

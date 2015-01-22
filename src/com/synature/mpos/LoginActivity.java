@@ -488,7 +488,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 					progress.dismiss();
 				mExecutor.execute(new DeviceChecker(LoginActivity.this, new DeviceCheckerReceiver(new Handler())));
 				break;
-			case MPOSServiceBase.RESPONSE_ERROR:
+			case MPOSServiceBase.RESULT_ERROR:
 				if(progress.isShowing())
 					progress.dismiss();
 				String msg = resultData.getString("msg");

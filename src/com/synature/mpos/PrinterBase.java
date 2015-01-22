@@ -557,79 +557,77 @@ public abstract class PrinterBase {
 		mTextToPrint.append(totalVoidQty);
 		mTextToPrint.append(totalVoidPrice);	
 		
-		if(isOneSession){
-			List<Reporting.WasteReportData> wasteLst = report.listWasteReport();
-			if(wasteLst != null){
-				String finishWaste = mContext.getString(R.string.finish_waste);
-				mTextToPrint.append("\n\n");
-				mTextToPrint.append(finishWaste + "\n");
-				for(Reporting.WasteReportData wasteData : wasteLst){
-					String wasteName = wasteData.getWasteName();
-					mTextToPrint.append(wasteName + "\n");
-					if(wasteData.getSimpleProductData() != null){
-						for(SimpleProductData sp : wasteData.getSimpleProductData()){
-							String groupName = " " + sp.getDeptName();
-							String groupTotalPrice = mFormat.currencyFormat(sp.getDeptTotalPrice());
-							String groupTotalQty = mFormat.qtyFormat(sp.getDeptTotalQty()) + 
-									createQtySpace(calculateLength(groupTotalPrice));
-							mTextToPrint.append(groupName);
-							mTextToPrint.append(createHorizontalSpace(
-									calculateLength(groupName) 
-									+ calculateLength(groupTotalQty) 
-									+ calculateLength(groupTotalPrice)));
-							mTextToPrint.append(groupTotalQty);
-							mTextToPrint.append(groupTotalPrice + "\n");
-							if(sp.getItemLst() != null){
-								for(SimpleProductData.Item item : sp.getItemLst()){
-									String itemName = limitTextWithQtyLength("   " + item.getItemName());
-									String itemTotalPrice = mFormat.currencyFormat(item.getTotalPrice());
-									String itemTotalQty = mFormat.qtyFormat(item.getTotalQty()) + 
-											createQtySpace(calculateLength(itemTotalPrice));
-									mTextToPrint.append(itemName);
-									mTextToPrint.append(createHorizontalSpace(
-											calculateLength(itemName) 
-											+ calculateLength(itemTotalQty) 
-											+ calculateLength(itemTotalPrice)));
-									mTextToPrint.append(itemTotalQty);
-									mTextToPrint.append(itemTotalPrice + "\n");
-								}
+		List<Reporting.WasteReportData> wasteLst = report.listWasteReport();
+		if(wasteLst != null){
+			String finishWaste = mContext.getString(R.string.finish_waste);
+			mTextToPrint.append("\n\n");
+			mTextToPrint.append(finishWaste + "\n");
+			for(Reporting.WasteReportData wasteData : wasteLst){
+				String wasteName = wasteData.getWasteName();
+				mTextToPrint.append(wasteName + "\n");
+				if(wasteData.getSimpleProductData() != null){
+					for(SimpleProductData sp : wasteData.getSimpleProductData()){
+						String groupName = " " + sp.getDeptName();
+						String groupTotalPrice = mFormat.currencyFormat(sp.getDeptTotalPrice());
+						String groupTotalQty = mFormat.qtyFormat(sp.getDeptTotalQty()) + 
+								createQtySpace(calculateLength(groupTotalPrice));
+						mTextToPrint.append(groupName);
+						mTextToPrint.append(createHorizontalSpace(
+								calculateLength(groupName) 
+								+ calculateLength(groupTotalQty) 
+								+ calculateLength(groupTotalPrice)));
+						mTextToPrint.append(groupTotalQty);
+						mTextToPrint.append(groupTotalPrice + "\n");
+						if(sp.getItemLst() != null){
+							for(SimpleProductData.Item item : sp.getItemLst()){
+								String itemName = limitTextWithQtyLength("   " + item.getItemName());
+								String itemTotalPrice = mFormat.currencyFormat(item.getTotalPrice());
+								String itemTotalQty = mFormat.qtyFormat(item.getTotalQty()) + 
+										createQtySpace(calculateLength(itemTotalPrice));
+								mTextToPrint.append(itemName);
+								mTextToPrint.append(createHorizontalSpace(
+										calculateLength(itemName) 
+										+ calculateLength(itemTotalQty) 
+										+ calculateLength(itemTotalPrice)));
+								mTextToPrint.append(itemTotalQty);
+								mTextToPrint.append(itemTotalPrice + "\n");
 							}
 						}
 					}
-					String wasteQty = "";
-					String wastePrice = "";
-					SimpleProductData.Item sumWaste = report.getTotalStockOnly(wasteData.getPayTypeId());
-					if(sumWaste != null){
-						wastePrice = mFormat.currencyFormat(sumWaste.getTotalPrice());
-						wasteQty = mFormat.qtyFormat(sumWaste.getTotalQty())
-								+ createQtySpace(calculateLength(wastePrice));
-					}
-					wasteName = " " + mContext.getString(R.string.summary) + " " + wasteName;
-					mTextToPrint.append(wasteName);
-					mTextToPrint.append(createHorizontalSpace(
-							calculateLength(wasteName)
-							+ calculateLength(wasteQty)
-							+ calculateLength(wastePrice)));
-					mTextToPrint.append(wasteQty);
-					mTextToPrint.append(wastePrice + "\n");
 				}
-				SimpleProductData.Item sumItem = report.getTotalStockOnly();
-				String finishWastePrice = "";
-				String finishWasteQty = "";
-				if(sumItem != null){
-					finishWastePrice = mFormat.currencyFormat(sumItem.getTotalPrice());
-					finishWasteQty = mFormat.qtyFormat(sumItem.getTotalQty())
-							+ createQtySpace(calculateLength(finishWastePrice));
-					String totalFinishWaste = mContext.getString(R.string.total) + " "
-							+ mContext.getString(R.string.finish_waste);
-					mTextToPrint.append(totalFinishWaste);
-					mTextToPrint.append(createHorizontalSpace(
-							calculateLength(totalFinishWaste)
-							+ calculateLength(finishWasteQty)
-							+ calculateLength(finishWastePrice)));
-					mTextToPrint.append(finishWasteQty);
-					mTextToPrint.append(finishWastePrice + "\n");
+				String wasteQty = "";
+				String wastePrice = "";
+				SimpleProductData.Item sumWaste = report.getTotalStockOnly(wasteData.getPayTypeId());
+				if(sumWaste != null){
+					wastePrice = mFormat.currencyFormat(sumWaste.getTotalPrice());
+					wasteQty = mFormat.qtyFormat(sumWaste.getTotalQty())
+							+ createQtySpace(calculateLength(wastePrice));
 				}
+				wasteName = " " + mContext.getString(R.string.summary) + " " + wasteName;
+				mTextToPrint.append(wasteName);
+				mTextToPrint.append(createHorizontalSpace(
+						calculateLength(wasteName)
+						+ calculateLength(wasteQty)
+						+ calculateLength(wastePrice)));
+				mTextToPrint.append(wasteQty);
+				mTextToPrint.append(wastePrice + "\n");
+			}
+			SimpleProductData.Item sumItem = report.getTotalStockOnly();
+			String finishWastePrice = "";
+			String finishWasteQty = "";
+			if(sumItem != null){
+				finishWastePrice = mFormat.currencyFormat(sumItem.getTotalPrice());
+				finishWasteQty = mFormat.qtyFormat(sumItem.getTotalQty())
+						+ createQtySpace(calculateLength(finishWastePrice));
+				String totalFinishWaste = mContext.getString(R.string.total) + " "
+						+ mContext.getString(R.string.finish_waste);
+				mTextToPrint.append(totalFinishWaste);
+				mTextToPrint.append(createHorizontalSpace(
+						calculateLength(totalFinishWaste)
+						+ calculateLength(finishWasteQty)
+						+ calculateLength(finishWastePrice)));
+				mTextToPrint.append(finishWasteQty);
+				mTextToPrint.append(finishWastePrice + "\n");
 			}
 		}
 	}
@@ -805,7 +803,7 @@ public abstract class PrinterBase {
 		if(totalPaid == 0){
 			totalPaid = Utils.roundingPrice(mFormat.getRoundingType(), sumOrder.getTotalSalePrice());
 		}
-		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
+		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.WASTE_TRANS_STATUS_VOID;
 		
 		// add void header
 		if(isVoid){

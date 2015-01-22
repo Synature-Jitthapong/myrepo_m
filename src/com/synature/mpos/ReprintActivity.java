@@ -1,7 +1,9 @@
 package com.synature.mpos;
 
+import java.util.Calendar;
 import java.util.List;
 
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
@@ -9,6 +11,7 @@ import com.synature.mpos.database.model.OrderTransaction;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,6 +26,7 @@ import android.widget.TextView;
 public class ReprintActivity extends Activity {
 	
 	private TransactionDao mOrders;
+	private GlobalPropertyDao mGlobal;
 	
 	private ReprintTransAdapter mTransAdapter;
 	private ListView mLvTrans;
@@ -45,6 +49,7 @@ public class ReprintActivity extends Activity {
 		mLvTrans = (ListView) findViewById(R.id.listView1);
 
 		mOrders = new TransactionDao(this);
+		mGlobal = new GlobalPropertyDao(this);
 		SessionDao sess = new SessionDao(this);
 
 		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, 
@@ -79,13 +84,22 @@ public class ReprintActivity extends Activity {
 				holder = new ViewHolder();
 				holder.tvNo = (TextView) convertView.findViewById(R.id.tvNo);
 				holder.tvReceiptNo = (TextView) convertView.findViewById(R.id.tvReceiptNo);
+				holder.tvAd = (TextView) convertView.findViewById(R.id.tvAd);
 				holder.btnPrint = (ImageButton) convertView.findViewById(R.id.btnPrint);
+				holder.btnBillDetail = (ImageButton) convertView.findViewById(R.id.btnBillDetail);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
 			holder.tvNo.setText(String.valueOf(position + 1) + ".");
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
+			if(!TextUtils.isEmpty(trans.getPaidTime())){
+				Calendar c = Calendar.getInstance();
+				try {
+					c.setTimeInMillis(Long.parseLong(trans.getPaidTime()));
+					holder.tvAd.setText(mGlobal.timeFormat(c.getTime()));
+				} catch (NumberFormatException e) {}
+			}
 			holder.btnPrint.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -95,13 +109,24 @@ public class ReprintActivity extends Activity {
 				}
 				
 			});
+			holder.btnBillDetail.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					BillViewerFragment f = BillViewerFragment.newInstance(trans.getTransactionId(), 
+							BillViewerFragment.REPORT_VIEW);
+					f.show(getFragmentManager(), BillViewerFragment.TAG);
+				}
+			});
 			return convertView;
 		}
 		
 		public class ViewHolder {
 			TextView tvNo;
 			TextView tvReceiptNo;
+			TextView tvAd;
 			ImageButton btnPrint;
+			ImageButton btnBillDetail;
 		}
 	}
 

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:baselineAligned="false"
     android:divider="@android:drawable/divider_horizontal_bright"
-    android:showDividers="middle"
+    android:padding="@dimen/default_margin"
     tools:context=".MainActivity" >
 
     <LinearLayout
@@ -12,13 +12,12 @@
         android:layout_height="match_parent"
         android:layout_weight="0.6"
         android:divider="@android:drawable/divider_horizontal_bright"
-        android:orientation="vertical"
-        android:showDividers="middle" >
+        android:orientation="vertical" >
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/blue_gray_light" >
+            android:background="@drawable/light_gray_shape_radius" >
 
             <EditText
                 android:id="@+id/txtBarCode"
@@ -26,6 +25,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
+                android:layout_marginTop="8dp"
                 android:ems="10"
                 android:hint="@string/barcode"
                 android:imeOptions="actionSearch"
@@ -41,23 +41,24 @@
 
             <ImageButton
                 android:id="@+id/imgBtnToggleKey"
-                style="?android:attr/borderlessButtonStyle"
+                style="@style/GrayButtonRightCorner"
                 android:layout_width="48dp"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
-                android:onClick="toggleKeyboard"
+                android:layout_marginRight="4dp"
+                android:onClick="onClick"
                 android:src="@drawable/ic_action_keyboard" />
 
             <ImageButton
                 android:id="@+id/imgBtnClearBarcode"
-                style="?android:attr/borderlessButtonStyle"
+                style="@style/GrayButtonLeftCorner"
                 android:layout_width="48dp"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_alignParentTop="true"
                 android:layout_toLeftOf="@+id/imgBtnToggleKey"
                 android:minWidth="48dip"
-                android:onClick="clearBarCodeClicked"
+                android:onClick="onClick"
                 android:src="@drawable/ic_action_cancel" />
 
         </RelativeLayout>
@@ -67,22 +68,21 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@color/white_gray"
-            android:descendantFocusability="beforeDescendants"
-            android:childDivider="@android:color/transparent" >
+            android:background="@drawable/light_gray_shape_radius"
+            android:childDivider="@android:color/transparent"
+            android:descendantFocusability="beforeDescendants" >
 
         </ExpandableListView>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white_gray"
             android:padding="4dp" >
 
             <ImageButton
                 android:id="@+id/btnDelOrder"
-                style="@style/GrayButtonOval"
-                android:layout_width="48dp"
+                style="@style/GrayButtonRightCorner"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
@@ -92,27 +92,41 @@
                 android:src="@drawable/ic_action_discard" />
 
             <ImageButton
-                android:id="@+id/btnClearSelOrder"
-                style="@style/GrayButtonOval"
-                android:layout_width="48dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@+id/btnDelOrder"
-                android:minHeight="48dip"
-                android:minWidth="48dip"
-                android:onClick="onClick"
-                android:src="@drawable/ic_action_content_undo" />
-
-            <ImageButton
                 android:id="@+id/btnBillDetail"
-                style="@style/GrayButtonOval"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignTop="@+id/btnClearSelOrder"
+                android:minHeight="48dip"
                 android:minWidth="48dip"
                 android:onClick="onClick"
                 android:src="@drawable/ic_action_receipt_light" />
+
+            <Button
+                android:id="@+id/btnFree"
+                style="@style/GreenButtonNoRadius"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/btnDelOrder"
+                android:minHeight="48dip"
+                android:minWidth="48dp"
+                android:onClick="onClick"
+                android:text="@string/free_short"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btnClearSelOrder"
+                style="@style/GrayButtonLeftCorner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/btnFree"
+                android:minHeight="48dip"
+                android:minWidth="48dip"
+                android:onClick="onClick"
+                android:src="@drawable/ic_action_content_undo" />
 
         </RelativeLayout>
 
@@ -129,19 +143,20 @@
 
             <Button
                 android:id="@+id/btnCashPaid"
+                style="@style/GrayButtonLeftCorner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="cashPaidClicked"
+                android:onClick="onClick"
                 android:text="@string/cash_paid" />
 
             <Button
                 android:id="@+id/btnPayment"
-                style="@style/BlueButton"
+                style="@style/BlueButtonRightCorner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="paymentClicked"
+                android:onClick="onClick"
                 android:text="@string/payment"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
         </LinearLayout>
@@ -152,8 +167,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:divider="@android:drawable/divider_horizontal_bright"
-        android:orientation="vertical"
-        android:showDividers="middle" >
+        android:orientation="vertical" >
 
         <com.j1tth4.slidinglibs.SlidingTabLayout
             android:id="@+id/sliding_tabs"
@@ -166,8 +180,10 @@
             android:id="@+id/pager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_margin="4dp"
-            android:layout_weight="1" >
+            android:layout_margin="@dimen/min_margin"
+            android:layout_weight="1"
+            android:background="@drawable/light_blue_gray_shape_radius" >
+
         </android.support.v4.view.ViewPager>
 
         <FrameLayout
@@ -185,47 +201,51 @@
 
             <Button
                 android:id="@+id/btnCancelOrder"
-                style="@style/RedButton"
+                style="@style/RedButtonRightCorner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:minWidth="128dp"
-                android:onClick="cancelOrderClicked"
+                android:onClick="onClick"
                 android:text="@android:string/cancel"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
             <Button
-                android:id="@+id/buttonDiscount"
+                android:id="@+id/btnDiscount"
+                style="@style/GrayButtonLeftCorner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:minWidth="128dp"
-                android:onClick="discountClicked"
+                android:onClick="onClick"
                 android:text="@string/other_discount_short"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
             <Button
-                android:id="@+id/btnPromotion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toRightOf="@+id/buttonDiscount"
-                android:minWidth="128dp"
-                android:onClick="promotionClicked"
-                android:text="@string/promotion_short" />
-
-            <Button
-                android:id="@+id/buttonHold"
+                android:id="@+id/btnHold"
+                style="@style/GrayButtonLeftCorner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_toLeftOf="@+id/btnCancelOrder"
                 android:minWidth="128dp"
-                android:onClick="holdOrderClicked"
+                android:onClick="onClick"
                 android:text="@string/hold"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+
+            <Button
+                android:id="@+id/btnPromotion"
+                style="@style/GrayButtonRightCorner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/btnDiscount"
+                android:minWidth="128dp"
+                android:onClick="onClick"
+                android:text="@string/promotion_short" />
+
         </RelativeLayout>
 
     </LinearLayout>

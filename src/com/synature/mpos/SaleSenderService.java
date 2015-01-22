@@ -89,7 +89,9 @@ public class SaleSenderService extends Service{
 				transDao.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 				transDao.updateTransactionWasteSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 				if(!TextUtils.isEmpty(jsonSale)){
-					JSONSaleLogFile.appendSale(getApplicationContext(), jsonSale);
+					try {
+						JSONSaleLogFile.appendSale(getApplicationContext(), jsonSale);
+					} catch (Exception e) {}
 					Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 							"Send partial successfully");
 				}
@@ -153,7 +155,9 @@ public class SaleSenderService extends Service{
 				sessionDao.updateSessionEnddayDetail(sessionDate, MPOSDatabase.ALREADY_SEND);
 				transDao.updateTransactionSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 				transDao.updateTransactionWasteSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
-				JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
+				try {
+					JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
+				} catch (Exception e) {}
 				Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 						"Send unsend endday successfully.");
 				sendUnSendEndday();

@@ -98,6 +98,7 @@ public class MPOSApplication extends Application {
 	@Override
 	public void onCreate() {
 		Thread.setDefaultUncaughtExceptionHandler(new MyUncaughtExceptionHandler());
+		Utils.deleteOverSale(getApplicationContext());
 	}
 	
 	private class MyUncaughtExceptionHandler implements UncaughtExceptionHandler{

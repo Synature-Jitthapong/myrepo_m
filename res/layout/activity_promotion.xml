@@ -10,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/sum_bg1" >
+        android:background="@color/light_blue_gray" >
 
         <HorizontalScrollView
             android:id="@+id/horizontalScrollView1"
@@ -35,7 +35,7 @@
             style="@style/TextPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/sum_bg2"
+            android:background="@drawable/blue_dark_bottom_left_corner_shape"
             android:gravity="right"
             android:minWidth="200dp"
             android:textAppearance="?android:attr/textAppearanceLarge"
@@ -128,7 +128,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@drawable/white_flat_bg" >
+        android:background="@drawable/light_gray_shape_radius" >
 
     </ListView>
 

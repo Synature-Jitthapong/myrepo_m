@@ -52,6 +52,13 @@
             android:minWidth="200dp"
             android:text="@string/remark"
             android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
     </LinearLayout>
 
     <ListView
@@ -59,7 +66,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/LinearLayout2"
-        android:background="@drawable/white_flat_bg"
+        android:background="@drawable/light_gray_shape_radius"
         android:choiceMode="singleChoice"
         android:listSelector="@drawable/list_selector" >
     </ListView>

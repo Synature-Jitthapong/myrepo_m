@@ -448,7 +448,12 @@ public class Utils {
 	public static int getLastDayToClearSale(Context context){
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		return sharedPref.getInt(SettingsActivity.KEY_PREF_MONTHS_TO_KEEP_SALE, -60);
+		int days = -60;
+		try {
+			String strDay = sharedPref.getString(SettingsActivity.KEY_PREF_MONTHS_TO_KEEP_SALE, "0");
+			days = Integer.parseInt(strDay);
+		} catch (Exception e) {}
+		return days;
 	}
 	
 	/**
@@ -610,12 +615,12 @@ public class Utils {
 	}
 	
 	/**
-	 * Clear sale data
+	 * Clear sale data from
+	 * first day sale to (today - config)
 	 * @param context
 	 */
 	public static void deleteOverSale(Context context){
 		SessionDao sessionDao = new SessionDao(context);
-		// delete sale if more than 90 days
 		String firstDate = sessionDao.getFirstSessionDate();
 		if(!TextUtils.isEmpty(firstDate)){
 			int lastDay = getLastDayToClearSale(context);
@@ -630,10 +635,12 @@ public class Utils {
 			if(cLast.compareTo(cFirst) > 0){
 				TransactionDao trans = new TransactionDao(context);
 				trans.deleteSale(firstDate, String.valueOf(cLast.getTimeInMillis()));
+			
+				DateFormat format = DateFormat.getDateInstance(DateFormat.LONG);
+				Logger.appendLog(context, MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
+						"Clear sale from: " + format.format(cFirst.getTime()) + "\n"
+								+ " to: " + format.format(cLast.getTime()));
 			}
-			DateFormat format = DateFormat.getDateInstance(DateFormat.LONG);
-			Log.i("ClearSale", "first_date: " + format.format(cFirst.getTime()));
-			Log.i("ClearSale", "last_date: " + format.format(cLast.getTime()));
 		}
 	}
 	

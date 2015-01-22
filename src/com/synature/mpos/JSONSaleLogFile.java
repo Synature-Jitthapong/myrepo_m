@@ -18,7 +18,7 @@ import com.synature.util.MyStatFs;
 public class JSONSaleLogFile {
 	public static final String FILE_EXTENSION = ".txt";
 	
-	public static void appendSale(Context c, String json) {
+	public static void appendSale(Context c, String json) throws Exception{
 		Calendar calendar = Calendar.getInstance();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String fileName = dateFormat.format(calendar.getTime()) + FILE_EXTENSION;
@@ -37,7 +37,7 @@ public class JSONSaleLogFile {
 		}
 	}
 	
-	public static void appendEnddaySale(Context c, String sessDate, String json) {
+	public static void appendEnddaySale(Context c, String sessDate, String json) throws Exception {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(Long.parseLong(sessDate));
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

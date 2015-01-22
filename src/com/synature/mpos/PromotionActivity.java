@@ -13,7 +13,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -75,17 +74,23 @@ public class PromotionActivity extends Activity {
 
 	private void setupPromotionButton(){
 		mPromoPriceGroupLst = mPromotion.listPromotionPriceGroup();
-		for(com.synature.pos.PromotionPriceGroup promoPriceGroup : mPromoPriceGroupLst){
+		for(int i = 0; i < mPromoPriceGroupLst.size(); i++){
+			com.synature.pos.PromotionPriceGroup promoPriceGroup = mPromoPriceGroupLst.get(i);
 			LayoutInflater inflater = (LayoutInflater) getLayoutInflater();
 			Button btn = (Button) inflater.inflate(R.layout.button_template, null, false);
-//			btn.setBackgroundResource(R.drawable.btn_holo_green);
-//			btn.setTextColor(Color.WHITE);
 			btn.setId(promoPriceGroup.getPriceGroupID());
 			btn.setText(TextUtils.isEmpty(promoPriceGroup.getPromotionName()) ? promoPriceGroup.getButtonName() : promoPriceGroup.getPromotionName());
 			btn.setMinWidth(128);
 			btn.setMinHeight(64);
 			btn.setOnClickListener(new OnPromotionButtonClickListener(promoPriceGroup.getPriceGroupID(), 
 					promoPriceGroup.getPromotionTypeID(), promoPriceGroup.getCouponHeader()));
+			if(i == 0){
+				btn.setBackgroundResource(R.drawable.btn_holo_gray_left_corner);
+			}else if(i == mPromoPriceGroupLst.size() - 1){
+				btn.setBackgroundResource(R.drawable.btn_holo_gray_right_corner);
+			}else{
+				btn.setBackgroundResource(R.drawable.btn_holo_gray_no_radius);
+			}
 			mPromoButtonContainer.addView(btn, getHorizontalParams());
 		}
 

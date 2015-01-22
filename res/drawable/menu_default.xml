@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:paddingMode="stack">
 
     <item>
         <shape>
-           <corners 
-               android:topLeftRadius="6dp"
-               android:bottomRightRadius="6dp"/>
-           <gradient
+            <corners android:radius="@dimen/default_radius" />
+
+            <gradient
                 android:angle="0"
                 android:centerColor="@color/gray"
                 android:endColor="@color/gray_light"
@@ -14,12 +14,13 @@
         </shape>
     </item>
     <item
+        android:top="1dp"
         android:right="1dp"
-        android:bottom="1dp">
+        android:bottom="1dp"
+        android:left="1dp">
         <shape>
-            <corners 
-                android:topLeftRadius="6dp"
-                android:bottomRightRadius="6dp"/>
+            <corners android:radius="@dimen/default_radius" />
+
             <solid android:color="@android:color/white" />
         </shape>
     </item>

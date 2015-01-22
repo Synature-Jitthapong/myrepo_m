@@ -48,7 +48,7 @@
             android:id="@+id/lvEnddayReport"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/white_flat_bg" >
+            android:background="@drawable/light_gray_shape_radius" >
 
         </ListView>
 
@@ -59,7 +59,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.7"
-        android:background="@drawable/white_flat_bg" >
+        android:background="@drawable/light_gray_shape_radius" >
 
         <LinearLayout
             android:id="@+id/enddayReportFooterContainer"

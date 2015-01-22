@@ -8,6 +8,8 @@ import com.synature.mpos.database.table.BankTable;
 import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.CreditCardTable;
+import com.synature.mpos.database.table.MaxPaymentIdTable;
+import com.synature.mpos.database.table.MaxTransIdTable;
 import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.PayTypeFinishWasteTable;
 import com.synature.mpos.database.table.PayTypeTable;
@@ -210,15 +212,29 @@ public class PaymentDetailDao extends MPOSDatabase {
 	 * @return max paymentDetailId
 	 */
 	public int getMaxPaymentDetailId() {
-		int maxPaymentId = 0;
+		int payId = 0;
 		Cursor cursor = getReadableDatabase().rawQuery(
-				" SELECT MAX(" + PaymentDetailTable.COLUMN_PAY_ID + ") "
-						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL, null);
-		if(cursor.moveToFirst()){
-			maxPaymentId = cursor.getInt(0);
+				" SELECT " + MaxPaymentIdTable.COLUMN_MAX_PAY_ID
+				+ " FROM " + MaxPaymentIdTable.TABLE_MAX_PAY_ID, null);
+		if (cursor.moveToFirst()) {
+			payId = cursor.getInt(0);
 		}
 		cursor.close();
-		return maxPaymentId + 1;
+		if(payId == 0){
+			cursor = getReadableDatabase().rawQuery(
+					"SELECT MAX(" + PaymentDetailTable.COLUMN_PAY_ID + ")"
+					+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL, null);
+			if(cursor.moveToFirst()){
+				payId = cursor.getInt(0);
+			}
+			cursor.close();
+		}
+		payId += 1;
+		ContentValues cv = new ContentValues();
+		cv.put(MaxPaymentIdTable.COLUMN_MAX_PAY_ID, payId);
+		getWritableDatabase().delete(MaxPaymentIdTable.TABLE_MAX_PAY_ID, null, null);
+		getWritableDatabase().insert(MaxPaymentIdTable.TABLE_MAX_PAY_ID, null, cv);
+		return payId;
 	}
 
 	/**
@@ -259,8 +275,8 @@ public class PaymentDetailDao extends MPOSDatabase {
 			int expireYear, int bankId,int creditCardTypeId, String remark) throws SQLException {
 		if(checkThisPayTypeIsAdded(transactionId, payTypeId)){
 			// update payment
-			double totalPayment = getTotalPayAmount(transactionId, true) + totalPay;
-			double totalPayed = getTotalPaid(transactionId, true) + pay;
+			double totalPayment = getTotalPayAmount(transactionId, payTypeId, true) + totalPay;
+			double totalPayed = getTotalPaid(transactionId, payTypeId, true) + pay;
 			updatePaymentDetail(transactionId, payTypeId, totalPayment, totalPayed);
 		}else{
 			int paymentId = getMaxPaymentDetailId();
@@ -470,6 +486,32 @@ public class PaymentDetailDao extends MPOSDatabase {
 	}
 	
 	/**
+	 * @param transactionId
+	 * @param payTypeId
+	 * @param isLoadTemp
+	 * @return total paid by pay type
+	 */
+	public double getTotalPaid(int transactionId, int payTypeId, boolean isLoadTemp){
+		double totalPaid = 0.0d;
+		Cursor cursor = queryPaymentDetail(
+				isLoadTemp ? PaymentDetailTable.TEMP_PAYMENT_DETAIL : PaymentDetailTable.TABLE_PAYMENT_DETAIL,
+				new String[]{
+					"sum(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ")"
+				},
+				OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " and " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?",
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(payTypeId)
+				}, null, null);
+		if(cursor.moveToFirst()){
+			totalPaid = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalPaid;
+	}
+	
+	/**
 	 * Get total payed
 	 * @param transactionId
 	 * @param isLoadTemp
@@ -508,6 +550,32 @@ public class PaymentDetailDao extends MPOSDatabase {
 				OrderTransTable.COLUMN_TRANS_ID + "=?",
 				new String[]{
 					String.valueOf(transactionId)
+				}, null, null);
+		if(cursor.moveToFirst()){
+			totalPaid = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalPaid;
+	}
+	
+	/**
+	 * @param transactionId
+	 * @param payTypeId
+	 * @param isLoadTemp
+	 * @return total pay amount by pay type
+	 */
+	public double getTotalPayAmount(int transactionId, int payTypeId, boolean isLoadTemp){
+		double totalPaid = 0.0d;
+		Cursor cursor = queryPaymentDetail(
+				isLoadTemp ? PaymentDetailTable.TEMP_PAYMENT_DETAIL : PaymentDetailTable.TABLE_PAYMENT_DETAIL,
+				new String[]{
+					"sum(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ")",
+				}, 
+				OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " and " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?",
+				new String[]{
+					String.valueOf(transactionId),
+					String.valueOf(payTypeId)
 				}, null, null);
 		if(cursor.moveToFirst()){
 			totalPaid = cursor.getDouble(0);

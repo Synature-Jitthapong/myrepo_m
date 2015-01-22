@@ -11,6 +11,7 @@ import com.synature.mpos.database.table.GlobalPropertyTable;
 import com.synature.mpos.database.table.HeaderFooterReceiptTable;
 import com.synature.mpos.database.table.LanguageTable;
 import com.synature.mpos.database.table.MaxOrderIdTable;
+import com.synature.mpos.database.table.MaxPaymentIdTable;
 import com.synature.mpos.database.table.MaxTransIdTable;
 import com.synature.mpos.database.table.MenuFixCommentTable;
 import com.synature.mpos.database.table.OrderDetailTable;
@@ -102,6 +103,7 @@ public class MPOSDatabase extends BaseColumn{
 		public void onCreate(SQLiteDatabase db) {
 			MaxTransIdTable.onCreate(db);
 			MaxOrderIdTable.onCreate(db);
+			MaxPaymentIdTable.onCreate(db);
 			BankTable.onCreate(db);
 			ComputerTable.onCreate(db);
 			CreditCardTable.onCreate(db);
@@ -138,6 +140,7 @@ public class MPOSDatabase extends BaseColumn{
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			MaxTransIdTable.onUpgrade(db, oldVersion, newVersion);
 			MaxOrderIdTable.onUpgrade(db, oldVersion, newVersion);
+			MaxPaymentIdTable.onUpgrade(db, oldVersion, newVersion);
 			BankTable.onUpgrade(db, oldVersion, newVersion);
 			ComputerTable.onUpgrade(db, oldVersion, newVersion);
 			CreditCardTable.onUpgrade(db, oldVersion, newVersion);

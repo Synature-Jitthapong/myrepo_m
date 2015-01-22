@@ -2,8 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/list_selector" >
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_selector"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center_vertical"
+    android:padding="@dimen/default_margin" >
 
     <TextView
         android:id="@+id/tvNo"
@@ -45,5 +48,14 @@
         android:layout_weight="1"
         android:gravity="left"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <ImageButton
+        android:id="@+id/btnBillDetail"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:minWidth="48dip"
+        android:src="@drawable/ic_action_receipt_light" />
 
 </LinearLayout>

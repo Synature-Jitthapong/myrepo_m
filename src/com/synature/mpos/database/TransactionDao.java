@@ -54,14 +54,24 @@ public class TransactionDao extends MPOSDatabase {
 	public static final int TRANS_STATUS_SUCCESS = 2;
 
 	/**
-	 * void transaction status
+	 * Void transaction status
 	 */
 	public static final int TRANS_STATUS_VOID = 8;
 
 	/**
-	 * hold transaction status
+	 * Hold transaction status
 	 */
 	public static final int TRANS_STATUS_HOLD = 9;
+	
+	/**
+	 * Waste success status
+	 */
+	public static final int WASTE_TRANS_STATUS_SUCCESS = 11;
+	
+	/**
+	 * Waste void status
+	 */
+	public static final int WASTE_TRANS_STATUS_VOID = 13;
 	
 	/**
 	 * All columns
@@ -995,8 +1005,8 @@ public class TransactionDao extends MPOSDatabase {
 				+ OrderTransTable.COLUMN_STATUS_ID + " IN(?,?)",
 				new String[] { 
 					saleDate, 
-					String.valueOf(TRANS_STATUS_VOID),
-					String.valueOf(TRANS_STATUS_SUCCESS) 
+					String.valueOf(WASTE_TRANS_STATUS_VOID),
+					String.valueOf(WASTE_TRANS_STATUS_SUCCESS) 
 				}, null, null, null);
 		if (cursor.moveToFirst()) {
 			do {
@@ -1286,7 +1296,7 @@ public class TransactionDao extends MPOSDatabase {
 				date.get(Calendar.DAY_OF_MONTH), receiptId);
 		
 		ContentValues cv = new ContentValues();
-		cv.put(OrderTransTable.COLUMN_STATUS_ID, TRANS_STATUS_SUCCESS);
+		cv.put(OrderTransTable.COLUMN_STATUS_ID, WASTE_TRANS_STATUS_SUCCESS);
 		cv.put(OrderTransTable.COLUMN_RECEIPT_ID, receiptId);
 		cv.put(OrderTransTable.COLUMN_CLOSE_TIME, dateTime.getTimeInMillis());
 		cv.put(OrderTransTable.COLUMN_PAID_TIME, dateTime.getTimeInMillis()); 
@@ -2014,6 +2024,28 @@ public class TransactionDao extends MPOSDatabase {
 	/**
 	 * @param transactionId
 	 * @param orderDetailId
+	 * @return row affected
+	 */
+	public int updateOrderDetailFreePrice(int transactionId, int orderDetailId) {
+		ContentValues cv = new ContentValues();
+		cv.put(ProductTable.COLUMN_PRODUCT_PRICE, 0);
+		cv.put(OrderDetailTable.COLUMN_TOTAL_RETAIL_PRICE, 0);
+		cv.put(OrderDetailTable.COLUMN_TOTAL_SALE_PRICE, 0);
+		cv.put(OrderDetailTable.COLUMN_TOTAL_VAT, 0);
+		cv.put(OrderDetailTable.COLUMN_TOTAL_VAT_EXCLUDE, 0);
+		cv.put(OrderDetailTable.COLUMN_PRICE_DISCOUNT, 0);
+		return getWritableDatabase().update(
+				OrderDetailTable.TEMP_ORDER,
+				cv,
+				OrderTransTable.COLUMN_TRANS_ID + "=? AND "
+						+ OrderDetailTable.COLUMN_ORDER_ID + "=? ",
+				new String[] { String.valueOf(transactionId),
+						String.valueOf(orderDetailId) });
+	}
+	
+	/**
+	 * @param transactionId
+	 * @param orderDetailId
 	 * @param vatType
 	 * @param vatRate
 	 * @param orderQty
@@ -2120,7 +2152,7 @@ public class TransactionDao extends MPOSDatabase {
 	 */
 	public int voidTransactionWaste(int transactionId, int staffId, String reason) {
 		ContentValues cv = new ContentValues();
-		cv.put(OrderTransTable.COLUMN_STATUS_ID, TRANS_STATUS_VOID);
+		cv.put(OrderTransTable.COLUMN_STATUS_ID, WASTE_TRANS_STATUS_VOID);
 		cv.put(OrderTransTable.COLUMN_VOID_STAFF_ID, staffId);
 		cv.put(OrderTransTable.COLUMN_VOID_REASON, reason);
 		cv.put(COLUMN_SEND_STATUS, MPOSDatabase.NOT_SEND);

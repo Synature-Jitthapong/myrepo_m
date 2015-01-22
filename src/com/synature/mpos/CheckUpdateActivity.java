@@ -23,6 +23,9 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -39,9 +42,7 @@ public class CheckUpdateActivity extends Activity {
 	private static Button sBtnInstall;
 	private static ProgressBar sProgressBar;
 	private static TextView sTvTitle;
-	private static TextView sTvLastUpdate;
 	private static TextView sTvPercent;
-	private static TextView sTvCurrentVersion;
 	
 	private static class DownloadReceiver extends ResultReceiver{
 
@@ -83,8 +84,6 @@ public class CheckUpdateActivity extends Activity {
 				editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_STATUS, "1");
 				editor.putString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_FILE_NAME, fileName);
 				editor.commit();
-				sTvLastUpdate.setText(sContext.getString(R.string.last_time_update_version) + ": " 
-						+ java.text.DateFormat.getDateInstance().format(c.getTime()));
 				break;
 			case DownloadService.ERROR:
 				sBtnCheckUpdate.setEnabled(true);
@@ -97,6 +96,16 @@ public class CheckUpdateActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		sContext = this;
+		requestWindowFeature(Window.FEATURE_ACTION_BAR);
+	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
+	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+	    LayoutParams params = getWindow().getAttributes();
+	    params.width = WindowManager.LayoutParams.MATCH_PARENT;
+	    params.height= getResources().getInteger(R.integer.activity_dialog_height);
+	    params.alpha = 1.0f;
+	    params.dimAmount = 0.5f;
+	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+	    setFinishOnTouchOutside(false);
 		setContentView(R.layout.activity_check_update);
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
@@ -105,9 +114,7 @@ public class CheckUpdateActivity extends Activity {
 		sBtnCheckUpdate = (Button) findViewById(R.id.button1);
 		sBtnInstall = (Button) findViewById(R.id.button2);
 		sTvTitle = (TextView) findViewById(R.id.textView1);
-		sTvLastUpdate = (TextView) findViewById(R.id.textView2);
 		sTvPercent = (TextView) findViewById(R.id.textView3);
-		sTvCurrentVersion = (TextView) findViewById(R.id.textView4);
 		
 		Intent intent = getIntent();
 		if(intent.getIntExtra("auto_download", 0) == AUTO_DOWNLOAD){
@@ -122,13 +129,6 @@ public class CheckUpdateActivity extends Activity {
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(CheckUpdateActivity.this);
 		String lastUpdate = sharedPref.getString(SettingsActivity.KEY_PREF_LAST_UPDATE, "");
 		String fileDownloadStatus = sharedPref.getString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_STATUS, "0");
-		if(!TextUtils.isEmpty(lastUpdate)){
-			Calendar c = Calendar.getInstance();
-			c.setTimeInMillis(Long.parseLong(lastUpdate));
-			sTvLastUpdate.setText(getString(R.string.last_time_update_version) + ": " 
-					+ java.text.DateFormat.getDateInstance().format(c.getTime()));
-		}
-		sTvCurrentVersion.setText(getString(R.string.current_version) + " " + Utils.getSoftWareVersion(this));
 		if(TextUtils.equals(fileDownloadStatus, "1")){
 			sTvTitle.setText(R.string.download_complete);
 			sBtnInstall.setVisibility(View.VISIBLE);

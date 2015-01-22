@@ -6,7 +6,6 @@
 
     <ImageButton
         android:id="@+id/btnComment"
-        style="@style/GrayButtonOval"
         android:layout_width="48dp"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/btnOrderMinus"
@@ -17,7 +16,6 @@
 
     <ImageButton
         android:id="@+id/btnSetModify"
-        style="@style/GrayButtonOval"
         android:layout_width="48dp"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/btnComment"
@@ -38,7 +36,7 @@
 
     <Button
         android:id="@+id/btnOrderPlus"
-        style="@style/GrayButtonOval"
+        style="@style/GrayButtonRightCorner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -95,7 +93,7 @@
 
     <Button
         android:id="@+id/btnOrderMinus"
-        style="@style/GrayButtonOval"
+        style="@style/GrayButtonLeftCorner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/txtOrderQty"

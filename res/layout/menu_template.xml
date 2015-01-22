@@ -39,7 +39,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_margin="4dp"
-        android:background="@color/blue_gray_light"
+        android:background="@drawable/light_blue_gray_shape_radius"
+        android:padding="1dp"
         android:scaleType="fitXY" />
 
 </RelativeLayout>

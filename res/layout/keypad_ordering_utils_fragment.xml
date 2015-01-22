@@ -19,73 +19,84 @@
 
             <Button
                 android:id="@+id/b1"
-                style="@style/GrayButtonOval"
+                style="@style/GrayButtonLeftCorner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 android:text="1" />
 
             <Button
                 android:id="@+id/b2"
-                style="@style/GrayButtonOval"
+                style="@style/GrayButtonNoRadius"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 android:text="2" />
 
             <Button
                 android:id="@+id/b3"
-                style="@style/GrayButtonOval"
+                style="@style/GrayButtonNoRadius"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 android:text="3" />
 
             <Button
                 android:id="@+id/b4"
-                style="@style/GrayButtonOval"
+                style="@style/GrayButtonNoRadius"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 android:text="4" />
 
             <Button
                 android:id="@+id/b5"
-                style="@style/GrayButtonOval"
+                style="@style/GrayButtonNoRadius"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 android:text="5" />
 
             <Button
                 android:id="@+id/b6"
-                style="@style/GrayButtonOval"
+                style="@style/GrayButtonNoRadius"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 android:text="6" />
 
             <Button
                 android:id="@+id/b7"
-                style="@style/GrayButtonOval"
+                style="@style/GrayButtonNoRadius"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 android:text="7" />
 
             <Button
                 android:id="@+id/b8"
-                style="@style/GrayButtonOval"
+                style="@style/GrayButtonNoRadius"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 android:text="8" />
 
             <Button
                 android:id="@+id/b9"
-                style="@style/GrayButtonOval"
+                style="@style/GrayButtonNoRadius"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 android:text="9" />
 
             <Button
                 android:id="@+id/b0"
-                style="@style/GrayButtonOval"
+                style="@style/GrayButtonNoRadius"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 android:text="0" />
+
         </LinearLayout>
     </HorizontalScrollView>
 
@@ -107,11 +118,12 @@
 
     <Button
         android:id="@+id/bC"
-        style="@style/GrayButtonOval"
+        style="@style/GrayButtonRightCorner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/horizontalScrollView1"
+        android:minWidth="48dp"
         android:text="c" />
 
 </RelativeLayout>

@@ -3,170 +3,28 @@
     android:id="@+id/ScrollView1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/activity_horizontal_margin"
     tools:context=".CreditPayActivity" >
 
     <LinearLayout
-        android:id="@+id/LinearLayout1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:gravity="center_vertical" >
-
-            <TextView
-                android:id="@+id/textView2"
-                style="@style/LabelText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/total_price"
-                android:textSize="22sp" />
-
-            <TextView
-                android:id="@+id/tvTotalPrice"
-                style="@style/TextPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/sum_bg2"
-                android:minWidth="200dp"
-                android:text="0"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/white"
-                android:textSize="72sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical" >
-
-            <TextView
-                android:id="@+id/textView3"
-                style="@style/LabelText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/total_payment"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textSize="22sp" />
-
-            <EditText
-                android:id="@+id/txtCardPayAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ems="7"
-                android:gravity="center_vertical"
-                android:inputType="numberSigned|numberDecimal"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@android:color/black"
-                android:textSize="@dimen/large_text_size"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical" >
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:background="@drawable/light_gray_shape_radius" >
 
             <TextView
                 android:id="@+id/textView4"
-                style="@style/LabelText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/txtCardNoSeq1"
+                android:layout_alignBottom="@+id/txtCardNoSeq1"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_alignParentLeft="true"
                 android:text="@string/credit_card_no"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textSize="22sp" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" >
-
-                <EditText
-                    android:id="@+id/txtCardNoSeq1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="4"
-                    android:inputType="number"
-                    android:lines="1"
-                    android:maxLength="4"
-                    android:textSize="@dimen/large_text_size" >
-
-                    <requestFocus />
-                </EditText>
-
-                <EditText
-                    android:id="@+id/txtCardNoSeq2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="4"
-                    android:inputType="number"
-                    android:lines="1"
-                    android:maxLength="4"
-                    android:textSize="@dimen/large_text_size" />
-
-                <EditText
-                    android:id="@+id/txtCardNoSeq3"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="4"
-                    android:inputType="number"
-                    android:lines="1"
-                    android:maxLength="4"
-                    android:textSize="@dimen/large_text_size" />
-
-                <EditText
-                    android:id="@+id/txtCardNoSeq4"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="4"
-                    android:inputType="number"
-                    android:lines="1"
-                    android:maxLength="4"
-                    android:textSize="@dimen/large_text_size" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical" >
-
-            <TextView
-                android:id="@+id/textView6"
-                style="@style/LabelText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/card_type"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textSize="22sp" />
-
-            <Spinner
-                android:id="@+id/spCardType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical" >
-
-            <TextView
-                android:id="@+id/textView8"
-                style="@style/LabelText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/card_holder_name"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="22sp" />
 
@@ -174,71 +32,198 @@
                 android:id="@+id/txtCardHolderName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="13"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_below="@+id/spCardType"
+                android:ems="10"
                 android:textSize="@dimen/large_text_size" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical" >
 
             <TextView
-                android:id="@+id/textView5"
-                style="@style/LabelText"
+                android:id="@+id/textView8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/bank"
+                android:layout_alignBaseline="@+id/txtCardHolderName"
+                android:layout_alignBottom="@+id/txtCardHolderName"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_alignParentLeft="true"
+                android:text="@string/card_holder_name"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="22sp" />
 
             <Spinner
                 android:id="@+id/spBank"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_below="@+id/txtCardHolderName" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical" >
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/tvTotalPrice"
+                android:layout_alignParentLeft="true"
+                android:layout_alignTop="@+id/tvTotalPrice"
+                android:layout_toLeftOf="@+id/tvTotalPrice"
+                android:gravity="center_vertical"
+                android:text="@string/total_price"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/txtCardPayAmount"
+                android:layout_alignBottom="@+id/txtCardPayAmount"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_alignParentLeft="true"
+                android:text="@string/total_payment"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/spBank"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_alignParentLeft="true"
+                android:layout_alignTop="@+id/spBank"
+                android:gravity="center_vertical|right"
+                android:text="@string/bank"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/spCardType"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_alignParentLeft="true"
+                android:layout_alignTop="@+id/spCardType"
+                android:gravity="center_vertical"
+                android:text="@string/card_type"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/spExpMonth"
+                android:layout_alignTop="@+id/spExpMonth"
+                android:layout_toRightOf="@+id/spExpMonth"
+                android:gravity="center"
+                android:text="/"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <Spinner
+                android:id="@+id/spExpMonth"
+                android:layout_width="92dp"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_below="@+id/spBank" />
 
             <TextView
                 android:id="@+id/textView7"
-                style="@style/LabelText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/textView1"
+                android:layout_alignBottom="@+id/textView1"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_alignParentLeft="true"
                 android:text="@string/expire_date"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="22sp" />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/tvTotalPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical" >
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:minWidth="300dp"
+                android:text="0"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="72sp" />
 
-                <Spinner
-                    android:id="@+id/spExpMonth"
-                    android:layout_width="96dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+            <EditText
+                android:id="@+id/txtCardNoSeq2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtCardPayAmount"
+                android:layout_toRightOf="@+id/txtCardNoSeq1"
+                android:ems="3"
+                android:inputType="number"
+                android:lines="1"
+                android:maxLength="4"
+                android:textSize="@dimen/large_text_size" />
 
-                <TextView
-                    android:id="@+id/textView1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="/"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
+            <EditText
+                android:id="@+id/txtCardNoSeq3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtCardPayAmount"
+                android:layout_toRightOf="@+id/txtCardNoSeq2"
+                android:ems="3"
+                android:inputType="number"
+                android:lines="1"
+                android:maxLength="4"
+                android:textSize="@dimen/large_text_size" />
 
-                <Spinner
-                    android:id="@+id/spExpYear"
-                    android:layout_width="128dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-            </LinearLayout>
-        </LinearLayout>
+            <EditText
+                android:id="@+id/txtCardNoSeq4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtCardPayAmount"
+                android:layout_toRightOf="@+id/txtCardNoSeq3"
+                android:ems="3"
+                android:inputType="number"
+                android:lines="1"
+                android:maxLength="4"
+                android:textSize="@dimen/large_text_size" />
+
+            <Spinner
+                android:id="@+id/spExpYear"
+                android:layout_width="128dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/spBank"
+                android:layout_toRightOf="@+id/textView1" />
+
+            <EditText
+                android:id="@+id/txtCardPayAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_below="@+id/tvTotalPrice"
+                android:ems="7"
+                android:gravity="center_vertical"
+                android:inputType="numberSigned|numberDecimal"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/large_text_size"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spCardType"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_below="@+id/txtCardNoSeq2" />
+
+            <EditText
+                android:id="@+id/txtCardNoSeq1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/tvTotalPrice"
+                android:layout_below="@+id/txtCardPayAmount"
+                android:ems="3"
+                android:inputType="number"
+                android:lines="1"
+                android:maxLength="4"
+                android:textSize="@dimen/large_text_size" />
+        </RelativeLayout>
     </LinearLayout>
 
 </ScrollView>

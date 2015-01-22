@@ -107,10 +107,17 @@ public class VoidBillActivity extends Activity {
 				mComputerId = trans.getComputerId();
 				mSessionId = trans.getSessionId();
 				
-				if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
-					mItemConfirm.setEnabled(true);
-				else if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID)
-					mItemConfirm.setEnabled(false);
+				if(mVoidType == 1){
+					if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
+						mItemConfirm.setEnabled(true);
+					else if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID)
+						mItemConfirm.setEnabled(false);
+				}else if (mVoidType == 2){
+					if(trans.getTransactionStatusId() == TransactionDao.WASTE_TRANS_STATUS_SUCCESS)
+						mItemConfirm.setEnabled(true);
+					else if(trans.getTransactionStatusId() == TransactionDao.WASTE_TRANS_STATUS_VOID)
+						mItemConfirm.setEnabled(false);
+				}
 				searchVoidItem();
 			}
 		});
@@ -223,7 +230,8 @@ public class VoidBillActivity extends Activity {
 			}
 			holder.tvReceiptNo.setText(trans.getReceiptNo());
 			holder.tvPaidTime.setText(mFormat.dateTimeFormat(c.getTime()));
-			if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID){
+			if((trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID)
+					|| (trans.getTransactionStatusId() == TransactionDao.WASTE_TRANS_STATUS_VOID)){
 				holder.tvReceiptNo.setTextColor(Color.RED);
 				holder.tvReceiptNo.setPaintFlags(holder.tvReceiptNo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			}else{
@@ -267,10 +275,17 @@ public class VoidBillActivity extends Activity {
 			ordTrans = mTrans.getTransactionWaste(mTransactionId, false);
 		}
 		if(ordTrans != null){
-			if(ordTrans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
-				((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());
-			else if(ordTrans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID)
-				((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEjVoid());
+			if(mVoidType == 1){
+				if(ordTrans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
+					((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());
+				else if(ordTrans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID)
+					((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEjVoid());
+			}else if(mVoidType == 2){
+				if(ordTrans.getTransactionStatusId() == TransactionDao.WASTE_TRANS_STATUS_SUCCESS)
+					((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEj());
+				else if(ordTrans.getTransactionStatusId() == TransactionDao.WASTE_TRANS_STATUS_VOID)
+					((CustomFontTextView) mScrBill.findViewById(R.id.textView1)).setText(ordTrans.getEjVoid());
+			}
 		}
 	}
 

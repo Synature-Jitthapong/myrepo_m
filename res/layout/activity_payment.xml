@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
-            android:background="@color/sum_bg1"
+            android:background="@color/light_blue_gray"
             android:minHeight="72dip"
             android:paddingLeft="4dp"
             android:paddingRight="4dp" >
@@ -42,7 +42,7 @@
             android:layout_below="@+id/LinearLayout1"
             android:layout_margin="1dp"
             android:layout_weight="1"
-            android:background="@drawable/white_shape" >
+            android:background="@drawable/light_gray_shape_radius" >
 
         </ListView>
 
@@ -178,7 +178,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_marginBottom="48dp"
-            android:background="@color/sum_bg1"
+            android:background="@color/light_blue_gray"
             android:minHeight="72dip"
             android:paddingLeft="4dp"
             android:paddingRight="4dp" >
@@ -223,6 +223,7 @@
             android:gravity="center"
             android:horizontalSpacing="4dp"
             android:numColumns="2"
+            android:padding="@dimen/default_margin"
             android:stretchMode="columnWidth"
             android:verticalSpacing="4dp" >
 
@@ -250,7 +251,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_marginBottom="2dp"
-            android:background="@color/sum_bg2"
+            android:background="@drawable/blue_dark_bottom_left_corner_shape"
             android:gravity="right"
             android:text="0"
             android:textAppearance="?android:attr/textAppearanceLarge"

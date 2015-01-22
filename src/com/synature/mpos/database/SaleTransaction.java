@@ -350,7 +350,7 @@ public class SaleTransaction extends MPOSDatabase{
 	 */
 	private SaleTable_Session buildSessionObj(String sessionDate) {
 		SaleTable_Session saleSess = new SaleTable_Session();
-		Cursor cursor = getUnCloseSession(sessionDate);
+		Cursor cursor = getLastSession(sessionDate);
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				saleSess.setiSessionID(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
@@ -385,8 +385,8 @@ public class SaleTransaction extends MPOSDatabase{
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 						String.valueOf(NOT_SEND),
 						sessionDate,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_VOID),
 						String.valueOf(NOT_SEND)
 				}, OrderTransTable.COLUMN_TRANS_ID, null);
 	}
@@ -404,23 +404,21 @@ public class SaleTransaction extends MPOSDatabase{
 						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 						sessionDate,
-						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
-						String.valueOf(TransactionDao.TRANS_STATUS_VOID)
+						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_VOID)
 				}, OrderTransTable.COLUMN_TRANS_ID, null);
 	}
 
 	/**
-	 * Get unclosed session for generate partial sale
+	 * Get the last session for generate partial sale
 	 * @param sessionDate
 	 * @return Cursor
 	 */
-	private Cursor getUnCloseSession(String sessionDate) {
-		return querySession(SessionTable.COLUMN_SESS_DATE + "=?"
-				+ " AND " + SessionTable.COLUMN_CLOSE_STAFF + "=?", 
+	private Cursor getLastSession(String sessionDate) {
+		return querySession(SessionTable.COLUMN_SESS_DATE + "=?", 
 				new String[] {
-					sessionDate,
-					String.valueOf(0)
-				});
+					sessionDate
+				}, SessionTable.COLUMN_SESS_ID + " DESC ", "1");
 	}
 	
 	/**
@@ -432,7 +430,7 @@ public class SaleTransaction extends MPOSDatabase{
 		return querySession(SessionTable.COLUMN_SESS_DATE + "=?", 
 				new String[] {
 					sessionDate
-				});
+				}, null, null);
 	}
 	
 	private Cursor querySessionEndday(String sessionDate) {
@@ -676,10 +674,12 @@ public class SaleTransaction extends MPOSDatabase{
 		return getReadableDatabase().rawQuery(sqlQuery, selectionArgs);
 	}
 
-	private Cursor querySession(String selection, String[] selectionArgs){
+	private Cursor querySession(String selection, String[] selectionArgs, String orderBy, String limit){
+		String ordering = !TextUtils.isEmpty(orderBy) ? orderBy : "";
+		String limitation = !TextUtils.isEmpty(limit) ? limit : "";
 		return getReadableDatabase().query(SessionTable.TABLE_SESSION, 
 				SessionDao.ALL_SESS_COLUMNS, selection, selectionArgs, 
-				null, null, null);
+				null, null, ordering, limitation);
 	}
 	
 	/**

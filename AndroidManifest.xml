@@ -148,7 +148,7 @@
             android:name=".CheckUpdateActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden"
-            android:label="@string/check_update">
+            android:label="@string/check_update" android:theme="@style/ActivityDialogTheme">
         </activity>
 
         <receiver

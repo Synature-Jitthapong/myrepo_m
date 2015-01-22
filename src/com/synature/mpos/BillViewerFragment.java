@@ -13,6 +13,8 @@ import android.widget.ImageButton;
 
 public class BillViewerFragment extends DialogFragment implements OnClickListener{
 
+	public static final String TAG = BillViewerFragment.class.getSimpleName();
+	
 	public static final int CHECK_VIEW = 1;
 	public static final int REPORT_VIEW = 2;
 	

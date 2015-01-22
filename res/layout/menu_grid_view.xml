@@ -6,6 +6,8 @@
     android:layout_alignParentRight="true"
     android:layout_alignParentTop="true"
     android:animateLayoutChanges="false"
-    android:numColumns="4" >
+    android:horizontalSpacing="@dimen/default_margin"
+    android:numColumns="4"
+    android:verticalSpacing="@dimen/default_margin" >
 
 </GridView>
