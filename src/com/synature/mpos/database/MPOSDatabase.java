@@ -39,6 +39,7 @@ import com.synature.mpos.database.table.StaffTable;
 import com.synature.mpos.database.table.SyncHistoryTable;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -170,5 +171,25 @@ public class MPOSDatabase extends BaseColumn{
 			ProgramFeatureTable.onUpgrade(db, oldVersion, newVersion);
 			PaymentDetailWasteTable.onUpgrade(db, oldVersion, newVersion);
 		}
+	}
+	
+	public static boolean checkTableExists(SQLiteDatabase db, String tableName){
+		boolean isExists = false;
+		Cursor cursor = db.rawQuery("select * from sqlite_master "
+				+ "where name=? "
+				+ "and type=?", 
+				new String[]{
+						tableName,
+						"table"
+				});
+		try {
+			if(cursor.moveToFirst()){
+				isExists = true;
+			}
+		} finally {
+			if(cursor != null)
+				cursor.close();
+		}
+		return isExists;
 	}
 }

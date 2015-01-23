@@ -1680,6 +1680,30 @@ public class TransactionDao extends MPOSDatabase {
 //	}
 	
 	/**
+	 * @param saleDate
+	 * @return total trans is not send
+	 */
+	public int countTransUnSend(String saleDate) {
+		int total = 0;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT COUNT(" + OrderTransTable.COLUMN_TRANS_ID + ") "
+                        + " FROM " + OrderTransTable.TABLE_ORDER_TRANS
+                        + " WHERE " + OrderTransTable.COLUMN_SALE_DATE + "=?" 
+                        + " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?)"
+                        + " AND " + COLUMN_SEND_STATUS + "=?",
+				new String[] {
+						saleDate,
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+                        String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(NOT_SEND) });
+		if (cursor.moveToFirst()) {
+			total = cursor.getInt(0);
+		}
+		cursor.close();
+		return total;
+	}
+	
+	/**
 	 * @return total transaction that not sent
 	 */
 	public int countTransUnSend() {

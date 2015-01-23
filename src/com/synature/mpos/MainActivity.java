@@ -194,7 +194,6 @@ public class MainActivity extends FragmentActivity implements
 		setupBarCodeEvent();
 		setupMenuDeptPager();
 		setupOrderingKeypadUtils();
-		sendUnSendEnddayData();
 	}
 
 	private class MasterDataReceiver extends ResultReceiver{
@@ -2568,36 +2567,6 @@ public class MainActivity extends FragmentActivity implements
 		intent.putExtra(EnddaySenderService.COMPUTER_ID_PARAM, mComputerId);
 		intent.putExtra(EnddaySenderService.STAFF_ID_PARAM, mStaffId);
 		intent.putExtra(EnddaySenderService.RECEIVER_NAME, new EnddayReceiver(new Handler()));
-		startService(intent);
-	}
-	
-	private class EnddayAllReceiver extends ResultReceiver{
-
-		public EnddayAllReceiver(Handler handler) {
-			super(handler);
-		}
-
-		@Override
-		protected void onReceiveResult(int resultCode, Bundle resultData) {
-			super.onReceiveResult(resultCode, resultData);
-			switch(resultCode){
-			case EnddaySenderService.RESULT_SUCCESS:
-				countSaleDataNotSend();
-				break;
-			case EnddaySenderService.RESULT_ERROR:
-				break;
-			}
-		}
-		
-	}
-	
-	private void sendUnSendEnddayData(){
-		Intent intent = new Intent(this, EnddaySenderService.class);
-		intent.putExtra(EnddaySenderService.WHAT_TO_DO_PARAM, EnddaySenderService.SEND_ALL);
-		intent.putExtra(EnddaySenderService.SHOP_ID_PARAM, mShopId);
-		intent.putExtra(EnddaySenderService.COMPUTER_ID_PARAM, mComputerId);
-		intent.putExtra(EnddaySenderService.STAFF_ID_PARAM, mStaffId);
-		intent.putExtra(EnddaySenderService.RECEIVER_NAME, new EnddayAllReceiver(new Handler()));
 		startService(intent);
 	}
 	

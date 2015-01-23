@@ -1,5 +1,7 @@
 package com.synature.mpos.database.table;
 
+import com.synature.mpos.database.MPOSDatabase;
+
 import android.database.sqlite.SQLiteDatabase;
 
 public class MaxPaymentIdTable {
@@ -15,5 +17,8 @@ public class MaxPaymentIdTable {
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion,
 			int newVersion) {
+		if(!MPOSDatabase.checkTableExists(db, TABLE_MAX_PAY_ID)){
+			onCreate(db);
+		}
 	}
 }

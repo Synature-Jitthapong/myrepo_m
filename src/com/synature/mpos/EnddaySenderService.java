@@ -18,7 +18,7 @@ import android.util.Log;
 
 public class EnddaySenderService extends SaleSenderServiceBase{
 
-	public static final String TAG = EnddayReceiver.class.getSimpleName();
+	public static final String TAG = EnddaySenderService.class.getSimpleName();
 	
 	public static final int SEND_CURRENT = 1;
 	public static final int SEND_ALL = 2;
@@ -105,7 +105,11 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 				sendUnSendEndday(shopId, computerId, staffId, receiver);
 				break;
 			case RESULT_ERROR:
-				flagSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
+				if(countTransUnSend(sessionDate) == 0){
+					flagSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+				}else{
+					flagSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
+				}
 				String msg = resultData.getString("msg");
 				Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 						"Send unsend endday fail: " + msg + "\n" + jsonSale);
@@ -114,6 +118,7 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 					b.putString("msg", msg);
 					receiver.send(RESULT_ERROR, b);
 				}
+				stopSelf();
 				break;
 			}
 		}
@@ -254,6 +259,15 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 				receiver.send(RESULT_SUCCESS, null);
 			stopSelf();
 		}
+	}
+	
+	/**
+	 * @param sessionDate
+	 * @return total unsend transaction
+	 */
+	private int countTransUnSend(String sessionDate){
+		TransactionDao trans = new TransactionDao(getApplicationContext());
+		return trans.countTransUnSend(sessionDate);
 	}
 	
 	/**
