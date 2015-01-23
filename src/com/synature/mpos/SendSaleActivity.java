@@ -127,11 +127,11 @@ public class SendSaleActivity extends Activity{
 		protected void onReceiveResult(int resultCode, Bundle resultData) {
 			super.onReceiveResult(resultCode, resultData);
 			switch(resultCode){
-			case MPOSServiceBase.RESULT_SUCCESS:
+			case SaleSenderService.RESULT_SUCCESS:
 				progress.dismiss();
 				loadTransNotSend();
 				break;
-			case MPOSServiceBase.RESULT_ERROR:
+			case SaleSenderService.RESULT_ERROR:
 				mItemSendAll.setEnabled(true);
 				progress.dismiss();
 				Toast.makeText(SendSaleActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
@@ -143,11 +143,11 @@ public class SendSaleActivity extends Activity{
 
 	private void sendSale(){
 		Intent intent = new Intent(this, SaleSenderService.class);
-		intent.putExtra("what", SaleSenderService.SEND_PARTIAL_SALE);
-		intent.putExtra("shopId", mShopId);
-		intent.putExtra("computerId", mComputerId);
-		intent.putExtra("staffId", mStaffId);
-		intent.putExtra("sendSaleReceiver", new SendSaleReceiver(new Handler()));
+		intent.putExtra(SaleSenderService.WHAT_TO_DO_PARAM, SaleSenderService.SEND_PARTIAL);
+		intent.putExtra(SaleSenderService.SHOP_ID_PARAM, mShopId);
+		intent.putExtra(SaleSenderService.COMPUTER_ID_PARAM, mComputerId);
+		intent.putExtra(SaleSenderService.STAFF_ID_PARAM, mStaffId);
+		intent.putExtra(SaleSenderService.RECEIVER_NAME, new SendSaleReceiver(new Handler()));
 		startService(intent);
 	}
 	

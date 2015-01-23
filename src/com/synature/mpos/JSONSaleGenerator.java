@@ -22,6 +22,19 @@ public class JSONSaleGenerator{
 		mSaleTrans = new SaleTransaction(context);
 	}
 	
+	public String generateCloseShiftSale(String sessionDate){
+		String json = null;
+		try {
+			Gson gson = new Gson();
+			Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
+			json = gson.toJson(mSaleTrans.getCloseShiftTransaction(sessionDate), type);
+		} catch (Exception e) {
+			Logger.appendLog(mContext, MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME,
+					" Error at generate close shift json sale : " + e.getMessage());
+		}
+		return json;
+	}
+	
 	public String generateSale(String sessionDate){
 		String json = null;
 		try {

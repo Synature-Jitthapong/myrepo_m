@@ -131,11 +131,11 @@ public class SendEnddayActivity extends Activity {
 		protected void onReceiveResult(int resultCode, Bundle resultData) {
 			super.onReceiveResult(resultCode, resultData);
 			switch(resultCode){
-			case MPOSServiceBase.RESULT_SUCCESS:
+			case EnddaySenderService.RESULT_SUCCESS:
 				progress.dismiss();
 				setupAdapter();
 				break;
-			case MPOSServiceBase.RESULT_ERROR:
+			case EnddaySenderService.RESULT_ERROR:
 				progress.dismiss();
 				mItemSend.setEnabled(true);
 				Toast.makeText(SendEnddayActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
@@ -146,12 +146,12 @@ public class SendEnddayActivity extends Activity {
 	}
 	
 	private void sendEndday(){
-		Intent intent = new Intent(this, SaleSenderService.class);
-		intent.putExtra("what", SaleSenderService.SEND_ENDDAY);
-		intent.putExtra("shopId", mShopId);
-		intent.putExtra("computerId", mComputerId);
-		intent.putExtra("staffId", mStaffId);
-		intent.putExtra("sendSaleReceiver", new EnddayReceiver(new Handler()));
+		Intent intent = new Intent(this, EnddaySenderService.class);
+		intent.putExtra(EnddaySenderService.WHAT_TO_DO_PARAM, EnddaySenderService.SEND_ALL);
+		intent.putExtra(EnddaySenderService.SHOP_ID_PARAM, mShopId);
+		intent.putExtra(EnddaySenderService.COMPUTER_ID_PARAM, mComputerId);
+		intent.putExtra(EnddaySenderService.STAFF_ID_PARAM, mStaffId);
+		intent.putExtra(EnddaySenderService.RECEIVER_NAME, new EnddayReceiver(new Handler()));
 		startService(intent);
 	}
 	

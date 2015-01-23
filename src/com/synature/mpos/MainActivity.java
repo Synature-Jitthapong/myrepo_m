@@ -20,7 +20,6 @@ import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
-import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.PrintReceiptLogDao;
 import com.synature.mpos.database.ProductsDao;
@@ -195,6 +194,7 @@ public class MainActivity extends FragmentActivity implements
 		setupBarCodeEvent();
 		setupMenuDeptPager();
 		setupOrderingKeypadUtils();
+		sendUnSendEnddayData();
 	}
 
 	private class MasterDataReceiver extends ResultReceiver{
@@ -724,7 +724,7 @@ public class MainActivity extends FragmentActivity implements
 	}
 	
 	/**
-	 * The listener of print receipt
+	 * The listener for print receipt
 	 */
 	private PrintReceipt.OnPrintReceiptListener mPrintReceiptListener = 
 		new PrintReceipt.OnPrintReceiptListener(){
@@ -735,11 +735,11 @@ public class MainActivity extends FragmentActivity implements
 			@Override
 			public void onPostPrint() {
 				Intent intent = new Intent(MainActivity.this, SaleSenderService.class);
-				intent.putExtra("what", SaleSenderService.SEND_PARTIAL_SALE);
-				intent.putExtra("shopId", mShopId);
-				intent.putExtra("computerId", mComputerId);
-				intent.putExtra("staffId", mStaffId);
-				intent.putExtra("sendSaleReceiver", new SendSaleResultReceiver(new Handler()));
+				intent.putExtra(SaleSenderService.WHAT_TO_DO_PARAM, SaleSenderService.SEND_PARTIAL);
+				intent.putExtra(SaleSenderService.SHOP_ID_PARAM, mShopId);
+				intent.putExtra(SaleSenderService.COMPUTER_ID_PARAM, mComputerId);
+				intent.putExtra(SaleSenderService.STAFF_ID_PARAM, mStaffId);
+				intent.putExtra(SaleSenderService.RECEIVER_NAME, new SendSaleResultReceiver(new Handler()));
 				startService(intent);
 			}
 	};
@@ -2417,13 +2417,13 @@ public class MainActivity extends FragmentActivity implements
 		// print close shift
 		new PrintReport(MainActivity.this, 
 			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId, null).execute();
-		
+
 		Intent intent = new Intent(MainActivity.this, SaleSenderService.class);
-		intent.putExtra("what", SaleSenderService.SEND_PARTIAL_SALE);
-		intent.putExtra("shopId", mShopId);
-		intent.putExtra("computerId", mComputerId);
-		intent.putExtra("staffId", mStaffId);
-		intent.putExtra("sendSaleReceiver", new ResultReceiver(new Handler()));
+		intent.putExtra(SaleSenderService.WHAT_TO_DO_PARAM, SaleSenderService.SEND_CLOSE_SHIFT);
+		intent.putExtra(SaleSenderService.SHOP_ID_PARAM, mShopId);
+		intent.putExtra(SaleSenderService.COMPUTER_ID_PARAM, mComputerId);
+		intent.putExtra(SaleSenderService.STAFF_ID_PARAM, mStaffId);
+		intent.putExtra(SaleSenderService.RECEIVER_NAME, new SendSaleResultReceiver(new Handler()));
 		startService(intent);
 		startActivity(new Intent(MainActivity.this, LoginActivity.class));
 		finish();
@@ -2495,54 +2495,16 @@ public class MainActivity extends FragmentActivity implements
 		startActivity(intent);
 	}
 	
-	private class EnddayAllReceiver extends ResultReceiver{
-
-		private String sessionDate;
-		private String jsonEnddayAll;
-		
-		private ProgressDialog progress;
-		
-		public EnddayAllReceiver(Handler handler, ProgressDialog progress, String sessionDate, String jsonEnddayAll) {
-			super(handler);
-			this.jsonEnddayAll = jsonEnddayAll;
-			this.progress = progress;
-		}
-
-		@Override
-		protected void onReceiveResult(int resultCode, Bundle resultData) {
-			super.onReceiveResult(resultCode, resultData);
-			switch(resultCode){
-			case MPOSServiceBase.RESULT_SUCCESS:
-				if (progress.isShowing())
-					progress.dismiss();
-				onEnddaySuccess(sessionDate, jsonEnddayAll);
-				break;
-			case MPOSServiceBase.RESULT_ERROR:
-				if(progress.isShowing())
-					progress.dismiss();
-				onEnddayFail(sessionDate);
-
-				String msg = resultData.getString("msg");
-				Logger.appendLog(MainActivity.this, MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
-						"Send all endday fail: " + msg + "\n" + jsonEnddayAll);
-				break;
-			}
-		}
-		
-	}
-	
+	/**
+	 * @author j1tth4
+	 * The receiver for send enddday
+	 */
 	private class EnddayReceiver extends ResultReceiver{
 		
-		private String sessionDate;
-		private String jsonEndday;
-		
 		private ProgressDialog progress;
 		
-		public EnddayReceiver(Handler handler, String sessionDate, String jsonEndday) {
+		public EnddayReceiver(Handler handler) {
 			super(handler);
-			this.sessionDate = sessionDate;
-			this.jsonEndday = jsonEndday;
-			
 			progress = new ProgressDialog(MainActivity.this);
 			progress.setTitle(getString(R.string.endday_success));
 			progress.setCancelable(false);
@@ -2554,46 +2516,25 @@ public class MainActivity extends FragmentActivity implements
 		protected void onReceiveResult(int resultCode, Bundle resultData) {
 			super.onReceiveResult(resultCode, resultData);
 			switch(resultCode){
-			case MPOSServiceBase.RESULT_SUCCESS:
+			case SaleSenderService.RESULT_SUCCESS:
 				if (progress.isShowing())
 					progress.dismiss();
-				onEnddaySuccess(sessionDate, jsonEndday);
+				new AlertDialog.Builder(MainActivity.this)
+				.setTitle(R.string.endday)
+				.setMessage(R.string.send_endday_data_success)
+				.setCancelable(false)
+				.setNeutralButton(android.R.string.ok,
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								finish();
+							}
+						}).show();
 				break;
-			case MPOSServiceBase.RESULT_ERROR:
-				JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(MainActivity.this);
-				final String jsonEnddayAll = jsonGenerator.generateEnddaySale(sessionDate);
-				if(!TextUtils.isEmpty(jsonEnddayAll)){
-					EndDaySaleSender sender = new EndDaySaleSender(MainActivity.this, mShopId, mComputerId, mStaffId, 
-							jsonEnddayAll, new EnddayAllReceiver(new Handler(), progress, sessionDate, jsonEnddayAll));
-					ExecutorService executor = Executors.newSingleThreadExecutor();
-					executor.execute(sender);
-					executor.shutdown();
-				}
-				String msg = resultData.getString("msg");
-				Logger.appendLog(MainActivity.this, MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
-						"Send unsend endday fail: " + msg + "\n" + jsonEndday);
-				break;
-			}
-		}
-		
-	}
-	
-	private void sendEnddayData(){
-		final JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
-		final String sessionDate = mSession.getLastSessionDate();
-		final String jsonEndday = jsonGenerator.generateEnddayUnSendSale(sessionDate);
-		if(!TextUtils.isEmpty(jsonEndday)){
-			EndDayUnSendSaleSender sender = new EndDayUnSendSaleSender(this, mShopId, mComputerId, mStaffId, jsonEndday, 
-					new EnddayReceiver(new Handler(), sessionDate, jsonEndday));
-			ExecutorService executor = Executors.newSingleThreadExecutor();
-			executor.execute(sender);
-			executor.shutdown();
-		}
-	}
-	
-	private void onEnddayFail(String sessionDate){
-		setSendEnddayDataStatus(sessionDate, MPOSDatabase.NOT_SEND);
-		new AlertDialog.Builder(MainActivity.this)
+			case SaleSenderService.RESULT_ERROR:
+				new AlertDialog.Builder(MainActivity.this)
 				.setTitle(R.string.endday)
 				.setMessage(R.string.cannot_send_endday_data_on_this_time)
 				.setCancelable(false)
@@ -2614,37 +2555,50 @@ public class MainActivity extends FragmentActivity implements
 								sendEnddayData();
 							}
 						}).show();
-	}
-	
-	private void onEnddaySuccess(String sessionDate, String jsonEndday){
-		// flag send status
-		setSendEnddayDataStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+				break;
+			}
+		}
 		
-		// log json sale if send to server success
-		try {
-			JSONSaleLogFile.appendEnddaySale(MainActivity.this, sessionDate, jsonEndday);
-		} catch (Exception e) {}
-		Logger.appendLog(MainActivity.this, MPOSApplication.LOG_PATH, 
-					MPOSApplication.LOG_FILE_NAME, "Send endday successfully");
-
-		new AlertDialog.Builder(MainActivity.this)
-			.setTitle(R.string.endday)
-			.setMessage(R.string.send_endday_data_success)
-			.setCancelable(false)
-			.setNeutralButton(android.R.string.ok,
-					new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog,
-								int which) {
-							finish();
-						}
-					}).show();
 	}
 	
-	private void setSendEnddayDataStatus(String sessionDate, int status){
-		mSession.updateSessionEnddayDetail(sessionDate, status);
-		mTrans.updateTransactionSendStatus(sessionDate, status);
+	private void sendEnddayData(){
+		Intent intent = new Intent(this, EnddaySenderService.class);
+		intent.putExtra(EnddaySenderService.WHAT_TO_DO_PARAM, EnddaySenderService.SEND_CURRENT);
+		intent.putExtra(EnddaySenderService.SHOP_ID_PARAM, mShopId);
+		intent.putExtra(EnddaySenderService.COMPUTER_ID_PARAM, mComputerId);
+		intent.putExtra(EnddaySenderService.STAFF_ID_PARAM, mStaffId);
+		intent.putExtra(EnddaySenderService.RECEIVER_NAME, new EnddayReceiver(new Handler()));
+		startService(intent);
+	}
+	
+	private class EnddayAllReceiver extends ResultReceiver{
+
+		public EnddayAllReceiver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+			case EnddaySenderService.RESULT_SUCCESS:
+				countSaleDataNotSend();
+				break;
+			case EnddaySenderService.RESULT_ERROR:
+				break;
+			}
+		}
+		
+	}
+	
+	private void sendUnSendEnddayData(){
+		Intent intent = new Intent(this, EnddaySenderService.class);
+		intent.putExtra(EnddaySenderService.WHAT_TO_DO_PARAM, EnddaySenderService.SEND_ALL);
+		intent.putExtra(EnddaySenderService.SHOP_ID_PARAM, mShopId);
+		intent.putExtra(EnddaySenderService.COMPUTER_ID_PARAM, mComputerId);
+		intent.putExtra(EnddaySenderService.STAFF_ID_PARAM, mStaffId);
+		intent.putExtra(EnddaySenderService.RECEIVER_NAME, new EnddayAllReceiver(new Handler()));
+		startService(intent);
 	}
 	
 	@Override

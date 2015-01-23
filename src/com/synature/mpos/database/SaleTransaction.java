@@ -40,7 +40,7 @@ import android.text.TextUtils;
  */
 public class SaleTransaction extends MPOSDatabase{
 
-	public static final String LIMIT = "10";
+	public static final String LIMIT = "100";
 	
 	private GlobalPropertyDao mFormat;
 	
@@ -90,6 +90,17 @@ public class SaleTransaction extends MPOSDatabase{
 		return posSaleTrans;
 	}
 
+	/**
+	 * @param sessionDate
+	 * @return POSData_SaleTransaction
+	 */
+	public POSData_SaleTransaction getCloseShiftTransaction(String sessionDate) {
+		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(getLastTransaction(sessionDate)));
+		posSaleTrans.setxTableSession(buildSessionObj(sessionDate));
+		return posSaleTrans;
+	}
+	
 	/**
 	 * Build callection of transaction
 	 * @param cursor
@@ -388,7 +399,24 @@ public class SaleTransaction extends MPOSDatabase{
 						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_VOID),
 						String.valueOf(NOT_SEND)
-				}, OrderTransTable.COLUMN_TRANS_ID, null);
+				}, OrderTransTable.COLUMN_TRANS_ID, LIMIT);
+	}
+	
+	/**
+	 * @param sessionDate
+	 * @return Cursor null if not found
+	 */
+	private Cursor getLastTransaction(String sessionDate) {
+		return queryOrderTransaction(OrderTransTable.COLUMN_SALE_DATE + "=?"
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) ",
+				new String[] {
+						sessionDate,
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+						sessionDate,
+						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_VOID)
+				}, OrderTransTable.COLUMN_TRANS_ID + " desc ", "1");
 	}
 	
 	/**
