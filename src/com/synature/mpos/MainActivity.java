@@ -1581,6 +1581,7 @@ public class MainActivity extends FragmentActivity implements
 			AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 			builder.setTitle(R.string.hold);
 			builder.setView(txtRemark);
+			builder.setCancelable(false);
 			builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 				
 				@Override
@@ -2254,7 +2255,7 @@ public class MainActivity extends FragmentActivity implements
 			MenuItem itemSendSale = mMenu.findItem(R.id.itemSendSale);
 			MenuItem itemSendData = mMenu.findItem(R.id.itemSendData);
 			MenuItem itemSendEndday = mMenu.findItem(R.id.itemSendEndday);
-			int totalTrans = mTrans.countTransUnSend();
+			int totalTrans = mTrans.countTransUnSend(mSession.getLastSessionDate());
 			int totalSess = mSession.countSessionEnddayNotSend();
 			int totalData = totalTrans + totalSess;
 			if(totalData > 0){

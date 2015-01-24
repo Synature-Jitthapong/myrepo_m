@@ -474,7 +474,9 @@ public class PaymentActivity extends Activity implements OnClickListener,
 					}
 					
 				});
-				if(i == 0){
+				if(i == 0 && payTypeLst.size() == 1){
+					btnPayType.setBackgroundResource(R.drawable.btn_holo_gray);
+				}else if(i == 0){
 					btnPayType.setBackgroundResource(R.drawable.btn_holo_gray_left_corner);
 				}else if (i == payTypeLst.size() - 1){
 					btnPayType.setBackgroundResource(R.drawable.btn_holo_gray_right_corner);
@@ -510,7 +512,9 @@ public class PaymentActivity extends Activity implements OnClickListener,
 				}
 				
 			});
-			if(i == 0){
+			if(i == 0 && payTypeLst.size() == 1){
+				btnPayType.setBackgroundResource(R.drawable.btn_holo_gray);
+			}else if(i == 0){
 				btnPayType.setBackgroundResource(R.drawable.btn_holo_gray_left_corner);
 			}else if (i == payTypeLst.size() - 1){
 				btnPayType.setBackgroundResource(R.drawable.btn_holo_gray_right_corner);

@@ -40,8 +40,6 @@ import android.text.TextUtils;
  */
 public class SaleTransaction extends MPOSDatabase{
 
-	public static final String LIMIT = "100";
-	
 	private GlobalPropertyDao mFormat;
 	
 	private ShopDao mShop;
@@ -399,7 +397,7 @@ public class SaleTransaction extends MPOSDatabase{
 						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_VOID),
 						String.valueOf(NOT_SEND)
-				}, OrderTransTable.COLUMN_TRANS_ID, LIMIT);
+				}, OrderTransTable.COLUMN_TRANS_ID, null);
 	}
 	
 	/**

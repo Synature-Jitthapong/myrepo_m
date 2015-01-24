@@ -106,9 +106,7 @@ public class SessionDao extends MPOSDatabase{
 				}
 		);
 		if(cursor.moveToFirst()){
-			do{
-				sessionDate = cursor.getString(0);
-			}while(cursor.moveToNext());
+			sessionDate = cursor.getString(0);
 		}
 		cursor.close();
 		return sessionDate;

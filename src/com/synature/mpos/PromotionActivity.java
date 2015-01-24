@@ -84,7 +84,9 @@ public class PromotionActivity extends Activity {
 			btn.setMinHeight(64);
 			btn.setOnClickListener(new OnPromotionButtonClickListener(promoPriceGroup.getPriceGroupID(), 
 					promoPriceGroup.getPromotionTypeID(), promoPriceGroup.getCouponHeader()));
-			if(i == 0){
+			if(i == 0 && mPromoPriceGroupLst.size() == 1){
+				btn.setBackgroundResource(R.drawable.btn_holo_gray);
+			}else if(i == 0){
 				btn.setBackgroundResource(R.drawable.btn_holo_gray_left_corner);
 			}else if(i == mPromoPriceGroupLst.size() - 1){
 				btn.setBackgroundResource(R.drawable.btn_holo_gray_right_corner);

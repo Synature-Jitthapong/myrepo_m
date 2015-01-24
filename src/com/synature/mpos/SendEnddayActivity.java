@@ -133,7 +133,6 @@ public class SendEnddayActivity extends Activity {
 			switch(resultCode){
 			case EnddaySenderService.RESULT_SUCCESS:
 				progress.dismiss();
-				setupAdapter();
 				break;
 			case EnddaySenderService.RESULT_ERROR:
 				progress.dismiss();
@@ -141,13 +140,14 @@ public class SendEnddayActivity extends Activity {
 				Toast.makeText(SendEnddayActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
 				break;
 			}
+			setupAdapter();
 		}
 		
 	}
 	
 	private void sendEndday(){
 		Intent intent = new Intent(this, EnddaySenderService.class);
-		intent.putExtra(EnddaySenderService.WHAT_TO_DO_PARAM, EnddaySenderService.SEND_ALL);
+		intent.putExtra(EnddaySenderService.WHAT_TO_DO_PARAM, EnddaySenderService.SEND_UNSEND);
 		intent.putExtra(EnddaySenderService.SHOP_ID_PARAM, mShopId);
 		intent.putExtra(EnddaySenderService.COMPUTER_ID_PARAM, mComputerId);
 		intent.putExtra(EnddaySenderService.STAFF_ID_PARAM, mStaffId);

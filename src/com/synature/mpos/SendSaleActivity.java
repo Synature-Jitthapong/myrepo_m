@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.synature.mpos.database.MPOSDatabase;
+import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
@@ -129,7 +130,6 @@ public class SendSaleActivity extends Activity{
 			switch(resultCode){
 			case SaleSenderService.RESULT_SUCCESS:
 				progress.dismiss();
-				loadTransNotSend();
 				break;
 			case SaleSenderService.RESULT_ERROR:
 				mItemSendAll.setEnabled(true);
@@ -137,6 +137,7 @@ public class SendSaleActivity extends Activity{
 				Toast.makeText(SendSaleActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
 				break;
 			}
+			loadTransNotSend();
 		}
 		
 	}
@@ -152,6 +153,8 @@ public class SendSaleActivity extends Activity{
 	}
 	
 	private List<SendTransaction> listNotSendTransaction(){
+		SessionDao session = new SessionDao(this);
+		String sessionDate = session.getLastSessionDate();
 		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
 		MPOSDatabase.MPOSOpenHelper helper = MPOSDatabase.MPOSOpenHelper.getInstance(getApplicationContext());
 		Cursor cursor = helper.getReadableDatabase().query(OrderTransTable.TABLE_ORDER_TRANS,
@@ -162,9 +165,11 @@ public class SendSaleActivity extends Activity{
 					OrderTransTable.COLUMN_RECEIPT_NO,
 					OrderTransTable.COLUMN_CLOSE_TIME,
 					BaseColumn.COLUMN_SEND_STATUS
-				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
-                    + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
+				}, OrderTransTable.COLUMN_SALE_DATE + "=?" 
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+                + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
 				new String[]{
+					sessionDate,
                     String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)

@@ -22,6 +22,7 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 	
 	public static final int SEND_CURRENT = 1;
 	public static final int SEND_ALL = 2;
+	public static final int SEND_UNSEND = 3;
 	
 	public static final String RECEIVER_NAME = "enddaySenderReceiver";
 	
@@ -49,10 +50,10 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 			int shopId = intent.getIntExtra(SHOP_ID_PARAM, 0);
 			int computerId = intent.getIntExtra(COMPUTER_ID_PARAM, 0);
 			int staffId = intent.getIntExtra(STAFF_ID_PARAM, 0);
-			if(whatToDo == SEND_ALL){
-				sendUnSendEndday(shopId, computerId, staffId, receiver);
-			}else if(whatToDo == SEND_CURRENT){
+			if(whatToDo == SEND_CURRENT){
 				sendEndday(SEND_CURRENT, shopId, computerId, staffId, receiver);
+			}else if(whatToDo == SEND_UNSEND){
+				sendUnSendEndday(shopId, computerId, staffId, receiver);
 			}else{
 				stopSelf();
 			}
@@ -105,6 +106,7 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 				sendUnSendEndday(shopId, computerId, staffId, receiver);
 				break;
 			case RESULT_ERROR:
+				// if all transaction already send
 				if(countTransUnSend(sessionDate) == 0){
 					flagSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 				}else{
