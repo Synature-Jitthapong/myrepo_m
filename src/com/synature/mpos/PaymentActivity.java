@@ -1,9 +1,11 @@
 package com.synature.mpos;
 
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PaymentAmountButtonDao;
 import com.synature.mpos.database.PaymentDetailDao;
@@ -14,9 +16,11 @@ import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.point.R;
 import com.synature.pos.PayType;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -37,10 +41,10 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PaymentActivity extends Activity implements OnClickListener{
+public class PaymentActivity extends Activity implements OnClickListener, 
+	PointRedeemtionDialogFragment.OnConfirmPointListener{
 	
 	public static final int REQUEST_CREDIT_PAY = 1;
-	public static final int REQUEST_POINT_PAY = 2;
 	
 	public static final int RESULT_ENOUGH = 0;
 	public static final int RESULT_NOT_ENOUGH = -1;
@@ -55,6 +59,7 @@ public class PaymentActivity extends Activity implements OnClickListener{
 	private PaymentDetailDao mPayment;
 	private TransactionDao mTrans;
 	private GlobalPropertyDao mFormat;
+	private PointServiceBase.MemberInfo mMemberInfo;
 	
 	private List<MPOSPaymentDetail> mPayLst;
 	private PaymentAdapter mPaymentAdapter;
@@ -69,6 +74,7 @@ public class PaymentActivity extends Activity implements OnClickListener{
 	private double mTotalPaid;
 	private double mPaymentLeft;
 	private double mChange;
+	private double mTotalPoint;								// total point to deduct
 	
 	private ListView mLvPayment;
 	private EditText mTxtEnterPrice;
@@ -296,8 +302,8 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		mTxtEnterPrice.setText(mFormat.currencyFormat(mTotalPay));
 	}
 	
-	private void pointPay(){
-		PointRedeemtionDialogFragment f = PointRedeemtionDialogFragment.newInstance(mTransactionId, mComputerId, mStaffId);
+	private void pointPay(int payTypeId){
+		PointRedeemtionDialogFragment f = PointRedeemtionDialogFragment.newInstance(mTransactionId, payTypeId);
 		f.show(getFragmentManager(), "RedeemPointDialog");
 	}
 	
@@ -311,31 +317,72 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		}
 	}
 
+	private class OnRedeemPointListener implements PointRedeemtion.RedeemtionListener{
+
+		private ProgressDialog progress;
+		
+		public OnRedeemPointListener() {
+			progress = new ProgressDialog(PaymentActivity.this);
+			progress.setMessage(getString(R.string.loading));
+			progress.setCancelable(false);
+		}
+		
+		@Override
+		public void onPre() {
+			progress.show();
+		}
+	
+		@Override
+		public void onPost() {
+			if(progress.isShowing())
+				progress.dismiss();
+			double currentPoint = 0;
+			if(mMemberInfo.getiCurrentCardPoint() >= mTotalPay){
+				currentPoint = mMemberInfo.getiCurrentCardPoint() - mTotalPay;
+			}
+			LayoutInflater inflater = getLayoutInflater();
+			View view = inflater.inflate(R.layout.point_balance, null);
+			TextView tvPoint = (TextView) view.findViewById(R.id.tvCurrentPoint);
+			tvPoint.setText(NumberFormat.getInstance().format(currentPoint));
+			new AlertDialog.Builder(PaymentActivity.this)
+			.setTitle(R.string.current_point)
+			.setView(view)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					// close the transaction finally
+					closeTransactionAndSetResult();
+				}
+			}).show();
+			mTrans.updateTransactionPointInfo(mTransactionId, mMemberInfo.getSzIDCardNo(), 
+					mMemberInfo.getSzFirstName() + " " + mMemberInfo.getSzLastName(), 
+					mMemberInfo.getiCurrentCardPoint(), currentPoint);
+		}
+	
+		@Override
+		public void onError(String msg) {
+			if(progress.isShowing())
+				progress.dismiss();
+			new AlertDialog.Builder(PaymentActivity.this)
+			.setTitle(R.string.redeem)
+			.setMessage(msg)
+			.show();
+		}
+		
+	}
+
 	private void confirm() {
 		if(mTotalPaid >= mTotalSalePrice){
-
 			// open cash drawer
 			WintecCashDrawer drw = new WintecCashDrawer(getApplicationContext());
 			drw.openCashDrawer();
 			drw.close();
-
-			ShopDao shop = new ShopDao(this);
-			mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice, 
-					shop.getCompanyVatType(), shop.getCompanyVatRate());
-			
-			mChange = mTotalPaid - mTotalSalePrice;
-			
-			// auto backup db
-			//Utils.exportDatabase(this);
-			
-			Intent intent = new Intent(this, MainActivity.class);
-			intent.putExtra("totalSalePrice", mTotalSalePrice);
-			intent.putExtra("totalPaid", mTotalPaid);
-			intent.putExtra("change", mChange);
-			intent.putExtra("transactionId", mTransactionId);
-			intent.putExtra("staffId", mStaffId);
-			setResult(RESULT_OK, intent);
-			finish();
+			if(mMemberInfo != null){
+				deductPoint();
+			}else{
+				closeTransactionAndSetResult();
+			}
 		}else{
 			new AlertDialog.Builder(PaymentActivity.this)
 			.setIcon(android.R.drawable.ic_dialog_alert)
@@ -344,15 +391,50 @@ public class PaymentActivity extends Activity implements OnClickListener{
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
 				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					
-				}
+				public void onClick(DialogInterface dialog, int which) {}
 			})
 			.show();
-			
 		}
 	}
 
+	private void deductPoint(){
+		List<OrderDetail> orderLst = mTrans.listAllOrder(mTransactionId);
+		if(orderLst != null){
+			String jsonRedeemItem = "";
+			List<PointRedeemtion.RedeemItem> itemLst = new ArrayList<PointRedeemtion.RedeemItem>();
+			for(OrderDetail order : orderLst){
+				PointRedeemtion.RedeemItem item = new PointRedeemtion.RedeemItem();
+				Double orderQty = order.getOrderQty();
+				Double orderPrice = order.getProductPrice();
+				item.setiProductID(order.getProductId());
+				item.setSzItemName(order.getProductName());
+				item.setiItemQty(orderQty.intValue());
+				item.setiItemPoint(orderPrice.intValue());
+				itemLst.add(item);
+			}
+			Gson gson = new Gson();
+			jsonRedeemItem = gson.toJson(itemLst);
+			new PointRedeemtion(PaymentActivity.this, "", mMemberInfo.getSzCardTagCode(), jsonRedeemItem, 
+					mTransactionId, new OnRedeemPointListener()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+							Utils.getFullPointUrl(PaymentActivity.this));
+		}
+	}
+	
+	private void closeTransactionAndSetResult(){
+		ShopDao shop = new ShopDao(this);
+		mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice, 
+				shop.getCompanyVatType(), shop.getCompanyVatRate());
+		mChange = mTotalPaid - mTotalSalePrice;
+		Intent intent = new Intent(this, MainActivity.class);
+		intent.putExtra("totalSalePrice", mTotalSalePrice);
+		intent.putExtra("totalPaid", mTotalPaid);
+		intent.putExtra("change", mChange);
+		intent.putExtra("transactionId", mTransactionId);
+		intent.putExtra("staffId", mStaffId);
+		setResult(RESULT_OK, intent);
+		finish();	
+	}
+	
 	public void cancel() {
 		mPayment.deleteAllPaymentDetail(mTransactionId);
 		finish();
@@ -487,7 +569,7 @@ public class PaymentActivity extends Activity implements OnClickListener{
 					}else if(payTypeId == PaymentDetailDao.PAY_TYPE_CREDIT){
 						creditPay();
 					}else if (payTypeId == PaymentDetailDao.PAY_TYPE_POINT){
-						pointPay();
+						pointPay(payTypeId);
 					}else{
 						popupOtherPayment(payType.getPayTypeName(), payType.getPayTypeID());
 					}
@@ -563,4 +645,23 @@ public class PaymentActivity extends Activity implements OnClickListener{
 		}
 	}
 
+	// on point confirm
+	@Override
+	public void onConfirmPoint(PointServiceBase.MemberInfo memberInfo, int payTypeId) {
+		mMemberInfo = memberInfo;
+		if(mMemberInfo != null){
+			if(mPaymentLeft > 0){
+				double money = convertPointToMoney(memberInfo.getiCurrentCardPoint());
+				mTotalPay = money >= mPaymentLeft ? mPaymentLeft : money; 
+				mPayment.addPaymentDetail(mTransactionId, mComputerId, payTypeId, mTotalPay, 
+						mTotalPay, memberInfo.getSzCardTagCode(), 0, 0, 0, 0, memberInfo.getSzCardNo());
+				loadPayDetail();
+			}
+		}
+	}
+
+	private double convertPointToMoney(double point){
+		double ratio = 1;
+		return point / ratio;
+	}
 }

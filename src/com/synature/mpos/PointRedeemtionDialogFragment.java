@@ -1,13 +1,7 @@
 package com.synature.mpos;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.gson.Gson;
 import com.synature.mpos.PointServiceBase.MemberInfo;
-import com.synature.mpos.database.PaymentDetailDao;
-import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderTransaction;
@@ -19,6 +13,7 @@ import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -33,19 +28,18 @@ import android.widget.TextView;
 public class PointRedeemtionDialogFragment extends DialogFragment implements OnClickListener{
 
 	public static final String TAG = PointRedeemtionDialogFragment.class.getSimpleName();
+	public static final int WINDOW_WIDTH = 700;
+	public static final int WINDOW_HEIGHT = 450;
 	
 	private Thread mMsrThread;
 	private TransactionDao mTrans;
-	private ShopDao mShop;
 	private PointServiceBase.MemberInfo mMemberInfo;
 	private CardReaderRunnable mCardReaderRunnable;
-	private OnRedeemtionListener mListener;
+	private OnConfirmPointListener mListener;
 	
 	private int mTransId;
-	private int mCompId;
-	private int mStaffId;
-	private String mCardTagCode;
-	private Double mTotalPoint;
+	private int mPayTypeId;
+	private double mTotalPoint;
 	
 	private ProgressDialog mProgress;
 	private TextView mTvMemberName;
@@ -56,12 +50,11 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 	private Button mBtnCancel;
 	private Button mBtnOk;
 	
-	public static PointRedeemtionDialogFragment newInstance(int transId, int compId, int staffId){
+	public static PointRedeemtionDialogFragment newInstance(int transId, int payTypeId){
 		PointRedeemtionDialogFragment f = new PointRedeemtionDialogFragment();
 		Bundle b = new Bundle();
 		b.putInt("transId", transId);
-		b.putInt("compId", compId);
-		b.putInt("staffId", staffId);
+		b.putInt("payTypeId", payTypeId);
 		f.setArguments(b);
 		return f;
 	}
@@ -70,10 +63,8 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mTransId = getArguments().getInt("transId");
-		mCompId = getArguments().getInt("compId");
-		mStaffId = getArguments().getInt("staffId");
+		mPayTypeId = getArguments().getInt("payTypeId");
 		mTrans = new TransactionDao(getActivity());
-		mShop = new ShopDao(getActivity());
 		mCardReaderRunnable = new CardReaderRunnable(getActivity(), mCardReaderListener);
 		mMsrThread = new Thread(mCardReaderRunnable);
 		mProgress = new ProgressDialog(getActivity());
@@ -103,7 +94,6 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 		
 		@Override
 		public void onRead(final String content) {
-			mCardTagCode = content;
 			getActivity().runOnUiThread(new Runnable(){
 
 				@Override
@@ -111,7 +101,8 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 					if(!TextUtils.isEmpty(content)){
 						OrderTransaction trans = mTrans.getTransaction(mTransId, true);
 						new BalanceInquiryCard(getActivity(), "", trans.getTransactionUuid(), content, 
-								mGetBalanceListener).execute(Utils.getFullPointUrl(getActivity()));
+								mGetBalanceListener).executeOnExecutor(
+										AsyncTask.THREAD_POOL_EXECUTOR, Utils.getFullPointUrl(getActivity()));
 					}
 				}
 			});
@@ -121,14 +112,14 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getDialog().getWindow().setLayout(700, 450);
+		getDialog().getWindow().setLayout(WINDOW_WIDTH, WINDOW_HEIGHT);
 	}
 	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		if(activity instanceof OnRedeemtionListener){
-			mListener = (OnRedeemtionListener) activity;
+		if(activity instanceof OnConfirmPointListener){
+			mListener = (OnConfirmPointListener) activity;
 		}
 	}
 
@@ -190,7 +181,11 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 						if(member.getiCurrentCardPoint() < mTotalPoint){
 							mTvStatus.setText(R.string.point_not_enough);
 							mTvPoint.setTextColor(Color.RED);
-							mBtnOk.setEnabled(false);
+							if(member.getiCurrentCardPoint() > 0){
+								mBtnOk.setEnabled(true);
+							}else{
+								mBtnOk.setEnabled(false);
+							}
 						}
 					}
 				}
@@ -202,82 +197,19 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 					new AlertDialog.Builder(getActivity())
 					.setTitle(R.string.check_card)
 					.setMessage(msg)
+					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {}
+					})
 					.show();
 				}
 	};
 
-	private void redeem(){
-		TransactionDao trans = new TransactionDao(getActivity());
-		List<OrderDetail> orderLst = trans.listAllOrder(mTransId);
-		if(orderLst != null){
-			String jsonRedeemItem = "";
-			List<PointRedeemtion.RedeemItem> itemLst = new ArrayList<PointRedeemtion.RedeemItem>();
-			for(OrderDetail order : orderLst){
-				PointRedeemtion.RedeemItem item = new PointRedeemtion.RedeemItem();
-				Double orderQty = order.getOrderQty();
-				Double orderPrice = order.getProductPrice();
-				item.setiProductID(order.getProductId());
-				item.setSzItemName(order.getProductName());
-				item.setiItemQty(orderQty.intValue());
-				item.setiItemPoint(orderPrice.intValue());
-				itemLst.add(item);
-			}
-			Gson gson = new Gson();
-			jsonRedeemItem = gson.toJson(itemLst);
-			Log.i(TAG, jsonRedeemItem);
-			new PointRedeemtion(getActivity(), "", mCardTagCode, jsonRedeemItem, 
-					mTransId, mRedeemListener).execute(Utils.getFullPointUrl(getActivity()));
-		}
+	private void confirm(){
+		mListener.onConfirmPoint(mMemberInfo, mPayTypeId);
 	}
-	
-	private PointRedeemtion.RedeemtionListener mRedeemListener = new PointRedeemtion.RedeemtionListener() {
-				
-				@Override
-				public void onPre() {		
-					mProgress.show();
-				}
-				
-				@Override
-				public void onPost() {
-					if(mProgress.isShowing())
-						mProgress.dismiss();
-					Double currentPoint = mMemberInfo.getiCurrentCardPoint() - mTotalPoint;
-					LayoutInflater inflater = getActivity().getLayoutInflater();
-					View view = inflater.inflate(R.layout.point_balance, null);
-					TextView tvPoint = (TextView) view.findViewById(R.id.tvCurrentPoint);
-					tvPoint.setText(NumberFormat.getInstance().format(currentPoint));
-					new AlertDialog.Builder(getActivity())
-					.setTitle("Current Point:")
-					.setView(view)
-					.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface arg0, int arg1) {
-						}
-					}).show();
-					PaymentDetailDao payment = new PaymentDetailDao(getActivity());
-					payment.addPaymentDetail(mTransId, mCompId, PaymentDetailDao.PAY_TYPE_CASH, 
-							mTotalPoint, mTotalPoint, mCardTagCode, 0, 0, 0, 0, "Point");
-					mTrans.updateTransactionPointInfo(mTransId, mMemberInfo.getSzIDCardNo(), 
-							mMemberInfo.getSzFirstName() + " " + mMemberInfo.getSzLastName(), 
-							mMemberInfo.getiCurrentCardPoint(), currentPoint);
-					mTrans.closeTransaction(mTransId, mStaffId, mTotalPoint, mShop.getCompanyVatType(), mShop.getCompanyVatRate());
-					mListener.onRedeemSuccess(mTransId, mTotalPoint.intValue(), currentPoint.intValue());
-					getDialog().dismiss();
-				}
-				
-				@Override
-				public void onError(String msg) {
-					if(mProgress.isShowing())
-						mProgress.dismiss();
-					new AlertDialog.Builder(getActivity())
-					.setTitle(R.string.redeem)
-					.setMessage(msg)
-					.show();
-					getDialog().dismiss();
-				}
-	};
-	
+		
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()){
@@ -285,12 +217,12 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 			getDialog().dismiss();
 			break;
 		case R.id.btnOk:
-			redeem();
+			confirm();
 			break;
 		}
 	}
 	
-	public static interface OnRedeemtionListener{
-		void onRedeemSuccess(int transId, int point, int currentPoint);
+	public static interface OnConfirmPointListener{
+		void onConfirmPoint(PointServiceBase.MemberInfo memberInfo, int payTypeId);
 	}
 }
