@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.TransactionDao;
@@ -14,6 +15,7 @@ import com.synature.mpos.database.model.ProductComponent;
 import com.synature.mpos.database.model.ProductComponentGroup;
 import com.synature.mpos.point.R;
 import com.synature.util.ImageLoader;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -643,7 +645,7 @@ public class ProductSetActivity extends Activity{
 			mRequireMinAmount = requireMinAmount;
 			
 			mImgLoader = new ImageLoader(ProductSetActivity.this, 0,
-					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 
 			mInflater = (LayoutInflater)
 					getSystemService(Context.LAYOUT_INFLATER_SERVICE);

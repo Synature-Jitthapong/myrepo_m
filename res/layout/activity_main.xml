@@ -163,7 +163,7 @@
             android:layout_alignParentLeft="true"
             android:minWidth="100dp"
             android:onClick="paymentClicked"
-            android:text="@string/redeem"
+            android:text="@string/payment"
             android:textAppearance="?android:attr/textAppearanceMediumInverse" />
 
         <Button

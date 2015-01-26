@@ -56,7 +56,8 @@ public class PointRedeemtion extends PointServiceBase{
 				mListener.onError(TextUtils.isEmpty(res.getSzResultData()) ? res.getSzResultData() : result);
 			}
 		} catch (Exception e) {
-			Logger.appendLog(mContext, Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+			Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME, 
 					"Error RedemptionItemsProcess: " + e.getLocalizedMessage() + "\n" + result);
 			mListener.onError(result);
 		}

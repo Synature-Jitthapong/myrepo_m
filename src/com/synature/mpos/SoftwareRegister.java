@@ -1,11 +1,13 @@
 package com.synature.mpos;
 
 import org.ksoap2.serialization.PropertyInfo;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.synature.mpos.database.SoftwareInfoDao;
 import com.synature.mpos.database.SoftwareUpdateDao;
 import com.synature.mpos.point.R;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,7 +35,7 @@ public class SoftwareRegister extends MPOSServiceBase{
 		
 		mProperty = new PropertyInfo();
 		mProperty.setName(DB_VERSION_PARAM);
-		mProperty.setValue(Utils.DB_VERSION);
+		mProperty.setValue(MPOSApplication.DB_VERSION);
 		mProperty.setType(String.class);
 		mSoapRequest.addProperty(mProperty);
 	}
@@ -47,7 +49,7 @@ public class SoftwareRegister extends MPOSServiceBase{
 			if(info != null){
 				SoftwareInfoDao sw = new SoftwareInfoDao(mContext);
 				sw.logSoftwareInfo(info.getSzSoftwareVersion(), 
-						String.valueOf(Utils.DB_VERSION), info.getSzSoftwareExpireDate(), 
+						String.valueOf(MPOSApplication.DB_VERSION), info.getSzSoftwareExpireDate(), 
 						info.getSzLockExpireDate());
 				if(!TextUtils.isEmpty(info.getSzSoftwareVersion())){
 					// compare version

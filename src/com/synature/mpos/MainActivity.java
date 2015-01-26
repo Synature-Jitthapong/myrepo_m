@@ -17,7 +17,6 @@ import java.util.List;
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
-import com.synature.mpos.common.MPOSFragmentActivityBase;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PaymentDetailDao;
@@ -51,6 +50,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.SQLException;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -88,7 +88,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MainActivity extends MPOSFragmentActivityBase implements 
+public class MainActivity extends FragmentActivity implements 
 	MenuCommentDialogFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
 	UserVerifyDialogFragment.OnCheckPermissionListener, OnChangeLanguageListener, 
 	PointRedeemtionDialogFragment.OnRedeemtionListener{
@@ -733,8 +733,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	 */
 	public void paymentClicked(final View v){
 		if(mOrderDetailLst.size() > 0){
-			PointRedeemtionDialogFragment f = PointRedeemtionDialogFragment.newInstance(mTransactionId, mComputerId, mStaffId);
-			f.show(getFragmentManager(), "RedeemPointDialog");
+			if(PaymentActivity.sIsRunning == false){
+				Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
+				intent.putExtra("transactionId", mTransactionId);
+				intent.putExtra("computerId", mComputerId);
+				intent.putExtra("staffId", mStaffId);
+				startActivityForResult(intent, PAYMENT_REQUEST);
+			}
 		}
 	}
 
@@ -1207,7 +1212,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			
 			public MenuItemAdapter(){
 				mImageLoader = new ImageLoader(getActivity(), 0,
-							Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+						MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 			}
 			
 			@Override
@@ -1277,7 +1282,7 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			mInflater = getLayoutInflater();
 			mProLst = proLst;
 			mImageLoader = new ImageLoader(MainActivity.this, 0,
-					Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
+					MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.MEDIUM);
 		}
 		
 		@Override
@@ -2070,7 +2075,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	
 	private void secondDisplayChangePayment(String grandTotal, String totalPay, String change){
 		final String paymentJson = SecondDisplayJSON.genChangePayment(grandTotal, totalPay, change);
-		Logger.appendLog(this, Utils.LOG_PATH, Utils.LOG_FILE_NAME, paymentJson);
+		Logger.appendLog(this, MPOSApplication.LOG_PATH, 
+				MPOSApplication.LOG_FILE_NAME, paymentJson);
 		new Thread(new Runnable(){
 
 			@Override
@@ -2097,7 +2103,8 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 	private void secondDisplayItem(List<clsSecDisplay_TransSummary> transSummLst, String grandTotal){
 		final String itemJson = SecondDisplayJSON.genDisplayItem(mFormat, mOrderDetailLst, 
 				transSummLst, grandTotal);
-		Logger.appendLog(this, Utils.LOG_PATH, Utils.LOG_FILE_NAME, itemJson);
+		Logger.appendLog(this, MPOSApplication.LOG_PATH, 
+				MPOSApplication.LOG_FILE_NAME, itemJson);
 		new Thread(new Runnable(){
 
 			@Override
@@ -2182,7 +2189,6 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 			LocalBinder binder = (LocalBinder) service;
 			mPartService = binder.getService();
 			mBound = true;
-			sendUnSendEnddayData();
 		}
 
 		@Override

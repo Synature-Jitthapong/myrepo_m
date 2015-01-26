@@ -27,16 +27,16 @@ public class EnddayUnSendSaleExecutor extends EnddayBase{
 	
 						@Override
 						public void onPreExecute() {
-							Logger.appendLog(mContext, Utils.LOG_PATH, 
-									Utils.LOG_FILE_NAME, "Start send endday unsend transaction " + json);
+							Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+									MPOSApplication.LOG_FILE_NAME, "Start send endday unsend transaction " + json);
 							mListener.onPreExecute();
 						}
 	
 						@Override
 						public void onPostExecute() {
 							setSuccessStatus(sessionDate);
-							Logger.appendLog(mContext, Utils.LOG_PATH, 
-									Utils.LOG_FILE_NAME, "Send endday unsend trans successfully");
+							Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+									MPOSApplication.LOG_FILE_NAME, "Send endday unsend trans successfully");
 							mListener.onPostExecute();
 						}
 	

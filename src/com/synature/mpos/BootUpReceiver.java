@@ -16,7 +16,8 @@ public class BootUpReceiver extends BroadcastReceiver{
 			try {
 				SoftwareUpdateDao update = new SoftwareUpdateDao(context);
 				update.setUpdateStatus(1);
-				Logger.appendLog(context, Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Success update apk");
+				Logger.appendLog(context, MPOSApplication.LOG_PATH, 
+						MPOSApplication.LOG_FILE_NAME, "Success update apk");
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -26,8 +26,8 @@ public class PartialSaleSenderExcecutor extends EnddayBase{
 					mShopId, mComputerId, mStaffId, json, new WebServiceWorkingListener() {
 				@Override
 				public void onPreExecute() {
-					Logger.appendLog(mContext, Utils.LOG_PATH, 
-							Utils.LOG_FILE_NAME, "Start send partial " + json);
+					Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+							MPOSApplication.LOG_FILE_NAME, "Start send partial " + json);
 					mListener.onPreExecute();
 				}
 
@@ -35,7 +35,8 @@ public class PartialSaleSenderExcecutor extends EnddayBase{
 				public void onPostExecute() {
 					mTrans.updateTransactionSendStatus(mTransactionId, MPOSDatabase.ALREADY_SEND);
 					JSONSaleLogFile.appendSale(mContext, json);
-					Logger.appendLog(mContext, Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+					Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+							MPOSApplication.LOG_FILE_NAME, 
 							"Send partial successfully");
 					mListener.onPostExecute();
 				}

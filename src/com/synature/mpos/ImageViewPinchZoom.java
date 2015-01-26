@@ -5,6 +5,7 @@ import com.imagezoom.ImageAttacher.OnMatrixChangedListener;
 import com.imagezoom.ImageAttacher.OnPhotoTapListener;
 import com.synature.mpos.point.R;
 import com.synature.util.ImageLoader;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -54,7 +55,7 @@ public class ImageViewPinchZoom extends DialogFragment{
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		mImgLoader = new ImageLoader(getActivity(), 0,
-				Utils.IMG_DIR, ImageLoader.IMAGE_SIZE.LARGE);
+				MPOSApplication.IMG_DIR, ImageLoader.IMAGE_SIZE.LARGE);
 		
 		mImgName = getArguments().getString("imgName");
 		mMenuName = getArguments().getString("menuName");

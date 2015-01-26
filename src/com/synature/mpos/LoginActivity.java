@@ -2,7 +2,7 @@ package com.synature.mpos;
 
 import java.io.File;
 import java.util.Calendar;
-import com.synature.mpos.common.MPOSActivityBase;
+
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
@@ -14,10 +14,13 @@ import com.synature.mpos.database.UserVerification;
 import com.synature.mpos.database.model.SoftwareUpdate;
 import com.synature.mpos.point.R;
 import com.synature.pos.Staff;
+import com.synature.util.FileManager;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -35,7 +38,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class LoginActivity extends MPOSActivityBase implements OnClickListener, OnEditorActionListener{
+public class LoginActivity extends Activity implements OnClickListener, OnEditorActionListener{
 	
 	/**
 	 * Request code for set system date
@@ -190,6 +193,10 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		public void onPostExecute() {
 			if(mProgress.isShowing())
 				mProgress.dismiss();
+			// clear all menu picture
+			FileManager fm = new FileManager(LoginActivity.this, MPOSApplication.IMG_DIR);
+			fm.clear();
+						
 			startActivity(new Intent(LoginActivity.this, LoginActivity.class));
 			finish();
 		}
@@ -355,7 +362,9 @@ public class LoginActivity extends MPOSActivityBase implements OnClickListener, 
 		final SoftwareUpdate update = su.getUpdateData();
 		if(update != null){
 			if(update.isDownloaded()){
-				final String filePath = Environment.getExternalStorageDirectory() + File.separator + Utils.UPDATE_PATH + File.separator + Utils.UPDATE_FILE_NAME;
+				final String filePath = Environment.getExternalStorageDirectory() + File.separator 
+						+ MPOSApplication.UPDATE_PATH + File.separator 
+						+ MPOSApplication.UPDATE_FILE_NAME;
 				if(!update.isAlreadyUpdated()){
 					AlertDialog.Builder builder = new AlertDialog.Builder(this);
 					builder.setTitle(R.string.software_update);

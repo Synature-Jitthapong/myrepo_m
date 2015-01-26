@@ -36,8 +36,8 @@ public class EnddaySenderExecutor extends EnddayBase{
 
 							@Override
 							public void onPreExecute() {
-								Logger.appendLog(mContext, Utils.LOG_PATH, 
-										Utils.LOG_FILE_NAME, "Start send endday " + json);
+								Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+										MPOSApplication.LOG_FILE_NAME, "Start send endday " + json);
 							}
 
 							@Override
@@ -47,12 +47,13 @@ public class EnddaySenderExecutor extends EnddayBase{
 									// log json sale if send to server success
 									JSONSaleLogFile.appendEnddaySale(mContext, sessionDate, json);
 									if (!it.hasNext()) {
-										Logger.appendLog(mContext, Utils.LOG_PATH, 
-												Utils.LOG_FILE_NAME, "Send endday successfully");
+										Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+												MPOSApplication.LOG_FILE_NAME, "Send endday successfully");
 										mListener.onPostExecute();
 									}
 								} catch (SQLException e) {
-									Logger.appendLog(mContext, Utils.LOG_PATH, Utils.LOG_FILE_NAME,
+									Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+											MPOSApplication.LOG_FILE_NAME,
 											" Send endday sale error "
 													+ SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL
 													+ " : " + e.getMessage());

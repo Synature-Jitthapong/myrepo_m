@@ -22,7 +22,6 @@ import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.StaffsDao;
 import com.synature.mpos.database.SyncHistoryDao;
 import com.synature.pos.MasterData;
-import com.synature.util.FileManager;
 import com.synature.util.Logger;
 
 public class MasterDataLoader extends MPOSServiceBase{
@@ -113,9 +112,6 @@ public class MasterDataLoader extends MPOSServiceBase{
 			promo.insertPromotionPriceGroup(master.getPromotionPriceGroup());
 			promo.insertPromotionProductDiscount(master.getPromotionProductDiscount());
 			
-			// clear all menu picture
-			FileManager fm = new FileManager(mContext, Utils.IMG_DIR);
-			fm.clear();
 			// log sync history
 			mSync.updateSyncStatus(SyncHistoryDao.SYNC_STATUS_SUCCESS);
 			if(mListener != null)
@@ -123,8 +119,8 @@ public class MasterDataLoader extends MPOSServiceBase{
 		} catch (Exception e) {
 			// log sync history
 			mSync.updateSyncStatus(SyncHistoryDao.SYNC_STATUS_FAIL);
-			Logger.appendLog(mContext, Utils.LOG_PATH, 
-					Utils.LOG_FILE_NAME, 
+			Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME, 
 					"Error when add shop data : " + e.getMessage());
 			if(mListener != null)
 				mListener.onError(e.getMessage());

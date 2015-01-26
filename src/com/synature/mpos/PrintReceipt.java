@@ -46,7 +46,7 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 			} catch (Exception e) {
 				mPrintLog.updatePrintStatus(printReceipt.getPrintId(), printReceipt.getTransactionId(), PrintReceiptLogDao.PRINT_NOT_SUCCESS);
 				Logger.appendLog(mContext, 
-						Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+						MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 						" Print receipt fail : " + e.getMessage());
 			}
 		}

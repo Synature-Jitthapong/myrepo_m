@@ -3,7 +3,7 @@ package com.synature.mpos;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import com.synature.mpos.common.MPOSActivityBase;
+
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.PaymentAmountButtonDao;
 import com.synature.mpos.database.PaymentDetailDao;
@@ -13,7 +13,9 @@ import com.synature.mpos.database.model.MPOSPaymentDetail;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.point.R;
 import com.synature.pos.PayType;
+
 import android.os.Bundle;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,17 +37,21 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PaymentActivity extends MPOSActivityBase  implements OnClickListener{
+public class PaymentActivity extends Activity implements OnClickListener{
 	
 	public static final int REQUEST_CREDIT_PAY = 1;
-	public static final int RESULT_ENOUGH = 2;
-	public static final int RESULT_NOT_ENOUGH = 3;
+	public static final int REQUEST_POINT_PAY = 2;
+	
+	public static final int RESULT_ENOUGH = 0;
+	public static final int RESULT_NOT_ENOUGH = -1;
 
+	public static boolean sIsRunning = false;
+	
 	/*
 	 * credit pay not enough result code
 	 */
 	private int mResultCreditCode = RESULT_NOT_ENOUGH;
-	
+
 	private PaymentDetailDao mPayment;
 	private TransactionDao mTrans;
 	private GlobalPropertyDao mFormat;
@@ -113,7 +119,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 		mStrTotalPay = new StringBuilder();
 		mLvPayment.setAdapter(mPaymentAdapter);
 		mGvPaymentButton.setAdapter(mPaymentButtonAdapter);
-		loadPayType();
+		setupPayTypeButton();
 		displayEnterPrice();
 	}
 
@@ -131,6 +137,18 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 		if(mResultCreditCode == RESULT_ENOUGH)
 			confirm();
 		super.onResume();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		sIsRunning = true;
+	}
+
+	@Override
+	protected void onStop() {
+		sIsRunning = false;
+		super.onStop();
 	}
 
 	@Override
@@ -278,7 +296,12 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 		mTxtEnterPrice.setText(mFormat.currencyFormat(mTotalPay));
 	}
 	
-	public void creditPay(){
+	private void pointPay(){
+		PointRedeemtionDialogFragment f = PointRedeemtionDialogFragment.newInstance(mTransactionId, mComputerId, mStaffId);
+		f.show(getFragmentManager(), "RedeemPointDialog");
+	}
+	
+	private void creditPay(){
 		if(mTotalSalePrice > 0 && mPaymentLeft > 0){
 			Intent intent = new Intent(PaymentActivity.this, CreditPayActivity.class);
 			intent.putExtra("transactionId", mTransactionId);
@@ -288,7 +311,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 		}
 	}
 
-	public void confirm() {
+	private void confirm() {
 		if(mTotalPaid >= mTotalSalePrice){
 
 			// open cash drawer
@@ -445,7 +468,7 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 		});
 	}
 	
-	private void loadPayType(){
+	private void setupPayTypeButton(){
 		List<PayType> payTypeLst = mPayment.listPayType();
 		LinearLayout payTypeContent = (LinearLayout) findViewById(R.id.payTypeContent);
 		payTypeContent.removeAllViews();
@@ -458,10 +481,13 @@ public class PaymentActivity extends MPOSActivityBase  implements OnClickListene
 
 				@Override
 				public void onClick(View v) {
-					if(payType.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CASH){
+					int payTypeId = payType.getPayTypeID();
+					if(payTypeId == PaymentDetailDao.PAY_TYPE_CASH){
 						
-					}else if(payType.getPayTypeID() == PaymentDetailDao.PAY_TYPE_CREDIT){
+					}else if(payTypeId == PaymentDetailDao.PAY_TYPE_CREDIT){
 						creditPay();
+					}else if (payTypeId == PaymentDetailDao.PAY_TYPE_POINT){
+						pointPay();
 					}else{
 						popupOtherPayment(payType.getPayTypeName(), payType.getPayTypeID());
 					}

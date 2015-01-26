@@ -6,14 +6,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
+
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.point.R;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -158,8 +158,8 @@ public class RestoreDatabaseFragment extends DialogFragment{
 		File sd = Environment.getExternalStorageDirectory();
 		FileChannel source = null;
 		FileChannel destination = null;
-		File dbPath = getActivity().getDatabasePath(Utils.DB_NAME);
-		File sdPath = new File(sd, Utils.BACKUP_DB_PATH);
+		File dbPath = getActivity().getDatabasePath(MPOSApplication.DB_NAME);
+		File sdPath = new File(sd, MPOSApplication.BACKUP_DB_PATH);
 		source = new FileInputStream(sdPath + File.separator + dbFileName).getChannel();
 		destination = new FileOutputStream(dbPath).getChannel();
 		destination.transferFrom(source, 0, source.size());
@@ -178,7 +178,7 @@ public class RestoreDatabaseFragment extends DialogFragment{
 	
 	private void listDatabaseInfo(){
 		File sd = Environment.getExternalStorageDirectory();
-		File backupPath = new File(sd, Utils.BACKUP_DB_PATH);
+		File backupPath = new File(sd, MPOSApplication.BACKUP_DB_PATH);
 		File[] files = backupPath.listFiles();
 		if(files != null){
 			Arrays.sort(files);

@@ -100,7 +100,7 @@
             android:name="com.synature.mpos.PaymentActivity"
             android:label="@string/payment"
             android:screenOrientation="landscape"
-            android:theme="@style/ActivityDialogTheme" >
+            android:theme="@style/ActivityDialogTheme" android:launchMode="singleTop">
         </activity>
         <activity
             android:name="com.synature.mpos.CreditPayActivity"

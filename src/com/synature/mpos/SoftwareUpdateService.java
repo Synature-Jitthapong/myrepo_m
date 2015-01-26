@@ -32,19 +32,21 @@ public class SoftwareUpdateService extends Service{
 			@Override
 			public void run() {
 				String fileUrl = intent.getStringExtra("fileUrl");
-				Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Start download apk...");
+				Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, 
+						MPOSApplication.LOG_FILE_NAME, "Start download apk...");
 				try {
 					URL url = new URL(fileUrl);
 					URLConnection conn = url.openConnection();
 					conn.connect();
 					
 					File sdPath = new File(Environment.getExternalStorageDirectory(), 
-							Utils.UPDATE_PATH);
+							MPOSApplication.UPDATE_PATH);
 					if(!sdPath.exists())
 						sdPath.mkdirs();
 					
 					InputStream input = new BufferedInputStream(conn.getInputStream());
-					OutputStream output = new FileOutputStream(sdPath + File.separator + Utils.UPDATE_FILE_NAME);
+					OutputStream output = new FileOutputStream(sdPath + File.separator + 
+							MPOSApplication.UPDATE_FILE_NAME);
 					
 					byte data[] = new byte[1024];
 					int count;
@@ -56,13 +58,16 @@ public class SoftwareUpdateService extends Service{
 					input.close();
 					SoftwareUpdateDao su = new SoftwareUpdateDao(getApplicationContext());
 					su.setDownloadStatus(1);
-					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Successfully download apk...");
+					Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, 
+							MPOSApplication.LOG_FILE_NAME, "Successfully download apk...");
 					stopSelf();
 				} catch (MalformedURLException e) {
-					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Error download apk: " + e.getLocalizedMessage());
+					Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, 
+							MPOSApplication.LOG_FILE_NAME, "Error download apk: " + e.getLocalizedMessage());
 					e.printStackTrace();
 				} catch (IOException e) {
-					Logger.appendLog(getApplicationContext(), Utils.LOG_PATH, Utils.LOG_FILE_NAME, "Error download apk: " + e.getLocalizedMessage());
+					Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, 
+							MPOSApplication.LOG_FILE_NAME, "Error download apk: " + e.getLocalizedMessage());
 					e.printStackTrace();
 				}
 			}}).start();

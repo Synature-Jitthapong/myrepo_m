@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import com.synature.mpos.common.MPOSActivityBase;
+
 import com.synature.mpos.database.BankDao;
 import com.synature.mpos.database.CreditCardDao;
 import com.synature.mpos.database.GlobalPropertyDao;
@@ -15,6 +15,8 @@ import com.synature.pos.CreditCardType;
 import com.synature.util.CreditCardParser;
 import com.synature.util.Logger;
 import com.synature.util.VerifyCardType;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,7 +38,7 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
+public class CreditPayActivity extends Activity implements TextWatcher{
 	
 	public static final String TAG = "CreditPayActivity";
 	
@@ -159,11 +161,11 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 		try {
 			mIsRead = true;
 			mMsrThread.start();
-			Logger.appendLog(this, Utils.LOG_PATH, 
-					Utils.LOG_FILE_NAME, "Start magnetic reader thread");
+			Logger.appendLog(this, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME, "Start magnetic reader thread");
 		} catch (Exception e) {
-			Logger.appendLog(this, Utils.LOG_PATH, 
-					Utils.LOG_FILE_NAME, 
+			Logger.appendLog(this, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME, 
 					"Error start magnetic reader thread " + 
 					e.getMessage());
 		}
@@ -281,8 +283,8 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 					mTotalCreditPay = Utils.stringToDouble(
 							mTxtTotalPay.getText().toString());
 				} catch (ParseException e) {
-					Logger.appendLog(this, Utils.LOG_PATH, 
-							Utils.LOG_FILE_NAME, e.getMessage());
+					Logger.appendLog(this, MPOSApplication.LOG_PATH, 
+							MPOSApplication.LOG_FILE_NAME, e.getMessage());
 				}
 				
 				if (mTotalCreditPay > 0) {
@@ -526,7 +528,8 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 					
 					if(content.length() > 0){
 						Logger.appendLog(CreditPayActivity.this, 
-							Utils.LOG_PATH, Utils.LOG_FILE_NAME,
+								MPOSApplication.LOG_PATH, 
+								MPOSApplication.LOG_FILE_NAME,
 							"Content : " + content);
 						runOnUiThread(new Runnable(){
 
@@ -577,12 +580,14 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 											}
 										} catch (Exception e) {
 											Logger.appendLog(CreditPayActivity.this, 
-													Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+													MPOSApplication.LOG_PATH, 
+													MPOSApplication.LOG_FILE_NAME, 
 													"Error set selected spinner card type");
 										}
 										
 										Logger.appendLog(CreditPayActivity.this, 
-												Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+												MPOSApplication.LOG_PATH, 
+												MPOSApplication.LOG_FILE_NAME, 
 												"CARD NO : " + cardNo + " \n " +
 												"CARD HOLDER NAME : " + cardHolderName + "\n" +
 												"EXP DATE : " + expDate);	
@@ -599,7 +604,8 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 									})
 									.show();
 									Logger.appendLog(CreditPayActivity.this, 
-											Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+											MPOSApplication.LOG_PATH, 
+											MPOSApplication.LOG_FILE_NAME, 
 											"Error " + e.getMessage());
 								}
 							}
@@ -608,7 +614,8 @@ public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
 					}
 				} catch (Exception e) {
 					Logger.appendLog(CreditPayActivity.this, 
-							Utils.LOG_PATH, Utils.LOG_FILE_NAME, 
+							MPOSApplication.LOG_PATH, 
+							MPOSApplication.LOG_FILE_NAME, 
 							" Error when read data from magnetic card : " + e.getMessage());
 				}
 			}

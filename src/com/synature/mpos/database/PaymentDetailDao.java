@@ -21,6 +21,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 	
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
+	public static final int PAY_TYPE_POINT = 3;
 
 	/**
 	 * All payment columns

@@ -45,7 +45,8 @@ public abstract class EnddayBase {
 			Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
 			json = gson.toJson(mSaleTrans.getTransaction(transactionId, sessionId), type);
 		} catch (Exception e) {
-			Logger.appendLog(mContext, Utils.LOG_PATH, Utils.LOG_FILE_NAME,
+			Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME,
 					" Error at generate json sale : " + e.getMessage());
 		}
 		return json;
@@ -58,7 +59,8 @@ public abstract class EnddayBase {
 			Type type = new TypeToken<POSData_EndDaySaleTransaction>() {}.getType();
 			json = gson.toJson(mSaleTrans.getEndDayUnSendTransaction(sessionDate), type);
 		} catch (Exception e) {
-			Logger.appendLog(mContext, Utils.LOG_PATH, Utils.LOG_FILE_NAME,
+			Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME,
 					" Error at generate json unsend end day : " + e.getMessage());
 		}
 		return json;
@@ -71,7 +73,8 @@ public abstract class EnddayBase {
 			Type type = new TypeToken<POSData_EndDaySaleTransaction>() {}.getType();
 			json = gson.toJson(mSaleTrans.getEndDayTransaction(sessionDate), type);
 		} catch (Exception e) {
-			Logger.appendLog(mContext, Utils.LOG_PATH, Utils.LOG_FILE_NAME,
+			Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+					MPOSApplication.LOG_FILE_NAME,
 					" Error at generate json end day : " + e.getMessage());
 		}
 		return json;

@@ -3,7 +3,7 @@ package com.synature.mpos;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.List;
-import com.synature.mpos.common.MPOSActivityBase;
+
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.PaymentDetailDao;
@@ -20,9 +20,11 @@ import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.point.R;
 import com.synature.pos.Report;
 import com.synature.pos.Staff;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -57,7 +59,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class SaleReportActivity extends MPOSActivityBase{
+public class SaleReportActivity extends Activity{
 
 	public static final int REPORT_BY_BILL = 0;
 	public static final int REPORT_BY_PRODUCT = 1;

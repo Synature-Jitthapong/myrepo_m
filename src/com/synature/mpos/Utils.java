@@ -21,7 +21,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
@@ -31,7 +30,6 @@ import android.widget.Toast;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.ProductsDao;
-import com.synature.mpos.database.SaleTransaction;
 import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
@@ -46,94 +44,6 @@ import com.synature.util.Logger;
 
 public class Utils {
 	
-	/**
-	 * Database name
-	 */
-	public static final String DB_NAME = "mpos.db";
-	
-	/**
-	 * Database version
-	 */
-	public static int DB_VERSION = 6;
-	
-	/**
-	 * Main url 
-	 */
-	public static final String REGISTER_URL = "http://www.promise-system.com/promise_registerpos/ws_mpos.asmx";
-	
-	/**
-	 * WebService file name
-	 */
-	public static final String WS_NAME = "ws_mpos.asmx";
-
-	/**
-	 * WebService point name (ABC Point)
-	 */
-	public static final String WS_POINT_NAME = "ws_abcpoint.asmx";
-	
-	/**
-	 * Menu image dir
-	 */
-	public static final String IMG_DIR = "mPOSImg";
-	
-	/**
-	 * Log file name
-	 */
-	public static final String LOG_FILE_NAME = "log_";
-	
-	/**
-	 * Resource dir
-	 */
-	public static final String RESOURCE_DIR = "mpos";
-	
-	/**
-	 * Backup path
-	 */
-	public static final String BACKUP_DB_PATH = RESOURCE_DIR + File.separator + "backup";
-	
-	/**
-	 * Log dir
-	 */
-	public static final String LOG_PATH = RESOURCE_DIR + File.separator + "log";
-
-
-	/**
-	 * Sale dir store partial sale json file
-	 */
-	public static final String SALE_PATH = RESOURCE_DIR + File.separator + "Sale";
-	
-	/**
-	 * Endday sale dir store endday sale json file
-	 */
-	public static final String ENDDAY_PATH = RESOURCE_DIR + File.separator + "EnddaySale";
-
-	/**
-	 * Update path stored apk for update.
-	 */
-	public static final String UPDATE_PATH = RESOURCE_DIR + File.separator + "Update";
-	
-	/**
-	 * apk file name
-	 */
-	public static final String UPDATE_FILE_NAME = "mpos.apk";
-	
-	/**
-	 * Image path on server
-	 */
-	public static final String SERVER_IMG_PATH = "Resources/Shop/MenuImage/";
-	
-	/**
-	 * The minimum date
-	 */
-	public static final int MINIMUM_YEAR = 1900;
-	public static final int MINIMUM_MONTH = 0;
-	public static final int MINIMUM_DAY = 1;
-	
-	/**
-	 * Enable/Disable log
-	 */
-	public static final boolean sIsEnableLog = true;
-
 	/**
 	 * @param context
 	 * @param shopId
@@ -166,8 +76,8 @@ public class Utils {
 			}
 			try {
 				GlobalPropertyDao format = new GlobalPropertyDao(context);
-				Logger.appendLog(context, LOG_PATH,
-						LOG_FILE_NAME,
+				Logger.appendLog(context, MPOSApplication.LOG_PATH,
+						MPOSApplication.LOG_FILE_NAME,
 						"Success ending multiple day : " 
 						+ " from : " + format.dateFormat(lastSessCal.getTime())
 						+ " to : " + format.dateFormat(Calendar.getInstance().getTime()));
@@ -177,8 +87,8 @@ public class Utils {
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			Logger.appendLog(context, LOG_PATH,
-					LOG_FILE_NAME,
+			Logger.appendLog(context, MPOSApplication.LOG_PATH,
+					MPOSApplication.LOG_FILE_NAME,
 					"Error ending multiple day : " + e.getMessage());
 		}
 		return false;
@@ -205,7 +115,8 @@ public class Utils {
 	}
 	
 	public static Calendar getMinimum(){
-		return new GregorianCalendar(MINIMUM_YEAR, MINIMUM_MONTH, MINIMUM_DAY);
+		return new GregorianCalendar(MPOSApplication.MINIMUM_YEAR, 
+				MPOSApplication.MINIMUM_MONTH, MPOSApplication.MINIMUM_DAY);
 	}
 	
 	public static Calendar getDate(int year, int month, int day){
@@ -298,8 +209,8 @@ public class Utils {
 	}
 
 	public static void logServerResponse(Context context, String msg){
-		Logger.appendLog(context, LOG_PATH,
-				LOG_FILE_NAME,
+		Logger.appendLog(context, MPOSApplication.LOG_PATH,
+				MPOSApplication.LOG_FILE_NAME,
 				" Server Response : " + msg);
 	}
 	
@@ -536,7 +447,7 @@ public class Utils {
 	 * @return menu image url
 	 */
 	public static String getImageUrl(Context context) {
-		return getUrl(context) + "/" + SERVER_IMG_PATH;
+		return getUrl(context) + "/" + MPOSApplication.SERVER_IMG_PATH;
 	}
 
 	/**
@@ -544,7 +455,7 @@ public class Utils {
 	 * @return full webservice url
 	 */
 	public static String getFullUrl(Context context) {
-		return getUrl(context) + "/" + WS_NAME;
+		return getUrl(context) + "/" + MPOSApplication.WS_NAME;
 	}
 	
 	/**
@@ -552,7 +463,7 @@ public class Utils {
 	 * @return full point url
 	 */
 	public static String getFullPointUrl(Context context) {
-		return getPointUrl(context) + "/" + WS_POINT_NAME;
+		return getPointUrl(context) + "/" + MPOSApplication.WS_POINT_NAME;
 	}
 
 	/**
@@ -662,12 +573,13 @@ public class Utils {
 	}
 	
 	public static void backupDatabase(Context context){
-		String backupDbName = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()) + "_" + DB_NAME;
+		String backupDbName = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()) + "_" + 
+				MPOSApplication.DB_NAME;
 		File sd = Environment.getExternalStorageDirectory();
 		FileChannel source = null;
 		FileChannel destination = null;
-		File dbPath = context.getDatabasePath(DB_NAME);
-		File sdPath = new File(sd, BACKUP_DB_PATH);
+		File dbPath = context.getDatabasePath(MPOSApplication.DB_NAME);
+		File sdPath = new File(sd, MPOSApplication.BACKUP_DB_PATH);
 		if(!sdPath.exists())
 			sdPath.mkdirs();
 		deleteBackupDatabase(context);
@@ -686,7 +598,7 @@ public class Utils {
 	
 	public static void deleteBackupDatabase(Context context){
 		File sd = Environment.getExternalStorageDirectory();
-		File sdPath = new File(sd, BACKUP_DB_PATH);
+		File sdPath = new File(sd, MPOSApplication.BACKUP_DB_PATH);
 		File files[] = sdPath.listFiles();
 		if(files != null){
 			Calendar current = Calendar.getInstance();

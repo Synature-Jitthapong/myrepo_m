@@ -3,18 +3,16 @@ package com.synature.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
-import com.synature.mpos.database.model.Session;
 import com.synature.mpos.database.table.OrderTransTable;
-import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.point.R;
 
 import android.os.Bundle;
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.view.MenuItem;
@@ -33,7 +31,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class ReprintActivity extends MPOSActivityBase implements OnItemSelectedListener{
+public class ReprintActivity extends Activity implements OnItemSelectedListener{
 	
 	private TransactionDao mOrders;
 	private GlobalPropertyDao mGlobal;
