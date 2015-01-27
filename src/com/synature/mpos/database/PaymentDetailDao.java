@@ -21,7 +21,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 	
 	public static final int PAY_TYPE_CASH = 1;
 	public static final int PAY_TYPE_CREDIT = 2;
-	public static final int PAY_TYPE_POINT = 3;
+	public static final int PAY_TYPE_POINT = 50;
 
 	/**
 	 * All payment columns
@@ -172,7 +172,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 						+ PayTypeTable.COLUMN_PAY_TYPE_ID + " WHERE a."
 						+ OrderTransTable.COLUMN_TRANS_ID + "=?"
 						+ " GROUP BY a." + PayTypeTable.COLUMN_PAY_TYPE_ID
-						+ " ORDER BY a." + PaymentDetailTable.COLUMN_PAY_ID,
+						+ " ORDER BY a." + PayTypeTable.COLUMN_PAY_TYPE_ID + " DESC ",
 				new String[]{
 					String.valueOf(transactionId)
 				}
@@ -239,8 +239,8 @@ public class PaymentDetailDao extends MPOSDatabase {
 			int expireYear, int bankId,int creditCardTypeId, String remark) throws SQLException {
 		if(checkThisPayTypeIsAdded(transactionId, payTypeId)){
 			// update payment
-			double totalPayment = getTotalPayAmount(transactionId) + totalPay;
-			double totalPayed = getTotalPayedAmount(transactionId) + pay;
+			double totalPayment = getTotalPayAmount(transactionId, payTypeId) + totalPay;
+			double totalPayed = getTotalPayedAmount(transactionId, payTypeId) + pay;
 			updatePaymentDetail(transactionId, payTypeId, totalPayment, totalPayed);
 		}else{
 			// add new payment
@@ -360,7 +360,30 @@ public class PaymentDetailDao extends MPOSDatabase {
 	/**
 	 * Get total payed
 	 * @param transactionId
+	 * @param payTypeId
 	 * @return total payed amount
+	 */
+	public double getTotalPayedAmount(int transactionId, int payTypeId){
+		double totalPaid = 0.0d;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				" SELECT SUM(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ") "
+						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
+						+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?"
+						+ " AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?",
+				new String[]{
+						String.valueOf(transactionId),
+						String.valueOf(payTypeId)
+				});
+		if(cursor.moveToFirst()){
+			totalPaid = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalPaid;
+	}
+	
+	/**
+	 * @param transactionId
+	 * @return total payed
 	 */
 	public double getTotalPayedAmount(int transactionId){
 		double totalPaid = 0.0d;
@@ -381,7 +404,30 @@ public class PaymentDetailDao extends MPOSDatabase {
 	/**
 	 * Get total pay
 	 * @param transactionId
+	 * @param payTypeId
 	 * @return total pay amount
+	 */
+	public double getTotalPayAmount(int transactionId, int payTypeId){
+		double totalPaid = 0.0d;
+		Cursor cursor = getReadableDatabase().rawQuery(
+				" SELECT SUM(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ") "
+						+ " FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL 
+						+ " WHERE " + OrderTransTable.COLUMN_TRANS_ID + "=?"
+						+ " AND " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?",
+				new String[]{
+						String.valueOf(transactionId),
+						String.valueOf(payTypeId)
+				});
+		if(cursor.moveToFirst()){
+			totalPaid = cursor.getDouble(0);
+		}
+		cursor.close();
+		return totalPaid;
+	}
+	
+	/**
+	 * @param transactionId
+	 * @return total pay
 	 */
 	public double getTotalPayAmount(int transactionId){
 		double totalPaid = 0.0d;

@@ -2,9 +2,6 @@ package com.synature.mpos;
 
 import java.text.NumberFormat;
 import com.synature.mpos.PointServiceBase.MemberInfo;
-import com.synature.mpos.database.TransactionDao;
-import com.synature.mpos.database.model.OrderDetail;
-import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.point.R;
 
 import android.app.Activity;
@@ -32,14 +29,13 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 	public static final int WINDOW_HEIGHT = 450;
 	
 	private Thread mMsrThread;
-	private TransactionDao mTrans;
 	private PointServiceBase.MemberInfo mMemberInfo;
 	private CardReaderRunnable mCardReaderRunnable;
 	private OnConfirmPointListener mListener;
 	
-	private int mTransId;
 	private int mPayTypeId;
 	private double mTotalPoint;
+	private String mUUID;
 	
 	private ProgressDialog mProgress;
 	private TextView mTvMemberName;
@@ -50,11 +46,12 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 	private Button mBtnCancel;
 	private Button mBtnOk;
 	
-	public static PointRedeemtionDialogFragment newInstance(int transId, int payTypeId){
+	public static PointRedeemtionDialogFragment newInstance(String uuid, int payTypeId, double totalPrice){
 		PointRedeemtionDialogFragment f = new PointRedeemtionDialogFragment();
 		Bundle b = new Bundle();
-		b.putInt("transId", transId);
+		b.putString("uuid", uuid);
 		b.putInt("payTypeId", payTypeId);
+		b.putDouble("totalPrice", totalPrice);
 		f.setArguments(b);
 		return f;
 	}
@@ -62,9 +59,9 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mTransId = getArguments().getInt("transId");
+		mUUID = getArguments().getString("uuid");
 		mPayTypeId = getArguments().getInt("payTypeId");
-		mTrans = new TransactionDao(getActivity());
+		mTotalPoint = getArguments().getDouble("totalPrice");
 		mCardReaderRunnable = new CardReaderRunnable(getActivity(), mCardReaderListener);
 		mMsrThread = new Thread(mCardReaderRunnable);
 		mProgress = new ProgressDialog(getActivity());
@@ -99,8 +96,7 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 				@Override
 				public void run() {
 					if(!TextUtils.isEmpty(content)){
-						OrderTransaction trans = mTrans.getTransaction(mTransId, true);
-						new BalanceInquiryCard(getActivity(), "", trans.getTransactionUuid(), content, 
+						new BalanceInquiryCard(getActivity(), "", mUUID, content, 
 								mGetBalanceListener).executeOnExecutor(
 										AsyncTask.THREAD_POOL_EXECUTOR, Utils.getFullPointUrl(getActivity()));
 					}
@@ -113,6 +109,7 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getDialog().getWindow().setLayout(WINDOW_WIDTH, WINDOW_HEIGHT);
+		getDialog().setCanceledOnTouchOutside(false);
 	}
 	
 	@Override
@@ -139,8 +136,6 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 	}
 	
 	private void summary(){
-		OrderDetail sumOrder = mTrans.getSummaryOrder(mTransId, true);
-		mTotalPoint = sumOrder.getTotalRetailPrice();
 		mTvTotalPoint.setText(NumberFormat.getInstance().format(mTotalPoint));
 	}
 	
@@ -208,12 +203,14 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 
 	private void confirm(){
 		mListener.onConfirmPoint(mMemberInfo, mPayTypeId);
+		getDialog().dismiss();
 	}
 		
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()){
 		case R.id.btnCancel:
+			mListener.onCancel();
 			getDialog().dismiss();
 			break;
 		case R.id.btnOk:
@@ -224,5 +221,6 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 	
 	public static interface OnConfirmPointListener{
 		void onConfirmPoint(PointServiceBase.MemberInfo memberInfo, int payTypeId);
+		void onCancel();
 	}
 }

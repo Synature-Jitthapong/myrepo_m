@@ -78,7 +78,7 @@ public class CardRefillDialogFragment extends DialogFragment{
 						mProgress.dismiss();
 					if(member != null){
 						// check card
-						String cardNoParam = "?card_no=" + member.getSzCardNo();
+						String cardNoParam = member.getSzCardNo();
 						String refillUrl = Utils.getRefillUrl(getActivity()) + cardNoParam;
 						Intent intent = new Intent(Intent.ACTION_VIEW);
 						intent.setData(Uri.parse(refillUrl));

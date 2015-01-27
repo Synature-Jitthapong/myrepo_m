@@ -7,7 +7,11 @@
             android:key="show_menu_image"
             android:title="@string/show_menu_image" />
         <CheckBoxPreference android:key="enable_backup" android:title="@string/backup_db" android:defaultValue="true"/>
-        
+
+        <EditTextPreference
+            android:defaultValue="1"
+            android:key="point_ratio"
+            android:title="Point ratio e.g. 1 : 10 (1 baht : 10 point)" />
         
     </PreferenceCategory>
 

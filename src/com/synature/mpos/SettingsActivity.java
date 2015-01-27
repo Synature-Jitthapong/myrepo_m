@@ -1,8 +1,10 @@
 package com.synature.mpos;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -48,6 +50,8 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_ENABLE_SECOND_DISPLAY = "enable_second_display";
 	public static final String KEY_PREF_LANGUAGE_LIST = "language_list";
 	public static final String KEY_PREF_ENABLE_BACKUP_DB = "enable_backup_db";
+	
+	public static final String KEY_PREF_POINT_RATIO = "point_ratio";
 	
 	//private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
@@ -166,6 +170,7 @@ public class SettingsActivity extends PreferenceActivity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_general);
+			bindPreferenceSummaryToValue(findPreference(KEY_PREF_POINT_RATIO));
 		}
 		
 	}
@@ -200,12 +205,25 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 	
 	public void resetClick(final View v){
-		MPOSDatabase db = new MPOSDatabase(getApplicationContext());
-		ContentValues cv = new ContentValues();
-		cv.put(MPOSDatabase.COLUMN_SEND_STATUS, 0);
-		db.getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, cv, null, null);
-		db.getWritableDatabase().update(OrderTransTable.TABLE_ORDER_TRANS, cv, null, null);
-		Utils.makeToask(getApplicationContext(), "Reset successfully.");
+		new AlertDialog.Builder(v.getContext())
+		.setMessage("Are you sure you want to reset status of sale data?")
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {}
+		})
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				MPOSDatabase db = new MPOSDatabase(getApplicationContext());
+				ContentValues cv = new ContentValues();
+				cv.put(MPOSDatabase.COLUMN_SEND_STATUS, 0);
+				db.getWritableDatabase().update(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, cv, null, null);
+				db.getWritableDatabase().update(OrderTransTable.TABLE_ORDER_TRANS, cv, null, null);
+				Utils.makeToask(getApplicationContext(), "Reset successfully.");
+			}
+		}).show();
 	}
 	
 	public void dspTestClick(final View v){

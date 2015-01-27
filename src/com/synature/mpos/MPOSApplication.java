@@ -1,8 +1,14 @@
 package com.synature.mpos;
 
 import java.io.File;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+import com.synature.util.Logger;
 
 import android.app.Application;
+import android.os.Build;
 
 public class MPOSApplication extends Application {
 
@@ -56,7 +62,11 @@ public class MPOSApplication extends Application {
 	 */
 	public static final String LOG_PATH = RESOURCE_DIR + File.separator + "log";
 
-
+	/**
+	 * Error log path
+	 */
+	public static final String ERR_LOG_PATH = RESOURCE_DIR + File.separator + "error";
+	
 	/**
 	 * Sale dir store partial sale json file
 	 */
@@ -97,6 +107,53 @@ public class MPOSApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		Thread.setDefaultUncaughtExceptionHandler(new MyUncaughtExceptionHandler());
 		Utils.switchLanguage(getApplicationContext(), Utils.getLangCode(getApplicationContext()));
+	}
+	
+	private class MyUncaughtExceptionHandler implements UncaughtExceptionHandler{
+
+		private UncaughtExceptionHandler mDefaultUEH;
+		
+		public MyUncaughtExceptionHandler() {
+			mDefaultUEH = Thread.getDefaultUncaughtExceptionHandler();
+		}
+		
+		@Override
+		public void uncaughtException(Thread thread, Throwable e) {
+			StackTraceElement[] arr = e.getStackTrace();
+			StringBuilder report = new StringBuilder();
+			report.append(new SimpleDateFormat("HH:mm:ss").format(
+					Calendar.getInstance().getTime()) + "\n");
+			report.append(e.toString() + "\n");
+			report.append("--------- Stack trace ---------\n");
+			for (int i = 0; i < arr.length; i++){
+				report.append("    " + arr[i].toString() + "\n");
+			}
+			Throwable cause = e.getCause();
+			if (cause != null) {
+				report.append("--------- Cause ---------\n");
+				report.append(cause.toString() + "\n");
+				arr = cause.getStackTrace();
+				for (int i = 0; i < arr.length; i++){
+					report.append("    " + arr[i].toString() + "\n");
+				}
+			}
+			report.append("--------- Device ---------\n");
+			report.append("Brand: " + Build.BRAND + "\n");
+			report.append("Device: " + Build.DEVICE + "\n");
+			report.append("Model: " + Build.MODEL + "\n");
+			report.append("Id: " + Build.ID + "\n\r");
+			report.append("Product: " + Build.PRODUCT + "\n");
+			report.append("--------- Firmware ---------\n");
+			report.append("SDK: " + Build.VERSION.SDK + "\n");
+			report.append("Release: " + Build.VERSION.RELEASE + "\n");
+			report.append("Incremental: " + Build.VERSION.INCREMENTAL + "\n");
+			report.append("-------------------------------\n");
+			Logger.appendLog(getApplicationContext(), ERR_LOG_PATH, "", report.toString());
+			
+			mDefaultUEH.uncaughtException(thread, e);
+		}
+		
 	}
 }

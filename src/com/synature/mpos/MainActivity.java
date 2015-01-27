@@ -90,8 +90,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class MainActivity extends FragmentActivity implements 
 	MenuCommentDialogFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
-	UserVerifyDialogFragment.OnCheckPermissionListener, OnChangeLanguageListener, 
-	PointRedeemtionDialogFragment.OnRedeemtionListener{
+	UserVerifyDialogFragment.OnCheckPermissionListener, OnChangeLanguageListener{
 	
 	public static final String TAG = MainActivity.class.getSimpleName();
 	
@@ -579,8 +578,7 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 	
-	private void successTransaction(int transactionId, int staffId, double totalPoint, double currentPoint){
-
+	private void logAndPrintReceipt(int transactionId, int staffId){
 		PrintReceiptLogDao printLog = new PrintReceiptLogDao(MainActivity.this);
 		int isCopy = 0;
 		for(int i = 0; i < mComputer.getReceiptHasCopy(); i++){
@@ -589,6 +587,10 @@ public class MainActivity extends FragmentActivity implements
 			printLog.insertLog(transactionId, staffId, isCopy);
 		}
 		new PrintReceipt(MainActivity.this, mPrintReceiptListener).execute();
+	}
+	
+	private void successTransaction(int transactionId, int staffId, double totalPoint, double currentPoint){	
+		logAndPrintReceipt(transactionId, staffId);
 		
 		// Wintec DSP
 		if(Utils.isEnableWintecCustomerDisplay(this)){
@@ -709,6 +711,7 @@ public class MainActivity extends FragmentActivity implements
 					PaymentDetailDao payment = new PaymentDetailDao(MainActivity.this);
 					double totalSalePrice = sumOrder.getTotalSalePrice();
 					
+					payment.deleteAllPaymentDetail(mTransactionId);
 					payment.addPaymentDetail(mTransactionId, mComputerId, PaymentDetailDao.PAY_TYPE_CASH, 
 							totalSalePrice, totalSalePrice, "", 0, 0, 0, 0, "");
 					
@@ -2430,11 +2433,5 @@ public class MainActivity extends FragmentActivity implements
 	public void onChangeLanguage() {
 		startActivity(getIntent());
 		finish();
-	}
-
-	@Override
-	public void onRedeemSuccess(int transId, int totalPoint, int currentPoint) {
-		successTransaction(transId, mStaffId, totalPoint, currentPoint);
-		init();
 	}
 }

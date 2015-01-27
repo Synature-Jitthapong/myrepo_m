@@ -3,8 +3,10 @@ package com.synature.mpos;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.List;
+
 import android.content.Context;
 import android.text.TextUtils;
+
 import com.synature.mpos.database.CreditCardDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.HeaderFooterReceiptDao;
@@ -24,6 +26,7 @@ import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.point.R;
 import com.synature.pos.Report;
 import com.synature.pos.Staff;
+import com.synature.util.Logger;
 
 public abstract class PrinterBase {
 	
@@ -550,14 +553,17 @@ public abstract class PrinterBase {
 	protected void createTextForPrintReceipt(int transId, boolean isCopy, boolean isLoadTemp){
 		OrderTransaction trans = mTrans.getTransaction(transId, isLoadTemp);
 		OrderDetail sumOrder = mTrans.getSummaryOrder(transId, isLoadTemp);
+		double totalPayAmount = mPayment.getTotalPayAmount(transId);
+		double totalPaid = mPayment.getTotalPayedAmount(transId);
+		double change = totalPayAmount - totalPaid;
 		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
 		
 		// have copy
 		if(isCopy){
 			String copyText = mContext.getString(R.string.copy);
-			mTextToPrint.append(createLine("-") + "\n");
+			mTextToPrint.append(createLine("*") + "\n");
 			mTextToPrint.append(adjustAlignCenter(copyText) + "\n");
-			mTextToPrint.append(createLine("-") + "\n\n");
+			mTextToPrint.append(createLine("*") + "\n\n");
 		}
 		// add void header
 		if(isVoid){
@@ -582,8 +588,12 @@ public abstract class PrinterBase {
 		String idCard = mContext.getString(R.string.id_card) + " " + trans.getMemberCardNo();
 		mTextToPrint.append(saleDate + createHorizontalSpace(calculateLength(saleDate)) + "\n");
 		mTextToPrint.append(receiptNo + createHorizontalSpace(calculateLength(receiptNo)) + "\n");
-		mTextToPrint.append(memberName + createHorizontalSpace(calculateLength(memberName)) + "\n");
-		mTextToPrint.append(idCard + createHorizontalSpace(calculateLength(idCard)) + "\n");
+		if(!TextUtils.isEmpty(trans.getMemberName())){
+			mTextToPrint.append(memberName + createHorizontalSpace(calculateLength(memberName)) + "\n");
+		}
+		if(!TextUtils.isEmpty(trans.getMemberCardNo())){
+			mTextToPrint.append(idCard + createHorizontalSpace(calculateLength(idCard)) + "\n");
+		}
 		mTextToPrint.append(createLine("=") + "\n");
 		
 		List<OrderDetail> orderLst = mTrans.listGroupedAllOrderDetail(transId, isLoadTemp);
@@ -631,8 +641,13 @@ public abstract class PrinterBase {
     	
     	String itemText = mContext.getString(R.string.items) + ": ";
     	String totalText = mContext.getString(R.string.total) + "...............";
+    	String changeText = mContext.getString(R.string.change) + " ";
+    	String discountText = TextUtils.isEmpty(sumOrder.getPromotionName()) ? mContext.getString(R.string.discount) : sumOrder.getPromotionName();
+    	
     	String strTotalRetailPrice = mFormat.currencyFormat(sumOrder.getTotalRetailPrice());
-    	String strTotalSale = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+    	String strTotalSale = mFormat.currencyFormat(totalPaid);
+    	String strTotalDiscount = "-" + mFormat.currencyFormat(sumOrder.getPriceDiscount());
+    	String strTotalChange = mFormat.currencyFormat(change);
     	
     	// total item
     	String strTotalQty = NumberFormat.getInstance().format(sumOrder.getOrderQty());
@@ -643,6 +658,23 @@ public abstract class PrinterBase {
     			calculateLength(strTotalQty) + 
     			calculateLength(strTotalRetailPrice)));
     	mTextToPrint.append(strTotalRetailPrice + "\n");
+    	
+    	// total discount
+    	if(sumOrder.getPriceDiscount() > 0){
+	    	mTextToPrint.append(discountText);
+	    	mTextToPrint.append(createHorizontalSpace(
+	    			calculateLength(discountText) + 
+	    			calculateLength(strTotalDiscount)));
+	    	mTextToPrint.append(strTotalDiscount + "\n");
+	    	
+    		String subTotalText = mContext.getString(R.string.sub_total);
+    		String subTotal = mFormat.currencyFormat(sumOrder.getTotalSalePrice());
+	    	mTextToPrint.append(subTotalText);
+	    	mTextToPrint.append(createHorizontalSpace(
+	    			calculateLength(subTotalText) + 
+	    			calculateLength(subTotal)));
+	    	mTextToPrint.append(subTotal + "\n");
+    	}
     	
     	// transaction exclude vat
     	if(trans.getTransactionVatExclude() > 0){
@@ -673,19 +705,76 @@ public abstract class PrinterBase {
     			calculateLength(strTotalSale)));
     	mTextToPrint.append(strTotalSale + "\n");
 	    
-	    // balance
-    	String balanceBeforeText = "Point before";
-    	String balanceBefore = mFormat.currencyFormat(trans.getPointBefore());
-    	mTextToPrint.append(balanceBeforeText);
-    	mTextToPrint.append(createHorizontalSpace(balanceBeforeText.length() + balanceBefore.length()));
-    	mTextToPrint.append(balanceBefore + "\n");
-    	
-    	String balanceText = "Current point";
-    	String balance = mFormat.currencyFormat(trans.getCurrentPoint());
-    	mTextToPrint.append(balanceText);
-    	mTextToPrint.append(createHorizontalSpace(balanceText.length() + balance.length()));
-    	mTextToPrint.append(balance + "\n");
-    	mTextToPrint.append(createLine("=") + "\n");
+    	// total payment
+    	List<MPOSPaymentDetail> paymentLst = 
+    			mPayment.listPaymentGroupByType(transId);
+    	for(int i = 0; i < paymentLst.size(); i++){
+    		MPOSPaymentDetail payment = paymentLst.get(i);
+	    	String strTotalPaid = mFormat.currencyFormat(payment.getTotalPay());
+	    	if(payment.getPayTypeId() == PaymentDetailDao.PAY_TYPE_CREDIT){
+	    		String paymentText = payment.getPayTypeName();
+	    		String cardNoText = "xxxx xxxx xxxx ";
+	    		try {
+	    			paymentText = payment.getPayTypeName() + ":" + 
+    					mCreditCard.getCreditCardType(payment.getCreditCardTypeId());
+	    			cardNoText += payment.getCreditCardNo().substring(12, 16);
+	    		} catch (Exception e) {
+	    			Logger.appendLog(mContext, MPOSApplication.LOG_PATH, 
+	    					MPOSApplication.LOG_FILE_NAME, "Error gen creditcard no : " + e.getMessage());
+	    		}
+	    		mTextToPrint.append(paymentText);
+	    		mTextToPrint.append(createHorizontalSpace(calculateLength(paymentText)));
+	    		mTextToPrint.append("\n");
+    			mTextToPrint.append(cardNoText);
+    			mTextToPrint.append(createHorizontalSpace(
+    					calculateLength(cardNoText) + 
+    					calculateLength(strTotalPaid)));
+    			mTextToPrint.append(strTotalPaid);
+	    	}else if(payment.getPayTypeId() == PaymentDetailDao.PAY_TYPE_CASH){
+	    		String paymentText = payment.getPayTypeName() + " ";
+	    		if(change > 0){
+			    	mTextToPrint.append(paymentText);
+			    	mTextToPrint.append(strTotalPaid);
+		    		mTextToPrint.append(createHorizontalSpace(
+		    				calculateLength(changeText) + 
+		    				calculateLength(strTotalChange) + 
+		    				calculateLength(paymentText) + 
+		    				calculateLength(strTotalPaid)));
+			    	mTextToPrint.append(changeText);
+			    	mTextToPrint.append(strTotalChange);
+			    }else{
+			    	mTextToPrint.append(paymentText);
+		    		mTextToPrint.append(createHorizontalSpace(
+		    				calculateLength(paymentText) + 
+		    				calculateLength(strTotalPaid)));
+			    	mTextToPrint.append(strTotalPaid);
+			    }
+	    	}else{
+	    		String paymentText = payment.getPayTypeName();
+		    	mTextToPrint.append(paymentText);
+	    		mTextToPrint.append(createHorizontalSpace(
+	    				calculateLength(paymentText) + 
+	    				calculateLength(strTotalPaid)));
+		    	mTextToPrint.append(strTotalPaid);
+	    	}
+    		mTextToPrint.append("\n");
+    	}
+	    if(trans.getPointBefore() > 0){
+		    mTextToPrint.append(createLine("=") + "\n");
+	    	// balance
+	    	String balanceBeforeText = "Point before";
+	    	String balanceBefore = mFormat.currencyFormat(trans.getPointBefore());
+	    	mTextToPrint.append(balanceBeforeText);
+	    	mTextToPrint.append(createHorizontalSpace(balanceBeforeText.length() + balanceBefore.length()));
+	    	mTextToPrint.append(balanceBefore + "\n");
+	    	
+	    	String balanceText = "Current point";
+	    	String balance = mFormat.currencyFormat(trans.getCurrentPoint());
+	    	mTextToPrint.append(balanceText);
+	    	mTextToPrint.append(createHorizontalSpace(balanceText.length() + balance.length()));
+	    	mTextToPrint.append(balance + "\n");
+	    }
+	    mTextToPrint.append(createLine("=") + "\n");
 	    
     	// add footer
     	for(com.synature.pos.HeaderFooterReceipt hf : 

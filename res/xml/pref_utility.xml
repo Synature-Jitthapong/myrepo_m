@@ -4,11 +4,6 @@
     <Preference
         android:key="reset_send_status"
         android:title="Reset Send Data Status"
-        android:widgetLayout="@layout/reset_send_layout" />
-    
-    <Preference
-        android:key="resolve_wrong_date"
-        android:title="Resolve wrong sale date"
-        android:widgetLayout="@layout/resolve_wrong_date_layout" />
+        android:widgetLayout="@layout/reset_send_layout" android:summary="Reset sale data for send again."/>
 
 </PreferenceScreen>

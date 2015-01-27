@@ -61,6 +61,7 @@ public class PointRedeemtion extends PointServiceBase{
 					"Error RedemptionItemsProcess: " + e.getLocalizedMessage() + "\n" + result);
 			mListener.onError(result);
 		}
+		//mListener.onPost();
 	}
 
 	@Override

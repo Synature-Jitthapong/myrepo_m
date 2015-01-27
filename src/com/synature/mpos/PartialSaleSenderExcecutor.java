@@ -4,6 +4,7 @@ import com.synature.mpos.database.MPOSDatabase;
 import com.synature.util.Logger;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 
 public class PartialSaleSenderExcecutor extends EnddayBase{
@@ -51,7 +52,7 @@ public class PartialSaleSenderExcecutor extends EnddayBase{
 				@Override
 				public void onProgressUpdate(int value) {
 				}
-			}).execute(Utils.getFullUrl(mContext));
+			}).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Utils.getFullUrl(mContext));
 		}
 	}
 

@@ -61,6 +61,18 @@ public class BalanceInquiryCard extends PointServiceBase{
 					"Error GetBalanceInquiryCard: " + e.getLocalizedMessage() + "\n" + result);
 			mListener.onError(result);
 		}
+//		MemberInfo member = new MemberInfo();
+//		member.setiCardStatus(MemberPointInfoDialogFragment.ACTIVE);
+//		member.setiCurrentCardPoint(5000);
+//		member.setSzCardNo("0000-000-000");
+//		member.setSzCardRemark("Test");
+//		member.setSzCardTagCode("1234");
+//		member.setSzFirstName("Member First Name");
+//		member.setSzLastName("Member Last Name");
+//		member.setSzMobileNo("080xxxxxx5");
+//		member.setSzNickName("TOI");
+//		member.setSzIDCardNo("ID CARD NO");
+//		mListener.onPost(member);
 	}
 
 	@Override

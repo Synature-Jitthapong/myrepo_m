@@ -28,7 +28,7 @@
             android:key="refill_url"
             android:selectAllOnFocus="true"
             android:title="Refill url" 
-            android:defaultValue="www.abcpoint.com"
+            android:defaultValue="www.abcpoint.com?card_no="
             android:summary="Card refill url"/>
         <ListPreference
             android:defaultValue="30"

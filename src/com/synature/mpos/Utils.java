@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -27,6 +28,7 @@ import android.provider.Settings.Secure;
 import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.ProductsDao;
@@ -515,6 +517,16 @@ public class Utils {
 			//e.printStackTrace();
 		}
 		return url;
+	}
+	
+	public static double getPointRatio(Context context){
+		double ratio = 1;
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+		String strRatio = sharedPref.getString(SettingsActivity.KEY_PREF_POINT_RATIO, "1");
+		try {
+			ratio = Double.parseDouble(strRatio);
+		} catch (NumberFormatException e) {}
+		return ratio;
 	}
 	
 	/**
