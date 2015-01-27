@@ -9,7 +9,6 @@ import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
 import com.synature.mpos.database.table.CreditCardTable;
 import com.synature.mpos.database.table.MaxPaymentIdTable;
-import com.synature.mpos.database.table.MaxTransIdTable;
 import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.PayTypeFinishWasteTable;
 import com.synature.mpos.database.table.PayTypeTable;
@@ -496,7 +495,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 		Cursor cursor = queryPaymentDetail(
 				isLoadTemp ? PaymentDetailTable.TEMP_PAYMENT_DETAIL : PaymentDetailTable.TABLE_PAYMENT_DETAIL,
 				new String[]{
-					"sum(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ")"
+					"sum(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ")"
 				},
 				OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " and " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?",
@@ -522,7 +521,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 		Cursor cursor = queryPaymentDetail(
 				isLoadTemp ? PaymentDetailTable.TEMP_PAYMENT_DETAIL : PaymentDetailTable.TABLE_PAYMENT_DETAIL,
 				new String[]{
-					"sum(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ")"
+					"sum(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ")"
 				},
 				OrderTransTable.COLUMN_TRANS_ID + "=?",
 				new String[]{
@@ -545,7 +544,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 		Cursor cursor = queryPaymentDetail(
 				isLoadTemp ? PaymentDetailWasteTable.TEMP_PAYMENT_DETAIL_WASTE : PaymentDetailWasteTable.TABLE_PAYMENT_DETAIL_WASTE,
 				new String[]{
-					"sum(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ")",
+					"sum(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ")",
 				}, 
 				OrderTransTable.COLUMN_TRANS_ID + "=?",
 				new String[]{
@@ -569,7 +568,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 		Cursor cursor = queryPaymentDetail(
 				isLoadTemp ? PaymentDetailTable.TEMP_PAYMENT_DETAIL : PaymentDetailTable.TABLE_PAYMENT_DETAIL,
 				new String[]{
-					"sum(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ")",
+					"sum(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ")",
 				}, 
 				OrderTransTable.COLUMN_TRANS_ID + "=?"
 				+ " and " + PayTypeTable.COLUMN_PAY_TYPE_ID + "=?",
@@ -595,7 +594,7 @@ public class PaymentDetailDao extends MPOSDatabase {
 		Cursor cursor = queryPaymentDetail(
 				isLoadTemp ? PaymentDetailTable.TEMP_PAYMENT_DETAIL : PaymentDetailTable.TABLE_PAYMENT_DETAIL,
 				new String[]{
-					"sum(" + PaymentDetailTable.COLUMN_PAY_AMOUNT + ")",
+					"sum(" + PaymentDetailTable.COLUMN_TOTAL_PAY_AMOUNT + ")",
 				}, 
 				OrderTransTable.COLUMN_TRANS_ID + "=?",
 				new String[]{

@@ -64,7 +64,7 @@ public class PaymentActivity extends Activity implements OnClickListener,
 	private double mTotalPrice;
 	private double mTotalSalePrice;
 	private double mTotalPay;
-	private double mTotalPaid;
+	private double mTotalPayAmount;
 	private double mPaymentLeft;
 	private double mChange;
 	
@@ -244,10 +244,10 @@ public class PaymentActivity extends Activity implements OnClickListener,
 	private void loadPayDetail(){
 		mPayLst = mPayment.listPayment(mTransactionId);
 		mPaymentAdapter.notifyDataSetChanged();
-		mTotalPaid = mPayment.getTotalPaid(mTransactionId, true);
-		mPaymentLeft = mTotalSalePrice - mTotalPaid;
-		mChange = mTotalPaid - mTotalSalePrice;
-		mTvTotalPaid.setText(mGlobal.currencyFormat(mTotalPaid));
+		mTotalPayAmount = mPayment.getTotalPayAmount(mTransactionId, true);
+		mPaymentLeft = mTotalSalePrice - mTotalPayAmount;
+		mChange = mTotalPayAmount - mTotalSalePrice;
+		mTvTotalPaid.setText(mGlobal.currencyFormat(mTotalPayAmount));
 		if(mPaymentLeft < 0)
 			mPaymentLeft = 0.0d;
 		if(mChange < 0)
@@ -301,29 +301,16 @@ public class PaymentActivity extends Activity implements OnClickListener,
 	}
 
 	public void confirm() {
-		if(mTotalPaid >= mTotalSalePrice){
-
+		if(mTotalPayAmount >= mTotalSalePrice){
+			mPayment.confirmPayment(mTransactionId);
+			closeTransaction();
+			setResultAndFinish(PrintReceipt.NORMAL);
 			// open cash drawer
 			WintecCashDrawer drw = new WintecCashDrawer(this);
 			drw.openCashDrawer();
 			drw.close();
-
-			mPayment.confirmPayment(mTransactionId);
-			mTrans.closeTransaction(mTransactionId, mStaffId, mTotalPrice);
-			
-			mChange = mTotalPaid - mTotalSalePrice;
-			
-			Intent intent = new Intent(this, MainActivity.class);
-			intent.putExtra("totalSalePrice", mTotalSalePrice);
-			intent.putExtra("totalPaid", mTotalPaid);
-			intent.putExtra("change", mChange);
-			intent.putExtra("transactionId", mTransactionId);
-			intent.putExtra("staffId", mStaffId);
-			setResult(RESULT_OK, intent);
-			finish();
 		}else{
 			new AlertDialog.Builder(PaymentActivity.this)
-			.setTitle(R.string.payment)
 			.setMessage(R.string.enter_enough_money)
 			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
 				
@@ -336,8 +323,25 @@ public class PaymentActivity extends Activity implements OnClickListener,
 			
 		}
 	}
+	
+	private void setResultAndFinish(int printType){
+		mChange = mTotalPayAmount - mTotalSalePrice;
+		Intent intent = new Intent(this, MainActivity.class);
+		intent.putExtra("printType", printType);
+		intent.putExtra("totalSalePrice", mTotalSalePrice);
+		intent.putExtra("totalPaid", mTotalPayAmount);
+		intent.putExtra("change", mChange);
+		intent.putExtra("transactionId", mTransactionId);
+		intent.putExtra("staffId", mStaffId);
+		setResult(RESULT_OK, intent);
+		finish();
+	}
+	
+	private void closeTransaction(){
+		mTrans.closeTransaction(mTransactionId, mStaffId, mTotalPrice);
+	}
 
-	public void cancel() {
+	private void cancel() {
 		mPayment.deleteAllPaymentDetail(mTransactionId);
 		finish();
 	}
@@ -595,17 +599,7 @@ public class PaymentActivity extends Activity implements OnClickListener,
 		mPayment.addPaymentDetailWaste(mTransactionId, mComputerId, payTypeId, totalPrice, remark);
 		mPayment.confirmWastePayment(mTransactionId);
 		mTrans.closeWasteTransaction(mTransactionId, mStaffId, docTypeId, docTypeHeader, totalPrice);
-		FinishWasteTextPrint wastePrint = new FinishWasteTextPrint(getApplicationContext());
-		wastePrint.createTextForPrintWasteReceipt(mTransactionId, false);
-		finish();
-	}
-	
-	private class FinishWasteTextPrint extends PrinterBase{
-
-		public FinishWasteTextPrint(Context context) {
-			super(context);
-		}
-		
+		setResultAndFinish(PrintReceipt.WASTE);
 	}
 	
 	@Override

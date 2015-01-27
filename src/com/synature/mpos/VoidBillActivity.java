@@ -54,7 +54,6 @@ public class VoidBillActivity extends Activity {
 	
 	private int mTransactionId;
 	private int mComputerId;
-	private int mSessionId;
 	private int mShopId;
 	private int mStaffId;
 	private int mVoidType = 1;
@@ -105,7 +104,6 @@ public class VoidBillActivity extends Activity {
 				
 				mTransactionId = trans.getTransactionId();
 				mComputerId = trans.getComputerId();
-				mSessionId = trans.getSessionId();
 				
 				if(mVoidType == 1){
 					if(trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_SUCCESS)
@@ -321,12 +319,10 @@ public class VoidBillActivity extends Activity {
 				if(!voidReason.isEmpty()){
 					if(mVoidType == 1){
 						mTrans.voidTransaction(mTransactionId, mStaffId, voidReason);
-						printReceipt();
 					}else if(mVoidType == 2){
 						mTrans.voidTransactionWaste(mTransactionId, mStaffId, voidReason);
-						FinishWasteTextPrint wastePrint = new FinishWasteTextPrint(VoidBillActivity.this);
-						wastePrint.createTextForPrintWasteReceipt(mTransactionId, false);
 					}
+					printReceipt();
 					new AlertDialog.Builder(VoidBillActivity.this)
 					.setTitle(R.string.void_bill)
 					.setMessage(R.string.void_bill_success)
@@ -355,7 +351,11 @@ public class VoidBillActivity extends Activity {
 				isCopy = 1;
 			printLog.insertLog(mTransactionId, mStaffId, isCopy);
 		}
-		new PrintReceipt(VoidBillActivity.this, mPrintReceiptListener).execute();
+		if(mVoidType == 1){
+			new PrintReceipt(VoidBillActivity.this, mPrintReceiptListener).execute();
+		}else if(mVoidType == 2){
+			new WastePrintReceipt(VoidBillActivity.this, mPrintReceiptListener).execute();
+		}
 	}
 	
 	private PrintReceipt.OnPrintReceiptListener mPrintReceiptListener = 
@@ -382,14 +382,6 @@ public class VoidBillActivity extends Activity {
 					}
 				}
 			};
-
-	private class FinishWasteTextPrint extends PrinterBase{
-
-		public FinishWasteTextPrint(Context context) {
-			super(context);
-		}
-		
-	}
 	
 	private void cancel() {
 		finish();

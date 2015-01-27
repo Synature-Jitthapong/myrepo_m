@@ -796,7 +796,7 @@ public abstract class PrinterBase {
 	 * @param transId
 	 * @param isLoadTemp
 	 */
-	protected void createTextForPrintWasteReceipt(int transId, boolean isLoadTemp){
+	protected void createTextForPrintWasteReceipt(int transId, boolean isCopy, boolean isLoadTemp){
 		OrderTransaction trans = mTrans.getTransactionWaste(transId, isLoadTemp);
 		OrderDetail sumOrder = mTrans.getSummaryOrderWaste(transId, isLoadTemp);
 		double totalPaid = mPayment.getTotalPaidWaste(transId, isLoadTemp);
@@ -805,6 +805,13 @@ public abstract class PrinterBase {
 		}
 		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.WASTE_TRANS_STATUS_VOID;
 		
+		// have copy
+		if(isCopy){
+			String copyText = mContext.getString(R.string.copy);
+			mTextToPrint.append(createLine("*") + "\n");
+			mTextToPrint.append(adjustAlignCenter(copyText));
+			mTextToPrint.append(createLine("*") + "\n\n");
+		}
 		// add void header
 		if(isVoid){
 			mTextToPrint.append(createLine("*") + "\n");

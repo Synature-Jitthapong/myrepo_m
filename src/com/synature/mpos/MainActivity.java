@@ -600,9 +600,11 @@ public class MainActivity extends FragmentActivity implements
 				double totalSalePrice = intent.getDoubleExtra("totalSalePrice", 0);
 				double totalPaid = intent.getDoubleExtra("totalPaid", 0);
 				double change = intent.getDoubleExtra("change", 0);
+				int printType = intent.getIntExtra("printType", PrintReceipt.NORMAL);
 				int transactionId = intent.getIntExtra("transactionId", 0);
 				int staffId = intent.getIntExtra("staffId", 0);
-				successTransaction(transactionId, staffId, totalSalePrice, totalPaid, change);
+				successTransaction(transactionId, staffId, totalSalePrice, 
+						totalPaid, change, printType);
 			}
 		}
 		if(requestCode == SET_TYPE7_REQUEST){
@@ -615,7 +617,12 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 	
-	private void printReceipt(int transactionId, int staffId){
+	/**
+	 * @param transactionId
+	 * @param staffId
+	 * @param printType
+	 */
+	private void printReceipt(int transactionId, int staffId, int printType){
 		// log receipt for print task
 		PrintReceiptLogDao printLog = new PrintReceiptLogDao(MainActivity.this);
 		int isCopy = 0;
@@ -624,16 +631,28 @@ public class MainActivity extends FragmentActivity implements
 				isCopy = 1;
 			printLog.insertLog(transactionId, staffId, isCopy);
 		}
-		new PrintReceipt(MainActivity.this, mPrintReceiptListener).execute();
+		if(printType == PrintReceipt.NORMAL){
+			new PrintReceipt(MainActivity.this, mPrintReceiptListener).execute();
+		}else if(printType == PrintReceipt.WASTE){
+			new WastePrintReceipt(MainActivity.this, mPrintReceiptListener).execute();
+		}
 	}
 	
+	/**
+	 * @param transactionId
+	 * @param staffId
+	 * @param totalSalePrice
+	 * @param totalPaid
+	 * @param change
+	 * @param printType
+	 */
 	private void successTransaction(int transactionId, int staffId, double totalSalePrice, 
-			double totalPaid, double change){
+			double totalPaid, double change, int printType){
 		// clear item that display on dsp
 		if(Utils.isEnableWintecCustomerDisplay(this))
 			mDsp.setItemName(null);
 		
-		printReceipt(transactionId, staffId);
+		printReceipt(transactionId, staffId, printType);
 		
 		if(change > 0){
 			LinearLayout changeView = new LinearLayout(MainActivity.this);
@@ -777,7 +796,8 @@ public class MainActivity extends FragmentActivity implements
 					drw.close();
 					
 					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice);
-					successTransaction(mTransactionId, mStaffId, totalSalePrice, totalSalePrice, 0);
+					successTransaction(mTransactionId, mStaffId, totalSalePrice, 
+							totalSalePrice, 0, PrintReceipt.NORMAL);
 					
 					init();
 				}

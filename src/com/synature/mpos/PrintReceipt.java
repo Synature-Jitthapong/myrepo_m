@@ -12,10 +12,13 @@ public class PrintReceipt extends AsyncTask<Void, Void, Void>{
 	
 	public static final String TAG = "PrintReceipt";
 	
-	private OnPrintReceiptListener mListener;
+	public static final int NORMAL = 1;
+	public static final int WASTE = 2;
 	
-	private PrintReceiptLogDao mPrintLog;
-	private Context mContext;
+	protected OnPrintReceiptListener mListener;
+	
+	protected PrintReceiptLogDao mPrintLog;
+	protected Context mContext;
 	
 	/**
 	 * @param context
