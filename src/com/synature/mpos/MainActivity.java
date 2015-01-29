@@ -721,7 +721,7 @@ public class MainActivity extends FragmentActivity implements
 					drw.close();
 					
 					mTrans.closeTransaction(mTransactionId, mStaffId, totalSalePrice, 
-							mShop.getCompanyVatType(), mShop.getCompanyVatRate());
+							mShop.getCompanyVatType(), mShop.getCompanyVatRate(), "");
 					successTransaction(mTransactionId, mStaffId, totalSalePrice, 0);
 					
 					init();

@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -78,6 +79,7 @@ public class PaymentActivity extends Activity implements OnClickListener,
 	
 	private ListView mLvPayment;
 	private EditText mTxtEnterPrice;
+	private EditText mTxtNote;
 	private TextView mTvTotalPaid;
 	private TextView mTvPaymentLeft;
 	private TextView mTvTotalPrice;
@@ -106,6 +108,7 @@ public class PaymentActivity extends Activity implements OnClickListener,
 		mTvPaymentLeft = (TextView) findViewById(R.id.tvPaymentLeft);
 		mTvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 		mTvChange = (TextView) findViewById(R.id.tvChange);
+		mTxtNote = (EditText) findViewById(R.id.txtNote);
 		mGvPaymentButton = (GridView) findViewById(R.id.gvPaymentButton);
 		mBtnConfirm = (Button) findViewById(R.id.btnConfirm);
 		mBtnConfirm.setOnClickListener(mOnConfirmClick);
@@ -133,7 +136,15 @@ public class PaymentActivity extends Activity implements OnClickListener,
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(requestCode == REQUEST_CREDIT_PAY){
 			mResultCreditCode = resultCode;
+			String customerName = data.getStringExtra("customerName");
+			mTxtNote.setText(customerName);
 		}
+	}
+	
+	public void toggleKeyboard(final View v){
+		InputMethodManager imm = (InputMethodManager) getSystemService(
+			      Context.INPUT_METHOD_SERVICE);
+		imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
 	}
 	
 	@Override
@@ -441,10 +452,11 @@ public class PaymentActivity extends Activity implements OnClickListener,
 		finish();	
 	}
 	
-	private void closeTransaction(){
+	private void closeTransaction(){ 
+		String note = mTxtNote.getText().toString();
 		ShopDao shop = new ShopDao(this);
 		mTrans.closeTransaction(mTransactionId, mStaffId, mTotalSalePrice, 
-				shop.getCompanyVatType(), shop.getCompanyVatRate());
+				shop.getCompanyVatType(), shop.getCompanyVatRate(), note);
 	}
 	
 	public void cancel() {
@@ -661,6 +673,7 @@ public class PaymentActivity extends Activity implements OnClickListener,
 		mMemberInfo = memberInfo;
 		if(mMemberInfo != null){
 			if(mPaymentLeft > 0){
+				mTxtNote.setText(memberInfo.getSzFirstName() + " " + memberInfo.getSzLastName());
 				double money = convertPointToMoney(memberInfo.getiCurrentCardPoint());
 				mTotalPay = money >= mPaymentLeft ? mPaymentLeft : money; 
 				mPointDeducted = mTotalPay;

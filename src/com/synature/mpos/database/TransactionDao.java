@@ -271,6 +271,7 @@ public class TransactionDao extends MPOSDatabase {
 		trans.setMemberName(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_MEMBER_NAME)));
 		trans.setPointBefore(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_POINT_BEFORE)));
 		trans.setCurrentPoint(cursor.getDouble(cursor.getColumnIndex(OrderTransTable.COLUMN_CURRENT_POINT)));
+		trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_NOTE)));
 		return trans;
 	}
 	
@@ -1052,9 +1053,10 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param totalSalePrice
 	 * @param vatType
 	 * @param vatRate
+	 * @param note
 	 */
 	public void closeTransaction(int transactionId, int staffId, 
-			double totalSalePrice, int vatType, double vatRate) {
+			double totalSalePrice, int vatType, double vatRate, String note) {
 		Calendar date = Utils.getDate();
 		Calendar dateTime = Utils.getCalendar();
 		int receiptId = getMaxReceiptId(String.valueOf(date.getTimeInMillis()));
@@ -1069,6 +1071,7 @@ public class TransactionDao extends MPOSDatabase {
 		cv.put(OrderTransTable.COLUMN_PAID_STAFF_ID, staffId);
 		cv.put(OrderTransTable.COLUMN_CLOSE_STAFF, staffId);
 		cv.put(OrderTransTable.COLUMN_RECEIPT_NO, receiptNo);
+		cv.put(OrderTransTable.COLUMN_TRANS_NOTE, note);
 		getWritableDatabase().update(OrderTransTable.TEMP_ORDER_TRANS, 
 				cv,
 				OrderTransTable.COLUMN_TRANS_ID + "=?",

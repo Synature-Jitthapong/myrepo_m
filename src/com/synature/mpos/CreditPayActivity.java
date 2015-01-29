@@ -336,6 +336,7 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 										mExpYear, mBankId, mCardTypeId, "");
 								//d.dismiss();
 								Intent intent = new Intent(CreditPayActivity.this, PaymentActivity.class);
+								intent.putExtra("customerName", mTxtCardHolderName.getText().toString());
 								if(mTotalCreditPay >= mPaymentLeft)
 									setResult(PaymentActivity.RESULT_ENOUGH, intent);
 								else

@@ -584,11 +584,12 @@ public abstract class PrinterBase {
 				mFormat.dateTimeFormat(Utils.getCalendar().getTime());
 		String receiptNo = mContext.getString(R.string.receipt_no) + " " +
 				(TextUtils.isEmpty(trans.getReceiptNo()) ? "-" : trans.getReceiptNo());
-		String memberName = mContext.getString(R.string.name) + " " + trans.getMemberName();
+		String transNote = TextUtils.isEmpty(trans.getMemberName()) ? trans.getTransactionNote() : trans.getMemberName(); 
+		String memberName = mContext.getString(R.string.name) + " " + transNote;
 		String idCard = mContext.getString(R.string.id_card) + " " + trans.getMemberCardNo();
 		mTextToPrint.append(saleDate + createHorizontalSpace(calculateLength(saleDate)) + "\n");
 		mTextToPrint.append(receiptNo + createHorizontalSpace(calculateLength(receiptNo)) + "\n");
-		if(!TextUtils.isEmpty(trans.getMemberName())){
+		if(!TextUtils.isEmpty(transNote)){
 			mTextToPrint.append(memberName + createHorizontalSpace(calculateLength(memberName)) + "\n");
 		}
 		if(!TextUtils.isEmpty(trans.getMemberCardNo())){

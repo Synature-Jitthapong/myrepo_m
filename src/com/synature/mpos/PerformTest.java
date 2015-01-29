@@ -100,7 +100,7 @@ public class PerformTest extends DialogFragment{
 							mPayment.addPaymentDetail(transId, comp.getComputerId(), 
 									1, sum.getTotalRetailPrice(), sum.getTotalRetailPrice(), 
 									null, 0, 0, 0, 0, "Add from test perfomace");
-							mTrans.closeTransaction(transId, 1, sum.getTotalRetailPrice(), 1, 7);
+							mTrans.closeTransaction(transId, 1, sum.getTotalRetailPrice(), 1, 7, "");
 
 							Log.i("Close transaction", String.valueOf(transId));
 						}

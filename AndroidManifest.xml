@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.synature.mpos.point"
     android:installLocation="auto"
-    android:versionCode="17"
-    android:versionName="1.2.1" >
+    android:versionCode="19"
+    android:versionName="1.2.2" >
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -100,7 +100,7 @@
             android:name="com.synature.mpos.PaymentActivity"
             android:label="@string/payment"
             android:screenOrientation="landscape"
-            android:theme="@style/ActivityDialogTheme" android:launchMode="singleTop">
+            android:theme="@style/ActivityDialogTheme" android:launchMode="singleTop" android:windowSoftInputMode="stateAlwaysHidden|adjustPan">
         </activity>
         <activity
             android:name="com.synature.mpos.CreditPayActivity"

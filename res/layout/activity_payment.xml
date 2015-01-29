@@ -39,6 +39,39 @@
                 android:layout_weight="1"
                 android:orientation="vertical" >
 
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp" >
+
+                    <EditText
+                        android:id="@+id/txtNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBottom="@+id/btnToggleKeyboard"
+                        android:layout_alignParentBottom="false"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_toLeftOf="@+id/btnToggleKeyboard"
+                        android:ems="10"
+                        android:hint="@string/customer_name"
+                        android:imeOptions="actionDone"
+                        android:singleLine="true"
+                        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+
+                    <ImageButton
+                        android:id="@+id/btnToggleKeyboard"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentTop="true"
+                        android:minWidth="48dip"
+                        android:onClick="toggleKeyboard"
+                        android:src="@drawable/ic_action_keyboard" />
+
+                </RelativeLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
