@@ -136,8 +136,10 @@ public class PaymentActivity extends Activity implements OnClickListener,
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(requestCode == REQUEST_CREDIT_PAY){
 			mResultCreditCode = resultCode;
-			String customerName = data.getStringExtra("customerName");
-			mTxtNote.setText(customerName);
+			if(data != null){
+				String customerName = data.getStringExtra("customerName");
+				mTxtNote.setText(customerName);
+			}
 		}
 	}
 	
@@ -673,12 +675,13 @@ public class PaymentActivity extends Activity implements OnClickListener,
 		mMemberInfo = memberInfo;
 		if(mMemberInfo != null){
 			if(mPaymentLeft > 0){
-				mTxtNote.setText(memberInfo.getSzFirstName() + " " + memberInfo.getSzLastName());
+				String memberName = memberInfo.getSzFirstName() + " " + memberInfo.getSzLastName(); 
+				mTxtNote.setText(memberName);
 				double money = convertPointToMoney(memberInfo.getiCurrentCardPoint());
 				mTotalPay = money >= mPaymentLeft ? mPaymentLeft : money; 
 				mPointDeducted = mTotalPay;
 				mPayment.addPaymentDetail(mTransactionId, mComputerId, payTypeId, mTotalPay, 
-						mTotalPay, memberInfo.getSzCardTagCode(), 0, 0, 0, 0, "");
+						mTotalPay, memberInfo.getSzCardTagCode(), 0, 0, 0, 0, memberName);
 				loadPayDetail();
 			}
 		}

@@ -329,14 +329,15 @@ public class CreditPayActivity extends Activity implements TextWatcher{
 									+ mTxtCardNoSeq3.getText().toString()
 									+ mTxtCardNoSeq4.getText().toString();
 							try {
+								String cardHolderName = mTxtCardHolderName.getText().toString();
 								mPayment.addPaymentDetail(mTransactionId, mComputerId,
 										PaymentDetailDao.PAY_TYPE_CREDIT,
 										mTotalCreditPay, mTotalCreditPay >= mPaymentLeft ?
 												mPaymentLeft : mTotalCreditPay, cardNo, mExpMonth,
-										mExpYear, mBankId, mCardTypeId, "");
+										mExpYear, mBankId, mCardTypeId, cardHolderName);
 								//d.dismiss();
 								Intent intent = new Intent(CreditPayActivity.this, PaymentActivity.class);
-								intent.putExtra("customerName", mTxtCardHolderName.getText().toString());
+								intent.putExtra("customerName", cardHolderName);
 								if(mTotalCreditPay >= mPaymentLeft)
 									setResult(PaymentActivity.RESULT_ENOUGH, intent);
 								else
