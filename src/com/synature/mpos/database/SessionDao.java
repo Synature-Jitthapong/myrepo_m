@@ -114,12 +114,14 @@ public class SessionDao extends MPOSDatabase{
 	
 	/**
 	 * List session that not send to server
-	 * @return List<String> sessionDate 
+	 * @return List<com.synature.mpos.database.model.Session> null if not found
 	 */
-	public List<String> listSessionEnddayNotSend(){
-		List<String> sessLst = new ArrayList<String>();
+	public List<com.synature.mpos.database.model.Session> listSessionEnddayNotSend(){
+		List<com.synature.mpos.database.model.Session> sessLst = null;
 		Cursor cursor = getReadableDatabase().rawQuery(
-				"SELECT " + SessionTable.COLUMN_SESS_DATE
+				"SELECT " + SessionTable.COLUMN_SESS_DATE + ","
+				+ SessionDetailTable.COLUMN_TOTAL_QTY_RECEIPT + ", "
+				+ SessionDetailTable.COLUMN_TOTAL_AMOUNT_RECEIPT
 				+ " FROM " + SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL
 				+ " WHERE " + COLUMN_SEND_STATUS + "=?", 
 				new String[]{
@@ -127,9 +129,14 @@ public class SessionDao extends MPOSDatabase{
 				}
 		);
 		if(cursor.moveToFirst()){
+			sessLst = new ArrayList<com.synature.mpos.database.model.Session>();
 			do{
-				String sessDate = cursor.getString(0);
-				sessLst.add(sessDate);
+				com.synature.mpos.database.model.Session session
+					= new com.synature.mpos.database.model.Session();
+				session.setSessionDate(cursor.getString(cursor.getColumnIndex(SessionTable.COLUMN_SESS_DATE)));
+				session.setTotalQtyReceipt(cursor.getInt(cursor.getColumnIndex(SessionDetailTable.COLUMN_TOTAL_QTY_RECEIPT)));
+				session.setTotalAmountReceipt(cursor.getDouble(cursor.getColumnIndex(SessionDetailTable.COLUMN_TOTAL_AMOUNT_RECEIPT)));
+				sessLst.add(session);
 			}while(cursor.moveToNext());
 		}
 		cursor.close();

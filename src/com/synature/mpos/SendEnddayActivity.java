@@ -1,11 +1,11 @@
 package com.synature.mpos;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.SessionDao;
+import com.synature.mpos.database.model.Session;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -15,14 +15,15 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,12 +37,10 @@ public class SendEnddayActivity extends Activity {
 	private int mComputerId;
 	
 	private SessionDao mSession;
-	private List<String> mSessLst;
+	private List<Session> mSessLst;
 	private EnddayListAdapter mEnddayAdapter;
 	
 	private ListView mLvEndday;
-	
-	private MenuItem mItemSend;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +67,6 @@ public class SendEnddayActivity extends Activity {
 		
 		mFormat = new GlobalPropertyDao(this);
 		mSession = new SessionDao(this);
-		mSessLst = new ArrayList<String>();
-
 		setupAdapter();
 	}
 
@@ -83,22 +80,12 @@ public class SendEnddayActivity extends Activity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.send_endday, menu);
-		mItemSend = menu.findItem(R.id.itemSendAll);
-		return true;
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 			case android.R.id.home:
 				setResult(RESULT_OK);
 				finish();
 			return true;
-			case R.id.itemSendAll:
-				sendEndday();
-				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -106,12 +93,14 @@ public class SendEnddayActivity extends Activity {
 	
 	private void setupAdapter(){
 		mSessLst = mSession.listSessionEnddayNotSend();
-		if(mEnddayAdapter == null){
-			mEnddayAdapter = new EnddayListAdapter();
-			mLvEndday.setAdapter(mEnddayAdapter);
+		if(mSessLst != null){
+			if(mEnddayAdapter == null){
+				mEnddayAdapter = new EnddayListAdapter();
+				mLvEndday.setAdapter(mEnddayAdapter);
+			}
+			mEnddayAdapter.notifyDataSetChanged();
+			mLvEndday.setSelection(mEnddayAdapter.getCount() - 1);
 		}
-		mEnddayAdapter.notifyDataSetChanged();
-		mLvEndday.setSelection(mEnddayAdapter.getCount() - 1);
 	}
 	
 	private class EnddayReceiver extends ResultReceiver{
@@ -124,7 +113,6 @@ public class SendEnddayActivity extends Activity {
 			progress.setCanceledOnTouchOutside(false);
 			progress.setMessage(getString(R.string.please_wait));
 			progress.show();
-			mItemSend.setEnabled(false);
 		}
 
 		@Override
@@ -136,7 +124,6 @@ public class SendEnddayActivity extends Activity {
 				break;
 			case EnddaySenderService.RESULT_ERROR:
 				progress.dismiss();
-				mItemSend.setEnabled(true);
 				Toast.makeText(SendEnddayActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
 				break;
 			}
@@ -145,14 +132,26 @@ public class SendEnddayActivity extends Activity {
 		
 	}
 	
-	private void sendEndday(){
-		Intent intent = new Intent(this, EnddaySenderService.class);
-		intent.putExtra(EnddaySenderService.WHAT_TO_DO_PARAM, EnddaySenderService.SEND_UNSEND);
-		intent.putExtra(EnddaySenderService.SHOP_ID_PARAM, mShopId);
-		intent.putExtra(EnddaySenderService.COMPUTER_ID_PARAM, mComputerId);
-		intent.putExtra(EnddaySenderService.STAFF_ID_PARAM, mStaffId);
-		intent.putExtra(EnddaySenderService.RECEIVER_NAME, new EnddayReceiver(new Handler()));
-		startService(intent);
+	private class SendEnddayClickListener implements OnClickListener{
+
+		private String sessionDate;
+		
+		public SendEnddayClickListener(String sessionDate){
+			this.sessionDate = sessionDate;
+		}
+		
+		@Override
+		public void onClick(View v) {
+			Intent intent = new Intent(SendEnddayActivity.this, EnddaySenderService.class);
+			intent.putExtra(EnddaySenderService.WHAT_TO_DO_PARAM, EnddaySenderService.SEND_CURRENT);
+			intent.putExtra(EnddaySenderService.SESSION_DATE_PARAM, sessionDate);
+			intent.putExtra(EnddaySenderService.SHOP_ID_PARAM, mShopId);
+			intent.putExtra(EnddaySenderService.COMPUTER_ID_PARAM, mComputerId);
+			intent.putExtra(EnddaySenderService.STAFF_ID_PARAM, mStaffId);
+			intent.putExtra(EnddaySenderService.RECEIVER_NAME, new EnddayReceiver(new Handler()));
+			startService(intent);
+		}
+		
 	}
 	
 	private class EnddayListAdapter extends BaseAdapter{
@@ -176,16 +175,32 @@ public class SendEnddayActivity extends Activity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+			ViewHolder holder;
 			if(convertView == null){
+				holder = new ViewHolder();
 				convertView = mInflater.inflate(R.layout.endday_list_template, parent, false);
+				holder.tvSessionDate = (TextView) convertView.findViewById(R.id.tvSaleDate);
+				holder.tvSummary = (TextView) convertView.findViewById(R.id.tvSummary);
+				holder.btnSend = (ImageButton) convertView.findViewById(R.id.btnSendEndday);
+				convertView.setTag(holder);
+			}else{
+				holder = (ViewHolder) convertView.getTag();
 			}
-			String sessionDate = mSessLst.get(position);
+			Session session = mSessLst.get(position); 
+			String sessionDate = session.getSessionDate();
 			Calendar cal = Calendar.getInstance();
 			cal.setTimeInMillis(Long.parseLong(sessionDate));
-			TextView tvSaleDate = (TextView) convertView.findViewById(R.id.tvSaleDate);
-			tvSaleDate.setText(mFormat.dateFormat(cal.getTime()));
+			holder.tvSessionDate.setText(mFormat.dateFormat(cal.getTime()));
+			holder.tvSummary.setText("#Bill " + mFormat.qtyFormat(session.getTotalQtyReceipt()) 
+					+ " Total " + mFormat.currencyFormat(session.getTotalAmountReceipt()));
+			holder.btnSend.setOnClickListener(new SendEnddayClickListener(sessionDate));
 			return convertView;
 		}
 		
+		class ViewHolder{
+			TextView tvSessionDate;
+			TextView tvSummary;
+			ImageButton btnSend;
+		}
 	}
 }

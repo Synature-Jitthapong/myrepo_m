@@ -3,8 +3,8 @@ package com.synature.mpos;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.MPOSDatabase;
-import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.table.BaseColumn;
 import com.synature.mpos.database.table.ComputerTable;
@@ -26,17 +26,16 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,10 +45,13 @@ public class SendSaleActivity extends Activity{
 	private int mShopId;
 	private int mComputerId;
 	private int mStaffId;
+	private long mDate;
+	private GlobalPropertyDao mGlobal;
 	private List<SendTransaction> mTransLst;
 	private SyncItemAdapter mSyncAdapter;
 	private MenuItem mItemSendAll;
 	private ListView mLvSyncItem;
+	private Button mBtnPickDate;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +60,7 @@ public class SendSaleActivity extends Activity{
 	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
 	            WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 	    LayoutParams params = getWindow().getAttributes();
-	    params.width = 500;
+	    params.width = 550;
 	    params.height= 500;
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
@@ -68,11 +70,13 @@ public class SendSaleActivity extends Activity{
 		setContentView(R.layout.activity_send_sale);
 		
 		mLvSyncItem = (ListView) findViewById(R.id.lvSync);
+		mGlobal = new GlobalPropertyDao(this);
 		
 		Intent intent = getIntent();
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mShopId = intent.getIntExtra("shopId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
+		mDate = Utils.getDate().getTimeInMillis();
 
 		setupCustomView();
 		loadTransNotSend();
@@ -81,19 +85,24 @@ public class SendSaleActivity extends Activity{
 	private void setupCustomView(){
 		ActionBar actionBar = getActionBar();
 		LayoutInflater inflater = getLayoutInflater();
-		View customView = (View) inflater.inflate(R.layout.spinner_view, null);
-		Spinner sp = (Spinner) customView.findViewById(R.id.spinner1);
-		sp.setOnItemSelectedListener(new OnItemSelectedListener(){
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {}
+		View customView = (View) inflater.inflate(R.layout.button_dropdown_style, null);
+		mBtnPickDate = (Button) customView.findViewById(R.id.button1);
+		mBtnPickDate.setText(mGlobal.dateFormat(String.valueOf(mDate)));
+		mBtnPickDate.setOnClickListener(new OnClickListener() {
 			
+			@Override
+			public void onClick(View v) {
+				DatePickerFragment f = new DatePickerFragment(new DatePickerFragment.OnSetDateListener() {
+					
+					@Override
+					public void onSetDate(long date) {
+						mBtnPickDate.setText(mGlobal.dateFormat(String.valueOf(date)));
+						mDate = date;
+						loadTransNotSend();
+					}
+				});
+				f.show(getFragmentManager(), "DatePickerFragment");
+			}
 		});
 		actionBar.setCustomView(customView);
 	}
@@ -170,6 +179,7 @@ public class SendSaleActivity extends Activity{
 	private void sendSale(){
 		Intent intent = new Intent(this, SaleSenderService.class);
 		intent.putExtra(SaleSenderService.WHAT_TO_DO_PARAM, SaleSenderService.SEND_PARTIAL);
+		intent.putExtra(SaleSenderService.SESSION_DATE_PARAM, mDate);
 		intent.putExtra(SaleSenderService.SHOP_ID_PARAM, mShopId);
 		intent.putExtra(SaleSenderService.COMPUTER_ID_PARAM, mComputerId);
 		intent.putExtra(SaleSenderService.STAFF_ID_PARAM, mStaffId);
@@ -188,9 +198,11 @@ public class SendSaleActivity extends Activity{
 					OrderTransTable.COLUMN_RECEIPT_NO,
 					OrderTransTable.COLUMN_CLOSE_TIME,
 					BaseColumn.COLUMN_SEND_STATUS
-				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+				}, OrderTransTable.COLUMN_SALE_DATE + "=?" 
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
                 + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
 				new String[]{
+					String.valueOf(mDate),
                     String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)

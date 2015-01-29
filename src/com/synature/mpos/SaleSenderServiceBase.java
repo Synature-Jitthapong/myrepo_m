@@ -10,6 +10,7 @@ public abstract class SaleSenderServiceBase extends Service{
 	public static final int THREAD_NUM = 5;
 	
 	public static final String WHAT_TO_DO_PARAM = "whatToDo";
+	public static final String SESSION_DATE_PARAM = "sessionDate";
 	public static final String SHOP_ID_PARAM = "shopId";
 	public static final String COMPUTER_ID_PARAM = "computerId";
 	public static final String STAFF_ID_PARAM = "staffId";

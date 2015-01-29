@@ -22,7 +22,6 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 	
 	public static final int SEND_CURRENT = 1;
 	public static final int SEND_ALL = 2;
-	public static final int SEND_UNSEND = 3;
 	
 	public static final String RECEIVER_NAME = "enddaySenderReceiver";
 	
@@ -42,18 +41,26 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 		super.onDestroy();
 	}
 
+	/**
+	 * Intent require parameter 
+	 * resultReceiver
+	 * sessionDate
+	 * sendMode
+	 * shopId
+	 * computerId
+	 * staffId
+	 */
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if(intent != null){
 			ResultReceiver receiver = (ResultReceiver) intent.getParcelableExtra(RECEIVER_NAME);
+			String sessionDate = intent.getStringExtra(SESSION_DATE_PARAM);
 			int whatToDo = intent.getIntExtra(WHAT_TO_DO_PARAM, SEND_CURRENT);
 			int shopId = intent.getIntExtra(SHOP_ID_PARAM, 0);
 			int computerId = intent.getIntExtra(COMPUTER_ID_PARAM, 0);
 			int staffId = intent.getIntExtra(STAFF_ID_PARAM, 0);
 			if(whatToDo == SEND_CURRENT){
-				sendEndday(SEND_CURRENT, shopId, computerId, staffId, receiver);
-			}else if(whatToDo == SEND_UNSEND){
-				sendUnSendEndday(shopId, computerId, staffId, receiver);
+				sendEndday(SEND_CURRENT, sessionDate, shopId, computerId, staffId, receiver);
 			}else{
 				stopSelf();
 			}
@@ -61,70 +68,6 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 			stopSelf();
 		}
 		return START_NOT_STICKY;
-	}
-
-	private class SendUnSendEnddayReceiver extends ResultReceiver{
-
-		private ResultReceiver receiver;
-		private String sessionDate;
-		private String jsonSale;
-		private int shopId;
-		private int computerId;
-		private int staffId;
-		
-		/**
-		 * @param handler
-		 * @param sessionDate
-		 * @param jsonSale
-		 * @param shopId
-		 * @param computerId
-		 * @param staffId
-		 * @param receiver
-		 */
-		public SendUnSendEnddayReceiver(Handler handler, String sessionDate, String jsonSale, 
-				int shopId, int computerId, int staffId, ResultReceiver receiver) {
-			super(handler);
-			this.sessionDate = sessionDate;
-			this.jsonSale = jsonSale;
-			this.receiver = receiver;
-			this.shopId = shopId;
-			this.computerId = computerId;
-			this.staffId = staffId;
-		}
-
-		@Override
-		protected void onReceiveResult(int resultCode, Bundle resultData) {
-			super.onReceiveResult(resultCode, resultData);
-			switch(resultCode){
-			case RESULT_SUCCESS:
-				flagSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
-				try {
-					JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonSale);
-				} catch (Exception e) {}
-				Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
-						"Send unsend endday successfully.");
-				sendUnSendEndday(shopId, computerId, staffId, receiver);
-				break;
-			case RESULT_ERROR:
-				// if all transaction already send
-				if(countTransUnSend(sessionDate) == 0){
-					flagSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
-				}else{
-					flagSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
-				}
-				String msg = resultData.getString("msg");
-				Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
-						"Send unsend endday fail: " + msg + "\n" + jsonSale);
-				if(receiver != null){
-					Bundle b = new Bundle();
-					b.putString("msg", msg);
-					receiver.send(RESULT_ERROR, b);
-				}
-				stopSelf();
-				break;
-			}
-		}
-		
 	}
 	
 	/**
@@ -181,7 +124,7 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 				String msg = resultData.getString("msg");
 				if(sendMode != SEND_ALL){
 					// try again with send all
-					sendEndday(SEND_ALL, shopId, computerId, staffId, receiver);
+					sendEndday(SEND_ALL, sessionDate, shopId, computerId, staffId, receiver);
 					Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
 							"Send endday with unsend sale fail: " + msg + "\n" + jsonEndday);
 				}else{
@@ -200,76 +143,35 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 	/**
 	 * Send current endday data
 	 * @param sendMode
+	 * @param sessionDate
 	 * @param shopId
 	 * @param computerId
 	 * @param staffId
 	 * @param receiver
 	 */
-	private void sendEndday(int sendMode, int shopId, int computerId, int staffId, ResultReceiver receiver){
-		SessionDao session = new SessionDao(getApplicationContext());
+	private void sendEndday(int sendMode, String sessionDate, int shopId, 
+			int computerId, int staffId, ResultReceiver receiver){
 		JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
-		String sessionDate = session.getLastSessionDate();
 		String jsonEndday;
 		if(sendMode == SEND_CURRENT){ 
 			jsonEndday = jsonGenerator.generateEnddayUnSendSale(sessionDate);
 			if(!TextUtils.isEmpty(jsonEndday)){
+				EnddayReceiver enddayReceiver = new EnddayReceiver(new Handler(), 
+						sessionDate, jsonEndday, shopId, computerId, staffId, sendMode, receiver);
 				EndDayUnSendSaleSender sender = new EndDayUnSendSaleSender(
-						getApplicationContext(), 
-						shopId, computerId, staffId, jsonEndday, 
-						new EnddayReceiver(new Handler(), 
-								sessionDate, jsonEndday, shopId, 
-								computerId, staffId, sendMode, receiver));
+						getApplicationContext(), shopId, computerId, staffId, jsonEndday, enddayReceiver);
 				mExecutor.execute(sender);
 			}
 		}else if(sendMode == SEND_ALL){
 			jsonEndday = jsonGenerator.generateEnddaySale(sessionDate);
 			if(!TextUtils.isEmpty(jsonEndday)){
+				EnddayReceiver enddayReceiver = new EnddayReceiver(new Handler(), 
+						sessionDate, jsonEndday, shopId, computerId, staffId, sendMode, receiver);
 				EndDaySaleSender sender = new EndDaySaleSender(
-						getApplicationContext(), 
-						shopId, computerId, staffId, jsonEndday, 
-						new EnddayReceiver(new Handler(), 
-								sessionDate, jsonEndday, shopId, 
-								computerId, staffId, sendMode, receiver));
+						getApplicationContext(), shopId, computerId, staffId, jsonEndday, enddayReceiver);
 				mExecutor.execute(sender);
 			}
 		}
-	}
-	
-	/**
-	 * Send unsend endday data
-	 * @param shopId
-	 * @param computerId
-	 * @param staffId
-	 * @param receiver
-	 */
-	private void sendUnSendEndday(int shopId, int computerId, int staffId, ResultReceiver receiver){
-		SessionDao sessionDao = new SessionDao(getApplicationContext());
-		String sessionDate = sessionDao.getUnSendSessionEndday();
-		if(!TextUtils.isEmpty(sessionDate)){
-			JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
-			String jsonEndday = jsonGenerator.generateEnddaySale(sessionDate);
-			EndDaySaleSender sender = new EndDaySaleSender(
-					getApplicationContext(), 
-					shopId, computerId, staffId, jsonEndday,
-					new SendUnSendEnddayReceiver(
-							new Handler(), 
-							sessionDate, jsonEndday,
-							shopId, computerId, staffId, receiver));
-			mExecutor.execute(sender);
-		}else{
-			if(receiver != null)
-				receiver.send(RESULT_SUCCESS, null);
-			stopSelf();
-		}
-	}
-	
-	/**
-	 * @param sessionDate
-	 * @return total unsend transaction
-	 */
-	private int countTransUnSend(String sessionDate){
-		TransactionDao trans = new TransactionDao(getApplicationContext());
-		return trans.countTransUnSend(sessionDate);
 	}
 	
 	/**

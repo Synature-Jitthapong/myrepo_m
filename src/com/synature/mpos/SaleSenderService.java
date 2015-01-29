@@ -42,19 +42,25 @@ public class SaleSenderService extends SaleSenderServiceBase{
 	}
 
 	/**
-	 * Intent request ResultReceiver, shopId, computerId, staffId  
+	 * Intent request 
+	 * ResultReceiver, 
+	 * sessionDate, 
+	 * shopId, 
+	 * computerId, 
+	 * staffId  
 	 */
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i(TAG, "Call start command as id " + startId);
 		if(intent != null){
 			ResultReceiver receiver = (ResultReceiver) intent.getParcelableExtra(RECEIVER_NAME);
+			String sessionDate = intent.getStringExtra(SESSION_DATE_PARAM);
 			int whatToDo = intent.getIntExtra(WHAT_TO_DO_PARAM, SEND_PARTIAL);
 			int shopId = intent.getIntExtra(SHOP_ID_PARAM, 0);
 			int computerId = intent.getIntExtra(COMPUTER_ID_PARAM, 0);
 			int staffId = intent.getIntExtra(STAFF_ID_PARAM, 0);
 			if(whatToDo == SEND_PARTIAL){
-				sendPartialSale(shopId, computerId, staffId, receiver);
+				sendPartialSale(sessionDate, shopId, computerId, staffId, receiver);
 			}else if(whatToDo == SEND_CLOSE_SHIFT){
 				sendCloseShiftSale(shopId, computerId, staffId);
 			}else{
@@ -118,14 +124,14 @@ public class SaleSenderService extends SaleSenderServiceBase{
 	
 	/**
 	 * Send partial sale data
+	 * @param sessionDate
 	 * @param shopId
 	 * @param computerId
 	 * @param staffId
 	 * @param receiver
 	 */
-	private void sendPartialSale(int shopId, int computerId, int staffId, ResultReceiver receiver){
-		SessionDao sessionDao = new SessionDao(getApplicationContext());
-		String sessionDate = sessionDao.getLastSessionDate();
+	private void sendPartialSale(String sessionDate, int shopId, int computerId, 
+			int staffId, ResultReceiver receiver){
 		if(!TextUtils.isEmpty(sessionDate)){
 			JSONSaleGenerator jsonGenerator = 
 					new JSONSaleGenerator(getApplicationContext());
