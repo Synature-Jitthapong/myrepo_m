@@ -13,6 +13,7 @@ import com.synature.mpos.database.table.SessionTable;
 import com.synature.pos.OrderTransaction;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -29,10 +30,13 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,9 +74,30 @@ public class SendSaleActivity extends Activity{
 		mShopId = intent.getIntExtra("shopId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
 
+		setupCustomView();
 		loadTransNotSend();
 	}
 
+	private void setupCustomView(){
+		ActionBar actionBar = getActionBar();
+		LayoutInflater inflater = getLayoutInflater();
+		View customView = (View) inflater.inflate(R.layout.spinner_view, null);
+		Spinner sp = (Spinner) customView.findViewById(R.id.spinner1);
+		sp.setOnItemSelectedListener(new OnItemSelectedListener(){
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {}
+			
+		});
+		actionBar.setCustomView(customView);
+	}
+	
 	private void loadTransNotSend(){
 		mTransLst = listNotSendTransaction();
 		mSyncAdapter = new SyncItemAdapter(mTransLst);
@@ -153,8 +178,6 @@ public class SendSaleActivity extends Activity{
 	}
 	
 	private List<SendTransaction> listNotSendTransaction(){
-		SessionDao session = new SessionDao(this);
-		String sessionDate = session.getLastSessionDate();
 		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
 		MPOSDatabase.MPOSOpenHelper helper = MPOSDatabase.MPOSOpenHelper.getInstance(getApplicationContext());
 		Cursor cursor = helper.getReadableDatabase().query(OrderTransTable.TABLE_ORDER_TRANS,
@@ -165,11 +188,9 @@ public class SendSaleActivity extends Activity{
 					OrderTransTable.COLUMN_RECEIPT_NO,
 					OrderTransTable.COLUMN_CLOSE_TIME,
 					BaseColumn.COLUMN_SEND_STATUS
-				}, OrderTransTable.COLUMN_SALE_DATE + "=?" 
-				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+				}, OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
                 + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
 				new String[]{
-					sessionDate,
                     String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)
