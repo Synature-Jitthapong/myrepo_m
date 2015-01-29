@@ -165,9 +165,11 @@ public class PointRedeemtionDialogFragment extends DialogFragment implements OnC
 						mTvMemberName.setText(member.getSzFirstName() + " " + member.getSzLastName());
 						mTvMobile.setText(member.getSzMobileNo());
 						mTvPoint.setText(NumberFormat.getInstance().format(member.getiCurrentCardPoint()));
+						String cardRemark = !TextUtils.isEmpty(member.getSzCardRemark()) ? member.getSzCardRemark() : 
+							getString(R.string.card_inactive); 
 						if(member.getiCardStatus() == MemberPointInfoDialogFragment.INACTIVE){
 							mTvStatus.setTextColor(Color.RED);
-							mTvStatus.setText(member.getSzCardRemark());
+							mTvStatus.setText(cardRemark);
 							mBtnOk.setEnabled(false);
 						}else{
 							mTvStatus.setTextColor(Color.BLACK);
