@@ -152,7 +152,7 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 	private void sendEndday(int sendMode, String sessionDate, int shopId, 
 			int computerId, int staffId, ResultReceiver receiver){
 		JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(this);
-		String jsonEndday;
+		String jsonEndday = null;
 		if(sendMode == SEND_CURRENT){ 
 			jsonEndday = jsonGenerator.generateEnddayUnSendSale(sessionDate);
 			if(!TextUtils.isEmpty(jsonEndday)){
@@ -171,6 +171,11 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 						getApplicationContext(), shopId, computerId, staffId, jsonEndday, enddayReceiver);
 				mExecutor.execute(sender);
 			}
+		}
+		if(TextUtils.isEmpty(jsonEndday)){
+			if(receiver != null)
+				receiver.send(RESULT_SUCCESS, null);
+			stopSelf();
 		}
 	}
 	

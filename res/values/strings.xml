@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">mPOS</string>
     <string name="tm_t88v">TM-T88V</string>
     <string name="default_second_display_port">6600</string>
@@ -260,11 +261,11 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="finish_waste">Finish Waste</string>
     <string name="downloading">Downloading</string>
     <string name="check_update">Check for update</string>
-	<string name="download_complete">Download complete.</string>
-	<string name="last_time_update_version">Last update</string>
-	<string name="checking_update">Checking update</string>
-	<string name="software_up_to_date">Software is up to date.</string>
-	<string name="install_update">Install Update</string>
+    <string name="download_complete">Download complete.</string>
+    <string name="last_time_update_version">Last update</string>
+    <string name="checking_update">Checking update</string>
+    <string name="software_up_to_date">Software is up to date.</string>
+    <string name="install_update">Install Update</string>
     <string name="current_version">Current Version</string>
     <string name="update_available">Update Available</string>
     <string name="ok_to_continue">Press &#8220;OK&#8221; to continue</string>
@@ -278,4 +279,8 @@ Tel: +66(0)-2-530-3835-6 Fax: +66(0)-2-530-3092\n E-mail: info@synaturegroup.com
     <string name="void_finish_waste">Void Finish Waste</string>
     <string name="bill_check">Bill Check</string>
     <string name="free_short">F</string>
+    <string name="title_activity_database_upgrading">DatabaseUpgradingActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="system_upgrade">System upgrading please wait&#8230;</string>
 </resources>

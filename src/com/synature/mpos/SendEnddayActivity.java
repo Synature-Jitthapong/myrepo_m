@@ -99,7 +99,6 @@ public class SendEnddayActivity extends Activity {
 				mLvEndday.setAdapter(mEnddayAdapter);
 			}
 			mEnddayAdapter.notifyDataSetChanged();
-			mLvEndday.setSelection(mEnddayAdapter.getCount() - 1);
 		}
 	}
 	
@@ -120,13 +119,12 @@ public class SendEnddayActivity extends Activity {
 			super.onReceiveResult(resultCode, resultData);
 			switch(resultCode){
 			case EnddaySenderService.RESULT_SUCCESS:
-				progress.dismiss();
 				break;
 			case EnddaySenderService.RESULT_ERROR:
-				progress.dismiss();
 				Toast.makeText(SendEnddayActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
 				break;
 			}
+			progress.dismiss();
 			setupAdapter();
 		}
 		

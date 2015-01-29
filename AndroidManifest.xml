@@ -182,6 +182,11 @@
         </service>
         <service android:name=".EnddaySenderService" >
         </service>
+
+        <activity
+            android:name=".DatabaseUpgradingActivity"
+            android:label="@string/title_activity_database_upgrading" >
+        </activity>
     </application>
 
 </manifest>

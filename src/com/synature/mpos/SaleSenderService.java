@@ -132,16 +132,12 @@ public class SaleSenderService extends SaleSenderServiceBase{
 	 */
 	private void sendPartialSale(String sessionDate, int shopId, int computerId, 
 			int staffId, ResultReceiver receiver){
-		if(!TextUtils.isEmpty(sessionDate)){
-			JSONSaleGenerator jsonGenerator = 
-					new JSONSaleGenerator(getApplicationContext());
-			String jsonSale = jsonGenerator.generateSale(sessionDate);
-			mExecutor.execute(new PartialSaleSender(getApplicationContext(), 
-					shopId, computerId, staffId, jsonSale,
-					new SendSaleReceiver(new Handler(), sessionDate, jsonSale, receiver)));
-		}else{
-			stopSelf();
-		}
+		JSONSaleGenerator jsonGenerator = 
+				new JSONSaleGenerator(getApplicationContext());
+		String jsonSale = jsonGenerator.generateSale(sessionDate);
+		mExecutor.execute(new PartialSaleSender(getApplicationContext(), 
+				shopId, computerId, staffId, jsonSale,
+				new SendSaleReceiver(new Handler(), sessionDate, jsonSale, receiver)));
 	}
 	
 	/**

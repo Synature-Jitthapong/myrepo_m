@@ -16,6 +16,7 @@
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:buttonStyle">@style/GrayButton</item>
+        <item name="android:imageButtonStyle">@style/GrayButton</item>
         <!-- <item name="android:editTextStyle">@style/EditTextStyle</item> -->
     </style>
     <!-- ActionBar styles -->

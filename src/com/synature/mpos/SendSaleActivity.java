@@ -65,7 +65,9 @@ public class SendSaleActivity extends Activity{
 	    params.alpha = 1.0f;
 	    params.dimAmount = 0.5f;
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		ActionBar actionBar = getActionBar();
+	    actionBar.setDisplayHomeAsUpEnabled(true);
+	    actionBar.setDisplayShowCustomEnabled(true);
 	    setFinishOnTouchOutside(false);
 		setContentView(R.layout.activity_send_sale);
 		
@@ -104,7 +106,8 @@ public class SendSaleActivity extends Activity{
 				f.show(getFragmentManager(), "DatePickerFragment");
 			}
 		});
-		actionBar.setCustomView(customView);
+		actionBar.setCustomView(customView, new ActionBar.LayoutParams(
+				ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT));
 	}
 	
 	private void loadTransNotSend(){
@@ -163,14 +166,13 @@ public class SendSaleActivity extends Activity{
 			super.onReceiveResult(resultCode, resultData);
 			switch(resultCode){
 			case SaleSenderService.RESULT_SUCCESS:
-				progress.dismiss();
 				break;
 			case SaleSenderService.RESULT_ERROR:
 				mItemSendAll.setEnabled(true);
-				progress.dismiss();
 				Toast.makeText(SendSaleActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
 				break;
 			}
+			progress.dismiss();
 			loadTransNotSend();
 		}
 		
@@ -179,7 +181,7 @@ public class SendSaleActivity extends Activity{
 	private void sendSale(){
 		Intent intent = new Intent(this, SaleSenderService.class);
 		intent.putExtra(SaleSenderService.WHAT_TO_DO_PARAM, SaleSenderService.SEND_PARTIAL);
-		intent.putExtra(SaleSenderService.SESSION_DATE_PARAM, mDate);
+		intent.putExtra(SaleSenderService.SESSION_DATE_PARAM, String.valueOf(mDate));
 		intent.putExtra(SaleSenderService.SHOP_ID_PARAM, mShopId);
 		intent.putExtra(SaleSenderService.COMPUTER_ID_PARAM, mComputerId);
 		intent.putExtra(SaleSenderService.STAFF_ID_PARAM, mStaffId);
