@@ -168,10 +168,10 @@ public class SendSaleActivity extends Activity{
 			case SaleSenderService.RESULT_SUCCESS:
 				break;
 			case SaleSenderService.RESULT_ERROR:
-				mItemSendAll.setEnabled(true);
 				Toast.makeText(SendSaleActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
 				break;
 			}
+			mItemSendAll.setEnabled(true);
 			progress.dismiss();
 			loadTransNotSend();
 		}

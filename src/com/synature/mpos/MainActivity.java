@@ -13,8 +13,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
@@ -383,9 +381,8 @@ public class MainActivity extends FragmentActivity implements
 				startActivity(intent);
 				return true;
 			case R.id.itemUpdate:
-				ExecutorService executor = Executors.newSingleThreadExecutor();
-				executor.execute(new MasterDataLoader(this, mShopId, new MasterDataReceiver(new Handler())));
-				executor.shutdown();
+				new MasterDataLoader(this, mShopId, 
+						new MasterDataReceiver(new Handler())).execute(Utils.getFullUrl(MainActivity.this));
 				return true;
 			case R.id.itemCheckUpdate:
 				intent = new Intent(this, CheckUpdateActivity.class);
@@ -1224,7 +1221,7 @@ public class MainActivity extends FragmentActivity implements
 				@Override
 				public void onClick(View v) {
 					BillViewerFragment f = BillViewerFragment.newInstance(trans.getTransactionId(), 
-							BillViewerFragment.CHECK_VIEW);
+							BillViewerFragment.CHECK_VIEW, BillViewerFragment.RECEIPT, false);
 					f.show(getFragmentManager(), BillViewerFragment.TAG);
 				}
 			});
@@ -2060,7 +2057,7 @@ public class MainActivity extends FragmentActivity implements
 	private void showBillDetail(){
 		if(mOrderDetailLst.size() > 0){
 			BillViewerFragment bf = BillViewerFragment.newInstance(mTransactionId, 
-					BillViewerFragment.CHECK_VIEW);
+					BillViewerFragment.CHECK_VIEW, BillViewerFragment.RECEIPT, false);
 			bf.show(getFragmentManager(), BillViewerFragment.TAG);
 		}
 	}
@@ -2440,7 +2437,8 @@ public class MainActivity extends FragmentActivity implements
 			PrintReport.WhatPrint.SUMMARY_SALE, mSessionId, mStaffId, null).execute();
 
 		Intent intent = new Intent(MainActivity.this, SaleSenderService.class);
-		intent.putExtra(SaleSenderService.WHAT_TO_DO_PARAM, SaleSenderService.SEND_CLOSE_SHIFT);
+		intent.putExtra(SaleSenderService.WHAT_TO_DO_PARAM, SaleSenderService.SEND_LAST_SALE_TRANS);
+		intent.putExtra(SaleSenderService.SESSION_DATE_PARAM, mSession.getLastSessionDate());
 		intent.putExtra(SaleSenderService.SHOP_ID_PARAM, mShopId);
 		intent.putExtra(SaleSenderService.COMPUTER_ID_PARAM, mComputerId);
 		intent.putExtra(SaleSenderService.STAFF_ID_PARAM, mStaffId);

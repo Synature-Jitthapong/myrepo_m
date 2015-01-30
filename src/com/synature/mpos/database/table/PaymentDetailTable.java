@@ -35,6 +35,8 @@ public class PaymentDetailTable{
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		if(oldVersion < 8){
 			db.execSQL("create table " + TEMP_PAYMENT_DETAIL + " as select * from " + TABLE_PAYMENT_DETAIL + " where 0;");
+			db.execSQL("create index pay_idx on " + TABLE_PAYMENT_DETAIL + "(" + COLUMN_PAY_ID + ");");
+			db.execSQL("reindex pay_idx;");
 		}
 	}
 }

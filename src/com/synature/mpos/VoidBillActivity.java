@@ -3,8 +3,6 @@ package com.synature.mpos;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.GlobalPropertyDao;
@@ -15,6 +13,8 @@ import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -22,7 +22,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -153,7 +152,7 @@ public class VoidBillActivity extends Activity {
 	private void setupSearchSpinner(){
 		PaymentDetailDao payment = new PaymentDetailDao(this);
 		if(payment.countPayTypeWaste() > 0){
-			String[] voidTypes = getResources().getStringArray(R.array.void_type);
+			String[] voidTypes = getResources().getStringArray(R.array.bill_type);
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, 
 					android.R.layout.simple_spinner_dropdown_item, voidTypes);
 			Spinner spSearchType = (Spinner) findViewById(R.id.spBillType);
@@ -367,19 +366,15 @@ public class VoidBillActivity extends Activity {
 				
 				@Override
 				public void onPostPrint() {
-					ExecutorService executor = Executors.newSingleThreadExecutor();
-					JSONSaleGenerator jsonGenerator = new JSONSaleGenerator(VoidBillActivity.this);
-					try {
-						SessionDao session = new SessionDao(VoidBillActivity.this);
-						String sessionDate = session.getLastSessionDate();
-						String jsonSale = jsonGenerator.generateSale(sessionDate);
-						if(!TextUtils.isEmpty(jsonSale)){
-							executor.execute(new PartialSaleSender(VoidBillActivity.this, mShopId, 
-									mComputerId, mStaffId, jsonSale, null));
-						}
-					} finally {
-						executor.shutdown();
-					}
+					SessionDao session = new SessionDao(VoidBillActivity.this);
+					Intent intent = new Intent(VoidBillActivity.this, SaleSenderService.class);
+					intent.putExtra(SaleSenderService.WHAT_TO_DO_PARAM, SaleSenderService.SEND_PARTIAL);
+					intent.putExtra(SaleSenderService.SESSION_DATE_PARAM, session.getLastSessionDate());
+					intent.putExtra(SaleSenderService.SHOP_ID_PARAM, mShopId);
+					intent.putExtra(SaleSenderService.COMPUTER_ID_PARAM, mComputerId);
+					intent.putExtra(SaleSenderService.STAFF_ID_PARAM, mStaffId);
+					intent.putExtra(SaleSenderService.RECEIVER_NAME, new ResultReceiver(new Handler()));
+					startService(intent);
 				}
 			};
 	

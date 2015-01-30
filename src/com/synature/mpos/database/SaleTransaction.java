@@ -92,7 +92,7 @@ public class SaleTransaction extends MPOSDatabase{
 	 * @param sessionDate
 	 * @return POSData_SaleTransaction
 	 */
-	public POSData_SaleTransaction getCloseShiftTransaction(String sessionDate) {
+	public POSData_SaleTransaction getSaleTransaction(String sessionDate) {
 		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
 		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(getLastTransaction(sessionDate)));
 		posSaleTrans.setxTableSession(buildSessionObj(sessionDate));

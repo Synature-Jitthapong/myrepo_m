@@ -1,8 +1,6 @@
 package com.synature.mpos;
 
 import java.util.Calendar;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.synature.mpos.SoftwareExpirationChecker.SoftwareExpirationCheckerListener;
 import com.synature.mpos.database.ComputerDao;
@@ -64,7 +62,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 	private ComputerDao mComputer;
 	private GlobalPropertyDao mFormat;
 	private SyncHistoryDao mSync;
-	private ExecutorService mExecutor;
 	
 	private Button mBtnLogin;
 	private EditText mTxtUser;
@@ -100,8 +97,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 		mComputer = new ComputerDao(this);
 		mFormat = new GlobalPropertyDao(this);
 		mSync = new SyncHistoryDao(this);
-
-		mExecutor = Executors.newFixedThreadPool(5);
 		
 		try {
 			if(!TextUtils.isEmpty(mShop.getShopName())){
@@ -117,12 +112,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 			if(!mSync.IsAlreadySync())
 				requestValidUrl();
 		}
-	}
-	
-	@Override
-	protected void onDestroy() {
-		mExecutor.shutdown();
-		super.onDestroy();
 	}
 
 	@Override
@@ -378,7 +367,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 	}
 	
 	private void requestValidUrl(){
-		mExecutor.execute(new SoftwareRegister(this, new RegisterReceiver(new Handler())));
+		new SoftwareRegister(this, new RegisterReceiver(new Handler())).execute(MPOSApplication.REGISTER_URL);
 	}
 
 	private class MasterDataReceiver extends ResultReceiver{
@@ -446,8 +435,8 @@ public class LoginActivity extends Activity implements OnClickListener,
 				if(mProgress.isShowing())
 					mProgress.dismiss();
 				int shopId = resultData.getInt("shopId");
-				mExecutor.execute(new MasterDataLoader(LoginActivity.this, 
-						shopId, new MasterDataReceiver(new Handler())));
+				new MasterDataLoader(LoginActivity.this, 
+						shopId, new MasterDataReceiver(new Handler())).execute(Utils.getFullUrl(LoginActivity.this));
 				break;
 			case MPOSServiceBase.RESULT_ERROR:
 				if(mProgress.isShowing())
@@ -486,7 +475,8 @@ public class LoginActivity extends Activity implements OnClickListener,
 			case MPOSServiceBase.RESULT_SUCCESS:
 				if(progress.isShowing())
 					progress.dismiss();
-				mExecutor.execute(new DeviceChecker(LoginActivity.this, new DeviceCheckerReceiver(new Handler())));
+				new DeviceChecker(LoginActivity.this, 
+						new DeviceCheckerReceiver(new Handler())).execute(Utils.getFullUrl(LoginActivity.this));
 				break;
 			case MPOSServiceBase.RESULT_ERROR:
 				if(progress.isShowing())

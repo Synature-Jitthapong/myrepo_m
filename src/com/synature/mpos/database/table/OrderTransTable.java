@@ -127,6 +127,10 @@ public class OrderTransTable extends BaseColumn {
 			}
 		}else if(oldVersion < 8){
 			db.execSQL("create table " + TABLE_ORDER_TRANS_WASTE + " as select * from " + TABLE_ORDER_TRANS + " where 0;");
+			db.execSQL("create index trans_idx on " + TABLE_ORDER_TRANS + "(" + COLUMN_TRANS_ID + ");");
+			db.execSQL("create index trans_waste_idx on " + TABLE_ORDER_TRANS_WASTE + "(" + COLUMN_TRANS_ID + ");");
+			db.execSQL("reindex trans_idx;");
+			db.execSQL("reindex trans_waste_idx;");
 		}
 	}
 }

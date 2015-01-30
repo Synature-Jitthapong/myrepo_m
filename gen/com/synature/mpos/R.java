@@ -11,6 +11,7 @@ public final class R {
     public static final class array {
         public static final int baudrates_name=0x7f050002;
         public static final int baudrates_value=0x7f050003;
+        public static final int bill_type=0x7f05000a;
         public static final int connection_time_out_name=0x7f050006;
         public static final int connection_time_out_value=0x7f050007;
         public static final int devices_path_name=0x7f050004;
@@ -19,7 +20,6 @@ public final class R {
         public static final int months_to_keep_sale_value=0x7f050009;
         public static final int pref_printer_name=0x7f050000;
         public static final int pref_printer_value=0x7f050001;
-        public static final int void_type=0x7f05000a;
     }
     public static final class attr {
     }

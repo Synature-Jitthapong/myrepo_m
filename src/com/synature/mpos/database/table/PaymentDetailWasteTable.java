@@ -24,6 +24,8 @@ public class PaymentDetailWasteTable {
 	public static void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE);
 		db.execSQL("create table " + TEMP_PAYMENT_DETAIL_WASTE + " as select * from " + TABLE_PAYMENT_DETAIL_WASTE + " where 0;");
+		db.execSQL("create index pay_waste_idx on " + TABLE_PAYMENT_DETAIL_WASTE + "(" + PaymentDetailTable.COLUMN_PAY_ID + ");");
+		db.execSQL("reindex pay_waste_idx;");
 	}
 
 	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

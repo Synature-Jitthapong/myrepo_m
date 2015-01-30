@@ -17,20 +17,27 @@ public class BillViewerFragment extends DialogFragment implements OnClickListene
 	
 	public static final int CHECK_VIEW = 1;
 	public static final int REPORT_VIEW = 2;
+	public static final int RECEIPT = 3;
+	public static final int WASTE = 4;
 	
 	private int mTransactionId;
 	private int mViewMode;
+	private int mBillType = RECEIPT;
+	private boolean mIsCopy = false;
 	
 	private TextPrint mTextPrint;
 	
 	private ImageButton mBtnPrint;
 	private CustomFontTextView mTextView;
 	
-	public static BillViewerFragment newInstance(int transactionId, int viewMode){
+	public static BillViewerFragment newInstance(int transactionId, int viewMode, 
+			int billType, boolean isCopy){
 		BillViewerFragment f = new BillViewerFragment();
 		Bundle b = new Bundle();
 		b.putInt("transactionId", transactionId);
 		b.putInt("viewMode", viewMode);
+		b.putInt("billType", billType);
+		b.putBoolean("isCopy", isCopy);
 		f.setArguments(b);
 		return f;
 	}
@@ -40,6 +47,8 @@ public class BillViewerFragment extends DialogFragment implements OnClickListene
 		super.onCreate(savedInstanceState);
 		mTransactionId = getArguments().getInt("transactionId");
 		mViewMode = getArguments().getInt("viewMode");
+		mBillType = getArguments().getInt("billType");
+		mIsCopy = getArguments().getBoolean("isCopy");
 	}
 
 	@Override
@@ -55,7 +64,10 @@ public class BillViewerFragment extends DialogFragment implements OnClickListene
 		if(mViewMode == CHECK_VIEW){
 			mTextPrint.createTextForPrintCheckReceipt(mTransactionId);
 		}else if (mViewMode == REPORT_VIEW){
-			mTextPrint.createTextForPrintReceipt(mTransactionId, false, false);
+			if(mBillType == RECEIPT)
+				mTextPrint.createTextForPrintReceipt(mTransactionId, mIsCopy, false);
+			else if(mBillType == WASTE)
+				mTextPrint.createTextForPrintWasteReceipt(mTransactionId, mIsCopy, false);
 		}
 		mTextView.setText(mTextPrint.getTextToPrint());
 		

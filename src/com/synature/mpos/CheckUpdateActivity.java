@@ -3,8 +3,6 @@ package com.synature.mpos;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.Calendar;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -253,9 +251,7 @@ public class CheckUpdateActivity extends Activity {
 			startService(intent);
 			sTvTitle.setText(getString(R.string.downloading) + " " + newVersion);
 		}else{
-			ExecutorService executor = Executors.newSingleThreadExecutor();
-			executor.execute(new SoftwareRegister(this, new RegisterResultReceiver(new Handler())));
-			executor.shutdown();
+			new SoftwareRegister(this, new RegisterResultReceiver(new Handler())).execute(Utils.getFullUrl(this));
 		}
 		sBtnCheckUpdate.setEnabled(false);	
 	}

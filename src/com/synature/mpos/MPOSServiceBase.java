@@ -38,7 +38,7 @@ public abstract class MPOSServiceBase extends Ksoap2WebServiceTask{
 	protected ResultReceiver mReceiver;
 	
 	public MPOSServiceBase(Context context, String method, ResultReceiver receiver) {
-		super(context, Utils.getFullUrl(context), method, Utils.getConnectionTimeOut(context));
+		super(context, method, Utils.getConnectionTimeOut(context));
 		
 		mReceiver = receiver;
 		

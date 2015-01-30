@@ -72,6 +72,10 @@ public class OrderDetailTable extends BaseColumn{
 			}
 		}else if(oldVersion < 8){
 			db.execSQL("create table " + TABLE_ORDER_WASTE + " as select * from " + TABLE_ORDER + " where 0;");
+			db.execSQL("create index ord_idx on " + TABLE_ORDER + "(" + COLUMN_ORDER_ID + ");");
+			db.execSQL("create index ord_waste_idx on " + TABLE_ORDER_WASTE + "(" + COLUMN_ORDER_ID + ");");
+			db.execSQL("reindex ord_idx;");
+			db.execSQL("reindex ord_waste_idx;");
 		}
 	}
 }

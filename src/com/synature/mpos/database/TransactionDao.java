@@ -1070,6 +1070,41 @@ public class TransactionDao extends MPOSDatabase {
 	 * @param saleDate
 	 * @return List<OrderTransaction>
 	 */
+	public List<OrderTransaction> listSuccessTransactionWaste(String saleDate) {
+		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
+		String sql = " SELECT " + OrderTransTable.COLUMN_TRANS_ID + ", " 
+				+ ComputerTable.COLUMN_COMPUTER_ID + ", " 
+				+ OrderTransTable.COLUMN_PAID_TIME + ", "
+				+ OrderTransTable.COLUMN_TRANS_NOTE + ", "
+				+ OrderTransTable.COLUMN_RECEIPT_NO
+				+ " FROM " + OrderTransTable.TABLE_ORDER_TRANS_WASTE
+				+ " WHERE " + OrderTransTable.COLUMN_SALE_DATE + "=?"
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + "=?";
+		Cursor cursor = getReadableDatabase().rawQuery(
+						sql,
+						new String[] { 
+								saleDate,
+								String.valueOf(WASTE_TRANS_STATUS_SUCCESS) 
+						});
+		if (cursor.moveToFirst()) {
+			do {
+				OrderTransaction trans = new OrderTransaction();
+				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
+				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
+				trans.setTransactionNote(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_NOTE)));
+				trans.setPaidTime(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_PAID_TIME)));
+				trans.setReceiptNo(cursor.getString(cursor.getColumnIndex(OrderTransTable.COLUMN_RECEIPT_NO)));
+				transLst.add(trans);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return transLst;
+	}
+	
+	/**
+	 * @param saleDate
+	 * @return List<OrderTransaction>
+	 */
 	public List<OrderTransaction> listSuccessTransaction(String saleDate) {
 		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
 		String sql = " SELECT " + OrderTransTable.COLUMN_TRANS_ID + ", " 

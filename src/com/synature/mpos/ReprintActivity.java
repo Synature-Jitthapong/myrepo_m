@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.database.GlobalPropertyDao;
+import com.synature.mpos.database.PaymentDetailDao;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderTransaction;
@@ -19,14 +20,23 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class ReprintActivity extends Activity {
 	
-	private TransactionDao mOrders;
-	private GlobalPropertyDao mGlobal;
+	public static final int RECEIPT = 1;
+	public static final int WASTE = 2;
+	
+	private TransactionDao mTrans;
+	private GlobalPropertyDao mFormat;
+	private List<OrderTransaction> mTransLst;
+	private int mBillType = RECEIPT;
 	
 	private ReprintTransAdapter mTransAdapter;
 	private ListView mLvTrans;
@@ -45,17 +55,56 @@ public class ReprintActivity extends Activity {
 	    getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
 		setContentView(R.layout.activity_reprint);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setDisplayShowCustomEnabled(true);
 		
 		mLvTrans = (ListView) findViewById(R.id.listView1);
 
-		mOrders = new TransactionDao(this);
-		mGlobal = new GlobalPropertyDao(this);
-		SessionDao sess = new SessionDao(this);
+		mTrans = new TransactionDao(this);
+		mFormat = new GlobalPropertyDao(this);
 
-		mTransAdapter = new ReprintTransAdapter(ReprintActivity.this, 
-				mOrders.listSuccessTransaction(sess.getLastSessionDate()));
+		loadTransaction();
+		setupCustomView();
+	}
+	
+	private void loadTransaction(){
+		SessionDao sess = new SessionDao(this);
+		String sessionDate = sess.getLastSessionDate();
+		if(mBillType == RECEIPT)
+			mTransLst = mTrans.listSuccessTransaction(sessionDate);
+		else if(mBillType == WASTE)
+			mTransLst = mTrans.listSuccessTransactionWaste(sessionDate);
+		mTransAdapter = new ReprintTransAdapter(
+				ReprintActivity.this, mTransLst);
 		mLvTrans.setAdapter(mTransAdapter);
-		mLvTrans.setSelection(mTransAdapter.getCount() - 1);
+	}
+	
+	private void setupCustomView(){
+		PaymentDetailDao payment = new PaymentDetailDao(this);
+		if(payment.countPayTypeWaste() > 0){
+			View customView = getLayoutInflater().inflate(R.layout.spinner_view, null);
+			Spinner sp = (Spinner) customView.findViewById(R.id.spinner1);
+			String[] billTypes = getResources().getStringArray(R.array.bill_type);
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, 
+					android.R.layout.simple_spinner_dropdown_item, billTypes);
+			sp.setAdapter(adapter);
+			sp.setOnItemSelectedListener(new OnItemSelectedListener() {
+	
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view,
+						int position, long id) {
+					if(position == 0)
+						mBillType = RECEIPT;
+					else if(position == 1)
+						mBillType = WASTE;
+					loadTransaction();
+				}
+	
+				@Override
+				public void onNothingSelected(AdapterView<?> parent) {}
+			});
+			getActionBar().setCustomView(customView);
+			getActionBar().setDisplayShowTitleEnabled(false);
+		}
 	}
 	
 	@Override
@@ -97,7 +146,7 @@ public class ReprintActivity extends Activity {
 				Calendar c = Calendar.getInstance();
 				try {
 					c.setTimeInMillis(Long.parseLong(trans.getPaidTime()));
-					holder.tvAd.setText(mGlobal.timeFormat(c.getTime()));
+					holder.tvAd.setText(mFormat.timeFormat(c.getTime()));
 				} catch (NumberFormatException e) {}
 			}
 			holder.btnPrint.setOnClickListener(new OnClickListener(){
@@ -114,7 +163,11 @@ public class ReprintActivity extends Activity {
 				@Override
 				public void onClick(View v) {
 					BillViewerFragment f = BillViewerFragment.newInstance(trans.getTransactionId(), 
-							BillViewerFragment.REPORT_VIEW);
+							BillViewerFragment.REPORT_VIEW, BillViewerFragment.RECEIPT, true);
+					if(mBillType == WASTE){
+						f = BillViewerFragment.newInstance(trans.getTransactionId(), 
+								BillViewerFragment.REPORT_VIEW, BillViewerFragment.WASTE, true);
+					}
 					f.show(getFragmentManager(), BillViewerFragment.TAG);
 				}
 			});
@@ -145,11 +198,17 @@ public class ReprintActivity extends Activity {
 		protected Void doInBackground(Void... arg0) {
 			if(Utils.isInternalPrinterSetting(ReprintActivity.this)){
 				WintecPrinter wtPrinter = new WintecPrinter(ReprintActivity.this);
-				wtPrinter.createTextForPrintReceipt(mTransactionId, true, false);
+				if(mBillType == RECEIPT)
+					wtPrinter.createTextForPrintReceipt(mTransactionId, true, false);
+				else if(mBillType == WASTE)
+					wtPrinter.createTextForPrintWasteReceipt(mTransactionId, true, false);
 				wtPrinter.print();
 			}else{
 				EPSONPrinter epPrinter = new EPSONPrinter(ReprintActivity.this);	
-				epPrinter.createTextForPrintReceipt(mTransactionId, true, false);
+				if(mBillType == RECEIPT)
+					epPrinter.createTextForPrintReceipt(mTransactionId, true, false);
+				else if(mBillType == WASTE)
+					epPrinter.createTextForPrintWasteReceipt(mTransactionId, true, false);
 				epPrinter.print();
 			}
 			runOnUiThread(new Runnable(){

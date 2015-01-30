@@ -11,23 +11,24 @@ import com.synature.mpos.database.SaleTransaction.POSData_EndDaySaleTransaction;
 import com.synature.mpos.database.SaleTransaction.POSData_SaleTransaction;
 import com.synature.util.Logger;
 
-public class JSONSaleGenerator{
-	public static final String TAG = JSONSaleGenerator.class.getSimpleName();
+public class JSONSaleSerialization{
 	
-	private Context mContext;
-	private SaleTransaction mSaleTrans;
+	public static final String TAG = JSONSaleSerialization.class.getSimpleName();
 	
-	public JSONSaleGenerator(Context context){
+	protected Context mContext;
+	protected SaleTransaction mSaleTrans;
+	
+	public JSONSaleSerialization(Context context){
 		mContext = context;
 		mSaleTrans = new SaleTransaction(context);
 	}
 	
-	public String generateCloseShiftSale(String sessionDate){
+	public String generateLastSaleTransaction(String sessionDate){
 		String json = null;
 		try {
 			Gson gson = new Gson();
 			Type type = new TypeToken<POSData_SaleTransaction>() {}.getType();
-			json = gson.toJson(mSaleTrans.getCloseShiftTransaction(sessionDate), type);
+			json = gson.toJson(mSaleTrans.getSaleTransaction(sessionDate), type);
 		} catch (Exception e) {
 			Logger.appendLog(mContext, MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME,
 					" Error at generate close shift json sale : " + e.getMessage());

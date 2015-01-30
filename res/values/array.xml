@@ -72,7 +72,7 @@
         <item>-60</item>
         <item>-90</item>
     </string-array>
-    <string-array name="void_type">
+    <string-array name="bill_type">
         <item>@string/receipt</item>
         <item>@string/finish_waste</item>
     </string-array>
