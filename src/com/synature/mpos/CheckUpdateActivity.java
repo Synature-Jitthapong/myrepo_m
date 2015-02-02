@@ -3,6 +3,8 @@ package com.synature.mpos;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -41,6 +43,7 @@ public class CheckUpdateActivity extends Activity {
 	private static ProgressBar sProgressBar;
 	private static TextView sTvTitle;
 	private static TextView sTvPercent;
+	private static TextView sTvFileName;
 	
 	private static class DownloadReceiver extends ResultReceiver{
 
@@ -65,6 +68,7 @@ public class CheckUpdateActivity extends Activity {
 				sProgress = resultData.getInt("progress");
 				sProgressBar.setProgress(sProgress);
 				sTvPercent.setText(NumberFormat.getInstance().format(sProgress) + "%");
+				sTvFileName.setText(resultData.getString("fileName"));
 				sBtnCheckUpdate.setEnabled(false);
 				break;
 			case DownloadService.DOWNLOAD_COMPLETE:
@@ -113,6 +117,7 @@ public class CheckUpdateActivity extends Activity {
 		sBtnInstall = (Button) findViewById(R.id.button2);
 		sTvTitle = (TextView) findViewById(R.id.textView1);
 		sTvPercent = (TextView) findViewById(R.id.textView3);
+		sTvFileName = (TextView) findViewById(R.id.textView2);
 		
 		Intent intent = getIntent();
 		if(intent.getIntExtra("auto_download", 0) == AUTO_DOWNLOAD){
@@ -125,7 +130,6 @@ public class CheckUpdateActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(CheckUpdateActivity.this);
-		String lastUpdate = sharedPref.getString(SettingsActivity.KEY_PREF_LAST_UPDATE, "");
 		String fileDownloadStatus = sharedPref.getString(SettingsActivity.KEY_PREF_APK_DOWNLOAD_STATUS, "0");
 		if(TextUtils.equals(fileDownloadStatus, "1")){
 			sTvTitle.setText(R.string.download_complete);
@@ -242,16 +246,18 @@ public class CheckUpdateActivity extends Activity {
 	private void checkForUpdate(){
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(CheckUpdateActivity.this);
 		String needToUpdate = sharedPref.getString(SettingsActivity.KEY_PREF_NEED_TO_UPDATE, "0");
-		String newVersion = sharedPref.getString(SettingsActivity.KEY_PREF_NEW_VERSION, "");
 		if(Integer.parseInt(needToUpdate) == 1){
 			String fileUrl = sharedPref.getString(SettingsActivity.KEY_PREF_FILE_URL, "");
 			Intent intent = new Intent(CheckUpdateActivity.this, DownloadService.class);
 			intent.putExtra("fileUrl", fileUrl);
 			intent.putExtra("receiver", DownloadReceiver.getInstance());
 			startService(intent);
-			sTvTitle.setText(getString(R.string.downloading) + " " + newVersion);
+			sTvTitle.setText(getString(R.string.downloading));
 		}else{
-			new SoftwareRegister(this, new RegisterResultReceiver(new Handler())).execute(Utils.getFullUrl(this));
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			SoftwareRegister register = new SoftwareRegister(this, new RegisterResultReceiver(new Handler()));
+			executor.execute(register);
+			executor.shutdown();
 		}
 		sBtnCheckUpdate.setEnabled(false);	
 	}

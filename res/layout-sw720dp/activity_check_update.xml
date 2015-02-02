@@ -36,17 +36,6 @@
         android:onClick="updateClicked"
         android:text="@string/check_update" />
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/progressBar1"
-        android:layout_alignParentLeft="true"
-        android:text="1%"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@android:color/secondary_text_light"
-        android:textSize="@dimen/large_text_size" />
-
     <ProgressBar
         android:id="@+id/progressBar1"
         style="?android:attr/progressBarStyleHorizontal"
@@ -57,5 +46,25 @@
         android:layout_marginBottom="8dp"
         android:indeterminate="false"
         android:max="100" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/progressBar1"
+        android:layout_alignLeft="@+id/progressBar1"
+        android:text="1%"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@android:color/secondary_text_light"
+        android:textSize="@dimen/large_text_size" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView1"
+        android:layout_below="@+id/textView1"
+        android:layout_marginLeft="16dp"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

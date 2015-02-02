@@ -13,6 +13,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
@@ -381,8 +383,11 @@ public class MainActivity extends FragmentActivity implements
 				startActivity(intent);
 				return true;
 			case R.id.itemUpdate:
-				new MasterDataLoader(this, mShopId, 
-						new MasterDataReceiver(new Handler())).execute(Utils.getFullUrl(MainActivity.this));
+				MasterDataLoader loader = new MasterDataLoader(this, mShopId, 
+						new MasterDataReceiver(new Handler()));
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				executor.execute(loader);
+				executor.shutdown();
 				return true;
 			case R.id.itemCheckUpdate:
 				intent = new Intent(this, CheckUpdateActivity.class);
@@ -390,7 +395,7 @@ public class MainActivity extends FragmentActivity implements
 				return true;
 			case R.id.itemLang:
 				SwitchLangFragment swf = SwitchLangFragment.newInstance();
-				swf.show(getSupportFragmentManager(), "SwitchLangFragment");
+				swf.show(getFragmentManager(), "SwitchLangFragment");
 				return true;
 			case R.id.item2Cols:
 				setNumMenuColumnPref(2);

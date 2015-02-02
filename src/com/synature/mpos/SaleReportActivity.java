@@ -863,7 +863,7 @@ public class SaleReportActivity extends Activity{
 						int arg2, long arg3) {
 					Report.ReportDetail report = (Report.ReportDetail) arg0.getItemAtPosition(arg2);
 					BillViewerFragment bf = BillViewerFragment.newInstance(report.getTransactionId(), 
-							BillViewerFragment.REPORT_VIEW, BillViewerFragment.RECEIPT, true);
+							BillViewerFragment.REPORT_VIEW, BillViewerFragment.RECEIPT, false);
 						bf.show(getFragmentManager(), "BillDetailFragment");
 				}
 			});

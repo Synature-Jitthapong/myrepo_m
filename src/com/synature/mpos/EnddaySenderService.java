@@ -1,12 +1,14 @@
 package com.synature.mpos;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.util.Logger;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -25,6 +27,7 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 	
 	public static final String RECEIVER_NAME = "enddaySenderReceiver";
 
+	private ExecutorService mExecutor;
 	private Looper mServiceLooper;
 	private ServiceHandler mServiceHandler;
 	
@@ -55,10 +58,17 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 				android.os.Process.THREAD_PRIORITY_BACKGROUND);
 		thread.start();
 
+		mExecutor = Executors.newFixedThreadPool(THREAD_POOL);
 		mServiceLooper = thread.getLooper();
 		mServiceHandler = new ServiceHandler(mServiceLooper);
 	}
 	
+	@Override
+	public void onDestroy() {
+		mExecutor.shutdown();
+		super.onDestroy();
+	}
+
 	/**
 	 * Intent require parameter 
 	 * resultReceiver
@@ -122,6 +132,7 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 			switch(resultCode){
 			case RESULT_SUCCESS:
 				flagSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
+				Utils.deleteOverSale(getApplicationContext());
 				try {
 					JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonEndday);
 				} catch (Exception e) {}
@@ -134,13 +145,21 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 				if(sendMode != SEND_ALL){
 					// try again with send all
 					sendEndday(SEND_ALL, sessionDate, shopId, computerId, staffId, receiver);
-					Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
+					Logger.appendLog(getApplicationContext(), MPOSApplication.ERR_LOG_PATH, "", 
 							"Send endday with unsend sale fail: " + msg + "\n" + jsonEndday);
 				}else{
 					// if send all not work 
 					flagSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
-					Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
+					Logger.appendLog(getApplicationContext(), MPOSApplication.ERR_LOG_PATH, "", 
 							"Send all endday fail: " + msg + "\n" + jsonEndday);
+					
+					Intent intent = new Intent(getApplicationContext(), RemoteStackTraceService.class);
+					intent.putExtra("stackTrace", "Send all endday fail: " + msg + "\n" + jsonEndday);
+					startService(intent);
+					
+					if(receiver != null){
+						receiver.send(RESULT_ERROR, resultData);
+					}
 				}
 				break;
 			}
@@ -165,8 +184,9 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 			if(!TextUtils.isEmpty(jsonEndday)){
 				EnddayReceiver enddayReceiver = new EnddayReceiver(new Handler(), 
 						sessionDate, jsonEndday, shopId, computerId, staffId, sendMode, receiver);
-				new EndDayUnSendSaleSender(getApplicationContext(), shopId, computerId, 
-						staffId, jsonEndday, enddayReceiver).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Utils.getFullUrl(getApplicationContext()));
+				EndDayUnSendSaleSender sender = new EndDayUnSendSaleSender(getApplicationContext(), shopId, computerId, 
+						staffId, jsonEndday, enddayReceiver);
+				mExecutor.execute(sender);
 			}else{
 				if(receiver != null)
 					receiver.send(RESULT_SUCCESS, null);
@@ -176,8 +196,9 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 			if(!TextUtils.isEmpty(jsonEndday)){
 				EnddayReceiver enddayReceiver = new EnddayReceiver(new Handler(), 
 						sessionDate, jsonEndday, shopId, computerId, staffId, sendMode, receiver);
-				new EndDaySaleSender(getApplicationContext(), shopId, computerId, 
-						staffId, jsonEndday, enddayReceiver).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Utils.getFullUrl(getApplicationContext()));
+				EndDaySaleSender sender = new EndDaySaleSender(getApplicationContext(), shopId, computerId, 
+						staffId, jsonEndday, enddayReceiver);
+				mExecutor.execute(sender);
 			}else{
 				if(receiver != null)
 					receiver.send(RESULT_SUCCESS, null);
@@ -200,7 +221,6 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

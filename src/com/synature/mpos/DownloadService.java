@@ -82,12 +82,14 @@ public class DownloadService extends Service{
 							int progress = (int) ((downloaded + prevFileSize) * 100 / totalFileSize); 
 							Log.i(TAG, "Progress: " + progress + "%");
 							Bundle resultData = new Bundle();
+							resultData.putString("fileName", fileName);
 							resultData.putInt("progress", progress);
 							receiver.send(UPDATE_PROGRESS, resultData);
 						}
 					}
 					Bundle resultData = new Bundle();
 					resultData.putInt("progress", 100);
+					resultData.putString("fileName", fileName);
 					receiver.send(UPDATE_PROGRESS, resultData);
 
 					resultData = new Bundle();

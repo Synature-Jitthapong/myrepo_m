@@ -1,6 +1,8 @@
 package com.synature.mpos;
 
 import java.util.Calendar;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.synature.mpos.SoftwareExpirationChecker.SoftwareExpirationCheckerListener;
 import com.synature.mpos.database.ComputerDao;
@@ -38,7 +40,8 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends Activity implements OnClickListener, 
-	OnEditorActionListener, UserVerifyDialogFragment.OnCheckPermissionListener{
+	OnEditorActionListener, UserVerifyDialogFragment.OnCheckPermissionListener,
+	SwitchLangFragment.OnChangeLanguageListener{
 	
 	public static final String TAG = "LoginActivity";
 	
@@ -97,7 +100,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 		mComputer = new ComputerDao(this);
 		mFormat = new GlobalPropertyDao(this);
 		mSync = new SyncHistoryDao(this);
-		
 		try {
 			if(!TextUtils.isEmpty(mShop.getShopName())){
 				setTitle(mShop.getShopName());
@@ -223,13 +225,17 @@ public class LoginActivity extends Activity implements OnClickListener,
 			return true;
 		case R.id.itemUtils:
 			mWhatToDo = WhatToDo.UTILITY;
-			userFragment = UserVerifyDialogFragment.newInstance(0);
+			userFragment = UserVerifyDialogFragment.newInstance(UserVerifyDialogFragment.GRANT_PERMISSION);
 			userFragment.show(getFragmentManager(), UserVerifyDialogFragment.TAG);
 			return true;
 		case R.id.itemReport:
 			mWhatToDo = WhatToDo.VIEW_REPORT;
-			userFragment = UserVerifyDialogFragment.newInstance(0);
+			userFragment = UserVerifyDialogFragment.newInstance(StaffsDao.VIEW_REPORT_PERMISSION);
 			userFragment.show(getFragmentManager(), UserVerifyDialogFragment.TAG);
+			return true;
+		case R.id.itemSwLang:
+			SwitchLangFragment swf = SwitchLangFragment.newInstance();
+			swf.show(getFragmentManager(), "SwitchLangFragment");
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
@@ -255,14 +261,14 @@ public class LoginActivity extends Activity implements OnClickListener,
 						return true;
 					case R.id.itemSendEndday:
 						intent = new Intent(LoginActivity.this, SendEnddayActivity.class);
-						intent.putExtra("staffId", mStaffId);
+						intent.putExtra("staffId", 1);
 						intent.putExtra("shopId", mShop.getShopId());
 						intent.putExtra("computerId", mComputer.getComputerId());
 						startActivity(intent);
 						return true;
 					case R.id.itemSendSale:
 						intent = new Intent(LoginActivity.this, SendSaleActivity.class);
-						intent.putExtra("staffId", mStaffId);
+						intent.putExtra("staffId", 1);
 						intent.putExtra("shopId", mShop.getShopId());
 						intent.putExtra("computerId", mComputer.getComputerId());
 						startActivity(intent);
@@ -367,7 +373,10 @@ public class LoginActivity extends Activity implements OnClickListener,
 	}
 	
 	private void requestValidUrl(){
-		new SoftwareRegister(this, new RegisterReceiver(new Handler())).execute(MPOSApplication.REGISTER_URL);
+		SoftwareRegister register = new SoftwareRegister(this, new RegisterReceiver(new Handler()));
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executor.execute(register);
+		executor.shutdown();
 	}
 
 	private class MasterDataReceiver extends ResultReceiver{
@@ -435,8 +444,11 @@ public class LoginActivity extends Activity implements OnClickListener,
 				if(mProgress.isShowing())
 					mProgress.dismiss();
 				int shopId = resultData.getInt("shopId");
-				new MasterDataLoader(LoginActivity.this, 
-						shopId, new MasterDataReceiver(new Handler())).execute(Utils.getFullUrl(LoginActivity.this));
+				MasterDataLoader loader = new MasterDataLoader(LoginActivity.this, 
+						shopId, new MasterDataReceiver(new Handler()));
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				executor.execute(loader);
+				executor.shutdown();
 				break;
 			case MPOSServiceBase.RESULT_ERROR:
 				if(mProgress.isShowing())
@@ -475,8 +487,11 @@ public class LoginActivity extends Activity implements OnClickListener,
 			case MPOSServiceBase.RESULT_SUCCESS:
 				if(progress.isShowing())
 					progress.dismiss();
-				new DeviceChecker(LoginActivity.this, 
-						new DeviceCheckerReceiver(new Handler())).execute(Utils.getFullUrl(LoginActivity.this));
+				DeviceChecker checker = new DeviceChecker(LoginActivity.this, 
+						new DeviceCheckerReceiver(new Handler()));
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				executor.execute(checker);
+				executor.shutdown();
 				break;
 			case MPOSServiceBase.RESULT_ERROR:
 				if(progress.isShowing())
@@ -639,5 +654,11 @@ public class LoginActivity extends Activity implements OnClickListener,
 			createUtilsPopup(findViewById(R.id.itemUtils));
 			break;
 		}
+	}
+
+	@Override
+	public void onChangeLanguage() {
+		startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+		finish();
 	}
 }

@@ -106,7 +106,7 @@ public class Utils {
 	}
 	
 	public static Calendar getCalendar(){
-		return Calendar.getInstance(Locale.US);
+		return Calendar.getInstance();
 	}
 	
 	public static Calendar getMinimum(){
@@ -121,8 +121,7 @@ public class Utils {
 	public static Calendar getDate(){
 		Calendar c = getCalendar();
 		return new GregorianCalendar(c.get(Calendar.YEAR), 
-				c.get(Calendar.MONTH), 
-				c.get(Calendar.DAY_OF_MONTH));
+				c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 	}
 	
 	public static Calendar convertStringToCalendar(String dateTime){

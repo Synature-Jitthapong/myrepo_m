@@ -1,6 +1,7 @@
 package com.synature.mpos;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import com.synature.mpos.database.GlobalPropertyDao;
@@ -15,7 +16,9 @@ import com.synature.pos.OrderTransaction;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -37,7 +40,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class SendSaleActivity extends Activity{
 	public static final String TAG = SendSaleActivity.class.getSimpleName();
@@ -45,7 +47,7 @@ public class SendSaleActivity extends Activity{
 	private int mShopId;
 	private int mComputerId;
 	private int mStaffId;
-	private long mDate;
+	private String mDate;
 	private GlobalPropertyDao mGlobal;
 	private List<SendTransaction> mTransLst;
 	private SyncItemAdapter mSyncAdapter;
@@ -78,7 +80,7 @@ public class SendSaleActivity extends Activity{
 		mStaffId = intent.getIntExtra("staffId", 0);
 		mShopId = intent.getIntExtra("shopId", 0);
 		mComputerId = intent.getIntExtra("computerId", 0);
-		mDate = Utils.getDate().getTimeInMillis();
+		mDate = String.valueOf(Utils.getDate().getTimeInMillis());
 
 		setupCustomView();
 		loadTransNotSend();
@@ -98,23 +100,23 @@ public class SendSaleActivity extends Activity{
 					
 					@Override
 					public void onSetDate(long date) {
-						mBtnPickDate.setText(mGlobal.dateFormat(String.valueOf(date)));
-						mDate = date;
+						Calendar cal = Utils.getDate();
+						cal.setTimeInMillis(date);
+						mBtnPickDate.setText(mGlobal.dateFormat(cal.getTime()));
+						mDate = String.valueOf(cal.getTimeInMillis());
 						loadTransNotSend();
 					}
 				});
 				f.show(getFragmentManager(), "DatePickerFragment");
 			}
 		});
-		actionBar.setCustomView(customView, new ActionBar.LayoutParams(
-				ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT));
+		actionBar.setCustomView(customView);
 	}
 	
 	private void loadTransNotSend(){
 		mTransLst = listNotSendTransaction();
 		mSyncAdapter = new SyncItemAdapter(mTransLst);
 		mLvSyncItem.setAdapter(mSyncAdapter);
-		mLvSyncItem.setSelection(mSyncAdapter.getCount() - 1);
 	}
 	
 	@Override
@@ -168,7 +170,13 @@ public class SendSaleActivity extends Activity{
 			case SaleSenderService.RESULT_SUCCESS:
 				break;
 			case SaleSenderService.RESULT_ERROR:
-				Toast.makeText(SendSaleActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
+				new AlertDialog.Builder(SendSaleActivity.this)
+				.setMessage(resultData.getString("msg"))
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {}
+				}).show();
 				break;
 			}
 			mItemSendAll.setEnabled(true);
@@ -204,7 +212,7 @@ public class SendSaleActivity extends Activity{
 				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
                 + " AND " + BaseColumn.COLUMN_SEND_STATUS + " =? ",
 				new String[]{
-					String.valueOf(mDate),
+					mDate,
                     String.valueOf(TransactionDao.TRANS_STATUS_VOID),
 					String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
 				 	String.valueOf(MPOSDatabase.NOT_SEND)

@@ -8,7 +8,9 @@ import com.synature.mpos.database.SessionDao;
 import com.synature.mpos.database.model.Session;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -121,7 +123,13 @@ public class SendEnddayActivity extends Activity {
 			case EnddaySenderService.RESULT_SUCCESS:
 				break;
 			case EnddaySenderService.RESULT_ERROR:
-				Toast.makeText(SendEnddayActivity.this, resultData.getString("msg"), Toast.LENGTH_SHORT).show();
+				new AlertDialog.Builder(SendEnddayActivity.this)
+				.setMessage(resultData.getString("msg"))
+				.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {}
+				}).show();
 				break;
 			}
 			progress.dismiss();

@@ -1,11 +1,13 @@
 package com.synature.mpos;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.util.Logger;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -23,6 +25,8 @@ public class SaleSenderService extends SaleSenderServiceBase{
 	public static final int SEND_LAST_SALE_TRANS = 2;
 	
 	public static final String RECEIVER_NAME = "saleSenderReceiver";
+	
+	private ExecutorService mExecutor;
 	private Looper mServiceLooper;
 	private ServiceHandler mServiceHandler;
 	
@@ -55,10 +59,17 @@ public class SaleSenderService extends SaleSenderServiceBase{
 				android.os.Process.THREAD_PRIORITY_BACKGROUND);
 		thread.start();
 
+		mExecutor = Executors.newFixedThreadPool(THREAD_POOL);
 		mServiceLooper = thread.getLooper();
 		mServiceHandler = new ServiceHandler(mServiceLooper);
 	}
 	
+	@Override
+	public void onDestroy() {
+		mExecutor.shutdown();
+		super.onDestroy();
+	}
+
 	/**
 	 * Intent request 
 	 * ResultReceiver, 
@@ -117,6 +128,8 @@ public class SaleSenderService extends SaleSenderServiceBase{
 			case RESULT_ERROR:
 				flagSendStatus(sessionDate, MPOSDatabase.NOT_SEND);
 				String msg = resultData.getString("msg");
+				Logger.appendLog(getApplicationContext(), MPOSApplication.ERR_LOG_PATH, "", 
+						"Send partial fail: " + msg + "\n" + jsonSale);
 				if(receiver != null){
 					Bundle b = new Bundle();
 					b.putString("msg", msg);
@@ -141,9 +154,10 @@ public class SaleSenderService extends SaleSenderServiceBase{
 		JSONSaleSerialization jsonGenerator = 
 				new JSONSaleSerialization(getApplicationContext());
 		String json = jsonGenerator.generateSale(sessionDate);
-		new PartialSaleSender(getApplicationContext(), shopId, computerId,staffId, json, 
+		PartialSaleSender sender = new PartialSaleSender(getApplicationContext(), shopId, computerId,staffId, json, 
 				new SendSaleReceiver(new Handler(), 
-						sessionDate, json, receiver)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Utils.getFullUrl(getApplicationContext()));
+						sessionDate, json, receiver));
+		mExecutor.execute(sender);
 	}
 	
 	/**
@@ -157,9 +171,10 @@ public class SaleSenderService extends SaleSenderServiceBase{
 		JSONSaleSerialization jsonGenerator = 
 				new JSONSaleSerialization(getApplicationContext());
 		String jsonSale = jsonGenerator.generateLastSaleTransaction(sessionDate);
-		new PartialSaleSender(getApplicationContext(), shopId, computerId, staffId, jsonSale, 
+		PartialSaleSender sender = new PartialSaleSender(getApplicationContext(), shopId, computerId, staffId, jsonSale, 
 				new SendSaleReceiver(new Handler(), 
-						sessionDate, jsonSale, null)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Utils.getFullUrl(getApplicationContext()));
+						sessionDate, jsonSale, null));
+		mExecutor.execute(sender);
 	}
 	
 	/**

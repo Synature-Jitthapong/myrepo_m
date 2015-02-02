@@ -20,7 +20,7 @@
         android:showAsAction="always|withText"
         android:title="@string/report">
     </item><item android:id="@+id/itemUtils" android:icon="@drawable/ic_action_phone" android:showAsAction="always|withText" android:title="@string/utility">
-    </item><item android:id="@+id/itemCheckUpdate" android:title="@string/check_update" android:showAsAction="collapseActionView"></item><item
+    </item><item android:id="@+id/itemSwLang" android:title="@string/language" android:showAsAction="collapseActionView"></item><item android:id="@+id/itemCheckUpdate" android:title="@string/check_update" android:showAsAction="collapseActionView"></item><item
         android:id="@+id/itemAbout"
         android:showAsAction="collapseActionView"
         android:title="@string/about">
@@ -35,6 +35,7 @@
         android:id="@+id/itemExit"
         android:title="@string/exit">
     </item>
+    
     
     
 

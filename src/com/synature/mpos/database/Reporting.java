@@ -207,8 +207,7 @@ public class Reporting extends MPOSDatabase{
 			do{
 				WasteReportData wasteData = new WasteReportData();
 				wasteData.setPayTypeId(payTypeCursor.getInt(payTypeCursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID)));
-				wasteData.setWasteName(payTypeCursor.getString(payTypeCursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_CODE)) + ":"
-						+ payTypeCursor.getString(payTypeCursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
+				wasteData.setWasteName(payTypeCursor.getString(payTypeCursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_NAME)));
 				
 				String payTypeId = payTypeCursor.getString(payTypeCursor.getColumnIndex(PayTypeTable.COLUMN_PAY_TYPE_ID));
 				// product data

@@ -15,28 +15,30 @@ import com.synature.mpos.R;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 
-public abstract class Ksoap2WebServiceTask extends AsyncTask<String, Integer, String>{
+public abstract class Ksoap2WebServiceTask implements Runnable{
 	
 	public static final String NAME_SPACE = "http://tempuri.org/"; 
 			
 	protected SoapObject mSoapRequest;
 	protected int mTimeOut = 30 * 1000;
+	protected String mUrl;
 	protected String mWebMethod;
 	protected Context mContext;
 	protected PropertyInfo mProperty;
 	
-	public Ksoap2WebServiceTask(Context c, String method, int timeOut){
+	public Ksoap2WebServiceTask(Context c, String url, String method, int timeOut){
 		mContext = c;
+		mUrl = url;
 		mWebMethod = method;
 		mTimeOut = timeOut != 0 ? timeOut : mTimeOut;
 		mSoapRequest = new SoapObject(NAME_SPACE, mWebMethod);
 	}
 
+	protected abstract void onPostExecute(String result);
+	
 	@Override
-	protected String doInBackground(String... params) {
-		String url = params[0];
+	public void run() {
 		String result = "";
 		System.setProperty("http.keepAlive", "false");
 		ConnectivityManager connMgr = (ConnectivityManager) mContext
@@ -47,7 +49,7 @@ public abstract class Ksoap2WebServiceTask extends AsyncTask<String, Integer, St
 			envelope.dotNet = true;
 			envelope.setOutputSoapObject(mSoapRequest);
 			String soapAction = NAME_SPACE + mWebMethod;
-			HttpTransportSE androidHttpTransport = new HttpTransportSE(url, mTimeOut);
+			HttpTransportSE androidHttpTransport = new HttpTransportSE(mUrl, mTimeOut);
 			//androidHttpTransport.debug = true;
 			try {
 				androidHttpTransport.call(soapAction, envelope);
@@ -70,6 +72,6 @@ public abstract class Ksoap2WebServiceTask extends AsyncTask<String, Integer, St
 		}else{
 			result = mContext.getString(R.string.cannot_connect_to_network);
 		}
-		return result;
+		onPostExecute(result);
 	}
 }

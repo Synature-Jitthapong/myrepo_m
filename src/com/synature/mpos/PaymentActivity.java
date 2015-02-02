@@ -567,7 +567,7 @@ public class PaymentActivity extends Activity implements OnClickListener,
 				convertView = mInflater.inflate(R.layout.button_template, null);
 				holder.btnPayment = (Button) convertView;
 				holder.btnPayment.setMinWidth(128);
-				holder.btnPayment.setMinHeight(96);
+				holder.btnPayment.setMinHeight(90);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();

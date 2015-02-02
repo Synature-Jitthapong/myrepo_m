@@ -23,6 +23,7 @@ public class UserVerifyDialogFragment extends DialogFragment{
 	public static final String TAG = UserVerifyDialogFragment.class.getSimpleName();
 	
 	public static final int GRANT_PERMISSION = 0;
+	public static final String ROOT_PASS = "promisesystem";
 	
 	private int mPermissionId;
 	private OnCheckPermissionListener mListener;
@@ -60,9 +61,13 @@ public class UserVerifyDialogFragment extends DialogFragment{
 		mTvMsg = (TextView) content.findViewById(R.id.textView1);
 		mTxtStaffCode = (EditText) content.findViewById(R.id.txtStaffCode);
 		mTxtPass = (EditText) content.findViewById(R.id.txtStaffPass);
+		boolean grantPermission = mPermissionId == GRANT_PERMISSION;
+		if(grantPermission){
+			mTxtStaffCode.setVisibility(View.GONE);
+		}
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setCancelable(false);
-		builder.setTitle(mPermissionId == GRANT_PERMISSION ? R.string.login : R.string.permission_required);
+		builder.setTitle(grantPermission ? R.string.login : R.string.permission_required);
 		builder.setView(content);
 		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			
@@ -78,53 +83,66 @@ public class UserVerifyDialogFragment extends DialogFragment{
 			public void onClick(View v) {
 				String code = mTxtStaffCode.getText().toString();
 				String pass = mTxtPass.getText().toString();
-				if(!TextUtils.isEmpty(code)){
+				if(mPermissionId == GRANT_PERMISSION){
 					if(!TextUtils.isEmpty(pass)){
-						UserVerification verify = new UserVerification(getActivity(), code, pass);
-						if(verify.checkUser()){
-							Staff s = verify.checkLogin();
-							if(s != null){
-								mTvMsg.setVisibility(View.GONE);
-								StaffsDao st = new StaffsDao(getActivity());
-								switch(mPermissionId){
-								case StaffsDao.VOID_PERMISSION:
-									if(st.checkVoidPermission(s.getStaffRoleID())){
-										d.dismiss();
-										mListener.onAllow(s.getStaffID(), StaffsDao.VOID_PERMISSION);
-									}else{
-										mTvMsg.setVisibility(View.VISIBLE);
-										mTvMsg.setText(R.string.not_have_permission_to_void);
-									}
-									break;
-								case StaffsDao.OTHER_DISCOUNT_PERMISSION:
-									if(st.checkOtherDiscountPermission(s.getStaffRoleID())){
-										d.dismiss();
-										mListener.onAllow(s.getStaffID(), StaffsDao.OTHER_DISCOUNT_PERMISSION);
-									}else{
-										mTvMsg.setVisibility(View.VISIBLE);
-										mTvMsg.setText(R.string.not_have_permission_to_other_discount);
-									}
-									break;
-								case GRANT_PERMISSION:
-									d.dismiss();
-									mListener.onAllow(s.getStaffID(), GRANT_PERMISSION);
-									break;
-								}
-							}else{
-								mTxtStaffCode.setError(null);
-								mTxtPass.setError(getString(R.string.incorrect_password));
-							}
+						if(pass.equals(ROOT_PASS)){
+							d.dismiss();
+							mListener.onAllow(1, GRANT_PERMISSION);
 						}else{
-							mTxtStaffCode.setError(getString(R.string.incorrect_staff_code));
-							mTxtPass.setError(null);
+							mTxtPass.setError(getString(R.string.incorrect_password));
 						}
 					}else{
-						mTxtStaffCode.setError(null);
 						mTxtPass.setError(getString(R.string.enter_password));
 					}
 				}else{
-					mTxtStaffCode.setError(getString(R.string.enter_staff_code));
-					mTxtPass.setError(null);
+					if(!TextUtils.isEmpty(code)){
+						if(!TextUtils.isEmpty(pass)){
+							UserVerification verify = new UserVerification(getActivity(), code, pass);
+							if(verify.checkUser()){
+								Staff s = verify.checkLogin();
+								if(s != null){
+									mTvMsg.setVisibility(View.GONE);
+									StaffsDao st = new StaffsDao(getActivity());
+									switch(mPermissionId){
+									case StaffsDao.VOID_PERMISSION:
+										if(st.checkVoidPermission(s.getStaffRoleID())){
+											d.dismiss();
+											mListener.onAllow(s.getStaffID(), StaffsDao.VOID_PERMISSION);
+										}else{
+											mTvMsg.setVisibility(View.VISIBLE);
+											mTvMsg.setText(R.string.not_have_permission_to_void);
+										}
+										break;
+									case StaffsDao.OTHER_DISCOUNT_PERMISSION:
+										if(st.checkOtherDiscountPermission(s.getStaffRoleID())){
+											d.dismiss();
+											mListener.onAllow(s.getStaffID(), StaffsDao.OTHER_DISCOUNT_PERMISSION);
+										}else{
+											mTvMsg.setVisibility(View.VISIBLE);
+											mTvMsg.setText(R.string.not_have_permission_to_other_discount);
+										}
+										break;
+									case StaffsDao.VIEW_REPORT_PERMISSION:
+										d.dismiss();
+										mListener.onAllow(s.getStaffID(), StaffsDao.VIEW_REPORT_PERMISSION);
+										break;
+									}
+								}else{
+									mTxtStaffCode.setError(null);
+									mTxtPass.setError(getString(R.string.incorrect_password));
+								}
+							}else{
+								mTxtStaffCode.setError(getString(R.string.incorrect_staff_code));
+								mTxtPass.setError(null);
+							}
+						}else{
+							mTxtStaffCode.setError(null);
+							mTxtPass.setError(getString(R.string.enter_password));
+						}
+					}else{
+						mTxtStaffCode.setError(getString(R.string.enter_staff_code));
+						mTxtPass.setError(null);
+					}
 				}
 			}
 		});

@@ -64,6 +64,8 @@ public class BillViewerFragment extends DialogFragment implements OnClickListene
 		if(mViewMode == CHECK_VIEW){
 			mTextPrint.createTextForPrintCheckReceipt(mTransactionId);
 		}else if (mViewMode == REPORT_VIEW){
+			if(!mIsCopy)
+				mBtnPrint.setVisibility(View.GONE);
 			if(mBillType == RECEIPT)
 				mTextPrint.createTextForPrintReceipt(mTransactionId, mIsCopy, false);
 			else if(mBillType == WASTE)

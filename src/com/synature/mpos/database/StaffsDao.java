@@ -15,6 +15,7 @@ public class StaffsDao extends MPOSDatabase{
 	public static final int VOID_PERMISSION = 30;
 	public static final int ACCESS_POS_PERMISSION = 36;
 	public static final int OTHER_DISCOUNT_PERMISSION = 134; 
+	public static final int VIEW_REPORT_PERMISSION = 180;
 			
 	public StaffsDao(Context context) {
 		super(context);
