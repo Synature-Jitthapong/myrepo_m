@@ -1,7 +1,7 @@
 package com.synature.mpos;
 
 import java.util.List;
-import com.synature.mpos.common.MPOSActivityBase;
+
 import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.PromotionDiscountDao;
@@ -9,6 +9,8 @@ import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.database.model.OrderTransaction;
 import com.synature.mpos.foodcourt.R;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,7 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PromotionActivity extends MPOSActivityBase {
+public class PromotionActivity extends Activity {
 
 	public static final String TAG = PromotionActivity.class.getSimpleName();
 	

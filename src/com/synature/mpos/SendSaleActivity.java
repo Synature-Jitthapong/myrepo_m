@@ -2,8 +2,8 @@ package com.synature.mpos;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.synature.mpos.SaleService.LocalBinder;
-import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.MPOSDatabase;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.table.BaseColumn;
@@ -12,6 +12,8 @@ import com.synature.mpos.database.table.OrderTransTable;
 import com.synature.mpos.database.table.SessionTable;
 import com.synature.mpos.foodcourt.R;
 import com.synature.pos.OrderTransaction;
+
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -34,7 +36,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class SendSaleActivity extends MPOSActivityBase{
+public class SendSaleActivity extends Activity{
 	
 	private SaleService mPartService;
 	private boolean mBound = false;

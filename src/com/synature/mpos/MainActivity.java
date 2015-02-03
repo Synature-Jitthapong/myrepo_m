@@ -13,10 +13,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 import com.j1tth4.slidinglibs.SlidingTabLayout;
 import com.synature.mpos.SaleService.LocalBinder;
 import com.synature.mpos.SwitchLangFragment.OnChangeLanguageListener;
-import com.synature.mpos.common.MPOSFragmentActivityBase;
 import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.PaymentDetailDao;
@@ -38,6 +38,7 @@ import com.synature.mpos.seconddisplay.SecondDisplayJSON;
 import com.synature.pos.SecondDisplayProperty.clsSecDisplay_TransSummary;
 import com.synature.util.ImageLoader;
 import com.synature.util.Logger;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -49,6 +50,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.SQLException;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -88,7 +90,7 @@ import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MainActivity extends MPOSFragmentActivityBase implements 
+public class MainActivity extends FragmentActivity implements 
 	MenuCommentDialogFragment.OnCommentDismissListener, ManageCashAmountFragment.OnManageCashAmountDismissListener, 
 	UserVerifyDialogFragment.OnCheckPermissionListener, OnChangeLanguageListener{
 	
@@ -1599,13 +1601,13 @@ public class MainActivity extends MPOSFragmentActivityBase implements
 		if(mSessionId == 0){
 			mSessionId = mSession.openSession(mShopId, mComputerId, mStaffId, 0);
 			
-			ManageCashAmountFragment mf = ManageCashAmountFragment
-					.newInstance(getString(R.string.open_shift), 0,
-							ManageCashAmountFragment.OPEN_SHIFT_MODE);
-			mf.show(getSupportFragmentManager(), "ManageCashAmount");
-			WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
-			dsp.openCashDrawer();
-			dsp.close();
+//			ManageCashAmountFragment mf = ManageCashAmountFragment
+//					.newInstance(getString(R.string.open_shift), 0,
+//							ManageCashAmountFragment.OPEN_SHIFT_MODE);
+//			mf.show(getSupportFragmentManager(), "ManageCashAmount");
+//			WintecCashDrawer dsp = new WintecCashDrawer(MainActivity.this);
+//			dsp.openCashDrawer();
+//			dsp.close();
 		}
 	}
 

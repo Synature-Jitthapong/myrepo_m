@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import com.synature.mpos.common.MPOSActivityBase;
+
 import com.synature.mpos.database.BankDao;
 import com.synature.mpos.database.CreditCardDao;
 import com.synature.mpos.database.FormaterDao;
@@ -15,6 +15,8 @@ import com.synature.pos.CreditCardType;
 import com.synature.util.CreditCardParser;
 import com.synature.util.Logger;
 import com.synature.util.VerifyCardType;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,7 +38,7 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-public class CreditPayActivity extends MPOSActivityBase implements TextWatcher{
+public class CreditPayActivity extends Activity implements TextWatcher{
 	
 	public static final String TAG = "CreditPayActivity";
 	

@@ -6,12 +6,13 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import com.synature.mpos.common.MPOSActivityBase;
+
 import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.ProductsDao;
 import com.synature.mpos.database.TransactionDao;
 import com.synature.mpos.database.model.OrderDetail;
 import com.synature.mpos.foodcourt.R;
+
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -37,6 +38,7 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.app.ActionBar.LayoutParams;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -44,7 +46,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
-public class DiscountActivity extends MPOSActivityBase implements OnItemClickListener, 
+public class DiscountActivity extends Activity implements OnItemClickListener, 
 	OnCheckedChangeListener, OnClickListener, OnEditorActionListener{
 	
 	public static final int PRICE_DISCOUNT_TYPE = 1;

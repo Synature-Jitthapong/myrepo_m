@@ -1,6 +1,5 @@
 package com.synature.mpos;
 
-import com.synature.mpos.common.MPOSActivityBase;
 import com.synature.mpos.database.FormaterDao;
 import com.synature.mpos.database.ShopDao;
 import com.synature.mpos.database.TransactionDao;
@@ -9,6 +8,8 @@ import com.synature.mpos.foodcourt.R;
 import com.synature.pos.PrepaidCardInfo;
 import com.synature.util.CreditCardParser;
 import com.synature.util.Logger;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -37,7 +38,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnable{
+public class FoodCourtCardPayActivity extends Activity implements Runnable{
 	public static final int STATUS_READY_TO_USE = 1; 	//Ready to Use
 	public static final int STATUS_INUSE = 2;			//In Use
 	public static final int STATUS_BLACK_LIST = 3;		//BlackList
