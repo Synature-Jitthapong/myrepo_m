@@ -61,7 +61,7 @@ public class PartialSaleSender extends MPOSServiceBase{
 			}else{
 				if(mReceiver != null){
 					Bundle b = new Bundle();
-					b.putString("msg", ws.getSzResultData().equals("") ? result :
+					b.putString("msg", TextUtils.isEmpty(ws.getSzResultData()) ? result :
 						ws.getSzResultData());
 					mReceiver.send(RESULT_ERROR, b);
 				}

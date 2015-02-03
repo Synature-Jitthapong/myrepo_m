@@ -110,7 +110,7 @@
     <string name="not_found_printer">ไม่พบเครื่องพิมพ์</string>
     <string name="cashier">แคชเชียร์</string>
     <string name="computer_setting_not_valid">การตั้งค่าเครื่องไม่ถูกต้อง</string>
-    <string name="send_all">ส่งข้อมูล</string>
+    <string name="send_all">ส่งข้อมูลทั้งหมด</string>
     <string name="internal_printer">ใช้เครื่องพิมพ์ mPOS</string>
     <string name="internal_printer_wintec">เครื่องพิมพ์ mPOS</string>
     <string name="spinner_please_select">กรุณาเลือก</string>

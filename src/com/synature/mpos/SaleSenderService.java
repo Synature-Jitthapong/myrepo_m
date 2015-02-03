@@ -15,7 +15,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.ResultReceiver;
-import android.text.TextUtils;
 
 public class SaleSenderService extends SaleSenderServiceBase{
 
@@ -23,8 +22,10 @@ public class SaleSenderService extends SaleSenderServiceBase{
 	
 	public static final int SEND_PARTIAL = 1;
 	public static final int SEND_LAST_SALE_TRANS = 2;
+	public static final int SEND_SPECIFIC_TRANS = 3;
 	
 	public static final String RECEIVER_NAME = "saleSenderReceiver";
+	public static final String TRANS_ID_PARAM = "transactionId";
 	
 	private ExecutorService mExecutor;
 	private Looper mServiceLooper;
@@ -44,10 +45,13 @@ public class SaleSenderService extends SaleSenderServiceBase{
 			int shopId = b.getInt(SHOP_ID_PARAM, 0);
 			int computerId = b.getInt(COMPUTER_ID_PARAM, 0);
 			int staffId = b.getInt(STAFF_ID_PARAM, 0);
+			int transactionId = b.getInt(TRANS_ID_PARAM, 0);
 			if(whatToDo == SEND_PARTIAL){
 				sendPartialSale(sessionDate, shopId, computerId, staffId, receiver);
 			}else if(whatToDo == SEND_LAST_SALE_TRANS){
 				sendLastSaleTransaction(sessionDate, shopId, computerId, staffId);
+			}else if(whatToDo == SEND_SPECIFIC_TRANS){
+				sendSpecificSaleTransaction(transactionId, sessionDate, shopId, computerId, staffId, receiver);
 			}
 		}
 		
@@ -114,13 +118,13 @@ public class SaleSenderService extends SaleSenderServiceBase{
 			switch(resultCode){
 			case RESULT_SUCCESS:
 				flagSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
-				if(!TextUtils.isEmpty(jsonSale)){
-					try {
-						JSONSaleLogFile.appendSale(getApplicationContext(), jsonSale);
-					} catch (Exception e) {}
-					Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
-							"Send partial successfully");
-				}
+//				if(!TextUtils.isEmpty(jsonSale)){
+//					try {
+//						JSONSaleLogFile.appendSale(getApplicationContext(), jsonSale);
+//					} catch (Exception e) {}
+//					Logger.appendLog(getApplicationContext(), MPOSApplication.LOG_PATH, MPOSApplication.LOG_FILE_NAME, 
+//							"Send partial successfully");
+//				}
 				if(receiver != null){
 					receiver.send(RESULT_SUCCESS, null);
 				}
@@ -130,6 +134,47 @@ public class SaleSenderService extends SaleSenderServiceBase{
 				String msg = resultData.getString("msg");
 				Logger.appendLog(getApplicationContext(), MPOSApplication.ERR_LOG_PATH, "", 
 						"Send partial fail: " + msg + "\n" + jsonSale);
+				if(receiver != null){
+					Bundle b = new Bundle();
+					b.putString("msg", msg);
+					receiver.send(RESULT_ERROR, b);
+				}
+				break;
+			}
+		}
+		
+	}
+	
+	/**
+	 * @author j1tth4
+	 * The receiver for send specific transaction
+	 */
+	private class SendSpecificReceiver extends ResultReceiver{
+
+		private ResultReceiver receiver;
+		private int transactionId;
+		
+		public SendSpecificReceiver(Handler handler, int transactionId, ResultReceiver receiver) {
+			super(handler);
+			this.transactionId = transactionId;
+			this.receiver = receiver;
+		}
+
+		@Override
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			switch(resultCode){
+			case RESULT_SUCCESS:
+				flagSendStatus(transactionId, MPOSDatabase.ALREADY_SEND);
+				if(receiver != null){
+					receiver.send(RESULT_SUCCESS, null);
+				}
+				break;
+			case RESULT_ERROR:
+				flagSendStatus(transactionId, MPOSDatabase.NOT_SEND);
+				String msg = resultData.getString("msg");
+				Logger.appendLog(getApplicationContext(), MPOSApplication.ERR_LOG_PATH, "", 
+						"Send partial fail: " + msg);
 				if(receiver != null){
 					Bundle b = new Bundle();
 					b.putString("msg", msg);
@@ -178,6 +223,24 @@ public class SaleSenderService extends SaleSenderServiceBase{
 	}
 	
 	/**
+	 * @param transactionId
+	 * @param sessionDate
+	 * @param shopId
+	 * @param computerId
+	 * @param staffId
+	 * @param receiver
+	 */
+	private void sendSpecificSaleTransaction(int transactionId, String sessionDate, int shopId, 
+			int computerId, int staffId, ResultReceiver receiver){
+		JSONSaleSerialization jsonGenerator = 
+				new JSONSaleSerialization(getApplicationContext());
+		String jsonSale = jsonGenerator.generateSpecificSaleTransaction(transactionId, sessionDate);
+		PartialSaleSender sender = new PartialSaleSender(getApplicationContext(), shopId, computerId, staffId, jsonSale, 
+				new SendSpecificReceiver(new Handler(), transactionId, receiver));
+		mExecutor.execute(sender);
+	}
+	
+	/**
 	 * @param sessionDate
 	 * @param status
 	 */
@@ -185,6 +248,16 @@ public class SaleSenderService extends SaleSenderServiceBase{
 		TransactionDao trans = new TransactionDao(getApplicationContext());
 		trans.updateTransactionSendStatus(sessionDate, status);
 		trans.updateTransactionWasteSendStatus(sessionDate, status);
+	}
+	
+	/**
+	 * @param transactionId
+	 * @param status
+	 */
+	private void flagSendStatus(int transactionId, int status){
+		TransactionDao trans = new TransactionDao(getApplicationContext());
+		trans.updateTransactionSendStatus(transactionId, status);
+		trans.updateTransactionWasteSendStatus(transactionId, status);
 	}
 
 	@Override

@@ -133,9 +133,9 @@ public class EnddaySenderService extends SaleSenderServiceBase{
 			case RESULT_SUCCESS:
 				flagSendStatus(sessionDate, MPOSDatabase.ALREADY_SEND);
 				Utils.deleteOverSale(getApplicationContext());
-				try {
-					JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonEndday);
-				} catch (Exception e) {}
+//				try {
+//					JSONSaleLogFile.appendEnddaySale(getApplicationContext(), sessionDate, jsonEndday);
+//				} catch (Exception e) {}
 				if(receiver != null){
 					receiver.send(RESULT_SUCCESS, null);
 				}

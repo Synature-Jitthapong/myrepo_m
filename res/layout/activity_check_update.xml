@@ -64,7 +64,6 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/textView1"
         android:layout_below="@+id/textView1"
-        android:layout_marginLeft="16dp"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

@@ -1947,6 +1947,27 @@ public class TransactionDao extends MPOSDatabase {
 	}
 	
 	/**
+	 * @param transactionId
+	 * @param status
+	 * @return rows effected
+	 */
+	public int updateTransactionWasteSendStatus(int transactionId, int status) {
+		ContentValues cv = new ContentValues();
+		cv.put(COLUMN_SEND_STATUS, status);
+		return getWritableDatabase().update(
+				OrderTransTable.TABLE_ORDER_TRANS_WASTE,
+				cv,
+				OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) "
+				+ " AND " + COLUMN_SEND_STATUS + "=?",
+				new String[] { 
+						String.valueOf(transactionId), 
+						String.valueOf(TRANS_STATUS_SUCCESS),
+						String.valueOf(TRANS_STATUS_VOID),
+						String.valueOf(NOT_SEND)});
+	}
+	
+	/**
 	 * @param saleDate
 	 * @return row affected
 	 */

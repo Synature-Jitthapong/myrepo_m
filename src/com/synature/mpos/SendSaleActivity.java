@@ -36,9 +36,8 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class SendSaleActivity extends Activity{
@@ -49,7 +48,7 @@ public class SendSaleActivity extends Activity{
 	private int mStaffId;
 	private String mDate;
 	private GlobalPropertyDao mGlobal;
-	private List<SendTransaction> mTransLst;
+	private List<OrderTransaction> mTransLst;
 	private SyncItemAdapter mSyncAdapter;
 	private MenuItem mItemSendAll;
 	private ListView mLvSyncItem;
@@ -142,7 +141,7 @@ public class SendSaleActivity extends Activity{
 			finish();
 			return true;
 		case R.id.itemSendAll:
-			sendSale();
+			sendSale(0);
 			return true;
 		default :
 			return super.onOptionsItemSelected(item);
@@ -186,9 +185,14 @@ public class SendSaleActivity extends Activity{
 		
 	}
 
-	private void sendSale(){
+	private void sendSale(int transactionId){
 		Intent intent = new Intent(this, SaleSenderService.class);
-		intent.putExtra(SaleSenderService.WHAT_TO_DO_PARAM, SaleSenderService.SEND_PARTIAL);
+		if(transactionId == 0){
+			intent.putExtra(SaleSenderService.WHAT_TO_DO_PARAM, SaleSenderService.SEND_PARTIAL);
+		}else{
+			intent.putExtra(SaleSenderService.WHAT_TO_DO_PARAM, SaleSenderService.SEND_SPECIFIC_TRANS);
+			intent.putExtra(SaleSenderService.TRANS_ID_PARAM, transactionId);
+		}
 		intent.putExtra(SaleSenderService.SESSION_DATE_PARAM, String.valueOf(mDate));
 		intent.putExtra(SaleSenderService.SHOP_ID_PARAM, mShopId);
 		intent.putExtra(SaleSenderService.COMPUTER_ID_PARAM, mComputerId);
@@ -197,8 +201,8 @@ public class SendSaleActivity extends Activity{
 		startService(intent);
 	}
 	
-	private List<SendTransaction> listNotSendTransaction(){
-		List<SendTransaction> transLst = new ArrayList<SendTransaction>();
+	private List<OrderTransaction> listNotSendTransaction(){
+		List<OrderTransaction> transLst = new ArrayList<OrderTransaction>();
 		MPOSDatabase.MPOSOpenHelper helper = MPOSDatabase.MPOSOpenHelper.getInstance(getApplicationContext());
 		Cursor cursor = helper.getReadableDatabase().query(OrderTransTable.TABLE_ORDER_TRANS,
 				new String[]{
@@ -219,7 +223,7 @@ public class SendSaleActivity extends Activity{
 				}, null, null, OrderTransTable.COLUMN_TRANS_ID);
 		if(cursor.moveToFirst()){
 			do{
-				SendTransaction trans = new SendTransaction();
+				OrderTransaction trans = new OrderTransaction();
 				trans.setTransactionId(cursor.getInt(cursor.getColumnIndex(OrderTransTable.COLUMN_TRANS_ID)));
 				trans.setComputerId(cursor.getInt(cursor.getColumnIndex(ComputerTable.COLUMN_COMPUTER_ID)));
 				trans.setSessionId(cursor.getInt(cursor.getColumnIndex(SessionTable.COLUMN_SESS_ID)));
@@ -234,19 +238,18 @@ public class SendSaleActivity extends Activity{
 	}
 	
 	public class SyncItemAdapter extends BaseAdapter{
-		private List<SendTransaction> mSendTransLst;
+		private List<OrderTransaction> mSendTransLst;
 		private LayoutInflater mInflater;
 		
-		public SyncItemAdapter(List<SendTransaction> sendTransLst){
+		public SyncItemAdapter(List<OrderTransaction> sendTransLst){
 			mInflater = getLayoutInflater();
 			mSendTransLst = sendTransLst;
 		}
 		
 		public class ViewHolder {
-			ImageView imgSyncStatus;
 			TextView tvNo;
 			TextView tvItem;
-			ProgressBar progress;
+			ImageButton btnSend;
 		}
 
 		@Override
@@ -255,7 +258,7 @@ public class SendSaleActivity extends Activity{
 		}
 
 		@Override
-		public SendTransaction getItem(int position) {
+		public Object getItem(int position) {
 			return mSendTransLst.get(position);
 		}
 
@@ -266,39 +269,28 @@ public class SendSaleActivity extends Activity{
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			final SendTransaction trans = mSendTransLst.get(position);
+			final OrderTransaction trans = mSendTransLst.get(position);
 			final ViewHolder holder;
 			if(convertView == null){
 				convertView = mInflater.inflate(R.layout.send_trans_template, parent, false);
 				holder = new ViewHolder();
 				holder.tvNo = (TextView) convertView.findViewById(R.id.textView2);
-				holder.imgSyncStatus = (ImageView) convertView.findViewById(R.id.imageView1);
+				holder.btnSend = (ImageButton) convertView.findViewById(R.id.imageButton1);
 				holder.tvItem = (TextView) convertView.findViewById(R.id.textView1);
-				holder.progress = (ProgressBar) convertView.findViewById(R.id.progressBar1);
 				convertView.setTag(holder);
 			}else{
 				holder = (ViewHolder) convertView.getTag();
 			}
 			holder.tvNo.setText(String.valueOf(position + 1) + ".");
 			holder.tvItem.setText(trans.getReceiptNo());
-
-			if(trans.onSend){
-				holder.progress.setVisibility(View.VISIBLE);
-				holder.imgSyncStatus.setVisibility(View.GONE);
-			}else{
-				holder.progress.setVisibility(View.GONE);
-				holder.imgSyncStatus.setVisibility(View.VISIBLE);
-			}
-			if(trans.getSendStatus() == MPOSDatabase.ALREADY_SEND){
-				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_accept);
-			}else{
-				holder.imgSyncStatus.setImageResource(R.drawable.ic_action_warning);
-			}
+			holder.btnSend.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					sendSale(trans.getTransactionId());
+				}
+			});
 			return convertView;
 		}
-	}
-	
-	private class SendTransaction extends OrderTransaction{
-		private boolean onSend = false;
 	}
 }

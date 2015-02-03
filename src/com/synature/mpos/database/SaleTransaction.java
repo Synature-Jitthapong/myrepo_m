@@ -100,6 +100,19 @@ public class SaleTransaction extends MPOSDatabase{
 	}
 	
 	/**
+	 * Get sale transaction specific by transactionId
+	 * @param transactionId
+	 * @param sessionDate
+	 * @return POSData_SaleTransaction
+	 */
+	public POSData_SaleTransaction getSaleTransaction(int transactionId, String sessionDate) {
+		POSData_SaleTransaction posSaleTrans = new POSData_SaleTransaction();
+		posSaleTrans.setxArySaleTransaction(buildSaleTransLst(getSpecificTransaction(transactionId)));
+		posSaleTrans.setxTableSession(buildSessionObj(sessionDate));
+		return posSaleTrans;
+	}
+	
+	/**
 	 * Build callection of transaction
 	 * @param cursor
 	 * @return List<SaleData_SaleTransaction>
@@ -415,6 +428,23 @@ public class SaleTransaction extends MPOSDatabase{
 						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS),
 						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_VOID)
 				}, OrderTransTable.COLUMN_TRANS_ID + " desc ", "1");
+	}
+	
+	/**
+	 * @param transactionId
+	 * @return Cursor null if not found
+	 */
+	private Cursor getSpecificTransaction(int transactionId) {
+		return queryOrderTransaction(OrderTransTable.COLUMN_TRANS_ID + "=?"
+				+ " AND " + OrderTransTable.COLUMN_STATUS_ID + " IN(?,?) ",
+				new String[] {
+						String.valueOf(transactionId),
+						String.valueOf(TransactionDao.TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.TRANS_STATUS_VOID),
+						String.valueOf(transactionId),
+						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_SUCCESS),
+						String.valueOf(TransactionDao.WASTE_TRANS_STATUS_VOID)
+				}, null, null);
 	}
 	
 	/**
