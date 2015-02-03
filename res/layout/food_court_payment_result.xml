@@ -11,11 +11,11 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:editable="false"
-        android:ems="4"
+        android:ems="7"
         android:gravity="center"
         android:singleLine="true"
         android:textColor="@android:color/holo_blue_dark"
-        android:textSize="@dimen/larger_text_size" >
+        android:textSize="64sp" >
 
         <requestFocus />
     </EditText>
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/txtCardBalance"
         android:layout_centerHorizontal="true"
-        android:text="Current Point"
+        android:text="@string/balance"
         android:textAllCaps="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="@dimen/large_text_size" />

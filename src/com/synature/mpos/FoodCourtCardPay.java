@@ -48,30 +48,30 @@ public class FoodCourtCardPay extends FoodCourtMainService{
 
 	@Override
 	protected void onPostExecute(String result) {
-//		WebServiceResult ws;
-//		try {
-//			ws = toServiceObject(result);
-//			if(ws.getiResultID() == RESPONSE_SUCCESS){
-//				try {
-//					PrepaidCardInfo cardInfo = toPrepaidCardInfoObject(ws.getSzResultData());
-//					mListener.onPost(cardInfo);
-//				} catch (Exception e) {
-//					mListener.onError(e.getMessage());
-//				}
-//			}else{
-//				mListener.onError(TextUtils.isEmpty(ws.getSzResultData()) ? result : ws.getSzResultData());
-//			}
-//		} catch (JsonSyntaxException e) {
-//			mListener.onError(result);
-//		}
+		WebServiceResult ws;
+		try {
+			ws = toServiceObject(result);
+			if(ws.getiResultID() == RESPONSE_SUCCESS){
+				try {
+					PrepaidCardInfo cardInfo = toPrepaidCardInfoObject(ws.getSzResultData());
+					mListener.onPost(cardInfo);
+				} catch (Exception e) {
+					mListener.onError(e.getMessage());
+				}
+			}else{
+				mListener.onError(TextUtils.isEmpty(ws.getSzResultData()) ? result : ws.getSzResultData());
+			}
+		} catch (JsonSyntaxException e) {
+			mListener.onError(result);
+		}
 
-		float currPoint = FoodCourtCardPayActivity.getPoint(mContext);
-		FoodCourtCardPayActivity.setPoint(mContext, currPoint - mPayAmount);
-		PrepaidCardInfo cardInfo = new PrepaidCardInfo();
-		cardInfo.setfCurrentAmount(FoodCourtCardPayActivity.getPoint(mContext));
-		cardInfo.setiCardStatus(FoodCourtCardPayActivity.STATUS_READY_TO_USE);
-		cardInfo.setSzCardNo(mCardNo);
-		mListener.onPost(cardInfo);
+//		float currPoint = FoodCourtCardPayActivity.getPoint(mContext);
+//		FoodCourtCardPayActivity.setPoint(mContext, currPoint - mPayAmount);
+//		PrepaidCardInfo cardInfo = new PrepaidCardInfo();
+//		cardInfo.setfCurrentAmount(FoodCourtCardPayActivity.getPoint(mContext));
+//		cardInfo.setiCardStatus(FoodCourtCardPayActivity.STATUS_READY_TO_USE);
+//		cardInfo.setSzCardNo(mCardNo);
+//		mListener.onPost(cardInfo);
 	}
 
 }

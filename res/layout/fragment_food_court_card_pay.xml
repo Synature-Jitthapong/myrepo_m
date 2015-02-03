@@ -3,54 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical" >
-
-    <ImageButton
-        android:id="@+id/btnCheckCard"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/txtCardNo"
-        android:layout_toRightOf="@+id/txtCardNo"
-        android:src="@android:drawable/ic_menu_search" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:gravity="right"
-        android:text="@string/card_no"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="@dimen/larger_text_size"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/textView2"
-        style="@style/LabelText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtTotal"
-        android:layout_alignBottom="@+id/txtTotal"
-        android:layout_alignParentLeft="true"
-        android:gravity="right"
-        android:text="Total:"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="@dimen/larger_text_size" />
-
-    <EditText
-        android:id="@+id/txtTotal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/textView2"
-        android:editable="false"
-        android:ems="7"
-        android:lines="1"
-        android:singleLine="true"
-        android:textColor="@android:color/holo_blue_dark"
-        android:textSize="@dimen/larger_text_size" />
+    android:orientation="vertical"
+    android:padding="16dp" >
 
     <EditText
         android:id="@+id/txtMember"
@@ -65,51 +19,87 @@
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/textView1"
-        style="@style/LabelText"
+        android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtBalance"
-        android:layout_alignBottom="@+id/txtBalance"
+        android:layout_alignBaseline="@+id/txtTotal"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/txtBalance"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/txtTotal"
         android:gravity="right"
-        android:text="Point:"
+        android:text="@string/total"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/larger_text_size" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txtCardNo"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/txtCardNo"
+        android:gravity="right"
+        android:text="@string/card_no"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="@dimen/larger_text_size" />
 
     <EditText
-        android:id="@+id/txtBalance"
+        android:id="@+id/txtTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/txtCardNo"
-        android:layout_toRightOf="@+id/textView2"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/textView3"
         android:editable="false"
         android:ems="7"
+        android:lines="1"
         android:singleLine="true"
-        android:textSize="@dimen/larger_text_size" />
-
-    <TextView
-        android:id="@+id/textView4"
-        style="@style/LabelText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textView2"
-        android:text="Balance"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="@dimen/larger_text_size" />
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="64sp" />
 
     <EditText
         android:id="@+id/txtCardNo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/txtTotal"
-        android:layout_toRightOf="@+id/textView4"
+        android:layout_toRightOf="@+id/textView3"
         android:ems="8"
         android:imeOptions="actionSearch"
         android:lines="1"
         android:singleLine="true"
+        android:textSize="@dimen/larger_text_size" >
+
+        <requestFocus />
+    </EditText>
+
+    <ImageButton
+        android:id="@+id/btnCheckCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/editText1"
+        android:layout_toRightOf="@+id/txtCardNo"
+        android:minHeight="64dip"
+        android:src="@android:drawable/ic_menu_search" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/editText1"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/txtCardNo"
+        android:layout_toLeftOf="@+id/editText1"
+        android:gravity="right"
+        android:text="@string/balance"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="@dimen/larger_text_size" />
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/txtCardNo"
+        android:layout_below="@+id/txtCardNo"
+        android:ems="7"
+        android:textSize="64sp" />
     
 </RelativeLayout>

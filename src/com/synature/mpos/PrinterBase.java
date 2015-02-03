@@ -907,13 +907,13 @@ public abstract class PrinterBase {
     	mTextToPrint.append(strTotalSale + "\n");
 	    
     	// balance
-    	String balanceBeforeText = "Point before";
+    	String balanceBeforeText = "Before Amount";
     	String balanceBefore = mFormat.currencyFormat(cardBalanceBefore);
     	mTextToPrint.append(balanceBeforeText);
     	mTextToPrint.append(createHorizontalSpace(balanceBeforeText.length() + balanceBefore.length()));
     	mTextToPrint.append(balanceBefore + "\n");
     	
-    	String balanceText = "Current point";
+    	String balanceText = "Current Amount";
     	String balance = mFormat.currencyFormat(cardBalance);
     	mTextToPrint.append(balanceText);
     	mTextToPrint.append(createHorizontalSpace(balanceText.length() + balance.length()));

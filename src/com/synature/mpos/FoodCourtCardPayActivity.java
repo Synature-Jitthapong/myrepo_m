@@ -182,7 +182,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 							try {
 								String[] track1 = content.split(":");
 								String memberCode = track1[1].replace("?", "");
-								String cardNo = memberCode;
+								String cardNo = "0001";//memberCode;
 								PlaceholderFragment fragment = (PlaceholderFragment)
 										getFragmentManager().findFragmentById(R.id.container);
 								fragment.mTxtCardNo.setText(null);
@@ -251,7 +251,6 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		private EditText mTxtTotalPrice;
 		private EditText mTxtCardNo;
 		private EditText mTxtBalance;
-		private EditText mTxtMember;
 		private ImageButton mBtnCheckCard;
 		
 		@Override
@@ -288,8 +287,7 @@ public class FoodCourtCardPayActivity extends MPOSActivityBase implements Runnab
 		public void onViewCreated(View view, Bundle savedInstanceState) {
 			mTxtTotalPrice = (EditText) view.findViewById(R.id.txtTotal);
 			mTxtCardNo = (EditText) view.findViewById(R.id.txtCardNo);
-			mTxtBalance = (EditText) view.findViewById(R.id.txtBalance);
-			mTxtMember = (EditText) view.findViewById(R.id.txtMember);
+			mTxtBalance = (EditText) view.findViewById(R.id.editText1);
 			mBtnCheckCard = (ImageButton) view.findViewById(R.id.btnCheckCard);
 			
 			//mTxtBalance.setText(mHost.mFormat.currencyFormat(mHost.mCardBalance));
