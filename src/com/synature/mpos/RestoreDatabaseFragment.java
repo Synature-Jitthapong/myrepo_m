@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -83,6 +82,7 @@ public class RestoreDatabaseFragment extends DialogFragment{
 					final EditText txtPass = (EditText) passView.findViewById(R.id.txtPassword);
 					AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 					builder.setTitle(R.string.restore_db);
+					builder.setMessage(mDbInfo.getFile().getName());
 					builder.setView(passView);
 					builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 						
@@ -101,7 +101,7 @@ public class RestoreDatabaseFragment extends DialogFragment{
 							if(!TextUtils.isEmpty(password)){
 								if(password.equals(RESTORE_PASS)){
 									try {
-										restoreDatabase(mDbInfo.getFileName());
+										restoreDatabase(mDbInfo.getFile());
 										Toast.makeText(getActivity(), getActivity().getString(R.string.restore_db_success), Toast.LENGTH_SHORT).show();
 									} catch (IOException e) {
 										Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -152,13 +152,12 @@ public class RestoreDatabaseFragment extends DialogFragment{
 	};
 	
 	@SuppressWarnings("resource")
-	private void restoreDatabase(String dbFileName) throws IOException{
+	private void restoreDatabase(File file) throws IOException{
 		File sd = Environment.getExternalStorageDirectory();
 		FileChannel source = null;
 		FileChannel destination = null;
 		File dbPath = getActivity().getDatabasePath(MPOSApplication.DB_NAME);
-		File sdPath = new File(sd, MPOSApplication.BACKUP_DB_PATH);
-		source = new FileInputStream(sdPath + File.separator + dbFileName).getChannel();
+		source = new FileInputStream(file).getChannel();
 		destination = new FileOutputStream(dbPath).getChannel();
 		destination.transferFrom(source, 0, source.size());
 		source.close();
@@ -177,17 +176,20 @@ public class RestoreDatabaseFragment extends DialogFragment{
 	private void listDatabaseInfo(){
 		File sd = Environment.getExternalStorageDirectory();
 		File backupPath = new File(sd, MPOSApplication.BACKUP_DB_PATH);
-		File[] files = backupPath.listFiles();
-		if(files != null){
-			Arrays.sort(files);
-			mDbInfoLst = new ArrayList<DatabaseInfo>();
-			for(File file : files){
-				DatabaseInfo dbInfo = new DatabaseInfo();
-				dbInfo.setModifyDate(file.lastModified());
-				dbInfo.setFileName(file.getName());
-				mDbInfoLst.add(dbInfo);
-			}
+		List<File> files = Utils.listFiles(backupPath);
+		mDbInfoLst = new ArrayList<DatabaseInfo>();
+		if(files == null){
+			files = Utils.listFiles(sd);
 		}
+		for(File file : files){
+			mDbInfoLst.add(toDatabaseInfo(file));
+		}
+	}
+	
+	private DatabaseInfo toDatabaseInfo(File file){
+		DatabaseInfo dbInfo = new DatabaseInfo();
+		dbInfo.setFile(file);
+		return dbInfo;
 	}
 	
 	private class DatabaseListAdapter extends BaseAdapter{
@@ -223,8 +225,9 @@ public class RestoreDatabaseFragment extends DialogFragment{
 			}
 			DatabaseInfo dbInfo = mDbInfoLst.get(position);
 			Calendar c = Calendar.getInstance();
-			c.setTimeInMillis(dbInfo.getModifyDate());
-			String fileName = dbInfo.getFileName();
+			File file = dbInfo.getFile();
+			c.setTimeInMillis(file.lastModified());
+			String fileName = file.getName();
 			holder.tvDbName.setText(fileName);
 			holder.tvDbName.setChecked(dbInfo.isChecked());
 			holder.tvModifyDate.setText(DateFormat.getInstance().format(c.getTime()));
@@ -238,26 +241,20 @@ public class RestoreDatabaseFragment extends DialogFragment{
 	}
 	
 	private class DatabaseInfo{
-		private String fileName;
-		private long modifyDate;
+		private File file;
 		private boolean isChecked;
-		public String getFileName() {
-			return fileName;
+		
+		public File getFile() {
+			return file;
 		}
-		public void setFileName(String fileName) {
-			this.fileName = fileName;
+		public void setFile(File file) {
+			this.file = file;
 		}
 		public boolean isChecked() {
 			return isChecked;
 		}
 		public void setChecked(boolean isChecked) {
 			this.isChecked = isChecked;
-		}
-		public long getModifyDate() {
-			return modifyDate;
-		}
-		public void setModifyDate(long modifyDate) {
-			this.modifyDate = modifyDate;
 		}
 	}
 }

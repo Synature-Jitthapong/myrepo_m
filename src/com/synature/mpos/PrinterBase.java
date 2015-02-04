@@ -810,19 +810,21 @@ public abstract class PrinterBase {
 		if(isCopy){
 			String copyText = mContext.getString(R.string.copy);
 			mTextToPrint.append(adjustAlignCenter(copyText) + "\n");
+			mTextToPrint.append(createLine("*") + "\n\n");
 		}
 		// add void header
 		if(isVoid){
 			mTextToPrint.append(adjustAlignCenter(mContext.getString(R.string.void_finish_waste)) + "\n");
+			mTextToPrint.append(createLine("*") + "\n\n");
 			Calendar voidTime = Calendar.getInstance();
 			voidTime.setTimeInMillis(Long.parseLong(trans.getVoidTime()));
 			mTextToPrint.append(mContext.getString(R.string.void_time) + " " + mFormat.dateTimeFormat(voidTime.getTime()) + "\n");
 			mTextToPrint.append(mContext.getString(R.string.void_by) + " " + mStaff.getStaff(trans.getVoidStaffId()).getStaffName() + "\n");
-			mTextToPrint.append(mContext.getString(R.string.reason) + " " + trans.getVoidReason() + "\n");
+			mTextToPrint.append(mContext.getString(R.string.reason) + " " + trans.getVoidReason() + "\n\n");
 		}else{
 			mTextToPrint.append(adjustAlignCenter(mContext.getString(R.string.finish_waste)) + "\n");
+			mTextToPrint.append(createLine("*") + "\n\n");
 		}
-		mTextToPrint.append(createLine("*") + "\n\n");
 		
 		String saleDate = mContext.getString(R.string.date) + " " +
 				mFormat.dateTimeFormat(Utils.getCalendar().getTime());

@@ -12,8 +12,11 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
@@ -58,7 +61,7 @@ public class Utils {
 				TransactionDao trans = new TransactionDao(context);
 				int prevSessId = sess.getLastSessionId();
 				sess.addSessionEnddayDetail(prevSessDate, 
-						trans.getTotalReceipt(prevSessId, prevSessDate), 
+						trans.getTotalReceipt(0, prevSessDate), 
 						trans.getTotalReceiptAmount(prevSessDate));
 				sess.closeSession(prevSessId, staffId, 0, true);
 			}
@@ -651,6 +654,28 @@ public class Utils {
 //		db.getWritableDatabase().update(OrderTransTable.TABLE_ORDER_TRANS, cv, null, null);
 //		Toast.makeText(context, "Reset successfully.", Toast.LENGTH_SHORT).show();
 //	}
+	
+	/**
+	 * list all file in specified path
+	 * @param parentDir
+	 * @return List<File>
+	 */
+	public static List<File> listFiles(File parentDir){
+		List<File> inFiles = null;
+		File[] files = parentDir.listFiles();
+		if(files != null){
+			inFiles = new ArrayList<File>();
+			Arrays.sort(files);
+			for(File file : files){
+				if(file.isDirectory()){
+					inFiles.addAll(listFiles(file));
+				}else if(file.getName().endsWith(".db")){
+					inFiles.add(file);
+				}
+			}
+		}
+		return inFiles;
+	}
 	
 	public static LinearLayout.LayoutParams getLinHorParams(float weight){
 		return new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight);
