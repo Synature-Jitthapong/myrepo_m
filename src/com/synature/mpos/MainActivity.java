@@ -82,6 +82,8 @@ import android.widget.ExpandableListView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -589,13 +591,42 @@ public class MainActivity extends FragmentActivity implements
 		new PrintReceipt(MainActivity.this, mPrintReceiptListener).execute();
 	}
 	
-	private void successTransaction(int transactionId, int staffId, double totalPoint, double currentPoint){	
+	private void successTransaction(int transactionId, int staffId, double totalPaid, double change){	
 		logAndPrintReceipt(transactionId, staffId);
+		
+		if(change > 0){
+			LinearLayout changeView = new LinearLayout(MainActivity.this);
+			TextView tvChange = new TextView(MainActivity.this);
+			tvChange.setTextSize(getResources().getDimension(R.dimen.larger_text_size));
+			tvChange.setGravity(Gravity.CENTER);
+			tvChange.setText(mFormat.currencyFormat(change));
+			LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, 
+					LayoutParams.WRAP_CONTENT);
+			params.gravity = Gravity.CENTER;
+			changeView.addView(tvChange, params);
+			
+			new AlertDialog.Builder(MainActivity.this)
+			.setTitle(R.string.change)
+			.setCancelable(false)
+			.setView(changeView)
+			.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if(Utils.isEnableWintecCustomerDisplay(MainActivity.this)){
+						mDsp.displayWelcome();
+					}
+					if(Utils.isEnableSecondDisplay(MainActivity.this)){
+						clearSecondDisplay();
+					}
+				}
+			}).show();
+		}
 		
 		// Wintec DSP
 		if(Utils.isEnableWintecCustomerDisplay(this)){
-			mDsp.displayTotalPoint(NumberFormat.getInstance().format(totalPoint), 
-					NumberFormat.getInstance().format(currentPoint));
+			mDsp.displayTotalPoint(NumberFormat.getInstance().format(totalPaid), 
+					NumberFormat.getInstance().format(change));
 			new Handler().postDelayed(
 					new Runnable(){
 

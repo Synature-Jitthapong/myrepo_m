@@ -557,7 +557,7 @@ public abstract class PrinterBase {
 		double totalPaid = mPayment.getTotalPayedAmount(transId);
 		double change = totalPayAmount - totalPaid;
 		boolean isVoid = trans.getTransactionStatusId() == TransactionDao.TRANS_STATUS_VOID;
-		
+		boolean isShowVat = mShop.getShopProperty().getPrintVatInReceipt() == 1;
 		// have copy
 		if(isCopy){
 			String copyText = mContext.getString(R.string.copy);
@@ -775,8 +775,41 @@ public abstract class PrinterBase {
 	    	mTextToPrint.append(createHorizontalSpace(balanceText.length() + balance.length()));
 	    	mTextToPrint.append(balance + "\n");
 	    }
+	    // show vat ?
+    	if(isShowVat){
+    		double vatable = trans.getTransactionVatable();
+    		double transVat = trans.getTransactionVat();
+    		if(vatable > 0){
+	    		//double beforVat = vatable - transVat;
+	        	String strTransactionVat = mFormat.currencyFormat(transVat);
+	        	//String beforeVatText = mContext.getString(R.string.before_vat);
+	        	//String strBeforeVat = mFormat.currencyFormat(beforVat);
+	        	String vatRateText = mContext.getString(R.string.vat) + " " +
+	        			NumberFormat.getInstance().format(mShop.getCompanyVatRate()) + "%";
+			    // before vat
+//			    mTextToPrint.append(beforeVatText);
+//			    mTextToPrint.append(createHorizontalSpace(
+//			    		calculateLength(beforeVatText) + 
+//			    		calculateLength(strBeforeVat)));
+//			    mTextToPrint.append(strBeforeVat + "\n");
+	        	
+	        	String vatableText = "Vatable";
+	        	String strVatable = mFormat.currencyFormat(vatable);
+			    mTextToPrint.append(vatableText);
+			    mTextToPrint.append(createHorizontalSpace(
+			    		calculateLength(vatableText) + 
+			    		calculateLength(strVatable)));
+			    mTextToPrint.append(strVatable + "\n");
+			    // transaction vat
+		    	mTextToPrint.append(vatRateText);
+		    	mTextToPrint.append(createHorizontalSpace(
+		    			calculateLength(vatRateText) + 
+		    			calculateLength(strTransactionVat)));
+		    	mTextToPrint.append(strTransactionVat + "\n");
+    		}
+    	}
 	    mTextToPrint.append(createLine("=") + "\n");
-	    
+    	
     	// add footer
     	for(com.synature.pos.HeaderFooterReceipt hf : 
 			mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDao.FOOTER_LINE_TYPE)){

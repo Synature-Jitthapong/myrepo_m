@@ -26,16 +26,16 @@ public class WintecCustomerDisplay{
 		mContext = context;
 	}
 	
-	public void displayTotalPoint(String totalPoint, String currentPoint){
+	public void displayTotalPoint(String receive, String change){
 		clearScreen();
-		mDsp.DSP_Dispay("Total");
-		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - totalPoint.length());
-		mDsp.DSP_Dispay(totalPoint);
+		mDsp.DSP_Dispay("Receive");
+		mDsp.DSP_MoveCursor(1, MAX_TEXT_LENGTH - receive.length());
+		mDsp.DSP_Dispay(receive);
 		mDsp.DSP_MoveCursorDown();
 		mDsp.DSP_MoveCursorEndLeft();
-		mDsp.DSP_Dispay("Curr. Point");
-		mDsp.DSP_MoveCursor(2, MAX_TEXT_LENGTH - currentPoint.length());
-		mDsp.DSP_Dispay(currentPoint);
+		mDsp.DSP_Dispay("Change");
+		mDsp.DSP_MoveCursor(2, MAX_TEXT_LENGTH - change.length());
+		mDsp.DSP_Dispay(change);
 	}
 	
 	public void displayOrder() throws Exception{
