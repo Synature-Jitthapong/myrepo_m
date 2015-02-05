@@ -261,6 +261,7 @@ public class SaleReportActivity extends Activity{
 		tvSummary.setLayoutParams(params);
 		tvSummary.setGravity(Gravity.RIGHT);
 		tvSummary.setTextAppearance(context, R.style.TextSummary);
+		tvSummary.setTypeface(null, Typeface.BOLD);
 		tvSummary.setPadding(4, 4, 4, 4);
 		return tvSummary;
 	}
@@ -1213,7 +1214,9 @@ public class SaleReportActivity extends Activity{
 					LinearLayout row = (LinearLayout) convertView;
 					for(int i = 0; i < row.getChildCount(); i++){
 						View v = row.getChildAt(i);
-						v.setBackgroundResource(R.color.gray_light);
+						TextView tv = (TextView) v;
+						tv.setTypeface(null, Typeface.BOLD);
+						//v.setBackgroundResource(R.color.gray_light);
 					}
 				}
 			}
@@ -1261,7 +1264,9 @@ public class SaleReportActivity extends Activity{
 				LinearLayout row = (LinearLayout) convertView;
 				for(int i = 0; i < row.getChildCount(); i++){
 					View v = row.getChildAt(i);
-					v.setBackgroundResource(android.R.color.transparent);
+					TextView tv = (TextView) v;
+					tv.setTypeface(null, Typeface.NORMAL);
+					//v.setBackgroundResource(android.R.color.transparent);
 				}
 			}
 			
