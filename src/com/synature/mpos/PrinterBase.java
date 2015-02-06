@@ -333,7 +333,15 @@ public abstract class PrinterBase {
 		String headerName = mContext.getString(R.string.summary_sale_report);
 		if(sessionId != 0)
 			headerName = mContext.getString(R.string.shift_close_report);
-		mTextToPrint.append(adjustAlignCenter(headerName) + "\n\n");
+		mTextToPrint.append(adjustAlignCenter(headerName) + "\n");
+		// add header
+		List<com.synature.pos.HeaderFooterReceipt> hfLst = 
+				mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDao.HEADER_LINE_TYPE);
+		for(int i = 1; i < hfLst.size(); i++){
+			com.synature.pos.HeaderFooterReceipt hf = hfLst.get(i);
+			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
+		}
+		mTextToPrint.append("\n");
 		mTextToPrint.append(mFormat.dateFormat(sessionDate) + "\n");
 		mTextToPrint.append(mContext.getString(R.string.shop) + " " + mShop.getShopProperty().getShopName() + "\n");
 		if(sessionId != 0){
