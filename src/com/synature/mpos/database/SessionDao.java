@@ -49,6 +49,46 @@ public class SessionDao extends MPOSDatabase{
 		super(context);
 	}
 
+	public String getLastSessionDateAlreadySend(String dateFrom, String dateTo){
+		String sessionDate = "";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + SessionTable.COLUMN_SESS_DATE 
+				+ " FROM " + SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL
+				+ " WHERE " + COLUMN_SEND_STATUS + "=?"
+				+ " AND " + SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ? "
+				+ " ORDER BY " + SessionTable.COLUMN_SESS_DATE + " DESC LIMIT 1",
+				new String[]{
+						String.valueOf(ALREADY_SEND),
+						dateFrom,
+						dateTo
+				});
+		if(cursor.moveToFirst()){
+			sessionDate = cursor.getString(0);
+		}
+		cursor.close();
+		return sessionDate;
+	}
+	
+	public String getFirstSessionDateAlreadySend(String dateFrom, String dateTo){
+		String sessionDate = "";
+		Cursor cursor = getReadableDatabase().rawQuery(
+				"SELECT " + SessionTable.COLUMN_SESS_DATE 
+				+ " FROM " + SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL
+				+ " WHERE " + COLUMN_SEND_STATUS + "=?"
+				+ " AND " + SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ? "
+				+ " ORDER BY " + SessionTable.COLUMN_SESS_DATE + " ASC LIMIT 1",
+				new String[]{
+						String.valueOf(ALREADY_SEND),
+						dateFrom,
+						dateTo
+				});
+		if(cursor.moveToFirst()){
+			sessionDate = cursor.getString(0);
+		}
+		cursor.close();
+		return sessionDate;
+	}
+	
 	public String getFirstSessionDate(){
 		String firstSessDate = "";
 		Cursor cursor = getReadableDatabase().rawQuery(

@@ -1529,6 +1529,9 @@ public class TransactionDao extends MPOSDatabase {
 	public void deleteSale(String dateFrom, String dateTo){
 		String transIds = getAlreadySendTransactionIds(dateFrom, dateTo);
 		String wasteTransIds = getAlreadySendWasteTransactionIds(dateFrom, dateTo);
+		SessionDao session = new SessionDao(mContext);
+		String firstSessDate = session.getFirstSessionDateAlreadySend(dateFrom, dateTo);
+		String lastSessDate = session.getLastSessionDateAlreadySend(dateFrom, dateTo);
 		SQLiteDatabase db = getWritableDatabase();
 		db.execSQL("DELETE FROM " + OrderTransTable.TEMP_ORDER_TRANS);
 		db.execSQL("DELETE FROM " + OrderDetailTable.TEMP_ORDER);
@@ -1537,13 +1540,11 @@ public class TransactionDao extends MPOSDatabase {
 		db.beginTransaction();
 		try{
 			String sessWhere = SessionTable.COLUMN_SESS_DATE + " BETWEEN ? AND ? ";
-			String[] sessWhereArgs = {dateFrom, dateTo};
-			String sessEndWhere = sessWhere + " AND " + COLUMN_SEND_STATUS + "=?";
-			String[] sessEndWhereArgs = {dateFrom, dateTo, String.valueOf(ALREADY_SEND)};
+			String[] sessWhereArgs = {firstSessDate, lastSessDate};
 			String transWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + transIds + ")";
 			String wasteTransWhere = OrderTransTable.COLUMN_TRANS_ID + " IN (" + wasteTransIds + ")";
 			db.delete(SessionTable.TABLE_SESSION, sessWhere, sessWhereArgs);
-			db.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, sessEndWhere, sessEndWhereArgs);
+			db.delete(SessionDetailTable.TABLE_SESSION_ENDDAY_DETAIL, sessWhere, sessWhereArgs);
 			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER + " WHERE " + transWhere);
 			db.execSQL("DELETE FROM " + OrderDetailTable.TABLE_ORDER_WASTE + " WHERE " + wasteTransWhere);
 			db.execSQL("DELETE FROM " + PaymentDetailTable.TABLE_PAYMENT_DETAIL + " WHERE " + transWhere);
