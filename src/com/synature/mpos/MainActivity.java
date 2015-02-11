@@ -1601,6 +1601,8 @@ public class MainActivity extends FragmentActivity implements
 			final EditText txtRemark = new EditText(MainActivity.this);
 			txtRemark.setHint(R.string.remark);
 			txtRemark.setTextSize(getResources().getInteger(R.integer.large_text_size));
+			OrderTransaction trans = mTrans.getTransaction(mTransactionId, true);
+			txtRemark.setText(trans.getTransactionNote());
 			AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 			builder.setTitle(R.string.hold);
 			builder.setView(txtRemark);
