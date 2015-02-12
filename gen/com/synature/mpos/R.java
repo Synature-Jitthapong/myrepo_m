@@ -262,11 +262,11 @@ public final class R {
         public static final int item3Cols=0x7f0c0115;
         public static final int item4Cols=0x7f0c0116;
         public static final int item5Cols=0x7f0c0117;
-        public static final int itemAbout=0x7f0c0105;
+        public static final int itemAbout=0x7f0c0106;
         public static final int itemBackup=0x7f0c00f9;
         public static final int itemBackupAndRestore=0x7f0c00f8;
         public static final int itemBackupDb=0x7f0c0110;
-        public static final int itemCheckUpdate=0x7f0c0104;
+        public static final int itemCheckUpdate=0x7f0c0105;
         public static final int itemClearSale=0x7f0c00fd;
         public static final int itemCloseShift=0x7f0c010e;
         public static final int itemConfirm=0x7f0c00fe;
@@ -280,7 +280,7 @@ public final class R {
         public static final int itemLang=0x7f0c0118;
         public static final int itemLogout=0x7f0c0112;
         public static final int itemMenuCols=0x7f0c0113;
-        public static final int itemPerformTest=0x7f0c0106;
+        public static final int itemPerformTest=0x7f0c0107;
         public static final int itemPrint=0x7f0c011d;
         public static final int itemProgress=0x7f0c00f4;
         public static final int itemReport=0x7f0c0101;
@@ -296,7 +296,7 @@ public final class R {
         public static final int itemSetting=0x7f0c00ff;
         public static final int itemSwLang=0x7f0c0103;
         public static final int itemSwUser=0x7f0c0111;
-        public static final int itemTeamViewer=0x7f0c0107;
+        public static final int itemTeamViewer=0x7f0c0104;
         public static final int itemUpdate=0x7f0c0100;
         public static final int itemUtility=0x7f0c010a;
         public static final int itemUtils=0x7f0c0102;
