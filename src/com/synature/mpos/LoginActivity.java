@@ -15,6 +15,7 @@ import com.synature.mpos.database.UserVerification;
 import com.synature.pos.Staff;
 import com.synature.util.FileManager;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -236,6 +237,9 @@ public class LoginActivity extends Activity implements OnClickListener,
 		case R.id.itemSwLang:
 			SwitchLangFragment swf = SwitchLangFragment.newInstance();
 			swf.show(getFragmentManager(), "SwitchLangFragment");
+			return true;
+		case R.id.itemTeamViewer:
+			openTeamViewer();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
@@ -660,5 +664,70 @@ public class LoginActivity extends Activity implements OnClickListener,
 	public void onChangeLanguage() {
 		startActivity(new Intent(LoginActivity.this, LoginActivity.class));
 		finish();
+	}
+	
+	private void openTeamViewer(){
+		String teamViewerPkg = "com.teamviewer.quicksupport.market";
+		Intent intent = getPackageManager().getLaunchIntentForPackage(teamViewerPkg);
+		if(intent == null){
+			intent = new Intent(Intent.ACTION_VIEW);
+		    intent.setData(Uri.parse("market://details?id=" + teamViewerPkg));
+		}
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(intent);
+		
+//		final TVSessionConfiguration config = 
+//			    new TVSessionConfiguration.Builder(
+//			        new TVConfigurationID("hwkq8mp"))
+//			        .setServiceCaseName(mShop.getShopName())
+//			        .setServiceCaseDescription("")
+//			        .build();
+//		TVSessionFactory.createTVSession(this, "eeff911c-7473-0759-b109-b2c330eeb8c0",
+//				new TVSessionCreationCallback() {
+//					@Override
+//					public void onTVSessionCreationSuccess(final TVSession session) {
+//						session.start(config);
+//						session.setTVSessionCallback(new TVSessionCallback() {
+//						    @Override
+//						    public void onTVSessionError(TVSessionError error) {
+//						    	new AlertDialog.Builder(LoginActivity.this)
+//								.setMessage(error.toString())
+//								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+//									
+//									@Override
+//									public void onClick(DialogInterface dialog, int which) {
+//										
+//									}
+//								}).show();
+//						    }
+//
+//						    @Override
+//						    public void onTVSessionEnd() {
+//						    	new AlertDialog.Builder(LoginActivity.this)
+//								.setMessage("Teamviewer already closes.")
+//								.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+//									
+//									@Override
+//									public void onClick(DialogInterface dialog, int which) {
+//										
+//									}
+//								}).show();
+//						    }
+//						});
+//					}
+//
+//					@Override
+//					public void onTVSessionCreationFailed(TVCreationError error) {
+//						new AlertDialog.Builder(LoginActivity.this)
+//						.setMessage("Create teamviwer session fail.")
+//						.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
+//							
+//							@Override
+//							public void onClick(DialogInterface dialog, int which) {
+//								
+//							}
+//						}).show();
+//					}
+//				});
 	}
 }

@@ -225,4 +225,5 @@
     <string name="one_month">1 เดือน</string>
     <string name="two_month">2 เดือน</string>
     <string name="three_month">3 เดือน</string>
+    <string name="team_viewer">เปิด teamviewer</string>
 </resources>

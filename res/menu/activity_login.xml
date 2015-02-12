@@ -31,10 +31,11 @@
         android:title="Performance Test"
         android:visible="false">
     </item>
-    <item
+    <item android:id="@+id/itemTeamViewer" android:showAsAction="collapseActionView" android:title="@string/team_viewer"></item><item
         android:id="@+id/itemExit"
         android:title="@string/exit">
     </item>
+    
     
     
     
