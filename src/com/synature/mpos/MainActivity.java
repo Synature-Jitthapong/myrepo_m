@@ -1501,6 +1501,7 @@ public class MainActivity extends FragmentActivity implements
 							com.synature.pos.Staff s = login.checkLogin();
 							if(s != null){
 								mStaffId = s.getStaffID();
+								setupTitle();
 								init();
 								d.dismiss();
 							}else{

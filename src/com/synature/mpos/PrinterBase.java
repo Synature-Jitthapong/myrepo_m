@@ -3,10 +3,13 @@ package com.synature.mpos;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.synature.mpos.database.ComputerDao;
 import com.synature.mpos.database.CreditCardDao;
 import com.synature.mpos.database.GlobalPropertyDao;
 import com.synature.mpos.database.HeaderFooterReceiptDao;
@@ -34,6 +37,7 @@ public abstract class PrinterBase {
 	public static final int QTY_MAX_SPACE = 12;
 	public static final int MAX_TEXT_LENGTH = 30;
 	public static final int MAX_TEXT_WITH_QTY_LENGTH = 25;
+	public static final String REG_ID_PATTERN = "#pos_num#";
 	
 	protected TransactionDao mTrans;
 	protected PaymentDetailDao mPayment;
@@ -585,7 +589,19 @@ public abstract class PrinterBase {
 		// add header
 		for(com.synature.pos.HeaderFooterReceipt hf : 
 			mHeaderFooter.listHeaderFooter(HeaderFooterReceiptDao.HEADER_LINE_TYPE)){
-			mTextToPrint.append(adjustAlignCenter(hf.getTextInLine()) + "\n");
+			String textInLine = hf.getTextInLine();
+            Pattern pattern = Pattern.compile(".*" + REG_ID_PATTERN + ".*", Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(textInLine);
+            if(matcher.matches()){
+                ComputerDao comp = new ComputerDao(mContext);
+                String regNum = comp.getComputerProperty().getRegistrationNumber();
+                if(!TextUtils.isEmpty(regNum)) {
+                    textInLine = textInLine.replaceAll("(?i)" + REG_ID_PATTERN, regNum);
+                }else{
+                    textInLine = textInLine.replaceAll("(?i)" + REG_ID_PATTERN, "");
+                }
+            }
+			mTextToPrint.append(adjustAlignCenter(textInLine) + "\n");
 		}
 		
 		String saleDate = mContext.getString(R.string.date) + " " +
